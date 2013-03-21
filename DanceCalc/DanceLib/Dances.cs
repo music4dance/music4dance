@@ -1,19 +1,10 @@
 ﻿using System;
-using System.IO;
-using System.Net;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Documents;
-using System.Windows.Ink;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Animation;
-using System.Windows.Shapes;
-using System.Linq;
-using System.Xml.Linq;
 using System.Collections.Generic;
-using System.Text;
 using System.Collections.ObjectModel;
+using System.IO;
+using System.Linq;
+using System.Text;
+using System.Xml.Linq;
 
 namespace DanceLibrary
 {
@@ -225,7 +216,7 @@ namespace DanceLibrary
                 }
             }
 
-            return exceptions.AsReadOnly();
+            return new ReadOnlyCollection<DanceException>(exceptions);
         }
 
         public bool CalculateMatch(decimal tempo, decimal epsilon, out decimal delta, out decimal deltaPercent, out decimal median)
@@ -373,7 +364,7 @@ namespace DanceLibrary
 
         public ReadOnlyCollection<DanceInstance> Instances
         {
-            get { return _rgdi.AsReadOnly(); }
+            get { return new ReadOnlyCollection<DanceInstance>(_rgdi); }
         }
 
         private List<DanceInstance> _rgdi = new List<DanceInstance>();

@@ -36,7 +36,7 @@ namespace DanceLibrary
         {
             get
             {
-                return s_allConversands.AsReadOnly();
+                return new ReadOnlyCollection<IConversand>(s_allConversands);
             }
         }
 
@@ -44,7 +44,7 @@ namespace DanceLibrary
         {
             get
             {
-                return s_meterConversands.AsReadOnly();
+                return new ReadOnlyCollection<IConversand>(s_meterConversands);
             }
         }
 
@@ -52,7 +52,7 @@ namespace DanceLibrary
         {
             get
             {
-                return s_durationConversands.AsReadOnly();
+                return new ReadOnlyCollection<IConversand>(s_durationConversands);
             }
         }
 
