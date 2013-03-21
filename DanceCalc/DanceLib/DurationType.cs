@@ -1,0 +1,112 @@
+﻿using System;
+using System.Net;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Documents;
+using System.Windows.Ink;
+using System.Windows.Input;
+using System.Windows.Media;
+using System.Windows.Media.Animation;
+using System.Windows.Shapes;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+
+namespace DanceLibrary
+{
+    public enum DurationKind { Beat, Measure, Second, Minute };
+
+    public class DurationType : IConversand
+    {
+        static DurationType()
+        {
+            s_commonDurations = new List<DurationType>(2);
+            s_commonDurations.Add(new DurationType(DurationKind.Beat));
+            s_commonDurations.Add(new DurationType(DurationKind.Measure));
+            s_commonDurations.Add(new DurationType(DurationKind.Second));
+            s_commonDurations.Add(new DurationType(DurationKind.Minute));
+        }
+
+        public DurationType(DurationKind dk)
+        {
+            _dk = dk;
+        }
+
+        public DurationType(string s)
+        {
+            if (s.Equals("Beat"))
+            {
+                _dk = DurationKind.Beat;
+            }
+            else if (s.Equals("Measure"))
+            {
+                _dk = DurationKind.Measure;
+            }
+            else if (s.Equals("Second"))
+            {
+                _dk = DurationKind.Second;
+            }
+            else if (s.Equals("Minute"))
+            {
+                _dk = DurationKind.Minute;
+            }
+            else
+            {
+                System.Diagnostics.Debug.Assert(false);
+            }
+        }
+
+        public DurationKind DurationKind
+        {
+            get { return _dk; }
+        }
+
+        public override string ToString()
+        {
+            switch (_dk)
+            {
+                case DurationKind.Beat: return "Beat";
+                case DurationKind.Measure: return "Measure";
+                case DurationKind.Second: return "Second";
+                case DurationKind.Minute: return "Minute";
+                default: System.Diagnostics.Debug.Assert(false); return "#ERROR#";
+            }
+        }
+
+        public override bool Equals(object obj)
+        {
+            DurationType duration = obj as DurationType;
+            if (duration == null)
+                return false;
+            else
+                return _dk == duration._dk;
+        }
+
+        public override int GetHashCode()
+        {
+            return _dk.GetHashCode();
+        }
+
+        public static ReadOnlyCollection<DurationType> CommonDurations
+        {
+            get
+            {
+                return s_commonDurations.AsReadOnly();
+            }
+        }
+
+        private DurationKind _dk;
+
+        private static List<DurationType> s_commonDurations;
+
+        // Implement IConversand
+        public Kind Kind
+        {
+            get { return Kind.Duration; }
+        }
+            
+        public string Name
+        {
+            get { return this.ToString(); }
+        }
+    }
+}

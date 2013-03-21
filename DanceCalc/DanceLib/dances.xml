@@ -1,0 +1,114 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<Dances>
+  <DanceType Name="Waltz" Meter="3/4">
+    <DanceInstance Style="American" Category="Smooth" MinTempo="28" MaxTempo="30">
+      <DanceException Organization="NDCA" Level="Bronze" MinTempo="30" MaxTempo="32"/>
+    </DanceInstance>
+    <DanceInstance Style="International" Category="Standard" MinTempo="28" MaxTempo="30">
+      <DanceException Organization="NDCA" Competitor="Professional,Amateur" Tempo="28"/>
+    </DanceInstance>
+  </DanceType>
+  <DanceType Name="Foxtrot" Meter="4/4">
+    <DanceInstance Style="American" Category="Smooth" MinTempo="30" MaxTempo="34">
+      <DanceException Organization="NDCA" Level="Bronze" MinTempo="32" MaxTempo="34"/>
+      <DanceException Organization="NDCA" Level="Silver,Gold" Tempo="30"/>
+      <DanceException Organization="DanceSport" MinTempo="30" MaxTempo="32"/>
+    </DanceInstance>
+    <DanceInstance Style="International" Category="Standard" MinTempo="28" MaxTempo="30"/>
+  </DanceType>
+  <DanceType Name="Tango" Meter="4/4">
+    <DanceInstance Style="American" Category="Smooth" Tempo="30">
+      <DanceException Organization="NDCA" Level="Bronze" MinTempo="30" MaxTempo="32"/>
+    </DanceInstance>
+    <DanceInstance Style="International" Category="Standard" Tempo="32">
+      <DanceException Organization="DanceSport" MinTempo="31" MaxTempo="33"/>
+    </DanceInstance>
+  </DanceType>
+  <DanceType Name="Peabody" Meter="4/4">
+    <DanceInstance Style="American" Category="Smooth" MinTempo="60" MaxTempo="62"/>
+  </DanceType>
+  <DanceType Name="Viennese" Meter="3/4">
+    <DanceInstance Style="American" Category="Smooth" MinTempo="54" MaxTempo="54" />
+    <DanceInstance Style="International" Category="Standard" MinTempo="56" MaxTempo="58">
+      <DanceException Organization="DanceSport" MinTempo="58" MaxTempo="60"/>
+    </DanceInstance>
+  </DanceType>
+  <DanceType Name="QuickStep" Meter="4/4">
+    <DanceInstance Style="International" Category="Standard" MinTempo="48" MaxTempo="52">
+      <DanceException Organization="DanceSport" MinTempo="50" MaxTempo="52"/>
+    </DanceInstance>
+  </DanceType>
+  <DanceType Name="Bolero" Meter="4/4">
+    <DanceInstance Style="American" Category="Rhythm" MinTempo="24" MaxTempo="26">
+      <DanceException Organization="NDCA" Tempo="24"/>
+    </DanceInstance>
+  </DanceType>
+  <DanceType Name="Cha Cha" Meter="4/4">
+    <DanceInstance Style="American" Category="Rhythm" MinTempo="30" MaxTempo="30"></DanceInstance>
+    <DanceInstance Style="International" Category="Latin" MinTempo="31" MaxTempo="31">
+      <DanceException Organization="DanceSport" MinTempo="30" MaxTempo="32"/>
+    </DanceInstance>
+  </DanceType>
+  <DanceType Name="Mambo" Meter="4/4">
+    <DanceInstance Style="American" Category="Rhythm" MinTempo="47" MaxTempo="51">
+      <DanceException Organization="NDCA" Level="Bronze" MinTempo="48" MaxTempo="51"/>
+      <DanceException Organization="NDCA" Level="Silver,Gold" Tempo="47"/>
+      <DanceException Organization="DanceSport" MinTempo="47" MaxTempo="51"/>
+    </DanceInstance>
+  </DanceType>
+  <DanceType Name="Jive" Meter="4/4">
+    <DanceInstance Style="International" Category="Latin" MinTempo="38" MaxTempo="44">
+      <DanceException Organization="NDCA" Competitor="Professional,Amateur" Tempo="44"/>
+      <DanceException Organization="DanceSport" MinTempo="42" MaxTempo="44"/>
+    </DanceInstance>
+  </DanceType>
+  <DanceType Name="Rumba" Meter="4/4">
+    <DanceInstance Style="American" Category="Rhythm" MinTempo="32" MaxTempo="36">
+      <DanceException Organization="NDCA" Competitor="Professional,Amateur" Tempo="32"/>
+    </DanceInstance>
+    <DanceInstance Style="International" Category="Latin" MinTempo="25" MaxTempo="27">
+      <DanceException Organization="NDCA" Competitor="ProAm" Tempo="27"/>
+      <DanceException Organization="NDCA" Competitor="Professional,Amateur" Tempo="26"/>
+    </DanceInstance>
+  </DanceType>
+  <DanceType Name="Swing" Meter="4/4">
+    <DanceInstance Style="American" Category="Rhythm" MinTempo="34" MaxTempo="36">
+      <DanceException Organization="NDCA" Competitor="Professional,Amateur" Tempo="36"/>
+    </DanceInstance>
+  </DanceType>
+  <DanceType Name="West Coast Swing" Meter="4/4">
+    <DanceInstance Style="American" Category="Rhythm" MinTempo="28" MaxTempo="32"></DanceInstance>
+  </DanceType>
+  <DanceType Name="Hustle" Meter="4/4">
+    <DanceInstance Style="American" Category="Rhythm" MinTempo="28" MaxTempo="30"></DanceInstance>
+  </DanceType>
+  <DanceType Name="Merengue" Meter="2/4">
+    <DanceInstance Style="American" Category="Rhythm" MinTempo="29" MaxTempo="32"></DanceInstance>
+  </DanceType>
+  <DanceType Name="Paso Doble" Meter="2/4">
+    <DanceInstance Style="International" Category="Latin" MinTempo="60" MaxTempo="62"></DanceInstance>
+    <DanceInstance Style="American" Category="Rhythm" MinTempo="58" MaxTempo="60"></DanceInstance>
+  </DanceType>
+  <DanceType Name="Samba" Meter="2/4">
+    <DanceInstance Style="International" Category="Latin" MinTempo="48" MaxTempo="50">
+      <DanceException Organization="NDCA" Competitor="Professional,Amateur" Tempo="50"/>
+      <DanceException Organization="DanceSport" Tempo="50" />
+    </DanceInstance>
+    <DanceInstance Style="American" Category="Rhythm" MinTempo="48" MaxTempo="52">
+      <DanceException Organization="NDCA" Tempo="52"/>
+      <DanceException Organization="DanceSport" Tempo="48"/>
+    </DanceInstance>
+  </DanceType>
+  <DanceType Name="Polka" Meter="2/4">
+    <DanceInstance Style="American" Category="Rhythm" MinTempo="60" MaxTempo="62"></DanceInstance>
+  </DanceType>
+  <DanceType Name="Bachata" Meter="4/4">
+    <DanceInstance Style="American" Category="Rhythm" MinTempo="30" MaxTempo="30"></DanceInstance>
+  </DanceType>
+  <DanceType Name="Night Club 2 Step" Meter="4/4">
+    <DanceInstance Style="American" Category="Rhythm" MinTempo="39" MaxTempo="39"></DanceInstance>
+  </DanceType>
+  <DanceType Name="Salsa" Meter="4/4">
+    <DanceInstance Style="American" Category="Rhythm" MinTempo="40" MaxTempo="55"></DanceInstance>
+  </DanceType>
+</Dances>

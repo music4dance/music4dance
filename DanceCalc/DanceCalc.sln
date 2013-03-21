@@ -1,0 +1,50 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DanceCalc", "DanceCalc\DanceCalc.csproj", "{2DF82E0D-2702-45C7-901B-DCA3A537E839}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DanceLib", "DanceLib\DanceLib.csproj", "{114FF99A-CAAC-4281-8F0A-35590A12A487}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{69ADF94E-AE63-4954-BD58-BD56BFE93656}"
+	ProjectSection(SolutionItems) = preProject
+		DanceCalc.vsmdi = DanceCalc.vsmdi
+		Local.testsettings = Local.testsettings
+		TraceAndTestImpact.testsettings = TraceAndTestImpact.testsettings
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(TeamFoundationVersionControl) = preSolution
+		SccNumberOfProjects = 3
+		SccEnterpriseProvider = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
+		SccTeamFoundationServer = https://thegray.tfspreview.com/defaultcollection
+		SccLocalPath0 = .
+		SccProjectUniqueName1 = DanceCalc\\DanceCalc.csproj
+		SccProjectName1 = DanceCalc
+		SccLocalPath1 = DanceCalc
+		SccProjectUniqueName2 = DanceLib\\DanceLib.csproj
+		SccProjectName2 = DanceLib
+		SccLocalPath2 = DanceLib
+	EndGlobalSection
+	GlobalSection(TestCaseManagementSettings) = postSolution
+		CategoryFile = DanceCalc.vsmdi
+	EndGlobalSection
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{2DF82E0D-2702-45C7-901B-DCA3A537E839}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2DF82E0D-2702-45C7-901B-DCA3A537E839}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2DF82E0D-2702-45C7-901B-DCA3A537E839}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{2DF82E0D-2702-45C7-901B-DCA3A537E839}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2DF82E0D-2702-45C7-901B-DCA3A537E839}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2DF82E0D-2702-45C7-901B-DCA3A537E839}.Release|Any CPU.Deploy.0 = Release|Any CPU
+		{114FF99A-CAAC-4281-8F0A-35590A12A487}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{114FF99A-CAAC-4281-8F0A-35590A12A487}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{114FF99A-CAAC-4281-8F0A-35590A12A487}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{114FF99A-CAAC-4281-8F0A-35590A12A487}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
