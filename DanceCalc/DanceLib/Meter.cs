@@ -15,14 +15,23 @@ namespace DanceLibrary
             s_commonMeters.Add(new Meter(4,4));
         }
 
+        public static readonly string MeterSyntaxError = "Meter must contain exaclty one '/' with an optional \"MPM\" prefix";
+        public static readonly string IntegerNumerator = "Numerator must be an integer";
+        public static readonly string IntegerDenominator = "Denominator must be an integer";
+        public static readonly string PositiveIntegerNumerator = "Numerator must be a positive integer";
+        public static readonly string PositiveIntegerDenominator = "Denominator must be a positive integer";
+        public static readonly string DenominatorLimit = "We are currently only supporting x/4 type signatures";
+
+        private Meter()
+        {
+        }
+
         public Meter(int numerator, int denominator)
         {
-            Debug.Assert(denominator == 4);
-            if (denominator != 4)
-                throw new ArgumentOutOfRangeException("denominator", "We are currently only supporting x/4 type signatures");
-
             _numerator = numerator;
             _denominator = denominator;
+
+            Validate();
         }
 
         public Meter(string s)
@@ -39,17 +48,28 @@ namespace DanceLibrary
             }
             else if (strings.Length != 2)
             {
-                throw new ArgumentOutOfRangeException("Meter must contain exaclty one '/' with an optional \"MPM\" prefix");
+                throw new ArgumentOutOfRangeException(MeterSyntaxError);
             }
 
             if (!int.TryParse(strings[0+offset],out _numerator))
-                throw new ArgumentOutOfRangeException("Numerator must be an integer");
+                throw new ArgumentOutOfRangeException(IntegerNumerator);
 
             if (!int.TryParse(strings[1+offset],out _denominator))
-                throw new ArgumentOutOfRangeException("Denominator must be an integer");
+                throw new ArgumentOutOfRangeException(IntegerDenominator);
+
+            Validate();
+        }
+
+        private void Validate()
+        {
+            if (_numerator <= 0)
+                throw new ArgumentOutOfRangeException("numerator", PositiveIntegerNumerator);
+
+            if (_denominator <= 0)
+                throw new ArgumentOutOfRangeException("denominator", PositiveIntegerDenominator);
 
             if (_denominator != 4)
-                throw new ArgumentOutOfRangeException("denominator", "We are currently only supporting x/4 type signatures");
+                throw new ArgumentOutOfRangeException("denominator", DenominatorLimit);
         }
 
         public int Numerator
