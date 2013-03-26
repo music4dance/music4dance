@@ -2,8 +2,22 @@
 
 namespace DanceLibrary
 {
+    /// <summary>
+    /// Encapsulates the idea of a tempo range in which a dance can be performed
+    /// 
+    /// This is an immutable class
+    ///
+    /// The idea is that this is a range between two MPM measurements for the meter that the dance 
+    /// is danced to.
+    /// 
+    /// </summary>
     public class Tempo
     {
+        /// <summary>
+        /// Construct a tempo from serialized XML: Note this should be part of the JSON conversion
+        /// </summary>
+        /// <param name="d"></param>
+        /// <param name="name"></param>
         public Tempo(DanceObject d, string name)
         {
             decimal t = 0;
@@ -26,21 +40,44 @@ namespace DanceLibrary
             }
         }
 
+        /// <summary>
+        /// Copy constructor
+        /// </summary>
+        /// <param name="other">Any valid tempo object</param>
         public Tempo(Tempo other)
         {
             _minTempo = other._minTempo;
             _maxTempo = other._maxTempo;
+
+            Validate();
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="minTempo"></param>
+        /// <param name="maxTempo"></param>
         public Tempo(decimal minTempo, decimal maxTempo)
         {
             _minTempo = minTempo;
             _maxTempo = maxTempo;
+
+            Validate();
         }
 
-        public bool IsValid
+        public static readonly string PositiveDecimal = "must be a positive decimal number less than 250";
+        public static readonly string RangeOrder = "Min must be less than or equal to Max";
+
+        private void Validate()
         {
-            get {return _maxTempo != 0M;}
+            if (_minTempo <= 0M || _minTempo > 250)
+                throw new ArgumentOutOfRangeException("min", PositiveDecimal);
+
+            if (_maxTempo <= 0M || _maxTempo > 250)
+                throw new ArgumentOutOfRangeException("max", PositiveDecimal);
+
+            if (_maxTempo < _minTempo)
+                throw new ArgumentException("min", RangeOrder);
         }
 
         public decimal Min
@@ -58,19 +95,19 @@ namespace DanceLibrary
             get { return _minTempo + (_maxTempo - _minTempo) / 2; }
         }
 
-        public string MinString
+        public override bool Equals(object obj)
         {
-            get { return Format(_minTempo); }
+            Tempo other = obj as Tempo;
+
+            if (other == null)
+                return false;
+
+            return other.Min == Min && other.Max == Max;
         }
 
-        public string MaxString
+        public override int GetHashCode()
         {
-            get { return Format(_maxTempo); }
-        }
-
-        public string AverageString
-        {
-            get { return Format(Average); }
+            return Min.GetHashCode() * (Max + 1009).GetHashCode();
         }
 
         public decimal CalculateDelta(decimal tempo)
@@ -95,6 +132,25 @@ namespace DanceLibrary
                 return new Tempo(Math.Min(_minTempo, other._minTempo), Math.Max(_maxTempo, other._maxTempo));
         }
 
+        // Formatted values are shown to two decimal places except
+        //  when the value is with .01 of an integer, in which case
+        //  only the integer is displayed
+
+        public string MinString
+        {
+            get { return Format(_minTempo); }
+        }
+
+        public string MaxString
+        {
+            get { return Format(_maxTempo); }
+        }
+
+        public string AverageString
+        {
+            get { return Format(Average); }
+        }
+
         public override string ToString()
         {
             if (_minTempo == _maxTempo)
@@ -116,7 +172,7 @@ namespace DanceLibrary
             }
         }
 
-        decimal _minTempo;
-        decimal _maxTempo;
+        readonly decimal _minTempo;
+        readonly decimal _maxTempo;
     }
 }

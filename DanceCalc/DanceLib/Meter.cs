@@ -5,6 +5,11 @@ using System.Diagnostics;
 
 namespace DanceLibrary
 {
+    /// <summary>
+    /// Represents a musical meter with an integral numerator and denominator
+    /// 
+    /// This is an immutable class
+    /// </summary>
     public class Meter : IConversand
     {
         static Meter()
