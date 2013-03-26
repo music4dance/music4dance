@@ -9,7 +9,7 @@ namespace DanceLibrary
     {
         static DurationType()
         {
-            s_commonDurations = new List<DurationType>(2);
+            s_commonDurations = new List<DurationType>(4);
             s_commonDurations.Add(new DurationType(DurationKind.Beat));
             s_commonDurations.Add(new DurationType(DurationKind.Measure));
             s_commonDurations.Add(new DurationType(DurationKind.Second));

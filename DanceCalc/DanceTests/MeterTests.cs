@@ -124,10 +124,41 @@ namespace DanceTests
             {
                 Meter m1 = new Meter(0,0);
             }
-            catch (ArgumentOutOfRangeException e)
+            catch (ArgumentOutOfRangeException)
             {
                 // Don't assert anything more than that an AOR exception was thrown
             }
+        }
+
+        [TestMethod]
+        public void TestStringOutput()
+        {
+            string c1 = "MPM 3/4";
+            string c2 = "3/4";
+
+            Meter m = new Meter(3, 4);
+
+            string s1 = m.ToString();
+            StringAssert.Equals(s1, c1);
+
+            string s2 = m.ToString("C");
+            StringAssert.Equals(s2, c1);
+
+            string s3 = m.ToString();
+            StringAssert.Equals(s1, c2);
+        }
+
+        [TestMethod]
+        public void TestHash()
+        {
+            Meter m1 = new Meter(3, 4);
+            Assert.AreEqual(m1.GetHashCode(), 3 * 1009 + 4, "Invalid Hash returned for 3/4");
+
+            Meter m2 = new Meter(4, 4);
+            Assert.AreEqual(m2.GetHashCode(), 4 * 1009 + 4, "Invalid Hash returned for 4/4");
+
+            Meter m3 = new Meter(2, 4);
+            Assert.AreEqual(m3.GetHashCode(), 2 * 1009 + 4, "Invalid Hash returned for 2/4");
         }
 
     }
