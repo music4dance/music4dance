@@ -25,7 +25,7 @@ namespace DanceLibrary
         public static readonly string IntegerDenominator = "Denominator must be an integer";
         public static readonly string PositiveIntegerNumerator = "Numerator must be a positive integer less than 1000";
         public static readonly string PositiveIntegerDenominator = "Denominator must be a positive integer less than 1000";
-        public static readonly string DenominatorLimit = "We are currently only supporting x/4 type signatures";
+        //public static readonly string DenominatorLimit = "We are currently only supporting x/4 type signatures";
 
         private Meter()
         {
@@ -82,8 +82,8 @@ namespace DanceLibrary
             if (_denominator <= 0 || _denominator >= 1000)
                 throw new ArgumentOutOfRangeException("denominator", PositiveIntegerDenominator);
 
-            if (_denominator != 4)
-                throw new ArgumentOutOfRangeException("denominator", DenominatorLimit);
+            //if (_denominator != 4)
+            //    throw new ArgumentOutOfRangeException("denominator", DenominatorLimit);
 
             
         }
@@ -170,6 +170,16 @@ namespace DanceLibrary
         public string Name
         {
             get { return this.ToString(); }
+        }
+
+        public string Label
+        {
+            get { return TypeName; }
+        }
+
+        public static string TypeName
+        {
+            get { return "Meter"; }
         }
     }
 }

@@ -98,5 +98,15 @@ namespace DanceLibrary
         {
             get { return this.ToString(); }
         }
+
+        public string Label
+        {
+            get { return TypeName; }
+        }
+
+        public static string TypeName
+        {
+            get { return "Duration"; }
+        }
     }
 }

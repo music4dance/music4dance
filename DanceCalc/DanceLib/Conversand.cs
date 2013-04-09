@@ -12,7 +12,8 @@ namespace DanceLibrary
     public interface IConversand
     {
         Kind Kind { get; }
-        string Name { get; }        
+        string Name { get; }
+        string Label { get; }
     }
 
     public static class Conversands
@@ -56,14 +57,37 @@ namespace DanceLibrary
             }
         }
 
-        public static int GetSerialization(IConversand c)
+        public static string GetSerialization(IConversand c)
         {
-            return s_allConversands.IndexOf(c);
+            return c.Label + ":" + c.Name;
         }
 
-        public static IConversand Deserialize(int i)
+        public static IConversand Deserialize(string s)
         {
-            return s_allConversands[i];
+            IConversand ret = null;
+
+            string[] rg = s.Split(new char[]{':'}, StringSplitOptions.RemoveEmptyEntries);
+
+            if (rg.Length != 2)
+                throw new ArgumentOutOfRangeException("conversand serialization must be of the form 'TypeName:Value'");
+
+            // There has to be a better way of managing a factory for this pattern, but it's not
+            //  obvious right now,sI'm going to just brute force it
+
+            if (string.Equals(rg[0],Meter.TypeName))
+            {
+                ret = new Meter(rg[1]);
+            }
+            else if (string.Equals(rg[0], DurationType.TypeName))
+            {
+                ret = new DurationType(rg[1]);
+            }
+            else
+            {
+                throw new ArgumentOutOfRangeException("Only conversands of type 'Meter' and 'Duration' are currently supported");
+            }
+
+            return ret;
         }
 
         private static List<IConversand> s_allConversands = new List<IConversand>();

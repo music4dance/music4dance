@@ -68,19 +68,10 @@ namespace DanceCalc
         public void ReadXml(System.Xml.XmlReader reader)
         {
             string s = reader.GetAttribute("From");
-            int i = 0;
-            if (!int.TryParse(s,out i))
-            {
-                throw new InvalidCastException("From attribute must be an integer");
-            }
-            From = Conversands.Deserialize(i);
+            From = Conversands.Deserialize(s);
 
             s = reader.GetAttribute("To");
-            if (!int.TryParse(s,out i))
-            {
-                throw new InvalidCastException("To attribute must be an integer");
-            }
-            To = Conversands.Deserialize(i);
+            To = Conversands.Deserialize(s);
 
             s = reader.GetAttribute("Timing");
             if (s != null)
