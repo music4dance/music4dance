@@ -6,6 +6,13 @@ using System.Text;
 
 namespace DanceLibrary
 {
+    // This is a bit funky and could use some cleaning up - it depends
+    //  more on singletons than I'd like and is pretty tied to the precise
+    //  options that we're currently supporting.  It's probably woth
+    //  getting the latter taken care of soon...
+    // The general idea is that a filter object has a static list of filter
+    //  types that maps to a value array (true/false) for each of the type
+    //  Serialization is then just a run of true/false values for each type
     public class FilterItem
     {
         public FilterItem(string name, string longName)
@@ -126,6 +133,10 @@ namespace DanceLibrary
             ReadState(sr);
         }
 
+        /// <summary>
+        /// This just resets all of the values to a uniform value
+        /// </summary>
+        /// <param name="value">The direction to set all of the values</param>
         public static void SetAll(bool value)
         {
             foreach (FilterObject fo in _filters.Values)
@@ -178,7 +189,6 @@ namespace DanceLibrary
 
             return sb.ToString();
         }
-
 
         static FilterObject()
         {

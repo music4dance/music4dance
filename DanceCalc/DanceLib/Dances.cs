@@ -367,6 +367,11 @@ namespace DanceLibrary
             get { return new ReadOnlyCollection<DanceInstance>(_rgdi); }
         }
 
+        public override string ToString()
+        {
+            return string.Format("{0}: Style=({1}), Category=({2}), Delta=({3})", DanceType.Name, Style, Category, TempoDeltaString);
+        }
+
         private List<DanceInstance> _rgdi = new List<DanceInstance>();
     }
         
