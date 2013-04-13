@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.IO;
 using System.Text;
 
@@ -60,6 +61,14 @@ namespace DanceLibrary
             return _values[name].Value;
         }
 
+        private void SetTypeValues(bool value)
+        {
+            foreach (FilterItem fi in _sortedValues)
+            {
+                fi.Value = value;
+            }
+        }
+
         public static void SetValue(string type, string name, bool value)
         {
             FilterObject fo = _filters[type];
@@ -71,7 +80,12 @@ namespace DanceLibrary
             FilterObject fo = _filters[type];
             if (name == Tags.All)
             {
-                return true;
+                bool ret = false;
+                foreach (FilterItem item in fo._sortedValues)
+                {
+                    ret |= item.Value;
+                }
+                return ret;
             }
             else
             {
@@ -108,9 +122,24 @@ namespace DanceLibrary
             return true;
         }
 
+        /// <summary>
+        /// This is a bit more hard-coded than I'd like, in a future pass see if there
+        ///   is a reasonable way to build this as an arbitrary hierarchy
+        /// </summary>
+        /// <param name="orgs"></param>
+        /// <param name="competitors"></param>
+        /// <param name="levels"></param>
+        /// <returns></returns>
         public static bool IsCovered(string orgs, string competitors, string levels)
         {
-            return IsCovered(Tags.Organization, orgs) && IsCovered(Tags.Competitor, competitors) && IsCovered(Tags.Level, levels);
+            bool ret = IsCovered(Tags.Organization, orgs);
+
+            if (ret && string.Equals(orgs, "NDCA"))
+            {
+                ret = IsCovered(Tags.Level, levels) && IsCovered(Tags.Competitor, competitors);
+            }
+
+            return ret;
         }
 
         public static ReadOnlyCollection<FilterItem> GetFilter(string type)
@@ -141,11 +170,18 @@ namespace DanceLibrary
         {
             foreach (FilterObject fo in _filters.Values)
             {
-                foreach (FilterItem fi in fo._sortedValues)
-                {
-                    fi.Value = value;
-                }
+                fo.SetTypeValues(value);
             }
+        }
+
+        /// <summary>
+        /// This just resets all of the values for a particular type to a uniform value
+        /// </summary>
+        /// <param name="value">The direction to set all of the values</param>
+        public static void SetAll(string type, bool value)
+        {
+            FilterObject fo = _filters[type];
+            fo.SetTypeValues(value);
         }
 
         public void TryParse(string s)

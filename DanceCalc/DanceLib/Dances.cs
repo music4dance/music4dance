@@ -154,12 +154,16 @@ namespace DanceLibrary
             {
                 ReadOnlyCollection<DanceException> exceptions = GetFilteredExceptions();
 
+                // Include the general tempo iff the exceptions don't fully cover the
+                //  selected filters for the instnace in question
                 Tempo tempo = null;
                 if (IncludeGeneral(exceptions))
                 {
                     tempo = _tempo;
                 }
 
+                // Now include all of the tempos in the exceptions that are covered by
+                //  the selected filter
                 foreach (DanceException de in exceptions)
                 {
                     tempo = de.Tempo.Include(tempo);
@@ -169,35 +173,44 @@ namespace DanceLibrary
             }
         }
 
+        private string MergeInclusion(string oldInc, string newInc)
+        {
+            string ret = oldInc;
+
+            if (newInc == Tags.All)
+            {
+                ret = Tags.All;
+            }
+            else if (string.IsNullOrEmpty(oldInc))
+            {
+                ret = newInc;
+            }
+            else if (!string.Equals(oldInc,newInc))
+            {
+                ret =  oldInc + "," + newInc;
+            }
+
+            return ret;
+        }
+
         private bool IncludeGeneral(ReadOnlyCollection<DanceException> exceptions)
         {
             // No exceptions, so definitely need general
             if (exceptions.Count == 0)
                 return true;
 
-            StringBuilder competitors = new StringBuilder();
-            StringBuilder levels = new StringBuilder();
-            StringBuilder orgs = new StringBuilder();
+            string competitors = "";
+            string levels = "";
+            string orgs = "";
 
             foreach (DanceException de in exceptions)
             {
-                if (de.Competitor == Tags.All)
-                    competitors = new StringBuilder(Tags.All);
-                else
-                    competitors.AppendFormat("{0},", de.Competitor);
-
-                if (de.Level == Tags.All)
-                    levels = new StringBuilder(Tags.All);
-                else
-                    levels.AppendFormat("{0},", de.Level);
-
-                if (de.Organization == Tags.All)
-                    orgs = new StringBuilder(Tags.All);
-                else
-                    orgs.AppendFormat("{0},", de.Organization);
+                competitors = MergeInclusion(competitors, de.Competitor);
+                levels = MergeInclusion(levels, de.Level);
+                orgs = MergeInclusion(orgs, de.Organization);
             }
 
-            return !FilterObject.IsCovered(orgs.ToString(), competitors.ToString(), levels.ToString());
+            return !FilterObject.IsCovered(orgs, competitors, levels);
         }
 
         private ReadOnlyCollection<DanceException> GetFilteredExceptions()
@@ -230,11 +243,43 @@ namespace DanceLibrary
             // First check to see if the instance in general matches
             if (Math.Abs(deltaPercent) < epsilon)
             {
-                // Then see if any of the exception filters file
+                // Then see if any of the exception filters fire
                 ret = true;
             }
 
             return ret;
+        }
+
+        /// <summary>
+        /// Does some basic filtering against absolute (non-tempo based) filters
+        ///     If Meter doesn't match, this dance won't work
+        ///     If Category doesn't match, we won't get a valid result
+        ///     If Orginization/Level/Competitor are null it doesn't make sense, so fail
+        /// </summary>
+        /// <param name="meter"></param>
+        /// <returns></returns>
+        public bool CanMatch(Meter meter)
+        {
+            // Meter is an absolute match
+            if (!DanceType.Meter.Equals(meter))
+                return false;
+
+            // Category is an absolute match
+            if (!FilterObject.GetValue(Tags.Category, Category))
+                return false;
+
+            // If no originizations are checked, we can't match
+            if (!FilterObject.GetValue(Tags.Organization, Tags.All))
+                return false;
+
+            // If NDCA only is checked and either Level or Competitor empty we can't match
+            if (!FilterObject.GetValue(Tags.Organization, "DanceSport"))
+            {
+                if (!FilterObject.GetValue(Tags.Competitor, Tags.All) || !FilterObject.GetValue(Tags.Level, Tags.All))
+                    return false;
+            }
+
+            return true;
         }
 
         public override string ToString()
@@ -434,8 +479,8 @@ namespace DanceLibrary
             foreach (XElement e in elements)
             {
                 DanceInstance di = e.Annotation<DanceInstance>();
-                // Meter and Category are absolute filters, so pull just skip the complicated stuff if these don't match
-                if (di.DanceType.Meter.Equals(meter) && FilterObject.GetValue(Tags.Category,di.Category))
+                // Meter is absolute, and null values in some of the other classes are also absolue so check those first
+                if (di.CanMatch(meter))
                 {
                     decimal delta;
                     decimal deltaPercent;
