@@ -18,62 +18,62 @@ namespace DanceTests
         }
 
         readonly string[] _51HAll = {
-            "QuickStep: Style=(International), Category=(Standard), Delta=()",
-            "Salsa: Style=(American), Category=(Rhythm), Delta=()",
-            "Mambo: Style=(American), Category=(Rhythm), Delta=(+0.50MPM)"
+            "QuickStep: Style=(International Standard), Delta=()",
+            "Salsa: Style=(American Rhythm), Delta=()",
+            "Mambo: Style=(American Rhythm), Delta=(+0.50MPM)"
         };
 
         readonly string[] _51HNR = {
-            "QuickStep: Style=(International), Category=(Standard), Delta=()"
+            "QuickStep: Style=(International Standard), Delta=()"
         };
 
         readonly string[] _51HJR = {
-            "Salsa: Style=(American), Category=(Rhythm), Delta=()",
-            "Mambo: Style=(American), Category=(Rhythm), Delta=(+0.50MPM)"
+            "Salsa: Style=(American Rhythm), Delta=()",
+            "Mambo: Style=(American Rhythm), Delta=(+0.50MPM)"
         };
 
         readonly string[] _31HDS = {
-            "Foxtrot: Style=(American, International), Category=(Smooth, Standard), Delta=()",
-            "Tango: Style=(American, International), Category=(Smooth, Standard), Delta=()",
-            "West Coast Swing: Style=(American), Category=(Rhythm), Delta=()",
-            "Cha Cha: Style=(American, International), Category=(Rhythm, Latin), Delta=(+0.50MPM)",
-            "Rumba: Style=(American, International), Category=(Rhythm, Latin), Delta=(-0.50MPM)",
-            "Hustle: Style=(American), Category=(Rhythm), Delta=(+1.50MPM)",
-            "Bachata: Style=(American), Category=(Rhythm), Delta=(+1.50MPM)",
-            "Swing: Style=(American), Category=(Rhythm), Delta=(-2.50MPM)",
-            "Jive: Style=(International), Category=(Latin), Delta=(-6.50MPM)",
-            "Night Club 2 Step: Style=(American), Category=(Rhythm), Delta=(-7.50MPM)",
-            "Salsa: Style=(American), Category=(Rhythm), Delta=(-8.50MPM)"
+            "Foxtrot: Style=(American Smooth, International Standard), Delta=()",
+            "Tango: Style=(American Smooth, International Standard), Delta=()",
+            "West Coast Swing: Style=(American Rhythm), Delta=()",
+            "Cha Cha: Style=(American Rhythm, International Latin), Delta=(+0.50MPM)",
+            "Rumba: Style=(American Rhythm, International Latin), Delta=(-0.50MPM)",
+            "Hustle: Style=(American Rhythm), Delta=(+1.50MPM)",
+            "Bachata: Style=(American Rhythm), Delta=(+1.50MPM)",
+            "Swing: Style=(American Rhythm), Delta=(-2.50MPM)",
+            "Jive: Style=(International Latin), Delta=(-6.50MPM)",
+            "Night Club 2 Step: Style=(American Rhythm), Delta=(-7.50MPM)",
+            "Salsa: Style=(American Rhythm), Delta=(-8.50MPM)"
         };
 
         readonly string[] _31HNDCA = {
-            "Foxtrot: Style=(American, International), Category=(Smooth, Standard), Delta=()",
-            "Tango: Style=(American, International), Category=(Smooth, Standard), Delta=()",
-            "Cha Cha: Style=(American, International), Category=(Rhythm, Latin), Delta=()",
-            "West Coast Swing: Style=(American), Category=(Rhythm), Delta=()",
-            "Rumba: Style=(American, International), Category=(Rhythm, Latin), Delta=(-0.50MPM)",
-            "Hustle: Style=(American), Category=(Rhythm), Delta=(+1.50MPM)",
-            "Bachata: Style=(American), Category=(Rhythm), Delta=(+1.50MPM)",
-            "Swing: Style=(American), Category=(Rhythm), Delta=(-2.50MPM)",
-            "Night Club 2 Step: Style=(American), Category=(Rhythm), Delta=(-7.50MPM)",
-            "Salsa: Style=(American), Category=(Rhythm), Delta=(-8.50MPM)"
+            "Foxtrot: Style=(American Smooth, International Standard), Delta=()",
+            "Tango: Style=(American Smooth, International Standard), Delta=()",
+            "Cha Cha: Style=(American Rhythm, International Latin), Delta=()",
+            "West Coast Swing: Style=(American Rhythm), Delta=()",
+            "Rumba: Style=(American Rhythm, International Latin), Delta=(-0.50MPM)",
+            "Hustle: Style=(American Rhythm), Delta=(+1.50MPM)",
+            "Bachata: Style=(American Rhythm), Delta=(+1.50MPM)",
+            "Swing: Style=(American Rhythm), Delta=(-2.50MPM)",
+            "Night Club 2 Step: Style=(American Rhythm), Delta=(-7.50MPM)",
+            "Salsa: Style=(American Rhythm), Delta=(-8.50MPM)"
         };
 
 
         readonly string[] _Bronze = {
-            "Foxtrot: Style=(American, International), Category=(Smooth, Standard), Delta=()",
-            "Tango: Style=(American, International), Category=(Smooth, Standard), Delta=()",
-            "Cha Cha: Style=(American, International), Category=(Rhythm, Latin), Delta=()",
-            "West Coast Swing: Style=(American), Category=(Rhythm), Delta=()",
-            "Rumba: Style=(American), Category=(Rhythm), Delta=(-0.50MPM)",
-            "Hustle: Style=(American), Category=(Rhythm), Delta=(+1.50MPM)",
-            "Bachata: Style=(American), Category=(Rhythm), Delta=(+1.50MPM)",
-            "Swing: Style=(American), Category=(Rhythm), Delta=(-2.50MPM)"
+            "Foxtrot: Style=(American Smooth, International Standard), Delta=()",
+            "Tango: Style=(American Smooth, International Standard), Delta=()",
+            "Cha Cha: Style=(American Rhythm, International Latin), Delta=()",
+            "West Coast Swing: Style=(American Rhythm), Delta=()",
+            "Rumba: Style=(American Rhythm), Delta=(-0.50MPM)",
+            "Hustle: Style=(American Rhythm), Delta=(+1.50MPM)",
+            "Bachata: Style=(American Rhythm), Delta=(+1.50MPM)",
+            "Swing: Style=(American Rhythm), Delta=(-2.50MPM)"
         };
 
 
         readonly string[] _Waltz = {
-            "Waltz: Style=(American, International), Category=(Smooth, Standard), Delta=()"
+            "Waltz: Style=(American Smooth, International Standard), Delta=()"
         };
 
         readonly string[] _NullDances = { };
@@ -118,12 +118,12 @@ namespace DanceTests
             CompareDances(new Meter(4, 4), 51.5M, 10, _51HAll);
 
             // Without AR
-            FilterObject.SetValue("Category", "Rhythm", false);
+            FilterObject.SetValue("Style", "American Rhythm", false);
             CompareDances(new Meter(4, 4), 51.5M, 10, _51HNR);
 
             // Just AR
-            FilterObject.SetAll("Category", false);
-            FilterObject.SetValue("Category", "Rhythm", true);
+            FilterObject.SetAll("Style", false);
+            FilterObject.SetValue("Style", "American Rhythm", true);
             CompareDances(new Meter(4, 4), 51.5M, 10, _51HJR);
         }
 

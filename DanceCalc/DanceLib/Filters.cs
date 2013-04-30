@@ -149,6 +149,7 @@ namespace DanceLibrary
 
         public static void ReadState(TextReader t)
         {
+            // TODO: Make this robust against old state
             foreach (FilterObject fo in _filters.Values)
             {
                 string s = t.ReadLine();
@@ -186,13 +187,27 @@ namespace DanceLibrary
 
         public void TryParse(string s)
         {
+            bool valid = true;
             string[] a = s.Split(new char[] { ',', ':' },StringSplitOptions.RemoveEmptyEntries);
+
             if (!a[0].Equals(_type) || a.Length - 1 != _sortedValues.Count)
-                throw new Exception(string.Format("FilterObject: Unable to parse '{0}'",s));
+            {
+                // If something funky goes on here, just set the valid state to false which will turn everything (back) on
+                Debug.WriteLine(string.Format("FilterObject: Unable to parse '{0}'", s));
+                valid = false;
+            }
 
             for (int i = 0; i < _sortedValues.Count; i++)
             {
-                _sortedValues[i].Value = bool.Parse(a[i + 1]);
+                bool temp = true;
+                if (valid && bool.TryParse(a[i + 1], out temp))
+                {
+                    _sortedValues[i].Value = temp;
+                }
+                else
+                {
+                    _sortedValues[i].Value = true;
+                }
             }
         }
 
@@ -228,7 +243,7 @@ namespace DanceLibrary
 
         static FilterObject()
         {
-            _filters[Tags.Category] = new FilterObject(Tags.Category, new string[] { "Standard", "Latin", "Smooth", "Rhythm" }, new string[] { "International Standard", "International Latin", "American Smooth", "American Rhythm" });
+            _filters[Tags.Style] = new FilterObject(Tags.Style, new string[] { "International Standard", "International Latin", "American Smooth", "American Rhythm"}, new string[] { null, null, null, null });
             _filters[Tags.Organization] = new FilterObject(Tags.Organization, new string[] { "NDCA", "DanceSport" }, new string[] { "National Dance Council of America (NDCA)", "International DanceSport Federation (IDSF)" });
             _filters[Tags.Competitor] = new FilterObject(Tags.Competitor, new string[] { "Professional","Amateur","ProAm" }, new string[] { null, null,"Pro/Am" });
             _filters[Tags.Level] = new FilterObject(Tags.Level, new string[] { "Bronze", "Silver", "Gold" }, new string[] { null, null, null });

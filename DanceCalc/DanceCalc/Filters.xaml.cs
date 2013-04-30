@@ -23,7 +23,7 @@ namespace DanceCalc
             InitializeComponent();
 
             _choosers = new Dictionary<ListBox,string>();
-            _choosers.Add(CategoryChooser,"Category");
+            _choosers.Add(StyleChooser,"Style");
             _choosers.Add(OrganizationChooser, "Organization");
             _choosers.Add(LevelChooser, "Level");
             _choosers.Add(CompetitorChooser, "Competitor");

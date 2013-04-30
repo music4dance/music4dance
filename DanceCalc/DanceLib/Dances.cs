@@ -14,7 +14,6 @@ namespace DanceLibrary
         static internal readonly string Meter = "Meter";
         static internal readonly string Tempo = "Tempo";
         static internal readonly string Style = "Style";
-        static internal readonly string Category = "Category";
         static internal readonly string All = "All";
         static internal readonly string Competitor = "Competitor";
         static internal readonly string Level = "Level";
@@ -138,11 +137,6 @@ namespace DanceLibrary
             get { return Element.Attribute(Tags.Style).Value; }
         }
 
-        public string Category
-        {
-            get { return Element.Attribute(Tags.Category).Value; }
-        }
-
         public Tempo Tempo
         {
             get { return _tempo; }
@@ -253,7 +247,7 @@ namespace DanceLibrary
         /// <summary>
         /// Does some basic filtering against absolute (non-tempo based) filters
         ///     If Meter doesn't match, this dance won't work
-        ///     If Category doesn't match, we won't get a valid result
+        ///     If Style doesn't match, we won't get a valid result
         ///     If Orginization/Level/Competitor are null it doesn't make sense, so fail
         /// </summary>
         /// <param name="meter"></param>
@@ -264,8 +258,8 @@ namespace DanceLibrary
             if (!DanceType.Meter.Equals(meter))
                 return false;
 
-            // Category is an absolute match
-            if (!FilterObject.GetValue(Tags.Category, Category))
+            // Style is an absolute match
+            if (!FilterObject.GetValue(Tags.Style, Style))
                 return false;
 
             // If no originizations are checked, we can't match
@@ -284,7 +278,7 @@ namespace DanceLibrary
 
         public override string ToString()
         {
-            return string.Format("{0} {1} ({2}MPM)", Style, Category, FilteredTempo);
+            return string.Format("{0} ({1}MPM)", Style, FilteredTempo);
         }
 
         private Tempo _tempo;
@@ -357,21 +351,6 @@ namespace DanceLibrary
             }
         }
 
-        public string Category
-        {
-            get 
-            { 
-                StringBuilder sb = new StringBuilder();
-                foreach (DanceInstance di in _rgdi)
-                {
-                    sb.Append(di.Category);
-                    sb.Append(", ");
-                }
-                sb.Remove(sb.Length-2,2);
-                return sb.ToString();
-            }
-        }
-
         public decimal TempoDelta { get; set; }
 
         public string TempoDeltaString
@@ -414,7 +393,7 @@ namespace DanceLibrary
 
         public override string ToString()
         {
-            return string.Format("{0}: Style=({1}), Category=({2}), Delta=({3})", DanceType.Name, Style, Category, TempoDeltaString);
+            return string.Format("{0}: Style=({1}), Delta=({2})", DanceType.Name, Style, TempoDeltaString);
         }
 
         private List<DanceInstance> _rgdi = new List<DanceInstance>();

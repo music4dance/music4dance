@@ -81,9 +81,9 @@
                             <RowDefinition Height="Auto" />
                             <RowDefinition Height="Auto" />
                         </Grid.RowDefinitions>
-                        <TextBlock Grid.Row="0" TextWrapping="Wrap" Margin="0,0,10,15" Style="{StaticResource PhoneTextNormalStyle}" Text="Category, Organization, Level, and Competitor are all means of filtering the dances and tempos that are matched on the main page." />
-                        <TextBlock Grid.Row="1" TextWrapping="Wrap" Margin="0,0,10,15" Style="{StaticResource PhoneTextNormalStyle}" Text="If you're only interested in Latin/Rhythm dances go ahead and uncheck the 'International Standard' and 'American Smooth' options on the Category page and you won't be bothered with Waltzes and Foxtrots."/>
-                        <TextBlock Grid.Row="2" TextWrapping="Wrap" Margin="0,0,10,15" Style="{StaticResource PhoneTextNormalStyle}" Text="If you are just starting out with American Style smooth dances, you might leave only American Smooth checked on the Category page, Bronze on the competitor page and NDCA on the organization page."/>
+                        <TextBlock Grid.Row="0" TextWrapping="Wrap" Margin="0,0,10,15" Style="{StaticResource PhoneTextNormalStyle}" Text="Style, Organization, Level, and Competitor are all means of filtering the dances and tempos that are matched on the main page." />
+                        <TextBlock Grid.Row="1" TextWrapping="Wrap" Margin="0,0,10,15" Style="{StaticResource PhoneTextNormalStyle}" Text="If you're only interested in Latin/Rhythm dances go ahead and uncheck the 'International Standard' and 'American Smooth' options on the Style page and you won't be bothered with Waltzes and Foxtrots."/>
+                        <TextBlock Grid.Row="2" TextWrapping="Wrap" Margin="0,0,10,15" Style="{StaticResource PhoneTextNormalStyle}" Text="If you are just starting out with American Style smooth dances, you might leave only American Smooth checked on the Style page, Bronze on the competitor page and NDCA on the organization page."/>
                     </Grid>
                 </ScrollViewer>
             </controls:PanoramaItem>

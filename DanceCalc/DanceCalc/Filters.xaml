@@ -41,9 +41,9 @@
                 </Grid>
             </controls:PivotItem>
             
-            <controls:PivotItem Header="Category">
+            <controls:PivotItem Header="Style">
                 <Grid>
-                    <ListBox Name="CategoryChooser" SelectionMode="Multiple" ItemContainerStyle="{StaticResource CheckListBoxItemStyle}"  SelectionChanged="Chooser_SelectionChanged" />
+                    <ListBox Name="StyleChooser" SelectionMode="Multiple" ItemContainerStyle="{StaticResource CheckListBoxItemStyle}"  SelectionChanged="Chooser_SelectionChanged" />
                 </Grid>
             </controls:PivotItem>
 
