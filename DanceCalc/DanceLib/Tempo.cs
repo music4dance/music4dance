@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 
 namespace DanceLibrary
 {
@@ -11,6 +12,7 @@ namespace DanceLibrary
     /// is danced to.
     /// 
     /// </summary>
+    [JsonObject(MemberSerialization.OptIn)]
     public class Tempo
     {
         /// <summary>
@@ -57,10 +59,11 @@ namespace DanceLibrary
         /// </summary>
         /// <param name="minTempo"></param>
         /// <param name="maxTempo"></param>
-        public Tempo(decimal minTempo, decimal maxTempo)
+        [JsonConstructor]
+        public Tempo(decimal min, decimal max)
         {
-            _minTempo = minTempo;
-            _maxTempo = maxTempo;
+            _minTempo = min;
+            _maxTempo = max;
 
             Validate();
         }
@@ -80,11 +83,13 @@ namespace DanceLibrary
                 throw new ArgumentException("min", RangeOrder);
         }
 
+        [JsonProperty]
         public decimal Min
         {
             get { return _minTempo; }
         }
 
+        [JsonProperty]
         public decimal Max
         {
             get { return _maxTempo; }

@@ -93,7 +93,7 @@ namespace DanceLibrary
         {
             get { return Kind.Duration; }
         }
-            
+
         public string Name
         {
             get { return this.ToString(); }

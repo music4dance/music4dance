@@ -1,6 +1,8 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -23,6 +25,7 @@ namespace DanceLibrary
         static internal readonly string DanceInstance = "DanceInstance";
     }
 
+    [JsonObject(MemberSerialization.OptIn)]
     public class DanceObject
     {
         public DanceObject(XElement el)
@@ -69,6 +72,7 @@ namespace DanceLibrary
         }
     }
 
+    [JsonObject(MemberSerialization.OptIn)]
     public class DanceType : DanceObject
     {
         public DanceType(XElement el) : 
@@ -76,6 +80,7 @@ namespace DanceLibrary
         {
         }
 
+        [JsonProperty]
         public string Name
         {
             get {return Element.Attribute(Tags.Name).Value;}
@@ -86,6 +91,7 @@ namespace DanceLibrary
             get { return Element.Attribute(Tags.Meter).Value; }
         }
 
+        [JsonProperty]
         public Meter Meter
         {
             get
@@ -94,7 +100,26 @@ namespace DanceLibrary
             }
         }
 
+        [JsonProperty]
+        public ReadOnlyCollection<DanceInstance> Instances
+        {
+            get
+            {
+                List<DanceInstance> instances = new List<DanceInstance>();
+
+                IEnumerable<XElement> elements = from el in Element.Elements(Tags.DanceInstance) select el;
+                foreach (XElement e in elements)
+                {
+                    DanceInstance de = e.Annotation<DanceInstance>();
+                    instances.Add(de);
+                }
+
+                return new ReadOnlyCollection<DanceInstance>(instances);
+            }
+        }
+
         public string Description {get;set;}
+
         public Uri Link {get;set;}
 
         public string ShortName
@@ -119,6 +144,7 @@ namespace DanceLibrary
 
     }
 
+    [JsonObject(MemberSerialization.OptIn)]
     public class DanceInstance : DanceObject
     {
         public DanceInstance(XElement el)
@@ -132,14 +158,34 @@ namespace DanceLibrary
             get { return Element.Parent.Annotation<DanceType>(); }
         }
 
+        [JsonProperty]
         public string Style
         {
             get { return Element.Attribute(Tags.Style).Value; }
         }
 
+        [JsonProperty]
         public Tempo Tempo
         {
             get { return _tempo; }
+        }
+
+        [JsonProperty]
+        public ReadOnlyCollection<DanceException> Exceptions
+        {
+            get
+            {
+                List<DanceException> exceptions = new List<DanceException>();
+
+                IEnumerable<XElement> elements = from el in Element.Elements(Tags.DanceException) select el;
+                foreach (XElement e in elements)
+                {
+                    DanceException de = e.Annotation<DanceException>();
+                    exceptions.Add(de);
+                }
+
+                return new ReadOnlyCollection<DanceException>(exceptions);
+            }
         }
 
         public Tempo FilteredTempo
@@ -226,6 +272,7 @@ namespace DanceLibrary
             return new ReadOnlyCollection<DanceException>(exceptions);
         }
 
+
         public bool CalculateMatch(decimal tempo, decimal epsilon, out decimal delta, out decimal deltaPercent, out decimal median)
         {
             bool ret = false; 
@@ -284,6 +331,7 @@ namespace DanceLibrary
         private Tempo _tempo;
     }
 
+    [JsonObject(MemberSerialization.OptIn)]
     public class DanceException : DanceObject
     {
         public DanceException(XElement el)
@@ -292,24 +340,30 @@ namespace DanceLibrary
             _tempo = new Tempo(this, Tags.Tempo);
         }
 
-        public string Competitor
-        {
-            get { return GetDefaultAttribute(Tags.Competitor,Tags.All); }
-        }
-
-        public string Level
-        {
-            get { return GetDefaultAttribute(Tags.Level, Tags.All); }
-        }
-
+        [JsonProperty]
         public string Organization
         {
             get { return GetDefaultAttribute(Tags.Organization, Tags.All); }
         }
 
+        [JsonProperty]
         public Tempo Tempo
         {
             get { return _tempo; }
+        }
+
+        [JsonProperty]
+        [DefaultValue("All")]
+        public string Competitor
+        {
+            get { return GetDefaultAttribute(Tags.Competitor, Tags.All); }
+        }
+
+        [JsonProperty]
+        [DefaultValue("All")]
+        public string Level
+        {
+            get { return GetDefaultAttribute(Tags.Level, Tags.All); }
         }
 
         private Tempo _tempo;
@@ -422,6 +476,8 @@ namespace DanceLibrary
                         DanceException de = new DanceException(d2);
                     }
                 }
+
+                _allDanceTypes.Add(dt);
             }
 
             Instance = this;
@@ -441,6 +497,21 @@ namespace DanceLibrary
 
             return dances;
         }
+
+        public string GetJSON()
+        {
+            JsonSerializerSettings settings = new JsonSerializerSettings
+            {
+                NullValueHandling = NullValueHandling.Include,
+                DefaultValueHandling = DefaultValueHandling.IgnoreAndPopulate
+            };
+
+            string json = JsonConvert.SerializeObject(_allDanceTypes, Formatting.Indented, settings);
+
+            return json;
+        }
+
+        private List<DanceType> _allDanceTypes = new List<DanceType>();
 
         private decimal SignedMin(decimal a, decimal b)
         {

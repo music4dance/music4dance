@@ -3,6 +3,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using DanceLibrary;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 
 namespace DanceTests
 {
@@ -179,5 +180,12 @@ namespace DanceTests
             CompareDances(new Meter(3, 4), 31.5M, 20, _Waltz); 
         }
 
+        [TestMethod]
+        public void DumpJSON()
+        {
+            string json = _dances.GetJSON();
+
+            File.WriteAllText(@"c:\temp\dances.json", json);
+        }
     }
 }

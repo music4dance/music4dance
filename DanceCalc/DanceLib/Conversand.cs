@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Collections.ObjectModel;
-using System.Xml.Serialization;
 
 namespace DanceLibrary
 {
@@ -66,7 +63,7 @@ namespace DanceLibrary
         {
             IConversand ret = null;
 
-            string[] rg = s.Split(new char[]{':'}, StringSplitOptions.RemoveEmptyEntries);
+            string[] rg = s.Split(new char[] { ':' }, StringSplitOptions.RemoveEmptyEntries);
 
             if (rg.Length != 2)
                 throw new ArgumentOutOfRangeException("conversand serialization must be of the form 'TypeName:Value'");
@@ -74,7 +71,7 @@ namespace DanceLibrary
             // There has to be a better way of managing a factory for this pattern, but it's not
             //  obvious right now,sI'm going to just brute force it
 
-            if (string.Equals(rg[0],Meter.TypeName))
+            if (string.Equals(rg[0], Meter.TypeName))
             {
                 ret = new Meter(rg[1]);
             }

@@ -1,7 +1,7 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Diagnostics;
 
 namespace DanceLibrary
 {
@@ -10,14 +10,15 @@ namespace DanceLibrary
     /// 
     /// This is an immutable class
     /// </summary>
+    [JsonObject(MemberSerialization.OptIn)]
     public class Meter : IConversand
     {
         static Meter()
         {
             s_commonMeters = new List<Meter>(3);
-            s_commonMeters.Add(new Meter(2,4));
-            s_commonMeters.Add(new Meter(3,4));
-            s_commonMeters.Add(new Meter(4,4));
+            s_commonMeters.Add(new Meter(2, 4));
+            s_commonMeters.Add(new Meter(3, 4));
+            s_commonMeters.Add(new Meter(4, 4));
         }
 
         public static readonly string MeterSyntaxError = "Meter must contain exaclty one '/' with an optional \"MPM\" prefix";
@@ -36,6 +37,7 @@ namespace DanceLibrary
         /// </summary>
         /// <param name="numerator"></param>
         /// <param name="denominator"></param>
+        [JsonConstructor]
         public Meter(int numerator, int denominator)
         {
             _numerator = numerator;
@@ -52,7 +54,7 @@ namespace DanceLibrary
         {
             if (string.IsNullOrEmpty(s)) throw new ArgumentNullException();
 
-            string [] strings = s.Split(new char[]{'/',' '});
+            string[] strings = s.Split(new char[] { '/', ' ' });
 
             int offset = 0;
 
@@ -65,10 +67,10 @@ namespace DanceLibrary
                 throw new ArgumentOutOfRangeException(MeterSyntaxError);
             }
 
-            if (!int.TryParse(strings[0+offset],out _numerator))
+            if (!int.TryParse(strings[0 + offset], out _numerator))
                 throw new ArgumentOutOfRangeException(IntegerNumerator);
 
-            if (!int.TryParse(strings[1+offset],out _denominator))
+            if (!int.TryParse(strings[1 + offset], out _denominator))
                 throw new ArgumentOutOfRangeException(IntegerDenominator);
 
             Validate();
@@ -85,12 +87,13 @@ namespace DanceLibrary
             //if (_denominator != 4)
             //    throw new ArgumentOutOfRangeException("denominator", DenominatorLimit);
 
-            
+
         }
 
         /// <summary>
         /// Return the numerator of the Meter (the top number)
         /// </summary>
+        [JsonProperty]
         public int Numerator
         {
             get { return _numerator; }
@@ -99,6 +102,7 @@ namespace DanceLibrary
         /// <summary>
         /// Return the denominator of the Meter
         /// </summary>
+        [JsonProperty]
         public int Denominator
         {
             get { return _denominator; }
@@ -158,7 +162,7 @@ namespace DanceLibrary
 
         private int _numerator;
         private int _denominator;
-        
+
         private static List<Meter> s_commonMeters;
 
         // Implementation of IConversand
