@@ -1,0 +1,620 @@
+[
+  {
+    "Name": "Waltz",
+    "Meter": {
+      "Numerator": 3,
+      "Denominator": 4
+    },
+    "Instances": [
+      {
+        "Style": "American Smooth",
+        "Tempo": {
+          "Min": 28.0,
+          "Max": 30.0
+        },
+        "Exceptions": [
+          {
+            "Organization": "NDCA",
+            "Tempo": {
+              "Min": 30.0,
+              "Max": 32.0
+            },
+            "Level": "Bronze"
+          }
+        ]
+      },
+      {
+        "Style": "International Standard",
+        "Tempo": {
+          "Min": 28.0,
+          "Max": 30.0
+        },
+        "Exceptions": [
+          {
+            "Organization": "NDCA",
+            "Tempo": {
+              "Min": 28.0,
+              "Max": 28.0
+            },
+            "Competitor": "Professional,Amateur"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "Name": "Foxtrot",
+    "Meter": {
+      "Numerator": 4,
+      "Denominator": 4
+    },
+    "Instances": [
+      {
+        "Style": "American Smooth",
+        "Tempo": {
+          "Min": 30.0,
+          "Max": 34.0
+        },
+        "Exceptions": [
+          {
+            "Organization": "NDCA",
+            "Tempo": {
+              "Min": 32.0,
+              "Max": 34.0
+            },
+            "Level": "Bronze"
+          },
+          {
+            "Organization": "NDCA",
+            "Tempo": {
+              "Min": 30.0,
+              "Max": 30.0
+            },
+            "Level": "Silver,Gold"
+          },
+          {
+            "Organization": "DanceSport",
+            "Tempo": {
+              "Min": 30.0,
+              "Max": 32.0
+            }
+          }
+        ]
+      },
+      {
+        "Style": "International Standard",
+        "Tempo": {
+          "Min": 28.0,
+          "Max": 30.0
+        },
+        "Exceptions": []
+      }
+    ]
+  },
+  {
+    "Name": "Tango",
+    "Meter": {
+      "Numerator": 4,
+      "Denominator": 4
+    },
+    "Instances": [
+      {
+        "Style": "American Smooth",
+        "Tempo": {
+          "Min": 30.0,
+          "Max": 30.0
+        },
+        "Exceptions": [
+          {
+            "Organization": "NDCA",
+            "Tempo": {
+              "Min": 30.0,
+              "Max": 32.0
+            },
+            "Level": "Bronze"
+          }
+        ]
+      },
+      {
+        "Style": "International Standard",
+        "Tempo": {
+          "Min": 32.0,
+          "Max": 32.0
+        },
+        "Exceptions": [
+          {
+            "Organization": "DanceSport",
+            "Tempo": {
+              "Min": 31.0,
+              "Max": 33.0
+            }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "Name": "Peabody",
+    "Meter": {
+      "Numerator": 4,
+      "Denominator": 4
+    },
+    "Instances": [
+      {
+        "Style": "American Smooth",
+        "Tempo": {
+          "Min": 60.0,
+          "Max": 62.0
+        },
+        "Exceptions": []
+      }
+    ]
+  },
+  {
+    "Name": "Viennese",
+    "Meter": {
+      "Numerator": 3,
+      "Denominator": 4
+    },
+    "Instances": [
+      {
+        "Style": "American Smooth",
+        "Tempo": {
+          "Min": 54.0,
+          "Max": 54.0
+        },
+        "Exceptions": []
+      },
+      {
+        "Style": "International Standard",
+        "Tempo": {
+          "Min": 56.0,
+          "Max": 58.0
+        },
+        "Exceptions": [
+          {
+            "Organization": "DanceSport",
+            "Tempo": {
+              "Min": 58.0,
+              "Max": 60.0
+            }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "Name": "QuickStep",
+    "Meter": {
+      "Numerator": 4,
+      "Denominator": 4
+    },
+    "Instances": [
+      {
+        "Style": "International Standard",
+        "Tempo": {
+          "Min": 48.0,
+          "Max": 52.0
+        },
+        "Exceptions": [
+          {
+            "Organization": "DanceSport",
+            "Tempo": {
+              "Min": 50.0,
+              "Max": 52.0
+            }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "Name": "Bolero",
+    "Meter": {
+      "Numerator": 4,
+      "Denominator": 4
+    },
+    "Instances": [
+      {
+        "Style": "American Rhythm",
+        "Tempo": {
+          "Min": 24.0,
+          "Max": 26.0
+        },
+        "Exceptions": [
+          {
+            "Organization": "NDCA",
+            "Tempo": {
+              "Min": 24.0,
+              "Max": 24.0
+            }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "Name": "Cha Cha",
+    "Meter": {
+      "Numerator": 4,
+      "Denominator": 4
+    },
+    "Instances": [
+      {
+        "Style": "American Rhythm",
+        "Tempo": {
+          "Min": 30.0,
+          "Max": 30.0
+        },
+        "Exceptions": []
+      },
+      {
+        "Style": "International Latin",
+        "Tempo": {
+          "Min": 31.0,
+          "Max": 31.0
+        },
+        "Exceptions": [
+          {
+            "Organization": "DanceSport",
+            "Tempo": {
+              "Min": 30.0,
+              "Max": 32.0
+            }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "Name": "Mambo",
+    "Meter": {
+      "Numerator": 4,
+      "Denominator": 4
+    },
+    "Instances": [
+      {
+        "Style": "American Rhythm",
+        "Tempo": {
+          "Min": 47.0,
+          "Max": 51.0
+        },
+        "Exceptions": [
+          {
+            "Organization": "NDCA",
+            "Tempo": {
+              "Min": 48.0,
+              "Max": 51.0
+            },
+            "Level": "Bronze"
+          },
+          {
+            "Organization": "NDCA",
+            "Tempo": {
+              "Min": 47.0,
+              "Max": 47.0
+            },
+            "Level": "Silver,Gold"
+          },
+          {
+            "Organization": "DanceSport",
+            "Tempo": {
+              "Min": 47.0,
+              "Max": 51.0
+            }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "Name": "Jive",
+    "Meter": {
+      "Numerator": 4,
+      "Denominator": 4
+    },
+    "Instances": [
+      {
+        "Style": "International Latin",
+        "Tempo": {
+          "Min": 38.0,
+          "Max": 44.0
+        },
+        "Exceptions": [
+          {
+            "Organization": "NDCA",
+            "Tempo": {
+              "Min": 44.0,
+              "Max": 44.0
+            },
+            "Competitor": "Professional,Amateur"
+          },
+          {
+            "Organization": "DanceSport",
+            "Tempo": {
+              "Min": 42.0,
+              "Max": 44.0
+            }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "Name": "Rumba",
+    "Meter": {
+      "Numerator": 4,
+      "Denominator": 4
+    },
+    "Instances": [
+      {
+        "Style": "American Rhythm",
+        "Tempo": {
+          "Min": 32.0,
+          "Max": 36.0
+        },
+        "Exceptions": [
+          {
+            "Organization": "NDCA",
+            "Tempo": {
+              "Min": 32.0,
+              "Max": 32.0
+            },
+            "Competitor": "Professional,Amateur"
+          }
+        ]
+      },
+      {
+        "Style": "International Latin",
+        "Tempo": {
+          "Min": 25.0,
+          "Max": 27.0
+        },
+        "Exceptions": [
+          {
+            "Organization": "NDCA",
+            "Tempo": {
+              "Min": 27.0,
+              "Max": 27.0
+            },
+            "Competitor": "ProAm"
+          },
+          {
+            "Organization": "NDCA",
+            "Tempo": {
+              "Min": 26.0,
+              "Max": 26.0
+            },
+            "Competitor": "Professional,Amateur"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "Name": "Swing",
+    "Meter": {
+      "Numerator": 4,
+      "Denominator": 4
+    },
+    "Instances": [
+      {
+        "Style": "American Rhythm",
+        "Tempo": {
+          "Min": 34.0,
+          "Max": 36.0
+        },
+        "Exceptions": [
+          {
+            "Organization": "NDCA",
+            "Tempo": {
+              "Min": 36.0,
+              "Max": 36.0
+            },
+            "Competitor": "Professional,Amateur"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "Name": "West Coast Swing",
+    "Meter": {
+      "Numerator": 4,
+      "Denominator": 4
+    },
+    "Instances": [
+      {
+        "Style": "American Rhythm",
+        "Tempo": {
+          "Min": 28.0,
+          "Max": 32.0
+        },
+        "Exceptions": []
+      }
+    ]
+  },
+  {
+    "Name": "Hustle",
+    "Meter": {
+      "Numerator": 4,
+      "Denominator": 4
+    },
+    "Instances": [
+      {
+        "Style": "American Rhythm",
+        "Tempo": {
+          "Min": 28.0,
+          "Max": 30.0
+        },
+        "Exceptions": []
+      }
+    ]
+  },
+  {
+    "Name": "Merengue",
+    "Meter": {
+      "Numerator": 2,
+      "Denominator": 4
+    },
+    "Instances": [
+      {
+        "Style": "American Rhythm",
+        "Tempo": {
+          "Min": 29.0,
+          "Max": 32.0
+        },
+        "Exceptions": []
+      }
+    ]
+  },
+  {
+    "Name": "Paso Doble",
+    "Meter": {
+      "Numerator": 2,
+      "Denominator": 4
+    },
+    "Instances": [
+      {
+        "Style": "International Latin",
+        "Tempo": {
+          "Min": 60.0,
+          "Max": 62.0
+        },
+        "Exceptions": []
+      },
+      {
+        "Style": "American Rhythm",
+        "Tempo": {
+          "Min": 58.0,
+          "Max": 60.0
+        },
+        "Exceptions": []
+      }
+    ]
+  },
+  {
+    "Name": "Samba",
+    "Meter": {
+      "Numerator": 2,
+      "Denominator": 4
+    },
+    "Instances": [
+      {
+        "Style": "International Latin",
+        "Tempo": {
+          "Min": 48.0,
+          "Max": 50.0
+        },
+        "Exceptions": [
+          {
+            "Organization": "NDCA",
+            "Tempo": {
+              "Min": 50.0,
+              "Max": 50.0
+            },
+            "Competitor": "Professional,Amateur"
+          },
+          {
+            "Organization": "DanceSport",
+            "Tempo": {
+              "Min": 50.0,
+              "Max": 50.0
+            }
+          }
+        ]
+      },
+      {
+        "Style": "American Rhythm",
+        "Tempo": {
+          "Min": 48.0,
+          "Max": 52.0
+        },
+        "Exceptions": [
+          {
+            "Organization": "NDCA",
+            "Tempo": {
+              "Min": 52.0,
+              "Max": 52.0
+            }
+          },
+          {
+            "Organization": "DanceSport",
+            "Tempo": {
+              "Min": 48.0,
+              "Max": 48.0
+            }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "Name": "Polka",
+    "Meter": {
+      "Numerator": 2,
+      "Denominator": 4
+    },
+    "Instances": [
+      {
+        "Style": "American Rhythm",
+        "Tempo": {
+          "Min": 60.0,
+          "Max": 62.0
+        },
+        "Exceptions": []
+      }
+    ]
+  },
+  {
+    "Name": "Bachata",
+    "Meter": {
+      "Numerator": 4,
+      "Denominator": 4
+    },
+    "Instances": [
+      {
+        "Style": "American Rhythm",
+        "Tempo": {
+          "Min": 30.0,
+          "Max": 30.0
+        },
+        "Exceptions": []
+      }
+    ]
+  },
+  {
+    "Name": "Night Club 2 Step",
+    "Meter": {
+      "Numerator": 4,
+      "Denominator": 4
+    },
+    "Instances": [
+      {
+        "Style": "American Rhythm",
+        "Tempo": {
+          "Min": 39.0,
+          "Max": 39.0
+        },
+        "Exceptions": []
+      }
+    ]
+  },
+  {
+    "Name": "Salsa",
+    "Meter": {
+      "Numerator": 4,
+      "Denominator": 4
+    },
+    "Instances": [
+      {
+        "Style": "American Rhythm",
+        "Tempo": {
+          "Min": 40.0,
+          "Max": 55.0
+        },
+        "Exceptions": []
+      }
+    ]
+  }
+]

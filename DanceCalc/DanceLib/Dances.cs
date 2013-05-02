@@ -12,111 +12,41 @@ namespace DanceLibrary
 {
     static internal class Tags
     {
-        static internal readonly string Name = "Name";
-        static internal readonly string Meter = "Meter";
-        static internal readonly string Tempo = "Tempo";
         static internal readonly string Style = "Style";
         static internal readonly string All = "All";
         static internal readonly string Competitor = "Competitor";
         static internal readonly string Level = "Level";
         static internal readonly string Organization = "Organization";
-        static internal readonly string DanceException = "DanceException";
-        static internal readonly string DanceType = "DanceType";
-        static internal readonly string DanceInstance = "DanceInstance";
     }
 
     [JsonObject(MemberSerialization.OptIn)]
-    public class DanceObject
+    public class DanceType
     {
-        public DanceObject(XElement el)
+        [JsonConstructor]
+        public DanceType(string name, string description, Meter meter, DanceInstance[] instances)
         {
-            Element = el;
-            el.AddAnnotation(this);
-        }
+            Name = name;
+            Description = description;
+            Meter = meter;
+            Instances = new List<DanceInstance>(instances);
 
-        public XElement Parent
-        {
-            get { return Element.Parent; }
-        }
-
-        public XElement Element { get; private set; }
-
-        public string GetDefaultAttribute(string name, string def)
-        {
-            XAttribute x = Element.Attribute(name);
-            if (x == null)
+            if (instances != null)
             {
-                return def;
-            }
-            else
-            {
-                return x.Value;
-            }        
-        }
-
-        public bool TryGetDecimalAttribute(string name, out decimal ret)
-        {
-            ret = 0M;
-            XAttribute x = Element.Attribute(name);
-
-            return x != null && decimal.TryParse(x.Value, out ret);
-        }
-
-        public Decimal GetDecimalAttribute(string name)
-        {
-            decimal ret = 0M;
-            if (!TryGetDecimalAttribute(name,out ret))
-                throw new ArgumentOutOfRangeException();
-
-            return ret;
-        }
-    }
-
-    [JsonObject(MemberSerialization.OptIn)]
-    public class DanceType : DanceObject
-    {
-        public DanceType(XElement el) : 
-            base(el)
-        {
-        }
-
-        [JsonProperty]
-        public string Name
-        {
-            get {return Element.Attribute(Tags.Name).Value;}
-        }
-
-        public string MeterString
-        {
-            get { return Element.Attribute(Tags.Meter).Value; }
-        }
-
-        [JsonProperty]
-        public Meter Meter
-        {
-            get
-            {
-                return new Meter(MeterString);
-            }
-        }
-
-        [JsonProperty]
-        public ReadOnlyCollection<DanceInstance> Instances
-        {
-            get
-            {
-                List<DanceInstance> instances = new List<DanceInstance>();
-
-                IEnumerable<XElement> elements = from el in Element.Elements(Tags.DanceInstance) select el;
-                foreach (XElement e in elements)
+                foreach (DanceInstance instance in instances)
                 {
-                    DanceInstance de = e.Annotation<DanceInstance>();
-                    instances.Add(de);
+                    instance.DanceType = this;
                 }
-
-                return new ReadOnlyCollection<DanceInstance>(instances);
             }
         }
+
+        [JsonProperty]
+        public string Name {get; protected set;}
+
+        [JsonProperty]
+        public Meter Meter {get; protected set;}
+
+        [JsonProperty]
+        public List<DanceInstance> Instances { get; protected set; }
 
         public string Description {get;set;}
 
@@ -126,7 +56,6 @@ namespace DanceLibrary
         {
             get { return Name.Replace(" ", ""); }
         }
-
 
         public override bool Equals(object obj)
         {
@@ -145,48 +74,34 @@ namespace DanceLibrary
     }
 
     [JsonObject(MemberSerialization.OptIn)]
-    public class DanceInstance : DanceObject
+    public class DanceInstance
     {
-        public DanceInstance(XElement el)
-            : base(el)
+        [JsonConstructor]
+        public DanceInstance(string style, Tempo tempo, DanceException[] exceptions)
         {
-            _tempo = new Tempo(this, Tags.Tempo);
-        }
+            Style = style;
+            Tempo = tempo;
+            Exceptions = new List<DanceException>(exceptions);
 
-        public DanceType DanceType
-        {
-            get { return Element.Parent.Annotation<DanceType>(); }
-        }
-
-        [JsonProperty]
-        public string Style
-        {
-            get { return Element.Attribute(Tags.Style).Value; }
-        }
-
-        [JsonProperty]
-        public Tempo Tempo
-        {
-            get { return _tempo; }
-        }
-
-        [JsonProperty]
-        public ReadOnlyCollection<DanceException> Exceptions
-        {
-            get
+            if (exceptions != null)
             {
-                List<DanceException> exceptions = new List<DanceException>();
-
-                IEnumerable<XElement> elements = from el in Element.Elements(Tags.DanceException) select el;
-                foreach (XElement e in elements)
+                foreach (DanceException exception in exceptions)
                 {
-                    DanceException de = e.Annotation<DanceException>();
-                    exceptions.Add(de);
+                    exception.DanceInstance = this;
                 }
-
-                return new ReadOnlyCollection<DanceException>(exceptions);
             }
         }
+
+        public DanceType DanceType { get; internal set;}
+
+        [JsonProperty]
+        public string Style {get; protected set;}
+
+        [JsonProperty]
+        public Tempo Tempo {get; protected set;}
+
+        [JsonProperty]
+        public List<DanceException> Exceptions { get; protected set; }
 
         public Tempo FilteredTempo
         {
@@ -199,7 +114,7 @@ namespace DanceLibrary
                 Tempo tempo = null;
                 if (IncludeGeneral(exceptions))
                 {
-                    tempo = _tempo;
+                    tempo = Tempo;
                 }
 
                 // Now include all of the tempos in the exceptions that are covered by
@@ -257,10 +172,8 @@ namespace DanceLibrary
         {
             List<DanceException> exceptions = new List<DanceException>();
 
-            IEnumerable<XElement> elements = from el in Element.Elements(Tags.DanceException) select el;
-            foreach (XElement e in elements)
+            foreach (DanceException de in Exceptions)
             {
-                DanceException de = e.Annotation<DanceException>();
                 if (FilterObject.GetValue(Tags.Competitor, de.Competitor) &&
                     FilterObject.GetValue(Tags.Level, de.Level) &&
                     FilterObject.GetValue(Tags.Organization, de.Organization))
@@ -327,46 +240,45 @@ namespace DanceLibrary
         {
             return string.Format("{0} ({1}MPM)", Style, FilteredTempo);
         }
-
-        private Tempo _tempo;
     }
 
     [JsonObject(MemberSerialization.OptIn)]
-    public class DanceException : DanceObject
+    public class DanceException
     {
-        public DanceException(XElement el)
-            : base(el)
+        [JsonConstructor]
+        public DanceException(string organization, Tempo tempo, string competitor, string level)
         {
-            _tempo = new Tempo(this, Tags.Tempo);
+            // Not sure why default value isn't handling these cases, but don't care that much
+            if (string.IsNullOrEmpty(competitor))
+            {
+                competitor = "All";
+            }
+            if (string.IsNullOrEmpty(level))
+            {
+                level = "All";
+            }
+
+            Organization = organization;
+            Tempo = tempo;
+            Competitor = competitor;
+            Level = level;
         }
 
         [JsonProperty]
-        public string Organization
-        {
-            get { return GetDefaultAttribute(Tags.Organization, Tags.All); }
-        }
+        public string Organization {get; protected set; }
 
         [JsonProperty]
-        public Tempo Tempo
-        {
-            get { return _tempo; }
-        }
+        public Tempo Tempo {get; protected set; }
 
         [JsonProperty]
         [DefaultValue("All")]
-        public string Competitor
-        {
-            get { return GetDefaultAttribute(Tags.Competitor, Tags.All); }
-        }
+        public string Competitor {get; protected set; }
 
         [JsonProperty]
         [DefaultValue("All")]
-        public string Level
-        {
-            get { return GetDefaultAttribute(Tags.Level, Tags.All); }
-        }
+        public string Level {get; protected set; }
 
-        private Tempo _tempo;
+        public DanceInstance DanceInstance { get; internal set; }
     }
 
     public class DanceSample : IComparable<DanceSample>
@@ -457,27 +369,16 @@ namespace DanceLibrary
     {
         public Dances()
         {
-            string s = DanceLibrary.Dances;
-            TextReader r = new StringReader(s);
-            _dances = XDocument.Load(r);
+            JsonSerializerSettings settings = new JsonSerializerSettings { 
+                NullValueHandling = NullValueHandling.Include, 
+                DefaultValueHandling = DefaultValueHandling.IgnoreAndPopulate };
 
-            // Now annotate the dances with the glue objects
-            IEnumerable<XElement> elements = from el in _dances.Elements().Elements(Tags.DanceType) select el;
-            foreach (XElement e in elements)
+            string json = DanceLibrary.JsonDances;
+            _allDanceTypes = JsonConvert.DeserializeObject<List<DanceType>>(json, settings);
+
+            foreach (DanceType dt in _allDanceTypes)
             {
-                DanceType dt = new DanceType(e);
-                IEnumerable<XElement> sub = from se in e.Elements(Tags.DanceInstance) select se;
-                foreach (XElement d in sub)
-                {
-                    DanceInstance di = new DanceInstance(d);
-                    IEnumerable<XElement> sub2 = from se in d.Elements(Tags.DanceException) select se;
-                    foreach (XElement d2 in sub2)
-                    {
-                        DanceException de = new DanceException(d2);
-                    }
-                }
-
-                _allDanceTypes.Add(dt);
+                _allDanceInstances.AddRange(dt.Instances);
             }
 
             Instance = this;
@@ -487,15 +388,7 @@ namespace DanceLibrary
 
         public IEnumerable<DanceInstance> AllDances()
         {
-            IEnumerable<XElement> elements = from el in _dances.Elements().Elements().Elements(Tags.DanceInstance) select el;
-
-            List<DanceInstance> dances = new List<DanceInstance>();
-            foreach (XElement e in elements)
-            {
-                dances.Add(e.Annotation<DanceInstance>());
-            }
-
-            return dances;
+            return _allDanceInstances;
         }
 
         public string GetJSON()
@@ -512,6 +405,7 @@ namespace DanceLibrary
         }
 
         private List<DanceType> _allDanceTypes = new List<DanceType>();
+        private List<DanceInstance> _allDanceInstances = new List<DanceInstance>();
 
         private decimal SignedMin(decimal a, decimal b)
         {
@@ -522,13 +416,10 @@ namespace DanceLibrary
 
         public IEnumerable<DanceSample> DancesFiltered(Meter meter, Decimal tempo, decimal epsilon)
         {
-            IEnumerable<XElement> elements = from el in _dances.Elements().Elements().Elements(Tags.DanceInstance) select el;
-
             // Cut a fairly wide swath on what we include in the list
             Dictionary<string,DanceSample> dances = new Dictionary<string,DanceSample>();
-            foreach (XElement e in elements)
+            foreach (DanceInstance di in _allDanceInstances)
             {
-                DanceInstance di = e.Annotation<DanceInstance>();
                 // Meter is absolute, and null values in some of the other classes are also absolue so check those first
                 if (di.CanMatch(meter))
                 {

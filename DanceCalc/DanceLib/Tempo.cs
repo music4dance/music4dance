@@ -16,33 +16,6 @@ namespace DanceLibrary
     public class Tempo
     {
         /// <summary>
-        /// Construct a tempo from serialized XML: Note this should be part of the JSON conversion
-        /// </summary>
-        /// <param name="d"></param>
-        /// <param name="name"></param>
-        public Tempo(DanceObject d, string name)
-        {
-            decimal t = 0;
-            _minTempo = 0;
-            _maxTempo = 0;
-
-            if (d.TryGetDecimalAttribute(name, out t))
-            {
-                _maxTempo = t;
-                _minTempo = t;
-            }
-            else if (d.TryGetDecimalAttribute("Min" + name, out t))
-            {
-                decimal t2 = 0;
-                if (d.TryGetDecimalAttribute("Max" + name, out t2))
-                {
-                    _minTempo = t;
-                    _maxTempo = t2;
-                }
-            }
-        }
-
-        /// <summary>
         /// Copy constructor
         /// </summary>
         /// <param name="other">Any valid tempo object</param>

@@ -64,18 +64,53 @@ namespace DanceLibrary {
         ///   Looks up a localized string similar to &lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot; ?&gt;
         ///&lt;Dances&gt;
         ///  &lt;DanceType Name=&quot;Waltz&quot; Meter=&quot;3/4&quot;&gt;
-        ///    &lt;DanceInstance Style=&quot;American&quot; Category=&quot;Smooth&quot; MinTempo=&quot;28&quot; MaxTempo=&quot;30&quot;&gt;
+        ///    &lt;DanceInstance Style=&quot;American Smooth&quot; MinTempo=&quot;28&quot; MaxTempo=&quot;30&quot;&gt;
         ///      &lt;DanceException Organization=&quot;NDCA&quot; Level=&quot;Bronze&quot; MinTempo=&quot;30&quot; MaxTempo=&quot;32&quot;/&gt;
         ///    &lt;/DanceInstance&gt;
-        ///    &lt;DanceInstance Style=&quot;International&quot; Category=&quot;Standard&quot; MinTempo=&quot;28&quot; MaxTempo=&quot;30&quot;&gt;
+        ///    &lt;DanceInstance Style=&quot;International Standard&quot; MinTempo=&quot;28&quot; MaxTempo=&quot;30&quot;&gt;
         ///      &lt;DanceException Organization=&quot;NDCA&quot; Competitor=&quot;Professional,Amateur&quot; Tempo=&quot;28&quot;/&gt;
         ///    &lt;/DanceInstance&gt;
         ///  &lt;/DanceType&gt;
-        ///  &lt;Dance [rest of string was truncated]&quot;;.
+        ///  &lt;DanceType Name=&quot;Foxtrot&quot; Me [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string Dances {
             get {
                 return ResourceManager.GetString("Dances", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to [
+        ///  {
+        ///    &quot;Name&quot;: &quot;Waltz&quot;,
+        ///    &quot;Meter&quot;: {
+        ///      &quot;Numerator&quot;: 3,
+        ///      &quot;Denominator&quot;: 4
+        ///    },
+        ///    &quot;Instances&quot;: [
+        ///      {
+        ///        &quot;Style&quot;: &quot;American Smooth&quot;,
+        ///        &quot;Tempo&quot;: {
+        ///          &quot;Min&quot;: 28.0,
+        ///          &quot;Max&quot;: 30.0
+        ///        },
+        ///        &quot;Exceptions&quot;: [
+        ///          {
+        ///            &quot;Organization&quot;: &quot;NDCA&quot;,
+        ///            &quot;Tempo&quot;: {
+        ///              &quot;Min&quot;: 30.0,
+        ///              &quot;Max&quot;: 32.0
+        ///            },
+        ///            &quot;Level&quot;: &quot;Bronze&quot;
+        ///          }
+        ///        ]
+        ///      },
+        ///      {
+        ///        &quot;Style&quot;: &quot;Inte [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string JsonDances {
+            get {
+                return ResourceManager.GetString("JsonDances", resourceCulture);
             }
         }
     }

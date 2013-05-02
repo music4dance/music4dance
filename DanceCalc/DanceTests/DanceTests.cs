@@ -180,7 +180,7 @@ namespace DanceTests
             CompareDances(new Meter(3, 4), 31.5M, 20, _Waltz); 
         }
 
-        [TestMethod]
+        //[TestMethod]
         public void DumpJSON()
         {
             string json = _dances.GetJSON();
