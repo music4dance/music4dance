@@ -13,8 +13,7 @@ namespace DanceLibrary
             _last = current;
 
             // First click or reset
-            // TODO: Get a dynamic reset for 2x average time
-            if (delta > _maxWait)
+            if (delta >= _maxWait)
             {
                 Reset();
             }
@@ -32,6 +31,7 @@ namespace DanceLibrary
                 long tick = a.Ticks;
                 long ms = tick / 10000;
                 _average = ms / _intervals.Count;
+                _maxWait = new TimeSpan(0, 0, 0, 0, (int) _average * 2);
 
                 //System.Diagnostics.Debug.WriteLine(sb.ToString());
                 System.Diagnostics.Debug.WriteLine(string.Format("Click: time = {0}, ms = {1}, tck = {4}, avg = {2}, a = {3}", current, ms, _average, a, tick));
@@ -42,6 +42,7 @@ namespace DanceLibrary
         {
             _intervals.Clear();
             _last = DateTime.Now;
+            _maxWait = _defaultWait;
         }
 
         // This is tempo in x per seconds
@@ -57,8 +58,14 @@ namespace DanceLibrary
             }
         }
 
-        private static readonly TimeSpan _maxWait = new TimeSpan(0, 0, 10);
-        private DateTime _last = DateTime.Now - _maxWait;
+        public bool IsClear
+        {
+            get { return _intervals.Count == 0; }
+        }
+
+        private static readonly TimeSpan _defaultWait = new TimeSpan(0, 0, 10);
+        private TimeSpan _maxWait = _defaultWait;
+        private DateTime _last = DateTime.Now - _defaultWait;
 
         private const int _maxCounts = 50;
         private Queue<TimeSpan> _intervals = new Queue<TimeSpan>(_maxCounts);

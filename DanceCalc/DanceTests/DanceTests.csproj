@@ -61,6 +61,7 @@
     <Compile Include="ConversdandTests.cs" />
     <Compile Include="DanceTests.cs" />
     <Compile Include="TimingTests.cs" />
+    <Compile Include="TimerTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\DanceLib\DanceLib.csproj">
