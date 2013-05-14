@@ -3,6 +3,9 @@ using System.Diagnostics;
 
 namespace DanceLibrary
 {
+    /// <summary>
+    /// This class encapsulates the information about a song's timing - meter, tempo, length
+    /// </summary>
     public class SongTiming
     {
         public SongTiming()
@@ -55,10 +58,13 @@ namespace DanceLibrary
             set { NormalizedTempo = NormalizeTempo(value, Meter); }
         }
 
+        /// <summary>
+        /// Length of song in duration type units (beat/measure/second/minute)
+        /// </summary>
         public decimal Length
         {
-            get { return ComputeLength(NormalizedLength.Length, DurationType, NormalizedTempo, Meter); }
-            set { NormalizedLength = NormalizeLength(value, NormalizedTempo, DurationType, Meter); }
+            get { return GetLengthIn(DurationType.DurationKind); }
+            set { SetLengthIn(DurationType.DurationKind, value); }
         }
 
         public decimal Rate
@@ -67,6 +73,15 @@ namespace DanceLibrary
             set { NormalizedTempo = NormalizeRate(value, Meter); }
         }
 
+        public decimal GetLengthIn(DurationKind dk)
+        {
+            return ComputeLength(NormalizedLength.Length, DurationType.FromKind(dk), NormalizedTempo, Meter);
+        }
+
+        public void SetLengthIn(DurationKind dk, decimal length)
+        {
+            NormalizedLength = NormalizeLength(length, NormalizedTempo, DurationType.FromKind(dk), Meter);
+        }
 
         /// <summary>
         /// Convert length into seconds
@@ -157,7 +172,7 @@ namespace DanceLibrary
         // Let's make these public but with the warning that they're normalized values that are generally
         //  only used for serialization
 
-        public decimal NormalizedTempo { get; set; } // tempo in bps
-        public SongDuration NormalizedLength { get; set; } // length in seconds
+        private decimal NormalizedTempo { get; set; } // tempo in bps
+        private SongDuration NormalizedLength { get; set; } // length in seconds
     }
 }

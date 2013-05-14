@@ -181,32 +181,6 @@ namespace DanceLibrary
 
         private static SongDuration[] _durations = { new SongDuration(30M), new SongDuration(60M), new SongDuration(90M), new SongDuration(120M), new SongDuration(150M), new SongDuration(180M), new SongDuration(240M), new SongDuration(300M) };
 
-        ///// <summary>
-        ///// Create a new SongDuration keeping the absolute duration equal but with a new type
-        ///// </summary>
-        ///// <param name="type">New type</param>
-        ///// <returns></returns>
-        //public SongDuration NewType(DurationType type)
-        //{
-        //    switch (type.DurationKind)
-        //    {
-        //        case DurationKind.Beat
-
-        //    return 
-        //}
-
-        //private static decimal ConvertToSeconds(decimal length, DurationKind dk, Meter meter)
-        //{
-        //    switch (dk)
-        //    {
-        //        case DurationKind.Second:
-        //            return length;
-        //        case DurationKind.Measure:
-        //            return length / 60;
-        //        case DurationKind.Beat:
-        //            sf
-
-        //}
 
         #endregion
     }

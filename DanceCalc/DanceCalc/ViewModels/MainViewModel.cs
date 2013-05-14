@@ -104,14 +104,14 @@ namespace DanceCalc
         {
             get
             {
-                return PageState.Timing.NormalizedLength;
+                return PageState.Timing.GetLengthIn(DurationKind.Second);
             }
 
             set
             {
-                if (PageState.Timing.NormalizedLength != value)
+                if (PageState.Timing.Length != value)
                 {
-                    PageState.Timing.NormalizedLength = value;
+                    PageState.Timing.SetLengthIn(DurationKind.Second,value);
                     NotifyPropertyChanged("Length");
                     NotifyPropertyChanged("FromValue");
                     NotifyPropertyChanged("ToValue");

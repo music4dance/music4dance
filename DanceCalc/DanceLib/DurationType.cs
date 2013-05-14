@@ -3,7 +3,7 @@ using System.Collections.ObjectModel;
 
 namespace DanceLibrary
 {
-    public enum DurationKind { Beat, Measure, Second, Minute };
+    public enum DurationKind { Beat=0, Measure=1, Second=2, Minute=3 };
 
     public class DurationType : IConversand
     {
@@ -14,6 +14,11 @@ namespace DanceLibrary
             s_commonDurations.Add(new DurationType(DurationKind.Measure));
             s_commonDurations.Add(new DurationType(DurationKind.Second));
             s_commonDurations.Add(new DurationType(DurationKind.Minute));
+        }
+
+        static public DurationType FromKind(DurationKind dk)
+        {
+            return s_commonDurations[(int)dk];
         }
 
         public DurationType(DurationKind dk)

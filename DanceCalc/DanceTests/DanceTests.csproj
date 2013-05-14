@@ -60,6 +60,7 @@
     <Compile Include="DurationTests.cs" />
     <Compile Include="ConversdandTests.cs" />
     <Compile Include="DanceTests.cs" />
+    <Compile Include="TimingTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\DanceLib\DanceLib.csproj">
