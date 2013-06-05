@@ -25,11 +25,11 @@ namespace music4dance.Filters
         {
             public SimpleMembershipInitializer()
             {
-                Database.SetInitializer<UsersContext>(null);
+                Database.SetInitializer<DanceMusicContext>(null);
 
                 try
                 {
-                    using (var context = new UsersContext())
+                    using (var context = new DanceMusicContext())
                     {
                         if (!context.Database.Exists())
                         {

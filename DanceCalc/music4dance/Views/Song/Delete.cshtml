@@ -1,0 +1,61 @@
+﻿@model music4dance.Models.Song
+
+@{
+    ViewBag.Title = "Delete";
+}
+
+<h2>Delete</h2>
+
+<h3>Are you sure you want to delete this?</h3>
+<fieldset>
+    <legend>Song</legend>
+
+    <div class="display-label">
+         @Html.DisplayNameFor(model => model.Source)
+    </div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.Source)
+    </div>
+
+    <div class="display-label">
+         @Html.DisplayNameFor(model => model.Dances)
+    </div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.Dances)
+    </div>
+
+    <div class="display-label">
+         @Html.DisplayNameFor(model => model.Tempo)
+    </div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.Tempo)
+    </div>
+
+    <div class="display-label">
+         @Html.DisplayNameFor(model => model.Title)
+    </div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.Title)
+    </div>
+
+    <div class="display-label">
+         @Html.DisplayNameFor(model => model.Artist)
+    </div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.Artist)
+    </div>
+
+    <div class="display-label">
+         @Html.DisplayNameFor(model => model.Album)
+    </div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.Album)
+    </div>
+</fieldset>
+@using (Html.BeginForm()) {
+    @Html.AntiForgeryToken()
+    <p>
+        <input type="submit" value="Delete" /> |
+        @Html.ActionLink("Back to List", "Index")
+    </p>
+}

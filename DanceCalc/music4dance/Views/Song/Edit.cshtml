@@ -1,0 +1,78 @@
+﻿@model music4dance.Models.Song
+
+@{
+    ViewBag.Title = "Edit";
+}
+
+<h2>Edit</h2>
+
+@using (Html.BeginForm()) {
+    @Html.AntiForgeryToken()
+    @Html.ValidationSummary(true)
+
+    <fieldset>
+        <legend>Song</legend>
+
+        @Html.HiddenFor(model => model.SongId)
+
+        <div class="editor-label">
+            @Html.LabelFor(model => model.Source)
+        </div>
+        <div class="editor-field">
+            @Html.EditorFor(model => model.Source)
+            @Html.ValidationMessageFor(model => model.Source)
+        </div>
+
+        <div class="editor-label">
+            @Html.LabelFor(model => model.Dances)
+        </div>
+        <div class="editor-field">
+            @Html.EditorFor(model => model.Dances)
+            @Html.ValidationMessageFor(model => model.Dances)
+        </div>
+
+        <div class="editor-label">
+            @Html.LabelFor(model => model.Tempo)
+        </div>
+        <div class="editor-field">
+            @Html.EditorFor(model => model.Tempo)
+            @Html.ValidationMessageFor(model => model.Tempo)
+        </div>
+
+        <div class="editor-label">
+            @Html.LabelFor(model => model.Title)
+        </div>
+        <div class="editor-field">
+            @Html.EditorFor(model => model.Title)
+            @Html.ValidationMessageFor(model => model.Title)
+        </div>
+
+        <div class="editor-label">
+            @Html.LabelFor(model => model.Artist)
+        </div>
+        <div class="editor-field">
+            @Html.EditorFor(model => model.Artist)
+            @Html.ValidationMessageFor(model => model.Artist)
+        </div>
+
+        <div class="editor-label">
+            @Html.LabelFor(model => model.Album)
+        </div>
+        <div class="editor-field">
+            @Html.EditorFor(model => model.Album)
+            @Html.ValidationMessageFor(model => model.Album)
+        </div>
+
+        <p>
+            <input type="submit" value="Save" />
+        </p>
+    </fieldset>
+}
+
+<div>
+    @Html.ActionLink("Back to List", "Index")
+</div>
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}
