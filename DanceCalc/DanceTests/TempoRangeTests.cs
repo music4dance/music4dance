@@ -5,12 +5,12 @@ using DanceLibrary;
 namespace DanceTests
 {
     [TestClass]
-    public class TempoTests
+    public class TempoRangeTests
     {
         [TestMethod]
         public void ValidConstructors()
         {
-            Tempo t = new Tempo(30, 34);
+            TempoRange t = new TempoRange(30, 34);
             Assert.AreEqual(30, t.Min);
             Assert.AreEqual(34, t.Max);
         }
@@ -20,7 +20,7 @@ namespace DanceTests
         {
             try
             {
-                Tempo t = new Tempo(0, 0);
+                TempoRange t = new TempoRange(0, 0);
             }
             catch (ArgumentOutOfRangeException)
             {
@@ -35,7 +35,7 @@ namespace DanceTests
         {
             try
             {
-                Tempo t = new Tempo(26.0M, 22.0M);
+                TempoRange t = new TempoRange(26.0M, 22.0M);
             }
             catch (ArgumentException)
             {
@@ -48,13 +48,13 @@ namespace DanceTests
         [TestMethod]
         public void AverageTempo()
         {
-            Tempo t1 = new Tempo(30, 34);
+            TempoRange t1 = new TempoRange(30, 34);
             Assert.AreEqual(32, t1.Average);
 
-            Tempo t2 = new Tempo(30, 30);
+            TempoRange t2 = new TempoRange(30, 30);
             Assert.AreEqual(30, t2.Average);
 
-            Tempo t3 = new Tempo(20.4M, 100.3M);
+            TempoRange t3 = new TempoRange(20.4M, 100.3M);
             Assert.AreEqual(60.35M, t3.Average);
         }
 
@@ -63,11 +63,11 @@ namespace DanceTests
         {
             // This should give basic coverage of all of the formatting functions
 
-            Tempo t1 = new Tempo(20.4M, 100.003M);
+            TempoRange t1 = new TempoRange(20.4M, 100.003M);
             string s1 = t1.ToString();
             StringAssert.Equals(s1, "20.4-100");
 
-            Tempo t2 = new Tempo(25.01M, 25.01M);
+            TempoRange t2 = new TempoRange(25.01M, 25.01M);
             string s2 = t2.ToString();
             StringAssert.Equals(s2, "25.01");
         }
@@ -75,7 +75,7 @@ namespace DanceTests
         [TestMethod]
         public void TestDelta()
         {
-            Tempo t = new Tempo(20.4M, 100.003M);
+            TempoRange t = new TempoRange(20.4M, 100.003M);
             decimal d1 = t.CalculateDelta(100.003M);
             Assert.AreEqual(0M, d1);
 
@@ -95,15 +95,15 @@ namespace DanceTests
         [TestMethod]
         public void TestInclude()
         {
-            Tempo t1 = new Tempo(24, 24);
-            Assert.AreEqual(t1, new Tempo(24, 24));
+            TempoRange t1 = new TempoRange(24, 24);
+            Assert.AreEqual(t1, new TempoRange(24, 24));
 
-            Tempo t2 = new Tempo(26,27);
-            Tempo t3 = t1.Include(t2);
-            Tempo t4 = t2.Include(t3);
+            TempoRange t2 = new TempoRange(26,27);
+            TempoRange t3 = t1.Include(t2);
+            TempoRange t4 = t2.Include(t3);
 
             Assert.AreEqual(t3, t4);
-            Assert.AreEqual(t3, new Tempo(24, 27));
+            Assert.AreEqual(t3, new TempoRange(24, 27));
         }
     }
 }

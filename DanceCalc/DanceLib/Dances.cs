@@ -77,10 +77,10 @@ namespace DanceLibrary
     public class DanceInstance
     {
         [JsonConstructor]
-        public DanceInstance(string style, Tempo tempo, DanceException[] exceptions)
+        public DanceInstance(string style, TempoRange tempoRange, DanceException[] exceptions)
         {
             Style = style;
-            Tempo = tempo;
+            TempoRange = tempoRange;
             Exceptions = new List<DanceException>(exceptions);
 
             if (exceptions != null)
@@ -98,12 +98,12 @@ namespace DanceLibrary
         public string Style {get; protected set;}
 
         [JsonProperty]
-        public Tempo Tempo {get; protected set;}
+        public TempoRange TempoRange {get; protected set;}
 
         [JsonProperty]
         public List<DanceException> Exceptions { get; protected set; }
 
-        public Tempo FilteredTempo
+        public TempoRange FilteredTempo
         {
             get 
             {
@@ -111,20 +111,20 @@ namespace DanceLibrary
 
                 // Include the general tempo iff the exceptions don't fully cover the
                 //  selected filters for the instnace in question
-                Tempo tempo = null;
+                TempoRange tempoRange = null;
                 if (IncludeGeneral(exceptions))
                 {
-                    tempo = Tempo;
+                    tempoRange = TempoRange;
                 }
 
                 // Now include all of the tempos in the exceptions that are covered by
                 //  the selected filter
                 foreach (DanceException de in exceptions)
                 {
-                    tempo = de.Tempo.Include(tempo);
+                    tempoRange = de.TempoRange.Include(tempoRange);
                 }
 
-                return tempo;
+                return tempoRange;
             }
         }
 
@@ -189,7 +189,7 @@ namespace DanceLibrary
         public bool CalculateMatch(decimal tempo, decimal epsilon, out decimal delta, out decimal deltaPercent, out decimal median)
         {
             bool ret = false; 
-            Tempo filteredTempo = FilteredTempo;
+            TempoRange filteredTempo = FilteredTempo;
             delta = filteredTempo.CalculateDelta(tempo);
             median = (filteredTempo.Min + filteredTempo.Max) / 2;
             deltaPercent = (delta * 100) / median;
@@ -246,7 +246,7 @@ namespace DanceLibrary
     public class DanceException
     {
         [JsonConstructor]
-        public DanceException(string organization, Tempo tempo, string competitor, string level)
+        public DanceException(string organization, TempoRange tempoRange, string competitor, string level)
         {
             // Not sure why default value isn't handling these cases, but don't care that much
             if (string.IsNullOrEmpty(competitor))
@@ -259,7 +259,7 @@ namespace DanceLibrary
             }
 
             Organization = organization;
-            Tempo = tempo;
+            TempoRange = tempoRange;
             Competitor = competitor;
             Level = level;
         }
@@ -268,7 +268,7 @@ namespace DanceLibrary
         public string Organization {get; protected set; }
 
         [JsonProperty]
-        public Tempo Tempo {get; protected set; }
+        public TempoRange TempoRange {get; protected set; }
 
         [JsonProperty]
         [DefaultValue("All")]

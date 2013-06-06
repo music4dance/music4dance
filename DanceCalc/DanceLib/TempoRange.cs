@@ -13,13 +13,13 @@ namespace DanceLibrary
     /// 
     /// </summary>
     [JsonObject(MemberSerialization.OptIn)]
-    public class Tempo
+    public class TempoRange
     {
         /// <summary>
         /// Copy constructor
         /// </summary>
         /// <param name="other">Any valid tempo object</param>
-        public Tempo(Tempo other)
+        public TempoRange(TempoRange other)
         {
             _minTempo = other._minTempo;
             _maxTempo = other._maxTempo;
@@ -33,7 +33,7 @@ namespace DanceLibrary
         /// <param name="minTempo"></param>
         /// <param name="maxTempo"></param>
         [JsonConstructor]
-        public Tempo(decimal min, decimal max)
+        public TempoRange(decimal min, decimal max)
         {
             _minTempo = min;
             _maxTempo = max;
@@ -75,7 +75,7 @@ namespace DanceLibrary
 
         public override bool Equals(object obj)
         {
-            Tempo other = obj as Tempo;
+            TempoRange other = obj as TempoRange;
 
             if (other == null)
                 return false;
@@ -102,12 +102,12 @@ namespace DanceLibrary
             return delta;
         }
 
-        public Tempo Include(Tempo other)
+        public TempoRange Include(TempoRange other)
         {
             if (other == null)
-                return new Tempo(this);
+                return new TempoRange(this);
             else
-                return new Tempo(Math.Min(_minTempo, other._minTempo), Math.Max(_maxTempo, other._maxTempo));
+                return new TempoRange(Math.Min(_minTempo, other._minTempo), Math.Max(_maxTempo, other._maxTempo));
         }
 
         // Formatted values are shown to two decimal places except

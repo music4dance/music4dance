@@ -8,14 +8,14 @@
     "Instances": [
       {
         "Style": "American Smooth",
-        "Tempo": {
+        "TempoRange": {
           "Min": 28.0,
           "Max": 30.0
         },
         "Exceptions": [
           {
             "Organization": "NDCA",
-            "Tempo": {
+            "TempoRange": {
               "Min": 30.0,
               "Max": 32.0
             },
@@ -25,14 +25,14 @@
       },
       {
         "Style": "International Standard",
-        "Tempo": {
+        "TempoRange": {
           "Min": 28.0,
           "Max": 30.0
         },
         "Exceptions": [
           {
             "Organization": "NDCA",
-            "Tempo": {
+            "TempoRange": {
               "Min": 28.0,
               "Max": 28.0
             },
@@ -51,14 +51,14 @@
     "Instances": [
       {
         "Style": "American Smooth",
-        "Tempo": {
+        "TempoRange": {
           "Min": 30.0,
           "Max": 34.0
         },
         "Exceptions": [
           {
             "Organization": "NDCA",
-            "Tempo": {
+            "TempoRange": {
               "Min": 32.0,
               "Max": 34.0
             },
@@ -66,7 +66,7 @@
           },
           {
             "Organization": "NDCA",
-            "Tempo": {
+            "TempoRange": {
               "Min": 30.0,
               "Max": 30.0
             },
@@ -74,7 +74,7 @@
           },
           {
             "Organization": "DanceSport",
-            "Tempo": {
+            "TempoRange": {
               "Min": 30.0,
               "Max": 32.0
             }
@@ -83,7 +83,7 @@
       },
       {
         "Style": "International Standard",
-        "Tempo": {
+        "TempoRange": {
           "Min": 28.0,
           "Max": 30.0
         },
@@ -100,14 +100,14 @@
     "Instances": [
       {
         "Style": "American Smooth",
-        "Tempo": {
+        "TempoRange": {
           "Min": 30.0,
           "Max": 30.0
         },
         "Exceptions": [
           {
             "Organization": "NDCA",
-            "Tempo": {
+            "TempoRange": {
               "Min": 30.0,
               "Max": 32.0
             },
@@ -117,14 +117,14 @@
       },
       {
         "Style": "International Standard",
-        "Tempo": {
+        "TempoRange": {
           "Min": 32.0,
           "Max": 32.0
         },
         "Exceptions": [
           {
             "Organization": "DanceSport",
-            "Tempo": {
+            "TempoRange": {
               "Min": 31.0,
               "Max": 33.0
             }
@@ -142,7 +142,7 @@
     "Instances": [
       {
         "Style": "American Smooth",
-        "Tempo": {
+        "TempoRange": {
           "Min": 60.0,
           "Max": 62.0
         },
@@ -159,7 +159,7 @@
     "Instances": [
       {
         "Style": "American Smooth",
-        "Tempo": {
+        "TempoRange": {
           "Min": 54.0,
           "Max": 54.0
         },
@@ -167,14 +167,14 @@
       },
       {
         "Style": "International Standard",
-        "Tempo": {
+        "TempoRange": {
           "Min": 56.0,
           "Max": 58.0
         },
         "Exceptions": [
           {
             "Organization": "DanceSport",
-            "Tempo": {
+            "TempoRange": {
               "Min": 58.0,
               "Max": 60.0
             }
@@ -192,14 +192,14 @@
     "Instances": [
       {
         "Style": "International Standard",
-        "Tempo": {
+        "TempoRange": {
           "Min": 48.0,
           "Max": 52.0
         },
         "Exceptions": [
           {
             "Organization": "DanceSport",
-            "Tempo": {
+            "TempoRange": {
               "Min": 50.0,
               "Max": 52.0
             }
@@ -217,14 +217,14 @@
     "Instances": [
       {
         "Style": "American Rhythm",
-        "Tempo": {
+        "TempoRange": {
           "Min": 24.0,
           "Max": 26.0
         },
         "Exceptions": [
           {
             "Organization": "NDCA",
-            "Tempo": {
+            "TempoRange": {
               "Min": 24.0,
               "Max": 24.0
             }
@@ -242,7 +242,7 @@
     "Instances": [
       {
         "Style": "American Rhythm",
-        "Tempo": {
+        "TempoRange": {
           "Min": 30.0,
           "Max": 30.0
         },
@@ -250,14 +250,14 @@
       },
       {
         "Style": "International Latin",
-        "Tempo": {
+        "TempoRange": {
           "Min": 31.0,
           "Max": 31.0
         },
         "Exceptions": [
           {
             "Organization": "DanceSport",
-            "Tempo": {
+            "TempoRange": {
               "Min": 30.0,
               "Max": 32.0
             }
@@ -275,14 +275,14 @@
     "Instances": [
       {
         "Style": "American Rhythm",
-        "Tempo": {
+        "TempoRange": {
           "Min": 47.0,
           "Max": 51.0
         },
         "Exceptions": [
           {
             "Organization": "NDCA",
-            "Tempo": {
+            "TempoRange": {
               "Min": 48.0,
               "Max": 51.0
             },
@@ -290,7 +290,7 @@
           },
           {
             "Organization": "NDCA",
-            "Tempo": {
+            "TempoRange": {
               "Min": 47.0,
               "Max": 47.0
             },
@@ -298,7 +298,7 @@
           },
           {
             "Organization": "DanceSport",
-            "Tempo": {
+            "TempoRange": {
               "Min": 47.0,
               "Max": 51.0
             }
@@ -316,14 +316,14 @@
     "Instances": [
       {
         "Style": "International Latin",
-        "Tempo": {
+        "TempoRange": {
           "Min": 38.0,
           "Max": 44.0
         },
         "Exceptions": [
           {
             "Organization": "NDCA",
-            "Tempo": {
+            "TempoRange": {
               "Min": 44.0,
               "Max": 44.0
             },
@@ -331,7 +331,7 @@
           },
           {
             "Organization": "DanceSport",
-            "Tempo": {
+            "TempoRange": {
               "Min": 42.0,
               "Max": 44.0
             }
@@ -349,14 +349,14 @@
     "Instances": [
       {
         "Style": "American Rhythm",
-        "Tempo": {
+        "TempoRange": {
           "Min": 32.0,
           "Max": 36.0
         },
         "Exceptions": [
           {
             "Organization": "NDCA",
-            "Tempo": {
+            "TempoRange": {
               "Min": 32.0,
               "Max": 32.0
             },
@@ -366,14 +366,14 @@
       },
       {
         "Style": "International Latin",
-        "Tempo": {
+        "TempoRange": {
           "Min": 25.0,
           "Max": 27.0
         },
         "Exceptions": [
           {
             "Organization": "NDCA",
-            "Tempo": {
+            "TempoRange": {
               "Min": 27.0,
               "Max": 27.0
             },
@@ -381,7 +381,7 @@
           },
           {
             "Organization": "NDCA",
-            "Tempo": {
+            "TempoRange": {
               "Min": 26.0,
               "Max": 26.0
             },
@@ -400,14 +400,14 @@
     "Instances": [
       {
         "Style": "American Rhythm",
-        "Tempo": {
+        "TempoRange": {
           "Min": 34.0,
           "Max": 36.0
         },
         "Exceptions": [
           {
             "Organization": "NDCA",
-            "Tempo": {
+            "TempoRange": {
               "Min": 36.0,
               "Max": 36.0
             },
@@ -426,7 +426,7 @@
     "Instances": [
       {
         "Style": "American Rhythm",
-        "Tempo": {
+        "TempoRange": {
           "Min": 28.0,
           "Max": 32.0
         },
@@ -443,7 +443,7 @@
     "Instances": [
       {
         "Style": "American Rhythm",
-        "Tempo": {
+        "TempoRange": {
           "Min": 28.0,
           "Max": 30.0
         },
@@ -460,7 +460,7 @@
     "Instances": [
       {
         "Style": "American Rhythm",
-        "Tempo": {
+        "TempoRange": {
           "Min": 29.0,
           "Max": 32.0
         },
@@ -477,7 +477,7 @@
     "Instances": [
       {
         "Style": "International Latin",
-        "Tempo": {
+        "TempoRange": {
           "Min": 60.0,
           "Max": 62.0
         },
@@ -485,7 +485,7 @@
       },
       {
         "Style": "American Rhythm",
-        "Tempo": {
+        "TempoRange": {
           "Min": 58.0,
           "Max": 60.0
         },
@@ -502,14 +502,14 @@
     "Instances": [
       {
         "Style": "International Latin",
-        "Tempo": {
+        "TempoRange": {
           "Min": 48.0,
           "Max": 50.0
         },
         "Exceptions": [
           {
             "Organization": "NDCA",
-            "Tempo": {
+            "TempoRange": {
               "Min": 50.0,
               "Max": 50.0
             },
@@ -517,7 +517,7 @@
           },
           {
             "Organization": "DanceSport",
-            "Tempo": {
+            "TempoRange": {
               "Min": 50.0,
               "Max": 50.0
             }
@@ -526,21 +526,21 @@
       },
       {
         "Style": "American Rhythm",
-        "Tempo": {
+        "TempoRange": {
           "Min": 48.0,
           "Max": 52.0
         },
         "Exceptions": [
           {
             "Organization": "NDCA",
-            "Tempo": {
+            "TempoRange": {
               "Min": 52.0,
               "Max": 52.0
             }
           },
           {
             "Organization": "DanceSport",
-            "Tempo": {
+            "TempoRange": {
               "Min": 48.0,
               "Max": 48.0
             }
@@ -558,7 +558,7 @@
     "Instances": [
       {
         "Style": "American Rhythm",
-        "Tempo": {
+        "TempoRange": {
           "Min": 60.0,
           "Max": 62.0
         },
@@ -575,7 +575,7 @@
     "Instances": [
       {
         "Style": "American Rhythm",
-        "Tempo": {
+        "TempoRange": {
           "Min": 30.0,
           "Max": 30.0
         },
@@ -592,7 +592,7 @@
     "Instances": [
       {
         "Style": "American Rhythm",
-        "Tempo": {
+        "TempoRange": {
           "Min": 39.0,
           "Max": 39.0
         },
@@ -609,7 +609,7 @@
     "Instances": [
       {
         "Style": "American Rhythm",
-        "Tempo": {
+        "TempoRange": {
           "Min": 40.0,
           "Max": 55.0
         },

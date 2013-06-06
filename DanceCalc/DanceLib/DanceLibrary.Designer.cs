@@ -68,7 +68,7 @@ namespace DanceLibrary {
         ///      &lt;DanceException Organization=&quot;NDCA&quot; Level=&quot;Bronze&quot; MinTempo=&quot;30&quot; MaxTempo=&quot;32&quot;/&gt;
         ///    &lt;/DanceInstance&gt;
         ///    &lt;DanceInstance Style=&quot;International Standard&quot; MinTempo=&quot;28&quot; MaxTempo=&quot;30&quot;&gt;
-        ///      &lt;DanceException Organization=&quot;NDCA&quot; Competitor=&quot;Professional,Amateur&quot; Tempo=&quot;28&quot;/&gt;
+        ///      &lt;DanceException Organization=&quot;NDCA&quot; Competitor=&quot;Professional,Amateur&quot; TempoRange=&quot;28&quot;/&gt;
         ///    &lt;/DanceInstance&gt;
         ///  &lt;/DanceType&gt;
         ///  &lt;DanceType Name=&quot;Foxtrot&quot; Me [rest of string was truncated]&quot;;.
@@ -90,14 +90,14 @@ namespace DanceLibrary {
         ///    &quot;Instances&quot;: [
         ///      {
         ///        &quot;Style&quot;: &quot;American Smooth&quot;,
-        ///        &quot;Tempo&quot;: {
+        ///        &quot;TempoRange&quot;: {
         ///          &quot;Min&quot;: 28.0,
         ///          &quot;Max&quot;: 30.0
         ///        },
         ///        &quot;Exceptions&quot;: [
         ///          {
         ///            &quot;Organization&quot;: &quot;NDCA&quot;,
-        ///            &quot;Tempo&quot;: {
+        ///            &quot;TempoRange&quot;: {
         ///              &quot;Min&quot;: 30.0,
         ///              &quot;Max&quot;: 32.0
         ///            },

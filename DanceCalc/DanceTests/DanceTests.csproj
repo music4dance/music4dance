@@ -56,7 +56,7 @@
   <ItemGroup>
     <Compile Include="MeterTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="TempoTests.cs" />
+    <Compile Include="TempoRangeTests.cs" />
     <Compile Include="DurationTests.cs" />
     <Compile Include="ConversdandTests.cs" />
     <Compile Include="DanceTests.cs" />

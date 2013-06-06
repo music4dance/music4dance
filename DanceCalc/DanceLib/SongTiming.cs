@@ -50,7 +50,7 @@ namespace DanceLibrary
         public DurationType DurationType {get;set;}
 
         /// <summary>
-        /// Tempo in M/BPM based on the current meter
+        /// TempoRange in M/BPM based on the current meter
         /// </summary>
         public decimal Tempo
         {
