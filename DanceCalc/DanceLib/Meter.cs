@@ -11,22 +11,13 @@ namespace DanceLibrary
     /// This is an immutable class
     /// </summary>
     [JsonObject(MemberSerialization.OptIn)]
-    public class Meter : IConversand
+    public class Meter
     {
-        static Meter()
-        {
-            s_commonMeters = new List<Meter>(3);
-            s_commonMeters.Add(new Meter(2, 4));
-            s_commonMeters.Add(new Meter(3, 4));
-            s_commonMeters.Add(new Meter(4, 4));
-        }
-
-        public static readonly string MeterSyntaxError = "Meter must contain exaclty one '/' with an optional \"MPM\" prefix";
+        public static readonly string MeterSyntaxError = "Meter must be in the format {positive integer}/{positive integer}";
         public static readonly string IntegerNumerator = "Numerator must be an integer";
         public static readonly string IntegerDenominator = "Denominator must be an integer";
         public static readonly string PositiveIntegerNumerator = "Numerator must be a positive integer less than 1000";
         public static readonly string PositiveIntegerDenominator = "Denominator must be a positive integer less than 1000";
-        //public static readonly string DenominatorLimit = "We are currently only supporting x/4 type signatures";
 
         private Meter()
         {
@@ -47,7 +38,7 @@ namespace DanceLibrary
         }
 
         /// <summary>
-        /// Create a from a string of format "[MPM ]{positive int}/{positive int}"
+        /// Create a Meter from a string of format "{positive int}/{positive int}"
         /// </summary>
         /// <param name="s"></param>
         public Meter(string s)
@@ -56,21 +47,15 @@ namespace DanceLibrary
 
             string[] strings = s.Split(new char[] { '/', ' ' });
 
-            int offset = 0;
-
-            if (strings.Length == 3 && strings[0].Equals("MPM"))
-            {
-                offset = 1;
-            }
-            else if (strings.Length != 2)
+            if (strings.Length != 2)
             {
                 throw new ArgumentOutOfRangeException(MeterSyntaxError);
             }
 
-            if (!int.TryParse(strings[0 + offset], out _numerator))
+            if (!int.TryParse(strings[0], out _numerator))
                 throw new ArgumentOutOfRangeException(IntegerNumerator);
 
-            if (!int.TryParse(strings[1 + offset], out _denominator))
+            if (!int.TryParse(strings[1], out _denominator))
                 throw new ArgumentOutOfRangeException(IntegerDenominator);
 
             Validate();
@@ -108,26 +93,10 @@ namespace DanceLibrary
             get { return _denominator; }
         }
 
-        // Return a string of the form "MPM {numerator}/{denominator}"
+        // Return a string of the form "{numerator}/{denominator}"
         public override string ToString()
         {
-            return ToString(null);
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="format"></param>
-        /// <returns></returns>
-        public string ToString(string format)
-        {
-            string prefix = "MPM ";
-            if (format != null && format.Equals("C"))
-            {
-                prefix = "";
-            }
-
-            return string.Format("{0}{1}/{2}", prefix, _numerator, _denominator);
+            return string.Format("{0}/{1}", _numerator, _denominator);
         }
 
         public override bool Equals(object obj)
@@ -137,6 +106,28 @@ namespace DanceLibrary
                 return false;
             else
                 return (this._numerator == m._numerator) && (this._denominator == m._denominator);
+        }
+
+        public static bool operator==(Meter a, Meter b)
+        {
+            // If both are null, or both are same instance, return true.
+            if (System.Object.ReferenceEquals(a, b))
+            {
+                return true;
+            }
+
+            // Handle a is null case☺.
+            if (((object)a == null))
+            {
+                return ((object)b == null);
+            }
+
+            return a.Equals(b);
+        }
+
+        public static bool operator !=(Meter a, Meter b)
+        {
+            return !(a == b);
         }
 
         public override int GetHashCode()
@@ -149,41 +140,7 @@ namespace DanceLibrary
         //    return (m1._numerator == m2._numerator) && (m1._denominator == m2._denominator);
         //}
 
-        /// <summary>
-        /// Return a collection of the common meters to be used for populating a drop-down
-        /// </summary>
-        public static ReadOnlyCollection<Meter> CommonMeters
-        {
-            get
-            {
-                return new ReadOnlyCollection<Meter>(s_commonMeters);
-            }
-        }
-
         private int _numerator;
         private int _denominator;
-
-        private static List<Meter> s_commonMeters;
-
-        // Implementation of IConversand
-        public Kind Kind
-        {
-            get { return Kind.Rate; }
-        }
-
-        public string Name
-        {
-            get { return this.ToString(); }
-        }
-
-        public string Label
-        {
-            get { return TypeName; }
-        }
-
-        public static string TypeName
-        {
-            get { return "Meter"; }
-        }
     }
 }

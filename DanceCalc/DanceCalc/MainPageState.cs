@@ -23,11 +23,11 @@ namespace DanceCalc
 
         public void Reset()
         {
-            Meter from = new Meter(4, 4);
+            TempoType from =Tempo.DefaultTempo.TempoType;
             From = from;
             DurationType to = new DurationType(DurationKind.Measure);
             To = to;
-            Timing = new SongTiming(from, to, 32.0M, 48M);
+            Timing = new SongTiming(Tempo.DefaultTempo, 48M, DurationKind.Measure);
             Epsilon = 10M;
             Counting = false;
         }
@@ -83,7 +83,7 @@ namespace DanceCalc
             decimal e = 10M;
             if (s != null && !decimal.TryParse(s,out e))
             {
-                throw new InvalidCastException("Epsilon must be decimal");                
+                throw new InvalidCastException("Epsilon must be decimal");
             }
             Epsilon = e;
         }

@@ -8,20 +8,22 @@ namespace DanceTests
     public class ConversdandTests
     {
         [TestMethod]
-        public void MeterSerialization()
+        public void TempoSerialization()
         {
-            TryMeter(new Meter(3, 4));
-            TryMeter(new Meter(4, 4));
-            TryMeter(new Meter(6, 8));
-            TryMeter(new Meter(5, 4));
+            TryTempo(new TempoType(TempoKind.BPM,null));
+            TryTempo(new TempoType(TempoKind.BPS,null));
+            TryTempo(new TempoType(TempoKind.MPM,new Meter(3, 4)));
+            TryTempo(new TempoType(TempoKind.MPM,new Meter(4, 4)));
+            TryTempo(new TempoType(TempoKind.MPM,new Meter(6, 8)));
+            TryTempo(new TempoType(TempoKind.MPM,new Meter(5, 4)));
         }
 
-        private void TryMeter(Meter m)
+        private void TryTempo(TempoType t)
         {
-            string s = Conversands.GetSerialization(m);
-            Meter r = Conversands.Deserialize(s) as Meter;
+            string s = Conversands.GetSerialization(t);
+            TempoType r = Conversands.Deserialize(s) as TempoType;
 
-            Assert.AreEqual<Meter>(m, r);
+            Assert.AreEqual<TempoType>(t, r);
         }
 
         [TestMethod]

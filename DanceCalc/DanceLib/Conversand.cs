@@ -4,7 +4,7 @@ using System.Collections.ObjectModel;
 
 namespace DanceLibrary
 {
-    public enum Kind { Rate, Duration };
+    public enum Kind { Tempo, Duration };
 
     public interface IConversand
     {
@@ -17,10 +17,10 @@ namespace DanceLibrary
     {
         static Conversands()
         {
-            foreach (Meter meter in Meter.CommonMeters)
+            foreach (TempoType tempo in TempoType.CommonTempoes)
             {
-                s_meterConversands.Add(meter);
-                s_allConversands.Add(meter);
+                s_tempoConversands.Add(tempo);
+                s_allConversands.Add(tempo);
             }
 
             foreach (DurationType sd in DurationType.CommonDurations)
@@ -42,7 +42,7 @@ namespace DanceLibrary
         {
             get
             {
-                return new ReadOnlyCollection<IConversand>(s_meterConversands);
+                return new ReadOnlyCollection<IConversand>(s_tempoConversands);
             }
         }
 
@@ -71,9 +71,9 @@ namespace DanceLibrary
             // There has to be a better way of managing a factory for this pattern, but it's not
             //  obvious right now,sI'm going to just brute force it
 
-            if (string.Equals(rg[0], Meter.TypeName))
+            if (string.Equals(rg[0], TempoType.TypeName))
             {
-                ret = new Meter(rg[1]);
+                ret = new TempoType(rg[1]);
             }
             else if (string.Equals(rg[0], DurationType.TypeName))
             {
@@ -81,14 +81,14 @@ namespace DanceLibrary
             }
             else
             {
-                throw new ArgumentOutOfRangeException("Only conversands of type 'Meter' and 'Duration' are currently supported");
+                throw new ArgumentOutOfRangeException("Only conversands of type 'TempoType' and 'Duration' are currently supported");
             }
 
             return ret;
         }
 
         private static List<IConversand> s_allConversands = new List<IConversand>();
-        private static List<IConversand> s_meterConversands = new List<IConversand>();
+        private static List<IConversand> s_tempoConversands = new List<IConversand>();
         private static List<IConversand> s_durationConversands = new List<IConversand>();
     }
 }

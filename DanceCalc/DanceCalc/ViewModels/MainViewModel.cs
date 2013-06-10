@@ -104,14 +104,14 @@ namespace DanceCalc
         {
             get
             {
-                return PageState.Timing.GetLengthIn(DurationKind.Second);
+                return PageState.Timing.Duration;
             }
 
             set
             {
-                if (PageState.Timing.Length != value)
+                if (PageState.Timing.Duration.Length != value)
                 {
-                    PageState.Timing.SetLengthIn(DurationKind.Second,value);
+                    PageState.Timing.Duration = new SongDuration(value);
                     NotifyPropertyChanged("Length");
                     NotifyPropertyChanged("FromValue");
                     NotifyPropertyChanged("ToValue");
@@ -160,7 +160,7 @@ namespace DanceCalc
             Decimal r = _st.Rate;
             if (Counting == true)
             {
-                PageState.Timing.Rate = r;
+                PageState.Timing.SetBPS(r);
 
                 UpdateDances();
 
@@ -207,11 +207,11 @@ namespace DanceCalc
         {
             switch (conversand.Kind)
             {
-                case Kind.Rate:
-                    PageState.Timing.Meter = conversand as Meter;
+                case Kind.Tempo:
+                    PageState.Timing.Convert(conversand as TempoType);
                     break;
                 case Kind.Duration:
-                    PageState.Timing.DurationType = conversand as DurationType;
+                    PageState.Timing.Convert(conversand as DurationType);
                     break;                
             }
         }
@@ -221,11 +221,11 @@ namespace DanceCalc
             decimal value = -1;
             switch (conversand.Kind)
             {
-                case Kind.Rate:
-                    value = PageState.Timing.Tempo;
+                case Kind.Tempo:
+                    value = PageState.Timing.Tempo.Rate;
                     break;
                 case Kind.Duration:
-                    value = PageState.Timing.Length;
+                    value = PageState.Timing.GetBiasedLength();
                     break;
                 default:
                     Debug.Assert(false);
@@ -242,12 +242,12 @@ namespace DanceCalc
 
             switch (conversand.Kind)
             {
-                case Kind.Rate:
-                    PageState.Timing.Tempo = value;
+                case Kind.Tempo:
+                    PageState.Timing.SetRate(value);
                     UpdateDances();
                     break;
                 case Kind.Duration:
-                    PageState.Timing.Length = value;
+                    PageState.Timing.SetLength(value);
                     break;
                 default:
                     Debug.Assert(false);
@@ -287,7 +287,7 @@ namespace DanceCalc
         {
             Dances.Clear();
 
-            IEnumerable<DanceSample> d = _dances.DancesFiltered(PageState.Timing.Meter, PageState.Timing.Tempo, PageState.Epsilon);
+            IEnumerable<DanceSample> d = _dances.DancesFiltered(PageState.Timing.Tempo, PageState.Epsilon);
             foreach (DanceSample el in d)
             {
                 Dances.Add(el);

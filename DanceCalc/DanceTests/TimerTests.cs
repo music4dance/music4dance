@@ -28,7 +28,7 @@ namespace DanceTests
         {
             SongTimer st = PrimeTimer();
 
-            decimal rate = st.Rate;            
+            decimal rate = st.Rate;
             decimal delta = Math.Abs(.1M - st.Rate);
 
             Assert.IsTrue(delta < .01M);

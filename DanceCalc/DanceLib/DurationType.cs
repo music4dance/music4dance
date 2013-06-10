@@ -21,6 +21,7 @@ namespace DanceLibrary
             return s_commonDurations[(int)dk];
         }
 
+        #region Constructors
         public DurationType(DurationKind dk)
         {
             _dk = dk;
@@ -49,7 +50,11 @@ namespace DanceLibrary
                 System.Diagnostics.Debug.Assert(false);
             }
         }
+        
+        #endregion
 
+
+        #region Properties
         public DurationKind DurationKind
         {
             get { return _dk; }
@@ -66,6 +71,18 @@ namespace DanceLibrary
                 default: System.Diagnostics.Debug.Assert(false); return "#ERROR#";
             }
         }
+        #endregion
+
+        #region Operators
+        static public implicit operator DurationKind(DurationType dt)
+        {
+            return dt.DurationKind;
+        }
+
+        static public implicit operator DurationType(DurationKind dk)
+        {
+            return s_commonDurations[(int)dk];
+        }
 
         public override bool Equals(object obj)
         {
@@ -80,6 +97,7 @@ namespace DanceLibrary
         {
             return _dk.GetHashCode();
         }
+        #endregion
 
         public static ReadOnlyCollection<DurationType> CommonDurations
         {

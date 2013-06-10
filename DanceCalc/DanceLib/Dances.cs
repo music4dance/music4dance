@@ -414,8 +414,11 @@ namespace DanceLibrary
             return abs * Math.Sign(a);
         }
 
-        public IEnumerable<DanceSample> DancesFiltered(Meter meter, Decimal tempo, decimal epsilon)
+        public IEnumerable<DanceSample> DancesFiltered(Tempo tempo, decimal epsilon)
         {
+            Meter meter = tempo.TempoType.Meter;
+            decimal rate = tempo.Rate;
+
             // Cut a fairly wide swath on what we include in the list
             Dictionary<string,DanceSample> dances = new Dictionary<string,DanceSample>();
             foreach (DanceInstance di in _allDanceInstances)
@@ -426,7 +429,7 @@ namespace DanceLibrary
                     decimal delta;
                     decimal deltaPercent;
                     decimal median; 
-                    bool match = di.CalculateMatch(tempo, epsilon, out delta, out deltaPercent, out median);
+                    bool match = di.CalculateMatch(rate, epsilon, out delta, out deltaPercent, out median);
                     
                     // This tempo and style matches the dance instance
                     if (match)
@@ -455,7 +458,5 @@ namespace DanceLibrary
 
             return dancelist;
         }
-
-        private XDocument _dances;
     }
 }

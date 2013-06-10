@@ -77,19 +77,6 @@ namespace DanceCalc
         {
             App.ViewModel.Count();
             ResetTimer();
-           
-            //TextBox rate = FromValue;
-
-            //decimal currentRate = 0;
-            //if (decimal.TryParse(FromValue.Text, out currentRate))
-            //{
-            //    currentRate += 1;
-            //    FromValue.Text = currentRate.ToString();
-            //}
-            //else
-            //{
-            //    FromValue.Text = "#ERROR#";
-            //}
         }
 
         private void ResetTimer()

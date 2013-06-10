@@ -65,6 +65,8 @@
     <Compile Include="ITempStorage.cs" />
     <Compile Include="SongTimer.cs" />
     <Compile Include="SongDuration.cs" />
+    <Compile Include="Tempo.cs" />
+    <Compile Include="TempoType.cs" />
     <Compile Include="TempoRange.cs" />
     <Compile Include="DurationType.cs" />
     <Compile Include="Conversand.cs" />

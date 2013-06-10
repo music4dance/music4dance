@@ -11,32 +11,33 @@ namespace DanceTests
         [TestMethod]
         public void DurationNinetyCommon()
         {
-            SongTiming st = new SongTiming(new Meter(4, 4), DurationType.FromKind(DurationKind.Second), 32M, 90M);
+            SongTiming st = new SongTiming(new Tempo(32M, new TempoType(TempoKind.MPM,new Meter(4,4))),64M,DurationKind.Measure);
 
-            Debug.WriteLine(st.ToString());
+            string stS = st.ToString();
+            Debug.WriteLine(stS);
 
-            Assert.AreEqual(st.ToString(), "MPM 4/4,Second,2.1333333333333333333333333333,90");
+            Assert.AreEqual("2m,Measure,32 MPM 4/4", st.ToString());
 
-            Assert.AreEqual(90M, st.Length);
-            Assert.AreEqual(1.5M, st.GetLengthIn(DurationKind.Minute));
-            Assert.AreEqual(48M, st.GetLengthIn(DurationKind.Measure));
-            Assert.AreEqual(48M * 4M, st.GetLengthIn(DurationKind.Beat));
+            SongTiming stN = new SongTiming(stS);
+            Assert.IsTrue(st.Equals(stN));
+
+            Assert.AreEqual(120M, (decimal) st.Duration);
         }
 
         [TestMethod]
         public void DurationSixtyWaltz()
         {
-            SongTiming st = new SongTiming(new Meter(3, 4), DurationType.FromKind(DurationKind.Second), 53M, 60M);
+            SongTiming st = new SongTiming(new Tempo(53M, new TempoType(TempoKind.MPM, new Meter(3, 4))), 90M, DurationKind.Second);
 
-            Debug.WriteLine(st.ToString());
+            string stS = st.ToString();
+            Debug.WriteLine(stS);
 
-            Assert.AreEqual(st.ToString(), "MPM 3/4,Second,2.65,60");
+            Assert.AreEqual("90s,Second,53 MPM 3/4", stS);
 
-            Assert.AreEqual(60M, st.Length);
-            Assert.AreEqual(1M, st.GetLengthIn(DurationKind.Minute));
-            Assert.AreEqual(53M, st.GetLengthIn(DurationKind.Measure));
-            Assert.AreEqual(53M * 3M, st.GetLengthIn(DurationKind.Beat));
+            SongTiming stN = new SongTiming(stS);
+            Assert.IsTrue(st.Equals(stN));
+
+            Assert.AreEqual(90M, st.GetBiasedLength());
         }
-
     }
 }

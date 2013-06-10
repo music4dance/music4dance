@@ -29,7 +29,7 @@ namespace DanceTests
             {
                 SongDuration d = new SongDuration(1.0M,new DurationType(DurationKind.Measure));
             }
-            catch (ArgumentOutOfRangeException)
+            catch (ArgumentNullException)
             {
                 return;
             }

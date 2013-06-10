@@ -79,9 +79,10 @@ namespace DanceTests
 
         readonly string[] _NullDances = { };
 
-        private void CompareDances(Meter meter, decimal tempo, decimal epsilon, string[] expected)
+        private void CompareDances(Meter meter, decimal rate, decimal epsilon, string[] expected)
         {
-            IEnumerable<DanceSample> dances = _dances.DancesFiltered(meter,tempo,epsilon);
+            Tempo tempo = new Tempo(rate, new TempoType(TempoKind.MPM, meter));
+            IEnumerable<DanceSample> dances = _dances.DancesFiltered(tempo,epsilon);
 
             int i = 0;
             foreach (DanceSample dance in dances)
@@ -180,7 +181,7 @@ namespace DanceTests
             CompareDances(new Meter(3, 4), 31.5M, 20, _Waltz); 
         }
 
-        //[TestMethod]
+        [TestMethod]
         public void DumpJSON()
         {
             string json = _dances.GetJSON();

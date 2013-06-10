@@ -53,7 +53,7 @@ namespace DanceLibrary
                 Decimal t = 0M;
                 if (_average != 0)
                     t = new Decimal(_average) / 1000;
-                System.Diagnostics.Debug.WriteLine("Rate = {0}", t);
+                System.Diagnostics.Debug.WriteLine("Tempo = {0}", t);
                 return t;
             }
         }
