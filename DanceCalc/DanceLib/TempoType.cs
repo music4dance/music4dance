@@ -21,7 +21,7 @@ namespace DanceLibrary
 
         static TempoType()
         {
-            s_commonTempoes = new List<TempoType>(3);
+            s_commonTempoes = new List<TempoType>(5);
             s_commonTempoes.Add(new TempoType(TempoKind.BPM));
             s_commonTempoes.Add(new TempoType(TempoKind.BPS));
             s_commonTempoes.Add(new TempoType(TempoKind.MPM,new Meter(2, 4)));
