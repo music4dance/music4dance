@@ -5,7 +5,7 @@ using System.Data.Entity;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
-using music4dance.Models;
+using SongDatabase.Models;
 
 namespace music4dance.Controllers
 {

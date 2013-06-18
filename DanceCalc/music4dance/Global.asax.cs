@@ -25,7 +25,7 @@ namespace music4dance
             BundleConfig.RegisterBundles(BundleTable.Bundles);
             AuthConfig.RegisterAuth();
 
-            //Database.SetInitializer(new MigrateDatabaseToLatestVersion<music4dance.Models.DanceMusicContext, music4dance.Migrations.Configuration>());
+            //Database.SetInitializer(new MigrateDatabaseToLatestVersion<SongDatabase.Models.DanceMusicContext, music4dance.Migrations.Configuration>());
         }
     }
 }

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 
-namespace music4dance.Models
+namespace SongDatabase.Models
 {
     public class Song
     {

@@ -20,9 +20,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "music4dance", "music4dance\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "music4dance.Tests", "music4dance.Tests\music4dance.Tests.csproj", "{F98F6319-4FBF-472B-9BF6-B986D9CE07CF}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SongDatabase", "SongDatabase\SongDatabase.csproj", "{65B8CDE7-B317-45F8-94D2-6E29CC74D9CD}"
+EndProject
 Global
 	GlobalSection(TeamFoundationVersionControl) = preSolution
-		SccNumberOfProjects = 7
+		SccNumberOfProjects = 8
 		SccEnterpriseProvider = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
 		SccTeamFoundationServer = https://thegray.tfspreview.com/defaultcollection
 		SccLocalPath0 = .
@@ -44,6 +46,9 @@ Global
 		SccProjectUniqueName6 = music4dance.Tests\\music4dance.Tests.csproj
 		SccProjectName6 = music4dance.Tests
 		SccLocalPath6 = music4dance.Tests
+		SccProjectUniqueName7 = SongDatabase\\SongDatabase.csproj
+		SccProjectName7 = SongDatabase
+		SccLocalPath7 = SongDatabase
 	EndGlobalSection
 	GlobalSection(TestCaseManagementSettings) = postSolution
 		CategoryFile = DanceCalc.vsmdi
@@ -79,6 +84,10 @@ Global
 		{F98F6319-4FBF-472B-9BF6-B986D9CE07CF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F98F6319-4FBF-472B-9BF6-B986D9CE07CF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F98F6319-4FBF-472B-9BF6-B986D9CE07CF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{65B8CDE7-B317-45F8-94D2-6E29CC74D9CD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{65B8CDE7-B317-45F8-94D2-6E29CC74D9CD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{65B8CDE7-B317-45F8-94D2-6E29CC74D9CD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{65B8CDE7-B317-45F8-94D2-6E29CC74D9CD}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

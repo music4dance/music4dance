@@ -9,7 +9,7 @@ using DotNetOpenAuth.AspNet;
 using Microsoft.Web.WebPages.OAuth;
 using WebMatrix.WebData;
 using music4dance.Filters;
-using music4dance.Models;
+using SongDatabase.Models;
 
 namespace music4dance.Controllers
 {
