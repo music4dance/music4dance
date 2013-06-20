@@ -20,6 +20,16 @@ namespace SongDatabase.Models
 
         public DbSet<Song> Songs { get; set; }
 
+        public DbSet<SongProperty> SongProperties { get; set; }
+
         public DbSet<UserProfile> UserProfiles { get; set; }
+
+        protected override void OnModelCreating(System.Data.Entity.DbModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<Song>().Property(song => song.Tempo).HasPrecision(6, 2);
+
+            base.OnModelCreating(modelBuilder);
+        }
+
     }
 }

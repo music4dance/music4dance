@@ -25,6 +25,7 @@ namespace SongDatabase.Models
         [DatabaseGeneratedAttribute(DatabaseGeneratedOption.Identity)]
         public int UserId { get; set; }
         public string UserName { get; set; }
+        public virtual ICollection<Song> Songs { get; set; }
     }
 
     public class RegisterExternalLoginModel
