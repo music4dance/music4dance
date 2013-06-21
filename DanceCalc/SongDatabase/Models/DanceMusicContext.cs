@@ -1,4 +1,5 @@
-﻿using System.Data.Entity;
+﻿using DanceLibrary;
+using System.Data.Entity;
 
 namespace SongDatabase.Models
 {
@@ -24,12 +25,25 @@ namespace SongDatabase.Models
 
         public DbSet<UserProfile> UserProfiles { get; set; }
 
+        public DbSet<Dance> Dances { get; set; }
+
         protected override void OnModelCreating(System.Data.Entity.DbModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Song>().Property(song => song.Tempo).HasPrecision(6, 2);
+            modelBuilder.Entity<Dance>().Property(dance => dance.Id).HasMaxLength(5);
+            modelBuilder.Entity<Dance>().Ignore(dance => dance.Info);
 
             base.OnModelCreating(modelBuilder);
         }
 
+        public static Dances DanceLibrary
+        {
+            get
+            {
+                return _dances;
+            }
+        }
+
+        private static Dances _dances = new Dances();
     }
 }

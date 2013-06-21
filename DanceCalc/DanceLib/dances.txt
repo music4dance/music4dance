@@ -1,6 +1,7 @@
 [
   {
-    "Name": "Waltz",
+    "Name": "Slow Waltz",
+    "Id" : "SWZ",
     "Meter": {
       "Numerator": 3,
       "Denominator": 4
@@ -44,6 +45,7 @@
   },
   {
     "Name": "Foxtrot",
+    "Id": "SFT",
     "Meter": {
       "Numerator": 4,
       "Denominator": 4
@@ -93,6 +95,7 @@
   },
   {
     "Name": "Tango",
+    "Id": "TGO",
     "Meter": {
       "Numerator": 4,
       "Denominator": 4
@@ -135,6 +138,7 @@
   },
   {
     "Name": "Peabody",
+    "Id": "PBD",
     "Meter": {
       "Numerator": 4,
       "Denominator": 4
@@ -151,7 +155,8 @@
     ]
   },
   {
-    "Name": "Viennese",
+    "Name": "Viennese Waltz",
+    "Id": "VWZ",
     "Meter": {
       "Numerator": 3,
       "Denominator": 4
@@ -185,6 +190,7 @@
   },
   {
     "Name": "QuickStep",
+    "Id": "QST",
     "Meter": {
       "Numerator": 4,
       "Denominator": 4
@@ -210,6 +216,7 @@
   },
   {
     "Name": "Bolero",
+    "Id": "BOL",
     "Meter": {
       "Numerator": 4,
       "Denominator": 4
@@ -235,6 +242,7 @@
   },
   {
     "Name": "Cha Cha",
+    "Id": "CHA",
     "Meter": {
       "Numerator": 4,
       "Denominator": 4
@@ -268,6 +276,7 @@
   },
   {
     "Name": "Mambo",
+    "Id": "MBO",
     "Meter": {
       "Numerator": 4,
       "Denominator": 4
@@ -309,6 +318,7 @@
   },
   {
     "Name": "Jive",
+    "Id": "JIV",
     "Meter": {
       "Numerator": 4,
       "Denominator": 4
@@ -342,6 +352,7 @@
   },
   {
     "Name": "Rumba",
+    "Id": "RMB",
     "Meter": {
       "Numerator": 4,
       "Denominator": 4
@@ -392,7 +403,8 @@
     ]
   },
   {
-    "Name": "Swing",
+    "Name": "East Coast Swing",
+    "Id": "ECS",
     "Meter": {
       "Numerator": 4,
       "Denominator": 4
@@ -419,6 +431,7 @@
   },
   {
     "Name": "West Coast Swing",
+    "Id": "WCS",
     "Meter": {
       "Numerator": 4,
       "Denominator": 4
@@ -436,6 +449,7 @@
   },
   {
     "Name": "Hustle",
+    "Id": "HST",
     "Meter": {
       "Numerator": 4,
       "Denominator": 4
@@ -453,6 +467,7 @@
   },
   {
     "Name": "Merengue",
+    "Id": "MRG",
     "Meter": {
       "Numerator": 2,
       "Denominator": 4
@@ -470,6 +485,7 @@
   },
   {
     "Name": "Paso Doble",
+    "Id": "PDL",
     "Meter": {
       "Numerator": 2,
       "Denominator": 4
@@ -495,6 +511,7 @@
   },
   {
     "Name": "Samba",
+    "Id": "SMB",
     "Meter": {
       "Numerator": 2,
       "Denominator": 4
@@ -551,6 +568,7 @@
   },
   {
     "Name": "Polka",
+    "Id": "PLK",
     "Meter": {
       "Numerator": 2,
       "Denominator": 4
@@ -568,6 +586,7 @@
   },
   {
     "Name": "Bachata",
+    "Id": "BCH",
     "Meter": {
       "Numerator": 4,
       "Denominator": 4
@@ -585,6 +604,7 @@
   },
   {
     "Name": "Night Club 2 Step",
+    "Id": "NC2",
     "Meter": {
       "Numerator": 4,
       "Denominator": 4
@@ -602,6 +622,7 @@
   },
   {
     "Name": "Salsa",
+    "Id": "SLS",
     "Meter": {
       "Numerator": 4,
       "Denominator": 4

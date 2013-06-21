@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -19,11 +20,19 @@ namespace DanceLibrary
         static internal readonly string Organization = "Organization";
     }
 
+    public class DanceObject
+    {
+        public virtual string Id { get; protected set; }
+        public virtual string Name { get; protected set; }
+        public virtual Meter Meter { get; protected set; }
+        public virtual TempoRange TempoRange { get; protected set; }
+    }
+
     [JsonObject(MemberSerialization.OptIn)]
-    public class DanceType
+    public class DanceType : DanceObject
     {
         [JsonConstructor]
-        public DanceType(string name, string description, Meter meter, DanceInstance[] instances)
+        public DanceType(string name, string description, Meter meter, DanceInstance[] instances) 
         {
             Name = name;
             Description = description;
@@ -40,10 +49,31 @@ namespace DanceLibrary
         }
 
         [JsonProperty]
-        public string Name {get; protected set;}
+        override public string Id { get; protected set; }
 
         [JsonProperty]
-        public Meter Meter {get; protected set;}
+        override public string Name {get; protected set;}
+
+        [JsonProperty]
+        override public Meter Meter {get; protected set;}
+
+        public override TempoRange TempoRange
+        {
+            get
+            {
+                Debug.Assert(Instances.Count > 0);
+                TempoRange tr = Instances[0].TempoRange;
+                for (int i = 1; i < Instances.Count; i++)
+                {
+                    tr.Include(Instances[i].TempoRange);
+                }
+                return tr;
+            }
+            protected set
+            {
+                Debug.Assert(false);
+            }
+        }
 
         [JsonProperty]
         public List<DanceInstance> Instances { get; protected set; }
@@ -74,7 +104,7 @@ namespace DanceLibrary
     }
 
     [JsonObject(MemberSerialization.OptIn)]
-    public class DanceInstance
+    public class DanceInstance : DanceObject
     {
         [JsonConstructor]
         public DanceInstance(string style, TempoRange tempoRange, DanceException[] exceptions)
@@ -95,10 +125,46 @@ namespace DanceLibrary
         public DanceType DanceType { get; internal set;}
 
         [JsonProperty]
-        public string Style {get; protected set;}
+        override public TempoRange TempoRange { get; protected set; }
+
+        public override string Id
+        {
+            get
+            {
+                return DanceType.Id + StyleId;
+            }
+            protected set
+            {
+                Debug.Assert(false);
+            }
+        }
+
+        public override Meter Meter
+        {
+            get
+            {
+                return DanceType.Meter;
+            }
+            protected set
+            {
+                Debug.Assert(false);
+            }
+        }
+
+        public override string Name
+        {
+            get
+            {
+                return ShortStyle + ' ' + DanceType.Name;
+            }
+            protected set
+            {
+                Debug.Assert(false);
+            }
+        }
 
         [JsonProperty]
-        public TempoRange TempoRange {get; protected set;}
+        public string Style {get; protected set;}
 
         [JsonProperty]
         public List<DanceException> Exceptions { get; protected set; }
@@ -125,6 +191,26 @@ namespace DanceLibrary
                 }
 
                 return tempoRange;
+            }
+        }
+
+        public string ShortStyle
+        {
+            get 
+            {
+                string[] words = Style.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+                Debug.Assert(words.Length > 0);
+                return words[0];
+            }
+        }
+
+        public char StyleId
+        {
+            get
+            {
+                string ss = ShortStyle;
+                Debug.Assert(!string.IsNullOrEmpty(ss));
+                return ShortStyle[0];
             }
         }
 
@@ -381,14 +467,45 @@ namespace DanceLibrary
                 _allDanceInstances.AddRange(dt.Instances);
             }
 
+            foreach (DanceType dt in _allDanceTypes)
+            {
+                _allDanceObjects.Add(dt);
+                _danceDictionary.Add(dt.Id, dt);
+            }
+
+            foreach (DanceInstance di in _allDanceInstances)
+            {
+                _allDanceObjects.Add(di);
+                _danceDictionary.Add(di.Id, di);
+            }
+
             Instance = this;
         }
 
         internal static Dances Instance { get; set; }
 
-        public IEnumerable<DanceInstance> AllDances()
+        public IEnumerable<DanceInstance> AllDanceInstances
         {
-            return _allDanceInstances;
+            get
+            {
+                return _allDanceInstances;
+            }
+        }
+
+        public IEnumerable<DanceObject> AllDances
+        {
+            get
+            {
+                return _allDanceObjects;
+            }
+        }
+
+        public Dictionary<string, DanceObject> DanceDictionary
+        {
+            get
+            {
+                return _danceDictionary;
+            }
         }
 
         public string GetJSON()
@@ -406,6 +523,8 @@ namespace DanceLibrary
 
         private List<DanceType> _allDanceTypes = new List<DanceType>();
         private List<DanceInstance> _allDanceInstances = new List<DanceInstance>();
+        private List<DanceObject> _allDanceObjects = new List<DanceObject>();
+        private Dictionary<string, DanceObject> _danceDictionary = new Dictionary<string, DanceObject>();
 
         private decimal SignedMin(decimal a, decimal b)
         {

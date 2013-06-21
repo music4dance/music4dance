@@ -41,7 +41,7 @@ namespace DanceTests
             "Rumba: Style=(American Rhythm, International Latin), Delta=(-0.50MPM)",
             "Hustle: Style=(American Rhythm), Delta=(+1.50MPM)",
             "Bachata: Style=(American Rhythm), Delta=(+1.50MPM)",
-            "Swing: Style=(American Rhythm), Delta=(-2.50MPM)",
+            "East Coast Swing: Style=(American Rhythm), Delta=(-2.50MPM)",
             "Jive: Style=(International Latin), Delta=(-6.50MPM)",
             "Night Club 2 Step: Style=(American Rhythm), Delta=(-7.50MPM)",
             "Salsa: Style=(American Rhythm), Delta=(-8.50MPM)"
@@ -55,7 +55,7 @@ namespace DanceTests
             "Rumba: Style=(American Rhythm, International Latin), Delta=(-0.50MPM)",
             "Hustle: Style=(American Rhythm), Delta=(+1.50MPM)",
             "Bachata: Style=(American Rhythm), Delta=(+1.50MPM)",
-            "Swing: Style=(American Rhythm), Delta=(-2.50MPM)",
+            "East Coast Swing: Style=(American Rhythm), Delta=(-2.50MPM)",
             "Night Club 2 Step: Style=(American Rhythm), Delta=(-7.50MPM)",
             "Salsa: Style=(American Rhythm), Delta=(-8.50MPM)"
         };
@@ -69,12 +69,12 @@ namespace DanceTests
             "Rumba: Style=(American Rhythm), Delta=(-0.50MPM)",
             "Hustle: Style=(American Rhythm), Delta=(+1.50MPM)",
             "Bachata: Style=(American Rhythm), Delta=(+1.50MPM)",
-            "Swing: Style=(American Rhythm), Delta=(-2.50MPM)"
+            "East Coast Swing: Style=(American Rhythm), Delta=(-2.50MPM)"
         };
 
 
         readonly string[] _Waltz = {
-            "Waltz: Style=(American Smooth, International Standard), Delta=()"
+            "Slow Waltz: Style=(American Smooth, International Standard), Delta=()"
         };
 
         readonly string[] _NullDances = { };
