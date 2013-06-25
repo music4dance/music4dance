@@ -22,10 +22,10 @@ namespace DanceLibrary
 
     public class DanceObject
     {
-        public virtual string Id { get; protected set; }
-        public virtual string Name { get; protected set; }
-        public virtual Meter Meter { get; protected set; }
-        public virtual TempoRange TempoRange { get; protected set; }
+        public virtual string Id { get; set; }
+        public virtual string Name { get; set; }
+        public virtual Meter Meter { get; set; }
+        public virtual TempoRange TempoRange { get; set; }
     }
 
     [JsonObject(MemberSerialization.OptIn)]
@@ -49,13 +49,13 @@ namespace DanceLibrary
         }
 
         [JsonProperty]
-        override public string Id { get; protected set; }
+        override public string Id { get; set; }
 
         [JsonProperty]
-        override public string Name {get; protected set;}
+        override public string Name {get; set;}
 
         [JsonProperty]
-        override public Meter Meter {get; protected set;}
+        override public Meter Meter {get; set;}
 
         public override TempoRange TempoRange
         {
@@ -69,14 +69,14 @@ namespace DanceLibrary
                 }
                 return tr;
             }
-            protected set
+            set
             {
                 Debug.Assert(false);
             }
         }
 
         [JsonProperty]
-        public List<DanceInstance> Instances { get; protected set; }
+        public List<DanceInstance> Instances { get; set; }
 
         public string Description {get;set;}
 
@@ -125,7 +125,7 @@ namespace DanceLibrary
         public DanceType DanceType { get; internal set;}
 
         [JsonProperty]
-        override public TempoRange TempoRange { get; protected set; }
+        override public TempoRange TempoRange { get; set; }
 
         public override string Id
         {
@@ -133,7 +133,7 @@ namespace DanceLibrary
             {
                 return DanceType.Id + StyleId;
             }
-            protected set
+            set
             {
                 Debug.Assert(false);
             }
@@ -145,7 +145,7 @@ namespace DanceLibrary
             {
                 return DanceType.Meter;
             }
-            protected set
+            set
             {
                 Debug.Assert(false);
             }
@@ -157,17 +157,17 @@ namespace DanceLibrary
             {
                 return ShortStyle + ' ' + DanceType.Name;
             }
-            protected set
+            set
             {
                 Debug.Assert(false);
             }
         }
 
         [JsonProperty]
-        public string Style {get; protected set;}
+        public string Style {get; set;}
 
         [JsonProperty]
-        public List<DanceException> Exceptions { get; protected set; }
+        public List<DanceException> Exceptions { get; set; }
 
         public TempoRange FilteredTempo
         {
@@ -351,18 +351,18 @@ namespace DanceLibrary
         }
 
         [JsonProperty]
-        public string Organization {get; protected set; }
+        public string Organization {get; set; }
 
         [JsonProperty]
-        public TempoRange TempoRange {get; protected set; }
-
-        [JsonProperty]
-        [DefaultValue("All")]
-        public string Competitor {get; protected set; }
+        public TempoRange TempoRange {get; set; }
 
         [JsonProperty]
         [DefaultValue("All")]
-        public string Level {get; protected set; }
+        public string Competitor {get; set; }
+
+        [JsonProperty]
+        [DefaultValue("All")]
+        public string Level {get; set; }
 
         public DanceInstance DanceInstance { get; internal set; }
     }

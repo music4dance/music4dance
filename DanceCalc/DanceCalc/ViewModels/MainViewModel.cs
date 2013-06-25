@@ -160,7 +160,7 @@ namespace DanceCalc
             Decimal r = _st.Rate;
             if (Counting == true)
             {
-                PageState.Timing.SetBPS(r);
+                PageState.Timing.SetRate(r);
 
                 UpdateDances();
 
@@ -243,7 +243,7 @@ namespace DanceCalc
             switch (conversand.Kind)
             {
                 case Kind.Tempo:
-                    PageState.Timing.SetRate(value);
+                    PageState.Timing.SetDenormalizedRate(value);
                     UpdateDances();
                     break;
                 case Kind.Duration:

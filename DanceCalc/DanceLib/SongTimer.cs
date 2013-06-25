@@ -52,7 +52,7 @@ namespace DanceLibrary
             {
                 Decimal t = 0M;
                 if (_average != 0)
-                    t = new Decimal(_average) / 1000;
+                    t = 1000M / new Decimal(_average);
                 System.Diagnostics.Debug.WriteLine("Tempo = {0}", t);
                 return t;
             }

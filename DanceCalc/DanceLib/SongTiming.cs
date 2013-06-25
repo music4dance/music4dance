@@ -54,7 +54,23 @@ namespace DanceLibrary
         /// <param name="rate"></param>
         public void SetRate(decimal rate)
         {
-            Tempo = new Tempo(rate, Tempo.TempoType);
+            decimal perUnit = rate;
+
+            if (Tempo.TempoType.TempoKind != TempoKind.BPS)
+            {
+                perUnit *= 60;
+            }
+
+            SetDenormalizedRate(perUnit);
+        }
+
+        /// <summary>
+        /// Rate in current units per current units
+        /// </summary>
+        /// <param name="perUnit"></param>
+        public void SetDenormalizedRate(decimal perUnit)
+        {
+            Tempo = new Tempo(perUnit, Tempo.TempoType);
         }
 
         /// <summary>
