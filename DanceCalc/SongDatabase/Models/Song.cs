@@ -6,13 +6,13 @@ namespace SongDatabase.Models
     public class Song
     {
         public int SongId { get; set; }
-        public string Dances { get; set; }
         public decimal? Tempo { get; set; }
         public string Title { get; set; }
         public string Artist { get; set; }
         public string Album { get; set; }
         public DateTime Created { get; set; }
         public DateTime Modified { get; set; }
+        public virtual ICollection<Dance> Dances { get; set; }
         public virtual ICollection<UserProfile> ModifiedBy { get; set; }
         public virtual ICollection<SongProperty> SongProperties { get; set; }
     }
