@@ -1,5 +1,9 @@
 ﻿using DanceLibrary;
+using EFTracingProvider;
+using System.Configuration;
+using System.Data.Common;
 using System.Data.Entity;
+using System.Data.Entity.Infrastructure;
 
 namespace SongDatabase.Models
 {
@@ -14,10 +18,83 @@ namespace SongDatabase.Models
         // 
         // System.Data.Entity.Database.SetInitializer(new System.Data.Entity.DropCreateDatabaseIfModelChanges<SongDatabase.Models.DanceMusicContext>());
 
+        #region Trace Mechanics
+
+        public static bool TraceEnabled = false;
+
         public DanceMusicContext()
-            : base("name=DefaultConnection")
+            : this("DefaultConnection")
         {
         }
+
+        public DanceMusicContext(string nameOrConnectionString)
+              : base(CreateConnection(nameOrConnectionString), true)
+          {
+              if (TraceEnabled)
+              { 
+                  ((IObjectContextAdapter)this).ObjectContext.EnableTracing();
+              }
+            }
+
+        private static DbConnection CreateConnection(string nameOrConnectionString)
+        {
+            // does not support entity connection strings
+            EFTracingProviderFactory.Register();
+                
+            ConnectionStringSettings connectionStringSetting =
+                ConfigurationManager.ConnectionStrings[nameOrConnectionString];
+            string connectionString;
+            string providerName;
+
+            if (connectionStringSetting != null)
+            {
+                connectionString = connectionStringSetting.ConnectionString;
+                providerName = connectionStringSetting.ProviderName;
+            }
+            else
+            {
+                providerName = "System.Data.SqlClient";
+                connectionString = nameOrConnectionString;
+            }
+
+            return CreateConnection(connectionString, providerName);
+        }
+
+        private static DbConnection CreateConnection(string connectionString, string providerInvariantName)
+        {
+            DbConnection connection = null;
+            if (TraceEnabled)
+            {
+                connection = CreateTracingConnection(connectionString, providerInvariantName);
+            }
+            else
+            {
+                DbProviderFactory factory = DbProviderFactories.GetFactory(providerInvariantName);
+                connection = factory.CreateConnection();
+                connection.ConnectionString = connectionString;
+            }
+            return connection;
+        }
+
+
+        private static EFTracingConnection CreateTracingConnection(string connectionString, string providerInvariantName)
+        {
+
+            string wrapperConnectionString =
+                string.Format(@"wrappedProvider={0};{1}", providerInvariantName, connectionString);
+
+            EFTracingConnection connection =
+                new EFTracingConnection
+                {
+                    ConnectionString = wrapperConnectionString
+                };
+
+            return connection;
+        }
+
+
+
+        #endregion
 
         public DbSet<Song> Songs { get; set; }
 
@@ -42,6 +119,18 @@ namespace SongDatabase.Models
             {
                 return _dances;
             }
+        }
+
+        public SongProperty CreateSongProperty(Song song, string name, string value)
+        {
+            SongProperty ret = SongProperties.Create();
+            ret.Song = song;
+            ret.Name = name;
+            ret.Value = value;
+
+            SongProperties.Add(ret);
+
+            return ret;
         }
 
         private static Dances _dances = new Dances();

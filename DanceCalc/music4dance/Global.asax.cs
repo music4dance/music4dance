@@ -1,5 +1,7 @@
-﻿using System;
+﻿using SongDatabase.Models;
+using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Data.Entity;
 using System.Linq;
 using System.Web;
@@ -25,7 +27,17 @@ namespace music4dance
             BundleConfig.RegisterBundles(BundleTable.Bundles);
             AuthConfig.RegisterAuth();
 
-            Database.SetInitializer(new DropCreateDatabaseIfModelChanges<SongDatabase.Models.DanceMusicContext>());
+            Database.SetInitializer<DanceMusicContext>(null);
+            if (string.Equals(ConfigurationManager.AppSettings["EFTracingProvider.enabled"], "true", StringComparison.InvariantCultureIgnoreCase))
+            {                
+                DanceMusicContext.TraceEnabled = true;
+            }
+            //else
+            //{
+            //    Database.SetInitializer<DanceMusicContext>(new DropCreateDatabaseIfModelChanges<SongDatabase.Models.DanceMusicContext>());
+            //}
+
+            //Database.SetInitializer(new DropCreateDatabaseIfModelChanges<SongDatabase.Models.DanceMusicContext>());
             //Database.SetInitializer(new MigrateDatabaseToLatestVersion<SongDatabase.Models.DanceMusicContext, music4dance.Migrations.Configuration>());
         }
     }
