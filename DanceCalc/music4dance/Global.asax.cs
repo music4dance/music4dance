@@ -28,10 +28,10 @@ namespace music4dance
             AuthConfig.RegisterAuth();
 
             Database.SetInitializer<DanceMusicContext>(null);
-            if (string.Equals(ConfigurationManager.AppSettings["EFTracingProvider.enabled"], "true", StringComparison.InvariantCultureIgnoreCase))
-            {                
-                DanceMusicContext.TraceEnabled = true;
-            }
+            //if (string.Equals(ConfigurationManager.AppSettings["EFTracingProvider.enabled"], "true", StringComparison.InvariantCultureIgnoreCase))
+            //{                
+            //    DanceMusicContext.TraceEnabled = true;
+            //}
             //else
             //{
             //    Database.SetInitializer<DanceMusicContext>(new DropCreateDatabaseIfModelChanges<SongDatabase.Models.DanceMusicContext>());
