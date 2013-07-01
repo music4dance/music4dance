@@ -22,6 +22,14 @@ namespace SongDatabase.Models
 
         public static bool TraceEnabled = false;
 
+        public static void SetTrace()
+        {
+#if DEBUG
+            TraceEnabled = true;
+            EFTracingProviderConfiguration.LogToFile = @"d:\temp\log.txt";
+#endif
+        }
+
         public DanceMusicContext()
             : this("DefaultConnection")
         {
