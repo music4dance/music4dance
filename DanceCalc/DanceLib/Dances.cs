@@ -367,6 +367,88 @@ namespace DanceLibrary
         public DanceInstance DanceInstance { get; internal set; }
     }
 
+    [JsonObject(MemberSerialization.OptIn)]
+    public class DanceGroup : DanceObject
+    {
+        [JsonConstructor]
+        public DanceGroup(string name, string id, string description, string[] danceIds)
+        {
+            Name = name;
+            Id = id;
+
+            Members = new List<DanceObject>();
+
+            Debug.Assert(danceIds != null);
+            foreach (string did in danceIds)
+            {
+                DanceObject dob = Dances.Instance.DanceDictionary[did];
+                Debug.Assert(dob != null);
+
+                Members.Add(dob);
+            }
+        }
+        
+        [JsonProperty]
+        public override string Id { get; set; }
+
+        [JsonProperty]
+        public override string Name { get; set; }
+
+        public override Meter Meter 
+        {
+            get
+            {
+                Debug.Assert(Members.Count > 0);
+                return Members[0].Meter;
+            }
+            set
+            {
+                Debug.Assert(false);
+            }
+        }
+
+        public override TempoRange TempoRange
+        {
+            get
+            {
+                Debug.Assert(Members != null && Members.Count > 0);
+
+                TempoRange range = Members[0].TempoRange;
+
+                for (int i = 1; i < Members.Count; i++)
+                {
+                    TempoRange = range.Include(Members[i].TempoRange);
+                }
+
+                return TempoRange;
+            }
+            set
+            {
+                Debug.Assert(false);
+            }
+        }
+
+        [JsonProperty]
+        public string[] DanceIds
+        {
+            get
+            {
+                Debug.Assert(Members != null && Members.Count > 0);
+
+                int c = Members.Count;
+                string[] ids = new string[c];
+
+                for (int i = 0; i < c; i++)
+                {
+                    ids[i] = Members[i].Id;
+                }
+                return ids;
+            }
+        }
+
+        public List<DanceObject> Members { get; private set; }
+    }
+
     public class DanceSample : IComparable<DanceSample>
     {
         public DanceSample(DanceInstance di, decimal delta)
@@ -480,6 +562,15 @@ namespace DanceLibrary
             }
 
             Instance = this;
+
+            string jsonGroup = DanceLibrary.DanceGroups;
+            _allDanceGroups = JsonConvert.DeserializeObject<List<DanceGroup>>(jsonGroup, settings);
+
+            foreach (DanceGroup dg in _allDanceGroups)
+            {
+                _allDanceObjects.Add(dg);
+                _danceDictionary.Add(dg.Id, dg);
+            }
         }
 
         internal static Dances Instance { get; set; }
@@ -523,6 +614,7 @@ namespace DanceLibrary
 
         private List<DanceType> _allDanceTypes = new List<DanceType>();
         private List<DanceInstance> _allDanceInstances = new List<DanceInstance>();
+        private List<DanceGroup> _allDanceGroups = new List<DanceGroup>();
         private List<DanceObject> _allDanceObjects = new List<DanceObject>();
         private Dictionary<string, DanceObject> _danceDictionary = new Dictionary<string, DanceObject>();
 

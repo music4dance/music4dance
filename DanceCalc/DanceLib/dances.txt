@@ -44,7 +44,7 @@
     ]
   },
   {
-    "Name": "Foxtrot",
+    "Name": "Slow Foxtrot",
     "Id": "SFT",
     "Meter": {
       "Numerator": 4,

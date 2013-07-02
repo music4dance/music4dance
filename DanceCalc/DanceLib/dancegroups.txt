@@ -1,0 +1,17 @@
+[
+  {
+    "Name": "Swing",
+    "Id" : "SWG",
+    "DanceIds" : ["ECS","JIV","WCS","HST"]
+  },
+  {
+    "Name": "Waltz",
+    "Id" : "WLZ",
+    "DanceIds" : ["SWZ","VWZ"]
+  },
+  {
+    "Name": "Foxtrot",
+    "Id" : "FXT",
+    "DanceIds" : ["SFT","QST"]
+  },
+]
