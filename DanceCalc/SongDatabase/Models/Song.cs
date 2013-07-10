@@ -12,6 +12,7 @@ namespace SongDatabase.Models
         public string Album { get; set; }
         public DateTime Created { get; set; }
         public DateTime Modified { get; set; }
+        public int TitleHash { get; set; }
         public virtual ICollection<Dance> Dances { get; set; }
         public virtual ICollection<UserProfile> ModifiedBy { get; set; }
         public virtual ICollection<SongProperty> SongProperties { get; set; }

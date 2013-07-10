@@ -1,9 +1,13 @@
 ﻿using DanceLibrary;
 using EFTracingProvider;
+using System;
 using System.Configuration;
 using System.Data.Common;
 using System.Data.Entity;
 using System.Data.Entity.Infrastructure;
+using System.Diagnostics;
+using System.Globalization;
+using System.Text;
 
 namespace SongDatabase.Models
 {
@@ -127,6 +131,78 @@ namespace SongDatabase.Models
             {
                 return _dances;
             }
+        }
+
+        public Song CreateSong(UserProfile user, string title, string artist, string album, decimal? tempo)
+        {
+            DateTime time = DateTime.Now;
+
+            Song song = Songs.Create();
+
+            // Handle User association
+            if (user != null)
+            {
+                user.Songs.Add(song);
+                CreateSongProperty(song, "User", user.UserName);
+            }
+
+            // Handle Timestamps
+            song.Created = time;
+            song.Modified = time;
+            CreateSongProperty(song, "Time", time.ToString());
+
+            // Title
+            Debug.Assert(!string.IsNullOrEmpty(title));
+            song.Title = title;
+            CreateSongProperty(song, "Title", title);
+
+            // Artist
+            if (!string.IsNullOrEmpty(artist))
+            {
+                song.Artist = artist;
+                CreateSongProperty(song, "Artist", artist);
+            }
+
+            // Album
+            if (!string.IsNullOrEmpty(album))
+            {
+                song.Album = title;
+                CreateSongProperty(song, "Album", album);
+            }
+
+            // Tempo
+            if (tempo != null)
+            {
+                song.Tempo = tempo;
+                CreateSongProperty(song, "Tempo", tempo.ToString());
+            }
+
+            song.TitleHash = CreateTitleHash(title);
+
+            song = Songs.Add(song);
+
+            return song;
+        }
+
+        public static int CreateTitleHash(string title)
+        {
+            StringBuilder sb = new StringBuilder(title.Length);
+
+            string norm = title.Normalize(NormalizationForm.FormD);
+            foreach (char c in norm)
+            {
+                if (char.IsLetterOrDigit(c))
+                {
+                    char cNew = char.ToUpper(c);
+                    sb.Append(cNew);
+                }
+            }
+
+            string s = sb.ToString();
+            int hash = s.GetHashCode();
+            Debug.WriteLine("{0}\t{1}",hash,s);
+
+            return hash;
         }
 
         public SongProperty CreateSongProperty(Song song, string name, string value)

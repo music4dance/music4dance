@@ -34,9 +34,15 @@ namespace music4dance.Filters
                             // Create the SimpleMembership database without Entity Framework migration schema
                             ((IObjectContextAdapter)context).ObjectContext.CreateDatabase();
                         }
+
+                        WebSecurity.InitializeDatabaseConnection("DefaultConnection", "UserProfile", "UserId", "UserName", autoCreateTables: true);
+
+                        //TODO: Bit of a kludge but should we create our db indices here?
+                        // "CREATE {unique} INDEX {indexName} ON {tableName} ({columnName})";'
+
+                        //context.Database.ExecuteSqlCommand("CREATE INDEX HashIndex ON dbo.Songs (TitleHash)");
                     }
 
-                    WebSecurity.InitializeDatabaseConnection("DefaultConnection", "UserProfile", "UserId", "UserName", autoCreateTables: true);
                 }
                 catch (Exception ex)
                 {
