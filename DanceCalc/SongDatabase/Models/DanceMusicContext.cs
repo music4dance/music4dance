@@ -200,7 +200,7 @@ namespace SongDatabase.Models
 
             string s = sb.ToString();
             int hash = s.GetHashCode();
-            Debug.WriteLine("{0}\t{1}",hash,s);
+            //Debug.WriteLine("{0}\t{1}",hash,s);
 
             return hash;
         }

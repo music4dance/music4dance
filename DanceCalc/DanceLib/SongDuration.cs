@@ -80,12 +80,36 @@ namespace DanceLibrary
             int imin = s.IndexOf('m');
             int isec = s.IndexOf('s');
 
+            string shour = string.Empty;
             string smin = string.Empty;
             string ssec = string.Empty;
 
             if (imin < 0 && isec < 0)
             {
-                ssec = s;
+                if (s.IndexOf(':') >= 0)
+                {
+                    string[] parts = s.Split(new char[] { ':' },StringSplitOptions.RemoveEmptyEntries);
+
+                    if (parts.Length >= 3)
+                    {
+                        shour = parts[0];
+                        smin = parts[1];
+                        ssec = parts[2];
+                    }
+                    else if (parts.Length == 2)
+                    {
+                        smin = parts[0];
+                        ssec = parts[1];
+                    }
+                    else if (parts.Length == 1)
+                    {
+                        ssec = parts[0];
+                    }
+                }
+                else
+                {
+                    ssec = s;
+                }
             }
             else
             {

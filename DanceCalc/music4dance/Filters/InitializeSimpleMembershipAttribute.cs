@@ -40,7 +40,7 @@ namespace music4dance.Filters
                         //TODO: Bit of a kludge but should we create our db indices here?
                         // "CREATE {unique} INDEX {indexName} ON {tableName} ({columnName})";'
 
-                        //context.Database.ExecuteSqlCommand("CREATE INDEX HashIndex ON dbo.Songs (TitleHash)");
+                        context.Database.ExecuteSqlCommand("CREATE INDEX HashIndex ON dbo.Songs (TitleHash)");
                     }
 
                 }

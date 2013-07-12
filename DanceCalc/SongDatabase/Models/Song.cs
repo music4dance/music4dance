@@ -10,6 +10,10 @@ namespace SongDatabase.Models
         public string Title { get; set; }
         public string Artist { get; set; }
         public string Album { get; set; }
+        public string Publisher { get; set; }
+        public string Genre { get; set; }
+        public int Track { get; set; }
+        public int Length { get; set; }
         public DateTime Created { get; set; }
         public DateTime Modified { get; set; }
         public int TitleHash { get; set; }

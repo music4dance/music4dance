@@ -8,7 +8,7 @@ namespace DanceTests
     public class DurationTests
     {
         [TestMethod]
-        public void InvalidConstructorLength()
+        public void DurationInvalidConstructorLength()
         {
             try
             {
@@ -23,7 +23,7 @@ namespace DanceTests
         }
 
         [TestMethod]
-        public void InvalidConstructorType()
+        public void DurationInvalidConstructorType()
         {
             try
             {
@@ -43,7 +43,7 @@ namespace DanceTests
         private static SongDuration _d4 = new SongDuration(5, new DurationType(DurationKind.Minute));
 
         [TestMethod]
-        public void ShortFormats()
+        public void DurationShortFormats()
         {
             string s1 = _d1.Format(DurationFormat.Short);
             StringAssert.Equals("90s", s1);
@@ -58,7 +58,8 @@ namespace DanceTests
             StringAssert.Equals("5m", s4);
         }
 
-        public void LongFormats()
+        [TestMethod]
+        public void DurationLongFormats()
         {
             string s1 = _d1.Format(DurationFormat.Long);
             StringAssert.Equals("90 seconds", s1);
@@ -72,5 +73,22 @@ namespace DanceTests
             string s4 = _d4.Format(DurationFormat.Long);
             StringAssert.Equals("5m", s4);
         }
+
+        [TestMethod]
+        public void DurationColonFormats()
+        {
+            string s1 = _d1.Format(DurationFormat.Long);
+            StringAssert.Equals("00:01:30", s1);
+
+            string s2 = _d2.Format(DurationFormat.Long);
+            StringAssert.Equals("02:00", s2);
+
+            string s3 = _d3.Format(DurationFormat.Long);
+            StringAssert.Equals("00:02:01", s3);
+
+            string s4 = _d4.Format(DurationFormat.Long);
+            StringAssert.Equals("00:05:00", s4);
+        }
+
     }
 }
