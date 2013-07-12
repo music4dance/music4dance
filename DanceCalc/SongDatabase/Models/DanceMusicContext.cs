@@ -189,12 +189,28 @@ namespace SongDatabase.Models
             StringBuilder sb = new StringBuilder(title.Length);
 
             string norm = title.Normalize(NormalizationForm.FormD);
+
+            bool paren = false;
             foreach (char c in norm)
             {
-                if (char.IsLetterOrDigit(c))
+                if (paren)
                 {
-                    char cNew = char.ToUpper(c);
-                    sb.Append(cNew);
+                    if (c == ')')
+                    {
+                        paren = false;
+                    }
+                }
+                else
+                {
+                    if (char.IsLetterOrDigit(c))
+                    {
+                        char cNew = char.ToUpper(c);
+                        sb.Append(cNew);
+                    }
+                    else if (c == '(')
+                    {
+                        paren = true;
+                    }
                 }
             }
 
