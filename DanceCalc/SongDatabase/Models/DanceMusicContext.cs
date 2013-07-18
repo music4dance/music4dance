@@ -133,7 +133,7 @@ namespace SongDatabase.Models
             }
         }
 
-        public Song CreateSong(UserProfile user, string title, string artist, string album, decimal? tempo)
+        public Song CreateSong(UserProfile user, string title, string artist, string album, string label, decimal? tempo)
         {
             DateTime time = DateTime.Now;
 
@@ -166,8 +166,15 @@ namespace SongDatabase.Models
             // Album
             if (!string.IsNullOrEmpty(album))
             {
-                song.Album = title;
+                song.Album = album;
                 CreateSongProperty(song, "Album", album);
+            }
+
+            // Label
+            if (!string.IsNullOrEmpty(label))
+            {
+                song.Publisher = label;
+                CreateSongProperty(song, "Publisher", label);
             }
 
             // Tempo

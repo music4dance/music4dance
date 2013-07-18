@@ -21,11 +21,13 @@ namespace DanceTests
         readonly string[] _51HAll = {
             "QuickStep: Style=(International Standard), Delta=()",
             "Salsa: Style=(American Rhythm), Delta=()",
-            "Mambo: Style=(American Rhythm), Delta=(+0.50MPM)"
+            "Mambo: Style=(American Rhythm), Delta=(+0.50MPM)",
+            "Milonga: Style=(Social), Delta=(+1.50MPM)",
         };
 
         readonly string[] _51HNR = {
-            "QuickStep: Style=(International Standard), Delta=()"
+            "QuickStep: Style=(International Standard), Delta=()",
+            "Milonga: Style=(Social), Delta=(+1.50MPM)",
         };
 
         readonly string[] _51HJR = {
@@ -40,8 +42,10 @@ namespace DanceTests
             "Bachata: Style=(Social), Delta=()",
             "Lindy Hop: Style=(Social), Delta=()",
             "Carolina Shag: Style=(Social), Delta=()",
+            "Argentine Tango: Style=(Social), Delta=()",
             "Cha Cha: Style=(American Rhythm, International Latin), Delta=(+0.50MPM)",
             "Rumba: Style=(American Rhythm, International Latin), Delta=(-0.50MPM)",
+            "Milonga: Style=(Social), Delta=(-1.00MPM)",
             "Hustle: Style=(American Rhythm), Delta=(+1.50MPM)",
             "East Coast Swing: Style=(American Rhythm), Delta=(-2.50MPM)",
             "Night Club Two Step: Style=(Social), Delta=(-2.50MPM)",
@@ -57,7 +61,9 @@ namespace DanceTests
             "Bachata: Style=(Social), Delta=()",
             "Lindy Hop: Style=(Social), Delta=()",
             "Carolina Shag: Style=(Social), Delta=()",
+            "Argentine Tango: Style=(Social), Delta=()",
             "Rumba: Style=(American Rhythm, International Latin), Delta=(-0.50MPM)",
+            "Milonga: Style=(Social), Delta=(-1.00MPM)",
             "Hustle: Style=(American Rhythm), Delta=(+1.50MPM)",
             "East Coast Swing: Style=(American Rhythm), Delta=(-2.50MPM)",
             "Night Club Two Step: Style=(Social), Delta=(-2.50MPM)",
@@ -74,7 +80,9 @@ namespace DanceTests
             "Bachata: Style=(Social), Delta=()",
             "Lindy Hop: Style=(Social), Delta=()",
             "Carolina Shag: Style=(Social), Delta=()",
+            "Argentine Tango: Style=(Social), Delta=()",
             "Rumba: Style=(American Rhythm), Delta=(-0.50MPM)",
+            "Milonga: Style=(Social), Delta=(-1.00MPM)",
             "Hustle: Style=(American Rhythm), Delta=(+1.50MPM)",
             "East Coast Swing: Style=(American Rhythm), Delta=(-2.50MPM)",
             "Night Club Two Step: Style=(Social), Delta=(-2.50MPM)"
@@ -89,6 +97,8 @@ namespace DanceTests
 
         private void CompareDances(Meter meter, decimal rate, decimal epsilon, string[] expected)
         {
+            bool succeeded = true;
+
             Tempo tempo = new Tempo(rate, new TempoType(TempoKind.MPM, meter));
             IEnumerable<DanceSample> dances = _dances.DancesFiltered(tempo,epsilon);
 
@@ -97,15 +107,20 @@ namespace DanceTests
             {
                 string s = dance.ToString();
 
-                if (expected == null)
+                if (expected != null)
                 {
-                    Debug.WriteLine(s);
+                    if (i < expected.Length)
+                    {
+                        bool match = string.Equals(s, expected[i]);
+                        if (!match)
+                        {
+                            Debug.Write("*");
+                        }
+                        succeeded &= match;
+                    }
                 }
-                else
-                {
-                    Assert.IsTrue(i < expected.Length, "More than the expected number of matches");
-                    Assert.AreEqual<string>(s, expected[i]);
-                }
+                Debug.WriteLine("\"" + s + "\",");
+
                 i += 1;
             }
 
@@ -113,10 +128,10 @@ namespace DanceTests
             {
                 Assert.AreEqual<int>(i, expected.Length, "Less than the expected number of matches");
             }
-            else
-            {
-                Debug.WriteLine("------");
-            }
+
+            Debug.WriteLine("------");
+
+            Assert.IsTrue(succeeded);
         }
 
         [TestMethod]

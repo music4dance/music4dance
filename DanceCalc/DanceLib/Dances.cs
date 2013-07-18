@@ -573,7 +573,7 @@ namespace DanceLibrary
             }
         }
 
-        internal static Dances Instance { get; set; }
+        public static Dances Instance { get; private set; }
 
         public IEnumerable<DanceInstance> AllDanceInstances
         {
