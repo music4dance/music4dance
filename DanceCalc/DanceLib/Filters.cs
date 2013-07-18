@@ -243,8 +243,8 @@ namespace DanceLibrary
 
         static FilterObject()
         {
-            _filters[Tags.Style] = new FilterObject(Tags.Style, new string[] { "International Standard", "International Latin", "American Smooth", "American Rhythm"}, new string[] { null, null, null, null });
-            _filters[Tags.Organization] = new FilterObject(Tags.Organization, new string[] { "NDCA", "DanceSport" }, new string[] { "National Dance Council of America (NDCA)", "International DanceSport Federation (IDSF)" });
+            _filters[Tags.Style] = new FilterObject(Tags.Style, new string[] { "International Standard", "International Latin", "American Smooth", "American Rhythm", "Social"}, new string[] { null, null, null, null, null });
+            _filters[Tags.Organization] = new FilterObject(Tags.Organization, new string[] { "NDCA", "DanceSport", "Ad-Hoc" }, new string[] { "National Dance Council of America (NDCA)", "International DanceSport Federation (IDSF)", "No Offical Organization" });
             _filters[Tags.Competitor] = new FilterObject(Tags.Competitor, new string[] { "Professional","Amateur","ProAm" }, new string[] { null, null,"Pro/Am" });
             _filters[Tags.Level] = new FilterObject(Tags.Level, new string[] { "Bronze", "Silver", "Gold" }, new string[] { null, null, null });
         }

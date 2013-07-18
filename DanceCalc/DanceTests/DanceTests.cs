@@ -37,13 +37,15 @@ namespace DanceTests
             "Slow Foxtrot: Style=(American Smooth, International Standard), Delta=()",
             "Tango: Style=(American Smooth, International Standard), Delta=()",
             "West Coast Swing: Style=(American Rhythm), Delta=()",
+            "Bachata: Style=(Social), Delta=()",
+            "Lindy Hop: Style=(Social), Delta=()",
+            "Carolina Shag: Style=(Social), Delta=()",
             "Cha Cha: Style=(American Rhythm, International Latin), Delta=(+0.50MPM)",
             "Rumba: Style=(American Rhythm, International Latin), Delta=(-0.50MPM)",
             "Hustle: Style=(American Rhythm), Delta=(+1.50MPM)",
-            "Bachata: Style=(American Rhythm), Delta=(+1.50MPM)",
             "East Coast Swing: Style=(American Rhythm), Delta=(-2.50MPM)",
+            "Night Club Two Step: Style=(Social), Delta=(-2.50MPM)",
             "Jive: Style=(International Latin), Delta=(-6.50MPM)",
-            "Night Club 2 Step: Style=(American Rhythm), Delta=(-7.50MPM)",
             "Salsa: Style=(American Rhythm), Delta=(-8.50MPM)"
         };
 
@@ -52,11 +54,14 @@ namespace DanceTests
             "Tango: Style=(American Smooth, International Standard), Delta=()",
             "Cha Cha: Style=(American Rhythm, International Latin), Delta=()",
             "West Coast Swing: Style=(American Rhythm), Delta=()",
+            "Bachata: Style=(Social), Delta=()",
+            "Lindy Hop: Style=(Social), Delta=()",
+            "Carolina Shag: Style=(Social), Delta=()",
             "Rumba: Style=(American Rhythm, International Latin), Delta=(-0.50MPM)",
             "Hustle: Style=(American Rhythm), Delta=(+1.50MPM)",
-            "Bachata: Style=(American Rhythm), Delta=(+1.50MPM)",
             "East Coast Swing: Style=(American Rhythm), Delta=(-2.50MPM)",
-            "Night Club 2 Step: Style=(American Rhythm), Delta=(-7.50MPM)",
+            "Night Club Two Step: Style=(Social), Delta=(-2.50MPM)",
+            "Jive: Style=(International Latin), Delta=(-6.50MPM)",
             "Salsa: Style=(American Rhythm), Delta=(-8.50MPM)"
         };
 
@@ -66,10 +71,13 @@ namespace DanceTests
             "Tango: Style=(American Smooth, International Standard), Delta=()",
             "Cha Cha: Style=(American Rhythm, International Latin), Delta=()",
             "West Coast Swing: Style=(American Rhythm), Delta=()",
+            "Bachata: Style=(Social), Delta=()",
+            "Lindy Hop: Style=(Social), Delta=()",
+            "Carolina Shag: Style=(Social), Delta=()",
             "Rumba: Style=(American Rhythm), Delta=(-0.50MPM)",
             "Hustle: Style=(American Rhythm), Delta=(+1.50MPM)",
-            "Bachata: Style=(American Rhythm), Delta=(+1.50MPM)",
-            "East Coast Swing: Style=(American Rhythm), Delta=(-2.50MPM)"
+            "East Coast Swing: Style=(American Rhythm), Delta=(-2.50MPM)",
+            "Night Club Two Step: Style=(Social), Delta=(-2.50MPM)"
         };
 
 
@@ -135,12 +143,12 @@ namespace DanceTests
             // NDCA
             FilterObject.SetAll(true);
             FilterObject.SetValue("Organization", "DanceSport", false);
-            CompareDances(new Meter(4, 4), 31.5M, 20, _31HDS); //
+            CompareDances(new Meter(4, 4), 31.5M, 20, _31HDS); //_31HDS
 
             // DS
             FilterObject.SetAll(true);
             FilterObject.SetValue("Organization", "NDCA", false);
-            CompareDances(new Meter(4, 4), 31.5M, 20, _31HNDCA); // 
+            CompareDances(new Meter(4, 4), 31.5M, 20, _31HNDCA); // _31HNDCA
 
             // Figure out a way to do a better job distinguishing these before enabling a test
             FilterObject.SetAll("Level", false);
@@ -151,7 +159,7 @@ namespace DanceTests
             FilterObject.SetValue("Organization", "NDCA", false);
             FilterObject.SetValue("Level", "Silver", false);
             FilterObject.SetValue("Level", "Gold", false);
-            CompareDances(new Meter(4, 4), 31.5M, 10, _Bronze);
+            CompareDances(new Meter(4, 4), 31.5M, 10, _Bronze); //_Bronze
 
         }
 

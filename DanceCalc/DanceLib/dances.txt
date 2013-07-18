@@ -585,42 +585,6 @@
     ]
   },
   {
-    "Name": "Bachata",
-    "Id": "BCH",
-    "Meter": {
-      "Numerator": 4,
-      "Denominator": 4
-    },
-    "Instances": [
-      {
-        "Style": "American Rhythm",
-        "TempoRange": {
-          "Min": 30.0,
-          "Max": 30.0
-        },
-        "Exceptions": []
-      }
-    ]
-  },
-  {
-    "Name": "Night Club 2 Step",
-    "Id": "NC2",
-    "Meter": {
-      "Numerator": 4,
-      "Denominator": 4
-    },
-    "Instances": [
-      {
-        "Style": "American Rhythm",
-        "TempoRange": {
-          "Min": 39.0,
-          "Max": 39.0
-        },
-        "Exceptions": []
-      }
-    ]
-  },
-  {
     "Name": "Salsa",
     "Id": "SLS",
     "Meter": {
@@ -633,6 +597,114 @@
         "TempoRange": {
           "Min": 40.0,
           "Max": 55.0
+        },
+        "Exceptions": []
+      }
+    ]
+  },
+  {
+    "Name": "Bachata",
+    "Id": "BCH",
+    "Meter": {
+      "Numerator": 4,
+      "Denominator": 4
+    },
+    "Instances": [
+      {
+        "Style": "Social",
+        "TempoRange": {
+          "Min": 30.0,
+          "Max": 34.0
+        },
+        "Exceptions": []
+      }
+    ]
+  },
+  {
+    "Name": "Night Club Two Step",
+    "Id": "NC2",
+    "Meter": {
+      "Numerator": 4,
+      "Denominator": 4
+    },
+    "Instances": [
+      {
+        "Style": "Social",
+        "TempoRange": {
+          "Min": 34.0,
+          "Max": 39.0
+        },
+        "Exceptions": []
+      }
+    ]
+  },
+  {
+    "Name": "Country Two Step",
+    "Id": "C2S",
+    "Meter": {
+      "Numerator": 2,
+      "Denominator": 4
+    },
+    "Instances": [
+      {
+        "Style": "Social",
+        "TempoRange": {
+          "Min": 84.0,
+          "Max": 100.0
+        },
+        "Exceptions": []
+      }
+    ]
+  },
+  {
+    "Name": "Cumbia",
+    "Id": "CMB",
+    "Meter": {
+      "Numerator": 2,
+      "Denominator": 4
+    },
+    "Instances": [
+      {
+        "Style": "Social",
+        "TempoRange": {
+          "Min": 45.0,
+          "Max": 55.0
+        },
+        "Exceptions": []
+      }
+    ]
+   },
+   {
+    "Name": "Lindy Hop",
+    "Id": "LHP",
+    "Meter": {
+      "Numerator": 4,
+      "Denominator": 4
+    },
+    "Instances": [
+      {
+        "Style": "Social",
+        "TempoRange": {
+          "Min": 30.0,
+          "Max": 45.0
+        },
+        "Exceptions": []
+      }
+    ]
+  },
+  {
+    "Name": "Carolina Shag",
+    "Id": "CSG",
+    "Meter": {
+      "Numerator": 4,
+      "Denominator": 4
+    },
+    "Instances": [
+      {
+        "Style": "Social",
+        "TempoRange": {
+          "Min": 27.0,
+          "Max": 33.0
         },
         "Exceptions": []
       }
