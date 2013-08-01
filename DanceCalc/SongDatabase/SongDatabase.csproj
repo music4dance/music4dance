@@ -55,6 +55,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Migrations\201308012221216_InitialCreate.cs" />
+    <Compile Include="Migrations\201308012221216_InitialCreate.Designer.cs">
+      <DependentUpon>201308012221216_InitialCreate.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountModels.cs" />
     <Compile Include="Models\Dance.cs" />
     <Compile Include="Models\DanceMusicContext.cs" />
@@ -70,6 +75,11 @@
       <Project>{114ff99a-caac-4281-8f0a-35590a12a487}</Project>
       <Name>DanceLib</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Migrations\201308012221216_InitialCreate.resx">
+      <DependentUpon>201308012221216_InitialCreate.cs</DependentUpon>
+    </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

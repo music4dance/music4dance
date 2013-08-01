@@ -29,7 +29,8 @@ namespace music4dance.Filters
                 {
                     using (var context = new DanceMusicContext())
                     {
-                        if (!context.Database.Exists())
+                        bool exists = context.Database.Exists();
+                        if (!exists)
                         {
                             // Create the SimpleMembership database without Entity Framework migration schema
                             ((IObjectContextAdapter)context).ObjectContext.CreateDatabase();
@@ -39,8 +40,10 @@ namespace music4dance.Filters
 
                         //TODO: Bit of a kludge but should we create our db indices here?
                         // "CREATE {unique} INDEX {indexName} ON {tableName} ({columnName})";'
-
-                        context.Database.ExecuteSqlCommand("CREATE INDEX HashIndex ON dbo.Songs (TitleHash)");
+                        if (!exists)
+                        {
+                            context.Database.ExecuteSqlCommand("CREATE INDEX HashIndex ON dbo.Songs (TitleHash)");
+                        }
                     }
 
                 }
