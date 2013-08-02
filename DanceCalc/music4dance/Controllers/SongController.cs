@@ -16,13 +16,21 @@ namespace music4dance.Controllers
         //
         // GET: /Song/
 
-        public ActionResult Index(string sortOrder)
+        public ActionResult Index(string sortOrder, string searchString)
         {
             ViewBag.TitleSort = String.IsNullOrEmpty(sortOrder) ? "Title_desc" : "";
             ViewBag.ArtistSort = sortOrder == "Artist" ? "Artist_desc" : "Artist";
             ViewBag.AlbumSort = sortOrder == "Album" ? "Album_desc" : "Album";
 
             var songs = from s in db.Songs select s;
+
+            if (!String.IsNullOrEmpty(searchString))
+            {
+                songs = songs.Where(
+                    s => s.Title.ToUpper().Contains(searchString.ToUpper()) || 
+                    s.Album.ToUpper().Contains(searchString.ToUpper()) || 
+                    s.Artist.ToUpper().Contains(searchString.ToUpper()));
+            }
 
             switch (sortOrder)
             {
