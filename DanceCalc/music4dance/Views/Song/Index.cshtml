@@ -1,48 +1,32 @@
 ﻿@model IEnumerable<SongDatabase.Models.Song>
 
 @{
-    ViewBag.Title = "Index";
+    ViewBag.Title = "Songs for Dancing";
 }
 
-<h2>Index</h2>
+<h2>Songs for Dancing</h2>
 
+@*
 <p>
     @Html.ActionLink("Create New", "Create")
 </p>
+*@
 <table>
     <tr>
         <th>
-            @Html.DisplayNameFor(model => model.Source)
+            @Html.ActionLink("Title", "Index", new { sortOrder = ViewBag.TitleSort})
         </th>
         <th>
-            @Html.DisplayNameFor(model => model.Dances)
+            @Html.ActionLink("Artist", "Index", new { sortOrder = ViewBag.ArtistSort})
         </th>
         <th>
-            @Html.DisplayNameFor(model => model.Tempo)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.Title)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.Artist)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.Album)
+            @Html.ActionLink("Album", "Index", new { sortOrder = ViewBag.AlbumSort})
         </th>
         <th></th>
     </tr>
 
 @foreach (var item in Model) {
     <tr>
-        <td>
-            @Html.DisplayFor(modelItem => item.Source)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.Dances)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.Tempo)
-        </td>
         <td>
             @Html.DisplayFor(modelItem => item.Title)
         </td>

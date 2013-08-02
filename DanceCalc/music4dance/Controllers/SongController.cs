@@ -16,9 +16,44 @@ namespace music4dance.Controllers
         //
         // GET: /Song/
 
-        public ActionResult Index()
+        public ActionResult Index(string sortOrder)
         {
-            return View(db.Songs.ToList());
+            ViewBag.TitleSort = String.IsNullOrEmpty(sortOrder) ? "Title_desc" : "";
+            ViewBag.ArtistSort = sortOrder == "Artist" ? "Artist_desc" : "Artist";
+            ViewBag.AlbumSort = sortOrder == "Album" ? "Album_desc" : "Album";
+
+            var songs = from s in db.Songs select s;
+
+            switch (sortOrder)
+            {
+                case "Title_desc":
+                    songs = songs.OrderByDescending(s => s.Title);
+                    break;
+
+                case "Artist":
+                    songs = songs.OrderBy(s => s.Artist);
+                    break;
+
+                case "Artist_desc":
+                    songs = songs.OrderByDescending(s => s.Artist);
+                    break;
+
+                case "Album":
+                    songs = songs.OrderBy(s => s.Album);
+                    break;
+
+                case "Album_desc":
+                    songs = songs.OrderByDescending(s => s.Album);
+                    break;
+
+                default:
+                    songs = songs.OrderBy(s => s.Title);
+                    break;
+
+            }
+
+            return View(songs.Take(100).ToList());
+            //return View(db.Songs.ToList());
         }
 
         //

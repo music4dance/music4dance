@@ -38,8 +38,6 @@ namespace music4dance.Filters
 
                         WebSecurity.InitializeDatabaseConnection("DefaultConnection", "UserProfile", "UserId", "UserName", autoCreateTables: true);
 
-                        //TODO: Bit of a kludge but should we create our db indices here?
-                        // "CREATE {unique} INDEX {indexName} ON {tableName} ({columnName})";'
                         if (!exists)
                         {
                             context.Database.ExecuteSqlCommand("CREATE INDEX HashIndex ON dbo.Songs (TitleHash)");

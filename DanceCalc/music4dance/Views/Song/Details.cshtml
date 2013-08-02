@@ -10,46 +10,74 @@
     <legend>Song</legend>
 
     <div class="display-label">
-         @Html.DisplayNameFor(model => model.Source)
-    </div>
-    <div class="display-field">
-        @Html.DisplayFor(model => model.Source)
-    </div>
-
-    <div class="display-label">
-         @Html.DisplayNameFor(model => model.Dances)
-    </div>
-    <div class="display-field">
-        @Html.DisplayFor(model => model.Dances)
-    </div>
-
-    <div class="display-label">
-         @Html.DisplayNameFor(model => model.Tempo)
-    </div>
-    <div class="display-field">
-        @Html.DisplayFor(model => model.Tempo)
-    </div>
-
-    <div class="display-label">
-         @Html.DisplayNameFor(model => model.Title)
+         @Html.DisplayNameFor(model => model.Title):
     </div>
     <div class="display-field">
         @Html.DisplayFor(model => model.Title)
     </div>
+    <br/>
 
     <div class="display-label">
-         @Html.DisplayNameFor(model => model.Artist)
+         @Html.DisplayNameFor(model => model.Artist):
     </div>
     <div class="display-field">
         @Html.DisplayFor(model => model.Artist)
     </div>
+    <br/>
 
     <div class="display-label">
-         @Html.DisplayNameFor(model => model.Album)
+         @Html.DisplayNameFor(model => model.Album):
     </div>
     <div class="display-field">
         @Html.DisplayFor(model => model.Album)
     </div>
+    <br/>
+
+    <div class="display-label">
+         @Html.DisplayNameFor(model => model.Track):
+    </div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.Track)
+    </div>
+    <br/>
+
+    <div class="display-label">
+         @Html.DisplayNameFor(model => model.Publisher):
+    </div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.Publisher)
+    </div>
+    <br/>
+
+    <div class="display-label">
+         @Html.DisplayNameFor(model => model.Tempo):
+    </div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.Tempo) bpm
+    </div>
+    <br/>
+
+    <div class="display-label">
+         @Html.DisplayNameFor(model => model.Genre):
+    </div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.Genre)
+    </div>
+    <br/>
+
+    <div class="display-label">
+         @Html.DisplayNameFor(model => model.Dances):
+    </div>
+    <div class="display-field">
+        @{ var separator = ""; }
+        @foreach (var item in Model.Dances)
+        {
+            @Html.DisplayFor(model => item.Info.Name)
+            @separator;
+            separator = ","; 
+        }
+    </div>
+
 </fieldset>
 <p>
     @Html.ActionLink("Edit", "Edit", new { id=Model.SongId }) |
