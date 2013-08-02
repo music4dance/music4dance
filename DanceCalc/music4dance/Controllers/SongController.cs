@@ -6,6 +6,7 @@ using System.Linq;
 using System.Web;
 using System.Web.Mvc;
 using SongDatabase.Models;
+using PagedList;
 
 namespace music4dance.Controllers
 {
@@ -16,11 +17,24 @@ namespace music4dance.Controllers
         //
         // GET: /Song/
 
-        public ActionResult Index(string sortOrder, string searchString)
+        public ActionResult Index(string sortOrder, string currentFilter, string searchString, int? page)
         {
+            ViewBag.CurrentSort = sortOrder;
+
             ViewBag.TitleSort = String.IsNullOrEmpty(sortOrder) ? "Title_desc" : "";
             ViewBag.ArtistSort = sortOrder == "Artist" ? "Artist_desc" : "Artist";
             ViewBag.AlbumSort = sortOrder == "Album" ? "Album_desc" : "Album";
+
+            if (searchString != null)
+            {
+                page = 1;
+            }
+            else
+            {
+                searchString = currentFilter;
+            }
+
+            ViewBag.CurrentFilter = searchString;
 
             var songs = from s in db.Songs select s;
 
@@ -60,8 +74,10 @@ namespace music4dance.Controllers
 
             }
 
-            return View(songs.Take(100).ToList());
-            //return View(db.Songs.ToList());
+            int pageSize = 25;
+            int pageNumber = (page ?? 1);
+
+            return View(songs.ToPagedList(pageNumber, pageSize));
         }
 
         //

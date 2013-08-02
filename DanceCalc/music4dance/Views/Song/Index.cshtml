@@ -1,4 +1,7 @@
-﻿@model IEnumerable<SongDatabase.Models.Song>
+﻿@model PagedList.IPagedList<SongDatabase.Models.Song>
+@using PagedList.Mvc;
+
+<link href="/Content/PagedList.css" rel="stylesheet" type="text/css" />
 
 @{
     ViewBag.Title = "Songs for Dancing";
@@ -13,23 +16,24 @@
 *@
 
 
-@using (Html.BeginForm())
+@using (Html.BeginForm("Index","Song",FormMethod.Get))
 {
     <p>
-        Find: @Html.TextBox("SearchString")  
-        <input type="submit" value="Search" /></p>
+        Find: @Html.TextBox("SearchString", ViewBag.CurrentFilter as string)  
+        <input type="submit" value="Search" />
+    </p>
 }
 
 <table>
     <tr>
         <th>
-            @Html.ActionLink("Title", "Index", new { sortOrder = ViewBag.TitleSort})
+            @Html.ActionLink("Title", "Index", new { sortOrder = ViewBag.TitleSort, currentFilter=ViewBag.CurrentFilter})
         </th>
         <th>
-            @Html.ActionLink("Artist", "Index", new { sortOrder = ViewBag.ArtistSort})
+            @Html.ActionLink("Artist", "Index", new { sortOrder = ViewBag.ArtistSort, currentFilter=ViewBag.CurrentFilter})
         </th>
         <th>
-            @Html.ActionLink("Album", "Index", new { sortOrder = ViewBag.AlbumSort})
+            @Html.ActionLink("Album", "Index", new { sortOrder = ViewBag.AlbumSort, currentFilter=ViewBag.CurrentFilter})
         </th>
         <th></th>
     </tr>
@@ -46,11 +50,16 @@
             @Html.DisplayFor(modelItem => item.Album)
         </td>
         <td>
+            @Html.ActionLink("Details", "Details", new { id=item.SongId }) @*|
             @Html.ActionLink("Edit", "Edit", new { id=item.SongId }) |
-            @Html.ActionLink("Details", "Details", new { id=item.SongId }) |
-            @Html.ActionLink("Delete", "Delete", new { id=item.SongId })
+            @Html.ActionLink("Delete", "Delete", new { id=item.SongId }) *@
         </td>
     </tr>
 }
 
 </table>
+<br />
+
+Page @(Model.PageCount < Model.PageNumber ? 0 : Model.PageNumber) of @Model.PageCount
+
+@Html.PagedListPager( Model, page => Url.Action("Index", new { page, sortOrder = ViewBag.CurrentSort, currentFilter=ViewBag.CurrentFilter }) )
