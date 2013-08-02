@@ -1,8 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.Entity;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
+
+using music4dance.ViewModels;
+using DanceLibrary;
+using SongDatabase.Models;
 
 namespace music4dance.Controllers
 {
@@ -17,9 +22,33 @@ namespace music4dance.Controllers
 
         public ActionResult About()
         {
-            ViewBag.Message = "Your app description page.";
+            using (DanceMusicContext db = new DanceMusicContext())
+            {
+                db.Dances.Load();
 
-            return View();
+                var data = new List<SongCounts>();
+
+                foreach (Dance d in db.Dances.Local)
+                {
+                    int count = d.Songs.Count;
+                    if (count > 0)
+                    {
+                        var sc = new SongCounts()
+                            {
+                                DanceId = d.Id,
+                                DanceName = d.Info.Name,
+                                SongCount = d.Songs.Count
+                            };
+
+                        data.Add(sc);
+                    }
+                }
+
+                data = data.OrderBy(s => s.DanceName).ToList();
+
+                return View(data);
+            }
+
         }
 
         public ActionResult Contact()
@@ -28,5 +57,11 @@ namespace music4dance.Controllers
 
             return View();
         }
+
+        //protected override void Dispose(bool disposing)
+        //{
+        //    _db.Dispose();
+        //    base.Dispose(disposing);
+        //}
     }
 }

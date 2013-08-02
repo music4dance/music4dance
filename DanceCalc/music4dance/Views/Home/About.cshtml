@@ -1,4 +1,6 @@
-﻿@{
+﻿@model IEnumerable<music4dance.ViewModels.SongCounts>
+
+@{
     ViewBag.Title = "About";
 }
 
@@ -7,28 +9,17 @@
     <h2>@ViewBag.Message</h2>
 </hgroup>
 
-<article>
-    <p>
-        Use this area to provide additional information.
-    </p>
+<h2>Song Database Statistics</h2>
 
-    <p>
-        Use this area to provide additional information.
-    </p>
+<table>
+<tr><th>ID</th><th>Dance</th><th># Songs</th></tr>
 
-    <p>
-        Use this area to provide additional information.
-    </p>
-</article>
-
-<aside>
-    <h3>Aside Title</h3>
-    <p>
-        Use this area to provide additional information.
-    </p>
-    <ul>
-        <li>@Html.ActionLink("Home", "Index", "Home")</li>
-        <li>@Html.ActionLink("About", "About", "Home")</li>
-        <li>@Html.ActionLink("Contact", "Contact", "Home")</li>
-    </ul>
-</aside>
+@foreach (var item in Model)
+{
+    <tr>
+        <td>@Html.DisplayFor(modelItem => item.DanceId)</td>
+        <td>@Html.DisplayFor(modelItem => item.DanceName)</td>
+        <td>@Html.DisplayFor(modelItem => item.SongCount)</td>
+    </tr>
+}
+</table>

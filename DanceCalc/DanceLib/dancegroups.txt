@@ -15,7 +15,7 @@
     "DanceIds" : ["SFT","QST"]
   },
   {
-    "Name": "TANGO_",
+    "Name": "Tango (General)",
     "Id" : "TNG",
     "DanceIds" : ["TGO","ATN", "NTN", "MGA"]
   },

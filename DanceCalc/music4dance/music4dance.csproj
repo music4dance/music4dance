@@ -215,6 +215,7 @@
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ViewModels\SongCounts.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Content\PagedList.css" />
@@ -353,6 +354,10 @@
     <Content Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\DanceLib\DanceLib.csproj">
+      <Project>{114ff99a-caac-4281-8f0a-35590a12a487}</Project>
+      <Name>DanceLib</Name>
+    </ProjectReference>
     <ProjectReference Include="..\SongDatabase\SongDatabase.csproj">
       <Project>{65b8cde7-b317-45f8-94d2-6e29cc74d9cd}</Project>
       <Name>SongDatabase</Name>
