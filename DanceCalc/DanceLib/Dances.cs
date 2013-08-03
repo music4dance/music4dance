@@ -599,6 +599,22 @@ namespace DanceLibrary
             }
         }
 
+        public IEnumerable<DanceType> AllDanceTypes
+        {
+            get
+            {
+                return _allDanceTypes;
+            }
+        }
+
+        public IEnumerable<DanceGroup> AllDanceGroups
+        {
+            get
+            {
+                return _allDanceGroups;
+            }
+        }
+
         public string GetJSON()
         {
             JsonSerializerSettings settings = new JsonSerializerSettings

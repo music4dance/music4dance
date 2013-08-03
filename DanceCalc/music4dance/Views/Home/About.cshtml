@@ -11,7 +11,24 @@
 
 <h2>Song Database Statistics</h2>
 
-<table>
+<ul>
+@foreach (var item in Model)
+{
+    <li>@Html.DisplayFor(modelItem => item.DanceName) (@Html.DisplayFor(modelItem => item.SongCount))
+        <ul>
+        @foreach (var sitem in item.Children)
+        {
+            if (sitem.SongCount > 0)
+            {
+                <li>@Html.DisplayFor(modelItem => sitem.DanceName) (@Html.DisplayFor(modelItem => sitem.SongCount))</li>
+            }
+        }
+        </ul>
+    </li>
+}
+</ul>
+
+@*<table>
 <tr><th>ID</th><th>Dance</th><th># Songs</th></tr>
 
 @foreach (var item in Model)
@@ -22,4 +39,6 @@
         <td>@Html.DisplayFor(modelItem => item.SongCount)</td>
     </tr>
 }
+
 </table>
+*@

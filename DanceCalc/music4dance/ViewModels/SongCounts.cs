@@ -10,5 +10,7 @@ namespace music4dance.ViewModels
         public string DanceName { get; set; }
         public string DanceId { get; set; }
         public int SongCount { get; set; }
+
+        public List<SongCounts> Children { get; set; }
     }
 }
