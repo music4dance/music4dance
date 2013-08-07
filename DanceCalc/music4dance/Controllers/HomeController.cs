@@ -16,7 +16,7 @@ namespace music4dance.Controllers
     {
         public ActionResult Index()
         {
-            ViewBag.Message = "Modify this template to jump-start your ASP.NET MVC application.";
+            ViewBag.Message = "Please feel free to explore this site, however it is currently in very early Alpha so any registration or data entered will be lost at the next upgrade.";
 
             return View();
         }
@@ -119,7 +119,7 @@ namespace music4dance.Controllers
 
         public ActionResult Contact()
         {
-            ViewBag.Message = "Your contact page.";
+            ViewBag.Message = "As noted on the homepage, this is an Alpha site, feel free to email with comments and suggestions.";
 
             return View();
         }

@@ -19,4 +19,9 @@
     "Id" : "TNG",
     "DanceIds" : ["TGO","ATN", "NTN", "MGA"]
   },
+  {
+    "Name": "Latin",
+    "Id" : "LTN",
+    "DanceIds" : ["BOL","CHA", "MBO", "RMB", "PDL", "SMB", "SLS", "BCH", "CMB", "MRG"]
+  },
 ]
