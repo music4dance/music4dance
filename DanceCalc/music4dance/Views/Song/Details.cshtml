@@ -72,9 +72,9 @@
         @{ var separator = ""; }
         @foreach (var item in Model.Dances)
         {
-            @Html.DisplayFor(model => item.Info.Name)
             @separator;
-            separator = ","; 
+            @Html.DisplayFor(model => item.Info.Name)
+            separator = ", "; 
         }
     </div>
 

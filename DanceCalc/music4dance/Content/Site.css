@@ -303,6 +303,27 @@ ol.round {
             background: url("../Images/orderedList9.png") no-repeat;
         }
 
+/* songlist table */
+table.songlist tr:nth-child(odd)
+{
+    background-color: lightblue;
+}
+
+table.songlist th 
+{
+    background-color: cadetblue;
+    padding-left: 5px;
+    padding-right: 5px;
+}
+
+table.songlist 
+{
+    border-color: cadetblue;
+    border-right-width: medium;
+    border-left-width: medium;
+    border-spacing: 3px;
+}
+
 /* content */
 article {
     float: left;
@@ -549,7 +570,6 @@ th {
     font-size: 1.2em;
     text-align: left;
     border: none 0px;
-    padding-left: 0;
 }
 
     th a {

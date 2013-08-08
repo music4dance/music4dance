@@ -26,6 +26,10 @@ namespace music4dance.Controllers
             ViewBag.ArtistSort = sortOrder == "Artist" ? "Artist_desc" : "Artist";
             ViewBag.AlbumSort = sortOrder == "Album" ? "Album_desc" : "Album";
 
+            ViewBag.TitleClass = string.Empty;
+            ViewBag.ArtistClass = string.Empty;
+            ViewBag.AlbumClass = string.Empty;
+
             if (searchString != null)
             {
                 page = 1;
@@ -60,26 +64,32 @@ namespace music4dance.Controllers
             {
                 case "Title_desc":
                     songs = songs.OrderByDescending(s => s.Title);
+                    ViewBag.TitleClass = "class=desc";
                     break;
 
                 case "Artist":
                     songs = songs.OrderBy(s => s.Artist);
+                    ViewBag.ArtistClass = "class=asc";
                     break;
 
                 case "Artist_desc":
                     songs = songs.OrderByDescending(s => s.Artist);
+                    ViewBag.ArtistClass = "class=desc";
                     break;
 
                 case "Album":
                     songs = songs.OrderBy(s => s.Album);
+                    ViewBag.AlbumClass = "class=desc";
                     break;
 
                 case "Album_desc":
                     songs = songs.OrderByDescending(s => s.Album);
+                    ViewBag.AlbumClass = "class=asc";
                     break;
 
                 default:
                     songs = songs.OrderBy(s => s.Title);
+                    ViewBag.TitleClass = "class=asc";
                     break;
 
             }

@@ -24,24 +24,26 @@
     </p>
 }
 
-<table>
+<table class="songlist">
     <tr>
-        <th>
+        <th @ViewBag.TitleClass style="min-width:75pt">
             @Html.ActionLink("Title", "Index", new { sortOrder = ViewBag.TitleSort, currentFilter=ViewBag.CurrentFilter, dances=ViewBag.CurrentDances})
         </th>
-        <th>
+        <th @ViewBag.ArtistClass  style="min-width:75pt">
             @Html.ActionLink("Artist", "Index", new { sortOrder = ViewBag.ArtistSort, currentFilter=ViewBag.CurrentFilter, dances=ViewBag.CurrentDances})
         </th>
-        <th>
+        <th @ViewBag.AlbumClass style="min-width:75pt">
             @Html.ActionLink("Album", "Index", new { sortOrder = ViewBag.AlbumSort, currentFilter=ViewBag.CurrentFilter, dances=ViewBag.CurrentDances})
         </th>
-        <th></th>
+        <th>Tempo (BPM)</th>
+        <th>Dances</th>
     </tr>
 
 @foreach (var item in Model) {
     <tr>
         <td>
-            @Html.DisplayFor(modelItem => item.Title)
+            @{ string title = Html.DisplayFor(modelItem => item.Title).ToString(); }
+            @Html.ActionLink(title, "Details", new { id=item.SongId })
         </td>
         <td>
             @Html.DisplayFor(modelItem => item.Artist)
@@ -50,10 +52,28 @@
             @Html.DisplayFor(modelItem => item.Album)
         </td>
         <td>
-            @Html.ActionLink("Details", "Details", new { id=item.SongId }) @*|
-            @Html.ActionLink("Edit", "Edit", new { id=item.SongId }) |
-            @Html.ActionLink("Delete", "Delete", new { id=item.SongId }) *@
+            @if (item.Tempo != null)
+            {
+                string tempo = decimal.Round(item.Tempo.Value).ToString("F0");
+                @tempo;
+            }
         </td>
+        <td>
+            @{ var separator = ""; }
+            @foreach (var ditem in item.Dances)
+            {
+                @separator;
+                @Html.DisplayFor(m => ditem.Info.Name)
+                separator = ", "; 
+            }
+        </td>
+@*
+        <td>
+            @Html.ActionLink("Details", "Details", new { id=item.SongId }) |
+            @Html.ActionLink("Edit", "Edit", new { id=item.SongId }) |
+            @Html.ActionLink("Delete", "Delete", new { id=item.SongId }) 
+        </td>
+*@
     </tr>
 }
 
