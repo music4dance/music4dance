@@ -17,9 +17,10 @@ namespace music4dance.Controllers
         //
         // GET: /Song/
 
-        public ActionResult Index(string sortOrder, string currentFilter, string searchString, int? page)
+        public ActionResult Index(string dances, string sortOrder, string currentFilter, string searchString, int? page)
         {
             ViewBag.CurrentSort = sortOrder;
+            ViewBag.CurrentDances = dances;
 
             ViewBag.TitleSort = String.IsNullOrEmpty(sortOrder) ? "Title_desc" : "";
             ViewBag.ArtistSort = sortOrder == "Artist" ? "Artist_desc" : "Artist";
@@ -37,6 +38,15 @@ namespace music4dance.Controllers
             ViewBag.CurrentFilter = searchString;
 
             var songs = from s in db.Songs select s;
+
+            if (!string.IsNullOrWhiteSpace(dances))
+            {
+                string[] danceList = dances.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+
+                // TODO: allow multiple dances
+                string dance = danceList[0];
+                songs = songs.Where(s => s.Dances.Any(d => d.Id == dance));
+            }
 
             if (!String.IsNullOrEmpty(searchString))
             {

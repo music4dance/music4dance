@@ -20,7 +20,19 @@
         {
             if (sitem.SongCount > 0)
             {
-                <li>@Html.DisplayFor(modelItem => sitem.DanceName) (@Html.DisplayFor(modelItem => sitem.SongCount))</li>
+                <li>@Html.DisplayFor(modelItem => sitem.DanceName) 
+                    (@Html.DisplayFor(modelItem => sitem.SongCount)) 
+                    @Html.ActionLink("Show...", "Index", "Song", new { dances = sitem.DanceId }, null)
+                    @if (sitem.Children != null && sitem.Children.Count > 1)
+                    {
+                        <ul>
+                        @foreach (var titem in sitem.Children)
+                        {
+                            <li>@Html.DisplayFor(modelItem => titem.DanceName) (@Html.DisplayFor(modelItem => titem.SongCount))</li>
+                        }
+                        </ul>
+                    }
+                </li>
             }
         }
         </ul>

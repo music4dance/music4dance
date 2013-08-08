@@ -27,13 +27,13 @@
 <table>
     <tr>
         <th>
-            @Html.ActionLink("Title", "Index", new { sortOrder = ViewBag.TitleSort, currentFilter=ViewBag.CurrentFilter})
+            @Html.ActionLink("Title", "Index", new { sortOrder = ViewBag.TitleSort, currentFilter=ViewBag.CurrentFilter, dances=ViewBag.CurrentDances})
         </th>
         <th>
-            @Html.ActionLink("Artist", "Index", new { sortOrder = ViewBag.ArtistSort, currentFilter=ViewBag.CurrentFilter})
+            @Html.ActionLink("Artist", "Index", new { sortOrder = ViewBag.ArtistSort, currentFilter=ViewBag.CurrentFilter, dances=ViewBag.CurrentDances})
         </th>
         <th>
-            @Html.ActionLink("Album", "Index", new { sortOrder = ViewBag.AlbumSort, currentFilter=ViewBag.CurrentFilter})
+            @Html.ActionLink("Album", "Index", new { sortOrder = ViewBag.AlbumSort, currentFilter=ViewBag.CurrentFilter, dances=ViewBag.CurrentDances})
         </th>
         <th></th>
     </tr>

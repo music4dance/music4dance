@@ -109,7 +109,7 @@ namespace music4dance.Controllers
                     if (scType.Children == null)
                         scType.Children = new List<SongCounts>();
 
-                    scType.Children.Add(scType);
+                    scType.Children.Add(scInstance);
                     scType.SongCount += count;
                 }
             }
