@@ -22,11 +22,12 @@ namespace music4dance
             //    consumerKey: "",
             //    consumerSecret: "");
 
-            //OAuthWebSecurity.RegisterFacebookClient(
-            //    appId: "",
-            //    appSecret: "");
+            OAuthWebSecurity.RegisterFacebookClient(
+                appId: "503791763032198",
+                appSecret: "***REMOVED***");
 
-            //OAuthWebSecurity.RegisterGoogleClient();
+            OAuthWebSecurity.RegisterGoogleClient();
+            OAuthWebSecurity.RegisterYahooClient();
         }
     }
 }

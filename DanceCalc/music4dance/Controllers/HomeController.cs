@@ -14,6 +14,7 @@ namespace music4dance.Controllers
 {
     public class HomeController : Controller
     {
+        [AllowAnonymous]
         public ActionResult Index()
         {
             ViewBag.Message = "Please feel free to explore this site, however it is currently in very early Alpha so any registration or data entered will be lost at the next upgrade.";
@@ -117,6 +118,7 @@ namespace music4dance.Controllers
             scGroup.SongCount += scType.SongCount;
         }
 
+        [AllowAnonymous]
         public ActionResult Contact()
         {
             ViewBag.Message = "As noted on the homepage, this is an Alpha site, feel free to email with comments and suggestions.";

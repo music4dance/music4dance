@@ -115,7 +115,7 @@ namespace music4dance.Controllers
 
         //
         // GET: /Song/Create
-
+        [Authorize(Roles = "canEdit")] 
         public ActionResult Create()
         {
             return View();
@@ -126,6 +126,7 @@ namespace music4dance.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "canEdit")] 
         public ActionResult Create(Song song)
         {
             if (ModelState.IsValid)
@@ -140,7 +141,7 @@ namespace music4dance.Controllers
 
         //
         // GET: /Song/Edit/5
-
+        [Authorize(Roles = "canEdit")] 
         public ActionResult Edit(int id = 0)
         {
             Song song = db.Songs.Find(id);
@@ -156,6 +157,7 @@ namespace music4dance.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "canEdit")] 
         public ActionResult Edit(Song song)
         {
             if (ModelState.IsValid)
@@ -169,7 +171,7 @@ namespace music4dance.Controllers
 
         //
         // GET: /Song/Delete/5
-
+        [Authorize(Roles = "canEdit")] 
         public ActionResult Delete(int id = 0)
         {
             Song song = db.Songs.Find(id);
@@ -185,6 +187,7 @@ namespace music4dance.Controllers
 
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "canEdit")] 
         public ActionResult DeleteConfirmed(int id)
         {
             Song song = db.Songs.Find(id);
