@@ -10,7 +10,7 @@
     <legend>Song</legend>
 
     <div class="display-label">
-         @Html.DisplayNameFor(model => model.Title):
+        @Html.DisplayNameFor(model => model.Title):
     </div>
     <div class="display-field">
         @Html.DisplayFor(model => model.Title)
@@ -26,7 +26,7 @@
     <br/>
 
     <div class="display-label">
-         @Html.DisplayNameFor(model => model.Album):
+        @Html.DisplayNameFor(model => model.Album):
     </div>
     <div class="display-field">
         @Html.DisplayFor(model => model.Album)
@@ -34,7 +34,7 @@
     <br/>
 
     <div class="display-label">
-         @Html.DisplayNameFor(model => model.Track):
+        @Html.DisplayNameFor(model => model.Track):
     </div>
     <div class="display-field">
         @Html.DisplayFor(model => model.Track)
@@ -42,7 +42,7 @@
     <br/>
 
     <div class="display-label">
-         @Html.DisplayNameFor(model => model.Publisher):
+        @Html.DisplayNameFor(model => model.Publisher):
     </div>
     <div class="display-field">
         @Html.DisplayFor(model => model.Publisher)
@@ -50,10 +50,14 @@
     <br/>
 
     <div class="display-label">
-         @Html.DisplayNameFor(model => model.Tempo):
+        @Html.DisplayNameFor(model => model.Tempo):
     </div>
     <div class="display-field">
-        @Html.DisplayFor(model => model.Tempo) bpm
+        @if (Model.Tempo != null)
+        {
+            string tempo = decimal.Round(Model.Tempo.Value).ToString("F0");
+            @tempo;
+        }
     </div>
     <br/>
 
@@ -77,7 +81,39 @@
             separator = ", "; 
         }
     </div>
+    <br/>
 
+    <div class="display-label">
+        @Html.DisplayNameFor(model => model.Track):
+    </div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.Track)
+    </div>
+    <br/>
+
+    <div class="display-label">
+        @Html.DisplayNameFor(model => model.Length):
+    </div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.Length)
+    </div>
+    <br/>
+
+    <div class="display-label">
+        @Html.DisplayNameFor(model => model.Created):
+    </div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.Created)
+    </div>
+    <br/>
+
+    <div class="display-label">
+        @Html.DisplayNameFor(model => model.Modified):
+    </div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.Modified)
+    </div>
+    <br/>
 </fieldset>
 <p>
     @Html.ActionLink("Edit", "Edit", new { id=Model.SongId }) |

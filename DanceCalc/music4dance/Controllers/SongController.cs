@@ -162,6 +162,7 @@ namespace music4dance.Controllers
         {
             if (ModelState.IsValid)
             {
+                song.Modified = DateTime.Now;
                 db.Entry(song).State = EntityState.Modified;
                 db.SaveChanges();
                 return RedirectToAction("Index");
