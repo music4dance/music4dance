@@ -7,6 +7,7 @@ using System.Web;
 using System.Web.Mvc;
 using SongDatabase.Models;
 using PagedList;
+using DanceLibrary;
 
 namespace music4dance.Controllers
 {
@@ -45,11 +46,10 @@ namespace music4dance.Controllers
 
             if (!string.IsNullOrWhiteSpace(dances))
             {
-                string[] danceList = dances.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+                //string[] danceList = dances.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+                string[] danceList = Dances.Instance.ExpandDanceList(dances);
 
-                // TODO: allow multiple dances
-                string dance = danceList[0];
-                songs = songs.Where(s => s.Dances.Any(d => d.Id == dance));
+                songs = songs.Where(s => s.Dances.Any(d => danceList.Contains(d.Id)));
             }
 
             if (!String.IsNullOrEmpty(searchString))

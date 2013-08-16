@@ -685,5 +685,48 @@ namespace DanceLibrary
 
             return dancelist;
         }
+
+        public string[] ExpandDanceList(string dances)
+        {
+            string[] initialList = dances.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+
+            // Would use hashset, but looks like not available on phone?
+            Dictionary<string, string> set = new Dictionary<string, string>();
+
+            foreach (string dance in initialList)
+            {
+                DoExpand(dance, set);
+            }
+
+            return set.Keys.ToArray();
+        }
+
+        private void DoExpand(string dance, Dictionary<string,string> set)
+        {
+            DanceObject dobj = null;
+            if (!set.ContainsKey(dance) && _danceDictionary.TryGetValue(dance, out dobj))
+            {
+                set.Add(dance, dance);
+
+                // TODO: Revisit making dance objects generically have children...
+                if (dobj is DanceType)
+                {
+                    DanceType dt = dobj as DanceType;
+                    if (dt.Instances != null)
+                        foreach (DanceObject child in dt.Instances)
+                        {
+                            DoExpand(child.Id, set);
+                        }
+                }
+                else if (dobj is DanceGroup)
+                {
+                    DanceGroup dg = dobj as DanceGroup;
+                    foreach  (string id in dg.DanceIds)
+                    {
+                        DoExpand(id, set);
+                    }
+                }
+            }
+        }
     }
 }

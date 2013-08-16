@@ -15,6 +15,7 @@
 @foreach (var item in Model)
 {
     <li>@Html.DisplayFor(modelItem => item.DanceName) (@Html.DisplayFor(modelItem => item.SongCount))
+        @Html.ActionLink("Show...", "Index", "Song", new { dances = item.DanceId }, null)
         <ul>
         @foreach (var sitem in item.Children)
         {
