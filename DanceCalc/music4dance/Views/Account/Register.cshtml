@@ -1,4 +1,6 @@
 ﻿@model SongDatabase.Models.RegisterModel
+@using Recaptcha.Web.Mvc;
+
 @{
     ViewBag.Title = "Register";
 }
@@ -8,6 +10,7 @@
     <h2>Create a new account.</h2>
 </hgroup>
 
+<section id="loginForm">
 @using (Html.BeginForm()) {
     @Html.AntiForgeryToken()
     @Html.ValidationSummary()
@@ -28,9 +31,17 @@
                 @Html.PasswordFor(m => m.ConfirmPassword)
             </li>
         </ol>
+        @Html.Recaptcha(theme:Recaptcha.Web.RecaptchaTheme.Clean)
         <input type="submit" value="Register" />
     </fieldset>
 }
+</section>
+
+<section class="social" id="socialLoginForm">
+    <h2>Use another service to log in.</h2>
+    @Html.Action("ExternalLoginsList", new { ReturnUrl = ViewBag.ReturnUrl })
+</section>
+
 
 @section Scripts {
     @Scripts.Render("~/bundles/jqueryval")

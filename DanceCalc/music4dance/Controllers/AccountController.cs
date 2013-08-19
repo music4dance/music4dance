@@ -8,6 +8,9 @@ using System.Web.Security;
 using DotNetOpenAuth.AspNet;
 using Microsoft.Web.WebPages.OAuth;
 using WebMatrix.WebData;
+
+using Recaptcha.Web;
+using Recaptcha.Web.Mvc;
 using music4dance.Filters;
 using SongDatabase.Models;
 
@@ -76,16 +79,34 @@ namespace music4dance.Controllers
         {
             if (ModelState.IsValid)
             {
-                // Attempt to register the user
-                try
+
+                RecaptchaVerificationHelper recaptchaHelper = this.GetRecaptchaVerificationHelper();
+
+                if (String.IsNullOrEmpty(recaptchaHelper.Response))
                 {
-                    WebSecurity.CreateUserAndAccount(model.UserName, model.Password);
-                    WebSecurity.Login(model.UserName, model.Password);
-                    return RedirectToAction("Index", "Home");
+                    ModelState.AddModelError("", "Captcha answer cannot be empty.");
+                    return View(model);
                 }
-                catch (MembershipCreateUserException e)
+
+                RecaptchaVerificationResult recaptchaResult = recaptchaHelper.VerifyRecaptchaResponse();
+
+                if (recaptchaResult == RecaptchaVerificationResult.Success)
                 {
-                    ModelState.AddModelError("", ErrorCodeToString(e.StatusCode));
+                    // Attempt to register the user
+                    try
+                    {
+                        WebSecurity.CreateUserAndAccount(model.UserName, model.Password);
+                        WebSecurity.Login(model.UserName, model.Password);
+                        return RedirectToAction("Index", "Home");
+                    }
+                    catch (MembershipCreateUserException e)
+                    {
+                        ModelState.AddModelError("", ErrorCodeToString(e.StatusCode));
+                    }
+                }
+                else
+                {
+                    ModelState.AddModelError("", "Incorrect captcha answer.");
                 }
             }
 
