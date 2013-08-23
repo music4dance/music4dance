@@ -1,11 +1,14 @@
 ﻿using DanceLibrary;
 using EFTracingProvider;
 using System;
+using System.Collections.Generic;
 using System.Configuration;
+using System.Data;
 using System.Data.Common;
 using System.Data.Entity;
 using System.Data.Entity.Infrastructure;
 using System.Diagnostics;
+using System.Linq;
 using System.Globalization;
 using System.Text;
 
@@ -198,6 +201,88 @@ namespace SongDatabase.Models
             return song;
         }
 
+        public bool EditSong(UserProfile user, Song song)
+        {
+            var properties = from p in SongProperties 
+                             where p.SongId == song.SongId
+                             orderby p.Id descending
+                             select p;
+
+            bool modified = false;
+
+            // Handle User association
+            if (user != null)
+            {
+                if (user.Songs.FirstOrDefault(s => s.SongId == song.SongId) == null)
+                {
+                    user.Songs.Add(song);
+                    CreateSongProperty(song, "User", user.UserName);
+                }
+            }
+
+            // Handle Timestamps
+            DateTime time = DateTime.Now;
+            song.Modified = time;
+            CreateSongProperty(song, "Time", time.ToString());
+
+            modified |= UpdateSongProperty(song, "Title", song.Title, properties);
+            modified |= UpdateSongProperty(song, "Artist", song.Artist, properties);
+            modified |= UpdateSongProperty(song, "Album", song.Album, properties);
+            modified |= UpdateSongProperty(song, "Publisher", song.Publisher, properties);
+            modified |= UpdateSongProperty(song, "Tempo", song.Tempo, properties);
+            modified |= UpdateSongProperty(song, "Purchase", song.Purchase, properties);
+
+            if (modified)
+            {
+                song.TitleHash = CreateTitleHash(song.Title);
+                Entry(song).State = EntityState.Modified;
+                SaveChanges();
+            }
+            else
+            {
+                // TODO: figure out how to undo the top couple changes if no substantive changes were made... (may just be do nothing here)
+            }
+
+            return modified;
+        }
+
+        //static private void DuplicationTestGraph(IObjectWithChangeTracker rootEntity)
+        //{
+        //    const string primaryKey = "Id";
+        //    var graphObjects = new Dictionary<string, IList<Object>>();
+
+        //    using (ChangeTrackerIterator iterator = ChangeTrackerIterator.Create(rootEntity))
+        //    {
+        //        iterator.ToList().ForEach(u =>
+        //        {
+        //            if (!graphObjects.Keys.Contains(u.GetType().Name))
+        //                graphObjects.Add(u.GetType().Name, new List<object>());
+        //            IList<object> tmpList;
+        //            graphObjects.TryGetValue(u.GetType().Name, out tmpList);
+        //            tmpList.Add(u);
+        //        });
+
+        //        foreach (IList<object> objectsList in graphObjects.Values)
+        //        {
+        //            foreach (object obj in objectsList)
+        //            {
+        //                foreach (object obj1 in objectsList)
+        //                {
+        //                    if (!obj1.Equals(obj))
+        //                    {
+        //                        int primaryKey1 = (int)obj.GetType().GetProperty(primaryKey).GetValue(obj, null);
+        //                        int primaryKey2 = (int)obj1.GetType().GetProperty(primaryKey).GetValue(obj1, null);
+
+        //                        if (primaryKey1 == primaryKey2)
+        //                            throw new Exception("There are at least two instances of the class " + obj.GetType().Name +
+        //                                                " which have the same primary key = " + primaryKey1 + ". Make sure that the key values are unique before calling AcceptChanges.");
+        //                    }
+        //                }
+        //            }
+        //        }
+        //    }
+        //}
+
         public static int CreateTitleHash(string title)
         {
             StringBuilder sb = new StringBuilder(title.Length);
@@ -245,6 +330,62 @@ namespace SongDatabase.Models
             SongProperties.Add(ret);
 
             return ret;
+        }
+
+        public bool UpdateSongProperty(Song song, string name, decimal? value, IOrderedQueryable<SongProperty> properties)
+        {
+            bool modified = true;
+
+            //SongProperty prop = properties.FirstOrDefault(p => string.Equals(p.Name,name,StringComparison.InvariantCultureIgnoreCase));
+            SongProperty prop = properties.FirstOrDefault(p => p.Name == name);
+
+            if (prop != null) {
+                decimal oldValue;
+                if (decimal.TryParse(prop.Value, out oldValue) && oldValue == value)
+                {
+                    modified = false;
+                }
+            }
+            else if (value == null)
+            {
+                modified = false;
+            }
+
+            if (modified)
+            {
+                SongProperty np = SongProperties.Create();
+                np.Song = song;
+                np.Name = name;
+                np.Value = value.ToString();
+
+                SongProperties.Add(np);
+            }
+
+            return modified;
+        }
+
+        public bool UpdateSongProperty(Song song, string name, string value, IOrderedQueryable<SongProperty> properties)
+        {
+            bool modified = false;
+
+            //SongProperty prop = properties.FirstOrDefault(p => string.Equals(p.Name,name,StringComparison.InvariantCultureIgnoreCase));
+            SongProperty prop = properties.FirstOrDefault(p => p.Name == name);
+
+            // We are going to create a new property if there wasn't a property before and this property is non-empty OR
+            //  if there was a property before and the value is different.
+            modified = (prop == null && !string.IsNullOrWhiteSpace(value)) || (prop != null && !string.Equals(prop.Value,value,StringComparison.CurrentCulture));
+
+            if (modified)
+            {
+                SongProperty np = SongProperties.Create();
+                np.Song = song;
+                np.Name = name;
+                np.Value = value;
+
+                SongProperties.Add(np);
+            }
+
+            return modified;
         }
 
         private static Dances _dances = new Dances();

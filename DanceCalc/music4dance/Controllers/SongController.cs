@@ -8,6 +8,7 @@ using System.Web.Mvc;
 using SongDatabase.Models;
 using PagedList;
 using DanceLibrary;
+using System.Diagnostics;
 
 namespace music4dance.Controllers
 {
@@ -18,6 +19,7 @@ namespace music4dance.Controllers
         //
         // GET: /Song/
 
+        [AllowAnonymous]
         public ActionResult Index(string dances, string sortOrder, string currentFilter, string searchString, int? page)
         {
             ViewBag.CurrentSort = sortOrder;
@@ -103,6 +105,7 @@ namespace music4dance.Controllers
         //
         // GET: /Song/Details/5
 
+        [AllowAnonymous]
         public ActionResult Details(int id = 0)
         {
             Song song = db.Songs.Find(id);
@@ -162,9 +165,21 @@ namespace music4dance.Controllers
         {
             if (ModelState.IsValid)
             {
-                song.Modified = DateTime.Now;
-                db.Entry(song).State = EntityState.Modified;
-                db.SaveChanges();
+                //This seemed promising, but it appears that these property lists aren't updated when
+                // we need them
+
+                //System.Data.Entity.Infrastructure.DbPropertyValues oldValues = db.Entry(song).OriginalValues;
+                //foreach (string name in oldValues.PropertyNames)
+                //{
+                //    Debug.WriteLine(string.Format("{0}={1}",name,oldValues[name]));
+                //}
+
+                // TODO: Get the user that is logged in stuffed into userProfile
+
+                string userName = User.Identity.Name;
+                UserProfile user = db.UserProfiles.FirstOrDefault(u => u.UserName == userName);
+                db.EditSong(user, song);
+
                 return RedirectToAction("Index");
             }
             return View(song);

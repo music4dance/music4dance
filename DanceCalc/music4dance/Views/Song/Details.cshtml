@@ -4,18 +4,15 @@
     ViewBag.Title = "Details";
 }
 
+<hgroup>
+<h1>@Html.DisplayFor(model => model.Title)</h1>
 <h2>Details</h2>
+</hgroup>
+
+<section id="songDetails">
 
 <fieldset>
     <legend>Song</legend>
-
-    <div class="display-label">
-        @Html.DisplayNameFor(model => model.Title):
-    </div>
-    <div class="display-field">
-        @Html.DisplayFor(model => model.Title)
-    </div>
-    <br/>
 
     <div class="display-label">
          @Html.DisplayNameFor(model => model.Artist):
@@ -30,14 +27,6 @@
     </div>
     <div class="display-field">
         @Html.DisplayFor(model => model.Album)
-    </div>
-    <br/>
-
-    <div class="display-label">
-        @Html.DisplayNameFor(model => model.Track):
-    </div>
-    <div class="display-field">
-        @Html.DisplayFor(model => model.Track)
     </div>
     <br/>
 
@@ -116,6 +105,32 @@
     <br/>
 </fieldset>
 <p>
-    @Html.ActionLink("Edit", "Edit", new { id=Model.SongId }) |
+    @if (User.IsInRole("canEdit"))
+    {
+        @Html.ActionLink("Edit", "Edit", new { id=Model.SongId }) 
+        @Html.Display(" | ")
+    }
     @Html.ActionLink("Back to List", "Index")
 </p>
+</section>
+@if (User.IsInRole("showDiagnostics"))
+{
+<section id="songLog">
+    <h2>Log</h2>
+    <table class="songlist">
+        <tr>
+            <th>Id</th>
+            <th>Name</th>
+            <th>Value</th>
+        </tr>
+        @foreach (var logItem in Model.SongProperties)
+        {
+            <tr>
+                <td>@Html.DisplayFor(modelItem => logItem.Id)</td>
+                <td>@Html.DisplayFor(modelItem => logItem.Name)</td>
+                <td>@Html.DisplayFor(modelItem => logItem.Value)</td>
+            </tr>
+        }
+    </table>
+</section>
+}
