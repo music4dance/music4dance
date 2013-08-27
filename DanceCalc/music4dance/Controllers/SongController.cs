@@ -176,6 +176,8 @@ namespace music4dance.Controllers
 
                 // TODO: Get the user that is logged in stuffed into userProfile
 
+                db.Dump();
+
                 string userName = User.Identity.Name;
                 UserProfile user = db.UserProfiles.FirstOrDefault(u => u.UserName == userName);
                 db.EditSong(user, song);

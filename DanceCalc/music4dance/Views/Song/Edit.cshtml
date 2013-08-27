@@ -84,11 +84,14 @@
         </div>
         <div class="display-field">
             @{ var separator = ""; }
-            @foreach (var item in Model.Dances)
+            @if (Model.Dances != null)
             {
-                @separator;
-                @Html.DisplayFor(model => item.Info.Name)
-                separator = ", "; 
+                foreach (var item in Model.Dances)
+                {
+                    @separator;
+                    @Html.DisplayFor(model => item.Info.Name)
+                    separator = ", "; 
+                }
             }
         </div>
         <br/>

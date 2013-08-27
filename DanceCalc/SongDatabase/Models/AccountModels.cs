@@ -3,18 +3,27 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Data.Entity;
+using System.Diagnostics;
 using System.Globalization;
 
 namespace SongDatabase.Models
 {
     [Table("UserProfile")]
-    public class UserProfile
+    public class UserProfile : DbObject
     {
         [Key]
         [DatabaseGeneratedAttribute(DatabaseGeneratedOption.Identity)]
         public int UserId { get; set; }
         public string UserName { get; set; }
         public virtual ICollection<Song> Songs { get; set; }
+
+        public override void Dump()
+        {
+            base.Dump();
+
+            string output = string.Format("UserId={0},UserName={1}", UserId, UserName);
+            Debug.WriteLine(output);
+        }
     }
 
     public class RegisterExternalLoginModel

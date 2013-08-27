@@ -11,6 +11,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Globalization;
 using System.Text;
+using System.Data.Objects.DataClasses;
 
 namespace SongDatabase.Models
 {
@@ -203,6 +204,8 @@ namespace SongDatabase.Models
 
         public bool EditSong(UserProfile user, Song song)
         {
+            Dump();
+            
             var properties = from p in SongProperties 
                              where p.SongId == song.SongId
                              orderby p.Id descending
@@ -213,11 +216,14 @@ namespace SongDatabase.Models
             // Handle User association
             if (user != null)
             {
+                Dump();
                 if (user.Songs.FirstOrDefault(s => s.SongId == song.SongId) == null)
                 {
                     user.Songs.Add(song);
-                    CreateSongProperty(song, "User", user.UserName);
                 }
+                Dump();
+                CreateSongProperty(song, "User", user.UserName);
+                Dump();
             }
 
             // Handle Timestamps
@@ -230,12 +236,28 @@ namespace SongDatabase.Models
             modified |= UpdateSongProperty(song, "Album", song.Album, properties);
             modified |= UpdateSongProperty(song, "Publisher", song.Publisher, properties);
             modified |= UpdateSongProperty(song, "Tempo", song.Tempo, properties);
+            modified |= UpdateSongProperty(song, "Length", song.Length, properties);
+            modified |= UpdateSongProperty(song, "Track", song.Track, properties);
             modified |= UpdateSongProperty(song, "Purchase", song.Purchase, properties);
+            modified |= UpdateSongProperty(song, "Genre", song.Genre, properties);
 
             if (modified)
             {
                 song.TitleHash = CreateTitleHash(song.Title);
+
+                // This seems totally non-optimal, but because of the relationship between users
+                //  and songs the old song record is getting loaded underneath the new one
+                var songs = Songs.Local.Where(s => s.SongId == song.SongId).ToArray();
+                foreach (Song s in songs)
+                {
+                    if (s != song)
+                    {
+                        ((IObjectContextAdapter)this).ObjectContext.Detach(s);
+                    }
+                }
+
                 Entry(song).State = EntityState.Modified;
+
                 SaveChanges();
             }
             else
@@ -246,7 +268,7 @@ namespace SongDatabase.Models
             return modified;
         }
 
-        //static private void DuplicationTestGraph(IObjectWithChangeTracker rootEntity)
+        //static private void DuplicationTestGraph(IEntityWithChangeTracker rootEntity)
         //{
         //    const string primaryKey = "Id";
         //    var graphObjects = new Dictionary<string, IList<Object>>();
@@ -364,6 +386,39 @@ namespace SongDatabase.Models
             return modified;
         }
 
+        public bool UpdateSongProperty(Song song, string name, int? value, IOrderedQueryable<SongProperty> properties)
+        {
+            bool modified = true;
+
+            //SongProperty prop = properties.FirstOrDefault(p => string.Equals(p.Name,name,StringComparison.InvariantCultureIgnoreCase));
+            SongProperty prop = properties.FirstOrDefault(p => p.Name == name);
+
+            if (prop != null)
+            {
+                int oldValue;
+                if (int.TryParse(prop.Value, out oldValue) && oldValue == value)
+                {
+                    modified = false;
+                }
+            }
+            else if (value == null)
+            {
+                modified = false;
+            }
+
+            if (modified)
+            {
+                SongProperty np = SongProperties.Create();
+                np.Song = song;
+                np.Name = name;
+                np.Value = value.ToString();
+
+                SongProperties.Add(np);
+            }
+
+            return modified;
+        }
+
         public bool UpdateSongProperty(Song song, string name, string value, IOrderedQueryable<SongProperty> properties)
         {
             bool modified = false;
@@ -386,6 +441,29 @@ namespace SongDatabase.Models
             }
 
             return modified;
+        }
+
+        public void Dump()
+        {
+            // TODO: Create a dump routine to help dump the object graph - definitely need object id of some kind (address)
+
+            Debug.WriteLine("------------------- songs ------------------");
+            foreach (Song song in Songs.Local)
+            {
+                song.Dump();
+            }
+
+            Debug.WriteLine("------------------- properties ------------------");
+            foreach (SongProperty prop in SongProperties.Local)
+            {
+                prop.Dump();
+            }
+
+            Debug.WriteLine("------------------- users ------------------");
+            foreach (UserProfile user in UserProfiles.Local)
+            {
+                user.Dump();
+            }
         }
 
         private static Dances _dances = new Dances();
