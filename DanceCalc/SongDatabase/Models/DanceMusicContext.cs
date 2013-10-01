@@ -204,8 +204,6 @@ namespace SongDatabase.Models
 
         public bool EditSong(UserProfile user, Song song)
         {
-            Dump();
-            
             var properties = from p in SongProperties 
                              where p.SongId == song.SongId
                              orderby p.Id descending
@@ -216,14 +214,14 @@ namespace SongDatabase.Models
             // Handle User association
             if (user != null)
             {
-                Dump();
+                //Dump();
                 if (user.Songs.FirstOrDefault(s => s.SongId == song.SongId) == null)
                 {
                     user.Songs.Add(song);
                 }
-                Dump();
+                //Dump();
                 CreateSongProperty(song, "User", user.UserName);
-                Dump();
+                //Dump();
             }
 
             // Handle Timestamps

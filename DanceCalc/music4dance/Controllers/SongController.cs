@@ -9,12 +9,13 @@ using SongDatabase.Models;
 using PagedList;
 using DanceLibrary;
 using System.Diagnostics;
+using music4dance.ViewModels;
 
 namespace music4dance.Controllers
 {
     public class SongController : Controller
     {
-        private DanceMusicContext db = new DanceMusicContext();
+        private DanceMusicContext _db = new DanceMusicContext();
 
         //
         // GET: /Song/
@@ -22,7 +23,10 @@ namespace music4dance.Controllers
         [AllowAnonymous]
         public ActionResult Index(string dances, string sortOrder, string currentFilter, string searchString, int? page)
         {
+            // Set up the viewbag
             ViewBag.CurrentSort = sortOrder;
+            if (dances == "ALL")
+                dances = null;
             ViewBag.CurrentDances = dances;
 
             ViewBag.TitleSort = String.IsNullOrEmpty(sortOrder) ? "Title_desc" : "";
@@ -33,6 +37,7 @@ namespace music4dance.Controllers
             ViewBag.ArtistClass = string.Empty;
             ViewBag.AlbumClass = string.Empty;
 
+            // Set up search string
             if (searchString != null)
             {
                 page = 1;
@@ -41,19 +46,26 @@ namespace music4dance.Controllers
             {
                 searchString = currentFilter;
             }
-
             ViewBag.CurrentFilter = searchString;
 
-            var songs = from s in db.Songs select s;
+            IList<SongCounts> songCounts = SongCounts.GetFlatSongCounts(_db);
+            var scq = songCounts.Select(s => new { s.DanceId, s.DanceNameAndCount });
+            var scl = new SelectList(scq.AsEnumerable(), "DanceId", "DanceNameAndCount");
+            ViewBag.Dances = scl;
 
+            // Now setup the view
+            // Start with all of the songs in the database
+            var songs = from s in _db.Songs select s;
+
+            // Now limit it down to the ones that are marked as a particular dance or dances
             if (!string.IsNullOrWhiteSpace(dances))
             {
-                //string[] danceList = dances.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
                 string[] danceList = Dances.Instance.ExpandDanceList(dances);
 
                 songs = songs.Where(s => s.Dances.Any(d => danceList.Contains(d.Id)));
             }
 
+            // Now limit it by anything that has the serach string in the title, album or artist
             if (!String.IsNullOrEmpty(searchString))
             {
                 songs = songs.Where(
@@ -62,6 +74,7 @@ namespace music4dance.Controllers
                     s.Artist.ToUpper().Contains(searchString.ToUpper()));
             }
 
+            // Now sort the list
             switch (sortOrder)
             {
                 case "Title_desc":
@@ -108,7 +121,7 @@ namespace music4dance.Controllers
         [AllowAnonymous]
         public ActionResult Details(int id = 0)
         {
-            Song song = db.Songs.Find(id);
+            Song song = _db.Songs.Find(id);
             if (song == null)
             {
                 return HttpNotFound();
@@ -134,8 +147,8 @@ namespace music4dance.Controllers
         {
             if (ModelState.IsValid)
             {
-                db.Songs.Add(song);
-                db.SaveChanges();
+                _db.Songs.Add(song);
+                _db.SaveChanges();
                 return RedirectToAction("Index");
             }
 
@@ -147,7 +160,7 @@ namespace music4dance.Controllers
         [Authorize(Roles = "canEdit")] 
         public ActionResult Edit(int id = 0)
         {
-            Song song = db.Songs.Find(id);
+            Song song = _db.Songs.Find(id);
             if (song == null)
             {
                 return HttpNotFound();
@@ -175,12 +188,13 @@ namespace music4dance.Controllers
                 //}
 
                 // TODO: Get the user that is logged in stuffed into userProfile
-
-                db.Dump();
+#if DEBUG
+                _db.Dump();
+#endif
 
                 string userName = User.Identity.Name;
-                UserProfile user = db.UserProfiles.FirstOrDefault(u => u.UserName == userName);
-                db.EditSong(user, song);
+                UserProfile user = _db.UserProfiles.FirstOrDefault(u => u.UserName == userName);
+                _db.EditSong(user, song);
 
                 return RedirectToAction("Index");
             }
@@ -192,7 +206,7 @@ namespace music4dance.Controllers
         [Authorize(Roles = "canEdit")] 
         public ActionResult Delete(int id = 0)
         {
-            Song song = db.Songs.Find(id);
+            Song song = _db.Songs.Find(id);
             if (song == null)
             {
                 return HttpNotFound();
@@ -208,15 +222,15 @@ namespace music4dance.Controllers
         [Authorize(Roles = "canEdit")] 
         public ActionResult DeleteConfirmed(int id)
         {
-            Song song = db.Songs.Find(id);
-            db.Songs.Remove(song);
-            db.SaveChanges();
+            Song song = _db.Songs.Find(id);
+            _db.Songs.Remove(song);
+            _db.SaveChanges();
             return RedirectToAction("Index");
         }
 
         protected override void Dispose(bool disposing)
         {
-            db.Dispose();
+            _db.Dispose();
             base.Dispose(disposing);
         }
     }

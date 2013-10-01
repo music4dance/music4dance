@@ -19,7 +19,8 @@
 @using (Html.BeginForm("Index","Song",FormMethod.Get))
 {
     <p>
-        Find: @Html.TextBox("SearchString", ViewBag.CurrentFilter as string)  
+        Find: @Html.TextBox("SearchString", ViewBag.CurrentFilter as string)&nbsp;
+        @Html.DropDownList("dances", (IEnumerable<SelectListItem>)ViewBag.Dances)&nbsp;
         <input type="submit" value="Search" />
     </p>
 }
@@ -84,5 +85,6 @@
 <br />
 
 Page @(Model.PageCount < Model.PageNumber ? 0 : Model.PageNumber) of @Model.PageCount
+(@Model.TotalItemCount song found.)
 
 @Html.PagedListPager( Model, page => Url.Action("Index", new { page, sortOrder = ViewBag.CurrentSort, currentFilter=ViewBag.CurrentFilter, dances=ViewBag.CurrentDances }) )
