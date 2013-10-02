@@ -10,7 +10,7 @@ namespace SongDatabase.Models
     public class Dance
     {
         public string Id { get; set; }
-        public virtual ICollection<Song> Songs { get; set; }
+        public virtual ICollection<DanceRating> DanceRatings { get; set; }
 
         public DanceObject Info
         {

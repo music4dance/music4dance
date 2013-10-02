@@ -44,7 +44,7 @@ namespace SongDatabase.Models
         public DateTime Modified { get; set; }
         public int TitleHash { get; set; }
         public string Purchase { get; set; }
-        public virtual ICollection<Dance> Dances { get; set; }
+        public virtual ICollection<DanceRating> DanceRatings { get; set; }
         public virtual ICollection<UserProfile> ModifiedBy { get; set; }
         public virtual ICollection<SongProperty> SongProperties { get; set; }
 
@@ -78,6 +78,25 @@ namespace SongDatabase.Models
             base.Dump();
 
             string output = string.Format("Id={0},SongId={1},Name={2},Value={3}",Id, SongId,Name,Value);
+            Debug.WriteLine(output);
+        }
+    }
+
+    public class DanceRating : DbObject
+    {
+        public int SongId { get; set; }
+        public virtual Song Song { get; set; }
+
+        public string DanceId { get; set; }
+        public virtual Dance Dance { get; set; }
+
+        public int Weight { get; set; }
+
+        public override void Dump()
+        {
+            base.Dump();
+
+            string output = string.Format("DanceId={0},SongId={1},Name={2},Value={3}", DanceId, SongId, Weight);
             Debug.WriteLine(output);
         }
     }

@@ -64,10 +64,10 @@
         </td>
         <td>
             @{ var separator = ""; }
-            @foreach (var ditem in item.Dances)
+            @foreach (var ditem in item.DanceRatings)
             {
                 @separator;
-                @Html.DisplayFor(m => ditem.Info.Name)
+                @Html.DisplayFor(m => ditem.Dance.Info.Name)
                 separator = ", "; 
             }
         </td>

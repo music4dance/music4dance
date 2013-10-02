@@ -60,6 +60,14 @@
     <Compile Include="Migrations\201308012221216_InitialCreate.Designer.cs">
       <DependentUpon>201308012221216_InitialCreate.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201310022012320_AddDanceRating.cs" />
+    <Compile Include="Migrations\201310022012320_AddDanceRating.Designer.cs">
+      <DependentUpon>201310022012320_AddDanceRating.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201310022044361_AddDanceRating2.cs" />
+    <Compile Include="Migrations\201310022044361_AddDanceRating2.Designer.cs">
+      <DependentUpon>201310022044361_AddDanceRating2.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountModels.cs" />
     <Compile Include="Models\Dance.cs" />
@@ -80,6 +88,12 @@
   <ItemGroup>
     <EmbeddedResource Include="Migrations\201308012221216_InitialCreate.resx">
       <DependentUpon>201308012221216_InitialCreate.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201310022012320_AddDanceRating.resx">
+      <DependentUpon>201310022012320_AddDanceRating.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201310022044361_AddDanceRating2.resx">
+      <DependentUpon>201310022044361_AddDanceRating2.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

@@ -62,7 +62,7 @@ namespace music4dance.Controllers
             {
                 string[] danceList = Dances.Instance.ExpandDanceList(dances);
 
-                songs = songs.Where(s => s.Dances.Any(d => danceList.Contains(d.Id)));
+                songs = songs.Where(s => s.DanceRatings.Any(dr => danceList.Contains(dr.DanceId)));
             }
 
             // Now limit it by anything that has the serach string in the title, album or artist

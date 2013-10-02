@@ -3,7 +3,9 @@ using System.Data.Entity;
 using System.Data.Entity.Infrastructure;
 using System.Threading;
 using System.Web.Mvc;
+using System.Web.Security;
 using WebMatrix.WebData;
+
 using SongDatabase.Models;
 
 namespace music4dance.Filters
@@ -42,6 +44,12 @@ namespace music4dance.Filters
                         {
                             context.Database.ExecuteSqlCommand("CREATE INDEX HashIndex ON dbo.Songs (TitleHash)");
                         }
+
+                        AddRole(_editRole);
+                        AddRole(_diagRole);
+
+                        AddAdministrator("administrator");
+                        AddAdministrator("dwgray");
                     }
 
                 }
@@ -49,7 +57,29 @@ namespace music4dance.Filters
                 {
                     throw new InvalidOperationException("The ASP.NET Simple Membership database could not be initialized. For more information, please see http://go.microsoft.com/fwlink/?LinkId=256588", ex);
                 }
+
             }
+
+            private void AddRole(string role)
+            {
+                if (!Roles.RoleExists(role))
+                {
+                    Roles.CreateRole(role);
+                }
+            }
+
+            private void AddAdministrator(string name)
+            {
+                if (!WebSecurity.UserExists(name))
+                {
+                    WebSecurity.CreateUserAndAccount(name, "marley");
+                    Roles.AddUsersToRoles(new[] { name }, new[] { _editRole, _diagRole });
+                }
+            }
+
+            private static string _editRole = "canEdit";
+            private static string _diagRole = "showDiagnostics";
+
         }
     }
 }

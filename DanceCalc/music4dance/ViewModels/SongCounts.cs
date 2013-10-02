@@ -64,7 +64,7 @@ namespace music4dance.ViewModels
                 {
                     DanceId = dg.Id,
                     DanceName = dg.Name,
-                    SongCount = d.Songs.Count,
+                    SongCount = d.DanceRatings.Count,
                     Children = new List<SongCounts>()
                 };
 
@@ -109,7 +109,7 @@ namespace music4dance.ViewModels
             {
                 DanceId = dtyp.Id,
                 DanceName = dtyp.Name,
-                SongCount = d.Songs.Count,
+                SongCount = d.DanceRatings.Count,
                 Children = null
             };
 
@@ -118,7 +118,7 @@ namespace music4dance.ViewModels
             foreach (DanceObject dinst in dtyp.Instances)
             {
                 d = dances.FirstOrDefault(t => t.Id == dinst.Id);
-                int count = d.Songs.Count;
+                int count = d.DanceRatings.Count;
 
                 if (count > 0)
                 {
