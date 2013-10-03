@@ -104,6 +104,12 @@ namespace DanceCalc
             }
         }
 
+        static string _nullDance = @"<?xml version='1.0' encoding='utf-8' ?>" +
+            @"<Dance Name='Peabody'>" +
+            @"<Link>http://www.music4dance.net</Link>" +
+            @"<Summary>I've been a bit ad-hoc about adding dances, I'm currently concentrating on a dance music catalog and will map back to the phone app once I've got that shaped up a bit.  Click 'more...' to see the new site in progress.</Summary>" +
+            @"</Dance>";
+
         void dc_DownloadStringCompleted(object sender, DownloadStringCompletedEventArgs e)
         {
             string s = null;
@@ -112,11 +118,16 @@ namespace DanceCalc
             if (!e.Cancelled && e.Error == null)
             {
                 s = e.Result as string;
-                name = e.UserState as string;
             }
+            name = e.UserState as string;
 
-            if (s != null && name != null)
+            if (name != null)
             {
+                if (s == null)
+                {
+                    s = _nullDance;
+                }
+
                 using (TextWriter w = TempStorage.Instance.GetTextWriter(name + ".xml"))
                 {
                     w.Write(s);
@@ -138,7 +149,8 @@ namespace DanceCalc
             }
 
             string name = _dvm.Dance.DanceType.ShortName;
-            Uri uri = new Uri("http://www.thegray.com/dances/" + name + ".xml");
+            //Uri uri = new Uri("http://www.thegray.com/dances/" + name + ".xml");
+            Uri uri = new Uri("http://thegray.azurewebsites.net/dances/" + name + ".xml");
             wc.DownloadStringAsync(uri, name);
         }
 

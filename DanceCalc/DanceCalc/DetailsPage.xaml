@@ -43,7 +43,7 @@
             <Button Content=" Refresh " Height="100" Name="Refresh" ClickMode="Press" Click="Refresh_Click" FontSize="42" FontWeight="Bold" FontFamily="Comic Sans MS" HorizontalAlignment="Stretch"/>
         </StackPanel>
         <StackPanel x:Name="Ad" Grid.Row="3" Margin="0,0,0,0">
-            <my:AdControl Height="80" HorizontalAlignment="Left" Margin="0" Name="adControl1" VerticalAlignment="Top" Width="480" ApplicationId="74c95d69-3d58-40af-bbec-b807423cfdf0" AdUnitId="10018819" />
+            <my:AdControl Height="80" HorizontalAlignment="Left" Margin="0" Name="adControl1" VerticalAlignment="Top" Width="480" ApplicationId="74c95d69-3d58-40af-bbec-b807423cfdf0" AdUnitId="10217376" />
         </StackPanel>
     </Grid>
  

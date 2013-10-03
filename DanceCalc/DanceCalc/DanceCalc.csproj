@@ -128,6 +128,7 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
+    <None Include="DanceCalc_2013_10_03_15_21_04.sap" />
     <None Include="Properties\AppManifest.xml" />
     <None Include="Properties\WMAppManifest.xml">
       <SubType>Designer</SubType>
