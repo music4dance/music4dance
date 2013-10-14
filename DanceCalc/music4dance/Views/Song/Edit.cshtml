@@ -80,16 +80,16 @@
         </div>
 
         <div class="display-label">
-             @Html.DisplayNameFor(model => model.Dances):
+             Dance(s):
         </div>
         <div class="display-field">
             @{ var separator = ""; }
-            @if (Model.Dances != null)
+            @if (Model.DanceRatings != null)
             {
-                foreach (var item in Model.Dances)
+                foreach (var item in Model.DanceRatings)
                 {
                     @separator;
-                    @Html.DisplayFor(model => item.Info.Name)
+                    @Html.DisplayFor(model => item.Dance.Info.Name)
                     separator = ", "; 
                 }
             }

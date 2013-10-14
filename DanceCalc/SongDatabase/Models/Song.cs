@@ -38,11 +38,12 @@ namespace SongDatabase.Models
         public string Album { get; set; }
         public string Publisher { get; set; }
         public string Genre { get; set; }
-        public int Track { get; set; }
-        public int Length { get; set; }
+        public int? Track { get; set; }
+        public int? Length { get; set; }
         public DateTime Created { get; set; }
         public DateTime Modified { get; set; }
         public int TitleHash { get; set; }
+        // Semi-colon separated purchase info of the form XX=YYYYYY (XX is service/type and YYYYY is id)
         public string Purchase { get; set; }
         public virtual ICollection<DanceRating> DanceRatings { get; set; }
         public virtual ICollection<UserProfile> ModifiedBy { get; set; }

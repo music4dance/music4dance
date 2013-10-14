@@ -1,0 +1,96 @@
+﻿@model music4dance.ViewModels.SongMerge
+
+@{
+    ViewBag.Title = "Merge";
+}
+
+<h2>Merge</h2>
+
+@using (Html.BeginForm("MergeResults","Song",FormMethod.Post))
+{
+    @Html.AntiForgeryToken()
+
+<table class="songlist">
+    <tr>
+        <th></th>
+        @{int i = 0;}
+        @foreach (var item in Model.Songs)
+        {
+            <th>Candidate # @(i+1)</th>
+            i = i + 1;
+        }
+    </tr>
+    @foreach (music4dance.ViewModels.SongPropertyMerge spm in Model.Properties)
+    {
+        <tr>
+            <th>@spm.Name</th>
+            @{i = 0;}
+            @foreach (var value in spm.Values)
+            {
+                <td>
+                    @if (spm.Selection != -1)
+                    {
+                        string Checked = "";
+                        if (spm.Selection == i)
+                        {
+                            Checked = "Checked";
+                        }
+                        <input type="radio" style="width:auto;background-color:inherit" name="@spm.Name" value="@i" @Checked/>
+                    }
+                    @if (value == null)
+                    {
+                        <b>null</b>
+                    }
+                    else
+                    {
+                        @value.ToString();
+                    }
+
+                </td>
+                i = i + 1;
+            }
+        </tr>        
+    }
+    <tr><th>Dances</th><td>
+        @{
+            int idx = 0;
+            foreach (music4dance.ViewModels.DanceMerge dm in Model.Ratings)
+            {
+                string label = dm.DanceName + " (" + dm.Weight.ToString() + ")";
+                string name = "Dance-" + dm.DanceId + "-" + dm.Weight;
+                string isChecked = "";
+                if (dm.Keep == true)
+                {
+                    isChecked = "checked";
+                }
+                    
+                if (dm.SongIdx > idx)
+                {
+                    idx += 1;
+                    @:</td><td>
+                }
+                <input id="@name" name="@name" type="checkbox" @isChecked/>
+                @label
+            }
+        }
+    </td></tr>
+
+@if (User.IsInRole("showDiagnostics"))
+{
+    <tr>
+        <th>Log</th>
+        @{i = 0;}
+        @foreach (var item in Model.Songs)
+        {
+            <td>@Html.Partial("SongItems",item)</td>
+            i = i + 1;
+        }
+    </tr>
+}
+</table>
+
+@Html.Hidden("SongIds",Model.SongIds);
+    
+<input name="Commit" type="submit" value="Okay" />
+<input name="Commit" type="submit" value="Cancel" />
+}

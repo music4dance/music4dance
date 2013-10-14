@@ -10,6 +10,7 @@ using PagedList;
 using DanceLibrary;
 using System.Diagnostics;
 using music4dance.ViewModels;
+using System.Text;
 
 namespace music4dance.Controllers
 {
@@ -226,6 +227,151 @@ namespace music4dance.Controllers
             _db.Songs.Remove(song);
             _db.SaveChanges();
             return RedirectToAction("Index");
+        }
+
+        // TODO: Think about a reasonable way to have 
+
+        //
+        // Merge: /Song/Merge
+        [ValidateAntiForgeryToken]
+        [Authorize(Roles = "canEdit")]
+        public ActionResult Merge()
+        {
+            List<int> songIds = new List<int>();
+
+            if (Request.Form != null)
+            {
+                foreach (string key in Request.Form.AllKeys)
+                {
+                    string[] rgs = key.Split(new char[] { '-' });
+                    int id = 0;
+
+                    if (rgs.Length == 2 && string.Equals(rgs[0], "Merge", StringComparison.Ordinal) && int.TryParse(rgs[1], out id))
+                    {
+                        string value = Request.Form[key];
+                        if (string.Equals(value, "on", StringComparison.OrdinalIgnoreCase))
+                        {
+                            songIds.Add(id);
+                        }
+                    }
+                }
+            }
+
+            var songs = from s in _db.Songs
+                        where songIds.Contains(s.SongId)
+                        select s;
+
+            SongMerge sm = new SongMerge(songs.ToList());
+
+            return View(sm);
+        }
+
+        //
+        // Merge: /Song/Merge
+        [ValidateAntiForgeryToken]
+        [Authorize(Roles = "canEdit")]
+        public ActionResult MergeResults(string SongIds)
+        {
+            // See if we can do the actual merge and then return the song details page...
+            List<int> ids = SongIds.Split(',').Select(s=>int.Parse(s)).ToList();
+
+            var songs = from s in _db.Songs
+                        where ids.Contains(s.SongId)
+                        select s;
+            List<Song> songList = songs.ToList();
+
+            // Create a merged version of the song (and commit to DB)
+
+            // Get the logged in user
+            string userName = User.Identity.Name;
+            UserProfile user = _db.UserProfiles.FirstOrDefault(u => u.UserName == userName);
+
+
+            Song song = _db.MergeSongs(user, songList, 
+                ResolveStringField(DanceMusicContext.TitleField, songList, Request.Form),
+                ResolveStringField(DanceMusicContext.ArtistField, songList, Request.Form),
+                ResolveStringField(DanceMusicContext.AlbumField, songList, Request.Form),
+                ResolveStringField(DanceMusicContext.PublisherField, songList, Request.Form),
+                ResolveStringField(DanceMusicContext.GenreField, songList, Request.Form),
+                ResolveDecimalField(DanceMusicContext.TempoField, songList, Request.Form),
+                ResolveIntField(DanceMusicContext.LengthField, songList, Request.Form),
+                ResolveIntField(DanceMusicContext.TrackField, songList, Request.Form),
+                ResolveMultiStringField(DanceMusicContext.PurchaseField, songList, Request.Form));
+
+            return View("Details",song);
+        }
+
+        private string ResolveStringField(string fieldName, IList<Song> songs, System.Collections.Specialized.NameValueCollection form)
+        {
+            object obj = ResolveMergeField(fieldName,songs,form);
+
+            return obj as string;
+        }
+
+        private string ResolveMultiStringField(string fieldName, IList<Song> songs, System.Collections.Specialized.NameValueCollection form)
+        {
+            HashSet<string> hs = new HashSet<string>();
+
+            foreach (Song song in songs)
+            {
+                string s = song.GetType().GetProperty(fieldName).GetValue(song) as string;
+
+                if (s != null)
+                {
+                    string[] values = s.Split(new char[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
+                    foreach (string v in values)
+                    {
+                        if (!string.IsNullOrWhiteSpace(v))
+                        {
+                            hs.Add(v);
+                        }
+                    }
+                }
+            }
+
+            StringBuilder sb = new StringBuilder();
+            string sep = string.Empty;
+
+            foreach (string v in hs)
+            {
+                sb.Append(sep);
+                sb.Append(v);
+                sep = ";";
+            }
+
+            return sb.ToString();
+        }
+
+        private int? ResolveIntField(string fieldName, IList<Song> songs, System.Collections.Specialized.NameValueCollection form)
+        {
+            int? ret = ResolveMergeField(fieldName, songs, form) as int?;
+
+            return ret;
+        }
+
+        private decimal? ResolveDecimalField(string fieldName, IList<Song> songs, System.Collections.Specialized.NameValueCollection form)
+        {
+            decimal? ret = ResolveMergeField(fieldName, songs, form) as decimal?;
+
+            return ret;
+        }
+
+        private object ResolveMergeField(string fieldName, IList<Song> songs, System.Collections.Specialized.NameValueCollection form)
+        {
+            // If fieldName doesn't exist, this means that we didn't add a radio button for the field because all the
+            //  values were the same.  So just return the value of the first song.
+            object ret = null;
+
+            string s = form[fieldName];
+            int idx = 0;
+            if (!string.IsNullOrWhiteSpace(s))
+            {
+                int.TryParse(s, out idx);
+            }
+
+            ret = songs[idx].GetType().GetProperty(fieldName).GetValue(songs[idx]);
+
+            return ret;
         }
 
         protected override void Dispose(bool disposing)

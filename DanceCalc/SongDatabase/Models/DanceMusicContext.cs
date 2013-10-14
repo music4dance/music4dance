@@ -112,6 +112,25 @@ namespace SongDatabase.Models
 
         #endregion
 
+        // Field names - note that these must be kept in sync with the actual property names
+        public static readonly string UserField = "User";
+        public static readonly string TimeField = "Time";
+        public static readonly string TitleField = "Title";
+        public static readonly string ArtistField = "Artist";
+        public static readonly string AlbumField = "Album";
+        public static readonly string PublisherField = "Publisher";
+        public static readonly string TempoField = "Tempo";
+        public static readonly string LengthField = "Length";
+        public static readonly string TrackField = "Track";
+        public static readonly string GenreField = "Genre";
+        public static readonly string PurchaseField = "Purchase";
+
+        public static readonly string DeleteAllField = "Delete-All";
+        public static readonly string DeletePropertyField = "Delete-";
+        public static readonly string MergeFromField = "Merge-From";
+        public static readonly string MergeToField = "Merge-To";
+        public static readonly string DanceRatingField = "DanceRating";
+
         public DbSet<Song> Songs { get; set; }
 
         public DbSet<SongProperty> SongProperties { get; set; }
@@ -140,7 +159,56 @@ namespace SongDatabase.Models
             }
         }
 
-        public Song CreateSong(UserProfile user, string title, string artist, string album, string label, decimal? tempo, string purchase)
+        public Song MergeSongs(UserProfile user, List<Song> songs, string title, string artist, string album, string label, string genre, decimal? tempo, int? length, int? track, string purchase)
+        {
+            Song song = CreateSong(user, title, artist, album, label, genre, tempo, length, track, purchase);
+
+            // Add in the new song ratings
+
+            SaveChanges();
+
+            // Add in the to/from properties and create new weight table
+            Dictionary<string, int> weights = new Dictionary<string, int>();
+            foreach (Song from in songs)
+            {
+                CreateSongProperty(song, MergeFromField, from.SongId.ToString());
+                CreateSongProperty(from, MergeFromField, song.SongId.ToString());
+
+                foreach (DanceRating dr in from.DanceRatings)
+                {
+                    int weight = 0;
+                    if (weights.TryGetValue(dr.DanceId, out weight))
+                    {
+                        weights[dr.DanceId] = weight + dr.Weight;
+                    }
+                    else
+                    {
+                        weights[dr.DanceId] = dr.Weight;
+                    }
+                }
+            }
+
+            // Dump the weight table
+            foreach (KeyValuePair<string, int> dance in weights)
+            {
+                song.DanceRatings.Add(new DanceRating() {DanceId = dance.Key, SongId = song.SongId, Weight = dance.Value});
+
+                string value = string.Format("{0}:{1}", dance.Key, dance.Value);
+                CreateSongProperty(song, DanceRatingField, value);
+            }
+            
+            // Delete all of the old songs (With merge-with Id from above)
+            foreach (Song from in songs)
+            {
+                this.Songs.Remove(from);
+            }
+
+            SaveChanges();
+
+            return song;
+        }
+
+        public Song CreateSong(UserProfile user, string title, string artist, string album, string label, string genre, decimal? tempo, int? length, int? track, string purchase)
         {
             DateTime time = DateTime.Now;
 
@@ -150,52 +218,73 @@ namespace SongDatabase.Models
             if (user != null)
             {
                 user.Songs.Add(song);
-                CreateSongProperty(song, "User", user.UserName);
+                CreateSongProperty(song, UserField, user.UserName);
             }
 
             // Handle Timestamps
             song.Created = time;
             song.Modified = time;
-            CreateSongProperty(song, "Time", time.ToString());
-
+            CreateSongProperty(song, TimeField, time.ToString());
+            
             // Title
-            Debug.Assert(!string.IsNullOrEmpty(title));
+            Debug.Assert(!string.IsNullOrWhiteSpace(title));
             song.Title = title;
-            CreateSongProperty(song, "Title", title);
+            CreateSongProperty(song, TitleField, title);
 
             // Artist
-            if (!string.IsNullOrEmpty(artist))
+            if (!string.IsNullOrWhiteSpace(artist))
             {
                 song.Artist = artist;
-                CreateSongProperty(song, "Artist", artist);
+                CreateSongProperty(song, ArtistField, artist);
             }
 
             // Album
-            if (!string.IsNullOrEmpty(album))
+            if (!string.IsNullOrWhiteSpace(album))
             {
                 song.Album = album;
-                CreateSongProperty(song, "Album", album);
+                CreateSongProperty(song, AlbumField, album);
             }
 
             // Label
-            if (!string.IsNullOrEmpty(label))
+            if (!string.IsNullOrWhiteSpace(label))
             {
                 song.Publisher = label;
-                CreateSongProperty(song, "Publisher", label);
+                CreateSongProperty(song, PublisherField, label);
+            }
+
+            // Genre
+            if (!string.IsNullOrWhiteSpace(label))
+            {
+                song.Publisher = label;
+                CreateSongProperty(song, PublisherField, label);
             }
 
             // Tempo
             if (tempo != null)
             {
                 song.Tempo = tempo;
-                CreateSongProperty(song, "Tempo", tempo.ToString());
+                CreateSongProperty(song, TempoField, tempo.ToString());
+            }
+
+            // Length
+            if (length != null && length != 0)
+            {
+                song.Length = length;
+                CreateSongProperty(song, LengthField, length.ToString());
+            }
+
+            // Track
+            if (track != null && track != 0)
+            {
+                song.Track = track;
+                CreateSongProperty(song, TrackField, track.ToString());
             }
 
             // Purchase Info
-            if (!string.IsNullOrEmpty(purchase))
+            if (!string.IsNullOrWhiteSpace(purchase))
             {
                 song.Purchase = purchase;
-                CreateSongProperty(song, "Purchase", purchase);
+                CreateSongProperty(song, PurchaseField, purchase);
             }
 
             song.TitleHash = CreateTitleHash(title);
@@ -223,24 +312,24 @@ namespace SongDatabase.Models
                     user.Songs.Add(song);
                 }
                 //Dump();
-                CreateSongProperty(song, "User", user.UserName);
+                CreateSongProperty(song, UserField, user.UserName);
                 //Dump();
             }
 
             // Handle Timestamps
             DateTime time = DateTime.Now;
             song.Modified = time;
-            CreateSongProperty(song, "Time", time.ToString());
+            CreateSongProperty(song, TimeField, time.ToString());
 
-            modified |= UpdateSongProperty(song, "Title", song.Title, properties);
-            modified |= UpdateSongProperty(song, "Artist", song.Artist, properties);
-            modified |= UpdateSongProperty(song, "Album", song.Album, properties);
-            modified |= UpdateSongProperty(song, "Publisher", song.Publisher, properties);
-            modified |= UpdateSongProperty(song, "Tempo", song.Tempo, properties);
-            modified |= UpdateSongProperty(song, "Length", song.Length, properties);
-            modified |= UpdateSongProperty(song, "Track", song.Track, properties);
-            modified |= UpdateSongProperty(song, "Purchase", song.Purchase, properties);
-            modified |= UpdateSongProperty(song, "Genre", song.Genre, properties);
+            modified |= UpdateSongProperty(song, TitleField, song.Title, properties);
+            modified |= UpdateSongProperty(song, ArtistField, song.Artist, properties);
+            modified |= UpdateSongProperty(song, AlbumField, song.Album, properties);
+            modified |= UpdateSongProperty(song, PublisherField, song.Publisher, properties);
+            modified |= UpdateSongProperty(song, TempoField, song.Tempo, properties);
+            modified |= UpdateSongProperty(song, LengthField, song.Length, properties);
+            modified |= UpdateSongProperty(song, TrackField, song.Track, properties);
+            modified |= UpdateSongProperty(song, PurchaseField, song.Purchase, properties);
+            modified |= UpdateSongProperty(song, GenreField, song.Genre, properties);
 
             if (modified)
             {
@@ -267,6 +356,25 @@ namespace SongDatabase.Models
             }
 
             return modified;
+        }
+
+        public void AddDanceRatings(Song song, IEnumerable<string> danceIds)
+        {
+            foreach (string danceId in danceIds)
+            {
+                Dance dance = Dances.Local.First(d => d.Id == danceId);
+                Debug.Assert(dance != null);
+
+                DanceRating dr = DanceRatings.Create();
+                dr.Song = song;
+                dr.Dance = dance;
+                dr.Weight = 1;
+
+                DanceRatings.Add(dr);
+
+                string value = string.Format("{0}:{1}", dance.Id, 1);
+                CreateSongProperty(song, DanceRatingField, dance.Id);
+            }
         }
 
         //static private void DuplicationTestGraph(IEntityWithChangeTracker rootEntity)

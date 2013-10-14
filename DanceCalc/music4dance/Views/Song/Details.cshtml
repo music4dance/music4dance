@@ -59,16 +59,16 @@
     <br/>
 
     <div class="display-label">
-         @Html.DisplayNameFor(model => model.Dances):
+         Dance(s):
     </div>
     <div class="display-field">
         @{ var separator = ""; }
-        @if (Model.Dances != null)
+        @if (Model.DanceRatings != null)
         {
-            foreach (var item in Model.Dances)
+            foreach (var item in Model.DanceRatings)
             {
                 @separator;
-                @Html.DisplayFor(model => item.Info.Name)
+                @Html.DisplayFor(model => item.Dance.Info.Name)
                 separator = ", "; 
             }
         }
@@ -120,20 +120,6 @@
 {
 <section id="songLog">
     <h2>Log</h2>
-    <table class="songlist">
-        <tr>
-            <th>Id</th>
-            <th>Name</th>
-            <th>Value</th>
-        </tr>
-        @foreach (var logItem in Model.SongProperties)
-        {
-            <tr>
-                <td>@Html.DisplayFor(modelItem => logItem.Id)</td>
-                <td>@Html.DisplayFor(modelItem => logItem.Name)</td>
-                <td>@Html.DisplayFor(modelItem => logItem.Value)</td>
-            </tr>
-        }
-    </table>
+    @Html.Partial("SongItems");
 </section>
 }

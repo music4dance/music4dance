@@ -68,6 +68,10 @@
     <Compile Include="Migrations\201310022044361_AddDanceRating2.Designer.cs">
       <DependentUpon>201310022044361_AddDanceRating2.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201310142048250_NullableColumns.cs" />
+    <Compile Include="Migrations\201310142048250_NullableColumns.Designer.cs">
+      <DependentUpon>201310142048250_NullableColumns.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountModels.cs" />
     <Compile Include="Models\Dance.cs" />
@@ -94,6 +98,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201310022044361_AddDanceRating2.resx">
       <DependentUpon>201310022044361_AddDanceRating2.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201310142048250_NullableColumns.resx">
+      <DependentUpon>201310142048250_NullableColumns.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

@@ -5,6 +5,11 @@
 
 @{
     ViewBag.Title = "Songs for Dancing";
+    bool canEdit = false;
+    if (User.IsInRole("canEdit"))
+    {
+        canEdit = true;
+    }
 }
 
 <h2>Songs for Dancing</h2>
@@ -25,8 +30,15 @@
     </p>
 }
 
+@using (Html.BeginForm("Merge","Song")) {
+    @Html.AntiForgeryToken()
+
 <table class="songlist">
     <tr>
+        @if (canEdit)
+        {
+            <th>&nbsp;</th>
+        }
         <th @ViewBag.TitleClass style="min-width:75pt">
             @Html.ActionLink("Title", "Index", new { sortOrder = ViewBag.TitleSort, currentFilter=ViewBag.CurrentFilter, dances=ViewBag.CurrentDances})
         </th>
@@ -42,6 +54,14 @@
 
 @foreach (var item in Model) {
     <tr>
+        @if (canEdit)
+        {
+            string cbName = "Merge-" + item.SongId.ToString();
+            @*
+            <td>@Html.CheckBox(cbName)</td>
+            *@
+            <td><input id="@cbName" name="@cbName" type="checkbox" /></td>
+        }
         <td>
             @Html.ActionLink(item.Title, "Details", new { id=item.SongId })
             @*
@@ -82,7 +102,14 @@
 }
 
 </table>
-<br />
+    
+<p>
+    @if (canEdit)
+    {
+        <input type="submit" value="Merge" />
+    }
+</p>
+}
 
 Page @(Model.PageCount < Model.PageNumber ? 0 : Model.PageNumber) of @Model.PageCount
 (@Model.TotalItemCount song found.)
