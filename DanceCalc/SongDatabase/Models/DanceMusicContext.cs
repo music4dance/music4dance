@@ -13,6 +13,13 @@ using System.Globalization;
 using System.Text;
 using System.Data.Objects.DataClasses;
 
+// Let's see if we can mock up a recoverable log file by spitting out
+// something resembling a tab-separated flat list of songs items with a
+// command associated with each line.  Might add a checkpoint command
+// into the songproperties table as well...
+
+// COMMAND  User    Title   Artist  Album   Publisher   Tempo   Length  Track   Genre   Purchase    DanceRating Custom
+
 namespace SongDatabase.Models
 {
     public class DanceMusicContext : DbContext
@@ -125,11 +132,21 @@ namespace SongDatabase.Models
         public static readonly string GenreField = "Genre";
         public static readonly string PurchaseField = "Purchase";
 
-        public static readonly string DeleteAllField = "Delete-All";
-        public static readonly string DeletePropertyField = "Delete-";
-        public static readonly string MergeFromField = "Merge-From";
-        public static readonly string MergeToField = "Merge-To";
+        // Complex fields
+        public static readonly string Custom = "Custom";
         public static readonly string DanceRatingField = "DanceRating";
+
+        // Commands
+        public static readonly string CreateCommand = ".Create";
+        public static readonly string EditCommand = ".Edit";
+        public static readonly string DeleteCommand = ".Delete";
+        public static readonly string DeletePropertyCommand = ".DeleteProperty";
+        public static readonly string MergeCommand = ".MergeFrom";
+
+        // Consider a parallel table for commands or commands not associates
+        //  with a particular song?
+        //public static readonly string StartBatchLoadCommand = ".StartBatchLoad";
+        //public static readonly string EndBatchLoadCommand = ".EndBatchLoad";
 
         public DbSet<Song> Songs { get; set; }
 
@@ -161,7 +178,9 @@ namespace SongDatabase.Models
 
         public Song MergeSongs(UserProfile user, List<Song> songs, string title, string artist, string album, string label, string genre, decimal? tempo, int? length, int? track, string purchase)
         {
-            Song song = CreateSong(user, title, artist, album, label, genre, tempo, length, track, purchase);
+            string songIds = string.Join(";",songs.Select(s => s.SongId.ToString()));
+
+            Song song = CreateSong(user, title, artist, album, label, genre, tempo, length, track, purchase, MergeCommand, songIds);
 
             // Add in the new song ratings
 
@@ -171,8 +190,7 @@ namespace SongDatabase.Models
             Dictionary<string, int> weights = new Dictionary<string, int>();
             foreach (Song from in songs)
             {
-                CreateSongProperty(song, MergeFromField, from.SongId.ToString());
-                CreateSongProperty(from, MergeFromField, song.SongId.ToString());
+                CreateSongProperty(song, MergeCommand, from.SongId.ToString());
 
                 foreach (DanceRating dr in from.DanceRatings)
                 {
@@ -210,9 +228,17 @@ namespace SongDatabase.Models
 
         public Song CreateSong(UserProfile user, string title, string artist, string album, string label, string genre, decimal? tempo, int? length, int? track, string purchase)
         {
+            return CreateSong(user, title, artist, album, label, genre, tempo, length, track, purchase, CreateCommand, string.Empty);
+        }
+
+        public Song CreateSong(UserProfile user, string title, string artist, string album, string label, string genre, decimal? tempo, int? length, int? track, string purchase, string command, string value)
+        {
             DateTime time = DateTime.Now;
 
             Song song = Songs.Create();
+
+            // Add the command into the property log
+            CreateSongProperty(song, command, value);
 
             // Handle User association
             if (user != null)
@@ -302,6 +328,9 @@ namespace SongDatabase.Models
                              select p;
 
             bool modified = false;
+
+            // Add the command into the property log
+            CreateSongProperty(song, EditCommand, string.Empty);
 
             // Handle User association
             if (user != null)
@@ -463,6 +492,19 @@ namespace SongDatabase.Models
             return ret;
         }
 
+        public SongProperty CreateSongProperty(string name, string value)
+        {
+            SongProperty ret = SongProperties.Create();
+            ret.Song = null;
+            ret.SongId = -1;
+            ret.Name = name;
+            ret.Value = value;
+
+            SongProperties.Add(ret);
+
+            return ret;
+        }
+
         public bool UpdateSongProperty(Song song, string name, decimal? value, IOrderedQueryable<SongProperty> properties)
         {
             bool modified = true;
@@ -550,6 +592,11 @@ namespace SongDatabase.Models
             }
 
             return modified;
+        }
+
+        public IList<Song> FindMergeCandidates(int n)
+        {
+            return SongDatabase.Models.MergeCluster.GetMergeCandidates(this, n);
         }
 
         public void Dump()

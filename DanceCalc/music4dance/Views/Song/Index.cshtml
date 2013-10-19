@@ -10,22 +10,24 @@
     {
         canEdit = true;
     }
+    bool showDiag = false;
+    if (User.IsInRole("showDiagnostics"))
+    {
+        showDiag = true;
+    }
 }
 
-<h2>Songs for Dancing</h2>
-
-@*
-<p>
-    @Html.ActionLink("Create New", "Create")
-</p>
-*@
+<h2>@ViewBag.Title</h2>
 
 
 @using (Html.BeginForm("Index","Song",FormMethod.Get))
 {
     <p>
         Find: @Html.TextBox("SearchString", ViewBag.CurrentFilter as string)&nbsp;
-        @Html.DropDownList("dances", (IEnumerable<SelectListItem>)ViewBag.Dances)&nbsp;
+        @if (ViewBag.Dances != null)
+        {
+            @Html.DropDownList("dances", (IEnumerable<SelectListItem>)ViewBag.Dances);
+        }
         <input type="submit" value="Search" />
     </p>
 }
@@ -50,6 +52,10 @@
         </th>
         <th>Tempo (BPM)</th>
         <th>Dances</th>
+        @if (showDiag)
+        {
+            <th>TitleHash</th>
+        }
     </tr>
 
 @foreach (var item in Model) {
@@ -91,13 +97,12 @@
                 separator = ", "; 
             }
         </td>
-@*
-        <td>
-            @Html.ActionLink("Details", "Details", new { id=item.SongId }) |
-            @Html.ActionLink("Edit", "Edit", new { id=item.SongId }) |
-            @Html.ActionLink("Delete", "Delete", new { id=item.SongId }) 
-        </td>
-*@
+        @if (showDiag)
+        {
+            <td>
+                @string.Format("0X{0:X08}", item.TitleHash)
+            </td>
+        }
     </tr>
 }
 

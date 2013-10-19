@@ -50,8 +50,15 @@ namespace music4dance.Filters
 
                         AddAdministrator("administrator");
                         AddAdministrator("dwgray");
-                    }
 
+                        AddEditor("SalsaSwingBallroom");
+                        AddEditor("SandiegoDJ");
+                        AddEditor("UsaSwingNet");
+                        AddEditor("LetsDanceDenver");
+                        AddEditor("SteveThatDJ");
+                        AddEditor("JohnCrossan");
+                        AddEditor("WaltersDanceCenter");
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -74,6 +81,15 @@ namespace music4dance.Filters
                 {
                     WebSecurity.CreateUserAndAccount(name, "marley");
                     Roles.AddUsersToRoles(new[] { name }, new[] { _editRole, _diagRole });
+                }
+            }
+
+            private void AddEditor(string name)
+            {
+                if (!WebSecurity.UserExists(name))
+                {
+                    WebSecurity.CreateUserAndAccount(name, "maggie");
+                    Roles.AddUsersToRoles(new[] { name }, new[] { _editRole });
                 }
             }
 

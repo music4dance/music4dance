@@ -214,6 +214,7 @@
     <Compile Include="Controllers\DanceController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\SongController.cs" />
+    <Compile Include="Controllers\SongPropertyController.cs" />
     <Compile Include="Filters\InitializeSimpleMembershipAttribute.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
@@ -353,6 +354,7 @@
     <Content Include="Views\Song\Delete.cshtml" />
     <Content Include="Views\Song\Merge.cshtml" />
     <Content Include="Views\Song\SongItems.cshtml" />
+    <Content Include="Views\SongProperty\Index.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

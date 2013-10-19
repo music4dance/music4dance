@@ -1,16 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Data.Entity;
-using System.Linq;
-using System.Web;
-using System.Web.Mvc;
-using SongDatabase.Models;
-using PagedList;
-using DanceLibrary;
-using System.Diagnostics;
+﻿using DanceLibrary;
 using music4dance.ViewModels;
+using PagedList;
+using SongDatabase.Models;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Text;
+using System.Web.Mvc;
 
 namespace music4dance.Controllers
 {
@@ -229,7 +225,18 @@ namespace music4dance.Controllers
             return RedirectToAction("Index");
         }
 
-        // TODO: Think about a reasonable way to have 
+        //
+        // Merge: /Song/MergeCandidates
+        public ActionResult MergeCandidates()
+        {
+            IList<Song> songs = _db.FindMergeCandidates(50);
+
+            int pageSize = 25;
+            int pageNumber = 1;
+
+            return View("Index",songs.ToPagedList(pageNumber, pageSize));
+        }
+
 
         //
         // Merge: /Song/Merge

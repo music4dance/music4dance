@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Diagnostics;
 using System.Threading;
 
+
 namespace SongDatabase.Models
 {
     public class DbObject
@@ -63,6 +64,11 @@ namespace SongDatabase.Models
                     user.Dump();
                 }
             }
+        }
+
+        public static Song GetNullSong()
+        {
+            return new Song();
         }
     }
 
