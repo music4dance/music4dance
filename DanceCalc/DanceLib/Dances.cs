@@ -20,6 +20,7 @@ namespace DanceLibrary
         static internal readonly string Organization = "Organization";
     }
 
+    [JsonObject(MemberSerialization.OptIn)]
     public class DanceObject
     {
         public virtual string Id { get; set; }
@@ -71,7 +72,8 @@ namespace DanceLibrary
             }
             set
             {
-                Debug.Assert(false);
+                Debug.WriteLine("Set TempoRange to {0}", value);
+                //Debug.Assert(false);
             }
         }
 
@@ -135,7 +137,8 @@ namespace DanceLibrary
             }
             set
             {
-                Debug.Assert(false);
+                Debug.WriteLine("Set Id to {0}", value);
+                //Debug.Assert(false);
             }
         }
 
@@ -147,7 +150,8 @@ namespace DanceLibrary
             }
             set
             {
-                Debug.Assert(false);
+                Debug.WriteLine("Set Meter to {0}", value);
+                //Debug.Assert(false);
             }
         }
 
@@ -159,7 +163,8 @@ namespace DanceLibrary
             }
             set
             {
-                Debug.Assert(false);
+                Debug.WriteLine("Set Name to {0}", value);
+                //Debug.Assert(false);
             }
         }
 
@@ -403,7 +408,8 @@ namespace DanceLibrary
             }
             set
             {
-                Debug.Assert(false);
+                Debug.WriteLine("Set Meter to {0}", value);
+                //Debug.Assert(false);
             }
         }
 
@@ -424,7 +430,8 @@ namespace DanceLibrary
             }
             set
             {
-                Debug.Assert(false);
+                Debug.WriteLine("Set TempoRange to {0}", value);
+                //Debug.Assert(false);
             }
         }
 
@@ -539,7 +546,7 @@ namespace DanceLibrary
         {
             JsonSerializerSettings settings = new JsonSerializerSettings { 
                 NullValueHandling = NullValueHandling.Include, 
-                DefaultValueHandling = DefaultValueHandling.IgnoreAndPopulate };
+                DefaultValueHandling = DefaultValueHandling.Ignore };
 
             string json = DanceLibrary.JsonDances;
             _allDanceTypes = JsonConvert.DeserializeObject<List<DanceType>>(json, settings);

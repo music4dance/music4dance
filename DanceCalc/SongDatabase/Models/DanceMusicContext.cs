@@ -1,5 +1,5 @@
 ﻿using DanceLibrary;
-using EFTracingProvider;
+//using EFTracingProvider;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
@@ -41,7 +41,7 @@ namespace SongDatabase.Models
         {
 #if DEBUG
             TraceEnabled = true;
-            EFTracingProviderConfiguration.LogToFile = @"d:\temp\log.txt";
+            //EFTracingProviderConfiguration.LogToFile = @"d:\temp\log.txt";
 #endif
         }
 
@@ -53,16 +53,17 @@ namespace SongDatabase.Models
         public DanceMusicContext(string nameOrConnectionString)
               : base(CreateConnection(nameOrConnectionString), true)
           {
-              if (TraceEnabled)
-              { 
-                  ((IObjectContextAdapter)this).ObjectContext.EnableTracing();
-              }
+              //if (TraceEnabled)
+              //{ 
+                  
+              //    ((IObjectContextAdapter)this).ObjectContext.EnableTracing();
+              //}
             }
 
         private static DbConnection CreateConnection(string nameOrConnectionString)
         {
             // does not support entity connection strings
-            EFTracingProviderFactory.Register();
+            //EFTracingProviderFactory.Register();
                 
             ConnectionStringSettings connectionStringSetting =
                 ConfigurationManager.ConnectionStrings[nameOrConnectionString];
@@ -86,34 +87,34 @@ namespace SongDatabase.Models
         private static DbConnection CreateConnection(string connectionString, string providerInvariantName)
         {
             DbConnection connection = null;
-            if (TraceEnabled)
-            {
-                connection = CreateTracingConnection(connectionString, providerInvariantName);
-            }
-            else
-            {
-                DbProviderFactory factory = DbProviderFactories.GetFactory(providerInvariantName);
-                connection = factory.CreateConnection();
-                connection.ConnectionString = connectionString;
-            }
+            //if (TraceEnabled)
+            //{
+            //    connection = CreateTracingConnection(connectionString, providerInvariantName);
+            //}
+            //else
+            //{
+            DbProviderFactory factory = DbProviderFactories.GetFactory(providerInvariantName);
+            connection = factory.CreateConnection();
+            connection.ConnectionString = connectionString;
+            //}
             return connection;
         }
 
 
-        private static EFTracingConnection CreateTracingConnection(string connectionString, string providerInvariantName)
-        {
+        //private static EFTracingConnection CreateTracingConnection(string connectionString, string providerInvariantName)
+        //{
 
-            string wrapperConnectionString =
-                string.Format(@"wrappedProvider={0};{1}", providerInvariantName, connectionString);
+        //    string wrapperConnectionString =
+        //        string.Format(@"wrappedProvider={0};{1}", providerInvariantName, connectionString);
 
-            EFTracingConnection connection =
-                new EFTracingConnection
-                {
-                    ConnectionString = wrapperConnectionString
-                };
+        //    EFTracingConnection connection =
+        //        new EFTracingConnection
+        //        {
+        //            ConnectionString = wrapperConnectionString
+        //        };
 
-            return connection;
-        }
+        //    return connection;
+        //}
 
 
 
@@ -375,7 +376,7 @@ namespace SongDatabase.Models
                     }
                 }
 
-                Entry(song).State = EntityState.Modified;
+                Entry(song).State = System.Data.Entity.EntityState.Modified;
 
                 SaveChanges();
             }

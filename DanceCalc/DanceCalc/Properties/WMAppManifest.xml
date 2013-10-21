@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Deployment xmlns="http://schemas.microsoft.com/windowsphone/2012/deployment" AppPlatformVersion="8.0">
   <DefaultLanguage xmlns="" code="" />
-  <App xmlns="" ProductID="{8a61f534-c17f-4199-bef4-76d505ba3a79}" Title="DanceCalc" RuntimeType="Silverlight" Version="1.0.0.0" Genre="apps.normal" Author="David W. Gray" Description="Do basic computation about musical timing that are helpful for a dancer" Publisher="theGray.com" HubType="1" PublisherID="{415e124b-9cd2-44c6-b6cc-9394866a6c4d}">
+  <App xmlns="" ProductID="{8a61f534-c17f-4199-bef4-76d505ba3a79}" Title="DanceCalc" RuntimeType="Silverlight" Version="2.0.0.0" Genre="apps.normal" Author="David W. Gray" Description="Do basic computation about musical timing that are helpful for a dancer" Publisher="Gramamoto, Inc" HubType="1" PublisherID="{415e124b-9cd2-44c6-b6cc-9394866a6c4d}">
     <IconPath IsRelative="true" IsResource="false">ApplicationIcon.png</IconPath>
     <Capabilities>
       <Capability Name="ID_CAP_GAMERSERVICES" />
@@ -28,10 +28,14 @@
           <Count>0</Count>
           <BackgroundImageURI IsResource="false" IsRelative="true">Background.png</BackgroundImageURI>
           <Title>Dance Calc</Title>
-          <BackContent></BackContent>
-          <BackBackgroundImageURI></BackBackgroundImageURI>
-          <BackTitle></BackTitle>
-          <DeviceLockImageURI></DeviceLockImageURI>
+          <BackContent>
+          </BackContent>
+          <BackBackgroundImageURI>
+          </BackBackgroundImageURI>
+          <BackTitle>
+          </BackTitle>
+          <DeviceLockImageURI>
+          </DeviceLockImageURI>
           <HasLarge>false</HasLarge>
         </TemplateFlip>
       </PrimaryToken>
