@@ -160,6 +160,8 @@ namespace SongDatabase.Models
 
         public DbSet<DanceRating> DanceRatings { get; set; }
 
+        public DbSet<SongLog> Log { get; set; }
+
         protected override void OnModelCreating(System.Data.Entity.DbModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Song>().Property(song => song.Tempo).HasPrecision(6, 2);
@@ -192,8 +194,6 @@ namespace SongDatabase.Models
             Dictionary<string, int> weights = new Dictionary<string, int>();
             foreach (Song from in songs)
             {
-                CreateSongProperty(from, MergeToCommand, song.SongId.ToString());
-
                 foreach (DanceRating dr in from.DanceRatings)
                 {
                     int weight = 0;
@@ -217,13 +217,12 @@ namespace SongDatabase.Models
                 CreateSongProperty(song, DanceRatingField, value);
             }
 
-            // Have to save the changes to the back-references to the deleted songs
-            //  before they are physically removed from the DB.
-            SaveChanges();
+            LogSongCommand(MergeToCommand, song, user);
 
             // Delete all of the old songs (With merge-with Id from above)
             foreach (Song from in songs)
             {
+                LogSongCommand(MergeFromCommand, from, user);
                 this.Songs.Remove(from);
             }
 
@@ -351,20 +350,26 @@ namespace SongDatabase.Models
                 //Dump();
             }
 
+            SongLog sl = Log.Create();
+            sl.Time = DateTime.Now;
+            sl.User = user;
+            sl.SongReference = song.SongId;
+            sl.Action = EditCommand;
+
             // Handle Timestamps
             DateTime time = DateTime.Now;
             song.Modified = time;
             CreateSongProperty(song, TimeField, time.ToString());
 
-            modified |= UpdateSongProperty(song, TitleField, song.Title, properties);
-            modified |= UpdateSongProperty(song, ArtistField, song.Artist, properties);
-            modified |= UpdateSongProperty(song, AlbumField, song.Album, properties);
-            modified |= UpdateSongProperty(song, PublisherField, song.Publisher, properties);
-            modified |= UpdateSongProperty(song, TempoField, song.Tempo, properties);
-            modified |= UpdateSongProperty(song, LengthField, song.Length, properties);
-            modified |= UpdateSongProperty(song, TrackField, song.Track, properties);
-            modified |= UpdateSongProperty(song, PurchaseField, song.Purchase, properties);
-            modified |= UpdateSongProperty(song, GenreField, song.Genre, properties);
+            modified |= UpdateSongProperty(song, TitleField, song.Title, properties,sl);
+            modified |= UpdateSongProperty(song, ArtistField, song.Artist, properties, sl);
+            modified |= UpdateSongProperty(song, AlbumField, song.Album, properties, sl);
+            modified |= UpdateSongProperty(song, PublisherField, song.Publisher, properties, sl);
+            modified |= UpdateSongProperty(song, TempoField, song.Tempo, properties, sl);
+            modified |= UpdateSongProperty(song, LengthField, song.Length, properties, sl);
+            modified |= UpdateSongProperty(song, TrackField, song.Track, properties, sl);
+            modified |= UpdateSongProperty(song, PurchaseField, song.Purchase, properties, sl);
+            modified |= UpdateSongProperty(song, GenreField, song.Genre, properties, sl);
 
             if (modified)
             {
@@ -382,6 +387,7 @@ namespace SongDatabase.Models
                 }
 
                 Entry(song).State = System.Data.Entity.EntityState.Modified;
+                Log.Add(sl);
 
                 SaveChanges();
             }
@@ -391,6 +397,13 @@ namespace SongDatabase.Models
             }
 
             return modified;
+        }
+
+        public void DeleteSong(UserProfile user, Song song)
+        {
+            LogSongCommand(DeleteCommand, song, user);
+            Songs.Remove(song);
+            SaveChanges();
         }
 
         public void AddDanceRatings(Song song, IEnumerable<string> danceIds)
@@ -511,7 +524,7 @@ namespace SongDatabase.Models
             return ret;
         }
 
-        public bool UpdateSongProperty(Song song, string name, decimal? value, IOrderedQueryable<SongProperty> properties)
+        public bool UpdateSongProperty(Song song, string name, decimal? value, IOrderedQueryable<SongProperty> properties, SongLog sl)
         {
             bool modified = true;
 
@@ -538,12 +551,13 @@ namespace SongDatabase.Models
                 np.Value = value.ToString();
 
                 SongProperties.Add(np);
+                LogPropertyUpdate(np, sl);
             }
 
             return modified;
         }
 
-        public bool UpdateSongProperty(Song song, string name, int? value, IOrderedQueryable<SongProperty> properties)
+        public bool UpdateSongProperty(Song song, string name, int? value, IOrderedQueryable<SongProperty> properties, SongLog sl)
         {
             bool modified = true;
 
@@ -571,12 +585,13 @@ namespace SongDatabase.Models
                 np.Value = value.ToString();
 
                 SongProperties.Add(np);
+                LogPropertyUpdate(np, sl);
             }
 
             return modified;
         }
 
-        public bool UpdateSongProperty(Song song, string name, string value, IOrderedQueryable<SongProperty> properties)
+        public bool UpdateSongProperty(Song song, string name, string value, IOrderedQueryable<SongProperty> properties, SongLog sl)
         {
             bool modified = false;
 
@@ -595,9 +610,40 @@ namespace SongDatabase.Models
                 np.Value = value;
 
                 SongProperties.Add(np);
+                LogPropertyUpdate(np, sl);
             }
 
             return modified;
+        }
+
+        private void LogPropertyUpdate(SongProperty sp, SongLog sl)
+        {
+            if (string.IsNullOrWhiteSpace(sl.Data))
+            {
+                sl.Data = string.Empty;
+            }
+            else
+            {
+                sl.Data += "|";
+            }
+
+            sl.Data += string.Format("{0}\t{1}", sp.Name, sp.Value);
+        }
+
+        private void LogSongCommand(string command, Song song, UserProfile user)
+        {
+            SongLog sl = Log.Create();
+            sl.Time = DateTime.Now;
+            sl.User = user;
+            sl.SongReference = song.SongId;
+            sl.Action = command;
+
+            foreach (SongProperty p in song.SongProperties)
+            {
+                LogPropertyUpdate(p, sl);
+            }
+
+            Log.Add(sl);
         }
 
         public IList<Song> FindMergeCandidates(int n)

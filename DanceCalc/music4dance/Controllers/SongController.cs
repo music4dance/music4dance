@@ -224,8 +224,9 @@ namespace music4dance.Controllers
         public ActionResult DeleteConfirmed(int id)
         {
             Song song = _db.Songs.Find(id);
-            _db.Songs.Remove(song);
-            _db.SaveChanges();
+            string userName = User.Identity.Name;
+            UserProfile user = _db.UserProfiles.FirstOrDefault(u => u.UserName == userName);
+            _db.DeleteSong(user,song);
             return RedirectToAction("Index");
         }
 

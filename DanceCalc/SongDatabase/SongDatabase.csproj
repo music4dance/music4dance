@@ -78,6 +78,10 @@
     <Compile Include="Migrations\201310142048250_NullableColumns.Designer.cs">
       <DependentUpon>201310142048250_NullableColumns.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201311051735454_AddLog.cs" />
+    <Compile Include="Migrations\201311051735454_AddLog.Designer.cs">
+      <DependentUpon>201311051735454_AddLog.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountModels.cs" />
     <Compile Include="Models\Dance.cs" />
@@ -108,6 +112,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201310142048250_NullableColumns.resx">
       <DependentUpon>201310142048250_NullableColumns.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201311051735454_AddLog.resx">
+      <DependentUpon>201311051735454_AddLog.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

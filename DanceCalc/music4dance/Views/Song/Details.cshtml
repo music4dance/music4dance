@@ -112,6 +112,8 @@
     {
         @Html.ActionLink("Edit", "Edit", new { id=Model.SongId }) 
         @Html.Display(" | ")
+        @Html.ActionLink("Delete", "Delete", new { id=Model.SongId }) 
+        @Html.Display(" | ")
     }
     @Html.ActionLink("Back to List", (string)ViewBag.BackAction)
 </p>
