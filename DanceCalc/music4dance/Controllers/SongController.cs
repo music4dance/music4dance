@@ -21,6 +21,8 @@ namespace music4dance.Controllers
         public ActionResult Index(string dances, string sortOrder, string currentFilter, string searchString, int? page)
         {
             // Set up the viewbag
+            ViewBag.ActionName = "Index";
+
             ViewBag.CurrentSort = sortOrder;
             if (dances == "ALL")
                 dances = null;
@@ -123,6 +125,8 @@ namespace music4dance.Controllers
             {
                 return HttpNotFound();
             }
+            ViewBag.BackAction = "Index";
+
             return View(song);
         }
 
@@ -227,12 +231,14 @@ namespace music4dance.Controllers
 
         //
         // Merge: /Song/MergeCandidates
-        public ActionResult MergeCandidates()
+        public ActionResult MergeCandidates(int? page)
         {
-            IList<Song> songs = _db.FindMergeCandidates(50);
+            IList<Song> songs = _db.FindMergeCandidates(200);
 
             int pageSize = 25;
-            int pageNumber = 1;
+            int pageNumber = page ?? 1;
+
+            ViewBag.ActionName = "MergeCandidates";
 
             return View("Index",songs.ToPagedList(pageNumber, pageSize));
         }
@@ -304,6 +310,8 @@ namespace music4dance.Controllers
                 ResolveIntField(DanceMusicContext.LengthField, songList, Request.Form),
                 ResolveIntField(DanceMusicContext.TrackField, songList, Request.Form),
                 ResolveMultiStringField(DanceMusicContext.PurchaseField, songList, Request.Form));
+
+            ViewBag.BackAction = "MergeCandidates";
 
             return View("Details",song);
         }

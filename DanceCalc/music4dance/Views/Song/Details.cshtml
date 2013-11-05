@@ -113,7 +113,7 @@
         @Html.ActionLink("Edit", "Edit", new { id=Model.SongId }) 
         @Html.Display(" | ")
     }
-    @Html.ActionLink("Back to List", "Index")
+    @Html.ActionLink("Back to List", (string)ViewBag.BackAction)
 </p>
 </section>
 @if (User.IsInRole("showDiagnostics"))

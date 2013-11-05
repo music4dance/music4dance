@@ -9,24 +9,14 @@ namespace SongDatabase.Models
 {
     class MergeCluster
     {
-        public MergeCluster(int titleHash)
+        public MergeCluster(int hash)
         {
-            TitleHash = titleHash;
+            PropertyHash = hash;
             Songs = new List<Song>();
         }
 
-        public int TitleHash { get; set; }
+        public int PropertyHash { get; set; }
         public List<Song> Songs { get; set; }
-
-        public static int HashSong(Song song)
-        {
-            int ret = song.TitleHash;
-
-            // TODO: Should really have a more specific normalization function for artist (first, last)
-            ret = ret ^ DanceMusicContext.CreateTitleHash(song.Artist);
-
-            return ret;
-        }
 
         public static List<Song> GetMergeCandidates(DanceMusicContext dmc, int n)
         {
@@ -34,12 +24,12 @@ namespace SongDatabase.Models
 
             Dictionary<int,MergeCluster> clusters = new Dictionary<int,MergeCluster>();
 
-
             foreach (Song song in dmc.Songs)
             {
                 //Debug.WriteLine("{0}\t{1}", song.TitleHash, song.Title);
 
                 MergeCluster mc = null;
+
                 if (!clusters.TryGetValue(song.TitleHash, out mc))
                 {
                     mc = new MergeCluster(song.TitleHash);
@@ -61,7 +51,49 @@ namespace SongDatabase.Models
 
                 if (cluster.Songs.Count > 1)
                 {
-                    ret.AddRange(cluster.Songs);
+                    Dictionary<int, MergeCluster> lumps = new Dictionary<int, MergeCluster>();
+
+                    bool emptyArtist = false;
+                    foreach (Song s in cluster.Songs)
+                    {
+                        if (string.IsNullOrWhiteSpace(s.Artist))
+                        {
+                            emptyArtist = true;
+                            break;
+                        }
+
+                        MergeCluster lump;
+                        int hash = DanceMusicContext.CreateTitleHash(s.Artist);
+                        if (!lumps.TryGetValue(hash, out lump))
+                        {
+                            
+                            lump = new MergeCluster(hash);
+                            lumps.Add(hash, lump);
+                        }
+
+                        lump.Songs.Add(s);
+                    }
+
+                    if (emptyArtist)
+                    {
+                        // Add all of the songs in the cluster
+                        ret.AddRange(cluster.Songs);
+                    }
+                    else
+                    {
+                        foreach (MergeCluster l in lumps.Values)
+                        {
+                            if (ret.Count + l.Songs.Count > n)
+                            { 
+                                break; 
+                            }
+
+                            if (l.Songs.Count > 1)
+                            {
+                                ret.AddRange(l.Songs);
+                            }
+                        }
+                    }
                 }
             }
 

@@ -142,7 +142,8 @@ namespace SongDatabase.Models
         public static readonly string EditCommand = ".Edit";
         public static readonly string DeleteCommand = ".Delete";
         public static readonly string DeletePropertyCommand = ".DeleteProperty";
-        public static readonly string MergeCommand = ".MergeFrom";
+        public static readonly string MergeFromCommand = ".MergeFrom";
+        public static readonly string MergeToCommand = ".MergeTo";
 
         // Consider a parallel table for commands or commands not associates
         //  with a particular song?
@@ -181,7 +182,7 @@ namespace SongDatabase.Models
         {
             string songIds = string.Join(";",songs.Select(s => s.SongId.ToString()));
 
-            Song song = CreateSong(user, title, artist, album, label, genre, tempo, length, track, purchase, MergeCommand, songIds);
+            Song song = CreateSong(user, title, artist, album, label, genre, tempo, length, track, purchase, MergeFromCommand, songIds);
 
             // Add in the new song ratings
 
@@ -191,7 +192,7 @@ namespace SongDatabase.Models
             Dictionary<string, int> weights = new Dictionary<string, int>();
             foreach (Song from in songs)
             {
-                CreateSongProperty(song, MergeCommand, from.SongId.ToString());
+                CreateSongProperty(from, MergeToCommand, song.SongId.ToString());
 
                 foreach (DanceRating dr in from.DanceRatings)
                 {
@@ -215,7 +216,11 @@ namespace SongDatabase.Models
                 string value = string.Format("{0}:{1}", dance.Key, dance.Value);
                 CreateSongProperty(song, DanceRatingField, value);
             }
-            
+
+            // Have to save the changes to the back-references to the deleted songs
+            //  before they are physically removed from the DB.
+            SaveChanges();
+
             // Delete all of the old songs (With merge-with Id from above)
             foreach (Song from in songs)
             {
