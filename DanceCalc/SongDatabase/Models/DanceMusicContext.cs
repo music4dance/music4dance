@@ -531,9 +531,11 @@ namespace SongDatabase.Models
             //SongProperty prop = properties.FirstOrDefault(p => string.Equals(p.Name,name,StringComparison.InvariantCultureIgnoreCase));
             SongProperty prop = properties.FirstOrDefault(p => p.Name == name);
 
+            string oldString = null;
             if (prop != null) {
+                oldString = prop.Value;
                 decimal oldValue;
-                if (decimal.TryParse(prop.Value, out oldValue) && oldValue == value)
+                if (decimal.TryParse(oldString, out oldValue) && oldValue == value)
                 {
                     modified = false;
                 }
@@ -551,7 +553,7 @@ namespace SongDatabase.Models
                 np.Value = value.ToString();
 
                 SongProperties.Add(np);
-                LogPropertyUpdate(np, sl);
+                LogPropertyUpdate(np, sl, oldString);
             }
 
             return modified;
@@ -564,10 +566,12 @@ namespace SongDatabase.Models
             //SongProperty prop = properties.FirstOrDefault(p => string.Equals(p.Name,name,StringComparison.InvariantCultureIgnoreCase));
             SongProperty prop = properties.FirstOrDefault(p => p.Name == name);
 
+            string oldString = null;
             if (prop != null)
             {
+                oldString = prop.Value;
                 int oldValue;
-                if (int.TryParse(prop.Value, out oldValue) && oldValue == value)
+                if (int.TryParse(oldString, out oldValue) && oldValue == value)
                 {
                     modified = false;
                 }
@@ -585,7 +589,7 @@ namespace SongDatabase.Models
                 np.Value = value.ToString();
 
                 SongProperties.Add(np);
-                LogPropertyUpdate(np, sl);
+                LogPropertyUpdate(np, sl, oldString);
             }
 
             return modified;
@@ -604,6 +608,10 @@ namespace SongDatabase.Models
 
             if (modified)
             {
+                string oldString = null;
+                if (prop != null)
+                    oldString = prop.Value;
+
                 SongProperty np = SongProperties.Create();
                 np.Song = song;
                 np.Name = name;
@@ -616,7 +624,7 @@ namespace SongDatabase.Models
             return modified;
         }
 
-        private void LogPropertyUpdate(SongProperty sp, SongLog sl)
+        private void LogPropertyUpdate(SongProperty sp, SongLog sl, string oldValue = null)
         {
             if (string.IsNullOrWhiteSpace(sl.Data))
             {
@@ -627,7 +635,17 @@ namespace SongDatabase.Models
                 sl.Data += "|";
             }
 
-            sl.Data += string.Format("{0}\t{1}", sp.Name, sp.Value);
+            string value = sp.Value.Replace('|','_');
+            if (oldValue != null)
+            {
+                oldValue = oldValue.Replace('|', '_');
+            }
+
+            sl.Data += string.Format("{0}\t{1}", sp.Name, value);
+            if (oldValue != null)
+            {
+                sl.Data += string.Format("\t{0}", oldValue);
+            }
         }
 
         private void LogSongCommand(string command, Song song, UserProfile user)

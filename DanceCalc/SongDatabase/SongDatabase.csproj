@@ -86,8 +86,12 @@
     <Compile Include="Models\AccountModels.cs" />
     <Compile Include="Models\Dance.cs" />
     <Compile Include="Models\DanceMusicContext.cs" />
+    <Compile Include="Models\DanceRating.cs" />
+    <Compile Include="Models\DbObject.cs" />
     <Compile Include="Models\MergeCluster.cs" />
     <Compile Include="Models\Song.cs" />
+    <Compile Include="Models\SongLog.cs" />
+    <Compile Include="Models\SongProperty.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

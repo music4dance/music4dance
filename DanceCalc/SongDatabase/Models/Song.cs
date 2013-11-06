@@ -6,31 +6,7 @@ using System.Threading;
 
 
 namespace SongDatabase.Models
-{
-    public class DbObject
-    {
-        public DbObject()
-        {
-            InstanceId = Interlocked.Increment(ref _instanceCount);
-        }
-
-        [NotMapped]
-        public int InstanceId { get; private set; }
-
-        public virtual void Dump()
-        {
-            Debug.Write(string.Format("0X{0:X4}: ",InstanceId));
-        }
-
-        static public int InstanceCount
-        {
-            get { return _instanceCount; }
-        }
-
-        static int _instanceCount = 0;
-    }
-
-    public class Song : DbObject
+{    public class Song : DbObject
     {
         public int SongId { get; set; }
         public decimal? Tempo { get; set; }
@@ -71,59 +47,4 @@ namespace SongDatabase.Models
             return new Song();
         }
     }
-
-    public class SongProperty : DbObject
-    {
-        public Int64 Id { get; set; }
-        public int SongId { get; set; }
-        public virtual Song Song { get; set; }
-        public string Name { get; set; }
-        public string Value { get; set; }
-
-        public override void Dump()
-        {
-            base.Dump();
-
-            string output = string.Format("Id={0},SongId={1},Name={2},Value={3}",Id, SongId,Name,Value);
-            Debug.WriteLine(output);
-        }
-    }
-
-    public class DanceRating : DbObject
-    {
-        public int SongId { get; set; }
-        public virtual Song Song { get; set; }
-
-        public string DanceId { get; set; }
-        public virtual Dance Dance { get; set; }
-
-        public int Weight { get; set; }
-
-        public override void Dump()
-        {
-            base.Dump();
-
-            string output = string.Format("DanceId={0},SongId={1},Name={2},Value={3}", DanceId, SongId, Weight);
-            Debug.WriteLine(output);
-        }
-    }
-    public class SongLog : DbObject
-    {
-        public int Id { get; set; }
-        public virtual UserProfile User { get; set; }
-        public DateTime Time { get; set; }
-        public string Action { get; set; }
-        public int SongReference { get; set; }
-        public string Data { get; set; }
-
-        public override void Dump()
-        {
-            base.Dump();
-
-            string output = string.Format("Id={0},User={1},Time={2},Action={3},Song={4}", Id, User.UserName, Time, Action, SongReference);
-            Debug.WriteLine(output);
-            Debug.WriteLine(Data);
-        }
-    }
-
 }
