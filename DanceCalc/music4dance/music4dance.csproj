@@ -360,6 +360,8 @@
     <Content Include="Views\Song\SongItems.cshtml" />
     <Content Include="Views\SongProperty\Index.cshtml" />
     <Content Include="Views\Log\Index.cshtml" />
+    <Content Include="Views\Log\RestoreLines.cshtml" />
+    <Content Include="Views\Log\RestoreResults.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

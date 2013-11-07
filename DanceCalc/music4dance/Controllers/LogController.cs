@@ -42,6 +42,48 @@ namespace music4dance.Controllers
             return File(stream, "text/plain", "log.txt");
         }
 
+    //@Html.AntiForgeryToken();
+    //[ValidateAntiForgeryToken]
+
+        public ActionResult RestoreLines()
+        {
+            return View();
+        }
+
+        public ActionResult RestoreResults()
+        {
+            HttpFileCollectionBase files = Request.Files;
+            if (files.Count == 1)
+            {
+                List<string> lines = new List<string>();
+
+                string key = files.AllKeys[0];
+                ViewBag.Key = key;
+                ViewBag.Size = files[key].ContentLength;
+                ViewBag.ContentType = files[key].ContentType;
+
+
+                HttpPostedFileBase file = Request.Files.Get(0);
+                System.IO.Stream stream = file.InputStream;
+
+                TextReader tr = new StreamReader(stream);
+
+                string s = null;
+                while ((s = tr.ReadLine()) != null)
+                {
+                    lines.Add(s);
+                }
+
+                ViewBag.Lines = lines;
+
+                return View();
+            }
+            else
+            {
+                return new HttpStatusCodeResult(System.Net.HttpStatusCode.BadRequest, "No File Uploaded");
+            }
+        }
+
         protected override void Dispose(bool disposing)
         {
             _db.Dispose();
