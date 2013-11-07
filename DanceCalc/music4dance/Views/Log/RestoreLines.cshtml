@@ -7,6 +7,7 @@
 
 @using (Html.BeginForm("RestoreResults", "Log", FormMethod.Post, new { enctype = "multipart/form-data" }))
 {
+    @Html.AntiForgeryToken();
     <input type="file" name="FileUpload" /><br />
     <input type="submit" name="Submit" id="Submit" value="Upload" />
 }

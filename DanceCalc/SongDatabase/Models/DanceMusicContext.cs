@@ -138,12 +138,12 @@ namespace SongDatabase.Models
         public static readonly string DanceRatingField = "DanceRating";
 
         // Commands
-        public static readonly string CreateCommand = ".Create";
-        public static readonly string EditCommand = ".Edit";
-        public static readonly string DeleteCommand = ".Delete";
-        public static readonly string DeletePropertyCommand = ".DeleteProperty";
-        public static readonly string MergeFromCommand = ".MergeFrom";
-        public static readonly string MergeToCommand = ".MergeTo";
+        const string CreateCommand = ".Create";
+        const string EditCommand = ".Edit";
+        const string DeleteCommand = ".Delete";
+        const string DeletePropertyCommand = ".DeleteProperty";
+        const string MergeFromCommand = ".MergeFrom";
+        const string MergeToCommand = ".MergeTo";
 
         // Consider a parallel table for commands or commands not associates
         //  with a particular song?
@@ -662,6 +662,60 @@ namespace SongDatabase.Models
             }
 
             Log.Add(sl);
+        }
+
+        public void RestoreFromLog(IEnumerable<string> lines)
+        {
+            foreach (string line in lines)
+            {
+                RestoreFromLog(line);
+            }
+        }
+
+        public void RestoreFromLog(string line)
+        {
+            string[] cells = line.Split(new char[] { '|' });
+
+            // user|time|command|id|data...
+
+            if (cells.Length < 3)
+            {
+                Debug.WriteLine(string.Format("Bad Line: {0}", line));
+                return;
+            }
+
+            string userName = cells[0];
+            string timeString = cells[1];
+            string command = cells[2];
+
+            UserProfile user = UserProfiles.FirstOrDefault(u => u.UserName == userName);
+            if (user == null)
+            {
+                Debug.WriteLine(string.Format("Bad User Name: {0}", userName));
+                return;
+            }
+
+            DateTime time;
+            if (!DateTime.TryParse(timeString, out time))
+            {
+                Debug.WriteLine(string.Format("Bad Timestamp: {0}", timeString));
+                return;
+            }
+
+            switch (command)
+            {
+                case MergeFromCommand:
+                case DeleteCommand:
+                    //Songs.Remove();
+                    break;
+                case EditCommand:
+                    break;
+                case MergeToCommand:
+                    break;
+                default:
+                    Debug.WriteLine(string.Format("Bad Command: {0}", command));
+                    break;
+            }
         }
 
         public IList<Song> FindMergeCandidates(int n)

@@ -42,14 +42,14 @@ namespace music4dance.Controllers
             return File(stream, "text/plain", "log.txt");
         }
 
-    //@Html.AntiForgeryToken();
-    //[ValidateAntiForgeryToken]
-
         public ActionResult RestoreLines()
         {
             return View();
         }
 
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Authorize(Roles = "canEdit")]
         public ActionResult RestoreResults()
         {
             HttpFileCollectionBase files = Request.Files;
@@ -75,6 +75,8 @@ namespace music4dance.Controllers
                 }
 
                 ViewBag.Lines = lines;
+
+                _db.RestoreFromLog(lines);
 
                 return View();
             }
