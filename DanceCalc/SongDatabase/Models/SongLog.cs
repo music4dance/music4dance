@@ -17,6 +17,30 @@ namespace SongDatabase.Models
         public int SongReference { get; set; }
         public string Data { get; set; }
 
+        public void UpdateData(string name, string value, string oldValue)
+        {
+            if (string.IsNullOrWhiteSpace(Data))
+            {
+                Data = string.Empty;
+            }
+            else
+            {
+                Data += "|";
+            }
+
+            value = value.Replace('|', '_');
+            if (oldValue != null)
+            {
+                oldValue = oldValue.Replace('|', '_');
+            }
+
+            Data += string.Format("{0}\t{1}", name, value);
+            if (oldValue != null)
+            {
+                Data += string.Format("\t{0}", oldValue);
+            }
+        }
+
         public override void Dump()
         {
             base.Dump();

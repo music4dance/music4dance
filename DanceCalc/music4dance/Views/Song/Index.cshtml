@@ -59,6 +59,8 @@
     </tr>
 
 @foreach (var item in Model) {
+    if (item.Title != null)
+    { 
     <tr>
         @if (canEdit)
         {
@@ -69,11 +71,7 @@
             <td><input id="@cbName" name="@cbName" type="checkbox" /></td>
         }
         <td>
-            @Html.ActionLink(item.Title, "Details", new { id=item.SongId })
-            @*
-            @{ string title = Html.DisplayFor(modelItem => item.Title).ToString(); }
-            @Html.ActionLink(title, "Details", new { id=item.SongId })
-            *@
+            @Html.ActionLink(item.Title, "Details", new { id = item.SongId })
         </td>
         <td>
             @Html.DisplayFor(modelItem => item.Artist)
@@ -104,6 +102,7 @@
             </td>
         }
     </tr>
+    }
 }
 
 </table>

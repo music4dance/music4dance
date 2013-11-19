@@ -12,6 +12,7 @@ using System.Linq;
 using System.Globalization;
 using System.Text;
 using System.Data.Objects.DataClasses;
+using System.Reflection;
 
 // Let's see if we can mock up a recoverable log file by spitting out
 // something resembling a tab-separated flat list of songs items with a
@@ -350,44 +351,27 @@ namespace SongDatabase.Models
                 //Dump();
             }
 
-            SongLog sl = Log.Create();
-            sl.Time = DateTime.Now;
-            sl.User = user;
-            sl.SongReference = song.SongId;
-            sl.Action = EditCommand;
+            SongLog log = CreateSongLog(user, song.SongId, EditCommand);
 
             // Handle Timestamps
             DateTime time = DateTime.Now;
             song.Modified = time;
             CreateSongProperty(song, TimeField, time.ToString());
 
-            modified |= UpdateSongProperty(song, TitleField, song.Title, properties,sl);
-            modified |= UpdateSongProperty(song, ArtistField, song.Artist, properties, sl);
-            modified |= UpdateSongProperty(song, AlbumField, song.Album, properties, sl);
-            modified |= UpdateSongProperty(song, PublisherField, song.Publisher, properties, sl);
-            modified |= UpdateSongProperty(song, TempoField, song.Tempo, properties, sl);
-            modified |= UpdateSongProperty(song, LengthField, song.Length, properties, sl);
-            modified |= UpdateSongProperty(song, TrackField, song.Track, properties, sl);
-            modified |= UpdateSongProperty(song, PurchaseField, song.Purchase, properties, sl);
-            modified |= UpdateSongProperty(song, GenreField, song.Genre, properties, sl);
+            modified |= UpdateSongProperty(song, TitleField, song.Title, properties,log);
+            modified |= UpdateSongProperty(song, ArtistField, song.Artist, properties, log);
+            modified |= UpdateSongProperty(song, AlbumField, song.Album, properties, log);
+            modified |= UpdateSongProperty(song, PublisherField, song.Publisher, properties, log);
+            modified |= UpdateSongProperty(song, TempoField, song.Tempo, properties, log);
+            modified |= UpdateSongProperty(song, LengthField, song.Length, properties, log);
+            modified |= UpdateSongProperty(song, TrackField, song.Track, properties, log);
+            modified |= UpdateSongProperty(song, PurchaseField, song.Purchase, properties, log);
+            modified |= UpdateSongProperty(song, GenreField, song.Genre, properties, log);
 
             if (modified)
             {
-                song.TitleHash = CreateTitleHash(song.Title);
-
-                // This seems totally non-optimal, but because of the relationship between users
-                //  and songs the old song record is getting loaded underneath the new one
-                var songs = Songs.Local.Where(s => s.SongId == song.SongId).ToArray();
-                foreach (Song s in songs)
-                {
-                    if (s != song)
-                    {
-                        ((IObjectContextAdapter)this).ObjectContext.Detach(s);
-                    }
-                }
-
-                Entry(song).State = System.Data.Entity.EntityState.Modified;
-                Log.Add(sl);
+                FixupEdited(song);
+                Log.Add(log);
 
                 SaveChanges();
             }
@@ -399,9 +383,33 @@ namespace SongDatabase.Models
             return modified;
         }
 
-        public void DeleteSong(UserProfile user, Song song)
+        private void FixupEdited(Song song)
         {
-            LogSongCommand(DeleteCommand, song, user);
+            if (song == null)
+                return;
+
+            // This seems totally non-optimal, but because of the relationship between users
+            //  and songs the old song record is getting loaded underneath the new one
+            var songs = Songs.Local.Where(s => s.SongId == song.SongId).ToArray();
+            bool fixedup = false;
+
+            foreach (Song s in songs)
+            {
+                if (s != song)
+                {
+                    ((IObjectContextAdapter)this).ObjectContext.Detach(s);
+                    fixedup = true;
+                }
+            }
+
+            Entry(song).State = System.Data.Entity.EntityState.Modified;
+
+            Debug.WriteLine("Song:{0} Fixedup:{1}", song.SongId, fixedup);
+        }
+
+        public void DeleteSong(UserProfile user, Song song, string command = DeleteCommand)
+        {
+            LogSongCommand(command, song, user);
             Songs.Remove(song);
             SaveChanges();
         }
@@ -524,7 +532,7 @@ namespace SongDatabase.Models
             return ret;
         }
 
-        public bool UpdateSongProperty(Song song, string name, decimal? value, IOrderedQueryable<SongProperty> properties, SongLog sl)
+        public bool UpdateSongProperty(Song song, string name, decimal? value, IOrderedQueryable<SongProperty> properties, SongLog log)
         {
             bool modified = true;
 
@@ -553,13 +561,13 @@ namespace SongDatabase.Models
                 np.Value = value.ToString();
 
                 SongProperties.Add(np);
-                LogPropertyUpdate(np, sl, oldString);
+                LogPropertyUpdate(np, log, oldString);
             }
 
             return modified;
         }
 
-        public bool UpdateSongProperty(Song song, string name, int? value, IOrderedQueryable<SongProperty> properties, SongLog sl)
+        public bool UpdateSongProperty(Song song, string name, int? value, IOrderedQueryable<SongProperty> properties, SongLog log)
         {
             bool modified = true;
 
@@ -589,13 +597,13 @@ namespace SongDatabase.Models
                 np.Value = value.ToString();
 
                 SongProperties.Add(np);
-                LogPropertyUpdate(np, sl, oldString);
+                LogPropertyUpdate(np, log, oldString);
             }
 
             return modified;
         }
 
-        public bool UpdateSongProperty(Song song, string name, string value, IOrderedQueryable<SongProperty> properties, SongLog sl)
+        public bool UpdateSongProperty(Song song, string name, string value, IOrderedQueryable<SongProperty> properties, SongLog log)
         {
             bool modified = false;
 
@@ -618,50 +626,31 @@ namespace SongDatabase.Models
                 np.Value = value;
 
                 SongProperties.Add(np);
-                LogPropertyUpdate(np, sl);
+                LogPropertyUpdate(np, log);
             }
 
             return modified;
         }
 
-        private void LogPropertyUpdate(SongProperty sp, SongLog sl, string oldValue = null)
+        private void LogPropertyUpdate(SongProperty sp, SongLog log, string oldValue = null)
         {
-            if (string.IsNullOrWhiteSpace(sl.Data))
-            {
-                sl.Data = string.Empty;
-            }
-            else
-            {
-                sl.Data += "|";
-            }
-
-            string value = sp.Value.Replace('|','_');
-            if (oldValue != null)
-            {
-                oldValue = oldValue.Replace('|', '_');
-            }
-
-            sl.Data += string.Format("{0}\t{1}", sp.Name, value);
-            if (oldValue != null)
-            {
-                sl.Data += string.Format("\t{0}", oldValue);
-            }
+            log.UpdateData(sp.Name, sp.Value, oldValue);
         }
 
         private void LogSongCommand(string command, Song song, UserProfile user)
         {
-            SongLog sl = Log.Create();
-            sl.Time = DateTime.Now;
-            sl.User = user;
-            sl.SongReference = song.SongId;
-            sl.Action = command;
+            SongLog log = Log.Create();
+            log.Time = DateTime.Now;
+            log.User = user;
+            log.SongReference = song.SongId;
+            log.Action = command;
 
             foreach (SongProperty p in song.SongProperties)
             {
-                LogPropertyUpdate(p, sl);
+                LogPropertyUpdate(p, log);
             }
 
-            Log.Add(sl);
+            Log.Add(log);
         }
 
         public void RestoreFromLog(IEnumerable<string> lines)
@@ -678,7 +667,7 @@ namespace SongDatabase.Models
 
             // user|time|command|id|data...
 
-            if (cells.Length < 3)
+            if (cells.Length < 4)
             {
                 Debug.WriteLine(string.Format("Bad Line: {0}", line));
                 return;
@@ -687,6 +676,10 @@ namespace SongDatabase.Models
             string userName = cells[0];
             string timeString = cells[1];
             string command = cells[2];
+            string songRef = cells[3];
+
+            List<string> data = new List<string>(cells);
+            data.RemoveRange(0,4);
 
             UserProfile user = UserProfiles.FirstOrDefault(u => u.UserName == userName);
             if (user == null)
@@ -702,20 +695,252 @@ namespace SongDatabase.Models
                 return;
             }
 
+            int songId = 0;
+            if (!int.TryParse(songRef,out songId))
+            {
+                Debug.WriteLine(string.Format("Bad SongId: {0}", songRef));
+                return;                
+            }
+
+            Song song = null;
+
             switch (command)
             {
                 case MergeFromCommand:
                 case DeleteCommand:
-                    //Songs.Remove();
-                    break;
                 case EditCommand:
+                    song = Songs.FirstOrDefault(s => s.SongId == songId);
+                    if (song == null)
+                    {
+                        Debug.WriteLine(string.Format("Couldn't find song by Id: {0}", songRef));
+                        return;                
+                    }
                     break;
                 case MergeToCommand:
+                case CreateCommand:
                     break;
                 default:
                     Debug.WriteLine(string.Format("Bad Command: {0}", command));
                     break;
             }
+
+            bool deleted = false;
+
+            switch (command)
+            {
+                case MergeFromCommand:
+                case DeleteCommand:
+                    DeleteSong(user, song, command);
+                    deleted = true;
+                    break;
+                case EditCommand:
+                    EditSongFromLog(user, song, data);
+                    break;
+                case MergeToCommand:
+                case CreateCommand:
+                    CreateSongFromLog(user,data);
+                    break;
+                default:
+                    Debug.WriteLine(string.Format("Bad Command: {0}", command));
+                    break;
+            }
+
+            // This is a little sloppy, but delete cleans up after itself...
+            if (!deleted)
+            {
+                FixupEdited(song);
+
+                SaveChanges();
+            }
+        }
+
+
+        private void EditSongFromLog(UserProfile user, Song song, List<string> data)
+        {
+            SongLog log = CreateSongLog(user, song.SongId, EditCommand);
+
+            foreach (string s in data)
+            {
+                RestorePropertyFromLog(song, log, s);
+            }
+
+            Log.Add(log);
+        }
+
+        private SongLog CreateSongLog(UserProfile user, int songId, string action)
+        {
+            SongLog log = Log.Create();
+            log.Time = DateTime.Now;
+            log.User = user;
+            log.SongReference = songId;
+            log.Action = action;
+            return log;
+        }
+
+        private void CreateSongFromLog(UserProfile user, List<string> data)
+        {
+            string[] commands = data[0].Split(new char[] {'\t'});
+            string command = CreateCommand;
+            if (string.Equals(commands[0],MergeFromCommand,StringComparison.InvariantCultureIgnoreCase))
+            {
+                command = string.Format("{0}\t{1}", MergeFromCommand, commands[1]);
+            }
+            else if (!string.Equals(commands[0],CreateCommand,StringComparison.InvariantCultureIgnoreCase))
+            {
+                Debug.WriteLine("Bad Create Command");
+                return;
+            }
+            data.RemoveAt(0);
+
+            Song song = Songs.Create();
+            song.Created = DateTime.Now;
+            song.Modified = DateTime.Now;
+            Songs.Add(song);
+            
+            // Is there a better way to get an id assigned to the song?
+            SaveChanges();
+
+            SongLog log = CreateSongLog(user, song.SongId, command);
+
+            if (user != null)
+            {
+                if (user.Songs.FirstOrDefault(s => s.SongId == song.SongId) == null)
+                {
+                    user.Songs.Add(song);
+                }
+                CreateSongProperty(song, UserField, user.UserName);
+            }
+
+            foreach (string s in data)
+            {
+                RestorePropertyFromLog(song, log, s);
+            }
+
+            song.TitleHash = CreateTitleHash(song.Title);
+
+            Log.Add(log);            
+        }
+
+        private void RestorePropertyFromLog(Song song, SongLog log, string data)
+        {
+            string[] cells = data.Split(new char[] { '\t' });
+
+            bool edit = false;
+            if (cells.Length == 3)
+            {
+                edit = true;
+            }
+            else if (cells.Length != 2)
+            {
+                Debug.WriteLine(string.Format("Bad Property: {0}", data));
+                return;
+            }
+
+            string name = cells[0];
+            string value = cells[1];
+            string oldValue = null;
+            if (edit)
+                oldValue = cells[2];
+
+            PropertyInfo pi = song.GetType().GetProperty(name);
+            if (pi != null)
+            {
+                Type type = pi.PropertyType;
+
+                bool empty = string.IsNullOrWhiteSpace(value);
+                object o = null;
+
+                if (!empty)
+                {
+                    if (type == typeof(string))
+                    {
+                        o = value;
+                    }
+                    else if (type == typeof(DateTime))
+                    {
+                        DateTime dt;
+                        if (DateTime.TryParse(value, out dt))
+                        {
+                            pi.SetValue(song, dt);
+                        }
+                        else
+                        {
+                            Debug.WriteLine(string.Format("Bad DateTime: {0}", dt));
+                        }
+                    }
+                    else if (type == typeof(decimal?))
+                    {
+                        decimal d;
+                        if (decimal.TryParse(value, out d))
+                        {
+                            o = d;
+                        }
+                        else
+                        {
+                            Debug.WriteLine(string.Format("Bad DateTime: {0}", d));
+                        }
+                    }
+                    else if (type == typeof(int?))
+                    {
+                        int i;
+                        if (int.TryParse(value, out i))
+                        {
+                            o = i;
+                        }
+                        else
+                        {
+                            Debug.WriteLine(string.Format("Bad DateTime: {0}", i));
+                        }
+                    }
+                }
+
+                pi.SetValue(song, o);
+            }
+            else if (string.Equals(name,DanceRatingField))
+            {
+                string danceId = value;
+                int weight = 1;
+                if (value.Contains(':'))
+                {
+                    string[] pair = value.Split(new char[]{':'});
+                    if (pair.Length == 2)
+                    {
+                        danceId = pair[0];
+                        if (!int.TryParse(pair[1],out weight))
+                        {
+                            Debug.WriteLine(string.Format("Bad Dance Weight☺: {0}", value));
+                        }
+                    }
+                    else
+                    {
+                        Debug.WriteLine(string.Format("Bad DanceRating: {0}", value));
+                    }
+                }
+
+                DanceRating dr = song.DanceRatings.FirstOrDefault(d => string.Equals(d.DanceId, danceId));
+                if (dr == null)
+                {
+                    song.DanceRatings.Add(new DanceRating() { DanceId = danceId, SongId = song.SongId, Weight = weight });
+                }
+                else
+                {
+                    dr.Weight = weight;
+                }
+            }
+            else if (string.Equals(name,UserField))
+            {
+                UserProfile user = UserProfiles.FirstOrDefault(u => u.UserName == value);
+                if (user != null && user.Songs.FirstOrDefault(s => s.SongId == song.SongId) == null)
+                {
+                    user.Songs.Add(song);
+                }
+                CreateSongProperty(song, UserField, user.UserName);
+            }
+
+            CreateSongProperty(song, name, value);
+
+            // Update the log data
+            log.UpdateData(name, value, oldValue);
         }
 
         public IList<Song> FindMergeCandidates(int n)
