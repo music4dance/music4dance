@@ -186,12 +186,9 @@ namespace SongDatabase.Models
             string songIds = string.Join(";",songs.Select(s => s.SongId.ToString()));
 
             Song song = CreateSong(user, title, artist, album, label, genre, tempo, length, track, purchase, MergeFromCommand, songIds);
-
-            // Add in the new song ratings
-
             SaveChanges();
 
-            // Add in the to/from properties and create new weight table
+            // Add in the to/from properties and create new weight table as well as creating the user associations
             Dictionary<string, int> weights = new Dictionary<string, int>();
             foreach (Song from in songs)
             {
@@ -205,6 +202,15 @@ namespace SongDatabase.Models
                     else
                     {
                         weights[dr.DanceId] = dr.Weight;
+                    }
+                }
+
+                foreach (UserProfile u in from.ModifiedBy)
+                {
+                    if (!song.ModifiedBy.Contains(u))
+                    {
+                        song.ModifiedBy.Add(u);
+                        CreateSongProperty(song, UserField, u.UserName);
                     }
                 }
             }
@@ -335,28 +341,7 @@ namespace SongDatabase.Models
 
             bool modified = false;
 
-            // Add the command into the property log
-            CreateSongProperty(song, EditCommand, string.Empty);
-
-            // Handle User association
-            if (user != null)
-            {
-                //Dump();
-                if (user.Songs.FirstOrDefault(s => s.SongId == song.SongId) == null)
-                {
-                    user.Songs.Add(song);
-                }
-                //Dump();
-                CreateSongProperty(song, UserField, user.UserName);
-                //Dump();
-            }
-
-            SongLog log = CreateSongLog(user, song.SongId, EditCommand);
-
-            // Handle Timestamps
-            DateTime time = DateTime.Now;
-            song.Modified = time;
-            CreateSongProperty(song, TimeField, time.ToString());
+            SongLog log = CreateEditHeader(song, user);
 
             modified |= UpdateSongProperty(song, TitleField, song.Title, properties,log);
             modified |= UpdateSongProperty(song, ArtistField, song.Artist, properties, log);
@@ -382,6 +367,32 @@ namespace SongDatabase.Models
 
             return modified;
         }
+
+        private SongLog CreateEditHeader(Song song, UserProfile user)
+        {
+            SongLog log = CreateSongLog(user, song.SongId, EditCommand);
+
+            // Add the command into the property log
+            CreateSongProperty(song, EditCommand, string.Empty);
+
+            // Handle User association
+            if (user != null)
+            {
+                if (user.Songs.Contains(song))
+                {
+                    user.Songs.Add(song);
+                }
+                CreateSongProperty(song, UserField, user.UserName);
+            }
+
+            // Handle Timestamps
+            DateTime time = DateTime.Now;
+            song.Modified = time;
+            CreateSongProperty(song, TimeField, time.ToString());
+
+            return log;
+        }
+
 
         private void FixupEdited(Song song)
         {
@@ -754,10 +765,9 @@ namespace SongDatabase.Models
             }
         }
 
-
         private void EditSongFromLog(UserProfile user, Song song, List<string> data)
         {
-            SongLog log = CreateSongLog(user, song.SongId, EditCommand);
+            SongLog log = CreateEditHeader(song, user);
 
             foreach (string s in data)
             {
@@ -781,14 +791,18 @@ namespace SongDatabase.Models
         {
             string[] commands = data[0].Split(new char[] {'\t'});
             string command = CreateCommand;
+            string initC = CreateCommand;
+            string initV = string.Empty;
+
             if (string.Equals(commands[0],MergeFromCommand,StringComparison.InvariantCultureIgnoreCase))
             {
-                command = string.Format("{0}\t{1}", MergeFromCommand, commands[1]);
+                command = MergeToCommand;
+                initC = MergeFromCommand;
+                initV = commands[1];
             }
             else if (!string.Equals(commands[0],CreateCommand,StringComparison.InvariantCultureIgnoreCase))
             {
                 Debug.WriteLine("Bad Create Command");
-                return;
             }
             data.RemoveAt(0);
 
@@ -801,10 +815,12 @@ namespace SongDatabase.Models
             SaveChanges();
 
             SongLog log = CreateSongLog(user, song.SongId, command);
+            CreateSongProperty(song, initC, initV);
 
             if (user != null)
             {
-                if (user.Songs.FirstOrDefault(s => s.SongId == song.SongId) == null)
+                //if (user.Songs.FirstOrDefault(s => s.SongId == song.SongId) == null)
+                if (!user.Songs.Contains(song))
                 {
                     user.Songs.Add(song);
                 }
@@ -818,11 +834,13 @@ namespace SongDatabase.Models
 
             song.TitleHash = CreateTitleHash(song.Title);
 
-            Log.Add(log);            
+            Log.Add(log);
         }
 
         private void RestorePropertyFromLog(Song song, SongLog log, string data)
         {
+            bool createProperty = true;
+
             string[] cells = data.Split(new char[] { '\t' });
 
             bool edit = false;
@@ -930,14 +948,22 @@ namespace SongDatabase.Models
             else if (string.Equals(name,UserField))
             {
                 UserProfile user = UserProfiles.FirstOrDefault(u => u.UserName == value);
-                if (user != null && user.Songs.FirstOrDefault(s => s.SongId == song.SongId) == null)
+
+                //if (user != null && user.Songs.FirstOrDefault(s => s.SongId == song.SongId) == null)
+                if (user != null && !user.Songs.Contains(song))
                 {
                     user.Songs.Add(song);
                 }
-                CreateSongProperty(song, UserField, user.UserName);
+                else
+                {
+                    createProperty = false;
+                }
             }
 
-            CreateSongProperty(song, name, value);
+            if (createProperty)
+            {
+                CreateSongProperty(song, name, value);
+            }
 
             // Update the log data
             log.UpdateData(name, value, oldValue);
