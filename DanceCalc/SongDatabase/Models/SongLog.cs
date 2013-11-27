@@ -14,7 +14,8 @@ namespace SongDatabase.Models
         public virtual UserProfile User { get; set; }
         public DateTime Time { get; set; }
         public string Action { get; set; }
-        public int SongReference { get; set; }
+        public int SongReference { get; set; }        
+        public string SongSignature { get; set; }
         public string Data { get; set; }
 
         public void UpdateData(string name, string value, string oldValue)

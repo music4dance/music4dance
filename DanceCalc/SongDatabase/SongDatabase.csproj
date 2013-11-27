@@ -82,6 +82,10 @@
     <Compile Include="Migrations\201311051735454_AddLog.Designer.cs">
       <DependentUpon>201311051735454_AddLog.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201311230031312_SongSignature.cs" />
+    <Compile Include="Migrations\201311230031312_SongSignature.Designer.cs">
+      <DependentUpon>201311230031312_SongSignature.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountModels.cs" />
     <Compile Include="Models\Dance.cs" />
@@ -119,6 +123,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201311051735454_AddLog.resx">
       <DependentUpon>201311051735454_AddLog.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201311230031312_SongSignature.resx">
+      <DependentUpon>201311230031312_SongSignature.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
