@@ -185,6 +185,14 @@ namespace SongDatabase.Models
         {
             string songIds = string.Join(";",songs.Select(s => s.SongId.ToString()));
 
+            // Create log entries for all of the merge froms
+            //  this lets us get them in the log before the merge-to which makes
+            //  restorings much easier...
+            foreach (Song from in songs)
+            {
+                LogSongCommand(MergeFromCommand, from, user);
+            }
+
             Song song = CreateSong(user, title, artist, album, label, genre, tempo, length, track, purchase, MergeFromCommand, songIds);
             SaveChanges();
 
@@ -224,12 +232,11 @@ namespace SongDatabase.Models
                 CreateSongProperty(song, DanceRatingField, value);
             }
 
-            LogSongCommand(MergeToCommand, song, user);
+            LogSongCommand(MergeToCommand, song, user, false);
 
             // Delete all of the old songs (With merge-with Id from above)
             foreach (Song from in songs)
             {
-                LogSongCommand(MergeFromCommand, from, user);
                 this.Songs.Remove(from);
             }
 
@@ -341,7 +348,8 @@ namespace SongDatabase.Models
 
             bool modified = false;
 
-            SongLog log = CreateEditHeader(song, user);
+            SongLog log = CreateEditHeader(song, user, properties);
+            log.SongSignature = Song.SignatureFromProperties(properties);
 
             modified |= UpdateSongProperty(song, TitleField, song.Title, properties,log);
             modified |= UpdateSongProperty(song, ArtistField, song.Artist, properties, log);
@@ -356,6 +364,7 @@ namespace SongDatabase.Models
             if (modified)
             {
                 FixupEdited(song);
+                
                 Log.Add(log);
 
                 SaveChanges();
@@ -368,9 +377,9 @@ namespace SongDatabase.Models
             return modified;
         }
 
-        private SongLog CreateEditHeader(Song song, UserProfile user)
+        private SongLog CreateEditHeader(Song song, UserProfile user, IOrderedQueryable<SongProperty> properties = null)
         {
-            SongLog log = CreateSongLog(user, song.SongId, EditCommand);
+            SongLog log = CreateSongLog(user, song, EditCommand);
 
             // Add the command into the property log
             CreateSongProperty(song, EditCommand, string.Empty);
@@ -414,6 +423,7 @@ namespace SongDatabase.Models
             }
 
             Entry(song).State = System.Data.Entity.EntityState.Modified;
+            song.TitleHash = CreateTitleHash(song.Title);
 
             Debug.WriteLine("Song:{0} Fixedup:{1}", song.SongId, fixedup);
         }
@@ -548,7 +558,7 @@ namespace SongDatabase.Models
             bool modified = true;
 
             //SongProperty prop = properties.FirstOrDefault(p => string.Equals(p.Name,name,StringComparison.InvariantCultureIgnoreCase));
-            SongProperty prop = properties.FirstOrDefault(p => p.Name == name);
+            SongProperty prop = GetCurrentProperty(properties, name);
 
             string oldString = null;
             if (prop != null) {
@@ -583,7 +593,7 @@ namespace SongDatabase.Models
             bool modified = true;
 
             //SongProperty prop = properties.FirstOrDefault(p => string.Equals(p.Name,name,StringComparison.InvariantCultureIgnoreCase));
-            SongProperty prop = properties.FirstOrDefault(p => p.Name == name);
+            SongProperty prop = GetCurrentProperty(properties, name);
 
             string oldString = null;
             if (prop != null)
@@ -614,12 +624,18 @@ namespace SongDatabase.Models
             return modified;
         }
 
+        private SongProperty GetCurrentProperty(IOrderedQueryable<SongProperty> properties, string name)
+        {
+            // Note that this depends on properties list being ordered with id descending...
+            return properties.FirstOrDefault(p => p.Name == name);
+        }
+
         public bool UpdateSongProperty(Song song, string name, string value, IOrderedQueryable<SongProperty> properties, SongLog log)
         {
             bool modified = false;
 
             //SongProperty prop = properties.FirstOrDefault(p => string.Equals(p.Name,name,StringComparison.InvariantCultureIgnoreCase));
-            SongProperty prop = properties.FirstOrDefault(p => p.Name == name);
+            SongProperty prop = GetCurrentProperty(properties,name);
 
             // We are going to create a new property if there wasn't a property before and this property is non-empty OR
             //  if there was a property before and the value is different.
@@ -637,7 +653,7 @@ namespace SongDatabase.Models
                 np.Value = value;
 
                 SongProperties.Add(np);
-                LogPropertyUpdate(np, log);
+                LogPropertyUpdate(np, log, oldString);
             }
 
             return modified;
@@ -648,13 +664,18 @@ namespace SongDatabase.Models
             log.UpdateData(sp.Name, sp.Value, oldValue);
         }
 
-        private void LogSongCommand(string command, Song song, UserProfile user)
+        private void LogSongCommand(string command, Song song, UserProfile user, bool includeSignature = true)
         {
             SongLog log = Log.Create();
             log.Time = DateTime.Now;
             log.User = user;
             log.SongReference = song.SongId;
             log.Action = command;
+
+            if (includeSignature)
+            {
+                log.SongSignature = song.Signature;
+            }
 
             foreach (SongProperty p in song.SongProperties)
             {
@@ -666,13 +687,15 @@ namespace SongDatabase.Models
 
         public void RestoreFromLog(IEnumerable<string> lines)
         {
+            List<int> mergeFroms = new List<int>();
+
             foreach (string line in lines)
             {
-                RestoreFromLog(line);
+                RestoreFromLog(line,mergeFroms);
             }
         }
 
-        public void RestoreFromLog(string line)
+        public void RestoreFromLog(string line, List<int> mergeFroms)
         {
             string[] cells = line.Split(new char[] { '|' });
 
@@ -688,9 +711,10 @@ namespace SongDatabase.Models
             string timeString = cells[1];
             string command = cells[2];
             string songRef = cells[3];
+            string songSig = cells[4];
 
             List<string> data = new List<string>(cells);
-            data.RemoveRange(0,4);
+            data.RemoveRange(0,5);
 
             UserProfile user = UserProfiles.FirstOrDefault(u => u.UserName == userName);
             if (user == null)
@@ -720,12 +744,7 @@ namespace SongDatabase.Models
                 case MergeFromCommand:
                 case DeleteCommand:
                 case EditCommand:
-                    song = Songs.FirstOrDefault(s => s.SongId == songId);
-                    if (song == null)
-                    {
-                        Debug.WriteLine(string.Format("Couldn't find song by Id: {0}", songRef));
-                        return;                
-                    }
+                    song = FindSong(songId, songSig);
                     break;
                 case MergeToCommand:
                 case CreateCommand:
@@ -740,6 +759,10 @@ namespace SongDatabase.Models
             switch (command)
             {
                 case MergeFromCommand:
+                    mergeFroms.Add(song.SongId);
+                    DeleteSong(user, song, command);
+                    deleted = true;
+                    break;
                 case DeleteCommand:
                     DeleteSong(user, song, command);
                     deleted = true;
@@ -749,7 +772,8 @@ namespace SongDatabase.Models
                     break;
                 case MergeToCommand:
                 case CreateCommand:
-                    CreateSongFromLog(user,data);
+                    CreateSongFromLog(user,data,mergeFroms);
+                    mergeFroms.Clear();
                     break;
                 default:
                     Debug.WriteLine(string.Format("Bad Command: {0}", command));
@@ -765,6 +789,37 @@ namespace SongDatabase.Models
             }
         }
 
+        private Song FindSong(int id, string signature)
+        {
+            // First find a match id
+            Song song = Songs.FirstOrDefault(s => s.SongId == id);
+
+            // If the id doesn't exist or if the signatures don't match, find by signature
+            if (song == null || !MatchSigatures(signature,song.Signature))
+            {
+                song = FindSongBySignature(signature);
+            }
+
+            if (song == null)
+            {
+                Debug.WriteLine(string.Format("Couldn't find song by Id: {0} or signature {1}", song.SongId, song.Signature));
+            }
+
+            return song;
+        }
+
+        private Song FindSongBySignature(string signature)
+        {
+            Song song = Songs.FirstOrDefault(s => string.Equals(signature,s.Signature,StringComparison.Ordinal));
+
+            return song;
+        }
+
+        private bool MatchSigatures(string sig1, string sig2)
+        {
+            return string.Equals(sig1, sig2, StringComparison.Ordinal);
+        }
+
         private void EditSongFromLog(UserProfile user, Song song, List<string> data)
         {
             SongLog log = CreateEditHeader(song, user);
@@ -777,30 +832,36 @@ namespace SongDatabase.Models
             Log.Add(log);
         }
 
-        private SongLog CreateSongLog(UserProfile user, int songId, string action)
+        private SongLog CreateSongLog(UserProfile user, Song song, string action)
         {
             SongLog log = Log.Create();
-            log.Time = DateTime.Now;
-            log.User = user;
-            log.SongReference = songId;
-            log.Action = action;
+
+            log.Init(user, song, action);
+
             return log;
         }
 
-        private void CreateSongFromLog(UserProfile user, List<string> data)
+        private void CreateSongFromLog(UserProfile user, List<string> data, List<int> mergeFroms)
         {
-            string[] commands = data[0].Split(new char[] {'\t'});
+            string[] commandLine = data[0].Split(new char[] {'\t'});
             string command = CreateCommand;
             string initC = CreateCommand;
             string initV = string.Empty;
 
-            if (string.Equals(commands[0],MergeFromCommand,StringComparison.InvariantCultureIgnoreCase))
+            if (string.Equals(commandLine[0],MergeFromCommand,StringComparison.InvariantCultureIgnoreCase))
             {
+                StringBuilder sb = new StringBuilder();
+                string separator = string.Empty;
+                foreach (int id in mergeFroms)
+                {
+                    sb.AppendFormat("{0}{1}", separator, id);
+                    separator = ";";
+                }
                 command = MergeToCommand;
                 initC = MergeFromCommand;
-                initV = commands[1];
+                initV = sb.ToString();
             }
-            else if (!string.Equals(commands[0],CreateCommand,StringComparison.InvariantCultureIgnoreCase))
+            else if (!string.Equals(commandLine[0],CreateCommand,StringComparison.InvariantCultureIgnoreCase))
             {
                 Debug.WriteLine("Bad Create Command");
             }
@@ -814,8 +875,9 @@ namespace SongDatabase.Models
             // Is there a better way to get an id assigned to the song?
             SaveChanges();
 
-            SongLog log = CreateSongLog(user, song.SongId, command);
+            SongLog log = CreateSongLog(user, song, command);
             CreateSongProperty(song, initC, initV);
+            log.UpdateData(initC, initV);
 
             if (user != null)
             {

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Diagnostics;
+using System.Linq;
 using System.Threading;
 
 
@@ -25,6 +26,41 @@ namespace SongDatabase.Models
         public virtual ICollection<DanceRating> DanceRatings { get; set; }
         public virtual ICollection<UserProfile> ModifiedBy { get; set; }
         public virtual ICollection<SongProperty> SongProperties { get; set; }
+
+        public string Signature
+        {
+            get
+            {
+                // This is not a fully unambiguous signature, should we add in a checksum with some or all of the
+                //  other fields in the song?
+                return BuildSignature(Artist, Album, Title);
+            }
+        }
+
+        static public string SignatureFromProperties(IOrderedQueryable<SongProperty> properties)
+        {
+            // Again, this assumes properties are in reverse ID order...
+
+            SongProperty artistP = properties.FirstOrDefault(p => p.Name == DanceMusicContext.ArtistField);
+            SongProperty albumP = properties.FirstOrDefault(p => p.Name == DanceMusicContext.AlbumField);
+            SongProperty titleP = properties.FirstOrDefault(p => p.Name == DanceMusicContext.TitleField);
+
+            return BuildSignature(artistP != null ? artistP.Value : string.Empty, albumP != null ? albumP.Value : string.Empty, titleP != null ? titleP.Value : string.Empty);
+        }
+
+        private static string BuildSignature(string artist, string album, string title)
+        {
+            artist = (artist == null) ? string.Empty : artist;
+            album = (album == null) ? string.Empty : album;
+            title = (title == null) ? string.Empty : title;
+
+            string ret = string.Format("{0}\t{1}\t{2}", artist, album, title);
+
+            if (string.IsNullOrWhiteSpace(ret))
+                return null;
+            else
+                return ret;
+        }
 
         public override void Dump()
         {

@@ -18,7 +18,7 @@ namespace SongDatabase.Models
         public string SongSignature { get; set; }
         public string Data { get; set; }
 
-        public void UpdateData(string name, string value, string oldValue)
+        public void UpdateData(string name, string value, string oldValue = null)
         {
             if (string.IsNullOrWhiteSpace(Data))
             {
@@ -42,6 +42,16 @@ namespace SongDatabase.Models
             }
         }
 
+        public void Init(UserProfile user, Song song, string action)
+        {
+            Time = DateTime.Now;
+            User = user;
+            SongReference = song.SongId;
+            Action = action;
+
+            SongSignature = song.Signature;
+        }
+
         public override void Dump()
         {
             base.Dump();
@@ -50,6 +60,7 @@ namespace SongDatabase.Models
             Debug.WriteLine(output);
             Debug.WriteLine(Data);
         }
+
     }
 
 }

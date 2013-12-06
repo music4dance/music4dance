@@ -195,7 +195,16 @@ namespace music4dance.Controllers
 
                 string userName = User.Identity.Name;
                 UserProfile user = _db.UserProfiles.FirstOrDefault(u => u.UserName == userName);
+
+#if DEBUG
+                _db.Dump();
+#endif
+
                 _db.EditSong(user, song);
+
+#if DEBUG
+                _db.Dump();
+#endif
 
                 return RedirectToAction("Index");
             }

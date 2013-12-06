@@ -32,7 +32,7 @@ namespace music4dance.Controllers
             
             foreach (SongLog line in lines)
             {               
-                sb.AppendFormat("{0}|{1}|{2}|{3}|{4}\r\n",line.User.UserName,line.Time,line.Action,line.SongReference,line.Data);
+                sb.AppendFormat("{0}|{1}|{2}|{3}|{4}|{5}\r\n",line.User.UserName,line.Time,line.Action,line.SongReference,line.SongSignature,line.Data);
             }
 
             string s = sb.ToString();

@@ -12,6 +12,9 @@
 <table class="table">
     <tr>
         <th>
+            ID
+        </th>
+        <th>
             User Name
         </th>
         <th>
@@ -21,7 +24,7 @@
             @Html.DisplayNameFor(model => model.Action)
         </th>
         <th>
-            @Html.DisplayNameFor(model => model.SongReference)
+            Signature
         </th>
         <th>
             @Html.DisplayNameFor(model => model.Data)
@@ -30,6 +33,9 @@
 
 @foreach (var item in Model) {
     <tr>
+        <td>
+            @Html.DisplayFor(modelItem => item.SongReference)
+        </td>
         <td>
             @Html.DisplayFor(modelItem => item.User.UserName)
         </td>
@@ -40,7 +46,7 @@
             @Html.DisplayFor(modelItem => item.Action)
         </td>
         <td>
-            @Html.DisplayFor(modelItem => item.SongReference)
+            @Html.DisplayFor(modelItem => item.SongSignature)
         </td>
         <td>
             @Html.DisplayFor(modelItem => item.Data)
@@ -50,4 +56,4 @@
 
 </table>
 
-@Html.ActionLink("Download Log", "Lines");
+@Html.ActionLink("Download Log", "Lines")
