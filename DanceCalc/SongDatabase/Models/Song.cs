@@ -37,6 +37,39 @@ namespace SongDatabase.Models
             }
         }
 
+        //  Two song are equivalent if Titles are equal, artists are similar or empty and all other fields are equal
+        public bool Equivalent(Song song)
+        {
+            // No-similar titles != equivalent
+            if (!string.Equals(Title,song.Title,StringComparison.InvariantCultureIgnoreCase))
+            {
+                return false;
+            }
+
+            if (!string.IsNullOrWhiteSpace(Artist) && !string.IsNullOrWhiteSpace(song.Artist) && 
+                (DanceMusicContext.CreateTitleHash(Artist) != DanceMusicContext.CreateTitleHash(song.Artist)))
+            {
+                return false;
+            }
+
+            return EqString(Album,song.Album) &&
+                EqString(Publisher, song.Publisher) &&
+                EqString(Genre, song.Genre) &&
+                EqNum(Tempo, song.Tempo) &&
+                EqNum(Length, song.Length) &&
+                EqNum(Track, song.Track);
+        }
+
+        private static bool EqString(string s1, string s2)
+        {
+            return string.IsNullOrWhiteSpace(s1) || string.IsNullOrWhiteSpace(s2) ||
+                string.Equals(s1, s2, StringComparison.InvariantCultureIgnoreCase);
+        }
+        private static bool EqNum<T>(T? t1, T? t2) where T : struct
+        {
+            return !t1.HasValue || !t2.HasValue || t1.Value.Equals(t2.Value);
+        }
+
         static public string SignatureFromProperties(IOrderedQueryable<SongProperty> properties)
         {
             // Again, this assumes properties are in reverse ID order...

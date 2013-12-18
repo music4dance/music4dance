@@ -1031,9 +1031,9 @@ namespace SongDatabase.Models
             log.UpdateData(name, value, oldValue);
         }
 
-        public IList<Song> FindMergeCandidates(int n)
+        public IList<Song> FindMergeCandidates(int n, int level)
         {
-            return SongDatabase.Models.MergeCluster.GetMergeCandidates(this, n);
+            return SongDatabase.Models.MergeCluster.GetMergeCandidates(this, n, level);
         }
 
         public void Dump()

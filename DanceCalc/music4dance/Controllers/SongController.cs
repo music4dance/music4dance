@@ -18,7 +18,7 @@ namespace music4dance.Controllers
         // GET: /Song/
 
         [AllowAnonymous]
-        public ActionResult Index(string dances, string sortOrder, string currentFilter, string searchString, int? page)
+        public ActionResult Index(string dances, string sortOrder, string currentFilter, string searchString, int? page, int? level)
         {
             // Set up the viewbag
             ViewBag.ActionName = "Index";
@@ -35,6 +35,8 @@ namespace music4dance.Controllers
             ViewBag.TitleClass = string.Empty;
             ViewBag.ArtistClass = string.Empty;
             ViewBag.AlbumClass = string.Empty;
+
+            ViewBag.Level = level ?? 1;
 
             // Set up search string
             if (searchString != null)
@@ -241,18 +243,74 @@ namespace music4dance.Controllers
 
         //
         // Merge: /Song/MergeCandidates
-        public ActionResult MergeCandidates(int? page)
+        public ActionResult MergeCandidates(int? page, int? level, bool? autoCommit)
         {
-            IList<Song> songs = _db.FindMergeCandidates(200);
+            IList<Song> songs = _db.FindMergeCandidates(500,level ?? 1);
 
             int pageSize = 25;
             int pageNumber = page ?? 1;
 
             ViewBag.ActionName = "MergeCandidates";
+            ViewBag.Level = level ?? 1;
 
-            return View("Index",songs.ToPagedList(pageNumber, pageSize));
+            if (autoCommit.HasValue && autoCommit.Value == true)
+            {
+                songs = AutoMerge(songs);
+
+            }
+
+            return View("Index", songs.ToPagedList(pageNumber, pageSize)); 
         }
 
+        private IList<Song> AutoMerge(IList<Song> songs)
+        {
+            // Get the logged in user
+            string userName = User.Identity.Name;
+            UserProfile user = _db.UserProfiles.FirstOrDefault(u => u.UserName == userName);
+
+            List<Song> ret = new List<Song>();
+            List<Song> cluster = null;
+
+            foreach (Song song in songs)
+            {
+                if (cluster == null)
+                {
+                    cluster = new List<Song>();
+                    cluster.Add(song);
+                }
+                else if (song.Equivalent(cluster[0]))
+                {
+                    cluster.Add(song);
+                }
+                else
+                {
+                    Song s = AutoMerge(cluster,user);
+                    ret.Add(s);
+
+                    cluster = new List<Song>();
+                    cluster.Add(song);
+                }
+            }
+
+            return ret;
+        }
+
+        private Song AutoMerge(List<Song> songs, UserProfile user)
+        {
+
+            Song song = _db.MergeSongs(user, songs,
+                ResolveStringField(DanceMusicContext.TitleField, songs),
+                ResolveStringField(DanceMusicContext.ArtistField, songs),
+                ResolveStringField(DanceMusicContext.AlbumField, songs),
+                ResolveStringField(DanceMusicContext.PublisherField, songs),
+                ResolveStringField(DanceMusicContext.GenreField, songs),
+                ResolveDecimalField(DanceMusicContext.TempoField, songs),
+                ResolveIntField(DanceMusicContext.LengthField, songs),
+                ResolveIntField(DanceMusicContext.TrackField, songs),
+                ResolveMultiStringField(DanceMusicContext.PurchaseField, songs));
+
+            return song;            
+        }
 
         //
         // Merge: /Song/Merge
@@ -319,21 +377,21 @@ namespace music4dance.Controllers
                 ResolveDecimalField(DanceMusicContext.TempoField, songList, Request.Form),
                 ResolveIntField(DanceMusicContext.LengthField, songList, Request.Form),
                 ResolveIntField(DanceMusicContext.TrackField, songList, Request.Form),
-                ResolveMultiStringField(DanceMusicContext.PurchaseField, songList, Request.Form));
+                ResolveMultiStringField(DanceMusicContext.PurchaseField, songList));
 
             ViewBag.BackAction = "MergeCandidates";
 
             return View("Details",song);
         }
 
-        private string ResolveStringField(string fieldName, IList<Song> songs, System.Collections.Specialized.NameValueCollection form)
+        private string ResolveStringField(string fieldName, IList<Song> songs, System.Collections.Specialized.NameValueCollection form=null)
         {
             object obj = ResolveMergeField(fieldName,songs,form);
 
             return obj as string;
         }
 
-        private string ResolveMultiStringField(string fieldName, IList<Song> songs, System.Collections.Specialized.NameValueCollection form)
+        private string ResolveMultiStringField(string fieldName, IList<Song> songs)
         {
             HashSet<string> hs = new HashSet<string>();
 
@@ -367,35 +425,51 @@ namespace music4dance.Controllers
             return sb.ToString();
         }
 
-        private int? ResolveIntField(string fieldName, IList<Song> songs, System.Collections.Specialized.NameValueCollection form)
+        private int? ResolveIntField(string fieldName, IList<Song> songs, System.Collections.Specialized.NameValueCollection form = null)
         {
             int? ret = ResolveMergeField(fieldName, songs, form) as int?;
 
             return ret;
         }
 
-        private decimal? ResolveDecimalField(string fieldName, IList<Song> songs, System.Collections.Specialized.NameValueCollection form)
+        private decimal? ResolveDecimalField(string fieldName, IList<Song> songs, System.Collections.Specialized.NameValueCollection form = null)
         {
             decimal? ret = ResolveMergeField(fieldName, songs, form) as decimal?;
 
             return ret;
         }
 
-        private object ResolveMergeField(string fieldName, IList<Song> songs, System.Collections.Specialized.NameValueCollection form)
+        private object ResolveMergeField(string fieldName, IList<Song> songs, System.Collections.Specialized.NameValueCollection form = null)
         {
             // If fieldName doesn't exist, this means that we didn't add a radio button for the field because all the
             //  values were the same.  So just return the value of the first song.
             object ret = null;
 
-            string s = form[fieldName];
+            // if form is != null we disambiguate based on form otherwise it's the first non-null field
+
             int idx = 0;
-            if (!string.IsNullOrWhiteSpace(s))
+            if (form != null)
             {
-                int.TryParse(s, out idx);
+                string s = form[fieldName];
+                if (!string.IsNullOrWhiteSpace(s))
+                {
+                    int.TryParse(s, out idx);
+                } 
+            }
+            else
+            {
+                for (int i = 0; i < songs.Count; i++ )
+                {
+                    Song song = songs[i];
+
+                    if (song.GetType().GetProperty(fieldName).GetValue(song) != null)
+                    {
+                        idx = i;
+                    }
+                }
             }
 
             ret = songs[idx].GetType().GetProperty(fieldName).GetValue(songs[idx]);
-
             return ret;
         }
 

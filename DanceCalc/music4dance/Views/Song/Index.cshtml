@@ -42,13 +42,13 @@
             <th>&nbsp;</th>
         }
         <th @ViewBag.TitleClass style="min-width:75pt">
-            @Html.ActionLink("Title", "Index", new { sortOrder = ViewBag.TitleSort, currentFilter=ViewBag.CurrentFilter, dances=ViewBag.CurrentDances})
+            @Html.ActionLink("Title", "Index", new { sortOrder = ViewBag.TitleSort, currentFilter = ViewBag.CurrentFilter, dances = ViewBag.CurrentDances, level = ViewBag.Level })
         </th>
         <th @ViewBag.ArtistClass  style="min-width:75pt">
-            @Html.ActionLink("Artist", "Index", new { sortOrder = ViewBag.ArtistSort, currentFilter=ViewBag.CurrentFilter, dances=ViewBag.CurrentDances})
+            @Html.ActionLink("Artist", "Index", new { sortOrder = ViewBag.ArtistSort, currentFilter = ViewBag.CurrentFilter, dances = ViewBag.CurrentDances, level = ViewBag.Level })
         </th>
         <th @ViewBag.AlbumClass style="min-width:75pt">
-            @Html.ActionLink("Album", "Index", new { sortOrder = ViewBag.AlbumSort, currentFilter=ViewBag.CurrentFilter, dances=ViewBag.CurrentDances})
+            @Html.ActionLink("Album", "Index", new { sortOrder = ViewBag.AlbumSort, currentFilter = ViewBag.CurrentFilter, dances = ViewBag.CurrentDances, level = ViewBag.Level })
         </th>
         <th>Tempo (BPM)</th>
         <th>Dances</th>
@@ -118,4 +118,4 @@
 Page @(Model.PageCount < Model.PageNumber ? 0 : Model.PageNumber) of @Model.PageCount
 (@Model.TotalItemCount song found.)
 
-@Html.PagedListPager( Model, page => Url.Action(ViewBag.ActionName, new { page, sortOrder = ViewBag.CurrentSort, currentFilter=ViewBag.CurrentFilter, dances=ViewBag.CurrentDances }) )
+@Html.PagedListPager( Model, page => Url.Action(ViewBag.ActionName, new { page, sortOrder = ViewBag.CurrentSort, currentFilter=ViewBag.CurrentFilter, dances=ViewBag.CurrentDances, level=ViewBag.Level }) )

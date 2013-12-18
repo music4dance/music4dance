@@ -17,8 +17,8 @@ namespace SongDatabase.Models
 
         public int PropertyHash { get; set; }
         public List<Song> Songs { get; set; }
-
-        public static List<Song> GetMergeCandidates(DanceMusicContext dmc, int n)
+        
+        public static List<Song> GetMergeCandidates(DanceMusicContext dmc, int n, int level)
         {
             var songs = from s in dmc.Songs select s;
 
@@ -51,46 +51,96 @@ namespace SongDatabase.Models
 
                 if (cluster.Songs.Count > 1)
                 {
-                    Dictionary<int, MergeCluster> lumps = new Dictionary<int, MergeCluster>();
-
-                    bool emptyArtist = false;
-                    foreach (Song s in cluster.Songs)
+                    // Level 2 is all songs with a similar title
+                    if (level == 2)
                     {
-                        if (string.IsNullOrWhiteSpace(s.Artist))
-                        {
-                            emptyArtist = true;
-                            break;
-                        }
-
-                        MergeCluster lump;
-                        int hash = DanceMusicContext.CreateTitleHash(s.Artist);
-                        if (!lumps.TryGetValue(hash, out lump))
-                        {
-                            
-                            lump = new MergeCluster(hash);
-                            lumps.Add(hash, lump);
-                        }
-
-                        lump.Songs.Add(s);
-                    }
-
-                    if (emptyArtist)
-                    {
-                        // Add all of the songs in the cluster
                         ret.AddRange(cluster.Songs);
                     }
-                    else
+                    // Level 0 is similar title + all other fields are the same or empty
+                    else if (level == 0)
                     {
-                        foreach (MergeCluster l in lumps.Values)
+                        List<MergeCluster> lumps = new List<MergeCluster>();
+
+                        foreach (Song s in cluster.Songs)
+                        {
+                            bool added = false;
+                            foreach (MergeCluster lump in lumps)
+                            {
+                                if (s.Equivalent(lump.Songs[0]))
+                                {
+                                    lump.Songs.Add(s);
+                                    added = true;
+                                    break;
+                                }
+                            }
+
+                            if (!added)
+                            {
+                                MergeCluster lump = new MergeCluster(0);
+                                lump.Songs.Add(s);
+                                lumps.Add(lump);
+                            }
+                        }
+
+                        foreach (MergeCluster l in lumps)
                         {
                             if (ret.Count + l.Songs.Count > n)
-                            { 
-                                break; 
+                            {
+                                break;
                             }
 
                             if (l.Songs.Count > 1)
                             {
                                 ret.AddRange(l.Songs);
+                            }
+                        }
+
+                    }
+
+                    // Level 1 (default) is all songs that have a similar title and similar or empty artist
+                    else
+                    {
+                        Dictionary<int, MergeCluster> lumps = new Dictionary<int, MergeCluster>();
+
+                        bool emptyArtist = false;
+                        foreach (Song s in cluster.Songs)
+                        {
+                            if (string.IsNullOrWhiteSpace(s.Artist))
+                            {
+                                emptyArtist = true;
+                                break;
+                            }
+
+                            MergeCluster lump;
+                            int hash = DanceMusicContext.CreateTitleHash(s.Artist);
+                            if (!lumps.TryGetValue(hash, out lump))
+                            {
+
+                                lump = new MergeCluster(hash);
+                                lumps.Add(hash, lump);
+                            }
+
+                            lump.Songs.Add(s);
+                        }
+
+                        if (emptyArtist)
+                        {
+                            // Add all of the songs in the cluster
+                            ret.AddRange(cluster.Songs);
+                        }
+                        else
+                        {
+                            foreach (MergeCluster l in lumps.Values)
+                            {
+                                if (ret.Count + l.Songs.Count > n)
+                                {
+                                    break;
+                                }
+
+                                if (l.Songs.Count > 1)
+                                {
+                                    ret.AddRange(l.Songs);
+                                }
                             }
                         }
                     }
