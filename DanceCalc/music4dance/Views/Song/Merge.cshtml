@@ -46,6 +46,13 @@
                         @value.ToString();
                     }
 
+                    @if (spm.Selection != -1 && spm.AllowAlternates)
+                    {
+                        string name = spm.Name + "_" + i.ToString();
+                        <text>(Alternate </text>
+                        <input id="@name" name="@name" type="checkbox">
+                        <text>)</text>
+                    }
                 </td>
                 i = i + 1;
             }

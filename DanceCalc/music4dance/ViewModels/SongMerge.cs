@@ -26,9 +26,16 @@ namespace music4dance.ViewModels
             // Consider trying to sort the song list by the number of defaults...
 
             // Create a merge table of basic properties
+
+
             foreach (string field in _mergeFields)
             {
-                SongPropertyMerge spm = new SongPropertyMerge() { Name = field, Values = new List<object>() };
+                // Slightly kdlugy, but for now we're allowing alternates only for album so do a direct compare
+                bool allowAlternates = string.Equals(field, DanceMusicContext.AlbumField);
+
+                SongPropertyMerge spm = new SongPropertyMerge() { Name = field, AllowAlternates = allowAlternates, Values = new List<object>() };
+
+                allowAlternates = false;
 
                 int defaultIdx = -1;
                 string fsCur = null;
@@ -109,6 +116,7 @@ namespace music4dance.ViewModels
     {
         public string Name { get; set; }
         public int Selection { get; set; }
+        public bool AllowAlternates { get; set; }
         public List<object> Values { get; set; }
     }
 

@@ -367,11 +367,28 @@ namespace music4dance.Controllers
             string userName = User.Identity.Name;
             UserProfile user = _db.UserProfiles.FirstOrDefault(u => u.UserName == userName);
 
+            string album = ResolveStringField(DanceMusicContext.AlbumField, songList, Request.Form);
+
+            string albumDefault = album;
+
+            for (int i = 0; i < songList.Count; i++)
+            {
+                string name = DanceMusicContext.AlbumField + "_" + i.ToString();
+                
+                if (Request.Form.AllKeys.Contains(name))
+                {
+                    string albumNew = songList[i].Album;
+                    if (!string.Equals(albumDefault,albumNew))
+                    {
+                        album += "|" + albumNew;
+                    }
+                }
+            }
 
             Song song = _db.MergeSongs(user, songList, 
                 ResolveStringField(DanceMusicContext.TitleField, songList, Request.Form),
                 ResolveStringField(DanceMusicContext.ArtistField, songList, Request.Form),
-                ResolveStringField(DanceMusicContext.AlbumField, songList, Request.Form),
+                album,
                 ResolveStringField(DanceMusicContext.PublisherField, songList, Request.Form),
                 ResolveStringField(DanceMusicContext.GenreField, songList, Request.Form),
                 ResolveDecimalField(DanceMusicContext.TempoField, songList, Request.Form),
