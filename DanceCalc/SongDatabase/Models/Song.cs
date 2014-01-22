@@ -22,6 +22,12 @@ namespace SongDatabase.Models
         public DateTime Modified { get; set; }
         public int TitleHash { get; set; }
         // Semi-colon separated purchase info of the form XX=YYYYYY (XX is service/type and YYYYY is id)
+        // IA = Itunes Album
+        // IS = Itunes Song
+        // AA = Amazon Album
+        // AS = Amazon Song
+        // ZA = Itunes Album
+        // ZS = Amazon Song
         public string Purchase { get; set; }
         public virtual ICollection<DanceRating> DanceRatings { get; set; }
         public virtual ICollection<UserProfile> ModifiedBy { get; set; }

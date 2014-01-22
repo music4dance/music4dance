@@ -116,6 +116,18 @@
         @Html.DisplayFor(model => model.Modified)
     </div>
     <br/>
+
+    if (model.Purchase != null)
+    {
+        <div class="display-label">
+            @Html.DisplayNameFor(model => model.Purchase):
+        </div>
+        <div class="display-field">
+            @Html.DisplayFor(model => model.Purchase)
+        </div>
+    }
+    <br />
+
 </fieldset>
 <p>
     @if (User.IsInRole("canEdit"))
@@ -123,6 +135,8 @@
         @Html.ActionLink("Edit", "Edit", new { id=Model.SongId }) 
         @Html.Display(" | ")
         @Html.ActionLink("Delete", "Delete", new { id=Model.SongId }) 
+        @Html.Display(" | ")
+        @Html.ActionLink("XBox", "XBoxSearch", new { id = Model.SongId })
         @Html.Display(" | ")
     }
     @Html.ActionLink("Back to List", (string)ViewBag.BackAction)

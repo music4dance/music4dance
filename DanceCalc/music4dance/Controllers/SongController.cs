@@ -1,11 +1,16 @@
 ﻿using DanceLibrary;
+using music4dance.Utilities;
 using music4dance.ViewModels;
 using PagedList;
 using SongDatabase.Models;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Net;
 using System.Text;
+using System.Text.RegularExpressions;
+using System.Web;
 using System.Web.Mvc;
 
 namespace music4dance.Controllers
@@ -240,6 +245,7 @@ namespace music4dance.Controllers
             _db.DeleteSong(user,song);
             return RedirectToAction("Index");
         }
+
 
         //
         // Merge: /Song/MergeCandidates
@@ -488,6 +494,57 @@ namespace music4dance.Controllers
 
             ret = songs[idx].GetType().GetProperty(fieldName).GetValue(songs[idx]);
             return ret;
+        }
+
+        // GET: /Song/XboxSearch/5
+        [Authorize(Roles = "canEdit")]
+        public ActionResult XboxSearch(int id = 0)
+        {
+            Song song = _db.Songs.Find(id);
+            if (song == null)
+            {
+                return HttpNotFound();
+            }
+
+            string clientId = "Music4Dance";
+            string clientSecret = "3kJ506OgMCD+nmuzUCRrXt/gnJlV07qQuxsEZBMZCqw=";
+            HttpWebRequest request = null;
+            HttpWebResponse response = null;
+
+            // TODO: Can we pull this out to a place where it's only created once?
+
+            AdmAuthentication admAuth = new AdmAuthentication(clientId, clientSecret);
+            AdmAccessToken token = admAuth.GetAccessToken();
+
+            string responseString = null;
+
+            // Make Music database request
+            string search = song.Title + " " + song.Album + " " + song.Artist + " ";
+            string searchEnc = System.Uri.EscapeDataString(search);
+
+            string req = string.Format("https://music.xboxlive.com/1/content/music/search?q={0}&filters=tracks",searchEnc);
+            request = (HttpWebRequest)WebRequest.Create(req);
+            request.Method = WebRequestMethods.Http.Get;
+            request.Accept = "application/json";
+            request.Headers.Add("Authorization", "Bearer " + token.access_token);
+
+            using (response = (HttpWebResponse)request.GetResponse())
+            {
+                using (var sr = new StreamReader(response.GetResponseStream()))
+                {
+                    responseString = sr.ReadToEnd();
+                }
+            }
+
+            ViewBag.Results = responseString;
+
+            //// Dump database response to console
+            //Console.WriteLine(responseString);
+            //Console.WriteLine("\nPress any key to exit.");
+            //Console.ReadKey();            
+
+
+            return View(song);
         }
 
         protected override void Dispose(bool disposing)
