@@ -28,10 +28,43 @@ namespace SongDatabase.Models
         // AS = Amazon Song
         // ZA = Itunes Album
         // ZS = Amazon Song
+        // MS = AMG Song
         public string Purchase { get; set; }
         public virtual ICollection<DanceRating> DanceRatings { get; set; }
         public virtual ICollection<UserProfile> ModifiedBy { get; set; }
         public virtual ICollection<SongProperty> SongProperties { get; set; }
+
+        public string PrimaryAlbum
+        {
+            get
+            {
+                string[] albums = Albums;
+
+                if (albums == null)
+                {
+                    return null;
+                }
+                else
+                {
+                    return albums[0];
+                }
+            }
+        }
+
+        public string[] Albums
+        {
+            get
+            {
+                if (string.IsNullOrWhiteSpace(Album))
+                {
+                    return null;
+                }
+                else
+                {
+                    return Album.Split(new char[] { '|' }, StringSplitOptions.RemoveEmptyEntries);
+                }
+            }
+        }
 
         public string Signature
         {

@@ -356,7 +356,9 @@
     <Content Include="Views\Shared\_Layout.cshtml" />
     <Content Include="Views\Web.config" />
     <Content Include="Views\Song\Index.cshtml" />
-    <Content Include="Views\Song\Details.cshtml" />
+    <Content Include="Views\Song\Details.cshtml">
+      <BrowseToURL>~/Song/Details</BrowseToURL>
+    </Content>
     <Content Include="Views\Song\Create.cshtml" />
     <Content Include="Views\Song\Edit.cshtml" />
     <Content Include="Views\Song\Delete.cshtml" />

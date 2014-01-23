@@ -26,15 +26,20 @@
         @Html.DisplayNameFor(model => model.Album):
     </div>
     <div class="display-field">
-        @{
+        @if (string.IsNullOrWhiteSpace(Model.Album))
+        {
+            <text> </text>
+        }
+        else
+        { 
             string[] albums = Model.Album.Split(new char[] { '|' });
-            string separator = string.Empty;
+            string sep = string.Empty;
             <text>@albums[0]</text>
             for (int i = 1; i < albums.Length; i++ )
             {
-                <text>@separator</text>
+                <text>@sep</text>
                 <text>[Alt: @albums[i]]</text>
-                separator = ",";
+                sep = ",";
             }
         }
     </div>
@@ -72,7 +77,7 @@
          Dance(s):
     </div>
     <div class="display-field">
-        @{ separator = ""; }
+        @{ string separator = ""; }
         @if (Model.DanceRatings != null)
         {
             foreach (var item in Model.DanceRatings)
@@ -117,7 +122,7 @@
     </div>
     <br/>
 
-    if (model.Purchase != null)
+    @if (Model.Purchase != null)
     {
         <div class="display-label">
             @Html.DisplayNameFor(model => model.Purchase):

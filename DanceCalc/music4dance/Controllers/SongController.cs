@@ -11,6 +11,7 @@ using System.Net;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Web;
+using System.Web.Helpers;
 using System.Web.Mvc;
 
 namespace music4dance.Controllers
@@ -496,9 +497,9 @@ namespace music4dance.Controllers
             return ret;
         }
 
-        // GET: /Song/XboxSearch/5
+        // GET: /Song/XboxSearch/5?search=name
         [Authorize(Roles = "canEdit")]
-        public ActionResult XboxSearch(int id = 0)
+        public ActionResult XboxSearch(int id = 0, string search = null)
         {
             Song song = _db.Songs.Find(id);
             if (song == null)
@@ -506,47 +507,157 @@ namespace music4dance.Controllers
                 return HttpNotFound();
             }
 
-            string clientId = "Music4Dance";
-            string clientSecret = "3kJ506OgMCD+nmuzUCRrXt/gnJlV07qQuxsEZBMZCqw=";
             HttpWebRequest request = null;
             HttpWebResponse response = null;
-
-            // TODO: Can we pull this out to a place where it's only created once?
-
-            AdmAuthentication admAuth = new AdmAuthentication(clientId, clientSecret);
-            AdmAccessToken token = admAuth.GetAccessToken();
 
             string responseString = null;
 
             // Make Music database request
-            string search = song.Title + " " + song.Album + " " + song.Artist + " ";
+            if (search == null)
+                search = song.Title + " " + song.Artist;
             string searchEnc = System.Uri.EscapeDataString(search);
 
             string req = string.Format("https://music.xboxlive.com/1/content/music/search?q={0}&filters=tracks",searchEnc);
             request = (HttpWebRequest)WebRequest.Create(req);
             request.Method = WebRequestMethods.Http.Get;
             request.Accept = "application/json";
-            request.Headers.Add("Authorization", "Bearer " + token.access_token);
+            request.Headers.Add("Authorization", XboxAuthorization);
 
-            using (response = (HttpWebResponse)request.GetResponse())
-            {
-                using (var sr = new StreamReader(response.GetResponseStream()))
+            ViewBag.Search = search;
+            ViewBag.Error = false;
+            try {
+                using (response = (HttpWebResponse)request.GetResponse())
                 {
-                    responseString = sr.ReadToEnd();
+                    ViewBag.Status = response.StatusCode.ToString();
+
+                    if (response.StatusCode == HttpStatusCode.OK)
+                    {
+                        using (var sr = new StreamReader(response.GetResponseStream()))
+                        {
+                            responseString = sr.ReadToEnd();
+                        }
+
+                        ViewBag.ResultString = responseString;
+
+                        responseString = responseString.Replace(@"""music.amg""", @"""music_amg""");
+                        var results = System.Web.Helpers.Json.Decode(responseString);
+                        ViewBag.Results = results;
+                    }
                 }
             }
-
-            ViewBag.Results = responseString;
-
-            //// Dump database response to console
-            //Console.WriteLine(responseString);
-            //Console.WriteLine("\nPress any key to exit.");
-            //Console.ReadKey();            
-
+            catch (WebException we)
+            {
+                ViewBag.Error = true;
+                ViewBag.Status = we.Message;
+            }
 
             return View(song);
         }
 
+        // ChooseXbox: /Song/ChooseXbox
+        [ValidateAntiForgeryToken]
+        [Authorize(Roles = "canEdit")]
+        public ActionResult ChooseXbox(int songId, string name, string album, string artist, string trackId, string alternateId, string duration, int? trackNum)
+        {
+            Song song = _db.Songs.Find(songId);
+            if (song == null)
+            {
+                return HttpNotFound();
+            }
+
+            // This is a very transitory object to hold the old values for a semi-automated edit
+            Song alt = new Song();
+
+            if (!string.IsNullOrWhiteSpace(name) && !string.Equals(name, song.Title))
+            {
+                alt.Title = song.Title;
+                song.Title = name;
+            }
+
+            if (!string.IsNullOrWhiteSpace(album) && !string.Equals(album, song.Album))
+            {
+                alt.Album = song.Album;
+                song.Album = album + "|" + alt.Album;
+            }
+
+            if (!string.IsNullOrWhiteSpace(artist) && !string.Equals(artist, song.Artist))
+            {
+                alt.Artist = song.Artist;
+                song.Artist = name;
+            }
+
+            if (trackNum != null && trackNum != song.Track)
+            {
+                alt.Track = song.Track;
+                song.Track = trackNum;
+            }
+
+            if (!string.IsNullOrWhiteSpace(duration))
+            {
+                try
+                {
+                    SongDuration sd = new SongDuration(duration);
+
+                    int length = decimal.ToInt32(sd.Length);
+
+                    if (length != song.Length)
+                    {
+                        alt.Length = song.Length;
+                        song.Length = length;
+                    }
+                }
+                catch (ArgumentOutOfRangeException)
+                {
+
+                }
+            }
+            // TODO: Get Genre in here
+
+            if (!string.IsNullOrWhiteSpace(trackId) )
+            {
+                // TODO: Hande the case where there are already Xbox/Amg ids
+
+                string newId = song.Purchase;
+                if (string.IsNullOrWhiteSpace(newId)) 
+                    newId = string.Empty;
+                else if (newId[newId.Length-1] != ';')
+                    newId += ';';
+
+                newId = newId + "ZS=" + trackId;
+
+                if (!string.IsNullOrWhiteSpace(alternateId))
+                {
+                    newId += ";MS=" + alternateId;
+                }
+
+                alt.Purchase = song.Purchase;
+                song.Purchase = newId;
+            }
+
+            ViewBag.OldSong = alt;
+
+            return View("Edit", song);
+        }
+
+        private static string XboxAuthorization
+        {
+            get
+            {
+                if (s_token == null)
+                {
+                    string clientId = "Music4Dance";
+                    string clientSecret = "3kJ506OgMCD+nmuzUCRrXt/gnJlV07qQuxsEZBMZCqw=";
+
+                    s_admAuth = new AdmAuthentication(clientId, clientSecret);
+                    s_token = s_admAuth.GetAccessToken();
+                }
+
+                return "Bearer " + s_token.access_token;
+            }
+        }
+
+        private static AdmAuthentication s_admAuth = null;
+        private static AdmAccessToken s_token = null;
         protected override void Dispose(bool disposing)
         {
             _db.Dispose();
