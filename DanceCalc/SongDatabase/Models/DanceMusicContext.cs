@@ -21,6 +21,8 @@ using System.Reflection;
 
 // COMMAND  User    Title   Artist  Album   Publisher   Tempo   Length  Track   Genre   Purchase    DanceRating Custom
 
+// Kill Publisher Track Purchase -> do these move to custom
+
 namespace SongDatabase.Models
 {
     public class DanceMusicContext : DbContext
@@ -126,12 +128,13 @@ namespace SongDatabase.Models
         public static readonly string TimeField = "Time";
         public static readonly string TitleField = "Title";
         public static readonly string ArtistField = "Artist";
-        public static readonly string AlbumField = "Album";
-        public static readonly string PublisherField = "Publisher";
         public static readonly string TempoField = "Tempo";
         public static readonly string LengthField = "Length";
-        public static readonly string TrackField = "Track";
         public static readonly string GenreField = "Genre";
+
+        public static readonly string AlbumField = "Album";
+        public static readonly string PublisherField = "Publisher";
+        public static readonly string TrackField = "Track";
         public static readonly string PurchaseField = "Purchase";
 
         // Complex fields
@@ -142,7 +145,6 @@ namespace SongDatabase.Models
         const string CreateCommand = ".Create";
         const string EditCommand = ".Edit";
         const string DeleteCommand = ".Delete";
-        const string DeletePropertyCommand = ".DeleteProperty";
         const string MergeFromCommand = ".MergeFrom";
         const string MergeToCommand = ".MergeTo";
 
@@ -181,7 +183,7 @@ namespace SongDatabase.Models
             }
         }
 
-        public Song MergeSongs(UserProfile user, List<Song> songs, string title, string artist, string album, string label, string genre, decimal? tempo, int? length, int? track, string purchase)
+        public Song MergeSongs(UserProfile user, List<Song> songs, string title, string artist, string album, string genre, decimal? tempo, int? length)
         {
             string songIds = string.Join(";",songs.Select(s => s.SongId.ToString()));
 
@@ -193,7 +195,7 @@ namespace SongDatabase.Models
                 LogSongCommand(MergeFromCommand, from, user);
             }
 
-            Song song = CreateSong(user, title, artist, album, label, genre, tempo, length, track, purchase, MergeFromCommand, songIds);
+            Song song = CreateSong(user, title, artist, album, genre, tempo, length, MergeFromCommand, songIds);
             SaveChanges();
 
             // Add in the to/from properties and create new weight table as well as creating the user associations
@@ -245,13 +247,17 @@ namespace SongDatabase.Models
             return song;
         }
 
-        public Song CreateSong(UserProfile user, string title, string artist, string album, string label, string genre, decimal? tempo, int? length, int? track, string purchase)
+        public Song CreateSong(UserProfile user, string title, string artist, string album, string genre, decimal? tempo, int? length)
         {
-            return CreateSong(user, title, artist, album, label, genre, tempo, length, track, purchase, CreateCommand, string.Empty);
+            // TODO:SONGDETAIL - Add back in track/publisher/purchase info on per-album basis
+
+            return CreateSong(user, title, artist, album, genre, tempo, length, CreateCommand, string.Empty);
         }
 
-        public Song CreateSong(UserProfile user, string title, string artist, string album, string label, string genre, decimal? tempo, int? length, int? track, string purchase, string command, string value)
+        public Song CreateSong(UserProfile user, string title, string artist, string album, string genre, decimal? tempo, int? length, string command, string value)
         {
+            // TODO:SONGDETAIL - Add back in track/publisher/purchase info on per-album basis
+
             DateTime time = DateTime.Now;
 
             Song song = Songs.Create();
@@ -290,18 +296,12 @@ namespace SongDatabase.Models
                 CreateSongProperty(song, AlbumField, album);
             }
 
-            // Label
-            if (!string.IsNullOrWhiteSpace(label))
-            {
-                song.Publisher = label;
-                CreateSongProperty(song, PublisherField, label);
-            }
 
             // Genre
-            if (!string.IsNullOrWhiteSpace(label))
+            if (!string.IsNullOrWhiteSpace(genre))
             {
-                song.Publisher = label;
-                CreateSongProperty(song, PublisherField, label);
+                song.Genre = genre;
+                CreateSongProperty(song, PublisherField, genre);
             }
 
             // Tempo
@@ -318,20 +318,6 @@ namespace SongDatabase.Models
                 CreateSongProperty(song, LengthField, length.ToString());
             }
 
-            // Track
-            if (track != null && track != 0)
-            {
-                song.Track = track;
-                CreateSongProperty(song, TrackField, track.ToString());
-            }
-
-            // Purchase Info
-            if (!string.IsNullOrWhiteSpace(purchase))
-            {
-                song.Purchase = purchase;
-                CreateSongProperty(song, PurchaseField, purchase);
-            }
-
             song.TitleHash = CreateTitleHash(title);
 
             song = Songs.Add(song);
@@ -339,32 +325,69 @@ namespace SongDatabase.Models
             return song;
         }
 
-        public bool EditSong(UserProfile user, Song song)
+        //public bool EditSong(UserProfile user, Song song)
+        //{
+        //    var properties = from p in SongProperties 
+        //                     where p.SongId == song.SongId
+        //                     orderby p.Id descending
+        //                     select p;
+
+        //    bool modified = false;
+
+        //    SongLog log = CreateEditHeader(song, user, properties);
+        //    log.SongSignature = Song.SignatureFromProperties(properties);
+
+        //    modified |= UpdateSongProperty(song, TitleField, song.Title, properties, log);
+        //    modified |= UpdateSongProperty(song, ArtistField, song.Artist, properties, log);
+        //    modified |= UpdateSongProperty(song, AlbumField, song.Album, properties, log);
+        //    modified |= UpdateSongProperty(song, TempoField, song.Tempo, properties, log);
+        //    modified |= UpdateSongProperty(song, LengthField, song.Length, properties, log);
+        //    modified |= UpdateSongProperty(song, GenreField, song.Genre, properties, log);
+
+        //    if (modified)
+        //    {
+        //        FixupEdited(song);
+                
+        //        Log.Add(log);
+
+        //        SaveChanges();
+        //    }
+        //    else
+        //    {
+        //        // TODO: figure out how to undo the top couple changes if no substantive changes were made... (may just be do nothing here)
+        //    }
+
+        //    return modified;
+        //}
+
+        public bool EditSong(UserProfile user, SongDetails edit)
         {
-            var properties = from p in SongProperties 
-                             where p.SongId == song.SongId
-                             orderby p.Id descending
-                             select p;
+            bool changed = false;
 
             bool modified = false;
 
-            SongLog log = CreateEditHeader(song, user, properties);
-            log.SongSignature = Song.SignatureFromProperties(properties);
+            Song song = Songs.Find(edit.SongId);
 
-            modified |= UpdateSongProperty(song, TitleField, song.Title, properties,log);
-            modified |= UpdateSongProperty(song, ArtistField, song.Artist, properties, log);
-            modified |= UpdateSongProperty(song, AlbumField, song.Album, properties, log);
-            modified |= UpdateSongProperty(song, PublisherField, song.Publisher, properties, log);
-            modified |= UpdateSongProperty(song, TempoField, song.Tempo, properties, log);
-            modified |= UpdateSongProperty(song, LengthField, song.Length, properties, log);
-            modified |= UpdateSongProperty(song, TrackField, song.Track, properties, log);
-            modified |= UpdateSongProperty(song, PurchaseField, song.Purchase, properties, log);
-            modified |= UpdateSongProperty(song, GenreField, song.Genre, properties, log);
+            //var properties = from p in SongProperties
+            //                 where p.SongId == song.SongId
+            //                 orderby p.Id ascending
+            //                 select p;
+
+            SongLog log = CreateEditHeader(song, user);
+            log.SongSignature = song.Signature;
+
+            // TODO: AlbumInfo and DanceRating still need to be handled
+            modified |= UpdateSongProperty(edit, song, TitleField, log);
+            modified |= UpdateSongProperty(edit, song, ArtistField, log);
+            //modified |= UpdateSongProperty(edit, song, AlbumField, log);
+            modified |= UpdateSongProperty(edit, song, TempoField, log);
+            modified |= UpdateSongProperty(edit, song, LengthField, log);
+            modified |= UpdateSongProperty(edit, song, GenreField, log);
 
             if (modified)
             {
                 FixupEdited(song);
-                
+
                 Log.Add(log);
 
                 SaveChanges();
@@ -374,7 +397,8 @@ namespace SongDatabase.Models
                 // TODO: figure out how to undo the top couple changes if no substantive changes were made... (may just be do nothing here)
             }
 
-            return modified;
+
+            return changed;
         }
 
         private SongLog CreateEditHeader(Song song, UserProfile user, IOrderedQueryable<SongProperty> properties = null)
@@ -410,6 +434,7 @@ namespace SongDatabase.Models
 
             // This seems totally non-optimal, but because of the relationship between users
             //  and songs the old song record is getting loaded underneath the new one
+            // Note: this may be fixed with the use of SongDetails viewmodel, but not sure
             var songs = Songs.Local.Where(s => s.SongId == song.SongId).ToArray();
             bool fixedup = false;
 
@@ -551,6 +576,43 @@ namespace SongDatabase.Models
             SongProperties.Add(ret);
 
             return ret;
+        }
+
+        public bool UpdateSongProperty(SongDetails edit, Song old, string name, SongLog log)
+        {
+            bool modified = false;
+
+            object eP = edit.GetType().GetProperty(name).GetValue(edit);
+            object oP = old.GetType().GetProperty(name).GetValue(old);
+            
+            if (!object.Equals(eP,oP))
+            {
+                modified = true;
+
+                old.GetType().GetProperty(name).SetValue(old, eP);
+
+                SongProperty np = SongProperties.Create();
+                np.Song = old;
+                np.Name = name;
+                np.Value = SerializeValue(eP);
+
+                SongProperties.Add(np);
+                LogPropertyUpdate(np, log, SerializeValue(oP));
+            }
+
+            return modified;
+        }
+
+        private static string SerializeValue(object o)
+        {
+            if (o == null)
+            {
+                return null;
+            }
+            else
+            {
+                return o.ToString();
+            }
         }
 
         public bool UpdateSongProperty(Song song, string name, decimal? value, IOrderedQueryable<SongProperty> properties, SongLog log)

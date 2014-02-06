@@ -25,6 +25,14 @@ namespace SongDatabase.Models
             }
         }
 
+        public string Name
+        {
+            get
+            {
+                return Info.Name;
+            }
+        }
+
         private DanceObject _info;
     }
 }

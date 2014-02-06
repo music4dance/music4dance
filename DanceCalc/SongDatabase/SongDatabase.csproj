@@ -86,6 +86,10 @@
     <Compile Include="Migrations\201311230031312_SongSignature.Designer.cs">
       <DependentUpon>201311230031312_SongSignature.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201401280124376_SongDetails.cs" />
+    <Compile Include="Migrations\201401280124376_SongDetails.Designer.cs">
+      <DependentUpon>201401280124376_SongDetails.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountModels.cs" />
     <Compile Include="Models\Dance.cs" />
@@ -94,6 +98,7 @@
     <Compile Include="Models\DbObject.cs" />
     <Compile Include="Models\MergeCluster.cs" />
     <Compile Include="Models\Song.cs" />
+    <Compile Include="Models\SongDetails.cs" />
     <Compile Include="Models\SongLog.cs" />
     <Compile Include="Models\SongProperty.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -126,6 +131,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201311230031312_SongSignature.resx">
       <DependentUpon>201311230031312_SongSignature.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201401280124376_SongDetails.resx">
+      <DependentUpon>201401280124376_SongDetails.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

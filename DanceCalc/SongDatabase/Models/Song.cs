@@ -14,22 +14,11 @@ namespace SongDatabase.Models
         public string Title { get; set; }
         public string Artist { get; set; }
         public string Album { get; set; }
-        public string Publisher { get; set; }
         public string Genre { get; set; }
-        public int? Track { get; set; }
         public int? Length { get; set; }
         public DateTime Created { get; set; }
         public DateTime Modified { get; set; }
         public int TitleHash { get; set; }
-        // Semi-colon separated purchase info of the form XX=YYYYYY (XX is service/type and YYYYY is id)
-        // IA = Itunes Album
-        // IS = Itunes Song
-        // AA = Amazon Album
-        // AS = Amazon Song
-        // ZA = Itunes Album
-        // ZS = Amazon Song
-        // MS = AMG Song
-        public string Purchase { get; set; }
         public virtual ICollection<DanceRating> DanceRatings { get; set; }
         public virtual ICollection<UserProfile> ModifiedBy { get; set; }
         public virtual ICollection<SongProperty> SongProperties { get; set; }
@@ -92,11 +81,9 @@ namespace SongDatabase.Models
             }
 
             return EqString(Album,song.Album) &&
-                EqString(Publisher, song.Publisher) &&
                 EqString(Genre, song.Genre) &&
                 EqNum(Tempo, song.Tempo) &&
-                EqNum(Length, song.Length) &&
-                EqNum(Track, song.Track);
+                EqNum(Length, song.Length);
         }
 
         private static bool EqString(string s1, string s2)

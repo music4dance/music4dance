@@ -16,6 +16,12 @@ using System.Web.Mvc;
 
 namespace music4dance.Controllers
 {
+    public class SimpleDance
+    {
+        public string ID { get; set; }
+        public string Name { get; set; }
+    };
+
     public class SongController : Controller
     {
         private DanceMusicContext _db = new DanceMusicContext();
@@ -134,8 +140,10 @@ namespace music4dance.Controllers
                 return HttpNotFound();
             }
             ViewBag.BackAction = "Index";
+            
+            SongDetails sd = new SongDetails(song);
 
-            return View(song);
+            return View(sd);
         }
 
         //
@@ -174,7 +182,37 @@ namespace music4dance.Controllers
             {
                 return HttpNotFound();
             }
-            return View(song);
+
+
+            SongDetails sd = new SongDetails(song);
+
+            ViewBag.DanceList = GetDances(sd.DanceRatings);
+
+            return View(sd);
+        }
+
+        private MultiSelectList GetDances(IList<DanceRating> ratings)
+        {
+            //var dances =
+            //    from dance in _db.Dances
+            //    select new { ID = dance.Id, Name = dance.Name };
+
+            //var dl = _db.Dances.ToList();
+
+            List<SimpleDance> Dances = new List<SimpleDance>(_db.Dances.Count());
+
+            foreach (Dance d in _db.Dances)
+            {
+                Dances.Add(new SimpleDance() { ID = d.Id, Name = d.Info.Name });
+            }
+
+            List<string> selected = new List<string>(ratings.Count());
+            foreach (DanceRating dr in ratings)
+            {
+                selected.Add(dr.DanceId);
+            }
+
+            return new MultiSelectList(Dances, "ID", "Name", selected.ToArray());
         }
 
         //
@@ -183,7 +221,7 @@ namespace music4dance.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "canEdit")] 
-        public ActionResult Edit(Song song)
+        public ActionResult Edit(SongDetails song, List<string> dances)
         {
             if (ModelState.IsValid)
             {
@@ -207,16 +245,20 @@ namespace music4dance.Controllers
 #if DEBUG
                 _db.Dump();
 #endif
-
+                //TODO: How do we change the dance ratings?  Do we enforce at least one dance???
                 _db.EditSong(user, song);
 
 #if DEBUG
                 _db.Dump();
 #endif
-
                 return RedirectToAction("Index");
             }
-            return View(song);
+            else
+            {
+                ViewBag.DanceList = GetDances(song.DanceRatings);
+
+                return View(song);
+            }
         }
 
         //
@@ -308,13 +350,15 @@ namespace music4dance.Controllers
             Song song = _db.MergeSongs(user, songs,
                 ResolveStringField(DanceMusicContext.TitleField, songs),
                 ResolveStringField(DanceMusicContext.ArtistField, songs),
-                ResolveStringField(DanceMusicContext.AlbumField, songs),
-                ResolveStringField(DanceMusicContext.PublisherField, songs),
+                ResolveStringField(DanceMusicContext.AlbumField, songs),                
                 ResolveStringField(DanceMusicContext.GenreField, songs),
                 ResolveDecimalField(DanceMusicContext.TempoField, songs),
-                ResolveIntField(DanceMusicContext.LengthField, songs),
-                ResolveIntField(DanceMusicContext.TrackField, songs),
-                ResolveMultiStringField(DanceMusicContext.PurchaseField, songs));
+                ResolveIntField(DanceMusicContext.LengthField, songs)
+                );
+
+            // ResolveStringField(DanceMusicContext.PublisherField, songs),
+            // ResolveIntField(DanceMusicContext.TrackField, songs),
+            // ResolveMultiStringField(DanceMusicContext.PurchaseField, songs)
 
             return song;            
         }
@@ -378,6 +422,7 @@ namespace music4dance.Controllers
 
             string albumDefault = album;
 
+            // TODO:SONGDETAIL - Fix the merging to handle properties....
             for (int i = 0; i < songList.Count; i++)
             {
                 string name = DanceMusicContext.AlbumField + "_" + i.ToString();
@@ -396,12 +441,9 @@ namespace music4dance.Controllers
                 ResolveStringField(DanceMusicContext.TitleField, songList, Request.Form),
                 ResolveStringField(DanceMusicContext.ArtistField, songList, Request.Form),
                 album,
-                ResolveStringField(DanceMusicContext.PublisherField, songList, Request.Form),
                 ResolveStringField(DanceMusicContext.GenreField, songList, Request.Form),
                 ResolveDecimalField(DanceMusicContext.TempoField, songList, Request.Form),
-                ResolveIntField(DanceMusicContext.LengthField, songList, Request.Form),
-                ResolveIntField(DanceMusicContext.TrackField, songList, Request.Form),
-                ResolveMultiStringField(DanceMusicContext.PurchaseField, songList));
+                ResolveIntField(DanceMusicContext.LengthField, songList, Request.Form));
 
             ViewBag.BackAction = "MergeCandidates";
 
@@ -559,6 +601,8 @@ namespace music4dance.Controllers
         [Authorize(Roles = "canEdit")]
         public ActionResult ChooseXbox(int songId, string name, string album, string artist, string trackId, string alternateId, string duration, int? trackNum)
         {
+            // TODO:SONGDETAIL - Add back in track/publisher/purchase info on per-album basis
+
             Song song = _db.Songs.Find(songId);
             if (song == null)
             {
@@ -586,11 +630,6 @@ namespace music4dance.Controllers
                 song.Artist = name;
             }
 
-            if (trackNum != null && trackNum != song.Track)
-            {
-                alt.Track = song.Track;
-                song.Track = trackNum;
-            }
 
             if (!string.IsNullOrWhiteSpace(duration))
             {
@@ -613,26 +652,26 @@ namespace music4dance.Controllers
             }
             // TODO: Get Genre in here
 
-            if (!string.IsNullOrWhiteSpace(trackId) )
-            {
-                // TODO: Hande the case where there are already Xbox/Amg ids
+            //if (!string.IsNullOrWhiteSpace(trackId) )
+            //{
+            //    // TODO: Hande the case where there are already Xbox/Amg ids
 
-                string newId = song.Purchase;
-                if (string.IsNullOrWhiteSpace(newId)) 
-                    newId = string.Empty;
-                else if (newId[newId.Length-1] != ';')
-                    newId += ';';
+            //    string newId = song.Purchase;
+            //    if (string.IsNullOrWhiteSpace(newId)) 
+            //        newId = string.Empty;
+            //    else if (newId[newId.Length-1] != ';')
+            //        newId += ';';
 
-                newId = newId + "ZS=" + trackId;
+            //    newId = newId + "ZS=" + trackId;
 
-                if (!string.IsNullOrWhiteSpace(alternateId))
-                {
-                    newId += ";MS=" + alternateId;
-                }
+            //    if (!string.IsNullOrWhiteSpace(alternateId))
+            //    {
+            //        newId += ";MS=" + alternateId;
+            //    }
 
-                alt.Purchase = song.Purchase;
-                song.Purchase = newId;
-            }
+            //    alt.Purchase = song.Purchase;
+            //    song.Purchase = newId;
+            //}
 
             ViewBag.OldSong = alt;
 

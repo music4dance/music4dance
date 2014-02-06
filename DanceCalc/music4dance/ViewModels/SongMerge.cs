@@ -106,10 +106,12 @@ namespace music4dance.ViewModels
             DanceMusicContext.ArtistField, 
             DanceMusicContext.AlbumField, 
             DanceMusicContext.TempoField, 
-            DanceMusicContext.PublisherField, 
             DanceMusicContext.GenreField, 
-            DanceMusicContext.TrackField, 
             DanceMusicContext.LengthField };
+
+            //DanceMusicContext.PublisherField, 
+            //DanceMusicContext.TrackField, 
+
     }
 
     public class SongPropertyMerge

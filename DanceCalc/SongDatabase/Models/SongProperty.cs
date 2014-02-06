@@ -9,11 +9,142 @@ namespace SongDatabase.Models
 {
     public class SongProperty : DbObject
     {
+        // Name Syntax: [+-]BaseName[:idx[:qual]]
+        // Where default is repalce, + is add, - is delete
+        // idx is zeros based indes for multi-value fields (only album at this point?)
+        // qual is a qualifier for purchase type (may generalize?)
+        //
+        // Not implementing this yet, but for artist might allow artist type after the colon
+
+        public enum PropertyAction { Replace, Add, Remove };
+        
+        public SongProperty()
+        {
+        }
+
+        public SongProperty(int songId, string name, string value)
+        {
+            SongId = songId;
+            Name = name;
+            Value = value;
+        }
+        public SongProperty(int songId, PropertyAction action, string baseName, string value, int index = -1, string qual = null)
+        {
+            SongId = songId;
+
+            string name = null;
+            switch (action)
+            {
+                case PropertyAction.Replace:
+                    name = baseName;
+                    break;
+                case PropertyAction.Remove:
+                    name = "-" + baseName;
+                    break;
+                case PropertyAction.Add:
+                    name = "+" + baseName;
+                    break;
+            }
+
+            if (index >= 0)
+            {
+                name = string.Format("{0}:{1:2d}",name,index);
+            }
+
+            if (qual != null)
+            {
+                name = name + ":" + qual;
+            }
+
+            Name = name;
+            Value = value;
+        }
+
         public Int64 Id { get; set; }
         public int SongId { get; set; }
         public virtual Song Song { get; set; }
         public string Name { get; set; }
         public string Value { get; set; }
+
+        public string BaseName
+        {
+            get
+            {
+                string baseName = Name;
+                if (baseName.StartsWith("+")|| baseName.StartsWith("-"))
+                {
+                    baseName = baseName.Substring(1);
+                }
+
+                int i = baseName.IndexOf(':');
+
+                if (i >= 0)
+                {
+                    baseName = baseName.Substring(0, i);
+                }
+
+                return baseName;
+            }
+        }
+
+        public PropertyAction Action
+        {
+            get
+            {
+                if (Name.StartsWith("+"))
+                {
+                    return PropertyAction.Add;
+                }
+                else if (Name.StartsWith("-"))
+                {
+                    return PropertyAction.Remove;
+                }
+                else
+                {
+                    return PropertyAction.Replace;
+                }
+            }
+        }
+
+        public int Index
+        {
+            get
+            {
+                int idx = 0;
+
+                if (Name.Contains(":"))
+                {
+                    string[] parts = Name.Split(new char[] { ':' });
+
+                    if (parts.Length > 1)
+                    {
+                        int.TryParse(parts[1], out idx);
+                    }
+                }                
+
+                return idx;
+            }
+        }
+
+        public string Qualifier
+        {
+            get
+            {
+                string qual = null;
+
+                if (Name.Contains(":"))
+                {
+                    string[] parts = Name.Split(new char[] { ':' });
+
+                    if (parts.Length > 2)
+                    {
+                        qual = parts[2];
+                    }
+                }
+
+                return qual;
+            }
+        }
 
         public override void Dump()
         {
@@ -23,5 +154,4 @@ namespace SongDatabase.Models
             Debug.WriteLine(output);
         }
     }
-
 }

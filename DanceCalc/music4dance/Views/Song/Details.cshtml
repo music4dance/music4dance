@@ -1,4 +1,4 @@
-﻿@model SongDatabase.Models.Song
+﻿@model SongDatabase.Models.SongDetails
 
 @{
     ViewBag.Title = "Details";
@@ -22,59 +22,41 @@
     </div>
     <br/>
 
-    <div class="display-label">
-        @Html.DisplayNameFor(model => model.Album):
-    </div>
-    <div class="display-field">
-        @if (string.IsNullOrWhiteSpace(Model.Album))
-        {
-            <text> </text>
-        }
-        else
-        { 
-            string[] albums = Model.Album.Split(new char[] { '|' });
-            string sep = string.Empty;
-            <text>@albums[0]</text>
-            for (int i = 1; i < albums.Length; i++ )
-            {
-                <text>@sep</text>
-                <text>[Alt: @albums[i]]</text>
-                sep = ",";
-            }
-        }
-    </div>
-    <br/>
-
-    <div class="display-label">
-        @Html.DisplayNameFor(model => model.Publisher):
-    </div>
-    <div class="display-field">
-        @Html.DisplayFor(model => model.Publisher)
-    </div>
-    <br/>
-
+    @if (Model.Tempo != null)
+    {
     <div class="display-label">
         @Html.DisplayNameFor(model => model.Tempo):
     </div>
     <div class="display-field">
-        @if (Model.Tempo != null)
-        {
-            string tempo = decimal.Round(Model.Tempo.Value).ToString("F0");
-            @tempo;
-        }
+            @decimal.Round(Model.Tempo.Value).ToString("F0")
     </div>
-    <br/>
+    <br />
+    }
 
-    <div class="display-label">
-         @Html.DisplayNameFor(model => model.Genre):
-    </div>
-    <div class="display-field">
-        @Html.DisplayFor(model => model.Genre)
-    </div>
-    <br/>
+    @if (Model.Genre != null)
+    { 
+        <div class="display-label">
+            @Html.DisplayNameFor(model => model.Genre):
+        </div>
+        <div class="display-field">
+            @Html.DisplayFor(model => model.Genre)
+        </div>
+        <br />
+    }
 
+    @if (Model.Length != null)
+    {
+        <div class="display-label">
+            @Html.DisplayNameFor(model => model.Length):
+        </div>
+        <div class="display-field">
+            @Html.DisplayFor(model => model.Length)
+        </div>
+        <br />
+    }
+    
     <div class="display-label">
-         Dance(s):
+        Dance(s):
     </div>
     <div class="display-field">
         @{ string separator = ""; }
@@ -84,26 +66,63 @@
             {
                 @separator;
                 @Html.DisplayFor(model => item.Dance.Info.Name);
-                separator = ", "; 
+                separator = ", ";
             }
         }
     </div>
-    <br/>
+    <br />
 
-    <div class="display-label">
-        @Html.DisplayNameFor(model => model.Track):
-    </div>
-    <div class="display-field">
-        @Html.DisplayFor(model => model.Track)
-    </div>
-    <br/>
-
-    <div class="display-label">
-        @Html.DisplayNameFor(model => model.Length):
-    </div>
-    <div class="display-field">
-        @Html.DisplayFor(model => model.Length)
-    </div>
+    @if (Model.Albums != null && Model.Albums.Count > 0)
+    {
+        for (int aidx = 0; aidx < Model.Albums.Count; aidx++)
+        {
+            SongDatabase.Models.AlbumDetails album = @Model.Albums[aidx];
+            <div class="display-label">
+                @if(aidx == 0)
+                {
+                    <text>Album:</text>
+                }
+                else
+                {
+                    <text>Alternate Album:</text>
+                }                
+            </div>
+            <div class="display-field">
+                @album.Name
+            </div>            
+            if (@album.Track != null)
+            { 
+                <div class="display-label">
+                    Track:
+                </div>
+                <div class="display-field">
+                    @album.Track
+                </div>            
+            }                                
+            if (@album.Publisher != null)
+            { 
+                <div class="display-label">
+                    Publisher:
+                </div>
+                <div class="display-field">
+                    @album.Publisher
+                </div>            
+            }
+            if (User.IsInRole("showDiagnostics") && album.HasPurchaseInfo)
+            {
+                <div class="display-label">
+                    Purchase:
+                </div>
+                // TODO: Purchase info should eventually map to links, this variation is just 
+                //  for diagnostic purposes
+                IList<string> info = album.GetPurcahseInfo();
+                foreach (string p in info)
+                {
+                    <text>@p + " "</text>
+                }
+            }
+        }  
+    }
     <br/>
 
     <div class="display-label">
@@ -121,16 +140,6 @@
         @Html.DisplayFor(model => model.Modified)
     </div>
     <br/>
-
-    @if (Model.Purchase != null)
-    {
-        <div class="display-label">
-            @Html.DisplayNameFor(model => model.Purchase):
-        </div>
-        <div class="display-field">
-            @Html.DisplayFor(model => model.Purchase)
-        </div>
-    }
     <br />
 
 </fieldset>
@@ -151,6 +160,6 @@
 {
 <section id="songLog">
     <h2>Log</h2>
-    @Html.Partial("SongItems")
+    @Html.Partial("SongItems",Model.Song)
 </section>
 }
