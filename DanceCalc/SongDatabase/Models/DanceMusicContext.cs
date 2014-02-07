@@ -183,6 +183,18 @@ namespace SongDatabase.Models
             }
         }
 
+        public SongDetails FindSongDetails(int id)
+        {
+            SongDetails sd = null;            
+            
+            Song song = Songs.Find(id);
+
+            if (song != null)
+                sd = new SongDetails(song);
+
+            return sd;
+        }
+
         public Song MergeSongs(UserProfile user, List<Song> songs, string title, string artist, string album, string genre, decimal? tempo, int? length)
         {
             string songIds = string.Join(";",songs.Select(s => s.SongId.ToString()));
@@ -230,7 +242,7 @@ namespace SongDatabase.Models
             {
                 song.DanceRatings.Add(new DanceRating() {DanceId = dance.Key, SongId = song.SongId, Weight = dance.Value});
 
-                string value = string.Format("{0}:{1}", dance.Key, dance.Value);
+                string value = string.Format("{0}+{1}", dance.Key, dance.Value);
                 CreateSongProperty(song, DanceRatingField, value);
             }
 
@@ -360,10 +372,8 @@ namespace SongDatabase.Models
         //    return modified;
         //}
 
-        public bool EditSong(UserProfile user, SongDetails edit)
+        public SongDetails EditSong(UserProfile user, SongDetails edit, List<string> addDances, List<string> remDances)
         {
-            bool changed = false;
-
             bool modified = false;
 
             Song song = Songs.Find(edit.SongId);
@@ -379,10 +389,12 @@ namespace SongDatabase.Models
             // TODO: AlbumInfo and DanceRating still need to be handled
             modified |= UpdateSongProperty(edit, song, TitleField, log);
             modified |= UpdateSongProperty(edit, song, ArtistField, log);
-            //modified |= UpdateSongProperty(edit, song, AlbumField, log);
             modified |= UpdateSongProperty(edit, song, TempoField, log);
             modified |= UpdateSongProperty(edit, song, LengthField, log);
             modified |= UpdateSongProperty(edit, song, GenreField, log);
+
+
+            modified |= EditDanceRatings(edit, song, addDances, remDances, log);
 
             if (modified)
             {
@@ -397,8 +409,15 @@ namespace SongDatabase.Models
                 // TODO: figure out how to undo the top couple changes if no substantive changes were made... (may just be do nothing here)
             }
 
-
-            return changed;
+            if (modified)
+            { 
+                return FindSongDetails(edit.SongId); 
+            }
+            else
+            {
+                return null;
+            }
+            
         }
 
         private SongLog CreateEditHeader(Song song, UserProfile user, IOrderedQueryable<SongProperty> properties = null)
@@ -460,8 +479,11 @@ namespace SongDatabase.Models
             SaveChanges();
         }
 
-        public void AddDanceRatings(Song song, IEnumerable<string> danceIds)
+        public void AddDanceRatings(Song song, IEnumerable<string> danceIds, int weight = 0)
         {
+            if (weight == 0 )
+                weight = DanceRatingAutoCreate;
+
             foreach (string danceId in danceIds)
             {
                 Dance dance = Dances.Local.First(d => d.Id == danceId);
@@ -470,15 +492,113 @@ namespace SongDatabase.Models
                 DanceRating dr = DanceRatings.Create();
                 dr.Song = song;
                 dr.Dance = dance;
-                dr.Weight = 1;
+                dr.Weight = weight;
 
                 DanceRatings.Add(dr);
 
-                string value = string.Format("{0}:{1}", dance.Id, 1);
-                CreateSongProperty(song, DanceRatingField, dance.Id);
+                CreateSongProperty(song, DanceRatingField, string.Format("{0}+{1}",dance.Id,weight));
             }
         }
 
+        public bool EditDanceRatings(SongDetails sd, Song song, List<string> add, List<string> remove, SongLog log)
+        {
+            bool changed = false;
+
+            // TODO: Get some different weightings into the system so we can make add heavier than delete
+
+            List<DanceRating> del = new List<DanceRating>();
+
+            // Cleaner way to get old dance ratings?
+            foreach (DanceRating dr in song.DanceRatings)
+            {
+                bool added = false;
+                int delta = 0;
+
+                // This handles the incremental weights
+                if (add != null && add.Contains(dr.DanceId))
+                {
+                    delta = DanceRatingIncrement;
+                    add.Remove(dr.DanceId);
+                    added = true;
+                }
+
+                // This handles the decremented weights
+                if (remove == null || !remove.Contains(dr.DanceId))
+                {
+                    if (!added)
+                    {
+                        delta += DanceRatingDecrement;
+                    }
+
+                    if (dr.Weight + delta <= 0)
+                    {
+                        del.Add(dr);
+                    }
+                }
+
+                if (delta != 0)
+                {
+                    dr.Weight += delta;
+
+                    SongProperty np = SongProperties.Create();
+                    np.Song = song;
+                    np.Name = DanceRatingField;
+                    np.Value = string.Format("{0}{1}{2}", dr.DanceId, added ? "+" : "-", Math.Abs(delta));
+
+                    SongProperties.Add(np);
+                    LogPropertyUpdate(np, log);
+
+                    changed = true;
+                }
+            }
+
+            // This handles the deleted weights
+            foreach (DanceRating dr in del)
+            {
+                song.DanceRatings.Remove(dr);
+            }
+           
+            // This handles the new ratings
+            if (add != null)
+            {
+                foreach (string ndr in add)
+                {
+                    Dance dance = Dances.First(d => d.Id == ndr);
+                    Debug.Assert(dance != null);
+
+                    DanceRating dr = DanceRatings.Create();
+                    dr.Song = song;
+                    dr.Dance = dance;
+                    dr.Weight = DanceRatingInitial;
+
+                    song.DanceRatings.Add(dr);
+
+                    SongProperty np = SongProperties.Create();
+                    np.Song = song;
+                    np.Name = DanceRatingField;
+                    np.Value = string.Format("{0}+{1}", ndr, DanceRatingInitial);
+
+                    SongProperties.Add(np);
+                    LogPropertyUpdate(np, log);
+
+                    changed = true;
+                }
+            }
+
+            return changed;
+        }
+
+        // TODO: Change Inc to 10 and dec to -2 when next rebuild happens
+        public readonly int DanceRatingCreate = 10;  // TODO: when we allow a user to manually add a song, give lots of credit
+        public readonly int DanceRatingInitial = 6;
+        public readonly int DanceRatingIncrement = 3;
+        public readonly int DanceRatingAutoCreate = 5;
+        public readonly int DanceRatingDecrement = -2;
+
+        //static void AddRatingEntry()
+        //{
+
+        //}
         //static private void DuplicationTestGraph(IEntityWithChangeTracker rootEntity)
         //{
         //    const string primaryKey = "Id";
@@ -1042,31 +1162,46 @@ namespace SongDatabase.Models
             {
                 string danceId = value;
                 int weight = 1;
-                if (value.Contains(':'))
+
+                bool add = value.Contains('+');
+                bool sub = value.Contains('-');
+
+                string[] pair = null; 
+                if (add)
                 {
-                    string[] pair = value.Split(new char[]{':'});
-                    if (pair.Length == 2)
+                    pair = value.Split(new char[]{'+'});
+                }
+                else if (sub)
+                {
+                    pair = value.Split(new char[]{'-'});
+                }
+
+                if (pair != null && pair.Length == 2)
+                {
+                    danceId = pair[0];
+                    if (!int.TryParse(pair[1],out weight))
                     {
-                        danceId = pair[0];
-                        if (!int.TryParse(pair[1],out weight))
-                        {
-                            Debug.WriteLine(string.Format("Bad Dance Weight☺: {0}", value));
-                        }
+                        Debug.WriteLine(string.Format("Bad Dance Weight: {0}", value));
                     }
-                    else
+
+                    if (sub)
                     {
-                        Debug.WriteLine(string.Format("Bad DanceRating: {0}", value));
+                        weight = -1 * weight;
                     }
                 }
 
                 DanceRating dr = song.DanceRatings.FirstOrDefault(d => string.Equals(d.DanceId, danceId));
                 if (dr == null)
                 {
+                    if (weight != 1)
+                    {
+                        Debug.WriteLine(string.Format("Bad Dance Weight: {0}", value));
+                    }
                     song.DanceRatings.Add(new DanceRating() { DanceId = danceId, SongId = song.SongId, Weight = weight });
                 }
                 else
                 {
-                    dr.Weight = weight;
+                    dr.Weight += weight;
                 }
             }
             else if (string.Equals(name,UserField))

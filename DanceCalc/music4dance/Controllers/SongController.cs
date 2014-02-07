@@ -134,16 +134,14 @@ namespace music4dance.Controllers
         [AllowAnonymous]
         public ActionResult Details(int id = 0)
         {
-            Song song = _db.Songs.Find(id);
+            SongDetails song = _db.FindSongDetails(id);
             if (song == null)
             {
                 return HttpNotFound();
             }
             ViewBag.BackAction = "Index";
-            
-            SongDetails sd = new SongDetails(song);
 
-            return View(sd);
+            return View(song);
         }
 
         //
@@ -177,21 +175,19 @@ namespace music4dance.Controllers
         [Authorize(Roles = "canEdit")] 
         public ActionResult Edit(int id = 0)
         {
-            Song song = _db.Songs.Find(id);
+            SongDetails song = _db.FindSongDetails(id);
             if (song == null)
             {
                 return HttpNotFound();
             }
 
+            ViewBag.DanceListRemove = GetDances(song.DanceRatings,true);
+            ViewBag.DanceListAdd = GetDances(song.DanceRatings,false);
 
-            SongDetails sd = new SongDetails(song);
-
-            ViewBag.DanceList = GetDances(sd.DanceRatings);
-
-            return View(sd);
+            return View(song);
         }
 
-        private MultiSelectList GetDances(IList<DanceRating> ratings)
+        private MultiSelectList GetDances(IList<DanceRating> ratings, bool withDefaults)
         {
             //var dances =
             //    from dance in _db.Dances
@@ -206,13 +202,20 @@ namespace music4dance.Controllers
                 Dances.Add(new SimpleDance() { ID = d.Id, Name = d.Info.Name });
             }
 
-            List<string> selected = new List<string>(ratings.Count());
-            foreach (DanceRating dr in ratings)
+            string[] selarr = null;
+
+            if (withDefaults)
             {
-                selected.Add(dr.DanceId);
+                List<string> selected = new List<string>(ratings.Count());
+                foreach (DanceRating dr in ratings)
+                {
+                    selected.Add(dr.DanceId);
+                }
+
+                selarr = selected.ToArray();
             }
 
-            return new MultiSelectList(Dances, "ID", "Name", selected.ToArray());
+            return new MultiSelectList(Dances, "ID", "Name", selarr);
         }
 
         //
@@ -221,7 +224,7 @@ namespace music4dance.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "canEdit")] 
-        public ActionResult Edit(SongDetails song, List<string> dances)
+        public ActionResult Edit(SongDetails song, List<string> addDances, List<string> remDances)
         {
             if (ModelState.IsValid)
             {
@@ -246,16 +249,24 @@ namespace music4dance.Controllers
                 _db.Dump();
 #endif
                 //TODO: How do we change the dance ratings?  Do we enforce at least one dance???
-                _db.EditSong(user, song);
+                SongDetails edit = _db.EditSong(user, song, addDances, remDances);
 
 #if DEBUG
                 _db.Dump();
 #endif
-                return RedirectToAction("Index");
+
+                if (edit != null)
+                {
+                    return View("Details", edit);
+                }
+                {
+                    return RedirectToAction("Index");
+                }
             }
             else
             {
-                ViewBag.DanceList = GetDances(song.DanceRatings);
+                ViewBag.DanceListRemove = GetDances(song.DanceRatings,true);
+                ViewBag.DanceListAdd = GetDances(song.DanceRatings, false);
 
                 return View(song);
             }
