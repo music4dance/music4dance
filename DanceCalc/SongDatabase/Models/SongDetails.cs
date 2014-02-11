@@ -62,12 +62,17 @@ namespace SongDatabase.Models
             return null;
         }
 
-        private void BuildAlbumInfo()
+        public static List<AlbumDetails> BuildAlbumInfo(Song song)
         {
-            var albumProps =
-                from prop in Properties
-//                where prop.BaseName.Equals(DanceMusicContext.AlbumField)
+            IEnumerable<SongProperty> properties =
+                from prop in song.SongProperties
+                //                where prop.BaseName.Equals(DanceMusicContext.AlbumField)
                 select prop;
+            return BuildAlbumInfo(properties);
+        }
+        public static List<AlbumDetails> BuildAlbumInfo(IEnumerable<SongProperty> properties)
+        {
+            List<string> names = new List<string>(new string[] {"Album","Publisher","Track","Purchase"});
 
             // First build a hashtable of index->albuminfo, maintaining the total number and the
             // high water mark of indexed albums
@@ -77,79 +82,83 @@ namespace SongDatabase.Models
 
             Dictionary<int,AlbumDetails> map = new Dictionary<int,AlbumDetails>();
 
-            foreach (SongProperty prop in albumProps)
+            foreach (SongProperty prop in properties)
             {
                 string name = prop.BaseName;
                 SongProperty.PropertyAction action = prop.Action;
                 int idx = prop.Index;
                 string qual = prop.Qualifier;
 
-                AlbumDetails d;
-                if (map.ContainsKey(idx))
+                if (names.Contains(name))
                 {
-                    d = map[idx];
-                }
-                else
-                {
-                    count += 1;
-                    if (idx > max)
+                    AlbumDetails d;
+                    if (map.ContainsKey(idx))
                     {
-                        max = idx;
+                        d = map[idx];
                     }
-                    d = new AlbumDetails();
-                }
+                    else
+                    {
+                        count += 1;
+                        if (idx > max)
+                        {
+                            max = idx;
+                        }
+                        d = new AlbumDetails();
+                        map.Add(idx, d);
+                    }
 
-                // Is there a difference between add and replace?  Maybe for a non-indexed/ordered property
-                switch (name)
-                {
-                    case "Name":
-                        if (action == SongProperty.PropertyAction.Remove)
-                        {   
-                            // Assert here? Not sure this makes sense...
-                            d.Name = null;
-                        }
-                        else
-                        {
-                            d.Name = prop.Value;
-                        }
-                        break;
-                    case "Publisher":
-                        if (action == SongProperty.PropertyAction.Remove)
-                        {
-                            d.Publisher = null;
-                        }
-                        else
-                        {
-                            d.Publisher = prop.Value;
-                        }
-                        break;
-                    case "Track":
-                        if (action == SongProperty.PropertyAction.Remove)
-                        {
-                            d.Track = null;
-                        }
-                        else
-                        {
-                            int t = 0;
-                            int.TryParse(prop.Value, out t);
-                            d.Track = t;
-                        }
-                        break;
-                    case "Purchase":
-                        if (d.Purchase == null)
-                        {
-                            d.Purchase = new Dictionary<string,string>();
-                        }
+                    // Is there a difference between add and replace?  Maybe for a non-indexed/ordered property
+                    switch (name)
+                    {
+                        case "Album":
+                            if (action == SongProperty.PropertyAction.Remove)
+                            {
+                                // Assert here? Not sure this makes sense...
+                                d.Name = null;
+                            }
+                            else
+                            {
+                                d.Name = prop.Value;
+                            }
+                            break;
+                        case "Publisher":
+                            if (action == SongProperty.PropertyAction.Remove)
+                            {
+                                d.Publisher = null;
+                            }
+                            else
+                            {
+                                d.Publisher = prop.Value;
+                            }
+                            break;
+                        case "Track":
+                            if (action == SongProperty.PropertyAction.Remove)
+                            {
+                                d.Track = null;
+                            }
+                            else
+                            {
+                                int t = 0;
+                                int.TryParse(prop.Value, out t);
+                                d.Track = t;
+                            }
+                            break;
+                        case "Purchase":
+                            if (d.Purchase == null)
+                            {
+                                d.Purchase = new Dictionary<string, string>();
+                            }
 
-                        if (action == SongProperty.PropertyAction.Remove)
-                        {
-                            d.Purchase.Remove(qual);
-                        }
-                        else
-                        {
-                            d.Purchase[qual] = prop.Value;
-                        }
-                        break;
+                            if (action == SongProperty.PropertyAction.Remove)
+                            {
+                                d.Purchase.Remove(qual);
+                            }
+                            else
+                            {
+                                d.Purchase[qual] = prop.Value;
+                            }
+                            break;
+                    }
                 }
             }
 
@@ -164,8 +173,18 @@ namespace SongDatabase.Models
                 }
             }
 
-            Albums = albums;
+            return albums;
         }
+        private void BuildAlbumInfo()
+        {
+            IEnumerable<SongProperty> properties =
+                from prop in Properties
+//                where prop.BaseName.Equals(DanceMusicContext.AlbumField)
+                select prop;
+
+            Albums = BuildAlbumInfo(properties);
+        }
+
     }
 
     public class AlbumDetails

@@ -146,6 +146,23 @@ namespace SongDatabase.Models
             }
         }
 
+        public static string FormatName(string baseName, int? idx = null, string qualifier = null)
+        {
+            string name = baseName;
+
+            if (idx != null)
+            {
+                name += ":" + idx.ToString();
+            }
+
+            if (qualifier != null)
+            {
+                name += ":" + qualifier;
+            }
+
+            return name;
+        }
+
         public override void Dump()
         {
             base.Dump();

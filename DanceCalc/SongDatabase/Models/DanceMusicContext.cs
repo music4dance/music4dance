@@ -393,6 +393,25 @@ namespace SongDatabase.Models
             modified |= UpdateSongProperty(edit, song, LengthField, log);
             modified |= UpdateSongProperty(edit, song, GenreField, log);
 
+            List<AlbumDetails> oldAlbums = SongDetails.BuildAlbumInfo(song);
+
+            for (int aidx = 0; aidx < edit.Albums.Count; aidx++ )
+            {
+                if (aidx < song.Albums.Count())
+                {
+                    // We're in existing album territory
+                    modified |= ModifyAlbumInfo(oldAlbums[aidx], edit.Albums[aidx], log);
+                }
+                else
+                {
+                    // We're in new territory only do something if the name field is non-empty
+                    if (!string.IsNullOrWhiteSpace(edit.Albums[aidx].Name))
+                    {
+                        AddAlbum(song,aidx,edit.Albums[aidx].Name,edit.Albums[aidx].Track,edit.Albums[aidx].Publisher,log);
+                        modified = true;
+                    }
+                }
+            }
 
             modified |= EditDanceRatings(edit, song, addDances, remDances, log);
 
@@ -419,6 +438,7 @@ namespace SongDatabase.Models
             }
             
         }
+
 
         private SongLog CreateEditHeader(Song song, UserProfile user, IOrderedQueryable<SongProperty> properties = null)
         {
@@ -721,6 +741,42 @@ namespace SongDatabase.Models
             }
 
             return modified;
+        }
+
+        public void AddAlbumProperty(Song old, int idx, string name, object value, SongLog log)
+        {
+            if (value == null)
+                return;
+
+            string fullName = SongProperty.FormatName(name, idx);
+
+            SongProperty np = SongProperties.Create();
+            np.Song = old;
+            np.Name = fullName;
+            np.Value = SerializeValue(value);
+
+            SongProperties.Add(np);
+            LogPropertyUpdate(np, log);
+        }
+
+        private void AddAlbum(Song song, int idx, string album, int? track, string publisher, SongLog log)
+        {
+            if (string.IsNullOrWhiteSpace(album))
+            {
+                throw new ArgumentOutOfRangeException("album");
+            }
+
+            AddAlbumProperty(song, idx, AlbumField, album, log);
+            AddAlbumProperty(song, idx, TrackField, track, log);
+            AddAlbumProperty(song, idx, PublisherField, publisher, log);
+        }
+
+        private bool ModifyAlbumInfo(AlbumDetails old, AlbumDetails edit, SongLog log)
+        {
+            // TODO:NEXT - Add the code to compare albums, check for changes, modify and log as appropriate
+            //throw new NotImplementedException();
+
+            return false;
         }
 
         private static string SerializeValue(object o)
