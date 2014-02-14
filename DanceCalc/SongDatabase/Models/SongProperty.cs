@@ -15,8 +15,6 @@ namespace SongDatabase.Models
         // qual is a qualifier for purchase type (may generalize?)
         //
         // Not implementing this yet, but for artist might allow artist type after the colon
-
-        public enum PropertyAction { Replace, Add, Remove };
         
         public SongProperty()
         {
@@ -28,23 +26,11 @@ namespace SongDatabase.Models
             Name = name;
             Value = value;
         }
-        public SongProperty(int songId, PropertyAction action, string baseName, string value, int index = -1, string qual = null)
+        public SongProperty(int songId, string baseName, string value=null, int index = -1, string qual = null)
         {
             SongId = songId;
 
             string name = null;
-            switch (action)
-            {
-                case PropertyAction.Replace:
-                    name = baseName;
-                    break;
-                case PropertyAction.Remove:
-                    name = "-" + baseName;
-                    break;
-                case PropertyAction.Add:
-                    name = "+" + baseName;
-                    break;
-            }
 
             if (index >= 0)
             {
@@ -84,25 +70,6 @@ namespace SongDatabase.Models
                 }
 
                 return baseName;
-            }
-        }
-
-        public PropertyAction Action
-        {
-            get
-            {
-                if (Name.StartsWith("+"))
-                {
-                    return PropertyAction.Add;
-                }
-                else if (Name.StartsWith("-"))
-                {
-                    return PropertyAction.Remove;
-                }
-                else
-                {
-                    return PropertyAction.Replace;
-                }
             }
         }
 

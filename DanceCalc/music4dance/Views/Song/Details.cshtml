@@ -28,7 +28,7 @@
         @Html.DisplayNameFor(model => model.Tempo):
     </div>
     <div class="display-field">
-            @decimal.Round(Model.Tempo.Value).ToString("F0")
+        @decimal.Round(Model.Tempo.Value).ToString("F0")
     </div>
     <br />
     }
@@ -77,7 +77,9 @@
         for (int aidx = 0; aidx < Model.Albums.Count; aidx++)
         {
             SongDatabase.Models.AlbumDetails album = @Model.Albums[aidx];
-            <div class="display-label">
+
+            string cls = (aidx == 0) ? "" : "display-label-alternate";            
+            <div class="display-label @cls">
                 @if(aidx == 0)
                 {
                     <text>Album:</text>
@@ -86,7 +88,7 @@
                 {
                     <text>Alternate Album:</text>
                 }                
-            </div>
+            </div>        
             <div class="display-field">
                 @album.Name
             </div>            
@@ -121,9 +123,10 @@
                     <text>@p + " "</text>
                 }
             }
+            
+            <br/>
         }  
     }
-    <br/>
 
     <div class="display-label">
         @Html.DisplayNameFor(model => model.Created):

@@ -395,12 +395,12 @@ namespace SongDatabase.Models
 
             List<AlbumDetails> oldAlbums = SongDetails.BuildAlbumInfo(song);
 
-            for (int aidx = 0; aidx < edit.Albums.Count; aidx++ )
+            for (int aidx = 0, cidx = oldAlbums.Count; aidx < edit.Albums.Count; aidx++ )
             {
-                if (aidx < song.Albums.Count())
+                if (aidx < cidx)
                 {
                     // We're in existing album territory
-                    modified |= ModifyAlbumInfo(oldAlbums[aidx], edit.Albums[aidx], log);
+                    modified |= ModifyAlbumInfo(song,aidx,oldAlbums[aidx], edit.Albums[aidx], log);
                 }
                 else
                 {
@@ -759,6 +759,29 @@ namespace SongDatabase.Models
             LogPropertyUpdate(np, log);
         }
 
+        public bool ChangeAlbumProperty(Song old, int idx, string name, object oldValue, object newValue, SongLog log)
+        {
+            bool modified = false;
+
+            if (!object.Equals(oldValue, newValue))
+            {
+                string fullName = SongProperty.FormatName(name, idx);
+
+                SongProperty np = SongProperties.Create();
+                np.Song = old;
+                np.Name = fullName;
+                np.Value = SerializeValue(newValue);
+
+                SongProperties.Add(np);
+                LogPropertyUpdate(np, log, SerializeValue(oldValue));
+
+                modified = true;
+            }
+
+            return modified;
+        }
+
+
         private void AddAlbum(Song song, int idx, string album, int? track, string publisher, SongLog log)
         {
             if (string.IsNullOrWhiteSpace(album))
@@ -771,12 +794,30 @@ namespace SongDatabase.Models
             AddAlbumProperty(song, idx, PublisherField, publisher, log);
         }
 
-        private bool ModifyAlbumInfo(AlbumDetails old, AlbumDetails edit, SongLog log)
+        private bool ModifyAlbumInfo(Song song, int idx, AlbumDetails old, AlbumDetails edit, SongLog log)
         {
-            // TODO:NEXT - Add the code to compare albums, check for changes, modify and log as appropriate
-            //throw new NotImplementedException();
+            bool modified = true;
 
-            return false;
+            // This indicates a deleted album
+            if (string.IsNullOrWhiteSpace(edit.Name))
+            {
+                ChangeAlbumProperty(song, idx, AlbumField, old.Name, null, log);
+                if (old.Track.HasValue)
+                    ChangeAlbumProperty(song, idx, TrackField, old.Track, null, log);
+                if (!string.IsNullOrWhiteSpace(old.Publisher))
+                    ChangeAlbumProperty(song, idx, PublisherField, old.Publisher, null, log);                
+
+                modified = true;
+            }
+            else
+            {
+                if (!string.Equals(old.Name,edit.Name))
+                {
+                    modified |= ChangeAlbumProperty(song, idx, AlbumField, old.Name, edit.Name, log);
+                }
+            }
+            
+            return modified;
         }
 
         private static string SerializeValue(object o)

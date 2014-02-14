@@ -377,6 +377,10 @@ aside {
     font-weight: 600;
 }
 
+.display-label-alternate {
+    margin-left: 20px;
+}
+
 .display-field {
     display: inline;
     font-size: 1.2em;

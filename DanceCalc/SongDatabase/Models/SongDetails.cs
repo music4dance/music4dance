@@ -85,7 +85,6 @@ namespace SongDatabase.Models
             foreach (SongProperty prop in properties)
             {
                 string name = prop.BaseName;
-                SongProperty.PropertyAction action = prop.Action;
                 int idx = prop.Index;
                 string qual = prop.Qualifier;
 
@@ -107,14 +106,16 @@ namespace SongDatabase.Models
                         map.Add(idx, d);
                     }
 
+                    bool remove = string.IsNullOrWhiteSpace(prop.Value);
+
                     // Is there a difference between add and replace?  Maybe for a non-indexed/ordered property
                     switch (name)
                     {
                         case "Album":
-                            if (action == SongProperty.PropertyAction.Remove)
+                            if (remove)
                             {
-                                // Assert here? Not sure this makes sense...
                                 d.Name = null;
+                                count -= 1; // This is an album that has been removed
                             }
                             else
                             {
@@ -122,7 +123,7 @@ namespace SongDatabase.Models
                             }
                             break;
                         case "Publisher":
-                            if (action == SongProperty.PropertyAction.Remove)
+                            if (remove)
                             {
                                 d.Publisher = null;
                             }
@@ -132,7 +133,7 @@ namespace SongDatabase.Models
                             }
                             break;
                         case "Track":
-                            if (action == SongProperty.PropertyAction.Remove)
+                            if (remove)
                             {
                                 d.Track = null;
                             }
@@ -149,7 +150,7 @@ namespace SongDatabase.Models
                                 d.Purchase = new Dictionary<string, string>();
                             }
 
-                            if (action == SongProperty.PropertyAction.Remove)
+                            if (remove)
                             {
                                 d.Purchase.Remove(qual);
                             }
@@ -167,7 +168,7 @@ namespace SongDatabase.Models
             for (int i = 0; i <= max; i++ )
             {
                 AlbumDetails d;
-                if (map.TryGetValue(i, out d))
+                if (map.TryGetValue(i, out d) && d.Name != null)
                 {
                     albums.Add(d);
                 }

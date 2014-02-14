@@ -18,9 +18,9 @@ function DeleteAlbum(event)
 
     $(id).hide();
 
-    $(name).val = "";
-    $(track).val = "";
-    $(publisher).val = "";
+    $(name).val(null);
+    $(track).val(null);
+    $(publisher).val(null);
 }
 
 function AddAlbum()

@@ -58,7 +58,7 @@
             <tr><td class="album-header">Album</td><td class="track-header">Track</td><td class="publisher-header">Label</td><td class="delete-header"></td></tr>
             @{
                 int currentAlbum = 0;
-                int maxAlbum = currentAlbum + 5;
+                int maxAlbum = Model.Albums.Count + 5;
                 if (Model.Albums != null)
                 {
                     for (; currentAlbum < Model.Albums.Count; currentAlbum++)
@@ -298,7 +298,7 @@
     <link href="@Url.Content("~/Content/chosen.css")" rel="stylesheet" type="text/css" />
     <script>
         $(".chzn-select").chosen({ width: "500px" });
-        var albumCount = @Model.Albums.Count-4;
+        var albumCount = @Model.Albums.Count-5;
         var albumsAdded = 0;
     </script>
     <script src="@Url.Content("~/Scripts/edit.js?@Html.Raw(DateTime.Now.Ticks.ToString())")" type="text/javascript"></script>

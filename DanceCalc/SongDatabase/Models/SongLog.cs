@@ -29,7 +29,13 @@ namespace SongDatabase.Models
                 Data += "|";
             }
 
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                value = string.Empty;
+            }
+
             value = value.Replace('|', '_');
+
             if (oldValue != null)
             {
                 oldValue = oldValue.Replace('|', '_');
