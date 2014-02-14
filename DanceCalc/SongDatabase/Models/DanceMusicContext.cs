@@ -395,8 +395,16 @@ namespace SongDatabase.Models
 
             List<AlbumDetails> oldAlbums = SongDetails.BuildAlbumInfo(song);
 
+            bool foundFirst = false;
+
             for (int aidx = 0, cidx = oldAlbums.Count; aidx < edit.Albums.Count; aidx++ )
             {
+                if (!foundFirst && !string.IsNullOrEmpty(edit.Albums[aidx].Name))
+                {
+                    foundFirst = true;
+                    song.Album = edit.Albums[aidx].Name;
+                }
+
                 if (aidx < cidx)
                 {
                     // We're in existing album territory
@@ -411,6 +419,11 @@ namespace SongDatabase.Models
                         modified = true;
                     }
                 }
+            }
+
+            if (!foundFirst)
+            {
+                song.Album = null;
             }
 
             modified |= EditDanceRatings(edit, song, addDances, remDances, log);
