@@ -358,18 +358,18 @@ namespace music4dance.Controllers
         private Song AutoMerge(List<Song> songs, UserProfile user)
         {
 
+            // Note that automerging will only work for single album cases
+
+
+
             Song song = _db.MergeSongs(user, songs,
                 ResolveStringField(DanceMusicContext.TitleField, songs),
                 ResolveStringField(DanceMusicContext.ArtistField, songs),
-                ResolveStringField(DanceMusicContext.AlbumField, songs),                
                 ResolveStringField(DanceMusicContext.GenreField, songs),
                 ResolveDecimalField(DanceMusicContext.TempoField, songs),
-                ResolveIntField(DanceMusicContext.LengthField, songs)
+                ResolveIntField(DanceMusicContext.LengthField, songs),
+                SongDetails.BuildAlbumInfo(songs[0])
                 );
-
-            // ResolveStringField(DanceMusicContext.PublisherField, songs),
-            // ResolveIntField(DanceMusicContext.TrackField, songs),
-            // ResolveMultiStringField(DanceMusicContext.PurchaseField, songs)
 
             return song;            
         }
@@ -429,21 +429,36 @@ namespace music4dance.Controllers
             string userName = User.Identity.Name;
             UserProfile user = _db.UserProfiles.FirstOrDefault(u => u.UserName == userName);
 
-            string album = ResolveStringField(DanceMusicContext.AlbumField, songList, Request.Form);
+            List<SongDetails> details = songList.Select(s => new SongDetails(s)).ToList();
+            List<AlbumDetails> albumsIn = new List<AlbumDetails>();
+            List<AlbumDetails> albumsOut = new List<AlbumDetails>();
 
-            string albumDefault = album;
-
-            // TODO:SONGDETAIL - Fix the merging to handle properties....
-            for (int i = 0; i < songList.Count; i++)
+            foreach (SongDetails sd in details)
             {
-                string name = DanceMusicContext.AlbumField + "_" + i.ToString();
-                
-                if (Request.Form.AllKeys.Contains(name))
+                albumsIn.AddRange(sd.Albums);
+            }
+
+            int defIdx = -1;
+            string def = Request.Form[DanceMusicContext.AlbumList];
+            if (!string.IsNullOrWhiteSpace(def))
+            {
+                int.TryParse(def, out defIdx);
+            } 
+
+            if (defIdx >= 0 && albumsIn.Count > defIdx)
+            {
+                albumsOut.Add(albumsIn[defIdx]);
+            }
+
+            for (int i = 0; i < albumsIn.Count; i++)
+            {
+                if (i != defIdx)
                 {
-                    string albumNew = songList[i].Album;
-                    if (!string.Equals(albumDefault,albumNew))
+                    string name = DanceMusicContext.AlbumField + "_" + i.ToString();
+
+                    if (Request.Form.AllKeys.Contains(name))
                     {
-                        album += "|" + albumNew;
+                        albumsOut.Add(albumsIn[i]);
                     }
                 }
             }
@@ -451,10 +466,10 @@ namespace music4dance.Controllers
             Song song = _db.MergeSongs(user, songList, 
                 ResolveStringField(DanceMusicContext.TitleField, songList, Request.Form),
                 ResolveStringField(DanceMusicContext.ArtistField, songList, Request.Form),
-                album,
                 ResolveStringField(DanceMusicContext.GenreField, songList, Request.Form),
                 ResolveDecimalField(DanceMusicContext.TempoField, songList, Request.Form),
-                ResolveIntField(DanceMusicContext.LengthField, songList, Request.Form));
+                ResolveIntField(DanceMusicContext.LengthField, songList, Request.Form),
+                albumsOut);
 
             ViewBag.BackAction = "MergeCandidates";
 
@@ -542,6 +557,7 @@ namespace music4dance.Controllers
                     if (song.GetType().GetProperty(fieldName).GetValue(song) != null)
                     {
                         idx = i;
+                        break;
                     }
                 }
             }

@@ -140,6 +140,7 @@ namespace SongDatabase.Models
         // Complex fields
         public static readonly string Custom = "Custom";
         public static readonly string DanceRatingField = "DanceRating";
+        public static readonly string AlbumList = "AlbumList";
 
         // Commands
         const string CreateCommand = ".Create";
@@ -195,7 +196,7 @@ namespace SongDatabase.Models
             return sd;
         }
 
-        public Song MergeSongs(UserProfile user, List<Song> songs, string title, string artist, string album, string genre, decimal? tempo, int? length)
+        public Song MergeSongs(UserProfile user, List<Song> songs, string title, string artist, string genre, decimal? tempo, int? length, List<AlbumDetails> albums)
         {
             string songIds = string.Join(";",songs.Select(s => s.SongId.ToString()));
 
@@ -207,7 +208,7 @@ namespace SongDatabase.Models
                 LogSongCommand(MergeFromCommand, from, user);
             }
 
-            Song song = CreateSong(user, title, artist, album, genre, tempo, length, MergeFromCommand, songIds);
+            Song song = CreateSong(user, title, artist, genre, tempo, length, albums, MergeFromCommand, songIds);
             SaveChanges();
 
             // Add in the to/from properties and create new weight table as well as creating the user associations
@@ -259,16 +260,14 @@ namespace SongDatabase.Models
             return song;
         }
 
-        public Song CreateSong(UserProfile user, string title, string artist, string album, string genre, decimal? tempo, int? length)
+        public Song CreateSong(UserProfile user, string title, string artist, string genre, decimal? tempo, int? length, List<AlbumDetails> albums)
         {
-            // TODO:SONGDETAIL - Add back in track/publisher/purchase info on per-album basis
-
-            return CreateSong(user, title, artist, album, genre, tempo, length, CreateCommand, string.Empty);
+            return CreateSong(user, title, artist, genre, tempo, length, albums, CreateCommand, string.Empty);
         }
 
-        public Song CreateSong(UserProfile user, string title, string artist, string album, string genre, decimal? tempo, int? length, string command, string value)
+        public Song CreateSong(UserProfile user, string title, string artist, string genre, decimal? tempo, int? length, List<AlbumDetails> albums, string command, string value)
         {
-            // TODO:SONGDETAIL - Add back in track/publisher/purchase info on per-album basis
+            // TODO:SONGDETAIL - Are we doing the logging right here?
 
             DateTime time = DateTime.Now;
 
@@ -301,14 +300,6 @@ namespace SongDatabase.Models
                 CreateSongProperty(song, ArtistField, artist);
             }
 
-            // Album
-            if (!string.IsNullOrWhiteSpace(album))
-            {
-                song.Album = album;
-                CreateSongProperty(song, AlbumField, album);
-            }
-
-
             // Genre
             if (!string.IsNullOrWhiteSpace(genre))
             {
@@ -330,12 +321,16 @@ namespace SongDatabase.Models
                 CreateSongProperty(song, LengthField, length.ToString());
             }
 
+            // Album
+            CreateAlbums(song,albums);
+
             song.TitleHash = CreateTitleHash(title);
 
             song = Songs.Add(song);
 
             return song;
         }
+
 
         //public bool EditSong(UserProfile user, Song song)
         //{
@@ -756,12 +751,43 @@ namespace SongDatabase.Models
             return modified;
         }
 
-        public void AddAlbumProperty(Song old, int idx, string name, object value, SongLog log)
+        private void CreateAlbums(Song song, List<AlbumDetails> albums)
+        {
+            if (albums != null)
+            {
+                for (int ia = 0; ia < albums.Count; ia++)
+                {
+                    AlbumDetails ad = albums[ia];
+                    if (ia == 0 && !string.IsNullOrWhiteSpace(ad.Name))
+                    {
+                        song.Album = albums[0].Name;
+                    }
+
+                    CreateAlbumProperties(song, ia, ad);
+                }
+            }
+        }
+
+        void CreateAlbumProperties(Song song, int idx, AlbumDetails album)
+        {
+            AddAlbumProperty(song, idx, AlbumField, null, album.Name);
+            AddAlbumProperty(song, idx, TrackField, null, album.Track);
+            AddAlbumProperty(song, idx, PublisherField, null, album.Publisher);
+            if (album.Purchase != null)
+            {
+                foreach (KeyValuePair<string,string> purchase in album.Purchase)
+                {
+                    AddAlbumProperty(song, idx, PurchaseField, purchase.Key, purchase.Value);
+                }
+            }
+        }
+
+        public void AddAlbumProperty(Song old, int idx, string name, string qual, object value, SongLog log=null)
         {
             if (value == null)
                 return;
 
-            string fullName = SongProperty.FormatName(name, idx);
+            string fullName = SongProperty.FormatName(name, idx, qual);
 
             SongProperty np = SongProperties.Create();
             np.Song = old;
@@ -769,7 +795,10 @@ namespace SongDatabase.Models
             np.Value = SerializeValue(value);
 
             SongProperties.Add(np);
-            LogPropertyUpdate(np, log);
+            if (log != null)
+            {
+                LogPropertyUpdate(np, log);
+            }
         }
 
         public bool ChangeAlbumProperty(Song old, int idx, string name, object oldValue, object newValue, SongLog log)
@@ -795,6 +824,7 @@ namespace SongDatabase.Models
         }
 
 
+
         private void AddAlbum(Song song, int idx, string album, int? track, string publisher, SongLog log)
         {
             if (string.IsNullOrWhiteSpace(album))
@@ -802,9 +832,9 @@ namespace SongDatabase.Models
                 throw new ArgumentOutOfRangeException("album");
             }
 
-            AddAlbumProperty(song, idx, AlbumField, album, log);
-            AddAlbumProperty(song, idx, TrackField, track, log);
-            AddAlbumProperty(song, idx, PublisherField, publisher, log);
+            AddAlbumProperty(song, idx, AlbumField, null, album, log);
+            AddAlbumProperty(song, idx, TrackField, null, track, log);
+            AddAlbumProperty(song, idx, PublisherField, null, publisher, log);
         }
 
         private bool ModifyAlbumInfo(Song song, int idx, AlbumDetails old, AlbumDetails edit, SongLog log)

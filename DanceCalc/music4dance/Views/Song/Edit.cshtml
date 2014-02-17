@@ -86,6 +86,7 @@
                             </td>
                             <td>
                                 <button type="button" id="@deleteId">X</button>
+                                @Html.HiddenFor(model => model.Albums[currentAlbum].Purchase)
                             </td>
                         </tr>
                     }
@@ -122,29 +123,6 @@
                 </tr>
             }
         </table>
-
-@*
-    <div class="editor-label">
-        @Html.LabelFor(model => model.Album)
-    </div>
-
-    <div class="editor-field">
-        @Html.TextBoxFor(model => model.Album)
-        @Html.ValidationMessageFor(model => model.Album)
-    </div>
-    <div class="editor-field">
-        <input id="Album" name="Album" type="text" value="@Model.Album" />
-        <span class="field-validation-valid" data-valmsg-for="Album" data-valmsg-replace="true"></span>
-    </div>
-
-    @if (old != null && !string.IsNullOrWhiteSpace(old.Album))
-    {
-        <div class="editor-alternate">
-            @old.Album
-        </div>
-    }
-*@
-
 
         <div class="editor-label">
             @Html.LabelFor(model => model.Tempo)

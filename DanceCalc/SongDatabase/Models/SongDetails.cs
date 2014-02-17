@@ -50,6 +50,30 @@ namespace SongDatabase.Models
         public List<SongProperty> Properties { get; set; }
         public List<UserProfile> ModifiedBy { get; set; }
 
+        public string AlbumList
+        {
+            get
+            {
+                if (Albums != null && Albums.Count > 0)
+                {
+                    StringBuilder ret = new StringBuilder();
+                    string sep = string.Empty;
+
+                    foreach (AlbumDetails album in Albums)
+                    {
+                        ret.Append(sep);
+                        ret.Append(album.Name);
+                        sep = "|";
+                    }
+
+                    return ret.ToString();
+                }
+                else
+                { 
+                    return null; 
+                }
+            }
+        }
         public Song Song { get; private set; }
 
         /// <summary>
@@ -221,6 +245,11 @@ namespace SongDatabase.Models
             }
 
             return info;
+        }
+
+        public void SetPurchaseInfo(string info)
+        {
+            throw new NotImplementedException();
         }
 
         public bool HasPurchaseInfo

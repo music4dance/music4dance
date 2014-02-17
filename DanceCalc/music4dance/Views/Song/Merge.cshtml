@@ -37,24 +37,48 @@
                         }
                         <input type="radio" style="width:auto;background-color:inherit" name="@spm.Name" value="@i" @Checked/>
                     }
+                    
                     @if (value == null)
                     {
                         <b>null</b>
                     }
-                    else
+                    else if (!spm.AllowAlternates)
                     {
                         @value.ToString();
                     }
-
-                    @if (spm.Selection != -1 && spm.AllowAlternates)
+                    else
                     {
-                        string name = spm.Name + "_" + i.ToString();
-                        <text>(Alternate </text>
-                        <input id="@name" name="@name" type="checkbox">
-                        <text>)</text>
+                        string[] alternates = (value as string).Split(new char[] {'|'});
+                        bool first = true;
+                        foreach (string alternate in alternates)
+                        { 
+                            if (!first)
+                            {
+                                <br />
+                                <input type="radio" style="width:auto;background-color:inherit" name="@spm.Name" value="@i" />
+                            }
+                            @alternate.ToString()
+                            if (spm.Selection != -1)
+                            {
+                                string name = spm.Name + "_" + i.ToString();
+                                string Checked = "";
+                                if (spm.Selection != i)
+                                {
+                                    Checked = "Checked";
+                                }                                
+                                <text>(Alternate 
+                                <input id="@name" name="@name" type="checkbox" @Checked>
+                                )</text>
+                            }
+                            i = i + 1;
+                            first = false;
+                        }
                     }
                 </td>
-                i = i + 1;
+                if (!spm.AllowAlternates)
+                {
+                    i = i + 1;                    
+                }
             }
         </tr>        
     }
@@ -89,7 +113,7 @@
         @{i = 0;}
         @foreach (var item in Model.Songs)
         {
-            <td>@Html.Partial("SongItems",item)</td>
+            <td>@Html.Partial("SongItems",item.Song)</td>
             i = i + 1;
         }
     </tr>

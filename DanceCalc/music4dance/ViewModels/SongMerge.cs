@@ -10,7 +10,7 @@ namespace music4dance.ViewModels
     public class SongMerge
     {
         public string Name {get;set;}
-        public List<Song> Songs {get; set;}
+        public List<SongDetails> Songs {get; set;}
         public List<DanceMerge> Ratings { get; set; }
         public List<SongPropertyMerge> Properties {get; set;}
         public string SongIds 
@@ -20,31 +20,29 @@ namespace music4dance.ViewModels
 
         public SongMerge(List<Song> songs)
         {
-            Songs = songs;
+            Songs = songs.Select(s => new SongDetails(s)).ToList();
+
             Properties = new List<SongPropertyMerge>();
 
             // Consider trying to sort the song list by the number of defaults...
 
             // Create a merge table of basic properties
 
-
             foreach (string field in _mergeFields)
             {
                 // Slightly kdlugy, but for now we're allowing alternates only for album so do a direct compare
-                bool allowAlternates = string.Equals(field, DanceMusicContext.AlbumField);
+                bool allowAlternates = field.EndsWith("List");
 
                 SongPropertyMerge spm = new SongPropertyMerge() { Name = field, AllowAlternates = allowAlternates, Values = new List<object>() };
-
-                allowAlternates = false;
 
                 int defaultIdx = -1;
                 string fsCur = null;
                 int cTotal = 0;
                 int cMatch = 0;
 
-                foreach (Song song in songs)
+                foreach (SongDetails song in Songs)
                 {
-                    object fo = song.GetType().GetProperty(field).GetValue(song, null);
+                    object fo = song.GetType().GetProperty(field).GetValue(song, null);                         
 
                     spm.Values.Add(fo);
 
@@ -104,13 +102,11 @@ namespace music4dance.ViewModels
         static string[] _mergeFields = { 
             DanceMusicContext.TitleField, 
             DanceMusicContext.ArtistField, 
-            DanceMusicContext.AlbumField, 
+            DanceMusicContext.AlbumList, 
             DanceMusicContext.TempoField, 
             DanceMusicContext.GenreField, 
-            DanceMusicContext.LengthField };
-
-            //DanceMusicContext.PublisherField, 
-            //DanceMusicContext.TrackField, 
+            DanceMusicContext.LengthField 
+        };
 
     }
 
