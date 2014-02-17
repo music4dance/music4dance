@@ -454,7 +454,7 @@ namespace music4dance.Controllers
             {
                 if (i != defIdx)
                 {
-                    string name = DanceMusicContext.AlbumField + "_" + i.ToString();
+                    string name = DanceMusicContext.AlbumList + "_" + i.ToString();
 
                     if (Request.Form.AllKeys.Contains(name))
                     {
@@ -473,7 +473,7 @@ namespace music4dance.Controllers
 
             ViewBag.BackAction = "MergeCandidates";
 
-            return View("Details",song);
+            return View("Details",new SongDetails(song));
         }
 
         private string ResolveStringField(string fieldName, IList<Song> songs, System.Collections.Specialized.NameValueCollection form=null)
