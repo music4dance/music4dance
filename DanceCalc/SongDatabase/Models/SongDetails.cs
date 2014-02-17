@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -37,10 +38,14 @@ namespace SongDatabase.Models
         }
 
         public int SongId { get; set; }
+
+        [Range(5.0,500.0)]
         public decimal? Tempo { get; set; }
+        [Required]
         public string Title { get; set; }
         public string Artist { get; set; }
         public string Genre { get; set; }
+        [Range(1,999)]
         public int? Length { get; set; }
         public DateTime Created { get; set; }
         public DateTime Modified { get; set; }
@@ -216,6 +221,7 @@ namespace SongDatabase.Models
     {
         public string Name { get; set; }
         public string Publisher { get; set; }
+        [Range(1,999)]
         public int? Track { get; set; }
         // Semi-colon separated purchase info of the form XX=YYYYYY (XX is service/type and YYYYY is id)
         // IA = Itunes Album

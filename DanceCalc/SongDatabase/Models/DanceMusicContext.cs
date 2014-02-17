@@ -854,10 +854,10 @@ namespace SongDatabase.Models
             }
             else
             {
-                if (!string.Equals(old.Name,edit.Name))
-                {
-                    modified |= ChangeAlbumProperty(song, idx, AlbumField, old.Name, edit.Name, log);
-                }
+                modified |= ChangeAlbumProperty(song, idx, AlbumField, old.Name, edit.Name, log);
+                modified |= ChangeAlbumProperty(song, idx, TrackField, old.Track, edit.Track, log);
+                modified |= ChangeAlbumProperty(song, idx, PublisherField, old.Publisher, edit.Publisher, log);
+                //TODO: Edit purchase info
             }
             
             return modified;

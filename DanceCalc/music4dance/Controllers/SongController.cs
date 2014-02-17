@@ -265,8 +265,25 @@ namespace music4dance.Controllers
             }
             else
             {
-                ViewBag.DanceListRemove = GetDances(song.DanceRatings,true);
-                ViewBag.DanceListAdd = GetDances(song.DanceRatings, false);
+                // Add back in the danceratings
+                // TODO: This almost certainly doesn't preserve edits...
+                SongDetails songT = _db.FindSongDetails(song.SongId);
+                ViewBag.DanceListRemove = GetDances(songT.DanceRatings,true);
+                ViewBag.DanceListAdd = GetDances(songT.DanceRatings, false);
+
+                // Clean out empty albums
+                for (int i = 0; i < song.Albums.Count;  )
+                {
+                    if (string.IsNullOrWhiteSpace(song.Albums[i].Name))
+                    {
+                        song.Albums.RemoveAt(i);
+                    }
+                    else
+                    {
+                        i += 1;
+                    }
+
+                }
 
                 return View(song);
             }
@@ -359,8 +376,6 @@ namespace music4dance.Controllers
         {
 
             // Note that automerging will only work for single album cases
-
-
 
             Song song = _db.MergeSongs(user, songs,
                 ResolveStringField(DanceMusicContext.TitleField, songs),
