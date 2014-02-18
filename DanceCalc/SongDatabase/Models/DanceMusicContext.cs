@@ -779,7 +779,7 @@ namespace SongDatabase.Models
                 {
                     AddAlbumProperty(song, idx, PurchaseField, purchase.Key, purchase.Value);
                 }
-            }
+            }            
         }
 
         public void AddAlbumProperty(Song old, int idx, string name, string qual, object value, SongLog log=null)

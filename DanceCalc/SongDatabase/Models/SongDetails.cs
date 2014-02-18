@@ -217,8 +217,14 @@ namespace SongDatabase.Models
 
     }
 
+    public enum MusicService { None, Amazon, ITunes, XBox, AMG };
+    public enum PurchaseType { None, Album, Song};
+
     public class AlbumDetails
     {
+        private static char[] s_services = new char[] {'#','A','I','X','M'};
+        private static char[] s_purchaseTypes = new char[] { '#', 'A', 'S'};
+
         public string Name { get; set; }
         public string Publisher { get; set; }
         [Range(1,999)]
@@ -253,9 +259,24 @@ namespace SongDatabase.Models
             return info;
         }
 
-        public void SetPurchaseInfo(string info)
+        public void SetPurchaseInfo(PurchaseType pt, MusicService ms, string value)
         {
-            throw new NotImplementedException();
+            if (Purchase == null)
+            {
+                Purchase = new Dictionary<string, string>();
+            }
+
+            if (pt == PurchaseType.None)
+                throw new ArgumentOutOfRangeException("PurchaseType");
+
+            if (ms == MusicService.None)
+                throw new ArgumentOutOfRangeException("MusicService");
+
+            StringBuilder sb = new StringBuilder(3);
+            sb.Append(s_services[(int)ms]);
+            sb.Append(s_purchaseTypes[(int)pt]);
+
+            Purchase.Add(sb.ToString(), value);
         }
 
         public bool HasPurchaseInfo
