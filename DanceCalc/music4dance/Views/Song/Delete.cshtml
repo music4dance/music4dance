@@ -11,6 +11,14 @@
     <legend>Song</legend>
 
     <div class="display-label">
+        @Html.DisplayNameFor(model => model.Title):
+    </div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.Title)
+    </div>
+    <br />
+
+    <div class="display-label">
         @Html.DisplayNameFor(model => model.Artist):
     </div>
     <div class="display-field">
@@ -23,18 +31,6 @@
     </div>
     <div class="display-field">
         @Html.DisplayFor(model => model.Album)
-    </div>
-    <br />
-
-    <div class="display-label">
-        @Html.DisplayNameFor(model => model.Tempo):
-    </div>
-    <div class="display-field">
-        @if (Model.Tempo != null)
-        {
-            string tempo = decimal.Round(Model.Tempo.Value).ToString("F0");
-            @tempo;
-        }
     </div>
     <br />
 
@@ -60,14 +56,6 @@
                           separator = ", ";
             }
         }
-    </div>
-    <br />
-
-    <div class="display-label">
-        @Html.DisplayNameFor(model => model.Track):
-    </div>
-    <div class="display-field">
-        @Html.DisplayFor(model => model.Track)
     </div>
     <br />
 

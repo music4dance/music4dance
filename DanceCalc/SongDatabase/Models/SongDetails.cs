@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -14,7 +15,7 @@ namespace SongDatabase.Models
     {
         public SongDetails()
         {
-
+            
         }
 
         public SongDetails(Song song)
@@ -35,6 +36,90 @@ namespace SongDatabase.Models
             ModifiedBy = song.ModifiedBy.ToList();
 
             BuildAlbumInfo();
+        }
+
+        public SongDetails(DanceMusicContext dmc, int songId, ICollection<SongProperty> properties)
+        {
+            SongId = songId;
+
+            foreach (SongProperty prop in properties)
+            {
+                string bn = prop.BaseName;
+
+                if (!prop.IsAction)
+                {
+                    switch (bn)
+                    {
+                        case DanceMusicContext.UserField:
+                            AddUser(dmc, prop.Value);
+                            break;
+                        case DanceMusicContext.DanceRatingField:
+                            UpdateDanceRating(dmc, prop.Value);
+                            // TODO: Need to rebuild the dance table here
+                            break;
+                        case DanceMusicContext.AlbumField:
+                        case DanceMusicContext.PublisherField:
+                        case DanceMusicContext.TrackField:
+                        case DanceMusicContext.PurchaseField:
+                            // All of these are taken care of with build album
+                            break;
+                        default:
+                            // All of the simple properties we can just set
+                            {
+                                PropertyInfo pi = this.GetType().GetProperty(bn);
+                                if (pi != null)
+                                {
+                                    pi.SetValue(this, prop.ObjectValue);
+                                }
+                            }                     
+                            break;
+                    }
+                }
+            }
+
+            Albums = BuildAlbumInfo(properties);
+        }
+
+        private void AddUser(DanceMusicContext dmc, string userName)
+        {
+            UserProfile user = dmc.FindUser(userName);
+            if (ModifiedBy == null)
+            {
+                ModifiedBy = new List<UserProfile>();
+            }
+
+            if (!ModifiedBy.Contains(user))
+            {
+                ModifiedBy.Add(user);
+            }
+        }
+        private void UpdateDanceRating(DanceMusicContext dmc, string value)
+        {
+            if (DanceRatings == null)
+            {
+                DanceRatings = new List<DanceRating>();
+            }
+
+            string[] parts = value.Split(new char[] { '+', '-' });
+
+            int sign = value.Contains('-') ? -1 : 1;
+            int offset = 1;
+
+            if (parts.Length > 1)
+            {
+                int.TryParse(parts[1], out offset);
+            }
+
+            int vote = sign * offset;
+
+            DanceRating dr = DanceRatings.Find(r => r.Dance.Equals(parts[0]));
+            if (dr == null)
+            {
+                dr = new DanceRating { SongId = this.SongId, DanceId = parts[0], Weight = 0 };
+                DanceRatings.Add(dr);
+            }
+
+            dr.Weight += vote;
         }
 
         public int SongId { get; set; }

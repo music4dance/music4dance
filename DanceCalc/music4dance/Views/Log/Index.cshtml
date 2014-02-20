@@ -1,7 +1,12 @@
 ﻿@model IEnumerable<SongDatabase.Models.SongLog>
 
 @{
-    ViewBag.Title = "Index";
+    ViewBag.Title = "Log";
+    bool canEdit = false;
+    if (User.IsInRole("canEdit"))
+    {
+        canEdit = true;
+    }
 }
 
 <h2>Index</h2>
@@ -9,51 +14,86 @@
 <p>
     @Html.ActionLink("Create New", "Create")
 </p>
-<table class="table">
-    <tr>
-        <th>
-            ID
-        </th>
-        <th>
-            User Name
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.Time)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.Action)
-        </th>
-        <th>
-            Signature
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.Data)
-        </th>
-    </tr>
 
-@foreach (var item in Model) {
-    <tr>
-        <td>
-            @Html.DisplayFor(modelItem => item.SongReference)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.User.UserName)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.Time)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.Action)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.SongSignature)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.Data)
-        </td>
-    </tr>
+@using (Html.BeginForm("Undo","Log")) {
+    @Html.AntiForgeryToken()
+
+    <table class="table">
+        <tr>
+            @if (canEdit)
+            {
+                <th>&nbsp;</th>
+            }
+            <th>
+                ID
+            </th>
+            <th>
+                User Name
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Time)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Action)
+            </th>
+            <th>
+                Signature
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Data)
+            </th>
+        </tr>
+
+    @foreach (var item in Model) {
+        <tr>
+            @if (canEdit)
+            {
+                string cbId = "Undo-" + item.Id.ToString();
+                string cbArrow = "Arrow-" + item.Id.ToString();
+                <td><input id="@cbId" name="undo" type="checkbox" value="@item.Id.ToString()" /><button type="button" name="@cbArrow" id="@cbArrow">&darr;</button></td>
+            }
+            <td>
+                @Html.DisplayFor(modelItem => item.SongReference)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.User.UserName)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Time)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Action)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.SongSignature)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Data)
+            </td>
+        </tr>
+    }
+
+    </table>
+    
+<p>
+    @if (canEdit)
+    {
+        <input type="submit" value="Undo" />
+    }
+</p>
+    
 }
 
-</table>
-
 @Html.ActionLink("Download Log", "Lines")
+
+@section Scripts {
+    <script>
+        var lineNumbers = new Array();
+        @foreach (var item in Model) {
+            <text>lineNumbers.push(@item.Id)</text>
+        }
+    </script>
+
+
+    <script src="@Url.Content("~/Scripts/undo.js?@Html.Raw(DateTime.Now.Ticks.ToString())")" type="text/javascript"></script>
+}

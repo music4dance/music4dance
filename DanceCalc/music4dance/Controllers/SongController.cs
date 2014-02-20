@@ -504,7 +504,7 @@ namespace music4dance.Controllers
 
             ViewBag.BackAction = "MergeCandidates";
 
-            return View("Details",new SongDetails(song));
+            return View("Details",_db.FindSongDetails(song.SongId));
         }
 
         private string ResolveStringField(string fieldName, IList<Song> songs, System.Collections.Specialized.NameValueCollection form=null)

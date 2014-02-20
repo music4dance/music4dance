@@ -322,6 +322,7 @@
     <Content Include="Scripts\knockout-2.3.0.debug.js" />
     <Content Include="Scripts\knockout-2.3.0.js" />
     <Content Include="Scripts\modernizr-2.6.2.js" />
+    <Content Include="Scripts\undo.js" />
     <Content Include="Web.config" />
     <Content Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
@@ -375,6 +376,7 @@
     <Content Include="Views\Log\RestoreLines.cshtml" />
     <Content Include="Views\Log\RestoreResults.cshtml" />
     <Content Include="Views\Song\XboxSearch.cshtml" />
+    <Content Include="Views\Log\Undo.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

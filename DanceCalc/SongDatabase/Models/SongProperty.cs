@@ -51,12 +51,61 @@ namespace SongDatabase.Models
         public virtual Song Song { get; set; }
         public string Name { get; set; }
         public string Value { get; set; }
+        public object ObjectValue
+        {
+            get
+            {
+                object ret = null;
+                switch (BaseName)
+                {
+                    case DanceMusicContext.TempoField:
+                        // decimal
+                        if (Value != null)
+                        {
+                            decimal v;
+                            decimal.TryParse(Value, out v);
+                            ret = v;
+                        }
+                        break;
+                    case DanceMusicContext.LengthField:
+                    case DanceMusicContext.TrackField:
+                    case DanceMusicContext.DanceRatingField:
+                        //int
+                        if (Value != null)
+                        {
+                            int v;
+                            int.TryParse(Value, out v);
+                            ret = v;
+                        }
+                        break;
+                    case DanceMusicContext.TimeField:
+                        // time
+                        break;
+
+                    default:
+                        ret = Value;
+                        break;
+                }
+
+                return ret;
+            }
+        }
+        public bool IsComplex 
+        {
+            get { return Name.Contains(":"); }
+        }
+        public bool IsAction
+        {
+            get { return Name.StartsWith("."); }
+        }
 
         public string BaseName
         {
             get
             {
                 string baseName = Name;
+
+                // TODO: Deprecate +/-
                 if (baseName.StartsWith("+")|| baseName.StartsWith("-"))
                 {
                     baseName = baseName.Substring(1);

@@ -13,6 +13,7 @@ using System.Globalization;
 using System.Text;
 using System.Data.Objects.DataClasses;
 using System.Reflection;
+using SongDatabase.ViewModels;
 
 // Let's see if we can mock up a recoverable log file by spitting out
 // something resembling a tab-separated flat list of songs items with a
@@ -124,30 +125,37 @@ namespace SongDatabase.Models
         #endregion
 
         // Field names - note that these must be kept in sync with the actual property names
-        public static readonly string UserField = "User";
-        public static readonly string TimeField = "Time";
-        public static readonly string TitleField = "Title";
-        public static readonly string ArtistField = "Artist";
-        public static readonly string TempoField = "Tempo";
-        public static readonly string LengthField = "Length";
-        public static readonly string GenreField = "Genre";
+        public const string UserField = "User";
+        public const string TimeField = "Time";
+        public const string TitleField = "Title";
+        public const string ArtistField = "Artist";
+        public const string TempoField = "Tempo";
+        public const string LengthField = "Length";
+        public const string GenreField = "Genre";
 
-        public static readonly string AlbumField = "Album";
-        public static readonly string PublisherField = "Publisher";
-        public static readonly string TrackField = "Track";
-        public static readonly string PurchaseField = "Purchase";
+        public const string AlbumField = "Album";
+        public const string PublisherField = "Publisher";
+        public const string TrackField = "Track";
+        public const string PurchaseField = "Purchase";
 
         // Complex fields
-        public static readonly string Custom = "Custom";
-        public static readonly string DanceRatingField = "DanceRating";
-        public static readonly string AlbumList = "AlbumList";
+        public const string Custom = "Custom";
+        public const string DanceRatingField = "DanceRating";
+        public const string AlbumList = "AlbumList";
 
         // Commands
-        const string CreateCommand = ".Create";
-        const string EditCommand = ".Edit";
-        const string DeleteCommand = ".Delete";
-        const string MergeFromCommand = ".MergeFrom";
-        const string MergeToCommand = ".MergeTo";
+        public const string CreateCommand = ".Create";
+        public const string EditCommand = ".Edit";
+        public const string DeleteCommand = ".Delete";
+        public const string MergeFromCommand = ".MergeFrom";
+        public const string MergeToCommand = ".MergeTo";
+        public const string UndoCommand = ".Undo";
+        public const string RedoCommand = ".Redo";
+
+        public const string SuccessResult = ".Success";
+        public const string FailResult = ".Fail";
+        public const string MessageData = ".Message";
+
 
         // Consider a parallel table for commands or commands not associates
         //  with a particular song?
@@ -252,7 +260,7 @@ namespace SongDatabase.Models
             // Delete all of the old songs (With merge-with Id from above)
             foreach (Song from in songs)
             {
-                this.Songs.Remove(from);
+                RemoveSong(from);
             }
 
             SaveChanges();
@@ -503,8 +511,13 @@ namespace SongDatabase.Models
         public void DeleteSong(UserProfile user, Song song, string command = DeleteCommand)
         {
             LogSongCommand(command, song, user);
-            Songs.Remove(song);
+            RemoveSong(song);
             SaveChanges();
+        }
+
+        private void RemoveSong(Song song)
+        {
+            song.Delete();
         }
 
         public void AddDanceRatings(Song song, IEnumerable<string> danceIds, int weight = 0)
@@ -1111,13 +1124,82 @@ namespace SongDatabase.Models
             }
         }
 
+        public IEnumerable<UndoResult> UndoLog(UserProfile user, IEnumerable<SongLog> entries)
+        {
+            List<UndoResult> results = new List<UndoResult>();
+
+            foreach (SongLog entry in entries)
+            {
+                results.Add(UndoEntry(user, entry));
+            }
+
+            return results;
+        }
+
+        public UndoResult UndoEntry(UserProfile user, SongLog entry)
+        {
+            UndoResult result = new UndoResult { Original = entry };
+
+            Song song = FindSong(entry.SongReference,entry.SongSignature);
+            string error = null;
+
+            if (song == null)
+            {
+                error = string.Format("Unable to find song id='{0}' signature='{1}'",entry.SongReference,entry.SongSignature);
+            }
+
+            SongLog log = CreateSongLog(user, song, UndoCommand + entry.Action);
+            result.Result = log;
+
+            if (error == null)
+            {
+                switch (entry.Action)
+                {
+                    case DeleteCommand:
+                        error = Undelete(song);
+                        break;
+                    default:
+                        error = string.Format("'{0}' action not yet supported for Undo.", entry.Action);
+                        break;
+                }
+
+            }
+
+            log.UpdateData(error == null ? SuccessResult : FailResult, entry.Id.ToString());
+
+            if (error != null)
+            {
+                log.UpdateData(MessageData, error);
+            }
+
+            Log.Add(log);
+            // Have to save changes each time because
+            // the may be cumulative (can we optimize by
+            // doing a savechanges when a songId comes
+            // up a second time?
+            SaveChanges();
+
+            return result;
+        }
+
+        public string Undelete(Song song)
+        {
+            string ret = null;
+
+            SongDetails sd = new SongDetails(this,song.SongId, song.SongProperties);
+
+            song.Restore(this,sd);
+
+            return ret;
+        }
+
         private Song FindSong(int id, string signature)
         {
             // First find a match id
             Song song = Songs.FirstOrDefault(s => s.SongId == id);
 
             // If the id doesn't exist or if the signatures don't match, find by signature
-            if (song == null || !MatchSigatures(signature,song.Signature))
+            if (song == null || !(song.IsNull || MatchSigatures(signature,song.Signature)))
             {
                 song = FindSongBySignature(signature);
             }
@@ -1373,6 +1455,12 @@ namespace SongDatabase.Models
             return SongDatabase.Models.MergeCluster.GetMergeCandidates(this, n, level);
         }
 
+        public UserProfile FindUser(string name)
+        {
+            return UserProfiles.FirstOrDefault(u => u.UserName.ToLower() == name.ToLower());
+        }
+
+        
         public void Dump()
         {
             // TODO: Create a dump routine to help dump the object graph - definitely need object id of some kind (address)

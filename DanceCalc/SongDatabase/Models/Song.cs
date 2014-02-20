@@ -23,6 +23,54 @@ namespace SongDatabase.Models
         public virtual ICollection<UserProfile> ModifiedBy { get; set; }
         public virtual ICollection<SongProperty> SongProperties { get; set; }
 
+        public void Delete()
+        {
+            Tempo = null;
+            Title = null;
+            Artist = null;
+            Album = null;
+            Genre = null;
+            Length = null;
+            TitleHash = 0;
+
+            List<DanceRating> drs = DanceRatings.ToList();
+            foreach (DanceRating dr in drs)
+            {
+                DanceRatings.Remove(dr);
+            }
+
+            List<UserProfile> us = ModifiedBy.ToList();
+            foreach (UserProfile u in us)
+            {
+                ModifiedBy.Remove(u);
+            }
+        }
+
+        internal void Restore(DanceMusicContext danceMusicContext, SongDetails sd)
+        {
+            Tempo = sd.Tempo;
+            Title = sd.Title;
+            Artist = sd.Artist;
+            Genre = sd.Genre;
+            Length = sd.Length;
+            TitleHash = DanceMusicContext.CreateTitleHash(Title);
+
+            if (sd.Albums != null && sd.Albums.Count > 0)
+            {
+                Album = sd.Albums[0].Name;
+            }
+
+            foreach (DanceRating dr in sd.DanceRatings)
+            {
+                DanceRatings.Add(dr);
+            }
+
+            foreach (UserProfile user in sd.ModifiedBy)
+            {
+                ModifiedBy.Add(user);
+            }
+        }
+
         public string Signature
         {
             get
@@ -103,6 +151,11 @@ namespace SongDatabase.Models
                     user.Dump();
                 }
             }
+        }
+
+        public bool IsNull
+        {
+            get { return string.IsNullOrWhiteSpace(Title); }
         }
 
         public static Song GetNullSong()

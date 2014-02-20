@@ -1,4 +1,5 @@
 ﻿using SongDatabase.Models;
+using SongDatabase.ViewModels;
 using System;
 using System.IO;
 using System.Collections.Generic;
@@ -85,6 +86,34 @@ namespace music4dance.Controllers
                 return new HttpStatusCodeResult(System.Net.HttpStatusCode.BadRequest, "No File Uploaded");
             }
         }
+
+        //
+        // Merge: /Log/Undo
+        [ValidateAntiForgeryToken]
+        [Authorize(Roles = "canEdit")]
+        public ActionResult Undo(int[] undo)
+        {
+            //using (DanceMusicContext dmc = new DanceMusicContext())
+            //{
+            //    // TODO: Is this somehow global?  The examples that change this flag have both the using and a try/catch
+            //    //  to turn it off.
+
+            //    dmc.Configuration.AutoDetectChangesEnabled = false;
+
+            DanceMusicContext dmc = _db;
+
+                var entries = from e in dmc.Log
+                              where undo.Contains(e.Id)
+                              select e;
+
+                UserProfile user = dmc.FindUser(User.Identity.Name);
+
+                IEnumerable<UndoResult> results = dmc.UndoLog(user, entries.ToList());
+
+                return View(results);
+            //}
+        }
+
 
         protected override void Dispose(bool disposing)
         {
