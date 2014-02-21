@@ -112,7 +112,7 @@ namespace SongDatabase.Models
 
             int vote = sign * offset;
 
-            DanceRating dr = DanceRatings.Find(r => r.Dance.Equals(parts[0]));
+            DanceRating dr = DanceRatings.Find(r => r.DanceId.Equals(parts[0]));
             if (dr == null)
             {
                 dr = new DanceRating { SongId = this.SongId, DanceId = parts[0], Weight = 0 };

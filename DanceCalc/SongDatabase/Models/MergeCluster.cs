@@ -26,17 +26,20 @@ namespace SongDatabase.Models
 
             foreach (Song song in dmc.Songs)
             {
-                //Debug.WriteLine("{0}\t{1}", song.TitleHash, song.Title);
-
-                MergeCluster mc = null;
-
-                if (!clusters.TryGetValue(song.TitleHash, out mc))
+                if (!song.IsNull)
                 {
-                    mc = new MergeCluster(song.TitleHash);
-                    clusters.Add(song.TitleHash, mc);
-                }
+                    //Debug.WriteLine("{0}\t{1}", song.TitleHash, song.Title);
 
-                mc.Songs.Add(song);
+                    MergeCluster mc = null;
+
+                    if (!clusters.TryGetValue(song.TitleHash, out mc))
+                    {
+                        mc = new MergeCluster(song.TitleHash);
+                        clusters.Add(song.TitleHash, mc);
+                    }
+
+                    mc.Songs.Add(song);
+                }
             }
 
             // Consider improving this algorithm, but for now, just take the top n songs

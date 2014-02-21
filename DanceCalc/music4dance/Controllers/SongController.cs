@@ -69,7 +69,7 @@ namespace music4dance.Controllers
 
             // Now setup the view
             // Start with all of the songs in the database
-            var songs = from s in _db.Songs select s;
+            var songs = from s in _db.Songs where s.TitleHash != 0  select s;
 
             // Now limit it down to the ones that are marked as a particular dance or dances
             if (!string.IsNullOrWhiteSpace(dances))
@@ -323,7 +323,16 @@ namespace music4dance.Controllers
         // Merge: /Song/MergeCandidates
         public ActionResult MergeCandidates(int? page, int? level, bool? autoCommit)
         {
-            IList<Song> songs = _db.FindMergeCandidates(500,level ?? 1);
+            IList<Song> songs = null;
+
+            if (autoCommit == true)
+            {
+                songs = _db.FindMergeCandidates(10000, level ?? 1);
+            }
+            else
+            {
+                songs = _db.FindMergeCandidates(500, level ?? 1);
+            }
 
             int pageSize = 25;
             int pageNumber = page ?? 1;
@@ -342,12 +351,14 @@ namespace music4dance.Controllers
 
         private IList<Song> AutoMerge(IList<Song> songs)
         {
-            using (DanceMusicContext dmc = new DanceMusicContext())
-            {
-                // TODO: Is this somehow global?  The examples that change this flag have both the using and a try/catch
-                //  to turn it off.
+            //using (DanceMusicContext dmc = new DanceMusicContext())
+            //{
+            //    // TODO: Is this somehow global?  The examples that change this flag have both the using and a try/catch
+            //    //  to turn it off.
 
-                dmc.Configuration.AutoDetectChangesEnabled = false;
+            //    dmc.Configuration.AutoDetectChangesEnabled = false;
+
+            DanceMusicContext dmc = _db;
 
                 // Get the logged in user
                 string userName = User.Identity.Name;
@@ -385,7 +396,7 @@ namespace music4dance.Controllers
                 }
 
                 return ret;
-            }
+            //}
         }
 
         private Song AutoMerge(DanceMusicContext dmc, List<Song> songs, UserProfile user)
@@ -406,39 +417,46 @@ namespace music4dance.Controllers
         }
 
         //
-        // Merge: /Song/Merge
+        // BulkEdit: /Song/BulkEdit
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "canEdit")]
-        public ActionResult Merge()
+        public ActionResult BulkEdit(int[] selectedSongs, string action)
         {
-            List<int> songIds = new List<int>();
-
-            if (Request.Form != null)
-            {
-                foreach (string key in Request.Form.AllKeys)
-                {
-                    string[] rgs = key.Split(new char[] { '-' });
-                    int id = 0;
-
-                    if (rgs.Length == 2 && string.Equals(rgs[0], "Merge", StringComparison.Ordinal) && int.TryParse(rgs[1], out id))
-                    {
-                        string value = Request.Form[key];
-                        if (string.Equals(value, "on", StringComparison.OrdinalIgnoreCase))
-                        {
-                            songIds.Add(id);
-                        }
-                    }
-                }
-            }
-
             var songs = from s in _db.Songs
-                        where songIds.Contains(s.SongId)
+                        where selectedSongs.Contains(s.SongId)
                         select s;
 
+            switch (action)
+            {
+                case "Merge":
+                    return Merge(songs);
+                case "Delete":
+                    return Delete(songs);
+                default:
+                    return View("Index");
+            }
+
+        }
+
+        private ActionResult Merge(IQueryable<Song> songs)
+        {
             SongMerge sm = new SongMerge(songs.ToList());
 
-            return View(sm);
+            return View("Merge",sm);
         }
+
+        private ActionResult Delete(IQueryable<Song> songs)
+        {
+            UserProfile user = _db.FindUser(User.Identity.Name);
+
+            foreach (Song song in songs)
+            {
+                _db.DeleteSong(user,song);
+            }
+
+            return RedirectToAction("Index");
+        }
+
 
         //
         // Merge: /Song/Merge

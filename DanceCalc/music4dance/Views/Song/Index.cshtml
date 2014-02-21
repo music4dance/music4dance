@@ -32,7 +32,7 @@
     </p>
 }
 
-@using (Html.BeginForm("Merge","Song")) {
+@using (Html.BeginForm("BulkEdit","Song")) {
     @Html.AntiForgeryToken()
 
 <table class="songlist">
@@ -64,11 +64,8 @@
     <tr>
         @if (canEdit)
         {
-            string cbName = "Merge-" + item.SongId.ToString();
-            @*
-            <td>@Html.CheckBox(cbName)</td>
-            *@
-            <td><input id="@cbName" name="@cbName" type="checkbox" /></td>
+            string id = "Selected-" + item.SongId.ToString();
+            <td><input name="selectedSongs" id="@id" type="checkbox" value="@item.SongId" /></td>
         }
         <td>
             @Html.ActionLink(item.Title, "Details", new { id = item.SongId })
@@ -121,7 +118,8 @@
 <p>
     @if (canEdit)
     {
-        <input type="submit" value="Merge" />
+        <input type="submit" name="action" value="Merge" />
+        <input type="submit" name="action" value="Delete" />
     }
 </p>
 }

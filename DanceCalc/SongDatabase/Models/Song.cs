@@ -23,6 +23,8 @@ namespace SongDatabase.Models
         public virtual ICollection<UserProfile> ModifiedBy { get; set; }
         public virtual ICollection<SongProperty> SongProperties { get; set; }
 
+        public SongLog CreateEntry { get; set; }
+
         public void Delete()
         {
             Tempo = null;
@@ -85,7 +87,7 @@ namespace SongDatabase.Models
         public bool Equivalent(Song song)
         {
             // No-similar titles != equivalent
-            if (!string.Equals(Title,song.Title,StringComparison.InvariantCultureIgnoreCase))
+            if (DanceMusicContext.CreateTitleHash(Title) != DanceMusicContext.CreateTitleHash(song.Title))
             {
                 return false;
             }
