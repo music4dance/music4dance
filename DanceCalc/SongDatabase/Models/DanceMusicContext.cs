@@ -11,7 +11,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Globalization;
 using System.Text;
-using System.Data.Objects.DataClasses;
+//using System.Data.Objects.DataClasses;
 using System.Reflection;
 using SongDatabase.ViewModels;
 
