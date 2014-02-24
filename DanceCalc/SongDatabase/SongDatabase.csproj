@@ -96,12 +96,14 @@
     <Compile Include="Models\DanceMusicContext.cs" />
     <Compile Include="Models\DanceRating.cs" />
     <Compile Include="Models\DbObject.cs" />
-    <Compile Include="Models\MergeCluster.cs" />
+    <Compile Include="ViewModels\MergeCluster.cs" />
     <Compile Include="Models\Song.cs" />
-    <Compile Include="Models\SongDetails.cs" />
+    <Compile Include="ViewModels\SongCounts.cs" />
+    <Compile Include="ViewModels\SongDetails.cs" />
     <Compile Include="Models\SongLog.cs" />
     <Compile Include="Models\SongProperty.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ViewModels\SongMerge.cs" />
     <Compile Include="ViewModels\UndoResult.cs" />
   </ItemGroup>
   <ItemGroup>

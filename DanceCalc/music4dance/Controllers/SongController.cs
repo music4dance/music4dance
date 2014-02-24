@@ -1,6 +1,6 @@
 ﻿using DanceLibrary;
 using music4dance.Utilities;
-using music4dance.ViewModels;
+using SongDatabase.ViewModels;
 using PagedList;
 using SongDatabase.Models;
 using System;

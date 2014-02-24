@@ -8,7 +8,7 @@ using DanceLibrary;
 using System.Diagnostics;
 using System.Data.Entity;
 
-namespace music4dance.ViewModels
+namespace SongDatabase.ViewModels
 {
     public class SongCounts
     {

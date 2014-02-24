@@ -5,7 +5,7 @@ using System.Web;
 
 using SongDatabase.Models;
 
-namespace music4dance.ViewModels
+namespace SongDatabase.ViewModels
 {
     public class SongMerge
     {
