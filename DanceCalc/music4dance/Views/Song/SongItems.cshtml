@@ -7,8 +7,8 @@
             <th>Id</th>
             <th>Name</th>
             <th>Value</th>
-        </tr>
-        @foreach (var logItem in Model.SongProperties)
+        </tr>        
+        @foreach (var logItem in Model.SongProperties.OrderBy(sp => sp.Id))
         {
             <tr>
                 <td>@Html.DisplayFor(modelItem => logItem.Id)</td>

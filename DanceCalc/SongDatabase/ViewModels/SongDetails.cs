@@ -100,28 +100,18 @@ namespace SongDatabase.Models
                 DanceRatings = new List<DanceRating>();
             }
 
-            string[] parts = value.Split(new char[] { '+', '-' });
+            DanceRatingDelta drd = new DanceRatingDelta(value);
 
-            int sign = value.Contains('-') ? -1 : 1;
-            int offset = 1;
-
-            if (parts.Length > 1)
-            {
-                int.TryParse(parts[1], out offset);
-            }
-
-            int vote = sign * offset;
-
-            DanceRating dr = DanceRatings.Find(r => r.DanceId.Equals(parts[0]));
+            DanceRating dr = DanceRatings.Find(r => r.DanceId.Equals(drd.DanceId));
             if (dr == null)
             {
-                dr = new DanceRating { SongId = this.SongId, DanceId = parts[0], Weight = 0 };
+                dr = new DanceRating { SongId = this.SongId, DanceId = drd.DanceId, Weight = 0 };
                 DanceRatings.Add(dr);
             }
 
-            dr.Weight += vote;
+            dr.Weight += drd.Delta;
         }
-
+        
         public int SongId { get; set; }
 
         [Range(5.0,500.0)]

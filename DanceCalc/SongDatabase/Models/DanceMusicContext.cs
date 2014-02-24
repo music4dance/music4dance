@@ -26,6 +26,8 @@ using SongDatabase.ViewModels;
 
 namespace SongDatabase.Models
 {
+    public enum UndoAction { Undo, Redo };
+
     public class DanceMusicContext : DbContext
     {
         // You can add custom code to this file. Changes will not be overwritten.
@@ -208,14 +210,10 @@ namespace SongDatabase.Models
         {
             string songIds = string.Join(";",songs.Select(s => s.SongId.ToString()));
 
-            //LogSongCommand(MergeToCommand, song, user, false);
-
             Song song = CreateSong(user, title, artist, genre, tempo, length, albums, MergeCommand, songIds, true);
-            //Entry(song).State = System.Data.Entity.EntityState.Modified;
             SaveChanges();
             song.CreateEntry.SongReference = song.SongId;
             song.CreateEntry.SongSignature = song.Signature;
-            //Entry(song.CreateEntry).State = System.Data.Entity.EntityState.Modified;
 
             // Add in the to/from properties and create new weight table as well as creating the user associations
             Dictionary<string, int> weights = new Dictionary<string, int>();
@@ -249,7 +247,8 @@ namespace SongDatabase.Models
             {
                 song.DanceRatings.Add(new DanceRating() {DanceId = dance.Key, SongId = song.SongId, Weight = dance.Value});
 
-                string value = string.Format("{0}+{1}", dance.Key, dance.Value);
+                string value = new DanceRatingDelta { DanceId = dance.Key, Delta = dance.Value }.ToString();
+                    
                 CreateSongProperty(song, DanceRatingField, value, song.CreateEntry);
             }
 
@@ -427,10 +426,17 @@ namespace SongDatabase.Models
         }
 
 
-        private SongLog CreateEditHeader(Song song, UserProfile user, IOrderedQueryable<SongProperty> properties = null)
+        private SongLog CreateEditHeader(Song song, UserProfile user)
         {
             SongLog log = CreateSongLog(user, song, EditCommand);
 
+            CreateEditProperties(song, user, EditCommand);
+
+            return log;
+        }
+
+        private void CreateEditProperties(Song song, UserProfile user, string command)
+        {
             // Add the command into the property log
             CreateSongProperty(song, EditCommand, string.Empty);
 
@@ -448,10 +454,7 @@ namespace SongDatabase.Models
             DateTime time = DateTime.Now;
             song.Modified = time;
             CreateSongProperty(song, TimeField, time.ToString());
-
-            return log;
         }
-
 
         private void FixupEdited(Song song)
         {
@@ -555,7 +558,7 @@ namespace SongDatabase.Models
                     SongProperty np = SongProperties.Create();
                     np.Song = song;
                     np.Name = DanceRatingField;
-                    np.Value = string.Format("{0}{1}{2}", dr.DanceId, added ? "+" : "-", Math.Abs(delta));
+                    np.Value = new DanceRatingDelta {DanceId = dr.DanceId, Delta = delta}.ToString();
 
                     SongProperties.Add(np);
                     LogPropertyUpdate(np, log);
@@ -588,7 +591,7 @@ namespace SongDatabase.Models
                     SongProperty np = SongProperties.Create();
                     np.Song = song;
                     np.Name = DanceRatingField;
-                    np.Value = string.Format("{0}+{1}", ndr, DanceRatingInitial);
+                    np.Value = new DanceRatingDelta { DanceId = ndr, Delta = DanceRatingInitial }.ToString();
 
                     SongProperties.Add(np);
                     LogPropertyUpdate(np, log);
@@ -607,46 +610,6 @@ namespace SongDatabase.Models
         public readonly int DanceRatingAutoCreate = 5;
         public readonly int DanceRatingDecrement = -2;
 
-        //static void AddRatingEntry()
-        //{
-
-        //}
-        //static private void DuplicationTestGraph(IEntityWithChangeTracker rootEntity)
-        //{
-        //    const string primaryKey = "Id";
-        //    var graphObjects = new Dictionary<string, IList<Object>>();
-
-        //    using (ChangeTrackerIterator iterator = ChangeTrackerIterator.Create(rootEntity))
-        //    {
-        //        iterator.ToList().ForEach(u =>
-        //        {
-        //            if (!graphObjects.Keys.Contains(u.GetType().Name))
-        //                graphObjects.Add(u.GetType().Name, new List<object>());
-        //            IList<object> tmpList;
-        //            graphObjects.TryGetValue(u.GetType().Name, out tmpList);
-        //            tmpList.Add(u);
-        //        });
-
-        //        foreach (IList<object> objectsList in graphObjects.Values)
-        //        {
-        //            foreach (object obj in objectsList)
-        //            {
-        //                foreach (object obj1 in objectsList)
-        //                {
-        //                    if (!obj1.Equals(obj))
-        //                    {
-        //                        int primaryKey1 = (int)obj.GetType().GetProperty(primaryKey).GetValue(obj, null);
-        //                        int primaryKey2 = (int)obj1.GetType().GetProperty(primaryKey).GetValue(obj1, null);
-
-        //                        if (primaryKey1 == primaryKey2)
-        //                            throw new Exception("There are at least two instances of the class " + obj.GetType().Name +
-        //                                                " which have the same primary key = " + primaryKey1 + ". Make sure that the key values are unique before calling AcceptChanges.");
-        //                    }
-        //                }
-        //            }
-        //        }
-        //    }
-        //}
 
         public static int CreateTitleHash(string title)
         {
@@ -702,18 +665,6 @@ namespace SongDatabase.Models
             return ret;
         }
 
-        //public SongProperty CreateSongProperty(string name, string value)
-        //{
-        //    SongProperty ret = SongProperties.Create();
-        //    ret.Song = null;
-        //    ret.SongId = -1;
-        //    ret.Name = name;
-        //    ret.Value = value;
-
-        //    SongProperties.Add(ret);
-
-        //    return ret;
-        //}
 
         public bool UpdateSongProperty(SongDetails edit, Song old, string name, SongLog log)
         {
@@ -738,6 +689,54 @@ namespace SongDatabase.Models
             }
 
             return modified;
+        }
+
+        public void UndoSongProperty(Song song, LogValue lv, UndoAction action)
+        {
+            // For scalar properties and albums just updating the property will
+            //  provide the information for rebulding the song
+            // For users, this is additive, so no need to do anything
+            // For DanceRatings, we're going to update the song here
+            //  since it is cummulative
+
+            SongProperty np = SongProperties.Create();
+
+            np.Song = song;
+            np.Name = lv.Name;
+
+            if (lv.Name.Equals(DanceRatingField))
+            {
+                DanceRatingDelta drd = new DanceRatingDelta(lv.Value);
+                if (action == UndoAction.Undo)
+                { 
+                    drd.Delta *= -1; 
+                }
+                
+                np.Value = drd.ToString();
+
+                DanceRating dr = song.DanceRatings.FirstOrDefault(d => string.Equals(d.DanceId, drd.DanceId));
+                if (dr == null)
+                {
+                    song.DanceRatings.Add(new DanceRating() { DanceId = drd.DanceId, SongId = song.SongId, Weight = drd.Delta });
+                }
+                else
+                {
+                    dr.Weight += drd.Delta;
+                    if (dr.Weight <= 0)
+                    {
+                        song.DanceRatings.Remove(dr);
+                    }
+                }
+            }
+            else
+            {
+                if (action == UndoAction.Undo)
+                    np.Value = lv.Old;
+                else
+                    np.Value = lv.Value;
+            }
+
+            song.SongProperties.Add(np);
         }
 
         private void CreateAlbums(Song song, List<AlbumDetails> albums, SongLog log = null)
@@ -1178,7 +1177,6 @@ namespace SongDatabase.Models
                     }
                 }
 
-
                 log = CreateSongLog(user, song,  command);
                 result.Result = log;
 
@@ -1189,6 +1187,9 @@ namespace SongDatabase.Models
                         break;
                     case MergeCommand:
                         error = Unmerge(entry, song);
+                        break;
+                    case EditCommand:
+                        error = Unedit(entry, song, UndoAction.Undo);
                         break;
                     case UndoCommand:
                     case RedoCommand:
@@ -1229,6 +1230,9 @@ namespace SongDatabase.Models
                 case MergeCommand:
                     error = Remerge(entry, song);
                     break;
+                case EditCommand:
+                    error = Unedit(entry, song, UndoAction.Redo);
+                    break;
                 default:
                     error = string.Format("'{0}' action not yet supported for Redo.", entry.Action);
                     break;
@@ -1264,6 +1268,29 @@ namespace SongDatabase.Models
             
             return ret;
         }
+
+        private string Unedit(SongLog entry, Song song, UndoAction action)
+        {
+            string ret = null;
+
+            CreateEditProperties(song, entry.User, EditCommand);
+
+            IList<LogValue> values = entry.GetValues();
+            foreach (LogValue lv in values)
+            {
+                if (!lv.IsAction)
+                {
+                    UndoSongProperty(song, lv, action);
+                }            
+            }
+
+            SongDetails sd = new SongDetails(this, song.SongId, song.SongProperties);
+            song.RestoreScalar(this, sd);
+
+            return ret;
+        }
+
+
         private string Remerge(SongLog entry, Song song)
         {
             string ret = null;
@@ -1318,8 +1345,10 @@ namespace SongDatabase.Models
             // First find a match id
             Song song = Songs.FirstOrDefault(s => s.SongId == id);
 
-            // If the id doesn't exist or if the signatures don't match, find by signature
-            if (song == null || !(string.IsNullOrWhiteSpace(signature) || song.IsNull || MatchSigatures(signature,song.Signature)))
+            // TODO: Think about signature mis-matches, we can't do the straighforward fail on mis-match because
+            //  we're using this for edit and it's perfectly reasonable to edit parts of the sig...
+            // || !(string.IsNullOrWhiteSpace(signature) || song.IsNull || MatchSigatures(signature,song.Signature))
+            if (song == null)
             {
                 song = FindSongBySignature(signature);
             }

@@ -70,39 +70,71 @@ namespace SongDatabase.Models
 
         public string GetData(string name)
         {
-            string value;
-            string old;
+            LogValue lv = FindCell(name);
 
-            FindCell(name, out value, out old);
-
-            return value;
+            if (lv != null)
+            {
+                return lv.Value;
+            }
+            else
+            {
+                return null;
+            }
         }
         public string GetOld(string name)
         {
-            string value;
-            string old;
+            LogValue lv = FindCell(name);
 
-            FindCell(name, out value, out old);
-
-            return old;
+            if (lv != null)
+            {
+                return lv.Old;
+            }
+            else
+            {
+                return null;
+            }
         }
 
-        private bool FindCell(string name, out string value, out string old)
+        public LogValue FindCell(string name)
         {
-            bool success = false;
-            value = null;
-            old = null;
+            IList<LogValue> values = GetValues();
 
+            if (values != null)
+            {
+                foreach (LogValue lv in values)
+                {
+
+                    if (lv.Name.Equals(name))
+                    {
+                        return lv;
+                    }
+                }
+            }
+
+            return null;
+        }
+
+        public IList<LogValue> GetValues()
+        {
+            List<LogValue> values = null;
             if (!string.IsNullOrWhiteSpace(Data))
             {
+                values = new List<LogValue>();
+
                 string[] entries = Data.Split(new char[] { '|' }, StringSplitOptions.RemoveEmptyEntries);
 
                 foreach (string entry in entries)
                 {
+                    string name = null;
+                    string value = null;
+                    string old = null;
+
                     string[] cells = entry.Split(new char[] { '\t' });
 
-                    if (cells.Length > 0 && cells[0].Equals(name))
+                    if (cells.Length > 0)
                     {
+                        name = cells[0];
+
                         if (cells.Length > 1)
                         {
                             value = cells[1];
@@ -112,12 +144,14 @@ namespace SongDatabase.Models
                             }
                         }
                     }
+
+                    values.Add(new LogValue { Name = name, Value = value, Old = old });
                 }
             }
 
-            return success;
+            return values;
         }
-
+        
         public void Init(UserProfile user, Song song, string action)
         {
             Time = DateTime.Now;
@@ -139,4 +173,32 @@ namespace SongDatabase.Models
 
     }
 
+    public class LogValue
+    {
+        public LogValue()
+        {
+
+        }
+
+        public LogValue(string name, string value, string old = null)
+        {
+            Name = name;
+            Value = value;
+            Old = old;
+        }
+
+        public bool IsAction
+        {
+            get { return SongProperty.IsActionName(Name); }
+        }
+
+        public bool IsComplex
+        {
+            get { return SongProperty.IsComplexName(Name);}
+        }
+
+        public string Name { get; set; }
+        public string Value { get; set; }
+        public string Old { get; set; }
+    }
 }

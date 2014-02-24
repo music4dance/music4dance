@@ -92,11 +92,20 @@ namespace SongDatabase.Models
         }
         public bool IsComplex 
         {
-            get { return Name.Contains(":"); }
+            get { return IsComplexName(Name); }
         }
         public bool IsAction
         {
-            get { return Name.StartsWith("."); }
+            get { return IsActionName(Name); }
+        }
+
+        public static bool IsComplexName(string name) 
+        { 
+            return name.Contains(":");
+        }
+        public static bool IsActionName(string name)
+        {
+            return name.StartsWith(".");
         }
 
         public string BaseName

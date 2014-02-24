@@ -48,7 +48,7 @@ namespace SongDatabase.Models
             }
         }
 
-        internal void Restore(DanceMusicContext danceMusicContext, SongDetails sd)
+        internal void RestoreScalar(DanceMusicContext danceMusicContext, SongDetails sd)
         {
             Tempo = sd.Tempo;
             Title = sd.Title;
@@ -57,10 +57,15 @@ namespace SongDatabase.Models
             Length = sd.Length;
             TitleHash = DanceMusicContext.CreateTitleHash(Title);
 
+
             if (sd.Albums != null && sd.Albums.Count > 0)
             {
                 Album = sd.Albums[0].Name;
             }
+        }
+        internal void Restore(DanceMusicContext danceMusicContext, SongDetails sd)
+        {
+            RestoreScalar(danceMusicContext, sd);
 
             foreach (DanceRating dr in sd.DanceRatings)
             {
