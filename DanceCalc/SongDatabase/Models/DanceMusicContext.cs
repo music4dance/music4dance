@@ -263,6 +263,17 @@ namespace SongDatabase.Models
             return song;
         }
 
+        public Song CreateSong(UserProfile user, SongDetails sd, List<string> dances)
+        {
+            Song song = CreateSong(user, sd.Title, sd.Artist, sd.Genre, sd.Tempo, sd.Length, sd.Albums, true);
+
+            AddDanceRatings(song, dances, DanceRatingCreate);
+
+            SaveChanges();
+
+            return song;
+        }
+
         public Song CreateSong(UserProfile user, string title, string artist, string genre, decimal? tempo, int? length, List<AlbumDetails> albums, bool log = false)
         {
             return CreateSong(user, title, artist, genre, tempo, length, albums, CreateCommand, string.Empty);
@@ -496,6 +507,11 @@ namespace SongDatabase.Models
 
         public void AddDanceRatings(Song song, IEnumerable<string> danceIds, int weight = 0)
         {
+            if (Dances.Local.Count == 0)
+            {
+                Dances.Load();
+            }
+
             if (weight == 0 )
                 weight = DanceRatingAutoCreate;
 
@@ -511,7 +527,7 @@ namespace SongDatabase.Models
 
                 DanceRatings.Add(dr);
 
-                CreateSongProperty(song, DanceRatingField, string.Format("{0}+{1}",dance.Id,weight));
+                CreateSongProperty(song, DanceRatingField, string.Format("{0}+{1}",dance.Id,weight),song.CreateEntry);
             }
         }
 

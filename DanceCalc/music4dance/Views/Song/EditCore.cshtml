@@ -1,0 +1,271 @@
+﻿@model SongDatabase.Models.SongDetails
+
+@using (Html.BeginForm((string)ViewBag.Action, "Song"))
+{
+    @Html.AntiForgeryToken()
+    @Html.ValidationSummary(true)
+
+    SongDatabase.Models.Song old = null;
+
+    try
+    {
+        old = ViewBag.OldSong;
+    }
+    catch (Microsoft.CSharp.RuntimeBinder.RuntimeBinderException)
+    {
+
+    }
+
+    <fieldset>
+        <legend>Song</legend>
+
+        @Html.HiddenFor(model => model.SongId)
+
+        <div class="editor-label">
+            @Html.LabelFor(model => model.Title)
+        </div>
+        <div class="editor-field">
+            @Html.EditorFor(model => model.Title)
+            @Html.ValidationMessageFor(model => model.Title)
+        </div>
+        @if (old != null && !string.IsNullOrWhiteSpace(old.Title))
+        {
+            <div class="editor-alternate">
+                @old.Title
+            </div>
+        }
+
+        <div class="editor-label">
+            @Html.LabelFor(model => model.Artist)
+        </div>
+        <div class="editor-field">
+            @Html.EditorFor(model => model.Artist)
+            @Html.ValidationMessageFor(model => model.Artist)
+        </div>
+        @if (old != null && !string.IsNullOrWhiteSpace(old.Artist))
+        {
+            <div class="editor-alternate">
+                @old.Artist
+            </div>
+        }
+
+        <table>
+            <tr><td class="album-header">Album</td><td class="track-header">Track</td><td class="publisher-header">Label</td><td class="delete-header"></td></tr>
+            @{
+        int currentAlbum = 0;
+        int maxAlbum = 5;
+        if (Model.Albums != null)
+        {
+            maxAlbum = Model.Albums.Count + 5;
+            for (; currentAlbum < Model.Albums.Count; currentAlbum++)
+            {
+                string albumId = "Album_" + currentAlbum.ToString();
+                string deleteId = "Delete_" + currentAlbum.ToString();
+                <tr id="@albumId">
+                    <td>
+                        <div class="editor-field">
+                            @Html.TextBoxFor(model => model.Albums[currentAlbum].Name)
+                            @Html.ValidationMessageFor(model => model.Albums[currentAlbum].Name)
+                        </div>
+                    </td>
+                    <td>
+                        <div class="editor-field">
+                            @Html.TextBoxFor(model => model.Albums[currentAlbum].Track)
+                            @Html.ValidationMessageFor(model => model.Albums[currentAlbum].Track)
+                        </div>
+                    </td>
+                    <td>
+                        <div class="editor-field">
+                            @Html.TextBoxFor(model => model.Albums[currentAlbum].Publisher)
+                            @Html.ValidationMessageFor(model => model.Albums[currentAlbum].Publisher)
+                        </div>
+                    </td>
+                    <td>
+                        <button type="button" id="@deleteId">X</button>
+                        @*@Html.HiddenFor(model => model.Albums[currentAlbum].Purchase)*@
+                    </td>
+                </tr>
+            }
+        }
+        else
+        {
+            Model.Albums = new List<SongDatabase.Models.AlbumDetails>();
+        }
+
+        for (; currentAlbum < maxAlbum; currentAlbum += 1)
+        {
+            string albumId = "Album_" + currentAlbum.ToString();
+            Model.Albums.Add(new SongDatabase.Models.AlbumDetails());
+            <tr id="@albumId" hidden>
+                <td>
+                    <div class="editor-field">
+                        @Html.TextBoxFor(model => model.Albums[currentAlbum].Name)
+                        @Html.ValidationMessageFor(model => model.Albums[currentAlbum].Name)
+                    </div>
+                </td>
+                <td>
+                    <div class="editor-field">
+                        @Html.TextBoxFor(model => model.Albums[currentAlbum].Track)
+                        @Html.ValidationMessageFor(model => model.Albums[currentAlbum].Track)
+                    </div>
+                </td>
+                <td>
+                    <div class="editor-field">
+                        @Html.TextBoxFor(model => model.Albums[currentAlbum].Publisher)
+                        @Html.ValidationMessageFor(model => model.Albums[currentAlbum].Publisher)
+                    </div>
+                </td>
+            </tr>
+        }
+
+        <tr>
+            <td colspan="3"><button type="button" id="AddAlbum">New Album</button></td>
+        </tr>
+            }
+        </table>
+
+        <div class="editor-label">
+            @Html.LabelFor(model => model.Tempo)
+        </div>
+        <div class="editor-field">
+            @Html.EditorFor(model => model.Tempo)
+            @Html.ValidationMessageFor(model => model.Tempo)
+        </div>
+        @if (old != null && old.Tempo != null)
+        {
+            <div class="editor-alternate">
+                @old.Tempo.Value
+            </div>
+        }
+
+        <div class="editor-label">
+            @Html.LabelFor(model => model.Length)
+        </div>
+        <div class="editor-field">
+            @Html.EditorFor(model => model.Length)
+            @Html.ValidationMessageFor(model => model.Length)
+        </div>
+        @if (old != null && old.Length != null)
+        {
+            <div class="editor-alternate">
+                @old.Length.Value
+            </div>
+        }
+
+        <div class="editor-label">
+            @Html.LabelFor(model => model.Genre)
+        </div>
+        <div class="editor-field">
+            @Html.EditorFor(model => model.Genre)
+            @Html.ValidationMessageFor(model => model.Genre)
+        </div>
+        @if (old != null && !string.IsNullOrWhiteSpace(old.Genre))
+        {
+            <div class="editor-alternate">
+                @old.Genre
+            </div>
+        }
+
+        <div class="display-label">
+            Dance(s):
+        </div>
+        <div class="display-field">
+            @{ var separator = ""; }
+            @if (Model.DanceRatings != null)
+            {
+                foreach (var item in Model.DanceRatings)
+                {
+                    @separator;
+                @Html.DisplayFor(model => item.Dance.Info.Name)
+                    if (item.Weight > 1)
+                    {
+                        <b>(@item.Weight)</b>
+                    }
+                    separator = ", ";
+                }
+            }
+        </div>
+        
+        @if (ViewBag.CanRemoveDance)
+        { 
+            <div class="editor-label">
+                Remove Dances from this list to vote them down.
+            </div>
+            <div class="editor-field">
+                @Html.ListBox("remDances", ViewBag.DanceListRemove as MultiSelectList, new { @class = "chzn-select", data_placeholder = "Remove Dances to Vote Down..." })
+            </div>
+        }
+        <div class="editor-label">
+            Add dances to this list to vote them up.
+        </div>
+        <div class="editor-field">
+            @Html.ListBox("addDances", ViewBag.DanceListAdd as MultiSelectList, new { @class = "chzn-select", data_placeholder = "Choose Dances to Vote Up..." })
+        </div>
+        <br />
+
+        @*
+            @if (User.IsInRole("showDiagnostics"))
+            {
+                <table>
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Value</th>
+                </tr>
+
+                @{
+                    int index = 0;
+                    foreach (SongDatabase.Models.SongProperty sp in Model.Properties)
+                    {
+                        string propIdx = string.Format("Properties[{0}].", index);
+                        string propName = propIdx + "Name";
+                        string propValue = propIdx + "Value";
+                        <tr>
+                            <td>
+                                @{
+                                    Html.Hidden(propIdx + "SongId", sp.SongId);
+                                    Html.Hidden(propIdx + "Id", sp.Id);
+                                    <text>@sp.Id</text>
+                                }
+                            </td>
+                            <td>
+                                <div class="editor-field">
+                                    <input id="@propName" name="@propName" type="text" value="@sp.Name" />
+                                </div>
+                            </td>
+                            <td>
+                                <div class="editor-field">
+                                    <input id="@propValue" name="@propValue" type="text" value="@sp.Value" />
+                                </div>
+                            </td>
+                        </tr>
+                        index += 1;
+                    }
+                }
+                </table>
+            }
+        *@
+
+        <div class="display-label">
+            @Html.DisplayNameFor(model => model.Created):
+        </div>
+        <div class="display-field">
+            @Html.DisplayFor(model => model.Created)
+            @Html.HiddenFor(model => model.Created)
+        </div>
+        <br />
+
+        <div class="display-label">
+            @Html.DisplayNameFor(model => model.Modified):
+        </div>
+        <div class="display-field">
+            @Html.DisplayFor(model => model.Modified)
+        </div>
+        <br />
+
+        <p>
+            <input type="submit" value="@ViewBag.Submit" />
+        </p>
+    </fieldset>
+}
+

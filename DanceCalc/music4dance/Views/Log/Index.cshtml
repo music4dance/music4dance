@@ -1,4 +1,7 @@
-﻿@model IEnumerable<SongDatabase.Models.SongLog>
+﻿@model PagedList.IPagedList<SongDatabase.Models.SongLog>
+@using PagedList.Mvc;
+
+<link href="/Content/PagedList.css" rel="stylesheet" type="text/css" />
 
 @{
     ViewBag.Title = "Log";
@@ -25,22 +28,25 @@
                 <th>&nbsp;</th>
             }
             <th>
-                ID
+                LID
+            </th>
+            <th>
+                SID
             </th>
             <th>
                 User Name
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Time)
+                Time
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Action)
+                Action
             </th>
             <th>
                 Signature
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Data)
+                Data
             </th>
         </tr>
 
@@ -52,6 +58,9 @@
                 string cbArrow = "Arrow-" + item.Id.ToString();
                 <td><input id="@cbId" name="undo" type="checkbox" value="@item.Id.ToString()" /><button type="button" name="@cbArrow" id="@cbArrow">&darr;</button></td>
             }
+            <td>
+                @Html.DisplayFor(modelItem => item.Id)
+            </td>
             <td>
                 @Html.DisplayFor(modelItem => item.SongReference)
             </td>
@@ -83,6 +92,12 @@
 </p>
     
 }
+
+<div>
+    Page @(Model.PageCount < Model.PageNumber ? 0 : Model.PageNumber) of @Model.PageCount
+    (@Model.TotalItemCount log entries found.)
+    @Html.PagedListPager(Model, page => Url.Action(ViewBag.ActionName, new { page, sortOrder = ViewBag.CurrentSort, currentFilter = ViewBag.CurrentFilter, dances = ViewBag.CurrentDances, level = ViewBag.Level }))
+</div>
 
 @Html.ActionLink("Download Log", "Lines")
 

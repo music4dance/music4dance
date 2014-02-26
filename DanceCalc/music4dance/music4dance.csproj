@@ -376,6 +376,7 @@
     <Content Include="Views\Log\RestoreResults.cshtml" />
     <Content Include="Views\Song\XboxSearch.cshtml" />
     <Content Include="Views\Log\Undo.cshtml" />
+    <Content Include="Views\Song\EditCore.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

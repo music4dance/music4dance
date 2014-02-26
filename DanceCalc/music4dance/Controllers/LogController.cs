@@ -1,4 +1,5 @@
-﻿using SongDatabase.Models;
+﻿using PagedList;
+using SongDatabase.Models;
 using SongDatabase.ViewModels;
 using System;
 using System.IO;
@@ -6,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Web;
+using System.Web.Helpers;
 using System.Web.Mvc;
 
 namespace music4dance.Controllers
@@ -16,17 +18,20 @@ namespace music4dance.Controllers
 
         //
         // GET: /Log/
-        public ActionResult Index()
+        public ActionResult Index(int? page)
         {
             var lines = from l in _db.Log
+                        orderby l.Id descending
                         select l;
 
-            return View(lines);
+            int pageSize = 25;
+            int pageNumber = (page ?? 1);
+            return View(lines.ToPagedList(pageNumber,pageSize));
         }
 
         public FileResult Lines()
         {
-            var lines = from l in _db.Log
+            var lines = from l in _db.Log orderby l.Id
                         select l;
 
             StringBuilder sb = new StringBuilder();
