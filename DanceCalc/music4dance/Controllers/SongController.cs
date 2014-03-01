@@ -165,6 +165,7 @@ namespace music4dance.Controllers
         {
             if (ModelState.IsValid)
             {
+
                 UserProfile user = _db.FindUser(User.Identity.Name);
                 Song newSong = _db.CreateSong(user, song, addDances);
 
@@ -430,7 +431,7 @@ namespace music4dance.Controllers
         [Authorize(Roles = "canEdit")]
         public ActionResult XboxSearch(int id = 0, string search = null)
         {
-            Song song = _db.Songs.Find(id);
+            SongDetails song = _db.FindSongDetails(id);
             if (song == null)
             {
                 return HttpNotFound();
@@ -486,29 +487,23 @@ namespace music4dance.Controllers
         // ChooseXbox: /Song/ChooseXbox
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "canEdit")]
-        public ActionResult ChooseXbox(int songId, string name, string album, string artist, string trackId, string alternateId, string duration, int? trackNum)
+        public ActionResult ChooseXbox(int songId, string name, string album, string artist, string trackId, string alternateId, string duration, string genre, int? trackNum)
         {
-            // TODO:SONGDETAIL - Add back in track/publisher/purchase info on per-album basis
+            // TODONEXT: - Pipe the purchase info through the edit page, should touch editcore.cshtml and albumdetails class at minimum
 
-            Song song = _db.Songs.Find(songId);
+            SongDetails song = _db.FindSongDetails(songId);
             if (song == null)
             {
                 return HttpNotFound();
             }
 
             // This is a very transitory object to hold the old values for a semi-automated edit
-            Song alt = new Song();
+            SongDetails alt = new SongDetails();
 
             if (!string.IsNullOrWhiteSpace(name) && !string.Equals(name, song.Title))
             {
                 alt.Title = song.Title;
                 song.Title = name;
-            }
-
-            if (!string.IsNullOrWhiteSpace(album) && !string.Equals(album, song.Album))
-            {
-                alt.Album = song.Album;
-                song.Album = album + "|" + alt.Album;
             }
 
             if (!string.IsNullOrWhiteSpace(artist) && !string.Equals(artist, song.Artist))
@@ -517,6 +512,44 @@ namespace music4dance.Controllers
                 song.Artist = name;
             }
 
+            AlbumDetails ad = song.FindAlbum(album);
+            if (ad != null)
+            {
+                // If there is a match set up the new info next to the album
+                int aidxM = song.Albums.IndexOf(ad);
+                alt.Albums = new List<AlbumDetails>();
+
+                for (int aidx = 0; aidx < song.Albums.Count; aidx++)
+                {
+                    if (aidx == aidxM)
+                    {
+                        AlbumDetails adA = new AlbumDetails(ad);
+                        if (!string.Equals(album, ad.Name))
+                        {
+                            adA.Name = ad.Name;
+                            ad.Name = album;
+                        }
+
+                        if (trackNum != ad.Track)
+                        {
+                            adA.Track = ad.Track;
+                            ad.Track = trackNum;
+                        }
+                        alt.Albums.Add(adA);
+                    }
+                    else
+                    {
+                        alt.Albums.Add(new AlbumDetails());
+                    }
+                }
+            }
+            else 
+            {
+                // Otherwise just add an album
+                ad = new AlbumDetails { Name = album, Track=trackNum };
+                song.Albums.Add(ad);
+            }
+            UpdateXboxPurchase(ad, trackId, alternateId);
 
             if (!string.IsNullOrWhiteSpace(duration))
             {
@@ -537,32 +570,27 @@ namespace music4dance.Controllers
 
                 }
             }
-            // TODO: Get Genre in here
 
-            //if (!string.IsNullOrWhiteSpace(trackId) )
-            //{
-            //    // TODO: Hande the case where there are already Xbox/Amg ids
-
-            //    string newId = song.Purchase;
-            //    if (string.IsNullOrWhiteSpace(newId)) 
-            //        newId = string.Empty;
-            //    else if (newId[newId.Length-1] != ';')
-            //        newId += ';';
-
-            //    newId = newId + "ZS=" + trackId;
-
-            //    if (!string.IsNullOrWhiteSpace(alternateId))
-            //    {
-            //        newId += ";MS=" + alternateId;
-            //    }
-
-            //    alt.Purchase = song.Purchase;
-            //    song.Purchase = newId;
-            //}
+            // TODO: Should we handle multiple genres?
+            //if (genre != null && genre.Length > 0 && !string.IsNullOrWhiteSpace(genre[0]) && !string.Equals(genre[0], song.Genre))
+            if (!string.IsNullOrWhiteSpace(genre) && !string.Equals(genre, song.Genre))
+            {
+                alt.Genre = song.Genre;
+                song.Genre = genre;
+            }
 
             ViewBag.OldSong = alt;
 
             return View("Edit", song);
+        }
+
+        private void UpdateXboxPurchase(AlbumDetails ad, string trackId, string alternateId)
+        {
+            ad.SetPurchaseInfo(PurchaseType.Song, MusicService.XBox, trackId);
+            if (!string.IsNullOrWhiteSpace(alternateId))
+            {
+                ad.SetPurchaseInfo(PurchaseType.Song, MusicService.AMG, alternateId);
+            }
         }
 
         private MultiSelectList GetDances(IList<DanceRating> ratings = null)

@@ -50,8 +50,8 @@
         }
 
         <table>
-            <tr><td class="album-header">Album</td><td class="track-header">Track</td><td class="publisher-header">Label</td><td class="delete-header"></td></tr>
-            @{
+        <tr><td class="album-header">Album</td><td class="track-header">Track</td><td class="publisher-header">Label</td><td class="delete-header"></td></tr>
+        @{
         int currentAlbum = 0;
         int maxAlbum = 5;
         if (Model.Albums != null)
@@ -183,10 +183,11 @@
                     }
                     separator = ", ";
                 }
+                <br/>
             }
         </div>
         
-        @if (ViewBag.CanRemoveDance)
+        @if (ViewData.ContainsKey("DanceListRemove"))
         { 
             <div class="editor-label">
                 Remove Dances from this list to vote them down.
@@ -195,6 +196,8 @@
                 @Html.ListBox("remDances", ViewBag.DanceListRemove as MultiSelectList, new { @class = "chzn-select", data_placeholder = "Remove Dances to Vote Down..." })
             </div>
         }
+        @if (ViewData.ContainsKey("DanceListAdd"))
+        { 
         <div class="editor-label">
             Add dances to this list to vote them up.
         </div>
@@ -202,49 +205,7 @@
             @Html.ListBox("addDances", ViewBag.DanceListAdd as MultiSelectList, new { @class = "chzn-select", data_placeholder = "Choose Dances to Vote Up..." })
         </div>
         <br />
-
-        @*
-            @if (User.IsInRole("showDiagnostics"))
-            {
-                <table>
-                <tr>
-                    <th>ID</th>
-                    <th>Name</th>
-                    <th>Value</th>
-                </tr>
-
-                @{
-                    int index = 0;
-                    foreach (SongDatabase.Models.SongProperty sp in Model.Properties)
-                    {
-                        string propIdx = string.Format("Properties[{0}].", index);
-                        string propName = propIdx + "Name";
-                        string propValue = propIdx + "Value";
-                        <tr>
-                            <td>
-                                @{
-                                    Html.Hidden(propIdx + "SongId", sp.SongId);
-                                    Html.Hidden(propIdx + "Id", sp.Id);
-                                    <text>@sp.Id</text>
-                                }
-                            </td>
-                            <td>
-                                <div class="editor-field">
-                                    <input id="@propName" name="@propName" type="text" value="@sp.Name" />
-                                </div>
-                            </td>
-                            <td>
-                                <div class="editor-field">
-                                    <input id="@propValue" name="@propValue" type="text" value="@sp.Value" />
-                                </div>
-                            </td>
-                        </tr>
-                        index += 1;
-                    }
-                }
-                </table>
-            }
-        *@
+        }
 
         <div class="display-label">
             @Html.DisplayNameFor(model => model.Created):

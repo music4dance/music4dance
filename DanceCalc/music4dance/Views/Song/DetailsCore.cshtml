@@ -1,0 +1,138 @@
+﻿@model SongDatabase.Models.SongDetails
+
+<fieldset>
+    <legend>Song</legend>
+
+    <div class="display-label">
+        @Html.DisplayNameFor(model => model.Artist):
+    </div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.Artist)
+    </div>
+    <br />
+
+    @if (Model.Tempo != null)
+    {
+        <div class="display-label">
+            @Html.DisplayNameFor(model => model.Tempo):
+        </div>
+        <div class="display-field">
+            @decimal.Round(Model.Tempo.Value).ToString("F0")
+        </div>
+        <br />
+    }
+
+    @if (Model.Genre != null)
+    {
+        <div class="display-label">
+            @Html.DisplayNameFor(model => model.Genre):
+        </div>
+        <div class="display-field">
+            @Html.DisplayFor(model => model.Genre)
+        </div>
+        <br />
+    }
+
+    @if (Model.Length != null)
+    {
+        <div class="display-label">
+            @Html.DisplayNameFor(model => model.Length):
+        </div>
+        <div class="display-field">
+            @Html.DisplayFor(model => model.Length)
+        </div>
+        <br />
+    }
+
+    <div class="display-label">
+        Dance(s):
+    </div>
+    <div class="display-field">
+        @{ string separator = ""; }
+        @if (Model.DanceRatings != null)
+        {
+            foreach (var item in Model.DanceRatings)
+            {
+                @separator;
+            @Html.DisplayFor(model => item.Dance.Info.Name);
+                                                               separator = ", ";
+            }
+        }
+    </div>
+    <br />
+
+    @if (Model.Albums != null && Model.Albums.Count > 0)
+    {
+        for (int aidx = 0; aidx < Model.Albums.Count; aidx++)
+        {
+            SongDatabase.Models.AlbumDetails album = @Model.Albums[aidx];
+
+            string cls = (aidx == 0) ? "" : "display-label-alternate";
+            <div class="display-label @cls">
+                @if (aidx == 0)
+                {
+                    <text>Album:</text>
+                }
+                else
+                {
+                    <text>Alternate Album:</text>
+                }
+            </div>
+            <div class="display-field">
+                @album.Name
+            </div>
+            if (@album.Track != null)
+            {
+                <div class="display-label">
+                    Track:
+                </div>
+                <div class="display-field">
+                    @album.Track
+                </div>
+            }
+            if (@album.Publisher != null)
+            {
+                <div class="display-label">
+                    Publisher:
+                </div>
+                <div class="display-field">
+                    @album.Publisher
+                </div>
+            }
+            if (User.IsInRole("showDiagnostics") && album.HasPurchaseInfo)
+            {
+                <div class="display-label">
+                    Purchase:
+                </div>
+                // TODO: Purchase info should eventually map to links, this variation is just
+                //  for diagnostic purposes
+                IList<string> info = album.GetPurcahseInfo();
+                foreach (string p in info)
+                {
+                    <text>@p </text>
+                }
+            }
+
+            <br />
+        }
+    }
+
+    <div class="display-label">
+        @Html.DisplayNameFor(model => model.Created):
+    </div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.Created)
+    </div>
+    <br />
+
+    <div class="display-label">
+        @Html.DisplayNameFor(model => model.Modified):
+    </div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.Modified)
+    </div>
+    <br />
+    <br />
+
+</fieldset>
+

@@ -80,38 +80,6 @@ namespace SongDatabase.Models
             Albums = BuildAlbumInfo(properties);
         }
 
-        private void AddUser(DanceMusicContext dmc, string userName)
-        {
-            UserProfile user = dmc.FindUser(userName);
-            if (ModifiedBy == null)
-            {
-                ModifiedBy = new List<UserProfile>();
-            }
-
-            if (!ModifiedBy.Contains(user))
-            {
-                ModifiedBy.Add(user);
-            }
-        }
-        private void UpdateDanceRating(DanceMusicContext dmc, string value)
-        {
-            if (DanceRatings == null)
-            {
-                DanceRatings = new List<DanceRating>();
-            }
-
-            DanceRatingDelta drd = new DanceRatingDelta(value);
-
-            DanceRating dr = DanceRatings.Find(r => r.DanceId.Equals(drd.DanceId));
-            if (dr == null)
-            {
-                dr = new DanceRating { SongId = this.SongId, DanceId = drd.DanceId, Weight = 0 };
-                DanceRatings.Add(dr);
-            }
-
-            dr.Weight += drd.Delta;
-        }
-        
         public int SongId { get; set; }
 
         [Range(5.0,500.0)]
@@ -154,6 +122,44 @@ namespace SongDatabase.Models
                 }
             }
         }
+
+        public AlbumDetails FindAlbum(string album)
+        {
+            AlbumDetails ret = null;
+            List<AlbumDetails> candidates = new List<AlbumDetails>();
+            int hash = DanceMusicContext.CreateTitleHash(album);
+
+            foreach (AlbumDetails ad in Albums)
+            {
+                if (DanceMusicContext.CreateTitleHash(ad.Name) == hash)
+                {
+                    candidates.Add(ad);
+                    if (string.Equals(ad.Name,album,StringComparison.CurrentCultureIgnoreCase))
+                    {
+                        ret = ad;
+                    }
+                }
+            }
+
+            if (ret == null && candidates.Count > 0)
+            {
+                ret = candidates[0];
+            }
+
+            return ret;
+        }
+
+        public List<AlbumDetails> CloneAlbums()
+        {
+            List<AlbumDetails> albums = new List<AlbumDetails>(Albums.Count);
+            foreach (var album in Albums)
+            {
+                albums.Add(new AlbumDetails(album));
+            }
+
+            return albums;
+        }
+
         public Song Song { get; private set; }
 
         /// <summary>
@@ -290,6 +296,39 @@ namespace SongDatabase.Models
             Albums = BuildAlbumInfo(properties);
         }
 
+        private void AddUser(DanceMusicContext dmc, string userName)
+        {
+            UserProfile user = dmc.FindUser(userName);
+            if (ModifiedBy == null)
+            {
+                ModifiedBy = new List<UserProfile>();
+            }
+
+            if (!ModifiedBy.Contains(user))
+            {
+                ModifiedBy.Add(user);
+            }
+        }
+        private void UpdateDanceRating(DanceMusicContext dmc, string value)
+        {
+            if (DanceRatings == null)
+            {
+                DanceRatings = new List<DanceRating>();
+            }
+
+            DanceRatingDelta drd = new DanceRatingDelta(value);
+
+            DanceRating dr = DanceRatings.Find(r => r.DanceId.Equals(drd.DanceId));
+            if (dr == null)
+            {
+                dr = new DanceRating { SongId = this.SongId, DanceId = drd.DanceId, Weight = 0 };
+                DanceRatings.Add(dr);
+            }
+
+            dr.Weight += drd.Delta;
+        }
+        
+
     }
 
     public enum MusicService { None, Amazon, ITunes, XBox, AMG };
@@ -299,6 +338,20 @@ namespace SongDatabase.Models
     {
         private static char[] s_services = new char[] {'#','A','I','X','M'};
         private static char[] s_purchaseTypes = new char[] { '#', 'A', 'S'};
+
+        public AlbumDetails()
+        {
+
+        }
+
+        public AlbumDetails(AlbumDetails a)
+        {
+            Name = a.Name;
+            Publisher = a.Publisher;
+            Track = a.Track;
+
+            Purchase = new Dictionary<string, string>(a.Purchase);
+        }
 
         public string Name { get; set; }
         public string Publisher { get; set; }

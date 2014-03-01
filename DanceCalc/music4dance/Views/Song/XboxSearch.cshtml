@@ -1,4 +1,4 @@
-﻿@model SongDatabase.Models.Song
+﻿@model SongDatabase.Models.SongDetails
 
 @{
     ViewBag.Title = "XboxSearch";
@@ -9,74 +9,7 @@
 <div>
     <h4>Status = @ViewBag.Status</h4>
 
-    <h4>Song</h4>
-	<hr />
-    <dl class="dl-horizontal">
-        <dt>
-            @Html.DisplayNameFor(model => model.Tempo)
-        </dt>
-
-        <dd>
-            @Html.DisplayFor(model => model.Tempo)
-        </dd>
-
-        <dt>
-            @Html.DisplayNameFor(model => model.Title)
-        </dt>
-
-        <dd>
-            @Html.DisplayFor(model => model.Title)
-        </dd>
-
-        <dt>
-            @Html.DisplayNameFor(model => model.Artist)
-        </dt>
-
-        <dd>
-            @Html.DisplayFor(model => model.Artist)
-        </dd>
-
-        <dt>
-            @Html.DisplayNameFor(model => model.Genre)
-        </dt>
-
-        <dd>
-            @Html.DisplayFor(model => model.Genre)
-        </dd>
-
-        <dt>
-            @Html.DisplayNameFor(model => model.Length)
-        </dt>
-
-        <dd>
-            @Html.DisplayFor(model => model.Length)
-        </dd>
-
-        <dt>
-            @Html.DisplayNameFor(model => model.Created)
-        </dt>
-
-        <dd>
-            @Html.DisplayFor(model => model.Created)
-        </dd>
-
-        <dt>
-            @Html.DisplayNameFor(model => model.Modified)
-        </dt>
-
-        <dd>
-            @Html.DisplayFor(model => model.Modified)
-        </dd>
-
-        <dt>
-            @Html.DisplayNameFor(model => model.TitleHash)
-        </dt>
-
-        <dd>
-            @Html.DisplayFor(model => model.TitleHash)
-        </dd>
-
-    </dl>
+    @Html.Partial("DetailsCore")
 </div>
 
 @if (ViewBag.Error)
@@ -125,9 +58,10 @@ else {
                 <b>ReleaseDate:</b>@track.ReleaseDate<br />
                 <b>Duration:</b>@track.Duration<br />
                 <b>TrackNumber:</b>@track.TrackNumber<br />
+                <b>Genre:</b>@track.Genres<br />                
 
 
-                @using (Html.BeginForm("ChooseXbox","Song",new { songId = Model.SongId, name = track.Name, album = track.Album.Name, artist = track.Artists[0].Artist.Name, trackId = track.Id, alternateId = altId, duration = track.Duration, trackNum = track.TrackNumber }))
+                @using (Html.BeginForm("ChooseXbox","Song",new { songId = Model.SongId, name = track.Name, album = track.Album.Name, artist = track.Artists[0].Artist.Name, trackId = track.Id, alternateId = altId, duration = track.Duration, trackNum = track.TrackNumber, genre=track.Genres[0] }))
                 {
                     @Html.AntiForgeryToken()
                     <input type="submit" value="CHOOSE" />
