@@ -381,6 +381,8 @@ namespace SongDatabase.Models
 
             bool foundFirst = false;
 
+            // TODONEXT: Add in modified purchase info + think about how we might want to 
+            //  put the xbox selection at the top of the album list...
             for (int aidx = 0, cidx = oldAlbums.Count; aidx < edit.Albums.Count; aidx++ )
             {
                 if (!foundFirst && !string.IsNullOrEmpty(edit.Albums[aidx].Name))
@@ -554,7 +556,7 @@ namespace SongDatabase.Models
                 }
 
                 // This handles the decremented weights
-                if (remove == null || !remove.Contains(dr.DanceId))
+                if (remove != null && !remove.Contains(dr.DanceId))
                 {
                     if (!added)
                     {

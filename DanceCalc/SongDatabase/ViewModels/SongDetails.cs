@@ -160,6 +160,22 @@ namespace SongDatabase.Models
             return albums;
         }
 
+        public void SetPurchaseInfo(IEnumerable<string> pis)
+        {
+            int idx = 0;
+            foreach (string purchase in pis)
+            {
+                if (idx > Albums.Count) 
+                {
+                    throw new ArgumentOutOfRangeException("pis");
+                }
+
+                Albums[idx].SetPurchaseInfo(purchase);
+
+                idx += 1;
+            }
+        }
+
         public Song Song { get; private set; }
 
         /// <summary>
@@ -327,8 +343,6 @@ namespace SongDatabase.Models
 
             dr.Weight += drd.Delta;
         }
-        
-
     }
 
     public enum MusicService { None, Amazon, ITunes, XBox, AMG };
@@ -338,6 +352,10 @@ namespace SongDatabase.Models
     {
         private static char[] s_services = new char[] {'#','A','I','X','M'};
         private static char[] s_purchaseTypes = new char[] { '#', 'A', 'S'};
+
+        private static string[] s_servicesEx = new string[] {"None","Amazon","ITunes","XBox","American Music Group"};
+        private static string[] s_purchaseTypesEx = new string[] { "None", "Song", "Album"};
+
 
         public AlbumDetails()
         {
@@ -350,7 +368,10 @@ namespace SongDatabase.Models
             Publisher = a.Publisher;
             Track = a.Track;
 
-            Purchase = new Dictionary<string, string>(a.Purchase);
+            if (a.Purchase != null)
+                Purchase = new Dictionary<string, string>(a.Purchase);
+            else
+                Purchase = new Dictionary<string, string>();
         }
 
         public string Name { get; set; }
@@ -371,7 +392,7 @@ namespace SongDatabase.Models
         /// Formatted purchase info
         /// </summary>
         /// <returns></returns>
-        public IList<string> GetPurcahseInfo()
+        public IList<string> GetPurcahseInfo(bool compact = false)
         {
             if (Purchase == null || Purchase.Count == 0)
             {
@@ -381,10 +402,30 @@ namespace SongDatabase.Models
             List<string> info = new List<string>(Purchase.Count);
             foreach (KeyValuePair<string,string> p in Purchase)
             {
-                info.Add(ExpandPurcahseType(p.Key) + "=" + p.Value);
+                if (compact)
+                {
+                    info.Add(p.Key + "=" + p.Value);
+                }
+                else
+                {
+                    info.Add(ExpandPurcahseType(p.Key) + "=" + p.Value);
+                }
             }
 
             return info;
+        }
+
+        public string SerializePurchaseInfo()
+        {
+            IList<string> pi = GetPurcahseInfo(true);
+            if (pi == null)
+            {
+                return null;
+            }
+            else
+            {
+                return string.Join(";", pi);
+            }
         }
 
         public void SetPurchaseInfo(PurchaseType pt, MusicService ms, string value)
@@ -407,6 +448,18 @@ namespace SongDatabase.Models
             Purchase.Add(sb.ToString(), value);
         }
 
+        public void SetPurchaseInfo(string purchase)
+        {
+            PurchaseType pt;
+            MusicService ms;
+            string pi;
+
+            if (AlbumDetails.TryParsePurchaseInfo(purchase, out pt, out ms, out pi))
+            {
+                SetPurchaseInfo(pt, ms, pi);
+            }
+        }
+
         public bool HasPurchaseInfo
         {
             get
@@ -415,48 +468,81 @@ namespace SongDatabase.Models
             }
         }
 
-        static public string ExpandPurcahseType(string abbrv)
+        static public bool TryParsePurchaseInfo(string pi, out PurchaseType pt, out MusicService ms, out string id)
+        {
+            bool success = false;
+
+            string[] parts = pi.Split(new char[] { '=' });
+
+            pt = PurchaseType.None;
+            ms = MusicService.None;
+            id = null;
+
+            if (parts.Length == 2 && TryParsePurchaseType(parts[0],out pt,out ms))
+            {
+                id = parts[1];
+                success = true;
+            }
+
+            return success;
+        }
+
+        static public bool TryParsePurchaseType(string abbrv, out PurchaseType pt, out MusicService ms)
         {
             if (abbrv == null)
             {
-                throw new ArgumentNullException("abbrv"); 
-            }
-            else if (abbrv.Length != 2)
-            {
-                throw new ArgumentOutOfRangeException("abbrv");
+                throw new ArgumentNullException("abbrv");
             }
 
-            string service = null;
-            string type = null;
+            ms = MusicService.None;
+            pt = PurchaseType.None;
+
+            if (abbrv.Length != 2)
+            {
+                return false;
+            }
+
             switch (abbrv[0])
             {
                 case 'I':
-                    service = "ITunes";
+                    ms = MusicService.ITunes;
                     break;
                 case 'A':
-                    service = "Amazon";
+                    ms = MusicService.Amazon;
                     break;
                 case 'X':
-                    service = "XBox";
+                    ms = MusicService.XBox;
                     break;
                 case 'M':
-                    service = "American Music Group";
+                    ms = MusicService.AMG;
                     break;
-                default:
-                    throw new ArgumentOutOfRangeException("abbrv");
             }
 
             switch (abbrv[1])
             {
                 case 'S':
-                    type = "Song";
+                    pt = PurchaseType.Song;
                     break;
                 case 'A':
-                    type = "Album";
+                    pt = PurchaseType.Album;
                     break;
-                default:
-                    throw new ArgumentOutOfRangeException("abbrv");
             }
+
+            return true;
+        }
+
+        static public string ExpandPurcahseType(string abbrv)
+        {
+            PurchaseType pt;
+            MusicService ms;
+
+            if (!TryParsePurchaseType(abbrv, out pt, out ms))
+            {
+                throw new ArgumentOutOfRangeException("abbrv");
+            }
+
+            string service = s_servicesEx[(int)ms];
+            string type = s_purchaseTypesEx[(int)pt];
 
             return service + " " + type;
         }

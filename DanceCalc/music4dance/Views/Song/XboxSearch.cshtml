@@ -58,7 +58,16 @@ else {
                 <b>ReleaseDate:</b>@track.ReleaseDate<br />
                 <b>Duration:</b>@track.Duration<br />
                 <b>TrackNumber:</b>@track.TrackNumber<br />
-                <b>Genre:</b>@track.Genres<br />                
+                @if (track.Genres != null)
+                { 
+                    <b>Genre(s):</b>
+                    foreach(string genre in track.Genres)
+                    {
+                        <text>@genre</text>
+                        <text>&nbsp;</text>
+                    }
+                    <br />                
+                }
 
 
                 @using (Html.BeginForm("ChooseXbox","Song",new { songId = Model.SongId, name = track.Name, album = track.Album.Name, artist = track.Artists[0].Artist.Name, trackId = track.Id, alternateId = altId, duration = track.Duration, trackNum = track.TrackNumber, genre=track.Genres[0] }))

@@ -225,7 +225,7 @@ namespace music4dance.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "canEdit")] 
-        public ActionResult Edit(SongDetails song, List<string> addDances, List<string> remDances)
+        public ActionResult Edit(SongDetails song, List<string> addDances, List<string> remDances, string[] purchase)
         {
             if (ModelState.IsValid)
             {
@@ -238,6 +238,7 @@ namespace music4dance.Controllers
 //#if DEBUG
 //                _db.Dump();
 //#endif
+                song.SetPurchaseInfo(purchase);
                 SongDetails edit = _db.EditSong(user, song, addDances, remDances);
 
 //#if DEBUG
@@ -489,8 +490,6 @@ namespace music4dance.Controllers
         [Authorize(Roles = "canEdit")]
         public ActionResult ChooseXbox(int songId, string name, string album, string artist, string trackId, string alternateId, string duration, string genre, int? trackNum)
         {
-            // TODONEXT: - Pipe the purchase info through the edit page, should touch editcore.cshtml and albumdetails class at minimum
-
             SongDetails song = _db.FindSongDetails(songId);
             if (song == null)
             {

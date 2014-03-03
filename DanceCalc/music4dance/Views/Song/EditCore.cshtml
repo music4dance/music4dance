@@ -5,7 +5,7 @@
     @Html.AntiForgeryToken()
     @Html.ValidationSummary(true)
 
-    SongDatabase.Models.Song old = null;
+    SongDatabase.Models.SongDetails old = null;
 
     try
     {
@@ -61,6 +61,7 @@
             {
                 string albumId = "Album_" + currentAlbum.ToString();
                 string deleteId = "Delete_" + currentAlbum.ToString();
+                string purchase = Model.Albums[currentAlbum].SerializePurchaseInfo();
                 <tr id="@albumId">
                     <td>
                         <div class="editor-field">
@@ -82,7 +83,7 @@
                     </td>
                     <td>
                         <button type="button" id="@deleteId">X</button>
-                        @*@Html.HiddenFor(model => model.Albums[currentAlbum].Purchase)*@
+                        <input type="hidden" id="Purchase[@currentAlbum]" name="purchase[@currentAlbum]" value="@purchase" />
                     </td>
                 </tr>
             }
