@@ -1,11 +1,11 @@
-﻿@model SongDatabase.Models.SongDetails
+﻿@model SongDatabase.ViewModels.SongDetails
 
 @using (Html.BeginForm((string)ViewBag.Action, "Song"))
 {
     @Html.AntiForgeryToken()
     @Html.ValidationSummary(true)
 
-    SongDatabase.Models.SongDetails old = null;
+    SongDatabase.ViewModels.SongDetails old = null;
 
     try
     {
@@ -90,13 +90,13 @@
         }
         else
         {
-            Model.Albums = new List<SongDatabase.Models.AlbumDetails>();
+            Model.Albums = new List<SongDatabase.ViewModels.AlbumDetails>();
         }
 
         for (; currentAlbum < maxAlbum; currentAlbum += 1)
         {
             string albumId = "Album_" + currentAlbum.ToString();
-            Model.Albums.Add(new SongDatabase.Models.AlbumDetails());
+            Model.Albums.Add(new SongDatabase.ViewModels.AlbumDetails());
             <tr id="@albumId" hidden>
                 <td>
                     <div class="editor-field">

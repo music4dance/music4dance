@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 
+using SongDatabase.ViewModels;
 
 namespace SongDatabase.Models
 {    public class Song : DbObject

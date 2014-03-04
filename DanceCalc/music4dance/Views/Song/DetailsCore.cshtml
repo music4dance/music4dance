@@ -1,4 +1,4 @@
-﻿@model SongDatabase.Models.SongDetails
+﻿@model SongDatabase.ViewModels.SongDetails
 
 <fieldset>
     <legend>Song</legend>
@@ -65,7 +65,7 @@
     {
         for (int aidx = 0; aidx < Model.Albums.Count; aidx++)
         {
-            SongDatabase.Models.AlbumDetails album = @Model.Albums[aidx];
+            SongDatabase.ViewModels.AlbumDetails album = @Model.Albums[aidx];
 
             string cls = (aidx == 0) ? "" : "display-label-alternate";
             <div class="display-label @cls">

@@ -96,6 +96,7 @@
     <Compile Include="Models\DanceMusicContext.cs" />
     <Compile Include="Models\DanceRating.cs" />
     <Compile Include="Models\DbObject.cs" />
+    <Compile Include="ViewModels\AlbumDetails.cs" />
     <Compile Include="ViewModels\MergeCluster.cs" />
     <Compile Include="Models\Song.cs" />
     <Compile Include="ViewModels\SongCounts.cs" />
