@@ -162,21 +162,21 @@ namespace SongDatabase.ViewModels
             return albums;
         }
 
-        public void SetPurchaseInfo(IEnumerable<string> pis)
-        {
-            int idx = 0;
-            foreach (string purchase in pis)
-            {
-                if (idx > Albums.Count) 
-                {
-                    throw new ArgumentOutOfRangeException("pis");
-                }
+        //public void SetPurchaseInfo(IEnumerable<string> pis)
+        //{
+        //    int idx = 0;
+        //    foreach (string purchase in pis)
+        //    {
+        //        if (idx > Albums.Count) 
+        //        {
+        //            throw new ArgumentOutOfRangeException("pis");
+        //        }
 
-                Albums[idx].SetPurchaseInfo(purchase);
+        //        Albums[idx].SetPurchaseInfo(purchase);
 
-                idx += 1;
-            }
-        }
+        //        idx += 1;
+        //    }
+        //}
 
         public Song Song { get; private set; }
 
@@ -198,7 +198,7 @@ namespace SongDatabase.ViewModels
                 select prop;
             return BuildAlbumInfo(properties);
         }
-        public static List<AlbumDetails> BuildAlbumInfo(IEnumerable<SongProperty> properties)
+        public static List<AlbumDetails> BuildAlbumInfo(IEnumerable<SongProperty> properties)        
         {
             List<string> names = new List<string>(new string[] {"Album","Publisher","Track","Purchase"});
 
@@ -230,13 +230,12 @@ namespace SongDatabase.ViewModels
                         {
                             max = idx;
                         }
-                        d = new AlbumDetails();
+                        d = new AlbumDetails { Index = idx };
                         map.Add(idx, d);
                     }
 
                     bool remove = string.IsNullOrWhiteSpace(prop.Value);
 
-                    // Is there a difference between add and replace?  Maybe for a non-indexed/ordered property
                     switch (name)
                     {
                         case "Album":
@@ -303,6 +302,19 @@ namespace SongDatabase.ViewModels
             }
 
             return albums;
+        }
+
+        public int GetNextAlbumIndex()
+        {
+            int ret = 0;
+            foreach (AlbumDetails ad in Albums)
+            {
+                if (ad.Index >= ret)
+                {
+                    ret = ad.Index + 1;
+                }
+            }
+            return ret;
         }
         private void BuildAlbumInfo()
         {

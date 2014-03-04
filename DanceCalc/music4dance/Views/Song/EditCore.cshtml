@@ -61,7 +61,7 @@
             {
                 string albumId = "Album_" + currentAlbum.ToString();
                 string deleteId = "Delete_" + currentAlbum.ToString();
-                string purchase = Model.Albums[currentAlbum].SerializePurchaseInfo();
+                //string purchase = Model.Albums[currentAlbum].SerializePurchaseInfo();
                 <tr id="@albumId">
                     <td>
                         <div class="editor-field">
@@ -83,7 +83,8 @@
                     </td>
                     <td>
                         <button type="button" id="@deleteId">X</button>
-                        <input type="hidden" id="Purchase[@currentAlbum]" name="purchase[@currentAlbum]" value="@purchase" />
+                        @Html.HiddenFor(model => Model.Albums[currentAlbum].PurchaseInfo)
+                        @Html.HiddenFor(model => Model.Albums[currentAlbum].Index)
                     </td>
                 </tr>
             }
@@ -93,10 +94,12 @@
             Model.Albums = new List<SongDatabase.ViewModels.AlbumDetails>();
         }
 
+        int albumIdx = Model.GetNextAlbumIndex();
+        
         for (; currentAlbum < maxAlbum; currentAlbum += 1)
         {
             string albumId = "Album_" + currentAlbum.ToString();
-            Model.Albums.Add(new SongDatabase.ViewModels.AlbumDetails());
+            Model.Albums.Add(new SongDatabase.ViewModels.AlbumDetails { Index = albumIdx++ });
             <tr id="@albumId" hidden>
                 <td>
                     <div class="editor-field">

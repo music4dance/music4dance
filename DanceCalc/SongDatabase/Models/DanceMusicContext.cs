@@ -394,14 +394,14 @@ namespace SongDatabase.Models
                 if (aidx < cidx)
                 {
                     // We're in existing album territory
-                    modified |= ModifyAlbumInfo(song,aidx,oldAlbums[aidx], edit.Albums[aidx], log);
+                    modified |= edit.Albums[aidx].ModifyInfo(this,song,aidx,oldAlbums[aidx], log);
                 }
                 else
                 {
                     // We're in new territory only do something if the name field is non-empty
                     if (!string.IsNullOrWhiteSpace(edit.Albums[aidx].Name))
                     {
-                        AddAlbum(song,aidx,edit.Albums[aidx].Name,edit.Albums[aidx].Track,edit.Albums[aidx].Publisher,log);
+                        edit.Albums[aidx].CreateProperties(this,song,aidx,log);
                         modified = true;
                     }
                 }
@@ -769,110 +769,12 @@ namespace SongDatabase.Models
                         song.Album = albums[0].Name;
                     }
 
-                    CreateAlbumProperties(song, ia, ad, log);
+                    ad.CreateProperties(this, song, ia, log);
                 }
             }
         }
 
-        void CreateAlbumProperties(Song song, int idx, AlbumDetails album, SongLog log = null)
-        {
-            AddAlbumProperty(song, idx, AlbumField, null, album.Name, log);
-            AddAlbumProperty(song, idx, TrackField, null, album.Track, log);
-            AddAlbumProperty(song, idx, PublisherField, null, album.Publisher, log);
-            if (album.Purchase != null)
-            {
-                foreach (KeyValuePair<string,string> purchase in album.Purchase)
-                {
-                    AddAlbumProperty(song, idx, PurchaseField, purchase.Key, purchase.Value, log);
-                }
-            }            
-        }
-
-        public void AddAlbumProperty(Song old, int idx, string name, string qual, object value, SongLog log=null)
-        {
-            if (value == null)
-                return;
-
-            string fullName = SongProperty.FormatName(name, idx, qual);
-
-            SongProperty np = SongProperties.Create();
-            np.Song = old;
-            np.Name = fullName;
-            np.Value = SerializeValue(value);
-
-            SongProperties.Add(np);
-            if (log != null)
-            {
-                LogPropertyUpdate(np, log);
-            }
-        }
-
-        public bool ChangeAlbumProperty(Song old, int idx, string name, object oldValue, object newValue, SongLog log=null)
-        {
-            bool modified = false;
-
-            if (!object.Equals(oldValue, newValue))
-            {
-                string fullName = SongProperty.FormatName(name, idx);
-
-                SongProperty np = SongProperties.Create();
-                np.Song = old;
-                np.Name = fullName;
-                np.Value = SerializeValue(newValue);
-
-                SongProperties.Add(np);
-                if (log != null)
-                {
-                    LogPropertyUpdate(np, log, SerializeValue(oldValue));
-                }
-                
-
-                modified = true;
-            }
-
-            return modified;
-        }
-
-
-        private void AddAlbum(Song song, int idx, string album, int? track, string publisher, SongLog log)
-        {
-            if (string.IsNullOrWhiteSpace(album))
-            {
-                throw new ArgumentOutOfRangeException("album");
-            }
-
-            AddAlbumProperty(song, idx, AlbumField, null, album, log);
-            AddAlbumProperty(song, idx, TrackField, null, track, log);
-            AddAlbumProperty(song, idx, PublisherField, null, publisher, log);
-        }
-
-        private bool ModifyAlbumInfo(Song song, int idx, AlbumDetails old, AlbumDetails edit, SongLog log)
-        {
-            bool modified = true;
-
-            // This indicates a deleted album
-            if (string.IsNullOrWhiteSpace(edit.Name))
-            {
-                ChangeAlbumProperty(song, idx, AlbumField, old.Name, null, log);
-                if (old.Track.HasValue)
-                    ChangeAlbumProperty(song, idx, TrackField, old.Track, null, log);
-                if (!string.IsNullOrWhiteSpace(old.Publisher))
-                    ChangeAlbumProperty(song, idx, PublisherField, old.Publisher, null, log);                
-
-                modified = true;
-            }
-            else
-            {
-                modified |= ChangeAlbumProperty(song, idx, AlbumField, old.Name, edit.Name, log);
-                modified |= ChangeAlbumProperty(song, idx, TrackField, old.Track, edit.Track, log);
-                modified |= ChangeAlbumProperty(song, idx, PublisherField, old.Publisher, edit.Publisher, log);
-                //TODO: Edit purchase info
-            }
-            
-            return modified;
-        }
-
-        private static string SerializeValue(object o)
+        public static string SerializeValue(object o)
         {
             if (o == null)
             {
@@ -990,7 +892,7 @@ namespace SongDatabase.Models
             return modified;
         }
 
-        private void LogPropertyUpdate(SongProperty sp, SongLog log, string oldValue = null)
+        public void LogPropertyUpdate(SongProperty sp, SongLog log, string oldValue = null)
         {
             log.UpdateData(sp.Name, sp.Value, oldValue);
         }
