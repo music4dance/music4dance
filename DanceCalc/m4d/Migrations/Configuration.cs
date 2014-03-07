@@ -1,5 +1,6 @@
 namespace m4d.Migrations
 {
+    using DanceLibrary;
     using m4d.Models;
     using Microsoft.AspNet.Identity;
     using Microsoft.AspNet.Identity.EntityFramework;
@@ -61,6 +62,17 @@ namespace m4d.Migrations
 
                     manager.Create(user, "_this_is_a_placeholder_");
                     manager.AddToRole(user.Id, _editRole);
+                }
+            }
+
+            if (!context.Dances.Any(d => d.Id == "CHA"))
+            {
+                Dances dances = new Dances();
+
+                foreach (DanceObject d in dances.AllDances)
+                {
+                    Dance dance = new Dance { Id = d.Id };
+                    context.Dances.Add(dance);
                 }
             }
         }
