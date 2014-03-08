@@ -1,0 +1,19 @@
+﻿
+@{
+    ViewBag.Title = "SeedDatabase";
+}
+
+@if (ViewBag.Results.Count > 0)
+{ 
+    <h2>Database was seeded</h2>
+
+    foreach (string s in ViewBag.Results)
+    {
+        <p>@s</p>
+    }
+}
+else
+{
+    <h2>Database was <i>already</i> seeded.</h2>
+}
+
