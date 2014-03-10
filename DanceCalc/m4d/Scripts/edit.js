@@ -1,0 +1,37 @@
+﻿$(document).ready(function () {
+    for (var i = 0; i < albumCount; i++)
+    {
+        var name = "#Delete_" + i.toString();
+        $(name).click(i,DeleteAlbum)
+    }
+
+    $('#AddAlbum').click(AddAlbum);
+});
+
+function DeleteAlbum(event)
+{
+    var id = "#Album_" + event.data.toString();
+    var base = "#Albums_" + event.data.toString();
+    var name = base + "__Name";
+    var track = base + "__Track";
+    var publisher = base + "__Publisher";
+
+    $(id).hide();
+
+    $(name).val(null);
+    $(track).val(null);
+    $(publisher).val(null);
+}
+
+function AddAlbum()
+{
+    var name = "#Album_" + (albumCount + albumsAdded).toString();
+
+    albumsAdded += 1;
+    $(name).show();
+
+    if (albumsAdded == 4)
+    {
+        $('#AddAlbum').hide();
+    }
+}

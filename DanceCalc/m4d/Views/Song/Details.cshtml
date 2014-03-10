@@ -4,32 +4,32 @@
     ViewBag.Title = "Details";
 }
 
-<hgroup>
-<h1>@Html.DisplayFor(model => model.Title)</h1>
-<h2>Details</h2>
-</hgroup>
+<div class="row">
+    <div class="col-md-12">
+        <hgroup>
+            <h1>@Html.DisplayFor(model => model.Title)</h1>
+        </hgroup>
+    </div>
+</div>
 
-<section id="songDetails">
-
-@Html.Partial("DetailsCore")
-
-<p>
-    @if (User.IsInRole("canEdit"))
+<div class="row">
+    <div id="songDetails" class="col-md-6">
+        @Html.Partial("DetailsCore")
+        <div>
+            @if (User.IsInRole("canEdit"))
+            {
+                @Html.ActionLink("Edit", "Edit", new { id = Model.SongId }, new { @class = "btn btn-small btn-default", role = "button" })
+                @Html.ActionLink("Delete", "Delete", new { id = Model.SongId }, new { @class = "btn btn-small btn-default", role = "button" })
+                @Html.ActionLink("XBox", "XBoxSearch", new { id = Model.SongId }, new { @class = "btn btn-small btn-default", role = "button" })
+            }
+            @Html.ActionLink("Back to List", (string)ViewBag.BackAction, null, new { @class = "btn btn-small btn-primary", role = "button" })
+        </div>
+    </div>
+    @if (User.IsInRole("showDiagnostics"))
     {
-        @Html.ActionLink("Edit", "Edit", new { id=Model.SongId }) 
-        @Html.Display(" | ")
-        @Html.ActionLink("Delete", "Delete", new { id=Model.SongId }) 
-        @Html.Display(" | ")
-        @Html.ActionLink("XBox", "XBoxSearch", new { id = Model.SongId })
-        @Html.Display(" | ")
+        <div id="songLog" class="col-md-6">
+            <br />
+            @Html.Partial("SongItems", Model.Song)
+        </div>
     }
-    @Html.ActionLink("Back to List", (string)ViewBag.BackAction)
-</p>
-</section>
-@if (User.IsInRole("showDiagnostics"))
-{
-<section id="songLog">
-    <h2>Log</h2>
-    @Html.Partial("SongItems",Model.Song)
-</section>
-}
+</div>

@@ -1,8 +1,6 @@
 ﻿@model m4d.ViewModels.SongDetails
 
 <fieldset>
-    <legend>Song</legend>
-
     <div class="display-label">
         @Html.DisplayNameFor(model => model.Artist):
     </div>
@@ -54,8 +52,8 @@
             foreach (var item in Model.DanceRatings)
             {
                 @separator;
-            @Html.DisplayFor(model => item.Dance.Info.Name);
-                                                               separator = ", ";
+                @Html.DisplayFor(model => item.Dance.Info.Name);
+                separator = ", ";
             }
         }
     </div>

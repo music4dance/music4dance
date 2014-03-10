@@ -71,19 +71,6 @@ table.songlist
     border-bottom-style:solid;
 }
 
-/* song details page*/
-#songDetails {
-    border-right: solid 2px #c8c8c8;
-    float: left;
-    width: 55%;
-}
-
-#songLog {
-    margin-left: 40px;
-    float: left;
-    width: 40%;
-}
-
 /* Details pages */
 
 .label {
@@ -105,15 +92,3 @@ table.songlist
     font-size: 1.2em;
 }
 
-/* Song Details */
-#songDetails {
-    border-right: none;
-    float: none;
-    width: auto;
-}
-
-#songLog {
-    margin-left: 0;
-    float: none;
-    width: auto;
-}

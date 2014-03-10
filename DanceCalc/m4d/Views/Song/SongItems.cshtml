@@ -7,17 +7,18 @@
             <th>Id</th>
             <th>Name</th>
             <th>Value</th>
-        </tr>        
-        @foreach (var logItem in Model.SongProperties.OrderBy(sp => sp.Id))
-        {
-            <tr>
-                <td>@Html.DisplayFor(modelItem => logItem.Id)</td>
-                <td>@Html.DisplayFor(modelItem => logItem.Name)</td>
-                <td>@Html.DisplayFor(modelItem => logItem.Value)</td>
-            </tr>
-        }
+        </tr>
+    @foreach (var logItem in Model.SongProperties.OrderBy(sp => sp.Id))
+    {
+        <tr>
+            <td>@Html.DisplayFor(modelItem => logItem.Id)</td>
+            <td>@Html.DisplayFor(modelItem => logItem.Name)</td>
+            <td>@Html.DisplayFor(modelItem => logItem.Value)</td>
+        </tr>
+    }
     </table>
-    
+
+    <br />
     <p>
         <b>Users: </b>
         @{string separator = "";}
