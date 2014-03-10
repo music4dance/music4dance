@@ -1,0 +1,114 @@
+﻿@model PagedList.IPagedList<m4d.Models.SongLog>
+@using PagedList.Mvc;
+
+<link href="/Content/PagedList.css" rel="stylesheet" type="text/css" />
+
+@{
+    ViewBag.Title = "Log";
+    bool canEdit = false;
+    if (User.IsInRole("canEdit"))
+    {
+        canEdit = true;
+    }
+}
+
+<h2>Index</h2>
+
+<p>
+    @Html.ActionLink("Create New", "Create")
+</p>
+
+@using (Html.BeginForm("Undo","Log")) {
+    @Html.AntiForgeryToken()
+
+    <table class="table">
+        <tr>
+            @if (canEdit)
+            {
+                <th>&nbsp;</th>
+            }
+            <th>
+                LID
+            </th>
+            <th>
+                SID
+            </th>
+            <th>
+                User Name
+            </th>
+            <th>
+                Time
+            </th>
+            <th>
+                Action
+            </th>
+            <th>
+                Signature
+            </th>
+            <th>
+                Data
+            </th>
+        </tr>
+
+    @foreach (var item in Model) {
+        <tr>
+            @if (canEdit)
+            {
+                string cbId = "Undo-" + item.Id.ToString();
+                string cbArrow = "Arrow-" + item.Id.ToString();
+                <td><input id="@cbId" name="undo" type="checkbox" value="@item.Id.ToString()" /><button type="button" name="@cbArrow" id="@cbArrow">&darr;</button></td>
+            }
+            <td>
+                @Html.DisplayFor(modelItem => item.Id)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.SongReference)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.User.UserName)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Time)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Action)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.SongSignature)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Data)
+            </td>
+        </tr>
+    }
+
+    </table>
+    
+<p>
+    @if (canEdit)
+    {
+        <input type="submit" value="Undo" />
+    }
+</p>
+    
+}
+
+<div>
+    Page @(Model.PageCount < Model.PageNumber ? 0 : Model.PageNumber) of @Model.PageCount
+    (@Model.TotalItemCount log entries found.)
+    @Html.PagedListPager(Model, page => Url.Action(ViewBag.ActionName, new { page, sortOrder = ViewBag.CurrentSort, currentFilter = ViewBag.CurrentFilter, dances = ViewBag.CurrentDances, level = ViewBag.Level }))
+</div>
+
+@Html.ActionLink("Download Log", "Lines")
+
+@section Scripts {
+    <script>
+        var lineNumbers = new Array();
+        @foreach (var item in Model) {
+            <text>lineNumbers.push(@item.Id)</text>
+        }
+    </script>
+
+
+    <script src="@Url.Content("~/Scripts/undo.js?@Html.Raw(DateTime.Now.Ticks.ToString())")" type="text/javascript"></script>
+}

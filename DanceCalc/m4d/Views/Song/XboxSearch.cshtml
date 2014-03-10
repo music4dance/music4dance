@@ -1,0 +1,93 @@
+﻿@model m4d.ViewModels.SongDetails
+
+@{
+    ViewBag.Title = "XboxSearch";
+}
+
+<h2>XboxSearch</h2>
+
+<div>
+    <h4>Status = @ViewBag.Status</h4>
+
+    @Html.Partial("DetailsCore")
+</div>
+
+@if (ViewBag.Error)
+{
+    using (@Html.BeginForm("XboxSearch","Song",FormMethod.Get))
+    { 
+        <input type="hidden" name="id" value="@Model.SongId" />
+        <input type="text" name="search" value="@ViewBag.Search" />
+        <input type="submit" value="Retry" />
+    }            
+}
+else { 
+    <div>
+    <h4>Repsonse:</h4>
+    
+    @{
+        var resp = ViewBag.Results;
+        var tracks = resp.Tracks;
+        var items = tracks.Items;
+        
+        foreach (var track in items)
+        {
+            string tracklink = @track.Link + "?action=addtocollection";
+            string altId = null;
+            <div>
+                @if (track.ImageUrl != null)
+                {
+                    <img src="@track.ImageUrl" height="50" width="50"/>
+                }
+                <b>Name:</b>@track.Name<br />
+                <b>Album:</b>@track.Album.Name<br />
+                <b>Artist:</b>@track.Artists[0].Artist.Name<br />
+                <b>Link:</b><a href="@track.Link" target="bogus">@tracklink</a><br />
+                <b>Id:</b>@track.Id<br />
+                @if (@track.OtherIds != null)
+                {
+                    try
+                    {
+                        altId = tracks.OtherIds.music_amg;                        
+                        <b>OtherId:</b>@altId<br />
+                    }
+                    catch (Microsoft.CSharp.RuntimeBinder.RuntimeBinderException)
+                    {  
+                    }
+                }            
+                <b>ReleaseDate:</b>@track.ReleaseDate<br />
+                <b>Duration:</b>@track.Duration<br />
+                <b>TrackNumber:</b>@track.TrackNumber<br />
+                @if (track.Genres != null)
+                { 
+                    <b>Genre(s):</b>
+                    foreach(string genre in track.Genres)
+                    {
+                        <text>@genre</text>
+                        <text>&nbsp;</text>
+                    }
+                    <br />                
+                }
+
+
+                @using (Html.BeginForm("ChooseXbox","Song",new { songId = Model.SongId, name = track.Name, album = track.Album.Name, artist = track.Artists[0].Artist.Name, trackId = track.Id, alternateId = altId, duration = track.Duration, trackNum = track.TrackNumber, genre=track.Genres[0] }))
+                {
+                    @Html.AntiForgeryToken()
+                    <input type="submit" value="CHOOSE" />
+                }
+                <br/>
+                <br />
+                <br />
+            </div>
+        }
+    }
+
+    <p>@ViewBag.ResultString</p>
+    </div>
+}
+<p>
+    @Html.ActionLink("Edit", "Edit", new { id = Model.SongId }) |
+    @Html.ActionLink("Back to List", "Index")
+</p>
+
+@Html.AntiForgeryToken()

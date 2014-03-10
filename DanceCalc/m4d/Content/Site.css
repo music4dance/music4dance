@@ -40,3 +40,80 @@ input[type="checkbox"].input-validation-error {
 .validation-summary-valid {
     display: none;
 }
+
+/* songlist table */
+table.songlist tr:nth-child(odd)
+{
+    background-color: lightgray;
+}
+
+table.songlist th 
+{
+    background-color: silver;
+    padding-left: 5px;
+    padding-right: 5px;
+}
+
+table.songlist td
+{
+    padding-left: 3px;
+    padding-right: 3px;
+}
+
+table.songlist 
+{
+    border-color: silver;
+    border-right-width: medium;
+    border-left-width: medium;
+    border-left-style:solid;
+    border-right-style:solid;
+    border-bottom-width:thick;
+    border-bottom-style:solid;
+}
+
+/* song details page*/
+#songDetails {
+    border-right: solid 2px #c8c8c8;
+    float: left;
+    width: 55%;
+}
+
+#songLog {
+    margin-left: 40px;
+    float: left;
+    width: 40%;
+}
+
+/* Details pages */
+
+.label {
+    font-weight: 700;
+}
+
+.display-label {
+    display: inline;
+    font-size: 1.2em;
+    font-weight: 600;
+}
+
+.display-label-alternate {
+    margin-left: 20px;
+}
+
+.display-field {
+    display: inline;
+    font-size: 1.2em;
+}
+
+/* Song Details */
+#songDetails {
+    border-right: none;
+    float: none;
+    width: auto;
+}
+
+#songLog {
+    margin-left: 0;
+    float: none;
+    width: auto;
+}

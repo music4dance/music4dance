@@ -1,0 +1,31 @@
+﻿@model m4d.Models.Song
+
+@if (User.IsInRole("showDiagnostics"))
+{
+    <table class="songlist">
+        <tr>
+            <th>Id</th>
+            <th>Name</th>
+            <th>Value</th>
+        </tr>        
+        @foreach (var logItem in Model.SongProperties.OrderBy(sp => sp.Id))
+        {
+            <tr>
+                <td>@Html.DisplayFor(modelItem => logItem.Id)</td>
+                <td>@Html.DisplayFor(modelItem => logItem.Name)</td>
+                <td>@Html.DisplayFor(modelItem => logItem.Value)</td>
+            </tr>
+        }
+    </table>
+    
+    <p>
+        <b>Users: </b>
+        @{string separator = "";}
+        @foreach (var user in Model.ModifiedBy)
+        {
+            @separator;
+            @user.UserName;
+            separator = ", ";                         
+        }
+    </p>
+}

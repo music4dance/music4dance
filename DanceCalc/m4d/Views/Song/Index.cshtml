@@ -1,0 +1,131 @@
+﻿@model PagedList.IPagedList<m4d.Models.Song>
+@using PagedList.Mvc;
+
+<link href="/Content/PagedList.css" rel="stylesheet" type="text/css" />
+
+@{
+    ViewBag.Title = "Songs for Dancing";
+    bool canEdit = false;
+    if (User.IsInRole("canEdit"))
+    {
+        canEdit = true;
+    }
+    bool showDiag = false;
+    if (User.IsInRole("showDiagnostics"))
+    {
+        showDiag = true;
+    }
+}
+
+<h2>@ViewBag.Title</h2>
+
+
+@using (Html.BeginForm("Index","Song",FormMethod.Get))
+{
+    <p>
+        Find: @Html.TextBox("SearchString", ViewBag.CurrentFilter as string)&nbsp;
+        @if (ViewBag.Dances != null)
+        {
+            @Html.DropDownList("dances", (IEnumerable<SelectListItem>)ViewBag.Dances);
+        }
+        <input type="submit" value="Search" />
+    </p>
+}
+
+@using (Html.BeginForm("BulkEdit","Song")) {
+    @Html.AntiForgeryToken()
+
+<table class="songlist">
+    <tr>
+        @if (canEdit)
+        {
+            <th>&nbsp;</th>
+        }
+        <th @ViewBag.TitleClass style="min-width:75pt">
+            @Html.ActionLink("Title", "Index", new { sortOrder = ViewBag.TitleSort, currentFilter = ViewBag.CurrentFilter, dances = ViewBag.CurrentDances, level = ViewBag.Level })
+        </th>
+        <th @ViewBag.ArtistClass  style="min-width:75pt">
+            @Html.ActionLink("Artist", "Index", new { sortOrder = ViewBag.ArtistSort, currentFilter = ViewBag.CurrentFilter, dances = ViewBag.CurrentDances, level = ViewBag.Level })
+        </th>
+        <th @ViewBag.AlbumClass style="min-width:75pt">
+            @Html.ActionLink("Album", "Index", new { sortOrder = ViewBag.AlbumSort, currentFilter = ViewBag.CurrentFilter, dances = ViewBag.CurrentDances, level = ViewBag.Level })
+        </th>
+        <th>Tempo (BPM)</th>
+        <th>Dances</th>
+        @if (showDiag)
+        {
+            <th>TitleHash</th>
+        }
+    </tr>
+
+@foreach (var item in Model) {
+    if (item.Title != null)
+    { 
+    <tr>
+        @if (canEdit)
+        {
+            string id = "Selected-" + item.SongId.ToString();
+            <td><input name="selectedSongs" id="@id" type="checkbox" value="@item.SongId" /></td>
+        }
+        <td>
+            @Html.ActionLink(item.Title, "Details", new { id = item.SongId })
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.Artist)
+        </td>
+        <td>
+            @if (!string.IsNullOrWhiteSpace(item.Album))
+            {
+                string[] albums = item.Album.Split(new char[] { '|' });
+                if (albums.Length > 0)
+                {
+                    <text>@albums[0]</text>
+                }
+                else
+                {
+                    <text></text>
+                }
+            }
+        </td>
+        <td>
+            @if (item.Tempo != null)
+            {
+                string tempo = decimal.Round(item.Tempo.Value).ToString("F0");
+                @tempo;
+            }
+        </td>
+        <td>
+            @{ var separator = ""; }
+            @foreach (var ditem in item.DanceRatings)
+            {
+                @separator;
+                @Html.DisplayFor(m => ditem.Dance.Info.Name)
+                separator = ", "; 
+            }
+        </td>
+        @if (showDiag)
+        {
+            <td>
+                @string.Format("0X{0:X08}", item.TitleHash)
+            </td>
+        }
+    </tr>
+    }
+}
+
+</table>
+    
+<p>
+    @if (canEdit)
+    {
+        <input type="submit" name="action" value="Merge" />
+        <input type="submit" name="action" value="Delete" />
+        @Html.ActionLink("Add New Song", "Create");
+    }    
+</p>
+}
+
+Page @(Model.PageCount < Model.PageNumber ? 0 : Model.PageNumber) of @Model.PageCount
+(@Model.TotalItemCount songs found.)
+
+@Html.PagedListPager( Model, page => Url.Action(ViewBag.ActionName, new { page, sortOrder = ViewBag.CurrentSort, currentFilter=ViewBag.CurrentFilter, dances=ViewBag.CurrentDances, level=ViewBag.Level }) )
