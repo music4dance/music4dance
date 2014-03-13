@@ -85,7 +85,7 @@ namespace m4d.Models
             {
                 // This is not a fully unambiguous signature, should we add in a checksum with some or all of the
                 //  other fields in the song?
-                return BuildSignature(Artist, Album, Title);
+                return BuildSignature(Artist, Title);
             }
         }
 
@@ -120,24 +120,23 @@ namespace m4d.Models
             return !t1.HasValue || !t2.HasValue || t1.Value.Equals(t2.Value);
         }
 
-        static public string SignatureFromProperties(IOrderedQueryable<SongProperty> properties)
-        {
-            // Again, this assumes properties are in reverse ID order...
+        //static public string SignatureFromProperties(IOrderedQueryable<SongProperty> properties)
+        //{
+        //    // Again, this assumes properties are in reverse ID order...
 
-            SongProperty artistP = properties.FirstOrDefault(p => p.Name == DanceMusicContext.ArtistField);
-            SongProperty albumP = properties.FirstOrDefault(p => p.Name == DanceMusicContext.AlbumField);
-            SongProperty titleP = properties.FirstOrDefault(p => p.Name == DanceMusicContext.TitleField);
+        //    SongProperty artistP = properties.FirstOrDefault(p => p.Name == DanceMusicContext.ArtistField);
+        //    SongProperty albumP = properties.FirstOrDefault(p => p.Name == DanceMusicContext.AlbumField);
+        //    SongProperty titleP = properties.FirstOrDefault(p => p.Name == DanceMusicContext.TitleField);
 
-            return BuildSignature(artistP != null ? artistP.Value : string.Empty, albumP != null ? albumP.Value : string.Empty, titleP != null ? titleP.Value : string.Empty);
-        }
+        //    return BuildSignature(artistP != null ? artistP.Value : string.Empty, albumP != null ? albumP.Value : string.Empty, titleP != null ? titleP.Value : string.Empty);
+        //}
 
-        private static string BuildSignature(string artist, string album, string title)
+        private static string BuildSignature(string artist, string title)
         {
             artist = (artist == null) ? string.Empty : artist;
-            album = (album == null) ? string.Empty : album;
             title = (title == null) ? string.Empty : title;
 
-            string ret = string.Format("{0}\t{1}\t{2}", artist, album, title);
+            string ret = string.Format("{0} {1}", DanceMusicContext.CreateNormalForm(artist), DanceMusicContext.CreateNormalForm(title));
 
             if (string.IsNullOrWhiteSpace(ret))
                 return null;

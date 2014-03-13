@@ -328,6 +328,7 @@
     <Content Include="Views\Song\Merge.cshtml" />
     <Content Include="Views\Song\SongItems.cshtml" />
     <Content Include="Views\Song\XboxSearch.cshtml" />
+    <Content Include="Views\Admin\Results.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

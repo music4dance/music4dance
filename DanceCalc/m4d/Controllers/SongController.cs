@@ -140,8 +140,8 @@ namespace music4dance.Controllers
             {
                 return HttpNotFound();
             }
-            ViewBag.BackAction = "Index";
 
+            ViewBag.BackAction = "Index";
             return View(song);
         }
 
@@ -152,6 +152,7 @@ namespace music4dance.Controllers
         {
             ViewBag.DanceListAdd = GetDances();
             SongDetails sd = new SongDetails();
+            ViewBag.BackAction = "Index";
             return View(sd);
         }
 
@@ -175,6 +176,7 @@ namespace music4dance.Controllers
                     song = new SongDetails(newSong);
                 }
 
+                ViewBag.BackAction = "Index";
                 return View("Details", song);
             }
             else
@@ -198,6 +200,7 @@ namespace music4dance.Controllers
 
                 }
 
+                ViewBag.BackAction = "Index";
                 return View(song);
             }
         }
@@ -216,6 +219,7 @@ namespace music4dance.Controllers
             ViewBag.DanceListRemove = GetDances(song.DanceRatings);
             ViewBag.DanceListAdd = GetDances();
 
+            ViewBag.BackAction = "Index";
             return View(song);
         }
 
@@ -246,6 +250,7 @@ namespace music4dance.Controllers
 
                 if (edit != null)
                 {
+                    ViewBag.BackAction = "Index";
                     return View("Details", edit);
                 }
                 {

@@ -8,6 +8,8 @@ namespace m4d.Models
         public DanceMusicConfiguration()
         {
             SetExecutionStrategy("System.Data.SqlClient", () => new SqlAzureExecutionStrategy());
+
+            //SetDatabaseInitializer(new DropCreateDatabaseAlways<DanceMusicContext>());
         }
 
     }

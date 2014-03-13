@@ -54,7 +54,7 @@
         <th>Dances</th>
         @if (showDiag)
         {
-            <th>TitleHash</th>
+            <th>SongId</th>
         }
     </tr>
 
@@ -106,7 +106,7 @@
         @if (showDiag)
         {
             <td>
-                @string.Format("0X{0:X08}", item.TitleHash)
+                @Html.DisplayFor(m => item.SongId)
             </td>
         }
     </tr>

@@ -218,7 +218,7 @@ namespace m4d.Models
 
         public Song CreateSong(ApplicationUser user, string title, string artist, string genre, decimal? tempo, int? length, List<AlbumDetails> albums, bool log = false)
         {
-            return CreateSong(user, title, artist, genre, tempo, length, albums, CreateCommand, string.Empty);
+            return CreateSong(user, title, artist, genre, tempo, length, albums, CreateCommand, string.Empty, log);
         }
 
         public Song CreateSong(ApplicationUser user, string title, string artist, string genre, decimal? tempo, int? length, List<AlbumDetails> albums, string command, string value, bool createLog = false)
@@ -323,7 +323,7 @@ namespace m4d.Models
 
             bool foundFirst = false;
 
-            // TODONEXT: Add in modified purchase info + think about how we might want to 
+            // TODO: Think about how we might want to 
             //  put the xbox selection at the top of the album list...
             for (int aidx = 0, cidx = oldAlbums.Count; aidx < edit.Albums.Count; aidx++ )
             {
@@ -573,9 +573,14 @@ namespace m4d.Models
 
         public static int CreateTitleHash(string title)
         {
-            StringBuilder sb = new StringBuilder(title.Length);
+            return CreateNormalForm(title).GetHashCode();
+        }
 
-            string norm = title.Normalize(NormalizationForm.FormD);
+        public static string CreateNormalForm(string s)
+        {
+            StringBuilder sb = new StringBuilder(s.Length);
+
+            string norm = s.Normalize(NormalizationForm.FormD);
 
             bool paren = false;
             foreach (char c in norm)
@@ -601,11 +606,7 @@ namespace m4d.Models
                 }
             }
 
-            string s = sb.ToString();
-            int hash = s.GetHashCode();
-            //Debug.WriteLine("{0}\t{1}",hash,s);
-
-            return hash;
+            return sb.ToString();
         }
 
         public SongProperty CreateSongProperty(Song song, string name, string value, SongLog log = null)
@@ -651,11 +652,11 @@ namespace m4d.Models
             return modified;
         }
 
-        public void UndoSongProperty(Song song, LogValue lv, UndoAction action)
+        public void RestoreSongProperty(Song song, LogValue lv, UndoAction action)
         {
             // For scalar properties and albums just updating the property will
             //  provide the information for rebulding the song
-            // For users, this is additive, so no need to do anything
+            // For users, this is additive, so no need to do anything except with a new song
             // For DanceRatings, we're going to update the song here
             //  since it is cummulative
 
@@ -664,7 +665,23 @@ namespace m4d.Models
             np.Song = song;
             np.Name = lv.Name;
 
-            if (lv.Name.Equals(DanceRatingField))
+            // This works for everything but Dancerating, which will be overwritten below
+            if (action == UndoAction.Undo)
+                np.Value = lv.Old;
+            else
+                np.Value = lv.Value;
+
+
+            if (lv.Name.Equals(UserField))
+            {
+                // Only new song has a null ModifiedBy?
+                ApplicationUser user = FindUser(lv.Value);
+                if (!user.Songs.Contains(song))
+                {
+                    user.Songs.Add(song);
+                }
+            }
+            else if (lv.Name.Equals(DanceRatingField))
             {
                 DanceRatingDelta drd = new DanceRatingDelta(lv.Value);
                 if (action == UndoAction.Undo)
@@ -688,13 +705,6 @@ namespace m4d.Models
                     }
                 }
             }
-            else
-            {
-                if (action == UndoAction.Undo)
-                    np.Value = lv.Old;
-                else
-                    np.Value = lv.Value;
-            }
 
             song.SongProperties.Add(np);
         }
@@ -706,12 +716,15 @@ namespace m4d.Models
                 for (int ia = 0; ia < albums.Count; ia++)
                 {
                     AlbumDetails ad = albums[ia];
-                    if (ia == 0 && !string.IsNullOrWhiteSpace(ad.Name))
+                    if (!string.IsNullOrWhiteSpace(ad.Name))
                     {
-                        song.Album = albums[0].Name;
-                    }
+                        if (ia == 0)
+                        {
+                            song.Album = albums[0].Name;
+                        }
 
-                    ad.CreateProperties(this, song, ia, log);
+                        ad.CreateProperties(this, song, ia, log);
+                    }
                 }
             }
         }
@@ -732,7 +745,6 @@ namespace m4d.Models
         {
             bool modified = true;
 
-            //SongProperty prop = properties.FirstOrDefault(p => string.Equals(p.Name,name,StringComparison.InvariantCultureIgnoreCase));
             SongProperty prop = GetCurrentProperty(properties, name);
 
             string oldString = null;
@@ -809,7 +821,6 @@ namespace m4d.Models
         {
             bool modified = false;
 
-            //SongProperty prop = properties.FirstOrDefault(p => string.Equals(p.Name,name,StringComparison.InvariantCultureIgnoreCase));
             SongProperty prop = GetCurrentProperty(properties,name);
 
             // We are going to create a new property if there wasn't a property before and this property is non-empty OR
@@ -862,106 +873,58 @@ namespace m4d.Models
 
         public void RestoreFromLog(IEnumerable<string> lines)
         {
-            List<int> mergeFroms = new List<int>();
-
+            // TODONEXT: Merge and Edit both seem to be buggy - also value of user field is null
             foreach (string line in lines)
             {
-                RestoreFromLog(line,mergeFroms);
+                RestoreFromLog(line);
             }
         }
 
-        public void RestoreFromLog(string line, List<int> mergeFroms)
+        public void RestoreFromLog(string line)
         {
-            //string[] cells = line.Split(new char[] { '|' });
+            SongLog log = Log.Create();
 
-            //// user|time|command|id|data...
+            if (!log.Initialize(this,line))
+            {
+                Debug.WriteLine(string.Format("Unable to restore line: {0}", line));
+            }
 
-            //if (cells.Length < 4)
-            //{
-            //    Debug.WriteLine(string.Format("Bad Line: {0}", line));
-            //    return;
-            //}
 
-            //string userName = cells[0];
-            //string timeString = cells[1];
-            //string command = cells[2];
-            //string songRef = cells[3];
-            //string songSig = cells[4];
+            Song song = null;
 
-            //List<string> data = new List<string>(cells);
-            //data.RemoveRange(0,5);
+            switch (log.Action)
+            {
+                case DeleteCommand:
+                case EditCommand:
+                    song = FindSong(log.SongReference, log.SongSignature);
+                    break;
+                case MergeCommand:
+                case CreateCommand:
+                    break;
+                default:
+                    Debug.WriteLine(string.Format("Bad Command: {0}", log.Action));
+                    return;
+            }
 
-            //UserProfile user = UserProfiles.FirstOrDefault(u => u.UserName == userName);
-            //if (user == null)
-            //{
-            //    Debug.WriteLine(string.Format("Bad User Name: {0}", userName));
-            //    return;
-            //}
+            switch (log.Action)
+            {
+                case DeleteCommand:
+                    RemoveSong(song);
+                    break;
+                case EditCommand:
+                    RestoreValuesFromLog(log,song,UndoAction.Redo);
+                    break;
+                case MergeCommand:
+                case CreateCommand:
+                    CreateSongFromLog(log);
+                    break;
+                default:
+                    Debug.WriteLine(string.Format("Bad Command: {0}", log.Action));
+                    break;
+            }
 
-            //DateTime time;
-            //if (!DateTime.TryParse(timeString, out time))
-            //{
-            //    Debug.WriteLine(string.Format("Bad Timestamp: {0}", timeString));
-            //    return;
-            //}
-
-            //int songId = 0;
-            //if (!int.TryParse(songRef,out songId))
-            //{
-            //    Debug.WriteLine(string.Format("Bad SongId: {0}", songRef));
-            //    return;                
-            //}
-
-            //Song song = null;
-
-            //switch (command)
-            //{
-            //    case MergeFromCommand:
-            //    case DeleteCommand:
-            //    case EditCommand:
-            //        song = FindSong(songId, songSig);
-            //        break;
-            //    case MergeToCommand:
-            //    case CreateCommand:
-            //        break;
-            //    default:
-            //        Debug.WriteLine(string.Format("Bad Command: {0}", command));
-            //        break;
-            //}
-
-            //bool deleted = false;
-
-            //switch (command)
-            //{
-            //    case MergeFromCommand:
-            //        mergeFroms.Add(song.SongId);
-            //        DeleteSong(user, song, command);
-            //        deleted = true;
-            //        break;
-            //    case DeleteCommand:
-            //        DeleteSong(user, song, command);
-            //        deleted = true;
-            //        break;
-            //    case EditCommand:
-            //        EditSongFromLog(user, song, data);
-            //        break;
-            //    case MergeToCommand:
-            //    case CreateCommand:
-            //        CreateSongFromLog(user,data,mergeFroms);
-            //        mergeFroms.Clear();
-            //        break;
-            //    default:
-            //        Debug.WriteLine(string.Format("Bad Command: {0}", command));
-            //        break;
-            //}
-
-            //// This is a little sloppy, but delete cleans up after itself...
-            //if (!deleted)
-            //{
-            //    FixupEdited(song);
-
-            //    SaveChanges();
-            //}
+            Log.Add(log);
+            SaveChanges();
         }
 
         public IEnumerable<UndoResult> UndoLog(ApplicationUser user, IEnumerable<SongLog> entries)
@@ -999,13 +962,10 @@ namespace m4d.Models
 
                         return UndoEntry(user, rentry);
                     }
-
-
                 }
 
                 error = string.Format("Unable to redo a failed undo song id='{0}' signature='{1}'", entry.SongReference, entry.SongSignature);
             }
-
 
             UndoResult result = new UndoResult { Original = entry };
 
@@ -1051,7 +1011,10 @@ namespace m4d.Models
                         error = Unmerge(entry, song);
                         break;
                     case EditCommand:
-                        error = Unedit(entry, song, UndoAction.Undo);
+                        error = RestoreValuesFromLog(entry, song, UndoAction.Undo);
+                        break;
+                    case CreateCommand:
+                        RemoveSong(song);
                         break;
                     case UndoCommand:
                     case RedoCommand:
@@ -1093,7 +1056,10 @@ namespace m4d.Models
                     error = Remerge(entry, song);
                     break;
                 case EditCommand:
-                    error = Unedit(entry, song, UndoAction.Redo);
+                    error = RestoreValuesFromLog(entry, song, UndoAction.Redo);
+                    break;
+                case CreateCommand:
+                    RestoreSong(song);
                     break;
                 default:
                     error = string.Format("'{0}' action not yet supported for Redo.", entry.Action);
@@ -1131,7 +1097,7 @@ namespace m4d.Models
             return ret;
         }
 
-        private string Unedit(SongLog entry, Song song, UndoAction action)
+        private string RestoreValuesFromLog(SongLog entry, Song song, UndoAction action)
         {
             string ret = null;
 
@@ -1142,7 +1108,7 @@ namespace m4d.Models
             {
                 if (!lv.IsAction)
                 {
-                    UndoSongProperty(song, lv, action);
+                    RestoreSongProperty(song, lv, action);
                 }            
             }
 
@@ -1151,7 +1117,6 @@ namespace m4d.Models
 
             return ret;
         }
-
 
         private string Remerge(SongLog entry, Song song)
         {
@@ -1235,231 +1200,58 @@ namespace m4d.Models
             return string.Equals(sig1, sig2, StringComparison.Ordinal);
         }
 
-        private void EditSongFromLog(ApplicationUser user, Song song, List<string> data)
-        {
-            SongLog log = CreateEditHeader(song, user);
-
-            foreach (string s in data)
-            {
-                RestorePropertyFromLog(song, log, s);
-            }
-
-            Log.Add(log);
-        }
-
         private SongLog CreateSongLog(ApplicationUser user, Song song, string action)
         {
             SongLog log = Log.Create();
 
-            log.Init(user, song, action);
+            log.Initialize(user, song, action);
 
             return log;
         }
 
-        private void CreateSongFromLog(ApplicationUser user, List<string> data, List<int> mergeFroms)
+        private void CreateSongFromLog(SongLog log)
         {
-            //string[] commandLine = data[0].Split(new char[] {'\t'});
-            //string command = CreateCommand;
-            //string initC = CreateCommand;
-            //string initV = string.Empty;
+            string initV = log.GetData(MergeCommand);
 
-            //if (string.Equals(commandLine[0],MergeFromCommand,StringComparison.InvariantCultureIgnoreCase))
-            //{
-            //    StringBuilder sb = new StringBuilder();
-            //    string separator = string.Empty;
-            //    foreach (int id in mergeFroms)
-            //    {
-            //        sb.AppendFormat("{0}{1}", separator, id);
-            //        separator = ";";
-            //    }
-            //    command = MergeToCommand;
-            //    initC = MergeFromCommand;
-            //    initV = sb.ToString();
-            //}
-            //else if (!string.Equals(commandLine[0],CreateCommand,StringComparison.InvariantCultureIgnoreCase))
-            //{
-            //    Debug.WriteLine("Bad Create Command");
-            //}
-            //data.RemoveAt(0);
+            // For merge case, first we delete the old songs
+            if (initV != null)
+            {
+                try
+                {
+                    foreach (Song d in SongsFromList(initV))
+                    {
+                        RemoveSong(d);
+                    }
+                }
+                catch (Exception e)
+                {
+                    Debug.WriteLine(e.Message);
+                }
+            }
 
-            //Song song = Songs.Create();
-            //song.Created = DateTime.Now;
-            //song.Modified = DateTime.Now;
-            //Songs.Add(song);
-            
-            //// Is there a better way to get an id assigned to the song?
-            //SaveChanges();
+            Song song = Songs.Create();
+            song.Created = log.Time;
+            song.Modified = DateTime.Now;
+            Songs.Add(song);
 
-            //SongLog log = CreateSongLog(user, song, command);
+            // Is there a better way to get an id assigned to the song?
+            SaveChanges();
+
             //CreateSongProperty(song, initC, initV);
-            //log.UpdateData(initC, initV);
 
-            //if (user != null)
-            //{
-            //    //if (user.Songs.FirstOrDefault(s => s.SongId == song.SongId) == null)
-            //    if (!user.Songs.Contains(song))
-            //    {
-            //        user.Songs.Add(song);
-            //    }
-            //    CreateSongProperty(song, UserField, user.UserName);
-            //}
+            IList<LogValue> values = log.GetValues();
+            foreach (LogValue lv in values)
+            {
+                if (!lv.IsAction)
+                {
+                    RestoreSongProperty(song, lv, UndoAction.Redo);
+                }
+            }
 
-            //foreach (string s in data)
-            //{
-            //    RestorePropertyFromLog(song, log, s);
-            //}
-
-            //song.TitleHash = CreateTitleHash(song.Title);
-
-            //Log.Add(log);
+            SongDetails sd = new SongDetails(this, song.SongId, song.SongProperties);
+            song.RestoreScalar(this, sd);
         }
 
-        private void RestorePropertyFromLog(Song song, SongLog log, string data)
-        {
-            bool createProperty = true;
-
-            string[] cells = data.Split(new char[] { '\t' });
-
-            bool edit = false;
-            if (cells.Length == 3)
-            {
-                edit = true;
-            }
-            else if (cells.Length != 2)
-            {
-                Debug.WriteLine(string.Format("Bad Property: {0}", data));
-                return;
-            }
-
-            string name = cells[0];
-            string value = cells[1];
-            string oldValue = null;
-            if (edit)
-                oldValue = cells[2];
-
-            PropertyInfo pi = song.GetType().GetProperty(name);
-            if (pi != null)
-            {
-                Type type = pi.PropertyType;
-
-                bool empty = string.IsNullOrWhiteSpace(value);
-                object o = null;
-
-                if (!empty)
-                {
-                    if (type == typeof(string))
-                    {
-                        o = value;
-                    }
-                    else if (type == typeof(DateTime))
-                    {
-                        DateTime dt;
-                        if (DateTime.TryParse(value, out dt))
-                        {
-                            pi.SetValue(song, dt);
-                        }
-                        else
-                        {
-                            Debug.WriteLine(string.Format("Bad DateTime: {0}", dt));
-                        }
-                    }
-                    else if (type == typeof(decimal?))
-                    {
-                        decimal d;
-                        if (decimal.TryParse(value, out d))
-                        {
-                            o = d;
-                        }
-                        else
-                        {
-                            Debug.WriteLine(string.Format("Bad DateTime: {0}", d));
-                        }
-                    }
-                    else if (type == typeof(int?))
-                    {
-                        int i;
-                        if (int.TryParse(value, out i))
-                        {
-                            o = i;
-                        }
-                        else
-                        {
-                            Debug.WriteLine(string.Format("Bad DateTime: {0}", i));
-                        }
-                    }
-                }
-
-                pi.SetValue(song, o);
-            }
-            else if (string.Equals(name,DanceRatingField))
-            {
-                string danceId = value;
-                int weight = 1;
-
-                bool add = value.Contains('+');
-                bool sub = value.Contains('-');
-
-                string[] pair = null; 
-                if (add)
-                {
-                    pair = value.Split(new char[]{'+'});
-                }
-                else if (sub)
-                {
-                    pair = value.Split(new char[]{'-'});
-                }
-
-                if (pair != null && pair.Length == 2)
-                {
-                    danceId = pair[0];
-                    if (!int.TryParse(pair[1],out weight))
-                    {
-                        Debug.WriteLine(string.Format("Bad Dance Weight: {0}", value));
-                    }
-
-                    if (sub)
-                    {
-                        weight = -1 * weight;
-                    }
-                }
-
-                DanceRating dr = song.DanceRatings.FirstOrDefault(d => string.Equals(d.DanceId, danceId));
-                if (dr == null)
-                {
-                    if (weight != 1)
-                    {
-                        Debug.WriteLine(string.Format("Bad Dance Weight: {0}", value));
-                    }
-                    song.DanceRatings.Add(new DanceRating() { DanceId = danceId, SongId = song.SongId, Weight = weight });
-                }
-                else
-                {
-                    dr.Weight += weight;
-                }
-            }
-            else if (string.Equals(name,UserField))
-            {
-                ApplicationUser user = Users.FirstOrDefault(u => u.UserName == value);
-
-                //if (user != null && user.Songs.FirstOrDefault(s => s.SongId == song.SongId) == null)
-                if (user != null && !user.Songs.Contains(song))
-                {
-                    user.Songs.Add(song);
-                }
-                else
-                {
-                    createProperty = false;
-                }
-            }
-
-            if (createProperty)
-            {
-                CreateSongProperty(song, name, value);
-            }
-
-            // Update the log data
-            log.UpdateData(name, value, oldValue);
-        }
 
         public IList<Song> FindMergeCandidates(int n, int level)
         {

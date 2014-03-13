@@ -8,10 +8,13 @@ using System.Web;
 using System.Web.Mvc;
 using System.Text;
 
+using m4d.Migrations;
 using m4d.Models;
 using m4d.ViewModels;
 using DanceLibrary;
 using System.Text.RegularExpressions;
+using System.Data.Entity.Infrastructure;
+using System.Data.Entity.Migrations;
 
 namespace m4d.Controllers
 {
@@ -27,10 +30,9 @@ namespace m4d.Controllers
 
         //
         // Get: //SeedDatabase
+        [Authorize(Roles = "showDiagnostics")]
         public ActionResult SeedDatabase()
         {
-            // TODO: restrict this to admin users...
-
             List<string> results = new List<string>();
 
             bool seeded = false;
@@ -64,7 +66,8 @@ namespace m4d.Controllers
                             DateTime end = DateTime.Now;
 
                             TimeSpan length = end - start;
-                            string message = string.Format("Songs were loaded in: {0}", length);
+                            string message = string.Format("Songs from ({0} were loaded in: {1}", name, length);
+                            results.Add(message);
                             Debug.WriteLine(message);
                         }
 
@@ -76,6 +79,35 @@ namespace m4d.Controllers
             return View();
         }
 
+        //
+        // Get: //RestoreDatabase
+        [Authorize(Roles = "showDiagnostics")]
+        public ActionResult RestoreDatabase()
+        {
+            string sqlConnectionString = System.Configuration.ConfigurationManager.ConnectionStrings["DefaultConnection"].ConnectionString;
+            var connectionInfo = new DbConnectionInfo(sqlConnectionString, "System.Data.SqlClient");
+
+            var configuration = new Configuration
+            {
+                TargetDatabase = connectionInfo,
+                AutomaticMigrationsEnabled = false
+            };
+
+            var migrator = new DbMigrator(configuration);
+
+            // Roll back to a specific migration
+            migrator.Update("InitialCreate");
+
+            // Apply all migrations up to a specific migration
+            migrator.Update();
+
+            ViewBag.Name = "Restore Database";
+            ViewBag.Success = true;
+            ViewBag.Message = "Database was successfully restored.";
+
+            return View("Results");
+        }
+ 
         private void BuildDanceMap()
         {
             foreach (DanceObject d in DanceMusicContext.DanceLibrary.DanceDictionary.Values)
@@ -487,7 +519,7 @@ namespace m4d.Controllers
 
 
 
-        string[] _dbs = new string[] { "JohnCrossan", "LetsDanceDenver", "SalsaSwingBallroom", "SandiegoDJ", "SteveThatDJ", "UsaSwingNet", "WalterrsDanceCenter"};
+        string[] _dbs = new string[] { "JohnCrossan", "LetsDanceDenver", "SalsaSwingBallroom", "SandiegoDJ", "SteveThatDJ", "UsaSwingNet", "WaltersDanceCenter"};
         private readonly int _chunk = 500;
 
         private Dictionary<string, string> _danceMap = new Dictionary<string, string>()

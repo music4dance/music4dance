@@ -25,6 +25,11 @@
                     <li>@Html.ActionLink("Songs", "Index", "Song")</li>
                     <li>@Html.ActionLink("About", "About", "Home")</li>
                     <li>@Html.ActionLink("Contact", "Contact", "Home")</li>
+                    @if (User.IsInRole("showDiagnostics"))
+                    {
+                        <li>@Html.ActionLink("Log", "Index", "Log")</li>
+                        <li>@Html.ActionLink("Admin", "Index", "Admin")</li>
+                    }
                 </ul>
                 @Html.Partial("_LoginPartial")
             </div>
