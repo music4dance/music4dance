@@ -193,7 +193,7 @@ namespace m4d.Models
             base.Dump();
 
             string output = string.Format("Id={0},SongId={1},Name={2},Value={3}", Id, SongId, Name, Value);
-            Debug.WriteLine(output);
+            Trace.WriteLine(output);
         }
     }
 }

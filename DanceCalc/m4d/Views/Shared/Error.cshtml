@@ -5,5 +5,20 @@
 }
 
 <h1 class="text-danger">Error.</h1>
-<h2 class="text-danger">An error occurred while processing your request.</h2>
+<h2 class="text-danger">An error occurred while processing your request. (@Model.ControllerName - @Model.ActionName)</h2>
 
+@if (User.IsInRole("showDiagnostics"))
+{
+    string hresult = "0x" + Model.Exception.HResult.ToString("X8");
+    <p><b>Exception:</b>@Model.Exception.Message (@hresult)</p>
+    <p><b>Target Site:</b>@Model.Exception.TargetSite</p>
+    
+    <h3>Stack Trace:</h3>
+    string[] frames = Model.Exception.StackTrace.Split(new char[] { '\n' }, StringSplitOptions.RemoveEmptyEntries);
+    <ul>
+        @foreach (string s in frames)
+        {
+            <li>@s</li>
+        }
+    </ul>
+}

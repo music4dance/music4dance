@@ -15,7 +15,7 @@ namespace DanceTests
         [TestInitialize]
         public void InitializeDances()
         {
-            _dances = new Dances();
+            _dances = Dances.Instance;
         }
 
         readonly string[] _51HAll = {

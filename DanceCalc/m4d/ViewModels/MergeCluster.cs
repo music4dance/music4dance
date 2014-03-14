@@ -30,7 +30,7 @@ namespace m4d.ViewModels
             {
                 if (!song.IsNull)
                 {
-                    //Debug.WriteLine("{0}\t{1}", song.TitleHash, song.Title);
+                    //Trace.WriteLine("{0}\t{1}", song.TitleHash, song.Title);
 
                     MergeCluster mc = null;
 

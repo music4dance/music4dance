@@ -33,6 +33,8 @@ namespace music4dance.Controllers
         [AllowAnonymous]
         public ActionResult Index(string dances, string sortOrder, string currentFilter, string searchString, int? page, int? level)
         {
+            Trace.WriteLine(string.Format("Entering Song.Index: dances='{0}',sortOrder='{1}',currentFilter='{2}',searchString='{3}'",dances,sortOrder,currentFilter,searchString));
+
             // Set up the viewbag
             ViewBag.ActionName = "Index";
 
@@ -125,6 +127,8 @@ namespace music4dance.Controllers
 
             int pageSize = 25;
             int pageNumber = (page ?? 1);
+
+            Trace.WriteLine("Exiting Song.Index");
 
             return View(songs.ToPagedList(pageNumber, pageSize));
         }
@@ -661,7 +665,7 @@ namespace music4dance.Controllers
                     }
                     else if (cluster.Count == 1)
                     {
-                        Debug.WriteLine(string.Format("Bad Merge: {0}", cluster[0].Signature));
+                        Trace.WriteLine(string.Format("Bad Merge: {0}", cluster[0].Signature));
                     }
 
                     cluster = new List<Song>();

@@ -434,7 +434,7 @@ namespace m4d.Models
             Entry(song).State = System.Data.Entity.EntityState.Modified;
             song.TitleHash = CreateTitleHash(song.Title);
 
-            Debug.WriteLine("Song:{0} Fixedup:{1}", song.SongId, fixedup);
+            Trace.WriteLine(string.Format("Song:{0} Fixedup:{1}", song.SongId, fixedup));
         }
 
         public void DeleteSong(ApplicationUser user, Song song, string command = DeleteCommand)
@@ -873,7 +873,6 @@ namespace m4d.Models
 
         public void RestoreFromLog(IEnumerable<string> lines)
         {
-            // TODONEXT: Merge and Edit both seem to be buggy - also value of user field is null
             foreach (string line in lines)
             {
                 RestoreFromLog(line);
@@ -886,7 +885,7 @@ namespace m4d.Models
 
             if (!log.Initialize(this,line))
             {
-                Debug.WriteLine(string.Format("Unable to restore line: {0}", line));
+                Trace.WriteLine(string.Format("Unable to restore line: {0}", line));
             }
 
 
@@ -902,7 +901,7 @@ namespace m4d.Models
                 case CreateCommand:
                     break;
                 default:
-                    Debug.WriteLine(string.Format("Bad Command: {0}", log.Action));
+                    Trace.WriteLine(string.Format("Bad Command: {0}", log.Action));
                     return;
             }
 
@@ -919,7 +918,7 @@ namespace m4d.Models
                     CreateSongFromLog(log);
                     break;
                 default:
-                    Debug.WriteLine(string.Format("Bad Command: {0}", log.Action));
+                    Trace.WriteLine(string.Format("Bad Command: {0}", log.Action));
                     break;
             }
 
@@ -1182,7 +1181,7 @@ namespace m4d.Models
 
             if (song == null)
             {
-                Debug.WriteLine(string.Format("Couldn't find song by Id: {0} or signature {1}", song.SongId, song.Signature));
+                Trace.WriteLine(string.Format("Couldn't find song by Id: {0} or signature {1}", song.SongId, song.Signature));
             }
 
             return song;
@@ -1225,7 +1224,7 @@ namespace m4d.Models
                 }
                 catch (Exception e)
                 {
-                    Debug.WriteLine(e.Message);
+                    Trace.WriteLine(e.Message);
                 }
             }
 
@@ -1268,26 +1267,26 @@ namespace m4d.Models
         {
             // TODO: Create a dump routine to help dump the object graph - definitely need object id of some kind (address)
 
-            Debug.WriteLine("------------------- songs ------------------");
+            Trace.WriteLine("------------------- songs ------------------");
             foreach (Song song in Songs.Local)
             {
                 song.Dump();
             }
 
-            Debug.WriteLine("------------------- properties ------------------");
+            Trace.WriteLine("------------------- properties ------------------");
             foreach (SongProperty prop in SongProperties.Local)
             {
                 prop.Dump();
             }
 
-            //Debug.WriteLine("------------------- users ------------------");
+            //Trace.WriteLine("------------------- users ------------------");
             //foreach (ApplicationUser user in Users.Local)
             //{
             //    user.Dump();
             //}
         }
 
-        private static Dances _dances = new Dances();
+        private static Dances _dances = global::DanceLibrary.Dances.Instance;
 
     }
 }

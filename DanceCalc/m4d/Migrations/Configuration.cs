@@ -67,7 +67,7 @@ namespace m4d.Migrations
 
             if (!context.Dances.Any(d => d.Id == "CHA"))
             {
-                Dances dances = new Dances();
+                Dances dances = Dances.Instance;
 
                 foreach (DanceObject d in dances.AllDances)
                 {

@@ -19,7 +19,7 @@ namespace m4d.Models
 
         public virtual void Dump()
         {
-            Debug.Write(string.Format("0X{0:X4}: ", InstanceId));
+            Trace.Write(string.Format("0X{0:X4}: ", InstanceId));
         }
 
         static public int InstanceCount

@@ -276,7 +276,7 @@ namespace DanceCalc
             Debug.Assert(this.IsDataLoaded == false);
             Debug.Assert(_dances == null);
 
-            _dances = new Dances();
+            _dances = DanceLibrary.Dances.Instance;
 
             UpdateDances();
 

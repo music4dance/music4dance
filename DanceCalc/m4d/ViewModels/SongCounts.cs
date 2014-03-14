@@ -25,14 +25,19 @@ namespace m4d.ViewModels
 
         static public IList<SongCounts> GetFlatSongCounts(DanceMusicContext dmc)
         {
+            Trace.WriteLine(string.Format("Entering GetFlatSongCounts:  DMC={0}", dmc == null ? "<<NULL>>" : "Valid"));
             List<SongCounts> flat = new List<SongCounts>();
 
             var tree = GetSongCounts(dmc);
+
+            Trace.WriteLine(string.Format("Top Level Count={0}", tree==null?"<<NULL>>":tree.Count.ToString()));
             flat.AddRange(tree);
 
             foreach (var sc in tree)
             {
-                flat.AddRange(sc.Children);
+                var children = sc.Children;
+                Trace.WriteLine(string.Format("{0} Count={1}", sc.DanceName, tree==null?"<<NULL>>":tree.Count.ToString()));
+                flat.AddRange(children);
             }
 
             SongCounts all = new SongCounts

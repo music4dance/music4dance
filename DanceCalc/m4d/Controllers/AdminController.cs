@@ -68,7 +68,7 @@ namespace m4d.Controllers
                             TimeSpan length = end - start;
                             string message = string.Format("Songs from ({0} were loaded in: {1}", name, length);
                             results.Add(message);
-                            Debug.WriteLine(message);
+                            Trace.WriteLine(message);
                         }
 
                     }
@@ -230,7 +230,7 @@ namespace m4d.Controllers
                     string[] cells = lines[i].Split(new char[] { '\t' });
                     if (cells.Length != _headers.Length)
                     {
-                        Debug.WriteLine(string.Format("Bad Format: {0}", lines[i]));
+                        Trace.WriteLine(string.Format("Bad Format: {0}", lines[i]));
                     }
 
                     // Find the dance and skip if it doesn't exist
@@ -242,7 +242,7 @@ namespace m4d.Controllers
                     string danceName = CleanName(cells[_danceColumn]);
                     if (!_danceMap.TryGetValue(danceName, out danceIds))
                     {
-                        Debug.WriteLine(string.Format("Dance Not Found: {0}", cells[_danceColumn]));
+                        Trace.WriteLine(string.Format("Dance Not Found: {0}", cells[_danceColumn]));
                         continue;
                     }
                     string[] idList = danceIds.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
@@ -364,7 +364,7 @@ namespace m4d.Controllers
 
                                 if (!success)
                                 {
-                                    Debug.WriteLine(string.Format("Bad ITunes:{0}", text));
+                                    Trace.WriteLine(string.Format("Bad ITunes:{0}", text));
                                 }
                             }
                         }
@@ -485,7 +485,7 @@ namespace m4d.Controllers
             }
             else
             {
-                Debug.WriteLine(string.Format("Unusual Sort: {0}", name));
+                Trace.WriteLine(string.Format("Unusual Sort: {0}", name));
                 return name;
             }
         }

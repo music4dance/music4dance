@@ -9,6 +9,7 @@ using System.Text;
 using System.Web;
 using System.Web.Helpers;
 using System.Web.Mvc;
+using System.Diagnostics;
 
 namespace m4d.Controllers
 {
@@ -20,13 +21,15 @@ namespace m4d.Controllers
         // GET: /Log/
         public ActionResult Index(int? page)
         {
+            Trace.WriteLine("Entering Log.Index");
             var lines = from l in _db.Log
                         orderby l.Id descending
                         select l;
 
             int pageSize = 25;
             int pageNumber = (page ?? 1);
-            return View(lines.ToPagedList(pageNumber,pageSize));
+            Trace.WriteLine("Exiting Log.Index");
+            return View(lines.ToPagedList(pageNumber, pageSize));
         }
 
         public FileResult Lines()

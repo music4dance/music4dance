@@ -1553,6 +1553,6 @@ namespace SongDatabase.Models
             }
         }
 
-        private static Dances _dances = new Dances();
+        private static Dances _dances = global::DanceLibrary.Dances.Instance;
     }
 }

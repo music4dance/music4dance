@@ -542,11 +542,17 @@ namespace DanceLibrary
         
     public class Dances
     {
-        public Dances()
+        private Dances()
         {
-            JsonSerializerSettings settings = new JsonSerializerSettings { 
-                NullValueHandling = NullValueHandling.Include, 
-                DefaultValueHandling = DefaultValueHandling.Ignore };
+        }
+
+        private void LoadDances()
+        {
+            JsonSerializerSettings settings = new JsonSerializerSettings
+            {
+                NullValueHandling = NullValueHandling.Include,
+                DefaultValueHandling = DefaultValueHandling.Ignore
+            };
 
             string json = DanceLibrary.JsonDances;
             _allDanceTypes = JsonConvert.DeserializeObject<List<DanceType>>(json, settings);
@@ -568,7 +574,15 @@ namespace DanceLibrary
                 _danceDictionary.Add(di.Id, di);
             }
 
-            Instance = this;
+        }
+
+        private void LoadGroups()
+        {
+            JsonSerializerSettings settings = new JsonSerializerSettings
+            {
+                NullValueHandling = NullValueHandling.Include,
+                DefaultValueHandling = DefaultValueHandling.Ignore
+            };
 
             string jsonGroup = DanceLibrary.DanceGroups;
             _allDanceGroups = JsonConvert.DeserializeObject<List<DanceGroup>>(jsonGroup, settings);
@@ -580,7 +594,21 @@ namespace DanceLibrary
             }
         }
 
-        public static Dances Instance { get; private set; }
+        public static Dances Instance 
+        { 
+            get
+            {
+                if (_instance == null)
+                {
+                    _instance = new Dances();
+                    _instance.LoadDances();
+                    _instance.LoadGroups();
+                }
+                return _instance;
+            }
+        }
+
+        private static Dances _instance = null;
 
         public IEnumerable<DanceInstance> AllDanceInstances
         {

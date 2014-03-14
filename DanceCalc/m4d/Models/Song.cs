@@ -149,7 +149,7 @@ namespace m4d.Models
             base.Dump();
 
             string output = string.Format("Id={0},Title={1},Album={2},Artist={3}",SongId,Title,Album,Artist);
-            Debug.WriteLine(output);
+            Trace.WriteLine(output);
             //if (ModifiedBy != null)
             //{
             //    foreach (ApplicationUser user in ModifiedBy)

@@ -38,7 +38,7 @@ namespace m4d.Models
 
             if (cells.Length < 4)
             {
-                Debug.WriteLine(string.Format("Bad Line: {0}", entry));
+                Trace.WriteLine(string.Format("Bad Line: {0}", entry));
                 return false;
             }
 
@@ -51,14 +51,14 @@ namespace m4d.Models
             User = dmc.FindUser(userName);
             if (User == null)
             {
-                Debug.WriteLine(string.Format("Bad User Name: {0}", userName));
+                Trace.WriteLine(string.Format("Bad User Name: {0}", userName));
                 return false;
             }
 
             DateTime time;
             if (!DateTime.TryParse(timeString, out time))
             {
-                Debug.WriteLine(string.Format("Bad Timestamp: {0}", timeString));
+                Trace.WriteLine(string.Format("Bad Timestamp: {0}", timeString));
                 return false;
             }
             else 
@@ -69,7 +69,7 @@ namespace m4d.Models
             int songId = 0;
             if (!int.TryParse(songRef, out songId))
             {
-                Debug.WriteLine(string.Format("Bad SongId: {0}", songRef));
+                Trace.WriteLine(string.Format("Bad SongId: {0}", songRef));
                 return false;
             }
             else
@@ -219,8 +219,8 @@ namespace m4d.Models
             base.Dump();
 
             string output = string.Format("Id={0},User={1},Time={2},Action={3},Song={4}", Id, User.UserName, Time, Action, SongReference);
-            Debug.WriteLine(output);
-            Debug.WriteLine(Data);
+            Trace.WriteLine(output);
+            Trace.WriteLine(Data);
         }
 
     }
