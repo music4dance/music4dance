@@ -80,9 +80,97 @@ namespace m4d.Controllers
         }
 
         //
+        // Get: //ReloadDatabase
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Authorize(Roles = "showDiagnostics")]
+        public ActionResult ReloadDatabase()
+        {
+            List<string> lines = new List<string>();
+
+            HttpFileCollectionBase files = Request.Files;
+            if (files.Count == 1)
+            {
+                string key = files.AllKeys[0];
+                ViewBag.Key = key;
+                ViewBag.Size = files[key].ContentLength;
+                ViewBag.ContentType = files[key].ContentType;
+
+
+                HttpPostedFileBase file = Request.Files.Get(0);
+                System.IO.Stream stream = file.InputStream;
+
+                TextReader tr = new StreamReader(stream);
+
+                string s = null;
+                while ((s = tr.ReadLine()) != null)
+                {
+                    if (!string.IsNullOrWhiteSpace(s))
+                    {
+                        lines.Add(s);
+                    }
+                }
+            }
+
+            ViewBag.Name = "Restore Database";
+            if (lines.Count > 0)
+            {
+                RestoreDB();
+
+                ReloadDB(lines);
+
+                ViewBag.Success = true;
+                ViewBag.Message = "Database was successfully restored and reloaded";
+            }
+            else
+            {
+                ViewBag.Success = false;
+                ViewBag.Message = "Failed to reload database";
+
+            }
+
+
+            return View("Results");
+        }
+
+        //
+        // Get: //BackupDatabase
+        [Authorize(Roles = "showDiagnostics")]
+        public ActionResult BackupDatabase()
+        {
+            StringBuilder sb = new StringBuilder();
+
+            using (DanceMusicContext dmc = new DanceMusicContext())
+            {
+                foreach (Song song in dmc.Songs)
+                {
+                    string line = song.ToString();
+                    sb.AppendFormat("{0}\r\n", line);
+                }
+            }
+
+            string s = sb.ToString();
+            var bytes = Encoding.UTF8.GetBytes(s);
+            MemoryStream stream = new MemoryStream(bytes);
+
+            return File(stream, "text/plain", "backup.txt");
+        }
+
+        //
         // Get: //RestoreDatabase
         [Authorize(Roles = "showDiagnostics")]
         public ActionResult RestoreDatabase()
+        {
+            RestoreDB();
+
+            ViewBag.Name = "Restore Database";
+            ViewBag.Success = true;
+            ViewBag.Message = "Database was successfully restored.";
+
+            return View("Results");
+        }
+
+        private void RestoreDB()
         {
             string sqlConnectionString = System.Configuration.ConfigurationManager.ConnectionStrings["DefaultConnection"].ConnectionString;
             var connectionInfo = new DbConnectionInfo(sqlConnectionString, "System.Data.SqlClient");
@@ -100,12 +188,33 @@ namespace m4d.Controllers
 
             // Apply all migrations up to a specific migration
             migrator.Update();
+        }
 
-            ViewBag.Name = "Restore Database";
-            ViewBag.Success = true;
-            ViewBag.Message = "Database was successfully restored.";
+        private void ReloadDB(List<string> lines)
+        {
+            using (DanceMusicContext dmc = new DanceMusicContext())
+            {
+                // TODO: Is this somehow global?  The examples that change this flag have both the using and a try/catch
+                //  to turn it off.
 
-            return View("Results");
+                dmc.Configuration.AutoDetectChangesEnabled = false;
+                // Load the dance List
+                dmc.Dances.Load();
+
+                foreach (string line in lines)
+                {
+                    DateTime time = DateTime.Now;
+                    Song song = dmc.Songs.Create();
+                    song.Created = time;
+                    song.Modified = time;
+                    dmc.Songs.Add(song);
+                    dmc.SaveChanges();
+                    song.Load(dmc,line);
+                }
+
+                dmc.Configuration.AutoDetectChangesEnabled = true;
+                dmc.SaveChanges();
+            }
         }
  
         private void BuildDanceMap()

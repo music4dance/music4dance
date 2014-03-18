@@ -7,8 +7,6 @@ namespace m4d.Models
 {
     public class LogBase
     {
-        public int Id { get; set; }
-
         public string Data { get; set; }
 
         public void UpdateData(string name, string value, string oldValue = null)

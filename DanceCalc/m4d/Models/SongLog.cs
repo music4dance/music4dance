@@ -11,7 +11,8 @@ namespace m4d.Models
     // Data Format:
     //   Name\tValue[\tOld][|Name\tValue[\tOld]]*
     public class SongLog : LogBase 
-    {    
+    {
+        public int Id { get; set; }
         public virtual ApplicationUser User { get; set; }
         public DateTime Time { get; set; }
         public string Action { get; set; }

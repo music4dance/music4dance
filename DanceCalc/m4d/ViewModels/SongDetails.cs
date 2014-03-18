@@ -43,6 +43,7 @@ namespace m4d.ViewModels
         public SongDetails(DanceMusicContext dmc, int songId, ICollection<SongProperty> properties)
         {
             SongId = songId;
+            bool created = false;
 
             foreach (SongProperty prop in properties)
             {
@@ -64,6 +65,17 @@ namespace m4d.ViewModels
                         case DanceMusicContext.TrackField:
                         case DanceMusicContext.PurchaseField:
                             // All of these are taken care of with build album
+                            break;
+                        case DanceMusicContext.TimeField:
+                            {
+                                DateTime time = (DateTime)prop.ObjectValue;
+                                if (!created)
+                                {
+                                    Created = time;
+                                    created = true;
+                                }
+                                Modified = time;
+                            }
                             break;
                         default:
                             // All of the simple properties we can just set

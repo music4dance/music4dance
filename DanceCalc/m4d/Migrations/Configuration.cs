@@ -30,38 +30,45 @@ namespace m4d.Migrations
             //      new Person { FullName = "Rowan Miller" }
             //    );
             //
-            if (!context.Roles.Any(r => r.Name == _editRole))
-            {
-                var store = new RoleStore<IdentityRole>(context);
-                var manager = new RoleManager<IdentityRole>(store);
+            var rstore = new RoleStore<IdentityRole>(context);
+            var rmanager = new RoleManager<IdentityRole>(rstore);
 
-                foreach (string roleName in _roles)
+            foreach (string roleName in _roles)
+            {
+                if (context.Roles.Any(r => r.Name == roleName))
                 {
                     var role = new IdentityRole { Name = roleName };
-                    manager.Create(role);
+                    rmanager.Create(role);
                 }
             }
 
             if (!context.Users.Any(u => u.UserName == "dwgray"))
             {
-                var store = new UserStore<ApplicationUser>(context);
-                var manager = new UserManager<ApplicationUser>(store);
+                var ustore = new UserStore<ApplicationUser>(context);
+                var umanager = new UserManager<ApplicationUser>(ustore);
 
                 foreach (string name in _diagUsers)
                 {
-                    var user = new ApplicationUser { UserName = name };
+                    if (context.Users.Any(u => u.UserName == name))
+                    {
+                        var user = new ApplicationUser { UserName = name };
 
-                    manager.Create(user, "marley");
-                    manager.AddToRole(user.Id, _diagRole);
-                    manager.AddToRole(user.Id, _editRole);
+                        umanager.Create(user, "marley");
+                        umanager.AddToRole(user.Id, _diagRole);
+                        umanager.AddToRole(user.Id, _editRole);
+                        umanager.AddToRole(user.Id, _dbaRole);
+                    }
                 }
 
                 foreach (string name in _editUsers)
                 {
-                    var user = new ApplicationUser { UserName = name };
+                    if (context.Users.Any(u => u.UserName == name))
+                    {
+                        var user = new ApplicationUser { UserName = name };
 
-                    manager.Create(user, "_this_is_a_placeholder_");
-                    manager.AddToRole(user.Id, _editRole);
+                        umanager.Create(user, "_this_is_a_placeholder_");
+                        umanager.AddToRole(user.Id, _editRole);
+                    }
                 }
             }
 
@@ -79,8 +86,9 @@ namespace m4d.Migrations
 
         private static string _editRole = "canEdit";
         private static string _diagRole = "showDiagnostics";
+        private static string _dbaRole = "dbAdmin";
 
-        private string[] _roles = new string[] { _diagRole, _editRole };
+        private string[] _roles = new string[] { _diagRole, _editRole, _dbaRole };
         private string[] _diagUsers = new string[] { "administrator", "dwgray" };
         private string[] _editUsers = new string[] { "SalsaSwingBallroom", "SandiegoDJ", "UsaSwingNet", "LetsDanceDenver", "SteveThatDJ", "JohnCrossan", "WaltersDanceCenter" };
     }

@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading;
 
 using m4d.ViewModels;
+using System.Text;
 
 namespace m4d.Models
 {    public class Song : DbObject
@@ -79,6 +80,71 @@ namespace m4d.Models
             }
         }
 
+        // Serialization
+
+        public override string ToString()
+        {
+            StringBuilder sb = new StringBuilder();
+
+            string sep = string.Empty;
+            foreach (SongProperty sp in SongProperties)
+            {
+                if (!sp.IsAction)
+                {
+                    string value = sp.Value;
+                    if (value.Contains('='))
+                    {
+                        value = value.Replace("=", "\\<EQ>\\");
+                    }
+
+                    if (value.Contains('\t'))
+                    {
+                        value = value.Replace("\t", "\\t");
+                    }
+
+                    sb.AppendFormat("{0}{1}={2}", sep, sp.Name, value);
+
+                    sep = "\t";
+                }
+            }
+
+            return sb.ToString();
+        }
+
+        public void Load(DanceMusicContext dmc, string s)
+        {
+            string[] cells = s.Split(new char[] { '\t' });
+            List<SongProperty> properties = new List<SongProperty>(cells.Length);
+
+            SongProperties.Add(new SongProperty(SongId, DanceMusicContext.CreateCommand, null));
+
+            foreach (string cell in cells)
+            {
+                string[] values = cell.Split(new char[] { '=' });
+
+                if (values.Length == 2)
+                {
+                    string value = values[1];
+                    if (value.Contains("\\t"))
+                    {
+                        value = value.Replace("\\t", "\t");
+                    }
+                    if (value.Contains("\\<EQ>\\"))
+                    {
+                        value.Replace("\\<EQ>\\", "=");
+                    }
+                    SongProperties.Add(new SongProperty(SongId, values[0], value));
+                }
+                else
+                {
+                    Trace.WriteLine("Bad SongProperty: {0}", cell);
+                }
+            }
+
+            SongDetails sd = new SongDetails(dmc, SongId, SongProperties);
+            Restore(dmc, sd);
+
+        }
         public string Signature
         {
             get
@@ -109,6 +175,7 @@ namespace m4d.Models
                 EqNum(Tempo, song.Tempo) &&
                 EqNum(Length, song.Length);
         }
+
 
         private static bool EqString(string s1, string s2)
         {

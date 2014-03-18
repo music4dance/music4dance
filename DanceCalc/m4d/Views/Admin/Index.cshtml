@@ -7,5 +7,17 @@
 
 <ul>
     <li>@Html.ActionLink("Restore the Datbase", "RestoreDatabase")</li>
-    <li>@Html.ActionLink("Seed the Datbase", "SeedDatabase")</li>
+    <li>@Html.ActionLink("Seed the Datbase", "SeedDatabase")</li>   
+    <li>@Html.ActionLink("Backup the Datbase", "BackupDatabase")</li>
 </ul>
+
+<hr />
+
+@using (Html.BeginForm("ReloadDatabase", "Admin", FormMethod.Post, new { enctype = "multipart/form-data" }))
+{
+    @Html.AntiForgeryToken();
+    <input type="file" name="FileUpload" /><br />
+    <input type="submit" name="Reload Database" id="Submit" value="Upload" />
+}
+
+

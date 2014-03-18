@@ -79,7 +79,11 @@ namespace m4d.Models
                         }
                         break;
                     case DanceMusicContext.TimeField:
-                        // time
+                        {
+                            DateTime v;
+                            DateTime.TryParse(Value, out v);
+                            ret = v;
+                        }
                         break;
 
                     default:
