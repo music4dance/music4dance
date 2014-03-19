@@ -30,12 +30,17 @@
                 <td>
                     @if (spm.Selection != -1)
                     {
+                        string primaryClick = string.Empty;
+                        if (spm.AllowAlternates)
+                        {
+                            primaryClick = "onclick=\"PrimaryChanged(" + i.ToString() + ")\"";
+                        }
                         string Checked = "";
                         if (spm.Selection == i)
                         {
                             Checked = "Checked";
                         }
-                        <input type="radio" style="width:auto;background-color:inherit" name="@spm.Name" value="@i" @Checked/>
+                        <input type="radio" style="width:auto;background-color:inherit" name="@spm.Name" value="@i" @Html.Raw(primaryClick) @Checked/>
                     }
                     
                     @if (value == null)
@@ -124,4 +129,8 @@
     
 <input name="Commit" type="submit" value="Okay" />
 <input name="Commit" type="submit" value="Cancel" />
+}
+
+@section Scripts {
+    <script src="@Url.Content("~/Scripts/merge.js?@Html.Raw(DateTime.Now.Ticks.ToString())")" type="text/javascript"></script>
 }

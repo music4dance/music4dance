@@ -145,7 +145,10 @@ namespace m4d.Controllers
                 foreach (Song song in dmc.Songs)
                 {
                     string line = song.ToString();
-                    sb.AppendFormat("{0}\r\n", line);
+                    if (!string.IsNullOrWhiteSpace(line))
+                    {
+                        sb.AppendFormat("{0}\r\n", line);
+                    }
                 }
             }
 

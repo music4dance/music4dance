@@ -22,7 +22,7 @@ namespace m4d.Models
         public DateTime Modified { get; set; }
         public int TitleHash { get; set; }
         public virtual ICollection<DanceRating> DanceRatings { get; set; }
-        public virtual ICollection<ApplicationUser> ModifiedBy { get; set; }
+        public virtual ICollection<ModifiedRecord> ModifiedBy { get; set; }
         public virtual ICollection<SongProperty> SongProperties { get; set; }
 
         public SongLog CreateEntry { get; set; }
@@ -43,8 +43,8 @@ namespace m4d.Models
                 DanceRatings.Remove(dr);
             }
 
-            List<ApplicationUser> us = ModifiedBy.ToList();
-            foreach (ApplicationUser u in us)
+            List<ModifiedRecord> us = ModifiedBy.ToList();
+            foreach (ModifiedRecord u in us)
             {
                 ModifiedBy.Remove(u);
             }
@@ -74,7 +74,7 @@ namespace m4d.Models
                 DanceRatings.Add(dr);
             }
 
-            foreach (ApplicationUser user in sd.ModifiedBy)
+            foreach (ModifiedRecord user in sd.ModifiedBy)
             {
                 ModifiedBy.Add(user);
             }
@@ -84,31 +84,38 @@ namespace m4d.Models
 
         public override string ToString()
         {
-            StringBuilder sb = new StringBuilder();
-
-            string sep = string.Empty;
-            foreach (SongProperty sp in SongProperties)
+            if (string.IsNullOrWhiteSpace(Title))
             {
-                if (!sp.IsAction)
-                {
-                    string value = sp.Value;
-                    if (value.Contains('='))
-                    {
-                        value = value.Replace("=", "\\<EQ>\\");
-                    }
-
-                    if (value.Contains('\t'))
-                    {
-                        value = value.Replace("\t", "\\t");
-                    }
-
-                    sb.AppendFormat("{0}{1}={2}", sep, sp.Name, value);
-
-                    sep = "\t";
-                }
+                return null;
             }
+            else
+            {
+                StringBuilder sb = new StringBuilder();
 
-            return sb.ToString();
+                string sep = string.Empty;
+                foreach (SongProperty sp in SongProperties)
+                {
+                    if (!sp.IsAction)
+                    {
+                        string value = sp.Value;
+                        if (value.Contains('='))
+                        {
+                            value = value.Replace("=", "\\<EQ>\\");
+                        }
+
+                        if (value.Contains('\t'))
+                        {
+                            value = value.Replace("\t", "\\t");
+                        }
+
+                        sb.AppendFormat("{0}{1}={2}", sep, sp.Name, value);
+
+                        sep = "\t";
+                    }
+                }
+
+                return sb.ToString();
+            }
         }
 
         public void Load(DanceMusicContext dmc, string s)

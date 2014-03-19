@@ -14,6 +14,7 @@ using Microsoft.AspNet.Identity.EntityFramework;
 using System.Reflection;
 
 using m4d.ViewModels;
+using m4d.Utilities;
 
 // Let's see if we can mock up a recoverable log file by spitting out
 // something resembling a tab-separated flat list of songs items with a
@@ -39,9 +40,6 @@ namespace m4d.Models
 
         private static DbConnection CreateConnection(string nameOrConnectionString)
         {
-            // does not support entity connection strings
-            //EFTracingProviderFactory.Register();
-                
             ConnectionStringSettings connectionStringSetting =
                 ConfigurationManager.ConnectionStrings[nameOrConnectionString];
             string connectionString;
@@ -117,6 +115,8 @@ namespace m4d.Models
 
         public DbSet<SongLog> Log { get; set; }
 
+        public DbSet<ModifiedRecord> Modified { get; set; }
+
         protected override void OnModelCreating(System.Data.Entity.DbModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Song>().Property(song => song.Tempo).HasPrecision(6, 2);
@@ -124,6 +124,7 @@ namespace m4d.Models
             modelBuilder.Entity<Dance>().Property(dance => dance.Id).HasMaxLength(5);
             modelBuilder.Entity<Dance>().Ignore(dance => dance.Info);            
             modelBuilder.Entity<DanceRating>().HasKey(t => new { t.SongId, t.DanceId });
+            modelBuilder.Entity<ModifiedRecord>().HasKey(t => new { t.ApplicationUserId, t.SongId });
 
             base.OnModelCreating(modelBuilder);
         }
@@ -174,12 +175,12 @@ namespace m4d.Models
                     }
                 }
 
-                foreach (ApplicationUser u in from.ModifiedBy)
+                // TODO: Get this to work in a detached state
+                foreach (ModifiedRecord us in from.ModifiedBy)
                 {
-                    if (!song.ModifiedBy.Contains(u))
+                    if (AddUserToSong(us.ApplicationUser,song))
                     {
-                        song.ModifiedBy.Add(u);
-                        CreateSongProperty(song, UserField, u.UserName, song.CreateEntry);
+                        CreateSongProperty(song, UserField, us.ApplicationUser.UserName, song.CreateEntry);
                     }
                 }
             }
@@ -187,7 +188,17 @@ namespace m4d.Models
             // Dump the weight table
             foreach (KeyValuePair<string, int> dance in weights)
             {
-                song.DanceRatings.Add(new DanceRating() {DanceId = dance.Key, SongId = song.SongId, Weight = dance.Value});
+                DanceRating dr = DanceRatings.Create();
+                dr.DanceId = dance.Key;
+                dr.SongId = song.SongId;
+                dr.Weight = dance.Value;
+                
+                song.DanceRatings.Add(dr);
+                var dre = Entry(dr);
+                if (dre != null && dre.State != EntityState.Added)
+                {
+                    dre.State = EntityState.Added;
+                }
 
                 string value = new DanceRatingDelta { DanceId = dance.Key, Delta = dance.Value }.ToString();
                     
@@ -200,6 +211,11 @@ namespace m4d.Models
                 RemoveSong(from);
             }
 
+            var se = Entry(song);
+            if (se != null)
+            {
+                se.State = EntityState.Modified;
+            }
             SaveChanges();
 
             return song;
@@ -240,7 +256,10 @@ namespace m4d.Models
             // Handle User association
             if (user != null)
             {
-                user.Songs.Add(song);
+                ModifiedRecord us = Modified.Create();
+                us.Song = song;
+                us.ApplicationUser = user;
+                Modified.Add(us);
                 CreateSongProperty(song, UserField, user.UserName, log);
             }
 
@@ -296,7 +315,22 @@ namespace m4d.Models
             return song;
         }
 
-
+        bool AddUserToSong(ApplicationUser user, Song song)
+        {
+            if (!song.ModifiedBy.Any(u => u.ApplicationUserId == user.Id))
+            {
+                ModifiedRecord us = Modified.Create();
+                us.Song = song;
+                us.ApplicationUser = user;
+                Modified.Add(us);
+                song.ModifiedBy.Add(us);
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
 
         public SongDetails EditSong(ApplicationUser user, SongDetails edit, List<string> addDances, List<string> remDances)
         {
@@ -398,10 +432,7 @@ namespace m4d.Models
             // Handle User association
             if (user != null)
             {
-                if (user.Songs.Contains(song))
-                {
-                    user.Songs.Add(song);
-                }
+                AddUserToSong(user, song);
                 CreateSongProperty(song, UserField, user.UserName);
             }
 
@@ -447,6 +478,11 @@ namespace m4d.Models
         private void RemoveSong(Song song)
         {
             song.Delete();
+            var entry = Entry(song);
+            if (entry != null)
+            {
+                entry.State = EntityState.Modified;
+            }
         }
 
         public void AddDanceRatings(Song song, IEnumerable<string> danceIds, int weight = 0)
@@ -676,10 +712,7 @@ namespace m4d.Models
             {
                 // Only new song has a null ModifiedBy?
                 ApplicationUser user = FindUser(lv.Value);
-                if (!user.Songs.Contains(song))
-                {
-                    user.Songs.Add(song);
-                }
+                AddUserToSong(user, song);
             }
             else if (lv.Name.Equals(DanceRatingField))
             {

@@ -110,7 +110,7 @@ namespace m4d.ViewModels
         public List<AlbumDetails> Albums { get; set; }
         public List<DanceRating> DanceRatings { get; set; }
         public List<SongProperty> Properties { get; set; }
-        public List<ApplicationUser> ModifiedBy { get; set; }
+        public List<ModifiedRecord> ModifiedBy { get; set; }
 
         public string AlbumList
         {
@@ -343,12 +343,15 @@ namespace m4d.ViewModels
             ApplicationUser user = dmc.FindUser(userName);
             if (ModifiedBy == null)
             {
-                ModifiedBy = new List<ApplicationUser>();
+                ModifiedBy = new List<ModifiedRecord>();
             }
 
-            if (!ModifiedBy.Contains(user))
+
+            if (!ModifiedBy.Any(u => u.ApplicationUserId == u.ApplicationUserId))
             {
-                ModifiedBy.Add(user);
+                ModifiedRecord us = dmc.Modified.Create();
+                us.ApplicationUser = user;
+                ModifiedBy.Add(us);
             }
         }
         private void UpdateDanceRating(DanceMusicContext dmc, string value)

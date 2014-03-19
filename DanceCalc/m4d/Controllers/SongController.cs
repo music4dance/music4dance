@@ -343,10 +343,9 @@ namespace music4dance.Controllers
             if (autoCommit.HasValue && autoCommit.Value == true)
             {
                 songs = AutoMerge(songs);
-
             }
 
-            return View("Index", songs.ToPagedList(pageNumber, pageSize)); 
+            return View("Index", songs.ToPagedList(pageNumber, pageSize));
         }
 
 
@@ -629,60 +628,60 @@ namespace music4dance.Controllers
         }
         private IList<Song> AutoMerge(IList<Song> songs)
         {
-            //using (DanceMusicContext dmc = new DanceMusicContext())
-            //{
-            //    // TODO: Is this somehow global?  The examples that change this flag have both the using and a try/catch
-            //    //  to turn it off.
-
-            //    dmc.Configuration.AutoDetectChangesEnabled = false;
-
-            DanceMusicContext dmc = _db;
-
             // Get the logged in user
             string userName = User.Identity.Name;
-            ApplicationUser user = dmc.Users.FirstOrDefault(u => u.UserName == userName);
+            ApplicationUser user = _db.Users.FirstOrDefault(u => u.UserName == userName);
 
             List<Song> ret = new List<Song>();
             List<Song> cluster = null;
 
-            foreach (Song song in songs)
+            try
             {
-                if (cluster == null)
-                {
-                    cluster = new List<Song>();
-                    cluster.Add(song);
-                }
-                else if (song.Equivalent(cluster[0]))
-                {
-                    cluster.Add(song);
-                }
-                else
-                {
-                    if (cluster.Count > 1)
-                    {
-                        Song s = AutoMerge(dmc, cluster, user);
-                        ret.Add(s);
-                    }
-                    else if (cluster.Count == 1)
-                    {
-                        Trace.WriteLine(string.Format("Bad Merge: {0}", cluster[0].Signature));
-                    }
+                _db.Configuration.AutoDetectChangesEnabled = false;
 
-                    cluster = new List<Song>();
-                    cluster.Add(song);
+                foreach (Song song in songs)
+                {
+                    if (cluster == null)
+                    {
+                        cluster = new List<Song>();
+                        cluster.Add(song);
+                    }
+                    else if (song.Equivalent(cluster[0]))
+                    {
+                        cluster.Add(song);
+                    }
+                    else
+                    {
+                        if (cluster.Count > 1)
+                        {
+                            Song s = AutoMerge(cluster, user);
+                            ret.Add(s);
+                        }
+                        else if (cluster.Count == 1)
+                        {
+                            Trace.WriteLine(string.Format("Bad Merge: {0}", cluster[0].Signature));
+                        }
+
+                        cluster = new List<Song>();
+                        cluster.Add(song);
+                    }
                 }
+            }
+            finally
+            {
+                _db.Configuration.AutoDetectChangesEnabled = false;
+                _db.SaveChanges();
             }
 
             return ret;
-            //}
         }
 
-        private Song AutoMerge(DanceMusicContext dmc, List<Song> songs, ApplicationUser user)
+        private Song AutoMerge(List<Song> songs, ApplicationUser user)
         {
 
             // Note that automerging will only work for single album cases
 
-            Song song = dmc.MergeSongs(user, songs,
+            Song song = _db.MergeSongs(user, songs,
                 ResolveStringField(DanceMusicContext.TitleField, songs),
                 ResolveStringField(DanceMusicContext.ArtistField, songs),
                 ResolveStringField(DanceMusicContext.GenreField, songs),
