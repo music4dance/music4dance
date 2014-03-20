@@ -555,8 +555,8 @@ namespace music4dance.Controllers
             else 
             {
                 // Otherwise just add an album
-                ad = new AlbumDetails { Name = album, Track=trackNum };
-                song.Albums.Add(ad);
+                ad = new AlbumDetails { Name = album, Track=trackNum, Index=song.GetNextAlbumIndex() };
+                song.Albums.Insert(0,ad);
             }
             UpdateXboxPurchase(ad, trackId, alternateId);
 

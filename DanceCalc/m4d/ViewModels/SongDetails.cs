@@ -176,6 +176,24 @@ namespace m4d.ViewModels
 
         public Song Song { get; private set; }
 
+        public int GetNextAlbumIndex()
+        {
+            return GetNextAlbumIndex(Albums);
+        }
+
+        public static int GetNextAlbumIndex(ICollection<AlbumDetails> albums)
+        {
+            int ret = 0;
+            foreach (AlbumDetails ad in albums)
+            {
+                if (ad.Index >= ret)
+                {
+                    ret = ad.Index + 1;
+                }
+            }
+            return ret;
+        }
+
         public static List<AlbumDetails> BuildAlbumInfo(IList<Song> songs)
         {
             List<AlbumDetails> results = BuildAlbumInfo(songs[0]);
@@ -204,9 +222,11 @@ namespace m4d.ViewModels
                 select prop;
             return BuildAlbumInfo(properties);
         }
-        public static List<AlbumDetails> BuildAlbumInfo(IEnumerable<SongProperty> properties)        
+        public static List<AlbumDetails> BuildAlbumInfo(IEnumerable<SongProperty> properties)
         {
-            List<string> names = new List<string>(new string[] {"Album","Publisher","Track","Purchase"});
+            List<string> names = new List<string>(new string[] {
+                DanceMusicContext.AlbumField,DanceMusicContext.PublisherField,DanceMusicContext.TrackField,DanceMusicContext.PurchaseField,DanceMusicContext.AlbumPromote
+            });
 
             // First build a hashtable of index->albuminfo, maintaining the total number and the
             // high water mark of indexed albums
@@ -215,6 +235,10 @@ namespace m4d.ViewModels
             int max = 0;
 
             Dictionary<int,AlbumDetails> map = new Dictionary<int,AlbumDetails>();
+
+            // Also keep a list of 'promotions' - current semantics are that if an album
+            //  has a promotion it is removed and re-inserted at the head of the list
+            List<int> promotions = new List<int>();
 
             foreach (SongProperty prop in properties)
             {
@@ -244,7 +268,7 @@ namespace m4d.ViewModels
 
                     switch (name)
                     {
-                        case "Album":
+                        case DanceMusicContext.AlbumField:
                             if (remove)
                             {
                                 d.Name = null;
@@ -255,7 +279,7 @@ namespace m4d.ViewModels
                                 d.Name = prop.Value;
                             }
                             break;
-                        case "Publisher":
+                        case DanceMusicContext.PublisherField:
                             if (remove)
                             {
                                 d.Publisher = null;
@@ -265,7 +289,7 @@ namespace m4d.ViewModels
                                 d.Publisher = prop.Value;
                             }
                             break;
-                        case "Track":
+                        case DanceMusicContext.TrackField:
                             if (remove)
                             {
                                 d.Track = null;
@@ -277,7 +301,7 @@ namespace m4d.ViewModels
                                 d.Track = t;
                             }
                             break;
-                        case "Purchase":
+                        case DanceMusicContext.PurchaseField:
                             if (d.Purchase == null)
                             {
                                 d.Purchase = new Dictionary<string, string>();
@@ -291,6 +315,9 @@ namespace m4d.ViewModels
                             {
                                 d.Purchase[qual] = prop.Value;
                             }
+                            break;
+                        case DanceMusicContext.AlbumPromote:
+                            promotions.Add(idx);
                             break;
                     }
                 }
@@ -307,21 +334,20 @@ namespace m4d.ViewModels
                 }
             }
 
+            for (int i = 0; i < promotions.Count; i++)
+            {
+                AlbumDetails d;
+                if (map.TryGetValue(promotions[i], out d) && d.Name != null)
+                {
+                    albums.Remove(d);
+                    albums.Insert(0, d);
+                }
+
+            }
+
             return albums;
         }
 
-        public int GetNextAlbumIndex()
-        {
-            int ret = 0;
-            foreach (AlbumDetails ad in Albums)
-            {
-                if (ad.Index >= ret)
-                {
-                    ret = ad.Index + 1;
-                }
-            }
-            return ret;
-        }
         private void BuildAlbumInfo()
         {
             IEnumerable<SongProperty> properties =

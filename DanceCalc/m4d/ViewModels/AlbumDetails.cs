@@ -224,26 +224,26 @@ namespace m4d.ViewModels
 
             return service + " " + type;
         }
-        public bool ModifyInfo(DanceMusicContext dmc, Song song, int idx, AlbumDetails old, SongLog log)
+        public bool ModifyInfo(DanceMusicContext dmc, Song song, AlbumDetails old, SongLog log)
         {
             bool modified = true;
 
             // This indicates a deleted album
             if (string.IsNullOrWhiteSpace(Name))
             {
-                ChangeProperty(dmc, song, idx, DanceMusicContext.AlbumField, null, old.Name, null, log);
+                ChangeProperty(dmc, song, old.Index, DanceMusicContext.AlbumField, null, old.Name, null, log);
                 if (old.Track.HasValue)
-                    ChangeProperty(dmc, song, idx, DanceMusicContext.TrackField, null, old.Track, null, log);
+                    ChangeProperty(dmc, song, old.Index, DanceMusicContext.TrackField, null, old.Track, null, log);
                 if (!string.IsNullOrWhiteSpace(old.Publisher))
-                    ChangeProperty(dmc, song, idx, DanceMusicContext.PublisherField, null, old.Publisher, null, log);
+                    ChangeProperty(dmc, song, old.Index, DanceMusicContext.PublisherField, null, old.Publisher, null, log);
 
                 modified = true;
             }
             else
             {
-                modified |= ChangeProperty(dmc, song, idx, DanceMusicContext.AlbumField, null, old.Name, Name, log);
-                modified |= ChangeProperty(dmc, song, idx, DanceMusicContext.TrackField, null, old.Track, Track, log);
-                modified |= ChangeProperty(dmc, song, idx, DanceMusicContext.PublisherField, null, old.Publisher, Publisher, log);
+                modified |= ChangeProperty(dmc, song, old.Index, DanceMusicContext.AlbumField, null, old.Name, Name, log);
+                modified |= ChangeProperty(dmc, song, old.Index, DanceMusicContext.TrackField, null, old.Track, Track, log);
+                modified |= ChangeProperty(dmc, song, old.Index, DanceMusicContext.PublisherField, null, old.Publisher, Publisher, log);
 
                 PurchaseDiff(dmc, song, old, log);
             }
@@ -251,21 +251,21 @@ namespace m4d.ViewModels
             return modified;
         }
 
-        public void CreateProperties(DanceMusicContext dmc, Song song, int idx, SongLog log = null)
+        public void CreateProperties(DanceMusicContext dmc, Song song, SongLog log = null)
         {
             if (string.IsNullOrWhiteSpace(Name))
             {
                 throw new ArgumentOutOfRangeException("album");
             }
 
-            AddProperty(dmc, song, idx, DanceMusicContext.AlbumField, null, Name, log);
-            AddProperty(dmc, song, idx, DanceMusicContext.TrackField, null, Track, log);
-            AddProperty(dmc, song, idx, DanceMusicContext.PublisherField, null, Publisher, log);
+            AddProperty(dmc, song, Index, DanceMusicContext.AlbumField, null, Name, log);
+            AddProperty(dmc, song, Index, DanceMusicContext.TrackField, null, Track, log);
+            AddProperty(dmc, song, Index, DanceMusicContext.PublisherField, null, Publisher, log);
             if (Purchase != null)
             {
                 foreach (KeyValuePair<string, string> purchase in Purchase)
                 {
-                    AddProperty(dmc, song, idx, DanceMusicContext.PurchaseField, purchase.Key, purchase.Value, log);
+                    AddProperty(dmc, song, Index, DanceMusicContext.PurchaseField, purchase.Key, purchase.Value, log);
                 }
             }
         }

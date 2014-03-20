@@ -37,7 +37,6 @@ namespace m4d.Models
         {
         }
 
-
         private static DbConnection CreateConnection(string nameOrConnectionString)
         {
             ConnectionStringSettings connectionStringSetting =
@@ -87,6 +86,8 @@ namespace m4d.Models
         public const string DanceRatingField = "DanceRating";
         public const string AlbumList = "AlbumList";
 
+        public const string AlbumPromote = "PromoteAlbum";
+
         // Commands
         public const string CreateCommand = ".Create";
         public const string EditCommand = ".Edit";
@@ -98,12 +99,6 @@ namespace m4d.Models
         public const string SuccessResult = ".Success";
         public const string FailResult = ".Fail";
         public const string MessageData = ".Message";
-
-
-        // Consider a parallel table for commands or commands not associates
-        //  with a particular song?
-        //public static readonly string StartBatchLoadCommand = ".StartBatchLoad";
-        //public static readonly string EndBatchLoadCommand = ".EndBatchLoad";
 
         public DbSet<Song> Songs { get; set; }
 
@@ -139,7 +134,7 @@ namespace m4d.Models
 
         public SongDetails FindSongDetails(int id)
         {
-            SongDetails sd = null;            
+            SongDetails sd = null;
             
             Song song = Songs.Find(id);
 
@@ -346,7 +341,6 @@ namespace m4d.Models
             SongLog log = CreateEditHeader(song, user);
             log.SongSignature = song.Signature;
 
-            // TODO: AlbumInfo and DanceRating still need to be handled
             modified |= UpdateSongProperty(edit, song, TitleField, log);
             modified |= UpdateSongProperty(edit, song, ArtistField, log);
             modified |= UpdateSongProperty(edit, song, TempoField, log);
@@ -356,36 +350,52 @@ namespace m4d.Models
             List<AlbumDetails> oldAlbums = SongDetails.BuildAlbumInfo(song);
 
             bool foundFirst = false;
+            bool foundOld = false;
+
+            List<int> promotions = new List<int>();
+
+            song.Album = null;
 
             // TODO: Think about how we might want to 
             //  put the xbox selection at the top of the album list...
-            for (int aidx = 0, cidx = oldAlbums.Count; aidx < edit.Albums.Count; aidx++ )
+            for (int aidx = 0; aidx < edit.Albums.Count; aidx++ )
             {
-                if (!foundFirst && !string.IsNullOrEmpty(edit.Albums[aidx].Name))
+                AlbumDetails album =  edit.Albums[aidx];
+                AlbumDetails old = oldAlbums.FirstOrDefault(a => a.Index == album.Index);
+
+                if (!foundFirst && !string.IsNullOrEmpty(album.Name))
                 {
                     foundFirst = true;
-                    song.Album = edit.Albums[aidx].Name;
+                    song.Album = album.Name;
                 }
 
-                if (aidx < cidx)
+                if (old != null)
                 {
                     // We're in existing album territory
-                    modified |= edit.Albums[aidx].ModifyInfo(this,song,aidx,oldAlbums[aidx], log);
+                    foundOld = true;
+                    modified |= album.ModifyInfo(this, song, old, log);
                 }
                 else
                 {
                     // We're in new territory only do something if the name field is non-empty
-                    if (!string.IsNullOrWhiteSpace(edit.Albums[aidx].Name))
+                    if (!string.IsNullOrWhiteSpace(album.Name))
                     {
-                        edit.Albums[aidx].CreateProperties(this,song,aidx,log);
+                        album.CreateProperties(this,song,log);
                         modified = true;
+
+                        // Push this to the front if we haven't run into an old album yet
+                        if (!foundOld)
+                        {
+                            promotions.Insert(0,album.Index);
+                        }
                     }
                 }
             }
 
-            if (!foundFirst)
+            // Now push the promotions
+            foreach (int p in promotions)
             {
-                song.Album = null;
+                AlbumDetails.AddProperty(this, song, p, AlbumPromote, null, string.Empty, log);
             }
 
             modified |= EditDanceRatings(edit, song, addDances, remDances, log);
@@ -756,7 +766,7 @@ namespace m4d.Models
                             song.Album = albums[0].Name;
                         }
 
-                        ad.CreateProperties(this, song, ia, log);
+                        ad.CreateProperties(this, song, log);
                     }
                 }
             }

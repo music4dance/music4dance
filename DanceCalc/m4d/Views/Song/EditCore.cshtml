@@ -206,6 +206,9 @@
                             @Html.ValidationMessageFor(model => model.Albums[currentAlbum].Publisher)
                         </div>
                     </td>
+                    <td>
+                        @Html.HiddenFor(model => Model.Albums[currentAlbum].Index)
+                    </td>
                 </tr>
             }
 
