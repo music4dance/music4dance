@@ -174,32 +174,26 @@ namespace m4d.ViewModels
             return albums;
         }
 
-        //public void SetPurchaseInfo(IEnumerable<string> pis)
-        //{
-        //    int idx = 0;
-        //    foreach (string purchase in pis)
-        //    {
-        //        if (idx > Albums.Count) 
-        //        {
-        //            throw new ArgumentOutOfRangeException("pis");
-        //        }
-
-        //        Albums[idx].SetPurchaseInfo(purchase);
-
-        //        idx += 1;
-        //    }
-        //}
-
         public Song Song { get; private set; }
 
-        /// <summary>
-        /// This should create a new song based on the songdetails info
-        /// If it was created with a song, do we do a merge/edit?
-        /// </summary>
-        /// <returns></returns>
-        public Song CreateSong()
+        public static List<AlbumDetails> BuildAlbumInfo(IList<Song> songs)
         {
-            return null;
+            List<AlbumDetails> results = BuildAlbumInfo(songs[0]);
+
+            for (int i = 1; i < songs.Count; i++)
+            {
+                List<AlbumDetails> next = BuildAlbumInfo(songs[i]);
+
+                foreach (AlbumDetails ad in next)
+                {
+                    if (!results.Any(d => d.Name == ad.Name))
+                    {
+                        results.Add(ad);
+                    }
+                }
+            }
+
+            return results;
         }
 
         public static List<AlbumDetails> BuildAlbumInfo(Song song)

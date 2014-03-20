@@ -342,7 +342,7 @@ namespace music4dance.Controllers
 
             if (autoCommit.HasValue && autoCommit.Value == true)
             {
-                songs = AutoMerge(songs);
+                songs = AutoMerge(songs,ViewBag.Level);
             }
 
             return View("Index", songs.ToPagedList(pageNumber, pageSize));
@@ -626,7 +626,7 @@ namespace music4dance.Controllers
 
             return new MultiSelectList(Dances, "ID", "Name", selarr);
         }
-        private IList<Song> AutoMerge(IList<Song> songs)
+        private IList<Song> AutoMerge(IList<Song> songs, int level)
         {
             // Get the logged in user
             string userName = User.Identity.Name;
@@ -646,7 +646,7 @@ namespace music4dance.Controllers
                         cluster = new List<Song>();
                         cluster.Add(song);
                     }
-                    else if (song.Equivalent(cluster[0]))
+                    else if ((level == 0 && song.Equivalent(cluster[0])) || (level == 1 && song.WeakEquivalent(cluster[0])))
                     {
                         cluster.Add(song);
                     }
@@ -678,16 +678,13 @@ namespace music4dance.Controllers
 
         private Song AutoMerge(List<Song> songs, ApplicationUser user)
         {
-
-            // Note that automerging will only work for single album cases
-
             Song song = _db.MergeSongs(user, songs,
                 ResolveStringField(DanceMusicContext.TitleField, songs),
                 ResolveStringField(DanceMusicContext.ArtistField, songs),
                 ResolveStringField(DanceMusicContext.GenreField, songs),
                 ResolveDecimalField(DanceMusicContext.TempoField, songs),
                 ResolveIntField(DanceMusicContext.LengthField, songs),
-                SongDetails.BuildAlbumInfo(songs[0])
+                SongDetails.BuildAlbumInfo(songs)
                 );
 
             return song;

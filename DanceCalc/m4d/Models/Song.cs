@@ -184,6 +184,25 @@ namespace m4d.Models
         }
 
 
+        // Same as equivalent (above) except that album, Tempo and Length aren't compared.
+        public bool WeakEquivalent(Song song)
+        {
+            // No-similar titles != equivalent
+            if (DanceMusicContext.CreateTitleHash(Title) != DanceMusicContext.CreateTitleHash(song.Title))
+            {
+                return false;
+            }
+
+            if (!string.IsNullOrWhiteSpace(Artist) && !string.IsNullOrWhiteSpace(song.Artist) &&
+                (DanceMusicContext.CreateTitleHash(Artist) != DanceMusicContext.CreateTitleHash(song.Artist)))
+            {
+                return false;
+            }
+
+            return EqNum(Tempo, song.Tempo) && EqNum(Length, song.Length);
+        }
+
+
         private static bool EqString(string s1, string s2)
         {
             return string.IsNullOrWhiteSpace(s1) || string.IsNullOrWhiteSpace(s2) ||
