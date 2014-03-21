@@ -299,6 +299,8 @@ namespace m4d.Models
             // Album
             CreateAlbums(song,albums,log);
 
+            song.Purchase = SongDetails.GetPurchaseTags(albums);
+
             song.TitleHash = CreateTitleHash(title);
 
             song = Songs.Add(song);
@@ -400,6 +402,8 @@ namespace m4d.Models
 
             modified |= EditDanceRatings(edit, song, addDances, remDances, log);
 
+            modified |= UpdatePurchaseInfo(song, edit);
+
             if (modified)
             {
                 FixupEdited(song);
@@ -424,6 +428,17 @@ namespace m4d.Models
             
         }
 
+        private bool UpdatePurchaseInfo(Song song, SongDetails edit)
+        {
+            bool ret = false;
+            string pi = edit.GetPurchaseTags();
+            if (!string.Equals(song.Purchase, pi))
+            {
+                song.Purchase = pi;
+                ret = true;
+            }
+            return ret;
+        }
 
         private SongLog CreateEditHeader(Song song, ApplicationUser user)
         {

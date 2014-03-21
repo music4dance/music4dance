@@ -63,6 +63,7 @@ namespace m4d.ViewModels
             set { SetPurchaseInfo(value); }
 
         }
+
         /// <summary>
         /// Formatted purchase info
         /// </summary>
@@ -83,7 +84,7 @@ namespace m4d.ViewModels
                 }
                 else
                 {
-                    info.Add(ExpandPurcahseType(p.Key) + "=" + p.Value);
+                    info.Add(ExpandPurchaseType(p.Key) + "=" + p.Value);
                 }
             }
 
@@ -103,6 +104,29 @@ namespace m4d.ViewModels
             }
         }
 
+        public string GetPurchaseTags()
+        {
+            StringBuilder sb = new StringBuilder();
+            HashSet<char> added = new HashSet<char>();
+
+            if (Purchase != null)
+            {
+                foreach (string t in Purchase.Keys)
+                {
+                    char c = t[0];
+                    if (!added.Contains(c))
+                    {
+                        added.Add(c);
+                        sb.Append(c);
+                    }
+                }
+            }
+
+            if (sb.Length == 0)
+                return null;
+            else
+                return sb.ToString();
+        }
         public void SetPurchaseInfo(PurchaseType pt, MusicService ms, string value)
         {
             if (Purchase == null)
@@ -123,15 +147,25 @@ namespace m4d.ViewModels
             Purchase.Add(sb.ToString(), value);
         }
 
-        public void SetPurchaseInfo(string purchase)
+        public void SetPurchaseInfo(string purchase)        
         {
-            PurchaseType pt;
-            MusicService ms;
-            string pi;
-
-            if (AlbumDetails.TryParsePurchaseInfo(purchase, out pt, out ms, out pi))
+            if (string.IsNullOrWhiteSpace(purchase))
             {
-                SetPurchaseInfo(pt, ms, pi);
+                return;
+            }
+
+            string[] values = purchase.Split(new char[] { ';' });
+
+            foreach (string value in values)
+            {
+                PurchaseType pt;
+                MusicService ms;
+                string pi;
+
+                if (AlbumDetails.TryParsePurchaseInfo(value, out pt, out ms, out pi))
+                {
+                    SetPurchaseInfo(pt, ms, pi);
+                }
             }
         }
 
@@ -209,7 +243,7 @@ namespace m4d.ViewModels
             return true;
         }
 
-        static public string ExpandPurcahseType(string abbrv)
+        static public string ExpandPurchaseType(string abbrv)
         {
             PurchaseType pt;
             MusicService ms;

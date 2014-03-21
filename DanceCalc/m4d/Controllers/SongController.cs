@@ -31,7 +31,7 @@ namespace music4dance.Controllers
         // GET: /Song/
 
         [AllowAnonymous]
-        public ActionResult Index(string dances, string sortOrder, string currentFilter, string searchString, int? page, int? level)
+        public ActionResult Index(string dances, string sortOrder, string currentFilter, string searchString, int? page, int? level, string purchase)
         {
             Trace.WriteLine(string.Format("Entering Song.Index: dances='{0}',sortOrder='{1}',currentFilter='{2}',searchString='{3}'",dances,sortOrder,currentFilter,searchString));
 
@@ -50,6 +50,8 @@ namespace music4dance.Controllers
             ViewBag.TitleClass = string.Empty;
             ViewBag.ArtistClass = string.Empty;
             ViewBag.AlbumClass = string.Empty;
+
+            ViewBag.Purchase = purchase;
 
             ViewBag.Level = level ?? 1;
 
@@ -72,6 +74,16 @@ namespace music4dance.Controllers
             // Now setup the view
             // Start with all of the songs in the database
             var songs = from s in _db.Songs where s.TitleHash != 0  select s;
+
+            if (string.Equals(purchase,"AIX"))
+            {
+                songs = songs.Where(s => s.Purchase != null);
+            }
+            else if (!string.IsNullOrWhiteSpace(purchase))
+            {
+                songs = songs.Where(s => s.Purchase.Contains(purchase));
+            }
+            
 
             // Now limit it down to the ones that are marked as a particular dance or dances
             if (!string.IsNullOrWhiteSpace(dances))

@@ -80,6 +80,46 @@ namespace m4d.Controllers
         }
 
         //
+        // Get: //Reseed
+        [Authorize(Roles = "showDiagnostics")]
+        public ActionResult Reseed()
+        {
+            ViewBag.Name = "Reseed Database";
+            ReseedDB();
+            ViewBag.Success = true;
+            ViewBag.Message = "Database was successfully reseeded";
+
+            return View("Results");
+        }
+
+        //
+        // Get: //Reseed
+        [Authorize(Roles = "dbAdmin")]
+        public ActionResult UpdatePurchase()
+        {
+            ViewBag.Name = "Update Purchase Info";
+
+            using (DanceMusicContext dmc = new DanceMusicContext())
+            {
+                var songs = from s in dmc.Songs where s.TitleHash != 0 select s;
+                
+                foreach (Song song in songs)
+                {
+                    SongDetails sd = new SongDetails(song);
+                    song.Purchase = sd.GetPurchaseTags();
+                }
+
+                dmc.SaveChanges();
+            }
+
+            ViewBag.Success = true;
+            ViewBag.Message = "Purchase info was successully updated";
+
+            return View("Results");
+        }
+
+
+        //
         // Get: //ReloadDatabase
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -175,6 +215,32 @@ namespace m4d.Controllers
 
         private void RestoreDB()
         {
+            var migrator = BuildMigrator();
+
+            // Roll back to a specific migration
+            migrator.Update("InitialCreate");
+
+            // Apply all migrations up to a specific migration
+            migrator.Update();
+        }
+
+        private void ReseedDB()
+        {
+            using (DanceMusicContext dmc = new DanceMusicContext())
+            {
+                Configuration.DoSeed(dmc);
+            }
+        }
+
+        private DbMigrator BuildMigrator()
+        {
+            var configuration = BuildConfiguration();
+
+            return new DbMigrator(configuration);
+        }
+
+        private Configuration BuildConfiguration()
+        {
             string sqlConnectionString = System.Configuration.ConfigurationManager.ConnectionStrings["DefaultConnection"].ConnectionString;
             var connectionInfo = new DbConnectionInfo(sqlConnectionString, "System.Data.SqlClient");
 
@@ -184,15 +250,8 @@ namespace m4d.Controllers
                 AutomaticMigrationsEnabled = false
             };
 
-            var migrator = new DbMigrator(configuration);
-
-            // Roll back to a specific migration
-            migrator.Update("InitialCreate");
-
-            // Apply all migrations up to a specific migration
-            migrator.Update();
+            return configuration;
         }
-
         private void ReloadDB(List<string> lines)
         {
             using (DanceMusicContext dmc = new DanceMusicContext())

@@ -18,6 +18,11 @@ namespace m4d.Migrations
 
         protected override void Seed(m4d.Models.DanceMusicContext context)
         {
+            DoSeed(context);
+        }
+
+        static public void DoSeed(m4d.Models.DanceMusicContext context)
+        {
             //  This method will be called after migrating to the latest version.
 
             //  You can use the DbSet<T>.AddOrUpdate() helper extension method 
@@ -35,41 +40,41 @@ namespace m4d.Migrations
 
             foreach (string roleName in _roles)
             {
-                if (context.Roles.Any(r => r.Name == roleName))
+                if (!context.Roles.Any(r => r.Name == roleName))
                 {
                     var role = new IdentityRole { Name = roleName };
                     rmanager.Create(role);
                 }
             }
 
-            if (!context.Users.Any(u => u.UserName == "dwgray"))
+            var ustore = new UserStore<ApplicationUser>(context);
+            var umanager = new UserManager<ApplicationUser>(ustore);
+
+            foreach (string name in _diagUsers)
             {
-                var ustore = new UserStore<ApplicationUser>(context);
-                var umanager = new UserManager<ApplicationUser>(ustore);
-
-                foreach (string name in _diagUsers)
+                var user = context.Users.FirstOrDefault(u => u.UserName == name);
+                if (user == null)
                 {
-                    if (context.Users.Any(u => u.UserName == name))
-                    {
-                        var user = new ApplicationUser { UserName = name };
+                    user = new ApplicationUser { UserName = name };
 
-                        umanager.Create(user, "marley");
-                        umanager.AddToRole(user.Id, _diagRole);
-                        umanager.AddToRole(user.Id, _editRole);
-                        umanager.AddToRole(user.Id, _dbaRole);
-                    }
+                    umanager.Create(user, "marley");
                 }
 
-                foreach (string name in _editUsers)
-                {
-                    if (context.Users.Any(u => u.UserName == name))
-                    {
-                        var user = new ApplicationUser { UserName = name };
+                AddToRole(umanager, user.Id, _diagRole);
+                AddToRole(umanager, user.Id, _editRole);
+                AddToRole(umanager, user.Id, _dbaRole);
+            }
 
-                        umanager.Create(user, "_this_is_a_placeholder_");
-                        umanager.AddToRole(user.Id, _editRole);
-                    }
+            foreach (string name in _editUsers)
+            {
+                if (!context.Users.Any(u => u.UserName == name))
+                {
+                    var user = new ApplicationUser { UserName = name };
+
+                    umanager.Create(user, "_this_is_a_placeholder_");
+                    umanager.AddToRole(user.Id, _editRole);
                 }
+
             }
 
             if (!context.Dances.Any(d => d.Id == "CHA"))
@@ -84,12 +89,20 @@ namespace m4d.Migrations
             }
         }
 
+        private static void AddToRole(UserManager<ApplicationUser> um, string user, string role)
+        {
+            if (!um.IsInRole(user, role))
+            {
+                um.AddToRole(user, role);
+            }
+        }
+
         private static string _editRole = "canEdit";
         private static string _diagRole = "showDiagnostics";
         private static string _dbaRole = "dbAdmin";
 
-        private string[] _roles = new string[] { _diagRole, _editRole, _dbaRole };
-        private string[] _diagUsers = new string[] { "administrator", "dwgray" };
-        private string[] _editUsers = new string[] { "SalsaSwingBallroom", "SandiegoDJ", "UsaSwingNet", "LetsDanceDenver", "SteveThatDJ", "JohnCrossan", "WaltersDanceCenter" };
+        private static string[] _roles = new string[] { _diagRole, _editRole, _dbaRole };
+        private static string[] _diagUsers = new string[] { "administrator", "dwgray" };
+        private static string[] _editUsers = new string[] { "SalsaSwingBallroom", "SandiegoDJ", "UsaSwingNet", "LetsDanceDenver", "SteveThatDJ", "JohnCrossan", "WaltersDanceCenter" };
     }
 }

@@ -181,6 +181,37 @@ namespace m4d.ViewModels
             return GetNextAlbumIndex(Albums);
         }
 
+        public string GetPurchaseTags()
+        {
+            return GetPurchaseTags(Albums);
+        }
+
+        public static string GetPurchaseTags(ICollection<AlbumDetails> albums)
+        {
+            StringBuilder sb = new StringBuilder();
+            HashSet<char> added = new HashSet<char>();
+
+            foreach (AlbumDetails d in albums)
+            {
+                string tags = d.GetPurchaseTags();
+                if (tags != null)
+                {
+                    foreach (char c in tags)
+                    {
+                        if (!added.Contains(c))
+                        {
+                            added.Add(c);
+                            sb.Append(c);
+                        }
+                    }
+                }
+            }
+
+            if (sb.Length == 0)
+                return null;
+            else
+                return sb.ToString();
+        }
         public static int GetNextAlbumIndex(ICollection<AlbumDetails> albums)
         {
             int ret = 0;

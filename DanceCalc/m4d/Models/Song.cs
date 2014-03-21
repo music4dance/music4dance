@@ -18,6 +18,7 @@ namespace m4d.Models
         public string Album { get; set; }
         public string Genre { get; set; }
         public int? Length { get; set; }
+        public string Purchase { get; set; }
         public DateTime Created { get; set; }
         public DateTime Modified { get; set; }
         public int TitleHash { get; set; }

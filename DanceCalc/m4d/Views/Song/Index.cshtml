@@ -42,16 +42,17 @@
             <th>&nbsp;</th>
         }
         <th @ViewBag.TitleClass style="min-width:75pt">
-            @Html.ActionLink("Title", "Index", new { sortOrder = ViewBag.TitleSort, currentFilter = ViewBag.CurrentFilter, dances = ViewBag.CurrentDances, level = ViewBag.Level })
+            @Html.ActionLink("Title", "Index", new { sortOrder = ViewBag.TitleSort, currentFilter = ViewBag.CurrentFilter, dances = ViewBag.CurrentDances, level = ViewBag.Level, purchase = ViewBag.Purchase })
         </th>
         <th @ViewBag.ArtistClass  style="min-width:75pt">
-            @Html.ActionLink("Artist", "Index", new { sortOrder = ViewBag.ArtistSort, currentFilter = ViewBag.CurrentFilter, dances = ViewBag.CurrentDances, level = ViewBag.Level })
+            @Html.ActionLink("Artist", "Index", new { sortOrder = ViewBag.ArtistSort, currentFilter = ViewBag.CurrentFilter, dances = ViewBag.CurrentDances, level = ViewBag.Level, purchase = ViewBag.Purchase })
         </th>
         <th @ViewBag.AlbumClass style="min-width:75pt">
-            @Html.ActionLink("Album", "Index", new { sortOrder = ViewBag.AlbumSort, currentFilter = ViewBag.CurrentFilter, dances = ViewBag.CurrentDances, level = ViewBag.Level })
+            @Html.ActionLink("Album", "Index", new { sortOrder = ViewBag.AlbumSort, currentFilter = ViewBag.CurrentFilter, dances = ViewBag.CurrentDances, level = ViewBag.Level, purchase = ViewBag.Purchase })
         </th>
         <th>Tempo (BPM)</th>
         <th>Dances</th>
+        <th></th>
         @if (showDiag)
         {
             <th>SongId</th>
@@ -103,6 +104,20 @@
                 separator = ", "; 
             }
         </td>
+        <td>
+            @if (!string.IsNullOrEmpty(item.Purchase) && item.Purchase.Contains('X'))
+            {
+                <img src="@Url.Content("~/Content/xboxmusic-logo.png")" alt="Availiable on Xbox Music" width="20" height="20"/>
+            }
+            @if (!string.IsNullOrEmpty(item.Purchase) && item.Purchase.Contains('I'))
+            {
+                <img src="@Url.Content("~/Content/itunes-logo.png")" alt="Availiable on Itunes" width="20" height="20" />
+            }
+            @if (!string.IsNullOrEmpty(item.Purchase) && item.Purchase.Contains('A'))
+            {
+                <img src="@Url.Content("~/Content/amazon-logo.png")" alt="Availiable at Amazon" width="20" height="20" />
+            }
+        </td>
         @if (showDiag)
         {
             <td>
@@ -128,4 +143,4 @@
 Page @(Model.PageCount < Model.PageNumber ? 0 : Model.PageNumber) of @Model.PageCount
 (@Model.TotalItemCount songs found.)
 
-@Html.PagedListPager( Model, page => Url.Action(ViewBag.ActionName, new { page, sortOrder = ViewBag.CurrentSort, currentFilter=ViewBag.CurrentFilter, dances=ViewBag.CurrentDances, level=ViewBag.Level }) )
+@Html.PagedListPager( Model, page => Url.Action(ViewBag.ActionName, new { page, sortOrder = ViewBag.CurrentSort, currentFilter=ViewBag.CurrentFilter, dances=ViewBag.CurrentDances, level=ViewBag.Level, purchase=ViewBag.Purchase }) )
