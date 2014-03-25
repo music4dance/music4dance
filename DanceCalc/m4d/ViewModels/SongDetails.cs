@@ -17,7 +17,6 @@ namespace m4d.ViewModels
     {
         public SongDetails()
         {
-            
         }
 
         public SongDetails(Song song)
@@ -184,6 +183,27 @@ namespace m4d.ViewModels
         public string GetPurchaseTags()
         {
             return GetPurchaseTags(Albums);
+        }
+
+
+        public ICollection<PurchaseLink> GetPurchaseLinks()
+        {
+            List<PurchaseLink> links = new List<PurchaseLink>();
+
+            for (int i = 1; i < (int)MusicService.Max; i++)
+            {
+                foreach (AlbumDetails album in Albums)
+                {
+                    PurchaseLink l = album.GetPurchaseLink((MusicService)i);
+                    if (l != null)
+                    {
+                        links.Add(l);
+                        break;
+                    }
+                }
+            }
+
+            return links;
         }
 
         public static string GetPurchaseTags(ICollection<AlbumDetails> albums)

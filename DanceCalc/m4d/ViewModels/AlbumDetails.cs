@@ -4,20 +4,24 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Web;
+using System.Web.Mvc;
 
 using m4d.Models;
 
 namespace m4d.ViewModels
 {
-    public enum MusicService { None, Amazon, ITunes, XBox, AMG };
-    public enum PurchaseType { None, Album, Song };
+    public enum MusicService { None, Amazon, ITunes, XBox, AMG, Max };
+    public enum PurchaseType { None, Album, Song, Max };
 
     public class AlbumDetails
     {
         private static char[] s_services = new char[] { '#', 'A', 'I', 'X', 'M' };
         private static char[] s_purchaseTypes = new char[] { '#', 'A', 'S' };
 
-        private static string[] s_servicesEx = new string[] { "None", "Amazon", "ITunes", "XBox", "American Music Group" };
+        private static string[] s_servicesEx = new string[] { "None", "Amazon", "ITunes", "Xbox", "American Music Group" };
+        private static string[] s_serviceLink = new string[] { "Error", "http://www.amazon.com/gp/product/{0}/ref=as_li_ss_tl?ie=UTF8&camp=1789&creative=390957&creativeASIN={0}&linkCode=as2&tag=thegraycom-20", "~/itunes-error.html","http://music.xbox.com/Track/{0}?partnerID=Music4Dance?action=play"};
+        private static string[] s_servicesAlt = new string[] { "None", "Available on Amazon", "Play it on ITunes", "Play it on Xbox Music", "Catalogged by American Music Group" };
         private static string[] s_purchaseTypesEx = new string[] { "None", "Album", "Song" };
 
 
@@ -140,11 +144,16 @@ namespace m4d.ViewModels
             if (ms == MusicService.None)
                 throw new ArgumentOutOfRangeException("MusicService");
 
+
+            Purchase.Add(BuildPurchaseKey(ms,pt), value);
+        }
+
+        static string BuildPurchaseKey(MusicService ms, PurchaseType pt)
+        {
             StringBuilder sb = new StringBuilder(3);
             sb.Append(s_services[(int)ms]);
             sb.Append(s_purchaseTypes[(int)pt]);
-
-            Purchase.Add(sb.ToString(), value);
+            return sb.ToString();
         }
 
         public void SetPurchaseInfo(string purchase)        
@@ -177,6 +186,114 @@ namespace m4d.ViewModels
             }
         }
 
+        public PurchaseLink GetPurchaseLink(MusicService ms)
+        {
+            PurchaseLink l = GetPurchaseLink(ms, PurchaseType.Song);
+            if (l == null)
+            {
+                l = GetPurchaseLink(ms, PurchaseType.Album);
+            }
+            return l;
+        }
+
+        public PurchaseLink GetPurchaseLink(MusicService ms, PurchaseType pt)
+        {
+            PurchaseLink ret = null;
+            string info = null;
+            string key = BuildPurchaseKey(ms, pt);
+            if (Purchase != null && Purchase.TryGetValue(key,out info))
+            {
+                ret = new PurchaseLink
+                {
+                    Link = string.Format(s_serviceLink[(int)ms],info),
+                    Logo = s_servicesEx[(int)ms] + "-logo.png",
+                    Charm = s_servicesEx[(int)ms] + "-charm.png",
+                    AltText = s_servicesAlt[(int)ms]
+                };
+            }
+            return ret;
+        }
+        public bool ModifyInfo(DanceMusicContext dmc, Song song, AlbumDetails old, SongLog log)
+        {
+            bool modified = true;
+
+            // This indicates a deleted album
+            if (string.IsNullOrWhiteSpace(Name))
+            {
+                ChangeProperty(dmc, song, old.Index, DanceMusicContext.AlbumField, null, old.Name, null, log);
+                if (old.Track.HasValue)
+                    ChangeProperty(dmc, song, old.Index, DanceMusicContext.TrackField, null, old.Track, null, log);
+                if (!string.IsNullOrWhiteSpace(old.Publisher))
+                    ChangeProperty(dmc, song, old.Index, DanceMusicContext.PublisherField, null, old.Publisher, null, log);
+
+                modified = true;
+            }
+            else
+            {
+                modified |= ChangeProperty(dmc, song, old.Index, DanceMusicContext.AlbumField, null, old.Name, Name, log);
+                modified |= ChangeProperty(dmc, song, old.Index, DanceMusicContext.TrackField, null, old.Track, Track, log);
+                modified |= ChangeProperty(dmc, song, old.Index, DanceMusicContext.PublisherField, null, old.Publisher, Publisher, log);
+
+                PurchaseDiff(dmc, song, old, log);
+            }
+
+            return modified;
+        }
+
+        public void CreateProperties(DanceMusicContext dmc, Song song, SongLog log = null)
+        {
+            if (string.IsNullOrWhiteSpace(Name))
+            {
+                throw new ArgumentOutOfRangeException("album");
+            }
+
+            AddProperty(dmc, song, Index, DanceMusicContext.AlbumField, null, Name, log);
+            AddProperty(dmc, song, Index, DanceMusicContext.TrackField, null, Track, log);
+            AddProperty(dmc, song, Index, DanceMusicContext.PublisherField, null, Publisher, log);
+            if (Purchase != null)
+            {
+                foreach (KeyValuePair<string, string> purchase in Purchase)
+                {
+                    AddProperty(dmc, song, Index, DanceMusicContext.PurchaseField, purchase.Key, purchase.Value, log);
+                }
+            }
+        }
+        public void PurchaseDiff(DanceMusicContext dmc, Song song, AlbumDetails old, Models.SongLog log)
+        {
+            Dictionary<string, string> add = new Dictionary<string, string>();
+            //HashSet<string> rem = new HashSet<string>();
+
+            // First delete all of the keys that are in old but not in new
+            if (old.Purchase != null)
+            {
+                foreach (string key in old.Purchase.Keys)
+                {
+                    if (Purchase != null && !Purchase.ContainsKey(key))
+                    {
+                        ChangeProperty(dmc, song, this.Index, DanceMusicContext.PurchaseField, key, Purchase[key], null, log);
+                    }
+                }
+            }
+
+            // Now add all of the keys that are in new but either don't exist or are different in old
+            if (Purchase != null)
+            {
+                foreach (string key in Purchase.Keys)
+                {
+                    if (old.Purchase == null || !old.Purchase.ContainsKey(key))
+                    {
+                        // Add
+                        ChangeProperty(dmc, song, this.Index, DanceMusicContext.PurchaseField, key, null, Purchase[key], log);
+                    }
+                    else if (old.Purchase != null && old.Purchase.ContainsKey(key) && !string.Equals(Purchase[key], old.Purchase[key]))
+                    {
+                        // Change
+                        ChangeProperty(dmc, song, this.Index, DanceMusicContext.PurchaseField, key, old.Purchase[key], Purchase[key], log);
+                    }
+                }
+            }
+
+        }
         static public bool TryParsePurchaseInfo(string pi, out PurchaseType pt, out MusicService ms, out string id)
         {
             bool success = false;
@@ -243,6 +360,10 @@ namespace m4d.ViewModels
             return true;
         }
 
+        static public string ServiceString(MusicService ms)
+        {
+            return s_servicesEx[(int)ms];
+        }
         static public string ExpandPurchaseType(string abbrv)
         {
             PurchaseType pt;
@@ -257,51 +378,6 @@ namespace m4d.ViewModels
             string type = s_purchaseTypesEx[(int)pt];
 
             return service + " " + type;
-        }
-        public bool ModifyInfo(DanceMusicContext dmc, Song song, AlbumDetails old, SongLog log)
-        {
-            bool modified = true;
-
-            // This indicates a deleted album
-            if (string.IsNullOrWhiteSpace(Name))
-            {
-                ChangeProperty(dmc, song, old.Index, DanceMusicContext.AlbumField, null, old.Name, null, log);
-                if (old.Track.HasValue)
-                    ChangeProperty(dmc, song, old.Index, DanceMusicContext.TrackField, null, old.Track, null, log);
-                if (!string.IsNullOrWhiteSpace(old.Publisher))
-                    ChangeProperty(dmc, song, old.Index, DanceMusicContext.PublisherField, null, old.Publisher, null, log);
-
-                modified = true;
-            }
-            else
-            {
-                modified |= ChangeProperty(dmc, song, old.Index, DanceMusicContext.AlbumField, null, old.Name, Name, log);
-                modified |= ChangeProperty(dmc, song, old.Index, DanceMusicContext.TrackField, null, old.Track, Track, log);
-                modified |= ChangeProperty(dmc, song, old.Index, DanceMusicContext.PublisherField, null, old.Publisher, Publisher, log);
-
-                PurchaseDiff(dmc, song, old, log);
-            }
-
-            return modified;
-        }
-
-        public void CreateProperties(DanceMusicContext dmc, Song song, SongLog log = null)
-        {
-            if (string.IsNullOrWhiteSpace(Name))
-            {
-                throw new ArgumentOutOfRangeException("album");
-            }
-
-            AddProperty(dmc, song, Index, DanceMusicContext.AlbumField, null, Name, log);
-            AddProperty(dmc, song, Index, DanceMusicContext.TrackField, null, Track, log);
-            AddProperty(dmc, song, Index, DanceMusicContext.PublisherField, null, Publisher, log);
-            if (Purchase != null)
-            {
-                foreach (KeyValuePair<string, string> purchase in Purchase)
-                {
-                    AddProperty(dmc, song, Index, DanceMusicContext.PurchaseField, purchase.Key, purchase.Value, log);
-                }
-            }
         }
 
         public static void AddProperty(DanceMusicContext dmc, Song old, int idx, string name, string qual, object value, SongLog log = null)
@@ -323,42 +399,6 @@ namespace m4d.ViewModels
             }
         }
 
-        public void PurchaseDiff(DanceMusicContext dmc, Song song, AlbumDetails old, Models.SongLog log)
-        {
-            Dictionary<string, string> add = new Dictionary<string, string>();
-            //HashSet<string> rem = new HashSet<string>();
-
-            // First delete all of the keys that are in old but not in new
-            if (old.Purchase != null)
-            {
-                foreach (string key in old.Purchase.Keys)
-                {
-                    if (Purchase != null && !Purchase.ContainsKey(key))
-                    {
-                        ChangeProperty(dmc, song, this.Index, DanceMusicContext.PurchaseField, key, Purchase[key], null, log);
-                    }
-                }
-            }
-
-            // Now add all of the keys that are in new but either don't exist or are different in old
-            if (Purchase != null)
-            {
-                foreach (string key in Purchase.Keys)
-                {
-                    if (old.Purchase == null || !old.Purchase.ContainsKey(key))
-                    {
-                        // Add
-                        ChangeProperty(dmc, song, this.Index, DanceMusicContext.PurchaseField, key, null, Purchase[key], log);
-                    }
-                    else if (old.Purchase != null && old.Purchase.ContainsKey(key) && !string.Equals(Purchase[key],old.Purchase[key]))
-                    {
-                        // Change
-                        ChangeProperty(dmc, song, this.Index, DanceMusicContext.PurchaseField, key, old.Purchase[key], Purchase[key], log);
-                    }
-                }
-            }
-
-        }
 
         public static bool ChangeProperty(DanceMusicContext dmc, Song song, int idx, string name, string qual, object oldValue, object newValue, SongLog log = null)
         {

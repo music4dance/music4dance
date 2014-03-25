@@ -25,6 +25,13 @@
             @Html.ActionLink("Back to List", (string)ViewBag.BackAction, null, new { @class = "btn btn-small btn-primary", role = "button" })
         </div>
     </div>
+    <hr />
+    <div>
+        @foreach (m4d.ViewModels.PurchaseLink link in Model.GetPurchaseLinks())
+        {
+            <a href="@link.Link"><img src="@Url.Content("~/Content/" + @link.Charm)" alt="@link.AltText" /></a>
+        }
+    </div>
     @if (User.IsInRole("showDiagnostics"))
     {
         <div id="songLog" class="col-md-6">

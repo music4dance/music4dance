@@ -35,99 +35,102 @@
 @using (Html.BeginForm("BulkEdit","Song")) {
     @Html.AntiForgeryToken()
 
-<table class="songlist">
-    <tr>
-        @if (canEdit)
+<table class="table table-striped">
+    <thead>
+        <tr>
+            @if (canEdit)
+            {
+                <th>&nbsp;</th>
+            }
+            <th @ViewBag.TitleClass style="min-width:75pt">
+                @Html.ActionLink("Title", "Index", new { sortOrder = ViewBag.TitleSort, currentFilter = ViewBag.CurrentFilter, dances = ViewBag.CurrentDances, level = ViewBag.Level, purchase = ViewBag.Purchase })
+            </th>
+            <th @ViewBag.ArtistClass style="min-width:75pt">
+                @Html.ActionLink("Artist", "Index", new { sortOrder = ViewBag.ArtistSort, currentFilter = ViewBag.CurrentFilter, dances = ViewBag.CurrentDances, level = ViewBag.Level, purchase = ViewBag.Purchase })
+            </th>
+            <th @ViewBag.AlbumClass style="min-width:75pt">
+                @Html.ActionLink("Album", "Index", new { sortOrder = ViewBag.AlbumSort, currentFilter = ViewBag.CurrentFilter, dances = ViewBag.CurrentDances, level = ViewBag.Level, purchase = ViewBag.Purchase })
+            </th>
+            <th>Tempo (BPM)</th>
+            <th>Dances</th>
+            <th></th>
+            @if (showDiag)
+            {
+                <th>SongId</th>
+            }
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
         {
-            <th>&nbsp;</th>
+            if (item.Title != null)
+            {
+                <tr>
+                    @if (canEdit)
+                    {
+                        string id = "Selected-" + item.SongId.ToString();
+                        <td><input name="selectedSongs" id="@id" type="checkbox" value="@item.SongId" /></td>
+                    }
+                    <td>
+                        @Html.ActionLink(item.Title, "Details", new { id = item.SongId })
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Artist)
+                    </td>
+                    <td>
+                        @if (!string.IsNullOrWhiteSpace(item.Album))
+                        {
+                            string[] albums = item.Album.Split(new char[] { '|' });
+                            if (albums.Length > 0)
+                            {
+                                <text>@albums[0]</text>
+                            }
+                            else
+                            {
+                                <text></text>
+                            }
+                        }
+                    </td>
+                    <td>
+                        @if (item.Tempo != null)
+                        {
+                            string tempo = decimal.Round(item.Tempo.Value).ToString("F0");
+                            @tempo;
+                        }
+                    </td>
+                    <td>
+                        @{ var separator = ""; }
+                        @foreach (var ditem in item.DanceRatings)
+                        {
+                            @separator;
+                            @Html.DisplayFor(m => ditem.Dance.Info.Name)
+                          separator = ", ";
+                        }
+                    </td>
+                    <td>
+                        @if (!string.IsNullOrEmpty(item.Purchase) && item.Purchase.Contains('X'))
+                        {
+                            <img src="@Url.Content("~/Content/xbox-logo.png")" alt="Availiable on Xbox Music" width="20" height="20" />
+                        }
+                        @if (!string.IsNullOrEmpty(item.Purchase) && item.Purchase.Contains('I'))
+                        {
+                            <img src="@Url.Content("~/Content/itunes-logo.png")" alt="Availiable on Itunes" width="20" height="20" />
+                        }
+                        @if (!string.IsNullOrEmpty(item.Purchase) && item.Purchase.Contains('A'))
+                        {
+                            <img src="@Url.Content("~/Content/amazon-logo.png")" alt="Availiable at Amazon" width="20" height="20" />
+                        }
+                    </td>
+                    @if (showDiag)
+                    {
+                        <td>
+                            @Html.DisplayFor(m => item.SongId)
+                        </td>
+                    }
+                </tr>
+            }
         }
-        <th @ViewBag.TitleClass style="min-width:75pt">
-            @Html.ActionLink("Title", "Index", new { sortOrder = ViewBag.TitleSort, currentFilter = ViewBag.CurrentFilter, dances = ViewBag.CurrentDances, level = ViewBag.Level, purchase = ViewBag.Purchase })
-        </th>
-        <th @ViewBag.ArtistClass  style="min-width:75pt">
-            @Html.ActionLink("Artist", "Index", new { sortOrder = ViewBag.ArtistSort, currentFilter = ViewBag.CurrentFilter, dances = ViewBag.CurrentDances, level = ViewBag.Level, purchase = ViewBag.Purchase })
-        </th>
-        <th @ViewBag.AlbumClass style="min-width:75pt">
-            @Html.ActionLink("Album", "Index", new { sortOrder = ViewBag.AlbumSort, currentFilter = ViewBag.CurrentFilter, dances = ViewBag.CurrentDances, level = ViewBag.Level, purchase = ViewBag.Purchase })
-        </th>
-        <th>Tempo (BPM)</th>
-        <th>Dances</th>
-        <th></th>
-        @if (showDiag)
-        {
-            <th>SongId</th>
-        }
-    </tr>
-
-@foreach (var item in Model) {
-    if (item.Title != null)
-    { 
-    <tr>
-        @if (canEdit)
-        {
-            string id = "Selected-" + item.SongId.ToString();
-            <td><input name="selectedSongs" id="@id" type="checkbox" value="@item.SongId" /></td>
-        }
-        <td>
-            @Html.ActionLink(item.Title, "Details", new { id = item.SongId })
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.Artist)
-        </td>
-        <td>
-            @if (!string.IsNullOrWhiteSpace(item.Album))
-            {
-                string[] albums = item.Album.Split(new char[] { '|' });
-                if (albums.Length > 0)
-                {
-                    <text>@albums[0]</text>
-                }
-                else
-                {
-                    <text></text>
-                }
-            }
-        </td>
-        <td>
-            @if (item.Tempo != null)
-            {
-                string tempo = decimal.Round(item.Tempo.Value).ToString("F0");
-                @tempo;
-            }
-        </td>
-        <td>
-            @{ var separator = ""; }
-            @foreach (var ditem in item.DanceRatings)
-            {
-                @separator;
-                @Html.DisplayFor(m => ditem.Dance.Info.Name)
-                separator = ", "; 
-            }
-        </td>
-        <td>
-            @if (!string.IsNullOrEmpty(item.Purchase) && item.Purchase.Contains('X'))
-            {
-                <img src="@Url.Content("~/Content/xboxmusic-logo.png")" alt="Availiable on Xbox Music" width="20" height="20"/>
-            }
-            @if (!string.IsNullOrEmpty(item.Purchase) && item.Purchase.Contains('I'))
-            {
-                <img src="@Url.Content("~/Content/itunes-logo.png")" alt="Availiable on Itunes" width="20" height="20" />
-            }
-            @if (!string.IsNullOrEmpty(item.Purchase) && item.Purchase.Contains('A'))
-            {
-                <img src="@Url.Content("~/Content/amazon-logo.png")" alt="Availiable at Amazon" width="20" height="20" />
-            }
-        </td>
-        @if (showDiag)
-        {
-            <td>
-                @Html.DisplayFor(m => item.SongId)
-            </td>
-        }
-    </tr>
-    }
-}
-
+    </tbody>
 </table>
     
 <p>

@@ -243,22 +243,25 @@
     <Compile Include="Utilities\DBExtentions.cs" />
     <Compile Include="ViewModels\AlbumDetails.cs" />
     <Compile Include="ViewModels\MergeCluster.cs" />
+    <Compile Include="ViewModels\PurchaseLink.cs" />
     <Compile Include="ViewModels\SongCounts.cs" />
     <Compile Include="ViewModels\SongDetails.cs" />
     <Compile Include="ViewModels\SongMerge.cs" />
     <Compile Include="ViewModels\UndoResult.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Content\amazon-charm.png" />
     <Content Include="Content\amazon-logo.png" />
     <Content Include="Content\bootstrap.css" />
     <Content Include="Content\bootstrap.min.css" />
     <Content Include="Content\chosen-sprite%402x.png" />
     <Content Include="Content\chosen-sprite.png" />
     <Content Include="Content\chosen.css" />
+    <Content Include="Content\itunes-charm.png" />
     <Content Include="Content\itunes-logo.png" />
     <Content Include="Content\PagedList.css" />
-    <Content Include="Content\xboxmusic-logo.png" />
-    <Content Include="Content\XboxMusic_AvailableOn_154X40_EN_Green_RGB.png" />
+    <Content Include="Content\xbox-logo.png" />
+    <Content Include="Content\xbox-charm.png" />
     <Content Include="favicon.ico" />
     <Content Include="fonts\glyphicons-halflings-regular.svg" />
     <Content Include="Global.asax" />
