@@ -29,7 +29,7 @@
     <div>
         @foreach (m4d.ViewModels.PurchaseLink link in Model.GetPurchaseLinks())
         {
-            <a href="@link.Link"><img src="@Url.Content("~/Content/" + @link.Charm)" alt="@link.AltText" /></a>
+            <a href="@link.Link" target="@link.Target"><img src="@Url.Content("~/Content/" + @link.Charm)" alt="@link.AltText" /></a>
         }
     </div>
     @if (User.IsInRole("showDiagnostics"))
