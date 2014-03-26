@@ -20,7 +20,12 @@ namespace m4d.ViewModels
         private static char[] s_purchaseTypes = new char[] { '#', 'A', 'S' };
 
         private static string[] s_servicesEx = new string[] { "None", "Amazon", "ITunes", "Xbox", "American Music Group" };
-        private static string[] s_serviceLink = new string[] { "Error", "http://www.amazon.com/gp/product/{0}/ref=as_li_ss_tl?ie=UTF8&camp=1789&creative=390957&creativeASIN={0}&linkCode=as2&tag=thegraycom-20", "~/itunes-error.html","http://music.xbox.com/Track/{0}?partnerID=Music4Dance?action=play"};
+        private static string[] s_serviceLink = new string[] { 
+            "Error", 
+            "http://www.amazon.com/gp/product/{0}/ref=as_li_ss_tl?ie=UTF8&camp=1789&creative=390957&creativeASIN={0}&linkCode=as2&tag=thegraycom-20", 
+            "https://itunes.apple.com/us/album/more-bounce-in-california/id{1}?i={0}&uo=4&at=11lwtf",
+            "http://music.xbox.com/Track/{0}?partnerID=Music4Dance?action=play"};
+        private static string[] s_serviceTarget = new string[] { "_blank", "_blank", "itunes_store", "_blank", "_blank" };
         private static string[] s_servicesAlt = new string[] { "None", "Available on Amazon", "Play it on ITunes", "Play it on Xbox Music", "Catalogged by American Music Group" };
         private static string[] s_purchaseTypesEx = new string[] { "None", "Album", "Song" };
 
@@ -203,9 +208,18 @@ namespace m4d.ViewModels
             string key = BuildPurchaseKey(ms, pt);
             if (Purchase != null && Purchase.TryGetValue(key,out info))
             {
+                string extra = String.Empty;
+
+                // Thanks Apple - special case itunes w/ song + album
+                if (pt == PurchaseType.Song && ms == MusicService.ITunes)
+                {
+                    Purchase.TryGetValue("IS", out extra);
+                }
+
                 ret = new PurchaseLink
                 {
-                    Link = string.Format(s_serviceLink[(int)ms],info),
+                    Link = string.Format(s_serviceLink[(int)ms],info,extra),
+                    Target = s_serviceTarget[(int)ms],
                     Logo = s_servicesEx[(int)ms] + "-logo.png",
                     Charm = s_servicesEx[(int)ms] + "-charm.png",
                     AltText = s_servicesAlt[(int)ms]
