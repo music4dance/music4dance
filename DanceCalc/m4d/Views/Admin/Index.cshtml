@@ -5,11 +5,20 @@
 
 <h2>Administrator Console</h2>
 
+<h3> Cleanup Tasks</h3>
+<ul>
+    <li>@Html.ActionLink("Merge Candidates - Similar Title", "MergeCandidates", "Song", new { level = 2 }, null)</li>
+    <li>@Html.ActionLink("Merge Candidates - Similar (Title + Artist) + All else equal", "MergeCandidates", "Song", new { level = 1 }, null)</li>
+    <li>@Html.ActionLink("Merge Candidates - Similar Title + All else equal", "MergeCandidates", "Song", new { level = 0 }, null)</li>
+</ul>
+
+<hr />
+<h3> Initializiation Tasks</h3>
 <ul>
     <li>@Html.ActionLink("Restore the Datbase", "RestoreDatabase")</li>
-    <li>@Html.ActionLink("Seed the Datbase", "SeedDatabase")</li>   
+    <li>@Html.ActionLink("Seed the Datbase", "SeedDatabase")</li>
     <li>@Html.ActionLink("Rerun seed function", "Reseed")</li>
-    <li>@Html.ActionLink("Backup the Datbase", "BackupDatabase")</li>
+    <li>@Html.ActionLink("Backup the Database", "BackupDatabase")</li>
     <li>@Html.ActionLink("Update Purchase Info", "UpdatePurchase")</li>
 </ul>
 
@@ -18,7 +27,8 @@
 @using (Html.BeginForm("ReloadDatabase", "Admin", FormMethod.Post, new { enctype = "multipart/form-data" }))
 {
     @Html.AntiForgeryToken();
-    <input type="file" name="FileUpload" /><br />
+    <input type="file" name="FileUpload" />
+    <br />
     <input type="submit" name="Reload Database" id="Submit" value="Upload" />
 }
 

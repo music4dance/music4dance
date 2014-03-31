@@ -20,14 +20,15 @@
 <h2>@ViewBag.Title</h2>
 
 
-@using (Html.BeginForm("Index","Song",FormMethod.Get))
+@using (Html.BeginForm("Search","Song",FormMethod.Get))
 {
     <p>
-        Find: @Html.TextBox("SearchString", ViewBag.CurrentFilter as string)&nbsp;
+        Find: @Html.TextBox("SearchString", ViewBag.SongFilter.SearchString as string)&nbsp;
         @if (ViewBag.Dances != null)
         {
-            @Html.DropDownList("dances", (IEnumerable<SelectListItem>)ViewBag.Dances);
+            @Html.DropDownList("Dances");
         }
+        <input type="hidden" name="filter" value="@ViewBag.SongFilter.ToString()" />
         <input type="submit" value="Search" />
     </p>
 }
@@ -42,14 +43,17 @@
             {
                 <th>&nbsp;</th>
             }
-            <th @ViewBag.TitleClass style="min-width:75pt">
-                @Html.ActionLink("Title", "Index", new { sortOrder = ViewBag.TitleSort, currentFilter = ViewBag.CurrentFilter, dances = ViewBag.CurrentDances, level = ViewBag.Level, purchase = ViewBag.Purchase })
+            <th style="min-width:75pt">
+                @Html.ActionLink("Title", "Sort", new { sortOrder="Title", filter = ViewBag.SongFilter })
+                @Html.Raw(ViewBag.TitleSort)
             </th>
-            <th @ViewBag.ArtistClass style="min-width:75pt">
-                @Html.ActionLink("Artist", "Index", new { sortOrder = ViewBag.ArtistSort, currentFilter = ViewBag.CurrentFilter, dances = ViewBag.CurrentDances, level = ViewBag.Level, purchase = ViewBag.Purchase })
+            <th style="min-width:75pt">
+                @Html.ActionLink("Artist", "Sort", new { sortOrder = "Artist", filter = ViewBag.SongFilter })
+                @Html.Raw(ViewBag.ArtistSort)
             </th>
-            <th @ViewBag.AlbumClass style="min-width:75pt">
-                @Html.ActionLink("Album", "Index", new { sortOrder = ViewBag.AlbumSort, currentFilter = ViewBag.CurrentFilter, dances = ViewBag.CurrentDances, level = ViewBag.Level, purchase = ViewBag.Purchase })
+            <th style="min-width:75pt">
+                @Html.ActionLink("Album", "Sort", new { sortOrder = "Album", filter = ViewBag.SongFilter })
+                @Html.Raw(ViewBag.AlbumSort)
             </th>
             <th>Tempo (BPM)</th>
             <th>Dances</th>
@@ -72,7 +76,7 @@
                         <td><input name="selectedSongs" id="@id" type="checkbox" value="@item.SongId" /></td>
                     }
                     <td>
-                        @Html.ActionLink(item.Title, "Details", new { id = item.SongId })
+                        @Html.ActionLink(item.Title, "Details", new { id = item.SongId, filter = ViewBag.SongFilter })
                     </td>
                     <td>
                         @Html.DisplayFor(modelItem => item.Artist)
@@ -136,6 +140,7 @@
 <p>
     @if (canEdit)
     {
+        <input type="hidden" name="filter" value="@ViewBag.SongFilter" />
         <input type="submit" name="action" value="Merge" />
         <input type="submit" name="action" value="Delete" />
         @Html.ActionLink("Add New Song", "Create");
@@ -146,4 +151,4 @@
 Page @(Model.PageCount < Model.PageNumber ? 0 : Model.PageNumber) of @Model.PageCount
 (@Model.TotalItemCount songs found.)
 
-@Html.PagedListPager( Model, page => Url.Action(ViewBag.ActionName, new { page, sortOrder = ViewBag.CurrentSort, currentFilter=ViewBag.CurrentFilter, dances=ViewBag.CurrentDances, level=ViewBag.Level, purchase=ViewBag.Purchase }) )
+@Html.PagedListPager(Model, page => Url.Action(ViewBag.SongFilter.Action, new { page, filter=ViewBag.SongFilter }))

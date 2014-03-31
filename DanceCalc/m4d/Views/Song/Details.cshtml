@@ -18,11 +18,11 @@
         <div>
             @if (User.IsInRole("canEdit"))
             {
-                @Html.ActionLink("Edit", "Edit", new { id = Model.SongId }, new { @class = "btn btn-small btn-default", role = "button" })
-                @Html.ActionLink("Delete", "Delete", new { id = Model.SongId }, new { @class = "btn btn-small btn-default", role = "button" })
-                @Html.ActionLink("XBox", "XBoxSearch", new { id = Model.SongId }, new { @class = "btn btn-small btn-default", role = "button" })
+                @Html.ActionLink("Edit", "Edit", new { id = Model.SongId, filter = ViewBag.SongFilter }, new { @class = "btn btn-small btn-default", role = "button" })
+                @Html.ActionLink("Delete", "Delete", new { id = Model.SongId, filter = ViewBag.SongFilter }, new { @class = "btn btn-small btn-default", role = "button" })
+                @Html.ActionLink("XBox", "XBoxSearch", new { id = Model.SongId, filter = ViewBag.SongFilter }, new { @class = "btn btn-small btn-default", role = "button" })
             }
-            @Html.ActionLink("Back to List", (string)ViewBag.BackAction, null, new { @class = "btn btn-small btn-primary", role = "button" })
+            @Html.ActionLink("Back to List", (string)ViewBag.SongFilter.Action, new { filter = ViewBag.SongFilter }, new { @class = "btn btn-small btn-primary", role = "button" })
         </div>
     </div>
     <hr />

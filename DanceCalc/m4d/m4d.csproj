@@ -246,6 +246,7 @@
     <Compile Include="ViewModels\PurchaseLink.cs" />
     <Compile Include="ViewModels\SongCounts.cs" />
     <Compile Include="ViewModels\SongDetails.cs" />
+    <Compile Include="ViewModels\SongFilter.cs" />
     <Compile Include="ViewModels\SongMerge.cs" />
     <Compile Include="ViewModels\UndoResult.cs" />
   </ItemGroup>

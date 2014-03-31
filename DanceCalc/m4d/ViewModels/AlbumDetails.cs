@@ -215,6 +215,13 @@ namespace m4d.ViewModels
                 {
                     Purchase.TryGetValue("IA", out extra);
                 }
+                else if (ms == MusicService.XBox)
+                {
+                    if (info.StartsWith("music."))
+                    {
+                        info = info.Substring(6);
+                    }
+                }
 
                 ret = new PurchaseLink
                 {

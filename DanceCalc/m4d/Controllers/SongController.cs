@@ -27,129 +27,194 @@ namespace music4dance.Controllers
     {
         private DanceMusicContext _db = new DanceMusicContext();
 
+        public ActionResult Search(string searchString, string dances, string filter)
+        {
+            SongFilter songFilter = ParseFilter(filter);
+
+            if (string.IsNullOrWhiteSpace(searchString))
+            {
+                searchString = null;
+            }
+            if (!string.Equals(searchString, songFilter.SearchString))
+            {
+                songFilter.SearchString = searchString;
+                songFilter.Page = 1;
+            }
+
+            if (string.IsNullOrWhiteSpace(dances))
+            {
+                dances = null;
+            }
+            if (!string.Equals(dances, songFilter.Dances))
+            {
+                songFilter.Dances = dances;
+                songFilter.Page = 1;
+            }
+
+            return DoIndex(songFilter);
+        }
+
+        public ActionResult Sort(string sortOrder, string filter)
+        {
+            SongFilter songFilter = ParseFilter(filter);
+
+            // TODO: Consider doing something to keep the first song of the page on the
+            // page when sort-order changes...
+            if (!string.IsNullOrWhiteSpace(sortOrder))
+            {
+                switch (sortOrder)
+                {
+                    case "Title":
+                        songFilter.SortOrder = String.IsNullOrEmpty(songFilter.SortOrder) ? "Title_desc" : "Title";
+                        break;
+                    case "Artist":
+                        songFilter.SortOrder = songFilter.SortOrder == "Artist" ? "Artist_desc" : "Artist";
+                        break;
+                    case "Album":
+                        songFilter.SortOrder = songFilter.SortOrder == "Album" ? "Album_desc" : "Album";
+                        break;
+                }
+            }
+
+            return DoIndex(songFilter);
+        }
+
         //
-        // GET: /Song/
+        // GET: /Index/
 
         [AllowAnonymous]
-        public ActionResult Index(string dances, string sortOrder, string currentFilter, string searchString, int? page, int? level, string purchase)
+        public ActionResult Index(int? page, string purchase, string filter)
         {
-            Trace.WriteLine(string.Format("Entering Song.Index: dances='{0}',sortOrder='{1}',currentFilter='{2}',searchString='{3}'",dances,sortOrder,currentFilter,searchString));
+            SongFilter songFilter = ParseFilter(filter);
+
+            if (page.HasValue)
+            {
+                songFilter.Page = page;
+            }
+
+            if (!string.IsNullOrWhiteSpace(purchase))
+            {
+                songFilter.Purchase = purchase;
+            }
+
+            return DoIndex(songFilter);
+        }
+
+        private SongFilter ParseFilter(string f, string action="Index")
+        {
+            if (string.IsNullOrWhiteSpace(f))
+            {
+                return new SongFilter { Action = action};
+            }
+            else
+            {
+                return new SongFilter(f);
+            }
+        }
+
+        private ActionResult DoIndex(SongFilter filter)
+        {
+            // TODONEXT: Get song filter to handle its int fields and then do passthrough for everything
+            //  Looks like this might be close, but even pass-through of details isn't working yet
+            Trace.WriteLine(string.Format("Entering Song.Index: dances='{0}',sortOrder='{1}',searchString='{2}'", filter.Dances, filter.SortOrder, filter.SearchString));
 
             // Set up the viewbag
-            ViewBag.ActionName = "Index";
-
-            ViewBag.CurrentSort = sortOrder;
-            if (dances == "ALL")
-                dances = null;
-            ViewBag.CurrentDances = dances;
-
-            ViewBag.TitleSort = String.IsNullOrEmpty(sortOrder) ? "Title_desc" : "";
-            ViewBag.ArtistSort = sortOrder == "Artist" ? "Artist_desc" : "Artist";
-            ViewBag.AlbumSort = sortOrder == "Album" ? "Album_desc" : "Album";
+            ViewBag.SongFilter = filter;
 
             ViewBag.TitleClass = string.Empty;
             ViewBag.ArtistClass = string.Empty;
             ViewBag.AlbumClass = string.Empty;
 
-            ViewBag.Purchase = purchase;
-
-            ViewBag.Level = level ?? 1;
-
-            // Set up search string
-            if (searchString != null)
-            {
-                page = 1;
-            }
-            else
-            {
-                searchString = currentFilter;
-            }
-            ViewBag.CurrentFilter = searchString;
-
             IList<SongCounts> songCounts = SongCounts.GetFlatSongCounts(_db);
             var scq = songCounts.Select(s => new { s.DanceId, s.DanceNameAndCount });
-            var scl = new SelectList(scq.AsEnumerable(), "DanceId", "DanceNameAndCount");
+
+            //scq.FirstOrDefault(s => s.DanceId == filter.Dances)
+            var scl = new SelectList(scq.AsEnumerable(), "DanceId", "DanceNameAndCount", filter.Dances);
             ViewBag.Dances = scl;
 
             // Now setup the view
             // Start with all of the songs in the database
             var songs = from s in _db.Songs where s.TitleHash != 0  select s;
 
-            if (string.Equals(purchase,"AIX"))
+            // Filter on purcahse info
+            // TODO: Figure out how to get LINQ to do the permutation on contains
+            //  any of "AIX"
+            if (string.Equals(filter.Purchase,"AIX"))
             {
                 songs = songs.Where(s => s.Purchase != null);
             }
-            else if (!string.IsNullOrWhiteSpace(purchase))
+            else if (!string.IsNullOrWhiteSpace(filter.Purchase))
             {
-                songs = songs.Where(s => s.Purchase.Contains(purchase));
+                songs = songs.Where(s => s.Purchase.Contains(filter.Purchase));
             }
-            
 
             // Now limit it down to the ones that are marked as a particular dance or dances
-            if (!string.IsNullOrWhiteSpace(dances))
+            if (!string.IsNullOrWhiteSpace(filter.Dances))
             {
-                string[] danceList = Dances.Instance.ExpandDanceList(dances);
+                string[] danceList = Dances.Instance.ExpandDanceList(filter.Dances);
 
                 songs = songs.Where(s => s.DanceRatings.Any(dr => danceList.Contains(dr.DanceId)));
             }
 
             // Now limit it by anything that has the serach string in the title, album or artist
-            if (!String.IsNullOrEmpty(searchString))
+            if (!String.IsNullOrEmpty(filter.SearchString))
             {
                 songs = songs.Where(
-                    s => s.Title.ToUpper().Contains(searchString.ToUpper()) || 
-                    s.Album.ToUpper().Contains(searchString.ToUpper()) || 
-                    s.Artist.ToUpper().Contains(searchString.ToUpper()));
+                    s => s.Title.ToUpper().Contains(filter.SearchString.ToUpper()) || 
+                    s.Album.ToUpper().Contains(filter.SearchString.ToUpper()) || 
+                    s.Artist.ToUpper().Contains(filter.SearchString.ToUpper()));
             }
 
             // Now sort the list
-            switch (sortOrder)
+            string sortAsc = "<span class='glyphicon glyphicon-sort-by-alphabet'></span>";
+            string sortDsc = "<span class='glyphicon glyphicon-sort-by-alphabet-alt'></span>";
+            switch (filter.SortOrder)
             {
+                case "Title":
+                default:
+                    songs = songs.OrderBy(s => s.Title);
+                    ViewBag.TitleSort = sortAsc;
+                    break;
+
                 case "Title_desc":
                     songs = songs.OrderByDescending(s => s.Title);
-                    ViewBag.TitleClass = "class=desc";
+                    ViewBag.TitleSort = sortDsc;
                     break;
 
                 case "Artist":
                     songs = songs.OrderBy(s => s.Artist);
-                    ViewBag.ArtistClass = "class=asc";
+                    ViewBag.ArtistSort = sortAsc;
                     break;
 
                 case "Artist_desc":
                     songs = songs.OrderByDescending(s => s.Artist);
-                    ViewBag.ArtistClass = "class=desc";
+                    ViewBag.ArtistSort = sortDsc;
                     break;
 
                 case "Album":
                     songs = songs.OrderBy(s => s.Album);
-                    ViewBag.AlbumClass = "class=desc";
+                    ViewBag.AlbumSort = sortAsc;
                     break;
 
                 case "Album_desc":
                     songs = songs.OrderByDescending(s => s.Album);
-                    ViewBag.AlbumClass = "class=asc";
-                    break;
-
-                default:
-                    songs = songs.OrderBy(s => s.Title);
-                    ViewBag.TitleClass = "class=asc";
+                    ViewBag.AlbumSort = sortDsc;
                     break;
 
             }
 
             int pageSize = 25;
-            int pageNumber = (page ?? 1);
 
             Trace.WriteLine("Exiting Song.Index");
 
-            return View(songs.ToPagedList(pageNumber, pageSize));
+            return View("Index",songs.ToPagedList(filter.Page ?? 1, pageSize));
         }
 
         //
         // GET: /Song/Details/5
 
         [AllowAnonymous]
-        public ActionResult Details(int id = 0)
+        public ActionResult Details(int id = 0, string filter = null)
         {
             SongDetails song = _db.FindSongDetails(id);
             if (song == null)
@@ -157,16 +222,17 @@ namespace music4dance.Controllers
                 return HttpNotFound();
             }
 
-            ViewBag.BackAction = "Index";
+            ViewBag.SongFilter = ParseFilter(filter);
             return View(song);
         }
 
         //
         // GET: /Song/Create
         [Authorize(Roles = "canEdit")] 
-        public ActionResult Create()
+        public ActionResult Create(string filter = null)
         {
             ViewBag.DanceListAdd = GetDances();
+            ViewBag.SongFilter = ParseFilter(filter);
             SongDetails sd = new SongDetails();
             ViewBag.BackAction = "Index";
             return View(sd);
@@ -178,8 +244,9 @@ namespace music4dance.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "canEdit")]
-        public ActionResult Create(SongDetails song, List<string> addDances)
+        public ActionResult Create(SongDetails song, List<string> addDances, string filter = null)
         {
+            ViewBag.SongFilter = ParseFilter(filter);
             if (ModelState.IsValid)
             {
 
@@ -192,7 +259,6 @@ namespace music4dance.Controllers
                     song = new SongDetails(newSong);
                 }
 
-                ViewBag.BackAction = "Index";
                 return View("Details", song);
             }
             else
@@ -216,7 +282,6 @@ namespace music4dance.Controllers
 
                 }
 
-                ViewBag.BackAction = "Index";
                 return View(song);
             }
         }
@@ -224,7 +289,7 @@ namespace music4dance.Controllers
         //
         // GET: /Song/Edit/5
         [Authorize(Roles = "canEdit")] 
-        public ActionResult Edit(int id = 0)
+        public ActionResult Edit(int id = 0, string filter = null)
         {
             SongDetails song = _db.FindSongDetails(id);
             if (song == null)
@@ -235,7 +300,7 @@ namespace music4dance.Controllers
             ViewBag.DanceListRemove = GetDances(song.DanceRatings);
             ViewBag.DanceListAdd = GetDances();
 
-            ViewBag.BackAction = "Index";
+            ViewBag.SongFilter = ParseFilter(filter);
             return View(song);
         }
 
@@ -245,8 +310,9 @@ namespace music4dance.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "canEdit")] 
-        public ActionResult Edit(SongDetails song, List<string> addDances, List<string> remDances)
+        public ActionResult Edit(SongDetails song, List<string> addDances, List<string> remDances, string filter = null)
         {
+            ViewBag.SongFilter = ParseFilter(filter);
             if (ModelState.IsValid)
             {
 //#if DEBUG
@@ -270,6 +336,7 @@ namespace music4dance.Controllers
                     return View("Details", edit);
                 }
                 {
+                    // TODO: Check to see if we lose SongFilter through this path (and how to correct if we do)
                     return RedirectToAction("Index");
                 }
             }
@@ -305,8 +372,9 @@ namespace music4dance.Controllers
         //
         // GET: /Song/Delete/5
         [Authorize(Roles = "canEdit")] 
-        public ActionResult Delete(int id = 0)
+        public ActionResult Delete(int id = 0, string filter = null)
         {
+            ViewBag.SongFilter = ParseFilter(filter);
             Song song = _db.Songs.Find(id);
             if (song == null)
             {
@@ -321,8 +389,9 @@ namespace music4dance.Controllers
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "canEdit")] 
-        public ActionResult DeleteConfirmed(int id)
+        public ActionResult DeleteConfirmed(int id, string filter = null)
         {
+            ViewBag.SongFilter = ParseFilter(filter);
             Song song = _db.Songs.Find(id);
             string userName = User.Identity.Name;
             ApplicationUser user = _db.Users.FirstOrDefault(u => u.UserName == userName);
@@ -333,8 +402,9 @@ namespace music4dance.Controllers
 
         //
         // Merge: /Song/MergeCandidates
-        public ActionResult MergeCandidates(int? page, int? level, bool? autoCommit)
+        public ActionResult MergeCandidates(int? page, int? level, bool? autoCommit, string filter = null)
         {
+            SongFilter songFilter = ParseFilter(filter, "MergeCandidates");
             IList<Song> songs = null;
 
             if (autoCommit == true)
@@ -346,17 +416,25 @@ namespace music4dance.Controllers
                 songs = _db.FindMergeCandidates(500, level ?? 1);
             }
 
-            int pageSize = 25;
-            int pageNumber = page ?? 1;
+            if (page.HasValue)
+            {
+                songFilter.Page = page;
+            }
 
-            ViewBag.ActionName = "MergeCandidates";
-            ViewBag.Level = level ?? 1;
+            if (level.HasValue)
+            {
+                songFilter.Level = level;
+            }
+
+            int pageSize = 25;
+            int pageNumber = songFilter.Page ?? 1;
 
             if (autoCommit.HasValue && autoCommit.Value == true)
             {
-                songs = AutoMerge(songs,ViewBag.Level);
+                songs = AutoMerge(songs,(int)songFilter.Level);
             }
 
+            ViewBag.SongFilter = songFilter;
             return View("Index", songs.ToPagedList(pageNumber, pageSize));
         }
 
@@ -365,8 +443,9 @@ namespace music4dance.Controllers
         // BulkEdit: /Song/BulkEdit
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "canEdit")]
-        public ActionResult BulkEdit(int[] selectedSongs, string action)
+        public ActionResult BulkEdit(int[] selectedSongs, string action, string filter = null)
         {
+            ViewBag.SongFilter = ParseFilter(filter);
             var songs = from s in _db.Songs
                         where selectedSongs.Contains(s.SongId)
                         select s;
@@ -387,8 +466,9 @@ namespace music4dance.Controllers
         // Merge: /Song/Merge
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "canEdit")]
-        public ActionResult MergeResults(string SongIds)
+        public ActionResult MergeResults(string SongIds, string filter = null)
         {
+            ViewBag.SongFilter = ParseFilter(filter);
             // See if we can do the actual merge and then return the song details page...
             List<int> ids = SongIds.Split(',').Select(s=>int.Parse(s)).ToList();
 
@@ -452,8 +532,9 @@ namespace music4dance.Controllers
 
         // GET: /Song/XboxSearch/5?search=name
         [Authorize(Roles = "canEdit")]
-        public ActionResult XboxSearch(int id = 0, string search = null)
+        public ActionResult XboxSearch(int id = 0, string search = null, string filter=null)
         {
+            ViewBag.SongFilter = ParseFilter(filter);
             SongDetails song = _db.FindSongDetails(id);
             if (song == null)
             {
@@ -510,8 +591,10 @@ namespace music4dance.Controllers
         // ChooseXbox: /Song/ChooseXbox
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "canEdit")]
-        public ActionResult ChooseXbox(int songId, string name, string album, string artist, string trackId, string alternateId, string duration, string genre, int? trackNum)
+        public ActionResult ChooseXbox(int songId, string name, string album, string artist, string trackId, string alternateId, string duration, string genre, int? trackNum, string filter = null)
         {
+            ViewBag.SongFilter = ParseFilter(filter);
+
             SongDetails song = _db.FindSongDetails(songId);
             if (song == null)
             {
