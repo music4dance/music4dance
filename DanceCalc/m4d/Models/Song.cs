@@ -99,14 +99,21 @@ namespace m4d.Models
                     if (!sp.IsAction)
                     {
                         string value = sp.Value;
-                        if (value.Contains('='))
+                        if (string.IsNullOrWhiteSpace(value))
                         {
-                            value = value.Replace("=", "\\<EQ>\\");
+                            value = string.Empty;
                         }
-
-                        if (value.Contains('\t'))
+                        else
                         {
-                            value = value.Replace("\t", "\\t");
+                            if (value.Contains('='))
+                            {
+                                value = value.Replace("=", "\\<EQ>\\");
+                            }
+
+                            if (value.Contains('\t'))
+                            {
+                                value = value.Replace("\t", "\\t");
+                            }
                         }
 
                         sb.AppendFormat("{0}{1}={2}", sep, sp.Name, value);

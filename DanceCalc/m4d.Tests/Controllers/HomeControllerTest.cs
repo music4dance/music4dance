@@ -25,7 +25,7 @@ namespace m4d.Tests.Controllers
             Assert.IsNotNull(result);
         }
 
-        [TestMethod]
+        //[TestMethod]
         public void About()
         {
             // Arrange
