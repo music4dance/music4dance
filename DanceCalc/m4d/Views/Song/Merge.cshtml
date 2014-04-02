@@ -27,14 +27,14 @@
             @{i = 0;}
             @foreach (var value in spm.Values)
             {
+                string primaryClick = string.Empty;
+                if (spm.AllowAlternates)
+                {
+                    primaryClick = "onclick=\"PrimaryChanged(" + i.ToString() + ")\"";
+                }
                 <td>
                     @if (spm.Selection != -1)
                     {
-                        string primaryClick = string.Empty;
-                        if (spm.AllowAlternates)
-                        {
-                            primaryClick = "onclick=\"PrimaryChanged(" + i.ToString() + ")\"";
-                        }
                         string Checked = "";
                         if (spm.Selection == i)
                         {
@@ -60,7 +60,7 @@
                             if (!first)
                             {
                                 <br />
-                                <input type="radio" style="width:auto;background-color:inherit" name="@spm.Name" value="@i" />
+                                <input type="radio" style="width:auto;background-color:inherit" name="@spm.Name" value="@i" @Html.Raw(primaryClick) />
                             }
                             @alternate.ToString()
                             if (spm.Selection != -1)
@@ -77,6 +77,8 @@
                             }
                             i = i + 1;
                             first = false;
+
+                            primaryClick = "onclick=\"PrimaryChanged(" + i.ToString() + ")\"";
                         }
                     }
                 </td>

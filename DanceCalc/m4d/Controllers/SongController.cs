@@ -501,9 +501,12 @@ namespace music4dance.Controllers
 
             if (defIdx >= 0 && albumsIn.Count > defIdx)
             {
-                albumsOut.Add(albumsIn[defIdx]);
+                AlbumDetails t = albumsIn[defIdx];
+                t.Index = 0;
+                albumsOut.Add(t);
             }
 
+            int idx = 1;
             for (int i = 0; i < albumsIn.Count; i++)
             {
                 if (i != defIdx)
@@ -512,7 +515,10 @@ namespace music4dance.Controllers
 
                     if (Request.Form.AllKeys.Contains(name))
                     {
-                        albumsOut.Add(albumsIn[i]);
+                        AlbumDetails t = albumsIn[i];
+                        t.Index = idx;
+                        albumsOut.Add(t);
+                        idx += 1;
                     }
                 }
             }
@@ -898,16 +904,16 @@ namespace music4dance.Controllers
         {
             get
             {
-                if (s_token == null)
+                if (s_admAuth == null)
                 {
                     string clientId = "Music4Dance";
                     string clientSecret = "3kJ506OgMCD+nmuzUCRrXt/gnJlV07qQuxsEZBMZCqw=";
 
                     s_admAuth = new AdmAuthentication(clientId, clientSecret);
-                    s_token = s_admAuth.GetAccessToken();
+                    
                 }
 
-                return "Bearer " + s_token.access_token;
+                return "Bearer " + s_admAuth.GetAccessToken().access_token;
             }
         }
 
