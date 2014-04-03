@@ -493,7 +493,7 @@ namespace music4dance.Controllers
             }
 
             int defIdx = -1;
-            string def = Request.Form[DanceMusicContext.AlbumList];
+            string def = Request.Form[Song.AlbumList];
             if (!string.IsNullOrWhiteSpace(def))
             {
                 int.TryParse(def, out defIdx);
@@ -511,7 +511,7 @@ namespace music4dance.Controllers
             {
                 if (i != defIdx)
                 {
-                    string name = DanceMusicContext.AlbumList + "_" + i.ToString();
+                    string name = Song.AlbumList + "_" + i.ToString();
 
                     if (Request.Form.AllKeys.Contains(name))
                     {
@@ -524,11 +524,11 @@ namespace music4dance.Controllers
             }
 
             Song song = _db.MergeSongs(user, songList, 
-                ResolveStringField(DanceMusicContext.TitleField, songList, Request.Form),
-                ResolveStringField(DanceMusicContext.ArtistField, songList, Request.Form),
-                ResolveStringField(DanceMusicContext.GenreField, songList, Request.Form),
-                ResolveDecimalField(DanceMusicContext.TempoField, songList, Request.Form),
-                ResolveIntField(DanceMusicContext.LengthField, songList, Request.Form),
+                ResolveStringField(Song.TitleField, songList, Request.Form),
+                ResolveStringField(Song.ArtistField, songList, Request.Form),
+                ResolveStringField(Song.GenreField, songList, Request.Form),
+                ResolveDecimalField(Song.TempoField, songList, Request.Form),
+                ResolveIntField(Song.LengthField, songList, Request.Form),
                 albumsOut);
 
             ViewBag.BackAction = "MergeCandidates";
@@ -780,11 +780,11 @@ namespace music4dance.Controllers
         private Song AutoMerge(List<Song> songs, ApplicationUser user)
         {
             Song song = _db.MergeSongs(user, songs,
-                ResolveStringField(DanceMusicContext.TitleField, songs),
-                ResolveStringField(DanceMusicContext.ArtistField, songs),
-                ResolveStringField(DanceMusicContext.GenreField, songs),
-                ResolveDecimalField(DanceMusicContext.TempoField, songs),
-                ResolveIntField(DanceMusicContext.LengthField, songs),
+                ResolveStringField(Song.TitleField, songs),
+                ResolveStringField(Song.ArtistField, songs),
+                ResolveStringField(Song.GenreField, songs),
+                ResolveDecimalField(Song.TempoField, songs),
+                ResolveIntField(Song.LengthField, songs),
                 SongDetails.BuildAlbumInfo(songs)
                 );
 

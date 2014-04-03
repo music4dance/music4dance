@@ -271,7 +271,9 @@ namespace m4d.Controllers
                     song.Modified = time;
                     dmc.Songs.Add(song);
                     dmc.SaveChanges();
-                    song.Load(dmc,line);
+                    SongDetails sd = new SongDetails(dmc, song.SongId, song.SongProperties);
+
+                    song.Load(line,sd);
                 }
 
                 dmc.Configuration.AutoDetectChangesEnabled = true;

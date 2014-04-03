@@ -67,38 +67,6 @@ namespace m4d.Models
             return connection;
         }
 
-        // Field names - note that these must be kept in sync with the actual property names
-        public const string UserField = "User";
-        public const string TimeField = "Time";
-        public const string TitleField = "Title";
-        public const string ArtistField = "Artist";
-        public const string TempoField = "Tempo";
-        public const string LengthField = "Length";
-        public const string GenreField = "Genre";
-
-        public const string AlbumField = "Album";
-        public const string PublisherField = "Publisher";
-        public const string TrackField = "Track";
-        public const string PurchaseField = "Purchase";
-
-        // Complex fields
-        public const string Custom = "Custom";
-        public const string DanceRatingField = "DanceRating";
-        public const string AlbumList = "AlbumList";
-
-        public const string AlbumPromote = "PromoteAlbum";
-
-        // Commands
-        public const string CreateCommand = ".Create";
-        public const string EditCommand = ".Edit";
-        public const string DeleteCommand = ".Delete";
-        public const string MergeCommand = ".Merge";
-        public const string UndoCommand = ".Undo";
-        public const string RedoCommand = ".Redo";
-
-        public const string SuccessResult = ".Success";
-        public const string FailResult = ".Fail";
-        public const string MessageData = ".Message";
 
         public DbSet<Song> Songs { get; set; }
 
@@ -148,7 +116,7 @@ namespace m4d.Models
         {
             string songIds = string.Join(";",songs.Select(s => s.SongId.ToString()));
 
-            Song song = CreateSong(user, title, artist, genre, tempo, length, albums, MergeCommand, songIds, true);
+            Song song = CreateSong(user, title, artist, genre, tempo, length, albums, Song.MergeCommand, songIds, true);
             SaveChanges();
             song.CreateEntry.SongReference = song.SongId;
             song.CreateEntry.SongSignature = song.Signature;
@@ -175,7 +143,7 @@ namespace m4d.Models
                 {
                     if (AddUserToSong(us.ApplicationUser,song))
                     {
-                        CreateSongProperty(song, UserField, us.ApplicationUser.UserName, song.CreateEntry);
+                        CreateSongProperty(song, Song.UserField, us.ApplicationUser.UserName, song.CreateEntry);
                     }
                 }
             }
@@ -196,8 +164,8 @@ namespace m4d.Models
                 }
 
                 string value = new DanceRatingDelta { DanceId = dance.Key, Delta = dance.Value }.ToString();
-                    
-                CreateSongProperty(song, DanceRatingField, value, song.CreateEntry);
+
+                CreateSongProperty(song, Song.DanceRatingField, value, song.CreateEntry);
             }
 
             // Delete all of the old songs (With merge-with Id from above)
@@ -229,7 +197,7 @@ namespace m4d.Models
 
         public Song CreateSong(ApplicationUser user, string title, string artist, string genre, decimal? tempo, int? length, List<AlbumDetails> albums, bool log = false)
         {
-            return CreateSong(user, title, artist, genre, tempo, length, albums, CreateCommand, string.Empty, log);
+            return CreateSong(user, title, artist, genre, tempo, length, albums, Song.CreateCommand, string.Empty, log);
         }
 
         public Song CreateSong(ApplicationUser user, string title, string artist, string genre, decimal? tempo, int? length, List<AlbumDetails> albums, string command, string value, bool createLog = false)
@@ -255,45 +223,45 @@ namespace m4d.Models
                 us.Song = song;
                 us.ApplicationUser = user;
                 Modified.Add(us);
-                CreateSongProperty(song, UserField, user.UserName, log);
+                CreateSongProperty(song, Song.UserField, user.UserName, log);
             }
 
             // Handle Timestamps
             song.Created = time;
             song.Modified = time;
-            CreateSongProperty(song, TimeField, time.ToString(), log);
+            CreateSongProperty(song, Song.TimeField, time.ToString(), log);
             
             // Title
             Debug.Assert(!string.IsNullOrWhiteSpace(title));
             song.Title = title;
-            CreateSongProperty(song, TitleField, title, log);
+            CreateSongProperty(song, Song.TitleField, title, log);
 
             // Artist
             if (!string.IsNullOrWhiteSpace(artist))
             {
                 song.Artist = artist;
-                CreateSongProperty(song, ArtistField, artist, log);
+                CreateSongProperty(song, Song.ArtistField, artist, log);
             }
 
             // Genre
             if (!string.IsNullOrWhiteSpace(genre))
             {
                 song.Genre = genre;
-                CreateSongProperty(song, PublisherField, genre, log);
+                CreateSongProperty(song, Song.PublisherField, genre, log);
             }
 
             // Tempo
             if (tempo != null)
             {
                 song.Tempo = tempo;
-                CreateSongProperty(song, TempoField, tempo.ToString(), log);
+                CreateSongProperty(song, Song.TempoField, tempo.ToString(), log);
             }
 
             // Length
             if (length != null && length != 0)
             {
                 song.Length = length;
-                CreateSongProperty(song, LengthField, length.ToString(), log);
+                CreateSongProperty(song, Song.LengthField, length.ToString(), log);
             }
 
             // Album
@@ -301,7 +269,7 @@ namespace m4d.Models
 
             song.Purchase = SongDetails.GetPurchaseTags(albums);
 
-            song.TitleHash = CreateTitleHash(title);
+            song.TitleHash = Song.CreateTitleHash(title);
 
             song = Songs.Add(song);
             if (createLog)
@@ -343,11 +311,11 @@ namespace m4d.Models
             SongLog log = CreateEditHeader(song, user);
             log.SongSignature = song.Signature;
 
-            modified |= UpdateSongProperty(edit, song, TitleField, log);
-            modified |= UpdateSongProperty(edit, song, ArtistField, log);
-            modified |= UpdateSongProperty(edit, song, TempoField, log);
-            modified |= UpdateSongProperty(edit, song, LengthField, log);
-            modified |= UpdateSongProperty(edit, song, GenreField, log);
+            modified |= UpdateSongProperty(edit, song, Song.TitleField, log);
+            modified |= UpdateSongProperty(edit, song, Song.ArtistField, log);
+            modified |= UpdateSongProperty(edit, song, Song.TempoField, log);
+            modified |= UpdateSongProperty(edit, song, Song.LengthField, log);
+            modified |= UpdateSongProperty(edit, song, Song.GenreField, log);
 
             List<AlbumDetails> oldAlbums = SongDetails.BuildAlbumInfo(song);
 
@@ -397,7 +365,7 @@ namespace m4d.Models
             // Now push the promotions
             foreach (int p in promotions)
             {
-                AlbumDetails.AddProperty(this, song, p, AlbumPromote, null, string.Empty, log);
+                AlbumDetails.AddProperty(this, song, p, Song.AlbumPromote, null, string.Empty, log);
             }
 
             modified |= EditDanceRatings(edit, song, addDances, remDances, log);
@@ -442,9 +410,9 @@ namespace m4d.Models
 
         private SongLog CreateEditHeader(Song song, ApplicationUser user)
         {
-            SongLog log = CreateSongLog(user, song, EditCommand);
+            SongLog log = CreateSongLog(user, song, Song.EditCommand);
 
-            CreateEditProperties(song, user, EditCommand);
+            CreateEditProperties(song, user, Song.EditCommand);
 
             return log;
         }
@@ -452,19 +420,19 @@ namespace m4d.Models
         private void CreateEditProperties(Song song, ApplicationUser user, string command)
         {
             // Add the command into the property log
-            CreateSongProperty(song, EditCommand, string.Empty);
+            CreateSongProperty(song, Song.EditCommand, string.Empty);
 
             // Handle User association
             if (user != null)
             {
                 AddUserToSong(user, song);
-                CreateSongProperty(song, UserField, user.UserName);
+                CreateSongProperty(song, Song.UserField, user.UserName);
             }
 
             // Handle Timestamps
             DateTime time = DateTime.Now;
             song.Modified = time;
-            CreateSongProperty(song, TimeField, time.ToString());
+            CreateSongProperty(song, Song.TimeField, time.ToString());
         }
 
         private void FixupEdited(Song song)
@@ -488,12 +456,12 @@ namespace m4d.Models
             }
 
             Entry(song).State = System.Data.Entity.EntityState.Modified;
-            song.TitleHash = CreateTitleHash(song.Title);
+            song.TitleHash = Song.CreateTitleHash(song.Title);
 
             Trace.WriteLine(string.Format("Song:{0} Fixedup:{1}", song.SongId, fixedup));
         }
 
-        public void DeleteSong(ApplicationUser user, Song song, string command = DeleteCommand)
+        public void DeleteSong(ApplicationUser user, Song song, string command = Song.DeleteCommand)
         {
             LogSongCommand(command, song, user);
             RemoveSong(song);
@@ -532,7 +500,7 @@ namespace m4d.Models
 
                 DanceRatings.Add(dr);
 
-                CreateSongProperty(song, DanceRatingField, string.Format("{0}+{1}",dance.Id,weight),song.CreateEntry);
+                CreateSongProperty(song, Song.DanceRatingField, string.Format("{0}+{1}", dance.Id, weight), song.CreateEntry);
             }
         }
 
@@ -578,7 +546,7 @@ namespace m4d.Models
 
                     SongProperty np = SongProperties.Create();
                     np.Song = song;
-                    np.Name = DanceRatingField;
+                    np.Name = Song.DanceRatingField;
                     np.Value = new DanceRatingDelta {DanceId = dr.DanceId, Delta = delta}.ToString();
 
                     SongProperties.Add(np);
@@ -611,7 +579,7 @@ namespace m4d.Models
 
                     SongProperty np = SongProperties.Create();
                     np.Song = song;
-                    np.Name = DanceRatingField;
+                    np.Name = Song.DanceRatingField;
                     np.Value = new DanceRatingDelta { DanceId = ndr, Delta = DanceRatingInitial }.ToString();
 
                     SongProperties.Add(np);
@@ -630,45 +598,6 @@ namespace m4d.Models
         public readonly int DanceRatingIncrement = 3;
         public readonly int DanceRatingAutoCreate = 5;
         public readonly int DanceRatingDecrement = -2;
-
-
-        public static int CreateTitleHash(string title)
-        {
-            return CreateNormalForm(title).GetHashCode();
-        }
-
-        public static string CreateNormalForm(string s)
-        {
-            StringBuilder sb = new StringBuilder(s.Length);
-
-            string norm = s.Normalize(NormalizationForm.FormD);
-
-            bool paren = false;
-            foreach (char c in norm)
-            {
-                if (paren)
-                {
-                    if (c == ')')
-                    {
-                        paren = false;
-                    }
-                }
-                else
-                {
-                    if (char.IsLetterOrDigit(c))
-                    {
-                        char cNew = char.ToUpper(c);
-                        sb.Append(cNew);
-                    }
-                    else if (c == '(')
-                    {
-                        paren = true;
-                    }
-                }
-            }
-
-            return sb.ToString();
-        }
 
         public SongProperty CreateSongProperty(Song song, string name, string value, SongLog log = null)
         {
@@ -733,13 +662,13 @@ namespace m4d.Models
                 np.Value = lv.Value;
 
 
-            if (lv.Name.Equals(UserField))
+            if (lv.Name.Equals(Song.UserField))
             {
                 // Only new song has a null ModifiedBy?
                 ApplicationUser user = FindUser(lv.Value);
                 AddUserToSong(user, song);
             }
-            else if (lv.Name.Equals(DanceRatingField))
+            else if (lv.Name.Equals(Song.DanceRatingField))
             {
                 DanceRatingDelta drd = new DanceRatingDelta(lv.Value);
                 if (action == UndoAction.Undo)
@@ -951,12 +880,12 @@ namespace m4d.Models
 
             switch (log.Action)
             {
-                case DeleteCommand:
-                case EditCommand:
+                case Song.DeleteCommand:
+                case Song.EditCommand:
                     song = FindSong(log.SongReference, log.SongSignature);
                     break;
-                case MergeCommand:
-                case CreateCommand:
+                case Song.MergeCommand:
+                case Song.CreateCommand:
                     break;
                 default:
                     Trace.WriteLine(string.Format("Bad Command: {0}", log.Action));
@@ -965,14 +894,14 @@ namespace m4d.Models
 
             switch (log.Action)
             {
-                case DeleteCommand:
+                case Song.DeleteCommand:
                     RemoveSong(song);
                     break;
-                case EditCommand:
+                case Song.EditCommand:
                     RestoreValuesFromLog(log,song,UndoAction.Redo);
                     break;
-                case MergeCommand:
-                case CreateCommand:
+                case Song.MergeCommand:
+                case Song.CreateCommand:
                     CreateSongFromLog(log);
                     break;
                 default:
@@ -1002,16 +931,16 @@ namespace m4d.Models
             string error = null;
 
             // Quick recurse on Redo
-            if (action.StartsWith(RedoCommand))
+            if (action.StartsWith(Song.RedoCommand))
             {
-                int? idx = entry.GetIntData(SuccessResult);
+                int? idx = entry.GetIntData(Song.SuccessResult);
 
-                action = RedoCommand;
+                action = Song.RedoCommand;
 
                 if (idx.HasValue)
                 {
                     SongLog uentry = Log.Find(idx.Value);
-                    int? idx2 = uentry.GetIntData(SuccessResult);
+                    int? idx2 = uentry.GetIntData(Song.SuccessResult);
 
                     if (idx2.HasValue)
                     {
@@ -1034,21 +963,21 @@ namespace m4d.Models
             }
 
             SongLog log = null;
-            string command = UndoCommand + entry.Action;
+            string command = Song.UndoCommand + entry.Action;
 
             if (error == null)
             {
-                if (action.StartsWith(UndoCommand))
+                if (action.StartsWith(Song.UndoCommand))
                 {
-                    int? idx = entry.GetIntData(SuccessResult);
-                    action = UndoCommand;
+                    int? idx = entry.GetIntData(Song.SuccessResult);
+                    action = Song.UndoCommand;
 
                     if (idx.HasValue)
                     {
                         SongLog rentry = Log.Find(idx.Value);
 
                         error = RedoEntry(rentry,song);
-                        command = RedoCommand + entry.Action.Substring(UndoCommand.Length);
+                        command = Song.RedoCommand + entry.Action.Substring(Song.UndoCommand.Length);
                     }
                     else
                     {
@@ -1061,20 +990,20 @@ namespace m4d.Models
 
                 switch (action)
                 {
-                    case DeleteCommand:
+                    case Song.DeleteCommand:
                         error = Undelete(song);
                         break;
-                    case MergeCommand:
+                    case Song.MergeCommand:
                         error = Unmerge(entry, song);
                         break;
-                    case EditCommand:
+                    case Song.EditCommand:
                         error = RestoreValuesFromLog(entry, song, UndoAction.Undo);
                         break;
-                    case CreateCommand:
+                    case Song.CreateCommand:
                         RemoveSong(song);
                         break;
-                    case UndoCommand:
-                    case RedoCommand:
+                    case Song.UndoCommand:
+                    case Song.RedoCommand:
                         break;
                     default:
                         error = string.Format("'{0}' action not yet supported for Undo.", entry.Action);
@@ -1083,11 +1012,11 @@ namespace m4d.Models
 
             }
 
-            log.UpdateData(error == null ? SuccessResult : FailResult, entry.Id.ToString());
+            log.UpdateData(error == null ? Song.SuccessResult : Song.FailResult, entry.Id.ToString());
 
             if (error != null)
             {
-                log.UpdateData(MessageData, error);
+                log.UpdateData(Song.MessageData, error);
             }
 
             Log.Add(log);
@@ -1106,16 +1035,16 @@ namespace m4d.Models
 
             switch (entry.Action)
             {
-                case DeleteCommand:
+                case Song.DeleteCommand:
                     RemoveSong(song);
                     break;
-                case MergeCommand:
+                case Song.MergeCommand:
                     error = Remerge(entry, song);
                     break;
-                case EditCommand:
+                case Song.EditCommand:
                     error = RestoreValuesFromLog(entry, song, UndoAction.Redo);
                     break;
-                case CreateCommand:
+                case Song.CreateCommand:
                     RestoreSong(song);
                     break;
                 default:
@@ -1140,7 +1069,7 @@ namespace m4d.Models
             string ret = null;
 
             // First restore the merged songs
-            string t = entry.GetData(MergeCommand);
+            string t = entry.GetData(Song.MergeCommand);
 
             ICollection<Song> songs = SongsFromList(t);
             foreach (Song s in songs)
@@ -1158,7 +1087,7 @@ namespace m4d.Models
         {
             string ret = null;
 
-            CreateEditProperties(song, entry.User, EditCommand);
+            CreateEditProperties(song, entry.User, Song.EditCommand);
 
             IList<LogValue> values = entry.GetValues();
             foreach (LogValue lv in values)
@@ -1170,7 +1099,7 @@ namespace m4d.Models
             }
 
             SongDetails sd = new SongDetails(this, song.SongId, song.SongProperties);
-            song.RestoreScalar(this, sd);
+            song.RestoreScalar(sd);
 
             return ret;
         }
@@ -1183,7 +1112,7 @@ namespace m4d.Models
             RestoreSong(song);
 
             // Then remove the merged from songs
-            string t = entry.GetData(MergeCommand);
+            string t = entry.GetData(Song.MergeCommand);
             ICollection<Song> songs = SongsFromList(t);
             foreach (Song s in songs)
             {
@@ -1200,7 +1129,7 @@ namespace m4d.Models
                 throw new ArgumentOutOfRangeException("song", "Attempting to restore a song that hasn't been deleted");
             }
             SongDetails sd = new SongDetails(this, song.SongId, song.SongProperties);
-            song.Restore(this, sd);
+            song.Restore(sd);
         }
 
         private ICollection<Song> SongsFromList(string list)
@@ -1268,7 +1197,7 @@ namespace m4d.Models
 
         private void CreateSongFromLog(SongLog log)
         {
-            string initV = log.GetData(MergeCommand);
+            string initV = log.GetData(Song.MergeCommand);
 
             // For merge case, first we delete the old songs
             if (initV != null)
@@ -1306,7 +1235,7 @@ namespace m4d.Models
             }
 
             SongDetails sd = new SongDetails(this, song.SongId, song.SongProperties);
-            song.RestoreScalar(this, sd);
+            song.RestoreScalar(sd);
         }
 
 

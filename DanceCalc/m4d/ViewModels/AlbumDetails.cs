@@ -241,19 +241,19 @@ namespace m4d.ViewModels
             // This indicates a deleted album
             if (string.IsNullOrWhiteSpace(Name))
             {
-                ChangeProperty(dmc, song, old.Index, DanceMusicContext.AlbumField, null, old.Name, null, log);
+                ChangeProperty(dmc, song, old.Index, Song.AlbumField, null, old.Name, null, log);
                 if (old.Track.HasValue)
-                    ChangeProperty(dmc, song, old.Index, DanceMusicContext.TrackField, null, old.Track, null, log);
+                    ChangeProperty(dmc, song, old.Index, Song.TrackField, null, old.Track, null, log);
                 if (!string.IsNullOrWhiteSpace(old.Publisher))
-                    ChangeProperty(dmc, song, old.Index, DanceMusicContext.PublisherField, null, old.Publisher, null, log);
+                    ChangeProperty(dmc, song, old.Index, Song.PublisherField, null, old.Publisher, null, log);
 
                 modified = true;
             }
             else
             {
-                modified |= ChangeProperty(dmc, song, old.Index, DanceMusicContext.AlbumField, null, old.Name, Name, log);
-                modified |= ChangeProperty(dmc, song, old.Index, DanceMusicContext.TrackField, null, old.Track, Track, log);
-                modified |= ChangeProperty(dmc, song, old.Index, DanceMusicContext.PublisherField, null, old.Publisher, Publisher, log);
+                modified |= ChangeProperty(dmc, song, old.Index, Song.AlbumField, null, old.Name, Name, log);
+                modified |= ChangeProperty(dmc, song, old.Index, Song.TrackField, null, old.Track, Track, log);
+                modified |= ChangeProperty(dmc, song, old.Index, Song.PublisherField, null, old.Publisher, Publisher, log);
 
                 PurchaseDiff(dmc, song, old, log);
             }
@@ -268,14 +268,14 @@ namespace m4d.ViewModels
                 throw new ArgumentOutOfRangeException("album");
             }
 
-            AddProperty(dmc, song, Index, DanceMusicContext.AlbumField, null, Name, log);
-            AddProperty(dmc, song, Index, DanceMusicContext.TrackField, null, Track, log);
-            AddProperty(dmc, song, Index, DanceMusicContext.PublisherField, null, Publisher, log);
+            AddProperty(dmc, song, Index, Song.AlbumField, null, Name, log);
+            AddProperty(dmc, song, Index, Song.TrackField, null, Track, log);
+            AddProperty(dmc, song, Index, Song.PublisherField, null, Publisher, log);
             if (Purchase != null)
             {
                 foreach (KeyValuePair<string, string> purchase in Purchase)
                 {
-                    AddProperty(dmc, song, Index, DanceMusicContext.PurchaseField, purchase.Key, purchase.Value, log);
+                    AddProperty(dmc, song, Index, Song.PurchaseField, purchase.Key, purchase.Value, log);
                 }
             }
         }
@@ -291,7 +291,7 @@ namespace m4d.ViewModels
                 {
                     if (Purchase != null && !Purchase.ContainsKey(key))
                     {
-                        ChangeProperty(dmc, song, this.Index, DanceMusicContext.PurchaseField, key, Purchase[key], null, log);
+                        ChangeProperty(dmc, song, this.Index, Song.PurchaseField, key, Purchase[key], null, log);
                     }
                 }
             }
@@ -304,12 +304,12 @@ namespace m4d.ViewModels
                     if (old.Purchase == null || !old.Purchase.ContainsKey(key))
                     {
                         // Add
-                        ChangeProperty(dmc, song, this.Index, DanceMusicContext.PurchaseField, key, null, Purchase[key], log);
+                        ChangeProperty(dmc, song, this.Index, Song.PurchaseField, key, null, Purchase[key], log);
                     }
                     else if (old.Purchase != null && old.Purchase.ContainsKey(key) && !string.Equals(Purchase[key], old.Purchase[key]))
                     {
                         // Change
-                        ChangeProperty(dmc, song, this.Index, DanceMusicContext.PurchaseField, key, old.Purchase[key], Purchase[key], log);
+                        ChangeProperty(dmc, song, this.Index, Song.PurchaseField, key, old.Purchase[key], Purchase[key], log);
                     }
                 }
             }

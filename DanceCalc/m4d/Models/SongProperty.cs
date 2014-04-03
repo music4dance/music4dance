@@ -58,7 +58,7 @@ namespace m4d.Models
                 object ret = null;
                 switch (BaseName)
                 {
-                    case DanceMusicContext.TempoField:
+                    case Song.TempoField:
                         // decimal
                         if (Value != null)
                         {
@@ -67,9 +67,9 @@ namespace m4d.Models
                             ret = v;
                         }
                         break;
-                    case DanceMusicContext.LengthField:
-                    case DanceMusicContext.TrackField:
-                    case DanceMusicContext.DanceRatingField:
+                    case Song.LengthField:
+                    case Song.TrackField:
+                    case Song.DanceRatingField:
                         //int
                         if (Value != null)
                         {
@@ -78,7 +78,7 @@ namespace m4d.Models
                             ret = v;
                         }
                         break;
-                    case DanceMusicContext.TimeField:
+                    case Song.TimeField:
                         {
                             DateTime v;
                             DateTime.TryParse(Value, out v);

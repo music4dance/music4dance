@@ -52,20 +52,20 @@ namespace m4d.ViewModels
                 {
                     switch (bn)
                     {
-                        case DanceMusicContext.UserField:
+                        case Song.UserField:
                             AddUser(dmc, prop.Value);
                             break;
-                        case DanceMusicContext.DanceRatingField:
+                        case Song.DanceRatingField:
                             UpdateDanceRating(dmc, prop.Value);
                             // TODO: Need to rebuild the dance table here
                             break;
-                        case DanceMusicContext.AlbumField:
-                        case DanceMusicContext.PublisherField:
-                        case DanceMusicContext.TrackField:
-                        case DanceMusicContext.PurchaseField:
+                        case Song.AlbumField:
+                        case Song.PublisherField:
+                        case Song.TrackField:
+                        case Song.PurchaseField:
                             // All of these are taken care of with build album
                             break;
-                        case DanceMusicContext.TimeField:
+                        case Song.TimeField:
                             {
                                 DateTime time = (DateTime)prop.ObjectValue;
                                 if (!created)
@@ -140,11 +140,11 @@ namespace m4d.ViewModels
         {
             AlbumDetails ret = null;
             List<AlbumDetails> candidates = new List<AlbumDetails>();
-            int hash = DanceMusicContext.CreateTitleHash(album);
+            int hash = Song.CreateTitleHash(album);
 
             foreach (AlbumDetails ad in Albums)
             {
-                if (DanceMusicContext.CreateTitleHash(ad.Name) == hash)
+                if (Song.CreateTitleHash(ad.Name) == hash)
                 {
                     candidates.Add(ad);
                     if (string.Equals(ad.Name,album,StringComparison.CurrentCultureIgnoreCase))
@@ -269,14 +269,14 @@ namespace m4d.ViewModels
         {
             IEnumerable<SongProperty> properties =
                 from prop in song.SongProperties
-                //                where prop.BaseName.Equals(DanceMusicContext.AlbumField)
+                //                where prop.BaseName.Equals(Song.AlbumField)
                 select prop;
             return BuildAlbumInfo(properties);
         }
         public static List<AlbumDetails> BuildAlbumInfo(IEnumerable<SongProperty> properties)
         {
             List<string> names = new List<string>(new string[] {
-                DanceMusicContext.AlbumField,DanceMusicContext.PublisherField,DanceMusicContext.TrackField,DanceMusicContext.PurchaseField,DanceMusicContext.AlbumPromote
+                Song.AlbumField,Song.PublisherField,Song.TrackField,Song.PurchaseField,Song.AlbumPromote
             });
 
             // First build a hashtable of index->albuminfo, maintaining the total number and the
@@ -319,7 +319,7 @@ namespace m4d.ViewModels
 
                     switch (name)
                     {
-                        case DanceMusicContext.AlbumField:
+                        case Song.AlbumField:
                             if (remove)
                             {
                                 d.Name = null;
@@ -330,7 +330,7 @@ namespace m4d.ViewModels
                                 d.Name = prop.Value;
                             }
                             break;
-                        case DanceMusicContext.PublisherField:
+                        case Song.PublisherField:
                             if (remove)
                             {
                                 d.Publisher = null;
@@ -340,7 +340,7 @@ namespace m4d.ViewModels
                                 d.Publisher = prop.Value;
                             }
                             break;
-                        case DanceMusicContext.TrackField:
+                        case Song.TrackField:
                             if (remove)
                             {
                                 d.Track = null;
@@ -352,7 +352,7 @@ namespace m4d.ViewModels
                                 d.Track = t;
                             }
                             break;
-                        case DanceMusicContext.PurchaseField:
+                        case Song.PurchaseField:
                             if (d.Purchase == null)
                             {
                                 d.Purchase = new Dictionary<string, string>();
@@ -367,7 +367,7 @@ namespace m4d.ViewModels
                                 d.Purchase[qual] = prop.Value;
                             }
                             break;
-                        case DanceMusicContext.AlbumPromote:
+                        case Song.AlbumPromote:
                             promotions.Add(idx);
                             break;
                     }
@@ -403,7 +403,7 @@ namespace m4d.ViewModels
         {
             IEnumerable<SongProperty> properties =
                 from prop in Properties
-//                where prop.BaseName.Equals(DanceMusicContext.AlbumField)
+//                where prop.BaseName.Equals(Song.AlbumField)
                 select prop;
 
             Albums = BuildAlbumInfo(properties);

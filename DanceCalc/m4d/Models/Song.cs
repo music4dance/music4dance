@@ -11,6 +11,43 @@ using System.Text;
 namespace m4d.Models
 {    public class Song : DbObject
     {
+        // These are the constants that define fields, virtual fields and command
+        // TODO: Should I factor these into their own class??
+        #region Contants
+        // Field names - note that these must be kept in sync with the actual property names
+        public const string UserField = "User";
+        public const string TimeField = "Time";
+        public const string TitleField = "Title";
+        public const string ArtistField = "Artist";
+        public const string TempoField = "Tempo";
+        public const string LengthField = "Length";
+        public const string GenreField = "Genre";
+
+        // Album Fields
+        public const string AlbumField = "Album";
+        public const string PublisherField = "Publisher";
+        public const string TrackField = "Track";
+        public const string PurchaseField = "Purchase";
+        public const string AlbumList = "AlbumList";
+        public const string AlbumPromote = "PromoteAlbum";
+
+        // Dance Rating
+        public const string DanceRatingField = "DanceRating";
+
+        // Commands
+        public const string CreateCommand = ".Create";
+        public const string EditCommand = ".Edit";
+        public const string DeleteCommand = ".Delete";
+        public const string MergeCommand = ".Merge";
+        public const string UndoCommand = ".Undo";
+        public const string RedoCommand = ".Redo";
+
+        public const string SuccessResult = ".Success";
+        public const string FailResult = ".Fail";
+        public const string MessageData = ".Message";
+        #endregion
+
+        #region Properties
         public int SongId { get; set; }
         public decimal? Tempo { get; set; }
         public string Title { get; set; }
@@ -25,6 +62,8 @@ namespace m4d.Models
         public virtual ICollection<DanceRating> DanceRatings { get; set; }
         public virtual ICollection<ModifiedRecord> ModifiedBy { get; set; }
         public virtual ICollection<SongProperty> SongProperties { get; set; }
+        
+        #endregion
 
         public SongLog CreateEntry { get; set; }
 
@@ -51,14 +90,14 @@ namespace m4d.Models
             }
         }
 
-        internal void RestoreScalar(DanceMusicContext danceMusicContext, SongDetails sd)
+        internal void RestoreScalar(SongDetails sd)
         {
             Tempo = sd.Tempo;
             Title = sd.Title;
             Artist = sd.Artist;
             Genre = sd.Genre;
             Length = sd.Length;
-            TitleHash = DanceMusicContext.CreateTitleHash(Title);
+            TitleHash = Song.CreateTitleHash(Title);
 
 
             if (sd.Albums != null && sd.Albums.Count > 0)
@@ -66,9 +105,9 @@ namespace m4d.Models
                 Album = sd.Albums[0].Name;
             }
         }
-        internal void Restore(DanceMusicContext danceMusicContext, SongDetails sd)
+        internal void Restore(SongDetails sd)
         {
-            RestoreScalar(danceMusicContext, sd);
+            RestoreScalar(sd);
 
             foreach (DanceRating dr in sd.DanceRatings)
             {
@@ -126,12 +165,12 @@ namespace m4d.Models
             }
         }
 
-        public void Load(DanceMusicContext dmc, string s)
+        public void Load(string s, SongDetails sd)
         {
             string[] cells = s.Split(new char[] { '\t' });
             List<SongProperty> properties = new List<SongProperty>(cells.Length);
 
-            SongProperties.Add(new SongProperty(SongId, DanceMusicContext.CreateCommand, null));
+            SongProperties.Add(new SongProperty(SongId, Song.CreateCommand, null));
 
             foreach (string cell in cells)
             {
@@ -156,10 +195,9 @@ namespace m4d.Models
                 }
             }
 
-            SongDetails sd = new SongDetails(dmc, SongId, SongProperties);
-            Restore(dmc, sd);
-
+            Restore(sd);
         }
+
         public string Signature
         {
             get
@@ -174,13 +212,13 @@ namespace m4d.Models
         public bool Equivalent(Song song)
         {
             // No-similar titles != equivalent
-            if (DanceMusicContext.CreateTitleHash(Title) != DanceMusicContext.CreateTitleHash(song.Title))
+            if (Song.CreateTitleHash(Title) != Song.CreateTitleHash(song.Title))
             {
                 return false;
             }
 
             if (!string.IsNullOrWhiteSpace(Artist) && !string.IsNullOrWhiteSpace(song.Artist) && 
-                (DanceMusicContext.CreateTitleHash(Artist) != DanceMusicContext.CreateTitleHash(song.Artist)))
+                (Song.CreateTitleHash(Artist) != Song.CreateTitleHash(song.Artist)))
             {
                 return false;
             }
@@ -196,13 +234,13 @@ namespace m4d.Models
         public bool WeakEquivalent(Song song)
         {
             // No-similar titles != equivalent
-            if (DanceMusicContext.CreateTitleHash(Title) != DanceMusicContext.CreateTitleHash(song.Title))
+            if (Song.CreateTitleHash(Title) != Song.CreateTitleHash(song.Title))
             {
                 return false;
             }
 
             if (!string.IsNullOrWhiteSpace(Artist) && !string.IsNullOrWhiteSpace(song.Artist) &&
-                (DanceMusicContext.CreateTitleHash(Artist) != DanceMusicContext.CreateTitleHash(song.Artist)))
+                (Song.CreateTitleHash(Artist) != Song.CreateTitleHash(song.Artist)))
             {
                 return false;
             }
@@ -225,9 +263,9 @@ namespace m4d.Models
         //{
         //    // Again, this assumes properties are in reverse ID order...
 
-        //    SongProperty artistP = properties.FirstOrDefault(p => p.Name == DanceMusicContext.ArtistField);
-        //    SongProperty albumP = properties.FirstOrDefault(p => p.Name == DanceMusicContext.AlbumField);
-        //    SongProperty titleP = properties.FirstOrDefault(p => p.Name == DanceMusicContext.TitleField);
+        //    SongProperty artistP = properties.FirstOrDefault(p => p.Name == Song.ArtistField);
+        //    SongProperty albumP = properties.FirstOrDefault(p => p.Name == Song.AlbumField);
+        //    SongProperty titleP = properties.FirstOrDefault(p => p.Name == Song.TitleField);
 
         //    return BuildSignature(artistP != null ? artistP.Value : string.Empty, albumP != null ? albumP.Value : string.Empty, titleP != null ? titleP.Value : string.Empty);
         //}
@@ -237,7 +275,7 @@ namespace m4d.Models
             artist = (artist == null) ? string.Empty : artist;
             title = (title == null) ? string.Empty : title;
 
-            string ret = string.Format("{0} {1}", DanceMusicContext.CreateNormalForm(artist), DanceMusicContext.CreateNormalForm(title));
+            string ret = string.Format("{0} {1}", CreateNormalForm(artist), CreateNormalForm(title));
 
             if (string.IsNullOrWhiteSpace(ret))
                 return null;
@@ -266,9 +304,50 @@ namespace m4d.Models
             get { return string.IsNullOrWhiteSpace(Title); }
         }
 
+        #region Static Utility Functions
         public static Song GetNullSong()
         {
             return new Song();
         }
+
+        public static int CreateTitleHash(string title)
+        {
+            return CreateNormalForm(title).GetHashCode();
+        }
+
+        public static string CreateNormalForm(string s)
+        {
+            StringBuilder sb = new StringBuilder(s.Length);
+
+            string norm = s.Normalize(NormalizationForm.FormD);
+
+            bool paren = false;
+            foreach (char c in norm)
+            {
+                if (paren)
+                {
+                    if (c == ')')
+                    {
+                        paren = false;
+                    }
+                }
+                else
+                {
+                    if (char.IsLetterOrDigit(c))
+                    {
+                        char cNew = char.ToUpper(c);
+                        sb.Append(cNew);
+                    }
+                    else if (c == '(')
+                    {
+                        paren = true;
+                    }
+                }
+            }
+
+            return sb.ToString();
+        }
+        
+        #endregion
     }
 }

@@ -100,12 +100,12 @@ namespace m4d.ViewModels
         }
 
         static string[] _mergeFields = { 
-            DanceMusicContext.TitleField, 
-            DanceMusicContext.ArtistField, 
-            DanceMusicContext.AlbumList, 
-            DanceMusicContext.TempoField, 
-            DanceMusicContext.GenreField, 
-            DanceMusicContext.LengthField 
+            Song.TitleField, 
+            Song.ArtistField, 
+            Song.AlbumList, 
+            Song.TempoField, 
+            Song.GenreField, 
+            Song.LengthField 
         };
 
     }

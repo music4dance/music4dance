@@ -117,7 +117,7 @@ namespace m4d.ViewModels
                             }
 
                             MergeCluster lump;
-                            int hash = DanceMusicContext.CreateTitleHash(s.Artist);
+                            int hash = Song.CreateTitleHash(s.Artist);
                             if (!lumps.TryGetValue(hash, out lump))
                             {
 
