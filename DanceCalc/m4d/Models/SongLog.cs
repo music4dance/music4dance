@@ -29,7 +29,7 @@ namespace m4d.Models
             SongSignature = song.Signature;
         }
 
-        public bool Initialize(DanceMusicContext dmc, string entry)
+        public bool Initialize(string entry, IUserMap userMap)
         {
             string[] cells = entry.Split(new char[] { '|' });
 
@@ -47,11 +47,7 @@ namespace m4d.Models
             string songRef = cells[3];
             SongSignature = cells[4];
 
-            //TODONEXT: Should we provide an interface that will let us
-            // pass a username in and get an Application user?
-            // If we do that we can clean up the songdetails
-            //  (re)constructor as well...
-            User = dmc.FindUser(userName);
+            User = userMap.FindUser(userName);
             if (User == null)
             {
                 Trace.WriteLine(string.Format("Bad User Name: {0}", userName));

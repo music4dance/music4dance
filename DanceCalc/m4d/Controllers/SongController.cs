@@ -114,8 +114,6 @@ namespace music4dance.Controllers
 
         private ActionResult DoIndex(SongFilter filter)
         {
-            // TODONEXT: Get song filter to handle its int fields and then do passthrough for everything
-            //  Looks like this might be close, but even pass-through of details isn't working yet
             Trace.WriteLine(string.Format("Entering Song.Index: dances='{0}',sortOrder='{1}',searchString='{2}'", filter.Dances, filter.SortOrder, filter.SearchString));
 
             // Set up the viewbag

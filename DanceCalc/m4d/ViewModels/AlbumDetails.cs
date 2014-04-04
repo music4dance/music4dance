@@ -16,23 +16,9 @@ namespace m4d.ViewModels
 
     public class AlbumDetails
     {
-        private static char[] s_services = new char[] { '#', 'A', 'I', 'X', 'M' };
-        private static char[] s_purchaseTypes = new char[] { '#', 'A', 'S' };
-
-        private static string[] s_servicesEx = new string[] { "None", "Amazon", "ITunes", "Xbox", "American Music Group" };
-        private static string[] s_serviceLink = new string[] { 
-            "Error", 
-            "http://www.amazon.com/gp/product/{0}/ref=as_li_ss_tl?ie=UTF8&camp=1789&creative=390957&creativeASIN={0}&linkCode=as2&tag=thegraycom-20", 
-            "http://itunes.apple.com/album/id{1}?i={0}&uo=4&at=11lwtf",
-            "http://music.xbox.com/Track/{0}?partnerID=Music4Dance?action=play"};
-        private static string[] s_serviceTarget = new string[] { "_blank", "amazon_store", "itunes_store", "xbox_music", "_blank" };
-        private static string[] s_servicesAlt = new string[] { "None", "Available on Amazon", "Play it on ITunes", "Play it on Xbox Music", "Catalogged by American Music Group" };
-        private static string[] s_purchaseTypesEx = new string[] { "None", "Album", "Song" };
-
-
+        #region Construction
         public AlbumDetails()
         {
-
         }
 
         public AlbumDetails(AlbumDetails a)
@@ -46,7 +32,9 @@ namespace m4d.ViewModels
             else
                 Purchase = new Dictionary<string, string>();
         }
+        #endregion
 
+        #region Properties
         public string Name { get; set; }
         public string Publisher { get; set; }
         [Range(1, 999)]
@@ -72,7 +60,16 @@ namespace m4d.ViewModels
             set { SetPurchaseInfo(value); }
 
         }
+        public bool HasPurchaseInfo
+        {
+            get
+            {
+                return Purchase != null && Purchase.Count > 0;
+            }
+        }
+        #endregion
 
+        #region Purchase Serialization
         /// <summary>
         /// Formatted purchase info
         /// </summary>
@@ -112,7 +109,10 @@ namespace m4d.ViewModels
                 return string.Join(";", pi);
             }
         }
+        
+        #endregion
 
+        #region Purchase Manipulation
         public string GetPurchaseTags()
         {
             StringBuilder sb = new StringBuilder();
@@ -150,18 +150,10 @@ namespace m4d.ViewModels
                 throw new ArgumentOutOfRangeException("MusicService");
 
 
-            Purchase.Add(BuildPurchaseKey(ms,pt), value);
+            Purchase.Add(BuildPurchaseKey(ms, pt), value);
         }
 
-        static string BuildPurchaseKey(MusicService ms, PurchaseType pt)
-        {
-            StringBuilder sb = new StringBuilder(3);
-            sb.Append(s_services[(int)ms]);
-            sb.Append(s_purchaseTypes[(int)pt]);
-            return sb.ToString();
-        }
-
-        public void SetPurchaseInfo(string purchase)        
+        public void SetPurchaseInfo(string purchase)
         {
             if (string.IsNullOrWhiteSpace(purchase))
             {
@@ -183,14 +175,6 @@ namespace m4d.ViewModels
             }
         }
 
-        public bool HasPurchaseInfo
-        {
-            get
-            {
-                return Purchase != null && Purchase.Count > 0;
-            }
-        }
-
         public PurchaseLink GetPurchaseLink(MusicService ms)
         {
             PurchaseLink l = GetPurchaseLink(ms, PurchaseType.Song);
@@ -206,7 +190,7 @@ namespace m4d.ViewModels
             PurchaseLink ret = null;
             string info = null;
             string key = BuildPurchaseKey(ms, pt);
-            if (Purchase != null && Purchase.TryGetValue(key,out info))
+            if (Purchase != null && Purchase.TryGetValue(key, out info))
             {
                 string extra = String.Empty;
 
@@ -225,7 +209,7 @@ namespace m4d.ViewModels
 
                 ret = new PurchaseLink
                 {
-                    Link = string.Format(s_serviceLink[(int)ms],info,extra),
+                    Link = string.Format(s_serviceLink[(int)ms], info, extra),
                     Target = s_serviceTarget[(int)ms],
                     Logo = s_servicesEx[(int)ms] + "-logo.png",
                     Charm = s_servicesEx[(int)ms] + "-charm.png",
@@ -234,52 +218,8 @@ namespace m4d.ViewModels
             }
             return ret;
         }
-        public bool ModifyInfo(DanceMusicContext dmc, Song song, AlbumDetails old, SongLog log)
-        {
-            bool modified = true;
 
-            // This indicates a deleted album
-            if (string.IsNullOrWhiteSpace(Name))
-            {
-                ChangeProperty(dmc, song, old.Index, Song.AlbumField, null, old.Name, null, log);
-                if (old.Track.HasValue)
-                    ChangeProperty(dmc, song, old.Index, Song.TrackField, null, old.Track, null, log);
-                if (!string.IsNullOrWhiteSpace(old.Publisher))
-                    ChangeProperty(dmc, song, old.Index, Song.PublisherField, null, old.Publisher, null, log);
-
-                modified = true;
-            }
-            else
-            {
-                modified |= ChangeProperty(dmc, song, old.Index, Song.AlbumField, null, old.Name, Name, log);
-                modified |= ChangeProperty(dmc, song, old.Index, Song.TrackField, null, old.Track, Track, log);
-                modified |= ChangeProperty(dmc, song, old.Index, Song.PublisherField, null, old.Publisher, Publisher, log);
-
-                PurchaseDiff(dmc, song, old, log);
-            }
-
-            return modified;
-        }
-
-        public void CreateProperties(DanceMusicContext dmc, Song song, SongLog log = null)
-        {
-            if (string.IsNullOrWhiteSpace(Name))
-            {
-                throw new ArgumentOutOfRangeException("album");
-            }
-
-            AddProperty(dmc, song, Index, Song.AlbumField, null, Name, log);
-            AddProperty(dmc, song, Index, Song.TrackField, null, Track, log);
-            AddProperty(dmc, song, Index, Song.PublisherField, null, Publisher, log);
-            if (Purchase != null)
-            {
-                foreach (KeyValuePair<string, string> purchase in Purchase)
-                {
-                    AddProperty(dmc, song, Index, Song.PurchaseField, purchase.Key, purchase.Value, log);
-                }
-            }
-        }
-        public void PurchaseDiff(DanceMusicContext dmc, Song song, AlbumDetails old, Models.SongLog log)
+        public void PurchaseDiff(ISongPropertyFactory spf, Song song, AlbumDetails old, Models.SongLog log)
         {
             Dictionary<string, string> add = new Dictionary<string, string>();
             //HashSet<string> rem = new HashSet<string>();
@@ -291,7 +231,7 @@ namespace m4d.ViewModels
                 {
                     if (Purchase != null && !Purchase.ContainsKey(key))
                     {
-                        ChangeProperty(dmc, song, this.Index, Song.PurchaseField, key, Purchase[key], null, log);
+                        ChangeProperty(spf, song, this.Index, Song.PurchaseField, key, Purchase[key], null, log);
                     }
                 }
             }
@@ -304,12 +244,12 @@ namespace m4d.ViewModels
                     if (old.Purchase == null || !old.Purchase.ContainsKey(key))
                     {
                         // Add
-                        ChangeProperty(dmc, song, this.Index, Song.PurchaseField, key, null, Purchase[key], log);
+                        ChangeProperty(spf, song, this.Index, Song.PurchaseField, key, null, Purchase[key], log);
                     }
                     else if (old.Purchase != null && old.Purchase.ContainsKey(key) && !string.Equals(Purchase[key], old.Purchase[key]))
                     {
                         // Change
-                        ChangeProperty(dmc, song, this.Index, Song.PurchaseField, key, old.Purchase[key], Purchase[key], log);
+                        ChangeProperty(spf, song, this.Index, Song.PurchaseField, key, old.Purchase[key], Purchase[key], log);
                     }
                 }
             }
@@ -400,28 +340,79 @@ namespace m4d.ViewModels
 
             return service + " " + type;
         }
+        private static string BuildPurchaseKey(MusicService ms, PurchaseType pt)
+        {
+            StringBuilder sb = new StringBuilder(3);
+            sb.Append(s_services[(int)ms]);
+            sb.Append(s_purchaseTypes[(int)pt]);
+            return sb.ToString();
+        }
+        
+        #endregion
 
-        public static void AddProperty(DanceMusicContext dmc, Song old, int idx, string name, string qual, object value, SongLog log = null)
+        #region Property Utilities
+        public bool ModifyInfo(ISongPropertyFactory spf, Song song, AlbumDetails old, SongLog log)
+        {
+            bool modified = true;
+
+            // This indicates a deleted album
+            if (string.IsNullOrWhiteSpace(Name))
+            {
+                ChangeProperty(spf, song, old.Index, Song.AlbumField, null, old.Name, null, log);
+                if (old.Track.HasValue)
+                    ChangeProperty(spf, song, old.Index, Song.TrackField, null, old.Track, null, log);
+                if (!string.IsNullOrWhiteSpace(old.Publisher))
+                    ChangeProperty(spf, song, old.Index, Song.PublisherField, null, old.Publisher, null, log);
+
+                modified = true;
+            }
+            else
+            {
+                modified |= ChangeProperty(spf, song, old.Index, Song.AlbumField, null, old.Name, Name, log);
+                modified |= ChangeProperty(spf, song, old.Index, Song.TrackField, null, old.Track, Track, log);
+                modified |= ChangeProperty(spf, song, old.Index, Song.PublisherField, null, old.Publisher, Publisher, log);
+
+                PurchaseDiff(spf, song, old, log);
+            }
+
+            return modified;
+        }
+        public void CreateProperties(ISongPropertyFactory spf, Song song, SongLog log = null)
+        {
+            if (string.IsNullOrWhiteSpace(Name))
+            {
+                throw new ArgumentOutOfRangeException("album");
+            }
+
+            AddProperty(spf, song, Index, Song.AlbumField, null, Name, log);
+            AddProperty(spf, song, Index, Song.TrackField, null, Track, log);
+            AddProperty(spf, song, Index, Song.PublisherField, null, Publisher, log);
+            if (Purchase != null)
+            {
+                foreach (KeyValuePair<string, string> purchase in Purchase)
+                {
+                    AddProperty(spf, song, Index, Song.PurchaseField, purchase.Key, purchase.Value, log);
+                }
+            }
+        }
+
+        public static void AddProperty(ISongPropertyFactory spf, Song old, int idx, string name, string qual, object value, SongLog log = null)
         {
             if (value == null)
                 return;
 
             string fullName = SongProperty.FormatName(name, idx, qual);
 
-            SongProperty np = dmc.SongProperties.Create();
-            np.Song = old;
-            np.Name = fullName;
-            np.Value = DanceMusicContext.SerializeValue(value);
+            SongProperty np = spf.CreateSongProperty(old, fullName, value);
 
-            dmc.SongProperties.Add(np);
             if (log != null)
             {
-                dmc.LogPropertyUpdate(np, log);
+                log.UpdateData(np.Name, np.Value);
             }
         }
 
 
-        public static bool ChangeProperty(DanceMusicContext dmc, Song song, int idx, string name, string qual, object oldValue, object newValue, SongLog log = null)
+        public static bool ChangeProperty(ISongPropertyFactory spf, Song song, int idx, string name, string qual, object oldValue, object newValue, SongLog log = null)
         {
             bool modified = false;
 
@@ -429,15 +420,11 @@ namespace m4d.ViewModels
             {
                 string fullName = SongProperty.FormatName(name, idx, qual);
 
-                SongProperty np = dmc.SongProperties.Create();
-                np.Song = song;
-                np.Name = fullName;
-                np.Value = DanceMusicContext.SerializeValue(newValue);
+                SongProperty np = spf.CreateSongProperty(song, fullName, newValue);
 
-                dmc.SongProperties.Add(np);
                 if (log != null)
                 {
-                    dmc.LogPropertyUpdate(np, log, DanceMusicContext.SerializeValue(oldValue));
+                    log.UpdateData(np.Name, np.Value, LogBase.SerializeValue(oldValue));
                 }
 
 
@@ -446,6 +433,21 @@ namespace m4d.ViewModels
 
             return modified;
         }
+        #endregion
 
+        #region Purchase Statics
+        private static char[] s_services = new char[] { '#', 'A', 'I', 'X', 'M' };
+        private static char[] s_purchaseTypes = new char[] { '#', 'A', 'S' };
+
+        private static string[] s_servicesEx = new string[] { "None", "Amazon", "ITunes", "Xbox", "American Music Group" };
+        private static string[] s_serviceLink = new string[] { 
+            "Error", 
+            "http://www.amazon.com/gp/product/{0}/ref=as_li_ss_tl?ie=UTF8&camp=1789&creative=390957&creativeASIN={0}&linkCode=as2&tag=thegraycom-20", 
+            "http://itunes.apple.com/album/id{1}?i={0}&uo=4&at=11lwtf",
+            "http://music.xbox.com/Track/{0}?partnerID=Music4Dance?action=play"};
+        private static string[] s_serviceTarget = new string[] { "_blank", "amazon_store", "itunes_store", "xbox_music", "_blank" };
+        private static string[] s_servicesAlt = new string[] { "None", "Available on Amazon", "Play it on ITunes", "Play it on Xbox Music", "Catalogged by American Music Group" };
+        private static string[] s_purchaseTypesEx = new string[] { "None", "Album", "Song" };
+        #endregion
     }
 }

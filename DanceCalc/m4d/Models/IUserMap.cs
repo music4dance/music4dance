@@ -1,0 +1,16 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Web;
+
+namespace m4d.Models
+{
+    // Provide the ability to map a user name to an ApplicationUser object
+    // Not sure if this is the right thing to do, but it will let me
+    // isolate user mapping from the database and push song<->user
+    // mapping code into my model assembly
+    public interface IUserMap
+    {
+        ApplicationUser FindUser(string name);
+    }
+}

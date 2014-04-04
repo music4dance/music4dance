@@ -225,6 +225,8 @@
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
     <Compile Include="Models\ApplicationUser.cs" />
+    <Compile Include="Models\ISongPropertyFactory.cs" />
+    <Compile Include="Models\IUserMap.cs" />
     <Compile Include="Models\ModifiedRecord.cs" />
     <Compile Include="Models\Dance.cs" />
     <Compile Include="Models\DanceMusicConfiguration.cs" />

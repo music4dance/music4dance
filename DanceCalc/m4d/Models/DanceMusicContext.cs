@@ -30,10 +30,9 @@ namespace m4d.Models
 {
     public enum UndoAction { Undo, Redo };
 
-    public class DanceMusicContext : IdentityDbContext<ApplicationUser>
+    public class DanceMusicContext : IdentityDbContext<ApplicationUser>, IUserMap, ISongPropertyFactory
     {
-        public DanceMusicContext()
-            : base("DefaultConnection")
+        public DanceMusicContext() : base("DefaultConnection")
         {
         }
 
@@ -625,10 +624,10 @@ namespace m4d.Models
                 SongProperty np = SongProperties.Create();
                 np.Song = old;
                 np.Name = name;
-                np.Value = SerializeValue(eP);
+                np.Value = LogBase.SerializeValue(eP);
 
                 SongProperties.Add(np);
-                LogPropertyUpdate(np, log, SerializeValue(oP));
+                LogPropertyUpdate(np, log, LogBase.SerializeValue(oP));
             }
 
             return modified;
@@ -705,18 +704,6 @@ namespace m4d.Models
                         ad.CreateProperties(this, song, log);
                     }
                 }
-            }
-        }
-
-        public static string SerializeValue(object o)
-        {
-            if (o == null)
-            {
-                return null;
-            }
-            else
-            {
-                return o.ToString();
             }
         }
 
@@ -862,7 +849,7 @@ namespace m4d.Models
         {
             SongLog log = Log.Create();
 
-            if (!log.Initialize(this,line))
+            if (!log.Initialize(line,this))
             {
                 Trace.WriteLine(string.Format("Unable to restore line: {0}", line));
             }
@@ -1262,11 +1249,6 @@ namespace m4d.Models
             }
         }
 
-        public ApplicationUser FindUser(string name)
-        {
-            return Users.FirstOrDefault(u => u.UserName.ToLower() == name.ToLower());
-        }
-
         
         public void Dump()
         {
@@ -1289,6 +1271,26 @@ namespace m4d.Models
             //{
             //    user.Dump();
             //}
+        }
+
+
+#region IUserMap
+        public ApplicationUser FindUser(string name)
+        {
+            return Users.FirstOrDefault(u => u.UserName.ToLower() == name.ToLower());
+        }
+#endregion
+
+        public SongProperty CreateSongProperty(Song song, string name, object value)
+        {
+            SongProperty np = SongProperties.Create();
+            np.Song = song;
+            np.Name = name;
+            np.Value = LogBase.SerializeValue(value);
+
+            SongProperties.Add(np);
+
+            return np;
         }
     }
 }
