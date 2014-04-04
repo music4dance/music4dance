@@ -149,7 +149,7 @@ namespace music4dance.Controllers
             }
 
             // Now limit it down to the ones that are marked as a particular dance or dances
-            if (!string.IsNullOrWhiteSpace(filter.Dances))
+            if (!string.IsNullOrWhiteSpace(filter.Dances) && !string.Equals(filter.Dances,"ALL"))
             {
                 string[] danceList = Dances.Instance.ExpandDanceList(filter.Dances);
 

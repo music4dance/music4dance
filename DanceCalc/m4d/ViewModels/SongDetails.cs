@@ -15,14 +15,13 @@ namespace m4d.ViewModels
     // it's meant to aggregate the information about a song in an easily digestible way
     public class SongDetails
     {
+        #region Construction
         public SongDetails()
         {
         }
 
         public SongDetails(Song song)
         {
-            Song = song;
-
             SongId = song.SongId;
             Tempo = song.Tempo;
             Title = song.Title;
@@ -39,7 +38,7 @@ namespace m4d.ViewModels
             BuildAlbumInfo();
         }
 
-        public SongDetails(DanceMusicContext dmc, int songId, ICollection<SongProperty> properties)
+        public SongDetails(int songId, ICollection<SongProperty> properties)
         {
             SongId = songId;
             bool created = false;
@@ -53,10 +52,10 @@ namespace m4d.ViewModels
                     switch (bn)
                     {
                         case Song.UserField:
-                            AddUser(dmc, prop.Value);
+                            // Handle users in postpass since it requires access to DanceContext to resolve
                             break;
                         case Song.DanceRatingField:
-                            UpdateDanceRating(dmc, prop.Value);
+                            UpdateDanceRating(prop.Value);
                             // TODO: Need to rebuild the dance table here
                             break;
                         case Song.AlbumField:
@@ -84,7 +83,7 @@ namespace m4d.ViewModels
                                 {
                                     pi.SetValue(this, prop.ObjectValue);
                                 }
-                            }                     
+                            }
                             break;
                     }
                 }
@@ -92,16 +91,19 @@ namespace m4d.ViewModels
 
             Albums = BuildAlbumInfo(properties);
         }
+        
+        #endregion
 
+        #region Properties
         public int SongId { get; set; }
 
-        [Range(5.0,500.0)]
+        [Range(5.0, 500.0)]
         public decimal? Tempo { get; set; }
         [Required]
         public string Title { get; set; }
         public string Artist { get; set; }
         public string Genre { get; set; }
-        [Range(1,999)]
+        [Range(1, 999)]
         public int? Length { get; set; }
         public DateTime Created { get; set; }
         public DateTime Modified { get; set; }
@@ -110,7 +112,10 @@ namespace m4d.ViewModels
         public List<DanceRating> DanceRatings { get; set; }
         public List<SongProperty> Properties { get; set; }
         public List<ModifiedRecord> ModifiedBy { get; set; }
+        
+        #endregion
 
+        #region Album
         public string AlbumList
         {
             get
@@ -130,12 +135,11 @@ namespace m4d.ViewModels
                     return ret.ToString();
                 }
                 else
-                { 
-                    return null; 
+                {
+                    return null;
                 }
             }
         }
-
         public AlbumDetails FindAlbum(string album)
         {
             AlbumDetails ret = null;
@@ -147,7 +151,7 @@ namespace m4d.ViewModels
                 if (Song.CreateTitleHash(ad.Name) == hash)
                 {
                     candidates.Add(ad);
-                    if (string.Equals(ad.Name,album,StringComparison.CurrentCultureIgnoreCase))
+                    if (string.Equals(ad.Name, album, StringComparison.CurrentCultureIgnoreCase))
                     {
                         ret = ad;
                     }
@@ -173,8 +177,6 @@ namespace m4d.ViewModels
             return albums;
         }
 
-        public Song Song { get; private set; }
-
         public int GetNextAlbumIndex()
         {
             return GetNextAlbumIndex(Albums);
@@ -184,7 +186,6 @@ namespace m4d.ViewModels
         {
             return GetPurchaseTags(Albums);
         }
-
 
         public ICollection<PurchaseLink> GetPurchaseLinks()
         {
@@ -285,7 +286,7 @@ namespace m4d.ViewModels
             int count = 0;
             int max = 0;
 
-            Dictionary<int,AlbumDetails> map = new Dictionary<int,AlbumDetails>();
+            Dictionary<int, AlbumDetails> map = new Dictionary<int, AlbumDetails>();
 
             // Also keep a list of 'promotions' - current semantics are that if an album
             //  has a promotion it is removed and re-inserted at the head of the list
@@ -376,7 +377,7 @@ namespace m4d.ViewModels
 
             List<AlbumDetails> albums = new List<AlbumDetails>(count);
 
-            for (int i = 0; i <= max; i++ )
+            for (int i = 0; i <= max; i++)
             {
                 AlbumDetails d;
                 if (map.TryGetValue(i, out d) && d.Name != null)
@@ -403,29 +404,14 @@ namespace m4d.ViewModels
         {
             IEnumerable<SongProperty> properties =
                 from prop in Properties
-//                where prop.BaseName.Equals(Song.AlbumField)
+                //                where prop.BaseName.Equals(Song.AlbumField)
                 select prop;
 
             Albums = BuildAlbumInfo(properties);
         }
-
-        private void AddUser(DanceMusicContext dmc, string userName)
-        {
-            ApplicationUser user = dmc.FindUser(userName);
-            if (ModifiedBy == null)
-            {
-                ModifiedBy = new List<ModifiedRecord>();
-            }
-
-
-            if (!ModifiedBy.Any(u => u.ApplicationUserId == u.ApplicationUserId))
-            {
-                ModifiedRecord us = dmc.Modified.Create();
-                us.ApplicationUser = user;
-                ModifiedBy.Add(us);
-            }
-        }
-        private void UpdateDanceRating(DanceMusicContext dmc, string value)
+        
+        #endregion
+        private void UpdateDanceRating(string value)
         {
             if (DanceRatings == null)
             {

@@ -1,19 +1,17 @@
-﻿using System;
+﻿using m4d.ViewModels;
+using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
 using System.Diagnostics;
 using System.Linq;
-using System.Threading;
-
-using m4d.ViewModels;
 using System.Text;
 
 namespace m4d.Models
 {    public class Song : DbObject
     {
+        #region Constants
         // These are the constants that define fields, virtual fields and command
         // TODO: Should I factor these into their own class??
-        #region Contants
+
         // Field names - note that these must be kept in sync with the actual property names
         public const string UserField = "User";
         public const string TimeField = "Time";
@@ -62,11 +60,69 @@ namespace m4d.Models
         public virtual ICollection<DanceRating> DanceRatings { get; set; }
         public virtual ICollection<ModifiedRecord> ModifiedBy { get; set; }
         public virtual ICollection<SongProperty> SongProperties { get; set; }
+
+        // These are helper properties (they don't map to database columns
+        public string Signature
+        {
+            get
+            {
+                // This is not a fully unambiguous signature, should we add in a checksum with some or all of the
+                //  other fields in the song?
+                return BuildSignature(Artist, Title);
+            }
+        }
+
+        public bool IsNull
+        {
+            get { return string.IsNullOrWhiteSpace(Title); }
+        }
+        public SongLog CreateEntry { get; set; }
+        #endregion
+
+        #region Comparison
+        //  Two song are equivalent if Titles are equal, artists are similar or empty and all other fields are equal
+        public bool Equivalent(Song song)
+        {
+            // No-similar titles != equivalent
+            if (Song.CreateTitleHash(Title) != Song.CreateTitleHash(song.Title))
+            {
+                return false;
+            }
+
+            if (!string.IsNullOrWhiteSpace(Artist) && !string.IsNullOrWhiteSpace(song.Artist) &&
+                (Song.CreateTitleHash(Artist) != Song.CreateTitleHash(song.Artist)))
+            {
+                return false;
+            }
+
+            return EqString(Album, song.Album) &&
+                EqString(Genre, song.Genre) &&
+                EqNum(Tempo, song.Tempo) &&
+                EqNum(Length, song.Length);
+        }
+
+
+        // Same as equivalent (above) except that album, Tempo and Length aren't compared.
+        public bool WeakEquivalent(Song song)
+        {
+            // No-similar titles != equivalent
+            if (Song.CreateTitleHash(Title) != Song.CreateTitleHash(song.Title))
+            {
+                return false;
+            }
+
+            if (!string.IsNullOrWhiteSpace(Artist) && !string.IsNullOrWhiteSpace(song.Artist) &&
+                (Song.CreateTitleHash(Artist) != Song.CreateTitleHash(song.Artist)))
+            {
+                return false;
+            }
+
+            return EqNum(Tempo, song.Tempo) && EqNum(Length, song.Length);
+        }
         
         #endregion
 
-        public SongLog CreateEntry { get; set; }
-
+        #region Actions
         public void Delete()
         {
             Tempo = null;
@@ -119,9 +175,10 @@ namespace m4d.Models
                 ModifiedBy.Add(user);
             }
         }
+        
+        #endregion
 
-        // Serialization
-
+        #region Serialization
         public override string ToString()
         {
             if (string.IsNullOrWhiteSpace(Title))
@@ -198,57 +255,27 @@ namespace m4d.Models
             Restore(sd);
         }
 
-        public string Signature
+
+
+        public override void Dump()
         {
-            get
-            {
-                // This is not a fully unambiguous signature, should we add in a checksum with some or all of the
-                //  other fields in the song?
-                return BuildSignature(Artist, Title);
-            }
+            base.Dump();
+
+            string output = string.Format("Id={0},Title={1},Album={2},Artist={3}", SongId, Title, Album, Artist);
+            Trace.WriteLine(output);
+            //if (ModifiedBy != null)
+            //{
+            //    foreach (ApplicationUser user in ModifiedBy)
+            //    {
+            //        Debug.Write("\t");
+            //        user.Dump();
+            //    }
+            //}
         }
+        
+        #endregion
 
-        //  Two song are equivalent if Titles are equal, artists are similar or empty and all other fields are equal
-        public bool Equivalent(Song song)
-        {
-            // No-similar titles != equivalent
-            if (Song.CreateTitleHash(Title) != Song.CreateTitleHash(song.Title))
-            {
-                return false;
-            }
-
-            if (!string.IsNullOrWhiteSpace(Artist) && !string.IsNullOrWhiteSpace(song.Artist) && 
-                (Song.CreateTitleHash(Artist) != Song.CreateTitleHash(song.Artist)))
-            {
-                return false;
-            }
-
-            return EqString(Album,song.Album) &&
-                EqString(Genre, song.Genre) &&
-                EqNum(Tempo, song.Tempo) &&
-                EqNum(Length, song.Length);
-        }
-
-
-        // Same as equivalent (above) except that album, Tempo and Length aren't compared.
-        public bool WeakEquivalent(Song song)
-        {
-            // No-similar titles != equivalent
-            if (Song.CreateTitleHash(Title) != Song.CreateTitleHash(song.Title))
-            {
-                return false;
-            }
-
-            if (!string.IsNullOrWhiteSpace(Artist) && !string.IsNullOrWhiteSpace(song.Artist) &&
-                (Song.CreateTitleHash(Artist) != Song.CreateTitleHash(song.Artist)))
-            {
-                return false;
-            }
-
-            return EqNum(Tempo, song.Tempo) && EqNum(Length, song.Length);
-        }
-
-
+        #region Static Utility Functions
         private static bool EqString(string s1, string s2)
         {
             return string.IsNullOrWhiteSpace(s1) || string.IsNullOrWhiteSpace(s2) ||
@@ -258,17 +285,6 @@ namespace m4d.Models
         {
             return !t1.HasValue || !t2.HasValue || t1.Value.Equals(t2.Value);
         }
-
-        //static public string SignatureFromProperties(IOrderedQueryable<SongProperty> properties)
-        //{
-        //    // Again, this assumes properties are in reverse ID order...
-
-        //    SongProperty artistP = properties.FirstOrDefault(p => p.Name == Song.ArtistField);
-        //    SongProperty albumP = properties.FirstOrDefault(p => p.Name == Song.AlbumField);
-        //    SongProperty titleP = properties.FirstOrDefault(p => p.Name == Song.TitleField);
-
-        //    return BuildSignature(artistP != null ? artistP.Value : string.Empty, albumP != null ? albumP.Value : string.Empty, titleP != null ? titleP.Value : string.Empty);
-        //}
 
         private static string BuildSignature(string artist, string title)
         {
@@ -282,29 +298,6 @@ namespace m4d.Models
             else
                 return ret;
         }
-
-        public override void Dump()
-        {
-            base.Dump();
-
-            string output = string.Format("Id={0},Title={1},Album={2},Artist={3}",SongId,Title,Album,Artist);
-            Trace.WriteLine(output);
-            //if (ModifiedBy != null)
-            //{
-            //    foreach (ApplicationUser user in ModifiedBy)
-            //    {
-            //        Debug.Write("\t");
-            //        user.Dump();
-            //    }
-            //}
-        }
-
-        public bool IsNull
-        {
-            get { return string.IsNullOrWhiteSpace(Title); }
-        }
-
-        #region Static Utility Functions
         public static Song GetNullSong()
         {
             return new Song();

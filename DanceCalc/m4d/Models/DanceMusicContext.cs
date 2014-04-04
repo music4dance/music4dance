@@ -1098,8 +1098,7 @@ namespace m4d.Models
                 }            
             }
 
-            SongDetails sd = new SongDetails(this, song.SongId, song.SongProperties);
-            song.RestoreScalar(sd);
+            RestoreSong(song);
 
             return ret;
         }
@@ -1128,7 +1127,8 @@ namespace m4d.Models
             {
                 throw new ArgumentOutOfRangeException("song", "Attempting to restore a song that hasn't been deleted");
             }
-            SongDetails sd = new SongDetails(this, song.SongId, song.SongProperties);
+            SongDetails sd = new SongDetails(song.SongId, song.SongProperties);
+            UpdateUsers(sd,song.SongProperties);
             song.Restore(sd);
         }
 
@@ -1234,14 +1234,40 @@ namespace m4d.Models
                 }
             }
 
-            SongDetails sd = new SongDetails(this, song.SongId, song.SongProperties);
-            song.RestoreScalar(sd);
+            RestoreSong(song);
         }
 
 
         public IList<Song> FindMergeCandidates(int n, int level)
         {
             return MergeCluster.GetMergeCandidates(this, n, level);
+        }
+
+        /// <summary>
+        /// Update the ModifiedBy refeerences based on the song properties
+        /// </summary>
+        /// <param name="song"></param>
+        public void UpdateUsers(SongDetails song, ICollection<SongProperty> properties)
+        {
+            foreach (SongProperty prop in properties)
+            {
+                if (string.Equals(prop.Name, Song.UserField) && !string.IsNullOrWhiteSpace(prop.Value))
+                {
+                    ApplicationUser user = FindUser(prop.Value);
+
+                    if (song.ModifiedBy == null)
+                    {
+                        song.ModifiedBy = new List<ModifiedRecord>();
+                    }
+
+                    if (!song.ModifiedBy.Any(u => u.ApplicationUserId == u.ApplicationUserId))
+                    {
+                        ModifiedRecord us = Modified.Create();
+                        us.ApplicationUser = user;
+                        song.ModifiedBy.Add(us);
+                    }
+                }
+            }
         }
 
         public ApplicationUser FindUser(string name)

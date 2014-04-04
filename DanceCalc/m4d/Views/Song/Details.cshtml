@@ -36,7 +36,7 @@
     {
         <div id="songLog" class="col-md-6">
             <br />
-            @Html.Partial("SongItems", Model.Song)
+            @Html.Partial("SongItems", Model.Properties.OrderBy(sp => sp.Id))
         </div>
     }
 </div>

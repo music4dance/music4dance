@@ -38,17 +38,17 @@
     @foreach (var item in Model) {
         string message = "Internal Error";
     
-        int? LID = item.Result.GetIntData(m4d.Models.DanceMusicContext.SuccessResult);
+        int? LID = item.Result.GetIntData(m4d.Models.Song.SuccessResult);
         if (LID.HasValue)
         {
             message = "Success";
         }
         else
         {
-            LID = item.Result.GetIntData(m4d.Models.DanceMusicContext.FailResult);
+            LID = item.Result.GetIntData(m4d.Models.Song.FailResult);
             if (LID.HasValue)
             {
-                message = "Failed: " + item.Result.GetData(m4d.Models.DanceMusicContext.MessageData);
+                message = "Failed: " + item.Result.GetData(m4d.Models.Song.MessageData);
             }
         }
         
