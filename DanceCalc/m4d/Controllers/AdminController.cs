@@ -284,7 +284,7 @@ namespace m4d.Controllers
  
         private void BuildDanceMap()
         {
-            foreach (DanceObject d in DanceMusicContext.DanceLibrary.DanceDictionary.Values)
+            foreach (DanceObject d in Dance.DanceLibrary.DanceDictionary.Values)
             {
                 string name = CleanName(d.Name);
                 _danceMap.Add(name, d.Id);

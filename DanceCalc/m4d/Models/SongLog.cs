@@ -47,6 +47,10 @@ namespace m4d.Models
             string songRef = cells[3];
             SongSignature = cells[4];
 
+            //TODONEXT: Should we provide an interface that will let us
+            // pass a username in and get an Application user?
+            // If we do that we can clean up the songdetails
+            //  (re)constructor as well...
             User = dmc.FindUser(userName);
             if (User == null)
             {

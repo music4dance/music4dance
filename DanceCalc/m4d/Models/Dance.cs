@@ -18,7 +18,7 @@ namespace m4d.Models
             {
                 if (_info == null)
                 {
-                    _info = DanceMusicContext.DanceLibrary.DanceDictionary[Id];
+                    _info = DanceLibrary.DanceDictionary[Id];
                 }
 
                 return _info;
@@ -34,5 +34,15 @@ namespace m4d.Models
         }
 
         private DanceObject _info;
+
+        public static Dances DanceLibrary
+        {
+            get
+            {
+                return _dances;
+            }
+        }
+
+        private static Dances _dances = global::DanceLibrary.Dances.Instance;
     }
 }

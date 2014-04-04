@@ -92,14 +92,6 @@ namespace m4d.Models
             base.OnModelCreating(modelBuilder);
         }
 
-        public static Dances DanceLibrary
-        {
-            get
-            {
-                return _dances;
-            }
-        }
-
         public SongDetails FindSongDetails(int id)
         {
             SongDetails sd = null;
@@ -1298,8 +1290,5 @@ namespace m4d.Models
             //    user.Dump();
             //}
         }
-
-        private static Dances _dances = global::DanceLibrary.Dances.Instance;
-
     }
 }
