@@ -1,13 +1,8 @@
-﻿using System;
+﻿using m4d.Models;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
-using System.Web;
-using System.Web.Mvc;
-
-using m4d.Models;
 
 namespace m4d.ViewModels
 {

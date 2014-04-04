@@ -230,7 +230,6 @@
     <Compile Include="Models\ModifiedRecord.cs" />
     <Compile Include="Models\Dance.cs" />
     <Compile Include="Models\DanceMusicConfiguration.cs" />
-    <Compile Include="Models\DanceMusicInitializer.cs" />
     <Compile Include="Models\DanceMusicContext.cs" />
     <Compile Include="Models\DanceRating.cs" />
     <Compile Include="Models\DbObject.cs" />

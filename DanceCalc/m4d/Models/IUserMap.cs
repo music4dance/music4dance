@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
-
+﻿
 namespace m4d.Models
 {
     // Provide the ability to map a user name to an ApplicationUser object

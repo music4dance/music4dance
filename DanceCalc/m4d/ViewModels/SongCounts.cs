@@ -1,13 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
-
-using DanceLibrary;
-using System.Diagnostics;
-using System.Data.Entity;
-
+﻿using DanceLibrary;
 using m4d.Models;
+using System.Collections.Generic;
+using System.Data.Entity;
+using System.Diagnostics;
+using System.Linq;
 
 namespace m4d.ViewModels
 {
