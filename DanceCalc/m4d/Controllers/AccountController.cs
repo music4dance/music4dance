@@ -8,7 +8,7 @@ using System.Web.Mvc;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.EntityFramework;
 using Microsoft.Owin.Security;
-using m4d.Models;
+using m4d.Context;
 using m4dModels;
 
 namespace m4d.Controllers

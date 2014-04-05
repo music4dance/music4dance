@@ -223,8 +223,8 @@
       <DependentUpon>201403211746163_SongPurchase.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
-    <Compile Include="Models\DanceMusicConfiguration.cs" />
-    <Compile Include="Models\DanceMusicContext.cs" />
+    <Compile Include="Context\DanceMusicConfiguration.cs" />
+    <Compile Include="Context\DanceMusicContext.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Startup.cs" />
     <Compile Include="Utilities\AdmAuthentication.cs" />

@@ -1,7 +1,7 @@
 namespace m4d.Migrations
 {
     using DanceLibrary;
-    using m4d.Models;
+    using m4d.Context;
     using m4dModels;
     using Microsoft.AspNet.Identity;
     using Microsoft.AspNet.Identity.EntityFramework;
@@ -10,19 +10,19 @@ namespace m4d.Migrations
     using System.Data.Entity.Migrations;
     using System.Linq;
 
-    internal sealed class Configuration : DbMigrationsConfiguration<m4d.Models.DanceMusicContext>
+    internal sealed class Configuration : DbMigrationsConfiguration<m4d.Context.DanceMusicContext>
     {
         public Configuration()
         {
             AutomaticMigrationsEnabled = false;
         }
 
-        protected override void Seed(m4d.Models.DanceMusicContext context)
+        protected override void Seed(m4d.Context.DanceMusicContext context)
         {
             DoSeed(context);
         }
 
-        static public void DoSeed(m4d.Models.DanceMusicContext context)
+        static public void DoSeed(m4d.Context.DanceMusicContext context)
         {
             //  This method will be called after migrating to the latest version.
 

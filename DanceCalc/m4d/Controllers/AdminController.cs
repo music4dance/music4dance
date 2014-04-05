@@ -9,7 +9,7 @@ using System.Web.Mvc;
 using System.Text;
 
 using m4d.Migrations;
-using m4d.Models;
+using m4d.Context;
 using m4d.ViewModels;
 using m4dModels;
 using DanceLibrary;
