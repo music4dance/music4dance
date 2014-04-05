@@ -1,9 +1,8 @@
-﻿using m4d.Models;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace m4d.ViewModels
+namespace m4dModels
 {
     public class SongMerge
     {

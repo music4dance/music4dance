@@ -1,6 +1,7 @@
 ﻿using DanceLibrary;
 using m4d.Utilities;
 using m4d.ViewModels;
+using m4dModels;
 using PagedList;
 using m4d.Models;
 using System;

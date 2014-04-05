@@ -1,11 +1,10 @@
-﻿using m4d.ViewModels;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
 
-namespace m4d.Models
+namespace m4dModels
 {    public class Song : DbObject
     {
         #region Constants
@@ -146,7 +145,7 @@ namespace m4d.Models
             }
         }
 
-        internal void RestoreScalar(SongDetails sd)
+        public void RestoreScalar(SongDetails sd)
         {
             Tempo = sd.Tempo;
             Title = sd.Title;
@@ -161,7 +160,7 @@ namespace m4d.Models
                 Album = sd.Albums[0].Name;
             }
         }
-        internal void Restore(SongDetails sd)
+        public void Restore(SongDetails sd)
         {
             RestoreScalar(sd);
 

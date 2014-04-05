@@ -1,5 +1,5 @@
 ﻿
-namespace m4d.Models
+namespace m4dModels
 {
     // Provide the ability to map a user name to an ApplicationUser object
     // Not sure if this is the right thing to do, but it will let me

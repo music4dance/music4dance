@@ -15,6 +15,7 @@ using System.Reflection;
 
 using m4d.ViewModels;
 using m4d.Utilities;
+using m4dModels;
 
 // Let's see if we can mock up a recoverable log file by spitting out
 // something resembling a tab-separated flat list of songs items with a

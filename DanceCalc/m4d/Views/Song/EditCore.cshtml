@@ -1,11 +1,11 @@
-﻿@model m4d.ViewModels.SongDetails
+﻿@model m4dModels.SongDetails
 
 @using (Html.BeginForm((string)ViewBag.Action, "Song", null, FormMethod.Post, new { @class="form-horizontal"}))
 {
     @Html.AntiForgeryToken()
     @Html.ValidationSummary(true)
 
-    m4d.ViewModels.SongDetails old = null;
+    m4dModels.SongDetails old = null;
 
     try
     {
@@ -178,7 +178,7 @@
             }
             else
             {
-                Model.Albums = new List<m4d.ViewModels.AlbumDetails>();
+                Model.Albums = new List<m4dModels.AlbumDetails>();
             }
 
             int albumIdx = Model.GetNextAlbumIndex();
@@ -186,7 +186,7 @@
             for (; currentAlbum < maxAlbum; currentAlbum += 1)
             {
                 string albumId = "Album_" + currentAlbum.ToString();
-                Model.Albums.Add(new m4d.ViewModels.AlbumDetails { Index = albumIdx++ });
+                Model.Albums.Add(new m4dModels.AlbumDetails { Index = albumIdx++ });
                 <tr id="@albumId" hidden>
                     <td>
                         <div class="editor-field">

@@ -223,33 +223,14 @@
       <DependentUpon>201403211746163_SongPurchase.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
-    <Compile Include="Models\AccountViewModels.cs" />
-    <Compile Include="Models\ApplicationUser.cs" />
-    <Compile Include="Models\ISongPropertyFactory.cs" />
-    <Compile Include="Models\IUserMap.cs" />
-    <Compile Include="Models\ModifiedRecord.cs" />
-    <Compile Include="Models\Dance.cs" />
     <Compile Include="Models\DanceMusicConfiguration.cs" />
     <Compile Include="Models\DanceMusicContext.cs" />
-    <Compile Include="Models\DanceRating.cs" />
-    <Compile Include="Models\DbObject.cs" />
-    <Compile Include="Models\LogBase.cs" />
-    <Compile Include="Models\LogValue.cs" />
-    <Compile Include="Models\Song.cs" />
-    <Compile Include="Models\SongLog.cs" />
-    <Compile Include="Models\SongProperty.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Startup.cs" />
     <Compile Include="Utilities\AdmAuthentication.cs" />
     <Compile Include="Utilities\DBExtentions.cs" />
-    <Compile Include="ViewModels\AlbumDetails.cs" />
     <Compile Include="ViewModels\MergeCluster.cs" />
-    <Compile Include="ViewModels\PurchaseLink.cs" />
     <Compile Include="ViewModels\SongCounts.cs" />
-    <Compile Include="ViewModels\SongDetails.cs" />
-    <Compile Include="ViewModels\SongFilter.cs" />
-    <Compile Include="ViewModels\SongMerge.cs" />
-    <Compile Include="ViewModels\UndoResult.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Content\amazon-charm.png" />
@@ -370,6 +351,10 @@
     <ProjectReference Include="..\DanceLib\DanceLib.csproj">
       <Project>{114ff99a-caac-4281-8f0a-35590a12a487}</Project>
       <Name>DanceLib</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\m4dModels\m4dModels.csproj">
+      <Project>{da8f57d2-6643-4b79-82a2-f1371d4748f8}</Project>
+      <Name>m4dModels</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

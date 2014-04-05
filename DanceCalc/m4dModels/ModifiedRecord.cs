@@ -1,5 +1,5 @@
 ﻿
-namespace m4d.Models
+namespace m4dModels
 {
     public class ModifiedRecord
     {

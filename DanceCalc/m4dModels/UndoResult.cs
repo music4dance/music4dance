@@ -1,7 +1,4 @@
-﻿
-using m4d.Models;
-
-namespace m4d.ViewModels
+﻿namespace m4dModels
 {
     public class UndoResult
     {

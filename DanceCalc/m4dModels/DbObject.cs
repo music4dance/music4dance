@@ -3,7 +3,7 @@ using System.Diagnostics;
 using System.Threading;
 
 
-namespace m4d.Models
+namespace m4dModels
 {
     public class DbObject
     {

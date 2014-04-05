@@ -1,4 +1,4 @@
-﻿@model m4d.ViewModels.SongDetails
+﻿@model m4dModels.SongDetails
 
 <fieldset>
     <div class="display-label">
@@ -62,7 +62,7 @@
     {
         for (int aidx = 0; aidx < Model.Albums.Count; aidx++)
         {
-            m4d.ViewModels.AlbumDetails album = @Model.Albums[aidx];
+            m4dModels.AlbumDetails album = @Model.Albums[aidx];
 
             string cls = (aidx == 0) ? "" : "display-label-alternate";
             <div class="display-label @cls">

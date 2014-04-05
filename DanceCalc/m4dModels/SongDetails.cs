@@ -1,12 +1,11 @@
-﻿using m4d.Models;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Reflection;
 using System.Text;
 
-namespace m4d.ViewModels
+namespace m4dModels
 {
     // This is a transitory object (really a ViewModel object) that is used for 
     // viewing and editing a song, it shouldn't ever end up in a database,

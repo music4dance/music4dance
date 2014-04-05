@@ -1,4 +1,4 @@
-﻿@model m4d.ViewModels.SongDetails
+﻿@model m4dModels.SongDetails
 
 @{
     ViewBag.Title = "Details";
@@ -27,7 +27,7 @@
     </div>
     <hr />
     <div>
-        @foreach (m4d.ViewModels.PurchaseLink link in Model.GetPurchaseLinks())
+        @foreach (m4dModels.PurchaseLink link in Model.GetPurchaseLinks())
         {
             <a href="@link.Link" target="@link.Target"><img src="@Url.Content("~/Content/" + @link.Charm)" alt="@link.AltText" /></a>
         }

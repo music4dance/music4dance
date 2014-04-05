@@ -1,5 +1,5 @@
 ﻿
-namespace m4d.ViewModels
+namespace m4dModels
 {
     public class PurchaseLink
     {

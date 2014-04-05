@@ -9,6 +9,7 @@ using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.EntityFramework;
 using Microsoft.Owin.Security;
 using m4d.Models;
+using m4dModels;
 
 namespace m4d.Controllers
 {

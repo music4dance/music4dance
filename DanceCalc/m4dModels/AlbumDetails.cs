@@ -1,10 +1,9 @@
-﻿using m4d.Models;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Text;
 
-namespace m4d.ViewModels
+namespace m4dModels
 {
     public enum MusicService { None, Amazon, ITunes, XBox, AMG, Max };
     public enum PurchaseType { None, Album, Song, Max };
@@ -214,7 +213,7 @@ namespace m4d.ViewModels
             return ret;
         }
 
-        public void PurchaseDiff(ISongPropertyFactory spf, Song song, AlbumDetails old, Models.SongLog log)
+        public void PurchaseDiff(ISongPropertyFactory spf, Song song, AlbumDetails old, SongLog log)
         {
             Dictionary<string, string> add = new Dictionary<string, string>();
             //HashSet<string> rem = new HashSet<string>();

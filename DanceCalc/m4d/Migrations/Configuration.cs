@@ -2,6 +2,7 @@ namespace m4d.Migrations
 {
     using DanceLibrary;
     using m4d.Models;
+    using m4dModels;
     using Microsoft.AspNet.Identity;
     using Microsoft.AspNet.Identity.EntityFramework;
     using System;
