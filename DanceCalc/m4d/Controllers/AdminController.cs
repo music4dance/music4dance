@@ -272,10 +272,29 @@ namespace m4d.Controllers
                     song.Modified = time;
                     dmc.Songs.Add(song);
                     dmc.SaveChanges();
-                    SongDetails sd = new SongDetails(song.SongId, song.SongProperties);
-                    dmc.UpdateUsers(sd,song.SongProperties);
 
-                    song.Load(line,sd);
+                    song.Load(line,dmc);
+
+                    dmc.UpdateUsers(song);
+                }
+
+                HashSet<string> map = new HashSet<string>();
+
+                foreach (Song song in dmc.Songs)
+                {
+                    if (song.ModifiedBy != null)
+                    foreach (ModifiedRecord us in song.ModifiedBy)
+                    {
+                        string s = string.Format("{0}:{1}", song.SongId, us.ApplicationUserId);
+                        if (map.Contains(s))
+                        {
+                            Trace.WriteLine(string.Format("Duplicate: '{0}'", s));
+                        }
+                        else
+                        {
+                            map.Add(s);
+                        }
+                    }
                 }
 
                 dmc.Configuration.AutoDetectChangesEnabled = true;

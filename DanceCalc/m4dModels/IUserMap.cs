@@ -8,5 +8,6 @@ namespace m4dModels
     public interface IUserMap
     {
         ApplicationUser FindUser(string name);
+        ModifiedRecord CreateMapping(int songId, string name);
     }
 }

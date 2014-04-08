@@ -1107,9 +1107,9 @@ namespace m4d.Context
             {
                 throw new ArgumentOutOfRangeException("song", "Attempting to restore a song that hasn't been deleted");
             }
-            SongDetails sd = new SongDetails(song.SongId, song.SongProperties);
-            UpdateUsers(sd,song.SongProperties);
+            SongDetails sd = new SongDetails(song.SongId, song.SongProperties, this);
             song.Restore(sd);
+            UpdateUsers(song);
         }
 
         private ICollection<Song> SongsFromList(string list)
@@ -1227,25 +1227,22 @@ namespace m4d.Context
         /// Update the ModifiedBy refeerences based on the song properties
         /// </summary>
         /// <param name="song"></param>
-        public void UpdateUsers(SongDetails song, ICollection<SongProperty> properties)
+        public void UpdateUsers(Song song)
         {
-            foreach (SongProperty prop in properties)
+            HashSet<string> users = new HashSet<string>();
+
+            foreach (ModifiedRecord us in song.ModifiedBy)
             {
-                if (string.Equals(prop.Name, Song.UserField) && !string.IsNullOrWhiteSpace(prop.Value))
+                us.Song = song;
+                us.ApplicationUser = FindUser(us.ApplicationUserId);
+
+                if (users.Contains(us.ApplicationUserId))
                 {
-                    ApplicationUser user = FindUser(prop.Value);
-
-                    if (song.ModifiedBy == null)
-                    {
-                        song.ModifiedBy = new List<ModifiedRecord>();
-                    }
-
-                    if (!song.ModifiedBy.Any(u => u.ApplicationUserId == u.ApplicationUserId))
-                    {
-                        ModifiedRecord us = Modified.Create();
-                        us.ApplicationUser = user;
-                        song.ModifiedBy.Add(us);
-                    }
+                    Trace.WriteLine(string.Format("Duplicate Mapping: Song = {0} User = {1}", song.SongId, us.ApplicationUserId));
+                }
+                else
+                {
+                    users.Add(us.ApplicationUserId);
                 }
             }
         }
@@ -1280,6 +1277,14 @@ namespace m4d.Context
         {
             return Users.FirstOrDefault(u => u.UserName.ToLower() == name.ToLower());
         }
+        public ModifiedRecord CreateMapping(int songId, string name)
+        {
+            ModifiedRecord us = Modified.Create();
+            us.ApplicationUserId = name;
+            us.SongId = songId;
+            return us;
+        }
+
 #endregion
 
         public SongProperty CreateSongProperty(Song song, string name, object value)

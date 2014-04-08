@@ -164,15 +164,19 @@ namespace m4dModels
         {
             RestoreScalar(sd);
 
+            Debug.Assert(DanceRatings.Count == 0);
             foreach (DanceRating dr in sd.DanceRatings)
             {
                 DanceRatings.Add(dr);
             }
 
+            Debug.Assert(ModifiedBy.Count == 0);
             foreach (ModifiedRecord user in sd.ModifiedBy)
             {
                 ModifiedBy.Add(user);
             }
+
+            Purchase = sd.GetPurchaseTags();
         }
         
         #endregion
@@ -221,8 +225,9 @@ namespace m4dModels
             }
         }
 
-        public void Load(string s, SongDetails sd)
+        public void Load(string s, IUserMap users)
         {
+
             string[] cells = s.Split(new char[] { '\t' });
             List<SongProperty> properties = new List<SongProperty>(cells.Length);
 
@@ -250,6 +255,7 @@ namespace m4dModels
                     Trace.WriteLine("Bad SongProperty: {0}", cell);
                 }
             }
+            SongDetails sd = new SongDetails(SongId, SongProperties, users);
 
             Restore(sd);
         }

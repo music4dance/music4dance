@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -35,7 +36,7 @@ namespace m4dModels
             BuildAlbumInfo();
         }
 
-        public SongDetails(int songId, ICollection<SongProperty> properties)
+        public SongDetails(int songId, ICollection<SongProperty> properties, IUserMap users)
         {
             SongId = songId;
             bool created = false;
@@ -49,11 +50,19 @@ namespace m4dModels
                     switch (bn)
                     {
                         case Song.UserField:
-                            // Handle users in postpass since it requires access to DanceContext to resolve
+                            if (ModifiedBy == null)
+                            {
+                                ModifiedBy = new List<ModifiedRecord>();
+                            }
+                            if (!ModifiedBy.Any(u => u.ApplicationUserId == prop.Value ))
+                            {
+                                ModifiedRecord us = users.CreateMapping(songId, prop.Value);
+                                ModifiedBy.Add(us);
+                                Debug.WriteLine(string.Format("UserMap:\t{0}\t{1}",songId,prop.Value));
+                            }
                             break;
                         case Song.DanceRatingField:
                             UpdateDanceRating(prop.Value);
-                            // TODO: Need to rebuild the dance table here
                             break;
                         case Song.AlbumField:
                         case Song.PublisherField:
