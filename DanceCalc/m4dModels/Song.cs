@@ -159,6 +159,8 @@ namespace m4dModels
             {
                 Album = sd.Albums[0].Name;
             }
+
+            Purchase = sd.GetPurchaseTags();
         }
         public void Restore(SongDetails sd)
         {
@@ -175,8 +177,6 @@ namespace m4dModels
             {
                 ModifiedBy.Add(user);
             }
-
-            Purchase = sd.GetPurchaseTags();
         }
         
         #endregion

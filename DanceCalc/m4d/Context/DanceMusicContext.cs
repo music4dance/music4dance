@@ -33,7 +33,9 @@ namespace m4d.Context
 
     public class DanceMusicContext : IdentityDbContext<ApplicationUser>, IUserMap, ISongPropertyFactory
     {
-        public DanceMusicContext() : base("DefaultConnection")
+        #region Construction
+        public DanceMusicContext()
+            : base("DefaultConnection")
         {
         }
 
@@ -66,8 +68,10 @@ namespace m4d.Context
             connection.ConnectionString = connectionString;
             return connection;
         }
+        
+        #endregion
 
-
+        #region Properties
         public DbSet<Song> Songs { get; set; }
 
         public DbSet<SongProperty> SongProperties { get; set; }
@@ -79,19 +83,23 @@ namespace m4d.Context
         public DbSet<SongLog> Log { get; set; }
 
         public DbSet<ModifiedRecord> Modified { get; set; }
+        
+        #endregion
 
+        #region Events
         protected override void OnModelCreating(System.Data.Entity.DbModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Song>().Property(song => song.Tempo).HasPrecision(6, 2);
             modelBuilder.Entity<Song>().Ignore(song => song.CreateEntry);
             modelBuilder.Entity<Dance>().Property(dance => dance.Id).HasMaxLength(5);
-            modelBuilder.Entity<Dance>().Ignore(dance => dance.Info);            
+            modelBuilder.Entity<Dance>().Ignore(dance => dance.Info);
             modelBuilder.Entity<DanceRating>().HasKey(t => new { t.SongId, t.DanceId });
             modelBuilder.Entity<ModifiedRecord>().HasKey(t => new { t.ApplicationUserId, t.SongId });
 
             base.OnModelCreating(modelBuilder);
         }
-
+        
+        #endregion
         public SongDetails FindSongDetails(int id)
         {
             SongDetails sd = null;
@@ -366,10 +374,7 @@ namespace m4d.Context
 
             if (modified)
             {
-                FixupEdited(song);
-
                 Log.Add(log);
-
                 SaveChanges();
             }
             else
@@ -425,32 +430,6 @@ namespace m4d.Context
             DateTime time = DateTime.Now;
             song.Modified = time;
             CreateSongProperty(song, Song.TimeField, time.ToString());
-        }
-
-        private void FixupEdited(Song song)
-        {
-            if (song == null)
-                return;
-
-            // This seems totally non-optimal, but because of the relationship between users
-            //  and songs the old song record is getting loaded underneath the new one
-            // Note: this may be fixed with the use of SongDetails viewmodel, but not sure
-            var songs = Songs.Local.Where(s => s.SongId == song.SongId).ToArray();
-            bool fixedup = false;
-
-            foreach (Song s in songs)
-            {
-                if (s != song)
-                {
-                    ((IObjectContextAdapter)this).ObjectContext.Detach(s);
-                    fixedup = true;
-                }
-            }
-
-            Entry(song).State = System.Data.Entity.EntityState.Modified;
-            song.TitleHash = Song.CreateTitleHash(song.Title);
-
-            Trace.WriteLine(string.Format("Song:{0} Fixedup:{1}", song.SongId, fixedup));
         }
 
         public void DeleteSong(ApplicationUser user, Song song, string command = Song.DeleteCommand)
@@ -1078,7 +1057,8 @@ namespace m4d.Context
                 }            
             }
 
-            RestoreSong(song);
+            SongDetails sd = new SongDetails(song.SongId, song.SongProperties, this);
+            song.RestoreScalar(sd);
 
             return ret;
         }
