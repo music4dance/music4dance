@@ -31,7 +31,7 @@ namespace m4d.Controllers
 
         //
         // Get: //SeedDatabase
-        [Authorize(Roles = "showDiagnostics")]
+        [Authorize(Roles = "dbAdmin")]
         public ActionResult SeedDatabase()
         {
             List<string> results = new List<string>();
@@ -82,7 +82,7 @@ namespace m4d.Controllers
 
         //
         // Get: //Reseed
-        [Authorize(Roles = "showDiagnostics")]
+        [Authorize(Roles = "dbAdmin")]
         public ActionResult Reseed()
         {
             ViewBag.Name = "Reseed Database";
@@ -124,7 +124,7 @@ namespace m4d.Controllers
         // Get: //ReloadDatabase
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [Authorize(Roles = "showDiagnostics")]
+        [Authorize(Roles = "dbAdmin")]
         public ActionResult ReloadDatabase()
         {
             List<string> lines = new List<string>();
@@ -202,7 +202,7 @@ namespace m4d.Controllers
 
         //
         // Get: //RestoreDatabase
-        [Authorize(Roles = "showDiagnostics")]
+        [Authorize(Roles = "dbAdmin")]
         public ActionResult RestoreDatabase()
         {
             RestoreDB();

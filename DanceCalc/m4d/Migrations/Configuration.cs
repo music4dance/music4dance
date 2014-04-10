@@ -51,6 +51,21 @@ namespace m4d.Migrations
             var ustore = new UserStore<ApplicationUser>(context);
             var umanager = new UserManager<ApplicationUser>(ustore);
 
+            foreach (string name in _adminUsers)
+            {
+                var user = context.Users.FirstOrDefault(u => u.UserName == name);
+                if (user == null)
+                {
+                    user = new ApplicationUser { UserName = name };
+
+                    umanager.Create(user, "maggie");
+                }
+
+                AddToRole(umanager, user.Id, _diagRole);
+                AddToRole(umanager, user.Id, _editRole);
+                AddToRole(umanager, user.Id, _dbaRole);
+            }
+
             foreach (string name in _diagUsers)
             {
                 var user = context.Users.FirstOrDefault(u => u.UserName == name);
@@ -59,11 +74,13 @@ namespace m4d.Migrations
                     user = new ApplicationUser { UserName = name };
 
                     umanager.Create(user, "marley");
+                    AddToRole(umanager, user.Id, _diagRole);
+                    AddToRole(umanager, user.Id, _editRole);
                 }
-
-                AddToRole(umanager, user.Id, _diagRole);
-                AddToRole(umanager, user.Id, _editRole);
-                AddToRole(umanager, user.Id, _dbaRole);
+                else
+                {
+                    RemoveFromRole(umanager, user.Id, _dbaRole);
+                }
             }
 
             foreach (string name in _editUsers)
@@ -73,9 +90,7 @@ namespace m4d.Migrations
                     var user = new ApplicationUser { UserName = name };
 
                     umanager.Create(user, "_this_is_a_placeholder_");
-                    umanager.AddToRole(user.Id, _editRole);
                 }
-
             }
 
             if (!context.Dances.Any(d => d.Id == "CHA"))
@@ -98,12 +113,21 @@ namespace m4d.Migrations
             }
         }
 
+        private static void RemoveFromRole(UserManager<ApplicationUser> um, string user, string role)
+        {
+            if (um.IsInRole(user, role))
+            {
+                um.RemoveFromRole(user, role);
+            }
+        }
+
         private static string _editRole = "canEdit";
         private static string _diagRole = "showDiagnostics";
         private static string _dbaRole = "dbAdmin";
 
         private static string[] _roles = new string[] { _diagRole, _editRole, _dbaRole };
-        private static string[] _diagUsers = new string[] { "administrator", "dwgray", "lukim", "glennn" };
-        private static string[] _editUsers = new string[] { "SalsaSwingBallroom", "SandiegoDJ", "UsaSwingNet", "LetsDanceDenver", "SteveThatDJ", "JohnCrossan", "WaltersDanceCenter" };
+        private static string[] _adminUsers = new string[] { "administrator", "dwgray" };
+        private static string[] _diagUsers = new string[] { "lukim", "glennn" };
+        private static string[] _editUsers = new string[] { "ajy", "SalsaSwingBallroom", "SandiegoDJ", "UsaSwingNet", "LetsDanceDenver", "SteveThatDJ", "JohnCrossan", "WaltersDanceCenter" };
     }
 }

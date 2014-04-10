@@ -80,6 +80,20 @@ namespace music4dance.Controllers
             return DoIndex(songFilter);
         }
 
+        public ActionResult FilterUser(string user, string filter)
+        {
+            SongFilter songFilter = ParseFilter(filter);
+            if (string.IsNullOrWhiteSpace(user))
+            {
+                songFilter.User = null;
+            }
+            else
+            {
+                songFilter.User = user;
+            }
+            return DoIndex(songFilter);
+        }
+
         //
         // GET: /Index/
 
@@ -133,7 +147,17 @@ namespace music4dance.Controllers
 
             // Now setup the view
             // Start with all of the songs in the database
-            var songs = from s in _db.Songs where s.TitleHash != 0  select s;
+            var songs = from s in _db.Songs where s.TitleHash != 0 select s;
+
+            // Filter by user first since we have a nice key to pull from
+            if (!string.IsNullOrWhiteSpace(filter.User))
+            {
+                ApplicationUser user = _db.FindUser(filter.User);
+                if (user != null)
+                {
+                    songs = from m in user.Modified.AsQueryable() where m.Song.TitleHash != 0 select m.Song;
+                }
+            }
 
             // Filter on purcahse info
             // TODO: Figure out how to get LINQ to do the permutation on contains

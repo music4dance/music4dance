@@ -15,21 +15,27 @@
 <hr />
 <h3> Initializiation Tasks</h3>
 <ul>
-    <li>@Html.ActionLink("Restore the Datbase", "RestoreDatabase")</li>
-    <li>@Html.ActionLink("Seed the Datbase", "SeedDatabase")</li>
-    <li>@Html.ActionLink("Rerun seed function", "Reseed")</li>
     <li>@Html.ActionLink("Backup the Database", "BackupDatabase")</li>
     <li>@Html.ActionLink("Update Purchase Info", "UpdatePurchase")</li>
+    @if (User.IsInRole("dbAdmin"))
+    {
+        <li>@Html.ActionLink("Restore the Datbase", "RestoreDatabase")</li>
+        <li>@Html.ActionLink("Seed the Datbase", "SeedDatabase")</li>
+        <li>@Html.ActionLink("Rerun seed function", "Reseed")</li>
+    }
 </ul>
 
-<hr />
+@if (User.IsInRole("dbAdmin"))
+{ 
+    <hr />
 
-@using (Html.BeginForm("ReloadDatabase", "Admin", FormMethod.Post, new { enctype = "multipart/form-data" }))
-{
-    @Html.AntiForgeryToken();
-    <input type="file" name="FileUpload" />
-    <br />
-    <input type="submit" name="Reload Database" id="Submit" value="Upload" />
+    <h3>Reload the Database</h3>
+    using (Html.BeginForm("ReloadDatabase", "Admin", FormMethod.Post, new { enctype = "multipart/form-data" }))
+    {
+        Html.AntiForgeryToken();
+        <input type="file" name="FileUpload" />
+        <br />
+        <input type="submit" name="Reload Database" id="Submit" value="Upload" />
+    }
 }
-
 

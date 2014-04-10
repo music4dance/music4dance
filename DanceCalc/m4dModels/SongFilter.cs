@@ -35,16 +35,20 @@
             }
             if (cells.Length > 5 && !string.IsNullOrWhiteSpace(cells[5]))
             {
+                User = cells[5];
+            }
+            if (cells.Length > 6 && !string.IsNullOrWhiteSpace(cells[6]))
+            {
                 int page = 0;
-                if (int.TryParse(cells[5], out page))
+                if (int.TryParse(cells[6], out page))
                 {
                     Page = page;
                 }
             }
-            if (cells.Length > 6 && !string.IsNullOrWhiteSpace(cells[6]))
+            if (cells.Length > 7 && !string.IsNullOrWhiteSpace(cells[7]))
             {
                 int level = 0;
-                if (int.TryParse(cells[6], out level))
+                if (int.TryParse(cells[7], out level))
                 {
                     Level = level;
                 }
@@ -55,17 +59,19 @@
         public string SortOrder { get; set; }
         public string SearchString { get; set; }
         public string Purchase { get; set; }
+        public string User { get; set; }
         public int? Page { get; set; }
         public int? Level { get; set; }
 
         public override string ToString()
         {
-            string ret = string.Format("{0}|{1}|{2}|{3}|{4}|{5}|{6}",
+            string ret = string.Format("{0}|{1}|{2}|{3}|{4}|{5}|{6}|{7}",
                 Action ?? string.Empty,
                 Dances ?? string.Empty,
                 SortOrder ?? string.Empty,
                 SearchString ?? string.Empty,
                 Purchase ?? string.Empty,
+                User ?? string.Empty,
                 Page.HasValue ? Page.Value.ToString() : string.Empty,
                 Level.HasValue ? Level.Value.ToString() : string.Empty
                 );
