@@ -14,13 +14,13 @@ using System.Diagnostics;
 
 namespace m4d.Controllers
 {
-    [RequireHttps]
     public class LogController : Controller
     {
         private DanceMusicContext _db = new DanceMusicContext();
 
         //
         // GET: /Log/
+        [AllowAnonymous]
         public ActionResult Index(int? page)
         {
             Trace.WriteLine("Entering Log.Index");

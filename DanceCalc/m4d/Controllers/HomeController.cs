@@ -6,19 +6,21 @@ using System.Web.Mvc;
 
 namespace m4d.Controllers
 {
-    [RequireHttps]
     public class HomeController : Controller
     {
+        [AllowAnonymous]
         public ActionResult Index()
         {
             return View();
         }
 
+        [AllowAnonymous]
         public ActionResult About()
         {
             return View();
         }
 
+        [AllowAnonymous]
         public ActionResult Contact()
         {
             ViewBag.Message = ViewBag.Message = "As noted on the homepage, this is an Alpha site, feel free to email with comments and suggestions.";

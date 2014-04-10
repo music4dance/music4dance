@@ -19,7 +19,6 @@ using System.Data.Entity.Migrations;
 
 namespace m4d.Controllers
 {
-    [RequireHttps]
     public class AdminController : Controller
     {
         //

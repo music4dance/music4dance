@@ -24,11 +24,11 @@ namespace music4dance.Controllers
         public string Name { get; set; }
     };
 
-    [RequireHttps]
     public class SongController : Controller
     {
         private DanceMusicContext _db = new DanceMusicContext();
 
+        [AllowAnonymous]
         public ActionResult Search(string searchString, string dances, string filter)
         {
             SongFilter songFilter = ParseFilter(filter);
@@ -56,6 +56,7 @@ namespace music4dance.Controllers
             return DoIndex(songFilter);
         }
 
+        [AllowAnonymous]
         public ActionResult Sort(string sortOrder, string filter)
         {
             SongFilter songFilter = ParseFilter(filter);
@@ -81,6 +82,7 @@ namespace music4dance.Controllers
             return DoIndex(songFilter);
         }
 
+        [AllowAnonymous]
         public ActionResult FilterUser(string user, string filter)
         {
             SongFilter songFilter = ParseFilter(filter);
@@ -128,6 +130,7 @@ namespace music4dance.Controllers
             }
         }
 
+        [AllowAnonymous]
         private ActionResult DoIndex(SongFilter filter)
         {
             Trace.WriteLine(string.Format("Entering Song.Index: dances='{0}',sortOrder='{1}',searchString='{2}'", filter.Dances, filter.SortOrder, filter.SearchString));
