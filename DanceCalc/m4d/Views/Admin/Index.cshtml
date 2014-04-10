@@ -5,6 +5,11 @@
 
 <h2>Administrator Console</h2>
 
+<h3>Logging</h3>
+<ul>
+    <li>@Html.ActionLink("Log", "Index", "Log")</li>
+</ul>
+
 <h3> Cleanup Tasks</h3>
 <ul>
     <li>@Html.ActionLink("Merge Candidates - Similar Title", "MergeCandidates", "Song", new { level = 2 }, null)</li>
@@ -26,7 +31,7 @@
 </ul>
 
 @if (User.IsInRole("dbAdmin"))
-{ 
+{
     <hr />
 
     <h3>Reload the Database</h3>

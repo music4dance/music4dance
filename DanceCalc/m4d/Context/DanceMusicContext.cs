@@ -35,8 +35,9 @@ namespace m4d.Context
     {
         #region Construction
         public DanceMusicContext()
-            : base("DefaultConnection")
+            : base("DefaultConnection", throwIfV1Schema:false)
         {
+            ;
         }
 
         private static DbConnection CreateConnection(string nameOrConnectionString)

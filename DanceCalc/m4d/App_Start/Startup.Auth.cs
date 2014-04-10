@@ -28,11 +28,13 @@ namespace m4d
             //   consumerKey: "",
             //   consumerSecret: "");
 
-            //app.UseFacebookAuthentication(
-            //   appId: "",
-            //   appSecret: "");
+            app.UseFacebookAuthentication(
+               appId: "UseGoogleAuthentication",
+               appSecret: "***REMOVED***");
 
-            //app.UseGoogleAuthentication();
+            app.UseGoogleAuthentication(
+                clientId: "818567039467-mjpj2i4712esqje2rrd4mjjb6lntmqq7.apps.googleusercontent.com",
+                clientSecret: "***REMOVED***");
         }
     }
 }

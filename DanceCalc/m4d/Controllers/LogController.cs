@@ -14,6 +14,7 @@ using System.Diagnostics;
 
 namespace m4d.Controllers
 {
+    [RequireHttps]
     public class LogController : Controller
     {
         private DanceMusicContext _db = new DanceMusicContext();
@@ -52,6 +53,7 @@ namespace m4d.Controllers
             return File(stream, "text/plain", "log.txt");
         }
 
+        [Authorize(Roles = "canEdit")]
         public ActionResult RestoreLines()
         {
             return View();

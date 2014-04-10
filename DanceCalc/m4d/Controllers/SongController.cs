@@ -24,6 +24,7 @@ namespace music4dance.Controllers
         public string Name { get; set; }
     };
 
+    [RequireHttps]
     public class SongController : Controller
     {
         private DanceMusicContext _db = new DanceMusicContext();
@@ -425,6 +426,7 @@ namespace music4dance.Controllers
 
         //
         // Merge: /Song/MergeCandidates
+        [Authorize(Roles = "canEdit")]
         public ActionResult MergeCandidates(int? page, int? level, bool? autoCommit, string filter = null)
         {
             SongFilter songFilter = ParseFilter(filter, "MergeCandidates");

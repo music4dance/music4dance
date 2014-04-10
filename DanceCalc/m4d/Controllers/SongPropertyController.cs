@@ -6,6 +6,7 @@ using m4d.Context;
 
 namespace music4dance.Controllers
 {
+    [RequireHttps]
     public class SongPropertyController : Controller
     {
         private DanceMusicContext _db = new DanceMusicContext();

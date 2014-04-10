@@ -19,10 +19,12 @@ using System.Data.Entity.Migrations;
 
 namespace m4d.Controllers
 {
+    [RequireHttps]
     public class AdminController : Controller
     {
         //
         // GET: /Admin/
+        [Authorize(Roles = "showDiagnostics")]
         public ActionResult Index()
         {
             return View();
