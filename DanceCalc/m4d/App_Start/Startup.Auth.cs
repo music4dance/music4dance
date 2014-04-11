@@ -29,7 +29,7 @@ namespace m4d
             //   consumerSecret: "");
 
             app.UseFacebookAuthentication(
-               appId: "UseGoogleAuthentication",
+               appId: "503791763032198",
                appSecret: "***REMOVED***");
 
             app.UseGoogleAuthentication(
