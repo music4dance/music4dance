@@ -11,6 +11,9 @@ using Microsoft.Owin.Security;
 using m4d.Context;
 using m4dModels;
 
+using Recaptcha.Web;
+using Recaptcha.Web.Mvc;
+
 namespace m4d.Controllers
 {
     [Authorize]
@@ -79,16 +82,33 @@ namespace m4d.Controllers
         {
             if (ModelState.IsValid)
             {
-                var user = new ApplicationUser() { UserName = model.UserName };
-                var result = await UserManager.CreateAsync(user, model.Password);
-                if (result.Succeeded)
+                RecaptchaVerificationHelper recaptchaHelper = this.GetRecaptchaVerificationHelper();
+
+                if (String.IsNullOrEmpty(recaptchaHelper.Response))
                 {
-                    await SignInAsync(user, isPersistent: false);
-                    return RedirectToAction("Index", "Home");
+                    ModelState.AddModelError("", "Captcha answer cannot be empty.");
+                    return View(model);
+                }
+
+                RecaptchaVerificationResult recaptchaResult = await recaptchaHelper.VerifyRecaptchaResponseTaskAsync();
+
+                if (recaptchaResult != RecaptchaVerificationResult.Success)
+                {
+                    ModelState.AddModelError("", "Incorrect captcha answer.");
                 }
                 else
                 {
-                    AddErrors(result);
+                    var user = new ApplicationUser() { UserName = model.UserName };
+                    var result = await UserManager.CreateAsync(user, model.Password);
+                    if (result.Succeeded)
+                    {
+                        await SignInAsync(user, isPersistent: false);
+                        return RedirectToAction("Index", "Home");
+                    }
+                    else
+                    {
+                        AddErrors(result);
+                    }
                 }
             }
 

@@ -1,7 +1,10 @@
-﻿@model m4dModels.RegisterViewModel
+﻿@using Recaptcha.Web.Mvc;
+
+@model m4dModels.RegisterViewModel
 @{
     ViewBag.Title = "Register";
 }
+
 
 <h2>@ViewBag.Title.</h2>
 
@@ -31,6 +34,9 @@
                     <div class="col-md-10">
                         @Html.PasswordFor(m => m.ConfirmPassword, new { @class = "form-control" })
                     </div>
+                </div>
+                <div class="form-group">
+                    @Html.Recaptcha()
                 </div>
                 <div class="form-group">
                     <div class="col-md-offset-2 col-md-10">
