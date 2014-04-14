@@ -319,6 +319,10 @@ namespace m4dModels
         {
             return s_servicesEx[(int)ms];
         }
+        static public char ServiceId(MusicService ms)
+        {
+            return s_services[(int)ms];
+        }
         static public string ExpandPurchaseType(string abbrv)
         {
             PurchaseType pt;

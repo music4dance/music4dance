@@ -114,15 +114,18 @@
                     <td>
                         @if (!string.IsNullOrEmpty(item.Purchase) && item.Purchase.Contains('X'))
                         {
-                            <img src="@Url.Content("~/Content/xbox-logo.png")" alt="Availiable on Xbox Music" width="20" height="20" />
+                            var xid = "X"+ item.SongId.ToString();
+                            <button id="@xid" type="button"><img src="@Url.Content("~/Content/xbox-logo.png")" alt="Availiable on Xbox Music" width="20" height="20" /></button>
                         }
                         @if (!string.IsNullOrEmpty(item.Purchase) && item.Purchase.Contains('I'))
                         {
-                            <img src="@Url.Content("~/Content/itunes-logo.png")" alt="Availiable on Itunes" width="20" height="20" />
+                            var iid = "I" + item.SongId.ToString();
+                            <button id="@iid" type="button"><img src="@Url.Content("~/Content/itunes-logo.png")" alt="Availiable on Itunes" width="20" height="20" /></button>
                         }
                         @if (!string.IsNullOrEmpty(item.Purchase) && item.Purchase.Contains('A'))
                         {
-                            <img src="@Url.Content("~/Content/amazon-logo.png")" alt="Availiable at Amazon" width="20" height="20" />
+                            var aid = "A" + item.SongId.ToString();
+                            <button id="@aid" type="button"><img src="@Url.Content("~/Content/amazon-logo.png")" alt="Availiable at Amazon" width="20" height="20" /></button>
                         }
                     </td>
                     @if (showDiag)
@@ -152,3 +155,7 @@ Page @(Model.PageCount < Model.PageNumber ? 0 : Model.PageNumber) of @Model.Page
 (@Model.TotalItemCount songs found.)
 
 @Html.PagedListPager(Model, page => Url.Action(ViewBag.SongFilter.Action, new { page, filter=ViewBag.SongFilter }))
+
+@section Scripts {
+    <script src="@Url.Content("~/Scripts/songindex.js?@Html.Raw(DateTime.Now.Ticks.ToString())")" type="text/javascript"></script>
+}

@@ -193,19 +193,22 @@ namespace m4dModels
             return GetPurchaseTags(Albums);
         }
 
-        public ICollection<PurchaseLink> GetPurchaseLinks()
+        public ICollection<PurchaseLink> GetPurchaseLinks(string service = "AIX")
         {
             List<PurchaseLink> links = new List<PurchaseLink>();
 
             for (int i = 1; i < (int)MusicService.Max; i++)
             {
-                foreach (AlbumDetails album in Albums)
+                if (service.Contains(AlbumDetails.ServiceId((MusicService)i)))
                 {
-                    PurchaseLink l = album.GetPurchaseLink((MusicService)i);
-                    if (l != null)
+                    foreach (AlbumDetails album in Albums)
                     {
-                        links.Add(l);
-                        break;
+                        PurchaseLink l = album.GetPurchaseLink((MusicService)i);
+                        if (l != null)
+                        {
+                            links.Add(l);
+                            break;
+                        }
                     }
                 }
             }

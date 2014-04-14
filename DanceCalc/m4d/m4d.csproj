@@ -219,6 +219,7 @@
     <Compile Include="Controllers\AdminController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\LogController.cs" />
+    <Compile Include="Controllers\PurchaseInfoController.cs" />
     <Compile Include="Controllers\SongController.cs" />
     <Compile Include="Controllers\SongPropertyController.cs" />
     <Compile Include="Global.asax.cs">
@@ -326,6 +327,7 @@
     <Content Include="Scripts\respond.matchmedia.addListener.js" />
     <Content Include="Scripts\respond.matchmedia.addListener.min.js" />
     <Content Include="Scripts\respond.min.js" />
+    <Content Include="Scripts\SongIndex.js" />
     <Content Include="Scripts\undo.js" />
     <Content Include="Scripts\_references.js" />
     <Content Include="Web.config" />
