@@ -28,6 +28,8 @@ namespace music4dance.Controllers
     {
         private DanceMusicContext _db = new DanceMusicContext();
 
+
+        #region Commands
         [AllowAnonymous]
         public ActionResult Search(string searchString, string dances, string filter)
         {
@@ -117,126 +119,7 @@ namespace music4dance.Controllers
 
             return DoIndex(songFilter);
         }
-
-        private SongFilter ParseFilter(string f, string action="Index")
-        {
-            if (string.IsNullOrWhiteSpace(f))
-            {
-                return new SongFilter { Action = action};
-            }
-            else
-            {
-                return new SongFilter(f);
-            }
-        }
-
-        [AllowAnonymous]
-        private ActionResult DoIndex(SongFilter filter)
-        {
-            Trace.WriteLine(string.Format("Entering Song.Index: dances='{0}',sortOrder='{1}',searchString='{2}'", filter.Dances, filter.SortOrder, filter.SearchString));
-
-            // Set up the viewbag
-            ViewBag.SongFilter = filter;
-
-            ViewBag.TitleClass = string.Empty;
-            ViewBag.ArtistClass = string.Empty;
-            ViewBag.AlbumClass = string.Empty;
-
-            IList<SongCounts> songCounts = SongCounts.GetFlatSongCounts(_db);
-            var scq = songCounts.Select(s => new { s.DanceId, s.DanceNameAndCount });
-
-            //scq.FirstOrDefault(s => s.DanceId == filter.Dances)
-            var scl = new SelectList(scq.AsEnumerable(), "DanceId", "DanceNameAndCount", filter.Dances);
-            ViewBag.Dances = scl;
-
-            // Now setup the view
-            // Start with all of the songs in the database
-            var songs = from s in _db.Songs where s.TitleHash != 0 select s;
-
-            // Filter by user first since we have a nice key to pull from
-            if (!string.IsNullOrWhiteSpace(filter.User))
-            {
-                ApplicationUser user = _db.FindUser(filter.User);
-                if (user != null)
-                {
-                    songs = from m in user.Modified.AsQueryable() where m.Song.TitleHash != 0 select m.Song;
-                }
-            }
-
-            // Filter on purcahse info
-            // TODO: Figure out how to get LINQ to do the permutation on contains
-            //  any of "AIX"
-            if (string.Equals(filter.Purchase,"AIX"))
-            {
-                songs = songs.Where(s => s.Purchase != null);
-            }
-            else if (!string.IsNullOrWhiteSpace(filter.Purchase))
-            {
-                songs = songs.Where(s => s.Purchase.Contains(filter.Purchase));
-            }
-
-            // Now limit it down to the ones that are marked as a particular dance or dances
-            if (!string.IsNullOrWhiteSpace(filter.Dances) && !string.Equals(filter.Dances,"ALL"))
-            {
-                string[] danceList = Dances.Instance.ExpandDanceList(filter.Dances);
-
-                songs = songs.Where(s => s.DanceRatings.Any(dr => danceList.Contains(dr.DanceId)));
-            }
-
-            // Now limit it by anything that has the serach string in the title, album or artist
-            if (!String.IsNullOrEmpty(filter.SearchString))
-            {
-                songs = songs.Where(
-                    s => s.Title.ToUpper().Contains(filter.SearchString.ToUpper()) || 
-                    s.Album.ToUpper().Contains(filter.SearchString.ToUpper()) || 
-                    s.Artist.ToUpper().Contains(filter.SearchString.ToUpper()));
-            }
-
-            // Now sort the list
-            string sortAsc = "<span class='glyphicon glyphicon-sort-by-alphabet'></span>";
-            string sortDsc = "<span class='glyphicon glyphicon-sort-by-alphabet-alt'></span>";
-            switch (filter.SortOrder)
-            {
-                case "Title":
-                default:
-                    songs = songs.OrderBy(s => s.Title);
-                    ViewBag.TitleSort = sortAsc;
-                    break;
-
-                case "Title_desc":
-                    songs = songs.OrderByDescending(s => s.Title);
-                    ViewBag.TitleSort = sortDsc;
-                    break;
-
-                case "Artist":
-                    songs = songs.OrderBy(s => s.Artist);
-                    ViewBag.ArtistSort = sortAsc;
-                    break;
-
-                case "Artist_desc":
-                    songs = songs.OrderByDescending(s => s.Artist);
-                    ViewBag.ArtistSort = sortDsc;
-                    break;
-
-                case "Album":
-                    songs = songs.OrderBy(s => s.Album);
-                    ViewBag.AlbumSort = sortAsc;
-                    break;
-
-                case "Album_desc":
-                    songs = songs.OrderByDescending(s => s.Album);
-                    ViewBag.AlbumSort = sortDsc;
-                    break;
-
-            }
-
-            int pageSize = 25;
-
-            Trace.WriteLine("Exiting Song.Index");
-
-            return View("Index",songs.ToPagedList(filter.Page ?? 1, pageSize));
-        }
-
+        
         //
         // GET: /Song/Details/5
 
@@ -622,6 +505,7 @@ namespace music4dance.Controllers
             return View(song);
         }
 
+
         // ChooseXbox: /Song/ChooseXbox
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "canEdit")]
@@ -721,16 +605,20 @@ namespace music4dance.Controllers
 
             return View("Edit", song);
         }
+        #endregion
 
-        private void UpdateXboxPurchase(AlbumDetails ad, string trackId, string alternateId)
+        #region General Utilities
+        private SongFilter ParseFilter(string f, string action = "Index")
         {
-            ad.SetPurchaseInfo(PurchaseType.Song, MusicService.XBox, trackId);
-            if (!string.IsNullOrWhiteSpace(alternateId))
+            if (string.IsNullOrWhiteSpace(f))
             {
-                ad.SetPurchaseInfo(PurchaseType.Song, MusicService.AMG, alternateId);
+                return new SongFilter { Action = action };
+            }
+            else
+            {
+                return new SongFilter(f);
             }
         }
-
         private MultiSelectList GetDances(IList<DanceRating> ratings = null)
         {
             List<SimpleDance> Dances = new List<SimpleDance>(_db.Dances.Count());
@@ -755,6 +643,161 @@ namespace music4dance.Controllers
 
             return new MultiSelectList(Dances, "ID", "Name", selarr);
         }
+        private ActionResult Delete(IQueryable<Song> songs)
+        {
+            ApplicationUser user = _db.FindUser(User.Identity.Name);
+
+            foreach (Song song in songs)
+            {
+                _db.DeleteSong(user, song);
+            }
+
+            return RedirectToAction("Index");
+        }
+
+        #endregion
+
+        #region Index
+        private ActionResult DoIndex(SongFilter filter)
+        {
+            Trace.WriteLine(string.Format("Entering Song.Index: dances='{0}',sortOrder='{1}',searchString='{2}'", filter.Dances, filter.SortOrder, filter.SearchString));
+
+            // Set up the viewbag
+            ViewBag.SongFilter = filter;
+
+            ViewBag.TitleClass = string.Empty;
+            ViewBag.ArtistClass = string.Empty;
+            ViewBag.AlbumClass = string.Empty;
+
+            IList<SongCounts> songCounts = SongCounts.GetFlatSongCounts(_db);
+            var scq = songCounts.Select(s => new { s.DanceId, s.DanceNameAndCount });
+
+            //scq.FirstOrDefault(s => s.DanceId == filter.Dances)
+            var scl = new SelectList(scq.AsEnumerable(), "DanceId", "DanceNameAndCount", filter.Dances);
+            ViewBag.Dances = scl;
+
+            // Now setup the view
+            // Start with all of the songs in the database
+            var songs = from s in _db.Songs where s.TitleHash != 0 select s;
+
+            // Filter by user first since we have a nice key to pull from
+            if (!string.IsNullOrWhiteSpace(filter.User))
+            {
+                ApplicationUser user = _db.FindUser(filter.User);
+                if (user != null)
+                {
+                    songs = from m in user.Modified.AsQueryable() where m.Song.TitleHash != 0 select m.Song;
+                }
+            }
+
+            // Filter on purcahse info
+            // TODO: Figure out how to get LINQ to do the permutation on contains
+            //  any of "AIX"
+            if (string.Equals(filter.Purchase, "AIX"))
+            {
+                songs = songs.Where(s => s.Purchase != null);
+            }
+            else if (!string.IsNullOrWhiteSpace(filter.Purchase))
+            {
+                songs = songs.Where(s => s.Purchase.Contains(filter.Purchase));
+            }
+
+            // Now limit it down to the ones that are marked as a particular dance or dances
+            if (!string.IsNullOrWhiteSpace(filter.Dances) && !string.Equals(filter.Dances, "ALL"))
+            {
+                string[] danceList = Dances.Instance.ExpandDanceList(filter.Dances);
+
+                songs = songs.Where(s => s.DanceRatings.Any(dr => danceList.Contains(dr.DanceId)));
+            }
+
+            // Now limit it by anything that has the serach string in the title, album or artist
+            if (!String.IsNullOrEmpty(filter.SearchString))
+            {
+                songs = songs.Where(
+                    s => s.Title.ToUpper().Contains(filter.SearchString.ToUpper()) ||
+                    s.Album.ToUpper().Contains(filter.SearchString.ToUpper()) ||
+                    s.Artist.ToUpper().Contains(filter.SearchString.ToUpper()));
+            }
+
+            // Now sort the list
+            string sortAsc = "<span class='glyphicon glyphicon-sort-by-alphabet'></span>";
+            string sortDsc = "<span class='glyphicon glyphicon-sort-by-alphabet-alt'></span>";
+            switch (filter.SortOrder)
+            {
+                case "Title":
+                default:
+                    songs = songs.OrderBy(s => s.Title);
+                    ViewBag.TitleSort = sortAsc;
+                    break;
+
+                case "Title_desc":
+                    songs = songs.OrderByDescending(s => s.Title);
+                    ViewBag.TitleSort = sortDsc;
+                    break;
+
+                case "Artist":
+                    songs = songs.OrderBy(s => s.Artist);
+                    ViewBag.ArtistSort = sortAsc;
+                    break;
+
+                case "Artist_desc":
+                    songs = songs.OrderByDescending(s => s.Artist);
+                    ViewBag.ArtistSort = sortDsc;
+                    break;
+
+                case "Album":
+                    songs = songs.OrderBy(s => s.Album);
+                    ViewBag.AlbumSort = sortAsc;
+                    break;
+
+                case "Album_desc":
+                    songs = songs.OrderByDescending(s => s.Album);
+                    ViewBag.AlbumSort = sortDsc;
+                    break;
+
+            }
+
+            int pageSize = 25;
+
+            Trace.WriteLine("Exiting Song.Index");
+
+            return View("Index", songs.ToPagedList(filter.Page ?? 1, pageSize));
+        }
+        
+        #endregion
+
+        #region XBox
+        private void UpdateXboxPurchase(AlbumDetails ad, string trackId, string alternateId)
+        {
+            ad.SetPurchaseInfo(PurchaseType.Song, MusicService.XBox, trackId);
+            if (!string.IsNullOrWhiteSpace(alternateId))
+            {
+                ad.SetPurchaseInfo(PurchaseType.Song, MusicService.AMG, alternateId);
+            }
+        }
+        private static string XboxAuthorization
+        {
+            get
+            {
+                if (s_admAuth == null)
+                {
+                    string clientId = "Music4Dance";
+                    string clientSecret = "3kJ506OgMCD+nmuzUCRrXt/gnJlV07qQuxsEZBMZCqw=";
+
+                    s_admAuth = new AdmAuthentication(clientId, clientSecret);
+
+                }
+
+                return "Bearer " + s_admAuth.GetAccessToken().access_token;
+            }
+        }
+
+        private static AdmAuthentication s_admAuth = null;
+        private static AdmAccessToken s_token = null;
+
+        #endregion
+
+        #region Merge
         private IList<Song> AutoMerge(IList<Song> songs, int level)
         {
             // Get the logged in user
@@ -824,20 +867,6 @@ namespace music4dance.Controllers
 
             return View("Merge", sm);
         }
-
-        private ActionResult Delete(IQueryable<Song> songs)
-        {
-            ApplicationUser user = _db.FindUser(User.Identity.Name);
-
-            foreach (Song song in songs)
-            {
-                _db.DeleteSong(user, song);
-            }
-
-            return RedirectToAction("Index");
-        }
-
-
         private string ResolveStringField(string fieldName, IList<Song> songs, System.Collections.Specialized.NameValueCollection form = null)
         {
             object obj = ResolveMergeField(fieldName, songs, form);
@@ -927,26 +956,8 @@ namespace music4dance.Controllers
             ret = songs[idx].GetType().GetProperty(fieldName).GetValue(songs[idx]);
             return ret;
         }
+        #endregion
 
-        private static string XboxAuthorization
-        {
-            get
-            {
-                if (s_admAuth == null)
-                {
-                    string clientId = "Music4Dance";
-                    string clientSecret = "3kJ506OgMCD+nmuzUCRrXt/gnJlV07qQuxsEZBMZCqw=";
-
-                    s_admAuth = new AdmAuthentication(clientId, clientSecret);
-                    
-                }
-
-                return "Bearer " + s_admAuth.GetAccessToken().access_token;
-            }
-        }
-
-        private static AdmAuthentication s_admAuth = null;
-        private static AdmAccessToken s_token = null;
         protected override void Dispose(bool disposing)
         {
             _db.Dispose();

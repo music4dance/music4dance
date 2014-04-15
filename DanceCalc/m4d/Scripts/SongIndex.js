@@ -17,6 +17,5 @@
                 window.alert(err);
                 //$('#product').text('Error: ' + err);
             });
-
     });
 });
