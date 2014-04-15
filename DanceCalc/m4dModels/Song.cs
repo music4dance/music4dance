@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -347,5 +348,25 @@ namespace m4dModels
         }
         
         #endregion
+
+    //#region IEqualityComparer
+    //    override public bool Equals(object x, object y)
+    //    {
+    //        Song songX = x as Song;
+    //        Song songY = y as Song;
+
+    //        if (songX == null || songY == null)
+    //        {
+    //            return false;
+    //        }
+
+    //        return songX.SongId == songY.SongId;
+    //    }
+
+    //    public int GetHashCode(object obj)
+    //    {
+    //        return SongId.GetHashCode();
+    //    }
+    //    #endregion
     }
 }

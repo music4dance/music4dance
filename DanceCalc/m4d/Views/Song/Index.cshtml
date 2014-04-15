@@ -20,17 +20,71 @@
 <h2>@ViewBag.Title</h2>
 
 
-@using (Html.BeginForm("Search","Song",FormMethod.Get))
+@using (Html.BeginForm("Search","Song",FormMethod.Get,new {@class="well form-inline"}))
 {
-    <p>
-        Find: @Html.TextBox("SearchString", ViewBag.SongFilter.SearchString as string)&nbsp;
+    <div class="form-group">
+        Find: @Html.TextBox("SearchString", ViewBag.SongFilter.SearchString as string,new {placeholder="Artist, Title, or Album text"})&nbsp;
         @if (ViewBag.Dances != null)
         {
             @Html.DropDownList("Dances");
         }
         <input type="hidden" name="filter" value="@ViewBag.SongFilter.ToString()" />
         <input type="submit" value="Search" />
-    </p>
+    </div>
+}
+
+@if (canEdit)
+{ 
+    // Hide this from the general user until I can figure out how to clean up the form
+    using (Html.BeginForm("FilterService", "Song", FormMethod.Get,new {@class="well form-inline"}))
+    {
+        string checkX = string.Empty;
+        string checkA = string.Empty;
+        string checkI = string.Empty;
+        string purchase = ViewBag.SongFilter.Purchase;
+        if (!string.IsNullOrWhiteSpace(purchase))
+        {
+            if (purchase.Contains('X'))
+            {
+                checkX = "checked";
+            }
+            if (purchase.Contains('A'))
+            {
+                checkA = "checked";
+            }
+            if (purchase.Contains('I'))
+            {
+                checkI = "checked";
+            }
+        }
+        
+        <div class="form-group">
+            <label>
+                <input type="checkbox" name="services" id="serviceX" value="X" @checkX />
+                XBox
+            </label>
+            <label>
+                <input type="checkbox" name="services" id="serviceA" value="A" @checkA />
+                Amazon
+            </label>
+            <label>
+                <input type="checkbox" name="services" id="serviceI" value="I" @checkI />
+                ITunes
+            </label>
+            <input type="hidden" name="filter" value="@ViewBag.SongFilter.ToString()" />
+            <input type="submit" value="Filter Service" />
+        </div>
+    }
+
+    using (Html.BeginForm("FilterTempo", "Song", FormMethod.Get, new { @class = "well form-inline" }))
+    {
+        <div class="form-group">
+            Tempo between @Html.TextBox("TempoMin", ViewBag.SongFilter.TempoMin as decimal?, new { @class = "input-small" })&nbsp;and&nbsp;
+            @Html.TextBox("TempoMax", ViewBag.SongFilter.TempoMax as decimal?, new { @class = "input-small" }) &nbsp;BPM
+        </div>
+        <input type="hidden" name="filter" value="@ViewBag.SongFilter.ToString()" />
+        <input type="submit" value="Filter Tempo" />
+    }
 }
 
 @using (Html.BeginForm("BulkEdit","Song")) {

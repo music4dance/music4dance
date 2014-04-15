@@ -99,9 +99,32 @@ namespace music4dance.Controllers
             return DoIndex(songFilter);
         }
 
+        [AllowAnonymous]
+        public ActionResult FilterService(ICollection<string> services, string filter)
+        {
+            SongFilter songFilter = ParseFilter(filter);
+
+            string purchase = string.Empty;
+            if (services != null)
+            {
+                purchase = string.Concat(services);
+            }
+            songFilter.Purchase = purchase;
+            return DoIndex(songFilter);
+        }
+
+        [AllowAnonymous]
+        public ActionResult FilterTempo(decimal? tempoMin, decimal? tempoMax, string filter)
+        {
+            SongFilter songFilter = ParseFilter(filter);
+            songFilter.TempoMin = tempoMin;
+            songFilter.TempoMax = tempoMax;
+
+            return DoIndex(songFilter);
+        }
+
         //
         // GET: /Index/
-
         [AllowAnonymous]
         public ActionResult Index(int? page, string purchase, string filter)
         {
@@ -690,24 +713,22 @@ namespace music4dance.Controllers
                 }
             }
 
-            // Filter on purcahse info
-            // TODO: Figure out how to get LINQ to do the permutation on contains
-            //  any of "AIX"
-            if (string.Equals(filter.Purchase, "AIX"))
-            {
-                songs = songs.Where(s => s.Purchase != null);
-            }
-            else if (!string.IsNullOrWhiteSpace(filter.Purchase))
-            {
-                songs = songs.Where(s => s.Purchase.Contains(filter.Purchase));
-            }
-
             // Now limit it down to the ones that are marked as a particular dance or dances
             if (!string.IsNullOrWhiteSpace(filter.Dances) && !string.Equals(filter.Dances, "ALL"))
             {
                 string[] danceList = Dances.Instance.ExpandDanceList(filter.Dances);
 
                 songs = songs.Where(s => s.DanceRatings.Any(dr => danceList.Contains(dr.DanceId)));
+            }
+
+            // Now limit it by tempo
+            if (filter.TempoMin.HasValue)
+            {
+                songs = songs.Where(s => (s.Tempo >= filter.TempoMin));
+            }
+            if (filter.TempoMax.HasValue)
+            {
+                songs = songs.Where(s => (s.Tempo <= filter.TempoMax));
             }
 
             // Now limit it by anything that has the serach string in the title, album or artist
@@ -717,6 +738,54 @@ namespace music4dance.Controllers
                     s => s.Title.ToUpper().Contains(filter.SearchString.ToUpper()) ||
                     s.Album.ToUpper().Contains(filter.SearchString.ToUpper()) ||
                     s.Artist.ToUpper().Contains(filter.SearchString.ToUpper()));
+            }
+
+            // Filter on purcahse info
+            // TODO: Figure out how to get LINQ to do the permutation on contains
+            //  any of "AIX" in a database safe way - right now I'm doing this
+            //  last because I'm pulling things into memory to do the union.
+            //if (!string.IsNullOrWhiteSpace(filter.Purchase))
+            //{
+            //    char[] services = filter.Purchase.ToCharArray();
+
+            //    string c = services[0].ToString();
+            //    var acc = songs.Where(a => a.Purchase.Contains(c));
+            //    string accTag = c;
+
+            //    DumpSongs(acc, c);
+            //    for (int i = 1; i < services.Length; i++)
+            //    {
+            //        c = services[i].ToString();
+            //        IEnumerable<Song> first = acc.AsEnumerable();
+            //        var acc2 = songs.Where(a => a.Purchase.Contains(c));
+            //        DumpSongs(acc2, c);
+            //        IEnumerable<Song> second = acc2.AsEnumerable();
+            //        acc = first.Union(second).AsQueryable();
+            //        //acc = acc.Union(acc2);
+            //        accTag = accTag + "+" + c;
+            //        DumpSongs(acc, accTag);
+            //    }
+            //    songs = acc;
+            //}
+
+            if (!string.IsNullOrWhiteSpace(filter.Purchase))
+            {
+                char[] services = filter.Purchase.ToCharArray();
+                if (services.Length == 1)
+                {
+                    string c = services[0].ToString();
+                    songs = songs.Where(s => s.Purchase.Contains(c));
+                }
+                else if (services.Length == 2)
+                {
+                    string c0 = services[0].ToString();
+                    string c1 = services[1].ToString();
+                    songs = songs.Where(s => s.Purchase.Contains(c0) || s.Purchase.Contains(c1));
+                }
+                else // Better == 3
+                {
+                    songs = songs.Where(s => s.Purchase != null);
+                }
             }
 
             // Now sort the list
@@ -763,7 +832,16 @@ namespace music4dance.Controllers
 
             return View("Index", songs.ToPagedList(filter.Page ?? 1, pageSize));
         }
-        
+
+        private void DumpSongs(IQueryable<Song> songs, string purchase)
+        {
+            Debug.WriteLine(string.Format("------------Purchase == {0} ------------", purchase));
+            foreach (Song t in songs)
+            {
+                Debug.WriteLine(string.Format("{0}: {1}", t.Title, t.Purchase));
+            }
+        }
+
         #endregion
 
         #region XBox

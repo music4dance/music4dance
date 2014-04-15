@@ -1,8 +1,8 @@
 ﻿$(document).ready(function () {
-    var uri = 'api/purchaseinfo';
+    var uri = '/api/purchaseinfo/';
     $("button").click(function () {
         //window.alert("You clicked me!(" + this.id + ")");
-        $.getJSON(uri + '/' + this.id)
+        $.getJSON(uri +  this.id)
             .done(function (data) {
                 if (data.Target == null)
                 {
