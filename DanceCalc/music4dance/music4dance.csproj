@@ -397,10 +397,6 @@
       <Project>{114ff99a-caac-4281-8f0a-35590a12a487}</Project>
       <Name>DanceLib</Name>
     </ProjectReference>
-    <ProjectReference Include="..\SongDatabase\SongDatabase.csproj">
-      <Project>{65b8cde7-b317-45f8-94d2-6e29cc74d9cd}</Project>
-      <Name>SongDatabase</Name>
-    </ProjectReference>
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

@@ -67,12 +67,6 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\SongDatabase\SongDatabase.csproj">
-      <Project>{65b8cde7-b317-45f8-94d2-6e29cc74d9cd}</Project>
-      <Name>SongDatabase</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
     <None Include="App.config">
       <SubType>Designer</SubType>
     </None>
