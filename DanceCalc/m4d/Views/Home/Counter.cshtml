@@ -1,0 +1,15 @@
+﻿@{
+    ViewBag.Title = "Counter";
+}
+
+<button id='count' type=button>Count</button>
+<p><span id='time'>0</span> elapsed millis</p>
+<p><span id='total'>0</span> clicks total</p>
+<p><span id='avg'>0</span> milliseconds per click</p>
+<p><span id='rate'>0</span> clicks per minute</p>
+<button id='reset' type=button>Reset</button>
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+    <script src="@Url.Content("~/Scripts/counter.js?@Html.Raw(DateTime.Now.Ticks.ToString())")" type="text/javascript"></script>
+}

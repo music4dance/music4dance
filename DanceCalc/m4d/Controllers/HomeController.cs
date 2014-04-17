@@ -27,5 +27,13 @@ namespace m4d.Controllers
 
             return View();
         }
+
+        [AllowAnonymous]
+        public ActionResult Counter()
+        {
+
+            return View();
+        }
+
     }
 }

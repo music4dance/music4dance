@@ -23,3 +23,5 @@
 /// <reference path="../obj/release/package/packagetmp/scripts/respond.matchmedia.addlistener.js" />
 /// <reference path="../obj/release/package/packagetmp/scripts/undo.js" />
 /// <reference path="songindex.js" />
+/// <reference path="../obj/release/package/packagetmp/scripts/songindex.js" />
+/// <reference path="counter.js" />
