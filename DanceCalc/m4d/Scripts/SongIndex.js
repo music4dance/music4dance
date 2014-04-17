@@ -1,6 +1,6 @@
 ﻿$(document).ready(function () {
     var uri = '/api/purchaseinfo/';
-    $("button").click(function () {
+    $("td > button").click(function () {
         //window.alert("You clicked me!(" + this.id + ")");
         $.getJSON(uri +  this.id)
             .done(function (data) {
@@ -18,4 +18,18 @@
                 //$('#product').text('Error: ' + err);
             });
     });
+    $("#ShowAdvanced").click(function () {
+        $("#AdvancedSearch").show();
+        $("#BasicSearch").hide();
+    });
+    $("#ShowBasic").click(function () {
+        $("#AdvancedSearch").hide();
+        $("#BasicSearch").show();
+    });
+
+    if (showAdvanced)
+    {
+        $("#AdvancedSearch").show();
+        $("#BasicSearch").hide();
+    }
 });

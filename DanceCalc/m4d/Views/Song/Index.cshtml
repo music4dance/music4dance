@@ -20,23 +20,26 @@
 <h2>@ViewBag.Title</h2>
 
 
-@using (Html.BeginForm("Search","Song",FormMethod.Get,new {@class="well form-inline"}))
-{
-    <div class="form-group">
-        Find: @Html.TextBox("SearchString", ViewBag.SongFilter.SearchString as string,new {placeholder="Artist, Title, or Album text"})&nbsp;
-        @if (ViewBag.Dances != null)
-        {
-            @Html.DropDownList("Dances");
-        }
-        <input type="hidden" name="filter" value="@ViewBag.SongFilter.ToString()" />
-        <input type="submit" value="Search" />
-    </div>
-}
+<div id="BasicSearch">
+    @using (Html.BeginForm("Search", "Song", FormMethod.Get, new { @class = "well form-inline" }))
+    {
+        <div class="form-group">
+            Find: @Html.TextBox("SearchString", ViewBag.SongFilter.SearchString as string, new { placeholder = "Artist, Title, or Album text" })&nbsp;
+            @if (ViewBag.Dances != null)
+            {
+                @Html.DropDownList("Dances");
+            }
+        </div>
+        <div class="form-group">
+            <input type="hidden" name="filter" value="@ViewBag.SongFilter.ToString()" />
+            <input type="submit" value="Search" />
+        </div>
+    }
+    <button id="ShowAdvanced" type="button" class="btn btn-info btn-xs btn-block">Advanced Search>></button>
+</div>
 
-@if (canEdit)
-{ 
-    // Hide this from the general user until I can figure out how to clean up the form
-    using (Html.BeginForm("FilterService", "Song", FormMethod.Get,new {@class="well form-inline"}))
+<div id="AdvancedSearch" hidden>
+    @using (Html.BeginForm("AdvancedSearch", "Song", FormMethod.Get, new { @class = "well form-horizontal" }))
     {
         string checkX = string.Empty;
         string checkA = string.Empty;
@@ -57,8 +60,18 @@
                 checkI = "checked";
             }
         }
-        
+
         <div class="form-group">
+            Find: @Html.TextBox("SearchString", ViewBag.SongFilter.SearchString as string, new { placeholder = "Artist, Title, or Album text" })&nbsp;
+            @if (ViewBag.Dances != null)
+            {
+                @Html.DropDownList("Dances");
+            }
+            <input type="submit" value="Search" />
+        </div>
+
+        <div class="form-group">
+            Include only song available on:
             <label>
                 <input type="checkbox" name="services" id="serviceX" value="X" @checkX />
                 XBox
@@ -71,21 +84,17 @@
                 <input type="checkbox" name="services" id="serviceI" value="I" @checkI />
                 ITunes
             </label>
-            <input type="hidden" name="filter" value="@ViewBag.SongFilter.ToString()" />
-            <input type="submit" value="Filter Service" />
         </div>
-    }
 
-    using (Html.BeginForm("FilterTempo", "Song", FormMethod.Get, new { @class = "well form-inline" }))
-    {
         <div class="form-group">
             Tempo between @Html.TextBox("TempoMin", ViewBag.SongFilter.TempoMin as decimal?, new { @class = "input-small" })&nbsp;and&nbsp;
             @Html.TextBox("TempoMax", ViewBag.SongFilter.TempoMax as decimal?, new { @class = "input-small" }) &nbsp;BPM
         </div>
+
         <input type="hidden" name="filter" value="@ViewBag.SongFilter.ToString()" />
-        <input type="submit" value="Filter Tempo" />
     }
-}
+    <button id="ShowBasic" type="button" class="btn btn-info btn-xs btn-block"><< Basic Search</button>
+</div>
 
 @using (Html.BeginForm("BulkEdit","Song")) {
     @Html.AntiForgeryToken()
@@ -211,5 +220,13 @@ Page @(Model.PageCount < Model.PageNumber ? 0 : Model.PageNumber) of @Model.Page
 @Html.PagedListPager(Model, page => Url.Action(ViewBag.SongFilter.Action, new { page, filter=ViewBag.SongFilter }))
 
 @section Scripts {
+    @if (ViewBag.AdvancedSearch == true)
+    {
+        <script>var showAdvanced = true</script>
+    }
+    else
+    {
+        <script>var showAdvanced = false</script>
+    }
     <script src="@Url.Content("~/Scripts/songindex.js?@Html.Raw(DateTime.Now.Ticks.ToString())")" type="text/javascript"></script>
 }

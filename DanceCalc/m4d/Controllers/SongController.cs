@@ -55,6 +55,50 @@ namespace music4dance.Controllers
                 songFilter.Page = 1;
             }
 
+            songFilter.Purchase = null;
+            songFilter.TempoMin = null;
+            songFilter.TempoMax = null;
+
+            return DoIndex(songFilter);
+        }
+
+        [AllowAnonymous]
+        public ActionResult AdvancedSearch(string searchString, string dances, ICollection<string> services, decimal? tempoMin, decimal? tempoMax, string filter)
+        {
+            SongFilter songFilter = ParseFilter(filter);
+
+            if (string.IsNullOrWhiteSpace(searchString))
+            {
+                searchString = null;
+            }
+            if (!string.Equals(searchString, songFilter.SearchString))
+            {
+                songFilter.SearchString = searchString;
+                songFilter.Page = 1;
+            }
+
+            if (string.IsNullOrWhiteSpace(dances))
+            {
+                dances = null;
+            }
+            if (!string.Equals(dances, songFilter.Dances))
+            {
+                songFilter.Dances = dances;
+                songFilter.Page = 1;
+            }
+
+            string purchase = string.Empty;
+            if (services != null)
+            {
+                purchase = string.Concat(services);
+            }
+            songFilter.Purchase = purchase;
+
+            songFilter.TempoMin = tempoMin;
+            songFilter.TempoMax = tempoMax;
+
+            ViewBag.AdvancedSearch = true;
+
             return DoIndex(songFilter);
         }
 
@@ -768,6 +812,10 @@ namespace music4dance.Controllers
             //    songs = acc;
             //}
 
+            // TODO: There has to be a better way to filter based on available
+            //  service - what I want to do is ask if a particular string contains
+            //  any character from a different string within a the context
+            //  of a Linq EF statement, but I can't figure that out.
             if (!string.IsNullOrWhiteSpace(filter.Purchase))
             {
                 char[] services = filter.Purchase.ToCharArray();
