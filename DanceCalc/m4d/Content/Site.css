@@ -92,3 +92,18 @@ table.songlist
     font-size: 1.2em;
 }
 
+.calculator
+{
+    display: inline;
+    font-size: large;
+    padding: 6px 12px;
+    color: #fff;
+    background-color: #5bc0de;
+    border-color: #46b8da;
+    line-height: 1.42857143;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: middle;
+    border: 1px solid transparent;
+    border-radius: 3px;
+}

@@ -39,5 +39,10 @@ namespace m4d.Controllers
 
             return Ok(link);
         }
+        protected override void Dispose(bool disposing)
+        {
+            _db.Dispose();
+            base.Dispose(disposing);
+        }
     }
 }

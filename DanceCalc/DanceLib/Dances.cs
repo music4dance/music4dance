@@ -23,9 +23,13 @@ namespace DanceLibrary
     [JsonObject(MemberSerialization.OptIn)]
     public class DanceObject
     {
+        [JsonProperty]
         public virtual string Id { get; set; }
+        [JsonProperty]
         public virtual string Name { get; set; }
+        [JsonProperty]
         public virtual Meter Meter { get; set; }
+        [JsonProperty]
         public virtual TempoRange TempoRange { get; set; }
     }
 
@@ -276,8 +280,7 @@ namespace DanceLibrary
             return new ReadOnlyCollection<DanceException>(exceptions);
         }
 
-
-        public bool CalculateMatch(decimal tempo, decimal epsilon, out decimal delta, out decimal deltaPercent, out decimal median)
+        public bool CalculateTempoMatch(decimal tempo, decimal epsilon, out decimal delta, out decimal deltaPercent, out decimal median)
         {
             bool ret = false; 
             TempoRange filteredTempo = FilteredTempo;
@@ -293,6 +296,14 @@ namespace DanceLibrary
             }
 
             return ret;
+        }
+
+        public bool CalculateBeatMatch(decimal tempo, decimal epsilon, out decimal delta, out decimal deltaPercent, out decimal median)
+        {
+            Tempo b = new Tempo(tempo, new TempoType(TempoKind.BPM)); // Tempo in beats per minute
+            Tempo t = b.Convert(new TempoType(TempoKind.MPM, Meter));
+
+            return CalculateTempoMatch(t.Rate, epsilon, out delta, out deltaPercent, out median);
         }
 
         /// <summary>
@@ -423,10 +434,10 @@ namespace DanceLibrary
 
                 for (int i = 1; i < Members.Count; i++)
                 {
-                    TempoRange = range.Include(Members[i].TempoRange);
+                    range = range.Include(Members[i].TempoRange);
                 }
 
-                return TempoRange;
+                return range;
             }
             set
             {
@@ -686,12 +697,21 @@ namespace DanceLibrary
             foreach (DanceInstance di in _allDanceInstances)
             {
                 // Meter is absolute, and null values in some of the other classes are also absolue so check those first
-                if (di.CanMatch(meter))
+                if (meter == null || di.CanMatch(meter))
                 {
                     decimal delta;
                     decimal deltaPercent;
-                    decimal median; 
-                    bool match = di.CalculateMatch(rate, epsilon, out delta, out deltaPercent, out median);
+                    decimal median;
+                    bool match = false;
+
+                    if (meter == null)
+                    {
+                        match = di.CalculateBeatMatch(rate, epsilon, out delta, out deltaPercent, out median);
+                    }
+                    else 
+                    {
+                        match = di.CalculateTempoMatch(rate, epsilon, out delta, out deltaPercent, out median);
+                    }
                     
                     // This tempo and style matches the dance instance
                     if (match)
