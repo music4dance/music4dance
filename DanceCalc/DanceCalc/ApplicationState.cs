@@ -65,7 +65,6 @@ namespace DanceCalc
             using (TextWriter t = TempStorage.Instance.GetTextWriter(ApplicationState.FilterFileName))
             {
                 FilterObject.WriteState(t);
-                t.Close();
             }
         }
 
@@ -95,7 +94,6 @@ namespace DanceCalc
                 if (t != null)
                 {
                     FilterObject.ReadState(t);
-                    t.Close();
                 }
             }
 
