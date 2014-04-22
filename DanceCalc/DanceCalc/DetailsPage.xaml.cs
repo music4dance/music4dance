@@ -63,24 +63,20 @@ namespace DanceCalc
         {
             // Let's be more defensive here...
             if (_dvm == null || _dvm.Link == null)
-                return;
+                return;            
 
-            string s = _dvm.Link.ToString();
-            if (!string.IsNullOrEmpty(s))
+            try
             {
-                try
+                WebBrowserTask task = new WebBrowserTask();
+                if (task != null)
                 {
-                    WebBrowserTask task = new WebBrowserTask();
-                    if (task != null)
-                    {
-                        task.URL = s;
-                        task.Show();
-                    }
+                    task.Uri = _dvm.Link;
+                    task.Show();
                 }
-                catch (System.InvalidOperationException ex)
-                {
-                    Debugger.Log(1, "DetailsPage", ex.Message);
-                }
+            }
+            catch (System.InvalidOperationException ex)
+            {
+                Debugger.Log(1, "DetailsPage", ex.Message);
             }
         }
         
