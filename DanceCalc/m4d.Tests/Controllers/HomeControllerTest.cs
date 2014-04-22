@@ -1,15 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Web.Mvc;
+﻿using m4d.Controllers;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using m4d;
-using m4d.Controllers;
+using System.Diagnostics.CodeAnalysis;
+using System.Web.Mvc;
 
 namespace m4d.Tests.Controllers
 {
     [TestClass]
+    [ExcludeFromCodeCoverage]
     public class HomeControllerTest
     {
         [TestMethod]

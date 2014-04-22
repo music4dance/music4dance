@@ -1,10 +1,12 @@
-﻿using System;
+﻿using DanceLibrary;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using DanceLibrary;
+using System;
+using System.Diagnostics.CodeAnalysis;
 
 namespace DanceTests
 {
     [TestClass]
+    [ExcludeFromCodeCoverage]
     public class TempoRangeTests
     {
         [TestMethod]

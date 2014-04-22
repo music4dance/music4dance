@@ -1,13 +1,13 @@
-﻿using System;
+﻿using DanceLibrary;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using DanceLibrary;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
+using System.Diagnostics.CodeAnalysis;
 
 namespace DanceTests
 {
     [TestClass]
+    [ExcludeFromCodeCoverage]
     public class DanceTests
     {
         private Dances _dances;
