@@ -209,7 +209,7 @@ namespace DanceTests
         {
             string json = _dances.GetJSON();
 
-            File.WriteAllText(@"c:\temp\dances.json", json);
+            Assert.IsFalse(string.IsNullOrWhiteSpace(json));
         }
     }
 }
