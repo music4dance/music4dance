@@ -1,7 +1,8 @@
 ﻿// TODONEXT: clean this up both code-wise and UX-wise
-// At minimum cache the last several tempo/dance lookups
 // Think about how to add back in some of the stuff
 //  that was part of the phone versions
+
+var diag = false;
 
 var counter = 0;
 var start = new Date().getTime();
@@ -18,7 +19,7 @@ var numerator = 4;
 
 var dances = [];
 
-var danceTable = {};
+var danceTable = [[],[],[],[],[]];
 
 $(document).ready(function () {
     $("#reset").click(function () { doReset() });
@@ -62,17 +63,32 @@ function doClick()
 
         if (Math.abs(delta) >= .1)
         {
-            var uri = '/api/dance?tempo=' + getRate() + "&numerator=" + numerator;
-            $.getJSON(uri)
-                .done(function (data) {
-                    dances = data;
-                    display();
-                })
-                .fail(function (jqXHR, textStatus, err) {
-                    window.alert(err);
-                    dances = [];
-                    display();
-                });
+            var rate = getRate();
+            var dt = danceTable[numerator];
+            var d = dt[rate * 10];
+            if (d === undefined) {
+                var uri = '/api/dance?tempo=' + rate + "&numerator=" + numerator;
+                $.getJSON(uri)
+                    .done(function (data) {
+                        dances = data;
+                        dt[rate * 10] = data;
+                        display();
+                        if (diag)
+                            console.log("Fetched: tempo=" + rate + "; numerator=" + numerator);
+                    })
+                    .fail(function (jqXHR, textStatus, err) {
+                        window.alert(err);
+                        dances = [];
+                        display();
+                    });
+            }
+            else
+            {
+                if (diag)
+                    console.log("PREFETCH: tempo=" + rate + "; numerator=" + numerator);
+                dances = d;
+                display();
+            }
         }
         else
         {
@@ -100,7 +116,7 @@ function display() {
     $("#time").text(dt);
     $("#avg").text(Math.round(average));
     $("#rate").text(getRate());
-    $("#tempo").text(getRate().toFixed(1));
+    $("#tempo").text(getRate());
 
     $("#dances").empty();
 
@@ -126,7 +142,7 @@ function getRate()
     if (average === 0)
         return 0.0;
     else
-        return Math.round(60*10000/average)/10;
+        return (Math.round(60 * 10000 / average) / 10).toFixed(1);
 }
 
 function setNumerator(num)
