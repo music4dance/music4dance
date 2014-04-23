@@ -13,11 +13,13 @@ var maxCounts = 50;
 var intervals = [];
 
 var maxWait = defWait;
-var last = new Date().getTime() - defWait;
+var last = 0;
 var average = 0;
 var numerator = 4;
 
 var dances = [];
+
+var labels = ["BPM", "2/4", "3/4", "4/4"];
 
 var danceTable = [[],[],[],[],[]];
 
@@ -34,6 +36,11 @@ $(document).ready(function () {
 function doClick()
 {
     var current = new Date().getTime();
+    if (last === 0) {
+        last = current;
+        return;
+    }
+
     var delta = current - last;
     last = current;
 
@@ -104,7 +111,7 @@ function doReset()
     counter = 0;
     average = 0;
     intervals = [];
-    last = new Date().getTime();
+    last = 0;
     maxWait = defWait;
     display();
 }
@@ -139,10 +146,11 @@ function display() {
 
 function getRate()
 {
-    if (average === 0)
-        return 0.0;
-    else
-        return (Math.round(60 * 10000 / average) / 10).toFixed(1);
+    var ret = 0;
+    if (average !== 0)
+        ret = Math.round(60 * 10000 / average) / 10;
+
+    return ret.toFixed(1);
 }
 
 function setNumerator(num)
@@ -150,6 +158,11 @@ function setNumerator(num)
     if (numerator != num)
     {
         numerator = num;
+        //$("#mt:nth-child(1)").remove();
+        //$("#mt").prepend(labels[numerator-1]);
+        $("#mt").empty();
+        $("#mt").append(labels[numerator - 1]);
+        $("#mt").append("<span class='caret'></span>");
         doReset();
     }
 }

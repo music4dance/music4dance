@@ -8,6 +8,7 @@
         <button id='count' type=button class="btn btn-lg btn-primary btn-block">Count</button>
     </div>
     <div class="row">&nbsp</div>
+@*
     <div class="row">
         <span id="tempo" class="calculator">0.0</span>
         <div class="btn-group btn-group-xs" data-toggle="buttons">
@@ -25,6 +26,22 @@
             </label>
         </div>
     </div>
+*@
+    <div class="row">
+        <span id="tempo" class="calculator">0.0</span>
+        <div class="btn-group">
+            <button type="button" id="mt" class="btn btn-info dropdown-toggle" data-toggle="dropdown">
+                4/4<span class="caret"></span>
+            </button>
+            <ul class="dropdown-menu" role="menu">
+                <li><a id="mt1" href="#">BPM</a></li>
+                <li><a id="mt2" href="#">2/4</a></li>
+                <li><a id="mt3" href="#">3/4</a></li>
+                <li><a id="mt4" href="#">4/4</a></li>
+            </ul>
+        </div>
+    </div>
+
 
     <div class="row">
         @if (User.IsInRole("showDiagnostics"))
