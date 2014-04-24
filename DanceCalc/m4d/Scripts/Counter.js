@@ -110,7 +110,7 @@ function doReset()
     dances = [];
     counter = 0;
     average = 0;
-    rate = 0.0;
+    rate = average.toFixed(1);
     intervals = [];
     last = 0;
     maxWait = defWait;
@@ -125,7 +125,7 @@ function display() {
     $("#avg").text(Math.round(average));
     $("#rate").text(rate);
 
-    if (!$("#tempo").is(":focus"))
+    if (!$("#tempo").is(":focus") || rate === 0)
     {
         $("#tempo").val(rate);
     }
