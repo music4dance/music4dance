@@ -2,65 +2,42 @@
     ViewBag.Title = "Counter";
 }
 
-<div class="container">
-    <div class="row">&nbsp</div>
-    <div class="row">
-        <button id='count' type=button class="btn btn-lg btn-primary btn-block">Count</button>
+<div class="row row-buffer">
+    <button id='count' type=button class="btn btn-lg btn-primary btn-block">Count</button>
+</div>
+<div class="row row-buffer">
+    <input id="tempo" class="calculator col-xs-4" value="0.0"/>
+    <div class="btn-group col-xs-4">
+        <button type="button" id="mt" class="btn btn-info dropdown-toggle" data-toggle="dropdown">
+            4/4 MPM <span class="caret"></span>
+        </button>
+        <ul class="dropdown-menu" role="menu">
+            <li><a id="mt1" href="#">BPM</a></li>
+            <li><a id="mt2" href="#">2/4 MPM</a></li>
+            <li><a id="mt3" href="#">3/4 MPM</a></li>
+            <li><a id="mt4" href="#">4/4 MPM</a></li>
+        </ul>
     </div>
-    <div class="row">&nbsp</div>
+    <a href="#" id="help" class="btn btn-default col-xs-4">Help</a>
+</div>
+
 @*
-    <div class="row">
-        <span id="tempo" class="calculator">0.0</span>
-        <div class="btn-group btn-group-xs" data-toggle="buttons">
-            <label id="mt1" class="btn btn-info">
-                <input name="meter" id="meter1" value="1" type="radio">BPM
-            </label>
-            <label id="mt2" class="btn btn-info">
-                <input name="meter" id="meter2" value="2" type="radio">2/4
-            </label>
-            <label id="mt3" class="btn btn-info">
-                <input name="meter" id="meter3" value="3" type="radio">3/4
-            </label>
-            <label id="mt4" class="btn btn-info active">
-                <input name="meter" id="meter4" value="4" type="radio" checked>4/4
-            </label>
-        </div>
-    </div>
+<div class="row">
+    @if (User.IsInRole("showDiagnostics"))
+    {
+        <p><span id='time'>0</span> elapsed millis</p>
+        <p><span id='total'>0</span> clicks total</p>
+        <p><span id='avg'>0</span> milliseconds per click</p>
+        <p><span id='rate'>0</span> clicks per minute</p>
+    }
+</div>
 *@
-    <div class="row">
-        <span id="tempo" class="calculator">0.0</span>
-        <div class="btn-group">
-            <button type="button" id="mt" class="btn btn-info dropdown-toggle" data-toggle="dropdown">
-                4/4<span class="caret"></span>
-            </button>
-            <ul class="dropdown-menu" role="menu">
-                <li><a id="mt1" href="#">BPM</a></li>
-                <li><a id="mt2" href="#">2/4</a></li>
-                <li><a id="mt3" href="#">3/4</a></li>
-                <li><a id="mt4" href="#">4/4</a></li>
-            </ul>
-        </div>
-    </div>
+<div class="row row-buffer">
+    <div id="dances" class="list-group"></div>
+</div>
 
-
-    <div class="row">
-        @if (User.IsInRole("showDiagnostics"))
-        {
-            <p><span id='time'>0</span> elapsed millis</p>
-            <p><span id='total'>0</span> clicks total</p>
-            <p><span id='avg'>0</span> milliseconds per click</p>
-            <p><span id='rate'>0</span> clicks per minute</p>
-        }
-    </div>
-
-    <div class="row">
-        <h2>Dances</h2>
-        <div id="dances" class="list-group"></div>
-    </div>
-
-    <div class="row">
-        <button id='reset' type=button class="btn-sm btn-block">Reset</button>
-    </div>
+<div class="row row-buffer">
+    <button id='reset' type=button class="btn-sm btn-block">Reset</button>
 </div>
 
 @section Scripts {

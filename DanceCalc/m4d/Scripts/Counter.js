@@ -16,10 +16,11 @@ var maxWait = defWait;
 var last = 0;
 var average = 0;
 var numerator = 4;
+var rate = 0.0;
 
 var dances = [];
 
-var labels = ["BPM", "2/4", "3/4", "4/4"];
+var labels = ["BPM ", "2/4 MPM ", "3/4 MPM ", "4/4 MPM "];
 
 var danceTable = [[],[],[],[],[]];
 
@@ -31,6 +32,30 @@ $(document).ready(function () {
     $("#mt2").click(function () { setNumerator(2) });
     $("#mt3").click(function () { setNumerator(3) });
     $("#mt4").click(function () { setNumerator(4) });
+
+    $('#tempo').each(function() {
+        // Save current value of element
+        $(this).data('oldVal', $(this));
+
+        // Look for changes in the value
+        $(this).bind("propertychange keyup input paste", function(event){
+            // If value has changed...
+            if ($(this).data('oldVal') != $(this).val()) {
+                // Updated stored value
+                $(this).data('oldVal', $(this).val());
+                
+                var newRate = rateFromText($(this).val());
+                if ($.isNumeric(newRate))
+                {
+                    updateRate(newRate);
+                }
+                // Else user error here
+            }
+        });
+
+    });
+
+    //$('#tempo').focus(function () { setFocus(true);});
 });
 
 function doClick()
@@ -70,32 +95,7 @@ function doClick()
 
         if (Math.abs(delta) >= .1)
         {
-            var rate = getRate();
-            var dt = danceTable[numerator];
-            var d = dt[rate * 10];
-            if (d === undefined) {
-                var uri = '/api/dance?tempo=' + rate + "&numerator=" + numerator;
-                $.getJSON(uri)
-                    .done(function (data) {
-                        dances = data;
-                        dt[rate * 10] = data;
-                        display();
-                        if (diag)
-                            console.log("Fetched: tempo=" + rate + "; numerator=" + numerator);
-                    })
-                    .fail(function (jqXHR, textStatus, err) {
-                        window.alert(err);
-                        dances = [];
-                        display();
-                    });
-            }
-            else
-            {
-                if (diag)
-                    console.log("PREFETCH: tempo=" + rate + "; numerator=" + numerator);
-                dances = d;
-                display();
-            }
+            updateRate(getRate())
         }
         else
         {
@@ -110,6 +110,7 @@ function doReset()
     dances = [];
     counter = 0;
     average = 0;
+    rate = 0.0;
     intervals = [];
     last = 0;
     maxWait = defWait;
@@ -122,8 +123,12 @@ function display() {
     var dt = t - start;
     $("#time").text(dt);
     $("#avg").text(Math.round(average));
-    $("#rate").text(getRate());
-    $("#tempo").text(getRate());
+    $("#rate").text(rate);
+
+    if (!$("#tempo").is(":focus"))
+    {
+        $("#tempo").val(rate);
+    }
 
     $("#dances").empty();
 
@@ -144,6 +149,40 @@ function display() {
     }
 }
 
+function updateRate(newRate)
+{
+    if (rate == newRate)
+    {
+        return;
+    }
+
+    rate = newRate;
+    var dt = danceTable[numerator];
+    var d = dt[rate * 10];
+    if (d === undefined) {
+        var uri = '/api/dance?tempo=' + rate + "&numerator=" + numerator;
+        $.getJSON(uri)
+            .done(function (data) {
+                dances = data;
+                dt[rate * 10] = data;
+                display();
+                if (diag)
+                    console.log("Fetched: tempo=" + rate + "; numerator=" + numerator);
+            })
+            .fail(function (jqXHR, textStatus, err) {
+                window.alert(err);
+                dances = [];
+                display();
+            });
+    }
+    else {
+        if (diag)
+            console.log("PREFETCH: tempo=" + rate + "; numerator=" + numerator);
+        dances = d;
+        display();
+    }
+}
+
 function getRate()
 {
     var ret = 0;
@@ -153,13 +192,22 @@ function getRate()
     return ret.toFixed(1);
 }
 
+function rateFromText(text)
+{
+    var r = Number(text);
+    if ($.isNumeric(r))
+    {
+        r = r.toFixed(1);
+    }
+
+    return r;
+}
+
 function setNumerator(num)
 {
     if (numerator != num)
     {
         numerator = num;
-        //$("#mt:nth-child(1)").remove();
-        //$("#mt").prepend(labels[numerator-1]);
         $("#mt").empty();
         $("#mt").append(labels[numerator - 1]);
         $("#mt").append("<span class='caret'></span>");
