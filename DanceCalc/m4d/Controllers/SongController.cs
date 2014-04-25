@@ -919,7 +919,7 @@ namespace music4dance.Controllers
         }
 
         private static AdmAuthentication s_admAuth = null;
-        private static AdmAccessToken s_token = null;
+        //private static AdmAccessToken s_token = null;
 
         #endregion
 
