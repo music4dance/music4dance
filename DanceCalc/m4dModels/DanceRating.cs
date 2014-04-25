@@ -23,7 +23,7 @@ namespace m4dModels
         {
             base.Dump();
 
-            string output = string.Format("DanceId={0},SongId={1},Name={2},Value={3}", DanceId, SongId, Weight);
+            string output = string.Format("DanceId={0},SongId={1},Name={2},Value={3}", DanceId, SongId, Dance.Name, Weight);
             Trace.WriteLine(output);
         }
     }
