@@ -7,42 +7,43 @@ namespace DanceLibrary
     {
         public void DoClick()
         {
-            DateTime current = DateTime.Now;
+            long currentTicks = DateTime.Now.Ticks;
 
-            TimeSpan delta = current - _last;
-            _last = current;
+            long deltaTicks = currentTicks - _lastTicks;
+            _lastTicks = currentTicks;
 
             // First click or reset
-            if (delta >= _maxWait)
+            if (deltaTicks >= _maxWaitTicks)
             {
-                Reset();
+                Reset(currentTicks);
             }
             else
             {
-                _intervals.Enqueue(delta);
-                TimeSpan a = new TimeSpan();
+                // Add the wait
+                _totalWaitTicks += deltaTicks;
+                _totalCount++;
 
-                foreach (TimeSpan t in _intervals)
-                {
-                    a += t;
-                }
-
-                // this may be a bug in the emulator (or the phone) - looks like ms = rand so just grab ticks and convert
-                long tick = a.Ticks;
-                long ms = tick / 10000;
-                _average = ms / _intervals.Count;
-                _maxWait = new TimeSpan(0, 0, 0, 0, (int) _average * 2);
+                // this may be a bug in the emulator (or the phone) - looks like ms = rand so just use ticks
+                long totalTicks = _totalWaitTicks;
+                decimal averageWait = this.AverageWait;
+                _maxWaitTicks = (long)(averageWait * 2);
 
                 //System.Diagnostics.Debug.WriteLine(sb.ToString());
-                System.Diagnostics.Debug.WriteLine(string.Format("Click: time = {0}, ms = {1}, tck = {4}, avg = {2}, a = {3}", current, ms, _average, a, tick));
+                System.Diagnostics.Debug.WriteLine(string.Format("Click: time = {0}, ms = {1}, tck = {4}, avg = {2}, a = {3}", currentTicks, ConvertTicksToMilliSeconds(totalTicks), averageWait, _totalWaitTicks, totalTicks));
             }
         }
 
         public void Reset()
         {
-            _intervals.Clear();
-            _last = DateTime.Now;
-            _maxWait = _defaultWait;
+            this.Reset(DateTime.Now.Ticks);
+        }
+
+        public void Reset(long currentTicks)
+        {
+            _lastTicks = currentTicks;
+            _maxWaitTicks = _defaultWaitTicks;
+            _totalWaitTicks = 0;
+            _totalCount = 0;
         }
 
         // This is tempo in x per seconds
@@ -50,26 +51,50 @@ namespace DanceLibrary
         {
             get 
             {
-                Decimal t = 0M;
-                if (_average != 0)
-                    t = 1000M / new Decimal(_average);
-                System.Diagnostics.Debug.WriteLine("Tempo = {0}", t);
-                return t;
+                decimal rate = this.AverageWait;
+                if (rate != 0)
+                {
+                    rate = (decimal)1000 / rate;
+                }
+                System.Diagnostics.Debug.WriteLine("Tempo = {0}", rate);
+                return rate;
+            }
+        }
+
+        public decimal AverageWait
+        {
+            get
+            {
+                if (_totalWaitTicks == 0)
+                {
+                    return 0;
+                }
+
+                return ConvertTicksToMilliSeconds(_totalWaitTicks / _totalCount);
             }
         }
 
         public bool IsClear
         {
-            get { return _intervals.Count == 0; }
+            get { return _totalCount == 0; }
         }
 
-        private static readonly TimeSpan _defaultWait = new TimeSpan(0, 0, 10);
-        private TimeSpan _maxWait = _defaultWait;
-        private DateTime _last = DateTime.Now - _defaultWait;
+        private decimal ConvertTicksToMilliSeconds(long ticks)
+        {
+            return ConvertTicksToMilliSeconds((decimal)ticks);
+        }
 
-        private const int _maxCounts = 50;
-        private Queue<TimeSpan> _intervals = new Queue<TimeSpan>(_maxCounts);
+        private decimal ConvertTicksToMilliSeconds(decimal ticks)
+        {
+            return ticks / 10000;
+        }
 
-        private long _average; // Average in milliseconds
+        private const long _defaultWaitTicks = 10 * 1000 * 10000;
+        private long _maxWaitTicks = _defaultWaitTicks;
+        private long _lastTicks = DateTime.Now.Ticks - _defaultWaitTicks;
+
+        // Running totals
+        private long _totalWaitTicks;
+        private int _totalCount;
     }
 }
