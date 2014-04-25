@@ -33,7 +33,12 @@ namespace m4d.Controllers
     {
         public IHttpActionResult GetAllDances()
         {
-            return Ok(Dance.DanceLibrary.AllDances);
+            // This should eventually take a filter (or multiple filter) paramter
+
+            var dances = Dance.DanceLibrary.AllDanceTypes;
+            var jdance = dances.Select(x => new DanceJson(x));
+
+            return Ok(jdance);
         }
 
         public IHttpActionResult GetDance(string id)

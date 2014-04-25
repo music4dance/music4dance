@@ -17,12 +17,14 @@ var last = 0;
 var average = 0;
 var numerator = 4;
 var rate = 0.0;
+var epsExact = .01;
+var epsVisible = .05;
 
 var dances = [];
+var danceIndex = null;
 
 var labels = ["BPM ", "2/4 MPM ", "3/4 MPM ", "4/4 MPM "];
 
-var danceTable = [[],[],[],[],[]];
 
 $(document).ready(function () {
     $("#reset").click(function () { doReset() });
@@ -32,6 +34,16 @@ $(document).ready(function () {
     $("#mt2").click(function () { setNumerator(2) });
     $("#mt3").click(function () { setNumerator(3) });
     $("#mt4").click(function () { setNumerator(4) });
+
+    var uri = '/api/dance';
+    $.getJSON(uri)
+        .done(function (data) {
+            setupDances(data);
+        })
+        .fail(function (jqXHR, textStatus, err) {
+            window.alert(err);
+        });
+
 
     $('#tempo').each(function() {
         // Save current value of element
@@ -142,7 +154,7 @@ function display() {
         else
         {
             var type = (dance.TempoDelta < 0) ? "list-group-item-danger" : "list-group-item-success";
-            text = "<div class='list-group-item " + type + "'><span class='badge'>" + dances[i].TempoDelta + "%</span>" + dances[i].Name + "</div>"
+            text = "<div class='list-group-item " + type + "'><span class='badge'>" + dances[i].TempoDelta + "MPM</span>" + dances[i].Name + "</div>"
         }
 
         $("#dances").append(text);
@@ -151,36 +163,62 @@ function display() {
 
 function updateRate(newRate)
 {
+    console.log("Rate=" + newRate);
     if (rate == newRate)
     {
         return;
     }
 
     rate = newRate;
-    var dt = danceTable[numerator];
-    var d = dt[rate * 10];
-    if (d === undefined) {
-        var uri = '/api/dance?tempo=' + rate + "&numerator=" + numerator;
-        $.getJSON(uri)
-            .done(function (data) {
-                dances = data;
-                dt[rate * 10] = data;
-                display();
-                if (diag)
-                    console.log("Fetched: tempo=" + rate + "; numerator=" + numerator);
-            })
-            .fail(function (jqXHR, textStatus, err) {
-                window.alert(err);
-                dances = [];
-                display();
-            });
+    dances = [];
+
+    for (var i = 0; i < danceIndex.length; i++)
+    {
+        var dance = danceIndex[i];
+
+        if (numerator === 1 || dance.Meter.Numerator === numerator)
+        {
+            var delta = NaN;
+            
+            var tempRate = newRate;
+
+            if (numerator === 1)
+            {
+                tempRate = newRate / dance.Meter.Numerator;
+            }
+
+            if (tempRate < dance.TempoRange.Min) {
+                delta = tempRate - dance.TempoRange.Min;
+            }
+            else if (tempRate > dance.TempoRange.Max) {
+                delta = tempRate - dance.TempoRange.Max;
+            }
+            else {
+                delta = 0;
+            }
+
+            avg = (dance.TempoRange.Min + dance.TempoRange.Max)/2;
+            eps = delta / avg;
+
+            //if (eps < epsExact) {
+            //    eps = 0;
+            //    delta = 0;
+            //}
+
+            if (Math.abs(eps) < epsVisible) {
+                dance.TempoDelta = delta.toFixed(1);
+                dance.TempoEps = eps;
+
+                dances.push(dance);
+            }
+        }
     }
-    else {
-        if (diag)
-            console.log("PREFETCH: tempo=" + rate + "; numerator=" + numerator);
-        dances = d;
-        display();
-    }
+
+    dances.sort(function (a, b) {
+        return Math.abs(a.TempoEps) - Math.abs(b.TempoEps);
+    });
+
+    display();
 }
 
 function getRate()
@@ -201,6 +239,11 @@ function rateFromText(text)
     }
 
     return r;
+}
+
+function setupDances(data)
+{
+    danceIndex = data;
 }
 
 function setNumerator(num)
