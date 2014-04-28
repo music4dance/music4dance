@@ -1,4 +1,6 @@
-﻿using System;
+﻿using m4d.Context;
+using m4d.ViewModels;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
@@ -11,7 +13,12 @@ namespace m4d.Controllers
         [AllowAnonymous]
         public ActionResult Index()
         {
-            return View();
+            using (DanceMusicContext db = new DanceMusicContext())
+            {
+                var data = SongCounts.GetSongCounts(db);
+
+                return View(data);
+            }
         }
 
         [AllowAnonymous]

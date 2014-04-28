@@ -101,7 +101,7 @@ namespace m4d.ViewModels
                 }
             }
 
-            return data;
+            return data.OrderByDescending(x => x.Children.Count).ToList();
         }
 
         static private void HandleType(DanceType dtyp, DbSet<Dance> dances, SongCounts scGroup)

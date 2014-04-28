@@ -443,7 +443,7 @@ namespace m4dModels
             "http://www.amazon.com/gp/product/{0}/ref=as_li_ss_tl?ie=UTF8&camp=1789&creative=390957&creativeASIN={0}&linkCode=as2&tag=thegraycom-20", 
             "http://itunes.apple.com/album/id{1}?i={0}&uo=4&at=11lwtf",
             "http://music.xbox.com/Track/{0}?partnerID=Music4Dance?action=play"};
-        private static string[] s_serviceTarget = new string[] { "_blank", "amazon_store", "itunes_store", null, "_blank" };
+        private static string[] s_serviceTarget = new string[] { "_blank", "amazon_store", "itunes_store", "xbox_store", "_blank" };
         private static string[] s_servicesAlt = new string[] { "None", "Available on Amazon", "Play it on ITunes", "Play it on Xbox Music", "Catalogged by American Music Group" };
         private static string[] s_purchaseTypesEx = new string[] { "None", "Album", "Song" };
         #endregion
