@@ -385,15 +385,6 @@ namespace music4dance.Controllers
             SongFilter songFilter = ParseFilter(filter, "MergeCandidates");
             IList<Song> songs = null;
 
-            if (autoCommit == true)
-            {
-                songs = _db.FindMergeCandidates(10000, level ?? 1);
-            }
-            else
-            {
-                songs = _db.FindMergeCandidates(500, level ?? 1);
-            }
-
             if (page.HasValue)
             {
                 songFilter.Page = page;
@@ -402,6 +393,15 @@ namespace music4dance.Controllers
             if (level.HasValue)
             {
                 songFilter.Level = level;
+            }
+
+            if (autoCommit == true)
+            {
+                songs = _db.FindMergeCandidates(10000, songFilter.Level ?? 1);
+            }
+            else
+            {
+                songs = _db.FindMergeCandidates(500, songFilter.Level ?? 1);
             }
 
             int pageSize = 25;
@@ -514,53 +514,116 @@ namespace music4dance.Controllers
             return View("Details",_db.FindSongDetails(song.SongId));
         }
 
+        [Authorize(Roles = "canEdit")]
+        public ActionResult BatchXbox(string filter=null)
+        {
+            ActionResult ar = null;
+            bool changed = false;
+
+            SongFilter songFilter = ParseFilter(filter);
+            songFilter.Purchase = "!X";
+            songFilter.Action = "BatchXbox";
+
+            IQueryable<Song> songs = BuildSongList(songFilter);
+
+            ViewBag.SongFilter = songFilter;
+
+            foreach (Song song in songs)
+            {
+                // First check to see if we've already failed a search
+                // TODO: Check for the service once we add in itunes & amazon lookup
+
+                SongProperty failed = song.SongProperties.FirstOrDefault(p => p.Name == Song.FailedLookup);
+                if (failed == null)
+                {
+                    SongDetails sd = new SongDetails(song);
+                    string res = null;
+
+                    try
+                    {
+                        res = FindXBoxSong(sd, null);
+                    }
+                    catch (WebException we)
+                    {
+                        ViewBag.Error = true;
+                        ViewBag.Status = we.Message;
+                    }
+
+                    string failcode = null;
+
+                    if (res != null)
+                    {
+                        var results = System.Web.Helpers.Json.Decode(res);
+
+                        var tracks = results.tracks;
+                        var items = tracks.Items;
+                        foreach (var track in items)
+                        {
+                            if (sd.FindAlbum(track.Album.Name) != null)
+                            {
+                                ViewBag.Results = results;
+                                ViewBag.TrackId = track.Id;
+                                ar = View("XboxSearch", sd);
+                                break;
+                            }
+                        }
+                        
+                        if (ar != null)
+                        {
+                            break;
+                        }
+                        else
+                        {
+                            failcode = "X:1";
+                        }
+                    }
+                    else
+                    {
+                        failcode = "X:0";
+                    }
+
+                    if (failcode != null)
+                    {
+                        SongProperty sp = _db.SongProperties.Create();
+                        sp.Name = Song.FailedLookup;
+                        sp.Value = failcode;
+                        song.SongProperties.Add(sp);
+                    }
+                }
+            }
+
+            if (changed)
+                _db.SaveChanges();
+
+            if (ar == null)
+            {
+                ar = new HttpNotFoundResult("No more matches found");
+            }
+
+            return ar;
+        }
+
         // GET: /Song/XboxSearch/5?search=name
         [Authorize(Roles = "canEdit")]
         public ActionResult XboxSearch(int id = 0, string search = null, string filter=null)
         {
-            ViewBag.SongFilter = ParseFilter(filter);
             SongDetails song = _db.FindSongDetails(id);
             if (song == null)
             {
                 return HttpNotFound();
             }
 
-            HttpWebRequest request = null;
-            HttpWebResponse response = null;
+            ViewBag.SongFilter = ParseFilter(filter);
+            try
+            {
+                string responseString = FindXBoxSong(song,search);
+                ViewBag.Results = System.Web.Helpers.Json.Decode(responseString);
+                ViewBag.TrackId = null;
 
-            string responseString = null;
-
-            // Make Music database request
-            if (search == null)
-                search = song.Title + " " + song.Artist;
-            string searchEnc = System.Uri.EscapeDataString(search);
-
-            string req = string.Format("https://music.xboxlive.com/1/content/music/search?q={0}&filters=tracks",searchEnc);
-            request = (HttpWebRequest)WebRequest.Create(req);
-            request.Method = WebRequestMethods.Http.Get;
-            request.Accept = "application/json";
-            request.Headers.Add("Authorization", XboxAuthorization);
-
-            ViewBag.Search = search;
-            ViewBag.Error = false;
-            try {
-                using (response = (HttpWebResponse)request.GetResponse())
+                if (ViewBag.Results == null)
                 {
-                    ViewBag.Status = response.StatusCode.ToString();
-
-                    if (response.StatusCode == HttpStatusCode.OK)
-                    {
-                        using (var sr = new StreamReader(response.GetResponseStream()))
-                        {
-                            responseString = sr.ReadToEnd();
-                        }
-
-                        ViewBag.ResultString = responseString;
-
-                        responseString = responseString.Replace(@"""music.amg""", @"""music_amg""");
-                        var results = System.Web.Helpers.Json.Decode(responseString);
-                        ViewBag.Results = results;
-                    }
+                    ViewBag.Error = true;
+                    ViewBag.Status = "Unspecified Error";
                 }
             }
             catch (WebException we)
@@ -572,6 +635,48 @@ namespace music4dance.Controllers
             return View(song);
         }
 
+
+        private string FindXBoxSong(SongDetails song, string search)
+        {
+
+            HttpWebRequest request = null;
+            HttpWebResponse response = null;
+
+            string responseString = null;
+
+            // Make Music database request
+            if (search == null)
+                search = song.Title + " " + song.Artist;
+            string searchEnc = System.Uri.EscapeDataString(search);
+
+            string req = string.Format("https://music.xboxlive.com/1/content/music/search?q={0}&filters=tracks", searchEnc);
+            request = (HttpWebRequest)WebRequest.Create(req);
+            request.Method = WebRequestMethods.Http.Get;
+            request.Accept = "application/json";
+            request.Headers.Add("Authorization", XboxAuthorization);
+
+            ViewBag.Search = search;
+            ViewBag.Error = false;
+            using (response = (HttpWebResponse)request.GetResponse())
+            {
+                ViewBag.Status = response.StatusCode.ToString();
+
+                if (response.StatusCode == HttpStatusCode.OK)
+                {
+                    using (var sr = new StreamReader(response.GetResponseStream()))
+                    {
+                        responseString = sr.ReadToEnd();
+                    }
+
+                    ViewBag.ResultString = responseString;
+
+                    responseString = responseString.Replace(@"""music.amg""", @"""music_amg""");
+                    return responseString;
+                }
+            }
+
+            return null;
+        }
 
         // ChooseXbox: /Song/ChooseXbox
         [ValidateAntiForgeryToken]
@@ -729,6 +834,17 @@ namespace music4dance.Controllers
         {
             Trace.WriteLine(string.Format("Entering Song.Index: dances='{0}',sortOrder='{1}',searchString='{2}'", filter.Dances, filter.SortOrder, filter.SearchString));
 
+            var songs = BuildSongList(filter);
+
+            int pageSize = 25;
+
+            Trace.WriteLine("Exiting Song.Index");
+
+            return View("Index", songs.ToPagedList(filter.Page ?? 1, pageSize));
+        }
+
+        private IQueryable<Song> BuildSongList(SongFilter filter)
+        {
             // Set up the viewbag
             ViewBag.SongFilter = filter;
 
@@ -818,21 +934,52 @@ namespace music4dance.Controllers
             //  of a Linq EF statement, but I can't figure that out.
             if (!string.IsNullOrWhiteSpace(filter.Purchase))
             {
-                char[] services = filter.Purchase.ToCharArray();
+                bool not = false;
+                string purch = filter.Purchase;
+                if (purch.StartsWith("!"))
+                {
+                    not = true;
+                    purch = purch.Substring(1);
+                }
+
+                char[] services = purch.ToCharArray();
                 if (services.Length == 1)
                 {
                     string c = services[0].ToString();
-                    songs = songs.Where(s => s.Purchase.Contains(c));
+                    if (not)
+                    {
+                        songs = songs.Where(s => s.Purchase == null || !s.Purchase.Contains(c));
+                    }
+                    else
+                    {
+                        songs = songs.Where(s => s.Purchase.Contains(c));
+                    }
                 }
                 else if (services.Length == 2)
                 {
                     string c0 = services[0].ToString();
                     string c1 = services[1].ToString();
-                    songs = songs.Where(s => s.Purchase.Contains(c0) || s.Purchase.Contains(c1));
+
+                    if (not)
+                    {
+                        songs = songs.Where(s => s.Purchase == null || (!s.Purchase.Contains(c0) && !s.Purchase.Contains(c1)));
+                    }
+                    else
+                    {
+                        songs = songs.Where(s => s.Purchase.Contains(c0) || s.Purchase.Contains(c1));
+                    }
+                    
                 }
                 else // Better == 3
                 {
-                    songs = songs.Where(s => s.Purchase != null);
+                    if (not)
+                    {
+                        songs = songs.Where(s => s.Purchase != null);
+                    }
+                    else
+                    {
+                        songs = songs.Where(s => s.Purchase == null);
+                    }
                 }
             }
 
@@ -874,11 +1021,7 @@ namespace music4dance.Controllers
 
             }
 
-            int pageSize = 25;
-
-            Trace.WriteLine("Exiting Song.Index");
-
-            return View("Index", songs.ToPagedList(filter.Page ?? 1, pageSize));
+            return songs;
         }
 
         private void DumpSongs(IQueryable<Song> songs, string purchase)

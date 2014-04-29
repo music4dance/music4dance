@@ -39,6 +39,7 @@ namespace m4dModels
         public const string MergeCommand = ".Merge";
         public const string UndoCommand = ".Undo";
         public const string RedoCommand = ".Redo";
+        public const string FailedLookup = ".FailedLookup"; // 0: Not found on Title/Artist; 1: Not found on Title/Artist/Album
 
         public const string SuccessResult = ".Success";
         public const string FailResult = ".Fail";
