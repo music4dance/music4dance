@@ -210,7 +210,7 @@
         <input type="submit" name="action" value="Merge" class="btn"/>
         <input type="submit" name="action" value="Delete" class="btn" />
         @Html.ActionLink("Add New Song", "Create", null, new { @class = "btn btn-default", role = "button" });
-        @Html.ActionLink("XBox Match", "BatchXbox", new { filter = ViewBag.SongFilter }, new { @class = "btn btn-default", role="button"});
+        @Html.ActionLink("XBox Match", "BatchXbox", new { filter = ViewBag.SongFilter, count=500 }, new { @class = "btn btn-default", role="button"});
     }    
 </p>
 }

@@ -515,29 +515,35 @@ namespace music4dance.Controllers
         }
 
         [Authorize(Roles = "canEdit")]
-        public ActionResult BatchXbox(string filter=null)
+        public ActionResult BatchXbox(string filter=null, int count = 1)
         {
             ActionResult ar = null;
-            bool changed = false;
+            int tried = 0;
+            int skipped = 0;
 
             SongFilter songFilter = ParseFilter(filter);
             songFilter.Purchase = "!X";
-            songFilter.Action = "BatchXbox";
 
             IQueryable<Song> songs = BuildSongList(songFilter);
 
-            ViewBag.SongFilter = songFilter;
+            ApplicationUser user = _db.FindUser(User.Identity.Name);
+
+            List<Song> failed = new List<Song>();
+            List<SongDetails> succeeded = new List<SongDetails>();
 
             foreach (Song song in songs)
             {
                 // First check to see if we've already failed a search
                 // TODO: Check for the service once we add in itunes & amazon lookup
 
-                SongProperty failed = song.SongProperties.FirstOrDefault(p => p.Name == Song.FailedLookup);
-                if (failed == null)
+                SongProperty hasFailed = song.SongProperties.FirstOrDefault(p => p.Name == Song.FailedLookup);
+                SongDetails sd = new SongDetails(song);
+
+                if (hasFailed == null || sd.Albums.Count == 0)
                 {
-                    SongDetails sd = new SongDetails(song);
                     string res = null;
+
+                    string failcode = null;
 
                     try
                     {
@@ -549,8 +555,6 @@ namespace music4dance.Controllers
                         ViewBag.Status = we.Message;
                     }
 
-                    string failcode = null;
-
                     if (res != null)
                     {
                         var results = System.Web.Helpers.Json.Decode(res);
@@ -561,9 +565,32 @@ namespace music4dance.Controllers
                         {
                             if (sd.FindAlbum(track.Album.Name) != null)
                             {
-                                ViewBag.Results = results;
-                                ViewBag.TrackId = track.Id;
-                                ar = View("XboxSearch", sd);
+                                string altId = null;
+
+                                if (track.OtherIds != null)
+                                {
+                                    try
+                                    {
+                                        altId = tracks.OtherIds.music_amg;                        
+                                    }
+                                    catch (Microsoft.CSharp.RuntimeBinder.RuntimeBinderException)
+                                    {  
+                                    }
+                                }
+
+                                // Do this for the semi-manual version
+                                if (count == 1)
+                                {
+                                    songFilter = ParseFilter(filter);
+                                    songFilter.Action = "BatchXbox";
+                                    ar = ChooseXbox(sd.SongId, track.Name, track.Album.Name, track.Artists[0].Artist.Name, track.Id, altId, track.Duration, track.Genres[0], track.TrackNumber, songFilter.ToString());
+                                }
+                                else
+                                {
+                                    UpdateXbox(sd, track.Name, track.Album.Name, track.Artists[0].Artist.Name, track.Id, altId, track.Duration, track.Genres[0], track.TrackNumber);
+                                    succeeded.Add(_db.EditSong(user,sd,null,null));
+                                    tried += 1;
+                                }
                                 break;
                             }
                         }
@@ -572,7 +599,7 @@ namespace music4dance.Controllers
                         {
                             break;
                         }
-                        else
+                        else if (count == 1)
                         {
                             failcode = "X:1";
                         }
@@ -588,19 +615,34 @@ namespace music4dance.Controllers
                         sp.Name = Song.FailedLookup;
                         sp.Value = failcode;
                         song.SongProperties.Add(sp);
+
+                        failed.Add(song);
+                        tried += 1;
                     }
                 }
+                else
+                {
+                    skipped += 1;
+                }
+
+                if (count > 1 && tried > count)
+                    break;
             }
 
-            if (changed)
-                _db.SaveChanges();
+            _db.SaveChanges();
 
             if (ar == null)
             {
-                ar = new HttpNotFoundResult("No more matches found");
+                ViewBag.Completed = tried <= count;
+                ViewBag.Failed = failed;
+                ViewBag.Succeeded = succeeded;
+                ViewBag.Skipped = skipped;
+                return View();
             }
-
-            return ar;
+            else
+            {
+                return ar;
+            }
         }
 
         // GET: /Song/XboxSearch/5?search=name
@@ -684,13 +726,21 @@ namespace music4dance.Controllers
         public ActionResult ChooseXbox(int songId, string name, string album, string artist, string trackId, string alternateId, string duration, string genre, int? trackNum, string filter = null)
         {
             ViewBag.SongFilter = ParseFilter(filter);
-
             SongDetails song = _db.FindSongDetails(songId);
             if (song == null)
             {
                 return HttpNotFound();
             }
 
+            SongDetails alt = UpdateXbox(song, name, album, artist, trackId, alternateId, duration, genre, trackNum);
+
+            ViewBag.OldSong = alt;
+
+            return View("Edit", song);
+        }
+
+        SongDetails UpdateXbox(SongDetails song, string name, string album, string artist, string trackId, string alternateId, string duration, string genre, int? trackNum)
+        {
             // This is a very transitory object to hold the old values for a semi-automated edit
             SongDetails alt = new SongDetails();
 
@@ -773,9 +823,7 @@ namespace music4dance.Controllers
                 song.Genre = genre;
             }
 
-            ViewBag.OldSong = alt;
-
-            return View("Edit", song);
+            return alt;
         }
         #endregion
 

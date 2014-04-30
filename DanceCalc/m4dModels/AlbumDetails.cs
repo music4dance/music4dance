@@ -144,7 +144,7 @@ namespace m4dModels
                 throw new ArgumentOutOfRangeException("MusicService");
 
 
-            Purchase.Add(BuildPurchaseKey(ms, pt), value);
+            Purchase[BuildPurchaseKey(ms, pt)] =  value;
         }
 
         public void SetPurchaseInfo(string purchase)

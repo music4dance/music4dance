@@ -378,6 +378,7 @@
     <Content Include="Views\Admin\Results.cshtml" />
     <Content Include="Views\Home\Counter.cshtml" />
     <Content Include="Views\Home\CounterHelp.cshtml" />
+    <Content Include="Views\Song\BatchXbox.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
