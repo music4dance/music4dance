@@ -5,7 +5,7 @@ using System.Text;
 
 namespace m4dModels
 {
-    public enum MusicService { None, Amazon, ITunes, XBox, AMG, Max };
+    public enum ServiceType { None, Amazon, ITunes, XBox, AMG, Max };
     public enum PurchaseType { None, Album, Song, Max };
 
     public class AlbumDetails
@@ -84,7 +84,7 @@ namespace m4dModels
                 }
                 else
                 {
-                    info.Add(ExpandPurchaseType(p.Key) + "=" + p.Value);
+                    info.Add(MusicService.ExpandPurchaseType(p.Key) + "=" + p.Value);
                 }
             }
 
@@ -130,7 +130,7 @@ namespace m4dModels
             else
                 return sb.ToString();
         }
-        public void SetPurchaseInfo(PurchaseType pt, MusicService ms, string value)
+        public void SetPurchaseInfo(PurchaseType pt, ServiceType ms, string value)
         {
             if (Purchase == null)
             {
@@ -140,11 +140,11 @@ namespace m4dModels
             if (pt == PurchaseType.None)
                 throw new ArgumentOutOfRangeException("PurchaseType");
 
-            if (ms == MusicService.None)
-                throw new ArgumentOutOfRangeException("MusicService");
+            if (ms == ServiceType.None)
+                throw new ArgumentOutOfRangeException("ServiceType");
 
-
-            Purchase[BuildPurchaseKey(ms, pt)] =  value;
+            MusicService service = MusicService.GetService(ms);
+            Purchase[service.BuildPurchaseKey(pt)] =  value;
         }
 
         public void SetPurchaseInfo(string purchase)
@@ -159,17 +159,17 @@ namespace m4dModels
             foreach (string value in values)
             {
                 PurchaseType pt;
-                MusicService ms;
+                ServiceType ms;
                 string pi;
 
-                if (AlbumDetails.TryParsePurchaseInfo(value, out pt, out ms, out pi))
+                if (MusicService.TryParsePurchaseInfo(value, out pt, out ms, out pi))
                 {
                     SetPurchaseInfo(pt, ms, pi);
                 }
             }
         }
 
-        public PurchaseLink GetPurchaseLink(MusicService ms)
+        public PurchaseLink GetPurchaseLink(ServiceType ms)
         {
             PurchaseLink l = GetPurchaseLink(ms, PurchaseType.Song);
             if (l == null)
@@ -179,38 +179,22 @@ namespace m4dModels
             return l;
         }
 
-        public PurchaseLink GetPurchaseLink(MusicService ms, PurchaseType pt)
+        public PurchaseLink GetPurchaseLink(ServiceType ms, PurchaseType pt)
         {
-            PurchaseLink ret = null;
-            string info = null;
-            string key = BuildPurchaseKey(ms, pt);
-            if (Purchase != null && Purchase.TryGetValue(key, out info))
-            {
-                string extra = String.Empty;
+            // Short-circuit if there is no purchase info for this ablum
+            if (Purchase == null)
+                return null;
 
-                // Thanks Apple - special case itunes w/ song + album
-                if (pt == PurchaseType.Song && ms == MusicService.ITunes)
-                {
-                    Purchase.TryGetValue("IA", out extra);
-                }
-                else if (ms == MusicService.XBox)
-                {
-                    if (info.StartsWith("music."))
-                    {
-                        info = info.Substring(6);
-                    }
-                }
+            MusicService service = MusicService.GetService(ms);
+            string albumKey = service.BuildPurchaseKey(PurchaseType.Album);
+            string songKey = service.BuildPurchaseKey(PurchaseType.Song);
+            string albumInfo = null;
+            string songInfo = null;
 
-                ret = new PurchaseLink
-                {
-                    Link = string.Format(s_serviceLink[(int)ms], info, extra),
-                    Target = s_serviceTarget[(int)ms],
-                    Logo = s_servicesEx[(int)ms] + "-logo.png",
-                    Charm = s_servicesEx[(int)ms] + "-charm.png",
-                    AltText = s_servicesAlt[(int)ms]
-                };
-            }
-            return ret;
+            Purchase.TryGetValue(albumKey, out albumInfo);
+            Purchase.TryGetValue(songKey, out songInfo);
+
+            return service.GetPurchaseLink(pt, albumInfo, songInfo);
         }
 
         public void PurchaseDiff(ISongPropertyFactory spf, Song song, AlbumDetails old, SongLog log)
@@ -248,102 +232,6 @@ namespace m4dModels
                 }
             }
 
-        }
-        static public bool TryParsePurchaseInfo(string pi, out PurchaseType pt, out MusicService ms, out string id)
-        {
-            bool success = false;
-
-            pt = PurchaseType.None;
-            ms = MusicService.None;
-            id = null;
-
-            if (!string.IsNullOrWhiteSpace(pi))
-            {
-                string[] parts = pi.Split(new char[] { '=' });
-
-                if (parts.Length == 2 && TryParsePurchaseType(parts[0], out pt, out ms))
-                {
-                    id = parts[1];
-                    success = true;
-                }
-            }
-
-            return success;
-        }
-
-        static public bool TryParsePurchaseType(string abbrv, out PurchaseType pt, out MusicService ms)
-        {
-            if (abbrv == null)
-            {
-                throw new ArgumentNullException("abbrv");
-            }
-
-            ms = MusicService.None;
-            pt = PurchaseType.None;
-
-            if (abbrv.Length != 2)
-            {
-                return false;
-            }
-
-            switch (abbrv[0])
-            {
-                case 'I':
-                    ms = MusicService.ITunes;
-                    break;
-                case 'A':
-                    ms = MusicService.Amazon;
-                    break;
-                case 'X':
-                    ms = MusicService.XBox;
-                    break;
-                case 'M':
-                    ms = MusicService.AMG;
-                    break;
-            }
-
-            switch (abbrv[1])
-            {
-                case 'S':
-                    pt = PurchaseType.Song;
-                    break;
-                case 'A':
-                    pt = PurchaseType.Album;
-                    break;
-            }
-
-            return true;
-        }
-
-        static public string ServiceString(MusicService ms)
-        {
-            return s_servicesEx[(int)ms];
-        }
-        static public char ServiceId(MusicService ms)
-        {
-            return s_services[(int)ms];
-        }
-        static public string ExpandPurchaseType(string abbrv)
-        {
-            PurchaseType pt;
-            MusicService ms;
-
-            if (!TryParsePurchaseType(abbrv, out pt, out ms))
-            {
-                throw new ArgumentOutOfRangeException("abbrv");
-            }
-
-            string service = s_servicesEx[(int)ms];
-            string type = s_purchaseTypesEx[(int)pt];
-
-            return service + " " + type;
-        }
-        private static string BuildPurchaseKey(MusicService ms, PurchaseType pt)
-        {
-            StringBuilder sb = new StringBuilder(3);
-            sb.Append(s_services[(int)ms]);
-            sb.Append(s_purchaseTypes[(int)pt]);
-            return sb.ToString();
         }
         
         #endregion
@@ -434,18 +322,18 @@ namespace m4dModels
         #endregion
 
         #region Purchase Statics
-        private static char[] s_services = new char[] { '#', 'A', 'I', 'X', 'M' };
-        private static char[] s_purchaseTypes = new char[] { '#', 'A', 'S' };
+        //private static char[] s_services = new char[] { '#', 'A', 'I', 'X', 'M' };
+        //private static char[] s_purchaseTypes = new char[] { '#', 'A', 'S' };
 
-        private static string[] s_servicesEx = new string[] { "None", "Amazon", "ITunes", "Xbox", "American Music Group" };
-        private static string[] s_serviceLink = new string[] { 
-            "Error", 
-            "http://www.amazon.com/gp/product/{0}/ref=as_li_ss_tl?ie=UTF8&camp=1789&creative=390957&creativeASIN={0}&linkCode=as2&tag=thegraycom-20", 
-            "http://itunes.apple.com/album/id{1}?i={0}&uo=4&at=11lwtf",
-            "http://music.xbox.com/Track/{0}?partnerID=Music4Dance?action=play"};
-        private static string[] s_serviceTarget = new string[] { "_blank", "amazon_store", "itunes_store", "xbox_store", "_blank" };
-        private static string[] s_servicesAlt = new string[] { "None", "Available on Amazon", "Play it on ITunes", "Play it on Xbox Music", "Catalogged by American Music Group" };
-        private static string[] s_purchaseTypesEx = new string[] { "None", "Album", "Song" };
+        //private static string[] s_servicesEx = new string[] { "None", "Amazon", "ITunes", "Xbox", "American Music Group" };
+        //private static string[] s_serviceLink = new string[] { 
+        //    "Error", 
+        //    "http://www.amazon.com/gp/product/{0}/ref=as_li_ss_tl?ie=UTF8&camp=1789&creative=390957&creativeASIN={0}&linkCode=as2&tag=thegraycom-20", 
+        //    "http://itunes.apple.com/album/id{1}?i={0}&uo=4&at=11lwtf",
+        //    "http://music.xbox.com/Track/{0}?partnerID=Music4Dance?action=play"};
+        //private static string[] s_serviceTarget = new string[] { "_blank", "amazon_store", "itunes_store", "xbox_store", "_blank" };
+        //private static string[] s_servicesAlt = new string[] { "None", "Available on Amazon", "Play it on ITunes", "Play it on Xbox Music", "Catalogged by American Music Group" };
+        //private static string[] s_purchaseTypesEx = new string[] { "None", "Album", "Song" };
         #endregion
     }
 }

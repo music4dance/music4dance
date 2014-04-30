@@ -521,7 +521,7 @@ namespace m4d.Controllers
                             aa = aa.Trim();
                             if (!string.IsNullOrEmpty(aa))
                             {
-                                ad.SetPurchaseInfo(PurchaseType.Album, MusicService.Amazon, aa);
+                                ad.SetPurchaseInfo(PurchaseType.Album, ServiceType.Amazon, aa);
                             }
                         }
 
@@ -546,12 +546,12 @@ namespace m4d.Controllers
 
                                     if (!string.IsNullOrEmpty(aid))
                                     {
-                                        ad.SetPurchaseInfo(PurchaseType.Album, MusicService.ITunes, aid);
+                                        ad.SetPurchaseInfo(PurchaseType.Album, ServiceType.ITunes, aid);
                                         success = true;
                                     }
                                     if (!string.IsNullOrEmpty(sid))
                                     {
-                                        ad.SetPurchaseInfo(PurchaseType.Song, MusicService.ITunes, sid);
+                                        ad.SetPurchaseInfo(PurchaseType.Song, ServiceType.ITunes, sid);
                                         success = true;
                                     }
                                 }

@@ -1086,10 +1086,10 @@ namespace music4dance.Controllers
         #region XBox
         private void UpdateXboxPurchase(AlbumDetails ad, string trackId, string alternateId)
         {
-            ad.SetPurchaseInfo(PurchaseType.Song, MusicService.XBox, trackId);
+            ad.SetPurchaseInfo(PurchaseType.Song, ServiceType.XBox, trackId);
             if (!string.IsNullOrWhiteSpace(alternateId))
             {
-                ad.SetPurchaseInfo(PurchaseType.Song, MusicService.AMG, alternateId);
+                ad.SetPurchaseInfo(PurchaseType.Song, ServiceType.AMG, alternateId);
             }
         }
         private static string XboxAuthorization

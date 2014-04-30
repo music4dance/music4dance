@@ -197,13 +197,13 @@ namespace m4dModels
         {
             List<PurchaseLink> links = new List<PurchaseLink>();
 
-            for (int i = 1; i < (int)MusicService.Max; i++)
+            foreach (MusicService ms in MusicService.GetServices())
             {
-                if (service.Contains(AlbumDetails.ServiceId((MusicService)i)))
+                if (service.Contains(ms.CID))
                 {
                     foreach (AlbumDetails album in Albums)
                     {
-                        PurchaseLink l = album.GetPurchaseLink((MusicService)i);
+                        PurchaseLink l = album.GetPurchaseLink(ms.ID);
                         if (l != null)
                         {
                             links.Add(l);
