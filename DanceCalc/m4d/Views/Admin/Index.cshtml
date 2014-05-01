@@ -37,7 +37,7 @@
     <h3>Reload the Database</h3>
     using (Html.BeginForm("ReloadDatabase", "Admin", FormMethod.Post, new { enctype = "multipart/form-data" }))
     {
-        Html.AntiForgeryToken();
+        @Html.AntiForgeryToken();
         <input type="file" name="FileUpload" />
         <br />
         <input type="submit" name="Reload Database" id="Submit" value="Upload" />
