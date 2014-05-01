@@ -20,7 +20,8 @@
             {
                 @Html.ActionLink("Edit", "Edit", new { id = Model.SongId, filter = ViewBag.SongFilter }, new { @class = "btn btn-small btn-default", role = "button" })
                 @Html.ActionLink("Delete", "Delete", new { id = Model.SongId, filter = ViewBag.SongFilter }, new { @class = "btn btn-small btn-default", role = "button" })
-                @Html.ActionLink("XBox", "XBoxSearch", new { id = Model.SongId, filter = ViewBag.SongFilter }, new { @class = "btn btn-small btn-default", role = "button" })
+                @Html.ActionLink("XBox", "MusicServiceSearch", new { id = Model.SongId, type="X", filter = ViewBag.SongFilter }, new { @class = "btn btn-small btn-default", role = "button" })
+                @Html.ActionLink("ITunes", "MusicServiceSearch", new { id = Model.SongId, type = "I", filter = ViewBag.SongFilter }, new { @class = "btn btn-small btn-default", role = "button" })
             }
             @Html.ActionLink("Back to List", (string)ViewBag.SongFilter.Action, new { filter = ViewBag.SongFilter }, new { @class = "btn btn-small btn-primary", role = "button" })
         </div>

@@ -79,6 +79,7 @@
     <Compile Include="MusicService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="PurchaseLink.cs" />
+    <Compile Include="ServiceTrack.cs" />
     <Compile Include="Song.cs" />
     <Compile Include="SongDetails.cs" />
     <Compile Include="SongFilter.cs" />

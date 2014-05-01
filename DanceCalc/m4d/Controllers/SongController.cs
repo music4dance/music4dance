@@ -515,8 +515,14 @@ namespace music4dance.Controllers
         }
 
         [Authorize(Roles = "canEdit")]
-        public ActionResult BatchXbox(string filter=null, int count = 1)
+        public ActionResult BatchMusicService(string type= "X", string filter=null, int count = 1)
         {
+            MusicService service = MusicService.GetService(type);
+            if (service == null)
+            {
+                throw new ArgumentOutOfRangeException("type");
+            }
+
             ActionResult ar = null;
             int tried = 0;
             int skipped = 0;
@@ -547,7 +553,7 @@ namespace music4dance.Controllers
 
                     try
                     {
-                        res = FindXBoxSong(sd, null);
+                        res = FindMusicServiceSong(sd, service);
                     }
                     catch (WebException we)
                     {
@@ -559,35 +565,22 @@ namespace music4dance.Controllers
                     {
                         var results = System.Web.Helpers.Json.Decode(res);
 
-                        var tracks = results.tracks;
-                        var items = tracks.Items;
-                        foreach (var track in items)
+                        IList<ServiceTrack> tracks = service.ParseSearchResults(results);
+
+                        foreach (ServiceTrack track in tracks)
                         {
-                            if (sd.FindAlbum(track.Album.Name) != null)
+                            if (sd.FindAlbum(track.Album) != null)
                             {
-                                string altId = null;
-
-                                if (track.OtherIds != null)
-                                {
-                                    try
-                                    {
-                                        altId = tracks.OtherIds.music_amg;                        
-                                    }
-                                    catch (Microsoft.CSharp.RuntimeBinder.RuntimeBinderException)
-                                    {  
-                                    }
-                                }
-
                                 // Do this for the semi-manual version
                                 if (count == 1)
                                 {
                                     songFilter = ParseFilter(filter);
-                                    songFilter.Action = "BatchXbox";
-                                    ar = ChooseXbox(sd.SongId, track.Name, track.Album.Name, track.Artists[0].Artist.Name, track.Id, altId, track.Duration, track.Genres[0], track.TrackNumber, songFilter.ToString());
+                                    songFilter.Action = "BatchMusicService";
+                                    ar = ChooseMusicService(sd.SongId, service.CID.ToString(), track.Name, track.Album, track.Artist, track.TrackId, track.CollectionId, track.AltId, track.Duration.ToString(), track.Genre, track.TrackNumber, songFilter.ToString());
                                 }
                                 else
                                 {
-                                    UpdateXbox(sd, track.Name, track.Album.Name, track.Artists[0].Artist.Name, track.Id, altId, track.Duration, track.Genres[0], track.TrackNumber);
+                                    UpdateMusicService(sd, service, track.Name, track.Album, track.Artist, track.TrackId, track.CollectionId, track.AltId, track.Duration.ToString(), track.Genre, track.TrackNumber);
                                     succeeded.Add(_db.EditSong(user,sd,null,null));
                                     tried += 1;
                                 }
@@ -645,9 +638,9 @@ namespace music4dance.Controllers
             }
         }
 
-        // GET: /Song/XboxSearch/5?search=name
+        // GET: /Song/MusicServiceSearch/5?search=name
         [Authorize(Roles = "canEdit")]
-        public ActionResult XboxSearch(int id = 0, string search = null, string filter=null)
+        public ActionResult MusicServiceSearch(int id = 0, string type="X", string search = null, string filter=null)
         {
             SongDetails song = _db.FindSongDetails(id);
             if (song == null)
@@ -655,18 +648,28 @@ namespace music4dance.Controllers
                 return HttpNotFound();
             }
 
+            MusicService service = MusicService.GetService(type);
+            if (service == null)
+            {
+                throw new ArgumentOutOfRangeException("type");
+            }
+
+            ServiceSearchResults view = new ServiceSearchResults { ServiceType = type, Song = song };
+
             ViewBag.SongFilter = ParseFilter(filter);
             try
             {
-                string responseString = FindXBoxSong(song,search);
-                ViewBag.Results = System.Web.Helpers.Json.Decode(responseString);
-                ViewBag.TrackId = null;
+                string responseString = FindMusicServiceSong(song,service,search);
+                responseString = service.PreprocessSearchResponse(responseString);
+                dynamic results = System.Web.Helpers.Json.Decode(responseString);
 
-                if (ViewBag.Results == null)
+                if (results == null)
                 {
                     ViewBag.Error = true;
                     ViewBag.Status = "Unspecified Error";
                 }
+
+                view.Tracks = service.ParseSearchResults(results);
             }
             catch (WebException we)
             {
@@ -674,57 +677,22 @@ namespace music4dance.Controllers
                 ViewBag.Status = we.Message;
             }
 
-            return View(song);
+            return View(view);
         }
 
 
-        private string FindXBoxSong(SongDetails song, string search)
-        {
 
-            HttpWebRequest request = null;
-            HttpWebResponse response = null;
-
-            string responseString = null;
-
-            // Make Music database request
-            if (search == null)
-                search = song.Title + " " + song.Artist;
-            string searchEnc = System.Uri.EscapeDataString(search);
-
-            string req = string.Format("https://music.xboxlive.com/1/content/music/search?q={0}&filters=tracks", searchEnc);
-            request = (HttpWebRequest)WebRequest.Create(req);
-            request.Method = WebRequestMethods.Http.Get;
-            request.Accept = "application/json";
-            request.Headers.Add("Authorization", XboxAuthorization);
-
-            ViewBag.Search = search;
-            ViewBag.Error = false;
-            using (response = (HttpWebResponse)request.GetResponse())
-            {
-                ViewBag.Status = response.StatusCode.ToString();
-
-                if (response.StatusCode == HttpStatusCode.OK)
-                {
-                    using (var sr = new StreamReader(response.GetResponseStream()))
-                    {
-                        responseString = sr.ReadToEnd();
-                    }
-
-                    ViewBag.ResultString = responseString;
-
-                    responseString = responseString.Replace(@"""music.amg""", @"""music_amg""");
-                    return responseString;
-                }
-            }
-
-            return null;
-        }
-
-        // ChooseXbox: /Song/ChooseXbox
+        // ChooseMusicService: /Song/ChooseMusicService
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "canEdit")]
-        public ActionResult ChooseXbox(int songId, string name, string album, string artist, string trackId, string alternateId, string duration, string genre, int? trackNum, string filter = null)
+        public ActionResult ChooseMusicService(int songId, string type, string name, string album, string artist, string trackId, string collectionId, string alternateId, string duration, string genre, int? trackNum, string filter = null)
         {
+            MusicService service = MusicService.GetService(type);
+            if (service == null)
+            {
+                throw new ArgumentOutOfRangeException("type");
+            }
+
             ViewBag.SongFilter = ParseFilter(filter);
             SongDetails song = _db.FindSongDetails(songId);
             if (song == null)
@@ -732,99 +700,13 @@ namespace music4dance.Controllers
                 return HttpNotFound();
             }
 
-            SongDetails alt = UpdateXbox(song, name, album, artist, trackId, alternateId, duration, genre, trackNum);
+            SongDetails alt = UpdateMusicService(song, service, name, album, artist, trackId, collectionId, alternateId, duration, genre, trackNum);
 
             ViewBag.OldSong = alt;
 
             return View("Edit", song);
         }
 
-        SongDetails UpdateXbox(SongDetails song, string name, string album, string artist, string trackId, string alternateId, string duration, string genre, int? trackNum)
-        {
-            // This is a very transitory object to hold the old values for a semi-automated edit
-            SongDetails alt = new SongDetails();
-
-            if (!string.IsNullOrWhiteSpace(name) && !string.Equals(name, song.Title))
-            {
-                alt.Title = song.Title;
-                song.Title = name;
-            }
-
-            if (!string.IsNullOrWhiteSpace(artist) && !string.Equals(artist, song.Artist))
-            {
-                alt.Artist = song.Artist;
-                song.Artist = name;
-            }
-
-            AlbumDetails ad = song.FindAlbum(album);
-            if (ad != null)
-            {
-                // If there is a match set up the new info next to the album
-                int aidxM = song.Albums.IndexOf(ad);
-                alt.Albums = new List<AlbumDetails>();
-
-                for (int aidx = 0; aidx < song.Albums.Count; aidx++)
-                {
-                    if (aidx == aidxM)
-                    {
-                        AlbumDetails adA = new AlbumDetails(ad);
-                        if (!string.Equals(album, ad.Name))
-                        {
-                            adA.Name = ad.Name;
-                            ad.Name = album;
-                        }
-
-                        if (trackNum != ad.Track)
-                        {
-                            adA.Track = ad.Track;
-                            ad.Track = trackNum;
-                        }
-                        alt.Albums.Add(adA);
-                    }
-                    else
-                    {
-                        alt.Albums.Add(new AlbumDetails());
-                    }
-                }
-            }
-            else 
-            {
-                // Otherwise just add an album
-                ad = new AlbumDetails { Name = album, Track=trackNum, Index=song.GetNextAlbumIndex() };
-                song.Albums.Insert(0,ad);
-            }
-            UpdateXboxPurchase(ad, trackId, alternateId);
-
-            if (!string.IsNullOrWhiteSpace(duration))
-            {
-                try
-                {
-                    SongDuration sd = new SongDuration(duration);
-
-                    int length = decimal.ToInt32(sd.Length);
-
-                    if (length != song.Length)
-                    {
-                        alt.Length = song.Length;
-                        song.Length = length;
-                    }
-                }
-                catch (ArgumentOutOfRangeException)
-                {
-
-                }
-            }
-
-            // TODO: Should we handle multiple genres?
-            //if (genre != null && genre.Length > 0 && !string.IsNullOrWhiteSpace(genre[0]) && !string.Equals(genre[0], song.Genre))
-            if (!string.IsNullOrWhiteSpace(genre) && !string.Equals(genre, song.Genre))
-            {
-                alt.Genre = song.Genre;
-                song.Genre = genre;
-            }
-
-            return alt;
-        }
         #endregion
 
         #region General Utilities
@@ -1083,13 +965,141 @@ namespace music4dance.Controllers
 
         #endregion
 
-        #region XBox
-        private void UpdateXboxPurchase(AlbumDetails ad, string trackId, string alternateId)
+        #region MusicService
+        private string FindMusicServiceSong(SongDetails song, MusicService service, string search = null)
         {
-            ad.SetPurchaseInfo(PurchaseType.Song, ServiceType.XBox, trackId);
+            HttpWebRequest request = null;
+            HttpWebResponse response = null;
+
+            string responseString = null;
+
+            // Make Music database request
+
+            string req = service.BuildSearchRequest(search ?? song.Title + " " + song.Artist);
+
+            request = (HttpWebRequest)WebRequest.Create(req);
+            request.Method = WebRequestMethods.Http.Get;
+            request.Accept = "application/json";
+            if (service.RequiresKey)
+            {
+                request.Headers.Add("Authorization", XboxAuthorization);
+            }
+
+            ViewBag.Search = search;
+            ViewBag.Error = false;
+            using (response = (HttpWebResponse)request.GetResponse())
+            {
+                ViewBag.Status = response.StatusCode.ToString();
+
+                if (response.StatusCode == HttpStatusCode.OK)
+                {
+                    using (var sr = new StreamReader(response.GetResponseStream()))
+                    {
+                        responseString = sr.ReadToEnd();
+                    }
+
+                    return responseString;
+                }
+            }
+
+            return null;
+        }
+        SongDetails UpdateMusicService(SongDetails song, MusicService service, string name, string album, string artist, string trackId, string collectionId, string alternateId, string duration, string genre, int? trackNum)
+        {
+            // This is a very transitory object to hold the old values for a semi-automated edit
+            SongDetails alt = new SongDetails();
+
+            if (!string.IsNullOrWhiteSpace(name) && !string.Equals(name, song.Title))
+            {
+                alt.Title = song.Title;
+                song.Title = name;
+            }
+
+            if (!string.IsNullOrWhiteSpace(artist) && !string.Equals(artist, song.Artist))
+            {
+                alt.Artist = song.Artist;
+                song.Artist = name;
+            }
+
+            AlbumDetails ad = song.FindAlbum(album);
+            if (ad != null)
+            {
+                // If there is a match set up the new info next to the album
+                int aidxM = song.Albums.IndexOf(ad);
+                alt.Albums = new List<AlbumDetails>();
+
+                for (int aidx = 0; aidx < song.Albums.Count; aidx++)
+                {
+                    if (aidx == aidxM)
+                    {
+                        AlbumDetails adA = new AlbumDetails(ad);
+                        if (!string.Equals(album, ad.Name))
+                        {
+                            adA.Name = ad.Name;
+                            ad.Name = album;
+                        }
+
+                        if (trackNum != ad.Track)
+                        {
+                            adA.Track = ad.Track;
+                            ad.Track = trackNum;
+                        }
+                        alt.Albums.Add(adA);
+                    }
+                    else
+                    {
+                        alt.Albums.Add(new AlbumDetails());
+                    }
+                }
+            }
+            else
+            {
+                // Otherwise just add an album
+                ad = new AlbumDetails { Name = album, Track = trackNum, Index = song.GetNextAlbumIndex() };
+                song.Albums.Insert(0, ad);
+            }
+            UpdateMusicServicePurchase(ad, service, PurchaseType.Song, trackId, alternateId);
+            if (collectionId != null)
+            {
+                UpdateMusicServicePurchase(ad, service, PurchaseType.Album, collectionId);
+            }
+
+            if (!string.IsNullOrWhiteSpace(duration))
+            {
+                try
+                {
+                    SongDuration sd = new SongDuration(duration);
+
+                    int length = decimal.ToInt32(sd.Length);
+
+                    if (length != song.Length)
+                    {
+                        alt.Length = song.Length;
+                        song.Length = length;
+                    }
+                }
+                catch (ArgumentOutOfRangeException)
+                {
+
+                }
+            }
+
+            // TODO: Should we handle multiple genres?
+            //if (genre != null && genre.Length > 0 && !string.IsNullOrWhiteSpace(genre[0]) && !string.Equals(genre[0], song.Genre))
+            if (!string.IsNullOrWhiteSpace(genre) && !string.Equals(genre, song.Genre))
+            {
+                alt.Genre = song.Genre;
+                song.Genre = genre;
+            }
+
+            return alt;
+        }
+        private void UpdateMusicServicePurchase(AlbumDetails ad, MusicService service, PurchaseType pt, string trackId, string alternateId = null)
+        {
+            ad.SetPurchaseInfo(pt, service.ID, trackId);
             if (!string.IsNullOrWhiteSpace(alternateId))
             {
-                ad.SetPurchaseInfo(PurchaseType.Song, ServiceType.AMG, alternateId);
+                ad.SetPurchaseInfo(pt, ServiceType.AMG, alternateId);
             }
         }
         private static string XboxAuthorization

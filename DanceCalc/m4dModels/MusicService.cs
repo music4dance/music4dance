@@ -14,6 +14,14 @@ namespace m4dModels
         public string Name { get; private set; }
         public string Target { get; private set; }
         public string Description { get; private set; }
+
+        // This is pretty kludgy but until I implement
+        // a second service taht requires a key I don't
+        // want to spend time generalizing
+        public virtual bool RequiresKey
+        {
+            get { return false;}
+        }
         
         #endregion
 
@@ -44,7 +52,7 @@ namespace m4dModels
             sb.Append(s_purchaseTypes[(int)pt]);
             return sb.ToString();
         }
-        
+
         #endregion
 
         #region Overrides
@@ -57,9 +65,25 @@ namespace m4dModels
             else
                 return null;
         }
+        public virtual string BuildSearchRequest(string search)
+        {
+            string searchEnc = System.Uri.EscapeDataString(search);
+            string req = string.Format(_request, searchEnc);
+            return req;
+        }
+
+        public virtual string PreprocessSearchResponse(string response)
+        {
+            return response;
+        }
+
+        public virtual IList<ServiceTrack> ParseSearchResults(dynamic results)
+        {
+            throw new NotImplementedException();
+        }
 
         protected string _associateLink;
-        
+        protected string _request;
         #endregion
 
         #region Constructors
@@ -67,7 +91,7 @@ namespace m4dModels
 
         protected MusicService(
             ServiceType id, char cid,
-            string name, string target, string description, string link)
+            string name, string target, string description, string link, string request)
         {
             ID = id;
             CID = cid;
@@ -75,6 +99,7 @@ namespace m4dModels
             Target = target;
             Description = description;
             _associateLink = link;
+            _request = request;
         }
         
         #endregion
@@ -162,9 +187,19 @@ namespace m4dModels
         {
             return s_idMap[id];
         }
+
         public static MusicService GetService(char cid)
         {
             return s_cidMap[cid];
+        }
+        public static MusicService GetService(string type)
+        {
+            if (string.IsNullOrEmpty(type))
+            {
+                throw new ArgumentNullException("type");
+            }
+
+            return GetService(type[0]);
         }
         static MusicService()
         {
@@ -177,7 +212,8 @@ namespace m4dModels
                 "Amazon",
                 "amazon_store",
                 "Available on Amazon",
-                "http://www.amazon.com/gp/product/{0}/ref=as_li_ss_tl?ie=UTF8&camp=1789&creative=390957&creativeASIN={0}&linkCode=as2&tag=thegraycom-20"
+                "http://www.amazon.com/gp/product/{0}/ref=as_li_ss_tl?ie=UTF8&camp=1789&creative=390957&creativeASIN={0}&linkCode=as2&tag=thegraycom-20",
+                null
             );
             s_idMap.Add(ServiceType.Amazon, amazon);
             s_cidMap.Add('A', amazon);
@@ -188,7 +224,8 @@ namespace m4dModels
                 "ITunes",
                 "itunes_store",
                 "Buy it on ITunes",
-                "http://itunes.apple.com/album/id{1}?i={0}&uo=4&at=11lwtf"
+                "http://itunes.apple.com/album/id{1}?i={0}&uo=4&at=11lwtf",
+                "https://itunes.apple.com/search?term={0}&media=music&entity=song&limit=5"
             );
             s_idMap.Add(ServiceType.ITunes, itunes);
             s_cidMap.Add('I', itunes);
@@ -199,7 +236,8 @@ namespace m4dModels
                 "XBox",
                 "xbox_store",
                 "Play it on Xbox Music",
-                "http://music.xbox.com/Track/{0}?partnerID=Music4Dance?action=play"
+                "http://music.xbox.com/Track/{0}?partnerID=Music4Dance?action=play",
+                "https://music.xboxlive.com/1/content/music/search?q={0}&filters=tracks"
             );
             s_idMap.Add(ServiceType.XBox, xbox);
             s_cidMap.Add('X', xbox);
@@ -208,6 +246,7 @@ namespace m4dModels
                 ServiceType.AMG,
                 'M',
                 "American Music Group",
+                null,
                 null,
                 null,
                 null
@@ -222,8 +261,8 @@ namespace m4dModels
         #endregion
 
         #region PurchaseType
-	    private static char[] s_purchaseTypes = new char[] { '#', 'A', 'S' };
+        private static char[] s_purchaseTypes = new char[] { '#', 'A', 'S' };
         private static string[] s_purchaseTypesEx = new string[] { "None", "Album", "Song" }; 
-        #endregion    
+        #endregion
     }
 }
