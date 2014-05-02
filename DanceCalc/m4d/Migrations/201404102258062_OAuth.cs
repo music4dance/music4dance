@@ -2,11 +2,13 @@ namespace m4d.Migrations
 {
     using System;
     using System.Data.Entity.Migrations;
+    using System.Diagnostics;
     
     public partial class OAuth : DbMigration
     {
         public override void Up()
         {
+            Trace.WriteLine("Entering DBMigration:OAuth - Up");
             RenameColumn(table: "dbo.AspNetUserClaims", name: "User_Id", newName: "UserId");
             RenameIndex(table: "dbo.AspNetUserClaims", name: "IX_User_Id", newName: "IX_UserId");
             DropPrimaryKey("dbo.AspNetUserLogins");
@@ -24,10 +26,12 @@ namespace m4d.Migrations
             CreateIndex("dbo.AspNetUsers", "UserName", unique: true, name: "UserNameIndex");
             CreateIndex("dbo.AspNetRoles", "Name", unique: true, name: "RoleNameIndex");
             DropColumn("dbo.AspNetUsers", "Discriminator");
+            Trace.WriteLine("Exiting DBMigration:OAuth - Up");
         }
         
         public override void Down()
         {
+            Trace.WriteLine("Entering DBMigration:OAuth - Down");
             AddColumn("dbo.AspNetUsers", "Discriminator", c => c.String(nullable: false, maxLength: 128));
             DropIndex("dbo.AspNetRoles", "RoleNameIndex");
             DropIndex("dbo.AspNetUsers", "UserNameIndex");
@@ -45,6 +49,7 @@ namespace m4d.Migrations
             AddPrimaryKey("dbo.AspNetUserLogins", new[] { "UserId", "LoginProvider", "ProviderKey" });
             RenameIndex(table: "dbo.AspNetUserClaims", name: "IX_UserId", newName: "IX_User_Id");
             RenameColumn(table: "dbo.AspNetUserClaims", name: "UserId", newName: "User_Id");
+            Trace.WriteLine("Exiting DBMigration:OAuth - Down");
         }
     }
 }

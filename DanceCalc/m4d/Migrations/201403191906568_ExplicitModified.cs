@@ -2,11 +2,13 @@ namespace m4d.Migrations
 {
     using System;
     using System.Data.Entity.Migrations;
+    using System.Diagnostics;
     
     public partial class ExplicitModified : DbMigration
     {
         public override void Up()
         {
+            Trace.WriteLine("Entering DBMigration:ExplicitModified - Up");
             DropForeignKey("dbo.ApplicationUserSongs", "ApplicationUser_Id", "dbo.AspNetUsers");
             DropForeignKey("dbo.ApplicationUserSongs", "Song_SongId", "dbo.Songs");
             DropIndex("dbo.ApplicationUserSongs", new[] { "ApplicationUser_Id" });
@@ -25,10 +27,12 @@ namespace m4d.Migrations
                 .Index(t => t.SongId);
             
             DropTable("dbo.ApplicationUserSongs");
+            Trace.WriteLine("Exiting DBMigration:ExplicitModified - Up");
         }
         
         public override void Down()
         {
+            Trace.WriteLine("Entering DBMigration:ExplicitModified - Down");
             CreateTable(
                 "dbo.ApplicationUserSongs",
                 c => new
@@ -47,6 +51,7 @@ namespace m4d.Migrations
             CreateIndex("dbo.ApplicationUserSongs", "ApplicationUser_Id");
             AddForeignKey("dbo.ApplicationUserSongs", "Song_SongId", "dbo.Songs", "SongId", cascadeDelete: true);
             AddForeignKey("dbo.ApplicationUserSongs", "ApplicationUser_Id", "dbo.AspNetUsers", "Id", cascadeDelete: true);
+            Trace.WriteLine("Exiting DBMigration:ExplicitModified - Down");
         }
     }
 }
