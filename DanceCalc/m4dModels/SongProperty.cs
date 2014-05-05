@@ -1,18 +1,20 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Linq;
+using System.Text;
 
 
 namespace m4dModels
 {
     public class SongProperty : DbObject
     {
-        // Name Syntax: [+-]BaseName[:idx[:qual]]
-        // Where default is repalce, + is add, - is delete
+        // Name Syntax: BaseName[:idx[:qual]]
         // idx is zeros based indes for multi-value fields (only album at this point?)
         // qual is a qualifier for purchase type (may generalize?)
         //
         // Not implementing this yet, but for artist might allow artist type after the colon
-        
+
+        #region Constructors
         public SongProperty()
         {
         }
@@ -21,9 +23,23 @@ namespace m4dModels
         {
             SongId = songId;
             Name = name;
+
+            if (value.Contains("\\t"))
+            {
+                value = value.Replace("\\t", "\t");
+            }
+            if (value.Contains("\\<EQ>\\"))
+            {
+                value.Replace("\\<EQ>\\", "=");
+            }
+            if (string.Equals(name, Song.TempoField))
+            {
+                value = FormatTempo(value);
+            }
+
             Value = value;
         }
-        public SongProperty(int songId, string baseName, string value=null, int index = -1, string qual = null)
+        public SongProperty(int songId, string baseName, string value = null, int index = -1, string qual = null)
         {
             SongId = songId;
 
@@ -31,7 +47,7 @@ namespace m4dModels
 
             if (index >= 0)
             {
-                name = string.Format("{0}:{1:2d}",name,index);
+                name = string.Format("{0}:{1:2d}", name, index);
             }
 
             if (qual != null)
@@ -42,7 +58,10 @@ namespace m4dModels
             Name = name;
             Value = value;
         }
+        
+        #endregion
 
+        #region Properties
         public Int64 Id { get; set; }
         public int SongId { get; set; }
         public virtual Song Song { get; set; }
@@ -91,7 +110,7 @@ namespace m4dModels
                 return ret;
             }
         }
-        public bool IsComplex 
+        public bool IsComplex
         {
             get { return IsComplexName(Name); }
         }
@@ -100,8 +119,8 @@ namespace m4dModels
             get { return IsActionName(Name); }
         }
 
-        public static bool IsComplexName(string name) 
-        { 
+        public static bool IsComplexName(string name)
+        {
             return name.Contains(":");
         }
         public static bool IsActionName(string name)
@@ -114,12 +133,6 @@ namespace m4dModels
             get
             {
                 string baseName = Name;
-
-                // TODO: Deprecate +/-
-                if (baseName.StartsWith("+")|| baseName.StartsWith("-"))
-                {
-                    baseName = baseName.Substring(1);
-                }
 
                 int i = baseName.IndexOf(':');
 
@@ -146,7 +159,7 @@ namespace m4dModels
                     {
                         int.TryParse(parts[1], out idx);
                     }
-                }                
+                }
 
                 return idx;
             }
@@ -171,7 +184,49 @@ namespace m4dModels
                 return qual;
             }
         }
+        
+        #endregion
 
+        #region Overrides
+        public override string ToString()
+        {
+            string value = Value;
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                value = string.Empty;
+            }
+            else if (string.Equals(BaseName, Song.TempoField))
+            {
+                value = FormatTempo(value);
+            }
+            else
+            {
+                if (value.Contains('='))
+                {
+                    value = value.Replace("=", "\\<EQ>\\");
+                }
+
+                if (value.Contains('\t'))
+                {
+                    value = value.Replace("\t", "\\t");
+                }
+            }
+
+            return string.Format("{0}={1}", Name, value);
+        }
+        
+        #endregion
+
+        #region Static Helpers
+        private static string FormatTempo(string value)
+        {
+            decimal v;
+            if (decimal.TryParse(value, out v))
+            {
+                value = v.ToString("F1");
+            }
+            return value;
+        }
         public static string FormatName(string baseName, int? idx = null, string qualifier = null)
         {
             string name = baseName;
@@ -188,7 +243,10 @@ namespace m4dModels
 
             return name;
         }
+        
+        #endregion
 
+        #region Diagnostics
         public override void Dump()
         {
             base.Dump();
@@ -196,5 +254,6 @@ namespace m4dModels
             string output = string.Format("Id={0},SongId={1},Name={2},Value={3}", Id, SongId, Name, Value);
             Trace.WriteLine(output);
         }
+        #endregion
     }
 }

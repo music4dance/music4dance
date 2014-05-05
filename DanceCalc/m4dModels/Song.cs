@@ -199,25 +199,9 @@ namespace m4dModels
                 {
                     if (!sp.IsAction)
                     {
-                        string value = sp.Value;
-                        if (string.IsNullOrWhiteSpace(value))
-                        {
-                            value = string.Empty;
-                        }
-                        else
-                        {
-                            if (value.Contains('='))
-                            {
-                                value = value.Replace("=", "\\<EQ>\\");
-                            }
+                        string p = sp.ToString();
 
-                            if (value.Contains('\t'))
-                            {
-                                value = value.Replace("\t", "\\t");
-                            }
-                        }
-
-                        sb.AppendFormat("{0}{1}={2}", sep, sp.Name, value);
+                        sb.AppendFormat("{0}{1}", sep, p);
 
                         sep = "\t";
                     }
@@ -241,16 +225,7 @@ namespace m4dModels
 
                 if (values.Length == 2)
                 {
-                    string value = values[1];
-                    if (value.Contains("\\t"))
-                    {
-                        value = value.Replace("\\t", "\t");
-                    }
-                    if (value.Contains("\\<EQ>\\"))
-                    {
-                        value.Replace("\\<EQ>\\", "=");
-                    }
-                    SongProperties.Add(new SongProperty(SongId, values[0], value));
+                    SongProperties.Add(new SongProperty(SongId, values[0], values[1]));
                 }
                 else
                 {
