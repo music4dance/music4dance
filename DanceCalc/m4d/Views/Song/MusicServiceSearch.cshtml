@@ -14,9 +14,10 @@
 
 @if (ViewBag.Error)
 {
-    using (@Html.BeginForm("XboxSearch","Song",FormMethod.Get))
+    using (@Html.BeginForm("MusicServiceSearch","Song",FormMethod.Get))
     { 
         <input type="hidden" name="id" value="@Model.Song.SongId" />
+        <input type="hidden" name="type" value="@ViewBag.Type" />
         <input type="text" name="search" value="@ViewBag.Search" />
         <input type="hidden" name="filter" value="@ViewBag.SongFilter"/>
         <input type="submit" value="Retry" />

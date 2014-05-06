@@ -528,7 +528,7 @@ namespace music4dance.Controllers
             int skipped = 0;
 
             SongFilter songFilter = ParseFilter(filter);
-            songFilter.Purchase = "!X";
+            songFilter.Purchase = "!" + type;
 
             IQueryable<Song> songs = BuildSongList(songFilter);
 
@@ -542,7 +542,7 @@ namespace music4dance.Controllers
                 // First check to see if we've already failed a search
                 // TODO: Check for the service once we add in itunes & amazon lookup
 
-                SongProperty hasFailed = song.SongProperties.FirstOrDefault(p => p.Name == Song.FailedLookup);
+                SongProperty hasFailed = song.SongProperties.FirstOrDefault(p => p.Name == Song.FailedLookup && p.Value.StartsWith(type));
                 SongDetails sd = new SongDetails(song);
 
                 if (hasFailed == null || sd.Albums.Count == 0)
@@ -588,18 +588,24 @@ namespace music4dance.Controllers
                             }
                         }
                         
+                        // Single song lookup and we've found the song
                         if (ar != null)
                         {
                             break;
                         }
-                        else if (count == 1)
+                        // Multi-song lookup and we found no tracks
+                        else if (tracks.Count == 0)
                         {
-                            failcode = "X:1";
+                            failcode = type + ":0";
+                        }
+                        else if (count > 1)
+                        {
+                            failcode = type +":1";
                         }
                     }
                     else
                     {
-                        failcode = "X:0";
+                        failcode = type + ":0";
                     }
 
                     if (failcode != null)
@@ -638,7 +644,7 @@ namespace music4dance.Controllers
             }
         }
 
-        // GET: /Song/MusicServiceSearch/5?search=name
+        // GET: /Song/viceSearch/5?search=name
         [Authorize(Roles = "canEdit")]
         public ActionResult MusicServiceSearch(int id = 0, string type="X", string search = null, string filter=null)
         {
@@ -654,9 +660,14 @@ namespace music4dance.Controllers
                 throw new ArgumentOutOfRangeException("type");
             }
 
+            search = search ?? DefaultServiceSearch(song);
+
             ServiceSearchResults view = new ServiceSearchResults { ServiceType = type, Song = song };
 
             ViewBag.SongFilter = ParseFilter(filter);
+            ViewBag.Search = search;
+            ViewBag.Type = type;
+
             try
             {
                 string responseString = FindMusicServiceSong(song,service,search);
@@ -669,7 +680,17 @@ namespace music4dance.Controllers
                     ViewBag.Status = "Unspecified Error";
                 }
 
-                view.Tracks = service.ParseSearchResults(results);
+                IList<ServiceTrack> tracks = service.ParseSearchResults(results);
+                if (tracks.Count == 0)
+                {
+                    ViewBag.Error = true;
+                    ViewBag.Status = "No Matches Found";
+                }
+                else
+                {
+                    view.Tracks = tracks;
+                }
+                
             }
             catch (WebException we)
             {
@@ -966,6 +987,11 @@ namespace music4dance.Controllers
         #endregion
 
         #region MusicService
+
+        private string DefaultServiceSearch(SongDetails song)
+        {
+            return song.Title + " " + song.Artist;
+        }
         private string FindMusicServiceSong(SongDetails song, MusicService service, string search = null)
         {
             HttpWebRequest request = null;
@@ -975,7 +1001,7 @@ namespace music4dance.Controllers
 
             // Make Music database request
 
-            string req = service.BuildSearchRequest(search ?? song.Title + " " + song.Artist);
+            string req = service.BuildSearchRequest(search ?? DefaultServiceSearch(song));
 
             request = (HttpWebRequest)WebRequest.Create(req);
             request.Method = WebRequestMethods.Http.Get;

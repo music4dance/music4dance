@@ -225,7 +225,7 @@ namespace m4dModels
                 "itunes_store",
                 "Buy it on ITunes",
                 "http://itunes.apple.com/album/id{1}?i={0}&uo=4&at=11lwtf",
-                "https://itunes.apple.com/search?term={0}&media=music&entity=song&limit=5"
+                "https://itunes.apple.com/search?term={0}&media=music&entity=song&limit=50"
             );
             s_idMap.Add(ServiceType.ITunes, itunes);
             s_cidMap.Add('I', itunes);
