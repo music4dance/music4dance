@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 
@@ -181,6 +182,17 @@ namespace m4dModels
             }
         }
         
+        public bool UpdateTitleHash()
+        {
+            bool ret = false;
+            int hash = CreateTitleHash(Title);
+            if (hash != TitleHash)
+            {
+                TitleHash = hash;
+                ret = true;
+            }
+            return ret;
+        }
         #endregion
 
         #region Serialization
@@ -294,7 +306,8 @@ namespace m4dModels
         {
             StringBuilder sb = new StringBuilder(s.Length);
 
-            string norm = s.Normalize(NormalizationForm.FormD);
+            string norm = s.Normalize(NormalizationForm.FormD) + '|';
+            int wordBreak = 0;
 
             bool paren = false;
             foreach (char c in norm)
@@ -306,23 +319,44 @@ namespace m4dModels
                         paren = false;
                     }
                 }
-                else
-                {
+                else {
                     if (char.IsLetterOrDigit(c))
                     {
                         char cNew = char.ToUpper(c);
                         sb.Append(cNew);
                     }
-                    else if (c == '(')
+                    else
                     {
-                        paren = true;
+                        UnicodeCategory uc = char.GetUnicodeCategory(c);
+                        if (uc != UnicodeCategory.NonSpacingMark && sb.Length > wordBreak)
+                        {
+                            string word = sb.ToString(wordBreak, sb.Length - wordBreak);
+                            if (s_ignore.Contains(word))
+                            {
+                                sb.Length = wordBreak;
+                            }
+                            wordBreak = sb.Length;
+                        }
+                        if (c == '(')
+                        {
+                            paren = true;
+                        }
                     }
                 }
             }
 
             return sb.ToString();
         }
-        
+
+        static string[] s_ignore =
+        {
+            "A",
+            "AND",
+            "OR",
+            "THE",
+            "THIS"
+        };
+
         #endregion
 
     //#region IEqualityComparer

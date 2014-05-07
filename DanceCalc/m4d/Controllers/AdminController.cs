@@ -94,7 +94,7 @@ namespace m4d.Controllers
         }
 
         //
-        // Get: //Reseed
+        // Get: //UpdatePurchase
         [Authorize(Roles = "dbAdmin")]
         public ActionResult UpdatePurchase()
         {
@@ -119,6 +119,30 @@ namespace m4d.Controllers
             return View("Results");
         }
 
+        //
+        // Get: //UpdateTitleHash
+        [Authorize(Roles = "dbAdmin")]
+        public ActionResult UpdateTitleHash()
+        {
+            ViewBag.Name = "UpdateTitleHash";
+            int count = 0;
+            using (DanceMusicContext dmc = new DanceMusicContext())
+            {
+                var songs = from s in dmc.Songs where s.TitleHash != 0 select s;
+                foreach (Song song in songs)
+                {
+                    if (song.UpdateTitleHash())
+                    {
+                        count += 1;
+                    }
+                }
+                dmc.SaveChanges();
+            }
+            ViewBag.Success = true;
+            ViewBag.Message = string.Format("Title Hashes were reseeded ({0})",count);
+
+            return View("Results");
+        }
 
         //
         // Get: //ReloadDatabase

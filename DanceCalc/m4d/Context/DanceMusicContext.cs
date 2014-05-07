@@ -283,6 +283,11 @@ namespace m4d.Context
 
         bool AddUserToSong(ApplicationUser user, Song song)
         {
+            if (song.ModifiedBy == null || song.ModifiedBy.Count == 0)
+            {
+                Debug.WriteLine("Modified by not loaded?");
+            }
+
             if (!song.ModifiedBy.Any(u => u.ApplicationUserId == user.Id))
             {
                 ModifiedRecord us = Modified.Create();

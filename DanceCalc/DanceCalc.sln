@@ -29,9 +29,15 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "m4d.Tests", "m4d.Tests\m4d.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "m4dModels", "m4dModels\m4dModels.csproj", "{DA8F57D2-6643-4B79-82A2-F1371D4748F8}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "m4dModels.Tests", "m4dModels.Tests\m4dModels.Tests.csproj", "{12B8DD57-9BB9-41EB-8957-198563E5210A}"
+	ProjectSection(ProjectDependencies) = postProject
+		{114FF99A-CAAC-4281-8F0A-35590A12A487} = {114FF99A-CAAC-4281-8F0A-35590A12A487}
+		{DA8F57D2-6643-4B79-82A2-F1371D4748F8} = {DA8F57D2-6643-4B79-82A2-F1371D4748F8}
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(TeamFoundationVersionControl) = preSolution
-		SccNumberOfProjects = 7
+		SccNumberOfProjects = 8
 		SccEnterpriseProvider = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
 		SccTeamFoundationServer = https://thegray.visualstudio.com/defaultcollection
 		SccLocalPath0 = .
@@ -53,6 +59,9 @@ Global
 		SccProjectUniqueName6 = m4dModels\\m4dModels.csproj
 		SccProjectName6 = m4dModels
 		SccLocalPath6 = m4dModels
+		SccProjectUniqueName7 = m4dModels.Tests\\m4dModels.Tests.csproj
+		SccProjectName7 = m4dModels.Tests
+		SccLocalPath7 = m4dModels.Tests
 	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -121,6 +130,14 @@ Global
 		{DA8F57D2-6643-4B79-82A2-F1371D4748F8}.Release|Any CPU.Build.0 = Release|Any CPU
 		{DA8F57D2-6643-4B79-82A2-F1371D4748F8}.Release|ARM.ActiveCfg = Release|Any CPU
 		{DA8F57D2-6643-4B79-82A2-F1371D4748F8}.Release|x86.ActiveCfg = Release|Any CPU
+		{12B8DD57-9BB9-41EB-8957-198563E5210A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{12B8DD57-9BB9-41EB-8957-198563E5210A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{12B8DD57-9BB9-41EB-8957-198563E5210A}.Debug|ARM.ActiveCfg = Debug|Any CPU
+		{12B8DD57-9BB9-41EB-8957-198563E5210A}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{12B8DD57-9BB9-41EB-8957-198563E5210A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{12B8DD57-9BB9-41EB-8957-198563E5210A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{12B8DD57-9BB9-41EB-8957-198563E5210A}.Release|ARM.ActiveCfg = Release|Any CPU
+		{12B8DD57-9BB9-41EB-8957-198563E5210A}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

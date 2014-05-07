@@ -9,7 +9,7 @@ namespace m4d.Tests.Controllers
     [ExcludeFromCodeCoverage]
     public class HomeControllerTest
     {
-        [TestMethod]
+        //[TestMethod]
         public void Index()
         {
             // Arrange

@@ -22,6 +22,7 @@
 <ul>
     <li>@Html.ActionLink("Backup the Database", "BackupDatabase")</li>
     <li>@Html.ActionLink("Update Purchase Info", "UpdatePurchase")</li>
+    <li>@Html.ActionLink("Update Title Hashes", "UpdateTitleHash")</li>
     @if (User.IsInRole("dbAdmin"))
     {
         <li>@Html.ActionLink("Restore the Datbase", "RestoreDatabase")</li>

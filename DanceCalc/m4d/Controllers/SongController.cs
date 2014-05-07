@@ -545,7 +545,7 @@ namespace music4dance.Controllers
                 SongProperty hasFailed = song.SongProperties.FirstOrDefault(p => p.Name == Song.FailedLookup && p.Value.StartsWith(type));
                 SongDetails sd = new SongDetails(song);
 
-                if (hasFailed == null || sd.Albums.Count == 0)
+                if (hasFailed == null || count==1)
                 {
                     string res = null;
 
