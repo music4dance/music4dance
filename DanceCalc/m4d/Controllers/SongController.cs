@@ -523,6 +523,9 @@ namespace music4dance.Controllers
                 throw new ArgumentOutOfRangeException("type");
             }
 
+            ViewBag.SearchType = type;
+            ViewBag.SongFilter = filter;
+
             ActionResult ar = null;
             int tried = 0;
             int skipped = 0;
@@ -564,13 +567,17 @@ namespace music4dance.Controllers
                     if (res != null)
                     {
                         var results = System.Web.Helpers.Json.Decode(res);
+                        bool foundAlbum = false;
 
                         IList<ServiceTrack> tracks = service.ParseSearchResults(results);
 
                         foreach (ServiceTrack track in tracks)
                         {
-                            if (sd.FindAlbum(track.Album) != null)
+                            if (sd.TitleArtistMatch(track.Name, track.Artist) && 
+                                (sd.Albums == null || sd.Albums.Count == 0 || sd.FindAlbum(track.Album) != null))
                             {
+                                foundAlbum = true;
+
                                 // Do this for the semi-manual version
                                 if (count == 1)
                                 {
@@ -593,14 +600,18 @@ namespace music4dance.Controllers
                         {
                             break;
                         }
-                        // Multi-song lookup and we found no tracks
-                        else if (tracks.Count == 0)
+                        else if (!foundAlbum)
                         {
-                            failcode = type + ":0";
-                        }
-                        else if (count > 1)
-                        {
-                            failcode = type +":1";
+                            // We found no tracks
+                            if (tracks.Count == 0)
+                            {
+                                failcode = type + ":0";
+                            }
+                            // Multi-song lookup and we found too many tracks
+                            else if (count > 1)
+                            {
+                                failcode = type + ":1";
+                            }
                         }
                     }
                     else

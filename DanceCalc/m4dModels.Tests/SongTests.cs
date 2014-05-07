@@ -16,7 +16,7 @@ namespace m4dModels.Tests
 
                 string n = Song.CreateNormalForm(t);
                 Assert.AreEqual<string>(normal[i], n);
-                Trace.WriteLine(string.Format("{0}",Song.CreateTitleHash(t)));
+                //Trace.WriteLine(string.Format("{0}",Song.CreateTitleHash(t)));
             }
         }
 

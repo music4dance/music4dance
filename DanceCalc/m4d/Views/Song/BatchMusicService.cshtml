@@ -24,3 +24,10 @@
 </ul>
 
 <h2>Skipped = @ViewBag.Skipped</h2>
+
+@if (!ViewBag.Completed)
+{
+    @Html.ActionLink("10", "BatchMusicService", new { filter = ViewBag.SongFilter, type=ViewBag.SearchType, count = 10 }, new { @class = "btn btn-default", role = "button" });
+    @Html.ActionLink("100", "BatchMusicService", new { filter = ViewBag.SongFilter, type=ViewBag.SearchType, count = 100 }, new { @class = "btn btn-default", role = "button" });
+    @Html.ActionLink("500", "BatchMusicService", new { filter = ViewBag.SongFilter, type = ViewBag.SearchType = "X", count = 500 }, new { @class = "btn btn-default", role = "button" });
+}

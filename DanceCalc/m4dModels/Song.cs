@@ -304,6 +304,11 @@ namespace m4dModels
 
         public static string CreateNormalForm(string s)
         {
+            if (string.IsNullOrWhiteSpace(s))
+            {
+                return string.Empty;
+            }
+
             StringBuilder sb = new StringBuilder(s.Length);
 
             string norm = s.Normalize(NormalizationForm.FormD) + '|';

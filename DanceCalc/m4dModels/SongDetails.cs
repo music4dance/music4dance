@@ -420,6 +420,14 @@ namespace m4dModels
         }
         
         #endregion
+
+        public bool TitleArtistMatch(string title, string artist)
+        {
+            return
+                string.Equals(Song.CreateNormalForm(title), Song.CreateNormalForm(Title)) &&
+                string.Equals(Song.CreateNormalForm(artist), Song.CreateNormalForm(Artist));
+        }
+
         private void UpdateDanceRating(string value)
         {
             if (DanceRatings == null)

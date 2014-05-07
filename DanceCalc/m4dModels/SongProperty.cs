@@ -24,17 +24,20 @@ namespace m4dModels
             SongId = songId;
             Name = name;
 
-            if (value.Contains("\\t"))
+            if (!string.IsNullOrWhiteSpace(value))
             {
-                value = value.Replace("\\t", "\t");
-            }
-            if (value.Contains("\\<EQ>\\"))
-            {
-                value.Replace("\\<EQ>\\", "=");
-            }
-            if (string.Equals(name, Song.TempoField))
-            {
-                value = FormatTempo(value);
+                if (value.Contains("\\t"))
+                {
+                    value = value.Replace("\\t", "\t");
+                }
+                if (value.Contains("\\<EQ>\\"))
+                {
+                    value.Replace("\\<EQ>\\", "=");
+                }
+                if (string.Equals(name, Song.TempoField))
+                {
+                    value = FormatTempo(value);
+                }
             }
 
             Value = value;

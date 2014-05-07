@@ -207,12 +207,14 @@
     @if (canEdit)
     {
         <input type="hidden" name="filter" value="@ViewBag.SongFilter" />
-        <input type="submit" name="action" value="Merge" class="btn"/>
+        <input type="submit" name="action" value="Merge" class="btn btn-"/>
         <input type="submit" name="action" value="Delete" class="btn" />
         @Html.ActionLink("Add New Song", "Create", null, new { @class = "btn btn-default", role = "button" });
-        @Html.ActionLink("XBox Match", "BatchMusicService", new { filter = ViewBag.SongFilter, type="X", count = 500 }, new { @class = "btn btn-default", role="button"});
-        @Html.ActionLink("ITunes Match", "BatchMusicService", new { filter = ViewBag.SongFilter, type="I", count = 500 }, new { @class = "btn btn-default", role = "button" });
-    }    
+        @Html.ActionLink("XBox Match", "BatchMusicService", new { filter = ViewBag.SongFilter, type="X", count = 1 }, new { @class = "btn btn-default", role="button"});
+        @Html.ActionLink("ITunes Match", "BatchMusicService", new { filter = ViewBag.SongFilter, type="I", count = 1 }, new { @class = "btn btn-default", role = "button" });
+        @Html.ActionLink("XBox Batch", "BatchMusicService", new { filter = ViewBag.SongFilter, type = "X", count = 10 }, new { @class = "btn btn-success", role = "button" });
+        @Html.ActionLink("ITunes Batch", "BatchMusicService", new { filter = ViewBag.SongFilter, type = "I", count = 10 }, new { @class = "btn btn-success", role = "button" });
+    }
 </p>
 }
 
