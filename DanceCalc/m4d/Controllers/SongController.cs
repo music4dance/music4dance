@@ -582,7 +582,7 @@ namespace music4dance.Controllers
                                 if (count == 1)
                                 {
                                     songFilter = ParseFilter(filter);
-                                    songFilter.Action = "BatchMusicService";
+                                    //songFilter.Action = "BatchMusicService";
                                     ar = ChooseMusicService(sd.SongId, service.CID.ToString(), track.Name, track.Album, track.Artist, track.TrackId, track.CollectionId, track.AltId, track.Duration.ToString(), track.Genre, track.TrackNumber, songFilter.ToString());
                                 }
                                 else
