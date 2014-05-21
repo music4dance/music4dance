@@ -198,6 +198,16 @@ namespace m4dModels
         #region Serialization
         public override string ToString()
         {
+            return Serialize(null);
+        }
+
+        /// <summary>
+        /// Serialize the song to a single string
+        /// </summary>
+        /// <param name="actions">Actions to include in the serialization</param>
+        /// <returns></returns>
+        public string Serialize(string[] actions)
+        {
             if (string.IsNullOrWhiteSpace(Title))
             {
                 return null;
@@ -209,7 +219,7 @@ namespace m4dModels
                 string sep = string.Empty;
                 foreach (SongProperty sp in SongProperties)
                 {
-                    if (!sp.IsAction)
+                    if (!sp.IsAction || (actions != null && actions.Contains(sp.Name)))
                     {
                         string p = sp.ToString();
 

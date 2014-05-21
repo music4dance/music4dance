@@ -21,6 +21,7 @@
 <h3> Initializiation Tasks</h3>
 <ul>
     <li>@Html.ActionLink("Backup the Database", "BackupDatabase")</li>
+    <li>@Html.ActionLink("Backup the Database (with lookup history)", "BackupDatabase", new {useLookupHistory = "true" })</li>
     <li>@Html.ActionLink("Update Purchase Info", "UpdatePurchase")</li>
     <li>@Html.ActionLink("Update Title Hashes", "UpdateTitleHash")</li>
     @if (User.IsInRole("dbAdmin"))

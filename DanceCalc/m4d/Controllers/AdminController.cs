@@ -201,7 +201,7 @@ namespace m4d.Controllers
         //
         // Get: //BackupDatabase
         [Authorize(Roles = "showDiagnostics")]
-        public ActionResult BackupDatabase()
+        public ActionResult BackupDatabase(string useLookupHistory=null)
         {
             StringBuilder sb = new StringBuilder();
 
@@ -209,7 +209,12 @@ namespace m4d.Controllers
             {
                 foreach (Song song in dmc.Songs)
                 {
-                    string line = song.ToString();
+                    string[] actions = null;
+                    if (!string.IsNullOrWhiteSpace(useLookupHistory))
+                    {
+                        actions = new string[] { Song.FailedLookup };
+                    }
+                    string line = song.Serialize(actions);
                     if (!string.IsNullOrWhiteSpace(line))
                     {
                         sb.AppendFormat("{0}\r\n", line);
