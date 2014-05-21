@@ -126,7 +126,7 @@ namespace m4d.Migrations
         private static string _dbaRole = "dbAdmin";
 
         private static string[] _roles = new string[] { _diagRole, _editRole, _dbaRole };
-        private static string[] _adminUsers = new string[] { "administrator", "dwgray" };
+        private static string[] _adminUsers = new string[] { "administrator", "dwgray", "batch" };
         private static string[] _diagUsers = new string[] { "lukim", "glennn" };
         private static string[] _editUsers = new string[] { "ajy", "SalsaSwingBallroom", "SandiegoDJ", "UsaSwingNet", "LetsDanceDenver", "SteveThatDJ", "JohnCrossan", "WaltersDanceCenter" };
     }
