@@ -21,6 +21,7 @@ namespace m4d.Controllers
 {
     public class AdminController : Controller
     {
+        #region Commands
         //
         // GET: /Admin/
         [Authorize(Roles = "showDiagnostics")]
@@ -103,7 +104,7 @@ namespace m4d.Controllers
             using (DanceMusicContext dmc = new DanceMusicContext())
             {
                 var songs = from s in dmc.Songs where s.TitleHash != 0 select s;
-                
+
                 foreach (Song song in songs)
                 {
                     SongDetails sd = new SongDetails(song);
@@ -139,7 +140,7 @@ namespace m4d.Controllers
                 dmc.SaveChanges();
             }
             ViewBag.Success = true;
-            ViewBag.Message = string.Format("Title Hashes were reseeded ({0})",count);
+            ViewBag.Message = string.Format("Title Hashes were reseeded ({0})", count);
 
             return View("Results");
         }
@@ -201,7 +202,7 @@ namespace m4d.Controllers
         //
         // Get: //BackupDatabase
         [Authorize(Roles = "showDiagnostics")]
-        public ActionResult BackupDatabase(string useLookupHistory=null)
+        public ActionResult BackupDatabase(string useLookupHistory = null)
         {
             StringBuilder sb = new StringBuilder();
 
@@ -242,7 +243,10 @@ namespace m4d.Controllers
 
             return View("Results");
         }
+        
+        #endregion
 
+        #region Migration-Restore
         private void RestoreDB()
         {
             var migrator = BuildMigrator();
@@ -259,6 +263,14 @@ namespace m4d.Controllers
             using (DanceMusicContext dmc = new DanceMusicContext())
             {
                 Configuration.DoSeed(dmc);
+            }
+        }
+        private void BuildDanceMap()
+        {
+            foreach (DanceObject d in Dance.DanceLibrary.DanceDictionary.Values)
+            {
+                string name = CleanName(d.Name);
+                _danceMap.Add(name, d.Id);
             }
         }
 
@@ -282,6 +294,14 @@ namespace m4d.Controllers
 
             return configuration;
         }
+        
+        #endregion        
+
+        #region Build-From-Text
+        /// <summary>
+        /// Reloads a list of songs into the database
+        /// </summary>
+        /// <param name="lines"></param>
         private void ReloadDB(List<string> lines)
         {
             using (DanceMusicContext dmc = new DanceMusicContext())
@@ -302,7 +322,7 @@ namespace m4d.Controllers
                     dmc.Songs.Add(song);
                     dmc.SaveChanges();
 
-                    song.Load(line,dmc);
+                    song.Load(line, dmc);
 
                     dmc.UpdateUsers(song);
                 }
@@ -312,31 +332,22 @@ namespace m4d.Controllers
                 foreach (Song song in dmc.Songs)
                 {
                     if (song.ModifiedBy != null)
-                    foreach (ModifiedRecord us in song.ModifiedBy)
-                    {
-                        string s = string.Format("{0}:{1}", song.SongId, us.ApplicationUserId);
-                        if (map.Contains(s))
+                        foreach (ModifiedRecord us in song.ModifiedBy)
                         {
-                            Trace.WriteLine(string.Format("Duplicate: '{0}'", s));
+                            string s = string.Format("{0}:{1}", song.SongId, us.ApplicationUserId);
+                            if (map.Contains(s))
+                            {
+                                Trace.WriteLine(string.Format("Duplicate: '{0}'", s));
+                            }
+                            else
+                            {
+                                map.Add(s);
+                            }
                         }
-                        else
-                        {
-                            map.Add(s);
-                        }
-                    }
                 }
 
                 dmc.Configuration.AutoDetectChangesEnabled = true;
                 dmc.SaveChanges();
-            }
-        }
- 
-        private void BuildDanceMap()
-        {
-            foreach (DanceObject d in Dance.DanceLibrary.DanceDictionary.Values)
-            {
-                string name = CleanName(d.Name);
-                _danceMap.Add(name, d.Id);
             }
         }
 
@@ -742,7 +753,7 @@ namespace m4d.Controllers
 
 
 
-        string[] _dbs = new string[] { "JohnCrossan", "LetsDanceDenver", "SalsaSwingBallroom", "SandiegoDJ", "SteveThatDJ", "UsaSwingNet", "WaltersDanceCenter"};
+        string[] _dbs = new string[] { "JohnCrossan", "LetsDanceDenver", "SalsaSwingBallroom", "SandiegoDJ", "SteveThatDJ", "UsaSwingNet", "WaltersDanceCenter" };
         private readonly int _chunk = 500;
 
         private Dictionary<string, string> _danceMap = new Dictionary<string, string>()
@@ -790,6 +801,7 @@ namespace m4d.Controllers
         private int _amazoncolumn = -1;
         private int _itunescolumn = -1;
         private TempoKind _tempoKind = TempoKind.BPM;
-        private string[] _headers;
-	}
+        private string[] _headers; 
+        #endregion
+    }
 }
