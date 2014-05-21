@@ -164,7 +164,6 @@ namespace m4d.Utilities
 
                 ItemSearchResponse response = FindTrack(title, artist);
 
-
                 if (response == null)
                 {
                     Trace.WriteLine(song.Title + ": Invalid Search");
@@ -190,8 +189,6 @@ namespace m4d.Utilities
                     if (song.TitleArtistMatch(title, artist))
                     {
                         // TODO: Figure out how better to deal with Amazon throttling
-                        System.Threading.Thread.Sleep(1000);
-
                         int trackNum = 0;
                         int? ntrackNum = null;
 
@@ -207,6 +204,18 @@ namespace m4d.Utilities
                             duration = (int) decimal.Round(item.ItemAttributes.RunningTime.Value);
                         }
 
+                        string collectionId = null;
+                        string albumTitle = null;
+                        if (item.RelatedItems != null && item.RelatedItems.Length > 0 &&
+                            item.RelatedItems[0].RelatedItem != null && item.RelatedItems[0].RelatedItem.Length > 0)
+                        {
+                            collectionId = item.RelatedItems[0].RelatedItem[0].Item.ASIN;
+                            if (item.RelatedItems[0].RelatedItem[0].Item.ItemAttributes != null)
+                            {
+                                albumTitle = item.RelatedItems[0].RelatedItem[0].Item.ItemAttributes.Title;
+                            }
+                        }
+
                         string trackId = item.ASIN;
                         ServiceTrack track = new ServiceTrack 
                         {
@@ -215,33 +224,11 @@ namespace m4d.Utilities
                             Artist = artist,
                             TrackNumber = ntrackNum,
                             Duration = duration,
-                            ReleaseDate = item.ItemAttributes.ReleaseDate
+                            ReleaseDate = item.ItemAttributes.ReleaseDate,
+                            CollectionId = "D:" + collectionId,
+                            Album = albumTitle
                         };
 
-                        ItemLookupResponse albumRef = FindAlbumId(trackId);
-                        if (albumRef.Items[0].Request.Errors != null)
-                        {
-                            Trace.WriteLine(song.Title + ":" + response.Items[0].Request.Errors[0].Message);
-                            return tracks;
-                        }
-
-                        string collectionId = null;
-                        if (albumRef.Items[0].Item != null && albumRef.Items[0].Item.Length > 0 &&
-                            albumRef.Items[0].Item[0].RelatedItems != null && albumRef.Items[0].Item[0].RelatedItems.Length > 0)
-                        {
-                            collectionId = albumRef.Items[0].Item[0].RelatedItems[0].RelatedItem[0].Item.ASIN;
-                            track.CollectionId = "D:" + collectionId;
-                        }
-
-                        if (track.CollectionId != null)
-                        {
-                            ItemLookupResponse albumInfo = FindAlbumInfo(collectionId);
-                            if (string.Equals(albumInfo.Items[0].Request.IsValid,"true",StringComparison.InvariantCultureIgnoreCase) &&
-                                albumInfo.Items[0].Item != null && albumInfo.Items[0].Item.Length > 0)
-                            {
-                                track.Album = albumInfo.Items[0].Item[0].ItemAttributes.Title;
-                            }
-                        }
                         tracks.Add(track);
 
                         // If we have an exact match break...
@@ -251,6 +238,8 @@ namespace m4d.Utilities
                         }
                     }
                 }
+
+                //FindAlbums(tracks);
 
                 return tracks;
             }
@@ -274,8 +263,8 @@ namespace m4d.Utilities
             request.SearchIndex = "DigitalMusic";
             request.Title = title;
             request.Keywords = artist;
-
-            request.ResponseGroup = new string[] { "ItemAttributes" };
+            request.RelationshipType = new string[] { "Tracks" };
+            request.ResponseGroup = new string[] { "ItemAttributes", "RelatedItems" };
 
             itemSearch = new ItemSearch();
             itemSearch.AssociateTag = associateTag;
@@ -295,78 +284,6 @@ namespace m4d.Utilities
                     System.Threading.Thread.Sleep(5000);
                 }
             }
-
-            return r;
-        }
-
-        private ItemLookupResponse FindAlbumId(string trackId)
-        {
-            string log = string.Format("FindAlbID - {0} - TrackId: '{1}'", DateTime.Now, trackId);
-            Trace.WriteLine(log);
-
-            ItemLookupRequest request = null;
-            ItemLookup itemLookup = null;
-
-            request = new ItemLookupRequest();
-            request.IncludeReviewsSummary = "false";
-            request.ItemId = new string[] {trackId};
-            request.RelationshipType = new string[] { "Tracks" };
-            request.ResponseGroup = new string[] { "RelatedItems" };
-
-            itemLookup = new ItemLookup();
-            itemLookup.AssociateTag = associateTag;
-            itemLookup.AWSAccessKeyId = accessKeyId;
-            itemLookup.Request = new ItemLookupRequest[] { request };
-
-            ItemLookupResponse r = null;
-            while (r == null)
-            {
-                try
-                {
-                    r = _client.ItemLookup(itemLookup);
-                }
-                catch (System.ServiceModel.ServerTooBusyException e)
-                {
-                    Trace.WriteLine("FindAlbumId: " + e.Message);
-                    System.Threading.Thread.Sleep(5000);
-                }
-            }
-
-            return r;
-        }
-
-        private ItemLookupResponse FindAlbumInfo(string albumId)
-        {
-            string log = string.Format("FindAlINF - {0} - AlbumId: '{1}'", DateTime.Now, albumId);
-            Trace.WriteLine(log);
-
-            ItemLookupRequest request = null;
-            ItemLookup itemLookup = null;
-
-            request = new ItemLookupRequest();
-            request.IncludeReviewsSummary = "false";
-            request.ItemId = new string[] { albumId };
-            request.ResponseGroup = new string[] { "Small" };
-
-            itemLookup = new ItemLookup();
-            itemLookup.AssociateTag = associateTag;
-            itemLookup.AWSAccessKeyId = accessKeyId;
-            itemLookup.Request = new ItemLookupRequest[] { request };
-
-            ItemLookupResponse r = null;
-            while (r == null)
-            {
-                try
-                {
-                    r = _client.ItemLookup(itemLookup);
-                }
-                catch (System.ServiceModel.ServerTooBusyException e)
-                {
-                    Trace.WriteLine("FindAlbumInfo: " + e.Message);
-                    System.Threading.Thread.Sleep(5000);
-                }
-            }
-
             return r;
         }
     }
