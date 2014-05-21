@@ -22,10 +22,11 @@
                 @Html.ActionLink("Delete", "Delete", new { id = Model.SongId, filter = ViewBag.SongFilter }, new { @class = "btn btn-small btn-default", role = "button" })
                 @Html.ActionLink("XBox", "MusicServiceSearch", new { id = Model.SongId, type="X", filter = ViewBag.SongFilter }, new { @class = "btn btn-small btn-default", role = "button" })
                 @Html.ActionLink("ITunes", "MusicServiceSearch", new { id = Model.SongId, type = "I", filter = ViewBag.SongFilter }, new { @class = "btn btn-small btn-default", role = "button" })
+                @Html.ActionLink("Amazon", "MusicServiceSearch", new { id = Model.SongId, type = "A", filter = ViewBag.SongFilter }, new { @class = "btn btn-small btn-default", role = "button" })
+                @Html.ActionLink("Next XBox", "BatchMusicService", new { filter = ViewBag.SongFilter, type = "X", count = 1 }, new { @class = "btn btn-small btn-primary", role = "button" })
+                @Html.ActionLink("Next Itunes", "BatchMusicService", new { filter = ViewBag.SongFilter, type = "I", count = 1 }, new { @class = "btn btn-small btn-primary", role = "button" })
             }
             @Html.ActionLink("Back to List", (string)ViewBag.SongFilter.Action, new { filter = ViewBag.SongFilter }, new { @class = "btn btn-small btn-primary", role = "button" })
-            @Html.ActionLink("Next XBox", "BatchMusicService", new { filter = ViewBag.SongFilter, type = "X", count = 1 }, new { @class = "btn btn-small btn-primary", role = "button" })
-            @Html.ActionLink("Next Itunes", "BatchMusicService", new { filter = ViewBag.SongFilter, type = "I", count = 1 }, new { @class = "btn btn-small btn-primary", role = "button" })
         </div>
     </div>
     <hr />

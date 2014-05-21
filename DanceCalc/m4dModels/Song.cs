@@ -302,7 +302,7 @@ namespace m4dModels
             return CreateNormalForm(title).GetHashCode();
         }
 
-        public static string CreateNormalForm(string s)
+        private static string MungeString(string s, bool normalize)
         {
             if (string.IsNullOrWhiteSpace(s))
             {
@@ -311,12 +311,23 @@ namespace m4dModels
 
             StringBuilder sb = new StringBuilder(s.Length);
 
-            string norm = s.Normalize(NormalizationForm.FormD) + '|';
+            string norm = s + '|';
+            if (normalize)
+            {
+                norm = norm.Normalize(NormalizationForm.FormD);
+            }
+
             int wordBreak = 0;
 
             bool paren = false;
-            foreach (char c in norm)
+            bool bracket = false;
+            bool space = false;
+            char lastC = ' ';
+
+            for (int i = 0; i < norm.Length; i++)
             {
+                char c = norm[i];
+
                 if (paren)
                 {
                     if (c == ')')
@@ -324,11 +335,31 @@ namespace m4dModels
                         paren = false;
                     }
                 }
-                else {
+                else if (bracket)
+                {
+                    if (c == ']')
+                    {
+                        bracket = false;
+                    }
+                }
+                else
+                {
                     if (char.IsLetterOrDigit(c))
                     {
-                        char cNew = char.ToUpper(c);
+                        if (!normalize && space)
+                        {
+                            sb.Append(' ');
+                            space = false;
+                        }
+                        char cNew = normalize ? char.ToUpper(c) : c;
                         sb.Append(cNew);
+                        lastC = cNew;
+                    }
+                    else if (!normalize && c == '\'' && char.IsLetter(lastC) && norm.Length > i+1 && char.IsLetter(norm[i+1]))
+                    {
+                        // Special case apostrophe (e.g. that's)
+                        sb.Append(c);
+                        lastC = c;
                     }
                     else
                     {
@@ -346,11 +377,25 @@ namespace m4dModels
                         {
                             paren = true;
                         }
+                        else if (c == '[')
+                        {
+                            bracket = true;
+                        }
+
+                        space = true;
                     }
                 }
             }
 
             return sb.ToString();
+        }
+        public static string CreateNormalForm(string s)
+        {
+            return MungeString(s, true);
+        }
+        public static string CleanString(string s)
+        {
+            return MungeString(s, false);
         }
 
         static string[] s_ignore =

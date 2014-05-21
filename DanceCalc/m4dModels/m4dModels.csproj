@@ -66,6 +66,7 @@
   <ItemGroup>
     <Compile Include="AccountViewModels.cs" />
     <Compile Include="AlbumDetails.cs" />
+    <Compile Include="AmazonService.cs" />
     <Compile Include="ApplicationUser.cs" />
     <Compile Include="Dance.cs" />
     <Compile Include="DanceRating.cs" />

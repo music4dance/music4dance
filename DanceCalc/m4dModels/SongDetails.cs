@@ -428,6 +428,20 @@ namespace m4dModels
                 string.Equals(Song.CreateNormalForm(artist), Song.CreateNormalForm(Artist));
         }
 
+        public string CleanTitle
+        {
+            get
+            {
+                return Song.CleanString(Title);
+            }
+        }
+        public string CleanArtist
+        {
+            get
+            {
+                return Song.CleanString(Artist);
+            }
+        }
         private void UpdateDanceRating(string value)
         {
             if (DanceRatings == null)

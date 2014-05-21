@@ -514,8 +514,16 @@ namespace music4dance.Controllers
             return View("Details",_db.FindSongDetails(song.SongId));
         }
 
+        /// <summary>
+        /// Batch up searching a music service
+        /// </summary>
+        /// <param name="type">Music service type (currently X=XBox,A=Amazon,I=ITunes)</param>
+        /// <param name="options">May be more complex in future - currently Rn where n is retyr level</param>
+        /// <param name="filter">Standard filter for song list</param>
+        /// <param name="count">Number of songs to try, 1 is special cased as a user verified single entry</param>
+        /// <returns></returns>
         [Authorize(Roles = "canEdit")]
-        public ActionResult BatchMusicService(string type= "X", string filter=null, int count = 1)
+        public ActionResult BatchMusicService(string type= "X", string options = null, string filter=null, int count = 1)
         {
             MusicService service = MusicService.GetService(type);
             if (service == null)
@@ -525,10 +533,20 @@ namespace music4dance.Controllers
 
             ViewBag.SearchType = type;
             ViewBag.SongFilter = filter;
+            ViewBag.Options = options;
+            ViewBag.Error = false;
 
             ActionResult ar = null;
             int tried = 0;
             int skipped = 0;
+
+            int retryLevel = -1;
+
+            // May do more options in future
+            if (!string.IsNullOrWhiteSpace(options) && options.Length > 1 && options[0] == 'R')
+            {
+                int.TryParse(options.Substring(1), out retryLevel);
+            }
 
             SongFilter songFilter = ParseFilter(filter);
             songFilter.Purchase = "!" + type;
@@ -542,21 +560,27 @@ namespace music4dance.Controllers
 
             foreach (Song song in songs)
             {
-                // First check to see if we've already failed a search
-                // TODO: Check for the service once we add in itunes & amazon lookup
+                // First check to see if we've already failed a search and at what level
+                //  failLeve is the LOWEST failure code or -1 if none
 
-                SongProperty hasFailed = song.SongProperties.FirstOrDefault(p => p.Name == Song.FailedLookup && p.Value.StartsWith(type));
+                int failLevel = -1;
+                SongProperty fail = song.SongProperties.OrderBy(p => p.Value).FirstOrDefault(p => p.Name == Song.FailedLookup && p.Value.StartsWith(type));
+                if (fail != null && fail.Value != null && fail.Value.Length > 2)
+                {
+                    int.TryParse(fail.Value.Substring(2), out failLevel);
+                }
+
                 SongDetails sd = new SongDetails(song);
 
-                if (hasFailed == null || count==1)
+                if (failLevel == retryLevel || count==1)
                 {
-                    string res = null;
+                    int failcode = -1;
 
-                    string failcode = null;
-
+                    IList<ServiceTrack> tracks = null;
+                    // First try the full title/artist
                     try
                     {
-                        res = FindMusicServiceSong(sd, service);
+                        tracks = FindMusicServiceSong(sd, service);
                     }
                     catch (WebException we)
                     {
@@ -564,12 +588,25 @@ namespace music4dance.Controllers
                         ViewBag.Status = we.Message;
                     }
 
-                    if (res != null)
+                    if (tracks == null && !string.Equals(DefaultServiceSearch(sd,true),DefaultServiceSearch(sd,false)))
                     {
-                        var results = System.Web.Helpers.Json.Decode(res);
-                        bool foundAlbum = false;
+                        // Now try cleaned up title/artist (remove punctuation and stuff in parens/brackets)
+                        try
+                        {
+                            tracks = FindMusicServiceSong(sd, service,true);
+                            ViewBag.Error = false;
+                            ViewBag.Status = null;
+                        }
+                        catch (WebException we)
+                        {
+                            ViewBag.Error = true;
+                            ViewBag.Status = we.Message;
+                        }
+                    }
 
-                        IList<ServiceTrack> tracks = service.ParseSearchResults(results);
+                    if (tracks != null)
+                    {
+                        bool foundAlbum = false;
 
                         foreach (ServiceTrack track in tracks)
                         {
@@ -581,15 +618,13 @@ namespace music4dance.Controllers
                                 // Do this for the semi-manual version
                                 if (count == 1)
                                 {
-                                    songFilter = ParseFilter(filter);
-                                    //songFilter.Action = "BatchMusicService";
-                                    ar = ChooseMusicService(sd.SongId, service.CID.ToString(), track.Name, track.Album, track.Artist, track.TrackId, track.CollectionId, track.AltId, track.Duration.ToString(), track.Genre, track.TrackNumber, songFilter.ToString());
+                                    ar = ChooseMusicService(sd.SongId, service.CID.ToString(), track.Name, track.Album, track.Artist, track.TrackId, track.CollectionId, track.AltId, track.Duration.ToString(), track.Genre, track.TrackNumber, filter);
                                 }
                                 else
                                 {
                                     UpdateMusicService(sd, service, track.Name, track.Album, track.Artist, track.TrackId, track.CollectionId, track.AltId, track.Duration.ToString(), track.Genre, track.TrackNumber);
                                     succeeded.Add(_db.EditSong(user,sd,null,null));
-                                    tried += 1;
+                                   tried += 1;
                                 }
                                 break;
                             }
@@ -605,27 +640,32 @@ namespace music4dance.Controllers
                             // We found no tracks
                             if (tracks.Count == 0)
                             {
-                                failcode = type + ":0";
+                                failcode = 0;
                             }
                             // Multi-song lookup and we found too many tracks
                             else if (count > 1)
                             {
-                                failcode = type + ":1";
+                                failcode = 1;
                             }
                         }
                     }
                     else
                     {
-                        failcode = type + ":0";
+                        failcode = 0;
                     }
 
-                    if (failcode != null)
+                    //  Add all failures to the list and increment tried
+                    if (failcode >= 0)
                     {
-                        SongProperty sp = _db.SongProperties.Create();
-                        sp.Name = Song.FailedLookup;
-                        sp.Value = failcode;
-                        song.SongProperties.Add(sp);
-
+                        // Only add in a new failed code to the DB if the code
+                        // is higher than the previous code
+                        if (failcode > failLevel)
+                        {
+                            SongProperty sp = _db.SongProperties.Create();
+                            sp.Name = Song.FailedLookup;
+                            sp.Value = type + ":" + failcode.ToString();
+                            song.SongProperties.Add(sp);
+                        }
                         failed.Add(song);
                         tried += 1;
                     }
@@ -655,7 +695,7 @@ namespace music4dance.Controllers
             }
         }
 
-        // GET: /Song/viceSearch/5?search=name
+        // GET: /Song/MusicServiceSearch/5?search=name
         [Authorize(Roles = "canEdit")]
         public ActionResult MusicServiceSearch(int id = 0, string type="X", string search = null, string filter=null)
         {
@@ -671,28 +711,19 @@ namespace music4dance.Controllers
                 throw new ArgumentOutOfRangeException("type");
             }
 
-            search = search ?? DefaultServiceSearch(song);
+            search = search ?? DefaultServiceSearch(song,false);
 
             ServiceSearchResults view = new ServiceSearchResults { ServiceType = type, Song = song };
 
             ViewBag.SongFilter = ParseFilter(filter);
             ViewBag.Search = search;
             ViewBag.Type = type;
+            ViewBag.Error = false;
 
             try
             {
-                string responseString = FindMusicServiceSong(song,service,search);
-                responseString = service.PreprocessSearchResponse(responseString);
-                dynamic results = System.Web.Helpers.Json.Decode(responseString);
-
-                if (results == null)
-                {
-                    ViewBag.Error = true;
-                    ViewBag.Status = "Unspecified Error";
-                }
-
-                IList<ServiceTrack> tracks = service.ParseSearchResults(results);
-                if (tracks.Count == 0)
+                IList<ServiceTrack> tracks = FindMusicServiceSong(song,service,false,search);
+                if (tracks == null || tracks.Count == 0)
                 {
                     ViewBag.Error = true;
                     ViewBag.Status = "No Matches Found";
@@ -999,11 +1030,41 @@ namespace music4dance.Controllers
 
         #region MusicService
 
-        private string DefaultServiceSearch(SongDetails song)
+        private string DefaultServiceSearch(SongDetails song, bool clean)
         {
-            return song.Title + " " + song.Artist;
+            if (clean)
+                return song.CleanTitle + " " + song.CleanArtist;
+            else
+                return song.Title + " " + song.Artist;
         }
-        private string FindMusicServiceSong(SongDetails song, MusicService service, string search = null)
+
+        // Obviously not the clean abstraction, but Amazon is different enough that my abstraction
+        //  between itunes and xbox doesn't work.   So I'm going to shoe-horn this in to get it working
+        //  and refactor later.
+
+        private IList<ServiceTrack> FindMusicServiceSong(SongDetails song, MusicService service, bool clean = false, string search = null)
+        {
+            switch (service.ID)
+            {
+                case ServiceType.Amazon:
+                    return FindMSSongAmazon(song, clean, search);
+                default:
+                    return FindMSSongGeneral(song, service, clean, search);
+            }
+        }
+
+        private IList<ServiceTrack> FindMSSongAmazon(SongDetails song, bool clean = false, string search = null)
+        {
+            if (_awsFetcher == null)
+            {
+                _awsFetcher = new AWSFetcher();
+            }
+            return _awsFetcher.FetchTracks(song,clean);
+        }
+
+        AWSFetcher _awsFetcher;
+
+        private IList<ServiceTrack> FindMSSongGeneral(SongDetails song, MusicService service, bool clean = false, string search = null)
         {
             HttpWebRequest request = null;
             HttpWebResponse response = null;
@@ -1012,7 +1073,7 @@ namespace music4dance.Controllers
 
             // Make Music database request
 
-            string req = service.BuildSearchRequest(search ?? DefaultServiceSearch(song));
+            string req = service.BuildSearchRequest(search ?? DefaultServiceSearch(song,clean));
 
             request = (HttpWebRequest)WebRequest.Create(req);
             request.Method = WebRequestMethods.Http.Get;
@@ -1034,12 +1095,18 @@ namespace music4dance.Controllers
                     {
                         responseString = sr.ReadToEnd();
                     }
-
-                    return responseString;
                 }
             }
-
-            return null;
+            if (responseString != null)
+            {
+                responseString = service.PreprocessSearchResponse(responseString);
+                dynamic results = System.Web.Helpers.Json.Decode(responseString);
+                return service.ParseSearchResults(results);
+            }
+            else
+            {
+                return new List<ServiceTrack>();
+            }
         }
         SongDetails UpdateMusicService(SongDetails song, MusicService service, string name, string album, string artist, string trackId, string collectionId, string alternateId, string duration, string genre, int? trackNum)
         {

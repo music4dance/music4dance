@@ -23,7 +23,7 @@ namespace m4dModels.Tests
         [TestMethod]
         public void TitleHash()
         {
-            for (int i = 0; i < titles.Length; i++)
+            for (int i = 0; i < hashes.Length; i++)
             {
                 string t = titles[i];
 
@@ -32,20 +32,36 @@ namespace m4dModels.Tests
             }
         }
 
+        [TestMethod]
+        public void CleanString()
+        {
+            for (int i = 0; i < titles.Length; i++)
+            {
+                string t = titles[i];
+
+                string n = Song.CreateNormalForm(t);
+                Assert.AreEqual<string>(normal[i], n);
+                //Trace.WriteLine(string.Format("{0}",Song.CreateTitleHash(t)));
+            }
+        }
+
         static string[] titles = new string[] {
             "ñ-é á",
-            "Señor Bolero",
-            "Viaje Tiemp Atrás",
-            "Solo Tu",
+            "Señor  Bolero",
+            "Viaje Tiemp  Atrás",
+            "Solo\tTu",
             "Señales De Humo",
             "España Cañi",
             "Y'a Qu'les Filles Qui M'interessent",
             "A Namorádo",
             "Satisfaction (I Can't Get No)",
             "Satisfaction",
-            "Moliendo Café",
+            "Moliendo  Café",
             "This is the Life",
-            "How a Stranger can the Live"
+            "How a Stranger can the Live",
+            "Satisfaction [I Can't Get] (No)",
+            "Satisfaction [I Can't Get (No)]",
+            "Can't [get] [no (satisfaction)] for's real"
         };
 
         static string[] normal = new string[] {
@@ -61,7 +77,27 @@ namespace m4dModels.Tests
             "SATISFACTION",
             "MOLIENDOCAFE",
             "ISLIFE",
-            "HOWSTRANGERCANLIVE"
+            "HOWSTRANGERCANLIVE",
+            "SATISFACTION",
+            "SATISFACTION",
+            "CANTFORSREAL"
+        };
+
+        static string[] clean = new string[] {
+            "ñ é á",
+            "Señor Bolero",
+            "Viaje Tiemp Atrás",
+            "Solo Tu",
+            "Señales De Humo",
+            "España Cañi",
+            "Y Qu les Filles Qui M interessent",
+            "Namorádo",
+            "Satisfaction (I Can t Get No)",
+            "Satisfaction",
+            "Moliendo Café",
+            "This is Life",
+            "How Stranger can Live",
+            "Can't for's real"
         };
 
         static int[] hashes = new int[] {

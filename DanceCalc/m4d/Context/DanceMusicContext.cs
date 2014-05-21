@@ -332,8 +332,6 @@ namespace m4d.Context
 
             song.Album = null;
 
-            // TODO: Think about how we might want to 
-            //  put the xbox selection at the top of the album list...
             for (int aidx = 0; aidx < edit.Albums.Count; aidx++ )
             {
                 AlbumDetails album =  edit.Albums[aidx];

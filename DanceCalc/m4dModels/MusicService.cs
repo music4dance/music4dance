@@ -206,7 +206,7 @@ namespace m4dModels
             s_idMap = new Dictionary<ServiceType, MusicService>();
             s_cidMap = new Dictionary<char, MusicService>();
 
-            MusicService amazon = new MusicService(
+            MusicService amazon = new AmazonService(
                 ServiceType.Amazon,
                 'A',
                 "Amazon",
