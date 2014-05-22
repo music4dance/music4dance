@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace m4dModels
 {
@@ -61,6 +63,15 @@ namespace m4dModels
                 return Purchase != null && Purchase.Count > 0;
             }
         }
+
+        public bool IsRealAlbum
+        {
+            get
+            {
+                return !string.IsNullOrWhiteSpace(Name) && !s_wordPattern.Split(Name.ToLower()).Any(w => s_ballroomWords.Contains(w));
+            }
+        }
+
         #endregion
 
         #region Purchase Serialization
@@ -319,6 +330,10 @@ namespace m4dModels
 
             return modified;
         }
+
+        static Regex s_wordPattern = new Regex(@"\W");
+        static HashSet<string> s_ballroomWords = new HashSet<string>() { "ballroom", "latin", "ultimate", "standard", "dancing", "competition", "classics", "dance" };
+
         #endregion
     }
 }

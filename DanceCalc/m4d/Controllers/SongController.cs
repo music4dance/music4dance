@@ -606,46 +606,60 @@ namespace music4dance.Controllers
 
                     if (tracks != null)
                     {
-                        bool foundAlbum = false;
+                        ServiceTrack foundTrack = null;
 
+                        // First check for exact album match
                         foreach (ServiceTrack track in tracks)
                         {
-                            if (sd.TitleArtistMatch(track.Name, track.Artist) && 
-                                (sd.Albums == null || sd.Albums.Count == 0 || sd.FindAlbum(track.Album) != null))
+                            if (sd.TitleArtistMatch(track.Name, track.Artist) && sd.FindAlbum(track.Album) != null)
                             {
-                                foundAlbum = true;
-
-                                // Do this for the semi-manual version
-                                if (count == 1)
-                                {
-                                    ar = ChooseMusicService(sd.SongId, service.CID.ToString(), track.Name, track.Album, track.Artist, track.TrackId, track.CollectionId, track.AltId, track.Duration.ToString(), track.Genre, track.TrackNumber, filter);
-                                }
-                                else
-                                {
-                                    UpdateMusicService(sd, service, track.Name, track.Album, track.Artist, track.TrackId, track.CollectionId, track.AltId, track.Duration.ToString(), track.Genre, track.TrackNumber);
-                                    succeeded.Add(_db.EditSong(user,sd,null,null));
-                                   tried += 1;
-                                }
+                                foundTrack = track;
                                 break;
                             }
                         }
-                        
-                        // Single song lookup and we've found the song
-                        if (ar != null)
+
+                        // If no album match, choose the 'dominant' version of hte title/artist match by clustering lengths
+                        //  Note that this degenerates to chosing a single album if that is what is available
+                        if (foundTrack == null && !sd.HasRealAblums)
                         {
-                            break;
-                        }
-                        else if (!foundAlbum)
-                        {
-                            // We found no tracks
-                            if (tracks.Count == 0)
+                            foundTrack = sd.FindDominantTrack(tracks);
+                            // This may be temporary - we hit this code to try to do cluster matching
+                            //  so put in a higher fail level
+                            if (failLevel == 1 && foundTrack == null)
                             {
-                                failcode = 0;
+                                failcode = 2;
                             }
-                            // Multi-song lookup and we found too many tracks
-                            else if (count > 1)
+                        }
+
+                        
+                        if (foundTrack != null)
+                        {
+                            // Single song lookup and we've found the song
+                            if (count == 1)
                             {
-                                failcode = 1;
+                                ar = ChooseMusicService(sd.SongId, service.CID.ToString(), foundTrack.Name, foundTrack.Album, foundTrack.Artist, foundTrack.TrackId, foundTrack.CollectionId, foundTrack.AltId, foundTrack.Duration.ToString(), foundTrack.Genre, foundTrack.TrackNumber, filter);
+                            }
+                            else
+                            {
+                                UpdateMusicService(sd, service, foundTrack.Name, foundTrack.Album, foundTrack.Artist, foundTrack.TrackId, foundTrack.CollectionId, foundTrack.AltId, foundTrack.Duration.ToString(), foundTrack.Genre, foundTrack.TrackNumber);
+                                succeeded.Add(_db.EditSong(user, sd, null, null));
+                                tried += 1;
+                            }
+                        }
+                        else
+                        {
+                            if (failcode == -1)
+                            {
+                                // We found no tracks
+                                if (tracks.Count == 0)
+                                {
+                                    failcode = 0;
+                                }
+                                // Multi-song lookup and we found too many tracks
+                                else if (count > 1)
+                                {
+                                    failcode = 1;
+                                }
                             }
                         }
                     }

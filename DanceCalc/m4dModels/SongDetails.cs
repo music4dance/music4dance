@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace m4dModels
 {
@@ -170,6 +171,20 @@ namespace m4dModels
             }
 
             return ret;
+        }
+
+        // "Real" albums in this case being non-ballroom compilation-type albums
+        public bool HasRealAblums
+        {
+            get
+            {
+                bool ret = false;
+                if (Albums != null)
+                {
+                    ret = Albums.Any(a => a.IsRealAlbum);
+                }
+                return ret;
+            }
         }
 
         public List<AlbumDetails> CloneAlbums()
@@ -459,6 +474,75 @@ namespace m4dModels
             }
 
             dr.Weight += drd.Delta;
+        }
+        /// <summary>
+        /// Finds a representitive of the largest cluster of tracks 
+        ///  (clustered by approximate duration) that is an very
+        ///  close title/artist match
+        /// </summary>
+        /// <param name="tracks"></param>
+        /// <returns></returns>
+        public ServiceTrack FindDominantTrack(IList<ServiceTrack> tracks)
+        {
+            ServiceTrack ret = null;
+
+            Dictionary<int, List<ServiceTrack>> cluster = ClusterTracks(tracks);
+
+            List<ServiceTrack> winner = null;
+
+            // If we only have one cluster, we're set
+            if (cluster.Count == 1)
+            {
+                winner = cluster.Values.First();
+            }
+            else if (cluster.Count != 0) // Try clustering off phase if we had any clustering at all
+            {
+                Dictionary<int, List<ServiceTrack>> clusterT = ClusterTracks(tracks,10,5);
+                if (clusterT.Count == 1)
+                {
+                    winner = clusterT.Values.First();
+                }
+                else
+                {
+                    // Neither clustering results in a clear winner, so try for the one with the
+                    // smallest number
+                    if (clusterT.Count < cluster.Count)
+                    {
+                        cluster = clusterT;
+                    }
+
+                    winner = cluster.Values.Aggregate( ( seed, f ) => f.Count > seed.Count ? f : seed );
+                }
+            }
+
+            if (winner != null)
+            {
+                ret = winner.First();
+            }
+
+            return ret;
+        }
+
+        private Dictionary<int, List<ServiceTrack>> ClusterTracks(IList<ServiceTrack> tracks, int size = 10, int offset = 0)
+        {
+            Dictionary<int, List<ServiceTrack>> ret = new Dictionary<int, List<ServiceTrack>>();
+
+            foreach (ServiceTrack track in tracks)
+            {
+                if (track.Duration.HasValue && TitleArtistMatch(track.Name, track.Artist))
+                {
+                    int cluster = (track.Duration.Value + offset) / size;
+                    List<ServiceTrack> list = null;
+                    if (!ret.TryGetValue(cluster,out list))
+                    {
+                        list = new List<ServiceTrack>();
+                        ret.Add(cluster, list);
+                    }
+                    list.Add(track);
+                }
+            }
+
+            return ret;
         }
     }
 }
