@@ -1,0 +1,88 @@
+﻿@{
+    ViewBag.Title = "Upload Tempoes";
+}
+
+@model IEnumerable<m4d.ViewModels.LocalMerger>
+
+<h2>UploadTempoes</h2>
+
+<p>
+    @Html.ActionLink("Create New", "Create")
+</p>
+<table class="table table-striped">
+    <tr>
+        <th>
+            @Html.DisplayNameFor(model => model.Left.SongId)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Left.Title)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Left.Artist)
+        </th>
+        <th>
+            Album
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Left.Tempo)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Left.Length)
+        </th>
+    </tr>
+
+    @foreach (var item in Model) 
+    {
+        <tr>
+            <td>
+                @Html.ActionLink(item.Left.SongId.ToString(), "Details", new { id = item.Left.SongId })
+            <td>
+                @Html.DisplayFor(modelItem => item.Left.Title)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Left.Artist)
+            </td>
+            <td>
+                @if (item.Left.HasAlbums)
+                {
+                    @Html.DisplayFor(modelItem => item.Left.Albums[0].Name)
+                }
+                else
+                {
+                    <text>&nbsp;</text>
+                }
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Left.Tempo)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Left.Length)
+            </td>
+        </tr>
+        <tr>
+            <td>&nbsp;</td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Right.Title)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Right.Artist)
+            </td>
+            <td>
+                @if (item.Right.HasAlbums)
+                {
+                    @Html.DisplayFor(modelItem => item.Right.Albums[0].Name)
+                }
+                else
+                {
+                    <text>&nbsp;</text>
+                }
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Right.Tempo)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Right.Length)
+            </td>
+        </tr>
+    }
+</table>

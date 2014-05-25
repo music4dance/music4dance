@@ -21,6 +21,8 @@ namespace m4d.Controllers
 {
     public class AdminController : Controller
     {
+        private DanceMusicContext _db = new DanceMusicContext();
+
         #region Commands
         //
         // GET: /Admin/
@@ -38,12 +40,9 @@ namespace m4d.Controllers
             List<string> results = new List<string>();
 
             bool seeded = false;
-            using (DanceMusicContext dmc = new DanceMusicContext())
+            if (_db.Songs.Any(s => s.Title == "Tea for Two"))
             {
-                if (dmc.Songs.Any(s => s.Title == "Tea for Two"))
-                {
-                    seeded = true;
-                }
+                seeded = true;
             }
 
             if (!seeded)
@@ -101,18 +100,15 @@ namespace m4d.Controllers
         {
             ViewBag.Name = "Update Purchase Info";
 
-            using (DanceMusicContext dmc = new DanceMusicContext())
+            var songs = from s in _db.Songs where s.TitleHash != 0 select s;
+
+            foreach (Song song in songs)
             {
-                var songs = from s in dmc.Songs where s.TitleHash != 0 select s;
-
-                foreach (Song song in songs)
-                {
-                    SongDetails sd = new SongDetails(song);
-                    song.Purchase = sd.GetPurchaseTags();
-                }
-
-                dmc.SaveChanges();
+                SongDetails sd = new SongDetails(song);
+                song.Purchase = sd.GetPurchaseTags();
             }
+
+            _db.SaveChanges();
 
             ViewBag.Success = true;
             ViewBag.Message = "Purchase info was successully updated";
@@ -127,18 +123,17 @@ namespace m4d.Controllers
         {
             ViewBag.Name = "UpdateTitleHash";
             int count = 0;
-            using (DanceMusicContext dmc = new DanceMusicContext())
+
+            var songs = from s in _db.Songs where s.TitleHash != 0 select s;
+            foreach (Song song in songs)
             {
-                var songs = from s in dmc.Songs where s.TitleHash != 0 select s;
-                foreach (Song song in songs)
+                if (song.UpdateTitleHash())
                 {
-                    if (song.UpdateTitleHash())
-                    {
-                        count += 1;
-                    }
+                    count += 1;
                 }
-                dmc.SaveChanges();
             }
+            _db.SaveChanges();
+
             ViewBag.Success = true;
             ViewBag.Message = string.Format("Title Hashes were reseeded ({0})", count);
 
@@ -152,31 +147,7 @@ namespace m4d.Controllers
         [Authorize(Roles = "dbAdmin")]
         public ActionResult ReloadDatabase()
         {
-            List<string> lines = new List<string>();
-
-            HttpFileCollectionBase files = Request.Files;
-            if (files.Count == 1)
-            {
-                string key = files.AllKeys[0];
-                ViewBag.Key = key;
-                ViewBag.Size = files[key].ContentLength;
-                ViewBag.ContentType = files[key].ContentType;
-
-
-                HttpPostedFileBase file = Request.Files.Get(0);
-                System.IO.Stream stream = file.InputStream;
-
-                TextReader tr = new StreamReader(stream);
-
-                string s = null;
-                while ((s = tr.ReadLine()) != null)
-                {
-                    if (!string.IsNullOrWhiteSpace(s))
-                    {
-                        lines.Add(s);
-                    }
-                }
-            }
+            List<string> lines = UploadFile();
 
             ViewBag.Name = "Restore Database";
             if (lines.Count > 0)
@@ -200,26 +171,116 @@ namespace m4d.Controllers
         }
 
         //
+        // Get: //UploadTempoes
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Authorize(Roles = "dbAdmin")]
+        public ActionResult UploadTempoes(bool commit = false)
+        {
+            // TODO: I should figure out a way to re-use the 
+            // flat file upload from the html scraping I did before
+            // rather than re-inventing the wheel here...
+            // May have to rework but would like to more towards a common
+            // base for batch uploading new info
+            List<string> lines = UploadFile();
+
+            ViewBag.Name = "Upload Tempoes";
+            IList<LocalMerger> results = null;
+            if (lines.Count > 0)
+            {
+                results = MatchSongs(lines);
+            }
+
+            return View(results);
+        }
+
+        private IList<LocalMerger> MatchSongs(List<string> lines)
+        {
+            List<LocalMerger> merge = new List<LocalMerger>();
+
+            List<string> map = SongDetails.BuildHeaderMap(lines[0]);
+            for (int i = 1; i < lines.Count; i++ )
+            {
+                SongDetails song = SongDetails.CreateFromRow(map, lines[i]);
+
+                var songs = from s in _db.Songs where (s.TitleHash == song.TitleHash) select s;
+
+                List<SongDetails> candidates = new List<SongDetails>();
+                foreach (Song s in songs)
+                {
+                    // Title-Artist match at minimum
+                    if (string.Equals(Song.CreateNormalForm(s.Artist),Song.CreateNormalForm(song.Artist)))
+                    {
+                        candidates.Add(new SongDetails(s));
+                    }
+                }
+
+                SongDetails match = null;
+
+                if (candidates.Count > 0)
+                {
+                    // Now we have a list of existing songs that are a title-artist match to our new song - so see
+                    //  if we have a title-artist-album match
+                    if (song.HasAlbums)
+                    {
+                        foreach (SongDetails s in candidates)
+                        {
+                            if (s.FindAlbum(song.Albums[0].Name) != null)
+                            {
+                                match = s;
+                                break;
+                            }
+                        }
+                    }
+
+                    // If not, try for a length match
+                    if (match == null && song.Length.HasValue)
+                    {
+                        foreach (SongDetails s in candidates)
+                        {
+                            if (s.Length.HasValue && Math.Abs(s.Length.Value - song.Length.Value) < 5)
+                            {
+                                match = s;
+                                break;
+                            }
+                        }
+                    }
+
+                    // Otherwise, if there is only one candidate and it doesn't have any 'real'
+                    //  albums, we will choose it
+                    if (match == null && candidates.Count == 1 && !candidates[0].HasRealAblums)
+                    {
+                        match = candidates[0];
+                    }
+                }
+
+                if (match != null)
+                {
+                    merge.Add(new LocalMerger { Left = song, Right = match});
+                }
+            }
+
+            return merge;
+        }
+
+        //
         // Get: //BackupDatabase
         [Authorize(Roles = "showDiagnostics")]
         public ActionResult BackupDatabase(string useLookupHistory = null)
         {
             StringBuilder sb = new StringBuilder();
 
-            using (DanceMusicContext dmc = new DanceMusicContext())
+            foreach (Song song in _db.Songs)
             {
-                foreach (Song song in dmc.Songs)
+                string[] actions = null;
+                if (!string.IsNullOrWhiteSpace(useLookupHistory))
                 {
-                    string[] actions = null;
-                    if (!string.IsNullOrWhiteSpace(useLookupHistory))
-                    {
-                        actions = new string[] { Song.FailedLookup };
-                    }
-                    string line = song.Serialize(actions);
-                    if (!string.IsNullOrWhiteSpace(line))
-                    {
-                        sb.AppendFormat("{0}\r\n", line);
-                    }
+                    actions = new string[] { Song.FailedLookup };
+                }
+                string line = song.Serialize(actions);
+                if (!string.IsNullOrWhiteSpace(line))
+                {
+                    sb.AppendFormat("{0}\r\n", line);
                 }
             }
 
@@ -260,10 +321,7 @@ namespace m4d.Controllers
 
         private void ReseedDB()
         {
-            using (DanceMusicContext dmc = new DanceMusicContext())
-            {
-                Configuration.DoSeed(dmc);
-            }
+            Configuration.DoSeed(_db);
         }
         private void BuildDanceMap()
         {
@@ -381,7 +439,7 @@ namespace m4d.Controllers
                 {
                     _titleColumn = c;
                 }
-                else if (string.Equals(header, "ARTIST", StringComparison.OrdinalIgnoreCase))
+                else if (string.Equals(header, "ARTIST", StringComparison.OrdinalIgnoreCase)|| string.Equals(header, "CONTRIBUTING ARTIST", StringComparison.OrdinalIgnoreCase))
                 {
                     _artistColumn = c;
                 }
@@ -393,7 +451,7 @@ namespace m4d.Controllers
                 {
                     _labelColumn = c;
                 }
-                else if (string.Equals(header, "BPM", StringComparison.OrdinalIgnoreCase))
+                else if (string.Equals(header, "BPM", StringComparison.OrdinalIgnoreCase) || string.Equals(header, "BEATS-PER-MINUTE", StringComparison.OrdinalIgnoreCase))
                 {
                     _tempoColumn = c;
                 }
@@ -420,6 +478,14 @@ namespace m4d.Controllers
                 {
                     _itunescolumn = c;
                 }
+                else if (string.Equals(header, "Length", StringComparison.OrdinalIgnoreCase))
+                {
+                    _lengthcolumn = c;
+                }
+                else if (string.Equals(header, "#", StringComparison.OrdinalIgnoreCase))
+                {
+                    _trackcolumn = c;
+                }
                 else
                 {
                     _dynamicColumns.Add(c);
@@ -435,6 +501,13 @@ namespace m4d.Controllers
             Debug.Assert(_titleColumn != -1 && _danceColumn != -1);
         }
 
+        private SongDetails SongFromRow(string userName, string line)
+        {
+            throw new NotImplementedException();
+        }
+        // TODO: I like the idea of building transitoory SongDetails objects
+        //  from the line data so that I can add in a review phase - but
+        //  I'm not going to rip the old stuff out until I get it working
         private void SeedRows(string userName, string[] lines, int start, int count)
         {
             using (DanceMusicContext dmc = new DanceMusicContext())
@@ -543,7 +616,6 @@ namespace m4d.Controllers
                                 break;
                         }
                     }
-
 
                     //  TODO: We may have purchase info for songs that don't have an album name - 
                     //    currently we're dropping those on the floor, do we care?
@@ -752,7 +824,6 @@ namespace m4d.Controllers
         }
 
 
-
         string[] _dbs = new string[] { "JohnCrossan", "LetsDanceDenver", "SalsaSwingBallroom", "SandiegoDJ", "SteveThatDJ", "UsaSwingNet", "WaltersDanceCenter" };
         private readonly int _chunk = 500;
 
@@ -789,7 +860,6 @@ namespace m4d.Controllers
             {"SALSAMAMBO", "SLS,MBO"},
             {"LINDY", "LHP"}
         };
-
         private List<int> _dynamicColumns = new List<int>();
         private int _danceColumn = -1;
         private int _titleColumn = -1;
@@ -800,8 +870,49 @@ namespace m4d.Controllers
         private int _altTempoColumn = -1;
         private int _amazoncolumn = -1;
         private int _itunescolumn = -1;
+        private int _trackcolumn = -1;
+        private int _lengthcolumn = -1;
         private TempoKind _tempoKind = TempoKind.BPM;
         private string[] _headers; 
         #endregion
+
+        #region Utilities
+        List<string> UploadFile() 
+        {
+            List<string> lines = new List<string>();
+
+            HttpFileCollectionBase files = Request.Files;
+            if (files.Count == 1)
+            {
+                string key = files.AllKeys[0];
+                ViewBag.Key = key;
+                ViewBag.Size = files[key].ContentLength;
+                ViewBag.ContentType = files[key].ContentType;
+
+
+                HttpPostedFileBase file = Request.Files.Get(0);
+                System.IO.Stream stream = file.InputStream;
+
+                TextReader tr = new StreamReader(stream);
+
+                string s = null;
+                while ((s = tr.ReadLine()) != null)
+                {
+                    if (!string.IsNullOrWhiteSpace(s))
+                    {
+                        lines.Add(s);
+                    }
+                }
+            }
+
+            return lines;
+        }
+        #endregion
+
+        protected override void Dispose(bool disposing)
+        {
+            _db.Dispose();
+            base.Dispose(disposing);
+        }
     }
 }

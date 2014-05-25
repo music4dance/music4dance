@@ -45,6 +45,19 @@ namespace m4dModels.Tests
             }
         }
 
+        [TestMethod]
+        public void AlbumFields()
+        {
+            Assert.IsTrue(Song.IsAlbumField(Song.AlbumField));
+            Assert.IsFalse(Song.IsAlbumField(Song.TitleField));
+
+            Assert.IsTrue(Song.IsAlbumField(Song.PublisherField + ":0"));
+            Assert.IsTrue(Song.IsAlbumField(Song.TrackField + ":45:A"));
+
+            Assert.IsFalse(Song.IsAlbumField(null));
+            Assert.IsFalse(Song.IsAlbumField("#"));
+        }
+
         static string[] titles = new string[] {
             "ñ-é á",
             "Señor  Bolero",

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
@@ -46,11 +47,11 @@ namespace m4dModels
         {
             SongId = songId;
 
-            string name = null;
+            string name = baseName;
 
             if (index >= 0)
             {
-                name = string.Format("{0}:{1:2d}", name, index);
+                name = string.Format("{0}:{1:D2}", name, index);
             }
 
             if (qual != null)
@@ -135,16 +136,7 @@ namespace m4dModels
         {
             get
             {
-                string baseName = Name;
-
-                int i = baseName.IndexOf(':');
-
-                if (i >= 0)
-                {
-                    baseName = baseName.Substring(0, i);
-                }
-
-                return baseName;
+                return ParseBaseName(Name);
             }
         }
 
@@ -220,6 +212,46 @@ namespace m4dModels
         
         #endregion
 
+        public static string Serialize(IEnumerable<SongProperty> properties, string [] actions)
+        {
+            StringBuilder sb = new StringBuilder();
+
+            string sep = string.Empty;
+            foreach (SongProperty sp in properties)
+            {
+                if (!sp.IsAction || (actions != null && actions.Contains(sp.Name)))
+                {
+                    string p = sp.ToString();
+
+                    sb.AppendFormat("{0}{1}", sep, p);
+
+                    sep = "\t";
+                }
+            }
+
+            return sb.ToString();
+        }
+
+        public static void Load(int songId, string props, ICollection<SongProperty> properties)
+        {
+            string[] cells = props.Split(new char[] { '\t' });
+            properties.Add(new SongProperty(songId, Song.CreateCommand, null));
+
+            foreach (string cell in cells)
+            {
+                string[] values = cell.Split(new char[] { '=' });
+
+                if (values.Length == 2)
+                {
+                    properties.Add(new SongProperty(songId, values[0], values[1]));
+                }
+                else
+                {
+                    Trace.WriteLine("Bad SongProperty: {0}", cell);
+                }
+            }
+        }
+
         #region Static Helpers
         private static string FormatTempo(string value)
         {
@@ -230,13 +262,25 @@ namespace m4dModels
             }
             return value;
         }
+        public static string ParseBaseName(string name)
+        {
+            int i = name.IndexOf(':');
+
+            if (i >= 0)
+            {
+                name = name.Substring(0, i);
+            }
+
+            return name;
+        }
+
         public static string FormatName(string baseName, int? idx = null, string qualifier = null)
         {
             string name = baseName;
 
-            if (idx != null)
+            if (idx.HasValue)
             {
-                name += ":" + idx.ToString();
+                name += ":" + idx.Value.ToString("D2");
             }
 
             if (qualifier != null)

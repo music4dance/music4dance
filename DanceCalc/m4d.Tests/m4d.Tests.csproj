@@ -95,6 +95,7 @@
   <ItemGroup>
     <Content Include="App.config" />
     <Content Include="Test Data\backup-snapshot.txt" />
+    <Content Include="Test Data\TEMPOES.TXT" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

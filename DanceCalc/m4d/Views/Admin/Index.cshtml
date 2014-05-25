@@ -36,6 +36,16 @@
 {
     <hr />
 
+    <h3>Upload Tempoes</h3>
+    using (Html.BeginForm("UploadTempoes", "Admin", FormMethod.Post, new { enctype = "multipart/form-data" }))
+    {
+        @Html.AntiForgeryToken();
+        <input type="file" name="FileUpload" />
+        <br />
+        <input type="submit" name="Reload Database" id="Submit" value="Upload" />
+    }
+    <hr />
+
     <h3>Reload the Database</h3>
     using (Html.BeginForm("ReloadDatabase", "Admin", FormMethod.Post, new { enctype = "multipart/form-data" }))
     {

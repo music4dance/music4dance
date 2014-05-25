@@ -265,6 +265,7 @@
     <Compile Include="Utilities\AdmAuthentication.cs" />
     <Compile Include="Utilities\AWSFetcher.cs" />
     <Compile Include="Utilities\DBExtentions.cs" />
+    <Compile Include="ViewModels\LocalMerger.cs" />
     <Compile Include="ViewModels\MergeCluster.cs" />
     <Compile Include="ViewModels\ServiceSearchResults.cs" />
     <Compile Include="ViewModels\SongCounts.cs" />
@@ -447,6 +448,7 @@
     <Content Include="Views\Home\CounterHelp.cshtml" />
     <Content Include="Views\Song\BatchMusicService.cshtml" />
     <None Include="Service References\AWSReference\AWSECommerceService.wsdl" />
+    <Content Include="Views\Admin\UploadTempoes.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

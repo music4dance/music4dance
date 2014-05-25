@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DanceLibrary;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
@@ -37,7 +38,13 @@ namespace m4dModels
             BuildAlbumInfo();
         }
 
-        public SongDetails(int songId, ICollection<SongProperty> properties, IUserMap users)
+        // TODO: I want to be able to create SongDetails as a completely disconnected object
+        //  but mapping all of the information from songs.  I believe I screwed up
+        //  setting putting IUserMap here - Instead, I should not pass that in here but
+        //  into the function that transforms SongDetails (back) into a Song
+        //  For now, I'm going to accept a null in that field in which case I'll create
+        //  the disconnected object but should revisit and cleanup soon
+        public SongDetails(int songId, ICollection<SongProperty> properties, IUserMap users = null)
         {
             SongId = songId;
             bool created = false;
@@ -57,9 +64,18 @@ namespace m4dModels
                             }
                             if (!ModifiedBy.Any(u => u.ApplicationUserId == prop.Value ))
                             {
-                                ModifiedRecord us = users.CreateMapping(songId, prop.Value);
+                                ModifiedRecord us = null;
+                                // TODO:  See note above
+                                if (users != null)
+                                {
+                                    us = users.CreateMapping(songId, prop.Value);
+                                }
+                                else
+                                {
+                                    us = new ModifiedRecord { SongId = songId, ApplicationUserId = prop.Value };
+                                }
                                 ModifiedBy.Add(us);
-                                Debug.WriteLine(string.Format("UserMap:\t{0}\t{1}",songId,prop.Value));
+                                //Debug.WriteLine(string.Format("UserMap:\t{0}\t{1}",songId,prop.Value));
                             }
                             break;
                         case Song.DanceRatingField:
@@ -99,6 +115,86 @@ namespace m4dModels
             Albums = BuildAlbumInfo(properties);
         }
         
+        public static SongDetails CreateFromRow(IList<string> fields, string row)
+        {
+            string[] cells = row.Split(new char[] { '\t' });
+
+            List<SongProperty> properties = new List<SongProperty>();
+            for (int i = 0; i < cells.Length; i++)
+            {
+                if (fields[i] != null)
+                {
+                    string cell = cells[i];
+                    if (string.Equals(fields[i],Song.DanceRatingField))
+                    {
+                        // Special case dance rating
+                        throw new NotImplementedException("Dance Ratings need to be moved from admin to here.");
+                    }
+                    else if (string.Equals(fields[i],Song.LengthField))
+                    {
+                        // Special case length
+                        if (!string.IsNullOrWhiteSpace(cell))
+                        {
+                            try
+                            {
+                                SongDuration d = new SongDuration(cell);
+                                decimal l = d.Length;
+                                cell = l.ToString("F0");
+                            }
+                            catch (ArgumentOutOfRangeException)
+                            {
+                                cell = null;
+                            }
+                        }
+                    }
+
+                    if (!string.IsNullOrWhiteSpace(cell))
+                    {
+                        
+                        int idx = Song.IsAlbumField(fields[i]) ? 0 : -1;
+                        SongProperty prop = new SongProperty(0, fields[i], cell, idx);
+                        properties.Add(prop);
+                    }
+                }
+            }
+
+            SongDetails song = new SongDetails(0, properties);
+            return song;
+        }
+
+        public static List<string> BuildHeaderMap(string line)
+        {
+            List<string> map = new List<string>();
+            string[] headers = line.ToUpper().Split(new char[] { '\t' });
+
+            for (int i = 0; i < headers.Length; i++)
+            {
+                string header = headers[i];
+                string field = null;
+                // If this fails, we want to add a null to our list because
+                // that indicates a column we don't care about
+                s_propertyMap.TryGetValue(header, out field);
+                map.Add(field);
+            }
+
+            return map;
+        }
+
+        private static Dictionary<string, string> s_propertyMap = new Dictionary<string, string>()
+        {
+            {"DANCE", Song.DanceRatingField},
+            {"TITLE", Song.TitleField},
+            {"ARTIST", Song.ArtistField},
+            {"CONTRIBUTING ARTISTS", Song.ArtistField},
+            {"LABEL", Song.PublisherField},
+            {"BPM", Song.TempoField},
+            {"BEATS-PER-MINUTE", Song.TempoField},
+            {"LENGTH", Song.LengthField},
+            {"ALBUM", Song.AlbumField},
+            {"#", Song.TrackField},
+            {"PUBLISHER", Song.PublisherField}
+        };
+
         #endregion
 
         #region Properties
@@ -119,6 +215,14 @@ namespace m4dModels
         public List<DanceRating> DanceRatings { get; set; }
         public List<SongProperty> Properties { get; set; }
         public List<ModifiedRecord> ModifiedBy { get; set; }
+
+        public int TitleHash 
+        { 
+            get 
+            {
+                return Song.CreateTitleHash(Title); 
+            } 
+        }
         
         #endregion
 
@@ -127,7 +231,7 @@ namespace m4dModels
         {
             get
             {
-                if (Albums != null && Albums.Count > 0)
+                if (HasAlbums)
                 {
                     StringBuilder ret = new StringBuilder();
                     string sep = string.Empty;
@@ -173,13 +277,20 @@ namespace m4dModels
             return ret;
         }
 
+        public bool HasAlbums
+        {
+            get 
+            {
+                return Albums != null && Albums.Count > 0;
+            }
+        }
         // "Real" albums in this case being non-ballroom compilation-type albums
         public bool HasRealAblums
         {
             get
             {
                 bool ret = false;
-                if (Albums != null)
+                if (HasAlbums)
                 {
                     ret = Albums.Any(a => a.IsRealAlbum);
                 }

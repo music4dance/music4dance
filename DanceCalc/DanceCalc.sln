@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
-VisualStudioVersion = 12.0.30324.0
+VisualStudioVersion = 12.0.30501.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{69ADF94E-AE63-4954-BD58-BD56BFE93656}"
 	ProjectSection(SolutionItems) = preProject
@@ -35,9 +35,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "m4dModels.Tests", "m4dModel
 		{DA8F57D2-6643-4B79-82A2-F1371D4748F8} = {DA8F57D2-6643-4B79-82A2-F1371D4748F8}
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FileScanner", "FileScanner\FileScanner.csproj", "{66D967DC-28D3-406F-9350-904EE1C52053}"
+EndProject
 Global
 	GlobalSection(TeamFoundationVersionControl) = preSolution
-		SccNumberOfProjects = 8
+		SccNumberOfProjects = 9
 		SccEnterpriseProvider = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
 		SccTeamFoundationServer = https://thegray.visualstudio.com/defaultcollection
 		SccLocalPath0 = .
@@ -62,6 +64,9 @@ Global
 		SccProjectUniqueName7 = m4dModels.Tests\\m4dModels.Tests.csproj
 		SccProjectName7 = m4dModels.Tests
 		SccLocalPath7 = m4dModels.Tests
+		SccProjectUniqueName8 = FileScanner\\FileScanner.csproj
+		SccProjectName8 = FileScanner
+		SccLocalPath8 = FileScanner
 	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -138,6 +143,14 @@ Global
 		{12B8DD57-9BB9-41EB-8957-198563E5210A}.Release|Any CPU.Build.0 = Release|Any CPU
 		{12B8DD57-9BB9-41EB-8957-198563E5210A}.Release|ARM.ActiveCfg = Release|Any CPU
 		{12B8DD57-9BB9-41EB-8957-198563E5210A}.Release|x86.ActiveCfg = Release|Any CPU
+		{66D967DC-28D3-406F-9350-904EE1C52053}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{66D967DC-28D3-406F-9350-904EE1C52053}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{66D967DC-28D3-406F-9350-904EE1C52053}.Debug|ARM.ActiveCfg = Debug|Any CPU
+		{66D967DC-28D3-406F-9350-904EE1C52053}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{66D967DC-28D3-406F-9350-904EE1C52053}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{66D967DC-28D3-406F-9350-904EE1C52053}.Release|Any CPU.Build.0 = Release|Any CPU
+		{66D967DC-28D3-406F-9350-904EE1C52053}.Release|ARM.ActiveCfg = Release|Any CPU
+		{66D967DC-28D3-406F-9350-904EE1C52053}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

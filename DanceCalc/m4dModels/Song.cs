@@ -158,7 +158,7 @@ namespace m4dModels
             TitleHash = Song.CreateTitleHash(Title);
 
 
-            if (sd.Albums != null && sd.Albums.Count > 0)
+            if (sd.HasAlbums)
             {
                 Album = sd.Albums[0].Name;
             }
@@ -214,52 +214,17 @@ namespace m4dModels
             }
             else
             {
-                StringBuilder sb = new StringBuilder();
-
-                string sep = string.Empty;
-                foreach (SongProperty sp in SongProperties)
-                {
-                    if (!sp.IsAction || (actions != null && actions.Contains(sp.Name)))
-                    {
-                        string p = sp.ToString();
-
-                        sb.AppendFormat("{0}{1}", sep, p);
-
-                        sep = "\t";
-                    }
-                }
-
-                return sb.ToString();
+                return SongProperty.Serialize(SongProperties, actions);
             }
         }
 
         public void Load(string s, IUserMap users)
         {
-
-            string[] cells = s.Split(new char[] { '\t' });
-            List<SongProperty> properties = new List<SongProperty>(cells.Length);
-
-            SongProperties.Add(new SongProperty(SongId, Song.CreateCommand, null));
-
-            foreach (string cell in cells)
-            {
-                string[] values = cell.Split(new char[] { '=' });
-
-                if (values.Length == 2)
-                {
-                    SongProperties.Add(new SongProperty(SongId, values[0], values[1]));
-                }
-                else
-                {
-                    Trace.WriteLine("Bad SongProperty: {0}", cell);
-                }
-            }
+            SongProperty.Load(SongId, s, SongProperties);
             SongDetails sd = new SongDetails(SongId, SongProperties, users);
 
             Restore(sd);
         }
-
-
 
         public override void Dump()
         {
@@ -311,6 +276,19 @@ namespace m4dModels
         {
             return CreateNormalForm(title).GetHashCode();
         }
+
+        public static bool IsAlbumField(string fieldName)
+        {
+            if (string.IsNullOrWhiteSpace(fieldName))
+            {
+                return false;
+
+            }
+
+            string baseName = SongProperty.ParseBaseName(fieldName);
+            return s_albumFields.Contains(baseName);
+        }
+        private static HashSet<string> s_albumFields = new HashSet<string>() { AlbumField, PublisherField, TrackField, PurchaseField, AlbumList, AlbumPromote };
 
         private static string MungeString(string s, bool normalize)
         {

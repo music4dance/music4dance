@@ -58,7 +58,7 @@
         }
     </div>
     <br />
-    @if (Model.Albums != null && Model.Albums.Count > 0)
+    @if (Model.HasAlbums)
     {
         for (int aidx = 0; aidx < Model.Albums.Count; aidx++)
         {

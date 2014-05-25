@@ -141,7 +141,7 @@
         @{
             int currentAlbum = 0;
             int maxAlbum = 5;
-            if (Model.Albums != null)
+            if (Model.HasAlbums)
             {
                 maxAlbum = Model.Albums.Count + 5;
                 for (; currentAlbum < Model.Albums.Count; currentAlbum++)
