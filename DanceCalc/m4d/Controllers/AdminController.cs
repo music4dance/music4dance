@@ -175,23 +175,98 @@ namespace m4d.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "dbAdmin")]
-        public ActionResult UploadTempoes(bool commit = false)
+        public ActionResult UploadTempoes(bool commit = false, int fileId = -1)
         {
-            // TODO: I should figure out a way to re-use the 
-            // flat file upload from the html scraping I did before
-            // rather than re-inventing the wheel here...
-            // May have to rework but would like to more towards a common
-            // base for batch uploading new info
-            List<string> lines = UploadFile();
-
-            ViewBag.Name = "Upload Tempoes";
             IList<LocalMerger> results = null;
-            if (lines.Count > 0)
+            if (commit && fileId != -1)
             {
-                results = MatchSongs(lines);
+                results = CommitUploadTempoes(fileId); 
+            }
+            else 
+            {
+                results = ReviewUploadTempoes();
             }
 
             return View(results);
+        }
+
+        private IList<LocalMerger> ReviewUploadTempoes()
+        {
+            IList<LocalMerger> results = null;
+
+            int fileId = UploadAndCache();
+
+            if (fileId != -1)
+            {
+                List<string> lines = GetFileById(fileId);
+
+                ViewBag.Name = "Upload Tempoes";
+                ViewBag.FileId = fileId;
+
+                if (lines.Count > 0)
+                {
+                    results = MatchSongs(lines);
+                }
+            }
+
+            return results;
+        }
+
+        private IList<LocalMerger> CommitUploadTempoes(int fileId)
+        {
+            IList<LocalMerger> initial = null;
+            IList<LocalMerger> results = null;
+            List<string> lines = GetFileById(fileId);
+
+            ViewBag.Name = "Upload Tempoes";
+            ViewBag.FileId = fileId;
+
+            ApplicationUser user = _db.FindUser(User.Identity.Name);
+
+            if (lines.Count > 0)
+            {
+                initial = MatchSongs(lines);
+                results = new List<LocalMerger>();
+
+                foreach (LocalMerger m in initial)
+                {
+                    // We only want to auto-update if there isn't a conflict
+                    if (!m.Conflict)
+                    {
+                        SongDetails sd = m.Left;
+                        SongDetails edit = m.Right;
+
+                        bool modified = false;
+
+                        // Handle Scalar values
+                        if (string.IsNullOrWhiteSpace(edit.Genre) && ! string.IsNullOrWhiteSpace(sd.Genre))
+                        {
+                            modified = true;
+                            edit.Genre = sd.Genre;
+                        }
+
+                        if (!edit.Tempo.HasValue && sd.Tempo.HasValue)
+                        {
+                            modified = true;
+                            edit.Tempo = sd.Tempo;
+                        }
+
+                        // Now see if we have new album info
+                        if (sd.HasAlbums && edit.FindAlbum(sd.Albums[0].Name) == null)
+                        {
+                            edit.Albums.Insert(0, sd.Albums[0]);
+                            modified = true;
+                        }
+
+                        if (modified && _db.EditSong(user, edit,null,null) != null)
+                        {
+                            results.Add(m);
+                        }
+                    }
+                }
+            }
+
+            return results;
         }
 
         private IList<LocalMerger> MatchSongs(List<string> lines)
@@ -216,11 +291,13 @@ namespace m4d.Controllers
                 }
 
                 SongDetails match = null;
+                MatchType type = MatchType.None;
 
                 if (candidates.Count > 0)
                 {
                     // Now we have a list of existing songs that are a title-artist match to our new song - so see
                     //  if we have a title-artist-album match
+
                     if (song.HasAlbums)
                     {
                         foreach (SongDetails s in candidates)
@@ -228,6 +305,7 @@ namespace m4d.Controllers
                             if (s.FindAlbum(song.Albums[0].Name) != null)
                             {
                                 match = s;
+                                type = MatchType.Exact;
                                 break;
                             }
                         }
@@ -241,6 +319,7 @@ namespace m4d.Controllers
                             if (s.Length.HasValue && Math.Abs(s.Length.Value - song.Length.Value) < 5)
                             {
                                 match = s;
+                                type = MatchType.Length;
                                 break;
                             }
                         }
@@ -250,13 +329,19 @@ namespace m4d.Controllers
                     //  albums, we will choose it
                     if (match == null && candidates.Count == 1 && !candidates[0].HasRealAblums)
                     {
+                        type = MatchType.Weak;
                         match = candidates[0];
                     }
                 }
 
                 if (match != null)
                 {
-                    merge.Add(new LocalMerger { Left = song, Right = match});
+                    LocalMerger m = new LocalMerger { Left = song, Right = match, MatchType =  type, Conflict = false };
+                    if (song.TempoConflict(match,3))
+                    {
+                        m.Conflict = true;
+                    }
+                    merge.Add(m);
                 }
             }
 
@@ -889,7 +974,6 @@ namespace m4d.Controllers
                 ViewBag.Size = files[key].ContentLength;
                 ViewBag.ContentType = files[key].ContentType;
 
-
                 HttpPostedFileBase file = Request.Files.Get(0);
                 System.IO.Stream stream = file.InputStream;
 
@@ -907,6 +991,34 @@ namespace m4d.Controllers
 
             return lines;
         }
+
+        int UploadAndCache()
+        {
+            int ret = -1;
+            List<string> lines = UploadFile();
+
+            if (lines.Count > 0)
+            {
+                lock (s_files)
+                {
+                    s_files.Add(lines);
+                    ret = s_files.Count - 1;
+                }
+            }
+            return ret;
+        }
+        List<string> GetFileById(int id)
+        {
+            return s_files[id];
+        }
+
+        // This is pretty kludgy as this is a basically a temporary
+        //  store that only gets recycled on restart - but since
+        //  for now it's being using primarily on the short running
+        //  dev instance, it doesn't seem worthwhile to do anything
+        //  more sophisticated
+        static List<List<string>> s_files = new List<List<string>>();
+
         #endregion
 
         protected override void Dispose(bool disposing)

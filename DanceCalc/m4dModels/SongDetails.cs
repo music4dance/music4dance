@@ -586,6 +586,12 @@ namespace m4dModels
 
             dr.Weight += drd.Delta;
         }
+
+        public bool TempoConflict(SongDetails s, decimal delta)
+        {
+            return Tempo.HasValue && s.Tempo.HasValue && Math.Abs(Tempo.Value - s.Tempo.Value) > delta;
+        }
+
         /// <summary>
         /// Finds a representitive of the largest cluster of tracks 
         ///  (clustered by approximate duration) that is an very
