@@ -11,6 +11,7 @@ namespace m4d.Controllers
 {
     public class DanceJson
     {
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
         public DanceJson(DanceObject d)
         {
             Id = d.Id;
@@ -18,6 +19,7 @@ namespace m4d.Controllers
             Meter = d.Meter;
             TempoRange = d.TempoRange;
         }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
         public DanceJson(DanceSample d) : this(d.DanceType)
         {
             TempoDelta = d.TempoDelta;

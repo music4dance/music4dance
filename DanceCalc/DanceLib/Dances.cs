@@ -36,7 +36,7 @@ namespace DanceLibrary
     [JsonObject(MemberSerialization.OptIn)]
     public class DanceType : DanceObject
     {
-        [JsonConstructor]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors"), JsonConstructor]
         public DanceType(string name, string description, Meter meter, DanceInstance[] instances) 
         {
             Name = name;
@@ -112,7 +112,7 @@ namespace DanceLibrary
     [JsonObject(MemberSerialization.OptIn)]
     public class DanceInstance : DanceObject
     {
-        [JsonConstructor]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors"), JsonConstructor]
         public DanceInstance(string style, TempoRange tempoRange, DanceException[] exceptions)
         {
             Style = style;
@@ -386,7 +386,7 @@ namespace DanceLibrary
     [JsonObject(MemberSerialization.OptIn)]
     public class DanceGroup : DanceObject
     {
-        [JsonConstructor]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors"), JsonConstructor]
         public DanceGroup(string name, string id, string description, string[] danceIds)
         {
             Name = name;

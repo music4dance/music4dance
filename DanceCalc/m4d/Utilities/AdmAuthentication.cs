@@ -26,7 +26,7 @@ namespace m4d.Utilities
         public string scope { get; set; }
     }
 
-    public class AdmAuthentication
+    public class AdmAuthentication : IDisposable
     {
         public static readonly string DatamarketAccessUri = "https://datamarket.accesscontrol.windows.net/v2/OAuth2-13";
         private string clientId;
@@ -107,6 +107,12 @@ namespace m4d.Utilities
                 AdmAccessToken token = (AdmAccessToken)serializer.ReadObject(webResponse.GetResponseStream());
                 return token;
             }
+        }
+
+        public void Dispose()
+        {
+            accessTokenRenewer.Dispose();
+            //GC.SuppressFinalize(this);
         }
     }
 

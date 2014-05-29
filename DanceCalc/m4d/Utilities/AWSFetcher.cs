@@ -125,7 +125,8 @@ namespace m4d.Utilities
     }
 
 
-    public class AWSFetcher
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1001:TypesThatOwnDisposableFieldsShouldBeDisposable")]
+    public class AWSFetcher : IDisposable
     {
         private const string accessKeyId = "***REMOVED***";
         private const string secretKeyId = "***REMOVED***";
@@ -285,6 +286,10 @@ namespace m4d.Utilities
                 }
             }
             return r;
+        }
+        public void Dispose()
+        {
+            _client.Close();
         }
     }
 }
