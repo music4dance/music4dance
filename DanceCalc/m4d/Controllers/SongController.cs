@@ -28,8 +28,14 @@ namespace music4dance.Controllers
     {
         private DanceMusicContext _db = new DanceMusicContext();
 
-
         #region Commands
+
+        [AllowAnonymous]
+        public ActionResult Sample()
+        {
+            return View();
+        }
+
         [AllowAnonymous]
         public ActionResult Search(string searchString, string dances, string filter)
         {
@@ -549,7 +555,7 @@ namespace music4dance.Controllers
             }
 
             SongFilter songFilter = ParseFilter(filter);
-            songFilter.Purchase = "!" + type;
+            //songFilter.Purchase = "!" + type;
 
             IQueryable<Song> songs = BuildSongList(songFilter);
 
@@ -859,11 +865,12 @@ namespace music4dance.Controllers
             ViewBag.ArtistClass = string.Empty;
             ViewBag.AlbumClass = string.Empty;
 
+            // TODONEXT: Let's get rid of the song counts and just do names here (also cleanup song index)...
             IList<SongCounts> songCounts = SongCounts.GetFlatSongCounts(_db);
-            var scq = songCounts.Select(s => new { s.DanceId, s.DanceNameAndCount });
+            var scq = songCounts.Select(s => new { s.DanceId, s.DanceName });
 
             //scq.FirstOrDefault(s => s.DanceId == filter.Dances)
-            var scl = new SelectList(scq.AsEnumerable(), "DanceId", "DanceNameAndCount", filter.Dances);
+            var scl = new SelectList(scq.AsEnumerable(), "DanceId", "DanceName", filter.Dances);
             ViewBag.Dances = scl;
 
             // Now setup the view
@@ -981,11 +988,11 @@ namespace music4dance.Controllers
                 {
                     if (not)
                     {
-                        songs = songs.Where(s => s.Purchase != null);
+                        songs = songs.Where(s => s.Purchase == null);
                     }
                     else
                     {
-                        songs = songs.Where(s => s.Purchase == null);
+                        songs = songs.Where(s => s.Purchase != null);
                     }
                 }
             }

@@ -1,0 +1,85 @@
+﻿
+@{
+    ViewBag.Title = "Sample";
+}
+
+    @*<div class="container">
+        <div class="row" style="margin-top:20px">
+            <div class="col-xs-12">
+                <form class="input-group">
+                    <div class="input-group-btn search-panel">
+                        <select class="btn btn-default dropdown-toggle" data-toggle="dropdown" role="menu">
+                            <option>Salsa</option>
+                            <option>Swing</option>
+                            <option>Waltz</option>
+                            <option>Tango</option>
+                        </select>
+                    </div>
+                    <input type="hidden" name="dances" value="all" id="dances">
+                    <input type="text" class="form-control" name="x" placeholder="Search term...">
+                    <span class="input-group-btn">
+                        <button class="btn btn-default" type="button"><span class="glyphicon glyphicon-search"></span></button>
+                    </span>
+                </form>
+            </div>
+        </div>
+    </div>*@
+
+    <form>
+        <div class="input-group">
+            <div class="input-group-btn search-panel">
+                <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                    <span id="search_concept">Filter by</span> <span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu" role="menu">
+                    <li><a href="#contains">Contains</a></li>
+                    <li><a href="#its_equal">It's equal</a></li>
+                    <li><a href="#greather_than">Greather than ></a></li>
+                    <li><a href="#less_than">Less than < </a></li>
+                    <li class="divider"></li>
+                    <li><a href="#all">Anything</a></li>
+                </ul>
+            </div>
+            <input type="hidden" name="search_param" value="all" id="search_param">
+            <input type="text" class="form-control" name="x" placeholder="Search term...">
+            <span class="input-group-btn">
+                <button class="btn btn-default" type="button"><span class="glyphicon glyphicon-search"></span></button>
+            </span>
+        </div>
+        <div class="input-group">
+            Include only song available on:
+            <label>
+                <input type="checkbox" name="services" id="serviceX" value="X" checked />
+                XBox
+            </label>
+            <label>
+                <input type="checkbox" name="services" id="serviceA" value="A" />
+                Amazon
+            </label>
+            <label>
+                <input type="checkbox" name="services" id="serviceI" value="I" />
+                ITunes
+            </label>
+        </div>
+    </form>
+    <div class="row" style="margin-top:10px;margin-bottom:5px">
+        <div class="col-xs-12">
+            <a id="ToggleAdvanced" href="#" class="btn btn-info btn-xs btn-block" style="margin-top:5px">Toggle</a>
+        </div>
+    </div>
+
+@*
+        
+    <div class="container">
+        <form class="form-search">
+            <div class="input-append">
+                <input type="text" class="span2 search-query">
+                <button type="submit" class="btn">Search</button>
+            </div>
+            <div class="input-prepend">
+                <button type="submit" class="btn">Search</button>
+                <input type="text" class="span2 search-query">
+            </div>
+        </form>
+    </div>
+*@

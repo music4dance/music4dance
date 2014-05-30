@@ -22,33 +22,42 @@ namespace m4d.ViewModels
 
         static public IList<SongCounts> GetFlatSongCounts(DanceMusicContext dmc)
         {
-            //Trace.WriteLine(string.Format("Entering GetFlatSongCounts:  DMC={0}", dmc == null ? "<<NULL>>" : "Valid"));
-            List<SongCounts> flat = new List<SongCounts>();
+            // TODO: Let's find a quick way to recycle this cache when the underlying data has changed
 
-            var tree = GetSongCounts(dmc);
-
-            //Trace.WriteLine(string.Format("Top Level Count={0}", tree==null?"<<NULL>>":tree.Count.ToString()));
-            flat.AddRange(tree);
-
-            foreach (var sc in tree)
+            if (s_flatlist == null)
             {
-                var children = sc.Children;
-                //Trace.WriteLine(string.Format("{0} Count={1}", sc.DanceName, tree==null?"<<NULL>>":tree.Count.ToString()));
-                flat.AddRange(children);
+                //Trace.WriteLine(string.Format("Entering GetFlatSongCounts:  DMC={0}", dmc == null ? "<<NULL>>" : "Valid"));
+                List<SongCounts> flat = new List<SongCounts>();
+
+                var tree = GetSongCounts(dmc);
+
+                //Trace.WriteLine(string.Format("Top Level Count={0}", tree==null?"<<NULL>>":tree.Count.ToString()));
+                flat.AddRange(tree);
+
+                foreach (var sc in tree)
+                {
+                    var children = sc.Children;
+                    //Trace.WriteLine(string.Format("{0} Count={1}", sc.DanceName, tree==null?"<<NULL>>":tree.Count.ToString()));
+                    flat.AddRange(children);
+                }
+
+                SongCounts all = new SongCounts
+                {
+                    DanceId = "ALL",
+                    DanceName = "All Dances",
+                    SongCount = tree.Sum(s => s.SongCount),
+                    Children = null
+                };
+
+                flat.Insert(0, all);
+
+                s_flatlist = flat;
             }
 
-            SongCounts all = new SongCounts
-            {
-                DanceId = "ALL",
-                DanceName = "All",
-                SongCount = tree.Sum(s => s.SongCount),
-                Children = null
-            };
-
-            flat.Insert(0,all);
-
-            return flat;
+            return s_flatlist;
         }
+
+        static private IList<SongCounts> s_flatlist = null;
 
         static public IList<SongCounts> GetSongCounts(DanceMusicContext dmc)
         {

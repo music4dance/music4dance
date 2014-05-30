@@ -15,7 +15,7 @@
         {
             if (sitem.SongCount > 0)
             {
-                <a class="list-group-item" href=@("/Song/Search?dances=" + sitem.DanceId)>
+                <a class="list-group-item" href="@("/Song/Search?dances=" + sitem.DanceId)">
                     <span class="badge">@sitem.SongCount</span>
                     @sitem.DanceName
                 </a>

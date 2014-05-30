@@ -17,222 +17,221 @@
     }
 }
 
-<h2>@ViewBag.Title</h2>
-
-
-<div id="BasicSearch">
-    @using (Html.BeginForm("Search", "Song", FormMethod.Get, new { @class = "well form-inline" }))
+@using (Html.BeginForm("Search", "Song", FormMethod.Get, new { id = "search" }))
+{
+    string danceID = "ALL";
+    string danceName = "All Dances";
+    System.Web.Mvc.SelectListItem selected = ((SelectList)ViewBag.Dances).FirstOrDefault(d => d.Selected);
+    if (selected != null)
     {
-        <div class="form-group">
-            Find: @Html.TextBox("SearchString", ViewBag.SongFilter.SearchString as string, new { placeholder = "Artist, Title, or Album text" })&nbsp;
-            @if (ViewBag.Dances != null)
-            {
-                @Html.DropDownList("Dances");
-            }
-        </div>
-        <div class="form-group">
-            <input type="hidden" name="filter" value="@ViewBag.SongFilter.ToString()" />
-            <input type="submit" value="Search" />
-        </div>
+        danceID = selected.Value;
+        danceName = selected.Text;
     }
-    <button id="ShowAdvanced" type="button" class="btn btn-info btn-xs btn-block">Advanced Search>></button>
-</div>
 
-<div id="AdvancedSearch" hidden>
-    @using (Html.BeginForm("AdvancedSearch", "Song", FormMethod.Get, new { @class = "well form-horizontal" }))
+    string checkX = string.Empty;
+    string checkA = string.Empty;
+    string checkI = string.Empty;
+    string purchase = ViewBag.SongFilter.Purchase;
+    if (!string.IsNullOrWhiteSpace(purchase))
     {
-        string checkX = string.Empty;
-        string checkA = string.Empty;
-        string checkI = string.Empty;
-        string purchase = ViewBag.SongFilter.Purchase;
-        if (!string.IsNullOrWhiteSpace(purchase))
+        if (purchase.Contains('X'))
         {
-            if (purchase.Contains('X'))
-            {
-                checkX = "checked";
-            }
-            if (purchase.Contains('A'))
-            {
-                checkA = "checked";
-            }
-            if (purchase.Contains('I'))
-            {
-                checkI = "checked";
-            }
+            checkX = "checked";
         }
-
-        <div class="form-group">
-            Find: @Html.TextBox("SearchString", ViewBag.SongFilter.SearchString as string, new { placeholder = "Artist, Title, or Album text" })&nbsp;
-            @if (ViewBag.Dances != null)
-            {
-                @Html.DropDownList("Dances");
-            }
-            <input type="submit" value="Search" />
-        </div>
-
-        <div class="form-group">
-            Include only song available on:
-            <label>
-                <input type="checkbox" name="services" id="serviceX" value="X" @checkX />
-                XBox
-            </label>
-            <label>
-                <input type="checkbox" name="services" id="serviceA" value="A" @checkA />
-                Amazon
-            </label>
-            <label>
-                <input type="checkbox" name="services" id="serviceI" value="I" @checkI />
-                ITunes
-            </label>
-        </div>
-
-        <div class="form-group">
-            Tempo between @Html.TextBox("TempoMin", ViewBag.SongFilter.TempoMin as decimal?, new { @class = "input-small" })&nbsp;and&nbsp;
-            @Html.TextBox("TempoMax", ViewBag.SongFilter.TempoMax as decimal?, new { @class = "input-small" }) &nbsp;BPM
-        </div>
-
-        <input type="hidden" name="filter" value="@ViewBag.SongFilter.ToString()" />
+        if (purchase.Contains('A'))
+        {
+            checkA = "checked";
+        }
+        if (purchase.Contains('I'))
+        {
+            checkI = "checked";
+        }
     }
-    <button id="ShowBasic" type="button" class="btn btn-info btn-xs btn-block"><< Basic Search</button>
-</div>
 
-@using (Html.BeginForm("BulkEdit","Song")) {
+    <div class="input-group" style="margin-top:10px">
+        <div class="input-group-btn search-panel">
+            <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                <span id="dance_selector">@danceName</span> <span class="caret"></span>
+            </button>
+            <ul class="dropdown-menu" role="menu">
+                @foreach (var danceItem in (SelectList)ViewBag.Dances)
+                {
+                    string id = "DID_" + danceItem.Value;
+                    string href = "#" + danceItem.Value;
+                    <li id="@id"><a href=@href>@danceItem.Text</a></li>
+                }
+            </ul>
+            <input type="hidden" name="dances" id="dances" value="@danceID" />
+            <input type="hidden" name="filter" id="filter" value="@ViewBag.SongFilter.ToString()" />
+        </div>
+        @Html.TextBox("SearchString", ViewBag.SongFilter.SearchString as string, new { @class = "form-control", placeholder = "Artist, Title, or Album" })
+        <span class="input-group-btn">
+            <button class="btn btn-default" type="submit"><span class="glyphicon glyphicon-search"></span></button>
+        </span>
+    </div>
+        <div id="AdvancedSearch">
+            <div class="input-group">
+                Include only song available on:
+                <label>
+                    <input type="checkbox" name="services" id="serviceX" value="X" @checkX />
+                    XBox
+                </label>
+                <label>
+                    <input type="checkbox" name="services" id="serviceA" value="A" @checkA />
+                    Amazon
+                </label>
+                <label>
+                    <input type="checkbox" name="services" id="serviceI" value="I" @checkI />
+                    ITunes
+                </label>
+            </div>
+
+            <div class="input-group">
+                Tempo between @Html.TextBox("TempoMin", ViewBag.SongFilter.TempoMin as decimal?, new { @class = "input-small" })&nbsp;and&nbsp;
+                @Html.TextBox("TempoMax", ViewBag.SongFilter.TempoMax as decimal?, new { @class = "input-small" }) &nbsp;BPM
+            </div>
+        </div>
+}
+<a id="ToggleAdvanced" href="#" class="btn btn-info btn-xs btn-block" style="margin-top:5px">&nbsp;</a>
+
+@using (Html.BeginForm("BulkEdit", "Song"))
+{
     @Html.AntiForgeryToken()
 
-<table class="table table-striped">
-    <thead>
-        <tr>
-            @if (canEdit)
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                @if (canEdit)
+                {
+                    <th>&nbsp;</th>
+                }
+                <th style="min-width:75pt">
+                    @Html.ActionLink("Title", "Sort", new { sortOrder = "Title", filter = ViewBag.SongFilter })
+                    @Html.Raw(ViewBag.TitleSort)
+                </th>
+                <th style="min-width:75pt">
+                    @Html.ActionLink("Artist", "Sort", new { sortOrder = "Artist", filter = ViewBag.SongFilter })
+                    @Html.Raw(ViewBag.ArtistSort)
+                </th>
+                <th style="min-width:75pt">
+                    @Html.ActionLink("Album", "Sort", new { sortOrder = "Album", filter = ViewBag.SongFilter })
+                    @Html.Raw(ViewBag.AlbumSort)
+                </th>
+                <th>Tempo (BPM)</th>
+                <th>Dances</th>
+                <th></th>
+                @if (showDiag)
+                {
+                    <th>SongId</th>
+                }
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
             {
-                <th>&nbsp;</th>
-            }
-            <th style="min-width:75pt">
-                @Html.ActionLink("Title", "Sort", new { sortOrder="Title", filter = ViewBag.SongFilter })
-                @Html.Raw(ViewBag.TitleSort)
-            </th>
-            <th style="min-width:75pt">
-                @Html.ActionLink("Artist", "Sort", new { sortOrder = "Artist", filter = ViewBag.SongFilter })
-                @Html.Raw(ViewBag.ArtistSort)
-            </th>
-            <th style="min-width:75pt">
-                @Html.ActionLink("Album", "Sort", new { sortOrder = "Album", filter = ViewBag.SongFilter })
-                @Html.Raw(ViewBag.AlbumSort)
-            </th>
-            <th>Tempo (BPM)</th>
-            <th>Dances</th>
-            <th></th>
-            @if (showDiag)
-            {
-                <th>SongId</th>
-            }
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model)
-        {
-            if (item.Title != null)
-            {
-                <tr>
-                    @if (canEdit)
-                    {
-                        string id = "Selected-" + item.SongId.ToString();
-                        <td><input name="selectedSongs" id="@id" type="checkbox" value="@item.SongId" /></td>
-                    }
-                    <td>
-                        @Html.ActionLink(item.Title, "Details", new { id = item.SongId, filter = ViewBag.SongFilter })
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.Artist)
-                    </td>
-                    <td>
-                        @if (!string.IsNullOrWhiteSpace(item.Album))
+                if (item.Title != null)
+                {
+                    <tr>
+                        @if (canEdit)
                         {
-                            string[] albums = item.Album.Split(new char[] { '|' });
-                            if (albums.Length > 0)
-                            {
-                                <text>@albums[0]</text>
-                            }
-                            else
-                            {
-                                <text></text>
-                            }
+                            string id = "Selected-" + item.SongId.ToString();
+                            <td><input name="selectedSongs" id="@id" type="checkbox" value="@item.SongId" /></td>
                         }
-                    </td>
-                    <td>
-                        @if (item.Tempo != null)
-                        {
-                            string tempo = decimal.Round(item.Tempo.Value).ToString("F0");
-                            @tempo;
-                        }
-                    </td>
-                    <td>
-                        @{ var separator = ""; }
-                        @foreach (var ditem in item.DanceRatings)
-                        {
-                            @separator;
-                            @Html.DisplayFor(m => ditem.Dance.Info.Name)
-                          separator = ", ";
-                        }
-                    </td>
-                    <td>
-                        @if (!string.IsNullOrEmpty(item.Purchase) && item.Purchase.Contains('X'))
-                        {
-                            var xid = "X"+ item.SongId.ToString();
-                            <button id="@xid" type="button"><img src="@Url.Content("~/Content/xbox-logo.png")" alt="Availiable on Xbox Music" width="20" height="20" /></button>
-                        }
-                        @if (!string.IsNullOrEmpty(item.Purchase) && item.Purchase.Contains('I'))
-                        {
-                            var iid = "I" + item.SongId.ToString();
-                            <button id="@iid" type="button"><img src="@Url.Content("~/Content/itunes-logo.png")" alt="Availiable on Itunes" width="20" height="20" /></button>
-                        }
-                        @if (!string.IsNullOrEmpty(item.Purchase) && item.Purchase.Contains('A'))
-                        {
-                            var aid = "A" + item.SongId.ToString();
-                            <button id="@aid" type="button"><img src="@Url.Content("~/Content/amazon-logo.png")" alt="Availiable at Amazon" width="20" height="20" /></button>
-                        }
-                    </td>
-                    @if (showDiag)
-                    {
                         <td>
-                            @Html.DisplayFor(m => item.SongId)
+                            @Html.ActionLink(item.Title, "Details", new { id = item.SongId, filter = ViewBag.SongFilter })
                         </td>
-                    }
-                </tr>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Artist)
+                        </td>
+                        <td>
+                            @if (!string.IsNullOrWhiteSpace(item.Album))
+                            {
+                                string[] albums = item.Album.Split(new char[] { '|' });
+                                if (albums.Length > 0)
+                                {
+                                    <text>@albums[0]</text>
+                                }
+                                else
+                                {
+                                    <text></text>
+                                }
+                            }
+                        </td>
+                        <td>
+                            @if (item.Tempo != null)
+                            {
+                                string tempo = decimal.Round(item.Tempo.Value).ToString("F0");
+                                @tempo;
+                            }
+                        </td>
+                        <td>
+                            @{ var separator = ""; }
+                            @foreach (var ditem in item.DanceRatings)
+                            {
+                                @separator;
+                                @Html.DisplayFor(m => ditem.Dance.Info.Name)
+                                                  separator = ", ";
+                            }
+                        </td>
+                        <td>
+                            @if (!string.IsNullOrEmpty(item.Purchase) && item.Purchase.Contains('X'))
+                            {
+                                var xid = "X" + item.SongId.ToString();
+                                <button id="@xid" type="button"><img src="@Url.Content("~/Content/xbox-logo.png")" alt="Availiable on Xbox Music" width="20" height="20" /></button>
+                            }
+                            @if (!string.IsNullOrEmpty(item.Purchase) && item.Purchase.Contains('I'))
+                            {
+                                var iid = "I" + item.SongId.ToString();
+                                <button id="@iid" type="button"><img src="@Url.Content("~/Content/itunes-logo.png")" alt="Availiable on Itunes" width="20" height="20" /></button>
+                            }
+                            @if (!string.IsNullOrEmpty(item.Purchase) && item.Purchase.Contains('A'))
+                            {
+                                var aid = "A" + item.SongId.ToString();
+                                <button id="@aid" type="button"><img src="@Url.Content("~/Content/amazon-logo.png")" alt="Availiable at Amazon" width="20" height="20" /></button>
+                            }
+                        </td>
+                        @if (showDiag)
+                        {
+                            <td>
+                                @Html.DisplayFor(m => item.SongId)
+                            </td>
+                        }
+                    </tr>
+                }
             }
+        </tbody>
+    </table>
+
+    <p>
+        @if (canEdit)
+        {
+            <input type="hidden" name="filter" value="@ViewBag.SongFilter" />
+            <input type="submit" name="action" value="Merge" class="btn btn-" />
+            <input type="submit" name="action" value="Delete" class="btn" />
+            @Html.ActionLink("Add New Song", "Create", null, new { @class = "btn btn-default", role = "button" });
+            @Html.ActionLink("XBox Match", "BatchMusicService", new { filter = ViewBag.SongFilter, type = "X", count = 1 }, new { @class = "btn btn-default", role = "button" });
+            @Html.ActionLink("ITunes Match", "BatchMusicService", new { filter = ViewBag.SongFilter, type = "I", count = 1 }, new { @class = "btn btn-default", role = "button" });
+            @Html.ActionLink("Amazon Match", "BatchMusicService", new { filter = ViewBag.SongFilter, type = "A", count = 1 }, new { @class = "btn btn-default", role = "button" });
+            @Html.ActionLink("XBox Batch", "BatchMusicService", new { filter = ViewBag.SongFilter, type = "X", count = 10, options = "R1" }, new { @class = "btn btn-success", role = "button" });
+            @Html.ActionLink("ITunes Batch", "BatchMusicService", new { filter = ViewBag.SongFilter, type = "I", count = 10, options = "R1" }, new { @class = "btn btn-success", role = "button" });
+            @Html.ActionLink("Amazon Batch", "BatchMusicService", new { filter = ViewBag.SongFilter, type = "A", count = 10, options = "R1" }, new { @class = "btn btn-success", role = "button" });
         }
-    </tbody>
-</table>
-    
-<p>
-    @if (canEdit)
-    {
-        <input type="hidden" name="filter" value="@ViewBag.SongFilter" />
-        <input type="submit" name="action" value="Merge" class="btn btn-"/>
-        <input type="submit" name="action" value="Delete" class="btn" />
-        @Html.ActionLink("Add New Song", "Create", null, new { @class = "btn btn-default", role = "button" });
-        @Html.ActionLink("XBox Match", "BatchMusicService", new { filter = ViewBag.SongFilter, type="X", count = 1 }, new { @class = "btn btn-default", role="button"});
-        @Html.ActionLink("ITunes Match", "BatchMusicService", new { filter = ViewBag.SongFilter, type = "I", count = 1 }, new { @class = "btn btn-default", role = "button" });
-        @Html.ActionLink("Amazon Match", "BatchMusicService", new { filter = ViewBag.SongFilter, type = "A", count = 1 }, new { @class = "btn btn-default", role = "button" });
-        @Html.ActionLink("XBox Batch", "BatchMusicService", new { filter = ViewBag.SongFilter, type = "X", count = 10, options="R1" }, new { @class = "btn btn-success", role = "button" });
-        @Html.ActionLink("ITunes Batch", "BatchMusicService", new { filter = ViewBag.SongFilter, type = "I", count = 10, options = "R1" }, new { @class = "btn btn-success", role = "button" });
-        @Html.ActionLink("Amazon Batch", "BatchMusicService", new { filter = ViewBag.SongFilter, type = "A", count = 10, options = "R1" }, new { @class = "btn btn-success", role = "button" });
-    }
-</p>
+    </p>
 }
 
-Page @(Model.PageCount < Model.PageNumber ? 0 : Model.PageNumber) of @Model.PageCount
-(@Model.TotalItemCount songs found.)
+        Page @(Model.PageCount < Model.PageNumber ? 0 : Model.PageNumber) of @Model.PageCount
+        (@Model.TotalItemCount songs found.)
 
-@Html.PagedListPager(Model, page => Url.Action(ViewBag.SongFilter.Action, new { page, filter=ViewBag.SongFilter }))
+        @Html.PagedListPager(Model, page => Url.Action(ViewBag.SongFilter.Action, new { page, filter = ViewBag.SongFilter }))
 
-@section Scripts {
-    @if (ViewBag.AdvancedSearch == true)
-    {
-        <script>var showAdvanced = true</script>
-    }
-    else
-    {
-        <script>var showAdvanced = false</script>
-    }
-    <script src="@Url.Content("~/Scripts/songindex.js?@Html.Raw(DateTime.Now.Ticks.ToString())")" type="text/javascript"></script>
-}
+        @section Scripts {
+            @if (ViewBag.AdvancedSearch == true)
+            {
+                <script>var showAdvanced = true</script>
+            }
+            else
+            {
+                <script>var showAdvanced = false</script>
+            }
+            <script src="@Url.Content("~/Scripts/songindex.js?@Html.Raw(DateTime.Now.Ticks.ToString())")" type="text/javascript"></script>
+        }
