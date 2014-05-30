@@ -41,6 +41,9 @@
 </div>
 
 @section Scripts {
+    @{
+        string pageScript = "~/Scripts/counter.js" + Page.ScriptQualifier;
+    }
     @Scripts.Render("~/bundles/jqueryval")
-    <script src="@Url.Content("~/Scripts/counter.js?@Html.Raw(DateTime.Now.Ticks.ToString())")" type="text/javascript"></script>
+    <script src="@Url.Content(pageScript)" type="text/javascript"></script>
 }

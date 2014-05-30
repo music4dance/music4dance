@@ -138,5 +138,8 @@
 }
 
 @section Scripts {
-    <script src="@Url.Content("~/Scripts/merge.js?@Html.Raw(DateTime.Now.Ticks.ToString())")" type="text/javascript"></script>
+    @{
+        string pageScript = "~/Scripts/merge.js" + Page.ScriptQualifier;
+    }
+    <script src="@Url.Content(pageScript)" type="text/javascript"></script>
 }

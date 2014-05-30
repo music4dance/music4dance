@@ -225,13 +225,16 @@
         @Html.PagedListPager(Model, page => Url.Action(ViewBag.SongFilter.Action, new { page, filter = ViewBag.SongFilter }))
 
         @section Scripts {
-            @if (ViewBag.AdvancedSearch == true)
-            {
-                <script>var showAdvanced = true</script>
+            @{
+                if (ViewBag.AdvancedSearch == true)
+                {
+                    <script>var showAdvanced = true</script>
+                }
+                else
+                {
+                    <script>var showAdvanced = false</script>
+                }
+                string pageScript = "~/Scripts/songindex.js" + Page.ScriptQualifier;
             }
-            else
-            {
-                <script>var showAdvanced = false</script>
-            }
-            <script src="@Url.Content("~/Scripts/songindex.js?@Html.Raw(DateTime.Now.Ticks.ToString())")" type="text/javascript"></script>
+            <script src="@Url.Content(pageScript)" type="text/javascript"></script>
         }

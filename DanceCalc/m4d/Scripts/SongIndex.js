@@ -62,8 +62,7 @@ function ShowAdvanced()
     $("#AdvancedSearch").show();
     var search = $("#search");
     search.attr("action", "/Song/AdvancedSearch");
-
-    UpdateToggleButton(button);
+    $("#ToggleAdvanced").html(button);
 }
 
 function ShowBasic()
@@ -72,19 +71,6 @@ function ShowBasic()
 
     $("#AdvancedSearch").hide();
     $("#search").attr("action", "/Song/Search");
-
-    UpdateToggleButton(button)
+    $("#ToggleAdvanced").html(button);
 }
 
-function UpdateToggleButton(html) {
-    $("#ToggleAdvanced").html(html);
-}
-
-//function UpdateToggleButton(text,arrow)
-//{
-//    $("#ToggleAdvanced").text(" Less ");
-//    var licon = $("#left-icon");
-//    licon.attr("class", arrow);
-//    var ricon = $("#right-icon");
-//    ricon.attr("class", arrow);
-//}
