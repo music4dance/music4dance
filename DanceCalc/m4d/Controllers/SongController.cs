@@ -555,7 +555,7 @@ namespace music4dance.Controllers
             }
 
             SongFilter songFilter = ParseFilter(filter);
-            //songFilter.Purchase = "!" + type;
+            songFilter.Purchase = "!" + type;
 
             IQueryable<Song> songs = BuildSongList(songFilter);
 
