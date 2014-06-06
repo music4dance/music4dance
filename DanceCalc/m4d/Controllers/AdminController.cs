@@ -381,7 +381,6 @@ namespace m4d.Controllers
 
             return View("UploadCatalog");
         }
-
         #endregion
 
 
@@ -883,7 +882,7 @@ namespace m4d.Controllers
 
         private IList<SongDetails> SongsFromList(string separator, string fieldList, string songText)
         {
-            List<SongDetails> songs = new List<SongDetails>();
+            Dictionary<string, SongDetails> songs = new Dictionary<string, SongDetails>();
 
             IList<string> headers = SongDetails.BuildHeaderMap(fieldList, ',');
             string[] lines = songText.Split(System.Environment.NewLine.ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
@@ -904,12 +903,16 @@ namespace m4d.Controllers
                     SongDetails sd = SongDetails.CreateFromRow(headers, cells);
                     if (sd != null)
                     {
-                        songs.Add(sd);
+                        string ta = sd.TitleArtistString;
+                        if (!songs.ContainsKey(ta))
+                        {
+                            songs.Add(ta,sd);
+                        }
                     }
                 }
             }
 
-            return songs;
+            return new List<SongDetails>(songs.Values);
         }
 
         private IList<SongDetails> SongsFromFile(List<string> lines)

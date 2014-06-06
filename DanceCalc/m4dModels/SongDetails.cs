@@ -574,6 +574,13 @@ namespace m4dModels
                 string.Equals(Song.CreateNormalForm(artist), Song.CreateNormalForm(Artist));
         }
 
+        public string TitleArtistString
+        {
+            get 
+            {
+                return Song.CreateNormalForm(Title) + "+" + Song.CreateNormalForm(Artist);
+            }
+        }
         public string CleanTitle
         {
             get
