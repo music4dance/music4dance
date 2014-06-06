@@ -16,6 +16,7 @@ using System.Reflection;
 using m4d.ViewModels;
 using m4d.Utilities;
 using m4dModels;
+using Microsoft.AspNet.Identity;
 
 // Let's see if we can mock up a recoverable log file by spitting out
 // something resembling a tab-separated flat list of songs items with a
@@ -185,11 +186,11 @@ namespace m4d.Context
             return song;
         }
 
-        public Song CreateSong(ApplicationUser user, SongDetails sd, List<string> dances)
+        public Song CreateSong(ApplicationUser user, SongDetails sd, List<string> dances, int rating)
         {
             Song song = CreateSong(user, sd.Title, sd.Artist, sd.Genre, sd.Tempo, sd.Length, sd.Albums, true);
 
-            AddDanceRatings(song, dances, DanceRatingCreate);
+            AddDanceRatings(song, dances, rating);
 
             SaveChanges();
 
@@ -372,7 +373,7 @@ namespace m4d.Context
                 AlbumDetails.AddProperty(this, song, p, Song.AlbumPromote, null, string.Empty, log);
             }
 
-            modified |= EditDanceRatings(edit, song, addDances, remDances, log);
+            modified |= EditDanceRatings(song, addDances, DanceRatingIncrement, remDances, DanceRatingDecrement, log);
 
             modified |= UpdatePurchaseInfo(song, edit);
 
@@ -479,11 +480,31 @@ namespace m4d.Context
             }
         }
 
-        public bool EditDanceRatings(SongDetails sd, Song song, List<string> add, List<string> remove, SongLog log)
+        public bool AddDanceRatings(ApplicationUser user, int songId, IList<string> danceIds, int weight)
+        {
+            Song song = FindSong(songId,null);
+            SongLog log = CreateEditHeader(song, user);
+
+            bool modified = EditDanceRatings(song, danceIds, weight, null, 0, log);
+
+            if (modified)
+            {
+                Log.Add(log);
+            }
+
+            return modified;
+        }
+        public bool EditDanceRatings(Song song, IList<string> add_, int addWeight, List<string> remove_, int remWeight, SongLog log)
         {
             bool changed = false;
 
-            // TODO: Get some different weightings into the system so we can make add heavier than delete
+            List<string> add = null;
+            if (add_ != null)
+                add = new List<string>(add_);
+
+            List<string> remove = null;
+            if (remove_ != null)
+                remove = new List<string>(remove_);
 
             List<DanceRating> del = new List<DanceRating>();
 
@@ -496,7 +517,7 @@ namespace m4d.Context
                 // This handles the incremental weights
                 if (add != null && add.Contains(dr.DanceId))
                 {
-                    delta = DanceRatingIncrement;
+                    delta = addWeight;
                     add.Remove(dr.DanceId);
                     added = true;
                 }
@@ -506,7 +527,7 @@ namespace m4d.Context
                 {
                     if (!added)
                     {
-                        delta += DanceRatingDecrement;
+                        delta += remWeight;
                     }
 
                     if (dr.Weight + delta <= 0)
@@ -567,12 +588,11 @@ namespace m4d.Context
             return changed;
         }
 
-        // TODO: Change Inc to 10 and dec to -2 when next rebuild happens
-        public readonly int DanceRatingCreate = 10;  // TODO: when we allow a user to manually add a song, give lots of credit
-        public readonly int DanceRatingInitial = 6;
-        public readonly int DanceRatingIncrement = 3;
-        public readonly int DanceRatingAutoCreate = 5;
-        public readonly int DanceRatingDecrement = -2;
+        public static readonly int DanceRatingCreate = 10;  // TODO: when we allow a user to manually add a song, give lots of credit
+        public static readonly int DanceRatingInitial = 6;
+        public static readonly int DanceRatingIncrement = 3;
+        public static readonly int DanceRatingAutoCreate = 5;
+        public static readonly int DanceRatingDecrement = -2;
 
         public SongProperty CreateSongProperty(Song song, string name, string value, SongLog log = null)
         {
@@ -1270,6 +1290,29 @@ namespace m4d.Context
         }
 #endregion
 
+        public ApplicationUser FindOrAddUser(string name, string role)
+        {
+            var ustore = new UserStore<ApplicationUser>(this);
+            var umanager = new UserManager<ApplicationUser>(ustore);
+
+            var user = FindUser(name);
+            if (user == null)
+            {
+                user = new ApplicationUser { UserName = name };
+                umanager.Create(user, "_this_is_a_placeholder_");
+            }
+
+            if (!umanager.IsInRole(user.Id, role))
+            {
+                umanager.AddToRole(user.Id, role);
+            }
+
+            return user;
+        }
+
+        public static readonly string EditRole = "canEdit";
+        public static readonly string DiagRole = "showDiagnostics";
+        public static readonly string DbaRole = "dbAdmin";
         public SongProperty CreateSongProperty(Song song, string name, object value)
         {
             SongProperty np = SongProperties.Create();

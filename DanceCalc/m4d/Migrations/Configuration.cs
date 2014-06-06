@@ -61,9 +61,9 @@ namespace m4d.Migrations
                     umanager.Create(user, "maggie");
                 }
 
-                AddToRole(umanager, user.Id, _diagRole);
-                AddToRole(umanager, user.Id, _editRole);
-                AddToRole(umanager, user.Id, _dbaRole);
+                AddToRole(umanager, user.Id, DanceMusicContext.DiagRole);
+                AddToRole(umanager, user.Id, DanceMusicContext.EditRole);
+                AddToRole(umanager, user.Id, DanceMusicContext.DbaRole);
             }
 
             foreach (string name in _diagUsers)
@@ -74,12 +74,12 @@ namespace m4d.Migrations
                     user = new ApplicationUser { UserName = name };
 
                     umanager.Create(user, "marley");
-                    AddToRole(umanager, user.Id, _diagRole);
-                    AddToRole(umanager, user.Id, _editRole);
+                    AddToRole(umanager, user.Id, DanceMusicContext.DiagRole);
+                    AddToRole(umanager, user.Id, DanceMusicContext.EditRole);
                 }
                 else
                 {
-                    RemoveFromRole(umanager, user.Id, _dbaRole);
+                    RemoveFromRole(umanager, user.Id, DanceMusicContext.DbaRole);
                 }
             }
 
@@ -121,11 +121,7 @@ namespace m4d.Migrations
             }
         }
 
-        private static string _editRole = "canEdit";
-        private static string _diagRole = "showDiagnostics";
-        private static string _dbaRole = "dbAdmin";
-
-        private static string[] _roles = new string[] { _diagRole, _editRole, _dbaRole };
+        private static string[] _roles = new string[] { DanceMusicContext.DiagRole, DanceMusicContext.EditRole, DanceMusicContext.DbaRole };
         private static string[] _adminUsers = new string[] { "administrator", "dwgray", "batch" };
         private static string[] _diagUsers = new string[] { "lukim", "glennn" };
         private static string[] _editUsers = new string[] { "ajy", "SalsaSwingBallroom", "SandiegoDJ", "UsaSwingNet", "LetsDanceDenver", "SteveThatDJ", "JohnCrossan", "WaltersDanceCenter" };

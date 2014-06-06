@@ -62,7 +62,11 @@
                 @Html.DisplayFor(modelItem => item.Id)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.SongReference)
+                @if (item.SongReference > 0)
+                {
+                    @Html.ActionLink(item.SongReference.ToString(), "Details", "Song", new { id = item.SongReference }, null);
+                }
+                
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.User.UserName)

@@ -170,6 +170,7 @@ namespace m4d.Controllers
             return View("Results");
         }
 
+        #region Tempoes
         //
         // Get: //UploadTempoes
         [HttpPost]
@@ -180,33 +181,30 @@ namespace m4d.Controllers
             IList<LocalMerger> results = null;
             if (commit && fileId != -1)
             {
-                results = CommitUploadTempoes(fileId); 
+                results = CommitUploadTempoes(fileId);
             }
-            else 
+            else
             {
                 results = ReviewUploadTempoes();
             }
 
-            return View(results);
+            return View("ReviewBatch", results);
         }
 
         private IList<LocalMerger> ReviewUploadTempoes()
         {
             IList<LocalMerger> results = null;
 
-            int fileId = UploadAndCache();
+            List<string> lines = UploadFile();
 
-            if (fileId != -1)
+            ViewBag.Name = "Upload Tempoes";
+            ViewBag.FileId = -1;
+
+            if (lines.Count > 0)
             {
-                List<string> lines = GetFileById(fileId);
-
-                ViewBag.Name = "Upload Tempoes";
-                ViewBag.FileId = fileId;
-
-                if (lines.Count > 0)
-                {
-                    results = MatchSongs(lines);
-                }
+                IList<SongDetails> songs = SongsFromFile(lines);
+                results = MatchSongs(songs,MatchMethod.Tempo);
+                ViewBag.FileId = CacheReview(results);
             }
 
             return results;
@@ -214,18 +212,16 @@ namespace m4d.Controllers
 
         private IList<LocalMerger> CommitUploadTempoes(int fileId)
         {
-            IList<LocalMerger> initial = null;
+            IList<LocalMerger> initial = GetReviewById(fileId);
             IList<LocalMerger> results = null;
-            List<string> lines = GetFileById(fileId);
 
             ViewBag.Name = "Upload Tempoes";
             ViewBag.FileId = fileId;
 
             ApplicationUser user = _db.FindUser(User.Identity.Name);
 
-            if (lines.Count > 0)
+            if (initial.Count > 0)
             {
-                initial = MatchSongs(lines);
                 results = new List<LocalMerger>();
 
                 foreach (LocalMerger m in initial)
@@ -239,7 +235,7 @@ namespace m4d.Controllers
                         bool modified = false;
 
                         // Handle Scalar values
-                        if (string.IsNullOrWhiteSpace(edit.Genre) && ! string.IsNullOrWhiteSpace(sd.Genre))
+                        if (string.IsNullOrWhiteSpace(edit.Genre) && !string.IsNullOrWhiteSpace(sd.Genre))
                         {
                             modified = true;
                             edit.Genre = sd.Genre;
@@ -258,7 +254,7 @@ namespace m4d.Controllers
                             modified = true;
                         }
 
-                        if (modified && _db.EditSong(user, edit,null,null) != null)
+                        if (modified && _db.EditSong(user, edit, null, null) != null)
                         {
                             results.Add(m);
                         }
@@ -268,85 +264,126 @@ namespace m4d.Controllers
 
             return results;
         }
+        #endregion
 
-        private IList<LocalMerger> MatchSongs(List<string> lines)
+        #region Catalog
+
+        //
+        // Post: //UploadCatalog
+        [HttpGet]
+        [Authorize(Roles = "dbAdmin")]
+        public ActionResult UploadCatalog()
         {
-            List<LocalMerger> merge = new List<LocalMerger>();
+            return View();
+        }
 
-            List<string> map = SongDetails.BuildHeaderMap(lines[0]);
-            for (int i = 1; i < lines.Count; i++ )
+        //
+        // Post: //UploadCatalog
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Authorize(Roles = "dbAdmin")]
+        public ActionResult UploadCatalog(string songs, string separator, string headers, string user, string dances)
+        {
+            ViewBag.Name = "Upload Catalog";
+
+            if (string.IsNullOrWhiteSpace(songs) || string.IsNullOrWhiteSpace(separator) || string.IsNullOrWhiteSpace(dances))
             {
-                SongDetails song = SongDetails.CreateFromRow(map, lines[i]);
+                // TODO: We should validate this on the client side - only way I know to do this is to have a full on class to
+                // represent the fields, is there a lighter way???
+                ViewBag.Success = false;
+                ViewBag.Message = "Must have non-empty songs, separator, and dances fields";
+                return View("Results");
+            }
+            IList<LocalMerger> results = null;
 
-                var songs = from s in _db.Songs where (s.TitleHash == song.TitleHash) select s;
+            if (string.IsNullOrWhiteSpace(separator))
+            {
+                separator = " - ";
+            }
 
-                List<SongDetails> candidates = new List<SongDetails>();
-                foreach (Song s in songs)
+            if (string.IsNullOrWhiteSpace(headers))
+            {
+                headers = "TITLE,ARTIST";
+            }
+
+            IList<SongDetails> newSongs = SongsFromList(separator, headers, songs);
+
+            ViewBag.UserName = user;
+            ViewBag.Dances = dances;
+            ViewBag.Separator = separator;
+            ViewBag.Headers = headers;
+            ViewBag.Action = "CommitUploadCatalog";
+
+            if (newSongs.Count > 0)
+            {
+                results = MatchSongs(newSongs, MatchMethod.Merge);
+                ViewBag.FileId = CacheReview(results);
+            }
+
+            return View("ReviewBatch", results);
+        }
+        //
+        // Post: //CommitUploadCatalog
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Authorize(Roles = "dbAdmin")]
+        public ActionResult CommitUploadCatalog(int fileId, string userName, string danceIds, string headers, string separator)
+        {
+            IList<LocalMerger> initial =  GetReviewById(fileId);
+
+            ViewBag.Name = "Upload Catalog";
+            ViewBag.FileId = fileId;
+            ViewBag.User = userName;
+            ViewBag.Dances = danceIds;
+            ViewBag.Headers = headers;
+            ViewBag.Separator = separator;
+
+            if (string.IsNullOrWhiteSpace(userName))
+            {
+                userName = User.Identity.Name;
+            }
+            ApplicationUser user = _db.FindOrAddUser(userName,DanceMusicContext.EditRole);
+
+            if (user == null)
+            {
+
+            }
+            List<string> dances = null;
+            if (!string.IsNullOrWhiteSpace(danceIds))
+            {
+                dances = new List<string>(danceIds.Split(new char[] { ';' }));
+            }
+
+            if (initial.Count > 0)
+            {
+                bool modified = false;
+
+                foreach (LocalMerger m in initial)
                 {
-                    // Title-Artist match at minimum
-                    if (string.Equals(Song.CreateNormalForm(s.Artist),Song.CreateNormalForm(song.Artist)))
+                    // Matchtype of none indicates a new (to us) song, so just add it
+                    if (m.MatchType == MatchType.None)
                     {
-                        candidates.Add(new SongDetails(s));
+                        modified = _db.CreateSong(user, m.Left, dances, DanceMusicContext.DanceRatingAutoCreate) != null;
+                    }
+                    // Any other matchtype should result in a merge, which for now is just adding the dance(s) from
+                    //  the new list to the existing song (or adding weight).
+                    else
+                    {
+                        modified |= _db.AddDanceRatings(user, m.Right.SongId, dances, DanceMusicContext.DanceRatingAutoCreate);
                     }
                 }
 
-                SongDetails match = null;
-                MatchType type = MatchType.None;
-
-                if (candidates.Count > 0)
+                if (modified)
                 {
-                    // Now we have a list of existing songs that are a title-artist match to our new song - so see
-                    //  if we have a title-artist-album match
-
-                    if (song.HasAlbums)
-                    {
-                        foreach (SongDetails s in candidates)
-                        {
-                            if (s.FindAlbum(song.Albums[0].Name) != null)
-                            {
-                                match = s;
-                                type = MatchType.Exact;
-                                break;
-                            }
-                        }
-                    }
-
-                    // If not, try for a length match
-                    if (match == null && song.Length.HasValue)
-                    {
-                        foreach (SongDetails s in candidates)
-                        {
-                            if (s.Length.HasValue && Math.Abs(s.Length.Value - song.Length.Value) < 5)
-                            {
-                                match = s;
-                                type = MatchType.Length;
-                                break;
-                            }
-                        }
-                    }
-
-                    // Otherwise, if there is only one candidate and it doesn't have any 'real'
-                    //  albums, we will choose it
-                    if (match == null && candidates.Count == 1 && !candidates[0].HasRealAblums)
-                    {
-                        type = MatchType.Weak;
-                        match = candidates[0];
-                    }
-                }
-
-                if (match != null)
-                {
-                    LocalMerger m = new LocalMerger { Left = song, Right = match, MatchType =  type, Conflict = false };
-                    if (song.TempoConflict(match,3))
-                    {
-                        m.Conflict = true;
-                    }
-                    merge.Add(m);
+                    _db.SaveChanges();
                 }
             }
 
-            return merge;
+            return View("UploadCatalog");
         }
+
+        #endregion
+
 
         //
         // Get: //BackupDatabase
@@ -412,7 +449,7 @@ namespace m4d.Controllers
         {
             foreach (DanceObject d in Dance.DanceLibrary.DanceDictionary.Values)
             {
-                string name = CleanName(d.Name);
+                string name = SongDetails.CleanDanceName(d.Name);
                 _danceMap.Add(name, d.Id);
             }
         }
@@ -631,7 +668,7 @@ namespace m4d.Controllers
                     if (cells.Length < _danceColumn)
                         break;
 
-                    string danceName = CleanName(cells[_danceColumn]);
+                    string danceName = SongDetails.CleanDanceName(cells[_danceColumn]);
                     if (!_danceMap.TryGetValue(danceName, out danceIds))
                     {
                         Trace.WriteLine(string.Format("Dance Not Found: {0}", cells[_danceColumn]));
@@ -641,11 +678,11 @@ namespace m4d.Controllers
 
                     // Create a song based on the info in each line
 
-                    string title = CleanText(cells[_titleColumn]);
+                    string title = SongDetails.CleanText(cells[_titleColumn]);
                     string artist = null;
                     if (_artistColumn != -1 && _artistColumn < cells.Length)
                     {
-                        artist = CleanArtist(cells[_artistColumn]);
+                        artist = SongDetails.CleanArtistString(cells[_artistColumn]);
                     }
 
                     string album = null;
@@ -790,125 +827,6 @@ namespace m4d.Controllers
             }
         }
 
-        static private string CleanName(string name)
-        {
-            string up = name.ToUpper();
-
-            string[] parts = up.Split(new char[] { ' ', '-', '\t', '/', '&', '-', '+', '(', ')' }, StringSplitOptions.RemoveEmptyEntries);
-
-            string ret = string.Join("", parts);
-
-            if (ret.LastIndexOf('S') == ret.Length - 1)
-            {
-                int truncate = 1;
-                if (ret.LastIndexOf('E') == ret.Length - 2)
-                {
-                    if (ret.Length > 2)
-                    {
-                        char ch = ret[ret.Length - 3];
-                        if (ch != 'A' && ch != 'E' && ch != 'I' && ch != 'O' && ch != 'U')
-                        {
-                            truncate = 2;
-                        }
-                    }
-                }
-                ret = ret.Substring(0, ret.Length - truncate);
-            }
-
-            return ret;
-        }
-
-        static private string CleanText(string text)
-        {
-            text = text.Replace("&nbsp;", " ");
-            text = text.Replace("&nbsp", " ");
-            text = text.Replace("\r", " ");
-            text = text.Replace("\n", " ");
-            text = text.Replace("\t", " ");
-            text = text.Replace("&quot;", "\"");
-            text = text.Replace("&quot", "\"");
-            text = text.Replace("&amp;", "&");
-
-            // TODO: is it worth doing a generic unicode replace?
-            text = text.Replace("&#39;", "'");
-            text = text.Replace("&#333;", "ō");
-
-            text = text.Trim();
-
-            if (text.Contains("  "))
-            {
-                StringBuilder sb = new StringBuilder(text.Length + 1);
-
-                bool space = false;
-                foreach (char c in text)
-                {
-                    if (char.IsWhiteSpace(c))
-                    {
-                        if (!space)
-                        {
-                            sb.Append(c);
-                        }
-                        space = true;
-                    }
-                    else
-                    {
-                        sb.Append(c);
-                        space = false;
-                    }
-                }
-
-                text = sb.ToString();
-            }
-
-            return text;
-        }
-
-        static private string Unsort(string name)
-        {
-            string[] parts = name.Split(new char[] { ',' });
-            if (parts.Length == 1)
-            {
-                return parts[0].Trim();
-            }
-            else if (parts.Length == 2)
-            {
-                return string.Format("{0} {1}", parts[1].Trim(), parts[0].Trim());
-            }
-            else
-            {
-                Trace.WriteLine(string.Format("Unusual Sort: {0}", name));
-                return name;
-            }
-        }
-
-        static private string CleanArtist(string name)
-        {
-            if (name.IndexOf(',') != -1)
-            {
-                string[] parts = new string[] { name };
-                if (name.IndexOf('&') != -1)
-                    parts = name.Split(new char[] { '&' }, StringSplitOptions.RemoveEmptyEntries);
-                else if (name.IndexOf('/') != -1)
-                    parts = name.Split(new char[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
-
-                string separator = string.Empty;
-                StringBuilder sb = new StringBuilder();
-
-                foreach (string s in parts)
-                {
-                    string u = Unsort(s);
-                    sb.Append(separator);
-                    sb.Append(u);
-                    separator = " & ";
-                }
-
-                name = sb.ToString();
-            }
-
-            return name;
-        }
-
-
         string[] _dbs = new string[] { "JohnCrossan", "LetsDanceDenver", "SalsaSwingBallroom", "SandiegoDJ", "SteveThatDJ", "UsaSwingNet", "WaltersDanceCenter" };
         private readonly int _chunk = 500;
 
@@ -962,6 +880,146 @@ namespace m4d.Controllers
         #endregion
 
         #region Utilities
+
+        private IList<SongDetails> SongsFromList(string separator, string fieldList, string songText)
+        {
+            List<SongDetails> songs = new List<SongDetails>();
+
+            IList<string> headers = SongDetails.BuildHeaderMap(fieldList, ',');
+            string[] lines = songText.Split(System.Environment.NewLine.ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
+
+            foreach (string line in lines)
+            {
+                List<string> cells = new List<string>(Regex.Split(line, separator));
+
+                // Concat back the last field (which seems a typical pattern)
+                while (cells.Count > headers.Count)
+                {
+                    cells[headers.Count - 1] = string.Format("{0}{1}{2}",cells[headers.Count - 1],separator,(cells[headers.Count]));
+                    cells.RemoveAt(headers.Count);
+                }
+
+                if (cells.Count == headers.Count)
+                {
+                    SongDetails sd = SongDetails.CreateFromRow(headers, cells);
+                    if (sd != null)
+                    {
+                        songs.Add(sd);
+                    }
+                }
+            }
+
+            return songs;
+        }
+
+        private IList<SongDetails> SongsFromFile(List<string> lines)
+        {
+            List<SongDetails> songs = new List<SongDetails>();
+
+            List<string> map = SongDetails.BuildHeaderMap(lines[0]);
+            for (int i = 1; i < lines.Count; i++)
+            {
+                SongDetails song = SongDetails.CreateFromRow(map, lines[i]);
+                if (song != null)
+                {
+                    songs.Add(song);
+                }
+            }
+
+            return songs;
+        }
+        private enum MatchMethod {None, Tempo, Merge};
+
+        private IList<LocalMerger> MatchSongs(IList<SongDetails> newSongs, MatchMethod method)
+        {
+            List<LocalMerger> merge = new List<LocalMerger>();
+
+            foreach (SongDetails song in newSongs)
+            {
+                var songs = from s in _db.Songs where (s.TitleHash == song.TitleHash) select s;
+
+                List<SongDetails> candidates = new List<SongDetails>();
+                foreach (Song s in songs)
+                {
+                    // Title-Artist match at minimum
+                    if (string.Equals(Song.CreateNormalForm(s.Artist), Song.CreateNormalForm(song.Artist)))
+                    {
+                        candidates.Add(new SongDetails(s));
+                    }
+                }
+
+                SongDetails match = null;
+                MatchType type = MatchType.None;
+
+                if (candidates.Count > 0)
+                {
+                    // Now we have a list of existing songs that are a title-artist match to our new song - so see
+                    //  if we have a title-artist-album match
+
+                    if (song.HasAlbums)
+                    {
+                        foreach (SongDetails s in candidates)
+                        {
+                            if (s.FindAlbum(song.Albums[0].Name) != null)
+                            {
+                                match = s;
+                                type = MatchType.Exact;
+                                break;
+                            }
+                        }
+                    }
+
+                    // If not, try for a length match
+                    if (match == null && song.Length.HasValue)
+                    {
+                        foreach (SongDetails s in candidates)
+                        {
+                            if (s.Length.HasValue && Math.Abs(s.Length.Value - song.Length.Value) < 5)
+                            {
+                                match = s;
+                                type = MatchType.Length;
+                                break;
+                            }
+                        }
+                    }
+
+                    // TODONEXT: We may want to make this even weaker (especially for merge): If merge doesn't have album remove candidate.HasRealAlbums?
+
+                    // Otherwise, if there is only one candidate and it doesn't have any 'real'
+                    //  albums, we will choose it
+                    if (match == null && candidates.Count == 1 && (!song.HasAlbums || !candidates[0].HasRealAblums))
+                    {
+                        type = MatchType.Weak;
+                        match = candidates[0];
+                    }
+                }
+
+                LocalMerger m = new LocalMerger { Left = song, Right = match, MatchType = type, Conflict = false };
+                switch (method)
+                {
+                    case MatchMethod.Tempo:
+                        if (match == null)
+                        {
+                            m = null;
+                        }
+                        else
+                        {
+                            m.Conflict = song.TempoConflict(match, 3);
+                        }
+                        break;
+                    case MatchMethod.Merge:
+                        // Do we need to do anything special here???
+                        break;
+                }
+                if (m != null)
+                {
+                    merge.Add(m);
+                }
+            }
+
+            return merge;
+        }
+
         List<string> UploadFile() 
         {
             List<string> lines = new List<string>();
@@ -992,24 +1050,21 @@ namespace m4d.Controllers
             return lines;
         }
 
-        int UploadAndCache()
+        int CacheReview(IList<LocalMerger> review)
         {
             int ret = -1;
-            List<string> lines = UploadFile();
-
-            if (lines.Count > 0)
+            lock (s_reviews)
             {
-                lock (s_files)
-                {
-                    s_files.Add(lines);
-                    ret = s_files.Count - 1;
-                }
+                s_reviews.Add(review);
+                ret = s_reviews.Count - 1;
             }
+
             return ret;
         }
-        List<string> GetFileById(int id)
+
+        IList<LocalMerger> GetReviewById(int id)
         {
-            return s_files[id];
+            return s_reviews[id];
         }
 
         // This is pretty kludgy as this is a basically a temporary
@@ -1017,7 +1072,7 @@ namespace m4d.Controllers
         //  for now it's being using primarily on the short running
         //  dev instance, it doesn't seem worthwhile to do anything
         //  more sophisticated
-        static List<List<string>> s_files = new List<List<string>>();
+        static IList<IList<LocalMerger>> s_reviews = new List<IList<LocalMerger>>();
 
         #endregion
 

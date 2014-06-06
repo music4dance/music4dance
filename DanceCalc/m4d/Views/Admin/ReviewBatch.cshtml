@@ -1,12 +1,12 @@
 ﻿@{
-    ViewBag.Title = "Upload Tempoes";
+    ViewBag.Title = ViewBag.Name;
     int matches = 0;
     int conflicts = 0;
 }
 
 @model IEnumerable<m4d.ViewModels.LocalMerger>
 
-<h2>UploadTempoes</h2>
+<h2>@ViewBag.Title</h2>
 
 <table class="table table-striped">
     <tr>
@@ -75,16 +75,25 @@
             </td>
         </tr>
         <tr>
-            <td>
-                @Html.ActionLink(item.Right.SongId.ToString(), "Details", "Song", new { id = item.Right.SongId }, new { target="_blank"})
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Right.Title)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Right.Artist)
-            </td>
-            @if (item.Right.HasAlbums)
+            @if (item.Right != null)
+            {
+                <td>
+                    @Html.ActionLink(item.Right.SongId.ToString(), "Details", "Song", new { id = item.Right.SongId }, new { target="_blank"})
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Right.Title)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Right.Artist)
+                </td>
+            }
+            else
+            {
+                <td>&nbsp;</td>
+                <td>&nbsp;</td>
+                <td>&nbsp;</td>
+            }
+            @if (item.Right != null && item.Right.HasAlbums)
             {
                 <td>@Html.DisplayFor(modelItem => item.Right.Albums[0].Name)</td>
                 <td>@Html.DisplayFor(modelItem => item.Right.Albums[0].Track)</td>
@@ -94,12 +103,20 @@
                 <td>&nbsp;</td>
                 <td>&nbsp;</td>
             }
-            <td>
-                @Html.DisplayFor(modelItem => item.Right.Tempo)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Right.Length)
-            </td>
+            @if (item.Right != null)
+                {
+                <td>
+                    @Html.DisplayFor(modelItem => item.Right.Tempo)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Right.Length)
+                </td>
+                }
+            else
+            {
+                <td>&nbsp;</td>
+                <td>&nbsp;</td>
+            }
         </tr>
     }
 </table>
@@ -107,7 +124,7 @@
 <h3>Matches = @matches</h3>
 <h3>Conflicts = @conflicts</h3>
 
-@using (Html.BeginForm("UploadTempoes","Admin",new {commit=true, fileId=@ViewBag.FileId}))
+@using (Html.BeginForm((string)ViewBag.Action,"Admin",new {fileId=ViewBag.FileId, danceIds=ViewBag.Dances, userName=ViewBag.UserName, headers=ViewBag.Headers, separator=ViewBag.Separator}))
 {
     @Html.AntiForgeryToken()
     <p>

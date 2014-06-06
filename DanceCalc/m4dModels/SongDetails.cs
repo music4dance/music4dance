@@ -114,43 +114,62 @@ namespace m4dModels
 
             Albums = BuildAlbumInfo(properties);
         }
-        
+
         public static SongDetails CreateFromRow(IList<string> fields, string row)
         {
             string[] cells = row.Split(new char[] { '\t' });
 
+            return CreateFromRow(fields, new List<string>(cells));
+        }
+        public static SongDetails CreateFromRow(IList<string> fields, IList<string> cells)
+        {
             List<SongProperty> properties = new List<SongProperty>();
-            for (int i = 0; i < cells.Length; i++)
+            for (int i = 0; i < cells.Count; i++)
             {
                 if (fields[i] != null)
                 {
                     string cell = cells[i];
-                    if (string.Equals(fields[i],Song.DanceRatingField))
+                    cell = cell.Trim();
+                    if ((cell.Length > 0) && (cell[0] == '"') && (cell[cell.Length-1] == '"'))
                     {
-                        // Special case dance rating
-                        throw new NotImplementedException("Dance Ratings need to be moved from admin to here.");
+                        cell = cell.Trim(new char[] {'"'});
                     }
-                    else if (string.Equals(fields[i],Song.LengthField))
+                    switch (fields[i])
                     {
-                        // Special case length
-                        if (!string.IsNullOrWhiteSpace(cell))
-                        {
-                            try
+                        case Song.DanceRatingField:
+                            // Special case dance rating: Actually, made to do this at a different level altogether
+                            //  which would me skipping this here...
+                            throw new NotImplementedException("Dance Ratings need to be moved from admin to here.");
+                        case Song.LengthField:
+                            if (!string.IsNullOrWhiteSpace(cell))
                             {
-                                SongDuration d = new SongDuration(cell);
-                                decimal l = d.Length;
-                                cell = l.ToString("F0");
+                                try
+                                {
+                                    SongDuration d = new SongDuration(cell);
+                                    decimal l = d.Length;
+                                    cell = l.ToString("F0");
+                                }
+                                catch (ArgumentOutOfRangeException)
+                                {
+                                    cell = null;
+                                }
                             }
-                            catch (ArgumentOutOfRangeException)
+                            break;
+                        case Song.ArtistField:
+                            cell = CleanArtistString(cell);
+                            break;
+                        case Song.TitleField:
+                            cell = CleanText(cell);
+                            // Song is not valid without a title
+                            if (string.IsNullOrWhiteSpace(cell))
                             {
-                                cell = null;
+                                return null;
                             }
-                        }
+                            break;
                     }
 
                     if (!string.IsNullOrWhiteSpace(cell))
                     {
-                        
                         int idx = Song.IsAlbumField(fields[i]) ? 0 : -1;
                         SongProperty prop = new SongProperty(0, fields[i], cell, idx);
                         properties.Add(prop);
@@ -162,14 +181,14 @@ namespace m4dModels
             return song;
         }
 
-        public static List<string> BuildHeaderMap(string line)
+        public static List<string> BuildHeaderMap(string line, char separator = '\t')
         {
             List<string> map = new List<string>();
-            string[] headers = line.ToUpper().Split(new char[] { '\t' });
+            string[] headers = line.ToUpper().Split(new char[] { separator });
 
             for (int i = 0; i < headers.Length; i++)
             {
-                string header = headers[i];
+                string header = headers[i].Trim().ToUpper();
                 string field = null;
                 // If this fails, we want to add a null to our list because
                 // that indicates a column we don't care about
@@ -187,6 +206,7 @@ namespace m4dModels
             {"ARTIST", Song.ArtistField},
             {"CONTRIBUTING ARTISTS", Song.ArtistField},
             {"LABEL", Song.PublisherField},
+            {"USER", Song.UserField},
             {"BPM", Song.TempoField},
             {"BEATS-PER-MINUTE", Song.TempoField},
             {"LENGTH", Song.LengthField},
@@ -661,5 +681,126 @@ namespace m4dModels
 
             return ret;
         }
+
+        #region String Cleanup
+        static public string CleanDanceName(string name)
+        {
+            string up = name.ToUpper();
+
+            string[] parts = up.Split(new char[] { ' ', '-', '\t', '/', '&', '-', '+', '(', ')' }, StringSplitOptions.RemoveEmptyEntries);
+
+            string ret = string.Join("", parts);
+
+            if (ret.LastIndexOf('S') == ret.Length - 1)
+            {
+                int truncate = 1;
+                if (ret.LastIndexOf('E') == ret.Length - 2)
+                {
+                    if (ret.Length > 2)
+                    {
+                        char ch = ret[ret.Length - 3];
+                        if (ch != 'A' && ch != 'E' && ch != 'I' && ch != 'O' && ch != 'U')
+                        {
+                            truncate = 2;
+                        }
+                    }
+                }
+                ret = ret.Substring(0, ret.Length - truncate);
+            }
+
+            return ret;
+        }
+
+        static public string CleanText(string text)
+        {
+            text = text.Replace("&nbsp;", " ");
+            text = text.Replace("&nbsp", " ");
+            text = text.Replace("\r", " ");
+            text = text.Replace("\n", " ");
+            text = text.Replace("\t", " ");
+            text = text.Replace("&quot;", "\"");
+            text = text.Replace("&quot", "\"");
+            text = text.Replace("&amp;", "&");
+
+            // TODO: is it worth doing a generic unicode replace?
+            text = text.Replace("&#39;", "'");
+            text = text.Replace("&#333;", "ō");
+
+            text = text.Trim();
+
+            if (text.Contains("  "))
+            {
+                StringBuilder sb = new StringBuilder(text.Length + 1);
+
+                bool space = false;
+                foreach (char c in text)
+                {
+                    if (char.IsWhiteSpace(c))
+                    {
+                        if (!space)
+                        {
+                            sb.Append(c);
+                        }
+                        space = true;
+                    }
+                    else
+                    {
+                        sb.Append(c);
+                        space = false;
+                    }
+                }
+
+                text = sb.ToString();
+            }
+
+            return text;
+        }
+
+        static public string Unsort(string name)
+        {
+            string[] parts = name.Split(new char[] { ',' });
+            if (parts.Length == 1)
+            {
+                return parts[0].Trim();
+            }
+            else if (parts.Length == 2)
+            {
+                return string.Format("{0} {1}", parts[1].Trim(), parts[0].Trim());
+            }
+            else
+            {
+                Trace.WriteLine(string.Format("Unusual Sort: {0}", name));
+                return name;
+            }
+        }
+
+        static public string CleanArtistString(string name)
+        {
+            if (name.IndexOf(',') != -1)
+            {
+                string[] parts = new string[] { name };
+                if (name.IndexOf('&') != -1)
+                    parts = name.Split(new char[] { '&' }, StringSplitOptions.RemoveEmptyEntries);
+                else if (name.IndexOf('/') != -1)
+                    parts = name.Split(new char[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
+
+                string separator = string.Empty;
+                StringBuilder sb = new StringBuilder();
+
+                foreach (string s in parts)
+                {
+                    string u = Unsort(s);
+                    sb.Append(separator);
+                    sb.Append(u);
+                    separator = " & ";
+                }
+
+                name = sb.ToString();
+            }
+
+            return name;
+        }
+        
+        #endregion
     }
 }

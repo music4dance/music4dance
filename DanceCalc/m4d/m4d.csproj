@@ -450,8 +450,9 @@
     <Content Include="Views\Home\CounterHelp.cshtml" />
     <Content Include="Views\Song\BatchMusicService.cshtml" />
     <None Include="Service References\AWSReference\AWSECommerceService.wsdl" />
-    <Content Include="Views\Admin\UploadTempoes.cshtml" />
+    <Content Include="Views\Admin\ReviewBatch.cshtml" />
     <Content Include="Views\Song\Sample.cshtml" />
+    <Content Include="Views\Admin\UploadCatalog.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

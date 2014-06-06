@@ -234,7 +234,7 @@ namespace music4dance.Controllers
             {
 
                 ApplicationUser user = _db.FindUser(User.Identity.Name);
-                Song newSong = _db.CreateSong(user, song, addDances);
+                Song newSong = _db.CreateSong(user, song, addDances, DanceMusicContext.DanceRatingCreate);
 
                 // TODO: Think about if the round-trip is necessary
                 if (newSong != null)
@@ -614,17 +614,43 @@ namespace music4dance.Controllers
                     {
                         ServiceTrack foundTrack = null;
 
-                        // First check for exact album match
+                        // First filter out anything that's not a title-artist match (weak)
+
+                        List<ServiceTrack> tracksT = new List<ServiceTrack>(tracks.Count);
                         foreach (ServiceTrack track in tracks)
                         {
-                            if (sd.TitleArtistMatch(track.Name, track.Artist) && sd.FindAlbum(track.Album) != null)
+                            if (sd.TitleArtistMatch(track.Name, track.Artist))
+                            {
+                                tracksT.Add(track);
+                            }
+                        }
+                        tracks = tracksT;
+
+                        // Then check for exact album match
+                        foreach (ServiceTrack track in tracks)
+                        {
+                            if (sd.FindAlbum(track.Album) != null)
                             {
                                 foundTrack = track;
                                 break;
                             }
                         }
 
-                        // If no album match, choose the 'dominant' version of hte title/artist match by clustering lengths
+                        // If not exact album match and the song has a length, choose an album with the same tempo (delta a few seconds)
+                        if (foundTrack == null && sd.Length.HasValue)
+                        {
+                            foreach (ServiceTrack track in tracks)
+                            {
+                                int delta = Math.Abs(track.Duration.Value-sd.Length.Value);
+                                if ((track.Duration.HasValue && delta < 6) &&
+                                    (foundTrack == null || Math.Abs(foundTrack.Duration.Value - sd.Length.Value) > delta))
+                                {
+                                    foundTrack = track;
+                                }
+                            }
+                        }
+
+                        // If no album name or length match, choose the 'dominant' version of hte title/artist match by clustering lengths
                         //  Note that this degenerates to chosing a single album if that is what is available
                         if (foundTrack == null && !sd.HasRealAblums)
                         {
