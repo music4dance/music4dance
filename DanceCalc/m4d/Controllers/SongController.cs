@@ -594,7 +594,7 @@ namespace music4dance.Controllers
                         ViewBag.Status = we.Message;
                     }
 
-                    if (tracks == null && !string.Equals(DefaultServiceSearch(sd,true),DefaultServiceSearch(sd,false)))
+                    if ((tracks == null || tracks.Count == 0) && !string.Equals(DefaultServiceSearch(sd,true),DefaultServiceSearch(sd,false)))
                     {
                         // Now try cleaned up title/artist (remove punctuation and stuff in parens/brackets)
                         try
@@ -610,7 +610,7 @@ namespace music4dance.Controllers
                         }
                     }
 
-                    if (tracks != null)
+                    if (tracks != null && tracks.Count > 0)
                     {
                         ServiceTrack foundTrack = null;
 
@@ -743,7 +743,7 @@ namespace music4dance.Controllers
 
         // GET: /Song/MusicServiceSearch/5?search=name
         [Authorize(Roles = "canEdit")]
-        public ActionResult MusicServiceSearch(int id = 0, string type="X", string search = null, string filter=null)
+        public ActionResult MusicServiceSearch(int id = 0, string type="X", string title = null, string artist = null, string filter=null)
         {
             SongDetails song = _db.FindSongDetails(id);
             if (song == null)
@@ -757,18 +757,17 @@ namespace music4dance.Controllers
                 throw new ArgumentOutOfRangeException("type");
             }
 
-            search = search ?? DefaultServiceSearch(song,false);
-
             ServiceSearchResults view = new ServiceSearchResults { ServiceType = type, Song = song };
 
             ViewBag.SongFilter = ParseFilter(filter);
-            ViewBag.Search = search;
+            ViewBag.SongTitle = title;
+            ViewBag.SongArtist = artist;
             ViewBag.Type = type;
             ViewBag.Error = false;
 
             try
             {
-                IList<ServiceTrack> tracks = FindMusicServiceSong(song,service,false,search);
+                IList<ServiceTrack> tracks = FindMusicServiceSong(song,service,false,title,artist);
                 if (tracks == null || tracks.Count == 0)
                 {
                     ViewBag.Error = true;
@@ -1089,29 +1088,52 @@ namespace music4dance.Controllers
         //  between itunes and xbox doesn't work.   So I'm going to shoe-horn this in to get it working
         //  and refactor later.
 
-        private IList<ServiceTrack> FindMusicServiceSong(SongDetails song, MusicService service, bool clean = false, string search = null)
+        private IList<ServiceTrack> FindMusicServiceSong(SongDetails song, MusicService service, bool clean = false, string title = null, string artist = null)
         {
             switch (service.ID)
             {
                 case ServiceType.Amazon:
-                    return FindMSSongAmazon(song, clean, search);
+                    return FindMSSongAmazon(song, clean, title, artist);
                 default:
-                    return FindMSSongGeneral(song, service, clean, search);
+                    return FindMSSongGeneral(song, service, clean, title, artist);
             }
         }
 
-        private IList<ServiceTrack> FindMSSongAmazon(SongDetails song, bool clean = false, string search = null)
+        private IList<ServiceTrack> FindMSSongAmazon(SongDetails song, bool clean = false, string title = null, string artist = null)
         {
             if (_awsFetcher == null)
             {
                 _awsFetcher = new AWSFetcher();
             }
-            return _awsFetcher.FetchTracks(song,clean);
+
+            bool custom = !string.IsNullOrWhiteSpace(title) || !string.IsNullOrWhiteSpace(artist);
+            FixupTitleArtist(song, clean, ref title, ref artist);
+
+            if (custom)
+            {
+                return _awsFetcher.FetchTracks(title,artist);
+            }
+            else
+            {
+                return _awsFetcher.FetchTracks(song, clean);
+            }
         }
 
         AWSFetcher _awsFetcher;
 
-        private IList<ServiceTrack> FindMSSongGeneral(SongDetails song, MusicService service, bool clean = false, string search = null)
+        private void FixupTitleArtist(SongDetails song, bool clean, ref string title, ref string artist)
+        {
+            if (song != null && artist == null && title == null)
+            {
+                artist = clean?song.CleanArtist:song.Artist;
+                title =  clean?song.CleanTitle:song.Title;
+            }
+
+            ViewBag.SongArtist = artist;
+            ViewBag.SongTitle = title;
+        }
+
+        private IList<ServiceTrack> FindMSSongGeneral(SongDetails song, MusicService service, bool clean = false, string title = null, string artist = null)
         {
             HttpWebRequest request = null;
             HttpWebResponse response = null;
@@ -1120,7 +1142,9 @@ namespace music4dance.Controllers
 
             // Make Music database request
 
-            string req = service.BuildSearchRequest(search ?? DefaultServiceSearch(song,clean));
+            FixupTitleArtist(song, clean, ref title, ref artist);
+
+            string req = service.BuildSearchRequest(artist, title);
 
             request = (HttpWebRequest)WebRequest.Create(req);
             request.Method = WebRequestMethods.Http.Get;
@@ -1130,7 +1154,6 @@ namespace music4dance.Controllers
                 request.Headers.Add("Authorization", XboxAuthorization);
             }
 
-            ViewBag.Search = search;
             ViewBag.Error = false;
             using (response = (HttpWebResponse)request.GetResponse())
             {

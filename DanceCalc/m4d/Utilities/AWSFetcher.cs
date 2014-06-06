@@ -148,32 +148,53 @@ namespace m4d.Utilities
             _client.ChannelFactory.Endpoint.Behaviors.Add(new AmazonSigningEndpointBehavior(accessKeyId, secretKeyId));
 
         }
+
+        public IList<ServiceTrack> FetchTracks(string title, string artist)
+        {
+            return DoFetchTracks(null, false, title, artist);
+        }
+
         public IList<ServiceTrack> FetchTracks(SongDetails song, bool clean = false)
+        {
+            return DoFetchTracks(song, clean);
+        }
+
+        private IList<ServiceTrack> DoFetchTracks(SongDetails song, bool clean = false, string title = null, string artist = null)
         {
             List<ServiceTrack> tracks = new List<ServiceTrack>();
 
-            try
-            {
-                string title = song.Title;
-                string artist = song.Artist;
+            try {
 
-                if (clean)
+                if (song != null)
                 {
-                    title = song.CleanTitle;
-                    artist = song.CleanArtist;
+                    if (title == null)
+                    {
+                        title = song.Title;
+                    }
+                    if (artist == null)
+                    {
+                        artist = song.Artist;
+                    }
+
+                    if (clean)
+                    {
+                        title = song.CleanTitle;
+                        artist = song.CleanArtist;
+                    }
                 }
+
 
                 ItemSearchResponse response = FindTrack(title, artist);
 
                 if (response == null)
                 {
-                    Trace.WriteLine(song.Title + ": Invalid Search");
+                    Trace.WriteLine(title + ": Invalid Search");
                     return tracks;
                 }
 
                 if (response.Items[0].Request.Errors != null)
                 {
-                    Trace.WriteLine(song.Title + ":" + response.Items[0].Request.Errors[0].Message);
+                    Trace.WriteLine(title + ":" + response.Items[0].Request.Errors[0].Message);
                     return tracks;
                 }
 
@@ -187,9 +208,8 @@ namespace m4d.Utilities
                         artist = item.ItemAttributes.Creator[0].Value;
                     }
 
-                    if (song.TitleArtistMatch(title, artist))
+                    if (song == null || song.TitleArtistMatch(title, artist))
                     {
-                        // TODO: Figure out how better to deal with Amazon throttling
                         int trackNum = 0;
                         int? ntrackNum = null;
 

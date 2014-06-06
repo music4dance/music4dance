@@ -1,10 +1,6 @@
 ﻿@model m4d.ViewModels.ServiceSearchResults
 
-@{
-    ViewBag.Title = "Music Service Search";
-}
-
-<h2>XboxSearch: @Model.Song.Title</h2>
+<h2>Music Service Search: @Model.Song.Title</h2>
 
 <div>
     <h4>Status = @ViewBag.Status</h4>
@@ -12,24 +8,24 @@
     @Html.Partial("DetailsCore",Model.Song)
 </div>
 
-@if (ViewBag.Error)
+@using (Html.BeginForm("MusicServiceSearch","Song",FormMethod.Get))
+{ 
+    <input type="hidden" name="id" value="@Model.Song.SongId" />
+    <input type="hidden" name="type" value="@ViewBag.Type" />
+    <span>Title: </span> <input type="text" name="title" value="@ViewBag.SongTitle" />
+    <span>Artist: </span> <input type="text" name="artist" value="@ViewBag.SongArtist" />
+    <input type="hidden" name="filter" value="@ViewBag.SongFilter"/>
+    <input type="submit" value="Retry" />
+}            
+
+@if (!ViewBag.Error) 
 {
-    using (@Html.BeginForm("MusicServiceSearch","Song",FormMethod.Get))
-    { 
-        <input type="hidden" name="id" value="@Model.Song.SongId" />
-        <input type="hidden" name="type" value="@ViewBag.Type" />
-        <input type="text" name="search" value="@ViewBag.Search" />
-        <input type="hidden" name="filter" value="@ViewBag.SongFilter"/>
-        <input type="submit" value="Retry" />
-    }            
-}
-else { 
     <div>
     <h4>Repsonse:</h4>
-    
+
     @{
         foreach (var track in Model.Tracks)
-        {            
+        {
             <div>
                 @if (track.ImageUrl != null)
                 {
@@ -43,7 +39,7 @@ else {
                 @if (track.AltId != null)
                 {
                     <b>OtherId:</b>@track.AltId<br />
-                }            
+                }
                 @if (track.CollectionId != null)
                 {
                     <b>CollectionId:</b>@track.CollectionId<br />
@@ -52,7 +48,7 @@ else {
                 <b>Duration:</b>@track.Duration<br />
                 <b>TrackNumber:</b>@track.TrackNumber<br />
                 @if (track.Genre != null)
-                { 
+                {
                     <b>Genre:</b>@track.Genre<br />
                 }
 

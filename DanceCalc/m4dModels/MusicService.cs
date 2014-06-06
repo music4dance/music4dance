@@ -65,9 +65,12 @@ namespace m4dModels
             else
                 return null;
         }
-        public virtual string BuildSearchRequest(string search)
+        public virtual string BuildSearchRequest(string artist, string title)
         {
-            string searchEnc = System.Uri.EscapeDataString(search);
+            artist = artist ?? string.Empty;
+            title = title ?? string.Empty;
+
+            string searchEnc = System.Uri.EscapeDataString(artist + " " + title);
             string req = string.Format(_request, searchEnc);
             return req;
         }
