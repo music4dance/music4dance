@@ -1192,7 +1192,7 @@ namespace music4dance.Controllers
             if (!string.IsNullOrWhiteSpace(artist) && !string.Equals(artist, song.Artist))
             {
                 alt.Artist = song.Artist;
-                song.Artist = name;
+                song.Artist = artist;
             }
 
             AlbumDetails ad = song.FindAlbum(album);

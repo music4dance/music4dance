@@ -188,6 +188,11 @@ namespace m4d.Context
 
         public Song CreateSong(ApplicationUser user, SongDetails sd, List<string> dances, int rating)
         {
+            if (string.Equals(sd.Title, sd.Artist))
+            {
+                Trace.WriteLine(string.Format("Title and Artist are the same ({0})", sd.Title));
+            }
+
             Song song = CreateSong(user, sd.Title, sd.Artist, sd.Genre, sd.Tempo, sd.Length, sd.Albums, true);
 
             AddDanceRatings(song, dances, rating);
@@ -205,6 +210,11 @@ namespace m4d.Context
         public Song CreateSong(ApplicationUser user, string title, string artist, string genre, decimal? tempo, int? length, List<AlbumDetails> albums, string command, string value, bool createLog = false)
         {
             DateTime time = DateTime.Now;
+
+            if (string.Equals(title, artist))
+            {
+                Trace.WriteLine(string.Format("Title and Artist are the same ({0})", title));
+            }
 
             Song song = Songs.Create();
 

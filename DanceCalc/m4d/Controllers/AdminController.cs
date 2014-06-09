@@ -904,6 +904,10 @@ namespace m4d.Controllers
                     if (sd != null)
                     {
                         string ta = sd.TitleArtistString;
+                        if (string.Equals(sd.Title,sd.Artist))
+                        {
+                            Trace.WriteLine(string.Format("Title and Artist are the same ({0})",sd.Title));
+                        }
                         if (!songs.ContainsKey(ta))
                         {
                             songs.Add(ta,sd);
