@@ -97,7 +97,7 @@
 @using (Html.BeginForm("BulkEdit", "Song"))
 {
     @Html.AntiForgeryToken()
-
+    <div class="hidden-xs"></div>
     <table class="table table-striped">
         <thead>
             <tr>
@@ -113,13 +113,13 @@
                     @Html.ActionLink("Artist", "Sort", new { sortOrder = "Artist", filter = ViewBag.SongFilter })
                     @Html.Raw(ViewBag.ArtistSort)
                 </th>
-                <th style="min-width:75pt">
+                <th style="min-width:75pt" class="hidden-xs">
                     @Html.ActionLink("Album", "Sort", new { sortOrder = "Album", filter = ViewBag.SongFilter })
                     @Html.Raw(ViewBag.AlbumSort)
                 </th>
-                <th>Tempo (BPM)</th>
+                <th class="hidden-xs">Tempo (BPM)</th>
                 <th>Dances</th>
-                <th></th>
+                <th style="min-width:150px" class="hidden-xs">Purchase</th>
                 @if (showDiag)
                 {
                     <th>SongId</th>
@@ -139,11 +139,15 @@
                         }
                         <td>
                             @Html.ActionLink(item.Title, "Details", new { id = item.SongId, filter = ViewBag.SongFilter })
+                            @if (item.Tempo != null)
+                            {
+                                <small class="hidden-sm hidden-md hidden-lg">(@decimal.Round(item.Tempo.Value).ToString("F0") BPM)</small>
+                            }
                         </td>
                         <td>
                             @Html.DisplayFor(modelItem => item.Artist)
                         </td>
-                        <td>
+                        <td class="hidden-xs">
                             @if (!string.IsNullOrWhiteSpace(item.Album))
                             {
                                 string[] albums = item.Album.Split(new char[] { '|' });
@@ -157,7 +161,7 @@
                                 }
                             }
                         </td>
-                        <td>
+                        <td class="hidden-xs">
                             @if (item.Tempo != null)
                             {
                                 string tempo = decimal.Round(item.Tempo.Value).ToString("F0");
@@ -170,10 +174,11 @@
                             {
                                 @separator;
                                 @Html.DisplayFor(m => ditem.Dance.Info.Name)
-                                                  separator = ", ";
+                                          separator = ", ";
                             }
                         </td>
-                        <td>
+
+                        <td class="hidden-xs">
                             @if (!string.IsNullOrEmpty(item.Purchase) && item.Purchase.Contains('X'))
                             {
                                 var xid = "X" + item.SongId.ToString();
