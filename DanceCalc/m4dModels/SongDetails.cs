@@ -243,7 +243,6 @@ namespace m4dModels
                 return Song.CreateTitleHash(Title); 
             } 
         }
-        
         #endregion
 
         #region Album

@@ -260,6 +260,27 @@ namespace DanceLibrary
             return ret;
         }
 
+        public string ToString(string format)
+        {
+            char c = 'M';
+
+            if (format.Length > 0)
+            {
+                c = format[0];
+            }
+
+            switch (c)
+            {
+                default:
+                case 'M':
+                    return string.Format("{0}:{1:D2}", Minutes, Seconds);
+                case 'S':
+                    return Format(DurationFormat.Short);
+                case 'L':
+                    return Format(DurationFormat.Long);
+            }
+        }
+
         public string Format(DurationFormat f)
         {
             string[] rgs = { "{0:N0}s", "{0}m", "{0}m{1}s" };

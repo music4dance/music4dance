@@ -454,6 +454,7 @@
     <Content Include="Views\Admin\ReviewBatch.cshtml" />
     <Content Include="Views\Song\Sample.cshtml" />
     <Content Include="Views\Admin\UploadCatalog.cshtml" />
+    <Content Include="Views\Song\AlbumDetails.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
