@@ -115,3 +115,11 @@ table.songlist
 }
 
 .row-buffer { margin-top:15px; }
+
+.btn-ml,
+.btn-group-ml > .btn {
+  padding: 9px 14px;
+  font-size: 16px;
+  line-height: 1.33;
+  border-radius: 6px;
+}
