@@ -170,6 +170,12 @@ namespace m4d.Context
                 CreateSongProperty(song, Song.DanceRatingField, value, song.CreateEntry);
             }
 
+            if (weights.Count > 0)
+            {
+                SongCounts.ClearCache();
+            }
+
+
             // Delete all of the old songs (With merge-with Id from above)
             foreach (Song from in songs)
             {
@@ -474,6 +480,8 @@ namespace m4d.Context
             if (weight == 0 )
                 weight = DanceRatingAutoCreate;
 
+            bool changed = false;
+
             foreach (string danceId in danceIds)
             {
                 Dance dance = Dances.Local.First(d => d.Id == danceId);
@@ -487,6 +495,12 @@ namespace m4d.Context
                 DanceRatings.Add(dr);
 
                 CreateSongProperty(song, Song.DanceRatingField, string.Format("{0}+{1}", dance.Id, weight), song.CreateEntry);
+                changed = true;
+            }
+
+            if (changed)
+            {
+                SongCounts.ClearCache();
             }
         }
 
@@ -593,6 +607,11 @@ namespace m4d.Context
 
                     changed = true;
                 }
+            }
+
+            if (changed)
+            {
+                SongCounts.ClearCache();
             }
 
             return changed;

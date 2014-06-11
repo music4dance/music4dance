@@ -172,26 +172,11 @@ namespace m4d.Controllers
 
         #region Tempoes
         //
-        // Get: //UploadTempoes
+        // Post: //UploadTempoes
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "dbAdmin")]
-        public ActionResult UploadTempoes(bool commit = false, int fileId = -1)
-        {
-            IList<LocalMerger> results = null;
-            if (commit && fileId != -1)
-            {
-                results = CommitUploadTempoes(fileId);
-            }
-            else
-            {
-                results = ReviewUploadTempoes();
-            }
-
-            return View("ReviewBatch", results);
-        }
-
-        private IList<LocalMerger> ReviewUploadTempoes()
+        public ActionResult UploadTempoes()
         {
             IList<LocalMerger> results = null;
 
@@ -199,6 +184,7 @@ namespace m4d.Controllers
 
             ViewBag.Name = "Upload Tempoes";
             ViewBag.FileId = -1;
+            ViewBag.Action = "CommitUploadTempoes";
 
             if (lines.Count > 0)
             {
@@ -207,10 +193,16 @@ namespace m4d.Controllers
                 ViewBag.FileId = CacheReview(results);
             }
 
-            return results;
+            return View("ReviewBatch", results);
         }
 
-        private IList<LocalMerger> CommitUploadTempoes(int fileId)
+
+        //
+        // Post: //CommitUploadTempoes
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Authorize(Roles = "dbAdmin")]
+        public ActionResult CommitUploadTempoes(int fileId)
         {
             IList<LocalMerger> initial = GetReviewById(fileId);
             IList<LocalMerger> results = null;
@@ -262,14 +254,14 @@ namespace m4d.Controllers
                 }
             }
 
-            return results;
+            return View("ReviewBatch", results);
         }
         #endregion
 
         #region Catalog
 
         //
-        // Post: //UploadCatalog
+        // Get: //UploadCatalog
         [HttpGet]
         [Authorize(Roles = "dbAdmin")]
         public ActionResult UploadCatalog()

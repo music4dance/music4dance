@@ -20,97 +20,105 @@ namespace m4d.ViewModels
 
         public List<SongCounts> Children { get; set; }
 
-        static public IList<SongCounts> GetFlatSongCounts(DanceMusicContext dmc)
+        static public void ClearCache()
         {
-            // TODO: Let's find a quick way to recycle this cache when the underlying data has changed
-
-            if (s_flatlist == null)
+            lock (s_counts)
             {
-                //Trace.WriteLine(string.Format("Entering GetFlatSongCounts:  DMC={0}", dmc == null ? "<<NULL>>" : "Valid"));
-                List<SongCounts> flat = new List<SongCounts>();
-
-                var tree = GetSongCounts(dmc);
-
-                //Trace.WriteLine(string.Format("Top Level Count={0}", tree==null?"<<NULL>>":tree.Count.ToString()));
-                flat.AddRange(tree);
-
-                foreach (var sc in tree)
-                {
-                    var children = sc.Children;
-                    //Trace.WriteLine(string.Format("{0} Count={1}", sc.DanceName, tree==null?"<<NULL>>":tree.Count.ToString()));
-                    flat.AddRange(children);
-                }
-
-                SongCounts all = new SongCounts
-                {
-                    DanceId = "ALL",
-                    DanceName = "All Dances",
-                    SongCount = tree.Sum(s => s.SongCount),
-                    Children = null
-                };
-
-                flat.Insert(0, all);
-
-                s_flatlist = flat;
+                s_counts.Clear();
             }
-
-            return s_flatlist;
         }
 
-        static private IList<SongCounts> s_flatlist = null;
+        static public IList<SongCounts> GetFlatSongCounts(DanceMusicContext dmc)
+        {
+            //Trace.WriteLine(string.Format("Entering GetFlatSongCounts:  DMC={0}", dmc == null ? "<<NULL>>" : "Valid"));
+            List<SongCounts> flat = new List<SongCounts>();
+
+            var tree = GetSongCounts(dmc);
+
+            //Trace.WriteLine(string.Format("Top Level Count={0}", tree==null?"<<NULL>>":tree.Count.ToString()));
+            flat.AddRange(tree);
+
+            foreach (var sc in tree)
+            {
+                var children = sc.Children;
+                //Trace.WriteLine(string.Format("{0} Count={1}", sc.DanceName, tree==null?"<<NULL>>":tree.Count.ToString()));
+                flat.AddRange(children);
+            }
+
+            SongCounts all = new SongCounts
+            {
+                DanceId = "ALL",
+                DanceName = "All Dances",
+                SongCount = tree.Sum(s => s.SongCount),
+                Children = null
+            };
+
+            flat.Insert(0, all);
+
+            return flat;
+        }
+
+        static private IList<SongCounts> s_counts = new List<SongCounts>();
 
         static public IList<SongCounts> GetSongCounts(DanceMusicContext dmc)
         {
-            dmc.Dances.Load();
-
-            var data = new List<SongCounts>();
-
-            HashSet<string> used = new HashSet<string>();
-
-            // First handle dancegroups and types under dancegroups
-            foreach (DanceGroup dg in Dances.Instance.AllDanceGroups)
+            lock (s_counts)
             {
-                Dance d = dmc.Dances.FirstOrDefault(t => t.Id == dg.Id);
-
-                var scGroup = new SongCounts()
+                if (s_counts.Count == 0)
                 {
-                    DanceId = dg.Id,
-                    DanceName = dg.Name,
-                    SongCount = d.DanceRatings.Count,
-                    Children = new List<SongCounts>()
-                };
+                    dmc.Dances.Load();
 
-                data.Add(scGroup);
 
-                foreach (DanceObject dtypT in dg.Members)
-                {
-                    DanceType dtyp = dtypT as DanceType;
-                    Debug.Assert(dtyp != null);
+                    HashSet<string> used = new HashSet<string>();
 
-                    HandleType(dtyp, dmc.Dances, scGroup);
-                    used.Add(dtyp.Id);
+                    // First handle dancegroups and types under dancegroups
+                    foreach (DanceGroup dg in Dances.Instance.AllDanceGroups)
+                    {
+                        Dance d = dmc.Dances.FirstOrDefault(t => t.Id == dg.Id);
+
+                        var scGroup = new SongCounts()
+                        {
+                            DanceId = dg.Id,
+                            DanceName = dg.Name,
+                            SongCount = d.DanceRatings.Count,
+                            Children = new List<SongCounts>()
+                        };
+
+                        s_counts.Add(scGroup);
+
+                        foreach (DanceObject dtypT in dg.Members)
+                        {
+                            DanceType dtyp = dtypT as DanceType;
+                            Debug.Assert(dtyp != null);
+
+                            HandleType(dtyp, dmc.Dances, scGroup);
+                            used.Add(dtyp.Id);
+                        }
+                    }
+
+                    // Then handle ungrouped types
+                    var scOther = new SongCounts()
+                    {
+                        DanceId = null,
+                        DanceName = "Other",
+                        SongCount = 0,
+                        Children = new List<SongCounts>()
+                    };
+                    s_counts.Add(scOther);
+
+                    foreach (DanceType dt in Dances.Instance.AllDanceTypes)
+                    {
+                        if (!used.Contains(dt.Id))
+                        {
+                            HandleType(dt, dmc.Dances, scOther);
+                        }
+                    }
+
+                    s_counts = s_counts.OrderByDescending(x => x.Children.Count).ToList();
                 }
             }
 
-            // Then handle ungrouped types
-            var scOther = new SongCounts()
-            {
-                DanceId = null,
-                DanceName = "Other",
-                SongCount = 0,
-                Children = new List<SongCounts>()
-            };
-            data.Add(scOther);
-
-            foreach (DanceType dt in Dances.Instance.AllDanceTypes)
-            {
-                if (!used.Contains(dt.Id))
-                {
-                    HandleType(dt, dmc.Dances, scOther);
-                }
-            }
-
-            return data.OrderByDescending(x => x.Children.Count).ToList();
+            return s_counts;
         }
 
         static private void HandleType(DanceType dtyp, DbSet<Dance> dances, SongCounts scGroup)
