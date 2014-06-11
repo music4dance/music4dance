@@ -391,6 +391,8 @@ namespace music4dance.Controllers
             SongFilter songFilter = ParseFilter(filter, "MergeCandidates");
             IList<Song> songs = null;
 
+            ViewBag.Dances = BuildDanceList(songFilter);
+
             if (page.HasValue)
             {
                 songFilter.Page = page;
@@ -881,6 +883,14 @@ namespace music4dance.Controllers
             return View("Index", songs.ToPagedList(filter.Page ?? 1, pageSize));
         }
 
+        private SelectList BuildDanceList(SongFilter filter)
+        {
+            // TODONEXT: Let's get rid of the song counts and just do names here (also cleanup song index)...
+            IList<SongCounts> songCounts = SongCounts.GetFlatSongCounts(_db);
+            var scq = songCounts.Select(s => new { s.DanceId, s.DanceName });
+
+            return new SelectList(scq.AsEnumerable(), "DanceId", "DanceName", filter.Dances);
+        }
         private IQueryable<Song> BuildSongList(SongFilter filter)
         {
             // Set up the viewbag
@@ -890,13 +900,7 @@ namespace music4dance.Controllers
             ViewBag.ArtistClass = string.Empty;
             ViewBag.AlbumClass = string.Empty;
 
-            // TODONEXT: Let's get rid of the song counts and just do names here (also cleanup song index)...
-            IList<SongCounts> songCounts = SongCounts.GetFlatSongCounts(_db);
-            var scq = songCounts.Select(s => new { s.DanceId, s.DanceName });
-
-            //scq.FirstOrDefault(s => s.DanceId == filter.Dances)
-            var scl = new SelectList(scq.AsEnumerable(), "DanceId", "DanceName", filter.Dances);
-            ViewBag.Dances = scl;
+            ViewBag.Dances = BuildDanceList(filter);
 
             // Now setup the view
             // Start with all of the songs in the database

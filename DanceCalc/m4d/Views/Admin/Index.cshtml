@@ -33,6 +33,14 @@
     }
 </ul>
 
+<hr />
+<h3>Songs Modified By</h3>
+@using (Html.BeginForm("FilterUser", "Song", FormMethod.Get))
+    {
+        <input type="text" name="user" />
+        <input type="submit" id="Submit" value="Search" />
+    }
+
 @if (User.IsInRole("dbAdmin"))
 {
     <hr />
