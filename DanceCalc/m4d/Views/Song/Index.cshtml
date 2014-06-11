@@ -117,7 +117,10 @@
                     @Html.ActionLink("Album", "Sort", new { sortOrder = "Album", filter = ViewBag.SongFilter })
                     @Html.Raw(ViewBag.AlbumSort)
                 </th>
-                <th class="hidden-xs">Tempo (BPM)</th>
+                <th class="hidden-xs">
+                    @Html.ActionLink("Tempo (BPM)", "Sort", new { sortOrder = "Tempo", filter = ViewBag.SongFilter })
+                    @Html.Raw(ViewBag.TempoSort)
+                </th>
                 <th>Dances</th>
                 <th style="min-width:150px" class="hidden-xs">Purchase</th>
                 @if (showDiag)

@@ -128,6 +128,9 @@ namespace music4dance.Controllers
                     case "Album":
                         songFilter.SortOrder = songFilter.SortOrder == "Album" ? "Album_desc" : "Album";
                         break;
+                    case "Tempo":
+                        songFilter.SortOrder = songFilter.SortOrder == "Tempo" ? "Tempo_desc" : "Tempo";
+                        break;
                 }
             }
 
@@ -1029,6 +1032,9 @@ namespace music4dance.Controllers
             // Now sort the list
             string sortAsc = "<span class='glyphicon glyphicon-sort-by-alphabet'></span>";
             string sortDsc = "<span class='glyphicon glyphicon-sort-by-alphabet-alt'></span>";
+            string sortNAsc = "<span class='glyphicon glyphicon-sort-by-order'></span>";
+            string sortNDsc = "<span class='glyphicon glyphicon-sort-by-order-alt'></span>";
+
             switch (filter.SortOrder)
             {
                 case "Title":
@@ -1036,32 +1042,34 @@ namespace music4dance.Controllers
                     songs = songs.OrderBy(s => s.Title);
                     ViewBag.TitleSort = sortAsc;
                     break;
-
                 case "Title_desc":
                     songs = songs.OrderByDescending(s => s.Title);
                     ViewBag.TitleSort = sortDsc;
                     break;
-
                 case "Artist":
                     songs = songs.OrderBy(s => s.Artist);
                     ViewBag.ArtistSort = sortAsc;
                     break;
-
                 case "Artist_desc":
                     songs = songs.OrderByDescending(s => s.Artist);
                     ViewBag.ArtistSort = sortDsc;
                     break;
-
                 case "Album":
                     songs = songs.OrderBy(s => s.Album);
                     ViewBag.AlbumSort = sortAsc;
                     break;
-
                 case "Album_desc":
                     songs = songs.OrderByDescending(s => s.Album);
                     ViewBag.AlbumSort = sortDsc;
                     break;
-
+                case "Tempo":
+                    songs = songs.OrderBy(s => s.Tempo);
+                    ViewBag.TempoSort = sortNAsc;
+                    break;
+                case "Tempo_desc":
+                    songs = songs.OrderByDescending(s => s.Tempo);
+                    ViewBag.TempoSort = sortNDsc;
+                    break;
             }
 
             return songs;
