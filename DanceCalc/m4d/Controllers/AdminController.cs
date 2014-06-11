@@ -425,6 +425,52 @@ namespace m4d.Controllers
 
             return View("Results");
         }
+
+        //
+        // Get: //CleanTempoes
+        [Authorize(Roles = "dbAdmin")]
+        public ActionResult CleanTempoes()
+        {
+            var songs = from s in _db.Songs where s.TitleHash != 0 select s;
+            string[] danceList = Dances.Instance.ExpandDanceList("WLZ");
+
+            int cwlz = 0;
+            songs = songs.Where(s => s.DanceRatings.Any(dr => danceList.Contains(dr.DanceId)));
+            List<Song> songsT = songs.ToList();
+            songs = songs.Where(s => s.Tempo > 190);
+            songsT = songs.ToList();
+
+            foreach (var song in songs)
+            {
+                decimal newTempo = (song.Tempo.Value / 4) * 3;
+                newTempo = Math.Round(newTempo, 2);
+                song.Tempo = newTempo;
+                cwlz += 1;
+            }
+
+            int csmb = 0;
+            songs = from s in _db.Songs where s.TitleHash != 0 select s;
+            songs = songs.Where(s => s.DanceRatings.Count == 1 && s.DanceRatings.Any(dr => dr.DanceId == "SMB"));
+            songsT = songs.ToList();
+            songs = songs.Where(s => s.Tempo > 175);
+            songsT = songs.ToList();
+            foreach (var song in songs)
+            {
+                decimal newTempo = (song.Tempo.Value / 2);
+                newTempo = Math.Round(newTempo, 2);
+                song.Tempo = newTempo;
+                csmb += 1;
+            }
+
+            _db.SaveChanges();
+
+            ViewBag.Name = "Clean Tempoes";
+            ViewBag.Success = true;
+            ViewBag.Message = string.Format("{0} waltzes and {1} sambas fixed",cwlz,csmb);
+
+            return View("Results");
+        }
+
         
         #endregion
 
