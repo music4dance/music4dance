@@ -2,6 +2,7 @@
 {
     public class SongFilter
     {
+        private const string empty = ".";
         public SongFilter()
         {
 
@@ -12,7 +13,28 @@
             if (string.IsNullOrWhiteSpace(value))
                 return;
 
-            string[] cells = value.Split(new char[] { '|' });
+            bool fancy = false;
+            if (value.Contains("\\-"))
+            {
+                fancy = true;
+                value = value.Replace("\\-", "~");
+            }
+
+            string[] cells = value.Split(new char[] { '-' });
+
+            for (int i = 0; i < cells.Length; i++)
+            {
+                if (string.Equals(cells[i], empty))
+                {
+                    cells[i] = string.Empty;
+                }
+                
+                if (fancy)
+                {
+                    cells[i] = cells[i].Replace('~', '-');
+                }
+            }
+
             if (cells.Length > 0 && !string.IsNullOrWhiteSpace(cells[0]))
             {
                 Action = cells[0];
@@ -83,20 +105,36 @@
 
         public override string ToString()
         {
-            string ret = string.Format("{0}|{1}|{2}|{3}|{4}|{5}|{6}|{7}|{8}|{9}",
-                Action ?? string.Empty,
-                Dances ?? string.Empty,
-                SortOrder ?? string.Empty,
-                SearchString ?? string.Empty,
-                Purchase ?? string.Empty,
-                User ?? string.Empty,
-                TempoMin.HasValue ? TempoMin.Value.ToString() : string.Empty,
-                TempoMax.HasValue ? TempoMax.Value.ToString() : string.Empty,
-                Page.HasValue ? Page.Value.ToString() : string.Empty,
-                Level.HasValue ? Level.Value.ToString() : string.Empty
+            string ret = string.Format("{0}-{1}-{2}-{3}-{4}-{5}-{6}-{7}-{8}-{9}",
+                Format(Action),
+                Format(Dances),
+                Format(SortOrder),
+                Format(SearchString),
+                Format(Purchase),
+                Format(User),
+                TempoMin.HasValue ? Format(TempoMin.Value.ToString()) : empty,
+                TempoMax.HasValue ? Format(TempoMax.Value.ToString()) : empty,
+                Page.HasValue ? Format(Page.Value.ToString()) : empty,
+                Level.HasValue ? Format(Level.Value.ToString()) : empty
                 );
 
             return ret;
+        }
+
+        private string Format(string s)
+        {
+            if (string.IsNullOrWhiteSpace(s))
+            {
+                return empty;
+            }
+            else if (s.Contains("-"))
+            {
+                return s.Replace("-", "\\-");
+            }
+            else
+            {
+                return s;
+            }
         }
     }
 }

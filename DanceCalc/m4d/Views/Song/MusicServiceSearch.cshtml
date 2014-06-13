@@ -24,43 +24,50 @@
     <h4>Repsonse:</h4>
 
     @{
-        foreach (var track in Model.Tracks)
+    foreach (var track in Model.Tracks)
+    {
+        string length = null;
+        if (track.Duration.HasValue)
         {
-            <div>
-                @if (track.ImageUrl != null)
-                {
-                    <img src="@track.ImageUrl" height="50" width="50"/>
-                }
-                <b>Name:</b>@track.Name<br />
-                <b>Album:</b>@track.Album<br />
-                <b>Artist:</b>@track.Artist<br />
-                <b>Link:</b><a href="@track.Link" target="bogus">@track.Link</a><br />
-                <b>Id:</b>@track.TrackId<br />
-                @if (track.AltId != null)
-                {
-                    <b>OtherId:</b>@track.AltId<br />
-                }
-                @if (track.CollectionId != null)
-                {
-                    <b>CollectionId:</b>@track.CollectionId<br />
-                }
-                <b>ReleaseDate:</b>@track.ReleaseDate<br />
-                <b>Duration:</b>@track.Duration<br />
-                <b>TrackNumber:</b>@track.TrackNumber<br />
-                @if (track.Genre != null)
-                {
-                    <b>Genre:</b>@track.Genre<br />
-                }
+            DanceLibrary.SongDuration duration = new DanceLibrary.SongDuration((decimal)track.Duration);
+            length = duration.ToString("M");
+        }
 
-                @using (Html.BeginForm("ChooseMusicService","Song",new { type=@Model.ServiceType, songId = Model.Song.SongId, name = track.Name, album = track.Album, artist = track.Artist, trackId = track.TrackId, collectionId = track.CollectionId, alternateId = track.AltId, duration = track.Duration, trackNum = track.TrackNumber, genre=track.Genre, filter=ViewBag.SongFilter }))
-                {
-                    @Html.AntiForgeryToken()
-                    <input type="submit" value="CHOOSE" />
-                }
-                <br/>
-                <br />
-                <br />
-            </div>
+        <div>
+            @if (track.ImageUrl != null)
+            {
+                <img src="@track.ImageUrl" height="50" width="50"/>
+            }
+            <b>Name:</b>@track.Name<br />
+            <b>Album:</b>@track.Album<br />
+            <b>Artist:</b>@track.Artist<br />
+            <b>Link:</b><a href="@track.Link" target="bogus">@track.Link</a><br />
+            <b>Id:</b>@track.TrackId<br />
+            @if (track.AltId != null)
+            {
+                <b>OtherId:</b>@track.AltId<br />
+            }
+            @if (track.CollectionId != null)
+            {
+                <b>CollectionId:</b>@track.CollectionId<br />
+            }
+            <b>ReleaseDate:</b> @track.ReleaseDate<br />
+            <b>Duration:</b> @length<br />
+            <b>TrackNumber:</b> @track.TrackNumber<br />
+            @if (track.Genre != null)
+            {
+                <b>Genre:</b>@track.Genre<br />
+            }
+
+            @using (Html.BeginForm("ChooseMusicService","Song",new { type=@Model.ServiceType, songId = Model.Song.SongId, name = track.Name, album = track.Album, artist = track.Artist, trackId = track.TrackId, collectionId = track.CollectionId, alternateId = track.AltId, duration = track.Duration, trackNum = track.TrackNumber, genre=track.Genre, filter=ViewBag.SongFilter }))
+            {
+                @Html.AntiForgeryToken()
+                <input type="submit" value="CHOOSE" />
+            }
+            <br/>
+            <br />
+            <br />
+        </div>
         }
     }
     </div>
