@@ -1,5 +1,6 @@
 ﻿using DanceLibrary;
 using m4d.Context;
+using m4d.Utilities;
 using m4dModels;
 using System.Collections.Generic;
 using System.Data.Entity;
@@ -30,18 +31,18 @@ namespace m4d.ViewModels
 
         static public IList<SongCounts> GetFlatSongCounts(DanceMusicContext dmc)
         {
-            //Trace.WriteLine(string.Format("Entering GetFlatSongCounts:  DMC={0}", dmc == null ? "<<NULL>>" : "Valid"));
+            Trace.WriteLineIf(TraceLevels.General.TraceVerbose, string.Format("Entering GetFlatSongCounts:  DMC={0}", dmc == null ? "<<NULL>>" : "Valid"));
             List<SongCounts> flat = new List<SongCounts>();
 
             var tree = GetSongCounts(dmc);
 
-            //Trace.WriteLine(string.Format("Top Level Count={0}", tree==null?"<<NULL>>":tree.Count.ToString()));
+            Trace.WriteLineIf(TraceLevels.General.TraceVerbose, string.Format("Top Level Count={0}", tree == null ? "<<NULL>>" : tree.Count.ToString()));
             flat.AddRange(tree);
 
             foreach (var sc in tree)
             {
                 var children = sc.Children;
-                //Trace.WriteLine(string.Format("{0} Count={1}", sc.DanceName, tree==null?"<<NULL>>":tree.Count.ToString()));
+                Trace.WriteLineIf(TraceLevels.General.TraceVerbose, string.Format("{0} Count={1}", sc.DanceName, tree == null ? "<<NULL>>" : tree.Count.ToString()));
                 flat.AddRange(children);
             }
 
@@ -55,6 +56,15 @@ namespace m4d.ViewModels
 
             flat.Insert(0, all);
 
+#if TRACE
+            if (TraceLevels.General.TraceVerbose)
+            {
+                foreach (var sc in flat)
+                {
+                    Trace.WriteLine(string.Format("{0}: {1}",sc.DanceId,sc.SongCount));
+                }
+            }
+#endif
             return flat;
         }
 
@@ -68,7 +78,6 @@ namespace m4d.ViewModels
                 {
                     dmc.Dances.Load();
 
-
                     HashSet<string> used = new HashSet<string>();
 
                     // First handle dancegroups and types under dancegroups
@@ -80,7 +89,7 @@ namespace m4d.ViewModels
                         {
                             DanceId = dg.Id,
                             DanceName = dg.Name,
-                            SongCount = d.DanceRatings.Count,
+                            SongCount = CountFromDance(d),
                             Children = new List<SongCounts>()
                         };
 
@@ -129,7 +138,7 @@ namespace m4d.ViewModels
             {
                 DanceId = dtyp.Id,
                 DanceName = dtyp.Name,
-                SongCount = d.DanceRatings.Count,
+                SongCount = CountFromDance(d),
                 Children = null
             };
 
@@ -138,7 +147,7 @@ namespace m4d.ViewModels
             foreach (DanceObject dinst in dtyp.Instances)
             {
                 d = dances.FirstOrDefault(t => t.Id == dinst.Id);
-                int count = d.DanceRatings.Count;
+                int count = CountFromDance(d);
 
                 if (count > 0)
                 {
@@ -160,5 +169,10 @@ namespace m4d.ViewModels
             scGroup.SongCount += scType.SongCount;
         }
 
+        static private int CountFromDance(Dance dance)
+        {
+            var ratings = from dr in dance.DanceRatings where !dr.Song.IsNull && dr.Song.Purchase != null select dr;
+            return ratings.Count();
+        }
     }
 }

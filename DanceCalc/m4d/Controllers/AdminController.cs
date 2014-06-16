@@ -16,6 +16,7 @@ using DanceLibrary;
 using System.Text.RegularExpressions;
 using System.Data.Entity.Infrastructure;
 using System.Data.Entity.Migrations;
+using m4d.Utilities;
 
 namespace m4d.Controllers
 {
@@ -29,6 +30,7 @@ namespace m4d.Controllers
         [Authorize(Roles = "showDiagnostics")]
         public ActionResult Index()
         {
+            ViewBag.TraceLevel = TraceLevels.General.Level.ToString();
             return View();
         }
 
@@ -139,6 +141,61 @@ namespace m4d.Controllers
 
             return View("Results");
         }
+
+        //
+        // Get: //FixArtists
+        [Authorize(Roles = "dbAdmin")]
+        public ActionResult FixArtists()
+        {
+            ViewBag.Name = "FixArtists";
+            int count = 0;
+
+            ApplicationUser user = _db.FindUser(User.Identity.Name);
+            var songs = from s in _db.Songs where string.Equals(s.Title,s.Artist) select s;
+            foreach (Song song in songs)
+            {
+                var artists = from p in song.SongProperties where p.Name == Song.ArtistField select p;
+                var alist = artists.ToList();
+                    //song.SongProperties.Select(p => string.Equals(p.BaseName, Song.ArtistField)).ToList();
+
+                if (alist.Count > 1)
+                {
+                    SongProperty ap = alist[alist.Count - 2];
+                    string artist = ap.Value;
+                    if (artist != null)
+                    {
+                        SongDetails sd = new SongDetails(song);
+                        sd.Artist = artist;
+                        _db.EditSong(user, sd, null, null);
+                        count += 1;
+                    }
+                }
+            }
+            _db.SaveChanges();
+
+            ViewBag.Success = true;
+            ViewBag.Message = string.Format("Artists were fixed ({0})", count);
+
+            return View("Results");
+        }
+
+        //
+        // Get: //SetTraceLevel
+        [Authorize(Roles = "showDiagnostics")]
+        public ActionResult SetTraceLevel(int level)
+        {
+            ViewBag.Name = "Set Trace Level";
+
+            TraceLevel tl = (TraceLevel)level;
+
+            TraceLevels.SetGeneralLevel(tl);
+
+            ViewBag.Success = true;
+            ViewBag.Message = string.Format("Trace level set: {0}", tl.ToString());
+
+            return View("Results");
+        }
+
 
         //
         // Get: //ReloadDatabase

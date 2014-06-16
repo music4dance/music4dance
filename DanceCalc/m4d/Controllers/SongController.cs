@@ -15,6 +15,7 @@ using System.Text.RegularExpressions;
 using System.Web;
 using System.Web.Helpers;
 using System.Web.Mvc;
+using m4d;
 
 namespace music4dance.Controllers
 {
@@ -793,8 +794,6 @@ namespace music4dance.Controllers
             return View(view);
         }
 
-
-
         // ChooseMusicService: /Song/ChooseMusicService
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "canEdit")]
@@ -894,6 +893,7 @@ namespace music4dance.Controllers
 
             return new SelectList(scq.AsEnumerable(), "DanceId", "DanceName", filter.Dances);
         }
+
         private IQueryable<Song> BuildSongList(SongFilter filter)
         {
             // Set up the viewbag
@@ -909,6 +909,24 @@ namespace music4dance.Controllers
             // Start with all of the songs in the database
             var songs = from s in _db.Songs where s.TitleHash != 0 select s;
 
+#if TRACE
+            bool traceVerbose = TraceLevels.General.TraceVerbose;
+            int count = 0;
+            int lastCount = 0;
+            if (traceVerbose)
+            {
+                count = lastCount = songs.Count();
+                Trace.WriteLine(string.Format("Total Songs = {0}", count));
+            }
+#endif
+
+            // Now if the current user is anonymous, filter out anything that we
+            //  don't have purchase info for
+            if (!HttpContext.User.IsInRole(DanceMusicContext.EditRole))
+            {
+                songs = songs.Where(s => s.Purchase != null);
+            }
+
             // Filter by user first since we have a nice key to pull from
             if (!string.IsNullOrWhiteSpace(filter.User))
             {
@@ -919,6 +937,14 @@ namespace music4dance.Controllers
                 }
             }
 
+#if TRACE
+            if (traceVerbose)
+            {
+                count = songs.Count();
+                Trace.WriteLineIf(count != lastCount, string.Format("Songs per user = {0}", songs.Count()));
+                lastCount = count;
+            }
+#endif
             // Now limit it down to the ones that are marked as a particular dance or dances
             if (!string.IsNullOrWhiteSpace(filter.Dances) && !string.Equals(filter.Dances, "ALL"))
             {
@@ -926,6 +952,15 @@ namespace music4dance.Controllers
 
                 songs = songs.Where(s => s.DanceRatings.Any(dr => danceList.Contains(dr.DanceId)));
             }
+
+#if TRACE
+            if (traceVerbose)
+            {
+                count = songs.Count();
+                Trace.WriteLineIf(count != lastCount, string.Format("Songs by dance = {0}", songs.Count()));
+                lastCount = count;
+            }
+#endif
 
             // Now limit it by tempo
             if (filter.TempoMin.HasValue)
@@ -937,6 +972,15 @@ namespace music4dance.Controllers
                 songs = songs.Where(s => (s.Tempo <= filter.TempoMax));
             }
 
+#if TRACE
+            if (traceVerbose)
+            {
+                count = songs.Count();
+                Trace.WriteLineIf(count != lastCount, string.Format("Songs by tempo = {0}", songs.Count()));
+                lastCount = count;
+            }
+#endif
+
             // Now limit it by anything that has the serach string in the title, album or artist
             if (!String.IsNullOrEmpty(filter.SearchString))
             {
@@ -945,6 +989,15 @@ namespace music4dance.Controllers
                     s.Album.ToUpper().Contains(filter.SearchString.ToUpper()) ||
                     s.Artist.ToUpper().Contains(filter.SearchString.ToUpper()));
             }
+
+#if TRACE
+            if (traceVerbose)
+            {
+                count = songs.Count();
+                Trace.WriteLineIf(count != lastCount, string.Format("Songs by search = {0}", songs.Count()));
+                lastCount = count;
+            }
+#endif
 
             // Filter on purcahse info
             // TODO: Figure out how to get LINQ to do the permutation on contains
@@ -1028,6 +1081,15 @@ namespace music4dance.Controllers
                     }
                 }
             }
+
+#if TRACE
+            if (traceVerbose)
+            {
+                count = songs.Count();
+                Trace.WriteLineIf(count != lastCount, string.Format("Songs by purchase = {0}", songs.Count()));
+                lastCount = count;
+            }
+#endif
 
             // Now sort the list
             string sortAsc = "<span class='glyphicon glyphicon-sort-by-alphabet'></span>";

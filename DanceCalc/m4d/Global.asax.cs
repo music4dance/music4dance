@@ -11,6 +11,13 @@ namespace m4d
 {
     public class MvcApplication : System.Web.HttpApplication
     {
+        //private System.Diagnostics.TraceSwitch _generalSwitch = new System.Diagnostics.TraceSwitch("General", "Entire application");
+
+        //public System.Diagnostics.TraceSwitch GeneralSwitch
+        //{
+        //    get { return _generalSwitch; }
+        //}
+
         protected void Application_Start()
         {
             AreaRegistration.RegisterAllAreas();

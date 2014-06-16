@@ -16,6 +16,16 @@
     <li>@Html.ActionLink("Merge Candidates - Similar (Title + Artist) + All else equal", "MergeCandidates", "Song", new { level = 1 }, null)</li>
     <li>@Html.ActionLink("Merge Candidates - Similar Title + All else equal", "MergeCandidates", "Song", new { level = 0 }, null)</li>
     <li>@Html.ActionLink("Clean up Tempoes", "CleanTempoes")</li>
+    <li>@Html.ActionLink("Fix up Artists", "FixArtists")</li>
+</ul>
+
+<h3>Tracing (Current Level = @ViewBag.TraceLevel)</h3>
+<ul>
+    <li>@Html.ActionLink("Turn Tracing Off", "SetTraceLevel", "Admin", new { level = 0 }, null)</li>
+    <li>@Html.ActionLink("Trace Error", "SetTraceLevel", "Admin", new { level = 1 }, null)</li>
+    <li>@Html.ActionLink("Trace Warning", "SetTraceLevel", "Admin", new { level = 2 }, null)</li>
+    <li>@Html.ActionLink("Trace Info", "SetTraceLevel", "Admin", new { level = 3 }, null)</li>
+    <li>@Html.ActionLink("Trace Verbose", "SetTraceLevel", "Admin", new { level = 4 }, null)</li>
 </ul>
 
 <hr />
