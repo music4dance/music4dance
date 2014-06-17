@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -246,6 +247,94 @@ namespace m4dModels
         }
         
         #endregion
+
+        public static IList<AlbumDetails> MergeAlbums(IList<AlbumDetails> albums)
+        {
+            Dictionary<string, List<AlbumDetails>> dict = new Dictionary<string, List<AlbumDetails>>();
+
+            bool duplicate = false;
+
+            foreach (AlbumDetails a in albums)
+            {
+                string name = Song.CreateNormalForm(a.Name);
+                List<AlbumDetails> l = null;
+                if (dict.TryGetValue(name, out l))
+                {
+                    duplicate = true;
+                }
+                else
+                {
+                    l = new List<AlbumDetails>();
+                    dict.Add(name, l);
+                }
+
+                l.Add(a);
+            }
+
+            // Short circuit out of here if there was nothing to merge
+            if (!duplicate)
+            {
+                return albums;
+            }
+
+            List<AlbumDetails> merge = new List<AlbumDetails>();
+            foreach (AlbumDetails a in albums)
+            {
+                string name = Song.CreateNormalForm(a.Name);
+                List<AlbumDetails> l = null;
+                if (dict.TryGetValue(name, out l))
+                {
+                    dict.Remove(name);
+                    merge.Add(MergeList(l));
+                }
+            }
+
+            for (int i = 0; i < merge.Count(); i++ )
+            {
+                merge[i].Index = i;
+            }
+
+            return merge;
+        }
+
+        private static AlbumDetails MergeList(IList<AlbumDetails> l)
+        {
+            AlbumDetails m = l[0];
+            for (int i = 1; i < l.Count; i++)
+            {
+                m.Merge(l[i]);
+            }
+
+            return m;
+        }
+        private void Merge(AlbumDetails album)
+        {
+            if (string.IsNullOrWhiteSpace(this.Publisher))
+            {
+                this.Publisher = album.Publisher;
+            }
+            if (!this.Track.HasValue)
+            {
+                this.Track = album.Track;
+            }
+
+            if (!this.HasPurchaseInfo)
+            {
+                this.Purchase = album.Purchase;
+            }
+            else if (album.HasPurchaseInfo)
+            {
+                // Case where both albums have purchase info: Merge the dictionaries keeping all unique entries
+                foreach (string key in this.Purchase.Keys)
+                {
+                    album.Purchase.Remove(key);
+                }
+                foreach (KeyValuePair<string, string> p in album.Purchase)
+                {
+                    this.Purchase[p.Key] = p.Value;
+                }
+            }
+        }
 
         #region Property Utilities
         public bool ModifyInfo(ISongPropertyFactory spf, Song song, AlbumDetails old, SongLog log)

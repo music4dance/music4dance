@@ -487,25 +487,23 @@ namespace music4dance.Controllers
             if (!string.IsNullOrWhiteSpace(def))
             {
                 int.TryParse(def, out defIdx);
-            } 
+            }
 
+            int idx = 0;
             if (defIdx >= 0 && albumsIn.Count > defIdx)
             {
                 AlbumDetails t = albumsIn[defIdx];
                 t.Index = 0;
                 albumsOut.Add(t);
+                idx = 1;
             }
 
-            int idx = 1;
             for (int i = 0; i < albumsIn.Count; i++)
             {
                 if (i != defIdx)
                 {
                     string name = Song.AlbumList + "_" + i.ToString();
 
-                    // We're going to add the album if there was no default (so we've got 
-                    //  identical albums that may have different purchase info) or
-                    //  if it's an alternate album that has been selected.
                     if (defIdx == -1 || Request.Form.AllKeys.Contains(name))
                     {
                         AlbumDetails t = albumsIn[i];

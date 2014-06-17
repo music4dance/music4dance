@@ -720,10 +720,12 @@ namespace m4d.Context
             song.SongProperties.Add(np);
         }
 
-        private void CreateAlbums(Song song, List<AlbumDetails> albums, SongLog log = null)
+        private void CreateAlbums(Song song, IList<AlbumDetails> albums, SongLog log = null)
         {
             if (albums != null)
             {
+                albums = AlbumDetails.MergeAlbums(albums);
+
                 for (int ia = 0; ia < albums.Count; ia++)
                 {
                     AlbumDetails ad = albums[ia];
