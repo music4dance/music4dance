@@ -293,18 +293,24 @@ namespace m4dModels
             }
         }
 
-        public static void AddProperty(ISongPropertyFactory spf, Song old, int idx, string name, string qual, object value, SongLog log = null)
+        public static void AddProperty(ISongPropertyFactory spf, Song song, int idx, string name, string qual, object value, SongLog log = null)
         {
             if (value == null)
                 return;
 
             string fullName = SongProperty.FormatName(name, idx, qual);
 
-            SongProperty np = spf.CreateSongProperty(old, fullName, value);
+            SongProperty op = song.SongProperties.FirstOrDefault(p => p.Name == fullName);
 
-            if (log != null)
+            if (op == null || string.Equals(op.Value, value))
             {
-                log.UpdateData(np.Name, np.Value);
+                SongProperty np = spf.CreateSongProperty(song, fullName, value);
+                song.SongProperties.Add(np);
+
+                if (log != null)
+                {
+                    log.UpdateData(np.Name, np.Value);
+                }
             }
         }
 

@@ -503,7 +503,10 @@ namespace music4dance.Controllers
                 {
                     string name = Song.AlbumList + "_" + i.ToString();
 
-                    if (Request.Form.AllKeys.Contains(name))
+                    // We're going to add the album if there was no default (so we've got 
+                    //  identical albums that may have different purchase info) or
+                    //  if it's an alternate album that has been selected.
+                    if (defIdx == -1 || Request.Form.AllKeys.Contains(name))
                     {
                         AlbumDetails t = albumsIn[i];
                         t.Index = idx;
