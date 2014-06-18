@@ -248,6 +248,7 @@ namespace m4dModels
         
         #endregion
 
+        #region Merging
         public static IList<AlbumDetails> MergeAlbums(IList<AlbumDetails> albums)
         {
             Dictionary<string, List<AlbumDetails>> dict = new Dictionary<string, List<AlbumDetails>>();
@@ -289,7 +290,7 @@ namespace m4dModels
                 }
             }
 
-            for (int i = 0; i < merge.Count(); i++ )
+            for (int i = 0; i < merge.Count(); i++)
             {
                 merge[i].Index = i;
             }
@@ -335,6 +336,8 @@ namespace m4dModels
                 }
             }
         }
+        
+        #endregion
 
         #region Property Utilities
         public bool ModifyInfo(ISongPropertyFactory spf, Song song, AlbumDetails old, SongLog log)

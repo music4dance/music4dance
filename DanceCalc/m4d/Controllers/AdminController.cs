@@ -180,6 +180,21 @@ namespace m4d.Controllers
         }
 
         //
+        // Get: //ClearSongCache
+        [Authorize(Roles = "showDiagnostics")]
+        public ActionResult ClearSongCache()
+        {
+            ViewBag.Name = "ClearSongCache";
+
+            SongCounts.ClearCache();
+
+            ViewBag.Success = true;
+            ViewBag.Message = "Cache was cleared";
+
+            return View("Results");
+        }
+
+        //
         // Get: //SetTraceLevel
         [Authorize(Roles = "showDiagnostics")]
         public ActionResult SetTraceLevel(int level)

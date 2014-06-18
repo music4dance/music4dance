@@ -24,4 +24,9 @@
     "Id" : "LTN",
     "DanceIds" : ["BOL","CHA", "MBO", "RMB", "PDL", "SMB", "SLS", "BCH", "CMB", "MRG"]
   },
+  {
+    "Name": "Other",
+    "Id" : "MSC",
+    "DanceIds" : ["PLK","NC2","PBD","C2S"]
+  },
 ]

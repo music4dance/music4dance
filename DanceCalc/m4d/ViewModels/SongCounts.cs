@@ -85,6 +85,7 @@ namespace m4d.ViewModels
                     {
                         Dance d = dmc.Dances.FirstOrDefault(t => t.Id == dg.Id);
 
+                        // All groups except other have a valid 'root' node...
                         var scGroup = new SongCounts()
                         {
                             DanceId = dg.Id,
@@ -106,20 +107,11 @@ namespace m4d.ViewModels
                     }
 
                     // Then handle ungrouped types
-                    var scOther = new SongCounts()
-                    {
-                        DanceId = null,
-                        DanceName = "Other",
-                        SongCount = 0,
-                        Children = new List<SongCounts>()
-                    };
-                    s_counts.Add(scOther);
-
                     foreach (DanceType dt in Dances.Instance.AllDanceTypes)
                     {
                         if (!used.Contains(dt.Id))
                         {
-                            HandleType(dt, dmc.Dances, scOther);
+                            Trace.WriteLine("Ungrouped Dance: {0}", dt.Id);
                         }
                     }
 
@@ -147,6 +139,7 @@ namespace m4d.ViewModels
             foreach (DanceObject dinst in dtyp.Instances)
             {
                 d = dances.FirstOrDefault(t => t.Id == dinst.Id);
+                Trace.WriteLineIf(d == null, string.Format("Invalid Dance Instance: {0}",dinst.Name));
                 int count = CountFromDance(d);
 
                 if (count > 0)
@@ -171,8 +164,15 @@ namespace m4d.ViewModels
 
         static private int CountFromDance(Dance dance)
         {
-            var ratings = from dr in dance.DanceRatings where !dr.Song.IsNull && dr.Song.Purchase != null select dr;
-            return ratings.Count();
+            if (dance == null)
+            {
+                return 0;
+            }
+            else
+            {
+                var ratings = from dr in dance.DanceRatings where !dr.Song.IsNull && dr.Song.Purchase != null select dr;
+                return ratings.Count();
+            }
         }
     }
 }
