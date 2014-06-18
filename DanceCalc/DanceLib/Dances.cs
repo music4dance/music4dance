@@ -743,17 +743,57 @@ namespace DanceLibrary
 
         public string[] ExpandDanceList(string dances)
         {
-            string[] initialList = dances.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+            IEnumerable<string> initialList = ParseDanceList(dances);
 
             // Would use hashset, but looks like not available on phone?
             Dictionary<string, string> set = new Dictionary<string, string>();
 
-            foreach (string dance in initialList)
+            if (initialList != null)
             {
-                DoExpand(dance, set);
+                foreach (string dance in initialList)
+                {
+                    DoExpand(dance, set);
+                }
             }
 
             return set.Keys.ToArray();
+        }
+
+        public IList<DanceObject> FromIds(string dances)
+        {
+            IEnumerable<string> list = ParseDanceList(dances);
+
+            List<DanceObject> dos = new List<DanceObject>();
+
+            if (list != null)
+            {
+                foreach (string s in list)
+                {
+                    DanceObject d = null;
+                    if (_danceDictionary.TryGetValue(s, out d))
+                    {
+                        dos.Add(d);
+                    }
+                    
+                }
+            }
+
+            return dos;
+        }
+
+        private IEnumerable<string> ParseDanceList(string dances)
+        {
+            IEnumerable<string> ret = null;
+            if (!string.IsNullOrWhiteSpace(dances))
+            {
+                var a = dances.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+                if (a.Length > 0)
+                {
+                    ret = a;
+                }
+            }
+
+            return ret;
         }
 
         private void DoExpand(string dance, Dictionary<string,string> set)

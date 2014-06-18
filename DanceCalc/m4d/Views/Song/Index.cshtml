@@ -21,11 +21,12 @@
 {
     string danceID = "ALL";
     string danceName = "All Dances";
-    System.Web.Mvc.SelectListItem selected = ((SelectList)ViewBag.Dances).FirstOrDefault(d => d.Selected);
-    if (selected != null)
+    // TODO: Is there a reasonable way to do multi-select of dances?  If so do we do it here or at least reflect that state here?
+    IList<DanceLibrary.DanceObject> selected = ViewBag.SelectedDances;
+    if (selected != null && selected.Count > 0)
     {
-        danceID = selected.Value;
-        danceName = selected.Text;
+        danceID = selected[0].Id;
+        danceName = selected[0].Name;
     }
 
     string checkX = string.Empty;
@@ -54,43 +55,53 @@
                 <span id="dance_selector">@danceName</span> <span class="caret"></span>
             </button>
             <ul class="dropdown-menu" role="menu">
-                @foreach (var danceItem in (SelectList)ViewBag.Dances)
+                <li id="DID_ALL"><a href="#ALL"><strong>All Dances</strong></a></li>
+                @foreach (var sc in ((IList<m4d.ViewModels.SongCounts>)ViewBag.Dances).OrderBy(x => x.DanceName))
                 {
-                    string id = "DID_" + danceItem.Value;
-                    string href = "#" + danceItem.Value;
-                    <li id="@id"><a href=@href>@danceItem.Text</a></li>
+                    string id = "DID_" + sc.DanceId;
+                    string href = "#" + sc.DanceId;
+                    <li id="@id"><a href=@href><strong>@sc.DanceName</strong></a></li>
+                    foreach (var sci in sc.Children.OrderBy(x => x.DanceName))
+                    {
+                        if (sci.SongCount > 0)
+                        {
+                            id = "DID_" + sci.DanceId;
+                            href = "#" + sci.DanceId;
+                            <li id="@id"><a href=@href><small>&nbsp;@sci.DanceName</small></a></li>
+                        }
+                    }
                 }
             </ul>
-            <input type="hidden" name="dances" id="dances" value="@danceID" />
-            <input type="hidden" name="filter" id="filter" value="@ViewBag.SongFilter.ToString()" />
         </div>
+        <input type="hidden" name="dances" id="dances" value="@danceID" />
+        <input type="hidden" name="filter" id="filter" value="@ViewBag.SongFilter.ToString()" />
         @Html.TextBox("SearchString", ViewBag.SongFilter.SearchString as string, new { @class = "form-control", placeholder = "Artist, Title, or Album" })
         <span class="input-group-btn">
-            <button class="btn btn-default" type="submit"><span class="glyphicon glyphicon-search"></span></button>
+            <button id="submit-search" class="btn btn-default" type="submit"><span class="glyphicon glyphicon-search"></span></button>
         </span>
     </div>
-        <div id="AdvancedSearch">
-            <div class="input-group">
-                Include only song available on:
-                <label>
-                    <input type="checkbox" name="services" id="serviceX" value="X" @checkX />
-                    XBox
-                </label>
-                <label>
-                    <input type="checkbox" name="services" id="serviceA" value="A" @checkA />
-                    Amazon
-                </label>
-                <label>
-                    <input type="checkbox" name="services" id="serviceI" value="I" @checkI />
-                    ITunes
-                </label>
-            </div>
-
-            <div class="input-group">
-                Tempo between @Html.TextBox("TempoMin", ViewBag.SongFilter.TempoMin as decimal?, new { @class = "input-small" })&nbsp;and&nbsp;
-                @Html.TextBox("TempoMax", ViewBag.SongFilter.TempoMax as decimal?, new { @class = "input-small" }) &nbsp;BPM
-            </div>
+    <div id="AdvancedSearch">
+        <div class="input-group">
+            Include only song available on:
+            <label>
+                <input type="checkbox" name="services" id="serviceX" value="X" @checkX />
+                XBox
+            </label>
+            <label>
+                <input type="checkbox" name="services" id="serviceA" value="A" @checkA />
+                Amazon
+            </label>
+            <label>
+                <input type="checkbox" name="services" id="serviceI" value="I" @checkI />
+                ITunes
+            </label>
         </div>
+
+        <div class="input-group">
+            Tempo between @Html.TextBox("TempoMin", ViewBag.SongFilter.TempoMin as decimal?, new { @class = "input-small" })&nbsp;and&nbsp;
+            @Html.TextBox("TempoMax", ViewBag.SongFilter.TempoMax as decimal?, new { @class = "input-small" }) &nbsp;BPM
+        </div>
+    </div>
 }
 <a id="ToggleAdvanced" href="#" class="btn btn-info btn-xs btn-block" style="margin-top:5px">&nbsp;</a>
 

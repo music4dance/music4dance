@@ -52,6 +52,8 @@ $(document).ready(function () {
 
         var dances = $('.input-group #dances');
         dances.val(param);
+
+        $("#submit-search").click();
     });
 });
 
