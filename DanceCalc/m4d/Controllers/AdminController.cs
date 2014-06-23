@@ -360,17 +360,12 @@ namespace m4d.Controllers
             }
             IList<LocalMerger> results = null;
 
-            if (string.IsNullOrWhiteSpace(separator))
-            {
-                separator = " - ";
-            }
-
             if (string.IsNullOrWhiteSpace(headers))
             {
                 headers = "TITLE,ARTIST";
             }
 
-            IList<SongDetails> newSongs = SongsFromList(separator, headers, songs);
+            IList<SongDetails> newSongs = SongsFromList(CleanSeparator(separator), headers, songs);
 
             ViewBag.UserName = user;
             ViewBag.Dances = dances;
@@ -386,6 +381,7 @@ namespace m4d.Controllers
 
             return View("ReviewBatch", results);
         }
+
         //
         // Post: //CommitUploadCatalog
         [HttpPost]
@@ -401,6 +397,8 @@ namespace m4d.Controllers
             ViewBag.Dances = danceIds;
             ViewBag.Headers = headers;
             ViewBag.Separator = separator;
+
+            separator = CleanSeparator(separator);
 
             if (string.IsNullOrWhiteSpace(userName))
             {
@@ -431,9 +429,16 @@ namespace m4d.Controllers
                     }
                     // Any other matchtype should result in a merge, which for now is just adding the dance(s) from
                     //  the new list to the existing song (or adding weight).
+                    // Now we're going to potentially add tempo - need a more general solution for this going forward
                     else
                     {
-                        modified |= _db.AddDanceRatings(user, m.Right.SongId, dances, DanceMusicContext.DanceRatingAutoCreate);
+                        Song s = _db.FindSong(m.Right.SongId);
+                        SongLog log = null;
+                        modified |=  _db.AddDanceRatings(user, s, dances, DanceMusicContext.DanceRatingAutoCreate, out log);
+                        if (m.Left.Tempo.HasValue &&  !s.Tempo.HasValue)
+                        {
+                            modified |=_db.UpdateSongProperty(m.Left, s, Song.TempoField, log);
+                        }
                     }
                 }
 
@@ -445,6 +450,21 @@ namespace m4d.Controllers
 
             return View("UploadCatalog");
         }
+
+        static string CleanSeparator(string separator)
+        {
+            if (string.IsNullOrWhiteSpace(separator))
+            {
+                separator = " - ";
+            }
+            else if (separator.Contains(@"\t"))
+            {
+                separator = separator.Replace(@"\t", "\t");
+            }
+
+            return separator;
+        }
+
         #endregion
 
 
