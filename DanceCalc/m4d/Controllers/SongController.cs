@@ -931,12 +931,17 @@ namespace music4dance.Controllers
             }
 
             // Filter by user first since we have a nice key to pull from
+            // TODO: This ends up going down a completely different LINQ path
+            //  that is requiring some special casing further along, need
+            //  to dig into how to manage that better...
+            bool userFilter = false;
             if (!string.IsNullOrWhiteSpace(filter.User))
             {
                 ApplicationUser user = _db.FindUser(filter.User);
                 if (user != null)
                 {
                     songs = from m in user.Modified.AsQueryable() where m.Song.TitleHash != 0 select m.Song;
+                    userFilter = true;
                 }
             }
 
@@ -987,10 +992,21 @@ namespace music4dance.Controllers
             // Now limit it by anything that has the serach string in the title, album or artist
             if (!String.IsNullOrEmpty(filter.SearchString))
             {
-                songs = songs.Where(
-                    s => s.Title.ToUpper().Contains(filter.SearchString.ToUpper()) ||
-                    s.Album.ToUpper().Contains(filter.SearchString.ToUpper()) ||
-                    s.Artist.ToUpper().Contains(filter.SearchString.ToUpper()));
+                if (userFilter)
+                {
+                    string str = filter.SearchString.ToUpper();
+                    songs = songs.Where(
+                        s => s.Title.ToUpper().Contains(str) ||
+                        (s.Album != null && s.Album.Contains(str)) ||
+                        (s.Artist != null && s.Artist.Contains(str)));
+                }
+                else
+                {
+                    songs = songs.Where(
+                        s => s.Title.Contains(filter.SearchString) ||
+                        s.Album.Contains(filter.SearchString) ||
+                        s.Artist.Contains(filter.SearchString));
+                }
             }
 
 #if TRACE
@@ -1054,7 +1070,7 @@ namespace music4dance.Controllers
                     }
                     else
                     {
-                        songs = songs.Where(s => s.Purchase.Contains(c));
+                        songs = songs.Where(s => s.Purchase != null && s.Purchase.Contains(c));
                     }
                 }
                 else if (services.Length == 2)
@@ -1068,7 +1084,7 @@ namespace music4dance.Controllers
                     }
                     else
                     {
-                        songs = songs.Where(s => s.Purchase.Contains(c0) || s.Purchase.Contains(c1));
+                        songs = songs.Where(s => s.Purchase != null && (s.Purchase.Contains(c0) || s.Purchase.Contains(c1)));
                     }
                     
                 }
