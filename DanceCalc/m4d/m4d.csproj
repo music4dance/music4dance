@@ -321,6 +321,7 @@
     <Content Include="Content\bootstrap.css.map" />
     <None Include="Properties\PublishProfiles\m4d.pubxml" />
     <None Include="Properties\PublishProfiles\music4dance.pubxml" />
+    <Content Include="MvcDiagnostics.aspx" />
     <Content Include="RecaptchaNet.ReadMe.txt" />
     <Content Include="Scripts\bootstrap.js" />
     <Content Include="Scripts\bootstrap.min.js" />

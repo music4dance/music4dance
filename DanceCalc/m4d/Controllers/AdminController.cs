@@ -221,6 +221,8 @@ namespace m4d.Controllers
         {
             List<string> lines = UploadFile();
 
+            Trace.WriteLine("File Uploaded Successfully");
+
             ViewBag.Name = "Restore Database";
             if (lines.Count > 0)
             {
@@ -564,10 +566,14 @@ namespace m4d.Controllers
             var migrator = BuildMigrator();
 
             // Roll back to a specific migration
+            Trace.WriteLine("Rolling Back Database");
             migrator.Update("InitialCreate");
 
+            Trace.WriteLine("Starting Migrator Update");
             // Apply all migrations up to a specific migration
             migrator.Update();
+
+            Trace.WriteLine("Exiting RestoreDB");
         }
 
         private void ReseedDB()
@@ -613,6 +619,8 @@ namespace m4d.Controllers
         /// <param name="lines"></param>
         private void ReloadDB(List<string> lines)
         {
+            Trace.WriteLine("Entering ReloadDB");
+
             using (DanceMusicContext dmc = new DanceMusicContext())
             {
                 // TODO: Is this somehow global?  The examples that change this flag have both the using and a try/catch
@@ -620,8 +628,10 @@ namespace m4d.Controllers
 
                 dmc.Configuration.AutoDetectChangesEnabled = false;
                 // Load the dance List
+                Trace.WriteLine("Loading Dances");
                 dmc.Dances.Load();
 
+                int c = 0;
                 foreach (string line in lines)
                 {
                     DateTime time = DateTime.Now;
@@ -634,13 +644,23 @@ namespace m4d.Controllers
                     song.Load(line, dmc);
 
                     dmc.UpdateUsers(song);
+
+                    c += 1;
+                    if (c % 100 == 0)
+                    {
+                        Trace.WriteLine(string.Format("{0} songs loaded", c));
+                    }
                 }
 
                 HashSet<string> map = new HashSet<string>();
 
+                Trace.WriteLine("Loading Songs");
+
+                c = 0;
                 foreach (Song song in dmc.Songs)
                 {
                     if (song.ModifiedBy != null)
+                    {
                         foreach (ModifiedRecord us in song.ModifiedBy)
                         {
                             string s = string.Format("{0}:{1}", song.SongId, us.ApplicationUserId);
@@ -651,13 +671,24 @@ namespace m4d.Controllers
                             else
                             {
                                 map.Add(s);
+                                c += 1;
+                                if (c % 100 == 0)
+                                {
+                                    Trace.WriteLine(string.Format("{0} modified records loaded",c));
+                                }
                             }
                         }
+                    }
                 }
 
                 dmc.Configuration.AutoDetectChangesEnabled = true;
+                Trace.WriteLine("Saving Changes");
                 dmc.SaveChanges();
             }
+
+            Trace.WriteLine("Clearing Song Cache");
+            SongCounts.ClearCache();
+            Trace.WriteLine("Exiting ReloadDB");
         }
 
         private void BuildSchema(string[] lines)
