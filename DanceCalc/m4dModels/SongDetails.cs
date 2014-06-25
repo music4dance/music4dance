@@ -114,6 +114,25 @@ namespace m4dModels
 
             Albums = BuildAlbumInfo(properties);
         }
+        #endregion
+
+        #region Serialization
+        /// <summary>
+        /// Serialize the song to a single string
+        /// </summary>
+        /// <param name="actions">Actions to include in the serialization</param>
+        /// <returns></returns>
+        public string Serialize(string[] actions)
+        {
+            if (string.IsNullOrWhiteSpace(Title))
+            {
+                return null;
+            }
+            else
+            {
+                return SongProperty.Serialize(Properties, actions);
+            }
+        }
 
         public static SongDetails CreateFromRow(IList<string> fields, string row)
         {
@@ -806,6 +825,35 @@ namespace m4dModels
 
             return name;
         }
+
+        static public string CleanName(string name)
+        {
+            string up = name.ToUpper();
+
+            string[] parts = up.Split(new char[] { ' ', '-', '\t', '/', '&', '-', '+', '(', ')' }, StringSplitOptions.RemoveEmptyEntries);
+
+            string ret = string.Join("", parts);
+
+            if (ret.LastIndexOf('S') == ret.Length - 1)
+            {
+                int truncate = 1;
+                if (ret.LastIndexOf('E') == ret.Length - 2)
+                {
+                    if (ret.Length > 2)
+                    {
+                        char ch = ret[ret.Length - 3];
+                        if (ch != 'A' && ch != 'E' && ch != 'I' && ch != 'O' && ch != 'U')
+                        {
+                            truncate = 2;
+                        }
+                    }
+                }
+                ret = ret.Substring(0, ret.Length - truncate);
+            }
+
+            return ret;
+        }
+
         
         #endregion
     }

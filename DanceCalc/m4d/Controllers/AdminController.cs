@@ -10,6 +10,7 @@ using System.Text;
 
 using m4d.Migrations;
 using m4d.Context;
+using m4d.Scrapers;
 using m4d.ViewModels;
 using m4dModels;
 using DanceLibrary;
@@ -211,6 +212,33 @@ namespace m4d.Controllers
             return View("Results");
         }
 
+        //
+        // Get: //ScrapeDances
+        [Authorize(Roles = "showDiagnostics")]
+        public ActionResult ScrapeDances(string id)
+        {
+            var songs = new List<SongDetails>();
+
+            DanceScraper scraper = DanceScraper.FromName(id);
+            IList<string> lines = scraper.Scrape();
+
+            StringBuilder sb = new StringBuilder();
+            foreach (string line in lines)
+            {
+                if (!string.IsNullOrWhiteSpace(line))
+                {
+                    sb.AppendFormat("{0}\r\n", line);
+                }
+            }
+
+            string s = sb.ToString();
+            var bytes = Encoding.UTF8.GetBytes(s);
+            MemoryStream stream = new MemoryStream(bytes);
+
+            return File(stream, "text/plain", scraper.Name + ".txt");
+        }
+
+
 
         //
         // Get: //ReloadDatabase
@@ -391,6 +419,7 @@ namespace m4d.Controllers
         [Authorize(Roles = "dbAdmin")]
         public ActionResult CommitUploadCatalog(int fileId, string userName, string danceIds, string headers, string separator)
         {
+            // TODONEXT: Get this to work with a dance column (may be time to breakdown and do arbitrary song columns for this method)
             IList<LocalMerger> initial =  GetReviewById(fileId);
 
             ViewBag.Name = "Upload Catalog";
