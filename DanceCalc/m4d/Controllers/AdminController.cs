@@ -235,7 +235,7 @@ namespace m4d.Controllers
             var bytes = Encoding.UTF8.GetBytes(s);
             MemoryStream stream = new MemoryStream(bytes);
 
-            return File(stream, "text/plain", scraper.Name + ".txt");
+            return File(stream, "text/plain", scraper.Name + ".csv");
         }
 
 

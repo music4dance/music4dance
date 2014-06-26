@@ -159,6 +159,33 @@ namespace m4d.Utilities
             return DoFetchTracks(song, clean);
         }
 
+        public ServiceTrack LookupTrack(string asin)
+        {
+            ItemLookupResponse response = DoLookupTrack(asin);
+
+            if (response == null)
+            {
+                Trace.WriteLine(asin + ": Invalid Search");
+                return null;
+            }
+
+            if (response.Items[0].Request.Errors != null)
+            {
+                Trace.WriteLine(asin + ":" + response.Items[0].Request.Errors[0].Message);
+                return null;
+            }
+
+            if (response.Items[0].Item.Length == 0)
+            {
+                Trace.WriteLine(asin + ": No Tracks Returned");
+                return null;
+            }
+            else
+            {
+                return BuildServiceTrack(response.Items[0].Item[0]);
+            }
+        }
+
         private IList<ServiceTrack> DoFetchTracks(SongDetails song, bool clean = false, string title = null, string artist = null)
         {
             List<ServiceTrack> tracks = new List<ServiceTrack>();
@@ -200,56 +227,10 @@ namespace m4d.Utilities
 
                 foreach (var item in response.Items[0].Item)
                 {
-                    artist = null;
-                    title = item.ItemAttributes.Title;
+                    ServiceTrack track = BuildServiceTrack(item);
 
-                    if (item.ItemAttributes.Creator != null && item.ItemAttributes.Creator.Length > 0)
+                    if (song == null || song.TitleArtistMatch(track.Name, track.Artist))
                     {
-                        artist = item.ItemAttributes.Creator[0].Value;
-                    }
-
-                    if (song == null || song.TitleArtistMatch(title, artist))
-                    {
-                        int trackNum = 0;
-                        int? ntrackNum = null;
-
-                        if (int.TryParse(item.ItemAttributes.TrackSequence, out trackNum))
-                        {
-                            ntrackNum = trackNum;
-                        }
-
-                        int? duration = null;
-                        if (item.ItemAttributes.RunningTime != null && 
-                            string.Equals(item.ItemAttributes.RunningTime.Units,"seconds",StringComparison.InvariantCultureIgnoreCase))
-                        {
-                            duration = (int) decimal.Round(item.ItemAttributes.RunningTime.Value);
-                        }
-
-                        string collectionId = null;
-                        string albumTitle = null;
-                        if (item.RelatedItems != null && item.RelatedItems.Length > 0 &&
-                            item.RelatedItems[0].RelatedItem != null && item.RelatedItems[0].RelatedItem.Length > 0)
-                        {
-                            collectionId = item.RelatedItems[0].RelatedItem[0].Item.ASIN;
-                            if (item.RelatedItems[0].RelatedItem[0].Item.ItemAttributes != null)
-                            {
-                                albumTitle = item.RelatedItems[0].RelatedItem[0].Item.ItemAttributes.Title;
-                            }
-                        }
-
-                        string trackId = item.ASIN;
-                        ServiceTrack track = new ServiceTrack 
-                        {
-                            TrackId = "D:" + item.ASIN,
-                            Name = title,
-                            Artist = artist,
-                            TrackNumber = ntrackNum,
-                            Duration = duration,
-                            ReleaseDate = item.ItemAttributes.ReleaseDate,
-                            CollectionId = "D:" + collectionId,
-                            Album = albumTitle
-                        };
-
                         tracks.Add(track);
 
                         // If we have an exact match break...
@@ -260,8 +241,6 @@ namespace m4d.Utilities
                     }
                 }
 
-                //FindAlbums(tracks);
-
                 return tracks;
             }
             catch (Exception e)
@@ -271,6 +250,58 @@ namespace m4d.Utilities
             }
         }
 
+        private ServiceTrack BuildServiceTrack(Item item)
+        {
+            string artist = null;
+            string title = item.ItemAttributes.Title;
+
+            if (item.ItemAttributes.Creator != null && item.ItemAttributes.Creator.Length > 0)
+            {
+                artist = item.ItemAttributes.Creator[0].Value;
+            }
+
+            int trackNum = 0;
+            int? ntrackNum = null;
+
+            if (int.TryParse(item.ItemAttributes.TrackSequence, out trackNum))
+            {
+                ntrackNum = trackNum;
+            }
+
+            int? duration = null;
+            if (item.ItemAttributes.RunningTime != null && 
+                string.Equals(item.ItemAttributes.RunningTime.Units,"seconds",StringComparison.InvariantCultureIgnoreCase))
+            {
+                duration = (int) decimal.Round(item.ItemAttributes.RunningTime.Value);
+            }
+
+            string collectionId = null;
+            string albumTitle = null;
+            if (item.RelatedItems != null && item.RelatedItems.Length > 0 &&
+                item.RelatedItems[0].RelatedItem != null && item.RelatedItems[0].RelatedItem.Length > 0)
+            {
+                collectionId = item.RelatedItems[0].RelatedItem[0].Item.ASIN;
+                if (item.RelatedItems[0].RelatedItem[0].Item.ItemAttributes != null)
+                {
+                    albumTitle = item.RelatedItems[0].RelatedItem[0].Item.ItemAttributes.Title;
+                }
+            }
+
+            string trackId = item.ASIN;
+            ServiceTrack track = new ServiceTrack 
+            {
+                TrackId = "D:" + item.ASIN,
+                Name = title,
+                Artist = artist,
+                TrackNumber = ntrackNum,
+                Duration = duration,
+                ReleaseDate = item.ItemAttributes.ReleaseDate,
+                CollectionId = "D:" + collectionId,
+                Album = albumTitle
+            };
+
+            return track;
+        }
 
         private ItemSearchResponse FindTrack(string title, string artist)
         {
@@ -307,6 +338,38 @@ namespace m4d.Utilities
             }
             return r;
         }
+
+        private ItemLookupResponse DoLookupTrack(string asin)
+        {
+            ItemLookupRequest request = null;
+            ItemLookup itemLookup = null;
+
+            request = new ItemLookupRequest();
+            request.ItemId = new string[] {asin};
+            request.RelationshipType = new string[] { "Tracks" };
+            request.ResponseGroup = new string[] { "ItemAttributes", "RelatedItems" };
+
+            itemLookup = new ItemLookup();
+            itemLookup.AssociateTag = associateTag;
+            itemLookup.AWSAccessKeyId = accessKeyId;
+            itemLookup.Request = new ItemLookupRequest[] { request };
+
+            ItemLookupResponse r = null;
+            while (r == null)
+            {
+                try
+                {
+                    r = _client.ItemLookup(itemLookup);
+                }
+                catch (System.ServiceModel.ServerTooBusyException e)
+                {
+                    Trace.WriteLine("LookupTrack: " + e.Message);
+                    System.Threading.Thread.Sleep(5000);
+                }
+            }
+            return r;
+        }
+
         public void Dispose()
         {
             _client.Close();
