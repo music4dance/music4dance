@@ -13,7 +13,7 @@ namespace m4dModels
     // This is a transitory object (really a ViewModel object) that is used for 
     // viewing and editing a song, it shouldn't ever end up in a database,
     // it's meant to aggregate the information about a song in an easily digestible way
-    public class SongDetails
+    public class SongDetails : SongBase
     {
         #region Construction
         public SongDetails()
@@ -31,9 +31,9 @@ namespace m4dModels
             Created = song.Created;
             Modified = song.Modified;
 
-            DanceRatings = song.DanceRatings.ToList();
+            RatingsList = song.DanceRatings.ToList();
             Properties = song.SongProperties.ToList();
-            ModifiedBy = song.ModifiedBy.ToList();
+            ModifiedList = song.ModifiedBy.ToList();
 
             BuildAlbumInfo();
         }
@@ -57,12 +57,12 @@ namespace m4dModels
                 {
                     switch (bn)
                     {
-                        case Song.UserField:
-                            if (ModifiedBy == null)
+                        case UserField:
+                            if (ModifiedList == null)
                             {
-                                ModifiedBy = new List<ModifiedRecord>();
+                                ModifiedList = new List<ModifiedRecord>();
                             }
-                            if (!ModifiedBy.Any(u => u.ApplicationUserId == prop.Value ))
+                            if (!ModifiedList.Any(u => u.ApplicationUserId == prop.Value ))
                             {
                                 ModifiedRecord us = null;
                                 // TODO:  See note above
@@ -74,20 +74,20 @@ namespace m4dModels
                                 {
                                     us = new ModifiedRecord { SongId = songId, ApplicationUserId = prop.Value };
                                 }
-                                ModifiedBy.Add(us);
+                                ModifiedList.Add(us);
                                 //Debug.WriteLine(string.Format("UserMap:\t{0}\t{1}",songId,prop.Value));
                             }
                             break;
-                        case Song.DanceRatingField:
+                        case DanceRatingField:
                             UpdateDanceRating(prop.Value);
                             break;
-                        case Song.AlbumField:
-                        case Song.PublisherField:
-                        case Song.TrackField:
-                        case Song.PurchaseField:
+                        case AlbumField:
+                        case PublisherField:
+                        case TrackField:
+                        case PurchaseField:
                             // All of these are taken care of with build album
                             break;
-                        case Song.TimeField:
+                        case TimeField:
                             {
                                 DateTime time = (DateTime)prop.ObjectValue;
                                 if (!created)
@@ -155,11 +155,11 @@ namespace m4dModels
                     }
                     switch (fields[i])
                     {
-                        case Song.DanceRatingField:
+                        case DanceRatingField:
                             // Special case dance rating: Actually, made to do this at a different level altogether
                             //  which would me skipping this here...
                             throw new NotImplementedException("Dance Ratings need to be moved from admin to here.");
-                        case Song.LengthField:
+                        case LengthField:
                             if (!string.IsNullOrWhiteSpace(cell))
                             {
                                 try
@@ -174,10 +174,10 @@ namespace m4dModels
                                 }
                             }
                             break;
-                        case Song.ArtistField:
+                        case ArtistField:
                             cell = CleanArtistString(cell);
                             break;
-                        case Song.TitleField:
+                        case TitleField:
                             cell = CleanText(cell);
                             // Song is not valid without a title
                             if (string.IsNullOrWhiteSpace(cell))
@@ -189,7 +189,7 @@ namespace m4dModels
 
                     if (!string.IsNullOrWhiteSpace(cell))
                     {
-                        int idx = Song.IsAlbumField(fields[i]) ? 0 : -1;
+                        int idx = IsAlbumField(fields[i]) ? 0 : -1;
                         SongProperty prop = new SongProperty(0, fields[i], cell, idx);
                         properties.Add(prop);
                     }
@@ -220,46 +220,67 @@ namespace m4dModels
 
         private static Dictionary<string, string> s_propertyMap = new Dictionary<string, string>()
         {
-            {"DANCE", Song.DanceRatingField},
-            {"TITLE", Song.TitleField},
-            {"ARTIST", Song.ArtistField},
-            {"CONTRIBUTING ARTISTS", Song.ArtistField},
-            {"LABEL", Song.PublisherField},
-            {"USER", Song.UserField},
-            {"BPM", Song.TempoField},
-            {"BEATS-PER-MINUTE", Song.TempoField},
-            {"LENGTH", Song.LengthField},
-            {"ALBUM", Song.AlbumField},
-            {"#", Song.TrackField},
-            {"PUBLISHER", Song.PublisherField}
+            {"DANCE", DanceRatingField},
+            {"TITLE", TitleField},
+            {"ARTIST", ArtistField},
+            {"CONTRIBUTING ARTISTS", ArtistField},
+            {"LABEL", PublisherField},
+            {"USER", UserField},
+            {"BPM", TempoField},
+            {"BEATS-PER-MINUTE", TempoField},
+            {"LENGTH", LengthField},
+            {"ALBUM", AlbumField},
+            {"#", TrackField},
+            {"PUBLISHER", PublisherField}
         };
 
         #endregion
 
         #region Properties
-        public int SongId { get; set; }
+        public override ICollection<DanceRating> DanceRatings 
+        { 
+            get
+            {
+                return RatingsList;
+            }
+            set
+            {
+                throw new NotImplementedException("Shouldn't need to set this explicitly");
+            }
+        }
+        public override ICollection<ModifiedRecord> ModifiedBy
+        {
+            get
+            {
+                return ModifiedList;
+            }
+            set
+            {
+                throw new NotImplementedException("Shouldn't need to set this explicitly");
+            }
+        }
 
-        [Range(5.0, 500.0)]
-        public decimal? Tempo { get; set; }
-        [Required]
-        public string Title { get; set; }
-        public string Artist { get; set; }
-        public string Genre { get; set; }
-        [Range(1, 999)]
-        public int? Length { get; set; }
-        public DateTime Created { get; set; }
-        public DateTime Modified { get; set; }
-
+        public override ICollection<SongProperty> SongProperties
+        { 
+            get
+            {
+                return Properties;
+            }
+            set
+            {
+                throw new NotImplementedException("Shouldn't need to set this explicitly");
+            }
+        }
         public List<AlbumDetails> Albums { get; set; }
-        public List<DanceRating> DanceRatings { get; set; }
         public List<SongProperty> Properties { get; set; }
-        public List<ModifiedRecord> ModifiedBy { get; set; }
+        public List<ModifiedRecord> ModifiedList { get; set; }
+        public List<DanceRating> RatingsList { get; set; }
 
         public int TitleHash 
         { 
             get 
             {
-                return Song.CreateTitleHash(Title); 
+                return CreateTitleHash(Title); 
             } 
         }
         #endregion
@@ -289,15 +310,16 @@ namespace m4dModels
                 }
             }
         }
+
         public AlbumDetails FindAlbum(string album)
         {
             AlbumDetails ret = null;
             List<AlbumDetails> candidates = new List<AlbumDetails>();
-            int hash = Song.CreateTitleHash(album);
+            int hash = CreateTitleHash(album);
 
             foreach (AlbumDetails ad in Albums)
             {
-                if (Song.CreateTitleHash(ad.Name) == hash)
+                if (CreateTitleHash(ad.Name) == hash)
                 {
                     candidates.Add(ad);
                     if (string.Equals(ad.Name, album, StringComparison.CurrentCultureIgnoreCase))
@@ -443,14 +465,14 @@ namespace m4dModels
         {
             IEnumerable<SongProperty> properties =
                 from prop in song.SongProperties
-                //                where prop.BaseName.Equals(Song.AlbumField)
+                //                where prop.BaseName.Equals(AlbumField)
                 select prop;
             return BuildAlbumInfo(properties);
         }
         public static List<AlbumDetails> BuildAlbumInfo(IEnumerable<SongProperty> properties)
         {
             List<string> names = new List<string>(new string[] {
-                Song.AlbumField,Song.PublisherField,Song.TrackField,Song.PurchaseField,Song.AlbumPromote
+                AlbumField,PublisherField,TrackField,PurchaseField,AlbumPromote
             });
 
             // First build a hashtable of index->albuminfo, maintaining the total number and the
@@ -493,7 +515,7 @@ namespace m4dModels
 
                     switch (name)
                     {
-                        case Song.AlbumField:
+                        case AlbumField:
                             if (remove)
                             {
                                 d.Name = null;
@@ -504,7 +526,7 @@ namespace m4dModels
                                 d.Name = prop.Value;
                             }
                             break;
-                        case Song.PublisherField:
+                        case PublisherField:
                             if (remove)
                             {
                                 d.Publisher = null;
@@ -514,7 +536,7 @@ namespace m4dModels
                                 d.Publisher = prop.Value;
                             }
                             break;
-                        case Song.TrackField:
+                        case TrackField:
                             if (remove)
                             {
                                 d.Track = null;
@@ -526,7 +548,7 @@ namespace m4dModels
                                 d.Track = t;
                             }
                             break;
-                        case Song.PurchaseField:
+                        case PurchaseField:
                             if (d.Purchase == null)
                             {
                                 d.Purchase = new Dictionary<string, string>();
@@ -541,7 +563,7 @@ namespace m4dModels
                                 d.Purchase[qual] = prop.Value;
                             }
                             break;
-                        case Song.AlbumPromote:
+                        case AlbumPromote:
                             promotions.Add(idx);
                             break;
                     }
@@ -577,7 +599,7 @@ namespace m4dModels
         {
             IEnumerable<SongProperty> properties =
                 from prop in Properties
-                //                where prop.BaseName.Equals(Song.AlbumField)
+                //                where prop.BaseName.Equals(AlbumField)
                 select prop;
 
             Albums = BuildAlbumInfo(properties);
@@ -585,56 +607,23 @@ namespace m4dModels
         
         #endregion
 
-        public bool TitleArtistMatch(string title, string artist)
-        {
-            return
-                string.Equals(Song.CreateNormalForm(title), Song.CreateNormalForm(Title)) &&
-                string.Equals(Song.CreateNormalForm(artist), Song.CreateNormalForm(Artist));
-        }
-
-        public string TitleArtistString
-        {
-            get 
-            {
-                return Song.CreateNormalForm(Title) + "+" + Song.CreateNormalForm(Artist);
-            }
-        }
-        public string CleanTitle
-        {
-            get
-            {
-                return Song.CleanString(Title);
-            }
-        }
-        public string CleanArtist
-        {
-            get
-            {
-                return Song.CleanString(Artist);
-            }
-        }
         private void UpdateDanceRating(string value)
         {
-            if (DanceRatings == null)
+            if (RatingsList == null)
             {
-                DanceRatings = new List<DanceRating>();
+                RatingsList = new List<DanceRating>();
             }
 
             DanceRatingDelta drd = new DanceRatingDelta(value);
 
-            DanceRating dr = DanceRatings.Find(r => r.DanceId.Equals(drd.DanceId));
+            DanceRating dr = RatingsList.Find(r => r.DanceId.Equals(drd.DanceId));
             if (dr == null)
             {
                 dr = new DanceRating { SongId = this.SongId, DanceId = drd.DanceId, Weight = 0 };
-                DanceRatings.Add(dr);
+                RatingsList.Add(dr);
             }
 
             dr.Weight += drd.Delta;
-        }
-
-        public bool TempoConflict(SongDetails s, decimal delta)
-        {
-            return Tempo.HasValue && s.Tempo.HasValue && Math.Abs(Tempo.Value - s.Tempo.Value) > delta;
         }
 
         /// <summary>
@@ -706,155 +695,5 @@ namespace m4dModels
 
             return ret;
         }
-
-        #region String Cleanup
-        static public string CleanDanceName(string name)
-        {
-            string up = name.ToUpper();
-
-            string[] parts = up.Split(new char[] { ' ', '-', '\t', '/', '&', '-', '+', '(', ')' }, StringSplitOptions.RemoveEmptyEntries);
-
-            string ret = string.Join("", parts);
-
-            if (ret.LastIndexOf('S') == ret.Length - 1)
-            {
-                int truncate = 1;
-                if (ret.LastIndexOf('E') == ret.Length - 2)
-                {
-                    if (ret.Length > 2)
-                    {
-                        char ch = ret[ret.Length - 3];
-                        if (ch != 'A' && ch != 'E' && ch != 'I' && ch != 'O' && ch != 'U')
-                        {
-                            truncate = 2;
-                        }
-                    }
-                }
-                ret = ret.Substring(0, ret.Length - truncate);
-            }
-
-            return ret;
-        }
-
-        static public string CleanText(string text)
-        {
-            text = text.Replace("&nbsp;", " ");
-            text = text.Replace("&nbsp", " ");
-            text = text.Replace("\r", " ");
-            text = text.Replace("\n", " ");
-            text = text.Replace("\t", " ");
-            text = text.Replace("&quot;", "\"");
-            text = text.Replace("&quot", "\"");
-            text = text.Replace("&amp;", "&");
-
-            // TODO: is it worth doing a generic unicode replace?
-            text = text.Replace("&#39;", "'");
-            text = text.Replace("&#333;", "ō");
-
-            text = text.Trim();
-
-            if (text.Contains("  "))
-            {
-                StringBuilder sb = new StringBuilder(text.Length + 1);
-
-                bool space = false;
-                foreach (char c in text)
-                {
-                    if (char.IsWhiteSpace(c))
-                    {
-                        if (!space)
-                        {
-                            sb.Append(c);
-                        }
-                        space = true;
-                    }
-                    else
-                    {
-                        sb.Append(c);
-                        space = false;
-                    }
-                }
-
-                text = sb.ToString();
-            }
-
-            return text;
-        }
-
-        static public string Unsort(string name)
-        {
-            string[] parts = name.Split(new char[] { ',' });
-            if (parts.Length == 1)
-            {
-                return parts[0].Trim();
-            }
-            else if (parts.Length == 2)
-            {
-                return string.Format("{0} {1}", parts[1].Trim(), parts[0].Trim());
-            }
-            else
-            {
-                Trace.WriteLine(string.Format("Unusual Sort: {0}", name));
-                return name;
-            }
-        }
-
-        static public string CleanArtistString(string name)
-        {
-            if (name.IndexOf(',') != -1)
-            {
-                string[] parts = new string[] { name };
-                if (name.IndexOf('&') != -1)
-                    parts = name.Split(new char[] { '&' }, StringSplitOptions.RemoveEmptyEntries);
-                else if (name.IndexOf('/') != -1)
-                    parts = name.Split(new char[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
-
-                string separator = string.Empty;
-                StringBuilder sb = new StringBuilder();
-
-                foreach (string s in parts)
-                {
-                    string u = Unsort(s);
-                    sb.Append(separator);
-                    sb.Append(u);
-                    separator = " & ";
-                }
-
-                name = sb.ToString();
-            }
-
-            return name;
-        }
-
-        static public string CleanName(string name)
-        {
-            string up = name.ToUpper();
-
-            string[] parts = up.Split(new char[] { ' ', '-', '\t', '/', '&', '-', '+', '(', ')' }, StringSplitOptions.RemoveEmptyEntries);
-
-            string ret = string.Join("", parts);
-
-            if (ret.LastIndexOf('S') == ret.Length - 1)
-            {
-                int truncate = 1;
-                if (ret.LastIndexOf('E') == ret.Length - 2)
-                {
-                    if (ret.Length > 2)
-                    {
-                        char ch = ret[ret.Length - 3];
-                        if (ch != 'A' && ch != 'E' && ch != 'I' && ch != 'O' && ch != 'U')
-                        {
-                            truncate = 2;
-                        }
-                    }
-                }
-                ret = ret.Substring(0, ret.Length - truncate);
-            }
-
-            return ret;
-        }
-
-        
-        #endregion
     }
 }

@@ -99,7 +99,7 @@ namespace m4dModels
         static string[] _mergeFields = { 
             Song.TitleField, 
             Song.ArtistField, 
-            Song.AlbumList, 
+            Song.AlbumListField, 
             Song.TempoField, 
             Song.GenreField, 
             Song.LengthField 

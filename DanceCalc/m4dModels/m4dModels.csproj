@@ -83,6 +83,7 @@
     <Compile Include="PurchaseLink.cs" />
     <Compile Include="ServiceTrack.cs" />
     <Compile Include="Song.cs" />
+    <Compile Include="SongBase.cs" />
     <Compile Include="SongDetails.cs" />
     <Compile Include="SongFilter.cs" />
     <Compile Include="SongLog.cs" />

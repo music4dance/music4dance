@@ -284,7 +284,7 @@ namespace music4dance.Controllers
                 return HttpNotFound();
             }
 
-            ViewBag.DanceListRemove = GetDances(song.DanceRatings);
+            ViewBag.DanceListRemove = GetDances(song.RatingsList);
             ViewBag.DanceListAdd = GetDances();
 
             ViewBag.SongFilter = ParseFilter(filter);
@@ -335,7 +335,7 @@ namespace music4dance.Controllers
                 // Add back in the danceratings
                 // TODO: This almost certainly doesn't preserve edits...
                 SongDetails songT = _db.FindSongDetails(song.SongId);
-                ViewBag.DanceListRemove = GetDances(songT.DanceRatings);
+                ViewBag.DanceListRemove = GetDances(songT.RatingsList);
                 ViewBag.DanceListAdd = GetDances();
 
                 // Clean out empty albums
@@ -483,7 +483,7 @@ namespace music4dance.Controllers
             }
 
             int defIdx = -1;
-            string def = Request.Form[Song.AlbumList];
+            string def = Request.Form[Song.AlbumListField];
             if (!string.IsNullOrWhiteSpace(def))
             {
                 int.TryParse(def, out defIdx);
@@ -502,7 +502,7 @@ namespace music4dance.Controllers
             {
                 if (i != defIdx)
                 {
-                    string name = Song.AlbumList + "_" + i.ToString();
+                    string name = Song.AlbumListField + "_" + i.ToString();
 
                     if (defIdx == -1 || Request.Form.AllKeys.Contains(name))
                     {
