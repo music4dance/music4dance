@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DanceLibrary;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Diagnostics;
@@ -26,6 +27,85 @@ namespace m4dModels
             string output = string.Format("DanceId={0},SongId={1},Name={2},Value={3}", DanceId, SongId, Dance.Name, Weight);
             Trace.WriteLine(output);
         }
+
+        public static IEnumerable<DanceRatingDelta> BuildDeltas(string dances, int delta)
+        {
+            List<DanceRatingDelta> drds = new List<DanceRatingDelta>();
+
+            string list = null;
+            if (DanceRating.DanceMap.TryGetValue(SongDetails.CleanDanceName(dances), out list))
+            {
+                string[] ids = list.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+                foreach (var id in ids)
+                {
+                    drds.Add(new DanceRatingDelta { DanceId = id, Delta = 1 });
+                }
+                
+            }
+            else
+            {
+                Trace.WriteLine(string.Format("Unknown Dance(s): {0}", dances));
+            }
+
+            return drds;
+        }
+
+        public static Dictionary<string, string> DanceMap
+        {
+            get 
+            {
+                lock (s_danceMap)
+                {
+                    if (!s_builtDM)
+                    {
+                        foreach (DanceObject d in Dance.DanceLibrary.DanceDictionary.Values)
+                        {
+                            string name = SongDetails.CleanDanceName(d.Name);
+                            s_danceMap.Add(name, d.Id);
+                        }
+
+                        s_builtDM = true;
+                    }
+                }
+
+                return s_danceMap;
+            }
+        }
+
+        private static bool s_builtDM = false;
+        private static Dictionary<string, string> s_danceMap = new Dictionary<string, string>()
+        {
+            {"CROSSSTEPWALTZ","SWZ"}, {"SLOWANDCROSSSTEPWALTZ","SWZ"},
+            {"SOCIALTANGO","TNG"},
+            {"VIENNESE","VWZ"},{"MODERATETOFASTWALTZ","VWZ"},
+            {"SLOWDANCEFOXTROT","SFT"},
+            {"FOXTROTSLOWDANCE","SFT"},
+            {"FOXTROTSANDTRIPLESWING","SFT,ECS"},
+            {"FOXTROTTRIPLESWING","SFT,ECS"},
+            {"TRIPLESWINGFOXTROT","SFT,ECS"},
+            {"TRIPLESWING","ECS"},
+            {"WCSWING","WCS"},
+            {"SINGLESWING","SWG"},
+            {"SINGLETIMESWING","SWG"},
+            {"STREETSWING","HST"},
+            {"HUSTLESTREETSWING","HST"},
+            {"HUSTLECHACHA","HST,CHA"},
+            {"CHACHAHUSTLE","HST,CHA"},
+            {"CLUBTWOSTEP","NC2"},{"NIGHTCLUB2STEP","NC2"},
+            {"TANGOARGENTINO","ATN"},
+            {"MERENGUETECHNOMERENGUE","MRG"},
+            {"RUMBABOLERO", "RMB,BOL" },
+            {"RUMBATWOSTEP", "RMB,NC2" },
+            {"SLOWDANCERUMBA", "RMB" },
+            {"RUMBASLOWDANCE", "RMB" },
+            {"SWINGSEASTANDWESTCOASTLINDYHOPANDJIVE", "SWG"},
+            {"TRIPLESWINGTWOSTEP", "SWG,NC2"},
+            {"TWOSTEPFOXTROTSINGLESWING", "SWG,FXT,NC2"},
+            {"SWINGANDLINDYHOP", "ECS,LHP"},
+            {"POLKATECHNOPOLKA", "PLK"},
+            {"SALSAMAMBO", "SLS,MBO"},
+            {"LINDY", "LHP"}
+        };
     }
 
     // Transitory object - move to ViewModel?

@@ -17,6 +17,7 @@ using m4d.ViewModels;
 using m4d.Utilities;
 using m4dModels;
 using Microsoft.AspNet.Identity;
+using System.Data.Entity.Validation;
 
 // Let's see if we can mock up a recoverable log file by spitting out
 // something resembling a tab-separated flat list of songs items with a
@@ -304,6 +305,78 @@ namespace m4d.Context
 
         }
 
+        // This is an additive merge - only add new things if they don't conflict with the old
+        //  TODO: I'm pretty sure I can clean up this and all the other editing stuff by pushing
+        //  the diffing part down into SongDetails (which will also let me unit test it more easily)
+        public SongDetails AdditiveMerge(ApplicationUser user, int songId, SongDetails edit, List<string> addDances)
+        {
+            bool modified = false;
+
+            Song song = Songs.Find(songId);
+
+            SongLog log = CreateEditHeader(song, user);
+            log.SongSignature = song.Signature;
+
+            modified |= AddSongProperty(edit, song, Song.TitleField, log);
+            modified |= AddSongProperty(edit, song, Song.ArtistField, log);
+            modified |= AddSongProperty(edit, song, Song.TempoField, log);
+            modified |= AddSongProperty(edit, song, Song.LengthField, log);
+            modified |= AddSongProperty(edit, song, Song.GenreField, log);
+
+            List<AlbumDetails> oldAlbums = SongDetails.BuildAlbumInfo(song);
+
+            for (int aidx = 0; aidx < edit.Albums.Count; aidx++)
+            {
+                AlbumDetails album = edit.Albums[aidx];
+                AlbumDetails old = oldAlbums.FirstOrDefault(a => a.Index == album.Index);
+
+                if (string.IsNullOrWhiteSpace(song.Album) && !string.IsNullOrEmpty(album.Name))
+                {
+                    song.Album = album.Name;
+                }
+
+                if (old != null)
+                {
+                    // We're in existing album territory
+                    modified |= album.UpdateInfo(this, song, old, log);
+                }
+                else
+                {
+                    // We're in new territory only do something if the name field is non-empty
+                    if (!string.IsNullOrWhiteSpace(album.Name))
+                    {
+                        album.CreateProperties(this, song, log);
+                        modified = true;
+                    }
+                }
+            }
+
+            modified |= EditDanceRatings(song, addDances, DanceRatingIncrement, null, 0, log);
+
+            modified |= UpdatePurchaseInfo(song, edit);
+
+            if (modified)
+            {
+                Log.Add(log);
+                SaveChanges();
+            }
+            else
+            {
+                // TODO: figure out how to undo the top couple changes if no substantive changes were made... (may just be do nothing here)
+            }
+
+            if (modified)
+            {
+                return FindSongDetails(edit.SongId);
+            }
+            else
+            {
+                return null;
+            }
+
+        }
+
+
         public Song MergeSongs(ApplicationUser user, List<Song> songs, string title, string artist, string genre, decimal? tempo, int? length, List<AlbumDetails> albums)
         {
             string songIds = string.Join(";", songs.Select(s => s.SongId.ToString()));
@@ -585,6 +658,32 @@ namespace m4d.Context
             object oP = old.GetType().GetProperty(name).GetValue(old);
 
             if (!object.Equals(eP, oP))
+            {
+                modified = true;
+
+                old.GetType().GetProperty(name).SetValue(old, eP);
+
+                SongProperty np = SongProperties.Create();
+                np.Song = old;
+                np.Name = name;
+                np.Value = LogBase.SerializeValue(eP);
+
+                SongProperties.Add(np);
+                LogPropertyUpdate(np, log, LogBase.SerializeValue(oP));
+            }
+
+            return modified;
+        }
+
+        // Only update if the old song didn't have this property
+        public bool AddSongProperty(SongDetails edit, Song old, string name, SongLog log)
+        {
+            bool modified = false;
+
+            object eP = edit.GetType().GetProperty(name).GetValue(edit);
+            object oP = old.GetType().GetProperty(name).GetValue(old);
+
+            if (oP != null)
             {
                 modified = true;
 
@@ -1134,6 +1233,28 @@ namespace m4d.Context
             return us;
         }
         #endregion
+
+        public override int SaveChanges()
+        {
+            int ret = 0;
+            try
+            {
+                ret = base.SaveChanges();
+            }
+            catch (DbEntityValidationException e)
+            {
+                foreach (var err in e.EntityValidationErrors)
+                {
+                    foreach (var ve in err.ValidationErrors)
+                    {
+                        Trace.WriteLine(ve.ErrorMessage);
+                    }
+                }
+                throw;
+            }
+
+            return ret;
+        }
 
         #region User
         public void UpdateUsers(Song song)

@@ -140,23 +140,11 @@ namespace m4dModels
             }
         }
 
-        public int Index
+        public int? Index
         {
             get
             {
-                int idx = 0;
-
-                if (Name.Contains(":"))
-                {
-                    string[] parts = Name.Split(new char[] { ':' });
-
-                    if (parts.Length > 1)
-                    {
-                        int.TryParse(parts[1], out idx);
-                    }
-                }
-
-                return idx;
+                return ParseIndex(Name);
             }
         }
 
@@ -164,19 +152,7 @@ namespace m4dModels
         {
             get
             {
-                string qual = null;
-
-                if (Name.Contains(":"))
-                {
-                    string[] parts = Name.Split(new char[] { ':' });
-
-                    if (parts.Length > 2)
-                    {
-                        qual = parts[2];
-                    }
-                }
-
-                return qual;
+                return ParseQualifier(Name);
             }
         }
         
@@ -274,6 +250,44 @@ namespace m4dModels
             return name;
         }
 
+        public static string ParseQualifier(string name)
+        {
+            string qual = null;
+
+            if (name.Contains(":"))
+            {
+                string[] parts = name.Split(new char[] { ':' });
+
+                if (parts.Length > 2)
+                {
+                    qual = parts[2];
+                }
+            }
+
+            return qual;
+        }
+
+        public static int? ParseIndex(string name)
+        {
+            int? idx = null;
+
+            if (name.Contains(":"))
+            {
+                string[] parts = name.Split(new char[] { ':' });
+
+                if (parts.Length > 1)
+                {
+                    int val = 0;
+                    if (int.TryParse(parts[1], out val))
+                    {
+                        idx = val;
+                    }
+                }
+            }
+
+            return idx;
+        }
+
         public static string FormatName(string baseName, int? idx = null, string qualifier = null)
         {
             string name = baseName;
@@ -285,6 +299,10 @@ namespace m4dModels
 
             if (qualifier != null)
             {
+                if (!idx.HasValue)
+                {
+                    name += ":";
+                }
                 name += ":" + qualifier;
             }
 

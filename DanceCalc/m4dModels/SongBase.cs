@@ -57,7 +57,7 @@ namespace m4dModels
         public string Title { get; set; }
         public string Artist { get; set; }
         public string Genre { get; set; }
-        [Range(1, 999)]
+        [Range(0, 9999)]
         public int? Length { get; set; }
         public string Purchase { get; set; }
         public DateTime Created { get; set; }

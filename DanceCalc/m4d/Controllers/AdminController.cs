@@ -50,8 +50,6 @@ namespace m4d.Controllers
 
             if (!seeded)
             {
-                BuildDanceMap();
-
                 foreach (string name in _dbs)
                 {
                     string file = string.Format("~/Content/{0}.csv", name);
@@ -380,22 +378,27 @@ namespace m4d.Controllers
         {
             ViewBag.Name = "Upload Catalog";
 
-            if (string.IsNullOrWhiteSpace(songs) || string.IsNullOrWhiteSpace(separator) || string.IsNullOrWhiteSpace(dances))
+            if (string.IsNullOrWhiteSpace(songs) || string.IsNullOrWhiteSpace(separator))
             {
                 // TODO: We should validate this on the client side - only way I know to do this is to have a full on class to
                 // represent the fields, is there a lighter way???
                 ViewBag.Success = false;
-                ViewBag.Message = "Must have non-empty songs, separator, and dances fields";
+                ViewBag.Message = "Must have non-empty songs and separator fields";
                 return View("Results");
             }
             IList<LocalMerger> results = null;
 
-            if (string.IsNullOrWhiteSpace(headers))
+            IList<string> headerList = null;
+            if (!string.IsNullOrWhiteSpace(headers))
             {
-                headers = "TITLE,ARTIST";
+                 headerList = SongDetails.BuildHeaderMap(headers, ',');
+            }
+            else
+            {
+                headerList = HeaderFromList(CleanSeparator(separator), ref songs);
             }
 
-            IList<SongDetails> newSongs = SongsFromList(CleanSeparator(separator), headers, songs);
+            IList<SongDetails> newSongs = SongsFromList(CleanSeparator(separator), headerList, songs);
 
             ViewBag.UserName = user;
             ViewBag.Dances = dances;
@@ -412,6 +415,7 @@ namespace m4d.Controllers
             return View("ReviewBatch", results);
         }
 
+
         //
         // Post: //CommitUploadCatalog
         [HttpPost]
@@ -419,7 +423,6 @@ namespace m4d.Controllers
         [Authorize(Roles = "dbAdmin")]
         public ActionResult CommitUploadCatalog(int fileId, string userName, string danceIds, string headers, string separator)
         {
-            // TODONEXT: Get this to work with a dance column (may be time to breakdown and do arbitrary song columns for this method)
             IList<LocalMerger> initial =  GetReviewById(fileId);
 
             ViewBag.Name = "Upload Catalog";
@@ -453,23 +456,39 @@ namespace m4d.Controllers
 
                 foreach (LocalMerger m in initial)
                 {
+                    List<string> dancesT = dances;
+                    if (m.Left.DanceRatings != null && m.Left.DanceRatings.Count > 0)
+                    {
+                        dancesT = m.Left.DanceRatings.Select(dr => dr.DanceId).ToList();
+                    }
+                    else
+                    {
+                        dancesT = dances;
+                    }
+
                     // Matchtype of none indicates a new (to us) song, so just add it
                     if (m.MatchType == MatchType.None)
                     {
-                        modified = _db.CreateSong(user, m.Left, dances, DanceMusicContext.DanceRatingAutoCreate) != null;
+                        modified = _db.CreateSong(user, m.Left, dancesT, DanceMusicContext.DanceRatingAutoCreate) != null;
                     }
                     // Any other matchtype should result in a merge, which for now is just adding the dance(s) from
                     //  the new list to the existing song (or adding weight).
                     // Now we're going to potentially add tempo - need a more general solution for this going forward
                     else
                     {
-                        Song s = _db.FindSong(m.Right.SongId);
-                        SongLog log = null;
-                        modified |=  _db.AddDanceRatings(user, s, dances, DanceMusicContext.DanceRatingAutoCreate, out log);
-                        if (m.Left.Tempo.HasValue &&  !s.Tempo.HasValue)
-                        {
-                            modified |=_db.UpdateSongProperty(m.Left, s, Song.TempoField, log);
-                        }
+                        modified = _db.AdditiveMerge(user, m.Right.SongId, m.Left, dancesT) != null;
+                        //if (dances != null)
+                        //{
+                        //    m.Left.UpdateDanceRatings(dances, DanceMusicContext.DanceRatingAutoCreate);
+                        //}
+
+                        //Song s = _db.FindSong(m.Right.SongId);
+                        //SongLog log = null;
+                        //modified |=  _db.AddDanceRatings(user, s, dances, DanceMusicContext.DanceRatingAutoCreate, out log);
+                        //if (m.Left.Tempo.HasValue &&  !s.Tempo.HasValue)
+                        //{
+                        //    modified |=_db.UpdateSongProperty(m.Left, s, Song.TempoField, log);
+                        //}
                     }
                 }
 
@@ -609,14 +628,6 @@ namespace m4d.Controllers
         {
             Configuration.DoSeed(_db);
         }
-        private void BuildDanceMap()
-        {
-            foreach (DanceObject d in Dance.DanceLibrary.DanceDictionary.Values)
-            {
-                string name = SongDetails.CleanDanceName(d.Name);
-                _danceMap.Add(name, d.Id);
-            }
-        }
 
         private DbMigrator BuildMigrator()
         {
@@ -678,6 +689,11 @@ namespace m4d.Controllers
                     if (c % 100 == 0)
                     {
                         Trace.WriteLine(string.Format("{0} songs loaded", c));
+                    }
+
+                    if (song.Length.HasValue && song.Length.Value > 1000)
+                    {
+                        Trace.WriteLine(string.Format("Long Song: {0} '{1}'",song.Length,song.Title));
                     }
                 }
 
@@ -858,7 +874,7 @@ namespace m4d.Controllers
                         break;
 
                     string danceName = SongDetails.CleanDanceName(cells[_danceColumn]);
-                    if (!_danceMap.TryGetValue(danceName, out danceIds))
+                    if (!DanceRating.DanceMap.TryGetValue(danceName, out danceIds))
                     {
                         Trace.WriteLine(string.Format("Dance Not Found: {0}", cells[_danceColumn]));
                         continue;
@@ -1019,39 +1035,6 @@ namespace m4d.Controllers
         string[] _dbs = new string[] { "JohnCrossan", "LetsDanceDenver", "SalsaSwingBallroom", "SandiegoDJ", "SteveThatDJ", "UsaSwingNet", "WaltersDanceCenter" };
         private readonly int _chunk = 500;
 
-        private Dictionary<string, string> _danceMap = new Dictionary<string, string>()
-        {
-            {"CROSSSTEPWALTZ","SWZ"}, {"SLOWANDCROSSSTEPWALTZ","SWZ"},
-            {"SOCIALTANGO","TNG"},
-            {"VIENNESE","VWZ"},{"MODERATETOFASTWALTZ","VWZ"},
-            {"SLOWDANCEFOXTROT","SFT"},
-            {"FOXTROTSLOWDANCE","SFT"},
-            {"FOXTROTSANDTRIPLESWING","SFT,ECS"},
-            {"FOXTROTTRIPLESWING","SFT,ECS"},
-            {"TRIPLESWINGFOXTROT","SFT,ECS"},
-            {"TRIPLESWING","ECS"},
-            {"WCSWING","WCS"},
-            {"SINGLESWING","SWG"},
-            {"SINGLETIMESWING","SWG"},
-            {"STREETSWING","HST"},
-            {"HUSTLESTREETSWING","HST"},
-            {"HUSTLECHACHA","HST,CHA"},
-            {"CHACHAHUSTLE","HST,CHA"},
-            {"CLUBTWOSTEP","NC2"},{"NIGHTCLUB2STEP","NC2"},
-            {"TANGOARGENTINO","ATN"},
-            {"MERENGUETECHNOMERENGUE","MRG"},
-            {"RUMBABOLERO", "RMB,BOL" },
-            {"RUMBATWOSTEP", "RMB,NC2" },
-            {"SLOWDANCERUMBA", "RMB" },
-            {"RUMBASLOWDANCE", "RMB" },
-            {"SWINGSEASTANDWESTCOASTLINDYHOPANDJIVE", "SWG"},
-            {"TRIPLESWINGTWOSTEP", "SWG,NC2"},
-            {"TWOSTEPFOXTROTSINGLESWING", "SWG,FXT,NC2"},
-            {"SWINGANDLINDYHOP", "ECS,LHP"},
-            {"POLKATECHNOPOLKA", "PLK"},
-            {"SALSAMAMBO", "SLS,MBO"},
-            {"LINDY", "LHP"}
-        };
         private List<int> _dynamicColumns = new List<int>();
         private int _danceColumn = -1;
         private int _titleColumn = -1;
@@ -1070,11 +1053,35 @@ namespace m4d.Controllers
 
         #region Utilities
 
-        private IList<SongDetails> SongsFromList(string separator, string fieldList, string songText)
+        private IList<string> HeaderFromList(string separator, ref string songs)
+        {
+            int cidx = songs.IndexOfAny(System.Environment.NewLine.ToCharArray());
+            if (cidx == -1)
+            {
+                return null;
+            }
+            string line = songs.Substring(0, cidx);
+
+            var map = SongDetails.BuildHeaderMap(line);
+
+            // Kind of kludgy, but temporary build the header
+            //  map to see if it's valid then pass back a comma
+            // separated list of headers...
+            if (map != null && map.Any(p => p != null))
+            {
+                songs = songs.Substring(cidx).TrimStart(System.Environment.NewLine.ToCharArray());
+                return map;
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+        private IList<SongDetails> SongsFromList(string separator, IList<string> headers, string songText)
         {
             Dictionary<string, SongDetails> songs = new Dictionary<string, SongDetails>();
 
-            IList<string> headers = SongDetails.BuildHeaderMap(fieldList, ',');
             string[] lines = songText.Split(System.Environment.NewLine.ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
 
             foreach (string line in lines)
@@ -1180,7 +1187,7 @@ namespace m4d.Controllers
                         }
                     }
 
-                    // TODONEXT: We may want to make this even weaker (especially for merge): If merge doesn't have album remove candidate.HasRealAlbums?
+                    // TODO: We may want to make this even weaker (especially for merge): If merge doesn't have album remove candidate.HasRealAlbums?
 
                     // Otherwise, if there is only one candidate and it doesn't have any 'real'
                     //  albums, we will choose it

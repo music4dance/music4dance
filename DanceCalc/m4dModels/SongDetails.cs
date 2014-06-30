@@ -148,17 +148,30 @@ namespace m4dModels
                 if (fields[i] != null)
                 {
                     string cell = cells[i];
+                    string baseName = SongProperty.ParseBaseName(fields[i]);
+                    string qual = null;
                     cell = cell.Trim();
                     if ((cell.Length > 0) && (cell[0] == '"') && (cell[cell.Length-1] == '"'))
                     {
                         cell = cell.Trim(new char[] {'"'});
                     }
-                    switch (fields[i])
+                    switch (SongProperty.ParseBaseName(baseName))
                     {
                         case DanceRatingField:
-                            // Special case dance rating: Actually, made to do this at a different level altogether
-                            //  which would me skipping this here...
-                            throw new NotImplementedException("Dance Ratings need to be moved from admin to here.");
+                            // Any positive delta here will be translated into whatever the creator
+                            //  decides is appropriate, just need this property to be appropriately
+                            //  parsable as a DRD.
+                            {
+                                IEnumerable<DanceRatingDelta> ratings = DanceRating.BuildDeltas(cell, 1);
+                                foreach (var rating in ratings)
+                                {
+                                    SongProperty prop = new SongProperty(0, baseName, rating.ToString());
+                                    properties.Add(prop);
+                                }
+
+                                cell = null;
+                            }
+                            break;
                         case LengthField:
                             if (!string.IsNullOrWhiteSpace(cell))
                             {
@@ -185,12 +198,15 @@ namespace m4dModels
                                 return null;
                             }
                             break;
+                        case PurchaseField:
+                            qual = SongProperty.ParseQualifier(fields[i]);
+                            break;
                     }
 
                     if (!string.IsNullOrWhiteSpace(cell))
                     {
                         int idx = IsAlbumField(fields[i]) ? 0 : -1;
-                        SongProperty prop = new SongProperty(0, fields[i], cell, idx);
+                        SongProperty prop = new SongProperty(0, baseName, cell, idx, qual);
                         properties.Add(prop);
                     }
                 }
@@ -229,9 +245,11 @@ namespace m4dModels
             {"BPM", TempoField},
             {"BEATS-PER-MINUTE", TempoField},
             {"LENGTH", LengthField},
+            {"TRACK",TrackField},
             {"ALBUM", AlbumField},
             {"#", TrackField},
-            {"PUBLISHER", PublisherField}
+            {"PUBLISHER", PublisherField},
+            {"AMAZONTRACK", SongProperty.FormatName(PurchaseField,null,"AS")}
         };
 
         #endregion
@@ -490,7 +508,8 @@ namespace m4dModels
             foreach (SongProperty prop in properties)
             {
                 string name = prop.BaseName;
-                int idx = prop.Index;
+                int idx = prop.Index ?? 0;
+                
                 string qual = prop.Qualifier;
 
                 if (names.Contains(name))
@@ -607,7 +626,12 @@ namespace m4dModels
         
         #endregion
 
-        private void UpdateDanceRating(string value)
+        /// <summary>
+        /// Update the dance rating table based on the encoded
+        ///   property value 
+        /// </summary>
+        /// <param name="value"></param>
+        public void UpdateDanceRating(string value)
         {
             if (RatingsList == null)
             {
@@ -616,6 +640,11 @@ namespace m4dModels
 
             DanceRatingDelta drd = new DanceRatingDelta(value);
 
+            UpdateDanceRating(drd);
+        }
+
+        public void UpdateDanceRating(DanceRatingDelta drd)
+        {
             DanceRating dr = RatingsList.Find(r => r.DanceId.Equals(drd.DanceId));
             if (dr == null)
             {
@@ -624,6 +653,17 @@ namespace m4dModels
             }
 
             dr.Weight += drd.Delta;
+        }
+
+        public void UpdateDanceRatings(IEnumerable<string> dances, int weight)
+        {
+            foreach (string d in dances)
+            {
+                DanceRatingDelta drd = new DanceRatingDelta {DanceId=d, Delta=weight};
+                UpdateDanceRating(drd);
+                SongProperty prop = new SongProperty { SongId = this.SongId, Name = DanceRatingField, Value = drd.ToString() };
+                Properties.Add(prop);
+            }
         }
 
         /// <summary>

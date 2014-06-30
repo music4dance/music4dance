@@ -245,6 +245,24 @@ namespace m4dModels
             }
 
         }
+
+        public void PurchaseAdd(ISongPropertyFactory spf, Song song, AlbumDetails old, SongLog log)
+        {
+            Dictionary<string, string> add = new Dictionary<string, string>();
+
+            // Now add all of the keys that are in new but either don't exist or are different in old
+            if (Purchase != null)
+            {
+                foreach (string key in Purchase.Keys)
+                {
+                    if (old.Purchase == null || !old.Purchase.ContainsKey(key))
+                    {
+                        // Add
+                        ChangeProperty(spf, song, this.Index, Song.PurchaseField, key, null, Purchase[key], log);
+                    }
+                }
+            }
+        }
         
         #endregion
 
@@ -366,6 +384,21 @@ namespace m4dModels
 
             return modified;
         }
+
+        // Additive update
+        public bool UpdateInfo(ISongPropertyFactory spf, Song song, AlbumDetails old, SongLog log)
+        {
+            bool modified = true;
+
+            modified |= UpdateProperty(spf, song, old.Index, Song.AlbumField, null, old.Name, Name, log);
+            modified |= UpdateProperty(spf, song, old.Index, Song.TrackField, null, old.Track, Track, log);
+            modified |= UpdateProperty(spf, song, old.Index, Song.PublisherField, null, old.Publisher, Publisher, log);
+
+            PurchaseAdd(spf, song, old, log);
+
+            return modified;
+        }
+
         public void CreateProperties(ISongPropertyFactory spf, Song song, SongLog log = null)
         {
             if (string.IsNullOrWhiteSpace(Name))
@@ -428,6 +461,28 @@ namespace m4dModels
 
             return modified;
         }
+
+        public static bool UpdateProperty(ISongPropertyFactory spf, Song song, int idx, string name, string qual, object oldValue, object newValue, SongLog log = null)
+        {
+            bool modified = false;
+
+            if (oldValue == null && newValue != null)
+            {
+                string fullName = SongProperty.FormatName(name, idx, qual);
+
+                SongProperty np = spf.CreateSongProperty(song, fullName, newValue);
+
+                if (log != null)
+                {
+                    log.UpdateData(np.Name, np.Value, LogBase.SerializeValue(oldValue));
+                }
+
+                modified = true;
+            }
+
+            return modified;
+        }
+
 
         static Regex s_wordPattern = new Regex(@"\W");
         static HashSet<string> s_ballroomWords = new HashSet<string>() { "ballroom", "latin", "ultimate", "standard", "dancing", "competition", "classics", "dance" };
