@@ -211,6 +211,20 @@ namespace m4d.Controllers
         }
 
         //
+        // Get: //TestTrace
+        [Authorize(Roles = "showDiagnostics")]
+        public ActionResult TestTrace(string message)
+        {
+            ViewBag.Name = "Test Trace";
+
+            ViewBag.Success = true;
+            ViewBag.Message = string.Format("Trace message sentt: '{0}'", message);
+
+            Trace.WriteLine(string.Format("Test Trace: '{0}'", message));
+            return View("Results");
+        }
+
+        //
         // Get: //ScrapeDances
         [Authorize(Roles = "showDiagnostics")]
         public ActionResult ScrapeDances(string id)

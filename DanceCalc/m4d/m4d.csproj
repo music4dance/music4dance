@@ -320,13 +320,14 @@
     <Content Include="Content\WaltersDanceCenter.csv">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="Content\century.csv" />
+    <Content Include="Content\danceforums.csv" />
     <Content Include="fonts\glyphicons-halflings-regular.woff" />
     <Content Include="fonts\glyphicons-halflings-regular.ttf" />
     <Content Include="fonts\glyphicons-halflings-regular.eot" />
     <Content Include="Content\bootstrap-theme.css.map" />
     <Content Include="Content\bootstrap.css.map" />
-    <Content Include="Content\century.csv" />
-    <Content Include="Content\danceforums.csv" />
+    <None Include="Properties\PublishProfiles\m4d-old.pubxml" />
     <None Include="Properties\PublishProfiles\m4d.pubxml" />
     <None Include="Properties\PublishProfiles\music4dance.pubxml" />
     <Content Include="MvcDiagnostics.aspx" />

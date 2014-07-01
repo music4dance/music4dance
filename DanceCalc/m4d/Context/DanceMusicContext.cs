@@ -1250,6 +1250,8 @@ namespace m4d.Context
                         Trace.WriteLine(ve.ErrorMessage);
                     }
                 }
+
+                Debug.Assert(false);
                 throw;
             }
 
