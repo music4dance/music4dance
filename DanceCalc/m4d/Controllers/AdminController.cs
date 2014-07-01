@@ -21,6 +21,8 @@ using m4d.Utilities;
 
 namespace m4d.Controllers
 {
+    [Authorize]
+    [RequireHttps]
     public class AdminController : Controller
     {
         private DanceMusicContext _db = new DanceMusicContext();
