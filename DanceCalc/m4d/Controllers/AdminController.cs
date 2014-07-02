@@ -259,7 +259,7 @@ namespace m4d.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "dbAdmin")]
-        public ActionResult ReloadDatabase()
+        public ActionResult ReloadDatabase(string reloadDatabase)
         {
             List<string> lines = UploadFile();
 
@@ -268,9 +268,15 @@ namespace m4d.Controllers
             ViewBag.Name = "Restore Database";
             if (lines.Count > 0)
             {
-                RestoreDB();
+                if (string.Equals(reloadDatabase,"reload",StringComparison.InvariantCultureIgnoreCase))
+                {
+                    RestoreDB();
+
+                }
 
                 ReloadDB(lines);
+
+                SongCounts.ClearCache(); 
 
                 ViewBag.Success = true;
                 ViewBag.Message = "Database was successfully restored and reloaded";
