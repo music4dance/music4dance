@@ -25,7 +25,7 @@
                     <li>@Html.ActionLink("Songs", "Index", "Song")</li>
                     <li>@Html.ActionLink("Counter", "Counter", "Home")</li>
                     <li>@Html.ActionLink("About", "About", "Home")</li>
-                    <li>@Html.ActionLink("Contact", "Contact", "Home")</li>
+                    @*<li>@Html.ActionLink("Contact", "Contact", "Home")</li>*@
                     @if (User.IsInRole("showDiagnostics"))
                     {
                         <li>@Html.ActionLink("Admin", "Index", "Admin")</li>
@@ -41,7 +41,7 @@
             <hr />
             <div class="col-md-12">
                 <footer>
-                    <p>&copy; @DateTime.Now.Year - Gramamoto, Inc.</p>
+                    <p>&copy; @DateTime.Now.Year - Music4Dance.net</p>
                 </footer>
             </div>
         </div>

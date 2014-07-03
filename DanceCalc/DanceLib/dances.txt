@@ -94,7 +94,7 @@
     ]
   },
   {
-    "Name": "Tango",
+    "Name": "Tango (Ballroom)",
     "Id": "TGO",
     "Meter": {
       "Numerator": 4,

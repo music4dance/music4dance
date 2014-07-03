@@ -37,7 +37,7 @@ namespace DanceTests
 
         readonly string[] _31HDS = {
             "Slow Foxtrot: Style=(American Smooth, International Standard), Delta=()",
-            "Tango: Style=(American Smooth, International Standard), Delta=()",
+            "Tango (Ballroom): Style=(American Smooth, International Standard), Delta=()",
             "West Coast Swing: Style=(American Rhythm), Delta=()",
             "Bachata: Style=(Social), Delta=()",
             "Lindy Hop: Style=(Social), Delta=()",
@@ -55,7 +55,7 @@ namespace DanceTests
 
         readonly string[] _31HNDCA = {
             "Slow Foxtrot: Style=(American Smooth, International Standard), Delta=()",
-            "Tango: Style=(American Smooth, International Standard), Delta=()",
+            "Tango (Ballroom): Style=(American Smooth, International Standard), Delta=()",
             "Cha Cha: Style=(American Rhythm, International Latin), Delta=()",
             "West Coast Swing: Style=(American Rhythm), Delta=()",
             "Bachata: Style=(Social), Delta=()",
@@ -74,7 +74,7 @@ namespace DanceTests
 
         readonly string[] _Bronze = {
             "Slow Foxtrot: Style=(American Smooth, International Standard), Delta=()",
-            "Tango: Style=(American Smooth, International Standard), Delta=()",
+            "Tango (Ballroom): Style=(American Smooth, International Standard), Delta=()",
             "Cha Cha: Style=(American Rhythm, International Latin), Delta=()",
             "West Coast Swing: Style=(American Rhythm), Delta=()",
             "Bachata: Style=(Social), Delta=()",
