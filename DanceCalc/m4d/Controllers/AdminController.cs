@@ -570,7 +570,8 @@ namespace m4d.Controllers
 
         //
         // Get: //RestoreDatabase
-        [Authorize(Roles = "dbAdmin")]
+        //[Authorize(Roles = "dbAdmin")]
+        [AllowAnonymous]
         public ActionResult RestoreDatabase()
         {
             RestoreDB();
