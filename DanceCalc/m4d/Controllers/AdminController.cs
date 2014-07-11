@@ -693,6 +693,8 @@ namespace m4d.Controllers
                 Trace.WriteLine("Loading Dances");
                 dmc.Dances.Load();
 
+                Trace.WriteLine("Loading Songs");
+
                 int c = 0;
                 foreach (string line in lines)
                 {
@@ -701,7 +703,10 @@ namespace m4d.Controllers
                     song.Created = time;
                     song.Modified = time;
                     dmc.Songs.Add(song);
-                    dmc.SaveChanges();
+
+                    // TODO: There has to be a way to get EF to create proxies without doing a round
+                    //   trip to the database, right?
+                    //dmc.SaveChanges();
 
                     song.Load(line, dmc);
 
@@ -720,8 +725,6 @@ namespace m4d.Controllers
                 }
 
                 HashSet<string> map = new HashSet<string>();
-
-                Trace.WriteLine("Loading Songs");
 
                 c = 0;
                 foreach (Song song in dmc.Songs)

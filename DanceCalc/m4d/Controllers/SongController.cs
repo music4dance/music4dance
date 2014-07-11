@@ -201,9 +201,9 @@ namespace music4dance.Controllers
         // GET: /Song/Details/5
 
         [AllowAnonymous]
-        public ActionResult Details(int id = 0, string filter = null)
+        public ActionResult Details(Guid? id = null, string filter = null)
         {
-            SongDetails song = _db.FindSongDetails(id);
+            SongDetails song = _db.FindSongDetails(id ?? Guid.Empty);
             if (song == null)
             {
                 return HttpNotFound();
@@ -276,9 +276,9 @@ namespace music4dance.Controllers
         //
         // GET: /Song/Edit/5
         [Authorize(Roles = "canEdit")] 
-        public ActionResult Edit(int id = 0, string filter = null)
+        public ActionResult Edit(Guid? id = null, string filter = null)
         {
-            SongDetails song = _db.FindSongDetails(id);
+            SongDetails song = _db.FindSongDetails(id??Guid.Empty);
             if (song == null)
             {
                 return HttpNotFound();
@@ -433,7 +433,7 @@ namespace music4dance.Controllers
         // BulkEdit: /Song/BulkEdit
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "canEdit")]
-        public ActionResult BulkEdit(int[] selectedSongs, string action, string filter = null)
+        public ActionResult BulkEdit(Guid[] selectedSongs, string action, string filter = null)
         {
             ViewBag.SongFilter = ParseFilter(filter);
             var songs = from s in _db.Songs
@@ -460,7 +460,7 @@ namespace music4dance.Controllers
         {
             ViewBag.SongFilter = ParseFilter(filter);
             // See if we can do the actual merge and then return the song details page...
-            List<int> ids = SongIds.Split(',').Select(s=>int.Parse(s)).ToList();
+            List<Guid> ids = SongIds.Split(',').Select(s=>Guid.Parse(s)).ToList();
 
             var songs = from s in _db.Songs
                         where ids.Contains(s.SongId)
@@ -750,9 +750,9 @@ namespace music4dance.Controllers
 
         // GET: /Song/MusicServiceSearch/5?search=name
         [Authorize(Roles = "canEdit")]
-        public ActionResult MusicServiceSearch(int id = 0, string type="X", string title = null, string artist = null, string filter=null)
+        public ActionResult MusicServiceSearch(Guid? id = null, string type="X", string title = null, string artist = null, string filter=null)
         {
-            SongDetails song = _db.FindSongDetails(id);
+            SongDetails song = _db.FindSongDetails(id??Guid.Empty);
             if (song == null)
             {
                 return HttpNotFound();
@@ -798,7 +798,7 @@ namespace music4dance.Controllers
         // ChooseMusicService: /Song/ChooseMusicService
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "canEdit")]
-        public ActionResult ChooseMusicService(int songId, string type, string name, string album, string artist, string trackId, string collectionId, string alternateId, string duration, string genre, int? trackNum, string filter = null)
+        public ActionResult ChooseMusicService(Guid songId, string type, string name, string album, string artist, string trackId, string collectionId, string alternateId, string duration, string genre, int? trackNum, string filter = null)
         {
             MusicService service = MusicService.GetService(type);
             if (service == null)

@@ -12,7 +12,7 @@ namespace m4dModels
 {
     public class DanceRating : DbObject
     {
-        public int SongId { get; set; }
+        public Guid SongId { get; set; }
         public virtual Song Song { get; set; }
 
         public string DanceId { get; set; }

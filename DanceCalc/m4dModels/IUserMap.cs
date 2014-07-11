@@ -1,4 +1,5 @@
 ﻿
+using System;
 namespace m4dModels
 {
     // Provide the ability to map a user name to an ApplicationUser object
@@ -8,6 +9,6 @@ namespace m4dModels
     public interface IUserMap
     {
         ApplicationUser FindUser(string name);
-        ModifiedRecord CreateMapping(int songId, string name);
+        ModifiedRecord CreateMapping(Guid songId, string name);
     }
 }

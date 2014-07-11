@@ -256,6 +256,10 @@
     <Compile Include="Migrations\201404102258062_OAuth.Designer.cs">
       <DependentUpon>201404102258062_OAuth.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201407111833176_SongGuid.cs" />
+    <Compile Include="Migrations\201407111833176_SongGuid.Designer.cs">
+      <DependentUpon>201407111833176_SongGuid.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Context\DanceMusicConfiguration.cs" />
     <Compile Include="Context\DanceMusicContext.cs" />
@@ -504,6 +508,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201404102258062_OAuth.resx">
       <DependentUpon>201404102258062_OAuth.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201407111833176_SongGuid.resx">
+      <DependentUpon>201407111833176_SongGuid.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>

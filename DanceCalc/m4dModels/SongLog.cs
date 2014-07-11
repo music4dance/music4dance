@@ -13,7 +13,7 @@ namespace m4dModels
         public virtual ApplicationUser User { get; set; }
         public DateTime Time { get; set; }
         public string Action { get; set; }
-        public int SongReference { get; set; }        
+        public Guid SongReference { get; set; }        
         public string SongSignature { get; set; }
 
         public void Initialize(ApplicationUser user, Song song, string action)
@@ -62,8 +62,8 @@ namespace m4dModels
                 Time = time;
             }
 
-            int songId = 0;
-            if (!int.TryParse(songRef, out songId))
+            Guid songId = Guid.Empty;
+            if (!Guid.TryParse(songRef, out songId))
             {
                 Trace.WriteLine(string.Format("Bad SongId: {0}", songRef));
                 return false;

@@ -16,7 +16,7 @@ namespace m4dModels
     public class SongDetails : SongBase
     {
         #region Construction
-        public SongDetails()
+        public SongDetails() : base()
         {
         }
 
@@ -44,7 +44,7 @@ namespace m4dModels
         //  into the function that transforms SongDetails (back) into a Song
         //  For now, I'm going to accept a null in that field in which case I'll create
         //  the disconnected object but should revisit and cleanup soon
-        public SongDetails(int songId, ICollection<SongProperty> properties, IUserMap users = null)
+        public SongDetails(Guid songId, ICollection<SongProperty> properties, IUserMap users = null)
         {
             SongId = songId;
             bool created = false;
@@ -165,7 +165,7 @@ namespace m4dModels
                                 IEnumerable<DanceRatingDelta> ratings = DanceRating.BuildDeltas(cell, 1);
                                 foreach (var rating in ratings)
                                 {
-                                    SongProperty prop = new SongProperty(0, baseName, rating.ToString());
+                                    SongProperty prop = new SongProperty(Guid.Empty, baseName, rating.ToString());
                                     properties.Add(prop);
                                 }
 
@@ -206,13 +206,13 @@ namespace m4dModels
                     if (!string.IsNullOrWhiteSpace(cell))
                     {
                         int idx = IsAlbumField(fields[i]) ? 0 : -1;
-                        SongProperty prop = new SongProperty(0, baseName, cell, idx, qual);
+                        SongProperty prop = new SongProperty(Guid.Empty, baseName, cell, idx, qual);
                         properties.Add(prop);
                     }
                 }
             }
 
-            SongDetails song = new SongDetails(0, properties);
+            SongDetails song = new SongDetails(Guid.Empty, properties);
             return song;
         }
 

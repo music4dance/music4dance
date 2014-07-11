@@ -14,13 +14,13 @@ namespace m4d.Controllers
         private DanceMusicContext _db = new DanceMusicContext();
         public IHttpActionResult GetPurchaseInfo(string id)
         {
-            int songId = 0;
+            Guid songId = Guid.Empty;
             string serviceType = "AIX";
 
             if (id.Length > 0)
             {
                 serviceType = new string(id[0], 1);
-                int.TryParse(id.Substring(1), out songId);
+                Guid.TryParse(id.Substring(1), out songId);
             }
 
             SongDetails song = _db.FindSongDetails(songId);

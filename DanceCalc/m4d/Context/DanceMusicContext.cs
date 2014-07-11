@@ -126,6 +126,14 @@ namespace m4d.Context
             return CreateSong(user, title, artist, genre, tempo, length, albums, Song.CreateCommand, string.Empty, log);
         }
 
+        public Song CreateSong(Guid? guid = null)
+        {
+            Guid g = guid ?? Guid.NewGuid();
+            Song song = Songs.Create();
+            song.SongId = g;
+
+            return song;
+        }
         public Song CreateSong(ApplicationUser user, string title, string artist, string genre, decimal? tempo, int? length, List<AlbumDetails> albums, string command, string value, bool createLog = false)
         {
             DateTime time = DateTime.Now;
@@ -135,7 +143,7 @@ namespace m4d.Context
                 Trace.WriteLine(string.Format("Title and Artist are the same ({0})", title));
             }
 
-            Song song = Songs.Create();
+            Song song = CreateSong();
 
             SongLog log = null;
             if (createLog)
@@ -308,7 +316,7 @@ namespace m4d.Context
         // This is an additive merge - only add new things if they don't conflict with the old
         //  TODO: I'm pretty sure I can clean up this and all the other editing stuff by pushing
         //  the diffing part down into SongDetails (which will also let me unit test it more easily)
-        public SongDetails AdditiveMerge(ApplicationUser user, int songId, SongDetails edit, List<string> addDances)
+        public SongDetails AdditiveMerge(ApplicationUser user, Guid songId, SongDetails edit, List<string> addDances)
         {
             bool modified = false;
 
@@ -418,10 +426,9 @@ namespace m4d.Context
             {
                 DanceRating dr = DanceRatings.Create();
                 dr.DanceId = dance.Key;
-                dr.SongId = song.SongId;
                 dr.Weight = dance.Value;
 
-                song.DanceRatings.Add(dr);
+                song.AddDanceRating(dr);
                 var dre = Entry(dr);
                 if (dre != null && dre.State != EntityState.Added)
                 {
@@ -493,11 +500,10 @@ namespace m4d.Context
                 Debug.Assert(dance != null);
 
                 DanceRating dr = DanceRatings.Create();
-                dr.Song = song;
                 dr.Dance = dance;
                 dr.Weight = weight;
 
-                DanceRatings.Add(dr);
+                song.AddDanceRating(dr);
 
                 CreateSongProperty(song, Song.DanceRatingField, string.Format("{0}+{1}", dance.Id, weight), song.CreateEntry);
                 changed = true;
@@ -523,7 +529,7 @@ namespace m4d.Context
             return modified;
         }
 
-        public bool AddDanceRatings(ApplicationUser user, int songId, IList<string> danceIds, int weight)
+        public bool AddDanceRatings(ApplicationUser user, Guid songId, IList<string> danceIds, int weight)
         {
             Song song = FindSong(songId, null);
             SongLog log;
@@ -604,11 +610,10 @@ namespace m4d.Context
                     Debug.Assert(dance != null);
 
                     DanceRating dr = DanceRatings.Create();
-                    dr.Song = song;
                     dr.Dance = dance;
                     dr.Weight = DanceRatingInitial;
 
-                    song.DanceRatings.Add(dr);
+                    song.AddDanceRating(dr);
 
                     SongProperty np = SongProperties.Create();
                     np.Song = song;
@@ -737,10 +742,11 @@ namespace m4d.Context
 
                 np.Value = drd.ToString();
 
+                // TODO: Consider implementing a MergeDanceRating at the song level
                 DanceRating dr = song.DanceRatings.FirstOrDefault(d => string.Equals(d.DanceId, drd.DanceId));
                 if (dr == null)
                 {
-                    song.DanceRatings.Add(new DanceRating() { DanceId = drd.DanceId, SongId = song.SongId, Weight = drd.Delta });
+                    song.AddDanceRating(new DanceRating() { DanceId = drd.DanceId, Weight = drd.Delta });
                 }
                 else
                 {
@@ -1119,7 +1125,7 @@ namespace m4d.Context
                 }
             }
 
-            Song song = Songs.Create();
+            Song song = CreateSong(log.SongReference);
             song.Created = log.Time;
             song.Modified = DateTime.Now;
             Songs.Add(song);
@@ -1153,7 +1159,7 @@ namespace m4d.Context
         #endregion
 
         #region Song Lookup
-        public Song FindSong(int id, string signature = null)
+        public Song FindSong(Guid id, string signature = null)
         {
             // First find a match id
             Song song = Songs.FirstOrDefault(s => s.SongId == id);
@@ -1174,7 +1180,7 @@ namespace m4d.Context
             return song;
         }
 
-        public SongDetails FindSongDetails(int id)
+        public SongDetails FindSongDetails(Guid id)
         {
             SongDetails sd = null;
 
@@ -1225,7 +1231,7 @@ namespace m4d.Context
         {
             return Users.FirstOrDefault(u => u.UserName.ToLower() == name.ToLower());
         }
-        public ModifiedRecord CreateMapping(int songId, string name)
+        public ModifiedRecord CreateMapping(Guid songId, string name)
         {
             ModifiedRecord us = Modified.Create();
             us.ApplicationUserId = name;
@@ -1309,10 +1315,9 @@ namespace m4d.Context
             if (!song.ModifiedBy.Any(u => u.ApplicationUserId == user.Id))
             {
                 ModifiedRecord us = Modified.Create();
-                us.Song = song;
                 us.ApplicationUser = user;
                 Modified.Add(us);
-                song.ModifiedBy.Add(us);
+                song.AddModifiedBy(us);
                 return true;
             }
             else

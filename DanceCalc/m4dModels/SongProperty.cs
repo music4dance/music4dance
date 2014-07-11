@@ -20,7 +20,7 @@ namespace m4dModels
         {
         }
 
-        public SongProperty(int songId, string name, string value)
+        public SongProperty(Guid songId, string name, string value)
         {
             SongId = songId;
             Name = name;
@@ -43,7 +43,7 @@ namespace m4dModels
 
             Value = value;
         }
-        public SongProperty(int songId, string baseName, string value = null, int index = -1, string qual = null)
+        public SongProperty(Guid songId, string baseName, string value = null, int index = -1, string qual = null)
         {
             SongId = songId;
 
@@ -67,7 +67,7 @@ namespace m4dModels
 
         #region Properties
         public Int64 Id { get; set; }
-        public int SongId { get; set; }
+        public Guid SongId { get; set; }
         public virtual Song Song { get; set; }
         public string Name { get; set; }
         public string Value { get; set; }
@@ -208,10 +208,11 @@ namespace m4dModels
             return sb.ToString();
         }
 
-        public static void Load(int songId, string props, ICollection<SongProperty> properties)
+        public static void Load(Guid songId, string props, ICollection<SongProperty> properties)
         {
             string[] cells = props.Split(new char[] { '\t' });
-            properties.Add(new SongProperty(songId, Song.CreateCommand, null));
+            SongProperty create = new SongProperty(songId, Song.CreateCommand, null);
+            properties.Add(create);
 
             foreach (string cell in cells)
             {

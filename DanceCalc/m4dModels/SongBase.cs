@@ -50,7 +50,7 @@ namespace m4dModels
         #endregion
 
         #region Properties
-        public int SongId { get; set; }
+        public Guid SongId { get; set; }
 
         [Range(5.0, 500.0)]
         public decimal? Tempo { get; set; }

@@ -108,19 +108,59 @@ namespace m4dModels
         {
             RestoreScalar(sd);
 
+            if (DanceRatings == null)
+            {
+                DanceRatings = new List<DanceRating>();
+            }
             Debug.Assert(DanceRatings.Count == 0);
             foreach (DanceRating dr in sd.DanceRatings)
             {
-                DanceRatings.Add(dr);
+                AddDanceRating(dr);
             }
 
+            if (ModifiedBy == null)
+            {
+                ModifiedBy = new List<ModifiedRecord>();
+            }
             Debug.Assert(ModifiedBy.Count == 0);
             foreach (ModifiedRecord user in sd.ModifiedBy)
             {
-                ModifiedBy.Add(user);
+                AddModifiedBy(user);
             }
         }
-        
+
+        public void AddDanceRating(DanceRating dr)
+        {
+            dr.Song = this;
+            dr.SongId = SongId;
+
+            DanceRating other = DanceRatings.FirstOrDefault(r => r.DanceId == dr.DanceId);
+            if (other == null)
+            {
+                DanceRatings.Add(dr);
+            }
+            else
+            {
+                Trace.WriteLine(string.Format("{0} Duplicate Dance Rating {1}", Title, dr.DanceId));
+            }
+        }
+
+        public void AddModifiedBy(ModifiedRecord mr)
+        {
+            mr.Song = this;
+            mr.SongId = SongId;
+
+            ModifiedRecord other = ModifiedBy.FirstOrDefault(r => r.ApplicationUserId == mr.ApplicationUserId);
+            if (other == null)
+            {
+                ModifiedBy.Add(mr);
+            }
+            else
+            {
+                Trace.WriteLine(string.Format("{0} Duplicate User Rating {1}", Title, mr.ApplicationUserId));
+            }
+        }
+
         public bool UpdateTitleHash()
         {
             bool ret = false;
@@ -153,12 +193,39 @@ namespace m4dModels
             }
             else
             {
-                return SongProperty.Serialize(SongProperties, actions);
+                return string.Format("SongId={0}\t{1}",SongId.ToString("B"),SongProperty.Serialize(SongProperties, actions));
             }
         }
 
         public void Load(string s, IUserMap users)
         {
+            const string idField = "SongId=";
+            bool hasGuid = false;
+            if (s.StartsWith("SongId"))
+            {
+                int t = s.IndexOf('\t');
+                if (t != -1)
+                {
+                    string sg = s.Substring(idField.Length, t - idField.Length);
+                    s = s.Substring(t+1);
+                    Guid g = Guid.Empty;
+                    if (Guid.TryParse(sg, out g))
+                    {
+                        hasGuid = true;
+                        SongId = g;
+                    }
+                }
+            }
+
+            if (!hasGuid)
+            {
+                SongId = Guid.NewGuid();
+            }
+
+            if (SongProperties == null)
+            {
+                SongProperties = new List<SongProperty>();
+            }
             SongProperty.Load(SongId, s, SongProperties);
             SongDetails sd = new SongDetails(SongId, SongProperties, users);
 

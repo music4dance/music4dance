@@ -134,10 +134,6 @@
                 </th>
                 <th>Dances</th>
                 <th style="min-width:150px" class="hidden-xs">Purchase</th>
-                @if (showDiag)
-                {
-                    <th>SongId</th>
-                }
             </tr>
         </thead>
         <tbody>
@@ -209,12 +205,6 @@
                                 <button id="@aid" type="button"><img src="@Url.Content("~/Content/amazon-logo.png")" alt="Availiable at Amazon" width="20" height="20" /></button>
                             }
                         </td>
-                        @if (showDiag)
-                        {
-                            <td>
-                                @Html.DisplayFor(m => item.SongId)
-                            </td>
-                        }
                     </tr>
                 }
             }
