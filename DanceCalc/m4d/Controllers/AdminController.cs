@@ -703,49 +703,54 @@ namespace m4d.Controllers
                     Song song = dmc.Songs.Create();
                     song.Created = time;
                     song.Modified = time;
-                    dmc.Songs.Add(song);
-
-                    // TODO: There has to be a way to get EF to create proxies without doing a round
-                    //   trip to the database, right?
-                    //dmc.SaveChanges();
 
                     song.Load(line, dmc);
 
-                    dmc.UpdateUsers(song);
-
-                    c += 1;
-                    if (c % 100 == 0)
+                    if (dmc.FindSong(song.SongId) == null)
                     {
-                        Trace.WriteLine(string.Format("{0} songs loaded", c));
-                    }
+                        dmc.Songs.Add(song);
+                        dmc.UpdateUsers(song);
 
-                    if (song.Length.HasValue && song.Length.Value > 1000)
-                    {
-                        Trace.WriteLine(string.Format("Long Song: {0} '{1}'",song.Length,song.Title));
+                        c += 1;
+                        if (c % 100 == 0)
+                        {
+                            Trace.WriteLine(string.Format("{0} songs loaded", c));
+                        }
+
+                        if (TraceLevels.General.TraceInfo)
+                        {
+                            if (song.Length.HasValue && song.Length.Value > 1000)
+                            {
+                                Trace.WriteLine(string.Format("Long Song: {0} '{1}'", song.Length, song.Title));
+                            }
+                        }
                     }
                 }
 
-                HashSet<string> map = new HashSet<string>();
-
-                c = 0;
-                foreach (Song song in dmc.Songs)
+                if (TraceLevels.General.TraceVerbose)
                 {
-                    if (song.ModifiedBy != null)
+                    HashSet<string> map = new HashSet<string>();
+
+                    c = 0;
+                    foreach (Song song in dmc.Songs)
                     {
-                        foreach (ModifiedRecord us in song.ModifiedBy)
+                        if (song.ModifiedBy != null)
                         {
-                            string s = string.Format("{0}:{1}", song.SongId, us.ApplicationUserId);
-                            if (map.Contains(s))
+                            foreach (ModifiedRecord us in song.ModifiedBy)
                             {
-                                Trace.WriteLine(string.Format("Duplicate: '{0}'", s));
-                            }
-                            else
-                            {
-                                map.Add(s);
-                                c += 1;
-                                if (c % 100 == 0)
+                                string s = string.Format("{0}:{1}", song.SongId, us.ApplicationUserId);
+                                if (map.Contains(s))
                                 {
-                                    Trace.WriteLine(string.Format("{0} modified records loaded",c));
+                                    Trace.WriteLine(string.Format("Duplicate: '{0}'", s));
+                                }
+                                else
+                                {
+                                    map.Add(s);
+                                    c += 1;
+                                    if (c % 100 == 0)
+                                    {
+                                        Trace.WriteLine(string.Format("{0} modified records loaded", c));
+                                    }
                                 }
                             }
                         }

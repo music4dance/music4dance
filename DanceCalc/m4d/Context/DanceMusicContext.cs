@@ -1167,14 +1167,14 @@ namespace m4d.Context
             // TODO: Think about signature mis-matches, we can't do the straighforward fail on mis-match because
             //  we're using this for edit and it's perfectly reasonable to edit parts of the sig...
             // || !(string.IsNullOrWhiteSpace(signature) || song.IsNull || MatchSigatures(signature,song.Signature))
-            if (song == null)
+            if (song == null && signature != null)
             {
                 song = FindSongBySignature(signature);
             }
 
             if (song == null)
             {
-                Trace.WriteLine(string.Format("Couldn't find song by Id: {0} or signature {1}", song.SongId, song.Signature));
+                Trace.WriteLineIf(TraceLevels.,string.Format("Couldn't find song by Id: {0} or signature {1}", id, signature));
             }
 
             return song;
