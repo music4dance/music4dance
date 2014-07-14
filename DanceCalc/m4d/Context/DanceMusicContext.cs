@@ -1174,7 +1174,7 @@ namespace m4d.Context
 
             if (song == null)
             {
-                Trace.WriteLineIf(TraceLevels.,string.Format("Couldn't find song by Id: {0} or signature {1}", id, signature));
+                Trace.WriteLineIf(TraceLevels.General.TraceVerbose,string.Format("Couldn't find song by Id: {0} or signature {1}", id, signature));
             }
 
             return song;

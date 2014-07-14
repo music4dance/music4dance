@@ -62,6 +62,8 @@ namespace m4dModels
         public string Purchase { get; set; }
         public DateTime Created { get; set; }
         public DateTime Modified { get; set; }
+        public virtual string Album { get; set; }
+
         public virtual ICollection<DanceRating> DanceRatings { get; set; }
         public virtual ICollection<ModifiedRecord> ModifiedBy { get; set; }
         public virtual ICollection<SongProperty> SongProperties { get; set; }
@@ -87,19 +89,62 @@ namespace m4dModels
         }
         #endregion
 
+        #region Comparison
+        //  Two song are equivalent if Titles are equal, artists are similar or empty and all other fields are equal
+        public bool Equivalent(Song song)
+        {
+            // No-similar titles != equivalent
+            if (CreateTitleHash(Title) != CreateTitleHash(song.Title))
+            {
+                return false;
+            }
+
+            if (!string.IsNullOrWhiteSpace(Artist) && !string.IsNullOrWhiteSpace(song.Artist) &&
+                (CreateTitleHash(Artist) != CreateTitleHash(song.Artist)))
+            {
+                return false;
+            }
+
+            return EqString(Album, song.Album) &&
+                EqString(Genre, song.Genre) &&
+                EqNum(Tempo, song.Tempo) &&
+                EqNum(Length, song.Length);
+        }
+
+
+        // Same as equivalent (above) except that album, Tempo and Length aren't compared.
+        public bool WeakEquivalent(Song song)
+        {
+            // No-similar titles != equivalent
+            if (CreateTitleHash(Title) != CreateTitleHash(song.Title))
+            {
+                return false;
+            }
+
+            if (!string.IsNullOrWhiteSpace(Artist) && !string.IsNullOrWhiteSpace(song.Artist) &&
+                (CreateTitleHash(Artist) != CreateTitleHash(song.Artist)))
+            {
+                return false;
+            }
+
+            return EqNum(Tempo, song.Tempo) && EqNum(Length, song.Length);
+        }
+
+        #endregion
+
         #region TitleArtist
         public bool TitleArtistMatch(string title, string artist)
         {
             return
-                string.Equals(Song.CreateNormalForm(title), Song.CreateNormalForm(Title)) &&
-                string.Equals(Song.CreateNormalForm(artist), Song.CreateNormalForm(Artist));
+                string.Equals(CreateNormalForm(title), CreateNormalForm(Title)) &&
+                string.Equals(CreateNormalForm(artist), CreateNormalForm(Artist));
         }
 
         public string TitleArtistString
         {
             get
             {
-                return Song.CreateNormalForm(Title) + "+" + Song.CreateNormalForm(Artist);
+                return CreateNormalForm(Title) + "+" + CreateNormalForm(Artist);
             }
         }
         public string CleanTitle

@@ -11,56 +11,12 @@ namespace m4dModels
     {
 
         #region Properties
-        public string Album { get; set; }
         public int TitleHash { get; set; }
 
         // These are helper properties (they don't map to database columns
 
         public SongLog CreateEntry { get; set; }
 
-        #endregion
-
-        #region Comparison
-        //  Two song are equivalent if Titles are equal, artists are similar or empty and all other fields are equal
-        public bool Equivalent(Song song)
-        {
-            // No-similar titles != equivalent
-            if (Song.CreateTitleHash(Title) != Song.CreateTitleHash(song.Title))
-            {
-                return false;
-            }
-
-            if (!string.IsNullOrWhiteSpace(Artist) && !string.IsNullOrWhiteSpace(song.Artist) &&
-                (Song.CreateTitleHash(Artist) != Song.CreateTitleHash(song.Artist)))
-            {
-                return false;
-            }
-
-            return EqString(Album, song.Album) &&
-                EqString(Genre, song.Genre) &&
-                EqNum(Tempo, song.Tempo) &&
-                EqNum(Length, song.Length);
-        }
-
-
-        // Same as equivalent (above) except that album, Tempo and Length aren't compared.
-        public bool WeakEquivalent(Song song)
-        {
-            // No-similar titles != equivalent
-            if (Song.CreateTitleHash(Title) != Song.CreateTitleHash(song.Title))
-            {
-                return false;
-            }
-
-            if (!string.IsNullOrWhiteSpace(Artist) && !string.IsNullOrWhiteSpace(song.Artist) &&
-                (Song.CreateTitleHash(Artist) != Song.CreateTitleHash(song.Artist)))
-            {
-                return false;
-            }
-
-            return EqNum(Tempo, song.Tempo) && EqNum(Length, song.Length);
-        }
-        
         #endregion
 
         #region Actions

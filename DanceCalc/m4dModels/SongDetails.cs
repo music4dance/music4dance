@@ -255,6 +255,25 @@ namespace m4dModels
         #endregion
 
         #region Properties
+
+        public override string Album
+        {
+            get
+            {
+                if (Albums != null && Albums.Count > 0)
+                {
+                    return Albums[0].Name;
+                }
+                else
+                {
+                    return null;
+                }
+            }
+            set
+            {
+                throw new NotImplementedException("Album shouldn't be set directly in SongDetails");
+            }
+        }
         public override ICollection<DanceRating> DanceRatings 
         { 
             get
