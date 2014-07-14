@@ -33,9 +33,16 @@
 {
     <hr />
     <div class="row">
-        <div id="songLog" class="col-md-12```">
+        <div id="songLog" class="col-md-12">
             <br />
             @Html.Partial("SongItems", Model.Properties.OrderBy(sp => sp.Id))
+        </div>
+    </div>
+
+    <hr />
+    <div class="row">
+        <div id="songDump" class="col-md-12">
+            <code style="white-space:pre">@Model.ToString()</code>
         </div>
     </div>
 }

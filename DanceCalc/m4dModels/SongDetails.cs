@@ -122,17 +122,6 @@ namespace m4dModels
         /// </summary>
         /// <param name="actions">Actions to include in the serialization</param>
         /// <returns></returns>
-        public string Serialize(string[] actions)
-        {
-            if (string.IsNullOrWhiteSpace(Title))
-            {
-                return null;
-            }
-            else
-            {
-                return SongProperty.Serialize(Properties, actions);
-            }
-        }
 
         public static SongDetails CreateFromRow(IList<string> fields, string row)
         {

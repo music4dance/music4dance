@@ -49,6 +49,30 @@ namespace m4dModels
         public const string MessageData = ".Message";
         #endregion
 
+        #region Serialization
+        /// <summary>
+        /// Serialize the song to a single string
+        /// </summary>
+        /// <param name="actions">Actions to include in the serialization</param>
+        /// <returns></returns>
+        public string Serialize(string[] actions)
+        {
+            if (string.IsNullOrWhiteSpace(Title))
+            {
+                return null;
+            }
+            else
+            {
+                return SongProperty.Serialize(SongProperties, actions);
+            }
+        }
+        public override string ToString()
+        {
+            return Serialize(null);
+        }
+
+        #endregion
+
         #region Properties
         public Guid SongId { get; set; }
 

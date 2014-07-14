@@ -131,27 +131,6 @@ namespace m4dModels
         #endregion
 
         #region Serialization
-        public override string ToString()
-        {
-            return Serialize(null);
-        }
-
-        /// <summary>
-        /// Serialize the song to a single string
-        /// </summary>
-        /// <param name="actions">Actions to include in the serialization</param>
-        /// <returns></returns>
-        public string Serialize(string[] actions)
-        {
-            if (string.IsNullOrWhiteSpace(Title))
-            {
-                return null;
-            }
-            else
-            {
-                return string.Format("SongId={0}\t{1}",SongId.ToString("B"),SongProperty.Serialize(SongProperties, actions));
-            }
-        }
 
         public void Load(string s, IUserMap users)
         {
