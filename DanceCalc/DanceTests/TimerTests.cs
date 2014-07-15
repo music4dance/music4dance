@@ -25,7 +25,7 @@ namespace DanceTests
             return st;
         }
 
-        [TestMethod]
+        //[TestMethod]
         public void Timer()
         {
             SongTimer st = PrimeTimer();

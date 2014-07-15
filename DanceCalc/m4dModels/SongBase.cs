@@ -63,7 +63,7 @@ namespace m4dModels
             }
             else
             {
-                return SongProperty.Serialize(SongProperties, actions);
+                return string.Format("SongId={0}\t{1}",SongId.ToString("B"),SongProperty.Serialize(SongProperties, actions));
             }
         }
         public override string ToString()

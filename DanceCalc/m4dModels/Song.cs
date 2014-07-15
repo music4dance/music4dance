@@ -134,35 +134,7 @@ namespace m4dModels
 
         public void Load(string s, IUserMap users)
         {
-            const string idField = "SongId=";
-            bool hasGuid = false;
-            if (s.StartsWith("SongId"))
-            {
-                int t = s.IndexOf('\t');
-                if (t != -1)
-                {
-                    string sg = s.Substring(idField.Length, t - idField.Length);
-                    s = s.Substring(t+1);
-                    Guid g = Guid.Empty;
-                    if (Guid.TryParse(sg, out g))
-                    {
-                        hasGuid = true;
-                        SongId = g;
-                    }
-                }
-            }
-
-            if (!hasGuid)
-            {
-                SongId = Guid.NewGuid();
-            }
-
-            if (SongProperties == null)
-            {
-                SongProperties = new List<SongProperty>();
-            }
-            SongProperty.Load(SongId, s, SongProperties);
-            SongDetails sd = new SongDetails(SongId, SongProperties, users);
+            SongDetails sd = new SongDetails(s, users);
 
             Restore(sd);
         }

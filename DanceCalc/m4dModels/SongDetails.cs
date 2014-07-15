@@ -46,6 +46,43 @@ namespace m4dModels
         //  the disconnected object but should revisit and cleanup soon
         public SongDetails(Guid songId, ICollection<SongProperty> properties, IUserMap users = null)
         {
+            Load(songId, properties, users);
+        }
+
+        public SongDetails(string s, IUserMap users)
+        {
+            const string idField = "SongId=";
+            SongId = Guid.Empty;
+            if (s.StartsWith("SongId"))
+            {
+                int t = s.IndexOf('\t');
+                if (t != -1)
+                {
+                    string sg = s.Substring(idField.Length, t - idField.Length);
+                    s = s.Substring(t + 1);
+                    Guid g = Guid.Empty;
+                    if (Guid.TryParse(sg, out g))
+                    {
+                        SongId = g;
+                    }
+                }
+            }
+
+            if (SongId.Equals(Guid.Empty))
+            {
+                SongId = Guid.NewGuid();
+            }
+
+            if (SongProperties == null)
+            {
+                Properties = new List<SongProperty>();
+            }
+            SongProperty.Load(SongId, s, SongProperties);
+            Load(SongId, SongProperties, users);
+        }
+
+        private void Load(Guid songId, ICollection<SongProperty> properties, IUserMap users = null)
+        {
             SongId = songId;
             bool created = false;
 
@@ -62,7 +99,7 @@ namespace m4dModels
                             {
                                 ModifiedList = new List<ModifiedRecord>();
                             }
-                            if (!ModifiedList.Any(u => u.ApplicationUserId == prop.Value ))
+                            if (!ModifiedList.Any(u => u.ApplicationUserId == prop.Value))
                             {
                                 ModifiedRecord us = null;
                                 // TODO:  See note above
@@ -114,6 +151,7 @@ namespace m4dModels
 
             Albums = BuildAlbumInfo(properties);
         }
+
         #endregion
 
         #region Serialization
