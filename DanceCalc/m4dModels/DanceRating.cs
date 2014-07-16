@@ -32,21 +32,33 @@ namespace m4dModels
         {
             List<DanceRatingDelta> drds = new List<DanceRatingDelta>();
 
-            string list = null;
-            if (DanceRating.DanceMap.TryGetValue(SongDetails.CleanDanceName(dances), out list))
-            {
-                string[] ids = list.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
-                foreach (var id in ids)
-                {
-                    drds.Add(new DanceRatingDelta { DanceId = id, Delta = 1 });
-                }
-                
-            }
-            else
-            {
-                Trace.WriteLine(string.Format("Unknown Dance(s): {0}", dances));
-            }
+            string[] dl = dances.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
 
+            foreach (string ds in dl)
+            {
+                string list = null;
+                string[] ids = null;
+                if (DanceRating.DanceMap.TryGetValue(SongDetails.CleanDanceName(dances), out list))
+                {
+                    ids = list.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+                }
+                else if (Dances.Instance.DanceDictionary.ContainsKey(ds))
+                {
+                    ids = new string[] {ds};
+                }
+
+                if (ids != null)
+                {
+                    foreach (var id in ids)
+                    {
+                        drds.Add(new DanceRatingDelta { DanceId = id, Delta = delta });
+                    }
+                }
+                else
+                {
+                    Trace.WriteLine(string.Format("Unknown Dance(s): {0}", dances));
+                }
+            }
             return drds;
         }
 

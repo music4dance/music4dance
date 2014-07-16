@@ -84,6 +84,7 @@ namespace m4dModels
         private void Load(Guid songId, ICollection<SongProperty> properties, IUserMap users = null)
         {
             SongId = songId;
+            Properties = new List<SongProperty>(properties);
             bool created = false;
 
             foreach (SongProperty prop in properties)
@@ -161,13 +162,13 @@ namespace m4dModels
         /// <param name="actions">Actions to include in the serialization</param>
         /// <returns></returns>
 
-        public static SongDetails CreateFromRow(IList<string> fields, string row)
-        {
-            string[] cells = row.Split(new char[] { '\t' });
+        //public static SongDetails CreateFromRow(IList<string> fields, string row)
+        //{
+        //    string[] cells = row.Split(new char[] { '\t' });
 
-            return CreateFromRow(fields, new List<string>(cells));
-        }
-        public static SongDetails CreateFromRow(IList<string> fields, IList<string> cells)
+        //    return CreateFromRow(fields, new List<string>(cells));
+        //}
+        public static SongDetails CreateFromRow(IList<string> fields, IList<string> cells, int weight=1)
         {
             List<SongProperty> properties = new List<SongProperty>();
             for (int i = 0; i < cells.Count; i++)
@@ -189,7 +190,7 @@ namespace m4dModels
                             //  decides is appropriate, just need this property to be appropriately
                             //  parsable as a DRD.
                             {
-                                IEnumerable<DanceRatingDelta> ratings = DanceRating.BuildDeltas(cell, 1);
+                                IEnumerable<DanceRatingDelta> ratings = DanceRating.BuildDeltas(cell, weight);
                                 foreach (var rating in ratings)
                                 {
                                     SongProperty prop = new SongProperty(Guid.Empty, baseName, rating.ToString());
@@ -278,6 +279,42 @@ namespace m4dModels
             {"PUBLISHER", PublisherField},
             {"AMAZONTRACK", SongProperty.FormatName(PurchaseField,null,"AS")}
         };
+
+        public static IList<SongDetails> CreateFromRows(string separator, IList<string> headers, IEnumerable<string> rows, int weight)
+        {
+            Dictionary<string, SongDetails> songs = new Dictionary<string, SongDetails>();
+
+            foreach (string line in rows)
+            {
+                List<string> cells = new List<string>(Regex.Split(line, separator));
+
+                // Concat back the last field (which seems a typical pattern)
+                while (cells.Count > headers.Count)
+                {
+                    cells[headers.Count - 1] = string.Format("{0}{1}{2}",cells[headers.Count - 1],separator,(cells[headers.Count]));
+                    cells.RemoveAt(headers.Count);
+                }
+
+                if (cells.Count == headers.Count)
+                {
+                    SongDetails sd = SongDetails.CreateFromRow(headers, cells, weight);
+                    if (sd != null)
+                    {
+                        string ta = sd.TitleArtistString;
+                        if (string.Equals(sd.Title,sd.Artist))
+                        {
+                            Trace.WriteLine(string.Format("Title and Artist are the same ({0})",sd.Title));
+                        }
+                        if (!songs.ContainsKey(ta))
+                        {
+                            songs.Add(ta,sd);
+                        }
+                    }
+                }
+            }
+
+            return new List<SongDetails>(songs.Values);
+        }
 
         #endregion
 
@@ -672,6 +709,7 @@ namespace m4dModels
         
         #endregion
 
+        #region DanceRating
         /// <summary>
         /// Update the dance rating table based on the encoded
         ///   property value 
@@ -705,12 +743,13 @@ namespace m4dModels
         {
             foreach (string d in dances)
             {
-                DanceRatingDelta drd = new DanceRatingDelta {DanceId=d, Delta=weight};
+                DanceRatingDelta drd = new DanceRatingDelta { DanceId = d, Delta = weight };
                 UpdateDanceRating(drd);
                 SongProperty prop = new SongProperty { SongId = this.SongId, Name = DanceRatingField, Value = drd.ToString() };
                 Properties.Add(prop);
             }
         }
+        #endregion
 
         /// <summary>
         /// Finds a representitive of the largest cluster of tracks 

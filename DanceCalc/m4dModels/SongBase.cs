@@ -43,6 +43,7 @@ namespace m4dModels
         public const string UndoCommand = ".Undo";
         public const string RedoCommand = ".Redo";
         public const string FailedLookup = ".FailedLookup"; // 0: Not found on Title/Artist; 1: Not found on Title/Artist/Album
+        public const string NoSongId = ".NoSongId"; // Pseudo action for serialization
 
         public const string SuccessResult = ".Success";
         public const string FailResult = ".Fail";
@@ -63,7 +64,15 @@ namespace m4dModels
             }
             else
             {
-                return string.Format("SongId={0}\t{1}",SongId.ToString("B"),SongProperty.Serialize(SongProperties, actions));
+                string props = SongProperty.Serialize(SongProperties, actions);
+                if (actions != null && actions.Contains(NoSongId))
+                {
+                    return props;
+                }
+                else
+                {
+                    return string.Format("SongId={0}\t{1}",SongId.ToString("B"),props);
+                }
             }
         }
         public override string ToString()

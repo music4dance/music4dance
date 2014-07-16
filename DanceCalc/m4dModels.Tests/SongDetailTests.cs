@@ -75,6 +75,21 @@ namespace m4dModels.Tests
             }
         }
 
+        [TestMethod]
+        public void LoadingRowDetails()
+        {
+            var songs = LoadRows();
+            Assert.AreEqual(s_rows.Length, songs.Count);
+
+            for (int i = 0; i < s_rowProps.Length; i++ )
+            {
+                //Trace.WriteLine(song.Serialize(new string[] {SongBase.NoSongId}));
+                var song = songs[i];
+                Assert.AreEqual(s_rowProps[i], song.Serialize(new string[] { SongBase.NoSongId }));
+            }
+        }
+                    
+
         static IList<SongDetails> Load()
         {
             List<SongDetails> songs = new List<SongDetails>();
@@ -86,6 +101,13 @@ namespace m4dModels.Tests
             return songs;
         }
 
+        static IList<SongDetails> LoadRows()
+        {
+            IList<string> headers = SongDetails.BuildHeaderMap(s_header);
+            IList<SongDetails> ret = SongDetails.CreateFromRows("\t",headers,s_rows,5);
+            return ret;
+        }
+
         static string[] s_data =
         {
             @"SongId={ea55fcea-35f5-4d0d-81b5-a5264395945d}	Purchase:1:IA=554530	User=batch	Time=5/21/2014 9:15:26 PM	Length=155	Purchase:1:AS=D:B000W0CTAW	Purchase:1:AA=D:B000W0B00W	Purchase:1:IS=554314	Genre=Jazz	Length=156	Time=5/21/2014 7:16:49 PM	User=batch	PromoteAlbum:1=	Purchase:1:XS=music.B76B0F00-0100-11DB-89CA-0019B92A3933	Track:1=5	Album:1=Sings Great American Songwriters	Genre=Pop	Length=155	Time=5/21/2014 2:04:51 PM	User=batch	DanceRating=FXT+5	Album:0=The Ultimate Ballroom Album 12	Tempo=116.0	Artist=Carmen McRae	Title=Blue Moon	Time=3/17/2014 5:43:50 PM	User=SalsaSwingBallroom",
@@ -93,6 +115,35 @@ namespace m4dModels.Tests
             @"SongId={0b1e4225-d782-41d1-9f16-b105e7bd0efa}	User=breanna	Time=6/10/2014 3:11:03 PM	Title=Lady Marmalade	Artist=Christina Aguilera	DanceRating=CHA+5	User=batch	Time=6/10/2014 3:26:26 PM	Length=264	Genre=Pop	Album:00=Moulin Rouge	Track:00=2	Purchase:00:XS=music.9F480F00-0100-11DB-89CA-0019B92A3933	PromoteAlbum:00=",
             @"SongId={52cb6e8c-6f0f-469e-ac83-d353cbab6c96}	User=breanna	Time=6/9/2014 8:54:43 PM	Title=Lady Marmalade	Artist=Christina Aguilera, Mya, Pink,  & Lil Kim	DanceRating=HST+5	User=batch	Time=7/4/2014 9:54:35 PM	Artist=Christina Aguilera	Length=264	Genre=Pop	Album:00=Moulin Rouge	Track:00=2	Purchase:00:XS=music.9F480F00-0100-11DB-89CA-0019B92A3933	PromoteAlbum:00=	User=batch	Time=7/4/2014 9:55:04 PM	Length=265	Album:00=Moulin Rouge (Soundtrack from the Motion Picture)	Purchase:00:IS=3577756	Purchase:00:IA=3579609	User=batch	Time=7/4/2014 9:55:49 PM	Album:01=Music From Nicole Kidman Movies	Track:01=3	Purchase:01:AS=D:B004XOHIH2	Purchase:01:AA=D:B004XOHHXM	PromoteAlbum:01=",
         };
+
+        static string s_header = @"Title	Artist	BPM	Dance";
+        static string[] s_rows =
+        {
+            @"Black Sheep	Gin Wigmore	30	WCS",
+            @"The L Train	Gabriel Yared	26	SWZ",
+            @"Come Wake Me Up	Rascal Flatts	51	VWZ",
+            @"Inflitrado	Bajofondo	30	TNG",
+            @"Des Croissants de Soleil	Emilie-Claire Barlow	24	RMBI,BOL",
+            @"Private Eyes	Brazilian Love Affair	31	RMBA",
+            @"Glam	Dimie Cat	50	QST",
+            @"All For You	Imelda May	30	SFT",
+            @"Hold Me	Jamie Grace	34	ECS",
+            @"Drive My Car	Willy Chirino	32	CHA"
+        };
+
+        static string[] s_rowProps =
+        {
+            @"Title=Black Sheep	Artist=Gin Wigmore	Tempo=30.0	DanceRating=WCS+5",
+            @"Title=The L Train	Artist=Gabriel Yared	Tempo=26.0	DanceRating=SWZ+5",
+            @"Title=Come Wake Me Up	Artist=Rascal Flatts	Tempo=51.0	DanceRating=VWZ+5",
+            @"Title=Inflitrado	Artist=Bajofondo	Tempo=30.0	DanceRating=TNG+5",
+            @"Title=Des Croissants de Soleil	Artist=Emilie-Claire Barlow	Tempo=24.0	DanceRating=RMBI+5	DanceRating=BOL+5",
+            @"Title=Private Eyes	Artist=Brazilian Love Affair	Tempo=31.0	DanceRating=RMBA+5",
+            @"Title=Glam	Artist=Dimie Cat	Tempo=50.0	DanceRating=QST+5",
+            @"Title=All For You	Artist=Imelda May	Tempo=30.0	DanceRating=SFT+5",
+            @"Title=Hold Me	Artist=Jamie Grace	Tempo=34.0	DanceRating=ECS+5",
+            @"Title=Drive My Car	Artist=Willy Chirino	Tempo=32.0	DanceRating=CHA+5",
+    };
 
         //static MockUserMap s_users = new MockUserMap();
     };

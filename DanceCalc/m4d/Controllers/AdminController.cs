@@ -1111,40 +1111,9 @@ namespace m4d.Controllers
 
         private IList<SongDetails> SongsFromList(string separator, IList<string> headers, string songText)
         {
-            Dictionary<string, SongDetails> songs = new Dictionary<string, SongDetails>();
-
             string[] lines = songText.Split(System.Environment.NewLine.ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
 
-            foreach (string line in lines)
-            {
-                List<string> cells = new List<string>(Regex.Split(line, separator));
-
-                // Concat back the last field (which seems a typical pattern)
-                while (cells.Count > headers.Count)
-                {
-                    cells[headers.Count - 1] = string.Format("{0}{1}{2}",cells[headers.Count - 1],separator,(cells[headers.Count]));
-                    cells.RemoveAt(headers.Count);
-                }
-
-                if (cells.Count == headers.Count)
-                {
-                    SongDetails sd = SongDetails.CreateFromRow(headers, cells);
-                    if (sd != null)
-                    {
-                        string ta = sd.TitleArtistString;
-                        if (string.Equals(sd.Title,sd.Artist))
-                        {
-                            Trace.WriteLine(string.Format("Title and Artist are the same ({0})",sd.Title));
-                        }
-                        if (!songs.ContainsKey(ta))
-                        {
-                            songs.Add(ta,sd);
-                        }
-                    }
-                }
-            }
-
-            return new List<SongDetails>(songs.Values);
+            return SongDetails.CreateFromRows(separator, headers, lines, DanceMusicContext.DanceRatingAutoCreate);
         }
 
         private IList<SongDetails> SongsFromFile(List<string> lines)
@@ -1152,16 +1121,8 @@ namespace m4d.Controllers
             List<SongDetails> songs = new List<SongDetails>();
 
             List<string> map = SongDetails.BuildHeaderMap(lines[0]);
-            for (int i = 1; i < lines.Count; i++)
-            {
-                SongDetails song = SongDetails.CreateFromRow(map, lines[i]);
-                if (song != null)
-                {
-                    songs.Add(song);
-                }
-            }
-
-            return songs;
+            lines.RemoveAt(0);
+            return SongDetails.CreateFromRows("\t", map, lines, DanceMusicContext.DanceRatingAutoCreate);
         }
         private enum MatchMethod {None, Tempo, Merge};
 
