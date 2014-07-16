@@ -32,7 +32,10 @@
                         <li>@Html.ActionLink("Admin", "Index", "Admin")</li>
                     }
                 </ul>
-                @*@Html.Partial("_LoginPartial")*@
+                @if (User.Identity != null)
+                {
+                    @Html.Partial("_LoginPartial")
+                }
             </div>
         </div>
     </div>
