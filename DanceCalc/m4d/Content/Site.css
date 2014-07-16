@@ -123,3 +123,15 @@ table.songlist
   line-height: 1.33;
   border-radius: 6px;
 }
+
+.navbar-logo {
+  float: left;
+  height: 50px;
+  padding: 15px, 0px;
+  font-size: 18px;
+  line-height: 20px;
+}
+
+.banner {
+    max-width:90%;
+}

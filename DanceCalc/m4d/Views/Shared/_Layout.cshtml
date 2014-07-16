@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@ViewBag.Title - Music4Dance.Net</title>
+    <title>@ViewBag.Title - Music4Dance: Shall we dance...to music?</title>
     <link rel="shortcut icon" href="~/Content/favicon.ico" />
     @Styles.Render("~/Content/css")
     @Scripts.Render("~/bundles/modernizr")
@@ -18,7 +18,9 @@
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                 </button>
-                @Html.ActionLink("Music4Dance", "Index", "Home", null, new { @class = "navbar-brand" })
+                <a href="/" class="navbar-logo">
+                    <img src="~/Content/header-logo.png" title="music4dance" />
+                </a>
             </div>
             <div class="navbar-collapse collapse">
                 <ul class="nav navbar-nav">
