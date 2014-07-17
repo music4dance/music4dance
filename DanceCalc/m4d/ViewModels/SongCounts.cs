@@ -2,6 +2,7 @@
 using m4d.Context;
 using m4d.Utilities;
 using m4dModels;
+using System;
 using System.Collections.Generic;
 using System.Data.Entity;
 using System.Diagnostics;
@@ -14,6 +15,7 @@ namespace m4d.ViewModels
         public string DanceName { get; set; }
         public string DanceId { get; set; }
         public int SongCount { get; set; }
+        public int MaxWeight { get; set; }
         public string DanceNameAndCount
         {
             get { return string.Format("{0} ({1})", DanceName, SongCount); }
@@ -68,7 +70,8 @@ namespace m4d.ViewModels
             return flat;
         }
 
-        static private IList<SongCounts> s_counts = new List<SongCounts>();
+        static private List<SongCounts> s_counts = new List<SongCounts>();
+        static private Dictionary<string, SongCounts> s_map = new Dictionary<string, SongCounts>();
 
         static public IList<SongCounts> GetSongCounts(DanceMusicContext dmc)
         {
@@ -83,16 +86,9 @@ namespace m4d.ViewModels
                     // First handle dancegroups and types under dancegroups
                     foreach (DanceGroup dg in Dances.Instance.AllDanceGroups)
                     {
-                        Dance d = dmc.Dances.FirstOrDefault(t => t.Id == dg.Id);
-
                         // All groups except other have a valid 'root' node...
-                        var scGroup = new SongCounts()
-                        {
-                            DanceId = dg.Id,
-                            DanceName = dg.Name,
-                            SongCount = CountFromDance(d),
-                            Children = new List<SongCounts>()
-                        };
+                        var scGroup = InfoFromDance(dmc.Dances,dg);
+                        scGroup.Children = new List<SongCounts>();
 
                         s_counts.Add(scGroup);
 
@@ -122,57 +118,84 @@ namespace m4d.ViewModels
             return s_counts;
         }
 
+
+        static public IDictionary<string,SongCounts> GetDanceMap(DanceMusicContext dmc)
+        {
+            lock (s_map)
+            {
+                if (s_map.Count == 0)
+                {
+                    IList<SongCounts> list = GetFlatSongCounts(dmc);
+
+                    foreach (SongCounts sc in list)
+                    {
+                        s_map.Add(sc.DanceId, sc);
+                    }
+                }
+            }
+
+            return s_map;
+        }
+
+        static public int GetScaledRating(IDictionary<string,SongCounts> map, string danceId, int weight, int scale = 5)
+        {
+            float max = map[danceId].MaxWeight;
+            return (int)(Math.Ceiling((float)(weight * scale) / max));
+        }
+        static public string GetRatingBadge(IDictionary<string, SongCounts> map, string danceId, int weight)
+        {
+            int scaled = GetScaledRating(map, danceId, weight, 5);
+
+            return "/Content/thermometer-" + scaled.ToString() + ".png";
+        }
         static private void HandleType(DanceType dtyp, DbSet<Dance> dances, SongCounts scGroup)
         {
             Dance d = dances.FirstOrDefault(t => t.Id == dtyp.Id);
 
-            var scType = new SongCounts()
-            {
-                DanceId = dtyp.Id,
-                DanceName = dtyp.Name,
-                SongCount = CountFromDance(d),
-                Children = null
-            };
+            var scType = InfoFromDance(dances,dtyp);
 
             scGroup.Children.Add(scType);
 
             foreach (DanceObject dinst in dtyp.Instances)
             {
-                d = dances.FirstOrDefault(t => t.Id == dinst.Id);
                 Trace.WriteLineIf(d == null, string.Format("Invalid Dance Instance: {0}",dinst.Name));
-                int count = CountFromDance(d);
+                var scInstance = InfoFromDance(dances, dinst);
 
-                if (count > 0)
+                if (scInstance.SongCount > 0)
                 {
-                    var scInstance = new SongCounts()
-                    {
-                        DanceId = dinst.Id,
-                        DanceName = dinst.Name,
-                        SongCount = count
-                    };
-
                     if (scType.Children == null)
                         scType.Children = new List<SongCounts>();
 
                     scType.Children.Add(scInstance);
-                    scType.SongCount += count;
+                    scType.SongCount += scInstance.SongCount;
                 }
             }
 
             scGroup.SongCount += scType.SongCount;
         }
 
-        static private int CountFromDance(Dance dance)
+        static private SongCounts InfoFromDance(DbSet<Dance> dances, DanceObject d)
         {
-            if (dance == null)
+            if (d == null)
             {
-                return 0;
+                throw new ArgumentNullException("dance");
             }
-            else
+
+            Dance dance = dances.FirstOrDefault(t => t.Id == d.Id);
+            var ratings = from dr in dance.DanceRatings where !dr.Song.IsNull && dr.Song.Purchase != null select dr;
+            int count = ratings.Count();
+            int max = count > 0 ? ratings.Max(s => s.Weight) : 0;
+
+            var sc = new SongCounts()
             {
-                var ratings = from dr in dance.DanceRatings where !dr.Song.IsNull && dr.Song.Purchase != null select dr;
-                return ratings.Count();
-            }
+                DanceId = dance.Id,
+                DanceName = dance.Name,
+                SongCount = count,
+                MaxWeight = max,
+                Children = null
+            };
+
+            return sc;
         }
     }
 }

@@ -10,11 +10,9 @@
     {
         canEdit = true;
     }
-    bool showDiag = false;
-    if (User.IsInRole("showDiagnostics"))
-    {
-        showDiag = true;
-    }
+
+    var dances = (IList<m4d.ViewModels.SongCounts>)ViewBag.Dances;
+    var danceMap = (IDictionary<string, m4d.ViewModels.SongCounts>)ViewBag.DanceMap;
 }
 
 @using (Html.BeginForm("Search", "Song", FormMethod.Get, new { id = "search" }))
@@ -56,7 +54,7 @@
             </button>
             <ul class="dropdown-menu" role="menu">
                 <li id="DID_ALL"><a href="#ALL"><strong>All Dances</strong></a></li>
-                @foreach (var sc in ((IList<m4d.ViewModels.SongCounts>)ViewBag.Dances).OrderBy(x => x.DanceName))
+                @foreach (var sc in dances.OrderBy(x => x.DanceName))
                 {
                     string id = "DID_" + sc.DanceId;
                     string href = "#" + sc.DanceId;
@@ -182,10 +180,11 @@
                             @{ var separator = ""; }
                             @foreach (var ditem in item.DanceRatings)
                             {
+                                string badge = m4d.ViewModels.SongCounts.GetRatingBadge(danceMap,ditem.DanceId,ditem.Weight);
                                 @separator;
+                                <img src="@badge"/>
                                 @Html.DisplayFor(m => ditem.Dance.Info.Name)
-                                <span class="badge">@ditem.Weight</span>
-                                separator = ", ";
+                                separator = " ";
                             }
                         </td>
 

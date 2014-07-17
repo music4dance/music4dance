@@ -1,5 +1,9 @@
 ﻿@model m4dModels.SongDetails
 
+@{
+    var danceMap = (IDictionary<string, m4d.ViewModels.SongCounts>)ViewBag.DanceMap;
+}
+
 <div class="row">
     <div class="col-md-12">
         <div class="hidden-xs">
@@ -81,9 +85,11 @@
             <div class="display-field">
                 @foreach (var item in Model.DanceRatings)
                 {
-                    <text>@separator</text>
-                    @Html.DisplayFor(model => item.Dance.Info.Name);
-                                                               separator = ", ";
+                    string badge = m4d.ViewModels.SongCounts.GetRatingBadge(danceMap,item.DanceId,item.Weight);
+                    @separator;
+                    <img src="@badge" style="padding:3px 0px" />
+                    @Html.DisplayFor(m => item.Dance.Info.Name)
+                    separator = " ";
                 }
             </div>
             <br />

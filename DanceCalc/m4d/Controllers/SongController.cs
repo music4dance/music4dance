@@ -210,11 +210,12 @@ namespace music4dance.Controllers
             }
 
             ViewBag.SongFilter = ParseFilter(filter);
+            ViewBag.DanceMap = SongCounts.GetDanceMap(_db);
             return View(song);
         }
 
         //
-        // GET: /Song/Create
+        // GET: /Song/CreateI
         [Authorize(Roles = "canEdit")] 
         public ActionResult Create(string filter = null)
         {
@@ -895,6 +896,7 @@ namespace music4dance.Controllers
 
             ViewBag.SelectedDances =  Dances.Instance.FromIds(filter.Dances);
             ViewBag.Dances = SongCounts.GetSongCounts(_db);
+            ViewBag.DanceMap = SongCounts.GetDanceMap(_db);
         }
 
         private IQueryable<Song> BuildSongList(SongFilter filter)
