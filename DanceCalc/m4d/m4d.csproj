@@ -63,13 +63,13 @@
     <Reference Include="HtmlAgilityPack">
       <HintPath>..\packages\HtmlAgilityPack.1.4.6\lib\Net45\HtmlAgilityPack.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.ApplicationInsights.Telemetry.Services, Version=0.7.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+    <Reference Include="Microsoft.ApplicationInsights, Version=0.9.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\Microsoft.ApplicationInsights.Telemetry.Services.0.7.1.0\lib\net35\Microsoft.ApplicationInsights.Telemetry.Services.dll</HintPath>
+      <HintPath>..\packages\Microsoft.ApplicationInsights.0.9.0-build06428\lib\net45\Microsoft.ApplicationInsights.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.ApplicationInsights.Telemetry.Web, Version=0.7.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+    <Reference Include="Microsoft.ApplicationInsights.Platform, Version=0.9.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\Microsoft.ApplicationInsights.Telemetry.Services.0.7.1.0\lib\net35\Microsoft.ApplicationInsights.Telemetry.Web.dll</HintPath>
+      <HintPath>..\packages\Microsoft.ApplicationInsights.0.9.0-build06428\lib\net45\Microsoft.ApplicationInsights.Platform.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.AspNet.Identity.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -311,7 +311,6 @@
     <Content Include="fonts\glyphicons-halflings-regular.svg" />
     <Content Include="Global.asax" />
     <Content Include="Content\Site.css" />
-    <Content Include="ApplicationInsights.config" />
     <Content Include="Content\JohnCrossan.csv">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -340,6 +339,10 @@
     <Content Include="fonts\glyphicons-halflings-regular.eot" />
     <Content Include="Content\bootstrap-theme.css.map" />
     <Content Include="Content\bootstrap.css.map" />
+    <Content Include="ApplicationInsights.config">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <SubType>Designer</SubType>
+    </Content>
     <None Include="Properties\PublishProfiles\m4d-old.pubxml" />
     <None Include="Properties\PublishProfiles\m4d.pubxml" />
     <Content Include="MvcDiagnostics.aspx" />
@@ -429,7 +432,9 @@
       <Generator>WCF Proxy Generator</Generator>
       <LastGenOutput>Reference.cs</LastGenOutput>
     </None>
-    <Content Include="Web.config" />
+    <Content Include="Web.config">
+      <SubType>Designer</SubType>
+    </Content>
     <Content Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </Content>
