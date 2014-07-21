@@ -130,7 +130,10 @@
                     @Html.ActionLink("Tempo (BPM)", "Sort", new { sortOrder = "Tempo", filter = ViewBag.SongFilter })
                     @Html.Raw(ViewBag.TempoSort)
                 </th>
-                <th>Dances</th>
+                <th>
+                    @Html.ActionLink("Dances", "Sort", new { sortOrder = "Dances", filter = ViewBag.SongFilter })
+                    @Html.Raw(ViewBag.DancesSort)
+                </th>
                 <th style="min-width:150px" class="hidden-xs">Purchase</th>
             </tr>
         </thead>
@@ -178,7 +181,7 @@
                         </td>
                         <td>
                             @{ var separator = ""; }
-                            @foreach (var ditem in item.DanceRatings)
+                            @foreach (var ditem in item.DanceRatings.OrderByDescending(dr => m4d.ViewModels.SongCounts.GetScaledRating(danceMap,dr.DanceId,dr.Weight)))
                             {
                                 string badge = m4d.ViewModels.SongCounts.GetRatingBadge(danceMap,ditem.DanceId,ditem.Weight);
                                 @separator;

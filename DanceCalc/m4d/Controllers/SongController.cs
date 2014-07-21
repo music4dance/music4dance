@@ -132,6 +132,9 @@ namespace music4dance.Controllers
                     case "Tempo":
                         songFilter.SortOrder = songFilter.SortOrder == "Tempo" ? "Tempo_desc" : "Tempo";
                         break;
+                    case "Dances":
+                        songFilter.SortOrder = "Dances";
+                        break;
                 }
             }
 
@@ -956,9 +959,10 @@ namespace music4dance.Controllers
             }
 #endif
             // Now limit it down to the ones that are marked as a particular dance or dances
+            string[] danceList = null;
             if (!string.IsNullOrWhiteSpace(filter.Dances) && !string.Equals(filter.Dances, "ALL"))
             {
-                string[] danceList = Dances.Instance.ExpandDanceList(filter.Dances);
+                danceList = Dances.Instance.ExpandDanceList(filter.Dances);
 
                 songs = songs.Where(s => s.DanceRatings.Any(dr => danceList.Contains(dr.DanceId)));
             }
@@ -1153,11 +1157,44 @@ namespace music4dance.Controllers
                     songs = songs.OrderByDescending(s => s.Tempo);
                     ViewBag.TempoSort = sortNDsc;
                     break;
+                case "Dances":
+                    // TODO: Better icon for dance order
+                    // TODO: Get this working for multi-dance selection
+                    {
+                        string did = TrySingleId(danceList);
+                        if (did != null)
+                        {
+                            //DanceRating drE = new DanceRating() { Weight = 0 };
+                            songs = songs.OrderByDescending(s => s.DanceRatings.FirstOrDefault(dr => dr.DanceId.StartsWith(did)).Weight);
+                            ViewBag.TempoSort = sortNDsc;
+                        }
+                    }
+                    break;
             }
 
             return songs;
         }
 
+        // TODO: This is extremely dependent on the form of the danceIds, just
+        //  a temporary kludge until we get multi-select working
+        private static string TrySingleId(string[] danceList)
+        {
+            string ret = null;
+            if (danceList != null && danceList.Length > 0)
+            {
+                ret = danceList[0].Substring(0,3);
+                for (int i = 1; i < danceList.Length; i++)
+                {
+                    if (!string.Equals(ret,danceList[i].Substring(0,3)))
+                    {
+                        ret = null;
+                        break;
+                    }
+                }
+            }
+
+            return ret;
+        }
         private void DumpSongs(IQueryable<Song> songs, string purchase)
         {
             Debug.WriteLine(string.Format("------------Purchase == {0} ------------", purchase));
