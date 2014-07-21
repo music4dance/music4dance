@@ -146,7 +146,8 @@ namespace m4d.ViewModels
         {
             int scaled = GetScaledRating(map, danceId, weight, 5);
 
-            return "/Content/thermometer-" + scaled.ToString() + ".png";
+            //return "/Content/thermometer-" + scaled.ToString() + ".png";
+            return "rating-" + scaled.ToString();
         }
         static private void HandleType(DanceType dtyp, DbSet<Dance> dances, SongCounts scGroup)
         {

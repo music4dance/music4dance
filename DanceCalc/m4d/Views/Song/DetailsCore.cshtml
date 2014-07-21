@@ -87,8 +87,7 @@
                 {
                     string badge = m4d.ViewModels.SongCounts.GetRatingBadge(danceMap,item.DanceId,item.Weight);
                     @separator;
-                    <img src="@badge" style="padding:3px 0px" />
-                    @Html.DisplayFor(m => item.Dance.Info.Name)
+                    <span class="rating @badge">@item.Dance.Info.Name</span>
                     separator = " ";
                 }
             </div>

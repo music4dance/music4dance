@@ -135,3 +135,42 @@ table.songlist
 .banner {
     max-width:90%;
 }
+
+.rating {
+    white-space: nowrap;
+    display: inline;
+}
+
+.rating:before {
+    display: inline;
+}
+
+.rating-0:before {
+    content: url(/Content/thermometer-0.png);
+    width: 10px; height: 30px;
+}
+
+.rating-1:before {
+    content: url(/Content/thermometer-1.png);
+    width: 10px; height: 30px;
+}
+
+.rating-2:before {
+    content: url(/Content/thermometer-2.png);
+    width: 10px; height: 30px;
+}
+
+.rating-3:before {
+    content: url(/Content/thermometer-3.png);
+    width: 10px; height: 30px;
+}
+
+.rating-4:before {
+    content: url(/Content/thermometer-4.png);
+    width: 10px; height: 30px;
+}
+
+.rating-5:before {
+    content: url(/Content/thermometer-5.png);
+    width: 10px; height: 30px;
+}
