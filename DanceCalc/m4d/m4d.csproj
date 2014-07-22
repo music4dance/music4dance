@@ -267,6 +267,7 @@
     <Compile Include="Scrapers\CenturyBallroom.cs" />
     <Compile Include="Scrapers\DanceForum.cs" />
     <Compile Include="Scrapers\DanceScraper.cs" />
+    <Compile Include="Scrapers\DWTS.cs" />
     <Compile Include="Service References\AWSReference\Reference.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -343,6 +344,7 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <SubType>Designer</SubType>
     </Content>
+    <Content Include="Content\DWTS.csv" />
     <None Include="Properties\PublishProfiles\m4d-old.pubxml" />
     <None Include="Properties\PublishProfiles\m4d.pubxml" />
     <Content Include="MvcDiagnostics.aspx" />

@@ -424,6 +424,20 @@ namespace m4dModels
             return text;
         }
 
+        static public string CleanQuotes(string name)
+        {
+            return CustomTrim(CustomTrim(name,'"'),'\'');
+        }
+
+        static public string CustomTrim(string name, char quote)
+        {
+            if ((name.Length > 0) && (name[0] == quote) && (name[name.Length - 1] == quote))
+            {
+                name = name.Trim(new char[] { quote });
+            }
+            return name;
+        }
+
         static public string Unsort(string name)
         {
             string[] parts = name.Split(new char[] { ',' });
