@@ -124,6 +124,6 @@ namespace m4d.Migrations
         private static string[] _roles = new string[] { DanceMusicContext.DiagRole, DanceMusicContext.EditRole, DanceMusicContext.DbaRole };
         private static string[] _adminUsers = new string[] { "administrator", "dwgray", "batch" };
         private static string[] _diagUsers = new string[] { "lukim", "glennn" };
-        private static string[] _editUsers = new string[] { "ajy", "SalsaSwingBallroom", "SandiegoDJ", "UsaSwingNet", "LetsDanceDenver", "SteveThatDJ", "JohnCrossan", "WaltersDanceCenter", "breanna", "buzzle", "michelleds", "shawntrautman", "danceforums", "Century", "DWTS", "SYTYCD" };
+        private static string[] _editUsers = new string[] { "ajy", "SalsaSwingBallroom", "SandiegoDJ", "UsaSwingNet", "LetsDanceDenver", "SteveThatDJ", "JohnCrossan", "WaltersDanceCenter", "breanna", "buzzle", "michelleds", "shawntrautman", "danceforums", "Century", "bdlist", "DWTS", "SYTYCD" };
     }
 }

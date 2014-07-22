@@ -1061,8 +1061,9 @@ namespace m4d.Context
                 }
             }
 
-            SongDetails sd = new SongDetails(song.SongId, song.SongProperties, this);
+            SongDetails sd = new SongDetails(song.SongId, song.SongProperties);
             song.RestoreScalar(sd);
+            song.UpdateUsers(this);
 
             return ret;
         }
@@ -1091,9 +1092,9 @@ namespace m4d.Context
             {
                 throw new ArgumentOutOfRangeException("song", "Attempting to restore a song that hasn't been deleted");
             }
-            SongDetails sd = new SongDetails(song.SongId, song.SongProperties, this);
+            SongDetails sd = new SongDetails(song.SongId, song.SongProperties);
             song.Restore(sd);
-            UpdateUsers(song);
+            song.UpdateUsers(this);
         }
 
         private SongLog CreateSongLog(ApplicationUser user, Song song, string action)
@@ -1128,12 +1129,6 @@ namespace m4d.Context
             Song song = CreateSong(log.SongReference);
             song.Created = log.Time;
             song.Modified = DateTime.Now;
-            Songs.Add(song);
-
-            // Is there a better way to get an id assigned to the song?
-            SaveChanges();
-
-            //CreateSongProperty(song, initC, initV);
 
             IList<LogValue> values = log.GetValues();
             foreach (LogValue lv in values)
@@ -1145,6 +1140,7 @@ namespace m4d.Context
             }
 
             RestoreSong(song);
+            Songs.Add(song);
         }
 
         private SongLog CreateEditHeader(Song song, ApplicationUser user)
@@ -1265,25 +1261,6 @@ namespace m4d.Context
         }
 
         #region User
-        public void UpdateUsers(Song song)
-        {
-            HashSet<string> users = new HashSet<string>();
-
-            foreach (ModifiedRecord us in song.ModifiedBy)
-            {
-                us.Song = song;
-                us.ApplicationUser = FindUser(us.ApplicationUserId);
-
-                if (users.Contains(us.ApplicationUserId))
-                {
-                    Trace.WriteLine(string.Format("Duplicate Mapping: Song = {0} User = {1}", song.SongId, us.ApplicationUserId));
-                }
-                else
-                {
-                    users.Add(us.ApplicationUserId);
-                }
-            }
-        }
 
         public ApplicationUser FindOrAddUser(string name, string role)
         {

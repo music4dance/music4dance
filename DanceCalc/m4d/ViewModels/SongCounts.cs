@@ -139,7 +139,8 @@ namespace m4d.ViewModels
 
         static public int GetScaledRating(IDictionary<string,SongCounts> map, string danceId, int weight, int scale = 5)
         {
-            float max = map[danceId].MaxWeight;
+            // TODO: Need to re-examine how we deal with international/american
+            float max = map[danceId.Substring(0,3)].MaxWeight;
             return (int)(Math.Ceiling((float)(weight * scale) / max));
         }
         static public string GetRatingBadge(IDictionary<string, SongCounts> map, string danceId, int weight)

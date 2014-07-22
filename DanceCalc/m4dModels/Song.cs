@@ -89,8 +89,22 @@ namespace m4dModels
         {
             dr.Song = this;
             dr.SongId = SongId;
+            if (dr.DanceId == null)
+            {
+                dr.DanceId = dr.Dance.Id;
+            }
 
-            DanceRating other = DanceRatings.FirstOrDefault(r => r.DanceId == dr.DanceId);
+            DanceRating other = null;
+            
+            if (DanceRatings == null)
+            {
+                DanceRatings = new List<DanceRating>();
+            }
+            else 
+            {
+                DanceRatings.FirstOrDefault(r => r.DanceId == dr.DanceId);
+            }
+
             if (other == null)
             {
                 DanceRatings.Add(dr);
@@ -117,6 +131,37 @@ namespace m4dModels
             }
         }
 
+        public void UpdateUsers(IUserMap map)
+        {
+            HashSet<string> users = new HashSet<string>();
+
+            foreach (ModifiedRecord us in ModifiedBy)
+            {
+                us.Song = this;
+                us.SongId = this.SongId;
+                if (us.ApplicationUser == null && us.ApplicationUser != null)
+                {
+                    us.ApplicationUser = map.FindUser(us.ApplicationUserId);
+                }
+                if (us.ApplicationUser != null && us.ApplicationUserId == null)
+                {
+                    us.ApplicationUserId = us.ApplicationUser.Id;
+                }
+
+                // TODO: We should figure out how to just enable this in verbose mode (haven't pushed down the trace flags
+                //  into this module yet.
+                if (users.Contains(us.ApplicationUserId))
+                {
+                    Trace.WriteLine(string.Format("Duplicate Mapping: Song = {0} User = {1}", SongId, us.ApplicationUserId));
+                }
+                else
+                {
+                    users.Add(us.ApplicationUserId);
+                }
+            }
+        }
+
+
         public bool UpdateTitleHash()
         {
             bool ret = false;
@@ -134,9 +179,10 @@ namespace m4dModels
 
         public void Load(string s, IUserMap users)
         {
-            SongDetails sd = new SongDetails(s, users);
+            SongDetails sd = new SongDetails(s);
 
             Restore(sd);
+            UpdateUsers(users);
         }
 
         public override void Dump()

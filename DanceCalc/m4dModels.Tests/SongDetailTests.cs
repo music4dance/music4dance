@@ -95,7 +95,7 @@ namespace m4dModels.Tests
             List<SongDetails> songs = new List<SongDetails>();
             foreach (string str in s_data)
             {
-                songs.Add(new SongDetails(str, null));
+                songs.Add(new SongDetails(str));
             }
 
             return songs;

@@ -709,7 +709,7 @@ namespace m4d.Controllers
                     if (dmc.FindSong(song.SongId) == null)
                     {
                         dmc.Songs.Add(song);
-                        dmc.UpdateUsers(song);
+                        song.UpdateUsers(dmc);
 
                         c += 1;
                         if (c % 100 == 0)

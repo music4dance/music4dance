@@ -250,6 +250,7 @@ namespace music4dance.Controllers
                     song = new SongDetails(newSong);
                 }
 
+                ViewBag.DanceMap = SongCounts.GetDanceMap(_db);
                 return View("Details", song);
             }
             else
@@ -324,6 +325,7 @@ namespace music4dance.Controllers
                 if (edit != null)
                 {
                     ViewBag.BackAction = "Index";
+                    ViewBag.DanceMap = SongCounts.GetDanceMap(_db);
                     return View("Details", edit);
                 }
                 {
@@ -527,6 +529,7 @@ namespace music4dance.Controllers
                 albumsOut);
 
             ViewBag.BackAction = "MergeCandidates";
+            ViewBag.DanceMap = SongCounts.GetDanceMap(_db);
 
             return View("Details",_db.FindSongDetails(song.SongId));
         }
@@ -770,6 +773,7 @@ namespace music4dance.Controllers
 
             ServiceSearchResults view = new ServiceSearchResults { ServiceType = type, Song = song };
 
+            ViewBag.DanceMap = SongCounts.GetDanceMap(_db);
             ViewBag.SongFilter = ParseFilter(filter);
             ViewBag.SongTitle = title;
             ViewBag.SongArtist = artist;

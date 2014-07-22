@@ -44,12 +44,12 @@ namespace m4dModels
         //  into the function that transforms SongDetails (back) into a Song
         //  For now, I'm going to accept a null in that field in which case I'll create
         //  the disconnected object but should revisit and cleanup soon
-        public SongDetails(Guid songId, ICollection<SongProperty> properties, IUserMap users = null)
+        public SongDetails(Guid songId, ICollection<SongProperty> properties)
         {
-            Load(songId, properties, users);
+            Load(songId, properties);
         }
 
-        public SongDetails(string s, IUserMap users)
+        public SongDetails(string s)
         {
             const string idField = "SongId=";
             SongId = Guid.Empty;
@@ -78,10 +78,10 @@ namespace m4dModels
                 Properties = new List<SongProperty>();
             }
             SongProperty.Load(SongId, s, SongProperties);
-            Load(SongId, SongProperties, users);
+            Load(SongId, SongProperties);
         }
 
-        private void Load(Guid songId, ICollection<SongProperty> properties, IUserMap users = null)
+        private void Load(Guid songId, ICollection<SongProperty> properties)
         {
             SongId = songId;
             Properties = new List<SongProperty>(properties);
@@ -102,18 +102,8 @@ namespace m4dModels
                             }
                             if (!ModifiedList.Any(u => u.ApplicationUserId == prop.Value))
                             {
-                                ModifiedRecord us = null;
-                                // TODO:  See note above
-                                if (users != null)
-                                {
-                                    us = users.CreateMapping(songId, prop.Value);
-                                }
-                                else
-                                {
-                                    us = new ModifiedRecord { SongId = songId, ApplicationUserId = prop.Value };
-                                }
+                                ModifiedRecord us = new ModifiedRecord { SongId = songId, ApplicationUserId = prop.Value };
                                 ModifiedList.Add(us);
-                                //Debug.WriteLine(string.Format("UserMap:\t{0}\t{1}",songId,prop.Value));
                             }
                             break;
                         case DanceRatingField:
