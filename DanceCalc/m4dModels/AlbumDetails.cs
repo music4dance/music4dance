@@ -429,7 +429,7 @@ namespace m4dModels
 
             if (op == null || string.Equals(op.Value, value))
             {
-                SongProperty np = spf.CreateSongProperty(song, fullName, value);
+                SongProperty np = spf.CreateSongProperty(song, fullName, value, log);
                 song.SongProperties.Add(np);
 
                 if (log != null)
@@ -448,7 +448,7 @@ namespace m4dModels
             {
                 string fullName = SongProperty.FormatName(name, idx, qual);
 
-                SongProperty np = spf.CreateSongProperty(song, fullName, newValue);
+                SongProperty np = spf.CreateSongProperty(song, fullName, newValue, log);
 
                 if (log != null)
                 {
@@ -470,7 +470,7 @@ namespace m4dModels
             {
                 string fullName = SongProperty.FormatName(name, idx, qual);
 
-                SongProperty np = spf.CreateSongProperty(song, fullName, newValue);
+                SongProperty np = spf.CreateSongProperty(song, fullName, newValue, log);
 
                 if (log != null)
                 {

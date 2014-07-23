@@ -143,7 +143,7 @@ namespace m4dModels.Tests
             @"Title=All For You	Artist=Imelda May	Tempo=30.0	DanceRating=SFT+5",
             @"Title=Hold Me	Artist=Jamie Grace	Tempo=34.0	DanceRating=ECS+5",
             @"Title=Drive My Car	Artist=Willy Chirino	Tempo=32.0	DanceRating=CHA+5",
-    };
+        };
 
         //static MockUserMap s_users = new MockUserMap();
     };

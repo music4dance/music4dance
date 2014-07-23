@@ -247,6 +247,7 @@ namespace music4dance.Controllers
                 // TODO: Think about if the round-trip is necessary
                 if (newSong != null)
                 {
+                    _db.SaveChanges();
                     song = new SongDetails(newSong);
                 }
 

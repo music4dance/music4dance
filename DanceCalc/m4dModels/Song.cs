@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 
 namespace m4dModels
@@ -13,13 +14,82 @@ namespace m4dModels
         #region Properties
         public int TitleHash { get; set; }
 
-        // These are helper properties (they don't map to database columns
+        // These are helper properties (they don't map to database columns)
 
-        public SongLog CreateEntry { get; set; }
+        public SongLog CurrentLog { get; set; }
 
         #endregion
 
         #region Actions
+
+        public void Create(SongDetails sd, ApplicationUser user, string command, string value, ISongPropertyFactory pfactory, IUserMap users)
+        {
+            DateTime time = DateTime.Now;
+
+            SongLog log = CurrentLog;
+            if (log != null)
+            {
+                log.Initialize(user, this, command);
+            }
+
+            pfactory.CreateSongProperty(this, command, value, log);
+
+            // Handle User association
+            if (user != null)
+            {
+                ModifiedRecord us = users.CreateMapping(SongId, user.Id); 
+                us.Song = this;
+                us.ApplicationUser = user;
+                if (ModifiedBy == null)
+                {
+                    ModifiedBy = new List<ModifiedRecord>();
+                }
+                ModifiedBy.Add(us);
+                pfactory.CreateSongProperty(this, Song.UserField, user.UserName, log);
+            }
+
+            Created = time;
+            Modified = time;
+            pfactory.CreateSongProperty(this, Song.TimeField, time.ToString(), log);
+
+            Debug.Assert(!string.IsNullOrWhiteSpace(sd.Title));
+            foreach (string field in SongBase.ScalarFields)
+            {
+                // TODO: If this works, we should try caching property info
+                PropertyInfo pi = typeof(SongBase).GetProperty(field);
+                object prop = pi.GetValue(sd);
+                pi.SetValue(this, prop);
+            }
+
+            // Handle Albums
+            CreateAlbums(sd.Albums, pfactory);
+
+            Purchase = sd.GetPurchaseTags();
+            TitleHash = Song.CreateTitleHash(Title);
+        }
+
+        private void CreateAlbums(IList<AlbumDetails> albums, ISongPropertyFactory pfactory)
+        {
+            if (albums != null)
+            {
+                albums = AlbumDetails.MergeAlbums(albums);
+
+                for (int ia = 0; ia < albums.Count; ia++)
+                {
+                    AlbumDetails ad = albums[ia];
+                    if (!string.IsNullOrWhiteSpace(ad.Name))
+                    {
+                        if (ia == 0)
+                        {
+                            Album = albums[0].Name;
+                        }
+
+                        ad.CreateProperties(pfactory, this, this.CurrentLog);
+                    }
+                }
+            }
+        }
+
         public void Delete()
         {
             Tempo = null;

@@ -16,7 +16,7 @@ namespace m4dModels
     public class SongDetails : SongBase
     {
         #region Construction
-        public SongDetails() : base()
+        public SongDetails() 
         {
         }
 
@@ -39,11 +39,7 @@ namespace m4dModels
         }
 
         // TODO: I want to be able to create SongDetails as a completely disconnected object
-        //  but mapping all of the information from songs.  I believe I screwed up
-        //  setting putting IUserMap here - Instead, I should not pass that in here but
-        //  into the function that transforms SongDetails (back) into a Song
-        //  For now, I'm going to accept a null in that field in which case I'll create
-        //  the disconnected object but should revisit and cleanup soon
+        //  but mapping all of the information from songs.  
         public SongDetails(Guid songId, ICollection<SongProperty> properties)
         {
             Load(songId, properties);
@@ -81,6 +77,15 @@ namespace m4dModels
             Load(SongId, SongProperties);
         }
 
+        public SongDetails(string title, string artist, string genre, decimal? tempo, int? length, List<AlbumDetails> albums)
+        {
+            Title = title;
+            Artist = artist;
+            Genre = genre;
+            Tempo = tempo;
+            Length = length;
+            Albums = albums;
+        }
         private void Load(Guid songId, ICollection<SongProperty> properties)
         {
             SongId = songId;

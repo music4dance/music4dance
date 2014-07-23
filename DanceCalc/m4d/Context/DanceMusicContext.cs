@@ -93,7 +93,7 @@ namespace m4d.Context
         protected override void OnModelCreating(System.Data.Entity.DbModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Song>().Property(song => song.Tempo).HasPrecision(6, 2);
-            modelBuilder.Entity<Song>().Ignore(song => song.CreateEntry);
+            modelBuilder.Entity<Song>().Ignore(song => song.CurrentLog);
             modelBuilder.Entity<Dance>().Property(dance => dance.Id).HasMaxLength(5);
             modelBuilder.Entity<Dance>().Ignore(dance => dance.Info);
             modelBuilder.Entity<DanceRating>().HasKey(t => new { t.SongId, t.DanceId });
@@ -105,116 +105,39 @@ namespace m4d.Context
         #endregion
 
         #region Edit
-        public Song CreateSong(ApplicationUser user, SongDetails sd, List<string> dances, int rating)
+        private Song CreateSong(Guid? guid = null, bool doLog = false)
+        {
+            Guid g = guid ?? Guid.NewGuid();
+            Song song = Songs.Create();
+            song.SongId = g;
+
+            if (doLog)
+            {
+                song.CurrentLog = Log.Create();
+            }
+
+            return song;
+        }
+        public Song CreateSong(ApplicationUser user, SongDetails sd, List<string> dances, int rating, string command = SongBase.CreateCommand, string value = null, bool createLog=true)
         {
             if (string.Equals(sd.Title, sd.Artist))
             {
                 Trace.WriteLine(string.Format("Title and Artist are the same ({0})", sd.Title));
             }
 
-            Song song = CreateSong(user, sd.Title, sd.Artist, sd.Genre, sd.Tempo, sd.Length, sd.Albums, true);
-
-            AddDanceRatings(song, dances, rating);
-
-            SaveChanges();
-
-            return song;
-        }
-
-        public Song CreateSong(ApplicationUser user, string title, string artist, string genre, decimal? tempo, int? length, List<AlbumDetails> albums, bool log = false)
-        {
-            return CreateSong(user, title, artist, genre, tempo, length, albums, Song.CreateCommand, string.Empty, log);
-        }
-
-        public Song CreateSong(Guid? guid = null)
-        {
-            Guid g = guid ?? Guid.NewGuid();
-            Song song = Songs.Create();
-            song.SongId = g;
-
-            return song;
-        }
-        public Song CreateSong(ApplicationUser user, string title, string artist, string genre, decimal? tempo, int? length, List<AlbumDetails> albums, string command, string value, bool createLog = false)
-        {
-            DateTime time = DateTime.Now;
-
-            if (string.Equals(title, artist))
-            {
-                Trace.WriteLine(string.Format("Title and Artist are the same ({0})", title));
-            }
-
-            Song song = CreateSong();
-
-            SongLog log = null;
-            if (createLog)
-            {
-                log = CreateSongLog(user, song, command);
-                song.CreateEntry = log;
-            }
-
-            // Add the command into the property log
-            CreateSongProperty(song, command, value, log);
-
-            // Handle User association
-            if (user != null)
-            {
-                ModifiedRecord us = Modified.Create();
-                us.Song = song;
-                us.ApplicationUser = user;
-                Modified.Add(us);
-                CreateSongProperty(song, Song.UserField, user.UserName, log);
-            }
-
-            // Handle Timestamps
-            song.Created = time;
-            song.Modified = time;
-            CreateSongProperty(song, Song.TimeField, time.ToString(), log);
-
-            // Title
-            Debug.Assert(!string.IsNullOrWhiteSpace(title));
-            song.Title = title;
-            CreateSongProperty(song, Song.TitleField, title, log);
-
-            // Artist
-            if (!string.IsNullOrWhiteSpace(artist))
-            {
-                song.Artist = artist;
-                CreateSongProperty(song, Song.ArtistField, artist, log);
-            }
-
-            // Genre
-            if (!string.IsNullOrWhiteSpace(genre))
-            {
-                song.Genre = genre;
-                CreateSongProperty(song, Song.PublisherField, genre, log);
-            }
-
-            // Tempo
-            if (tempo != null)
-            {
-                song.Tempo = tempo;
-                CreateSongProperty(song, Song.TempoField, tempo.ToString(), log);
-            }
-
-            // Length
-            if (length != null && length != 0)
-            {
-                song.Length = length;
-                CreateSongProperty(song, Song.LengthField, length.ToString(), log);
-            }
-
-            // Album
-            CreateAlbums(song, albums, log);
-
-            song.Purchase = SongDetails.GetPurchaseTags(albums);
-
-            song.TitleHash = Song.CreateTitleHash(title);
+            Song song = CreateSong(null, createLog);
+            song.Create(sd, user, command, value, this, this);
 
             song = Songs.Add(song);
             if (createLog)
             {
-                Log.Add(log);
+                Log.Add(song.CurrentLog);
             }
+
+            AddDanceRatings(song, dances, rating);
+
+            // TODO: Verify that we don't need to do this...
+            //SaveChanges();
 
             return song;
         }
@@ -389,10 +312,10 @@ namespace m4d.Context
         {
             string songIds = string.Join(";", songs.Select(s => s.SongId.ToString()));
 
-            Song song = CreateSong(user, title, artist, genre, tempo, length, albums, Song.MergeCommand, songIds, true);
+            Song song = CreateSong(user, new SongDetails(title, artist, genre, tempo, length, albums), null, 0, Song.MergeCommand, songIds, true);
             SaveChanges();
-            song.CreateEntry.SongReference = song.SongId;
-            song.CreateEntry.SongSignature = song.Signature;
+            song.CurrentLog.SongReference = song.SongId;
+            song.CurrentLog.SongSignature = song.Signature;
 
             // Add in the to/from properties and create new weight table as well as creating the user associations
             Dictionary<string, int> weights = new Dictionary<string, int>();
@@ -416,7 +339,7 @@ namespace m4d.Context
                 {
                     if (AddUserToSong(us.ApplicationUser, song))
                     {
-                        CreateSongProperty(song, Song.UserField, us.ApplicationUser.UserName, song.CreateEntry);
+                        CreateSongProperty(song, Song.UserField, us.ApplicationUser.UserName, song.CurrentLog);
                     }
                 }
             }
@@ -437,7 +360,7 @@ namespace m4d.Context
 
                 string value = new DanceRatingDelta { DanceId = dance.Key, Delta = dance.Value }.ToString();
 
-                CreateSongProperty(song, Song.DanceRatingField, value, song.CreateEntry);
+                CreateSongProperty(song, Song.DanceRatingField, value, song.CurrentLog);
             }
 
             if (weights.Count > 0)
@@ -505,7 +428,7 @@ namespace m4d.Context
 
                 song.AddDanceRating(dr);
 
-                CreateSongProperty(song, Song.DanceRatingField, string.Format("{0}+{1}", dance.Id, weight), song.CreateEntry);
+                CreateSongProperty(song, Song.DanceRatingField, string.Format("{0}+{1}", dance.Id, weight), song.CurrentLog);
                 changed = true;
             }
 
@@ -638,12 +561,13 @@ namespace m4d.Context
         #endregion
 
         #region Properties
-        public SongProperty CreateSongProperty(Song song, string name, string value, SongLog log = null)
+
+        public SongProperty CreateSongProperty(Song song, string name, object value, SongLog log)
         {
             SongProperty ret = SongProperties.Create();
             ret.Song = song;
             ret.Name = name;
-            ret.Value = value;
+            ret.Value = LogBase.SerializeValue(value);
 
             if (log != null)
             {
@@ -761,34 +685,22 @@ namespace m4d.Context
             song.SongProperties.Add(np);
         }
 
-        public SongProperty CreateSongProperty(Song song, string name, object value)
-        {
-            SongProperty np = SongProperties.Create();
-            np.Song = song;
-            np.Name = name;
-            np.Value = LogBase.SerializeValue(value);
-
-            SongProperties.Add(np);
-
-            return np;
-        }
-
         private void CreateEditProperties(Song song, ApplicationUser user, string command)
         {
             // Add the command into the property log
-            CreateSongProperty(song, Song.EditCommand, string.Empty);
+            CreateSongProperty(song, Song.EditCommand, string.Empty, null);
 
             // Handle User association
             if (user != null)
             {
                 AddUserToSong(user, song);
-                CreateSongProperty(song, Song.UserField, user.UserName);
+                CreateSongProperty(song, Song.UserField, user.UserName, null);
             }
 
             // Handle Timestamps
             DateTime time = DateTime.Now;
             song.Modified = time;
-            CreateSongProperty(song, Song.TimeField, time.ToString());
+            CreateSongProperty(song, Song.TimeField, time.ToString(), null);
         }
 
         #endregion
@@ -1305,27 +1217,6 @@ namespace m4d.Context
         
         #endregion
 
-        private void CreateAlbums(Song song, IList<AlbumDetails> albums, SongLog log = null)
-        {
-            if (albums != null)
-            {
-                albums = AlbumDetails.MergeAlbums(albums);
-
-                for (int ia = 0; ia < albums.Count; ia++)
-                {
-                    AlbumDetails ad = albums[ia];
-                    if (!string.IsNullOrWhiteSpace(ad.Name))
-                    {
-                        if (ia == 0)
-                        {
-                            song.Album = albums[0].Name;
-                        }
-
-                        ad.CreateProperties(this, song, log);
-                    }
-                }
-            }
-        }
         public IList<Song> FindMergeCandidates(int n, int level)
         {
             return MergeCluster.GetMergeCandidates(this, n, level);

@@ -48,6 +48,9 @@ namespace m4dModels
         public const string SuccessResult = ".Success";
         public const string FailResult = ".Fail";
         public const string MessageData = ".Message";
+
+        public static readonly string[] ScalarFields = new string[] {Song.TitleField, Song.ArtistField, Song.TempoField, Song.LengthField, Song.GenreField};
+
         #endregion
 
         #region Serialization

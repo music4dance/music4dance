@@ -42,44 +42,44 @@ namespace m4d.Controllers
         [Authorize(Roles = "dbAdmin")]
         public ActionResult SeedDatabase()
         {
-            List<string> results = new List<string>();
+            //List<string> results = new List<string>();
 
-            bool seeded = false;
-            if (_db.Songs.Any(s => s.Title == "Tea for Two"))
-            {
-                seeded = true;
-            }
+            //bool seeded = false;
+            //if (_db.Songs.Any(s => s.Title == "Tea for Two"))
+            //{
+            //    seeded = true;
+            //}
 
-            if (!seeded)
-            {
-                foreach (string name in _dbs)
-                {
-                    string file = string.Format("~/Content/{0}.csv", name);
-                    string path = Server.MapPath(Url.Content(file));
+            //if (!seeded)
+            //{
+            //    foreach (string name in _dbs)
+            //    {
+            //        string file = string.Format("~/Content/{0}.csv", name);
+            //        string path = Server.MapPath(Url.Content(file));
 
-                    string[] lines = System.IO.File.ReadAllLines(path);
+            //        string[] lines = System.IO.File.ReadAllLines(path);
 
-                    if (lines.Length > 1)
-                    {
-                        BuildSchema(lines);
+            //        if (lines.Length > 1)
+            //        {
+            //            BuildSchema(lines);
 
-                        for (int i = 1; i < lines.Length; i += _chunk)
-                        {
-                            DateTime start = DateTime.Now;
-                            SeedRows(name, lines, i, _chunk);
-                            DateTime end = DateTime.Now;
+            //            for (int i = 1; i < lines.Length; i += _chunk)
+            //            {
+            //                DateTime start = DateTime.Now;
+            //                SeedRows(name, lines, i, _chunk);
+            //                DateTime end = DateTime.Now;
 
-                            TimeSpan length = end - start;
-                            string message = string.Format("Songs from ({0} were loaded in: {1}", name, length);
-                            results.Add(message);
-                            Trace.WriteLine(message);
-                        }
+            //                TimeSpan length = end - start;
+            //                string message = string.Format("Songs from ({0} were loaded in: {1}", name, length);
+            //                results.Add(message);
+            //                Trace.WriteLine(message);
+            //            }
 
-                    }
-                }
-            }
+            //        }
+            //    }
+            //}
 
-            ViewBag.Results = results;
+            //ViewBag.Results = results;
             return View();
         }
 
@@ -499,18 +499,6 @@ namespace m4d.Controllers
                     else
                     {
                         modified = _db.AdditiveMerge(user, m.Right.SongId, m.Left, dancesT) != null;
-                        //if (dances != null)
-                        //{
-                        //    m.Left.UpdateDanceRatings(dances, DanceMusicContext.DanceRatingAutoCreate);
-                        //}
-
-                        //Song s = _db.FindSong(m.Right.SongId);
-                        //SongLog log = null;
-                        //modified |=  _db.AddDanceRatings(user, s, dances, DanceMusicContext.DanceRatingAutoCreate, out log);
-                        //if (m.Left.Tempo.HasValue &&  !s.Tempo.HasValue)
-                        //{
-                        //    modified |=_db.UpdateSongProperty(m.Left, s, Song.TempoField, log);
-                        //}
                     }
                 }
 
@@ -767,319 +755,320 @@ namespace m4d.Controllers
             Trace.WriteLine("Exiting ReloadDB");
         }
 
-        private void BuildSchema(string[] lines)
-        {
-            _tempoKind = TempoKind.BPM;
-            _dynamicColumns = new List<int>();
+        //private void BuildSchema(string[] lines)
+        //{
+        //    _tempoKind = TempoKind.BPM;
+        //    _dynamicColumns = new List<int>();
 
-            _danceColumn = -1;
-            _titleColumn = -1;
-            _artistColumn = -1;
-            _albumColumn = -1;
-            _labelColumn = -1;
-            _tempoColumn = -1;
-            _altTempoColumn = -1;
-            _amazoncolumn = -1;
-            _itunescolumn = -1;
+        //    _danceColumn = -1;
+        //    _titleColumn = -1;
+        //    _artistColumn = -1;
+        //    _albumColumn = -1;
+        //    _labelColumn = -1;
+        //    _tempoColumn = -1;
+        //    _altTempoColumn = -1;
+        //    _amazoncolumn = -1;
+        //    _itunescolumn = -1;
 
-            string headerLine = lines[0];
-            _headers = headerLine.Split(new char[] { '\t' });
+        //    string headerLine = lines[0];
+        //    _headers = headerLine.Split(new char[] { '\t' });
 
-            // Map the table columns to database columns
-            int c = 0;
-            foreach (string header in _headers)
-            {
-                if (string.Equals(header, "DANCE", StringComparison.OrdinalIgnoreCase))
-                {
-                    _danceColumn = c;
-                }
-                else if (string.Equals(header, "TITLE", StringComparison.OrdinalIgnoreCase))
-                {
-                    _titleColumn = c;
-                }
-                else if (string.Equals(header, "ARTIST", StringComparison.OrdinalIgnoreCase)|| string.Equals(header, "CONTRIBUTING ARTIST", StringComparison.OrdinalIgnoreCase))
-                {
-                    _artistColumn = c;
-                }
-                else if (string.Equals(header, "ALBUM", StringComparison.OrdinalIgnoreCase))
-                {
-                    _albumColumn = c;
-                }
-                else if (string.Equals(header, "LABEL", StringComparison.OrdinalIgnoreCase) || string.Equals(header, "PUBLISHER", StringComparison.OrdinalIgnoreCase))
-                {
-                    _labelColumn = c;
-                }
-                else if (string.Equals(header, "BPM", StringComparison.OrdinalIgnoreCase) || string.Equals(header, "BEATS-PER-MINUTE", StringComparison.OrdinalIgnoreCase))
-                {
-                    _tempoColumn = c;
-                }
-                else if (string.Equals(header, "MPM", StringComparison.OrdinalIgnoreCase))
-                {
-                    _tempoKind = TempoKind.MPM;
-                    _tempoColumn = c;
-                }
-                else if (string.Equals(header, "MPMS", StringComparison.OrdinalIgnoreCase))
-                {
-                    _tempoKind = TempoKind.MPM;
-                    _tempoColumn = c;
-                }
-                else if (string.Equals(header, "MPMR", StringComparison.OrdinalIgnoreCase))
-                {
-                    _tempoKind = TempoKind.MPM;
-                    _altTempoColumn = c;
-                }
-                else if (string.Equals(header, "AmazonAlbum", StringComparison.OrdinalIgnoreCase))
-                {
-                    _amazoncolumn = c;
-                }
-                else if (string.Equals(header, "ITunes", StringComparison.OrdinalIgnoreCase))
-                {
-                    _itunescolumn = c;
-                }
-                else if (string.Equals(header, "Length", StringComparison.OrdinalIgnoreCase))
-                {
-                    _lengthcolumn = c;
-                }
-                else if (string.Equals(header, "#", StringComparison.OrdinalIgnoreCase))
-                {
-                    _trackcolumn = c;
-                }
-                else
-                {
-                    _dynamicColumns.Add(c);
-                }
+        //    // Map the table columns to database columns
+        //    int c = 0;
+        //    foreach (string header in _headers)
+        //    {
+        //        if (string.Equals(header, "DANCE", StringComparison.OrdinalIgnoreCase))
+        //        {
+        //            _danceColumn = c;
+        //        }
+        //        else if (string.Equals(header, "TITLE", StringComparison.OrdinalIgnoreCase))
+        //        {
+        //            _titleColumn = c;
+        //        }
+        //        else if (string.Equals(header, "ARTIST", StringComparison.OrdinalIgnoreCase)|| string.Equals(header, "CONTRIBUTING ARTIST", StringComparison.OrdinalIgnoreCase))
+        //        {
+        //            _artistColumn = c;
+        //        }
+        //        else if (string.Equals(header, "ALBUM", StringComparison.OrdinalIgnoreCase))
+        //        {
+        //            _albumColumn = c;
+        //        }
+        //        else if (string.Equals(header, "LABEL", StringComparison.OrdinalIgnoreCase) || string.Equals(header, "PUBLISHER", StringComparison.OrdinalIgnoreCase))
+        //        {
+        //            _labelColumn = c;
+        //        }
+        //        else if (string.Equals(header, "BPM", StringComparison.OrdinalIgnoreCase) || string.Equals(header, "BEATS-PER-MINUTE", StringComparison.OrdinalIgnoreCase))
+        //        {
+        //            _tempoColumn = c;
+        //        }
+        //        else if (string.Equals(header, "MPM", StringComparison.OrdinalIgnoreCase))
+        //        {
+        //            _tempoKind = TempoKind.MPM;
+        //            _tempoColumn = c;
+        //        }
+        //        else if (string.Equals(header, "MPMS", StringComparison.OrdinalIgnoreCase))
+        //        {
+        //            _tempoKind = TempoKind.MPM;
+        //            _tempoColumn = c;
+        //        }
+        //        else if (string.Equals(header, "MPMR", StringComparison.OrdinalIgnoreCase))
+        //        {
+        //            _tempoKind = TempoKind.MPM;
+        //            _altTempoColumn = c;
+        //        }
+        //        else if (string.Equals(header, "AmazonAlbum", StringComparison.OrdinalIgnoreCase))
+        //        {
+        //            _amazoncolumn = c;
+        //        }
+        //        else if (string.Equals(header, "ITunes", StringComparison.OrdinalIgnoreCase))
+        //        {
+        //            _itunescolumn = c;
+        //        }
+        //        else if (string.Equals(header, "Length", StringComparison.OrdinalIgnoreCase))
+        //        {
+        //            _lengthcolumn = c;
+        //        }
+        //        else if (string.Equals(header, "#", StringComparison.OrdinalIgnoreCase))
+        //        {
+        //            _trackcolumn = c;
+        //        }
+        //        else
+        //        {
+        //            _dynamicColumns.Add(c);
+        //        }
 
-                // TODO: Track # ?
+        //        // TODO: Track # ?
 
-                Debug.Assert(string.Equals(header, _headers[c]));
-                c += 1;
-            }
+        //        Debug.Assert(string.Equals(header, _headers[c]));
+        //        c += 1;
+        //    }
 
-            Debug.Assert(_headers.Length == c);
-            Debug.Assert(_titleColumn != -1 && _danceColumn != -1);
-        }
+        //    Debug.Assert(_headers.Length == c);
+        //    Debug.Assert(_titleColumn != -1 && _danceColumn != -1);
+        //}
 
-        private SongDetails SongFromRow(string userName, string line)
-        {
-            throw new NotImplementedException();
-        }
+        //private SongDetails SongFromRow(string userName, string line)
+        //{
+        //    throw new NotImplementedException();
+        //}
         // TODO: I like the idea of building transitoory SongDetails objects
         //  from the line data so that I can add in a review phase - but
         //  I'm not going to rip the old stuff out until I get it working
-        private void SeedRows(string userName, string[] lines, int start, int count)
-        {
-            using (DanceMusicContext dmc = new DanceMusicContext())
-            {
-                // TODO: Is this somehow global?  The examples that change this flag have both the using and a try/catch
-                //  to turn it off.
+        //private void SeedRows(string userName, string[] lines, int start, int count)
+        //{
+        //    using (DanceMusicContext dmc = new DanceMusicContext())
+        //    {
+        //        // TODO: Is this somehow global?  The examples that change this flag have both the using and a try/catch
+        //        //  to turn it off.
 
-                dmc.Configuration.AutoDetectChangesEnabled = false;
-                // Load the dance List
-                dmc.Dances.Load();
+        //        dmc.Configuration.AutoDetectChangesEnabled = false;
+        //        // Load the dance List
+        //        dmc.Dances.Load();
 
-                // Find or Create a user for these entries
-                ApplicationUser user = dmc.Users.FirstOrDefault(u => u.UserName == userName);
-                //if (user == null)
-                //{
-                //    user = dmc.Users.Create();
-                //    user.UserName = Name;
-                //    user = dmc.Users.Add(user);
+        //        // Find or Create a user for these entries
+        //        ApplicationUser user = dmc.Users.FirstOrDefault(u => u.UserName == userName);
+        //        //if (user == null)
+        //        //{
+        //        //    user = dmc.Users.Create();
+        //        //    user.UserName = Name;
+        //        //    user = dmc.Users.Add(user);
 
-                //    dmc.SaveChanges();
-                //}
+        //        //    dmc.SaveChanges();
+        //        //}
 
-                //dmc.CreateSongProperty(DanceMusicContext.StartBatchLoadCommand,Name);
+        //        //dmc.CreateSongProperty(DanceMusicContext.StartBatchLoadCommand,Name);
 
-                for (int i = start; i < lines.Length && i < start + count; i++)
-                {
-                    string[] cells = lines[i].Split(new char[] { '\t' });
-                    if (cells.Length != _headers.Length)
-                    {
-                        Trace.WriteLine(string.Format("Bad Format: {0}", lines[i]));
-                    }
+        //        for (int i = start; i < lines.Length && i < start + count; i++)
+        //        {
+        //            string[] cells = lines[i].Split(new char[] { '\t' });
+        //            if (cells.Length != _headers.Length)
+        //            {
+        //                Trace.WriteLine(string.Format("Bad Format: {0}", lines[i]));
+        //            }
 
-                    // Find the dance and skip if it doesn't exist
-                    string danceIds = null;
+        //            // Find the dance and skip if it doesn't exist
+        //            string danceIds = null;
 
-                    if (cells.Length < _danceColumn)
-                        break;
+        //            if (cells.Length < _danceColumn)
+        //                break;
 
-                    string danceName = SongDetails.CleanDanceName(cells[_danceColumn]);
-                    if (!DanceRating.DanceMap.TryGetValue(danceName, out danceIds))
-                    {
-                        Trace.WriteLine(string.Format("Dance Not Found: {0}", cells[_danceColumn]));
-                        continue;
-                    }
-                    string[] idList = danceIds.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+        //            string danceName = SongDetails.CleanDanceName(cells[_danceColumn]);
+        //            if (!DanceRating.DanceMap.TryGetValue(danceName, out danceIds))
+        //            {
+        //                Trace.WriteLine(string.Format("Dance Not Found: {0}", cells[_danceColumn]));
+        //                continue;
+        //            }
+        //            string[] idList = danceIds.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
 
-                    // Create a song based on the info in each line
+        //            // Create a song based on the info in each line
 
-                    string title = SongDetails.CleanText(cells[_titleColumn]);
-                    string artist = null;
-                    if (_artistColumn != -1 && _artistColumn < cells.Length)
-                    {
-                        artist = SongDetails.CleanArtistString(cells[_artistColumn]);
-                    }
+        //            string title = SongDetails.CleanText(cells[_titleColumn]);
+        //            string artist = null;
+        //            if (_artistColumn != -1 && _artistColumn < cells.Length)
+        //            {
+        //                artist = SongDetails.CleanArtistString(cells[_artistColumn]);
+        //            }
 
-                    string album = null;
-                    if (_albumColumn != -1 && _albumColumn < cells.Length)
-                    {
-                        album = cells[_albumColumn];
-                    }
+        //            string album = null;
+        //            if (_albumColumn != -1 && _albumColumn < cells.Length)
+        //            {
+        //                album = cells[_albumColumn];
+        //            }
 
-                    string label = null;
-                    if (_labelColumn != -1 && _labelColumn < cells.Length)
-                    {
-                        label = cells[_labelColumn];
-                    }
+        //            string label = null;
+        //            if (_labelColumn != -1 && _labelColumn < cells.Length)
+        //            {
+        //                label = cells[_labelColumn];
+        //            }
 
-                    // Add the Tempo
-                    decimal? bpm = null;
-                    if (_tempoColumn != -1 && _tempoColumn < cells.Length)
-                    {
-                        string tempo = null;
-                        tempo = cells[_tempoColumn].Trim();
-                        if (string.IsNullOrEmpty(tempo) && _altTempoColumn != -1)
-                        {
-                            tempo = cells[_altTempoColumn].Trim();
-                        }
+        //            // Add the Tempo
+        //            decimal? bpm = null;
+        //            if (_tempoColumn != -1 && _tempoColumn < cells.Length)
+        //            {
+        //                string tempo = null;
+        //                tempo = cells[_tempoColumn].Trim();
+        //                if (string.IsNullOrEmpty(tempo) && _altTempoColumn != -1)
+        //                {
+        //                    tempo = cells[_altTempoColumn].Trim();
+        //                }
 
-                        switch (_tempoKind)
-                        {
-                            case TempoKind.BPM:
-                                {
-                                    decimal bpmT;
-                                    if (decimal.TryParse(tempo, out bpmT))
-                                    {
-                                        bpm = bpmT;
-                                    }
-                                }
-                                break;
-                            case TempoKind.MPM:
-                                {
-                                    decimal mpm;
-                                    if (decimal.TryParse(tempo, out mpm))
-                                    {
-                                        DanceObject d = Dances.Instance.DanceDictionary[idList[0]];
-                                        Meter meter = d.Meter;
-                                        Tempo tpo = new Tempo(mpm, new TempoType(_tempoKind, meter));
-                                        Tempo mpt = tpo.Convert(new TempoType(TempoKind.BPM));
-                                        bpm = mpt.Rate;
-                                    }
-                                }
-                                break;
-                            case TempoKind.BPS:
-                                // TODO: Handle BPS (if i ever see a DB that lists this way
-                                Debug.Assert(false);
-                                break;
-                        }
-                    }
+        //                switch (_tempoKind)
+        //                {
+        //                    case TempoKind.BPM:
+        //                        {
+        //                            decimal bpmT;
+        //                            if (decimal.TryParse(tempo, out bpmT))
+        //                            {
+        //                                bpm = bpmT;
+        //                            }
+        //                        }
+        //                        break;
+        //                    case TempoKind.MPM:
+        //                        {
+        //                            decimal mpm;
+        //                            if (decimal.TryParse(tempo, out mpm))
+        //                            {
+        //                                DanceObject d = Dances.Instance.DanceDictionary[idList[0]];
+        //                                Meter meter = d.Meter;
+        //                                Tempo tpo = new Tempo(mpm, new TempoType(_tempoKind, meter));
+        //                                Tempo mpt = tpo.Convert(new TempoType(TempoKind.BPM));
+        //                                bpm = mpt.Rate;
+        //                            }
+        //                        }
+        //                        break;
+        //                    case TempoKind.BPS:
+        //                        // TODO: Handle BPS (if i ever see a DB that lists this way
+        //                        Debug.Assert(false);
+        //                        break;
+        //                }
+        //            }
 
-                    //  TODO: We may have purchase info for songs that don't have an album name - 
-                    //    currently we're dropping those on the floor, do we care?
+        //            //  TODO: We may have purchase info for songs that don't have an album name - 
+        //            //    currently we're dropping those on the floor, do we care?
 
-                    // Fill in album info including publisher and purchase
-                    List<AlbumDetails> albums = null;
+        //            // Fill in album info including publisher and purchase
+        //            List<AlbumDetails> albums = null;
 
-                    if (!string.IsNullOrWhiteSpace(album))
-                    {
-                        AlbumDetails ad = new AlbumDetails() { Name = album, Publisher = label };
+        //            if (!string.IsNullOrWhiteSpace(album))
+        //            {
+        //                AlbumDetails ad = new AlbumDetails() { Name = album, Publisher = label };
 
-                        if (_amazoncolumn != -1)
-                        {
-                            string aa = cells[_amazoncolumn];
-                            aa = aa.Trim();
-                            if (!string.IsNullOrEmpty(aa))
-                            {
-                                ad.SetPurchaseInfo(PurchaseType.Album, ServiceType.Amazon, aa);
-                            }
-                        }
+        //                if (_amazoncolumn != -1)
+        //                {
+        //                    string aa = cells[_amazoncolumn];
+        //                    aa = aa.Trim();
+        //                    if (!string.IsNullOrEmpty(aa))
+        //                    {
+        //                        ad.SetPurchaseInfo(PurchaseType.Album, ServiceType.Amazon, aa);
+        //                    }
+        //                }
 
-                        if (_itunescolumn != -1)
-                        {
-                            string text = cells[_itunescolumn];
+        //                if (_itunescolumn != -1)
+        //                {
+        //                    string text = cells[_itunescolumn];
 
-                            if (!string.IsNullOrEmpty(text))
-                            {
-                                string r1 = @"%252Fid(?<album>\d*)%253Fi%253D(?<song>\d*)";
-                                string r2 = @"%252FviewAlbum%253Fi%253D(?<album>\d*)%2526id%253D(?<song>\d*)";
+        //                    if (!string.IsNullOrEmpty(text))
+        //                    {
+        //                        string r1 = @"%252Fid(?<album>\d*)%253Fi%253D(?<song>\d*)";
+        //                        string r2 = @"%252FviewAlbum%253Fi%253D(?<album>\d*)%2526id%253D(?<song>\d*)";
 
-                                Match match = Regex.Match(text, r1);
-                                if (!match.Success)
-                                    match = Regex.Match(text, r2);
+        //                        Match match = Regex.Match(text, r1);
+        //                        if (!match.Success)
+        //                            match = Regex.Match(text, r2);
 
-                                bool success = false;
-                                if (match.Success)
-                                {
-                                    string aid = match.Groups["album"].Value;
-                                    string sid = match.Groups["song"].Value;
+        //                        bool success = false;
+        //                        if (match.Success)
+        //                        {
+        //                            string aid = match.Groups["album"].Value;
+        //                            string sid = match.Groups["song"].Value;
 
-                                    if (!string.IsNullOrEmpty(aid))
-                                    {
-                                        ad.SetPurchaseInfo(PurchaseType.Album, ServiceType.ITunes, aid);
-                                        success = true;
-                                    }
-                                    if (!string.IsNullOrEmpty(sid))
-                                    {
-                                        ad.SetPurchaseInfo(PurchaseType.Song, ServiceType.ITunes, sid);
-                                        success = true;
-                                    }
-                                }
+        //                            if (!string.IsNullOrEmpty(aid))
+        //                            {
+        //                                ad.SetPurchaseInfo(PurchaseType.Album, ServiceType.ITunes, aid);
+        //                                success = true;
+        //                            }
+        //                            if (!string.IsNullOrEmpty(sid))
+        //                            {
+        //                                ad.SetPurchaseInfo(PurchaseType.Song, ServiceType.ITunes, sid);
+        //                                success = true;
+        //                            }
+        //                        }
 
-                                if (!success)
-                                {
-                                    Trace.WriteLine(string.Format("Bad ITunes:{0}", text));
-                                }
-                            }
-                        }
+        //                        if (!success)
+        //                        {
+        //                            Trace.WriteLine(string.Format("Bad ITunes:{0}", text));
+        //                        }
+        //                    }
+        //                }
 
-                        albums = new List<AlbumDetails>();
-                        albums.Add(ad);
-                    }
+        //                albums = new List<AlbumDetails>();
+        //                albums.Add(ad);
+        //            }
 
-                    Song song = dmc.CreateSong(user, title, artist, null, bpm, null, albums);
+        //            Song song = dmc.CreateSong(user, title, artist, null, bpm, null, albums);
 
-                    // Now set up the dance associations
+        //            // Now set up the dance associations
 
-                    dmc.AddDanceRatings(song, idList);
+        //            dmc.AddDanceRatings(song, idList);
 
-                    // TODO: this should move down into the db context class 
-                    // And add in the dynamic columns
-                    foreach (int dc in _dynamicColumns)
-                    {
-                        string value = cells[dc].Trim();
+        //            // TODO: this should move down into the db context class 
+        //            // And add in the dynamic columns
+        //            foreach (int dc in _dynamicColumns)
+        //            {
+        //                string value = cells[dc].Trim();
 
-                        if (!string.IsNullOrEmpty(value))
-                        {
-                            dmc.CreateSongProperty(song, _headers[dc], value);
-                        }
-                    }
-                }
+        //                if (!string.IsNullOrEmpty(value))
+        //                {
+        //                    dmc.CreateSongProperty(song, _headers[dc], value);
+        //                }
+        //            }
+        //        }
 
-                //dmc.CreateSongProperty(DanceMusicContext.EndBatchLoadCommand, Name);
-                dmc.ChangeTracker.DetectChanges();
+        //        //dmc.CreateSongProperty(DanceMusicContext.EndBatchLoadCommand, Name);
+        //        dmc.ChangeTracker.DetectChanges();
 
-                dmc.SaveChanges();
-            }
-        }
+        //        dmc.SaveChanges();
+        //    }
+        //}
 
-        string[] _dbs = new string[] { "JohnCrossan", "LetsDanceDenver", "SalsaSwingBallroom", "SandiegoDJ", "SteveThatDJ", "UsaSwingNet", "WaltersDanceCenter" };
-        private readonly int _chunk = 500;
+        //string[] _dbs = new string[] { "JohnCrossan", "LetsDanceDenver", "SalsaSwingBallroom", "SandiegoDJ", "SteveThatDJ", "UsaSwingNet", "WaltersDanceCenter" };
+        //private readonly int _chunk = 500;
 
-        private List<int> _dynamicColumns = new List<int>();
-        private int _danceColumn = -1;
-        private int _titleColumn = -1;
-        private int _artistColumn = -1;
-        private int _albumColumn = -1;
-        private int _labelColumn = -1;
-        private int _tempoColumn = -1;
-        private int _altTempoColumn = -1;
-        private int _amazoncolumn = -1;
-        private int _itunescolumn = -1;
-        private int _trackcolumn = -1;
-        private int _lengthcolumn = -1;
-        private TempoKind _tempoKind = TempoKind.BPM;
-        private string[] _headers; 
+        //private List<int> _dynamicColumns = new List<int>();
+        //private int _danceColumn = -1;
+        //private int _titleColumn = -1;
+        //private int _artistColumn = -1;
+        //private int _albumColumn = -1;
+        //private int _labelColumn = -1;
+        //private int _tempoColumn = -1;
+        //private int _altTempoColumn = -1;
+        //private int _amazoncolumn = -1;
+        //private int _itunescolumn = -1;
+        //private int _trackcolumn = -1;
+        //private int _lengthcolumn = -1;
+        //private TempoKind _tempoKind = TempoKind.BPM;
+        //private string[] _headers; 
+
         #endregion
 
         #region Utilities
