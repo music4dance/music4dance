@@ -1337,7 +1337,6 @@ namespace music4dance.Controllers
             {
                 // If there is a match set up the new info next to the album
                 int aidxM = song.Albums.IndexOf(ad);
-                alt.Albums = new List<AlbumDetails>();
 
                 for (int aidx = 0; aidx < song.Albums.Count; aidx++)
                 {

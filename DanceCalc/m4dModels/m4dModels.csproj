@@ -72,7 +72,7 @@
     <Compile Include="Dance.cs" />
     <Compile Include="DanceRating.cs" />
     <Compile Include="DbObject.cs" />
-    <Compile Include="ISongPropertyFactory.cs" />
+    <Compile Include="IFactories.cs" />
     <Compile Include="ITunesService.cs" />
     <Compile Include="IUserMap.cs" />
     <Compile Include="LogBase.cs" />

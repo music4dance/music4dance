@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -50,6 +51,16 @@ namespace m4dModels
         public const string MessageData = ".Message";
 
         public static readonly string[] ScalarFields = new string[] {Song.TitleField, Song.ArtistField, Song.TempoField, Song.LengthField, Song.GenreField};
+
+        public static readonly PropertyInfo[] ScalerProperties = new PropertyInfo[]
+        {
+            typeof(SongBase).GetProperty(SongBase.TitleField),
+            typeof(SongBase).GetProperty(SongBase.ArtistField),
+            typeof(SongBase).GetProperty(SongBase.TempoField),
+            typeof(SongBase).GetProperty(SongBase.LengthField),
+            typeof(SongBase).GetProperty(SongBase.LengthField),
+            typeof(SongBase).GetProperty(SongBase.GenreField),
+        };
 
         #endregion
 

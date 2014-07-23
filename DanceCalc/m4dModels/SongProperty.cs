@@ -188,7 +188,8 @@ namespace m4dModels
         
         #endregion
 
-        public static string Serialize(IEnumerable<SongProperty> properties, string [] actions)
+        #region Serialization
+        public static string Serialize(IEnumerable<SongProperty> properties, string[] actions)
         {
             StringBuilder sb = new StringBuilder();
 
@@ -229,7 +230,21 @@ namespace m4dModels
             }
         }
 
+        public static string SerializeValue(object o)
+        {
+            if (o == null)
+            {
+                return null;
+            }
+            else
+            {
+                return o.ToString();
+            }
+        }
+        
+        #endregion
         #region Static Helpers
+
         private static string FormatTempo(string value)
         {
             decimal v;

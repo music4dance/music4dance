@@ -138,17 +138,5 @@ namespace m4dModels
 
             return values;
         }
-
-        public static string SerializeValue(object o)
-        {
-            if (o == null)
-            {
-                return null;
-            }
-            else
-            {
-                return o.ToString();
-            }
-        }
     }
 }

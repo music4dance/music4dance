@@ -209,7 +209,7 @@ namespace m4dModels
             return service.GetPurchaseLink(pt, albumInfo, songInfo);
         }
 
-        public void PurchaseDiff(ISongPropertyFactory spf, Song song, AlbumDetails old, SongLog log)
+        public void PurchaseDiff(IFactories factories, Song song, AlbumDetails old, SongLog log)
         {
             Dictionary<string, string> add = new Dictionary<string, string>();
             //HashSet<string> rem = new HashSet<string>();
@@ -221,7 +221,7 @@ namespace m4dModels
                 {
                     if (Purchase != null && !Purchase.ContainsKey(key))
                     {
-                        ChangeProperty(spf, song, this.Index, Song.PurchaseField, key, Purchase[key], null, log);
+                        ChangeProperty(factories, song, this.Index, Song.PurchaseField, key, Purchase[key], null, log);
                     }
                 }
             }
@@ -234,19 +234,19 @@ namespace m4dModels
                     if (old.Purchase == null || !old.Purchase.ContainsKey(key))
                     {
                         // Add
-                        ChangeProperty(spf, song, this.Index, Song.PurchaseField, key, null, Purchase[key], log);
+                        ChangeProperty(factories, song, this.Index, Song.PurchaseField, key, null, Purchase[key], log);
                     }
                     else if (old.Purchase != null && old.Purchase.ContainsKey(key) && !string.Equals(Purchase[key], old.Purchase[key]))
                     {
                         // Change
-                        ChangeProperty(spf, song, this.Index, Song.PurchaseField, key, old.Purchase[key], Purchase[key], log);
+                        ChangeProperty(factories, song, this.Index, Song.PurchaseField, key, old.Purchase[key], Purchase[key], log);
                     }
                 }
             }
 
         }
 
-        public void PurchaseAdd(ISongPropertyFactory spf, Song song, AlbumDetails old, SongLog log)
+        public void PurchaseAdd(IFactories factories, Song song, AlbumDetails old, SongLog log)
         {
             Dictionary<string, string> add = new Dictionary<string, string>();
 
@@ -258,7 +258,7 @@ namespace m4dModels
                     if (old.Purchase == null || !old.Purchase.ContainsKey(key))
                     {
                         // Add
-                        ChangeProperty(spf, song, this.Index, Song.PurchaseField, key, null, Purchase[key], log);
+                        ChangeProperty(factories, song, this.Index, Song.PurchaseField, key, null, Purchase[key], log);
                     }
                 }
             }
@@ -358,67 +358,67 @@ namespace m4dModels
         #endregion
 
         #region Property Utilities
-        public bool ModifyInfo(ISongPropertyFactory spf, Song song, AlbumDetails old, SongLog log)
+        public bool ModifyInfo(IFactories factories, Song song, AlbumDetails old, SongLog log)
         {
             bool modified = true;
 
             // This indicates a deleted album
             if (string.IsNullOrWhiteSpace(Name))
             {
-                ChangeProperty(spf, song, old.Index, Song.AlbumField, null, old.Name, null, log);
+                ChangeProperty(factories, song, old.Index, Song.AlbumField, null, old.Name, null, log);
                 if (old.Track.HasValue)
-                    ChangeProperty(spf, song, old.Index, Song.TrackField, null, old.Track, null, log);
+                    ChangeProperty(factories, song, old.Index, Song.TrackField, null, old.Track, null, log);
                 if (!string.IsNullOrWhiteSpace(old.Publisher))
-                    ChangeProperty(spf, song, old.Index, Song.PublisherField, null, old.Publisher, null, log);
+                    ChangeProperty(factories, song, old.Index, Song.PublisherField, null, old.Publisher, null, log);
 
                 modified = true;
             }
             else
             {
-                modified |= ChangeProperty(spf, song, old.Index, Song.AlbumField, null, old.Name, Name, log);
-                modified |= ChangeProperty(spf, song, old.Index, Song.TrackField, null, old.Track, Track, log);
-                modified |= ChangeProperty(spf, song, old.Index, Song.PublisherField, null, old.Publisher, Publisher, log);
+                modified |= ChangeProperty(factories, song, old.Index, Song.AlbumField, null, old.Name, Name, log);
+                modified |= ChangeProperty(factories, song, old.Index, Song.TrackField, null, old.Track, Track, log);
+                modified |= ChangeProperty(factories, song, old.Index, Song.PublisherField, null, old.Publisher, Publisher, log);
 
-                PurchaseDiff(spf, song, old, log);
+                PurchaseDiff(factories, song, old, log);
             }
 
             return modified;
         }
 
         // Additive update
-        public bool UpdateInfo(ISongPropertyFactory spf, Song song, AlbumDetails old, SongLog log)
+        public bool UpdateInfo(IFactories factories, Song song, AlbumDetails old, SongLog log)
         {
             bool modified = true;
 
-            modified |= UpdateProperty(spf, song, old.Index, Song.AlbumField, null, old.Name, Name, log);
-            modified |= UpdateProperty(spf, song, old.Index, Song.TrackField, null, old.Track, Track, log);
-            modified |= UpdateProperty(spf, song, old.Index, Song.PublisherField, null, old.Publisher, Publisher, log);
+            modified |= UpdateProperty(factories, song, old.Index, Song.AlbumField, null, old.Name, Name, log);
+            modified |= UpdateProperty(factories, song, old.Index, Song.TrackField, null, old.Track, Track, log);
+            modified |= UpdateProperty(factories, song, old.Index, Song.PublisherField, null, old.Publisher, Publisher, log);
 
-            PurchaseAdd(spf, song, old, log);
+            PurchaseAdd(factories, song, old, log);
 
             return modified;
         }
 
-        public void CreateProperties(ISongPropertyFactory spf, Song song, SongLog log = null)
+        public void CreateProperties(IFactories factories, Song song, SongLog log = null)
         {
             if (string.IsNullOrWhiteSpace(Name))
             {
                 throw new ArgumentOutOfRangeException("album");
             }
 
-            AddProperty(spf, song, Index, Song.AlbumField, null, Name, log);
-            AddProperty(spf, song, Index, Song.TrackField, null, Track, log);
-            AddProperty(spf, song, Index, Song.PublisherField, null, Publisher, log);
+            AddProperty(factories, song, Index, Song.AlbumField, null, Name, log);
+            AddProperty(factories, song, Index, Song.TrackField, null, Track, log);
+            AddProperty(factories, song, Index, Song.PublisherField, null, Publisher, log);
             if (Purchase != null)
             {
                 foreach (KeyValuePair<string, string> purchase in Purchase)
                 {
-                    AddProperty(spf, song, Index, Song.PurchaseField, purchase.Key, purchase.Value, log);
+                    AddProperty(factories, song, Index, Song.PurchaseField, purchase.Key, purchase.Value, log);
                 }
             }
         }
 
-        public static void AddProperty(ISongPropertyFactory spf, Song song, int idx, string name, string qual, object value, SongLog log = null)
+        public static void AddProperty(IFactories factories, Song song, int idx, string name, string qual, object value, SongLog log = null)
         {
             if (value == null)
                 return;
@@ -429,18 +429,12 @@ namespace m4dModels
 
             if (op == null || string.Equals(op.Value, value))
             {
-                SongProperty np = spf.CreateSongProperty(song, fullName, value, log);
-                song.SongProperties.Add(np);
-
-                if (log != null)
-                {
-                    log.UpdateData(np.Name, np.Value);
-                }
+                SongProperty np = factories.CreateSongProperty(song, fullName, value, log);
             }
         }
 
 
-        public static bool ChangeProperty(ISongPropertyFactory spf, Song song, int idx, string name, string qual, object oldValue, object newValue, SongLog log = null)
+        public static bool ChangeProperty(IFactories factories, Song song, int idx, string name, string qual, object oldValue, object newValue, SongLog log = null)
         {
             bool modified = false;
 
@@ -448,13 +442,7 @@ namespace m4dModels
             {
                 string fullName = SongProperty.FormatName(name, idx, qual);
 
-                SongProperty np = spf.CreateSongProperty(song, fullName, newValue, log);
-
-                if (log != null)
-                {
-                    log.UpdateData(np.Name, np.Value, LogBase.SerializeValue(oldValue));
-                }
-
+                SongProperty np = factories.CreateSongProperty(song, fullName, newValue, log);
 
                 modified = true;
             }
@@ -462,7 +450,7 @@ namespace m4dModels
             return modified;
         }
 
-        public static bool UpdateProperty(ISongPropertyFactory spf, Song song, int idx, string name, string qual, object oldValue, object newValue, SongLog log = null)
+        public static bool UpdateProperty(IFactories factories, Song song, int idx, string name, string qual, object oldValue, object newValue, SongLog log = null)
         {
             bool modified = false;
 
@@ -470,12 +458,7 @@ namespace m4dModels
             {
                 string fullName = SongProperty.FormatName(name, idx, qual);
 
-                SongProperty np = spf.CreateSongProperty(song, fullName, newValue, log);
-
-                if (log != null)
-                {
-                    log.UpdateData(np.Name, np.Value, LogBase.SerializeValue(oldValue));
-                }
+                SongProperty np = factories.CreateSongProperty(song, fullName, newValue, log);
 
                 modified = true;
             }

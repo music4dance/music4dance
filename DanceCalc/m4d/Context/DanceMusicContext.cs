@@ -33,7 +33,7 @@ namespace m4d.Context
 {
     public enum UndoAction { Undo, Redo };
 
-    public class DanceMusicContext : IdentityDbContext<ApplicationUser>, IUserMap, ISongPropertyFactory
+    public class DanceMusicContext : IdentityDbContext<ApplicationUser>, IUserMap, IFactories
     {
         #region Construction
         public DanceMusicContext()
@@ -125,6 +125,9 @@ namespace m4d.Context
                 Trace.WriteLine(string.Format("Title and Artist are the same ({0})", sd.Title));
             }
 
+            // TODO: Raise this to callers?
+            sd.UpdateDanceRatings(dances, rating==0?DanceRatingAutoCreate:rating);
+
             Song song = CreateSong(null, createLog);
             song.Create(sd, user, command, value, this, this);
 
@@ -133,11 +136,6 @@ namespace m4d.Context
             {
                 Log.Add(song.CurrentLog);
             }
-
-            AddDanceRatings(song, dances, rating);
-
-            // TODO: Verify that we don't need to do this...
-            //SaveChanges();
 
             return song;
         }
@@ -334,7 +332,6 @@ namespace m4d.Context
                     }
                 }
 
-                // TODO: Get this to work in a detached state
                 foreach (ModifiedRecord us in from.ModifiedBy)
                 {
                     if (AddUserToSong(us.ApplicationUser, song))
@@ -347,11 +344,8 @@ namespace m4d.Context
             // Dump the weight table
             foreach (KeyValuePair<string, int> dance in weights)
             {
-                DanceRating dr = DanceRatings.Create();
-                dr.DanceId = dance.Key;
-                dr.Weight = dance.Value;
+                DanceRating dr = CreateDanceRating(song, dance.Key, dance.Value);
 
-                song.AddDanceRating(dr);
                 var dre = Entry(dr);
                 if (dre != null && dre.State != EntityState.Added)
                 {
@@ -405,59 +399,26 @@ namespace m4d.Context
         #endregion
 
         #region Dance Ratings
-        public void AddDanceRatings(Song song, IEnumerable<string> danceIds, int weight = 0)
+
+        public DanceRating CreateDanceRating(Song song, string danceId, int weight)
         {
-            if (Dances.Local.Count == 0)
+            Dance dance = Dances.FirstOrDefault(d => d.Id == danceId);
+
+            if (dance == null)
             {
-                Dances.Load();
+                return null;
             }
 
-            if (weight == 0)
-                weight = DanceRatingAutoCreate;
+            DanceRating dr = DanceRatings.Create();
 
-            bool changed = false;
+            dr.Dance = dance;
+            dr.DanceId = dance.Id;
 
-            foreach (string danceId in danceIds)
-            {
-                Dance dance = Dances.Local.First(d => d.Id == danceId);
-                Debug.Assert(dance != null);
+            dr.Weight = weight;
 
-                DanceRating dr = DanceRatings.Create();
-                dr.Dance = dance;
-                dr.Weight = weight;
+            song.AddDanceRating(dr);
 
-                song.AddDanceRating(dr);
-
-                CreateSongProperty(song, Song.DanceRatingField, string.Format("{0}+{1}", dance.Id, weight), song.CurrentLog);
-                changed = true;
-            }
-
-            if (changed)
-            {
-                SongCounts.ClearCache();
-            }
-        }
-
-        public bool AddDanceRatings(ApplicationUser user, Song song, IList<string> danceIds, int weight, out SongLog log)
-        {
-            log = CreateEditHeader(song, user);
-
-            bool modified = EditDanceRatings(song, danceIds, weight, null, 0, log);
-
-            if (modified)
-            {
-                Log.Add(log);
-            }
-
-            return modified;
-        }
-
-        public bool AddDanceRatings(ApplicationUser user, Guid songId, IList<string> danceIds, int weight)
-        {
-            Song song = FindSong(songId, null);
-            SongLog log;
-
-            return AddDanceRatings(user, song, danceIds, weight, out log);
+            return dr;
         }
 
         public bool EditDanceRatings(Song song, IList<string> add_, int addWeight, List<string> remove_, int remWeight, SongLog log)
@@ -506,13 +467,9 @@ namespace m4d.Context
                 {
                     dr.Weight += delta;
 
-                    SongProperty np = SongProperties.Create();
-                    np.Song = song;
-                    np.Name = Song.DanceRatingField;
-                    np.Value = new DanceRatingDelta { DanceId = dr.DanceId, Delta = delta }.ToString();
-
-                    SongProperties.Add(np);
-                    LogPropertyUpdate(np, log);
+                    CreateSongProperty(
+                        song, Song.DanceRatingField,
+                        new DanceRatingDelta { DanceId = dr.DanceId, Delta = delta }.ToString(), log);
 
                     changed = true;
                 }
@@ -529,24 +486,24 @@ namespace m4d.Context
             {
                 foreach (string ndr in add)
                 {
-                    Dance dance = Dances.First(d => d.Id == ndr);
-                    Debug.Assert(dance != null);
+                    DanceRating dr = CreateDanceRating(song, ndr, DanceRatingInitial);
 
-                    DanceRating dr = DanceRatings.Create();
-                    dr.Dance = dance;
-                    dr.Weight = DanceRatingInitial;
+                    if (dr != null)
+                    {
+                        CreateSongProperty(
+                            song,
+                            Song.DanceRatingField,
+                            new DanceRatingDelta { DanceId = ndr, Delta = DanceRatingInitial }.ToString(),
+                            log
+                        );
 
-                    song.AddDanceRating(dr);
+                        changed = true;
+                    }
+                    else
+                    {
+                        Trace.WriteLine(string.Format("Invalid DanceId={0}", ndr));
+                    }
 
-                    SongProperty np = SongProperties.Create();
-                    np.Song = song;
-                    np.Name = Song.DanceRatingField;
-                    np.Value = new DanceRatingDelta { DanceId = ndr, Delta = DanceRatingInitial }.ToString();
-
-                    SongProperties.Add(np);
-                    LogPropertyUpdate(np, log);
-
-                    changed = true;
                 }
             }
 
@@ -567,7 +524,13 @@ namespace m4d.Context
             SongProperty ret = SongProperties.Create();
             ret.Song = song;
             ret.Name = name;
-            ret.Value = LogBase.SerializeValue(value);
+            ret.Value = SongProperty.SerializeValue(value);
+
+            if (song.SongProperties == null)
+            {
+                song.SongProperties = new List<SongProperty>();
+            }
+            song.SongProperties.Add(ret);
 
             if (log != null)
             {
@@ -592,13 +555,7 @@ namespace m4d.Context
 
                 old.GetType().GetProperty(name).SetValue(old, eP);
 
-                SongProperty np = SongProperties.Create();
-                np.Song = old;
-                np.Name = name;
-                np.Value = LogBase.SerializeValue(eP);
-
-                SongProperties.Add(np);
-                LogPropertyUpdate(np, log, LogBase.SerializeValue(oP));
+                CreateSongProperty(old, name, eP, log);
             }
 
             return modified;
@@ -615,16 +572,8 @@ namespace m4d.Context
             if (oP != null)
             {
                 modified = true;
-
                 old.GetType().GetProperty(name).SetValue(old, eP);
-
-                SongProperty np = SongProperties.Create();
-                np.Song = old;
-                np.Name = name;
-                np.Value = LogBase.SerializeValue(eP);
-
-                SongProperties.Add(np);
-                LogPropertyUpdate(np, log, LogBase.SerializeValue(oP));
+                CreateSongProperty(old,name,eP,log);
             }
 
             return modified;
@@ -1139,10 +1088,10 @@ namespace m4d.Context
         {
             return Users.FirstOrDefault(u => u.UserName.ToLower() == name.ToLower());
         }
-        public ModifiedRecord CreateMapping(Guid songId, string name)
+        public ModifiedRecord CreateMapping(Guid songId, string applicationId)
         {
             ModifiedRecord us = Modified.Create();
-            us.ApplicationUserId = name;
+            us.ApplicationUserId = applicationId;
             us.SongId = songId;
             return us;
         }

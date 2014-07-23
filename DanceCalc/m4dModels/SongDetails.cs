@@ -31,9 +31,9 @@ namespace m4dModels
             Created = song.Created;
             Modified = song.Modified;
 
-            RatingsList = song.DanceRatings.ToList();
-            Properties = song.SongProperties.ToList();
-            ModifiedList = song.ModifiedBy.ToList();
+            RatingsList.AddRange(song.DanceRatings);
+            Properties.AddRange(song.SongProperties);
+            ModifiedList.AddRange(song.ModifiedBy);
 
             BuildAlbumInfo();
         }
@@ -69,12 +69,8 @@ namespace m4dModels
                 SongId = Guid.NewGuid();
             }
 
-            if (SongProperties == null)
-            {
-                Properties = new List<SongProperty>();
-            }
-            SongProperty.Load(SongId, s, SongProperties);
-            Load(SongId, SongProperties);
+            SongProperty.Load(SongId, s, Properties);
+            Load(SongId, Properties);
         }
 
         public SongDetails(string title, string artist, string genre, decimal? tempo, int? length, List<AlbumDetails> albums)
@@ -84,12 +80,11 @@ namespace m4dModels
             Genre = genre;
             Tempo = tempo;
             Length = length;
-            Albums = albums;
+            _albums = albums;
         }
         private void Load(Guid songId, ICollection<SongProperty> properties)
         {
             SongId = songId;
-            Properties = new List<SongProperty>(properties);
             bool created = false;
 
             foreach (SongProperty prop in properties)
@@ -101,10 +96,6 @@ namespace m4dModels
                     switch (bn)
                     {
                         case UserField:
-                            if (ModifiedList == null)
-                            {
-                                ModifiedList = new List<ModifiedRecord>();
-                            }
                             if (!ModifiedList.Any(u => u.ApplicationUserId == prop.Value))
                             {
                                 ModifiedRecord us = new ModifiedRecord { SongId = songId, ApplicationUserId = prop.Value };
@@ -367,10 +358,60 @@ namespace m4dModels
                 throw new NotImplementedException("Shouldn't need to set this explicitly");
             }
         }
-        public List<AlbumDetails> Albums { get; set; }
-        public List<SongProperty> Properties { get; set; }
-        public List<ModifiedRecord> ModifiedList { get; set; }
-        public List<DanceRating> RatingsList { get; set; }
+        public List<AlbumDetails> Albums
+        {
+            get
+            {
+                if (_albums == null)
+                {
+                    _albums = new List<AlbumDetails>();
+                }
+                return _albums;
+            }
+            set
+            {
+                _albums = value;
+            }
+        }
+        private List<AlbumDetails> _albums;
+
+        public List<SongProperty> Properties
+        {
+            get
+            {
+                if (_properties == null)
+                {
+                    _properties = new List<SongProperty>();
+                }
+                return _properties;
+            }
+        }
+        private List<SongProperty> _properties;
+        public List<ModifiedRecord> ModifiedList
+        {
+            get
+            {
+                if (_modifiedList == null)
+                {
+                    _modifiedList = new List<ModifiedRecord>();
+                }
+                return _modifiedList;
+            }
+        }
+        private List<ModifiedRecord> _modifiedList;
+
+        public List<DanceRating> RatingsList 
+        {
+            get
+            {
+                if (_ratingsList == null)
+                {
+                    _ratingsList = new List<DanceRating>();
+                }
+                return _ratingsList;
+            }
+        }
+        private List<DanceRating> _ratingsList;
 
         public int TitleHash 
         { 
@@ -696,7 +737,6 @@ namespace m4dModels
         {
             IEnumerable<SongProperty> properties =
                 from prop in Properties
-                //                where prop.BaseName.Equals(AlbumField)
                 select prop;
 
             Albums = BuildAlbumInfo(properties);
@@ -711,20 +751,16 @@ namespace m4dModels
         /// </summary>
         /// <param name="value"></param>
         public void UpdateDanceRating(string value)
+
         {
-            if (RatingsList == null)
-            {
-                RatingsList = new List<DanceRating>();
-            }
-
             DanceRatingDelta drd = new DanceRatingDelta(value);
-
             UpdateDanceRating(drd);
         }
 
         public void UpdateDanceRating(DanceRatingDelta drd)
         {
             DanceRating dr = RatingsList.Find(r => r.DanceId.Equals(drd.DanceId));
+            
             if (dr == null)
             {
                 dr = new DanceRating { SongId = this.SongId, DanceId = drd.DanceId, Weight = 0 };
@@ -734,13 +770,23 @@ namespace m4dModels
             dr.Weight += drd.Delta;
         }
 
+
         public void UpdateDanceRatings(IEnumerable<string> dances, int weight)
         {
+            if (dances == null)
+            {
+                return;
+            }
+
             foreach (string d in dances)
             {
                 DanceRatingDelta drd = new DanceRatingDelta { DanceId = d, Delta = weight };
                 UpdateDanceRating(drd);
                 SongProperty prop = new SongProperty { SongId = this.SongId, Name = DanceRatingField, Value = drd.ToString() };
+                if (Properties == null)
+                {
+
+                }
                 Properties.Add(prop);
             }
         }

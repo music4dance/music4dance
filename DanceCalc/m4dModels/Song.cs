@@ -22,7 +22,7 @@ namespace m4dModels
 
         #region Actions
 
-        public void Create(SongDetails sd, ApplicationUser user, string command, string value, ISongPropertyFactory pfactory, IUserMap users)
+        public void Create(SongDetails sd, ApplicationUser user, string command, string value, IFactories factories, IUserMap users)
         {
             DateTime time = DateTime.Now;
 
@@ -32,7 +32,7 @@ namespace m4dModels
                 log.Initialize(user, this, command);
             }
 
-            pfactory.CreateSongProperty(this, command, value, log);
+            factories.CreateSongProperty(this, command, value, log);
 
             // Handle User association
             if (user != null)
@@ -45,30 +45,35 @@ namespace m4dModels
                     ModifiedBy = new List<ModifiedRecord>();
                 }
                 ModifiedBy.Add(us);
-                pfactory.CreateSongProperty(this, Song.UserField, user.UserName, log);
+                factories.CreateSongProperty(this, Song.UserField, user.UserName, log);
             }
 
             Created = time;
             Modified = time;
-            pfactory.CreateSongProperty(this, Song.TimeField, time.ToString(), log);
+            factories.CreateSongProperty(this, Song.TimeField, time.ToString(), log);
 
             Debug.Assert(!string.IsNullOrWhiteSpace(sd.Title));
-            foreach (string field in SongBase.ScalarFields)
+            foreach (PropertyInfo pi in SongBase.ScalerProperties)
             {
-                // TODO: If this works, we should try caching property info
-                PropertyInfo pi = typeof(SongBase).GetProperty(field);
                 object prop = pi.GetValue(sd);
-                pi.SetValue(this, prop);
+                if (prop != null)
+                {
+                    pi.SetValue(this, prop);
+                    factories.CreateSongProperty(this, pi.Name, prop, log);
+                }
             }
 
+            // Handle Dance Ratings
+            CreateDanceRatings(sd.DanceRatings, factories);
+
             // Handle Albums
-            CreateAlbums(sd.Albums, pfactory);
+            CreateAlbums(sd.Albums, factories);
 
             Purchase = sd.GetPurchaseTags();
             TitleHash = Song.CreateTitleHash(Title);
         }
 
-        private void CreateAlbums(IList<AlbumDetails> albums, ISongPropertyFactory pfactory)
+        private void CreateAlbums(IList<AlbumDetails> albums, IFactories factories)
         {
             if (albums != null)
             {
@@ -84,12 +89,31 @@ namespace m4dModels
                             Album = albums[0].Name;
                         }
 
-                        ad.CreateProperties(pfactory, this, this.CurrentLog);
+                        ad.CreateProperties(factories, this, this.CurrentLog);
                     }
                 }
             }
         }
 
+        private void CreateDanceRatings(IEnumerable<DanceRating> ratings, IFactories factories)
+        {
+            if (ratings == null)
+            {
+                return;
+            }
+
+            foreach (DanceRating dr in ratings)
+            {
+                // TODO: Should CreateDanceRating create the property as well?
+                factories.CreateDanceRating(this, dr.DanceId, dr.Weight);
+                factories.CreateSongProperty(
+                    this,
+                    Song.DanceRatingField,
+                    new DanceRatingDelta { DanceId = dr.DanceId, Delta = dr.Weight }.ToString(),
+                    CurrentLog
+                );
+            }
+        }
         public void Delete()
         {
             Tempo = null;
@@ -172,7 +196,7 @@ namespace m4dModels
             }
             else 
             {
-                DanceRatings.FirstOrDefault(r => r.DanceId == dr.DanceId);
+                other = DanceRatings.FirstOrDefault(r => r.DanceId == dr.DanceId);
             }
 
             if (other == null)
