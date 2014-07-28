@@ -52,7 +52,7 @@ namespace m4dModels
 
         public static readonly string[] ScalarFields = new string[] {Song.TitleField, Song.ArtistField, Song.TempoField, Song.LengthField, Song.GenreField};
 
-        public static readonly PropertyInfo[] ScalerProperties = new PropertyInfo[]
+        public static readonly PropertyInfo[] ScalarProperties = new PropertyInfo[]
         {
             typeof(SongBase).GetProperty(SongBase.TitleField),
             typeof(SongBase).GetProperty(SongBase.ArtistField),
@@ -61,6 +61,12 @@ namespace m4dModels
             typeof(SongBase).GetProperty(SongBase.LengthField),
             typeof(SongBase).GetProperty(SongBase.GenreField),
         };
+
+        public static readonly int DanceRatingCreate = 10;  // TODO: when we allow a user to manually add a song, give lots of credit
+        public static readonly int DanceRatingInitial = 6;
+        public static readonly int DanceRatingIncrement = 3;
+        public static readonly int DanceRatingAutoCreate = 5;
+        public static readonly int DanceRatingDecrement = -2;
 
         #endregion
 

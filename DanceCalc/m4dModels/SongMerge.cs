@@ -66,9 +66,21 @@ namespace m4dModels
                 }
 
                 if (cTotal == cMatch)
-                    spm.Selection = -1;
+                {
+                    if (allowAlternates)
+                    {
+                        spm.Selection = 0;
+                    }
+                    else
+                    {
+                        spm.Selection = -1;
+                    }
+                }
                 else
+                {
                     spm.Selection = defaultIdx;
+                }
+                    
 
                 Properties.Add(spm);
             }

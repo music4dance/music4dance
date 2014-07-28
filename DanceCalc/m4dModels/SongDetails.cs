@@ -69,8 +69,9 @@ namespace m4dModels
                 SongId = Guid.NewGuid();
             }
 
-            SongProperty.Load(SongId, s, Properties);
-            Load(SongId, Properties);
+            List<SongProperty> properties = new List<SongProperty>();
+            SongProperty.Load(SongId, s, properties);
+            Load(SongId, properties);
         }
 
         public SongDetails(string title, string artist, string genre, decimal? tempo, int? length, List<AlbumDetails> albums)
@@ -96,9 +97,9 @@ namespace m4dModels
                     switch (bn)
                     {
                         case UserField:
-                            if (!ModifiedList.Any(u => u.ApplicationUserId == prop.Value))
+                            if (!ModifiedList.Any(u => u.UserName == prop.Value))
                             {
-                                ModifiedRecord us = new ModifiedRecord { SongId = songId, ApplicationUserId = prop.Value };
+                                ModifiedRecord us = new ModifiedRecord { SongId = songId, UserName = prop.Value };
                                 ModifiedList.Add(us);
                             }
                             break;
@@ -137,6 +138,7 @@ namespace m4dModels
             }
 
             Albums = BuildAlbumInfo(properties);
+            Properties.AddRange(properties);
         }
 
         #endregion

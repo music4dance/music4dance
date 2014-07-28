@@ -53,7 +53,7 @@ namespace m4dModels
             factories.CreateSongProperty(this, Song.TimeField, time.ToString(), log);
 
             Debug.Assert(!string.IsNullOrWhiteSpace(sd.Title));
-            foreach (PropertyInfo pi in SongBase.ScalerProperties)
+            foreach (PropertyInfo pi in SongBase.ScalarProperties)
             {
                 object prop = pi.GetValue(sd);
                 if (prop != null)
@@ -71,6 +71,249 @@ namespace m4dModels
 
             Purchase = sd.GetPurchaseTags();
             TitleHash = Song.CreateTitleHash(Title);
+        }
+
+        public bool Edit(ApplicationUser user, SongDetails edit, List<string> addDances, List<string> remDances, IFactories factories, IUserMap users)
+        {
+            bool modified = false;
+
+            CreateEditProperties(user, EditCommand, factories, users);
+
+            foreach (string field in SongBase.ScalarFields)
+            {
+                modified |= UpdateProperty(edit, field, factories);
+            }
+
+            List<AlbumDetails> oldAlbums = SongDetails.BuildAlbumInfo(this);
+
+            bool foundFirst = false;
+            bool foundOld = false;
+
+            List<int> promotions = new List<int>();
+
+            Album = null;
+
+            for (int aidx = 0; aidx < edit.Albums.Count; aidx++)
+            {
+                AlbumDetails album = edit.Albums[aidx];
+                AlbumDetails old = oldAlbums.FirstOrDefault(a => a.Index == album.Index);
+
+                if (!foundFirst && !string.IsNullOrEmpty(album.Name))
+                {
+                    foundFirst = true;
+                    Album = album.Name;
+                }
+
+                if (old != null)
+                {
+                    // We're in existing album territory
+                    foundOld = true;
+                    modified |= album.ModifyInfo(factories, this, old, CurrentLog);
+                }
+                else
+                {
+                    // We're in new territory only do something if the name field is non-empty
+                    if (!string.IsNullOrWhiteSpace(album.Name))
+                    {
+                        album.CreateProperties(factories, this, CurrentLog);
+                        modified = true;
+
+                        // Push this to the front if we haven't run into an old album yet
+                        if (!foundOld)
+                        {
+                            promotions.Insert(0, album.Index);
+                        }
+                    }
+                }
+            }
+
+            // Now push the promotions
+            foreach (int p in promotions)
+            {
+                AlbumDetails.AddProperty(factories, this, p, Song.AlbumPromote, null, string.Empty, CurrentLog);
+            }
+
+            modified |= EditDanceRatings(addDances, DanceRatingIncrement, remDances, DanceRatingDecrement, factories);
+
+            modified |= UpdatePurchaseInfo(edit);
+
+            return modified;
+
+        }
+
+        // This is an additive merge - only add new things if they don't conflict with the old
+        public bool AdditiveMerge(ApplicationUser user, SongDetails edit, List<string> addDances, IFactories factories, IUserMap users)
+        {
+            bool modified = false;
+
+            CreateEditProperties(user, EditCommand, factories, users);
+
+            foreach (string field in SongBase.ScalarFields)
+            {
+                modified |= AddProperty(edit, field, factories);
+            }
+
+            List<AlbumDetails> oldAlbums = SongDetails.BuildAlbumInfo(this);
+
+            for (int aidx = 0; aidx < edit.Albums.Count; aidx++)
+            {
+                AlbumDetails album = edit.Albums[aidx];
+                AlbumDetails old = oldAlbums.FirstOrDefault(a => a.Index == album.Index);
+
+                if (string.IsNullOrWhiteSpace(Album) && !string.IsNullOrEmpty(album.Name))
+                {
+                    Album = album.Name;
+                }
+
+                if (old != null)
+                {
+                    // We're in existing album territory
+                    modified |= album.UpdateInfo(factories, this, old, CurrentLog);
+                }
+                else
+                {
+                    // We're in new territory only do something if the name field is non-empty
+                    if (!string.IsNullOrWhiteSpace(album.Name))
+                    {
+                        album.CreateProperties(factories, this, CurrentLog);
+                        modified = true;
+                    }
+                }
+            }
+
+            modified |= EditDanceRatings(addDances, DanceRatingIncrement, null, 0, factories);
+
+            modified |= UpdatePurchaseInfo(edit);
+
+            return modified;
+        }
+
+        public void MergeDetails(IEnumerable<Song> songs, IFactories factories, IUserMap users)
+        {
+            // Add in the to/from properties and create new weight table as well as creating the user associations
+            Dictionary<string, int> weights = new Dictionary<string, int>();
+            foreach (Song from in songs)
+            {
+                foreach (DanceRating dr in from.DanceRatings)
+                {
+                    int weight = 0;
+                    if (weights.TryGetValue(dr.DanceId, out weight))
+                    {
+                        weights[dr.DanceId] = weight + dr.Weight;
+                    }
+                    else
+                    {
+                        weights[dr.DanceId] = dr.Weight;
+                    }
+                }
+
+                foreach (ModifiedRecord us in from.ModifiedBy)
+                {
+                    if (AddUser(us.ApplicationUser, users))
+                    {
+                        factories.CreateSongProperty(this, Song.UserField, us.ApplicationUser.UserName, this.CurrentLog);
+                    }
+                }
+            }
+
+            // Dump the weight table
+            foreach (KeyValuePair<string, int> dance in weights)
+            {
+                DanceRating dr = factories.CreateDanceRating(this, dance.Key, dance.Value);
+
+                string value = new DanceRatingDelta { DanceId = dance.Key, Delta = dance.Value }.ToString();
+
+                factories.CreateSongProperty(this, Song.DanceRatingField, value, this.CurrentLog);
+            }
+
+        }
+        private bool UpdateProperty(SongDetails edit, string name, IFactories factories)
+        {
+            // TODO: This can be optimized
+            bool modified = false;
+
+            object eP = edit.GetType().GetProperty(name).GetValue(edit);
+            object oP = GetType().GetProperty(name).GetValue(this);
+
+            if (!object.Equals(eP, oP))
+            {
+                modified = true;
+
+                GetType().GetProperty(name).SetValue(this, eP);
+
+                factories.CreateSongProperty(this, name, eP, CurrentLog);
+            }
+
+            return modified;
+        }
+
+        // Only update if the old song didn't have this property
+        private bool AddProperty(SongDetails edit, string name, IFactories factories)
+        {
+            bool modified = false;
+
+            object eP = edit.GetType().GetProperty(name).GetValue(edit);
+            object oP = GetType().GetProperty(name).GetValue(this);
+
+            if (oP != null)
+            {
+                modified = true;
+                GetType().GetProperty(name).SetValue(this, eP);
+                factories.CreateSongProperty(this, name, eP, CurrentLog);
+            }
+
+            return modified;
+        }
+
+
+        public void CreateEditProperties(ApplicationUser user, string command, IFactories factories, IUserMap users)
+        {
+            // Add the command into the property log
+            factories.CreateSongProperty(this, Song.EditCommand, string.Empty, null);
+
+            // Handle User association
+            if (user != null)
+            {
+                AddUser(user, users);
+                factories.CreateSongProperty(this, Song.UserField, user.UserName, null);
+            }
+
+            // Handle Timestamps
+            DateTime time = DateTime.Now;
+            Modified = time;
+            factories.CreateSongProperty(this, Song.TimeField, time.ToString(), null);
+        }
+
+        private bool UpdatePurchaseInfo(SongDetails edit)
+        {
+            bool ret = false;
+            string pi = edit.GetPurchaseTags();
+            if (!string.Equals(Purchase, pi))
+            {
+                Purchase = pi;
+                ret = true;
+            }
+            return ret;
+        }
+
+        private bool AddUser(ApplicationUser user, IUserMap users)
+        {
+            if (ModifiedBy == null || ModifiedBy.Count == 0)
+            {
+                Debug.WriteLine("Modified by not loaded?");
+            }
+
+            if (!ModifiedBy.Any(u => u.ApplicationUserId == user.Id))
+            {
+                ModifiedRecord us = users.CreateMapping(this.SongId,user.Id);
+                ModifiedBy.Add(us);
+                AddModifiedBy(us);
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
 
         private void CreateAlbums(IList<AlbumDetails> albums, IFactories factories)
@@ -114,14 +357,106 @@ namespace m4dModels
                 );
             }
         }
+
+        public bool EditDanceRatings(IList<string> add_, int addWeight, List<string> remove_, int remWeight, IFactories factories)
+        {
+            SongLog log = CurrentLog;
+
+            bool changed = false;
+
+            List<string> add = null;
+            if (add_ != null)
+                add = new List<string>(add_);
+
+            List<string> remove = null;
+            if (remove_ != null)
+                remove = new List<string>(remove_);
+
+            List<DanceRating> del = new List<DanceRating>();
+
+            // Cleaner way to get old dance ratings?
+            foreach (DanceRating dr in DanceRatings)
+            {
+                bool added = false;
+                int delta = 0;
+
+                // This handles the incremental weights
+                if (add != null && add.Contains(dr.DanceId))
+                {
+                    delta = addWeight;
+                    add.Remove(dr.DanceId);
+                    added = true;
+                }
+
+                // This handles the decremented weights
+                if (remove != null && !remove.Contains(dr.DanceId))
+                {
+                    if (!added)
+                    {
+                        delta += remWeight;
+                    }
+
+                    if (dr.Weight + delta <= 0)
+                    {
+                        del.Add(dr);
+                    }
+                }
+
+                if (delta != 0)
+                {
+                    dr.Weight += delta;
+
+                    factories.CreateSongProperty(
+                        this, Song.DanceRatingField,
+                        new DanceRatingDelta { DanceId = dr.DanceId, Delta = delta }.ToString(), log);
+
+                    changed = true;
+                }
+            }
+
+            // This handles the deleted weights
+            foreach (DanceRating dr in del)
+            {
+                DanceRatings.Remove(dr);
+            }
+
+            // This handles the new ratings
+            if (add != null)
+            {
+                foreach (string ndr in add)
+                {
+                    DanceRating dr = factories.CreateDanceRating(this, ndr, DanceRatingInitial);
+
+                    if (dr != null)
+                    {
+                        factories.CreateSongProperty(
+                            this,
+                            Song.DanceRatingField,
+                            new DanceRatingDelta { DanceId = ndr, Delta = DanceRatingInitial }.ToString(),
+                            log
+                        );
+
+                        changed = true;
+                    }
+                    else
+                    {
+                        Trace.WriteLine(string.Format("Invalid DanceId={0}", ndr));
+                    }
+
+                }
+            }
+
+            return changed;
+        }
+
+
         public void Delete()
         {
-            Tempo = null;
-            Title = null;
-            Artist = null;
-            Album = null;
-            Genre = null;
-            Length = null;
+            foreach (PropertyInfo pi in SongBase.ScalarProperties)
+            {
+                pi.SetValue(this, null);
+            }
+
             TitleHash = 0;
 
             List<DanceRating> drs = DanceRatings.ToList();
@@ -139,13 +474,12 @@ namespace m4dModels
 
         public void RestoreScalar(SongDetails sd)
         {
-            Tempo = sd.Tempo;
-            Title = sd.Title;
-            Artist = sd.Artist;
-            Genre = sd.Genre;
-            Length = sd.Length;
+            foreach (PropertyInfo pi in SongBase.ScalarProperties)
+            {
+                object v = pi.GetValue(sd);
+                pi.SetValue(this, v);
+            }
             TitleHash = Song.CreateTitleHash(Title);
-
 
             if (sd.HasAlbums)
             {
@@ -233,9 +567,9 @@ namespace m4dModels
             {
                 us.Song = this;
                 us.SongId = this.SongId;
-                if (us.ApplicationUser == null && us.ApplicationUser != null)
+                if (us.ApplicationUser == null && us.UserName != null)
                 {
-                    us.ApplicationUser = map.FindUser(us.ApplicationUserId);
+                    us.ApplicationUser = map.FindUser(us.UserName);
                 }
                 if (us.ApplicationUser != null && us.ApplicationUserId == null)
                 {

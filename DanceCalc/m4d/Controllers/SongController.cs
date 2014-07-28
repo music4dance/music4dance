@@ -242,7 +242,7 @@ namespace music4dance.Controllers
             {
 
                 ApplicationUser user = _db.FindUser(User.Identity.Name);
-                Song newSong = _db.CreateSong(user, song, addDances, DanceMusicContext.DanceRatingCreate);
+                Song newSong = _db.CreateSong(user, song, addDances, Song.DanceRatingCreate);
 
                 // TODO: Think about if the round-trip is necessary
                 if (newSong != null)
@@ -314,6 +314,17 @@ namespace music4dance.Controllers
 
                 ApplicationUser user = _db.FindUser(User.Identity.Name);
 
+                // EditSong makes a distinction between null and an empty list
+                if (addDances == null)
+                {
+                    addDances = new List<string>();
+                }
+
+                if (remDances == null)
+                {
+                    remDances = new List<string>();
+                }
+
 //#if DEBUG
 //                _db.Dump();
 //#endif
@@ -366,7 +377,7 @@ namespace music4dance.Controllers
         //
         // GET: /Song/Delete/5
         [Authorize(Roles = "canEdit")] 
-        public ActionResult Delete(int id = 0, string filter = null)
+        public ActionResult Delete(Guid id, string filter = null)
         {
             ViewBag.SongFilter = ParseFilter(filter);
             Song song = _db.Songs.Find(id);
@@ -383,7 +394,7 @@ namespace music4dance.Controllers
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "canEdit")] 
-        public ActionResult DeleteConfirmed(int id, string filter = null)
+        public ActionResult DeleteConfirmed(Guid id, string filter = null)
         {
             ViewBag.SongFilter = ParseFilter(filter);
             Song song = _db.Songs.Find(id);
@@ -1007,7 +1018,7 @@ namespace music4dance.Controllers
                 {
                     string str = filter.SearchString.ToUpper();
                     songs = songs.Where(
-                        s => s.Title.ToUpper().Contains(str) ||
+                        s => (s.Title != null && s.Title.ToUpper().Contains(str)) ||
                         (s.Album != null && s.Album.Contains(str)) ||
                         (s.Artist != null && s.Artist.Contains(str)));
                 }

@@ -90,8 +90,9 @@ namespace m4dModels.Tests
             for (int i = 0; i < s_rowProps.Length; i++ )
             {
                 var song = songs[i];
-                //Trace.WriteLine(song.Serialize(new string[] { SongBase.NoSongId }));
-                Assert.AreEqual(s_rowProps[i], song.Serialize(new string[] { SongBase.NoSongId }));
+                string r = song.Serialize(new string[] { SongBase.NoSongId });
+                //Trace.WriteLine(r);
+                Assert.AreEqual(s_rowProps[i], r);
             }
         }
 

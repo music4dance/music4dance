@@ -98,6 +98,7 @@ namespace m4d.Context
             modelBuilder.Entity<Dance>().Ignore(dance => dance.Info);
             modelBuilder.Entity<DanceRating>().HasKey(t => new { t.SongId, t.DanceId });
             modelBuilder.Entity<ModifiedRecord>().HasKey(t => new { t.ApplicationUserId, t.SongId });
+            modelBuilder.Entity<ModifiedRecord>().Ignore(mr => mr.UserName);
 
             base.OnModelCreating(modelBuilder);
         }
@@ -126,7 +127,7 @@ namespace m4d.Context
             }
 
             // TODO: Raise this to callers?
-            sd.UpdateDanceRatings(dances, rating==0?DanceRatingAutoCreate:rating);
+            sd.UpdateDanceRatings(dances, rating==0?Song.DanceRatingAutoCreate:rating);
 
             Song song = CreateSong(null, createLog);
             song.Create(sd, user, command, value, this, this);
@@ -142,96 +143,19 @@ namespace m4d.Context
 
         public SongDetails EditSong(ApplicationUser user, SongDetails edit, List<string> addDances, List<string> remDances)
         {
-            bool modified = false;
-
             Song song = Songs.Find(edit.SongId);
+            song.CurrentLog = CreateSongLog(user, song, Song.EditCommand);
 
-            //var properties = from p in SongProperties
-            //                 where p.SongId == song.SongId
-            //                 orderby p.Id ascending
-            //                 select p;
-
-            SongLog log = CreateEditHeader(song, user);
-            log.SongSignature = song.Signature;
-
-            modified |= UpdateSongProperty(edit, song, Song.TitleField, log);
-            modified |= UpdateSongProperty(edit, song, Song.ArtistField, log);
-            modified |= UpdateSongProperty(edit, song, Song.TempoField, log);
-            modified |= UpdateSongProperty(edit, song, Song.LengthField, log);
-            modified |= UpdateSongProperty(edit, song, Song.GenreField, log);
-
-            List<AlbumDetails> oldAlbums = SongDetails.BuildAlbumInfo(song);
-
-            bool foundFirst = false;
-            bool foundOld = false;
-
-            List<int> promotions = new List<int>();
-
-            song.Album = null;
-
-            for (int aidx = 0; aidx < edit.Albums.Count; aidx++)
+            if (song.Edit(user, edit, addDances, remDances, this, this))
             {
-                AlbumDetails album = edit.Albums[aidx];
-                AlbumDetails old = oldAlbums.FirstOrDefault(a => a.Index == album.Index);
-
-                if (!foundFirst && !string.IsNullOrEmpty(album.Name))
-                {
-                    foundFirst = true;
-                    song.Album = album.Name;
-                }
-
-                if (old != null)
-                {
-                    // We're in existing album territory
-                    foundOld = true;
-                    modified |= album.ModifyInfo(this, song, old, log);
-                }
-                else
-                {
-                    // We're in new territory only do something if the name field is non-empty
-                    if (!string.IsNullOrWhiteSpace(album.Name))
-                    {
-                        album.CreateProperties(this, song, log);
-                        modified = true;
-
-                        // Push this to the front if we haven't run into an old album yet
-                        if (!foundOld)
-                        {
-                            promotions.Insert(0, album.Index);
-                        }
-                    }
-                }
-            }
-
-            // Now push the promotions
-            foreach (int p in promotions)
-            {
-                AlbumDetails.AddProperty(this, song, p, Song.AlbumPromote, null, string.Empty, log);
-            }
-
-            modified |= EditDanceRatings(song, addDances, DanceRatingIncrement, remDances, DanceRatingDecrement, log);
-
-            modified |= UpdatePurchaseInfo(song, edit);
-
-            if (modified)
-            {
-                Log.Add(log);
+                Log.Add(song.CurrentLog);
                 SaveChanges();
-            }
-            else
-            {
-                // TODO: figure out how to undo the top couple changes if no substantive changes were made... (may just be do nothing here)
-            }
-
-            if (modified)
-            {
                 return FindSongDetails(edit.SongId);
             }
             else
             {
                 return null;
             }
-
         }
 
         // This is an additive merge - only add new things if they don't conflict with the old
@@ -239,129 +163,40 @@ namespace m4d.Context
         //  the diffing part down into SongDetails (which will also let me unit test it more easily)
         public SongDetails AdditiveMerge(ApplicationUser user, Guid songId, SongDetails edit, List<string> addDances)
         {
-            bool modified = false;
+            Song song = Songs.Find(edit.SongId);
+            song.CurrentLog = CreateSongLog(user, song, Song.EditCommand);
 
-            Song song = Songs.Find(songId);
-
-            SongLog log = CreateEditHeader(song, user);
-            log.SongSignature = song.Signature;
-
-            modified |= AddSongProperty(edit, song, Song.TitleField, log);
-            modified |= AddSongProperty(edit, song, Song.ArtistField, log);
-            modified |= AddSongProperty(edit, song, Song.TempoField, log);
-            modified |= AddSongProperty(edit, song, Song.LengthField, log);
-            modified |= AddSongProperty(edit, song, Song.GenreField, log);
-
-            List<AlbumDetails> oldAlbums = SongDetails.BuildAlbumInfo(song);
-
-            for (int aidx = 0; aidx < edit.Albums.Count; aidx++)
+            if (song.AdditiveMerge(user, edit, addDances, this, this))
             {
-                AlbumDetails album = edit.Albums[aidx];
-                AlbumDetails old = oldAlbums.FirstOrDefault(a => a.Index == album.Index);
-
-                if (string.IsNullOrWhiteSpace(song.Album) && !string.IsNullOrEmpty(album.Name))
-                {
-                    song.Album = album.Name;
-                }
-
-                if (old != null)
-                {
-                    // We're in existing album territory
-                    modified |= album.UpdateInfo(this, song, old, log);
-                }
-                else
-                {
-                    // We're in new territory only do something if the name field is non-empty
-                    if (!string.IsNullOrWhiteSpace(album.Name))
-                    {
-                        album.CreateProperties(this, song, log);
-                        modified = true;
-                    }
-                }
-            }
-
-            modified |= EditDanceRatings(song, addDances, DanceRatingIncrement, null, 0, log);
-
-            modified |= UpdatePurchaseInfo(song, edit);
-
-            if (modified)
-            {
-                Log.Add(log);
+                Log.Add(song.CurrentLog);
                 SaveChanges();
-            }
-            else
-            {
-                // TODO: figure out how to undo the top couple changes if no substantive changes were made... (may just be do nothing here)
-            }
-
-            if (modified)
-            {
                 return FindSongDetails(edit.SongId);
             }
             else
             {
                 return null;
             }
-
         }
-
 
         public Song MergeSongs(ApplicationUser user, List<Song> songs, string title, string artist, string genre, decimal? tempo, int? length, List<AlbumDetails> albums)
         {
             string songIds = string.Join(";", songs.Select(s => s.SongId.ToString()));
 
             Song song = CreateSong(user, new SongDetails(title, artist, genre, tempo, length, albums), null, 0, Song.MergeCommand, songIds, true);
-            SaveChanges();
             song.CurrentLog.SongReference = song.SongId;
             song.CurrentLog.SongSignature = song.Signature;
 
-            // Add in the to/from properties and create new weight table as well as creating the user associations
-            Dictionary<string, int> weights = new Dictionary<string, int>();
-            foreach (Song from in songs)
-            {
-                foreach (DanceRating dr in from.DanceRatings)
-                {
-                    int weight = 0;
-                    if (weights.TryGetValue(dr.DanceId, out weight))
-                    {
-                        weights[dr.DanceId] = weight + dr.Weight;
-                    }
-                    else
-                    {
-                        weights[dr.DanceId] = dr.Weight;
-                    }
-                }
+            song = Songs.Add(song);
 
-                foreach (ModifiedRecord us in from.ModifiedBy)
-                {
-                    if (AddUserToSong(us.ApplicationUser, song))
-                    {
-                        CreateSongProperty(song, Song.UserField, us.ApplicationUser.UserName, song.CurrentLog);
-                    }
-                }
-            }
-
-            // Dump the weight table
-            foreach (KeyValuePair<string, int> dance in weights)
-            {
-                DanceRating dr = CreateDanceRating(song, dance.Key, dance.Value);
-
-                var dre = Entry(dr);
-                if (dre != null && dre.State != EntityState.Added)
-                {
-                    dre.State = EntityState.Added;
-                }
-
-                string value = new DanceRatingDelta { DanceId = dance.Key, Delta = dance.Value }.ToString();
-
-                CreateSongProperty(song, Song.DanceRatingField, value, song.CurrentLog);
-            }
-
-            if (weights.Count > 0)
-            {
-                SongCounts.ClearCache();
-            }
-
+            song.MergeDetails(songs,this,this);
+            //foreach (DanceRating dr in song.DanceRatings)
+            //{
+            //    var dre = Entry(dr);
+            //    if (dre != null && dre.State != EntityState.Added)
+            //    {
+            //        dre.State = EntityState.Added;
+            //    }
+            //}
 
             // Delete all of the old songs (With merge-with Id from above)
             foreach (Song from in songs)
@@ -369,12 +204,14 @@ namespace m4d.Context
                 RemoveSong(from);
             }
 
-            var se = Entry(song);
-            if (se != null)
-            {
-                se.State = EntityState.Modified;
-            }
+            //var se = Entry(song);
+            //if (se != null)
+            //{
+            //    se.State = EntityState.Modified;
+            //}
             SaveChanges();
+
+            SongCounts.ClearCache();
 
             return song;
         }
@@ -389,11 +226,11 @@ namespace m4d.Context
         private void RemoveSong(Song song)
         {
             song.Delete();
-            var entry = Entry(song);
-            if (entry != null)
-            {
-                entry.State = EntityState.Modified;
-            }
+            //var entry = Entry(song);
+            //if (entry != null)
+            //{
+            //    entry.State = EntityState.Modified;
+            //}
         }
         
         #endregion
@@ -421,100 +258,6 @@ namespace m4d.Context
             return dr;
         }
 
-        public bool EditDanceRatings(Song song, IList<string> add_, int addWeight, List<string> remove_, int remWeight, SongLog log)
-        {
-            bool changed = false;
-
-            List<string> add = null;
-            if (add_ != null)
-                add = new List<string>(add_);
-
-            List<string> remove = null;
-            if (remove_ != null)
-                remove = new List<string>(remove_);
-
-            List<DanceRating> del = new List<DanceRating>();
-
-            // Cleaner way to get old dance ratings?
-            foreach (DanceRating dr in song.DanceRatings)
-            {
-                bool added = false;
-                int delta = 0;
-
-                // This handles the incremental weights
-                if (add != null && add.Contains(dr.DanceId))
-                {
-                    delta = addWeight;
-                    add.Remove(dr.DanceId);
-                    added = true;
-                }
-
-                // This handles the decremented weights
-                if (remove != null && !remove.Contains(dr.DanceId))
-                {
-                    if (!added)
-                    {
-                        delta += remWeight;
-                    }
-
-                    if (dr.Weight + delta <= 0)
-                    {
-                        del.Add(dr);
-                    }
-                }
-
-                if (delta != 0)
-                {
-                    dr.Weight += delta;
-
-                    CreateSongProperty(
-                        song, Song.DanceRatingField,
-                        new DanceRatingDelta { DanceId = dr.DanceId, Delta = delta }.ToString(), log);
-
-                    changed = true;
-                }
-            }
-
-            // This handles the deleted weights
-            foreach (DanceRating dr in del)
-            {
-                song.DanceRatings.Remove(dr);
-            }
-
-            // This handles the new ratings
-            if (add != null)
-            {
-                foreach (string ndr in add)
-                {
-                    DanceRating dr = CreateDanceRating(song, ndr, DanceRatingInitial);
-
-                    if (dr != null)
-                    {
-                        CreateSongProperty(
-                            song,
-                            Song.DanceRatingField,
-                            new DanceRatingDelta { DanceId = ndr, Delta = DanceRatingInitial }.ToString(),
-                            log
-                        );
-
-                        changed = true;
-                    }
-                    else
-                    {
-                        Trace.WriteLine(string.Format("Invalid DanceId={0}", ndr));
-                    }
-
-                }
-            }
-
-            if (changed)
-            {
-                SongCounts.ClearCache();
-            }
-
-            return changed;
-        }
-        
         #endregion
 
         #region Properties
@@ -542,42 +285,6 @@ namespace m4d.Context
             return ret;
         }
 
-        public bool UpdateSongProperty(SongDetails edit, Song old, string name, SongLog log)
-        {
-            bool modified = false;
-
-            object eP = edit.GetType().GetProperty(name).GetValue(edit);
-            object oP = old.GetType().GetProperty(name).GetValue(old);
-
-            if (!object.Equals(eP, oP))
-            {
-                modified = true;
-
-                old.GetType().GetProperty(name).SetValue(old, eP);
-
-                CreateSongProperty(old, name, eP, log);
-            }
-
-            return modified;
-        }
-
-        // Only update if the old song didn't have this property
-        public bool AddSongProperty(SongDetails edit, Song old, string name, SongLog log)
-        {
-            bool modified = false;
-
-            object eP = edit.GetType().GetProperty(name).GetValue(edit);
-            object oP = old.GetType().GetProperty(name).GetValue(old);
-
-            if (oP != null)
-            {
-                modified = true;
-                old.GetType().GetProperty(name).SetValue(old, eP);
-                CreateSongProperty(old,name,eP,log);
-            }
-
-            return modified;
-        }
 
         private void RestoreSongProperty(Song song, LogValue lv, UndoAction action)
         {
@@ -634,23 +341,6 @@ namespace m4d.Context
             song.SongProperties.Add(np);
         }
 
-        private void CreateEditProperties(Song song, ApplicationUser user, string command)
-        {
-            // Add the command into the property log
-            CreateSongProperty(song, Song.EditCommand, string.Empty, null);
-
-            // Handle User association
-            if (user != null)
-            {
-                AddUserToSong(user, song);
-                CreateSongProperty(song, Song.UserField, user.UserName, null);
-            }
-
-            // Handle Timestamps
-            DateTime time = DateTime.Now;
-            song.Modified = time;
-            CreateSongProperty(song, Song.TimeField, time.ToString(), null);
-        }
 
         #endregion
 
@@ -791,6 +481,7 @@ namespace m4d.Context
 
         private string Unmerge(SongLog entry, Song song)
         {
+            // TODONEXT: Unmerge is crashing...
             string ret = null;
 
             // First restore the merged songs
@@ -911,7 +602,7 @@ namespace m4d.Context
         {
             string ret = null;
 
-            CreateEditProperties(song, entry.User, Song.EditCommand);
+            song.CreateEditProperties(entry.User, Song.EditCommand,this,this);
 
             IList<LogValue> values = entry.GetValues();
             foreach (LogValue lv in values)
@@ -1003,16 +694,6 @@ namespace m4d.Context
             RestoreSong(song);
             Songs.Add(song);
         }
-
-        private SongLog CreateEditHeader(Song song, ApplicationUser user)
-        {
-            SongLog log = CreateSongLog(user, song, Song.EditCommand);
-
-            CreateEditProperties(song, user, Song.EditCommand);
-
-            return log;
-        }
-        
         #endregion
 
         #region Song Lookup
@@ -1033,6 +714,7 @@ namespace m4d.Context
             {
                 Trace.WriteLineIf(TraceLevels.General.TraceVerbose,string.Format("Couldn't find song by Id: {0} or signature {1}", id, signature));
             }
+            
 
             return song;
         }
@@ -1068,8 +750,8 @@ namespace m4d.Context
 
             for (int i = 0; i < dels.Length; i++)
             {
-                int idx = 0;
-                if (int.TryParse(dels[i], out idx))
+                Guid idx = Guid.Empty;
+                if (Guid.TryParse(dels[i], out idx))
                 {
                     Song s = Songs.Find(idx);
                     if (s != null)
@@ -1143,6 +825,7 @@ namespace m4d.Context
             return user;
         }
 
+        // TODO: Kill this off if/when we move restore down
         private bool AddUserToSong(ApplicationUser user, Song song)
         {
             if (song.ModifiedBy == null || song.ModifiedBy.Count == 0)
@@ -1170,17 +853,6 @@ namespace m4d.Context
         {
             return MergeCluster.GetMergeCandidates(this, n, level);
         }
-        private bool UpdatePurchaseInfo(Song song, SongDetails edit)
-        {
-            bool ret = false;
-            string pi = edit.GetPurchaseTags();
-            if (!string.Equals(song.Purchase, pi))
-            {
-                song.Purchase = pi;
-                ret = true;
-            }
-            return ret;
-        }
         public void Dump()
         {
             // TODO: Create a dump routine to help dump the object graph - definitely need object id of some kind (address)
@@ -1207,11 +879,5 @@ namespace m4d.Context
         public static readonly string EditRole = "canEdit";
         public static readonly string DiagRole = "showDiagnostics";
         public static readonly string DbaRole = "dbAdmin";
-
-        public static readonly int DanceRatingCreate = 10;  // TODO: when we allow a user to manually add a song, give lots of credit
-        public static readonly int DanceRatingInitial = 6;
-        public static readonly int DanceRatingIncrement = 3;
-        public static readonly int DanceRatingAutoCreate = 5;
-        public static readonly int DanceRatingDecrement = -2;
     }
 }

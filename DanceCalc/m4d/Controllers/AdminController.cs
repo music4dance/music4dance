@@ -491,7 +491,7 @@ namespace m4d.Controllers
                     // Matchtype of none indicates a new (to us) song, so just add it
                     if (m.MatchType == MatchType.None)
                     {
-                        modified = _db.CreateSong(user, m.Left, dancesT, DanceMusicContext.DanceRatingAutoCreate) != null;
+                        modified = _db.CreateSong(user, m.Left, dancesT, Song.DanceRatingAutoCreate) != null;
                     }
                     // Any other matchtype should result in a merge, which for now is just adding the dance(s) from
                     //  the new list to the existing song (or adding weight).
@@ -1102,7 +1102,7 @@ namespace m4d.Controllers
         {
             string[] lines = songText.Split(System.Environment.NewLine.ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
 
-            return SongDetails.CreateFromRows(separator, headers, lines, DanceMusicContext.DanceRatingAutoCreate);
+            return SongDetails.CreateFromRows(separator, headers, lines, Song.DanceRatingAutoCreate);
         }
 
         private IList<SongDetails> SongsFromFile(List<string> lines)
@@ -1111,7 +1111,7 @@ namespace m4d.Controllers
 
             List<string> map = SongDetails.BuildHeaderMap(lines[0]);
             lines.RemoveAt(0);
-            return SongDetails.CreateFromRows("\t", map, lines, DanceMusicContext.DanceRatingAutoCreate);
+            return SongDetails.CreateFromRows("\t", map, lines, Song.DanceRatingAutoCreate);
         }
         private enum MatchMethod {None, Tempo, Merge};
 
