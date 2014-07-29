@@ -37,14 +37,10 @@ namespace m4dModels
             // Handle User association
             if (user != null)
             {
-                ModifiedRecord us = users.CreateMapping(SongId, user.Id); 
+                ModifiedRecord us = users.CreateMapping(SongId, user.Id);
                 us.Song = this;
                 us.ApplicationUser = user;
-                if (ModifiedBy == null)
-                {
-                    ModifiedBy = new List<ModifiedRecord>();
-                }
-                ModifiedBy.Add(us);
+                AddModifiedBy(us, users);
                 factories.CreateSongProperty(this, Song.UserField, user.UserName, log);
             }
 
@@ -303,17 +299,8 @@ namespace m4dModels
                 Debug.WriteLine("Modified by not loaded?");
             }
 
-            if (!ModifiedBy.Any(u => u.ApplicationUserId == user.Id))
-            {
-                ModifiedRecord us = users.CreateMapping(this.SongId,user.Id);
-                ModifiedBy.Add(us);
-                AddModifiedBy(us);
-                return true;
-            }
-            else
-            {
-                return false;
-            }
+            ModifiedRecord us = users.CreateMapping(this.SongId,user.Id);
+            return AddModifiedBy(us, users);
         }
 
         private void CreateAlbums(IList<AlbumDetails> albums, IFactories factories)
@@ -474,6 +461,10 @@ namespace m4dModels
 
         public void RestoreScalar(SongDetails sd)
         {
+            if (!sd.SongId.Equals(Guid.Empty))
+            {
+                SongId = sd.SongId;
+            }
             foreach (PropertyInfo pi in SongBase.ScalarProperties)
             {
                 object v = pi.GetValue(sd);
@@ -488,9 +479,19 @@ namespace m4dModels
 
             Purchase = sd.GetPurchaseTags();
         }
-        public void Restore(SongDetails sd)
+        public void Restore(SongDetails sd,IUserMap users)
         {
             RestoreScalar(sd);
+
+            if (SongProperties == null)
+            {
+                SongProperties = new List<SongProperty>();
+            }
+            Debug.Assert(SongProperties.Count == 0);
+            foreach (SongProperty prop in sd.SongProperties)
+            {
+                SongProperties.Add(new SongProperty() { Song=this, SongId=this.SongId, Name=prop.Name, Value=prop.Value });
+            }            
 
             if (DanceRatings == null)
             {
@@ -509,7 +510,7 @@ namespace m4dModels
             Debug.Assert(ModifiedBy.Count == 0);
             foreach (ModifiedRecord user in sd.ModifiedBy)
             {
-                AddModifiedBy(user);
+                AddModifiedBy(user,users);
             }
         }
 
@@ -543,19 +544,36 @@ namespace m4dModels
             }
         }
 
-        public void AddModifiedBy(ModifiedRecord mr)
+        public bool AddModifiedBy(ModifiedRecord mr, IUserMap map)
         {
+            if (ModifiedBy == null)
+            {
+                ModifiedBy = new List<ModifiedRecord>();
+            }
+
             mr.Song = this;
             mr.SongId = SongId;
 
-            ModifiedRecord other = ModifiedBy.FirstOrDefault(r => r.ApplicationUserId == mr.ApplicationUserId);
+            ModifiedRecord other = null;
+            
+            if (mr.ApplicationUserId != null)
+            {
+                other = ModifiedBy.FirstOrDefault(r => r.ApplicationUserId == mr.ApplicationUserId);
+            }
+            else if (mr.UserName != null)
+            {
+                other = ModifiedBy.FirstOrDefault(r => r.UserName == mr.UserName);
+            }
+            
             if (other == null)
             {
                 ModifiedBy.Add(mr);
+                return true;
             }
             else
             {
                 Trace.WriteLine(string.Format("{0} Duplicate User Rating {1}", Title, mr.ApplicationUserId));
+                return false;
             }
         }
 
@@ -609,7 +627,7 @@ namespace m4dModels
         {
             SongDetails sd = new SongDetails(s);
 
-            Restore(sd);
+            Restore(sd, users);
             UpdateUsers(users);
         }
 

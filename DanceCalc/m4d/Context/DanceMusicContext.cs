@@ -645,7 +645,7 @@ namespace m4d.Context
                 throw new ArgumentOutOfRangeException("song", "Attempting to restore a song that hasn't been deleted");
             }
             SongDetails sd = new SongDetails(song.SongId, song.SongProperties);
-            song.Restore(sd);
+            song.Restore(sd,this);
             song.UpdateUsers(this);
         }
 
@@ -838,7 +838,7 @@ namespace m4d.Context
                 ModifiedRecord us = Modified.Create();
                 us.ApplicationUser = user;
                 Modified.Add(us);
-                song.AddModifiedBy(us);
+                song.AddModifiedBy(us,this);
                 return true;
             }
             else
