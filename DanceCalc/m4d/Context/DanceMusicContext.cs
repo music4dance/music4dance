@@ -239,7 +239,7 @@ namespace m4d.Context
 
         public DanceRating CreateDanceRating(Song song, string danceId, int weight)
         {
-            Dance dance = Dances.FirstOrDefault(d => d.Id == danceId);
+            Dance dance = Dances.Find(danceId);
 
             if (dance == null)
             {
@@ -700,7 +700,7 @@ namespace m4d.Context
         public Song FindSong(Guid id, string signature = null)
         {
             // First find a match id
-            Song song = Songs.FirstOrDefault(s => s.SongId == id);
+            Song song = Songs.Find(id);
 
             // TODO: Think about signature mis-matches, we can't do the straighforward fail on mis-match because
             //  we're using this for edit and it's perfectly reasonable to edit parts of the sig...
