@@ -1429,8 +1429,8 @@ namespace music4dance.Controllers
             {
                 if (s_admAuth == null)
                 {
-                    string clientId = "m4d";
-                    string clientSecret = "9VMz/XFuanyhJdJ1oVgIig7Pq3m5tBxxhQxGOPgZIJw=";
+                    string clientId = "music4dance";
+                    string clientSecret = "iGvYm97JA+qYV1K2lvh8sAnL8Pebp5cN2KjvGnOD4gI=";
 
                     s_admAuth = new AdmAuthentication(clientId, clientSecret);
 
