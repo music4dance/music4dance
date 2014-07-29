@@ -356,6 +356,7 @@
     <Content Include="Scripts\Counter.js" />
     <Content Include="Scripts\edit.js" />
     <None Include="Properties\PublishProfiles\music4dance %28dwgray%29.pubxml" />
+    <None Include="Properties\PublishProfiles\music4dance.pubxml" />
     <None Include="Scripts\jquery-2.1.1.intellisense.js" />
     <Content Include="Scripts\jquery-2.1.1.js" />
     <Content Include="Scripts\jquery-2.1.1.min.js" />
