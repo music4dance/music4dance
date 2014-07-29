@@ -28,6 +28,19 @@ namespace m4d.Controllers
         }
 
         [AllowAnonymous]
+        public ActionResult TermsOfService()
+        {
+            return View();
+        }
+
+        [AllowAnonymous]
+        public ActionResult PrivacyPolicy()
+        {
+            return View();
+        }
+
+
+        [AllowAnonymous]
         public ActionResult Contact()
         {
             ViewBag.Message = ViewBag.Message = "As noted on the homepage, this is an Alpha site, feel free to email with comments and suggestions.";

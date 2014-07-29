@@ -47,7 +47,10 @@
             <hr />
             <div class="col-md-12">
                 <footer>
-                    <p>&copy; @DateTime.Now.Year - Music4Dance.net</p>
+                    <p>&copy; @DateTime.Now.Year - Music4Dance.net - 
+                    @Html.ActionLink("Terms of Service","TermsOfService") - 
+                    @Html.ActionLink("Privacy Policy", "PrivacyPolicy")
+                    </p>
                 </footer>
             </div>
         </div>
