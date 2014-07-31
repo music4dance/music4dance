@@ -20,9 +20,9 @@ namespace m4d
             app.UseExternalSignInCookie(DefaultAuthenticationTypes.ExternalCookie);
 
             // Uncomment the following lines to enable logging in with third party login providers
-            //app.UseMicrosoftAccountAuthentication(
-            //    clientId: "",
-            //    clientSecret: "");
+            app.UseMicrosoftAccountAuthentication(
+                clientId: "000000004412450B",
+                clientSecret: "0C6Mny6RCkYuHTF62sHVD-ZdQ-fypRuL");
 
             //app.UseTwitterAuthentication(
             //   consumerKey: "",

@@ -17,7 +17,9 @@ using Recaptcha.Web.Mvc;
 namespace m4d.Controllers
 {
     [Authorize]
+#if !DEBUG
     [RequireHttps]
+#endif
     public class AccountController : Controller
     {
         public AccountController()
