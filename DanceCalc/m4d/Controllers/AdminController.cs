@@ -18,6 +18,8 @@ using System.Text.RegularExpressions;
 using System.Data.Entity.Infrastructure;
 using System.Data.Entity.Migrations;
 using m4d.Utilities;
+using Microsoft.AspNet.Identity.EntityFramework;
+using Microsoft.AspNet.Identity;
 
 namespace m4d.Controllers
 {
@@ -270,8 +272,15 @@ namespace m4d.Controllers
             {
                 if (string.Equals(reloadDatabase,"reload",StringComparison.InvariantCultureIgnoreCase))
                 {
-                    RestoreDB();
-
+                    if (string.Equals(lines[0],_userHeader,StringComparison.InvariantCultureIgnoreCase))
+                    {
+                        RestoreDB("0");
+                        ReloadUsers(lines);
+                    }
+                    else
+                    {
+                        RestoreDB();
+                    }
                 }
 
                 ReloadDB(lines);
@@ -535,6 +544,20 @@ namespace m4d.Controllers
         {
             StringBuilder sb = new StringBuilder();
 
+            sb.AppendFormat("{0}\r\n",_userHeader);
+            foreach (ApplicationUser user in _db.Users)
+            {
+                string userId = user.Id;
+                string username = user.UserName;
+                string roles = user.GetRoles(_db.RoleDictionary,"|");
+                string hash = user.PasswordHash;
+                string stamp = user.SecurityStamp;
+                string providers = user.GetProviders();
+
+                sb.AppendFormat("{0}\t{1}\t{2}\t{3}\t{4}\t{5}\r\n",userId,username,roles,hash,stamp,providers);
+            }
+
+            sb.AppendFormat("{0}\r\n",_songBreak);
             foreach (Song song in _db.Songs)
             {
                 string[] actions = null;
@@ -556,6 +579,8 @@ namespace m4d.Controllers
             return File(stream, "text/plain", "backup.txt");
         }
 
+        private const string _songBreak = "+++++SONGS+++++";
+        private const string _userHeader = "UserId\tUserName\tRoles\tPWHash\tSecStamp\tProviders";
         //
         // Get: //RestoreDatabase
         //[Authorize(Roles = "dbAdmin")]
@@ -620,13 +645,13 @@ namespace m4d.Controllers
         #endregion
 
         #region Migration-Restore
-        private void RestoreDB()
+        private void RestoreDB(string state="InitialCreate")
         {
             var migrator = BuildMigrator();
 
             // Roll back to a specific migration
             Trace.WriteLine("Rolling Back Database");
-            migrator.Update("InitialCreate");
+            migrator.Update(state);
 
             Trace.WriteLine("Starting Migrator Update");
             // Apply all migrations up to a specific migration
@@ -664,6 +689,90 @@ namespace m4d.Controllers
         #endregion        
 
         #region Build-From-Text
+
+        /// <summary>
+        /// Reloads a list of users into the database
+        /// </summary>
+        /// <param name="lines"></param>
+        private void ReloadUsers(List<string> lines)
+        {
+            Trace.WriteLine("Entering ReloadUsers");
+
+            using (DanceMusicContext dmc = new DanceMusicContext())
+            {
+                if (lines == null || lines.Count < 1 || !string.Equals(lines[0],_userHeader,StringComparison.InvariantCultureIgnoreCase))
+                {
+                    throw new ArgumentOutOfRangeException();
+                }
+
+                int i = 1;
+                while (i < lines.Count)
+                {
+                    string s = lines[i];
+                    i += 1;
+
+                    if (string.Equals(s,_songBreak,StringComparison.InvariantCultureIgnoreCase))
+                    {
+                        break;
+                    }
+
+                    string[] cells = s.Split(new char[] { '\t' });
+                    if (cells.Length == 6)
+                    {
+                        string userId = cells[0];
+                        string userName = cells[1];
+                        string roles = cells[2];
+                        string hash = cells[3];
+                        string stamp = cells[4];
+                        string providers = cells[5];
+
+                        // Don't trounce existing users
+                        ApplicationUser user = dmc.FindUser(userName);
+                        if (user == null)
+                        {
+                            user = dmc.Users.Create();
+                            user.Id = userId;
+                            user.UserName = userName;
+                            user.PasswordHash = hash;
+                            user.SecurityStamp = stamp;
+
+                            if (!string.IsNullOrWhiteSpace(roles))
+                            {
+                                string[] roleNames = roles.Split(new char[] {'|'},StringSplitOptions.RemoveEmptyEntries);
+                                foreach (string roleName in roleNames)
+                                {
+                                    IdentityRole role = dmc.Roles.FirstOrDefault(r => r.Name == roleName.Trim());
+                                    if (role != null)
+                                    {
+                                        IdentityUserRole iur = new IdentityUserRole() { UserId = userId, RoleId = role.Id };
+                                        user.Roles.Add(iur);
+                                    }
+                                }
+                            }
+
+                            if (!string.IsNullOrWhiteSpace(providers))
+                            {
+                                string[] entries = providers.Split(new char[] { '|' }, StringSplitOptions.RemoveEmptyEntries);
+                                for (int j = 0; j < entries.Length; j += 2)
+                                {
+                                    IdentityUserLogin login = new IdentityUserLogin() { LoginProvider = entries[j], ProviderKey = entries[j + 1], UserId = userId };
+                                    user.Logins.Add(login);
+                                }
+                            }
+
+                            dmc.Users.Add(user);
+                        }
+                    }
+                }                
+
+                lines.RemoveRange(0, i);
+
+                Trace.WriteLine("Saving Changes");
+                dmc.SaveChanges();
+            }
+            Trace.WriteLine("Exiting ReloadUsers");
+        }
+
         /// <summary>
         /// Reloads a list of songs into the database
         /// </summary>

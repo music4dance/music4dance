@@ -94,17 +94,7 @@
         @Html.ActionLink(item.UserName, "Details", new { id = item.Id })
     </td>
         <td>
-            @{
-                string separator = string.Empty;
-                foreach (var idRole in item.Roles)
-                {
-                    Microsoft.AspNet.Identity.EntityFramework.IdentityRole role = roles[idRole.RoleId];
-                    string output = separator + role.Name;
-                    separator = ", ";
-                    <text>@output</text>
-                }
-
-            }
+            @item.GetRoles(roles)
         </td>
     <td>
         @Html.ActionLink("ChangeRoles", "ChangeRoles", new { id = item.Id })

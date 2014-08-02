@@ -22,7 +22,7 @@ namespace m4d.Controllers
         // GET: ApplicationUsers
         public ActionResult Index()
         {
-            ViewBag.RoleDictionary = RoleDictionary;
+            ViewBag.RoleDictionary = _db.RoleDictionary;
             return View(_db.Users.ToList());
         }
 
@@ -38,7 +38,7 @@ namespace m4d.Controllers
             {
                 return HttpNotFound();
             }
-            ViewBag.RoleDictionary = RoleDictionary;
+            ViewBag.RoleDictionary = _db.RoleDictionary;
             return View(applicationUser);
         }
 
@@ -108,7 +108,7 @@ namespace m4d.Controllers
             {
                 return HttpNotFound();
             }
-            ViewBag.RoleDictionary = RoleDictionary;
+            ViewBag.RoleDictionary = _db.RoleDictionary;
             return View(applicationUser);
         }
 
@@ -143,7 +143,7 @@ namespace m4d.Controllers
             var ustore = new UserStore<ApplicationUser>(_db);
             var umanager = new UserManager<ApplicationUser>(ustore);
 
-            foreach (var role in RoleDictionary.Values)
+            foreach (var role in _db.RoleDictionary.Values)
             {
                 // New Role
                 if (newRoles.Contains(role.Name))
@@ -162,7 +162,7 @@ namespace m4d.Controllers
                 }
             }
 
-            ViewBag.RoleDictionary = RoleDictionary;
+            ViewBag.RoleDictionary = _db.RoleDictionary;
             return View("Details", user);
         }
 
@@ -191,26 +191,7 @@ namespace m4d.Controllers
             _db.Users.Remove(applicationUser);
             _db.SaveChanges();
             return RedirectToAction("Index");
-        }
-
-        private IDictionary<string, IdentityRole> RoleDictionary
-        {
-            get 
-            { 
-                if (_roles == null)
-                {
-                    _roles = new Dictionary<string, IdentityRole>();
-
-                    foreach (var role in _db.Roles)
-                    {
-                        _roles.Add(role.Id, role);
-                    }
-                }
-                return _roles;
-            }
-        }
-        private IDictionary<string, IdentityRole> _roles = null;
-        
+        }        
 
         protected override void Dispose(bool disposing)
         {

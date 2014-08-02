@@ -853,6 +853,25 @@ namespace m4d.Context
         {
             return MergeCluster.GetMergeCandidates(this, n, level);
         }
+
+        public IDictionary<string, IdentityRole> RoleDictionary
+        {
+            get
+            {
+                if (_roles == null)
+                {
+                    _roles = new Dictionary<string, IdentityRole>();
+
+                    foreach (var role in Roles)
+                    {
+                        _roles.Add(role.Id, role);
+                    }
+                }
+                return _roles;
+            }
+        }
+        private IDictionary<string, IdentityRole> _roles = null;
+
         public void Dump()
         {
             // TODO: Create a dump routine to help dump the object graph - definitely need object id of some kind (address)

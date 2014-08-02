@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNet.Identity.EntityFramework;
 using System.Collections.Generic;
+using System.Text;
 
 namespace m4dModels
 {
@@ -7,5 +8,36 @@ namespace m4dModels
     public class ApplicationUser : IdentityUser
     {
         public virtual ICollection<ModifiedRecord> Modified { get; set; }
+
+        public string GetRoles(IDictionary<string, IdentityRole> roleMap, string separator=", ")
+        {
+            // TODO: Can we do this w/o sending in roleMap?
+
+            StringBuilder sb = new StringBuilder();
+            string sp = string.Empty;
+            foreach (var idRole in Roles)
+            {
+                Microsoft.AspNet.Identity.EntityFramework.IdentityRole role = roleMap[idRole.RoleId];
+                sb.Append(sp + role.Name);
+                sp = separator;
+            }
+
+            return sb.ToString();
+        }
+
+        public string GetProviders()
+        {
+            StringBuilder sb = new StringBuilder();
+            string sp = string.Empty;
+            foreach (var provider in Logins)
+            {
+                string name = provider.LoginProvider;
+                string key = provider.ProviderKey;
+                sb.Append(string.Format("{0}{1}|{2}",sp,name,key));
+                sp = "|";
+            }
+            return sb.ToString();
+        }
+
     }
 }

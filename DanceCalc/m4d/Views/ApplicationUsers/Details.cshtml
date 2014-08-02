@@ -24,17 +24,7 @@
         </dt>
 
         <dd>
-            @{
-                string separator = string.Empty;
-                foreach (var idRole in Model.Roles)
-                {
-                    Microsoft.AspNet.Identity.EntityFramework.IdentityRole role = roles[idRole.RoleId];
-                    string output = separator + role.Name;
-                    separator = ", ";
-                    <text>@output</text>
-                }
-
-            }
+            @Model.GetRoles(roles)
         </dd>
 
         <dt>
