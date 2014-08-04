@@ -48,6 +48,9 @@
     </th>
         *@
         <th>
+            LOS
+        </th>
+        <th>
             @Html.DisplayNameFor(model => model.UserName)
         </th>
         <th>
@@ -84,12 +87,12 @@
         @Html.DisplayFor(modelItem => item.LockoutEndDateUtc)
     </td>
     <td>
-        @Html.DisplayFor(modelItem => item.LockoutEnabled)
-    </td>
-    <td>
         @Html.DisplayFor(modelItem => item.AccessFailedCount)
     </td>
         *@
+    <td>
+        @Html.DisplayFor(modelItem => item.LockoutEnabled)
+    </td>
     <td>
         @Html.ActionLink(item.UserName, "Details", new { id = item.Id })
     </td>

@@ -66,32 +66,32 @@ namespace m4d.Migrations
                 AddToRole(umanager, user.Id, DanceMusicContext.DbaRole);
             }
 
-            foreach (string name in _diagUsers)
-            {
-                var user = context.Users.FirstOrDefault(u => u.UserName == name);
-                if (user == null)
-                {
-                    user = new ApplicationUser { UserName = name };
+            //foreach (string name in _diagUsers)
+            //{
+            //    var user = context.Users.FirstOrDefault(u => u.UserName == name);
+            //    if (user == null)
+            //    {
+            //        user = new ApplicationUser { UserName = name };
 
-                    umanager.Create(user, "marley");
-                    AddToRole(umanager, user.Id, DanceMusicContext.DiagRole);
-                    AddToRole(umanager, user.Id, DanceMusicContext.EditRole);
-                }
-                else
-                {
-                    RemoveFromRole(umanager, user.Id, DanceMusicContext.DbaRole);
-                }
-            }
+            //        umanager.Create(user, "marley");
+            //        AddToRole(umanager, user.Id, DanceMusicContext.DiagRole);
+            //        AddToRole(umanager, user.Id, DanceMusicContext.EditRole);
+            //    }
+            //    else
+            //    {
+            //        RemoveFromRole(umanager, user.Id, DanceMusicContext.DbaRole);
+            //    }
+            //}
 
-            foreach (string name in _editUsers)
-            {
-                if (!context.Users.Any(u => u.UserName == name))
-                {
-                    var user = new ApplicationUser { UserName = name };
+            //foreach (string name in _editUsers)
+            //{
+            //    if (!context.Users.Any(u => u.UserName == name))
+            //    {
+            //        var user = new ApplicationUser { UserName = name };
 
-                    umanager.Create(user, "_this_is_a_placeholder_");
-                }
-            }
+            //        umanager.Create(user, "_this_is_a_placeholder_");
+            //    }
+            //}
 
             if (!context.Dances.Any(d => d.Id == "CHA"))
             {
@@ -122,8 +122,8 @@ namespace m4d.Migrations
         }
 
         private static string[] _roles = new string[] { DanceMusicContext.DiagRole, DanceMusicContext.EditRole, DanceMusicContext.DbaRole };
-        private static string[] _adminUsers = new string[] { "administrator", "dwgray", "batch" };
-        private static string[] _diagUsers = new string[] { "lukim", "glennn" };
-        private static string[] _editUsers = new string[] { "ajy"};// , "SalsaSwingBallroom", "SandiegoDJ", "UsaSwingNet", "LetsDanceDenver", "SteveThatDJ", "JohnCrossan", "WaltersDanceCenter", "breanna", "buzzle", "michelleds", "shawntrautman", "danceforums", "Century", "bdlist", "DWTS", "SYTYCD" };
+        private static string[] _adminUsers = new string[] { "administrator" }; //, "dwgray", "batch" };
+        //private static string[] _diagUsers = new string[] { "lukim", "glennn" };
+        //private static string[] _editUsers = new string[] { "ajy", "SalsaSwingBallroom", "SandiegoDJ", "UsaSwingNet", "LetsDanceDenver", "SteveThatDJ", "JohnCrossan", "WaltersDanceCenter", "breanna", "buzzle", "michelleds", "shawntrautman", "danceforums", "Century", "bdlist", "DWTS", "SYTYCD" };
     }
 }

@@ -36,6 +36,12 @@ namespace m4d.Context
     public class DanceMusicContext : IdentityDbContext<ApplicationUser>, IUserMap, IFactories
     {
         #region Construction
+
+        public static DanceMusicContext Create()
+        {
+            return new DanceMusicContext();
+        }
+        
         public DanceMusicContext()
             : base("DefaultConnection", throwIfV1Schema:false)
         {

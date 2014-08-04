@@ -552,16 +552,18 @@ namespace m4d.Controllers
                 string roles = user.GetRoles(_db.RoleDictionary,"|");
                 string hash = user.PasswordHash;
                 string stamp = user.SecurityStamp;
+                string lockout = user.LockoutEnabled.ToString();
                 string providers = user.GetProviders();
 
-                sb.AppendFormat("{0}\t{1}\t{2}\t{3}\t{4}\t{5}\r\n",userId,username,roles,hash,stamp,providers);
+                sb.AppendFormat("{0}\t{1}\t{2}\t{3}\t{4}\t{5}\t{6}\r\n", userId, username, roles, hash, stamp, lockout, providers);
             }
 
             sb.AppendFormat("{0}\r\n",_songBreak);
+            bool history = !string.IsNullOrWhiteSpace(useLookupHistory);
             foreach (Song song in _db.Songs)
             {
                 string[] actions = null;
-                if (!string.IsNullOrWhiteSpace(useLookupHistory))
+                if (history)
                 {
                     actions = new string[] { Song.FailedLookup };
                 }
@@ -576,11 +578,13 @@ namespace m4d.Controllers
             var bytes = Encoding.UTF8.GetBytes(s);
             MemoryStream stream = new MemoryStream(bytes);
 
-            return File(stream, "text/plain", "backup.txt");
+            DateTime dt = DateTime.Now;
+            string h = history ? "+lookup" : string.Empty;
+            return File(stream, "text/plain", string.Format("backup-{0:d4}-{1:d2}-{2:d2}{3}.txt",dt.Year,dt.Month,dt.Day,h));
         }
 
         private const string _songBreak = "+++++SONGS+++++";
-        private const string _userHeader = "UserId\tUserName\tRoles\tPWHash\tSecStamp\tProviders";
+        private const string _userHeader = "UserId\tUserName\tRoles\tPWHash\tSecStamp\tLockout\tProviders";
         //
         // Get: //RestoreDatabase
         //[Authorize(Roles = "dbAdmin")]
@@ -705,6 +709,7 @@ namespace m4d.Controllers
                     throw new ArgumentOutOfRangeException();
                 }
 
+                int fieldCount = _userHeader.Split(new char[] { '\t' }).Length;
                 int i = 1;
                 while (i < lines.Count)
                 {
@@ -717,14 +722,15 @@ namespace m4d.Controllers
                     }
 
                     string[] cells = s.Split(new char[] { '\t' });
-                    if (cells.Length == 6)
+                    if (cells.Length == fieldCount)
                     {
                         string userId = cells[0];
                         string userName = cells[1];
                         string roles = cells[2];
                         string hash = cells[3];
                         string stamp = cells[4];
-                        string providers = cells[5];
+                        string lockout = cells[5];
+                        string providers = cells[6];
 
                         // Don't trounce existing users
                         ApplicationUser user = dmc.FindUser(userName);
@@ -735,6 +741,7 @@ namespace m4d.Controllers
                             user.UserName = userName;
                             user.PasswordHash = hash;
                             user.SecurityStamp = stamp;
+                            user.LockoutEnabled = string.Equals(lockout, "TRUE", StringComparison.InvariantCultureIgnoreCase);
 
                             if (!string.IsNullOrWhiteSpace(roles))
                             {
