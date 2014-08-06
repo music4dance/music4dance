@@ -116,15 +116,19 @@ function doClick()
     }
 }
 
-function doReset()
-{
+function timerReset() {
     start = new Date().getTime();
-    dances = [];
     counter = 0;
     average = 0;
-    rate = average.toFixed(1);
     intervals = [];
     last = 0;
+}
+
+function doReset()
+{
+    timerReset();
+    dances = [];
+    rate = average.toFixed(1);
     maxWait = defWait;
     display();
 }
@@ -250,10 +254,20 @@ function setNumerator(num)
 {
     if (numerator != num)
     {
-        numerator = num;
         $("#mt").empty();
-        $("#mt").append(labels[numerator - 1]);
+        $("#mt").append(labels[num - 1]);
         $("#mt").append("<span class='caret'></span>");
-        doReset();
+
+        var r = (numerator * rate) / num;
+        numerator = num;
+        timerReset();
+        if (rate == 0)
+        {
+            display();
+        }
+        else
+        {
+            updateRate(r);
+        }
     }
 }
