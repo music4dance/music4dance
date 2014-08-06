@@ -7,7 +7,7 @@ var diag = false;
 var counter = 0;
 var start = new Date().getTime();
 
-var defWait = 10 * 1000;
+var defWait = 5 * 1000;
 var maxCounts = 50;
 
 var intervals = [];
@@ -22,6 +22,8 @@ var epsVisible = .05;
 
 var dances = [];
 var danceIndex = null;
+
+var timeout = null;
 
 var labels = ["BPM ", "2/4 MPM ", "3/4 MPM ", "4/4 MPM "];
 
@@ -72,65 +74,71 @@ $(document).ready(function () {
 
 function doClick()
 {
+    if (timeout)
+    {
+        window.clearTimeout(timeout);
+    }
     var current = new Date().getTime();
     if (last === 0) {
         last = current;
-        return;
-    }
-
-    var delta = current - last;
-    last = current;
-
-    if (delta >= maxWait)
-    {
-        doReset();
+        display();
     }
     else
     {
-        intervals.push(delta);
-        if (intervals.length > maxCounts)
-            intervals.shift();
+        var delta = current - last;
+        last = current;
 
-        var ms = 0;
-        for (var i = 0; i < intervals.length; i++)
-        {
-            ms += intervals[i];
+        if (delta >= maxWait) {
+            doReset();
         }
+        else {
+            intervals.push(delta);
+            if (intervals.length > maxCounts)
+                intervals.shift();
 
-        var old = average;
-        average = ms / intervals.length;
-        var delta = average - old;
-        var dp = delta / average;
-        //maxWait = average * 2;
+            var ms = 0;
+            for (var i = 0; i < intervals.length; i++) {
+                ms += intervals[i];
+            }
 
-        counter += 1;
+            var old = average;
+            average = ms / intervals.length;
+            var delta = average - old;
+            var dp = delta / average;
+            //maxWait = average * 2;
 
-        if (Math.abs(delta) >= .1)
-        {
-            updateRate(getRate())
-        }
-        else
-        {
-            display();
+            counter += 1;
+
+            if (Math.abs(delta) >= .1) {
+                updateRate(getRate())
+            }
+            else {
+                display();
+            }
         }
     }
+
+    timeout = window.setTimeout(function () { timerReset();},maxWait)
 }
 
-function timerReset() {
+function timerReset(noRefresh) {
     start = new Date().getTime();
     counter = 0;
     average = 0;
     intervals = [];
     last = 0;
+    if (!noRefresh)
+    {
+        display();
+    }
 }
 
 function doReset()
 {
-    timerReset();
     dances = [];
     rate = average.toFixed(1);
     maxWait = defWait;
-    display();
+    timerReset();
 }
 
 function display() {
@@ -146,6 +154,8 @@ function display() {
         $("#tempo").val(rate);
     }
 
+    var bt = last == 0 ? 'Count' : 'Again';
+    $("#count").html(bt);
     $("#dances").empty();
 
     for (var i = 0; i < dances.length; i++) {
@@ -225,6 +235,7 @@ function updateRate(newRate)
     display();
 }
 
+
 function getRate()
 {
     var ret = 0;
@@ -259,13 +270,11 @@ function setNumerator(num)
         $("#mt").append("<span class='caret'></span>");
 
         var r = (numerator * rate) / num;
+        r = (Math.round(r * 10) / 10).toFixed(1);
+
         numerator = num;
-        timerReset();
-        if (rate == 0)
-        {
-            display();
-        }
-        else
+        timerReset(rate != 0);
+        if (rate != 0)
         {
             updateRate(r);
         }
