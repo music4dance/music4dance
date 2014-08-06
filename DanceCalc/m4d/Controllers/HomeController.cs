@@ -22,6 +22,12 @@ namespace m4d.Controllers
         }
 
         [AllowAnonymous]
+        public ActionResult Dances()
+        {
+            return RedirectToAction("Index");
+        }
+
+        [AllowAnonymous]
         public ActionResult About()
         {
             return View();
