@@ -20,6 +20,7 @@ using System.Data.Entity.Migrations;
 using m4d.Utilities;
 using Microsoft.AspNet.Identity.EntityFramework;
 using Microsoft.AspNet.Identity;
+using System.Data.Entity.Core.Objects;
 
 namespace m4d.Controllers
 {
@@ -274,7 +275,7 @@ namespace m4d.Controllers
                 {
                     if (string.Equals(lines[0],_userHeader,StringComparison.InvariantCultureIgnoreCase))
                     {
-                        RestoreDB("0");
+                        RestoreDB(null);
                         ReloadUsers(lines);
                     }
                     else
@@ -651,11 +652,22 @@ namespace m4d.Controllers
         #region Migration-Restore
         private void RestoreDB(string state="InitialCreate")
         {
-            var migrator = BuildMigrator();
+            DbMigrator migrator = null;
 
-            // Roll back to a specific migration
-            Trace.WriteLine("Rolling Back Database");
-            migrator.Update(state);
+            // Roll back to a specific migration or zero
+            if (state != null)
+            {
+                Trace.WriteLine("Rolling Back Database");
+                migrator = BuildMigrator();
+                migrator.Update(state);
+            }
+            else
+            {
+                Trace.WriteLine("Wiping Database");
+                ObjectContext objectContext = ((IObjectContextAdapter)_db).ObjectContext;
+                objectContext.DeleteDatabase();
+                migrator = BuildMigrator();
+            }
 
             Trace.WriteLine("Starting Migrator Update");
             // Apply all migrations up to a specific migration
