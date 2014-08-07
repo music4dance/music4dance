@@ -141,14 +141,14 @@ function doReset()
     timerReset();
 }
 
-function formatTempo(range)
+function formatTempo(range,meter)
 {
     var ret = "<small>(" + range.Min;
     if (range.Min != range.Max)
     {
         ret += "-" + range.Max;
     }
-    ret += " MPM)<small>";
+    ret += " MPM " + meter.Numerator + "/4)<small>";
     return ret;
 }
 
@@ -183,7 +183,11 @@ function display() {
                 "<span class='badge'>" + dances[i].TempoDelta + "MPM</span>";
                 
         }
-        text += "<strong>" + dances[i].Name + "</strong> " + formatTempo(dance.TempoRange) + "</div>";
+        var strong = numerator === 1 || numerator === dance.Meter.Numerator;
+        if (strong) text += "<strong>";        
+        text += dances[i].Name;
+        if (strong) text += "</strong>";
+        text += " " + formatTempo(dance.TempoRange, dance.Meter) + "</div>";
 
         $("#dances").append(text);
     }
@@ -200,20 +204,18 @@ function updateRate(newRate)
     rate = newRate;
     dances = [];
 
+    var bpm = rate * numerator;
+
     for (var i = 0; i < danceIndex.length; i++)
     {
         var dance = danceIndex[i];
 
-        if (numerator === 1 || dance.Meter.Numerator === numerator)
+        if (numerator === 1 || dance.Meter.Numerator === numerator ||
+            (numerator == 2 && dance.Meter.Numerator == 4) || (numerator == 4 && dance.Meter.Numerator == 2))
         {
             var delta = NaN;
             
-            var tempRate = newRate;
-
-            if (numerator === 1)
-            {
-                tempRate = newRate / dance.Meter.Numerator;
-            }
+            var tempRate = bpm / dance.Meter.Numerator;
 
             if (tempRate < dance.TempoRange.Min) {
                 delta = tempRate - dance.TempoRange.Min;
@@ -227,11 +229,6 @@ function updateRate(newRate)
 
             avg = (dance.TempoRange.Min + dance.TempoRange.Max)/2;
             eps = delta / avg;
-
-            //if (eps < epsExact) {
-            //    eps = 0;
-            //    delta = 0;
-            //}
 
             if (Math.abs(eps) < epsVisible) {
                 dance.TempoDelta = delta.toFixed(1);
