@@ -143,12 +143,12 @@ function doReset()
 
 function formatTempo(range)
 {
-    var ret = "(" + range.Min;
+    var ret = "<small>(" + range.Min;
     if (range.Min != range.Max)
     {
         ret += "-" + range.Max;
     }
-    ret += " MPM)";
+    ret += " MPM)<small>";
     return ret;
 }
 
@@ -183,7 +183,7 @@ function display() {
                 "<span class='badge'>" + dances[i].TempoDelta + "MPM</span>";
                 
         }
-        text += dances[i].Name + " " + formatTempo(dance.TempoRange) + "</div>";
+        text += "<strong>" + dances[i].Name + "</strong> " + formatTempo(dance.TempoRange) + "</div>";
 
         $("#dances").append(text);
     }

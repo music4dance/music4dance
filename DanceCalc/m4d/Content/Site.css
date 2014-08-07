@@ -114,7 +114,11 @@ table.songlist
     width:100%;
 }
 
-.row-buffer { margin-top:15px; }
+.row-buffer {
+    margin-top:15px; 
+    padding-left:10px;
+    padding-right:10px;
+}
 
 .btn-ml,
 .btn-group-ml > .btn {
