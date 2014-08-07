@@ -2,7 +2,8 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
     if (HttpContext.Current.IsDebuggingEnabled)
     {
-        Page.ScriptQualifier = "";
+        // TODO: Figure out how to autoincrement
+        Page.ScriptQualifier = "?1";
     }
     else
     {

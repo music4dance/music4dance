@@ -141,6 +141,17 @@ function doReset()
     timerReset();
 }
 
+function formatTempo(range)
+{
+    var ret = "(" + range.Min;
+    if (range.Min != range.Max)
+    {
+        ret += "-" + range.Max;
+    }
+    ret += " MPM)";
+    return ret;
+}
+
 function display() {
     $("#total").text(counter);
     var t = new Date().getTime();
@@ -163,13 +174,16 @@ function display() {
         var text = null;
         if (dance.TempoDelta == 0)
         {
-            text = "<div class='list-group-item list-group-item-info'>" + dances[i].Name + "</div>";
+            text = "<div class='list-group-item list-group-item-info'>";
         }
         else
         {
             var type = (dance.TempoDelta < 0) ? "list-group-item-danger" : "list-group-item-success";
-            text = "<div class='list-group-item " + type + "'><span class='badge'>" + dances[i].TempoDelta + "MPM</span>" + dances[i].Name + "</div>"
+            text = "<div class='list-group-item " + type + "'>" +
+                "<span class='badge'>" + dances[i].TempoDelta + "MPM</span>";
+                
         }
+        text += dances[i].Name + " " + formatTempo(dance.TempoRange) + "</div>";
 
         $("#dances").append(text);
     }
