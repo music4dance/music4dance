@@ -2,43 +2,7 @@
     ViewBag.Title = "Counter";
 }
 
-<div class="row row-buffer">
-    <button id='count' type=button class="btn btn-lg btn-primary btn-block">Count</button>
-</div>
-<div class="row row-buffer">
-    <input id="tempo" class="calculator col-xs-4" value="0.0"/>
-    <div class="btn-group col-xs-4">
-        <button type="button" id="mt" class="btn btn-info dropdown-toggle" data-toggle="dropdown">
-            4/4 MPM <span class="caret"></span>
-        </button>
-        <ul class="dropdown-menu" role="menu">
-            <li><a id="mt1" href="#">BPM</a></li>
-            <li><a id="mt2" href="#">2/4 MPM</a></li>
-            <li><a id="mt3" href="#">3/4 MPM</a></li>
-            <li><a id="mt4" href="#">4/4 MPM</a></li>
-        </ul>
-    </div>
-    @Html.ActionLink("Help", "CounterHelp", null, new { @class = "btn btn-default col-xs-4", role = "button" })
-</div>
-
-@*
-<div class="row">
-    @if (User.IsInRole("showDiagnostics"))
-    {
-        <p><span id='time'>0</span> elapsed millis</p>
-        <p><span id='total'>0</span> clicks total</p>
-        <p><span id='avg'>0</span> milliseconds per click</p>
-        <p><span id='rate'>0</span> clicks per minute</p>
-    }
-</div>
-*@
-<div class="row row-buffer">
-    <div id="dances" class="list-group"></div>
-</div>
-
-<div class="row row-buffer">
-    <button id='reset' type=button class="btn-sm btn-block">Reset</button>
-</div>
+@Html.Partial("_Counter")
 
 @section Scripts {
     @{
@@ -47,3 +11,4 @@
     @Scripts.Render("~/bundles/jqueryval")
     <script src="@Url.Content(pageScript)" type="text/javascript"></script>
 }
+
