@@ -17,7 +17,10 @@
 @section Scripts {
     @{
         string pageScript = "~/Scripts/edit.js" + Page.ScriptQualifier;
+        string counterScript = "~/Scripts/counter.js" + Page.ScriptQualifier;
     }
+
+    <script>var numerator = 4;</script>
 
     @Scripts.Render("~/bundles/jqueryval")
     <script src="@Url.Content("~/Scripts/chosen.jquery.js")" type="text/javascript"></script>
@@ -28,4 +31,5 @@
         var albumsAdded = 0;
     </script>
     <script src="@Url.Content(pageScript)" type="text/javascript"></script>
+    <script src="@Url.Content(counterScript)" type="text/javascript"></script>
 }

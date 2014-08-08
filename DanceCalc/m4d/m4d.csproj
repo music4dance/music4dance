@@ -498,6 +498,7 @@
     <Content Include="Views\ApplicationUsers\Index.cshtml" />
     <Content Include="Views\ApplicationUsers\ChangeRoles.cshtml" />
     <Content Include="Views\Shared\_Counter.cshtml" />
+    <Content Include="Views\Shared\_MeterChooser.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

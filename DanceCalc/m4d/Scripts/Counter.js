@@ -15,7 +15,6 @@ var intervals = [];
 var maxWait = defWait;
 var last = 0;
 var average = 0;
-var numerator = 4;
 var rate = 0.0;
 var epsExact = .01;
 var epsVisible = .05;
@@ -27,6 +26,8 @@ var timeout = null;
 
 var labels = ["BPM ", "2/4 MPM ", "3/4 MPM ", "4/4 MPM "];
 
+var tempoId = "#Tempo";
+var mpmId = "#MPM";
 
 $(document).ready(function () {
     $("#reset").click(function () { doReset() });
@@ -47,7 +48,7 @@ $(document).ready(function () {
         });
 
 
-    $('#tempo').each(function() {
+    $(mpmId).each(function() {
         // Save current value of element
         $(this).data('oldVal', $(this));
 
@@ -66,7 +67,27 @@ $(document).ready(function () {
                 // Else user error here
             }
         });
+    });
 
+    $(tempoId).each(function() {
+        // Save current value of element
+        $(this).data('oldVal', $(this));
+
+        // Look for changes in the value
+        $(this).bind("propertychange keyup input paste", function(event){
+            // If value has changed...
+            if ($(this).data('oldVal') != $(this).val()) {
+                // Updated stored value
+                $(this).data('oldVal', $(this).val());
+                
+                var newRate = rateFromText($(this).val());
+                if ($.isNumeric(newRate))
+                {
+                    updateRate(roundTempo(newRate/numerator));
+                }
+                // Else user error here
+            }
+        });
     });
 
     //$('#tempo').focus(function () { setFocus(true);});
@@ -160,36 +181,50 @@ function display() {
     $("#avg").text(Math.round(average));
     $("#rate").text(rate);
 
-    if (!$("#tempo").is(":focus") || rate === 0)
+    if (!$(mpmId).is(":focus") || rate === 0)
     {
-        $("#tempo").val(rate);
+        $(mpmId).val(rate);
+    }
+    if (!$(tempoId).is(":focus") || rate === 0) {
+        $(tempoId).val(roundTempo(rate * numerator));
     }
 
     var bt = last == 0 ? 'Count' : 'Again';
     $("#count").html(bt);
     $("#dances").empty();
 
+    var idpfx = "add-dance-"
     for (var i = 0; i < dances.length; i++) {
         var dance = dances[i];
-        var text = null;
+        var text = "<a id='" + idpfx + dance.Id + "' href='#' class='list-group-item ";
+
         if (dance.TempoDelta == 0)
         {
-            text = "<div class='list-group-item list-group-item-info'>";
+            text += " list-group-item-info'>";
         }
         else
         {
             var type = (dance.TempoDelta < 0) ? "list-group-item-danger" : "list-group-item-success";
-            text = "<div class='list-group-item " + type + "'>" +
+            text += type + "'>" +
                 "<span class='badge'>" + dances[i].TempoDelta + "MPM</span>";
                 
         }
         var strong = numerator === 1 || numerator === dance.Meter.Numerator;
-        if (strong) text += "<strong>";        
+        if (strong) text += "<strong>";
         text += dances[i].Name;
         if (strong) text += "</strong>";
         text += " " + formatTempo(dance.TempoRange, dance.Meter) + "</div>";
 
         $("#dances").append(text);
+
+        if (typeof danceAction == 'function')
+        {
+            $("#add-dance-" + dance.Id).click(function () {
+                var id = $(this).context.id;
+                id = id.substring(idpfx.length);
+                danceAction(id);
+            });
+        }
     }
 }
 
@@ -246,30 +281,47 @@ function updateRate(newRate)
     display();
 }
 
+function roundTempo(t)
+{
+    if ($.isNumeric(t))
+    {
+        var r = Math.round(t * 10) / 10;
+        return r.toFixed(1);
+    }
+    else
+    {
+        return 0.0;
+    }
+}
 
 function getRate()
 {
     var ret = 0;
     if (average !== 0)
-        ret = Math.round(60 * 10000 / average) / 10;
+        ret = 60 * 1000 / average;
 
-    return ret.toFixed(1);
+    return roundTempo(ret);
 }
 
 function rateFromText(text)
 {
     var r = Number(text);
-    if ($.isNumeric(r))
-    {
-        r = r.toFixed(1);
-    }
-
-    return r;
+    return roundTempo(r);
 }
 
 function setupDances(data)
 {
     danceIndex = data;
+
+    var tempoT = rateFromText($(tempoId).val());
+    var mpmT = rateFromText($(mpmId).val());
+
+    if (mpmT !== 0) {
+        updateRate(mpmT);
+    }
+    else if (tempoT !== 0) {
+        updateRate(tempoT / numerator);
+    }
 }
 
 function setNumerator(num)
@@ -281,7 +333,7 @@ function setNumerator(num)
         $("#mt").append("<span class='caret'></span>");
 
         var r = (numerator * rate) / num;
-        r = (Math.round(r * 10) / 10).toFixed(1);
+        r = roundTempo(r);
 
         numerator = num;
         timerReset(rate != 0);

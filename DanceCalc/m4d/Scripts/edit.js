@@ -2,13 +2,13 @@
     for (var i = 0; i < albumCount; i++)
     {
         var name = "#Delete_" + i.toString();
-        $(name).click(i,DeleteAlbum)
+        $(name).click(i,deleteAlbum)
     }
 
-    $('#AddAlbum').click(AddAlbum);
+    $('#AddAlbum').click(addAlbum);
 });
 
-function DeleteAlbum(event)
+function deleteAlbum(event)
 {
     var id = "#Album_" + event.data.toString();
     var base = "#Albums_" + event.data.toString();
@@ -23,7 +23,7 @@ function DeleteAlbum(event)
     $(publisher).val(null);
 }
 
-function AddAlbum()
+function addAlbum()
 {
     var name = "#Album_" + (albumCount + albumsAdded).toString();
 
@@ -34,4 +34,12 @@ function AddAlbum()
     {
         $('#AddAlbum').hide();
     }
+}
+
+function danceAction(id)
+{
+    Debug.write("Dance Id=" + id + "\r\n");
+    $('#addDances option[value="' + id + '"]').attr('selected', 'selected');
+    $('#addDances').trigger('chosen:updated');
+
 }

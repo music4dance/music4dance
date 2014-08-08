@@ -8,6 +8,7 @@
     @{
         string pageScript = "~/Scripts/counter.js" + Page.ScriptQualifier;
     }
+    <script>var numerator = 4;</script>
     @Scripts.Render("~/bundles/jqueryval")
     <script src="@Url.Content(pageScript)" type="text/javascript"></script>
 }
