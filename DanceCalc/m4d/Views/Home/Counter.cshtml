@@ -7,8 +7,20 @@
 @section Scripts {
     @{
         string pageScript = "~/Scripts/counter.js" + Page.ScriptQualifier;
+        if (ViewData.ContainsKey("paramNumerator"))
+        {
+            <script>var paramNumerator = @ViewBag.paramNumerator;</script>
+        }
+        if (ViewData.ContainsKey("paramShowMPM"))
+        {
+            <script>var paramShowMPM = @(ViewBag.paramShowMPM ? "true" : "false");</script>
+        }
+        if (ViewData.ContainsKey("paramShowBPM"))
+        {
+            <script>var paramShowBPM = @(ViewBag.paramShowBPM ? "true" : "false");</script>
+        }
     }
-    <script>var numerator = 4;</script>
+    
     @Scripts.Render("~/bundles/jqueryval")
     <script src="@Url.Content(pageScript)" type="text/javascript"></script>
 }

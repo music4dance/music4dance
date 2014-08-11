@@ -55,8 +55,17 @@ namespace m4d.Controllers
         }
 
         [AllowAnonymous]
-        public ActionResult Counter()
+        public ActionResult Counter(bool? showMPM, bool? showBPM)
         {
+            if (showMPM.HasValue)
+            {
+                ViewBag.paramShowMPM = showMPM;
+            }
+
+            if (showBPM.HasValue)
+            {
+                ViewBag.paramShowBPM = showBPM;
+            }
 
             return View();
         }

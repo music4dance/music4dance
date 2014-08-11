@@ -222,6 +222,8 @@ namespace music4dance.Controllers
         [Authorize(Roles = "canEdit")] 
         public ActionResult Create(string filter = null)
         {
+            ViewBag.ShowMPM = true;
+            ViewBag.ShowBPM = true;
             ViewBag.DanceListAdd = GetDances();
             ViewBag.SongFilter = ParseFilter(filter);
             SongDetails sd = new SongDetails();
@@ -290,16 +292,30 @@ namespace music4dance.Controllers
                 return HttpNotFound();
             }
 
-            ViewBag.DanceListRemove = GetDances(song.RatingsList);
-            ViewBag.DanceListAdd = GetDances();
+
+            SetupEditViewBag(song);
 
             ViewBag.SongFilter = ParseFilter(filter);
             return View(song);
         }
 
+        private void SetupEditViewBag(SongDetails song)
+        {
+            ViewBag.ShowMPM = true;
+            ViewBag.ShowBPM = true;
+
+            IList<DanceRating> ratingsList = song.RatingsList;
+            ViewBag.DanceListRemove = GetDances(ratingsList);
+            ViewBag.DanceListAdd = GetDances();
+
+            if (ratingsList.Any(r => r.Dance.Name.Contains("Waltz")))
+            {
+                ViewBag.paramNumerator = 3;
+            }
+
+        }
         //
         // POST: /Song/Edit/5
-
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "canEdit")] 
@@ -353,8 +369,8 @@ namespace music4dance.Controllers
                 // Add back in the danceratings
                 // TODO: This almost certainly doesn't preserve edits...
                 SongDetails songT = _db.FindSongDetails(song.SongId);
-                ViewBag.DanceListRemove = GetDances(songT.RatingsList);
-                ViewBag.DanceListAdd = GetDances();
+
+                SetupEditViewBag(songT);
 
                 // Clean out empty albums
                 for (int i = 0; i < song.Albums.Count;  )

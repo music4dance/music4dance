@@ -4,6 +4,12 @@
 
 var diag = false;
 
+// These variables all have optional input variables named "param*" to set up
+//  different variations
+var showBPM = false;
+var showMPM = true;
+var numerator = 4;
+
 var counter = 0;
 var start = new Date().getTime();
 
@@ -30,6 +36,20 @@ var tempoId = "#Tempo";
 var mpmId = "#MPM";
 
 $(document).ready(function () {
+    if (typeof paramShowBPM === 'boolean')
+    {
+        showBPM = paramShowBPM;
+    }
+
+    if (typeof paramShowMPM === 'boolean')
+    {
+        showMPM = paramShowMPM;
+    }
+
+    if (typeof paramNumerator === 'number') {
+        setNumeratorControl(paramNumerator);
+    }
+
     $("#reset").click(function () { doReset() });
     $("#count").click(function () { doClick() });
 
@@ -46,7 +66,6 @@ $(document).ready(function () {
         .fail(function (jqXHR, textStatus, err) {
             window.alert(err);
         });
-
 
     $(mpmId).each(function() {
         // Save current value of element
@@ -164,12 +183,35 @@ function doReset()
 
 function formatTempo(range,meter)
 {
-    var ret = "<small>(" + range.Min;
-    if (range.Min != range.Max)
+    if (!showMPM && !showBPM)
+        return "";
+
+    var ret = "<small>(";
+
+    if (showMPM)
     {
-        ret += "-" + range.Max;
+        ret += range.Min;
+        if (range.Min != range.Max) {
+            ret += "-" + range.Max;
+        }
+        ret += " MPM " + meter.Numerator + "/4";
+
+        if (showBPM)
+        {
+            ret += " & ";
+        }
     }
-    ret += " MPM " + meter.Numerator + "/4)<small>";
+
+    if (showBPM)
+    {
+        ret += range.Min * meter.Numerator;
+        if (range.Min != range.Max) {
+            ret += "-" + range.Max * meter.Numerator;
+        }
+        ret += "BPM ";
+    }
+
+    ret += ")<small>";
     return ret;
 }
 
@@ -324,18 +366,26 @@ function setupDances(data)
     }
 }
 
+function setNumeratorControl(num)
+{
+    if (numerator != num) {
+        $("#mt").empty();
+        $("#mt").append(labels[num - 1]);
+        $("#mt").append("<span class='caret'></span>");
+        numerator = num;
+    }
+}
+
 function setNumerator(num)
 {
     if (numerator != num)
     {
-        $("#mt").empty();
-        $("#mt").append(labels[num - 1]);
-        $("#mt").append("<span class='caret'></span>");
+        var old = numerator;
+        setNumeratorControl(num);
 
-        var r = (numerator * rate) / num;
+        var r = (old * rate) / num;
         r = roundTempo(r);
 
-        numerator = num;
         timerReset(rate != 0);
         if (rate != 0)
         {
