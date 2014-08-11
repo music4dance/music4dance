@@ -9,6 +9,7 @@ var diag = false;
 var showBPM = false;
 var showMPM = true;
 var numerator = 4;
+var epsVisible = .05;
 
 var counter = 0;
 var start = new Date().getTime();
@@ -23,7 +24,6 @@ var last = 0;
 var average = 0;
 var rate = 0.0;
 var epsExact = .01;
-var epsVisible = .05;
 
 var dances = [];
 var danceIndex = null;
@@ -50,6 +50,11 @@ $(document).ready(function () {
         setNumeratorControl(paramNumerator);
     }
 
+    if (typeof paramEpsVisible === 'number') {
+        epsVisible = paramEpsVisible;
+        $("#epsilon").val(epsVisible * 100);
+    }
+
     $("#reset").click(function () { doReset() });
     $("#count").click(function () { doClick() });
 
@@ -57,6 +62,10 @@ $(document).ready(function () {
     $("#mt2").click(function () { setNumerator(2) });
     $("#mt3").click(function () { setNumerator(3) });
     $("#mt4").click(function () { setNumerator(4) });
+
+    $("#epsilon").change(function() {
+        setEpsilon($(this).val());
+    });
 
     var uri = '/api/dance';
     $.getJSON(uri)
@@ -270,28 +279,19 @@ function display() {
     }
 }
 
-function updateRate(newRate)
+function updateDances()
 {
-    console.log("Rate=" + newRate);
-    if (rate == newRate)
-    {
-        return;
-    }
-
-    rate = newRate;
     dances = [];
 
     var bpm = rate * numerator;
 
-    for (var i = 0; i < danceIndex.length; i++)
-    {
+    for (var i = 0; i < danceIndex.length; i++) {
         var dance = danceIndex[i];
 
         if (numerator === 1 || dance.Meter.Numerator === numerator ||
-            (numerator == 2 && dance.Meter.Numerator == 4) || (numerator == 4 && dance.Meter.Numerator == 2))
-        {
+            (numerator == 2 && dance.Meter.Numerator == 4) || (numerator == 4 && dance.Meter.Numerator == 2)) {
             var delta = NaN;
-            
+
             var tempRate = bpm / dance.Meter.Numerator;
 
             if (tempRate < dance.TempoRange.Min) {
@@ -304,7 +304,7 @@ function updateRate(newRate)
                 delta = 0;
             }
 
-            avg = (dance.TempoRange.Min + dance.TempoRange.Max)/2;
+            avg = (dance.TempoRange.Min + dance.TempoRange.Max) / 2;
             eps = delta / avg;
 
             if (Math.abs(eps) < epsVisible) {
@@ -321,6 +321,19 @@ function updateRate(newRate)
     });
 
     display();
+}
+
+function updateRate(newRate)
+{
+    console.log("Rate=" + newRate);
+    if (rate == newRate)
+    {
+        return;
+    }
+
+    rate = newRate;
+
+    updateDances();
 }
 
 function roundTempo(t)
@@ -391,5 +404,15 @@ function setNumerator(num)
         {
             updateRate(r);
         }
+    }
+}
+
+function setEpsilon(newEpsI)
+{
+    var newEps = newEpsI / 100;
+    if (newEps !== epsVisible)
+    {
+        epsVisible = newEps;
+        updateDances();
     }
 }

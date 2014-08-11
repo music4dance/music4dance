@@ -24,6 +24,13 @@
     <div id="dances" class="list-group"></div>
 </div>
 
+@if (ViewBag.ShowEpsilon == true)
+{
+    <div class="row row-buffer">
+        <input id='epsilon' type='range' value='5' min='1' max='50'/>
+    </div>
+}
+
 <div class="row row-buffer">
     <input id="Tempo" size="5" value="0.0" /> BPM
 </div>
