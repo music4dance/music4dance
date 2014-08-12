@@ -37,10 +37,7 @@ namespace m4dModels
             // Handle User association
             if (user != null)
             {
-                ModifiedRecord us = users.CreateMapping(SongId, user.Id);
-                us.Song = this;
-                us.ApplicationUser = user;
-                AddModifiedBy(us, users);
+                AddUser(user,users);
                 factories.CreateSongProperty(this, Song.UserField, user.UserName, log);
             }
 
@@ -292,15 +289,16 @@ namespace m4dModels
             return ret;
         }
 
-        private bool AddUser(ApplicationUser user, IUserMap users)
+        public bool AddUser(ApplicationUser user, IUserMap users)
         {
-            if (ModifiedBy == null || ModifiedBy.Count == 0)
-            {
-                Debug.WriteLine("Modified by not loaded?");
-            }
-
             ModifiedRecord us = users.CreateMapping(this.SongId,user.Id);
             return AddModifiedBy(us, users);
+        }
+
+        public bool AddUser(string name, IUserMap users)
+        {
+            ApplicationUser u = users.FindUser(name);
+            return AddUser(u, users);
         }
 
         private void CreateAlbums(IList<AlbumDetails> albums, IFactories factories)
@@ -510,7 +508,7 @@ namespace m4dModels
             Debug.Assert(ModifiedBy.Count == 0);
             foreach (ModifiedRecord user in sd.ModifiedBy)
             {
-                AddModifiedBy(user,users);
+                AddUser(user.UserName, users);
             }
         }
 
@@ -544,7 +542,7 @@ namespace m4dModels
             }
         }
 
-        public bool AddModifiedBy(ModifiedRecord mr, IUserMap map)
+        private bool AddModifiedBy(ModifiedRecord mr, IUserMap map)
         {
             if (ModifiedBy == null)
             {
@@ -555,7 +553,7 @@ namespace m4dModels
             mr.SongId = SongId;
 
             ModifiedRecord other = null;
-            
+
             if (mr.ApplicationUserId != null)
             {
                 other = ModifiedBy.FirstOrDefault(r => r.ApplicationUserId == mr.ApplicationUserId);
@@ -564,7 +562,7 @@ namespace m4dModels
             {
                 other = ModifiedBy.FirstOrDefault(r => r.UserName == mr.UserName);
             }
-            
+
             if (other == null)
             {
                 ModifiedBy.Add(mr);

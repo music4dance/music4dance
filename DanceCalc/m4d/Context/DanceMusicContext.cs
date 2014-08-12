@@ -314,9 +314,8 @@ namespace m4d.Context
 
             if (lv.Name.Equals(Song.UserField))
             {
-                // Only new song has a null ModifiedBy?
                 ApplicationUser user = FindUser(lv.Value);
-                AddUserToSong(user, song);
+                song.AddUser(user, this);
             }
             else if (lv.Name.Equals(Song.DanceRatingField))
             {
@@ -831,27 +830,6 @@ namespace m4d.Context
             return user;
         }
 
-        // TODO: Kill this off if/when we move restore down
-        private bool AddUserToSong(ApplicationUser user, Song song)
-        {
-            if (song.ModifiedBy == null || song.ModifiedBy.Count == 0)
-            {
-                Debug.WriteLine("Modified by not loaded?");
-            }
-
-            if (!song.ModifiedBy.Any(u => u.ApplicationUserId == user.Id))
-            {
-                ModifiedRecord us = Modified.Create();
-                us.ApplicationUser = user;
-                Modified.Add(us);
-                song.AddModifiedBy(us,this);
-                return true;
-            }
-            else
-            {
-                return false;
-            }
-        }
         
         #endregion
 

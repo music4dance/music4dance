@@ -21,6 +21,7 @@ using m4d.Utilities;
 using Microsoft.AspNet.Identity.EntityFramework;
 using Microsoft.AspNet.Identity;
 using System.Data.Entity.Core.Objects;
+using EntityFramework.Utilities;
 
 namespace m4d.Controllers
 {
@@ -678,7 +679,7 @@ namespace m4d.Controllers
 
         private void ReseedDB()
         {
-            Configuration.DoSeed(_db);
+            m4d.Migrations.Configuration.DoSeed(_db);
         }
 
         private DbMigrator BuildMigrator()
@@ -688,12 +689,12 @@ namespace m4d.Controllers
             return new DbMigrator(configuration);
         }
 
-        private Configuration BuildConfiguration()
+        private m4d.Migrations.Configuration BuildConfiguration()
         {
             string sqlConnectionString = System.Configuration.ConfigurationManager.ConnectionStrings["DefaultConnection"].ConnectionString;
             var connectionInfo = new DbConnectionInfo(sqlConnectionString, "System.Data.SqlClient");
 
-            var configuration = new Configuration
+            var configuration = new m4d.Migrations.Configuration
             {
                 TargetDatabase = connectionInfo,
                 AutomaticMigrationsEnabled = false
@@ -800,15 +801,18 @@ namespace m4d.Controllers
         {
             Trace.WriteLine("Entering ReloadDB");
 
+            // TODO: I think I can make this work by passing in a custom class in place of DMC to
+            //  accumulate the additions to DanceRatings and ModifiedBy
             using (DanceMusicContext dmc = new DanceMusicContext())
             {
-                // TODO: Is this somehow global?  The examples that change this flag have both the using and a try/catch
-                //  to turn it off.
-
-                dmc.Configuration.AutoDetectChangesEnabled = false;
                 // Load the dance List
                 Trace.WriteLine("Loading Dances");
                 dmc.Dances.Load();
+
+                List<Song> songs = new List<Song>();
+                List<SongProperty> properties = new List<SongProperty>();
+                List<DanceRating> ratings = new List<DanceRating>();
+                BatchUserMap bum = new BatchUserMap(dmc);
 
                 Trace.WriteLine("Loading Songs");
 
@@ -816,66 +820,35 @@ namespace m4d.Controllers
                 foreach (string line in lines)
                 {
                     DateTime time = DateTime.Now;
-                    Song song = dmc.Songs.Create();
+                    Song song = new Song();
                     song.Created = time;
                     song.Modified = time;
 
-                    song.Load(line, dmc);
+                    song.Load(line, bum);
+                    songs.Add(song);
+                    properties.AddRange(song.SongProperties);
+                    ratings.AddRange(song.DanceRatings);
 
-                    if (dmc.FindSong(song.SongId) == null)
+                    c += 1;
+                    if (c % 100 == 0)
                     {
-                        dmc.Songs.Add(song);
-                        song.UpdateUsers(dmc);
+                        Trace.WriteLine(string.Format("{0} songs loaded", c));
+                    }
 
-                        c += 1;
-                        if (c % 100 == 0)
+                    if (TraceLevels.General.TraceInfo)
+                    {
+                        if (song.Length.HasValue && song.Length.Value > 1000)
                         {
-                            Trace.WriteLine(string.Format("{0} songs loaded", c));
-                        }
-
-                        if (TraceLevels.General.TraceInfo)
-                        {
-                            if (song.Length.HasValue && song.Length.Value > 1000)
-                            {
-                                Trace.WriteLine(string.Format("Long Song: {0} '{1}'", song.Length, song.Title));
-                            }
+                            Trace.WriteLine(string.Format("Long Song: {0} '{1}'", song.Length, song.Title));
                         }
                     }
                 }
 
-                if (TraceLevels.General.TraceVerbose)
-                {
-                    HashSet<string> map = new HashSet<string>();
-
-                    c = 0;
-                    foreach (Song song in dmc.Songs)
-                    {
-                        if (song.ModifiedBy != null)
-                        {
-                            foreach (ModifiedRecord us in song.ModifiedBy)
-                            {
-                                string s = string.Format("{0}:{1}", song.SongId, us.ApplicationUserId);
-                                if (map.Contains(s))
-                                {
-                                    Trace.WriteLine(string.Format("Duplicate: '{0}'", s));
-                                }
-                                else
-                                {
-                                    map.Add(s);
-                                    c += 1;
-                                    if (c % 100 == 0)
-                                    {
-                                        Trace.WriteLine(string.Format("{0} modified records loaded", c));
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-
-                dmc.Configuration.AutoDetectChangesEnabled = true;
                 Trace.WriteLine("Saving Changes");
-                dmc.SaveChanges();
+                EFBatchOperation.For(dmc, dmc.Songs).InsertAll(songs);
+                EFBatchOperation.For(dmc, dmc.SongProperties).InsertAll(properties);
+                EFBatchOperation.For(dmc, dmc.Modified).InsertAll(bum.GetMappings());
+                EFBatchOperation.For(dmc, dmc.DanceRatings).InsertAll(ratings);
             }
 
             Trace.WriteLine("Clearing Song Cache");
