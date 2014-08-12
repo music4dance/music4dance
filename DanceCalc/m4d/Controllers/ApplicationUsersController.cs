@@ -89,7 +89,7 @@ namespace m4d.Controllers
         {
             if (ModelState.IsValid)
             {
-                _db.Entry(applicationUser).State = EntityState.Modified;
+                _db.Entry(applicationUser).State = System.Data.Entity.EntityState.Modified;
                 _db.SaveChanges();
                 return RedirectToAction("Index");
             }
