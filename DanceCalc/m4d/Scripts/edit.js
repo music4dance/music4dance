@@ -6,6 +6,23 @@
     }
 
     $('#AddAlbum').click(addAlbum);
+
+    $('#counter-control').hide();
+    $('#toggle-count').click(function () {
+        var visible = $('#counter-control').is(':visible');
+        if (visible)
+        {
+            $('#counter-control').hide();
+            $('#toggle-count-display').removeClass('glyphicon-arrow-up');
+            $('#toggle-count-display').addClass('glyphicon-arrow-down');
+        }
+        else
+        {
+            $('#counter-control').show();
+            $('#toggle-count-display').removeClass('glyphicon-arrow-down');
+            $('#toggle-count-display').addClass('glyphicon-arrow-up');
+        }
+    });
 });
 
 function deleteAlbum(event)

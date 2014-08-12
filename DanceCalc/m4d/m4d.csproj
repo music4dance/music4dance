@@ -234,6 +234,7 @@
     <Compile Include="Controllers\DanceController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\LogController.cs" />
+    <Compile Include="Controllers\MusicServiceController.cs" />
     <Compile Include="Controllers\PurchaseInfoController.cs" />
     <Compile Include="Controllers\SongController.cs" />
     <Compile Include="Controllers\SongPropertyController.cs" />
