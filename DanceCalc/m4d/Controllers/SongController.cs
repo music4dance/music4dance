@@ -626,30 +626,14 @@ namespace music4dance.Controllers
 
                     IList<ServiceTrack> tracks = null;
                     // First try the full title/artist
-                    try
-                    {
-                        tracks = FindMusicServiceSong(sd, service);
-                    }
-                    catch (WebException we)
-                    {
-                        ViewBag.Error = true;
-                        ViewBag.Status = we.Message;
-                    }
+                    tracks = FindMusicServiceSong(sd, service);
 
                     if ((tracks == null || tracks.Count == 0) && !string.Equals(DefaultServiceSearch(sd,true),DefaultServiceSearch(sd,false)))
                     {
                         // Now try cleaned up title/artist (remove punctuation and stuff in parens/brackets)
-                        try
-                        {
-                            tracks = FindMusicServiceSong(sd, service,true);
-                            ViewBag.Error = false;
-                            ViewBag.Status = null;
-                        }
-                        catch (WebException we)
-                        {
-                            ViewBag.Error = true;
-                            ViewBag.Status = we.Message;
-                        }
+                        ViewBag.Status = null;
+                        ViewBag.Error = false;
+                        tracks = FindMusicServiceSong(sd, service, true);
                     }
 
                     if (tracks != null && tracks.Count > 0)
@@ -808,25 +792,7 @@ namespace music4dance.Controllers
             ViewBag.Type = type;
             ViewBag.Error = false;
 
-            try
-            {
-                IList<ServiceTrack> tracks = FindMusicServiceSong(song,service,false,title,artist);
-                if (tracks == null || tracks.Count == 0)
-                {
-                    ViewBag.Error = true;
-                    ViewBag.Status = "No Matches Found";
-                }
-                else
-                {
-                    view.Tracks = tracks;
-                }
-                
-            }
-            catch (WebException we)
-            {
-                ViewBag.Error = true;
-                ViewBag.Status = we.Message;
-            }
+            view.Tracks = FindMusicServiceSong(song, service, false, title, artist);
 
             return View(view);
         }
@@ -1248,42 +1214,28 @@ namespace music4dance.Controllers
                 return song.Title + " " + song.Artist;
         }
 
-        // Obviously not the clean abstraction, but Amazon is different enough that my abstraction
-        //  between itunes and xbox doesn't work.   So I'm going to shoe-horn this in to get it working
-        //  and refactor later.
-
         private IList<ServiceTrack> FindMusicServiceSong(SongDetails song, MusicService service, bool clean = false, string title = null, string artist = null)
         {
-            switch (service.ID)
+            IList<ServiceTrack> tracks = null;
+            try
             {
-                case ServiceType.Amazon:
-                    return FindMSSongAmazon(song, clean, title, artist);
-                default:
-                    return FindMSSongGeneral(song, service, clean, title, artist);
+                FixupTitleArtist(song, clean, ref title, ref artist);
+                tracks = _db.FindMusicServiceSong(song, service, clean, title, artist);
+
+                if (tracks == null || tracks.Count == 0)
+                {
+                    ViewBag.Error = true;
+                    ViewBag.Status = "No Matches Found";
+                }                
             }
+            catch (WebException we)
+            {
+                ViewBag.Error = true;
+                ViewBag.Status = we.Message;
+            }
+
+            return tracks;
         }
-
-        private IList<ServiceTrack> FindMSSongAmazon(SongDetails song, bool clean = false, string title = null, string artist = null)
-        {
-            if (_awsFetcher == null)
-            {
-                _awsFetcher = new AWSFetcher();
-            }
-
-            bool custom = !string.IsNullOrWhiteSpace(title) || !string.IsNullOrWhiteSpace(artist);
-            FixupTitleArtist(song, clean, ref title, ref artist);
-
-            if (custom)
-            {
-                return _awsFetcher.FetchTracks(title,artist);
-            }
-            else
-            {
-                return _awsFetcher.FetchTracks(song, clean);
-            }
-        }
-
-        AWSFetcher _awsFetcher;
 
         private void FixupTitleArtist(SongDetails song, bool clean, ref string title, ref string artist)
         {
@@ -1297,51 +1249,6 @@ namespace music4dance.Controllers
             ViewBag.SongTitle = title;
         }
 
-        private IList<ServiceTrack> FindMSSongGeneral(SongDetails song, MusicService service, bool clean = false, string title = null, string artist = null)
-        {
-            HttpWebRequest request = null;
-            HttpWebResponse response = null;
-
-            string responseString = null;
-
-            // Make Music database request
-
-            FixupTitleArtist(song, clean, ref title, ref artist);
-
-            string req = service.BuildSearchRequest(artist, title);
-
-            request = (HttpWebRequest)WebRequest.Create(req);
-            request.Method = WebRequestMethods.Http.Get;
-            request.Accept = "application/json";
-            if (service.RequiresKey)
-            {
-                request.Headers.Add("Authorization", XboxAuthorization);
-            }
-
-            ViewBag.Error = false;
-            using (response = (HttpWebResponse)request.GetResponse())
-            {
-                ViewBag.Status = response.StatusCode.ToString();
-
-                if (response.StatusCode == HttpStatusCode.OK)
-                {
-                    using (var sr = new StreamReader(response.GetResponseStream()))
-                    {
-                        responseString = sr.ReadToEnd();
-                    }
-                }
-            }
-            if (responseString != null)
-            {
-                responseString = service.PreprocessSearchResponse(responseString);
-                dynamic results = System.Web.Helpers.Json.Decode(responseString);
-                return service.ParseSearchResults(results);
-            }
-            else
-            {
-                return new List<ServiceTrack>();
-            }
-        }
         SongDetails UpdateMusicService(SongDetails song, MusicService service, string name, string album, string artist, string trackId, string collectionId, string alternateId, string duration, string genre, int? trackNum)
         {
             // This is a very transitory object to hold the old values for a semi-automated edit
@@ -1439,25 +1346,6 @@ namespace music4dance.Controllers
                 ad.SetPurchaseInfo(pt, ServiceType.AMG, alternateId);
             }
         }
-        private static string XboxAuthorization
-        {
-            get
-            {
-                if (s_admAuth == null)
-                {
-                    string clientId = "music4dance";
-                    string clientSecret = "iGvYm97JA+qYV1K2lvh8sAnL8Pebp5cN2KjvGnOD4gI=";
-
-                    s_admAuth = new AdmAuthentication(clientId, clientSecret);
-
-                }
-
-                return "Bearer " + s_admAuth.GetAccessToken().access_token;
-            }
-        }
-
-        private static AdmAuthentication s_admAuth = null;
-
         #endregion
 
         #region Merge

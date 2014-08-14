@@ -8,6 +8,7 @@ namespace m4dModels
 {
     public class ServiceTrack
     {
+        public ServiceType Service { get; set; }
         public string TrackId { get; set; }
         public string Name { get; set; }
         public string CollectionId { get; set; }

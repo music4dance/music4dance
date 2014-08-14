@@ -44,6 +44,7 @@ namespace m4dModels
 
                     ServiceTrack st = new ServiceTrack
                     {
+                        Service = ServiceType.ITunes,
                         TrackId = track.trackId.ToString(),
                         CollectionId = track.collectionId.ToString(),
                         Name = track.trackName,

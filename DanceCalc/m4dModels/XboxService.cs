@@ -66,13 +66,14 @@ namespace m4dModels
 
                 ServiceTrack st = new ServiceTrack
                 {
+                    Service = ServiceType.XBox,
                     TrackId = track.Id,
                     Name = track.Name,
                     AltId = altId,
                     Artist = track.Artists[0].Artist.Name,
                     Album = track.Album.Name,
                     ImageUrl = track.ImageUrl,
-                    Link = track.Link + "?action=addtocollection",
+                    Link = track.Link + "?action=play&target=app",
                     ReleaseDate = track.ReleaseDate,
                     Genre = track.Genres[0],
                     Duration = duration,

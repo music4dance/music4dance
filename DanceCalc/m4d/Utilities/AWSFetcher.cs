@@ -234,7 +234,7 @@ namespace m4d.Utilities
                         tracks.Add(track);
 
                         // If we have an exact match break...
-                        if (song.FindAlbum(track.Album) != null)
+                        if (song != null && song.FindAlbum(track.Album) != null)
                         {
                             break;
                         }
@@ -290,6 +290,7 @@ namespace m4d.Utilities
             string trackId = item.ASIN;
             ServiceTrack track = new ServiceTrack 
             {
+                Service = ServiceType.Amazon,
                 TrackId = "D:" + item.ASIN,
                 Name = title,
                 Artist = artist,

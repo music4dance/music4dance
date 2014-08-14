@@ -18,6 +18,8 @@ using m4d.Utilities;
 using m4dModels;
 using Microsoft.AspNet.Identity;
 using System.Data.Entity.Validation;
+using System.Net;
+using System.IO;
 
 // Let's see if we can mock up a recoverable log file by spitting out
 // something resembling a tab-separated flat list of songs items with a
@@ -770,6 +772,111 @@ namespace m4d.Context
         }
         #endregion
 
+
+        #region MusicService
+        // Obviously not the clean abstraction, but Amazon is different enough that my abstraction
+        //  between itunes and xbox doesn't work.   So I'm going to shoe-horn this in to get it working
+        //  and refactor later.
+
+        // TODONEXT:  Make this and its desc throw WebException - put the catch and error handling in the caller....
+        public IList<ServiceTrack> FindMusicServiceSong(SongDetails song, MusicService service, bool clean = false, string title = null, string artist = null)
+        {
+            switch (service.ID)
+            {
+                case ServiceType.Amazon:
+                    return FindMSSongAmazon(song, clean, title, artist);
+                default:
+                    return FindMSSongGeneral(song, service, clean, title, artist);
+            }
+        }
+
+        private IList<ServiceTrack> FindMSSongAmazon(SongDetails song, bool clean = false, string title = null, string artist = null)
+        {
+            if (_awsFetcher == null)
+            {
+                _awsFetcher = new AWSFetcher();
+            }
+
+            bool custom = !string.IsNullOrWhiteSpace(title) || !string.IsNullOrWhiteSpace(artist);
+
+            if (custom)
+            {
+                return _awsFetcher.FetchTracks(title, artist);
+            }
+            else
+            {
+                return _awsFetcher.FetchTracks(song, clean);
+            }
+        }
+
+        private IList<ServiceTrack> FindMSSongGeneral(SongDetails song, MusicService service, bool clean = false, string title = null, string artist = null)
+        {
+            HttpWebRequest request = null;
+            HttpWebResponse response = null;
+
+            string responseString = null;
+
+            // Make Music database request
+
+            string req = service.BuildSearchRequest(artist, title);
+
+            request = (HttpWebRequest)WebRequest.Create(req);
+            request.Method = WebRequestMethods.Http.Get;
+            request.Accept = "application/json";
+            if (service.RequiresKey)
+            {
+                request.Headers.Add("Authorization", XboxAuthorization);
+            }
+
+            using (response = (HttpWebResponse)request.GetResponse())
+            {
+                if (response.StatusCode == HttpStatusCode.OK)
+                {
+                    using (var sr = new StreamReader(response.GetResponseStream()))
+                    {
+                        responseString = sr.ReadToEnd();
+                    }
+                }
+                else
+                {
+                    throw new WebException(response.StatusDescription);
+                }
+            }
+
+            if (responseString != null)
+            {
+                responseString = service.PreprocessSearchResponse(responseString);
+                dynamic results = System.Web.Helpers.Json.Decode(responseString);
+                return service.ParseSearchResults(results);
+            }
+            else
+            {
+                return new List<ServiceTrack>();
+            }
+        }
+
+        private static string XboxAuthorization
+        {
+            get
+            {
+                if (s_admAuth == null)
+                {
+                    string clientId = "music4dance";
+                    string clientSecret = "iGvYm97JA+qYV1K2lvh8sAnL8Pebp5cN2KjvGnOD4gI=";
+
+                    s_admAuth = new AdmAuthentication(clientId, clientSecret);
+
+                }
+
+                return "Bearer " + s_admAuth.GetAccessToken().access_token;
+            }
+        }
+
+        private static AdmAuthentication s_admAuth = null;
+        
+        #endregion
+
+
         #region IUserMap
         public ApplicationUser FindUser(string name)
         {
@@ -783,30 +890,6 @@ namespace m4d.Context
             return us;
         }
         #endregion
-
-        public override int SaveChanges()
-        {
-            int ret = 0;
-            try
-            {
-                ret = base.SaveChanges();
-            }
-            catch (DbEntityValidationException e)
-            {
-                foreach (var err in e.EntityValidationErrors)
-                {
-                    foreach (var ve in err.ValidationErrors)
-                    {
-                        Trace.WriteLine(ve.ErrorMessage);
-                    }
-                }
-
-                Debug.Assert(false);
-                throw;
-            }
-
-            return ret;
-        }
 
         #region User
 
@@ -836,6 +919,29 @@ namespace m4d.Context
         public IList<Song> FindMergeCandidates(int n, int level)
         {
             return MergeCluster.GetMergeCandidates(this, n, level);
+        }
+        public override int SaveChanges()
+        {
+            int ret = 0;
+            try
+            {
+                ret = base.SaveChanges();
+            }
+            catch (DbEntityValidationException e)
+            {
+                foreach (var err in e.EntityValidationErrors)
+                {
+                    foreach (var ve in err.ValidationErrors)
+                    {
+                        Trace.WriteLine(ve.ErrorMessage);
+                    }
+                }
+
+                Debug.Assert(false);
+                throw;
+            }
+
+            return ret;
         }
 
         public IDictionary<string, IdentityRole> RoleDictionary
@@ -882,5 +988,7 @@ namespace m4d.Context
         public static readonly string EditRole = "canEdit";
         public static readonly string DiagRole = "showDiagnostics";
         public static readonly string DbaRole = "dbAdmin";
+
+        AWSFetcher _awsFetcher;
     }
 }

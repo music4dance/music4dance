@@ -27,11 +27,14 @@
         var paramShowMPM = true;
         var paramShowBPM = true;
         var paramEpsVisible = 0.1;
+        var songId = "@Model.SongId.ToString()";
     </script>
 
     @Scripts.Render("~/bundles/jqueryval")
     <script src="@Url.Content("~/Scripts/chosen.jquery.js")" type="text/javascript"></script>
     <link href="@Url.Content("~/Content/chosen.css")" rel="stylesheet" type="text/css" />
+    <script src="@Url.Content("~/Scripts/knockout-3.1.0.js")" type="text/javascript"></script>
+    <script src="@Url.Content("~/Scripts/knockout.mapping-latest.js")" type="text/javascript"></script>
     <script>
         $(".chzn-select").chosen({ width: "500px" });
         var albumCount = @Model.Albums.Count-5;
