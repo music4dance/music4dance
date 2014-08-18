@@ -319,6 +319,7 @@ namespace music4dance.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "canEdit")] 
+        //public ActionResult Edit([ModelBinder(typeof(m4d.Utilities.SongBinder))]SongDetails song, List<string> addDances, List<string> remDances, string filter = null)
         public ActionResult Edit(SongDetails song, List<string> addDances, List<string> remDances, string filter = null)
         {
             ViewBag.SongFilter = ParseFilter(filter);

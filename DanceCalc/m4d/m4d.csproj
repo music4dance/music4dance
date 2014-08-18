@@ -287,6 +287,7 @@
     <Compile Include="Utilities\AWSFetcher.cs" />
     <Compile Include="Utilities\DBExtentions.cs" />
     <Compile Include="Utilities\HtmlExtensions.cs" />
+    <Compile Include="Utilities\SongBinder.cs" />
     <Compile Include="Utilities\TraceLevels.cs" />
     <Compile Include="ViewModels\LocalMerger.cs" />
     <Compile Include="ViewModels\MergeCluster.cs" />
@@ -510,6 +511,8 @@
     <Content Include="Views\ApplicationUsers\ChangeRoles.cshtml" />
     <Content Include="Views\Shared\_Counter.cshtml" />
     <Content Include="Views\Shared\_MeterChooser.cshtml" />
+    <Content Include="Views\Shared\DisplayTemplates\SongDuration.cshtml" />
+    <Content Include="Views\Shared\EditorTemplates\SongDuration.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

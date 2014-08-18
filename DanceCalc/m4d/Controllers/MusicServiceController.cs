@@ -2,6 +2,7 @@
 using m4dModels;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -34,8 +35,9 @@ namespace m4d.Controllers
                     tracks = _db.FindMusicServiceSong(song, MusicService.GetService(service[0]), clean, title, artist);
                     s_cache[key] = tracks;
                 }
-                catch (WebException)
+                catch (WebException e)
                 {
+                    Trace.WriteLine(string.Format("GetServiceTracks Failed: {0}",e.Message));
                 }
             }
 

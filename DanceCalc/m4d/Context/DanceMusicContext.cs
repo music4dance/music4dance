@@ -778,7 +778,6 @@ namespace m4d.Context
         //  between itunes and xbox doesn't work.   So I'm going to shoe-horn this in to get it working
         //  and refactor later.
 
-        // TODONEXT:  Make this and its desc throw WebException - put the catch and error handling in the caller....
         public IList<ServiceTrack> FindMusicServiceSong(SongDetails song, MusicService service, bool clean = false, string title = null, string artist = null)
         {
             switch (service.ID)

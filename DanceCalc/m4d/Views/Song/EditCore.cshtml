@@ -51,8 +51,8 @@
     <div class="form-group">
         @Html.LabelFor(model => model.Length, new { @class = "control-label col-md-2" })
         <div class="col-md-10">
-            @Html.EditorFor(model => model.Length)
-            @Html.ValidationMessageFor(model => model.Length)
+            @Html.EditorFor(model => model.Length,"SongDuration")
+            @*@Html.ValidationMessageFor(model => model.Length)*@
 
             @if (old != null && old.Length != null)
             {
