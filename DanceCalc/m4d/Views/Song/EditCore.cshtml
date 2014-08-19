@@ -6,6 +6,7 @@
     @Html.ValidationSummary(true)
 
     m4dModels.SongDetails old = null;
+    ViewBag.UseLogo = true;
 
     try
     {
@@ -183,6 +184,9 @@
                         @Html.HiddenFor(model => Model.Albums[currentAlbum].PurchaseInfo)
                         @Html.HiddenFor(model => Model.Albums[currentAlbum].Index)
                     </td>
+                    <td>
+                        @Html.Partial("_PurchaseLinks",Model.Albums[currentAlbum].GetPurchaseLinks())
+                    </td>
                 </tr>
             }
         }
@@ -217,8 +221,10 @@
                     </div>
                 </td>
                 <td>
+                    @Html.HiddenFor(model => Model.Albums[currentAlbum].PurchaseInfo)
                     @Html.HiddenFor(model => Model.Albums[currentAlbum].Index)
                 </td>
+                <td>@Html.Partial("_PurchaseLinks", Model.Albums[currentAlbum].GetPurchaseLinks())</td>
             </tr>
         }
 

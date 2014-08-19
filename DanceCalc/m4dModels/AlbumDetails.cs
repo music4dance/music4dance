@@ -191,6 +191,21 @@ namespace m4dModels
             return l;
         }
 
+        public IList<PurchaseLink> GetPurchaseLinks()
+        {
+            List<PurchaseLink> links = new List<PurchaseLink>();
+
+            foreach (MusicService service in MusicService.GetServices())
+            {
+                PurchaseLink link = GetPurchaseLink(service.ID);
+                if (link != null)
+                {
+                    links.Add(link);
+                }
+            }
+            return links;
+        }
+
         public PurchaseLink GetPurchaseLink(ServiceType ms, PurchaseType pt)
         {
             // Short-circuit if there is no purchase info for this ablum

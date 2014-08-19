@@ -513,6 +513,7 @@
     <Content Include="Views\Shared\_MeterChooser.cshtml" />
     <Content Include="Views\Shared\DisplayTemplates\SongDuration.cshtml" />
     <Content Include="Views\Shared\EditorTemplates\SongDuration.cshtml" />
+    <Content Include="Views\Shared\_PurchaseLinks.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

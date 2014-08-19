@@ -7,28 +7,18 @@
 <div class="row">
     <div class="col-md-12">
         <div class="hidden-xs">
-            @foreach (m4dModels.PurchaseLink link in Model.GetPurchaseLinks())
-            {
-                string target = string.Empty;
-                if (link.Target != null)
-                {
-                    target = "target='" + link.Target + "'";
-                }
-                <a href="@link.Link" @Html.Raw(target)><img src='@Url.Content("~/Content/" + @link.Charm)' alt='@link.AltText' /></a>
+            @{
+                ViewBag.UseLogo = false;
+                @Html.Partial("_PurchaseLinks", Model.GetPurchaseLinks())
+                @Html.ActionLink("Back to List", (string)ViewBag.SongFilter.Action, new { filter = ViewBag.SongFilter }, new { @class = "btn btn-ml btn-primary", role = "button" })
             }
-            @Html.ActionLink("Back to List", (string)ViewBag.SongFilter.Action, new { filter = ViewBag.SongFilter }, new { @class = "btn btn-ml btn-primary", role = "button" })
         </div>
         <div class="visible-xs">
-            @foreach (m4dModels.PurchaseLink link in Model.GetPurchaseLinks())
-            {
-                string target = string.Empty;
-                if (link.Target != null)
-                {
-                    target = "target='" + link.Target + "'";
-                }
-                <a href="@link.Link" @Html.Raw(target)><img src='@Url.Content("~/Content/" + @link.Logo)' alt='@link.AltText' /></a>
+            @{
+                ViewBag.UseLogo = true;
+                @Html.Partial("_PurchaseLinks", Model.GetPurchaseLinks())
+                @Html.ActionLink("Back to List", (string)ViewBag.SongFilter.Action, new { filter = ViewBag.SongFilter }, new { @class = "btn btn-primary", role = "button" })
             }
-            @Html.ActionLink("Back to List", (string)ViewBag.SongFilter.Action, new { filter = ViewBag.SongFilter }, new { @class = "btn btn-primary", role = "button" })
         </div>
     </div>
 </div>

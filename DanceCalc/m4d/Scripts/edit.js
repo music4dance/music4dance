@@ -97,6 +97,7 @@ var mapping = {
 
 var setupModel = function (tracks)
 {
+    viewModel.tracks.removeAll();
     var data = { tracks: tracks };
     var newModel = ko.mapping.fromJS(data, mapping);
 
@@ -105,13 +106,6 @@ var setupModel = function (tracks)
         viewModel.tracks.push(newModel.tracks()[i]);
     }
 }
-
-//var getAllServiceInfo = function()
-//{
-//    getServiceInfo('X');
-//    getServiceInfo('I');
-//    getServiceInfo('A');
-//}
 
 var getServiceInfo = function(service)
 {
