@@ -681,7 +681,9 @@ namespace music4dance.Controllers
                         //  Note that this degenerates to chosing a single album if that is what is available
                         if (foundTrack == null && !sd.HasRealAblums)
                         {
-                            foundTrack = sd.FindDominantTrack(tracks);
+                            // TODO:  I feel like this may be a redundant check on TitleArtist match
+                            tracks = sd.TitleArtistFilter(tracks);
+                            foundTrack = SongDetails.FindDominantTrack(tracks);
                             // This may be temporary - we hit this code to try to do cluster matching
                             //  so put in a higher fail level
                             if (failLevel == 1 && foundTrack == null)

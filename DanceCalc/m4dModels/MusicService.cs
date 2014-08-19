@@ -67,6 +67,11 @@ namespace m4dModels
         }
         public virtual string BuildSearchRequest(string artist, string title)
         {
+            if (_request == null)
+            {
+                return null;
+            }
+
             artist = artist ?? string.Empty;
             title = title ?? string.Empty;
 
@@ -193,7 +198,14 @@ namespace m4dModels
 
         public static MusicService GetService(char cid)
         {
-            return s_cidMap[cid];
+            if (s_cidMap.ContainsKey(cid))
+            {
+                return s_cidMap[cid];
+            }
+            else
+            {
+                return null;
+            }
         }
         public static MusicService GetService(string type)
         {

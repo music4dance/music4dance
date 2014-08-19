@@ -95,7 +95,6 @@ var mapping = {
     }
 };
 
-// TODONEXT: Figure out why we're replacing rather than adding here
 var setupModel = function (tracks)
 {
     var data = { tracks: tracks };
@@ -107,12 +106,12 @@ var setupModel = function (tracks)
     }
 }
 
-var getAllServiceInfo = function()
-{
-    getServiceInfo('X');
-    getServiceInfo('I');
-    getServiceInfo('A');
-}
+//var getAllServiceInfo = function()
+//{
+//    getServiceInfo('X');
+//    getServiceInfo('I');
+//    getServiceInfo('A');
+//}
 
 var getServiceInfo = function(service)
 {
@@ -155,7 +154,7 @@ $(document).ready(function () {
     $('#load-xbox').click(function () { getServiceInfo('X') });
     $('#load-itunes').click(function () { getServiceInfo('I') });
     $('#load-amazon').click(function () { getServiceInfo('A') });
-    $('#load-all').click(function () { getAllServiceInfo() });
+    $('#load-all').click(function () { getServiceInfo('_') });
 
 
     var data = { tracks: [] };

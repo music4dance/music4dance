@@ -794,6 +794,21 @@ namespace m4dModels
         }
         #endregion
 
+        public IList<ServiceTrack> TitleArtistFilter(IList<ServiceTrack> tracks)
+        {
+            List<ServiceTrack> tracksOut = new List<ServiceTrack>();
+
+            foreach (var track in tracks)
+            {
+                if (TitleArtistMatch(track.Name, track.Artist))
+                {
+                    tracksOut.Add(track);
+                }
+            }
+
+            return tracksOut;
+        }
+
         /// <summary>
         /// Finds a representitive of the largest cluster of tracks 
         ///  (clustered by approximate duration) that is an very
@@ -801,25 +816,47 @@ namespace m4dModels
         /// </summary>
         /// <param name="tracks"></param>
         /// <returns></returns>
-        public ServiceTrack FindDominantTrack(IList<ServiceTrack> tracks)
+        public static ServiceTrack FindDominantTrack(IList<ServiceTrack> tracks)
         {
-            ServiceTrack ret = null;
+            IList<ServiceTrack> ordered = RankTracksByCluster(tracks);
+            if (ordered != null)
+            {
+                return tracks.First();
+            }
+            else 
+            {
+                return null;
+            }
+            
+        }
+
+        public IList<ServiceTrack> RankTracks(IList<ServiceTrack> tracks)
+        {
+            if (Length.HasValue)
+            {
+                return RankTracksByDuration(tracks, Length.Value);
+            }
+            else
+            {
+                return RankTracksByCluster(tracks);
+            }
+        }
+        public static IList<ServiceTrack> RankTracksByCluster(IList<ServiceTrack> tracks)
+        {
+            IList<ServiceTrack> ret = null;
 
             Dictionary<int, List<ServiceTrack>> cluster = ClusterTracks(tracks);
-
-            List<ServiceTrack> winner = null;
 
             // If we only have one cluster, we're set
             if (cluster.Count == 1)
             {
-                winner = cluster.Values.First();
             }
             else if (cluster.Count != 0) // Try clustering off phase if we had any clustering at all
             {
-                Dictionary<int, List<ServiceTrack>> clusterT = ClusterTracks(tracks,10,5);
+                Dictionary<int, List<ServiceTrack>> clusterT = ClusterTracks(tracks, 10, 5);
                 if (clusterT.Count == 1)
                 {
-                    winner = clusterT.Values.First();
+                    cluster = clusterT;
                 }
                 else
                 {
@@ -829,26 +866,55 @@ namespace m4dModels
                     {
                         cluster = clusterT;
                     }
-
-                    winner = cluster.Values.Aggregate( ( seed, f ) => f.Count > seed.Count ? f : seed );
                 }
             }
-
-            if (winner != null)
+            else 
             {
-                ret = winner.First();
+                cluster = null;
+            }
+
+            if (cluster != null)
+            {
+                //ret = cluster.Values.Aggregate((seed, f) => f.Count > seed.Count ? f : seed);
+                foreach (var list in cluster.Values)
+                {
+                    int c = list.Count;
+                    foreach (var t in list)
+                    {
+                        t.TrackRank = c;
+                    }
+                }
+
+                ret = tracks.OrderByDescending(t => t.TrackRank).ToList();
             }
 
             return ret;
         }
 
-        private Dictionary<int, List<ServiceTrack>> ClusterTracks(IList<ServiceTrack> tracks, int size = 10, int offset = 0)
+        public static IList<ServiceTrack> RankTracksByDuration(IList<ServiceTrack> tracks, int duration)
+        {
+            foreach (var t in tracks)
+            {
+                if (t.Duration.HasValue)
+                {
+                    t.TrackRank = Math.Abs(duration - t.Duration.Value);
+                }
+                else 
+                {
+                    t.TrackRank = int.MaxValue;
+                }
+            }
+
+            return tracks.OrderBy(t => t.TrackRank).ToList();
+        }
+        
+        private static Dictionary<int, List<ServiceTrack>> ClusterTracks(IList<ServiceTrack> tracks, int size = 10, int offset = 0)
         {
             Dictionary<int, List<ServiceTrack>> ret = new Dictionary<int, List<ServiceTrack>>();
 
             foreach (ServiceTrack track in tracks)
             {
-                if (track.Duration.HasValue && TitleArtistMatch(track.Name, track.Artist))
+                if (track.Duration.HasValue)
                 {
                     int cluster = (track.Duration.Value + offset) / size;
                     List<ServiceTrack> list = null;

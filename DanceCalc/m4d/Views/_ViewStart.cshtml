@@ -2,11 +2,11 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
     if (HttpContext.Current.IsDebuggingEnabled)
     {
-        // TODO: Figure out how to autoincrement
-        Page.ScriptQualifier = "?1";
+        Page.ScriptQualifier = "?" + Html.Raw(DateTime.Now.Ticks.ToString());
     }
     else
     {
-        Page.ScriptQualifier = "?" + Html.Raw(DateTime.Now.Ticks.ToString());
+        // TODO: Figure out how to autoincrement
+        Page.ScriptQualifier = "?1";
     }
 }

@@ -21,5 +21,7 @@ namespace m4dModels
         public string Genre { get; set; }
         public int? Duration { get; set; }
         public int? TrackNumber { get; set; }
+
+        public int? TrackRank { get; set; }
     }
 }

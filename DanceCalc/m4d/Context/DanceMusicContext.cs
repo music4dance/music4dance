@@ -780,6 +780,37 @@ namespace m4d.Context
 
         public IList<ServiceTrack> FindMusicServiceSong(SongDetails song, MusicService service, bool clean = false, string title = null, string artist = null)
         {
+            IList<ServiceTrack> list = null;
+
+            if (service != null)
+            {
+                list = DoFindMusicServiceSong(song, service, clean, title, artist);
+            }
+            else
+            {
+                List<ServiceTrack> acc = new List<ServiceTrack>();
+                foreach (var servT in MusicService.GetServices())
+                {
+                    IList<ServiceTrack> t = DoFindMusicServiceSong(song, servT, clean, title, artist);
+                    if (t != null)
+                    {
+                        acc.AddRange(t);
+                    }
+                }
+
+                list = acc;
+            }
+
+            if (list != null)
+            {
+                list = song.RankTracks(list);
+            }
+
+            return list;
+        }
+
+        private IList<ServiceTrack> DoFindMusicServiceSong(SongDetails song, MusicService service, bool clean = false, string title = null, string artist = null)
+        {
             switch (service.ID)
             {
                 case ServiceType.Amazon:
@@ -788,7 +819,6 @@ namespace m4d.Context
                     return FindMSSongGeneral(song, service, clean, title, artist);
             }
         }
-
         private IList<ServiceTrack> FindMSSongAmazon(SongDetails song, bool clean = false, string title = null, string artist = null)
         {
             if (_awsFetcher == null)
@@ -818,6 +848,11 @@ namespace m4d.Context
             // Make Music database request
 
             string req = service.BuildSearchRequest(artist, title);
+
+            if (req == null)
+            {
+                return null;
+            }
 
             request = (HttpWebRequest)WebRequest.Create(req);
             request.Method = WebRequestMethods.Http.Get;
