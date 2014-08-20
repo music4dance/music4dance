@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
 using System.Linq;
+using System.Runtime.Serialization;
 using System.Text;
 using System.Text.RegularExpressions;
 
@@ -11,6 +12,7 @@ namespace m4dModels
     public enum ServiceType { None, Amazon, ITunes, XBox, AMG, Max };
     public enum PurchaseType { None, Album, Song, Max };
 
+    [DataContract]
     public class AlbumDetails
     {
         #region Construction
@@ -32,13 +34,17 @@ namespace m4dModels
         #endregion
 
         #region Properties
+        [DataMember]
         public string Name { get; set; }
+        [DataMember]
         public string Publisher { get; set; }
+        [DataMember]
         [Range(1, 999)]
         public int? Track { get; set; }
         // This is the serialization and default ordering index
         //  Actual order will be affected by repeated application
         //  of the MakePrimary attribute
+        [DataMember]
         public int Index { get; set; }
 
         // Semi-colon separated purchase info of the form XX=YYYYYY (XX is service/type and YYYYY is id)
@@ -49,14 +55,28 @@ namespace m4dModels
         // XA = Xbox Album
         // XS = Xbox Song
         // MS = AMG Song
+        [DataMember]
         public Dictionary<string, string> Purchase { get; set; }
 
+        [DataMember]
         public string PurchaseInfo
         {
             get { return SerializePurchaseInfo(); }
             set { SetPurchaseInfo(value); }
 
         }
+
+        [DataMember]
+        public IEnumerable<PurchaseLink> PurchaseLinks
+        {
+            // TODO: Think this through some more - we're basically
+            //  faking a r/w property that is redundant with PurchaseInfo
+            //  in order to get more easily consumable information
+            //  into json
+            get { return GetPurchaseLinks();}
+            set {  }
+        }
+
         public bool HasPurchaseInfo
         {
             get
@@ -224,10 +244,10 @@ namespace m4dModels
             return service.GetPurchaseLink(pt, albumInfo, songInfo);
         }
 
-        public void PurchaseDiff(IFactories factories, Song song, AlbumDetails old, SongLog log)
+        public bool PurchaseDiff(IFactories factories, Song song, AlbumDetails old, SongLog log)
         {
+            bool modified = false;
             Dictionary<string, string> add = new Dictionary<string, string>();
-            //HashSet<string> rem = new HashSet<string>();
 
             // First delete all of the keys that are in old but not in new
             if (old.Purchase != null)
@@ -236,7 +256,7 @@ namespace m4dModels
                 {
                     if (Purchase != null && !Purchase.ContainsKey(key))
                     {
-                        ChangeProperty(factories, song, this.Index, Song.PurchaseField, key, Purchase[key], null, log);
+                        modified |= ChangeProperty(factories, song, this.Index, Song.PurchaseField, key, Purchase[key], null, log);
                     }
                 }
             }
@@ -249,16 +269,17 @@ namespace m4dModels
                     if (old.Purchase == null || !old.Purchase.ContainsKey(key))
                     {
                         // Add
-                        ChangeProperty(factories, song, this.Index, Song.PurchaseField, key, null, Purchase[key], log);
+                        modified |= ChangeProperty(factories, song, this.Index, Song.PurchaseField, key, null, Purchase[key], log);
                     }
                     else if (old.Purchase != null && old.Purchase.ContainsKey(key) && !string.Equals(Purchase[key], old.Purchase[key]))
                     {
                         // Change
-                        ChangeProperty(factories, song, this.Index, Song.PurchaseField, key, old.Purchase[key], Purchase[key], log);
+                        modified |= ChangeProperty(factories, song, this.Index, Song.PurchaseField, key, old.Purchase[key], Purchase[key], log);
                     }
                 }
             }
 
+            return modified;
         }
 
         public void PurchaseAdd(IFactories factories, Song song, AlbumDetails old, SongLog log)
@@ -375,17 +396,12 @@ namespace m4dModels
         #region Property Utilities
         public bool ModifyInfo(IFactories factories, Song song, AlbumDetails old, SongLog log)
         {
-            bool modified = true;
+            bool modified = false;
 
             // This indicates a deleted album
             if (string.IsNullOrWhiteSpace(Name))
             {
-                ChangeProperty(factories, song, old.Index, Song.AlbumField, null, old.Name, null, log);
-                if (old.Track.HasValue)
-                    ChangeProperty(factories, song, old.Index, Song.TrackField, null, old.Track, null, log);
-                if (!string.IsNullOrWhiteSpace(old.Publisher))
-                    ChangeProperty(factories, song, old.Index, Song.PublisherField, null, old.Publisher, null, log);
-
+                old.Remove(factories, song, log);
                 modified = true;
             }
             else
@@ -394,10 +410,20 @@ namespace m4dModels
                 modified |= ChangeProperty(factories, song, old.Index, Song.TrackField, null, old.Track, Track, log);
                 modified |= ChangeProperty(factories, song, old.Index, Song.PublisherField, null, old.Publisher, Publisher, log);
 
-                PurchaseDiff(factories, song, old, log);
+                modified |= PurchaseDiff(factories, song, old, log);
             }
 
             return modified;
+        }
+
+        public void Remove(IFactories factories, Song song, SongLog log)
+        {
+            ChangeProperty(factories, song, Index, Song.AlbumField, null, Name, null, log);
+            if (Track.HasValue)
+                ChangeProperty(factories, song, Index, Song.TrackField, null, Track, null, log);
+            
+            if (!string.IsNullOrWhiteSpace(Publisher))
+                ChangeProperty(factories, song, Index, Song.PublisherField, null, Publisher, null, log);
         }
 
         // Additive update

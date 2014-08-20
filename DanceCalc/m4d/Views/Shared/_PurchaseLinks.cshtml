@@ -13,5 +13,5 @@
         image = link.Logo;
     }
 
-    <text><a href='@link.Link' @Html.Raw(target)><img src='@Url.Content("~/Content/" + image)' alt='@link.AltText' /></a></text>
+    <a href='@link.Link' @Html.Raw(target)><img src='@Url.Content("~/Content/" + image)' alt='@link.AltText' /></a>
 }

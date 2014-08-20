@@ -47,8 +47,6 @@
         </div>
     </div>
     
-    <!-- Album stuff goes here-->
-
     <div class="form-group">
         @Html.LabelFor(model => model.Length, new { @class = "control-label col-md-2" })
         <div class="col-md-10">
@@ -149,59 +147,48 @@
     <hr />
     <table>
         <tr><td class="album-header">Album</td><td class="track-header">Track</td><td class="publisher-header">Label</td><td class="delete-header"></td></tr>
-        @{
-        int currentAlbum = 0;
-        int maxAlbum = 5;
-        if (Model.HasAlbums)
-        {
-            maxAlbum = Model.Albums.Count + 5;
-            for (; currentAlbum < Model.Albums.Count; currentAlbum++)
-            {
-                string albumId = "Album_" + currentAlbum.ToString();
-                string deleteId = "Delete_" + currentAlbum.ToString();
-                //string purchase = Model.Albums[currentAlbum].SerializePurchaseInfo();
-                <tr id="@albumId">
-                    <td>
-                        <div class="editor-field">
-                            @Html.TextBoxFor(model => model.Albums[currentAlbum].Name)
-                            @Html.ValidationMessageFor(model => model.Albums[currentAlbum].Name)
-                        </div>
-                    </td>
-                    <td>
-                        <div class="editor-field">
-                            @Html.TextBoxFor(model => model.Albums[currentAlbum].Track)
-                            @Html.ValidationMessageFor(model => model.Albums[currentAlbum].Track)
-                        </div>
-                    </td>
-                    <td>
-                        <div class="editor-field">
-                            @Html.TextBoxFor(model => model.Albums[currentAlbum].Publisher)
-                            @Html.ValidationMessageFor(model => model.Albums[currentAlbum].Publisher)
-                        </div>
-                    </td>
-                    <td>
-                        <button type="button" id="@deleteId">X</button>
-                        @Html.HiddenFor(model => Model.Albums[currentAlbum].PurchaseInfo)
-                        @Html.HiddenFor(model => Model.Albums[currentAlbum].Index)
-                    </td>
-                    <td>
-                        @Html.Partial("_PurchaseLinks",Model.Albums[currentAlbum].GetPurchaseLinks())
-                    </td>
-                </tr>
-            }
-        }
-        else
-        {
-            Model.Albums = new List<m4dModels.AlbumDetails>();
-        }
-
-        int albumIdx = Model.GetNextAlbumIndex();
-
-        for (; currentAlbum < maxAlbum; currentAlbum += 1)
+        <tbody data-bind="foreach: albums">
+            <tr data-bind="attr: {id: 'Album_' + $index()}">
+                <td>
+                    <div class="editor-field">
+                        <input data-bind="attr: {id: computeAlbumId($index(),'Name'), name: computeAlbumName($index(),'Name')}, value: Name" type="text" />
+                    </div>
+                </td>
+                <td>
+                    <div class="editor-field">
+                        <input data-bind="attr: {id: computeAlbumId($index(),'Track'), name: computeAlbumName($index(),'Track')}, value: Track" type="text" />
+                    </div>
+                </td>
+                <td>
+                    <div class="editor-field">
+                        <input data-bind="attr:{id: computeAlbumId($index(),'Publisher'), name: computeAlbumName($index(),'Publisher')}, value: Publisher" type="text" />
+                    </div>
+                </td>
+                <td>
+                    <button type="button" data-bind="attr: {id: 'Delete_' + $index()}, click: $parent.removeAlbum">X</button>
+                    <input data-bind="attr:{id: computeAlbumId($index(),'PurchaseInfo'), name: computeAlbumName($index(),'PurchaseInfo')}, value:PurchaseInfo" type="hidden" />
+                    <input data-bind="attr: {id: computeAlbumId($index(),'Index'), name: computeAlbumName($index(),'Index'), value:Index}" type="hidden" />
+                </td>
+                <td>
+                    <div data-bind="foreach: PurchaseLinks">
+                        <a data-bind="attr: {href:Link, target:Target}"><img data-bind="attr: {src:'/Content/' + Logo(), alt: AltText}" /></a>
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+@*
+    @{
+    int currentAlbum = 0;
+    int maxAlbum = 5;
+    if (Model.HasAlbums)
+    {
+        maxAlbum = Model.Albums.Count + 5;
+        for (; currentAlbum < Model.Albums.Count; currentAlbum++)
         {
             string albumId = "Album_" + currentAlbum.ToString();
-            Model.Albums.Add(new m4dModels.AlbumDetails { Index = albumIdx++ });
-            <tr id="@albumId" hidden>
+            string deleteId = "Delete_" + currentAlbum.ToString();
+            //string purchase = Model.Albums[currentAlbum].SerializePurchaseInfo();
+            <tr id="@albumId">
                 <td>
                     <div class="editor-field">
                         @Html.TextBoxFor(model => model.Albums[currentAlbum].Name)
@@ -221,29 +208,74 @@
                     </div>
                 </td>
                 <td>
+                    <button type="button" id="@deleteId">X</button>
                     @Html.HiddenFor(model => Model.Albums[currentAlbum].PurchaseInfo)
                     @Html.HiddenFor(model => Model.Albums[currentAlbum].Index)
                 </td>
-                <td>@Html.Partial("_PurchaseLinks", Model.Albums[currentAlbum].GetPurchaseLinks())</td>
+                <td>
+                    @Html.Partial("_PurchaseLinks",Model.Albums[currentAlbum].GetPurchaseLinks())
+                </td>
             </tr>
         }
+    }
+    else
+    {
+        Model.Albums = new List<m4dModels.AlbumDetails>();
+    }
 
-        <tr>
-            <td colspan="3"><button type="button" id="AddAlbum">New Album</button></td>
+    int albumIdx = Model.GetNextAlbumIndex();
+
+    for (; currentAlbum < maxAlbum; currentAlbum += 1)
+    {
+        string albumId = "Album_" + currentAlbum.ToString();
+        Model.Albums.Add(new m4dModels.AlbumDetails { Index = albumIdx++ });
+        <tr id="@albumId" hidden>
+            <td>
+                <div class="editor-field">
+                    @Html.TextBoxFor(model => model.Albums[currentAlbum].Name)
+                    @Html.ValidationMessageFor(model => model.Albums[currentAlbum].Name)
+                </div>
+            </td>
+            <td>
+                <div class="editor-field">
+                    @Html.TextBoxFor(model => model.Albums[currentAlbum].Track)
+                    @Html.ValidationMessageFor(model => model.Albums[currentAlbum].Track)
+                </div>
+            </td>
+            <td>
+                <div class="editor-field">
+                    @Html.TextBoxFor(model => model.Albums[currentAlbum].Publisher)
+                    @Html.ValidationMessageFor(model => model.Albums[currentAlbum].Publisher)
+                </div>
+            </td>
+            <td>
+                @Html.HiddenFor(model => Model.Albums[currentAlbum].PurchaseInfo)
+                @Html.HiddenFor(model => Model.Albums[currentAlbum].Index)
+            </td>
+            <td>@Html.Partial("_PurchaseLinks", Model.Albums[currentAlbum].GetPurchaseLinks())</td>
         </tr>
-        }
+    }
+
+    <tr>
+        <td colspan="3"><button type="button" id="AddAlbum">New Album</button></td>
+    </tr>
+    }
+*@
     </table>
     <hr />
+    
+    <h3>Music Services</h3>
+    <input class="text-box single-line" placeholder="leave blank to use title + artist" id="search" type="text" width="75"/>
+    <a id="load-all" href="#" class="btn btn-small btn-default" role="button">Search All</a>
     <a id="load-xbox" href="#" class="btn btn-small btn-default" role="button">Xbox</a>
     <a id="load-itunes" href="#" class="btn btn-small btn-default" role="button">ITunes</a>
     <a id="load-amazon" href="#" class="btn btn-small btn-default" role="button">Amazon</a>
-    <a id="load-all" href="#" class="btn btn-small btn-default" role="button">All</a>
 
     <table id="service-results" class="table table-striped">
         <thead>
             <tr>
                 <th></th>
-                <th></th>
+                <th>Add</th>
                 <th>Name</th>
                 <th>Album</th>
                 <th>Artist</th>
@@ -254,7 +286,7 @@
         <tbody data-bind="foreach: tracks">
             <tr>
                 <td><a data-bind="attr: {href: Link}" class="btn" role="button"><img width="30" height="30" data-bind="attr: {src: serviceLogo}" /></a></td>
-                <td><img width="30" height="30" data-bind="attr: {src: ImageUrl}" /></td>
+                <td><a href="#" class="btn" role="button" data-bind="click: $parent.chooseTrack"><img width="30" height="30" data-bind="attr: {src: ImageUrl}" /></a></td>
                 <td data-bind="text: Name"></td>
                 <td data-bind="text: Album"></td>
                 <td data-bind="text: Artist"></td>

@@ -68,26 +68,29 @@ var trackModel = function(data)
     }, this);
 }
 
-//var setupModel = function(tracks)
-//{
-//    var mapping = {
-//        'tracks': {
-//            create: function (options) {
-//                return new trackModel(options.data);
-//            }
-//        }
-//    };
+var albumModel = function (data) {
+    ko.mapping.fromJS(data, {}, this);
 
-//    var data = { tracks: tracks };
+    // TODONEXT: Figure out how to get live album manipulation working and
+    //  verify that editing of album info back to the database still
+    //  works
+    // TODO: Computed properties?
+}
 
-//    var viewModel = ko.mapping.fromJS(data, mapping);
+var computeAlbumName = function(idx,name)
+{
+    var ret = "Albums[" + idx + "]." + name;
+    return ret;
+}
 
-//    ko.applyBindings(viewModel);
-//}
+var computeAlbumId = function (idx, name) {
+    var ret = "Albums_" + idx + "__" + name;
+    return ret;
+}
 
 var viewModel = null;
 
-var mapping = {
+var trackMapping = {
     'tracks': {
         create: function (options) {
             return new trackModel(options.data);
@@ -99,12 +102,7 @@ var setupModel = function (tracks)
 {
     viewModel.tracks.removeAll();
     var data = { tracks: tracks };
-    var newModel = ko.mapping.fromJS(data, mapping);
-
-    for (var i = 0; i < newModel.tracks().length; i++)
-    {
-        viewModel.tracks.push(newModel.tracks()[i]);
-    }
+    viewModel= ko.mapping.fromJS(data, trackMapping, viewModel);
 }
 
 var getServiceInfo = function(service)
@@ -151,165 +149,32 @@ $(document).ready(function () {
     $('#load-all').click(function () { getServiceInfo('_') });
 
 
-    var data = { tracks: [] };
-    viewModel = ko.mapping.fromJS(data);
+    var albumMapping = {
+        'albums': {
+            create: function (options) {
+                return new albumModel(options.data);
+            },
+            key: function(data){
+                return ko.utils.unwrapObservable(data.Index);
+            }
+        }
+
+    };
+
+    var data = { tracks: [], albums: albums };
+    viewModel = ko.mapping.fromJS(data, albumMapping);
+    viewModel.chooseTrack = function (track)
+    {
+        console.log("Adding Track:" + track.trackId() + "(" + track.Album() + "#" + track.TrackNumber() + ")");
+    };
+    viewModel.removeAlbum = function (album)
+    {
+        viewModel.albums.mappedRemove({ Index: album.Index });
+        console.log("Remove Album:" + album.Name() + "(" + album.Index() + ")")
+    };
 
     ko.applyBindings(viewModel);
 });
 
 
 
-//var data = {
-//    tracks: [
-//       {
-//           "Service": 3,
-//           "TrackId": "music.0A8B6E07-0100-11DB-89CA-0019B92A3933",
-//           "Name": "Trust",
-//           "CollectionId": null,
-//           "AltId": null,
-//           "Artist": "Neon Trees",
-//           "Album": "Picture Show",
-//           "ImageUrl": "http://musicimage.xboxlive.com/content/music.0A8B6E07-0100-11DB-89CA-0019B92A3933/image?locale=en-US",
-//           "Link": "http://music.xbox.com/Track/0A8B6E07-0100-11DB-89CA-0019B92A3933?partnerID=music4dance?action=play&target=app",
-//           "ReleaseDate": "2012-04-17T00:00:00Z",
-//           "Genre": "Rock",
-//           "Duration": 365,
-//           "TrackNumber": 7
-//       },
-//       {
-//           "Service": 3,
-//           "TrackId": "music.9EC13708-0100-11DB-89CA-0019B92A3933",
-//           "Name": "I Love You (But I Hate Your Friends)",
-//           "CollectionId": null,
-//           "AltId": null,
-//           "Artist": "Neon Trees",
-//           "Album": "I Love You (But I Hate Your Friends)",
-//           "ImageUrl": "http://musicimage.xboxlive.com/content/music.9EC13708-0100-11DB-89CA-0019B92A3933/image?locale=en-US",
-//           "Link": "http://music.xbox.com/Track/9EC13708-0100-11DB-89CA-0019B92A3933?partnerID=music4dance?action=play&target=app",
-//           "ReleaseDate": "2014-03-13T00:00:00Z",
-//           "Genre": "Rock",
-//           "Duration": 196,
-//           "TrackNumber": 1
-//       },
-//       {
-//           "Service": 3,
-//           "TrackId": "music.DACB2B07-0100-11DB-89CA-0019B92A3933",
-//           "Name": "Moving In The Dark",
-//           "CollectionId": null,
-//           "AltId": null,
-//           "Artist": "Neon Trees",
-//           "Album": "Picture Show",
-//           "ImageUrl": "http://musicimage.xboxlive.com/content/music.DACB2B07-0100-11DB-89CA-0019B92A3933/image?locale=en-US",
-//           "Link": "http://music.xbox.com/Track/DACB2B07-0100-11DB-89CA-0019B92A3933?partnerID=music4dance?action=play&target=app",
-//           "ReleaseDate": "2012-04-04T00:00:00Z",
-//           "Genre": "Rock",
-//           "Duration": 182,
-//           "TrackNumber": 1
-//       },
-//       {
-//           "Service": 3,
-//           "TrackId": "music.128B6E07-0100-11DB-89CA-0019B92A3933",
-//           "Name": "Don't You Want Me",
-//           "CollectionId": null,
-//           "AltId": null,
-//           "Artist": "Neon Trees",
-//           "Album": "Picture Show",
-//           "ImageUrl": "http://musicimage.xboxlive.com/content/music.128B6E07-0100-11DB-89CA-0019B92A3933/image?locale=en-US",
-//           "Link": "http://music.xbox.com/Track/128B6E07-0100-11DB-89CA-0019B92A3933?partnerID=music4dance?action=play&target=app",
-//           "ReleaseDate": "2012-04-17T00:00:00Z",
-//           "Genre": "Rock",
-//           "Duration": 337,
-//           "TrackNumber": 15
-//       },
-//       {
-//           "Service": 3,
-//           "TrackId": "music.048B6E07-0100-11DB-89CA-0019B92A3933",
-//           "Name": "Moving In The Dark",
-//           "CollectionId": null,
-//           "AltId": null,
-//           "Artist": "Neon Trees",
-//           "Album": "Picture Show",
-//           "ImageUrl": "http://musicimage.xboxlive.com/content/music.048B6E07-0100-11DB-89CA-0019B92A3933/image?locale=en-US",
-//           "Link": "http://music.xbox.com/Track/048B6E07-0100-11DB-89CA-0019B92A3933?partnerID=music4dance?action=play&target=app",
-//           "ReleaseDate": "2012-04-17T00:00:00Z",
-//           "Genre": "Rock",
-//           "Duration": 182,
-//           "TrackNumber": 1
-//       },
-//       {
-//           "Service": 3,
-//           "TrackId": "music.D15B4608-0100-11DB-89CA-0019B92A3933",
-//           "Name": "I Love You (But I Hate Your Friends)",
-//           "CollectionId": null,
-//           "AltId": null,
-//           "Artist": "Neon Trees",
-//           "Album": "Pop Psychology",
-//           "ImageUrl": "http://musicimage.xboxlive.com/content/music.D15B4608-0100-11DB-89CA-0019B92A3933/image?locale=en-US",
-//           "Link": "http://music.xbox.com/Track/D15B4608-0100-11DB-89CA-0019B92A3933?partnerID=music4dance?action=play&target=app",
-//           "ReleaseDate": "2014-04-10T00:00:00Z",
-//           "Genre": "Rock",
-//           "Duration": 196,
-//           "TrackNumber": 5
-//       },
-//       {
-//           "Service": 3,
-//           "TrackId": "music.E6CB2B07-0100-11DB-89CA-0019B92A3933",
-//           "Name": "Tell Me You Love Me",
-//           "CollectionId": null,
-//           "AltId": null,
-//           "Artist": "Neon Trees",
-//           "Album": "Picture Show",
-//           "ImageUrl": "http://musicimage.xboxlive.com/content/music.E6CB2B07-0100-11DB-89CA-0019B92A3933/image?locale=en-US",
-//           "Link": "http://music.xbox.com/Track/E6CB2B07-0100-11DB-89CA-0019B92A3933?partnerID=music4dance?action=play&target=app",
-//           "ReleaseDate": "2012-04-04T00:00:00Z",
-//           "Genre": "Rock",
-//           "Duration": 238,
-//           "TrackNumber": 13
-//       },
-//       {
-//           "Service": 3,
-//           "TrackId": "music.0D3A3B08-0100-11DB-89CA-0019B92A3933",
-//           "Name": "Voices In The Halls",
-//           "CollectionId": null,
-//           "AltId": null,
-//           "Artist": "Neon Trees",
-//           "Album": "Voices In The Halls",
-//           "ImageUrl": "http://musicimage.xboxlive.com/content/music.0D3A3B08-0100-11DB-89CA-0019B92A3933/image?locale=en-US",
-//           "Link": "http://music.xbox.com/Track/0D3A3B08-0100-11DB-89CA-0019B92A3933?partnerID=music4dance?action=play&target=app",
-//           "ReleaseDate": "2014-03-20T00:00:00Z",
-//           "Genre": "Rock",
-//           "Duration": 179,
-//           "TrackNumber": 1
-//       },
-//       {
-//           "Service": 3,
-//           "TrackId": "music.E7CB2B07-0100-11DB-89CA-0019B92A3933",
-//           "Name": "Take Me For A Ride",
-//           "CollectionId": null,
-//           "AltId": null,
-//           "Artist": "Neon Trees",
-//           "Album": "Picture Show",
-//           "ImageUrl": "http://musicimage.xboxlive.com/content/music.E7CB2B07-0100-11DB-89CA-0019B92A3933/image?locale=en-US",
-//           "Link": "http://music.xbox.com/Track/E7CB2B07-0100-11DB-89CA-0019B92A3933?partnerID=music4dance?action=play&target=app",
-//           "ReleaseDate": "2012-04-04T00:00:00Z",
-//           "Genre": "Rock",
-//           "Duration": 338,
-//           "TrackNumber": 14
-//       },
-//       {
-//           "Service": 3,
-//           "TrackId": "music.098B6E07-0100-11DB-89CA-0019B92A3933",
-//           "Name": "Lessons In Love (All Day, All Night)",
-//           "CollectionId": null,
-//           "AltId": null,
-//           "Artist": "Neon Trees",
-//           "Album": "Picture Show",
-//           "ImageUrl": "http://musicimage.xboxlive.com/content/music.098B6E07-0100-11DB-89CA-0019B92A3933/image?locale=en-US",
-//           "Link": "http://music.xbox.com/Track/098B6E07-0100-11DB-89CA-0019B92A3933?partnerID=music4dance?action=play&target=app",
-//           "ReleaseDate": "2012-04-17T00:00:00Z",
-//           "Genre": "Rock",
-//           "Duration": 223,
-//           "TrackNumber": 6
-//       }
-//    ]
-//};

@@ -102,6 +102,7 @@ namespace m4dModels
                     // We're in existing album territory
                     foundOld = true;
                     modified |= album.ModifyInfo(factories, this, old, CurrentLog);
+                    oldAlbums.Remove(old);
                 }
                 else
                 {
@@ -118,6 +119,13 @@ namespace m4dModels
                         }
                     }
                 }
+            }
+
+            // Handle deleted albums
+            foreach (AlbumDetails album in oldAlbums)
+            {
+                modified = true;
+                album.Remove(factories, this, CurrentLog);
             }
 
             // Now push the promotions

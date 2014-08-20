@@ -1,4 +1,5 @@
 ﻿@model m4dModels.SongDetails
+@using System.Runtime.Serialization.Json
 
 @{
     ViewBag.Title = "Edit";
@@ -22,12 +23,17 @@
         {
             <script>var paramNumerator = @ViewBag.paramNumerator;</script>
         }
+        MemoryStream stream = new MemoryStream();
+        DataContractJsonSerializer serializer = new DataContractJsonSerializer(typeof(IEnumerable<m4dModels.AlbumDetails>));
+        serializer.WriteObject(stream, Model.Albums);
+        string albumsString = System.Text.Encoding.UTF8.GetString(stream.ToArray());
     }
     <script>
         var paramShowMPM = true;
         var paramShowBPM = true;
         var paramEpsVisible = 0.1;
-        var songId = "@Model.SongId.ToString()";
+        var songId = '@Model.SongId.ToString()';
+        var albums = @Html.Raw(albumsString);
     </script>
 
     @Scripts.Render("~/bundles/jqueryval")
