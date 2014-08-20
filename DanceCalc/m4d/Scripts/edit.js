@@ -134,9 +134,9 @@ $(document).ready(function () {
     viewModel.removeAlbum = function (album)
     {
         viewModel.albums.mappedRemove({ Index: album.Index });
-        console.log("Remove Album:" + album.Name() + "(" + album.Index() + ")")
     };
-    viewModel.newAlbum = function () {
+    viewModel.newAlbum = function ()
+    {
         var max = 1;
         for (var i = 0; i < viewModel.albums().length; i++) {
             var album = viewModel.albums()[i];
@@ -146,6 +146,12 @@ $(document).ready(function () {
         var temp = ko.mapping.fromJS({ Index: max, Name: null, Publisher: null, Track: null, PurchaseInfo: null, PurchaseLinks: null }, albumMapping);
         viewModel.albums.push(temp);
     };
+    // TODONEXT: Get promotion working in backend then get chooseTrack workin 
+    viewModel.promoteAlbum = function (album)
+    {
+        var temp = viewModel.albums.mappedRemove({ Index: album.Index });
+        viewModel.albums.unshift(temp[0]);
+    }
 
     ko.applyBindings(viewModel);
 });

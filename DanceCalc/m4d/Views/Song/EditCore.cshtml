@@ -146,9 +146,16 @@
 
     <hr />
     <table>
-        <tr><td class="album-header">Album</td><td class="track-header">Track</td><td class="publisher-header">Label</td><td class="delete-header"></td></tr>
+        <tr><td></td><td class="album-header">Album</td><td class="track-header">Track</td><td class="publisher-header">Label</td><td class="delete-header"></td></tr>
         <tbody data-bind="foreach: albums">
             <tr data-bind="attr: {id: 'Album_' + $index()}">
+                <td>
+                    <div data-bind="ifnot: $index() == 0">
+                        <a href="#" class="btn btn-sm btn-default">
+                            <span id="toggle-count-display" class="glyphicon glyphicon-arrow-up" data-bind="click:$parent.promoteAlbum"></span>
+                        </a>
+                    </div>
+                </td>
                 <td>
                     <div class="editor-field">
                         <input data-bind="attr: {id: computeAlbumId($index(),'Name'), name: computeAlbumName($index(),'Name')}, value: Name" type="text" />
@@ -176,91 +183,6 @@
                 </td>
             </tr>
         </tbody>
-@*
-    @{
-    int currentAlbum = 0;
-    int maxAlbum = 5;
-    if (Model.HasAlbums)
-    {
-        maxAlbum = Model.Albums.Count + 5;
-        for (; currentAlbum < Model.Albums.Count; currentAlbum++)
-        {
-            string albumId = "Album_" + currentAlbum.ToString();
-            string deleteId = "Delete_" + currentAlbum.ToString();
-            //string purchase = Model.Albums[currentAlbum].SerializePurchaseInfo();
-            <tr id="@albumId">
-                <td>
-                    <div class="editor-field">
-                        @Html.TextBoxFor(model => model.Albums[currentAlbum].Name)
-                        @Html.ValidationMessageFor(model => model.Albums[currentAlbum].Name)
-                    </div>
-                </td>
-                <td>
-                    <div class="editor-field">
-                        @Html.TextBoxFor(model => model.Albums[currentAlbum].Track)
-                        @Html.ValidationMessageFor(model => model.Albums[currentAlbum].Track)
-                    </div>
-                </td>
-                <td>
-                    <div class="editor-field">
-                        @Html.TextBoxFor(model => model.Albums[currentAlbum].Publisher)
-                        @Html.ValidationMessageFor(model => model.Albums[currentAlbum].Publisher)
-                    </div>
-                </td>
-                <td>
-                    <button type="button" id="@deleteId">X</button>
-                    @Html.HiddenFor(model => Model.Albums[currentAlbum].PurchaseInfo)
-                    @Html.HiddenFor(model => Model.Albums[currentAlbum].Index)
-                </td>
-                <td>
-                    @Html.Partial("_PurchaseLinks",Model.Albums[currentAlbum].GetPurchaseLinks())
-                </td>
-            </tr>
-        }
-    }
-    else
-    {
-        Model.Albums = new List<m4dModels.AlbumDetails>();
-    }
-
-    int albumIdx = Model.GetNextAlbumIndex();
-
-    for (; currentAlbum < maxAlbum; currentAlbum += 1)
-    {
-        string albumId = "Album_" + currentAlbum.ToString();
-        Model.Albums.Add(new m4dModels.AlbumDetails { Index = albumIdx++ });
-        <tr id="@albumId" hidden>
-            <td>
-                <div class="editor-field">
-                    @Html.TextBoxFor(model => model.Albums[currentAlbum].Name)
-                    @Html.ValidationMessageFor(model => model.Albums[currentAlbum].Name)
-                </div>
-            </td>
-            <td>
-                <div class="editor-field">
-                    @Html.TextBoxFor(model => model.Albums[currentAlbum].Track)
-                    @Html.ValidationMessageFor(model => model.Albums[currentAlbum].Track)
-                </div>
-            </td>
-            <td>
-                <div class="editor-field">
-                    @Html.TextBoxFor(model => model.Albums[currentAlbum].Publisher)
-                    @Html.ValidationMessageFor(model => model.Albums[currentAlbum].Publisher)
-                </div>
-            </td>
-            <td>
-                @Html.HiddenFor(model => Model.Albums[currentAlbum].PurchaseInfo)
-                @Html.HiddenFor(model => Model.Albums[currentAlbum].Index)
-            </td>
-            <td>@Html.Partial("_PurchaseLinks", Model.Albums[currentAlbum].GetPurchaseLinks())</td>
-        </tr>
-    }
-
-    <tr>
-        <td colspan="3"><button type="button" id="AddAlbum">New Album</button></td>
-    </tr>
-    }
-*@
     </table>
     <a class="btn btn-info" role="button" id="AddAlbum" data-bind="click: newAlbum">New Album</a>
     <hr />
