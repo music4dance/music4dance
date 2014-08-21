@@ -73,7 +73,7 @@ namespace m4dModels
                     Artist = track.Artists[0].Artist.Name,
                     Album = track.Album.Name,
                     ImageUrl = track.ImageUrl,
-                    Link = track.Link + "?action=play&target=app",
+//                    Link = track.Link + "?action=play&target=app",
                     ReleaseDate = track.ReleaseDate,
                     Genre = track.Genres[0],
                     Duration = duration,

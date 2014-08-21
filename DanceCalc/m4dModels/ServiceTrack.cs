@@ -27,7 +27,11 @@ namespace m4dModels
         [DataMember]
         public string ImageUrl { get; set; }
         [DataMember]
-        public string Link { get; set; }
+        public PurchaseLink SongLink { get; set; }
+        [DataMember]
+        public PurchaseLink AlbumLink { get; set; }
+        [DataMember]
+        public string PurchaseInfo { get; set; }
         [DataMember]
         public string ReleaseDate { get; set; }
         [DataMember]

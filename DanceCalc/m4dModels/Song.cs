@@ -80,7 +80,6 @@ namespace m4dModels
             List<AlbumDetails> oldAlbums = SongDetails.BuildAlbumInfo(this);
 
             bool foundFirst = false;
-            bool foundOld = false;
 
             List<int> promotions = new List<int>();
 
@@ -100,7 +99,6 @@ namespace m4dModels
                 if (old != null)
                 {
                     // We're in existing album territory
-                    foundOld = true;
                     modified |= album.ModifyInfo(factories, this, old, CurrentLog);
                     oldAlbums.Remove(old);
                 }
@@ -111,12 +109,6 @@ namespace m4dModels
                     {
                         album.CreateProperties(factories, this, CurrentLog);
                         modified = true;
-
-                        // Push this to the front if we haven't run into an old album yet
-                        if (!foundOld)
-                        {
-                            promotions.Insert(0, album.Index);
-                        }
                     }
                 }
             }
@@ -128,10 +120,28 @@ namespace m4dModels
                 album.Remove(factories, this, CurrentLog);
             }
 
-            // Now push the promotions
-            foreach (int p in promotions)
+            // Now check order and insert a re-order record if they aren't line up...
+            // TODO: Linq???
+            bool needReorder = false;
+            List<int> reorder = new List<int>();
+            int prev = -1;
+
+            foreach (var album in edit.Albums)
             {
-                AlbumDetails.AddProperty(factories, this, p, Song.AlbumPromote, null, string.Empty, CurrentLog);
+                int t = album.Index;
+                if (prev > t)
+                {
+                    needReorder = true;
+                }
+                prev = t;
+                reorder.Add(t);
+            }
+
+            if (needReorder)
+            {
+                modified = true;
+                string t = string.Join(",", reorder.Select(x => x.ToString()));
+                factories.CreateSongProperty(this, AlbumOrder, t, CurrentLog);
             }
 
             modified |= EditDanceRatings(addDances, DanceRatingIncrement, remDances, DanceRatingDecrement, factories);

@@ -611,7 +611,7 @@ namespace m4dModels
         public static List<AlbumDetails> BuildAlbumInfo(IEnumerable<SongProperty> properties)
         {
             List<string> names = new List<string>(new string[] {
-                AlbumField,PublisherField,TrackField,PurchaseField,AlbumPromote
+                AlbumField,PublisherField,TrackField,PurchaseField,AlbumPromote,AlbumOrder
             });
 
             // First build a hashtable of index->albuminfo, maintaining the total number and the
@@ -625,6 +625,7 @@ namespace m4dModels
             // Also keep a list of 'promotions' - current semantics are that if an album
             //  has a promotion it is removed and re-inserted at the head of the list
             List<int> promotions = new List<int>();
+            List<int> reorder = null;
 
             foreach (SongProperty prop in properties)
             {
@@ -704,7 +705,13 @@ namespace m4dModels
                             }
                             break;
                         case AlbumPromote:
+                            // Promote to first
                             promotions.Add(idx);
+                            break;
+                        case AlbumOrder:
+                            // Forget all previous promotions and do a re-order base ond values
+                            promotions.Clear();
+                            reorder = prop.Value.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries).Select(s => int.Parse(s)).ToList();
                             break;
                     }
                 }
@@ -712,15 +719,35 @@ namespace m4dModels
 
             List<AlbumDetails> albums = new List<AlbumDetails>(count);
 
-            for (int i = 0; i <= max; i++)
+            // Do the (single) latest full re-order
+            if (reorder != null)
             {
-                AlbumDetails d;
-                if (map.TryGetValue(i, out d) && d.Name != null)
+                List<AlbumDetails> orig = albums;
+                albums = new List<AlbumDetails>();
+
+                for (int i = 0; i < reorder.Count; i++)
                 {
-                    albums.Add(d);
+                    AlbumDetails d;
+                    if (map.TryGetValue(reorder[i], out d))
+                    {
+                        albums.Add(d);
+                    }
+                }
+            }
+            else
+            // Start with everything in its 'natural' order
+            {
+                for (int i = 0; i <= max; i++)
+                {
+                    AlbumDetails d;
+                    if (map.TryGetValue(i, out d) && d.Name != null)
+                    {
+                        albums.Add(d);
+                    }
                 }
             }
 
+            // Now do individual (trivial) promotions
             for (int i = 0; i < promotions.Count; i++)
             {
                 AlbumDetails d;
@@ -729,7 +756,6 @@ namespace m4dModels
                     albums.Remove(d);
                     albums.Insert(0, d);
                 }
-
             }
 
             return albums;

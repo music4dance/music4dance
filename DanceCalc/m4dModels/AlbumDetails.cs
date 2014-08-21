@@ -169,16 +169,53 @@ namespace m4dModels
                 Purchase = new Dictionary<string, string>();
             }
 
+            Purchase[BuildPurchaseKey(pt,ms)] = value;
+        }
+
+        static public string BuildPurchaseInfo(PurchaseType pt, ServiceType ms, string value)
+        {
+            return string.Format("{0}={1}", BuildPurchaseKey(pt, ms), value);
+        }
+
+        static public string BuildPurchaseInfo(ServiceType ms, string collection, string track)
+        {
+            StringBuilder sb = new StringBuilder();
+
+            if (collection != null)
+            {
+                sb.Append(BuildPurchaseInfo(PurchaseType.Album, ms, collection));
+            }
+
+            if (track != null)
+            {
+                if (sb.Length != 0)
+                {
+                    sb.Append(";");
+                }
+                sb.Append(BuildPurchaseInfo(PurchaseType.Song, ms, track));
+            }
+            
+            if (sb.Length > 0)
+            {
+                return sb.ToString();
+            }
+            else 
+            {
+                return null;
+            }
+            
+        }
+
+        private static string BuildPurchaseKey(PurchaseType pt, ServiceType ms)
+        {
             if (pt == PurchaseType.None)
                 throw new ArgumentOutOfRangeException("PurchaseType");
 
             if (ms == ServiceType.None)
                 throw new ArgumentOutOfRangeException("ServiceType");
 
-            MusicService service = MusicService.GetService(ms);
-            Purchase[service.BuildPurchaseKey(pt)] =  value;
+            return MusicService.GetService(ms).BuildPurchaseKey(pt);
         }
-
         public void SetPurchaseInfo(string purchase)
         {
             if (string.IsNullOrWhiteSpace(purchase))

@@ -193,7 +193,7 @@
     <a id="load-xbox" href="#" class="btn btn-small btn-default" role="button">Xbox</a>
     <a id="load-itunes" href="#" class="btn btn-small btn-default" role="button">ITunes</a>
     <a id="load-amazon" href="#" class="btn btn-small btn-default" role="button">Amazon</a>
-
+    
     <table id="service-results" class="table table-striped">
         <thead>
             <tr>
@@ -208,7 +208,7 @@
         </thead>
         <tbody data-bind="foreach: tracks">
             <tr>
-                <td><a data-bind="attr: {href: Link}" class="btn" role="button"><img width="30" height="30" data-bind="attr: {src: serviceLogo}" /></a></td>
+                <td><a data-bind="attr: {href: SongLink.Link}" class="btn" role="button"><img width="30" height="30" data-bind="attr: {src: serviceLogo}" /></a></td>
                 <td><a href="#" class="btn" role="button" data-bind="click: $parent.chooseTrack"><img width="30" height="30" data-bind="attr: {src: ImageUrl}" /></a></td>
                 <td data-bind="text: Name"></td>
                 <td data-bind="text: Album"></td>
@@ -218,6 +218,9 @@
             </tr>
         </tbody>
     </table>
+    
+    <img src="~/Content/ajax-loader.gif" id="loading-indicator" style="display:none" />
+
     <hr />
     <div class="display-label">
         @Html.DisplayNameFor(model => model.Created):

@@ -32,6 +32,7 @@ namespace m4dModels
         public const string PurchaseField = "Purchase";
         public const string AlbumListField = "AlbumList";
         public const string AlbumPromote = "PromoteAlbum";
+        public const string AlbumOrder = "OrderAlbums";
 
         // Dance Rating
         public const string DanceRatingField = "DanceRating";
@@ -261,7 +262,7 @@ namespace m4dModels
             string baseName = SongProperty.ParseBaseName(fieldName);
             return s_albumFields.Contains(baseName);
         }
-        protected static HashSet<string> s_albumFields = new HashSet<string>() { AlbumField, PublisherField, TrackField, PurchaseField, AlbumListField, AlbumPromote };
+        protected static HashSet<string> s_albumFields = new HashSet<string>() { AlbumField, PublisherField, TrackField, PurchaseField, AlbumListField, AlbumPromote, AlbumOrder };
 
         protected static string MungeString(string s, bool normalize)
         {

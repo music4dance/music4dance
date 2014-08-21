@@ -51,7 +51,7 @@ namespace m4dModels
                         Artist = track.artistName,
                         Album = track.collectionName,
                         ImageUrl = track.artworkUrl30,
-                        Link = track.trackViewUrl,
+//                        Link = track.trackViewUrl,
                         ReleaseDate = track.releaseDate,
                         Duration = duration,
                         Genre = track.primaryGenreName,

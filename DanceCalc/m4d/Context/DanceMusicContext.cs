@@ -811,13 +811,27 @@ namespace m4d.Context
 
         private IList<ServiceTrack> DoFindMusicServiceSong(SongDetails song, MusicService service, bool clean = false, string title = null, string artist = null)
         {
+            IList<ServiceTrack> tracks = null;
             switch (service.ID)
             {
                 case ServiceType.Amazon:
-                    return FindMSSongAmazon(song, clean, title, artist);
+                    tracks = FindMSSongAmazon(song, clean, title, artist);
+                    break;
                 default:
-                    return FindMSSongGeneral(song, service, clean, title, artist);
+                    tracks = FindMSSongGeneral(song, service, clean, title, artist);
+                    break;
             }
+
+            if (tracks != null)
+            {
+                foreach (var track in tracks)
+                {
+                    track.AlbumLink = service.GetPurchaseLink(PurchaseType.Album, track.CollectionId, track.TrackId);
+                    track.SongLink = service.GetPurchaseLink(PurchaseType.Song, track.CollectionId, track.TrackId);
+                    track.PurchaseInfo = AlbumDetails.BuildPurchaseInfo(service.ID, track.CollectionId, track.TrackId);
+                }
+            }
+            return tracks;
         }
         private IList<ServiceTrack> FindMSSongAmazon(SongDetails song, bool clean = false, string title = null, string artist = null)
         {
