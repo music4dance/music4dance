@@ -79,19 +79,82 @@ var trackMapping = {
     }
 };
 
+var addPurchaseLink = function(link,olist)
+{
+    if (link != null)
+    {
+        // TODO: Has to be a cleaner way to find existence ($.inArray isn't working
+        //  possibly because we're mapped - may be that going back and figuring
+        //  out how to get KO Mapping to mapp the PurchaseLink array but not
+        //  the objects is the way to go...
+
+        for (var i = 0; i < olist().length; i++) {
+            if (link.Link == olist()[i].Link())
+            {
+                return; // Already have this link
+            }
+        }
+
+        var olink = ko.mapping.fromJS(link);
+        if ($.inArray(olink, olist()) == -1)
+        {
+            olist.push(olink);
+        }
+    }
+}
+
 // Album object
 var Album = function (data) {
     var self = this;
 
+    //{'copy': "PurchaseLinks" }
     ko.mapping.fromJS(data, {}, this);
 
-    //self.addPurchase = new function(track)
-    //{
-    //    var r = //g
-    //;
+    self.addPurchase = function(track)
+    {
+        //var pi = self.PurchasInfo();
+        //var r = /[AIX][SA]=[^;]*/g, match;
+
+        //while (match)
+
+        // First do the string based purchase info
+        var pi = self.PurchaseInfo();
+
+        var tpi = track.PurchaseInfo;
+        if (pi == null)
+        {
+            self.PurchaseInfo(tpi);
+        }
+        else if (tpi != null)
+        {
+            // get rid of possible terminal ;
+            if (pi[pi.length-1] == ";")
+            {
+                pi = pi.substring(0,pi.length-1);
+            }
+
+            // split up the new purchase info
+            tpis = tpi.split(";");
+
+            for (var i = 0; i < tpis.length; i++)
+            {
+                if (pi.indexOf(tpis[i]) == -1)
+                {
+                    pi += ";" + tpis[i];
+                }
+            }
+
+            self.PurchaseInfo(pi);
+        }
+
+        // Then add in the purchase links
+        addPurchaseLink(track.SongLink, self.PurchaseLinks);
+        //addPurchaseLink(track.AlbumLink, self.PurchaseLinks());
+    };
 }
 
-Album.prototype.matchTrack = function (track) {
+Album.prototype.matchTrack = function (track)
+{
     return this.Track() == track.TrackNumber && this.Name().toLowerCase() == track.Album.toLowerCase();
 };
 
@@ -117,13 +180,15 @@ var EditPage = function(data)
         self.albums.push(temp);
     };
 
-    self.removeAlbum = function (a) {
-        self.albums.mappedRemove({ Index: a.Index });
+    self.removeAlbum = function (data, event) {
+        self.albums.mappedRemove({ Index: data.Index });
+        event.preventDefault();
     };
 
-    self.promoteAlbum = function (a) {
-        var temp = self.albums.mappedRemove({ Index: a.Index });
+    self.promoteAlbum = function (data,event) {
+        var temp = self.albums.mappedRemove({ Index: data.Index });
         self.albums.unshift(temp[0]);
+        event.preventDefault();
     }
 
     self.findAlbum = function (track) {
@@ -137,7 +202,8 @@ var EditPage = function(data)
         return null;
     }
 
-    self.chooseTrack = function (track) {
+    self.chooseTrack = function (track,event) {
+        event.preventDefault();
         console.log("Testing");
         var id = track.TrackId;
         var name = track.Album;
@@ -147,7 +213,7 @@ var EditPage = function(data)
         var a = viewModel.findAlbum(track);
 
         if (a != null) {
-            // Merge album
+            a.addPurchase(track);
         }
         else {
             var idx = self.nextIndex();

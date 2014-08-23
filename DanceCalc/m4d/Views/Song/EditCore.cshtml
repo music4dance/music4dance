@@ -174,7 +174,7 @@
                 <td>
                     <button type="button" data-bind="attr: {id: 'Delete_' + $index()}, click: $parent.removeAlbum">X</button>
                     <input data-bind="attr:{id: computeAlbumId($index(),'PurchaseInfo'), name: computeAlbumName($index(),'PurchaseInfo')}, value:PurchaseInfo" type="hidden" />
-                    <input data-bind="attr: {id: computeAlbumId($index(),'Index'), name: computeAlbumName($index(),'Index'), value:Index}" type="hidden" />
+                    <input data-bind="attr: {id: computeAlbumId($index(),'Index'), name: computeAlbumName($index(),'Index')}, value:Index" type="hidden" />
                 </td>
                 <td>
                     <div data-bind="foreach: PurchaseLinks">
@@ -189,11 +189,11 @@
     
     <h3>Music Services</h3>
     <input class="text-box single-line" placeholder="leave blank to use title + artist" id="search" type="text" width="75"/>
-    <a id="load-all" href="#" class="btn btn-small btn-default" role="button">Search All</a>
-    <a id="load-xbox" href="#" class="btn btn-small btn-default" role="button">Xbox</a>
-    <a id="load-itunes" href="#" class="btn btn-small btn-default" role="button">ITunes</a>
-    <a id="load-amazon" href="#" class="btn btn-small btn-default" role="button">Amazon</a>
-    
+    <button type="button" id="load-all"  class="btn btn-small btn-default" role="button">Search All</button>
+    <button type="button" id="load-xbox"  class="btn btn-small btn-default" role="button">Xbox</button>
+    <button type="button" id="load-itunes"  class="btn btn-small btn-default" role="button">ITunes</button>
+    <button type="button" id="load-amazon"  class="btn btn-small btn-default" role="button">Amazon</button>
+
     <table id="service-results" class="table table-striped">
         <thead>
             <tr>
