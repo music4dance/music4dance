@@ -2,11 +2,10 @@
     <button id='count' type=button class="btn btn-lg btn-primary btn-block">Count</button>
 </div>
 <div class="row row-buffer">
-    <input id="MPM" class="calculator col-xs-4" value="0.0" />
-    <div class="btn-group col-xs-4">
+    <input id="MPM" class="calculator col-xs-6" value="0.0" />
+    <div class="btn-group col-xs-6">
         @Html.Partial("_MeterChooser")
     </div>
-    @Html.ActionLink("Help", "CounterHelp", null, new { @class = "btn btn-default col-xs-4", role = "button" })
 </div>
 
 @*
@@ -23,11 +22,18 @@
 <div class="row row-buffer">
     <div id="dances" class="list-group"></div>
 </div>
+<div id="help" class="row row-buffer">
+    @Html.ActionLink("Why don't I see any Dances?", "CounterHelp", null, new { @class = "btn btn-default col-xs-12", role = "button" })
+</div>
 
 @if (ViewBag.ShowEpsilon == true)
 {
     <div class="row row-buffer">
-        <input id='epsilon' type='range' value='5' min='1' max='50'/>
+        <div class="col-xs-12" id="epsilon"></div>
+    </div>
+    <div class="row row-buffer">
+        <span class="col-xs-6">LESS</span>
+        <span class="col-xs-6" style="text-align:right">MORE</span>
     </div>
 }
 

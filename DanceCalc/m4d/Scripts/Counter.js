@@ -9,7 +9,8 @@ var diag = false;
 var showBPM = false;
 var showMPM = true;
 var numerator = 4;
-var epsVisible = .05;
+var defVisible = .05;
+var epsVisible = defVisible;
 
 var counter = 0;
 var start = new Date().getTime();
@@ -51,7 +52,7 @@ $(document).ready(function () {
     }
 
     if (typeof paramEpsVisible === 'number') {
-        epsVisible = paramEpsVisible;
+        defvisible = epsVisible = paramEpsVisible;
         $("#epsilon").val(epsVisible * 100);
     }
 
@@ -118,6 +119,11 @@ $(document).ready(function () {
         });
     });
 
+    $('#epsilon').noUiSlider({
+        start: [5],
+        step: 1,
+        range: { 'min': [1], 'max': [50]}
+    });
     //$('#tempo').focus(function () { setFocus(true);});
 });
 
@@ -188,6 +194,9 @@ function doReset()
     rate = average.toFixed(1);
     maxWait = defWait;
     timerReset();
+    epsVisible = defVisible;
+
+    $("#epsilon").val(epsVisible * 100);
 }
 
 function formatTempo(range,meter)
@@ -277,6 +286,8 @@ function display() {
             });
         }
     }
+
+    $('#help').toggle(dances.length === 0);
 }
 
 function updateDances()
