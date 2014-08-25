@@ -335,7 +335,6 @@
     <Content Include="Content\thermometer-5.png" />
     <Content Include="Content\xbox-logo.png" />
     <Content Include="Content\xbox-charm.png" />
-    <Content Include="favicon.ico" />
     <Content Include="fonts\glyphicons-halflings-regular.svg" />
     <Content Include="Global.asax" />
     <Content Include="Content\Site.css" />
