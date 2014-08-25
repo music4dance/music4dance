@@ -320,7 +320,7 @@
     <Content Include="Content\chosen-sprite%402x.png" />
     <Content Include="Content\chosen-sprite.png" />
     <Content Include="Content\chosen.css" />
-    <Content Include="Content\favicon.ico" />
+    <Content Include="Content\favicon.png" />
     <Content Include="Content\header-logo.png" />
     <Content Include="Content\itunes-charm.png" />
     <Content Include="Content\itunes-logo.png" />

@@ -113,6 +113,7 @@
                 @if (canEdit)
                 {
                     <th>&nbsp;</th>
+                    <th>&nbsp;</th>
                 }
                 <th style="min-width:75pt">
                     @Html.ActionLink("Title", "Sort", new { sortOrder = "Title", filter = ViewBag.SongFilter })
@@ -147,6 +148,7 @@
                         {
                             string id = "Selected-" + item.SongId.ToString();
                             <td><input name="selectedSongs" id="@id" type="checkbox" value="@item.SongId" /></td>
+                            <td><a href="/Song/Edit?id=@item.SongId" role="button" class="btn btn-link btn-sm"><span class="glyphicon glyphicon-pencil"></span></a></td>
                         }
                         <td>
                             @Html.ActionLink(item.Title, "Details", new { id = item.SongId, filter = ViewBag.SongFilter })

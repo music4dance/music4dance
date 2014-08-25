@@ -22,7 +22,7 @@
     <div class="form-group">
         @Html.LabelFor(model => model.Title, new { @class = "control-label col-md-2" })
         <div class="col-md-10">
-            @Html.EditorFor(model => model.Title)
+            @Html.TextBoxFor(model => model.Title, new { @class = "form-control", size="50" })
             @Html.ValidationMessageFor(model => model.Title)
             @if (old != null && !string.IsNullOrWhiteSpace(old.Title))
             {
@@ -36,7 +36,7 @@
     <div class="form-group">
         @Html.LabelFor(model => model.Artist, new { @class = "control-label col-md-2" })
         <div class="col-md-10">
-            @Html.EditorFor(model => model.Artist)
+            @Html.TextBoxFor(model => model.Artist, new { @class = "form-control", size = "50" })
             @Html.ValidationMessageFor(model => model.Artist)
             @if (old != null && !string.IsNullOrWhiteSpace(old.Artist))
             {
@@ -50,7 +50,7 @@
     <div class="form-group">
         @Html.LabelFor(model => model.Length, new { @class = "control-label col-md-2" })
         <div class="col-md-10">
-            @Html.EditorFor(model => model.Length,"SongDuration")
+            @Html.EditorFor(model => model.Length, "SongDuration")
             @*@Html.ValidationMessageFor(model => model.Length)*@
 
             @if (old != null && old.Length != null)
@@ -65,7 +65,7 @@
     <div class="form-group">
         @Html.LabelFor(model => model.Genre, new { @class = "control-label col-md-2" })
         <div class="col-md-10">
-            @Html.EditorFor(model => model.Genre)
+            @Html.TextBoxFor(model => model.Genre, new { @class = "form-control", size = "50" })
             @Html.ValidationMessageFor(model => model.Genre)
 
             @if (old != null && old.Genre != null)
