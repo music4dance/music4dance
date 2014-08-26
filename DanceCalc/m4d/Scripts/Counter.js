@@ -1,8 +1,4 @@
-﻿// TODONEXT: clean this up both code-wise and UX-wise
-// Think about how to add back in some of the stuff
-//  that was part of the phone versions
-
-var diag = false;
+﻿var diag = false;
 
 // These variables all have optional input variables named "param*" to set up
 //  different variations
