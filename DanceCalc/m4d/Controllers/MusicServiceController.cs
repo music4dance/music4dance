@@ -13,31 +13,31 @@ namespace m4d.Controllers
     public class MusicServiceController : ApiController
     {
         private DanceMusicContext _db = new DanceMusicContext();
-        public IHttpActionResult GetServiceTracks(Guid id, string service, bool clean=false, string title=null, string artist=null)
-        {
-            Guid songId = Guid.Empty;
-            SongDetails song = _db.FindSongDetails(id);
 
+        public IHttpActionResult GetServiceTracks(Guid id, string service, string title=null, string artist=null)
+        {
+            SongDetails song = _db.FindSongDetails(id);
             if (song != null && artist == null && title == null)
             {
-                artist = clean ? song.CleanArtist : song.Artist;
-                title = clean ? song.CleanTitle : song.Title;
+                artist = song.Artist;
+                title = song.Title;
             }
 
-            string key = string.Format("{0}|{1}|{2}|{3}|{4}", id, service, clean, artist, title);
+            string key = string.Format("{0}|{1}|{2}|{3}", id, service, artist, title);
 
             IList<ServiceTrack> tracks = null;
 
             if (!s_cache.TryGetValue(key,out tracks))
             {
-                try
+                MusicService ms = MusicService.GetService(service[0]);
+                tracks = InternalGetServiceTracks(song,ms,false,title,artist);
+
+                if (tracks == null || tracks.Count == 0)
                 {
-                    tracks = _db.FindMusicServiceSong(song, MusicService.GetService(service[0]), clean, title, artist);
-                    s_cache[key] = tracks;
-                }
-                catch (WebException e)
-                {
-                    Trace.WriteLine(string.Format("GetServiceTracks Failed: {0}",e.Message));
+                    artist = SongBase.CleanString(artist);
+                    title = SongBase.CleanString(title);
+
+                    tracks = InternalGetServiceTracks(song, ms, true, title, artist);
                 }
             }
 
@@ -45,9 +45,33 @@ namespace m4d.Controllers
             {
                 return NotFound();
             }
+            else
+            {
+                s_cache[key] = tracks;
+            }
 
             return Ok(tracks);
         }
+
+        // TODO:  Pretty sure we can pull the 'clean' parameter from this and descendents
+        private IList<ServiceTrack> InternalGetServiceTracks(SongDetails song, MusicService service, bool clean, string title, string artist)
+        {
+            Guid songId = Guid.Empty;
+
+            IList<ServiceTrack> tracks = null;
+
+            try
+            {
+                tracks = _db.FindMusicServiceSong(song, service, clean, title, artist);
+            }
+            catch (WebException e)
+            {
+                Trace.WriteLine(string.Format("GetServiceTracks Failed: {0}",e.Message));
+            }
+
+            return tracks;
+        }
+
         protected override void Dispose(bool disposing)
         {
             _db.Dispose();

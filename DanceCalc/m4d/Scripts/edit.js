@@ -202,6 +202,8 @@ var EditPage = function(data)
         return null;
     }
 
+    // TODONEXT:  Add in logic to fill in the top level info when a track is chosen (title/artist/length/tempo), and put the old
+    // values next to it (as links/buttons).  For genre just append.
     self.chooseTrack = function (track,event) {
         event.preventDefault();
         console.log("Testing");
@@ -247,7 +249,7 @@ var viewModel = null;
 
 var getServiceInfo = function(service)
 {
-    var uri = "/api/musicservice/" + songId + "?service=" + service.toString();
+    var uri = "/api/musicservice/" + songId + "?service=" + service.toString() + "&Title=" + $('#Title').val() + "&Artist=" + $('#Artist').val();
     $.getJSON(uri)
         .done(function (data) {
             viewModel.tracks.removeAll();

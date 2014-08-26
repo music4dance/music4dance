@@ -803,7 +803,14 @@ namespace m4d.Context
 
             if (list != null)
             {
-                list = song.RankTracks(list);
+                if (song != null)
+                {
+                    list = song.RankTracks(list);
+                }
+                else
+                {
+                    list = SongDetails.RankTracksByCluster(list);
+                }
             }
 
             return list;
