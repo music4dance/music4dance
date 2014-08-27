@@ -1,11 +1,12 @@
 ﻿<div class="row row-buffer">
-    <button id='count' type=button class="btn btn-lg btn-primary btn-block">Count</button>
+    <button id='count' type=button class="btn btn-lg btn-primary btn-block col-xs-12">Count</button>
 </div>
 <div class="row row-buffer">
-    <input id="MPM" class="calculator col-xs-6" value="0.0" />
+    <input id="MPM" class="calculator col-xs-5" value="0.0" />
     <div class="btn-group col-xs-6">
         @Html.Partial("_MeterChooser")
     </div>
+    <a href="/Home/CounterHelp" class="btn btn-default col-xs-1" role="button"><img src="~/Content/blue-help.png" width="20" height="20" /></a>
 </div>
 
 @*
@@ -38,10 +39,10 @@
 }
 
 <div class="row row-buffer">
-    <input id="Tempo" size="5" value="0.0" /> BPM
+    <input id="Tempo" class="col-xs-12" size="5" value="0.0" /> BPM
 </div>
 
 <div class="row row-buffer">
-    <button id='reset' type=button class="btn-sm btn-block">Reset</button>
+    <button id="reset" type="button" class="btn-sm btn-block col-xs-12">Reset</button>
 </div>
 

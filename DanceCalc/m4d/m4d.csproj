@@ -313,6 +313,7 @@
     <Content Include="Content\amazon-charm.png" />
     <Content Include="Content\amazon-logo.png" />
     <Content Include="Content\BlackBanner.png" />
+    <Content Include="Content\blue-help.png" />
     <Content Include="Content\bootstrap-theme.css" />
     <Content Include="Content\bootstrap-theme.min.css" />
     <Content Include="Content\bootstrap.css" />

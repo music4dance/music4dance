@@ -66,7 +66,6 @@
                 {
                     @Html.ActionLink(item.SongReference.ToString("B"), "Details", "Song", new { id = item.SongReference }, null);
                 }
-                
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.User.UserName)

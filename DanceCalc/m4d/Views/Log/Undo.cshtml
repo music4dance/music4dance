@@ -57,7 +57,10 @@
                 @message
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.Original.SongReference)
+                @if (!item.Original.SongReference.Equals(Guid.Empty))
+                {
+                    @Html.ActionLink(item.Original.SongReference.ToString("B"), "Details", "Song", new { id = item.Original.SongReference }, null);
+                }
             </td>
             <td>
                 @LID.Value
@@ -79,8 +82,8 @@
             </td>
         </tr>
     }
-
 </table>
 
+@Html.ActionLink("Show Log", "Index")
 @Html.ActionLink("Download Log", "Lines")
 

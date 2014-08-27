@@ -178,3 +178,7 @@ table.songlist
     content: url(/Content/thermometer-5.png);
     width: 10px; height: 30px;
 }
+
+.search-text {
+    max-width: none;
+}

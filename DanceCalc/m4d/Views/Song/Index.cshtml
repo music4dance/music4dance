@@ -73,7 +73,7 @@
         </div>
         <input type="hidden" name="dances" id="dances" value="@danceID" />
         <input type="hidden" name="filter" id="filter" value="@ViewBag.SongFilter.ToString()" />
-        @Html.TextBox("SearchString", ViewBag.SongFilter.SearchString as string, new { @class = "form-control", placeholder = "Artist, Title, or Album" })
+        @Html.TextBox("SearchString", ViewBag.SongFilter.SearchString as string, new { @class = "form-control search-text", placeholder = "Artist, Title, or Album" })
         <span class="input-group-btn">
             <button id="submit-search" class="btn btn-default" type="submit"><span class="glyphicon glyphicon-search"></span></button>
         </span>

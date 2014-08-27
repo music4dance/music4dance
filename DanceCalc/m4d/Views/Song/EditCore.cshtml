@@ -19,7 +19,7 @@
 
     @Html.HiddenFor(model => model.SongId)
 
-    <div class="form-group">
+    <div class="form-group row">
         @Html.LabelFor(model => model.Title, new { @class = "control-label col-md-2" })
         <div class="col-md-10">
             @Html.TextBoxFor(model => model.Title, new { @class = "form-control", size="50" })
@@ -33,7 +33,7 @@
         </div>
     </div>
     
-    <div class="form-group">
+    <div class="form-group row">
         @Html.LabelFor(model => model.Artist, new { @class = "control-label col-md-2" })
         <div class="col-md-10">
             @Html.TextBoxFor(model => model.Artist, new { @class = "form-control", size = "50" })
@@ -47,7 +47,7 @@
         </div>
     </div>
     
-    <div class="form-group">
+    <div class="form-group row">
         @Html.LabelFor(model => model.Length, new { @class = "control-label col-md-2" })
         <div class="col-md-10">
             @Html.EditorFor(model => model.Length, "SongDuration")
@@ -62,7 +62,7 @@
         </div>
     </div>
 
-    <div class="form-group">
+    <div class="form-group row">
         @Html.LabelFor(model => model.Genre, new { @class = "control-label col-md-2" })
         <div class="col-md-10">
             @Html.TextBoxFor(model => model.Genre, new { @class = "form-control", size = "50" })
@@ -77,11 +77,12 @@
         </div>
     </div>
 
-    <div class="form-group">
+    <div class="form-group row">
         @Html.LabelFor(model => model.Tempo, new { @class = "control-label col-md-2" })
         <div class="col-md-10">
             @Html.EditorFor(model => model.Tempo)
             @Html.ValidationMessageFor(model => model.Tempo)
+            <a href="#" id="toggle-count" class="btn btn-sm btn-default"><span id="toggle-count-display" class="glyphicon glyphicon-arrow-down"></span></a>
 
             <div class="editor-alternate" id="alt-temp">
                 @if (old != null && old.Tempo != null)
@@ -89,126 +90,125 @@
                     <a href="#" role="button" class="btn btn-link">@old.Tempo</a>
                 }
             </div>
-            <a href="#" id="toggle-count" class="btn btn-sm btn-default"><span id="toggle-count-display" class="glyphicon glyphicon-arrow-down"></span></a>
         </div>
     </div>
     <div class="form-group" id="counter-control">
         <div class="row">
-            <div class="col-md-2"></div>
-            <div class="col-md-8">
+            <div class="col-md-8 col-md-offset-2">
                 <button id='count' type=button class="btn btn-lg btn-primary btn-block">Count</button>
                 <div>@Html.Partial("_MeterChooser")</div>
                 <div id="dances" class="list-group"></div>
-                <input id='epsilon' type='range' value='5' min='1' max='50' />
             </div>
-            <div class="col-md-2"></div>
+        </div>
+        <div class="row col-md-8 col-md-offset-2" id="epsilon">
         </div>
         <div class="row">
-            <div class="col-md-2"></div>
-            <div class="col-xs-8" id="epsilon"></div>
-            <div class="col-md-2"></div>
+            <div class="col-md-offset-2 col-md-8" id="epsilon"></div>
         </div>
         <div class="row">
-            <div class="col-md-2"></div>
-            <span class="col-xs-4">LESS</span>
-            <span class="col-xs-4" style="text-align:right">MORE</span>
-            <div class="col-md-2"></div>
+            <span class="col-md-offset-2 col-md-4">LESS</span>
+            <span class="col-md-4" style="text-align:right">MORE</span>
         </div>
-
     </div>
-    <hr />
-    <div class="display-label">
+
+    <hr class="row col-md-12" />
+    <div class="display-label row col-md-12">
         Dance(s):
     </div>
-    <div class="display-field">
+    <div class="display-field row col-md-12">
         @{ var separator = ""; }
         @if (Model.DanceRatings != null)
-    {
-        foreach (var item in Model.DanceRatings)
         {
-            @separator;
-            @Html.DisplayFor(model => item.Dance.Info.Name)
-            if (item.Weight > 1)
+            foreach (var item in Model.DanceRatings)
             {
-                <b>(@item.Weight)</b>
+                @separator;
+            @Html.DisplayFor(model => item.Dance.Info.Name)
+                if (item.Weight > 1)
+                {
+                    <b>(@item.Weight)</b>
+                }
+                separator = ", ";
             }
-            separator = ", ";
+            <br />
         }
-        <br />
-    }
     </div>
 
     if (ViewData.ContainsKey("DanceListRemove"))
     {
-    <div class="editor-label">
-        Remove Dances from this list to vote them down.
-    </div>
-    <div class="editor-field">
-        @Html.ListBox("remDances", ViewBag.DanceListRemove as MultiSelectList, new { @class = "chzn-select", data_placeholder = "Remove Dances to Vote Down..." })
-    </div>
+        <div class="editor-label row col-md-12">
+            Remove Dances from this list to vote them down.
+        </div>
+        <div class="editor-field row col-md-12">
+            @Html.ListBox("remDances", ViewBag.DanceListRemove as MultiSelectList, new { @class = "chzn-select", data_placeholder = "Remove Dances to Vote Down..." })
+        </div>
     }
     if (ViewData.ContainsKey("DanceListAdd"))
     {
-    <div class="editor-label">
-        Add dances to this list to vote them up.
-    </div>
-    <div class="editor-field">
-        @Html.ListBox("addDances", ViewBag.DanceListAdd as MultiSelectList, new { @class = "chzn-select", data_placeholder = "Choose Dances to Vote Up..." })
-    </div>
-    <br />
+        <div class="editor-label row col-md-12">
+            Add dances to this list to vote them up.
+        </div>
+        <div class="editor-field row col-md-12">
+            @Html.ListBox("addDances", ViewBag.DanceListAdd as MultiSelectList, new { @class = "chzn-select", data_placeholder = "Choose Dances to Vote Up..." })
+        </div>
+        <br />
     }
 
-    <hr />
-    <table>
-        <tr><td></td><td class="album-header">Album</td><td class="track-header">Track</td><td class="publisher-header">Label</td><td class="delete-header"></td></tr>
-        <tbody data-bind="foreach: albums">
-            <tr data-bind="attr: {id: 'Album_' + $index()}">
-                <td>
-                    <div data-bind="ifnot: $index() == 0">
-                        <a href="#" class="btn btn-sm btn-default">
-                            <span id="toggle-count-display" class="glyphicon glyphicon-arrow-up" data-bind="click:$parent.promoteAlbum"></span>
-                        </a>
-                    </div>
-                </td>
-                <td>
-                    <div class="editor-field">
-                        <input data-bind="attr: {id: computeAlbumId($index(),'Name'), name: computeAlbumName($index(),'Name')}, value: Name" type="text" />
-                    </div>
-                </td>
-                <td>
-                    <div class="editor-field">
-                        <input data-bind="attr: {id: computeAlbumId($index(),'Track'), name: computeAlbumName($index(),'Track')}, value: Track" type="text" />
-                    </div>
-                </td>
-                <td>
-                    <div class="editor-field">
-                        <input data-bind="attr:{id: computeAlbumId($index(),'Publisher'), name: computeAlbumName($index(),'Publisher')}, value: Publisher" type="text" />
-                    </div>
-                </td>
-                <td>
-                    <button type="button" data-bind="attr: {id: 'Delete_' + $index()}, click: $parent.removeAlbum">X</button>
-                    <input data-bind="attr:{id: computeAlbumId($index(),'PurchaseInfo'), name: computeAlbumName($index(),'PurchaseInfo')}, value:PurchaseInfo" type="hidden" />
-                    <input data-bind="attr: {id: computeAlbumId($index(),'Index'), name: computeAlbumName($index(),'Index')}, value:Index" type="hidden" />
-                </td>
-                <td>
-                    <div data-bind="foreach: PurchaseLinks">
-                        <a data-bind="attr: {href:Link, target:Target}"><img data-bind="attr: {src:'/Content/' + Logo(), alt: AltText}" /></a>
-                    </div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <a class="btn btn-info" role="button" id="AddAlbum" data-bind="click: newAlbum">New Album</a>
-    <hr />
-    
-    <h3>Music Services</h3>
-    <input class="text-box single-line" placeholder="leave blank to use title + artist" id="search" type="text" width="75"/>
-    <button type="button" id="load-all"  class="btn btn-small btn-default" role="button">Search All</button>
-    <button type="button" id="load-xbox"  class="btn btn-small btn-default" role="button">Xbox</button>
-    <button type="button" id="load-itunes"  class="btn btn-small btn-default" role="button">ITunes</button>
-    <button type="button" id="load-amazon"  class="btn btn-small btn-default" role="button">Amazon</button>
+    <hr class="row col-md-12" />
+    <div class="row col-md-12">
+        <table>
+            <tr><td></td><td class="album-header">Album</td><td class="track-header">Track</td><td class="publisher-header">Label</td><td class="delete-header"></td></tr>
+            <tbody data-bind="foreach: albums">
+                <tr data-bind="attr: {id: 'Album_' + $index()}">
+                    <td>
+                        <div data-bind="ifnot: $index() == 0">
+                            <a href="#" class="btn btn-sm btn-default">
+                                <span id="toggle-count-display" class="glyphicon glyphicon-arrow-up" data-bind="click:$parent.promoteAlbum"></span>
+                            </a>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="editor-field">
+                            <input data-bind="attr: {id: computeAlbumId($index(),'Name'), name: computeAlbumName($index(),'Name')}, value: Name" type="text" />
+                        </div>
+                    </td>
+                    <td>
+                        <div class="editor-field">
+                            <input data-bind="attr: {id: computeAlbumId($index(),'Track'), name: computeAlbumName($index(),'Track')}, value: Track" type="text" />
+                        </div>
+                    </td>
+                    <td>
+                        <div class="editor-field">
+                            <input data-bind="attr:{id: computeAlbumId($index(),'Publisher'), name: computeAlbumName($index(),'Publisher')}, value: Publisher" type="text" />
+                        </div>
+                    </td>
+                    <td>
+                        <button type="button" data-bind="attr: {id: 'Delete_' + $index()}, click: $parent.removeAlbum">X</button>
+                        <input data-bind="attr:{id: computeAlbumId($index(),'PurchaseInfo'), name: computeAlbumName($index(),'PurchaseInfo')}, value:PurchaseInfo" type="hidden" />
+                        <input data-bind="attr: {id: computeAlbumId($index(),'Index'), name: computeAlbumName($index(),'Index')}, value:Index" type="hidden" />
+                    </td>
+                    <td>
+                        <div data-bind="foreach: PurchaseLinks">
+                            <a data-bind="attr: {href:Link, target:Target}"><img data-bind="attr: {src:'/Content/' + Logo(), alt: AltText}" /></a>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="row col-md-12">
+        <a class="btn btn-info" role="button" id="AddAlbum" data-bind="click: newAlbum">New Album</a>
+    </div>
+    <hr class="row col-md-12" />
 
-    <table id="service-results" class="table table-striped">
+    <h3 class="row col-md-12">Music Services</h3>
+    <div class="row col-md-12">
+        <input class="text-box single-line" placeholder="leave blank to use title + artist" id="search" type="text" width="75" />
+        <button type="button" id="load-all" class="btn btn-small btn-default" role="button">Search All</button>
+        <button type="button" id="load-xbox" class="btn btn-small btn-default" role="button">Xbox</button>
+        <button type="button" id="load-itunes" class="btn btn-small btn-default" role="button">ITunes</button>
+        <button type="button" id="load-amazon" class="btn btn-small btn-default" role="button">Amazon</button>
+    </div>
+    <table id="service-results" class="table table-striped row col-md-12">
         <thead>
             <tr>
                 <th></th>
@@ -232,31 +232,35 @@
             </tr>
         </tbody>
     </table>
-    
+
     <img src="~/Content/ajax-loader.gif" id="loading-indicator" style="display:none" />
 
-    <hr />
-    <div class="display-label">
-        @Html.DisplayNameFor(model => model.Created):
-    </div>
-    <div class="display-field">
-        @Html.DisplayFor(model => model.Created)
-        @Html.HiddenFor(model => model.Created)
+    <hr class="row col-md-12" />
+    <div class="row col-md-12">
+        <div class="display-label">
+            @Html.DisplayNameFor(model => model.Created):
+        </div>
+        <div class="display-field">
+            @Html.DisplayFor(model => model.Created)
+            @Html.HiddenFor(model => model.Created)
+        </div>
     </div>
     <br />
 
-    <div class="display-label">
-        @Html.DisplayNameFor(model => model.Modified):
-    </div>
-    <div class="display-field">
-        @Html.DisplayFor(model => model.Modified)
+    <div class="row col-md-12">
+        <div class="display-label">
+            @Html.DisplayNameFor(model => model.Modified):
+        </div>
+        <div class="display-field">
+            @Html.DisplayFor(model => model.Modified)
+        </div>
     </div>
 
-    <hr />
+    <hr class="row col-md-12" />
 
-    <p>
+    <p class="row col-md-12">
         <input type="hidden" name="filter" value="@ViewBag.SongFilter" />
         <input type="submit" value="@ViewBag.Submit" class="btn btn-default" />
     </p>
-    }
+}
 
