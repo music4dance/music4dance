@@ -41,7 +41,11 @@
             <b>Name:</b>@track.Name<br />
             <b>Album:</b>@track.Album<br />
             <b>Artist:</b>@track.Artist<br />
-            <b>Link:</b><a href="@track.Link" target="bogus">@track.Link</a><br />
+            <b>Track Link:</b><a href="@track.SongLink">@track.SongLink.Link</a><br />
+            @if (track.Album != null)
+            {
+                <b>Album Link:</b><a href="@track.AlbumLink">@track.SongLink.Link</a><br />
+            }
             <b>Id:</b>@track.TrackId<br />
             @if (track.AltId != null)
             {

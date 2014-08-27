@@ -41,6 +41,7 @@ var logoFromEnum = function(e)
 
     return ret;
 }
+
 var purchaseLinksFromTrack = function (track) {
     var ret = null;
     if (track.SongLink != null)
@@ -54,6 +55,53 @@ var purchaseLinksFromTrack = function (track) {
     return [ret];
 }
 
+// Make a field id from an alt-field id:  e.g. alt-title -> Title
+var altToField = function(altId) {
+    var id = altId[4].toUpperCase() + altId.substring(5);
+    return id;
+}
+
+// Swap the text of the clicked link with the parent field's value
+var replaceValue = function(self) {
+    var id = self.context.parentElement.id;
+    var field = $("#" + altToField(id));
+    var text = self.text();
+    self.text(field.val());
+    field.val(text);
+    //alert(self.context.parentElement.id + ":" + self.text());
+}
+
+var addValue = function (id, val) {
+    if (val == null)
+    {
+        return;
+    }
+
+    var self = $("#" + id);
+    var field = $("#" + altToField(id));
+
+    var oldVal = field.val();
+    if (val === oldVal)
+    {
+        return;
+    }
+
+    var dup = false;
+    $("#" + id + " a").each(function (){
+        if ($(this).text() == val)
+        {
+            dup = true;
+            return false;
+        }
+    });
+
+    if (!dup)
+    {
+        var node = "<a href='#' role='button' class='btn btn-link'>" + oldVal + "</a>"
+        self.append(node);
+        field.val(val);
+    }
+}
 
 // Track object
 var Track = function(data)
@@ -185,7 +233,7 @@ var EditPage = function(data)
         event.preventDefault();
     };
 
-    self.promoteAlbum = function (data,event) {
+    self.promoteAlbum = function (data, event) {
         var temp = self.albums.mappedRemove({ Index: data.Index });
         self.albums.unshift(temp[0]);
         event.preventDefault();
@@ -206,6 +254,8 @@ var EditPage = function(data)
     // values next to it (as links/buttons).  For genre just append.
     self.chooseTrack = function (track,event) {
         event.preventDefault();
+
+        // Update the track info
         console.log("Testing");
         var id = track.TrackId;
         var name = track.Album;
@@ -222,6 +272,38 @@ var EditPage = function(data)
             var temp = new Album({ Index: idx, Name: track.Album, Track: track.TrackNumber, Publisher: "", PurchaseInfo: track.PurchaseInfo, PurchaseLinks: purchaseLinksFromTrack(track) });
             self.albums.push(temp);
         }
+
+        // Now add in the extra top level info if empty
+        //  or replace and put in a change back button if not
+
+        addValue('alt-title', track.Name);
+        addValue('alt-artist', track.Artist);
+        addValue('alt-length', track.durationFormatted());
+        addValue('alt-tempo', track.Tempo);
+
+        // Finally handle genre
+        if (track.Genre != null)
+        {
+            var gnew = track.Genre;
+            var gval = $("#Genre").val();
+            if (gval == null)
+            {
+                gval = "";
+            }
+            var glist = gval.toLowerCase().split(",");
+
+            if (glist.indexOf(gnew.toLowerCase()) == -1)
+            {
+                if (gval.length > 0)
+                {
+                    gval += ",";
+                }
+                gval += gnew;
+            }
+
+            $("#Genre").val(gval);
+        }
+
     };
 
 }
@@ -284,6 +366,28 @@ $(document).ready(function () {
     $('#load-amazon').click(function () { getServiceInfo('A') });
     $('#load-all').click(function () { getServiceInfo('_') });
 
+    //$('#alt-title a').on("click", function (event) {
+    //    event.preventDefault();
+    //    replaceValue($(this));
+    //});
+
+    $('#alt-title').on("click", ".btn", null, function (event) {
+        event.preventDefault();
+        replaceValue($(this));
+    });
+    $('#alt-artist').on("click", ".btn", null, function (event) {
+        event.preventDefault();
+        replaceValue($(this));
+    });
+    $('#alt-length').on("click", ".btn", null, function (event) {
+        event.preventDefault();
+        replaceValue($(this));
+    });
+    $('#alt-tempo').on("click", ".btn", null, function (event) {
+        event.preventDefault();
+        replaceValue($(this));
+    });
+
     $(document).ajaxSend(function (event, request, settings) {
         $('#loading-indicator').show();
     });
@@ -292,10 +396,8 @@ $(document).ready(function () {
         $('#loading-indicator').hide();
     });
 
-
     var data = { tracks: [], albums: albums };
     viewModel = ko.mapping.fromJS(data, pageMapping);
-
 
     ko.applyBindings(viewModel);
 });

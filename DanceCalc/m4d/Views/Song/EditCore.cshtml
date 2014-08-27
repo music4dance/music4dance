@@ -24,12 +24,12 @@
         <div class="col-md-10">
             @Html.TextBoxFor(model => model.Title, new { @class = "form-control", size="50" })
             @Html.ValidationMessageFor(model => model.Title)
-            @if (old != null && !string.IsNullOrWhiteSpace(old.Title))
-            {
-                <div class="editor-alternate">
-                    @old.Title
-                </div>
-            }
+            <div class="editor-alternate" id="alt-title">
+                @if (old != null && !string.IsNullOrWhiteSpace(old.Title))
+                {
+                    <a href="#" role="button" class="btn btn-link">@old.Title</a>
+                }
+            </div>
         </div>
     </div>
     
@@ -38,12 +38,12 @@
         <div class="col-md-10">
             @Html.TextBoxFor(model => model.Artist, new { @class = "form-control", size = "50" })
             @Html.ValidationMessageFor(model => model.Artist)
-            @if (old != null && !string.IsNullOrWhiteSpace(old.Artist))
-            {
-                <div class="editor-alternate">
-                    @old.Artist
-                </div>
-            }
+            <div class="editor-alternate" id="alt-artist">
+                @if (old != null && !string.IsNullOrWhiteSpace(old.Artist))
+                {
+                    <a href="#" role="button" class="btn btn-link">@old.Artist</a>
+                }
+            </div>
         </div>
     </div>
     
@@ -53,13 +53,13 @@
             @Html.EditorFor(model => model.Length, "SongDuration")
             @*@Html.ValidationMessageFor(model => model.Length)*@
 
-            @if (old != null && old.Length != null)
-            {
-                <div class="editor-alternate">
-                    @old.Length.Value
-                </div>
-            }
+            <div class="editor-alternate" id="alt-length">
+                @if (old != null && old.Length != null)
+                {
+                    <a href="#" role="button" class="btn btn-link">@Html.DisplayFor(model => old.Length.Value,"SongDuration")</a>
+                }
             </div>
+        </div>
     </div>
 
     <div class="form-group">
@@ -68,13 +68,13 @@
             @Html.TextBoxFor(model => model.Genre, new { @class = "form-control", size = "50" })
             @Html.ValidationMessageFor(model => model.Genre)
 
-            @if (old != null && old.Genre != null)
-            {
-                <div class="editor-alternate">
-                    @old.Genre
-                </div>
-            }
+            <div class="editor-alternate" id="alt-genre">
+                @if (old != null && !string.IsNullOrWhiteSpace(old.Genre))
+                {
+                    <a href="#" role="button" class="btn btn-link">@old.Genre</a>
+                }
             </div>
+        </div>
     </div>
 
     <div class="form-group">
@@ -83,24 +83,38 @@
             @Html.EditorFor(model => model.Tempo)
             @Html.ValidationMessageFor(model => model.Tempo)
 
-            @if (old != null && old.Tempo != null)
-            {
-                <div class="editor-alternate">
-                    @old.Tempo.Value
-                </div>
-            }
+            <div class="editor-alternate" id="alt-temp">
+                @if (old != null && old.Tempo != null)
+                {
+                    <a href="#" role="button" class="btn btn-link">@old.Tempo</a>
+                }
+            </div>
             <a href="#" id="toggle-count" class="btn btn-sm btn-default"><span id="toggle-count-display" class="glyphicon glyphicon-arrow-down"></span></a>
         </div>
     </div>
     <div class="form-group" id="counter-control">
-        <div class="col-md-2"></div>
-        <div class="col-md-8">
-            <button id='count' type=button class="btn btn-lg btn-primary btn-block">Count</button>
-            <div>@Html.Partial("_MeterChooser")</div>
-            <div id="dances" class="list-group"></div>
-            <input id='epsilon' type='range' value='5' min='1' max='50' />
+        <div class="row">
+            <div class="col-md-2"></div>
+            <div class="col-md-8">
+                <button id='count' type=button class="btn btn-lg btn-primary btn-block">Count</button>
+                <div>@Html.Partial("_MeterChooser")</div>
+                <div id="dances" class="list-group"></div>
+                <input id='epsilon' type='range' value='5' min='1' max='50' />
+            </div>
+            <div class="col-md-2"></div>
         </div>
-        <div class="col-md-2"></div>
+        <div class="row">
+            <div class="col-md-2"></div>
+            <div class="col-xs-8" id="epsilon"></div>
+            <div class="col-md-2"></div>
+        </div>
+        <div class="row">
+            <div class="col-md-2"></div>
+            <span class="col-xs-4">LESS</span>
+            <span class="col-xs-4" style="text-align:right">MORE</span>
+            <div class="col-md-2"></div>
+        </div>
+
     </div>
     <hr />
     <div class="display-label">
@@ -209,7 +223,7 @@
         <tbody data-bind="foreach: tracks">
             <tr>
                 <td><a data-bind="attr: {href: SongLink.Link}" class="btn" role="button"><img width="30" height="30" data-bind="attr: {src: serviceLogo}" /></a></td>
-                <td><a href="#" class="btn" role="button" data-bind="click: $parent.chooseTrack"><img width="30" height="30" data-bind="attr: {src: ImageUrl}" /></a></td>
+                <td><a href="#" class="btn btn-default" role="button" data-bind="click: $parent.chooseTrack"><img width="30" height="30" data-bind="attr: {src: ImageUrl}" /></a></td>
                 <td data-bind="text: Name"></td>
                 <td data-bind="text: Album"></td>
                 <td data-bind="text: Artist"></td>
