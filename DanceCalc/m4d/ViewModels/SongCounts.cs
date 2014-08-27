@@ -28,6 +28,7 @@ namespace m4d.ViewModels
             lock (s_counts)
             {
                 s_counts.Clear();
+                s_map.Clear();
             }
         }
 

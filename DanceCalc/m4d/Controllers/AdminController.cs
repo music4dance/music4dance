@@ -797,14 +797,14 @@ namespace m4d.Controllers
         /// Reloads a list of songs into the database
         /// </summary>
         /// <param name="lines"></param>
-        private void ReloadDB(List<string> lines)
+        private void ReloadDB(List<string> lines, bool batch=false)
         {
             Trace.WriteLine("Entering ReloadDB");
 
-            // TODO: I think I can make this work by passing in a custom class in place of DMC to
-            //  accumulate the additions to DanceRatings and ModifiedBy
             using (DanceMusicContext dmc = new DanceMusicContext())
             {
+                dmc.Configuration.AutoDetectChangesEnabled = false;
+
                 // Load the dance List
                 Trace.WriteLine("Loading Dances");
                 dmc.Dances.Load();
@@ -844,11 +844,30 @@ namespace m4d.Controllers
                     }
                 }
 
-                Trace.WriteLine("Saving Changes");
-                EFBatchOperation.For(dmc, dmc.Songs).InsertAll(songs);
-                EFBatchOperation.For(dmc, dmc.SongProperties).InsertAll(properties);
-                EFBatchOperation.For(dmc, dmc.Modified).InsertAll(bum.GetMappings());
-                EFBatchOperation.For(dmc, dmc.DanceRatings).InsertAll(ratings);
+                Trace.WriteLine("Saving Songs");
+                if (batch)
+                {
+                    // Until the bug gets fixed in EFBatchOperations to allow for azure, we'll live with the slower method...
+                    EFBatchOperation.For(dmc, dmc.Songs).InsertAll(songs);
+
+                    Trace.WriteLine("Saving Properties");
+                    EFBatchOperation.For(dmc, dmc.SongProperties).InsertAll(properties);
+
+                    Trace.WriteLine("Saving User Mappings");
+                    EFBatchOperation.For(dmc, dmc.Modified).InsertAll(bum.GetMappings());
+
+                    Trace.WriteLine("Saving Dance Ratings");
+                    EFBatchOperation.For(dmc, dmc.DanceRatings).InsertAll(ratings);
+                }
+                else
+                {
+                    foreach (Song song in songs)
+                    {
+                        dmc.Entry(song).State = EntityState.Added;
+                    }
+
+                    dmc.SaveChanges();
+                }
             }
 
             Trace.WriteLine("Clearing Song Cache");
