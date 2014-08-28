@@ -148,7 +148,7 @@
                         {
                             string id = "Selected-" + item.SongId.ToString();
                             <td><input name="selectedSongs" id="@id" type="checkbox" value="@item.SongId" /></td>
-                            <td><a href="/Song/Edit?id=@item.SongId" role="button" class="btn btn-link btn-sm"><span class="glyphicon glyphicon-pencil"></span></a></td>
+                            <td><a href="/Song/Edit?id=@item.SongId&filter=@ViewBag.SongFilter" role="button" class="btn btn-link btn-sm"><span class="glyphicon glyphicon-pencil"></span></a></td>
                         }
                         <td>
                             @Html.ActionLink(item.Title, "Details", new { id = item.SongId, filter = ViewBag.SongFilter })

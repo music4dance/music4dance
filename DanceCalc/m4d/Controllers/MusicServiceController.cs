@@ -14,7 +14,7 @@ namespace m4d.Controllers
     {
         private DanceMusicContext _db = new DanceMusicContext();
 
-        public IHttpActionResult GetServiceTracks(Guid id, string service, string title=null, string artist=null)
+        public IHttpActionResult GetServiceTracks(Guid id, string service, string title=null, string artist=null, string album=null)
         {
             SongDetails song = _db.FindSongDetails(id);
             if (song != null && artist == null && title == null)
@@ -30,14 +30,14 @@ namespace m4d.Controllers
             if (!s_cache.TryGetValue(key,out tracks))
             {
                 MusicService ms = MusicService.GetService(service[0]);
-                tracks = InternalGetServiceTracks(song,ms,false,title,artist);
+                tracks = InternalGetServiceTracks(song,ms,false,title,artist,album);
 
                 if (tracks == null || tracks.Count == 0)
                 {
                     artist = SongBase.CleanString(artist);
                     title = SongBase.CleanString(title);
 
-                    tracks = InternalGetServiceTracks(song, ms, true, title, artist);
+                    tracks = InternalGetServiceTracks(song, ms, true, title, artist, album);
                 }
             }
 
@@ -54,7 +54,7 @@ namespace m4d.Controllers
         }
 
         // TODO:  Pretty sure we can pull the 'clean' parameter from this and descendents
-        private IList<ServiceTrack> InternalGetServiceTracks(SongDetails song, MusicService service, bool clean, string title, string artist)
+        private IList<ServiceTrack> InternalGetServiceTracks(SongDetails song, MusicService service, bool clean, string title, string artist, string album)
         {
             Guid songId = Guid.Empty;
 
@@ -62,7 +62,7 @@ namespace m4d.Controllers
 
             try
             {
-                tracks = _db.FindMusicServiceSong(song, service, clean, title, artist);
+                tracks = _db.FindMusicServiceSong(song, service, clean, title, artist, album);
             }
             catch (WebException e)
             {

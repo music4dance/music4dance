@@ -844,7 +844,7 @@ namespace m4dModels
         /// <returns></returns>
         public static ServiceTrack FindDominantTrack(IList<ServiceTrack> tracks)
         {
-            IList<ServiceTrack> ordered = RankTracksByCluster(tracks);
+            IList<ServiceTrack> ordered = RankTracksByCluster(tracks,null);
             if (ordered != null)
             {
                 return tracks.First();
@@ -864,12 +864,12 @@ namespace m4dModels
             }
             else
             {
-                return RankTracksByCluster(tracks);
+                return RankTracksByCluster(tracks,Album);
             }
         }
-        public static IList<ServiceTrack> RankTracksByCluster(IList<ServiceTrack> tracks)
+        public static IList<ServiceTrack> RankTracksByCluster(IList<ServiceTrack> tracks, string album)
         {
-            IList<ServiceTrack> ret = null;
+            List<ServiceTrack> ret = null;
 
             Dictionary<int, List<ServiceTrack>> cluster = ClusterTracks(tracks);
 
@@ -912,6 +912,28 @@ namespace m4dModels
                 }
 
                 ret = tracks.OrderByDescending(t => t.TrackRank).ToList();
+            }
+
+            if (album != null)
+            {
+                album = CleanString(album);
+
+                List<ServiceTrack> amatches = new List<ServiceTrack>();
+
+                foreach (var t in ret)
+                {
+                    if (string.Equals(CleanString(t.Album),album,StringComparison.InvariantCultureIgnoreCase))
+                    {
+                        amatches.Add(t);
+                    }
+                }
+
+                foreach (var t in amatches)
+                {
+                    ret.Remove(t);
+                }
+
+                ret.InsertRange(0, amatches);
             }
 
             return ret;

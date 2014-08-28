@@ -309,6 +309,7 @@
     <Compile Include="ViewModels\SongCounts.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="BingSiteAuth.xml" />
     <Content Include="Content\ajax-loader.gif" />
     <Content Include="Content\amazon-charm.png" />
     <Content Include="Content\amazon-logo.png" />

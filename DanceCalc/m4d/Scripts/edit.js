@@ -198,12 +198,18 @@ var Album = function (data) {
         // Then add in the purchase links
         addPurchaseLink(track.SongLink, self.PurchaseLinks);
         //addPurchaseLink(track.AlbumLink, self.PurchaseLinks());
+
+        // Also add in track number if it wasn't there before
+        if (self.Track() == null)
+        {
+            self.Track(track.TrackNumber);
+        }
     };
 }
 
 Album.prototype.matchTrack = function (track)
 {
-    return this.Track() == track.TrackNumber && this.Name().toLowerCase() == track.Album.toLowerCase();
+    return (this.Track() == null || this.Track() == track.TrackNumber) && this.Name().toLowerCase() == track.Album.toLowerCase();
 };
 
 // EditPage object
@@ -250,8 +256,6 @@ var EditPage = function(data)
         return null;
     }
 
-    // TODONEXT:  Add in logic to fill in the top level info when a track is chosen (title/artist/length/tempo), and put the old
-    // values next to it (as links/buttons).  For genre just append.
     self.chooseTrack = function (track,event) {
         event.preventDefault();
 
@@ -331,7 +335,24 @@ var viewModel = null;
 
 var getServiceInfo = function(service)
 {
-    var uri = "/api/musicservice/" + songId + "?service=" + service.toString() + "&Title=" + $('#Title').val() + "&Artist=" + $('#Artist').val();
+    var uri = "/api/musicservice/" + songId + "?service=" + service.toString() + "&Title=";
+    var t = $('#search').val();
+    if (t.length > 0)
+    {
+        uri += t;
+    }
+    else
+    {
+        uri += $('#Title').val() + "&Artist=" + $('#Artist').val();
+    }
+
+    aid = "#" + computeAlbumId(0,"Name");
+    afield = $(aid);
+    if (afield.length)
+    {
+        uri += "&Album=" + afield.val();
+    }
+
     $.getJSON(uri)
         .done(function (data) {
             viewModel.tracks.removeAll();

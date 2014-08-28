@@ -397,8 +397,28 @@ namespace m4d.Controllers
         // Get: //UploadCatalog
         [HttpGet]
         [Authorize(Roles = "dbAdmin")]
-        public ActionResult UploadCatalog()
+        public ActionResult UploadCatalog(string separator=null, string headers=null, string dances=null, string artist=null, string album=null)
         {
+            if (!string.IsNullOrEmpty(separator))
+            {
+                ViewBag.Separator = separator;
+            }
+            if (!string.IsNullOrEmpty(headers))
+            {
+                ViewBag.Headers = headers;
+            }
+            if (!string.IsNullOrEmpty(dances))
+            {
+                ViewBag.Dances = dances;
+            }
+            if (!string.IsNullOrEmpty(artist))
+            {
+                ViewBag.Artist = artist;
+            }
+            if (!string.IsNullOrEmpty(album))
+            {
+                ViewBag.Album = album;
+            }
             return View();
         }
 
@@ -407,7 +427,7 @@ namespace m4d.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "dbAdmin")]
-        public ActionResult UploadCatalog(string songs, string separator, string headers, string user, string dances)
+        public ActionResult UploadCatalog(string songs, string separator, string headers, string user, string dances, string artist, string album)
         {
             ViewBag.Name = "Upload Catalog";
 
@@ -433,10 +453,42 @@ namespace m4d.Controllers
 
             IList<SongDetails> newSongs = SongsFromList(CleanSeparator(separator), headerList, songs);
 
+            bool hasArtist = false;
+            if (!string.IsNullOrEmpty(artist))
+            {
+                hasArtist = true;
+                artist = artist.Trim();
+            }
+
+            AlbumDetails ad = null;
+            bool hasAlbum = false;
+            if (!string.IsNullOrEmpty(album))
+            {
+                hasAlbum = true;
+                album = album.Trim();
+                ad = new AlbumDetails { Name = album };
+            }
+
+            if (hasArtist || hasAlbum)
+            {
+                foreach (var sd in newSongs)
+                {
+                    if (hasArtist && string.IsNullOrEmpty(sd.Artist))
+                    {
+                        sd.Artist = artist;
+                    }
+                    if (hasAlbum && string.IsNullOrEmpty(sd.Album))
+                    {
+                        sd.Albums.Add(ad);
+                    }
+                }
+            }
             ViewBag.UserName = user;
             ViewBag.Dances = dances;
             ViewBag.Separator = separator;
             ViewBag.Headers = headers;
+            ViewBag.Artist = artist;
+            ViewBag.Album = album;
             ViewBag.Action = "CommitUploadCatalog";
 
             if (newSongs.Count > 0)
@@ -473,10 +525,6 @@ namespace m4d.Controllers
             }
             ApplicationUser user = _db.FindOrAddUser(userName,DanceMusicContext.EditRole);
 
-            if (user == null)
-            {
-
-            }
             List<string> dances = null;
             if (!string.IsNullOrWhiteSpace(danceIds))
             {

@@ -171,14 +171,14 @@ namespace m4d.Context
         //  the diffing part down into SongDetails (which will also let me unit test it more easily)
         public SongDetails AdditiveMerge(ApplicationUser user, Guid songId, SongDetails edit, List<string> addDances)
         {
-            Song song = Songs.Find(edit.SongId);
+            Song song = Songs.Find(songId);
             song.CurrentLog = CreateSongLog(user, song, Song.EditCommand);
 
             if (song.AdditiveMerge(user, edit, addDances, this, this))
             {
                 Log.Add(song.CurrentLog);
                 SaveChanges();
-                return FindSongDetails(edit.SongId);
+                return FindSongDetails(songId);
             }
             else
             {
@@ -778,7 +778,7 @@ namespace m4d.Context
         //  between itunes and xbox doesn't work.   So I'm going to shoe-horn this in to get it working
         //  and refactor later.
 
-        public IList<ServiceTrack> FindMusicServiceSong(SongDetails song, MusicService service, bool clean = false, string title = null, string artist = null)
+        public IList<ServiceTrack> FindMusicServiceSong(SongDetails song, MusicService service, bool clean = false, string title = null, string artist = null, string album = null)
         {
             IList<ServiceTrack> list = null;
 
@@ -809,7 +809,7 @@ namespace m4d.Context
                 }
                 else
                 {
-                    list = SongDetails.RankTracksByCluster(list);
+                    list = SongDetails.RankTracksByCluster(list,album);
                 }
             }
 
