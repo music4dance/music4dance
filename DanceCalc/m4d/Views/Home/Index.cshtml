@@ -6,9 +6,14 @@
 <hgroup>
     <h2>Dances</h2>
 </hgroup>
+@{
+    string[] boxes = { "LTN", "SWG", "WLZ", "FXT", "TNG", "MSC" };
+}
 
-@foreach (var item in Model)
+@foreach (string box in boxes)
 {
+    var item = Model.FirstOrDefault(m => m.DanceId == box);
+        
     string danceLink = "/Song/Search?dances=" + @item.DanceId;
     <div class="list-group col-sm-4">
         <h4><a href="@danceLink" class="btn-info btn-lg">@item.DanceName <span class="badge">@item.SongCount</span></a></h4>

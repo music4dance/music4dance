@@ -610,7 +610,7 @@ namespace m4d.Controllers
 
             sb.AppendFormat("{0}\r\n",_songBreak);
             bool history = !string.IsNullOrWhiteSpace(useLookupHistory);
-            foreach (Song song in _db.Songs)
+            foreach (Song song in _db.Songs.OrderBy(t => t.Modified))
             {
                 string[] actions = null;
                 if (history)
