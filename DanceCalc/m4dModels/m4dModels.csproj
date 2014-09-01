@@ -90,6 +90,7 @@
     <Compile Include="SongLog.cs" />
     <Compile Include="SongMerge.cs" />
     <Compile Include="SongProperty.cs" />
+    <Compile Include="TrackNumber.cs" />
     <Compile Include="UndoResult.cs" />
     <Compile Include="XboxService.cs" />
   </ItemGroup>

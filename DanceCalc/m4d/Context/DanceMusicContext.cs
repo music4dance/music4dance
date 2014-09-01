@@ -740,7 +740,7 @@ namespace m4d.Context
 
         private Song FindSongBySignature(string signature)
         {
-            Song song = Songs.FirstOrDefault(s => string.Equals(signature, s.Signature, StringComparison.Ordinal));
+            Song song = Songs.FirstOrDefault(s => s.Signature == signature);
 
             return song;
         }
