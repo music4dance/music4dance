@@ -6,11 +6,11 @@ using System.Threading.Tasks;
 
 namespace m4dModels
 {
-    // TrackNumber is an extended [work][album]track index
+    // TrackNumber is an extended [work][volume]track index
     //  all three are 1 based with max value of 999
-    //  work and album can be null (zero represnets null)
+    //  work and volume can be null (zero represnets null)
     // String format is [www:][aaa:][ttt], string contructor can
-    //  take full album name?
+    //  take full volume name?
     public class TrackNumber
     {
         #region Constructors
@@ -19,21 +19,21 @@ namespace m4dModels
             _val = num;
         }
 
-        public TrackNumber(int track, int? album, int? work)
+        public TrackNumber(int track, int? volume, int? work)
         {
-            Initialize(track, album, work);
+            Initialize(track, volume, work);
         }
 
         public TrackNumber(string s)
         {
             int track = 0;
-            int album = 0;
+            int volume = 0;
             int work = 0;
 
             string[] cells = s.Split(new char[] { ':' });
             if (cells.Length > 0 && int.TryParse(cells[cells.Length - 1], out track))
             {
-                if (cells.Length > 1 && int.TryParse(cells[cells.Length - 2], out album))
+                if (cells.Length > 1 && int.TryParse(cells[cells.Length - 2], out volume))
                 {
                     if (cells.Length > 2)
                     {
@@ -42,10 +42,10 @@ namespace m4dModels
                 }
             }
 
-            Initialize(track, album, work);
+            Initialize(track, volume, work);
         }
 
-        private void Initialize(int? track, int? album, int? work)
+        private void Initialize(int? track, int? volume, int? work)
         {
             int t = 0;
             int a = 0;
@@ -56,9 +56,9 @@ namespace m4dModels
                 t = track.Value;
             }
 
-            if (album.HasValue)
+            if (volume.HasValue)
             {
-                a = album.Value;
+                a = volume.Value;
             }
 
             if (work.HasValue)
@@ -85,20 +85,20 @@ namespace m4dModels
             }
             set
             {
-                Initialize(value, Album, Work);
+                Initialize(value, Volume, Work);
             }
         }
 
-        int? Album
+        int? Volume
         {
             get
             {
-                int? album = (_val / 1000) % 1000;
-                if (album.Value == 0)
+                int? volume = (_val / 1000) % 1000;
+                if (volume.Value == 0)
                 {
-                    album = null;
+                    volume = null;
                 }
-                return album;
+                return volume;
             }
             set
             {
@@ -181,16 +181,16 @@ namespace m4dModels
         {
             StringBuilder sb = new StringBuilder();
             int? work = Work;
-            int? album = Album;
+            int? volume = Volume;
             int? track = Track;
 
             if (work.HasValue)
             {
                 sb.AppendFormat("{0:D3}:", work.Value);
             }
-            if (album.HasValue)
+            if (volume.HasValue)
             {
-                sb.AppendFormat("{0:D3}:", album.Value);
+                sb.AppendFormat("{0:D3}:", volume.Value);
             }
             if (track.HasValue)
             {
