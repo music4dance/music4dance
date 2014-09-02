@@ -93,6 +93,13 @@ namespace m4dModels
             }
         }
 
+        public AlbumTrack AlbumTrack
+        {
+            get
+            {
+                return new AlbumTrack(Name, new TrackNumber(Track??0));
+            }
+        }
         #endregion
 
         #region Purchase Serialization

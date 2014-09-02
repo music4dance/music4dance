@@ -18,6 +18,14 @@ namespace m4dModels
 
         public SongLog CurrentLog { get; set; }
 
+        public string AlbumName
+        {
+            get 
+            {
+                return new AlbumTrack(Album).Album;
+            }
+        }
+
         #endregion
 
         #region Actions
@@ -93,7 +101,7 @@ namespace m4dModels
                 if (!foundFirst && !string.IsNullOrEmpty(album.Name))
                 {
                     foundFirst = true;
-                    Album = album.Name;
+                    Album = album.AlbumTrack;
                 }
 
                 if (old != null)
@@ -173,7 +181,7 @@ namespace m4dModels
 
                 if (string.IsNullOrWhiteSpace(Album) && !string.IsNullOrEmpty(album.Name))
                 {
-                    Album = album.Name;
+                    Album = album.AlbumTrack;
                 }
 
                 if (old != null)
@@ -332,7 +340,7 @@ namespace m4dModels
                     {
                         if (ia == 0)
                         {
-                            Album = albums[0].Name;
+                            Album = albums[0].AlbumTrack;
                         }
 
                         ad.CreateProperties(factories, this, this.CurrentLog);
@@ -490,7 +498,7 @@ namespace m4dModels
 
             if (sd.HasAlbums)
             {
-                Album = sd.Albums[0].Name;
+                Album = sd.Albums[0].AlbumTrack;
             }
 
             Purchase = sd.GetPurchaseTags();

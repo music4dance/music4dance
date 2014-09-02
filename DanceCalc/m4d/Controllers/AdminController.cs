@@ -185,6 +185,36 @@ namespace m4d.Controllers
         }
 
         //
+        // Get: //UpdateAlbums
+        [Authorize(Roles = "dbAdmin")]
+        public ActionResult UpdateAlbums()
+        {
+            ViewBag.Name = "UpdateAlbums";
+            int count = 0;
+
+            ApplicationUser user = _db.FindUser(User.Identity.Name);
+            var songs = from s in _db.Songs where s.Title != null select s;
+            foreach (Song song in songs)
+            {
+                SongDetails sd = new SongDetails(song);
+                string album = sd.Album;
+                if (song.Album != album)
+                {
+                    song.Album = album;
+                    count += 1;
+                }
+            }
+
+            _db.SaveChanges();
+
+            ViewBag.Success = true;
+            ViewBag.Message = string.Format("Albums were fixed ({0})", count);
+
+            return View("Results");
+        }
+
+
+        //
         // Get: //ClearSongCache
         [Authorize(Roles = "showDiagnostics")]
         public ActionResult ClearSongCache()

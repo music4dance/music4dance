@@ -314,7 +314,7 @@ namespace m4dModels
             {
                 if (Albums != null && Albums.Count > 0)
                 {
-                    return Albums[0].Name;
+                    return Albums[0].AlbumTrack;
                 }
                 else
                 {
@@ -864,7 +864,12 @@ namespace m4dModels
             }
             else
             {
-                return RankTracksByCluster(tracks,Album);
+                string album = null;
+                if (Albums != null && Albums.Count > 0)
+                {
+                    album = Albums[0].Name;
+                }
+                return RankTracksByCluster(tracks,album);
             }
         }
         public static IList<ServiceTrack> RankTracksByCluster(IList<ServiceTrack> tracks, string album)

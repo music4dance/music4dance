@@ -161,7 +161,8 @@
                             @Html.DisplayFor(modelItem => item.Artist)
                         </td>
                         <td class="hidden-xs">
-                            @if (!string.IsNullOrWhiteSpace(item.Album))
+                            @item.AlbumName
+                            @*@if (!string.IsNullOrWhiteSpace(item.Album))
                             {
                                 string[] albums = item.Album.Split(new char[] { '|' });
                                 if (albums.Length > 0)
@@ -172,7 +173,7 @@
                                 {
                                     <text></text>
                                 }
-                            }
+                            }*@
                         </td>
                         <td class="hidden-xs">
                             @if (item.Tempo != null)

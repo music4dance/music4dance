@@ -102,6 +102,7 @@ namespace m4d.Context
         {
             modelBuilder.Entity<Song>().Property(song => song.Tempo).HasPrecision(6, 2);
             modelBuilder.Entity<Song>().Ignore(song => song.CurrentLog);
+            modelBuilder.Entity<Song>().Ignore(song => song.AlbumName);
             modelBuilder.Entity<Dance>().Property(dance => dance.Id).HasMaxLength(5);
             modelBuilder.Entity<Dance>().Ignore(dance => dance.Info);
             modelBuilder.Entity<DanceRating>().HasKey(t => new { t.SongId, t.DanceId });
