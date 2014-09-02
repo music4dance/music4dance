@@ -9,9 +9,8 @@ namespace m4dModels
     // TrackNumber is an extended [work][volume]track index
     //  all three are 1 based with max value of 999
     //  work and volume can be null (zero represnets null)
-    // String format is [www:][aaa:][ttt], string contructor can
-    //  take full volume name?
-    public class TrackNumber
+    // String format is [www:][aaa:][ttt]
+    public class TrackNumber : IComparable
     {
         #region Constructors
         public TrackNumber(int num)
@@ -30,7 +29,11 @@ namespace m4dModels
             int volume = 0;
             int work = 0;
 
-            string[] cells = s.Split(new char[] { ':' });
+            string[] cells = new string[] { };
+            if (s != null)
+            {
+                cells = s.Split(new char[] { ':' });
+            }
             if (cells.Length > 0 && int.TryParse(cells[cells.Length - 1], out track))
             {
                 if (cells.Length > 1 && int.TryParse(cells[cells.Length - 2], out volume))
@@ -136,22 +139,21 @@ namespace m4dModels
             return new TrackNumber(val);
         }
 
-        public int CompareTo(TrackNumber other)
+        public int CompareTo(object other)
         {
-            return _val.CompareTo(other._val);
+            if (other is TrackNumber)
+            {
+                return _val.CompareTo(((TrackNumber)other)._val);
+            }
+            else
+            {
+                return -1;
+            }
         }
 
         public override bool Equals(object obj)
         {
-            if (obj is TrackNumber)
-            {
-                TrackNumber other = (TrackNumber)obj;
-                return CompareTo(other) == 0;
-            }
-            else
-            {
-                return false;
-            }
+            return CompareTo(obj) == 0;
         }
 
         public override int GetHashCode()
@@ -175,8 +177,6 @@ namespace m4dModels
         {
             return !(a==b);
         }
-        #endregion
-
         public override string ToString()
         {
             StringBuilder sb = new StringBuilder();
@@ -199,6 +199,8 @@ namespace m4dModels
 
             return sb.ToString();
         }
+
+        #endregion
 
         //TODONEXT: Formatting and unit test
         private int _val;
