@@ -110,7 +110,7 @@ namespace m4dModels
         {
             get
             {
-                int? work = (_val / 1000) % 1000;
+                int? work = (_val / 1000000) % 1000000;
                 if (work.Value == 0)
                 {
                     work = null;
@@ -161,14 +161,44 @@ namespace m4dModels
 
         public static bool operator ==(TrackNumber a, TrackNumber b)
         {
-            return a._val == b._val;
+            if ((object) a == null || (object)b == null)
+            {
+                return (object)a == (object)b;
+            }
+            else
+            {
+                return a.Equals(b);
+            }
         }
 
         public static bool operator !=(TrackNumber a, TrackNumber b)
         {
-            return a._val != b._val;
+            return !(a==b);
         }
         #endregion
+
+        public override string ToString()
+        {
+            StringBuilder sb = new StringBuilder();
+            int? work = Work;
+            int? album = Album;
+            int? track = Track;
+
+            if (work.HasValue)
+            {
+                sb.AppendFormat("{0:D3}:", work.Value);
+            }
+            if (album.HasValue)
+            {
+                sb.AppendFormat("{0:D3}:", album.Value);
+            }
+            if (track.HasValue)
+            {
+                sb.AppendFormat("{0:D3}", track.Value);
+            }
+
+            return sb.ToString();
+        }
 
         //TODONEXT: Formatting and unit test
         private int _val;
