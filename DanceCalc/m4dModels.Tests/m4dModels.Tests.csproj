@@ -75,7 +75,6 @@
   </Choose>
   <ItemGroup>
     <Compile Include="MockFactories.cs" />
-    <Compile Include="MockTagLibrary.cs" />
     <Compile Include="MockUserMap.cs" />
     <Compile Include="SongDetailTests.cs" />
     <Compile Include="SongTests.cs" />

@@ -9,6 +9,7 @@ namespace m4dModels
         public string Name {get;set;}
         public List<SongDetails> Songs {get; set;}
         public List<DanceMerge> Ratings { get; set; }
+        public string Tags { get; set; }
         public List<SongPropertyMerge> Properties {get; set;}
         public string SongIds 
         {
@@ -85,12 +86,20 @@ namespace m4dModels
                 Properties.Add(spm);
             }
 
-            // Create list of dances that can be merged
+            // Create lists of dances and tags that can be merged
             Ratings = new List<DanceMerge>();
+            Tags = string.Empty;
+            string separator = string.Empty;
 
             int idx = 0;
             foreach (Song song in songs)
             {
+                if (!string.IsNullOrWhiteSpace(song.TagSummary))
+                {
+                    Tags += separator + song.TagSummary;
+                    separator = "|";
+                }
+
                 foreach (DanceRating dr in song.DanceRatings)
                 {
                     DanceMerge dm = new DanceMerge()
@@ -113,7 +122,6 @@ namespace m4dModels
             Song.ArtistField, 
             Song.AlbumListField, 
             Song.TempoField, 
-            Song.GenreField, 
             Song.LengthField 
         };
 

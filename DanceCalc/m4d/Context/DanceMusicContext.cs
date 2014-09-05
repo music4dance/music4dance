@@ -200,11 +200,14 @@ namespace m4d.Context
             }
         }
 
-        public Song MergeSongs(ApplicationUser user, List<Song> songs, string title, string artist, string genre, decimal? tempo, int? length, List<AlbumDetails> albums)
+        public Song MergeSongs(ApplicationUser user, List<Song> songs, string title, string artist, decimal? tempo, int? length, string tags, List<AlbumDetails> albums)
         {
             string songIds = string.Join(";", songs.Select(s => s.SongId.ToString()));
 
-            Song song = CreateSong(user, new SongDetails(title, artist, genre, tempo, length, albums), Song.MergeCommand, songIds, true);
+            SongDetails sd = new SongDetails(title, artist, tempo, length, albums);
+            sd.AddTags(tags);
+
+            Song song = CreateSong(user, sd, Song.MergeCommand, songIds, true);
             song.CurrentLog.SongReference = song.SongId;
             song.CurrentLog.SongSignature = song.Signature;
 

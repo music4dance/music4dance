@@ -67,6 +67,16 @@
 {
     <hr />
 
+    <h3>Upload Tags</h3>
+    using (Html.BeginForm("UploadTags", "Admin", FormMethod.Post, new { enctype = "multipart/form-data" }))
+    {
+        @Html.AntiForgeryToken();
+        <input type="file" name="FileUpload" />
+        <br />
+        <input type="submit" name="UploadTags" id="Submit" value="Upload" />
+    }
+    <hr />
+
     <h3>Upload Tempoes</h3>
     using (Html.BeginForm("UploadTempoes", "Admin", FormMethod.Post, new { enctype = "multipart/form-data" }))
     {

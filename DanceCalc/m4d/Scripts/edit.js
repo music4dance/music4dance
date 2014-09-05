@@ -288,24 +288,24 @@ var EditPage = function(data)
         // Finally handle genre
         if (track.Genre != null)
         {
-            var gnew = track.Genre;
-            var gval = $("#Genre").val();
+            var gnew = "Genre=" + track.Genre;
+            var gval = $("#editTags").val();
             if (gval == null)
             {
                 gval = "";
             }
-            var glist = gval.toLowerCase().split(",");
+            var glist = gval.toLowerCase().split("|");
 
             if (glist.indexOf(gnew.toLowerCase()) == -1)
             {
                 if (gval.length > 0)
                 {
-                    gval += ",";
+                    gval += "|";
                 }
                 gval += gnew;
             }
 
-            $("#Genre").val(gval);
+            $("#editTags").val(gval);
         }
 
     };

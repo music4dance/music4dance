@@ -113,19 +113,27 @@
         }
     </td></tr>
 
-@if (User.IsInRole("showDiagnostics"))
-{
-    <tr>
-        <th>Log</th>
-        @{i = 0;}
-        @foreach (var item in Model.Songs)
-        {
-            <td>@Html.Partial("SongItems", item.Properties.OrderBy(sp => sp.Id))</td>
-            i = i + 1;
-        }
-    </tr>
-}
+    @if (User.IsInRole("showDiagnostics"))
+    {
+        <tr>
+            <th>Log</th>
+            @{i = 0;}
+            @foreach (var item in Model.Songs)
+            {
+                <td>@Html.Partial("SongItems", item.Properties.OrderBy(sp => sp.Id))</td>
+                i = i + 1;
+            }
+        </tr>
+    }
 </table>
+
+<hr/>
+<div class="editor-label">
+    Tags:
+</div>
+<div class="editor-field">
+    @Html.TextBox("Tags", @Model.Tags, new { @class = "form-control" })
+</div>
 
 <hr/>
 @Html.Hidden("SongIds",Model.SongIds)

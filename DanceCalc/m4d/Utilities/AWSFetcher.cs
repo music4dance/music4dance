@@ -287,6 +287,13 @@ namespace m4d.Utilities
                 }
             }
 
+            string genre = item.ItemAttributes.Genre;
+
+            int gidx = genre.IndexOf("-music");
+            if (gidx != -1)
+            {
+                genre = genre.Remove(gidx);
+            }
             string trackId = item.ASIN;
             ServiceTrack track = new ServiceTrack 
             {
@@ -297,6 +304,7 @@ namespace m4d.Utilities
                 TrackNumber = ntrackNum,
                 Duration = duration,
                 ReleaseDate = item.ItemAttributes.ReleaseDate,
+                Genre = genre,
                 CollectionId = "D:" + collectionId,
                 Album = albumTitle
             };

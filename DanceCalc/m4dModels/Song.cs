@@ -564,13 +564,27 @@ namespace m4dModels
             string[] values = editTags.Split(new char[] { '|' }, StringSplitOptions.RemoveEmptyEntries);
             foreach (string value in values)
             {
-                string vt = value.Trim();
-                string v = vt;
+                string v = value.Trim();
+                string c = null;
                 int bias = 1;
                 if (v.Length > 0 && v[0] == '-')
                 {
                     bias = -1;
                     v = v.Substring(1);
+                }
+
+                if (v.Contains('='))
+                {
+                    string[] cells = v.Split(new char[] { '=' });
+                    if (cells.Length == 2)
+                    {
+                        c = cells[0];
+                        v = cells[1];
+                    }
+                    else 
+                    {
+                        Trace.WriteLine(string.Format("Bad Value for Tag: {0}",v));
+                    }
                 }
                 Tag other = FindTag(v);
                 if (other != null)
@@ -583,15 +597,18 @@ namespace m4dModels
                 }
                 else
                 {
-                    Tag tag = factories.CreateTag(this,v,1);
+                    other = factories.CreateTag(this,v,bias);
                     Trace.WriteLineIf(bias == -1, string.Format("Bad Bias: {0}", this.ToString()));
-                    tag.Count = bias;
-                    Tags.Add(tag);
+                }
+
+                if (string.IsNullOrWhiteSpace(c) && other.Type != null)
+                {
+                    other.Type.AddCategory(c);
                 }
                 factories.CreateSongProperty(
                     this,
                     TagField,
-                    vt,
+                    string.Format("{0}{1}",bias==1?"":"-",v),
                     CurrentLog
                 );
 

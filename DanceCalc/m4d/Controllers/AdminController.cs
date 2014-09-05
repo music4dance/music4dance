@@ -293,13 +293,6 @@ namespace m4d.Controllers
                             }
                         }
 
-                        string genre = song.Genre;
-                        if (!string.IsNullOrWhiteSpace(genre))
-                        {
-                            string[] cells = genre.Split(new char[] { ',' });
-                            dmc.EditSong(batch, sd, null, null, string.Join("|", cells), false);
-                        }
-
                         count += 1;
 
                         if (count % 50 == 0)
@@ -499,12 +492,6 @@ namespace m4d.Controllers
                         bool modified = false;
 
                         // Handle Scalar values
-                        if (string.IsNullOrWhiteSpace(edit.Genre) && !string.IsNullOrWhiteSpace(sd.Genre))
-                        {
-                            modified = true;
-                            edit.Genre = sd.Genre;
-                        }
-
                         if (!edit.Tempo.HasValue && sd.Tempo.HasValue)
                         {
                             modified = true;
@@ -531,6 +518,51 @@ namespace m4d.Controllers
             return View("ReviewBatch", results);
         }
         #endregion
+
+
+        #region Tags
+        //
+        // Post: //UploadTags
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Authorize(Roles = "dbAdmin")]
+        public ActionResult UploadTags()
+        {
+            List<string> lines = UploadFile();
+
+            ViewBag.Name = "Upload Tags";
+
+            if (lines.Count > 0)
+            {
+                foreach (string line in lines)
+                {
+                    if (!string.IsNullOrWhiteSpace(line))
+                    {
+                        string[] cells = line.Split(new char[] { '\t' });
+                        if (cells.Length == 2)
+                        {
+                            _db.FindOrCreateTagType(cells[1], cells[0]);
+                        }
+                    }
+                }
+            }
+
+            _db.SaveChanges();
+            foreach (TagType tt in _db.TagTypes)
+            {
+                if (string.IsNullOrWhiteSpace(tt.Categories))
+                {
+                    tt.AddCategory("Genre");
+                }
+            }
+            _db.SaveChanges();
+
+            return View("Results");
+        }
+
+
+        #endregion
+
 
         #region Catalog
 

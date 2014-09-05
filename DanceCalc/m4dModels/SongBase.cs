@@ -23,7 +23,6 @@ namespace m4dModels
         public const string ArtistField = "Artist";
         public const string TempoField = "Tempo";
         public const string LengthField = "Length";
-        public const string GenreField = "Genre";
 
         // Album Fields
         public const string AlbumField = "Album";
@@ -54,7 +53,7 @@ namespace m4dModels
         public const string FailResult = ".Fail";
         public const string MessageData = ".Message";
 
-        public static readonly string[] ScalarFields = new string[] {Song.TitleField, Song.ArtistField, Song.TempoField, Song.LengthField, Song.GenreField};
+        public static readonly string[] ScalarFields = new string[] {Song.TitleField, Song.ArtistField, Song.TempoField, Song.LengthField};
 
         public static readonly PropertyInfo[] ScalarProperties = new PropertyInfo[]
         {
@@ -63,7 +62,6 @@ namespace m4dModels
             typeof(SongBase).GetProperty(SongBase.TempoField),
             typeof(SongBase).GetProperty(SongBase.LengthField),
             typeof(SongBase).GetProperty(SongBase.LengthField),
-            typeof(SongBase).GetProperty(SongBase.GenreField),
         };
 
         public static readonly int DanceRatingCreate = 10;  // TODO: when we allow a user to manually add a song, give lots of credit
@@ -165,7 +163,6 @@ namespace m4dModels
             }
 
             return EqString(Album, song.Album) &&
-                EqString(Genre, song.Genre) &&
                 EqNum(Tempo, song.Tempo) &&
                 EqNum(Length, song.Length);
         }

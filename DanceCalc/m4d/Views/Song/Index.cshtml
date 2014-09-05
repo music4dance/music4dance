@@ -162,18 +162,6 @@
                         </td>
                         <td class="hidden-xs">
                             @item.AlbumName
-                            @*@if (!string.IsNullOrWhiteSpace(item.Album))
-                            {
-                                string[] albums = item.Album.Split(new char[] { '|' });
-                                if (albums.Length > 0)
-                                {
-                                    <text>@albums[0]</text>
-                                }
-                                else
-                                {
-                                    <text></text>
-                                }
-                            }*@
                         </td>
                         <td class="hidden-xs">
                             @if (item.Tempo != null)

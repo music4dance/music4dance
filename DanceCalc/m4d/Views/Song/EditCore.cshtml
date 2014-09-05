@@ -63,21 +63,6 @@
     </div>
 
     <div class="form-group row">
-        @Html.LabelFor(model => model.Genre, new { @class = "control-label col-md-2" })
-        <div class="col-md-10">
-            @Html.TextBoxFor(model => model.Genre, new { @class = "form-control", size = "50" })
-            @Html.ValidationMessageFor(model => model.Genre)
-
-            <div class="editor-alternate" id="alt-genre">
-                @if (old != null && !string.IsNullOrWhiteSpace(old.Genre))
-                {
-                    <a href="#" role="button" class="btn btn-link">@old.Genre</a>
-                }
-            </div>
-        </div>
-    </div>
-
-    <div class="form-group row">
         @Html.LabelFor(model => model.Tempo, new { @class = "control-label col-md-2" })
         <div class="col-md-10">
             @Html.EditorFor(model => model.Tempo)
@@ -157,7 +142,14 @@
         Tags:
     </div>
     <div class="editor-field row col-md-12">
-        @Html.TextBox("editTags", "", new { @class = "form-control" })
+        @{
+            string tagValues = string.Empty;
+            if (ViewData.Keys.Contains("TagValues"))
+            {
+                tagValues = ViewBag.TagValues;
+            }
+        }
+        @Html.TextBox("editTags", @tagValues, new { @class = "form-control" })
     </div>
 
     <hr class="row col-md-12" />

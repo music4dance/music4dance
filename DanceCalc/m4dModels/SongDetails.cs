@@ -27,7 +27,6 @@ namespace m4dModels
             Tempo = song.Tempo;
             Title = song.Title;
             Artist = song.Artist;
-            Genre = song.Genre;
             Length = song.Length;
             Created = song.Created;
             Modified = song.Modified;
@@ -76,11 +75,10 @@ namespace m4dModels
             Load(SongId, properties);
         }
 
-        public SongDetails(string title, string artist, string genre, decimal? tempo, int? length, List<AlbumDetails> albums)
+        public SongDetails(string title, string artist, decimal? tempo, int? length, List<AlbumDetails> albums)
         {
             Title = title;
             Artist = artist;
-            Genre = genre;
             Tempo = tempo;
             Length = length;
             _albums = albums;
@@ -865,10 +863,6 @@ namespace m4dModels
                 DanceRatingDelta drd = new DanceRatingDelta { DanceId = d, Delta = weight };
                 UpdateDanceRating(drd);
                 SongProperty prop = new SongProperty { SongId = this.SongId, Name = DanceRatingField, Value = drd.ToString() };
-                if (Properties == null)
-                {
-
-                }
                 Properties.Add(prop);
             }
         }

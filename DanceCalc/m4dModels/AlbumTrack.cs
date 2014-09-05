@@ -44,6 +44,10 @@ namespace m4dModels
                 int idx = _val.LastIndexOf('|');
                 if (idx == -1 || !_validator.IsMatch(_val.Substring(idx + 1)))
                 {
+                    if (idx==_val.Length-1)
+                    {
+                        _val = _val.Substring(0,idx);
+                    }
                     ret[0] = _val;
                 }
                 else

@@ -553,12 +553,14 @@ namespace music4dance.Controllers
                 }
             }
 
+            //TODONEXT: Merge Tags
+            string tags = Request.Form["Tags"];
             Song song = _db.MergeSongs(user, songList, 
                 ResolveStringField(Song.TitleField, songList, Request.Form),
                 ResolveStringField(Song.ArtistField, songList, Request.Form),
-                ResolveStringField(Song.GenreField, songList, Request.Form),
                 ResolveDecimalField(Song.TempoField, songList, Request.Form),
                 ResolveIntField(Song.LengthField, songList, Request.Form),
+                tags,
                 albumsOut);
 
             ViewBag.BackAction = "MergeCandidates";
@@ -1335,12 +1337,12 @@ namespace music4dance.Controllers
                 }
             }
 
-            // TODO: Should we handle multiple genres?
-            //if (genre != null && genre.Length > 0 && !string.IsNullOrWhiteSpace(genre[0]) && !string.Equals(genre[0], song.Genre))
-            if (!string.IsNullOrWhiteSpace(genre) && !string.Equals(genre, song.Genre))
+            if (!string.IsNullOrWhiteSpace(genre))
             {
-                alt.Genre = song.Genre;
-                song.Genre = genre;
+                // This will assign a genre type to whatever this tag is
+                TagType tt = _db.FindOrCreateTagType(genre,"Genre");
+                song.AddTags(tt.Value);
+                ViewBag.TagValues = tt.Value;
             }
 
             return alt;
@@ -1408,12 +1410,13 @@ namespace music4dance.Controllers
 
         private Song AutoMerge(List<Song> songs, ApplicationUser user)
         {
+            string tags = string.Join("|", songs.Select(s => s.TagSummary));
             Song song = _db.MergeSongs(user, songs,
                 ResolveStringField(Song.TitleField, songs),
                 ResolveStringField(Song.ArtistField, songs),
-                ResolveStringField(Song.GenreField, songs),
                 ResolveDecimalField(Song.TempoField, songs),
                 ResolveIntField(Song.LengthField, songs),
+                tags,
                 SongDetails.BuildAlbumInfo(songs)
                 );
 
@@ -1432,39 +1435,6 @@ namespace music4dance.Controllers
             return obj as string;
         }
 
-        private string ResolveMultiStringField(string fieldName, IList<Song> songs)
-        {
-            HashSet<string> hs = new HashSet<string>();
-
-            foreach (Song song in songs)
-            {
-                string s = song.GetType().GetProperty(fieldName).GetValue(song) as string;
-
-                if (s != null)
-                {
-                    string[] values = s.Split(new char[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
-                    foreach (string v in values)
-                    {
-                        if (!string.IsNullOrWhiteSpace(v))
-                        {
-                            hs.Add(v);
-                        }
-                    }
-                }
-            }
-
-            StringBuilder sb = new StringBuilder();
-            string sep = string.Empty;
-
-            foreach (string v in hs)
-            {
-                sb.Append(sep);
-                sb.Append(v);
-                sep = ";";
-            }
-
-            return sb.ToString();
-        }
 
         private int? ResolveIntField(string fieldName, IList<Song> songs, System.Collections.Specialized.NameValueCollection form = null)
         {
