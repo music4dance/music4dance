@@ -237,14 +237,17 @@ namespace music4dance.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "canEdit")]
-        public ActionResult Create(SongDetails song, List<string> addDances, string filter = null)
+        public ActionResult Create(SongDetails song, List<string> addDances, string editTags, string filter = null)
         {
             ViewBag.SongFilter = ParseFilter(filter);
             if (ModelState.IsValid)
             {
-
                 ApplicationUser user = _db.FindUser(User.Identity.Name);
-                Song newSong = _db.CreateSong(user, song, addDances, Song.DanceRatingCreate);
+                song.UpdateDanceRatings(addDances, Song.DanceRatingCreate);
+                // TOOD: Think about format of editTags...
+                song.AddTags(editTags);
+
+                Song newSong = _db.CreateSong(user, song);
 
                 // TODO: Think about if the round-trip is necessary
                 if (newSong != null)
@@ -320,7 +323,7 @@ namespace music4dance.Controllers
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "canEdit")] 
         //public ActionResult Edit([ModelBinder(typeof(m4d.Utilities.SongBinder))]SongDetails song, List<string> addDances, List<string> remDances, string filter = null)
-        public ActionResult Edit(SongDetails song, List<string> addDances, List<string> remDances, string filter = null)
+        public ActionResult Edit(SongDetails song, List<string> addDances, List<string> remDances, string editTags, string filter = null)
         {
             ViewBag.SongFilter = ParseFilter(filter);
             if (ModelState.IsValid)
@@ -345,7 +348,7 @@ namespace music4dance.Controllers
 //#if DEBUG
 //                _db.Dump();
 //#endif
-                SongDetails edit = _db.EditSong(user, song, addDances, remDances);
+                SongDetails edit = _db.EditSong(user, song, addDances, remDances, editTags);
 
 //#if DEBUG
 //                _db.Dump();
@@ -353,6 +356,7 @@ namespace music4dance.Controllers
 
                 if (edit != null)
                 {
+                    _db.SaveChanges();
                     ViewBag.BackAction = "Index";
                     ViewBag.DanceMap = SongCounts.GetDanceMap(_db);
                     return View("Details", edit);
@@ -703,7 +707,7 @@ namespace music4dance.Controllers
                             else
                             {
                                 UpdateMusicService(sd, service, foundTrack.Name, foundTrack.Album, foundTrack.Artist, foundTrack.TrackId, foundTrack.CollectionId, foundTrack.AltId, foundTrack.Duration.ToString(), foundTrack.Genre, foundTrack.TrackNumber);
-                                succeeded.Add(_db.EditSong(user, sd, null, null));
+                                succeeded.Add(_db.EditSong(user, sd, null, null, null));
                                 tried += 1;
                             }
                         }

@@ -91,6 +91,10 @@ namespace m4d.Context
 
         public DbSet<DanceRating> DanceRatings { get; set; }
 
+        public DbSet<Tag> Tags { get; set; }
+
+        public DbSet<TagType> TagTypes { get; set; }
+
         public DbSet<SongLog> Log { get; set; }
 
         public DbSet<ModifiedRecord> Modified { get; set; }
@@ -105,7 +109,10 @@ namespace m4d.Context
             modelBuilder.Entity<Song>().Ignore(song => song.AlbumName);
             modelBuilder.Entity<Dance>().Property(dance => dance.Id).HasMaxLength(5);
             modelBuilder.Entity<Dance>().Ignore(dance => dance.Info);
-            modelBuilder.Entity<DanceRating>().HasKey(t => new { t.SongId, t.DanceId });
+            modelBuilder.Entity<DanceRating>().HasKey(dr => new { dr.SongId, dr.DanceId });
+            modelBuilder.Entity<Tag>().HasKey(tag => new { tag.SongId, tag.Value });
+            modelBuilder.Entity<TagType>().HasKey(tt => tt.Value);
+            modelBuilder.Entity<TagType>().Ignore(tt => tt.CategoryList);
             modelBuilder.Entity<ModifiedRecord>().HasKey(t => new { t.ApplicationUserId, t.SongId });
             modelBuilder.Entity<ModifiedRecord>().Ignore(mr => mr.UserName);
 
@@ -128,15 +135,12 @@ namespace m4d.Context
 
             return song;
         }
-        public Song CreateSong(ApplicationUser user, SongDetails sd, List<string> dances, int rating, string command = SongBase.CreateCommand, string value = null, bool createLog=true)
+        public Song CreateSong(ApplicationUser user, SongDetails sd, string command = SongBase.CreateCommand, string value = null, bool createLog=true)
         {
             if (string.Equals(sd.Title, sd.Artist))
             {
                 Trace.WriteLine(string.Format("Title and Artist are the same ({0})", sd.Title));
             }
-
-            // TODO: Raise this to callers?
-            sd.UpdateDanceRatings(dances, rating==0?Song.DanceRatingAutoCreate:rating);
 
             Song song = CreateSong(null, createLog);
             song.Create(sd, user, command, value, this, this);
@@ -150,16 +154,25 @@ namespace m4d.Context
             return song;
         }
 
-        public SongDetails EditSong(ApplicationUser user, SongDetails edit, List<string> addDances, List<string> remDances)
+        public SongDetails EditSong(ApplicationUser user, SongDetails edit, List<string> addDances, List<string> remDances, string editTags, bool createLog=true)
         {
             Song song = Songs.Find(edit.SongId);
-            song.CurrentLog = CreateSongLog(user, song, Song.EditCommand);
-
-            if (song.Edit(user, edit, addDances, remDances, this, this))
+            if (createLog)
             {
-                Log.Add(song.CurrentLog);
-                SaveChanges();
-                return FindSongDetails(edit.SongId);
+                song.CurrentLog = CreateSongLog(user, song, Song.EditCommand);
+            }
+
+            if (song.Edit(user, edit, addDances, remDances, editTags, this, this))
+            {
+                if (createLog)
+                {
+                    Log.Add(song.CurrentLog);
+                    return FindSongDetails(edit.SongId);
+                }
+                else
+                {
+                    return new SongDetails(song);
+                }
             }
             else
             {
@@ -191,21 +204,13 @@ namespace m4d.Context
         {
             string songIds = string.Join(";", songs.Select(s => s.SongId.ToString()));
 
-            Song song = CreateSong(user, new SongDetails(title, artist, genre, tempo, length, albums), null, 0, Song.MergeCommand, songIds, true);
+            Song song = CreateSong(user, new SongDetails(title, artist, genre, tempo, length, albums), Song.MergeCommand, songIds, true);
             song.CurrentLog.SongReference = song.SongId;
             song.CurrentLog.SongSignature = song.Signature;
 
             song = Songs.Add(song);
 
             song.MergeDetails(songs,this,this);
-            //foreach (DanceRating dr in song.DanceRatings)
-            //{
-            //    var dre = Entry(dr);
-            //    if (dre != null && dre.State != EntityState.Added)
-            //    {
-            //        dre.State = EntityState.Added;
-            //    }
-            //}
 
             // Delete all of the old songs (With merge-with Id from above)
             foreach (Song from in songs)
@@ -213,11 +218,6 @@ namespace m4d.Context
                 RemoveSong(from);
             }
 
-            //var se = Entry(song);
-            //if (se != null)
-            //{
-            //    se.State = EntityState.Modified;
-            //}
             SaveChanges();
 
             SongCounts.ClearCache();
@@ -342,6 +342,33 @@ namespace m4d.Context
                     if (dr.Weight <= 0)
                     {
                         song.DanceRatings.Remove(dr);
+                    }
+                }
+            }
+            else if (lv.Name.Equals(Song.TagField))
+            {
+                string value = lv.Value;
+                int delta = 1;
+                if (lv.Value.Length > 0 && lv.Value[0] == '-')
+                {
+                    delta = -1;
+                    value = lv.Value.Substring(1);
+                }
+                if (action == UndoAction.Undo)
+                {
+                    delta *= -1;
+                }
+                Tag tag = song.Tags.FirstOrDefault(t => string.Equals(t.Value, value, StringComparison.OrdinalIgnoreCase));
+                if (tag == null)
+                {
+                    song.AddTag(new Tag() { Value = value, Count = 1 });
+                }
+                else
+                {
+                    tag.Count += delta;
+                    if (tag.Count <= 0)
+                    {
+                        song.Tags.Remove(tag);
                     }
                 }
             }
@@ -773,7 +800,6 @@ namespace m4d.Context
         }
         #endregion
 
-
         #region MusicService
         // Obviously not the clean abstraction, but Amazon is different enough that my abstraction
         //  between itunes and xbox doesn't work.   So I'm going to shoe-horn this in to get it working
@@ -932,7 +958,6 @@ namespace m4d.Context
         
         #endregion
 
-
         #region IUserMap
         public ApplicationUser FindUser(string name)
         {
@@ -972,6 +997,48 @@ namespace m4d.Context
         
         #endregion
 
+        #region Tags
+
+        public Tag CreateTag(Song song, string value)
+        {
+            TagType type = FindOrCreateTagType(value, null);
+
+            Tag tag = Tags.Create();
+
+            tag.Song = song;
+            tag.SongId = song.SongId;
+
+            tag.Value = value;
+            tag.Type = type;
+
+            tag.Count = 1;
+
+            song.AddTag(tag);
+
+            return tag;
+        }
+
+        public TagType FindOrCreateTagType(string value, string category)
+        {
+            TagType type = TagTypes.Find(value);
+
+            if (type == null)
+            {
+                type = TagTypes.Create();
+                type.Value = value;
+                TagType added = TagTypes.Add(type);
+                Trace.WriteLine(added.ToString());
+            }
+            type.AddCategory(category);
+            return type;
+        }
+
+        public IEnumerable<TagType> GetTypes(string category)
+        {
+            return TagTypes.Where(t => t.Value == category);
+        }
+        
+        #endregion
         public IList<Song> FindMergeCandidates(int n, int level)
         {
             return MergeCluster.GetMergeCandidates(this, n, level);
@@ -1046,5 +1113,6 @@ namespace m4d.Context
         public static readonly string DbaRole = "dbAdmin";
 
         AWSFetcher _awsFetcher;
+
     }
 }

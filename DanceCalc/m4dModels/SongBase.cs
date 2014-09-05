@@ -37,6 +37,9 @@ namespace m4dModels
         // Dance Rating
         public const string DanceRatingField = "DanceRating";
 
+        // Tags
+        public const string TagField = "Tag";
+
         // Commands
         public const string CreateCommand = ".Create";
         public const string EditCommand = ".Edit";
@@ -117,9 +120,11 @@ namespace m4dModels
         public DateTime Created { get; set; }
         public DateTime Modified { get; set; }
         public virtual string Album { get; set; }
+        public virtual string TagSummary { get; set; }
 
         public virtual ICollection<DanceRating> DanceRatings { get; set; }
         public virtual ICollection<ModifiedRecord> ModifiedBy { get; set; }
+        public virtual ICollection<Tag> Tags { get; set; }
         public virtual ICollection<SongProperty> SongProperties { get; set; }
 
         // These are helper properties (they don't map to database columns)
@@ -185,6 +190,45 @@ namespace m4dModels
         }
 
         #endregion
+
+        public IDictionary<string,IList<string>> MapProperyByUsers(string name)
+        {
+            Dictionary<string, IList<string>> map = new Dictionary<string, IList<string>>();
+            List<string> current = new List<string>() {""};
+
+            bool inUsers = false;
+            foreach (SongProperty prop in SongProperties)
+            {
+                if (prop.BaseName == UserField)
+                {
+                    if (!inUsers)
+                    {
+                        current = new List<string>();
+                        inUsers = true;
+                    }
+                    current.Add(prop.Value);
+                }
+                else
+                {
+                    inUsers = false;
+                    if (prop.BaseName == name)
+                    {
+                        foreach (string user in current)
+                        {
+                            IList<string> values = null;
+                            if (!map.TryGetValue(user, out values))
+                            {
+                                values = new List<string>();
+                                map[user] = values;
+                            }
+                            values.Add(prop.Value);
+                        }
+                    }
+                }
+            }
+
+            return map;
+        }
 
         #region TitleArtist
         public bool TitleArtistMatch(string title, string artist)

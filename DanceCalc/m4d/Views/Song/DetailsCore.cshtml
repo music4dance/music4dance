@@ -84,6 +84,23 @@
             <br />
         }
 
+        @if (Model.Tags != null && Model.Tags.Count > 0)
+        {
+            string separator = "";
+            <div class="display-label">
+                Tags:
+            </div>
+            <div class="display-field">
+                @foreach (var item in Model.Tags)
+                {
+                    @separator;
+                    <span class="label label-info">@item.Value</span>
+                    separator = " ";
+                }
+            </div>
+            <br />
+        }
+
         @if (Model.HasAlbums)
         {
             if (Model.Albums.Count == 1)
@@ -119,6 +136,7 @@
             <br />
         }
 
+        <div>&nbsp;</div>
         @*<div class="display-label">
                 @Html.DisplayNameFor(model => model.Created):
         </div>

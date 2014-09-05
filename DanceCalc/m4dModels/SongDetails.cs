@@ -32,6 +32,7 @@ namespace m4dModels
             Modified = song.Modified;
 
             RatingsList.AddRange(song.DanceRatings);
+            TagList.AddRange(song.Tags);
             Properties.AddRange(song.SongProperties);
             ModifiedList.AddRange(song.ModifiedBy);
 
@@ -326,11 +327,48 @@ namespace m4dModels
                 throw new NotImplementedException("Album shouldn't be set directly in SongDetails");
             }
         }
+        public override string TagSummary
+        {
+            get
+            {
+                return BuildTagSummary();
+            }
+            set
+            {
+                throw new NotImplementedException("TagSummary shouldn't be set directly in SongDetails");
+            }
+        }
+
+        private string BuildTagSummary()
+        {
+            StringBuilder sb = new StringBuilder();
+            string separator = String.Empty;
+            foreach (Tag tag in Tags)
+            {
+                sb.Append(separator);
+                sb.Append(tag.Value);
+                separator = "|";
+            }
+
+            return sb.ToString();
+        }
+
         public override ICollection<DanceRating> DanceRatings 
         { 
             get
             {
                 return RatingsList;
+            }
+            set
+            {
+                throw new NotImplementedException("Shouldn't need to set this explicitly");
+            }
+        }
+        public override ICollection<Tag> Tags
+        {
+            get
+            {
+                return TagList;
             }
             set
             {
@@ -414,6 +452,19 @@ namespace m4dModels
             }
         }
         private List<DanceRating> _ratingsList;
+
+        public List<Tag> TagList
+        {
+            get
+            {
+                if (_tagList == null)
+                {
+                    _tagList = new List<Tag>();
+                }
+                return _tagList;
+            }
+        }
+        private List<Tag> _tagList;
 
         public int TitleHash 
         { 
@@ -798,7 +849,6 @@ namespace m4dModels
             dr.Weight += drd.Delta;
         }
 
-
         public void UpdateDanceRatings(IEnumerable<string> dances, int weight)
         {
             if (dances == null)
@@ -820,22 +870,41 @@ namespace m4dModels
         }
         #endregion
 
-        public IList<ServiceTrack> TitleArtistFilter(IList<ServiceTrack> tracks)
+        #region Tags
+        public void AddTag(string value)
         {
-            List<ServiceTrack> tracksOut = new List<ServiceTrack>();
+            value = value.Trim();
+            Tag tag = TagList.Find(t => t.Value == value);
 
-            foreach (var track in tracks)
+            if (tag != null)
             {
-                if (TitleArtistMatch(track.Name, track.Artist))
-                {
-                    tracksOut.Add(track);
-                }
+                tag.Count += 1;
             }
-
-            return tracksOut;
+            else
+            {
+                tag = new Tag { SongId = this.SongId, Value = value, Count = 1 };
+                TagList.Add(tag);
+            }
         }
 
-        /// <summary>
+        public void AddTags(string values)
+        {
+            string[] tags = values.Split(new char[] { '|' }, StringSplitOptions.RemoveEmptyEntries);
+            foreach (string tag in tags)
+            {
+                AddTag(tag);
+            }
+        }
+
+        public void UpdateTags(string values)
+        {
+
+        }
+
+        #endregion
+
+        #region Tracks
+        // <summary>
         /// Finds a representitive of the largest cluster of tracks 
         ///  (clustered by approximate duration) that is an very
         ///  close title/artist match
@@ -982,5 +1051,21 @@ namespace m4dModels
 
             return ret;
         }
+
+        public IList<ServiceTrack> TitleArtistFilter(IList<ServiceTrack> tracks)
+        {
+            List<ServiceTrack> tracksOut = new List<ServiceTrack>();
+
+            foreach (var track in tracks)
+            {
+                if (TitleArtistMatch(track.Name, track.Artist))
+                {
+                    tracksOut.Add(track);
+                }
+            }
+
+            return tracksOut;
+        }
+        #endregion
     }
 }

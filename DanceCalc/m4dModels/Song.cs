@@ -67,6 +67,9 @@ namespace m4dModels
             // Handle Dance Ratings
             CreateDanceRatings(sd.DanceRatings, factories);
 
+            // Handle Tags
+            CreateTags(sd.Tags, factories);
+
             // Handle Albums
             CreateAlbums(sd.Albums, factories);
 
@@ -74,7 +77,7 @@ namespace m4dModels
             TitleHash = Song.CreateTitleHash(Title);
         }
 
-        public bool Edit(ApplicationUser user, SongDetails edit, List<string> addDances, List<string> remDances, IFactories factories, IUserMap users)
+        public bool Edit(ApplicationUser user, SongDetails edit, List<string> addDances, List<string> remDances, string editTags, IFactories factories, IUserMap users)
         {
             bool modified = false;
 
@@ -153,6 +156,8 @@ namespace m4dModels
             }
 
             modified |= EditDanceRatings(addDances, DanceRatingIncrement, remDances, DanceRatingDecrement, factories);
+
+            modified |= EditTags(editTags, factories);
 
             modified |= UpdatePurchaseInfo(edit);
 
@@ -349,6 +354,35 @@ namespace m4dModels
             }
         }
 
+        public void AddDanceRating(DanceRating dr)
+        {
+            dr.Song = this;
+            dr.SongId = SongId;
+            if (dr.DanceId == null)
+            {
+                dr.DanceId = dr.Dance.Id;
+            }
+
+            DanceRating other = null;
+
+            if (DanceRatings == null)
+            {
+                DanceRatings = new List<DanceRating>();
+            }
+            else
+            {
+                other = DanceRatings.FirstOrDefault(r => r.DanceId == dr.DanceId);
+            }
+
+            if (other == null)
+            {
+                DanceRatings.Add(dr);
+            }
+            else
+            {
+                Trace.WriteLine(string.Format("{0} Duplicate Dance Rating {1}", Title, dr.DanceId));
+            }
+        }
         private void CreateDanceRatings(IEnumerable<DanceRating> ratings, IFactories factories)
         {
             if (ratings == null)
@@ -358,7 +392,6 @@ namespace m4dModels
 
             foreach (DanceRating dr in ratings)
             {
-                // TODO: Should CreateDanceRating create the property as well?
                 factories.CreateDanceRating(this, dr.DanceId, dr.Weight);
                 factories.CreateSongProperty(
                     this,
@@ -371,6 +404,11 @@ namespace m4dModels
 
         public bool EditDanceRatings(IList<string> add_, int addWeight, List<string> remove_, int remWeight, IFactories factories)
         {
+            if (add_ == null && remove_ == null)
+            {
+                return false;
+            }
+
             SongLog log = CurrentLog;
 
             bool changed = false;
@@ -460,6 +498,120 @@ namespace m4dModels
             return changed;
         }
 
+        public void AddTag(Tag tag)
+        {
+            tag.Song = this;
+            tag.SongId = SongId;
+
+            Tag other = null;
+
+            if (Tags == null)
+            {
+                Tags = new List<Tag>();
+            }
+            else
+            {
+                other = FindTag(tag.Value);
+            }
+
+            if (other != null)
+            {
+                other.Count += tag.Count;
+            }
+            else
+            {
+                Tags.Add(tag);
+            }
+        }
+
+        private Tag FindTag(string value)
+        {
+            return  Tags.FirstOrDefault(t => string.Equals(t.Value, value, StringComparison.OrdinalIgnoreCase));
+        }
+        private void CreateTags(IEnumerable<Tag> tags, IFactories factories)
+        {
+            if (tags == null)
+            {
+                return;
+            }
+
+            foreach (Tag tag in tags)
+            {
+                factories.CreateTag(this, tag.Value);
+                factories.CreateSongProperty(
+                    this,
+                    TagField,
+                    tag.Value,
+                    CurrentLog
+                );
+            }
+
+            TagSummary = string.Join("|", tags.Select(t => t.Value));
+        }
+
+        // TODO: Formalize tag passing (and clean up the UI)
+        //  for right now I'm going to kludge this up saying
+        //  tags are | separated and prefixed by '-' if they
+        //  are removed.
+        
+        // TODONEXT: Get dances -> tags, then genres-> tags, then remove genres
+        //  Get user based tag editing limping along
+        //  Choose a control to get user based tagging nicer
+        //  Once we have all that working, figure out how to hook up dance
+        //  choices and tagging...
+        private bool EditTags(string editTags, IFactories factories)
+        {
+            if (string.IsNullOrWhiteSpace(editTags))
+            {
+                return false;
+            }
+
+            bool ret = false;
+
+            string[] values = editTags.Split(new char[] { '|' }, StringSplitOptions.RemoveEmptyEntries);
+            foreach (string value in values)
+            {
+                string vt = value.Trim();
+                string v = vt;
+                int bias = 1;
+                if (v.Length > 0 && v[0] == '-')
+                {
+                    bias = -1;
+                    v = v.Substring(1);
+                }
+                Tag other = FindTag(v);
+                if (other != null)
+                {
+                    other.Count += bias;
+                    if (other.Count <= 0)
+                    {
+                        Tags.Remove(other);
+                    }
+                }
+                else
+                {
+                    Tag tag = factories.CreateTag(this,v);
+                    Trace.WriteLineIf(bias == -1, string.Format("Bad Bias: {0}", this.ToString()));
+                    tag.Count = bias;
+                    Tags.Add(tag);
+                }
+                factories.CreateSongProperty(
+                    this,
+                    TagField,
+                    vt,
+                    CurrentLog
+                );
+
+                ret = true;
+            }
+
+            if (ret)
+            {
+                TagSummary = string.Join("|", Tags.Select(t => t.Value));
+            }
+
+            return ret;
+        }
 
         public void Delete()
         {
@@ -538,36 +690,6 @@ namespace m4dModels
             }
         }
 
-        public void AddDanceRating(DanceRating dr)
-        {
-            dr.Song = this;
-            dr.SongId = SongId;
-            if (dr.DanceId == null)
-            {
-                dr.DanceId = dr.Dance.Id;
-            }
-
-            DanceRating other = null;
-            
-            if (DanceRatings == null)
-            {
-                DanceRatings = new List<DanceRating>();
-            }
-            else 
-            {
-                other = DanceRatings.FirstOrDefault(r => r.DanceId == dr.DanceId);
-            }
-
-            if (other == null)
-            {
-                DanceRatings.Add(dr);
-            }
-            else
-            {
-                Trace.WriteLine(string.Format("{0} Duplicate Dance Rating {1}", Title, dr.DanceId));
-            }
-        }
-
         private bool AddModifiedBy(ModifiedRecord mr, IUserMap map)
         {
             if (ModifiedBy == null)
@@ -596,7 +718,7 @@ namespace m4dModels
             }
             else
             {
-                Trace.WriteLine(string.Format("{0} Duplicate User Rating {1}", Title, mr.ApplicationUserId));
+                //Trace.WriteLine(string.Format("{0} Duplicate User Rating {1}", Title, mr.ApplicationUserId));
                 return false;
             }
         }
@@ -630,7 +752,6 @@ namespace m4dModels
                 }
             }
         }
-
 
         public bool UpdateTitleHash()
         {
@@ -672,6 +793,5 @@ namespace m4dModels
         }
         
         #endregion
-
     }
 }

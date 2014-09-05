@@ -283,6 +283,10 @@
     <Compile Include="Migrations\201407111833176_SongGuid.Designer.cs">
       <DependentUpon>201407111833176_SongGuid.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201409030007328_Tags.cs" />
+    <Compile Include="Migrations\201409030007328_Tags.Designer.cs">
+      <DependentUpon>201409030007328_Tags.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Context\DanceMusicConfiguration.cs" />
     <Compile Include="Context\DanceMusicContext.cs" />
@@ -576,6 +580,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201407111833176_SongGuid.resx">
       <DependentUpon>201407111833176_SongGuid.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201409030007328_Tags.resx">
+      <DependentUpon>201409030007328_Tags.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>

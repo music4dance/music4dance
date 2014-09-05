@@ -243,6 +243,7 @@ namespace m4dModels
         }
         
         #endregion
+
         #region Static Helpers
 
         private static string FormatTempo(string value)

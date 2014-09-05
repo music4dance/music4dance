@@ -39,5 +39,30 @@ namespace m4dModels.Tests
         }
 
         private static Int64 s_nextId=1;
+
+        public Tag CreateTag(Song song, string value)
+        {
+            TagType type = _tagTypes.FirstOrDefault(t => string.Equals(t.Value, value, StringComparison.OrdinalIgnoreCase));
+            if (type == null)
+            {
+                type = new TagType() { Value = value };
+                _tagTypes.Add(type);
+            }
+
+            return new Tag { Song = song, Value = value, Type = type };
+        }
+
+        private static List<TagType> _tagTypes = new List<TagType>() 
+        {
+            new TagType() {Value="Rock",Categories="Genre"},
+            new TagType() {Value="Blues",Categories="Genre"},
+            new TagType() {Value="Pop",Categories="Genre"},
+            new TagType() {Value="Swing",Categories="Dance|Genre"},
+            new TagType() {Value="Foxtrot",Categories="Dance"},
+            new TagType() {Value="Waltz",Categories="Dance"},
+            new TagType() {Value="Rumba",Categories="Dance"},
+            new TagType() {Value="Latin",Categories="Dance|Genre"},
+        };
+
     }
 }

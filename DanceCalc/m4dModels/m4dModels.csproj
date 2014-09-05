@@ -70,6 +70,8 @@
     <Compile Include="AlbumDetails.cs" />
     <Compile Include="AmazonService.cs" />
     <Compile Include="ApplicationUser.cs" />
+    <Compile Include="ITagLibrary.cs" />
+    <Compile Include="Tag.cs" />
     <Compile Include="Dance.cs" />
     <Compile Include="DanceRating.cs" />
     <Compile Include="DbObject.cs" />
@@ -91,6 +93,7 @@
     <Compile Include="SongMerge.cs" />
     <Compile Include="SongProperty.cs" />
     <Compile Include="AlbumTrack.cs" />
+    <Compile Include="TagType.cs" />
     <Compile Include="TrackNumber.cs" />
     <Compile Include="UndoResult.cs" />
     <Compile Include="XboxService.cs" />

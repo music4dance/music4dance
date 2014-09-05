@@ -202,7 +202,6 @@ namespace m4dModels
 
         #endregion
 
-        //TODONEXT: Formatting and unit test
         private int _val;
     }
 }
