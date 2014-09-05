@@ -1000,11 +1000,6 @@ namespace m4d.Controllers
 
             using (DanceMusicContext dmc = new DanceMusicContext())
             {
-                if (lines == null || lines.Count < 1 || !string.Equals(lines[0], _userHeader, StringComparison.InvariantCultureIgnoreCase))
-                {
-                    throw new ArgumentOutOfRangeException();
-                }
-
                 int i = 0;
                 while (i < lines.Count)
                 {
