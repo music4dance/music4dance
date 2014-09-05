@@ -108,6 +108,9 @@ namespace m4dModels
                         case DanceRatingField:
                             UpdateDanceRating(prop.Value);
                             break;
+                        case TagField:
+                            UpdateTags(prop.Value);
+                            break;
                         case AlbumField:
                         case PublisherField:
                         case TrackField:
@@ -899,7 +902,41 @@ namespace m4dModels
 
         public void UpdateTags(string values)
         {
+            string[] tags = values.Split(new char[] { '|' }, StringSplitOptions.RemoveEmptyEntries);
+            foreach (string tag in tags)
+            {
+                UpdateTag(tag);
+            }
+        }
 
+        public void UpdateTag(string value)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                return;
+            }
+
+            int delta = 1;
+            if (value[0] == '-')
+            {
+                delta = -1;
+                value = value.Substring(1);
+            }
+
+            Tag other = FindTag(value);
+
+            if (other != null)
+            {
+                other.Count += delta;
+            }
+            else if (delta == 1)
+            {
+                Tags.Add(new Tag() { SongId = this.SongId, Value = value, Count = 1 });
+            }
+            else 
+            {
+                Trace.WriteLine(string.Format("Bad Tag: value={0}, songId={1}", value, this.SongId));
+            }
         }
 
         #endregion

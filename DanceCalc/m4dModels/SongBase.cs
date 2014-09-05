@@ -230,6 +230,11 @@ namespace m4dModels
             return map;
         }
 
+        public Tag FindTag(string value)
+        {
+            return Tags.FirstOrDefault(t => string.Equals(t.Value, value, StringComparison.OrdinalIgnoreCase));
+        }
+
         #region TitleArtist
         public bool TitleArtistMatch(string title, string artist)
         {

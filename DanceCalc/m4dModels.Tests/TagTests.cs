@@ -49,7 +49,7 @@ namespace m4dModels.Tests
         public void TagCategories()
         {
             Song song = new Song();
-            Tag t = s_factories.CreateTag(song, "Swing");
+            Tag t = s_factories.CreateTag(song, "Swing", 1);
             TagType tt = t.Type;
 
             Assert.AreEqual(tt.CategoryList[0], "Dance");

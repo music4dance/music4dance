@@ -1060,7 +1060,7 @@ namespace m4d.Controllers
                     song.Created = time;
                     song.Modified = time;
 
-                    song.Load(line, bum);
+                    song.Load(line, bum, dmc);
                     songs.Add(song);
                     properties.AddRange(song.SongProperties);
                     ratings.AddRange(song.DanceRatings);

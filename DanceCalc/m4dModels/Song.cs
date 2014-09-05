@@ -500,9 +500,6 @@ namespace m4dModels
 
         public void AddTag(Tag tag)
         {
-            tag.Song = this;
-            tag.SongId = SongId;
-
             Tag other = null;
 
             if (Tags == null)
@@ -524,10 +521,6 @@ namespace m4dModels
             }
         }
 
-        private Tag FindTag(string value)
-        {
-            return  Tags.FirstOrDefault(t => string.Equals(t.Value, value, StringComparison.OrdinalIgnoreCase));
-        }
         private void CreateTags(IEnumerable<Tag> tags, IFactories factories)
         {
             if (tags == null)
@@ -537,7 +530,7 @@ namespace m4dModels
 
             foreach (Tag tag in tags)
             {
-                factories.CreateTag(this, tag.Value);
+                factories.CreateTag(this, tag.Value, tag.Count);
                 factories.CreateSongProperty(
                     this,
                     TagField,
@@ -590,7 +583,7 @@ namespace m4dModels
                 }
                 else
                 {
-                    Tag tag = factories.CreateTag(this,v);
+                    Tag tag = factories.CreateTag(this,v,1);
                     Trace.WriteLineIf(bias == -1, string.Format("Bad Bias: {0}", this.ToString()));
                     tag.Count = bias;
                     Tags.Add(tag);
@@ -655,7 +648,7 @@ namespace m4dModels
 
             Purchase = sd.GetPurchaseTags();
         }
-        public void Restore(SongDetails sd,IUserMap users)
+        public void Restore(SongDetails sd,IUserMap users,IFactories factories)
         {
             RestoreScalar(sd);
 
@@ -678,6 +671,17 @@ namespace m4dModels
             {
                 AddDanceRating(dr);
             }
+
+            if (Tags == null)
+            {
+                Tags = new List<Tag>();
+            }
+            Debug.Assert(Tags.Count == 0);
+            foreach (Tag tag in sd.Tags)
+            {
+                factories.CreateTag(this, tag.Value, tag.Count);
+            }
+            TagSummary = sd.TagSummary;
 
             if (ModifiedBy == null)
             {
@@ -768,11 +772,11 @@ namespace m4dModels
 
         #region Serialization
 
-        public void Load(string s, IUserMap users)
+        public void Load(string s, IUserMap users, IFactories factories)
         {
             SongDetails sd = new SongDetails(s);
 
-            Restore(sd, users);
+            Restore(sd, users, factories);
             UpdateUsers(users);
         }
 

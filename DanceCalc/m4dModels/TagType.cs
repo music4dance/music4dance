@@ -40,19 +40,28 @@ namespace m4dModels
         }
         #endregion
 
-        public void AddCategory(string category)
+        public void AddCategory(string categories)
         {
-            if (CategoryList.Contains(category))
+            if (string.IsNullOrWhiteSpace(categories))
             {
                 return;
             }
-            if (string.IsNullOrWhiteSpace(Categories))
+
+            string[] list = categories.Split(new char[] { '|' }, StringSplitOptions.RemoveEmptyEntries);
+
+            foreach (string item in list)
             {
-                Categories = category;
-            }
-            else
-            {
-                Categories = Categories + "|" + category;
+                if (!CategoryList.Contains(item))
+                {
+                    if (string.IsNullOrWhiteSpace(Categories))
+                    {
+                        Categories = item;
+                    }
+                    else
+                    {
+                        Categories = Categories + "|" + item;
+                    }
+                }
             }
         }
     }

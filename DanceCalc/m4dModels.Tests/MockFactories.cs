@@ -40,7 +40,7 @@ namespace m4dModels.Tests
 
         private static Int64 s_nextId=1;
 
-        public Tag CreateTag(Song song, string value)
+        public Tag CreateTag(Song song, string value, int count)
         {
             TagType type = _tagTypes.FirstOrDefault(t => string.Equals(t.Value, value, StringComparison.OrdinalIgnoreCase));
             if (type == null)
@@ -49,7 +49,7 @@ namespace m4dModels.Tests
                 _tagTypes.Add(type);
             }
 
-            return new Tag { Song = song, Value = value, Type = type };
+            return new Tag { Song = song, Value = value, Type = type, Count = count };
         }
 
         private static List<TagType> _tagTypes = new List<TagType>() 

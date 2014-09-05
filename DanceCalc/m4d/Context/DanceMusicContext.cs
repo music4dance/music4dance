@@ -358,7 +358,7 @@ namespace m4d.Context
                 {
                     delta *= -1;
                 }
-                Tag tag = song.Tags.FirstOrDefault(t => string.Equals(t.Value, value, StringComparison.OrdinalIgnoreCase));
+                Tag tag = song.FindTag(value);
                 if (tag == null)
                 {
                     song.AddTag(new Tag() { Value = value, Count = 1 });
@@ -680,7 +680,7 @@ namespace m4d.Context
                 throw new ArgumentOutOfRangeException("song", "Attempting to restore a song that hasn't been deleted");
             }
             SongDetails sd = new SongDetails(song.SongId, song.SongProperties);
-            song.Restore(sd,this);
+            song.Restore(sd,this, this);
             song.UpdateUsers(this);
         }
 
@@ -999,7 +999,7 @@ namespace m4d.Context
 
         #region Tags
 
-        public Tag CreateTag(Song song, string value)
+        public Tag CreateTag(Song song, string value, int count)
         {
             TagType type = FindOrCreateTagType(value, null);
 
@@ -1011,14 +1011,14 @@ namespace m4d.Context
             tag.Value = value;
             tag.Type = type;
 
-            tag.Count = 1;
+            tag.Count = count;
 
             song.AddTag(tag);
 
             return tag;
         }
 
-        public TagType FindOrCreateTagType(string value, string category)
+        public TagType FindOrCreateTagType(string value, string categories)
         {
             TagType type = TagTypes.Find(value);
 
@@ -1029,7 +1029,7 @@ namespace m4d.Context
                 TagType added = TagTypes.Add(type);
                 Trace.WriteLine(added.ToString());
             }
-            type.AddCategory(category);
+            type.AddCategory(categories);
             return type;
         }
 
