@@ -944,81 +944,79 @@ namespace m4d.Controllers
         {
             Trace.WriteLine("Entering ReloadUsers");
 
-            using (DanceMusicContext dmc = new DanceMusicContext())
+            if (lines == null || lines.Count < 1 || !string.Equals(lines[0],_userHeader,StringComparison.InvariantCultureIgnoreCase))
             {
-                if (lines == null || lines.Count < 1 || !string.Equals(lines[0],_userHeader,StringComparison.InvariantCultureIgnoreCase))
-                {
-                    throw new ArgumentOutOfRangeException();
-                }
-
-                int fieldCount = _userHeader.Split(new char[] { '\t' }).Length;
-                int i = 1;
-                while (i < lines.Count)
-                {
-                    string s = lines[i];
-                    i += 1;
-
-                    if (string.Equals(s,_tagBreak,StringComparison.InvariantCultureIgnoreCase))
-                    {
-                        break;
-                    }
-
-                    string[] cells = s.Split(new char[] { '\t' });
-                    if (cells.Length == fieldCount)
-                    {
-                        string userId = cells[0];
-                        string userName = cells[1];
-                        string roles = cells[2];
-                        string hash = cells[3];
-                        string stamp = cells[4];
-                        string lockout = cells[5];
-                        string providers = cells[6];
-
-                        // Don't trounce existing users
-                        ApplicationUser user = dmc.FindUser(userName);
-                        if (user == null)
-                        {
-                            user = dmc.Users.Create();
-                            user.Id = userId;
-                            user.UserName = userName;
-                            user.PasswordHash = hash;
-                            user.SecurityStamp = stamp;
-                            user.LockoutEnabled = string.Equals(lockout, "TRUE", StringComparison.InvariantCultureIgnoreCase);
-
-                            if (!string.IsNullOrWhiteSpace(roles))
-                            {
-                                string[] roleNames = roles.Split(new char[] {'|'},StringSplitOptions.RemoveEmptyEntries);
-                                foreach (string roleName in roleNames)
-                                {
-                                    IdentityRole role = dmc.Roles.FirstOrDefault(r => r.Name == roleName.Trim());
-                                    if (role != null)
-                                    {
-                                        IdentityUserRole iur = new IdentityUserRole() { UserId = userId, RoleId = role.Id };
-                                        user.Roles.Add(iur);
-                                    }
-                                }
-                            }
-
-                            if (!string.IsNullOrWhiteSpace(providers))
-                            {
-                                string[] entries = providers.Split(new char[] { '|' }, StringSplitOptions.RemoveEmptyEntries);
-                                for (int j = 0; j < entries.Length; j += 2)
-                                {
-                                    IdentityUserLogin login = new IdentityUserLogin() { LoginProvider = entries[j], ProviderKey = entries[j + 1], UserId = userId };
-                                    user.Logins.Add(login);
-                                }
-                            }
-
-                            dmc.Users.Add(user);
-                        }
-                    }
-                }
-
-                lines.RemoveRange(0, i);
-
-                Trace.WriteLine("Saving Changes");
-                dmc.SaveChanges();
+                throw new ArgumentOutOfRangeException();
             }
+
+            int fieldCount = _userHeader.Split(new char[] { '\t' }).Length;
+            int i = 1;
+            while (i < lines.Count)
+            {
+                string s = lines[i];
+                i += 1;
+
+                if (string.Equals(s,_tagBreak,StringComparison.InvariantCultureIgnoreCase))
+                {
+                    break;
+                }
+
+                string[] cells = s.Split(new char[] { '\t' });
+                if (cells.Length == fieldCount)
+                {
+                    string userId = cells[0];
+                    string userName = cells[1];
+                    string roles = cells[2];
+                    string hash = cells[3];
+                    string stamp = cells[4];
+                    string lockout = cells[5];
+                    string providers = cells[6];
+
+                    // Don't trounce existing users
+                    ApplicationUser user = _db.FindUser(userName);
+                    if (user == null)
+                    {
+                        user = _db.Users.Create();
+                        user.Id = userId;
+                        user.UserName = userName;
+                        user.PasswordHash = hash;
+                        user.SecurityStamp = stamp;
+                        user.LockoutEnabled = string.Equals(lockout, "TRUE", StringComparison.InvariantCultureIgnoreCase);
+
+                        if (!string.IsNullOrWhiteSpace(roles))
+                        {
+                            string[] roleNames = roles.Split(new char[] {'|'},StringSplitOptions.RemoveEmptyEntries);
+                            foreach (string roleName in roleNames)
+                            {
+                                IdentityRole role = _db.Roles.FirstOrDefault(r => r.Name == roleName.Trim());
+                                if (role != null)
+                                {
+                                    IdentityUserRole iur = new IdentityUserRole() { UserId = userId, RoleId = role.Id };
+                                    user.Roles.Add(iur);
+                                }
+                            }
+                        }
+
+                        if (!string.IsNullOrWhiteSpace(providers))
+                        {
+                            string[] entries = providers.Split(new char[] { '|' }, StringSplitOptions.RemoveEmptyEntries);
+                            for (int j = 0; j < entries.Length; j += 2)
+                            {
+                                IdentityUserLogin login = new IdentityUserLogin() { LoginProvider = entries[j], ProviderKey = entries[j + 1], UserId = userId };
+                                user.Logins.Add(login);
+                            }
+                        }
+
+                        _db.Users.Add(user);
+                    }
+                }
+            }
+
+            lines.RemoveRange(0, i);
+
+            Trace.WriteLine("Saving Changes");
+            _db.SaveChanges();
+
             Trace.WriteLine("Exiting ReloadUsers");
         }
 
@@ -1030,34 +1028,32 @@ namespace m4d.Controllers
         {
             Trace.WriteLine("Entering ReloadTags");
 
-            using (DanceMusicContext dmc = new DanceMusicContext())
+            int i = 0;
+            while (i < lines.Count)
             {
-                int i = 0;
-                while (i < lines.Count)
+                string s = lines[i];
+                i += 1;
+
+                if (string.Equals(s, _songBreak, StringComparison.InvariantCultureIgnoreCase))
                 {
-                    string s = lines[i];
-                    i += 1;
-
-                    if (string.Equals(s, _songBreak, StringComparison.InvariantCultureIgnoreCase))
-                    {
-                        break;
-                    }
-
-                    string[] cells = s.Split(new char[] { '\t' });
-                    if (cells.Length == 2)
-                    {
-                        string category = cells[0];
-                        string value = cells[1];
-
-                        _db.FindOrCreateTagType(value, category);
-                    }
+                    break;
                 }
 
-                lines.RemoveRange(0, i);
+                string[] cells = s.Split(new char[] { '\t' });
+                if (cells.Length == 2)
+                {
+                    string category = cells[0];
+                    string value = cells[1];
 
-                Trace.WriteLine("Saving Changes");
-                dmc.SaveChanges();
+                    _db.FindOrCreateTagType(value, category);
+                }
             }
+
+            lines.RemoveRange(0, i);
+
+            Trace.WriteLine("Saving Changes");
+            _db.SaveChanges();
+
             Trace.WriteLine("Exiting ReloadTags");
         }
 
