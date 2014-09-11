@@ -4,10 +4,18 @@ using System.Web.Mvc;
 
 using m4d.Context;
 
-namespace music4dance.Controllers
+namespace m4d.Controllers
 {
-    public class SongPropertyController : Controller
+    public class SongPropertyController : DMController
     {
+        public override string DefaultTheme
+        {
+            get
+            {
+                return MusicTheme;
+            }
+        }
+
         private DanceMusicContext _db = new DanceMusicContext();
 
         //

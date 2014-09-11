@@ -14,7 +14,7 @@ using System.Diagnostics;
 
 namespace m4d.Controllers
 {
-    public class LogController : Controller
+    public class LogController : DMController
     {
         private DanceMusicContext _db = new DanceMusicContext();
 

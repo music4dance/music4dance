@@ -245,6 +245,7 @@
     <Compile Include="Controllers\AdminController.cs" />
     <Compile Include="Controllers\ApplicationUsersController.cs" />
     <Compile Include="Controllers\DanceController.cs" />
+    <Compile Include="Controllers\DMController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\LogController.cs" />
     <Compile Include="Controllers\MusicServiceController.cs" />
@@ -327,12 +328,21 @@
     <Content Include="Content\chosen-sprite.png" />
     <Content Include="Content\chosen.css" />
     <Content Include="Content\favicon.png" />
+    <Content Include="Content\gray-bootstrap-min.css" />
+    <Content Include="Content\gray-bootstrap-theme.css" />
+    <Content Include="Content\gray-bootstrap.css" />
     <Content Include="Content\header-logo.png" />
     <Content Include="Content\itunes-charm.png" />
     <Content Include="Content\itunes-logo.png" />
     <Content Include="Content\jquery.nouislider.css" />
     <Content Include="Content\jquery.nouislider.pips.css" />
+    <Content Include="Content\orange-bootstrap-min.css" />
+    <Content Include="Content\orange-bootstrap-theme.css" />
+    <Content Include="Content\orange-bootstrap.css" />
     <Content Include="Content\PagedList.css" />
+    <Content Include="Content\teal-bootstrap-min.css" />
+    <Content Include="Content\teal-bootstrap-theme.css" />
+    <Content Include="Content\teal-bootstrap.css" />
     <Content Include="Content\thermometer-0.png" />
     <Content Include="Content\thermometer-1.png" />
     <Content Include="Content\thermometer-2.png" />
@@ -370,8 +380,6 @@
     <Content Include="fonts\glyphicons-halflings-regular.woff" />
     <Content Include="fonts\glyphicons-halflings-regular.ttf" />
     <Content Include="fonts\glyphicons-halflings-regular.eot" />
-    <Content Include="Content\bootstrap-theme.css.map" />
-    <Content Include="Content\bootstrap.css.map" />
     <Content Include="ApplicationInsights.config">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <SubType>Designer</SubType>
@@ -489,7 +497,7 @@
     <Content Include="Views\Shared\_Layout.cshtml" />
     <Content Include="Views\Home\About.cshtml" />
     <Content Include="Views\Home\Contact.cshtml" />
-    <Content Include="Views\Home\Index.cshtml" />
+    <Content Include="Views\Home\Dances.cshtml" />
     <Content Include="Views\Account\_ChangePasswordPartial.cshtml" />
     <Content Include="Views\Account\_ExternalLoginsListPartial.cshtml" />
     <Content Include="Views\Account\_RemoveAccountPartial.cshtml" />
@@ -539,6 +547,7 @@
     <Content Include="Views\Shared\DisplayTemplates\SongDuration.cshtml" />
     <Content Include="Views\Shared\EditorTemplates\SongDuration.cshtml" />
     <Content Include="Views\Shared\_PurchaseLinks.cshtml" />
+    <Content Include="Views\Home\Index.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

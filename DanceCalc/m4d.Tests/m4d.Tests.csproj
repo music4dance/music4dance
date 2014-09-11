@@ -113,6 +113,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+    <None Include="Test Data\magic-bootstrap-orange.less" />
+    <None Include="Test Data\magic-bootstrap-teal.less" />
+    <None Include="Test Data\magic-bootstrap.less" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\m4d\m4d.csproj">

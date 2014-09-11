@@ -2,33 +2,26 @@
     ViewBag.Title = "Home Page";
 }
 
-@model IEnumerable<m4d.ViewModels.SongCounts>
-<hgroup>
-    <h2>Dances</h2>
-</hgroup>
-@{
-    string[] boxes = { "LTN", "SWG", "WLZ", "FXT", "TNG", "MSC" };
-}
-
-@foreach (string box in boxes)
-{
-    var item = Model.FirstOrDefault(m => m.DanceId == box);
-        
-    string danceLink = "/Song/Search?dances=" + @item.DanceId;
-    <div class="list-group col-sm-4">
-        <h4><a href="@danceLink" class="btn-info btn-lg">@item.DanceName <span class="badge">@item.SongCount</span></a></h4>
-        @*<h4>@Html.ActionLink(item.DanceName, "Search", "Song", new { dances = item.DanceId }, null) <span class="badge">@item.SongCount</span></h4>*@
-        @foreach (var sitem in item.Children)
-        {
-            if (sitem.SongCount > 0)
-            {
-                <a class="list-group-item" href="@("/Song/Search?dances=" + sitem.DanceId)">
-                    <span class="badge">@sitem.SongCount</span>
-                    @sitem.DanceName
-                </a>
-            }
-        }
+<div class="row">
+    <div class="col-md-4">
+        <h1 class="music">Music</h1>
+        <p class="blog">
+            Are you learning to partner dance and looking for practice music?  Or are you choreographing a piece and looking for new ideas for music?  Our <a href="/home/dances">dances page</a> is a catalog of music indexed by dance type that will show you a list of songs appropriate for a particular style.  Or go directly to our <a href="/Songs">database of songs</a> and browse away.  Don't see your style of dance here? <a href="mailto:support@music4dance.net">Let us know</a> and we'll be happy to expand our catalog.
+        </p>
     </div>
-}
-
-<p class="col-md-12">Choose from the dances above to go to a list of songs that are suitable to dance that dance to.  You may also choose the headers to get a list of dances of a particular type.</p>
+    <div class="col-md-4">
+        <h1 class="tools">Tools</h1>
+        <p class="blog">
+            Did you just hear a really fun song and you would like to figure out what dance will work with that tempo?  Use our <a href="/Home/Counter">dance counter page</a> to help you answer that question.  And more useful tools for dancers are coming soon.
+        </p>
+    </div>
+    <div class="col-md-4">
+        <h1 class="blog">Info</h1>
+        <p class="blog">
+            Are you yooking for more information on how music relates to dance, follow our <a href="http://blog.music4dance.net">blog</a>.
+        </p>
+        <h4 class="blog">Question 2: What dance styles can I dance to my favorite song(s)?</h4>
+        <p class="blog">One of the things that amazes me about the best dance teachers I know is that they seem to do this matching instinctively.  They hear the first bar or two of a song and immediately know which dance(s) to dance.  I imagine “instinct” in this case is some combination of natural talent, many hours of practice and the amount of time that they spend listening to music and thinking about how it fits with dance.</p>
+        <p class="blog">After dancing for 20 years, I have something of this sense myself, but being a techie first and a dancer second I feel compelled to break it down a bit more. <a href="http://blog.music4dance.net">Read more...</a></p>
+    </div>
+</div>

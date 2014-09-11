@@ -15,7 +15,7 @@ namespace m4d.Controllers
 {
     [Authorize(Roles = "dbAdmin")]
     [RequireHttps]
-    public class ApplicationUsersController : Controller
+    public class ApplicationUsersController : DMController
     {
         private DanceMusicContext _db = new DanceMusicContext();
 

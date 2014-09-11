@@ -22,7 +22,7 @@ namespace m4d.Controllers
 #if !DEBUG
     [RequireHttps]
 #endif
-    public class AccountController : Controller
+    public class AccountController : DMController
     {
         private ApplicationUserManager _userManager;
 

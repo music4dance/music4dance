@@ -1,0 +1,34 @@
+﻿@{
+    ViewBag.Title = "Home Page";
+}
+
+@model IEnumerable<m4d.ViewModels.SongCounts>
+<hgroup>
+    <h2>Dances</h2>
+</hgroup>
+@{
+    string[] boxes = { "LTN", "SWG", "WLZ", "FXT", "TNG", "MSC" };
+}
+
+@foreach (string box in boxes)
+{
+    var item = Model.FirstOrDefault(m => m.DanceId == box);
+        
+    string danceLink = "/Song/Search?dances=" + @item.DanceId;
+    <div class="list-group col-sm-4">
+        <h4><a href="@danceLink" class="btn-info btn-lg">@item.DanceName <span class="badge">@item.SongCount</span></a></h4>
+        @*<h4>@Html.ActionLink(item.DanceName, "Search", "Song", new { dances = item.DanceId }, null) <span class="badge">@item.SongCount</span></h4>*@
+        @foreach (var sitem in item.Children)
+        {
+            if (sitem.SongCount > 0)
+            {
+                <a class="list-group-item" href="@("/Song/Search?dances=" + sitem.DanceId)">
+                    <span class="badge">@sitem.SongCount</span>
+                    @sitem.DanceName
+                </a>
+            }
+        }
+    </div>
+}
+
+<p class="col-md-12">Choose from the dances above to go to a list of songs that are suitable to dance that dance to.  You may also choose the headers to get a list of dances of a particular type.</p>

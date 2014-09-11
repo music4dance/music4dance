@@ -17,7 +17,7 @@ using System.Web.Helpers;
 using System.Web.Mvc;
 using m4d;
 
-namespace music4dance.Controllers
+namespace m4d.Controllers
 {
     public class SimpleDance
     {
@@ -25,8 +25,16 @@ namespace music4dance.Controllers
         public string Name { get; set; }
     };
 
-    public class SongController : Controller
+    public class SongController : DMController
     {
+        public override string DefaultTheme
+        {
+            get
+            {
+                return MusicTheme;
+            }
+        }
+
         private DanceMusicContext _db = new DanceMusicContext();
 
         #region Commands

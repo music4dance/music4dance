@@ -5,7 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@ViewBag.Title - Music4Dance: Shall we dance...to music?</title>
     <link rel="shortcut icon" href="~/Content/favicon.png" />
-    @Styles.Render("~/Content/css")
+    <link href='//fonts.googleapis.com/css?family=Source+Sans+Pro|Merienda:700' rel='stylesheet' type='text/css'>
+    @{
+        string theme = "blog";
+        if (ViewData.ContainsKey("Theme"))
+        {
+            theme = ViewBag.Theme;
+        }
+        string themeBundle = "~/bundles/" + theme;
+    }
+    @Styles.Render(themeBundle)
     <script type="text/javascript">
         window.appInsights={queue:[],applicationInsightsId:null,accountId:null,appUserId:null,configUrl:null,start:function(n){function u(n){t[n]=function(){var i=arguments;t.queue.push(function(){t[n].apply(t,i)})}}function f(n,t){if(n){var u=r.createElement(i);u.type="text/javascript";u.src=n;u.async=!0;u.onload=t;u.onerror=t;r.getElementsByTagName(i)[0].parentNode.appendChild(u)}else t()}var r=document,t=this,i;t.applicationInsightsId=n;u("logEvent");u("logPageView");i="script";f(t.configUrl,function(){f("//az416426.vo.msecnd.net/scripts/a/ai.0.7.js")});t.start=function(){}}};
         appInsights.start("aada2f48-d93c-4778-a71f-7781952cc47b");
@@ -25,7 +34,7 @@
     @Scripts.Render("~/bundles/modernizr")
 </head>
 <body>
-    <div class="navbar navbar-inverse navbar-fixed-top">
+    <div class="navbar navbar-default navbar-fixed-top" role="navigation">
         <div class="container-fluid">
             <div class="navbar-header">
                 <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
@@ -39,11 +48,27 @@
             </div>
             <div class="navbar-collapse collapse">
                 <ul class="nav navbar-nav">
-                    <li>@Html.ActionLink("Dances", "Dances", "Home")</li>
-                    <li>@Html.ActionLink("Songs", "Index", "Song")</li>
-                    <li>@Html.ActionLink("Counter", "Counter", "Home")</li>
-                    <li><a href="http://blog.music4dance.net">Blog</a></li>
-                    <li>@Html.ActionLink("About", "About", "Home")</li>
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">Music <span class="caret"></span></a>
+                        <ul class="dropdown-menu" role="menu">
+                            <li>@Html.ActionLink("Dances", "Dances", "Home")</li>
+                            <li>@Html.ActionLink("Songs", "Index", "Song")</li>
+                        </ul>
+                    </li>
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">Tools <span class="caret"></span></a>
+                        <ul class="dropdown-menu" role="menu">
+                            <li>@Html.ActionLink("Counter", "Counter", "Home")</li>
+                        </ul>
+                    </li>
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">Info <span class="caret"></span></a>
+                        <ul class="dropdown-menu" role="menu">
+                            <li><a href="http://blog.music4dance.net">Blog</a></li>
+                            <li>@Html.ActionLink("About", "About", "Home")</li>
+                        </ul>
+                    </li>
+
                     @*<li>@Html.ActionLink("Contact", "Contact", "Home")</li>*@
                     @if (User.IsInRole("showDiagnostics"))
                     {

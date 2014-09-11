@@ -23,8 +23,25 @@ namespace m4d
                       "~/Scripts/bootstrap.js",
                       "~/Scripts/respond.js"));
 
+            RegisterTheme(bundles, "blog", "gray");
+            RegisterTheme(bundles, "music", "teal");
+            RegisterTheme(bundles, "tools", "orange");
+
+            // TODO: Once I have things figures out with boostrap and themes I think this should go away...
             bundles.Add(new StyleBundle("~/Content/css").Include(
                       "~/Content/bootstrap.css",
+                      "~/Content/site.css"));
+
+            bundles.Add(new StyleBundle("~/Content/theme").Include(
+                      "~/Content/bootstrap.css",
+                      "~/Content/site.css"));
+        }
+
+        public static void RegisterTheme(BundleCollection bundles, string name, string color)
+        {
+            bundles.Add(new StyleBundle("~/bundles/" + name).Include(
+                      "~/Content/" + color + "-bootstrap.css",
+                      "~/Content/" + color + "-bootstrap-theme.css",
                       "~/Content/site.css"));
         }
     }

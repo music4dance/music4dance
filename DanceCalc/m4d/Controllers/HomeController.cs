@@ -8,10 +8,24 @@ using System.Web.Mvc;
 
 namespace m4d.Controllers
 {
-    public class HomeController : Controller
+    public class HomeController : DMController
     {
+        public override string DefaultTheme
+        {
+            get
+            {
+                return MusicTheme;
+            }
+        }
+
         [AllowAnonymous]
         public ActionResult Index()
+        {
+            return View();
+        }
+
+        [AllowAnonymous]
+        public ActionResult Dances()
         {
             using (DanceMusicContext db = new DanceMusicContext())
             {
@@ -22,26 +36,23 @@ namespace m4d.Controllers
         }
 
         [AllowAnonymous]
-        public ActionResult Dances()
-        {
-            return RedirectToAction("Index");
-        }
-
-        [AllowAnonymous]
         public ActionResult About()
         {
+            ThemeName = BlogTheme;
             return View();
         }
 
         [AllowAnonymous]
         public ActionResult TermsOfService()
         {
+            ThemeName = BlogTheme;
             return View();
         }
 
         [AllowAnonymous]
         public ActionResult PrivacyPolicy()
         {
+            ThemeName = BlogTheme;
             return View();
         }
 
@@ -57,6 +68,7 @@ namespace m4d.Controllers
         [AllowAnonymous]
         public ActionResult Counter(bool showMPM=true, bool showBPM=false, bool showEpsilon=true)
         {
+            ThemeName = ToolTheme;
             ViewBag.paramShowMPM = showMPM;
             ViewBag.paramShowBPM = showBPM;
             ViewBag.ShowEpsilon = showEpsilon;
@@ -67,7 +79,7 @@ namespace m4d.Controllers
         [AllowAnonymous]
         public ActionResult CounterHelp()
         {
-
+            ThemeName = ToolTheme;
             return View();
         }
     }
