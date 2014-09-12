@@ -13,6 +13,7 @@
 
     var dances = (IList<m4d.ViewModels.SongCounts>)ViewBag.Dances;
     var danceMap = (IDictionary<string, m4d.ViewModels.SongCounts>)ViewBag.DanceMap;
+    var showDate = ViewBag.SongFilter.SortOrder == "Modified" || ViewBag.SongFilter.SortOrder == "Created";
 }
 
 @using (Html.BeginForm("Search", "Song", FormMethod.Get, new { id = "search" }))
@@ -136,6 +137,10 @@
                     @Html.Raw(ViewBag.DancesSort)
                 </th>
                 <th style="min-width:150px" class="hidden-xs">Purchase</th>
+                @if (showDate)
+                {
+                    <th class="huddin-xs">@ViewBag.SongFilter.SortOrder</th>
+                }
             </tr>
         </thead>
         <tbody>
@@ -198,6 +203,20 @@
                                 <button id="@aid" type="button"><img src="@Url.Content("~/Content/amazon-logo.png")" alt="Availiable at Amazon" width="20" height="20" /></button>
                             }
                         </td>
+                        @if (showDate)
+                        {
+                            <td class="hidden-xs">
+                                @if (ViewBag.SongFilter.SortOrder == "Created")
+                                {
+                                    <text>@item.Created.ToString("g")</text>
+                                }
+                                else
+                                {
+                                    <text>@item.Modified.ToString("g")</text>
+                                }
+                            </td>
+                        }
+
                     </tr>
                 }
             }

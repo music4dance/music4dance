@@ -143,6 +143,12 @@ namespace m4d.Controllers
                     case "Dances":
                         songFilter.SortOrder = "Dances";
                         break;
+                    case "Created":
+                        songFilter.SortOrder = "Created";
+                        break;
+                    case "Modified":
+                        songFilter.SortOrder = "Modified";
+                        break;
                 }
             }
 
@@ -1019,14 +1025,16 @@ namespace m4d.Controllers
                     songs = songs.Where(
                         s => (s.Title != null && s.Title.ToUpper().Contains(str)) ||
                         (s.Album != null && s.Album.Contains(str)) ||
-                        (s.Artist != null && s.Artist.Contains(str)));
+                        (s.Artist != null && s.Artist.Contains(str)) ||
+                        (s.TagSummary != null && s.TagSummary.Contains(str)));
                 }
                 else
                 {
                     songs = songs.Where(
                         s => s.Title.Contains(filter.SearchString) ||
                         s.Album.Contains(filter.SearchString) ||
-                        s.Artist.Contains(filter.SearchString));
+                        s.Artist.Contains(filter.SearchString) ||
+                        s.TagSummary.Contains(filter.SearchString));
                 }
             }
 
@@ -1184,6 +1192,12 @@ namespace m4d.Controllers
                             ViewBag.TempoSort = sortNDsc;
                         }
                     }
+                    break;
+                case "Modified":
+                    songs = songs.OrderBy(s => s.Modified);
+                    break;
+                case "Created":
+                    songs = songs.OrderBy(s => s.Created);
                     break;
             }
 

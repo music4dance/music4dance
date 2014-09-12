@@ -102,6 +102,58 @@ namespace m4dModels
             return Serialize(null);
         }
 
+        protected void LoadProperties(ICollection<SongProperty> properties) // , IFactories factories, IUserMap users
+        {
+            bool created = false;
+
+            foreach (SongProperty prop in properties)
+            {
+                string bn = prop.BaseName;
+
+                if (!prop.IsAction)
+                {
+                    switch (bn)
+                    {
+                        case UserField:
+                            AddModifiedBy(new ModifiedRecord { SongId = this.SongId, UserName = prop.Value });
+                            break;
+                        case DanceRatingField:
+                            UpdateDanceRating(prop.Value);
+                            break;
+                        case TagField:
+                            UpdateTags(prop.Value);
+                            break;
+                        case AlbumField:
+                        case PublisherField:
+                        case TrackField:
+                        case PurchaseField:
+                            // All of these are taken care of with build album
+                            break;
+                        case TimeField:
+                            {
+                                DateTime time = (DateTime)prop.ObjectValue;
+                                if (!created)
+                                {
+                                    Created = time;
+                                    created = true;
+                                }
+                                Modified = time;
+                            }
+                            break;
+                        default:
+                            // All of the simple properties we can just set
+                            {
+                                PropertyInfo pi = this.GetType().GetProperty(bn);
+                                if (pi != null)
+                                {
+                                    pi.SetValue(this, prop.ObjectValue);
+                                }
+                            }
+                            break;
+                    }
+                }
+            }
+        }
         #endregion
 
         #region Properties
@@ -144,6 +196,115 @@ namespace m4dModels
         {
             get { return string.IsNullOrWhiteSpace(Title); }
         }
+        #endregion
+
+        #region DanceRating
+        /// <summary>
+        /// Update the dance rating table based on the encoded
+        ///   property value 
+        /// </summary>
+        /// <param name="value"></param>
+        public void UpdateDanceRating(string value)
+        {
+            DanceRatingDelta drd = new DanceRatingDelta(value);
+            UpdateDanceRating(drd);
+        }
+
+        public void UpdateDanceRating(DanceRatingDelta drd)
+        {
+            DanceRating dr = DanceRatings.FirstOrDefault(r => r.DanceId.Equals(drd.DanceId));
+
+            if (dr == null)
+            {
+                dr = new DanceRating { SongId = this.SongId, DanceId = drd.DanceId, Weight = 0 };
+                DanceRatings.Add(dr);
+            }
+
+            dr.Weight += drd.Delta;
+        }
+
+        public void UpdateDanceRatings(IEnumerable<string> dances, int weight)
+        {
+            if (dances == null)
+            {
+                return;
+            }
+
+            foreach (string d in dances)
+            {
+                DanceRatingDelta drd = new DanceRatingDelta { DanceId = d, Delta = weight };
+                UpdateDanceRating(drd);
+                SongProperty prop = new SongProperty { SongId = this.SongId, Name = DanceRatingField, Value = drd.ToString() };
+                SongProperties.Add(prop);
+            }
+        }
+        #endregion
+
+        #region Tags
+        public void AddTag(string value)
+        {
+            value = value.Trim();
+            Tag tag = Tags.FirstOrDefault(t => t.Value == value);
+
+            if (tag != null)
+            {
+                tag.Count += 1;
+            }
+            else
+            {
+                tag = new Tag { SongId = this.SongId, Value = value, Count = 1 };
+                Tags.Add(tag);
+            }
+        }
+
+        public void AddTags(string values)
+        {
+            string[] tags = values.Split(new char[] { '|' }, StringSplitOptions.RemoveEmptyEntries);
+            foreach (string tag in tags)
+            {
+                AddTag(tag);
+            }
+        }
+
+        public void UpdateTags(string values)
+        {
+            string[] tags = values.Split(new char[] { '|' }, StringSplitOptions.RemoveEmptyEntries);
+            foreach (string tag in tags)
+            {
+                UpdateTag(tag);
+            }
+        }
+
+        public void UpdateTag(string value)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                return;
+            }
+
+            int delta = 1;
+            if (value[0] == '-')
+            {
+                delta = -1;
+                value = value.Substring(1);
+            }
+
+            Tag other = FindTag(value);
+
+            if (other != null)
+            {
+                other.Count += delta;
+            }
+            else if (delta == 1)
+            {
+                Tags.Add(new Tag() { SongId = this.SongId, Value = value, Count = 1 });
+            }
+            else
+            {
+                Trace.WriteLine(string.Format("Bad Tag: value={0}, songId={1}", value, this.SongId));
+            }
+        }
+
         #endregion
 
         #region Comparison
@@ -230,6 +391,37 @@ namespace m4dModels
         public Tag FindTag(string value)
         {
             return Tags.FirstOrDefault(t => string.Equals(t.Value, value, StringComparison.OrdinalIgnoreCase));
+        }
+
+        public DanceRating FindRating(string id)
+        {
+            return DanceRatings.FirstOrDefault(r => string.Equals(r.DanceId, id, StringComparison.OrdinalIgnoreCase));
+        }
+
+        protected virtual bool AddModifiedBy(ModifiedRecord mr)
+        {
+            mr.SongId = SongId;
+
+            ModifiedRecord other = null;
+
+            if (mr.ApplicationUserId != null)
+            {
+                other = ModifiedBy.FirstOrDefault(r => r.ApplicationUserId == mr.ApplicationUserId);
+            }
+            else if (mr.UserName != null)
+            {
+                other = ModifiedBy.FirstOrDefault(r => r.UserName == mr.UserName);
+            }
+
+            if (other == null)
+            {
+                ModifiedBy.Add(mr);
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
 
         #region TitleArtist

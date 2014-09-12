@@ -180,6 +180,31 @@ namespace m4d.Context
             }
         }
 
+        public SongDetails UpdateSong(ApplicationUser user, Song song, SongDetails edit, bool createLog = true)
+        {
+            if (createLog)
+            {
+                song.CurrentLog = CreateSongLog(user, song, Song.EditCommand);
+            }
+
+            if (song.Update(user, edit, this, this))
+            {
+                if (createLog)
+                {
+                    Log.Add(song.CurrentLog);
+                    return FindSongDetails(edit.SongId);
+                }
+                else
+                {
+                    return new SongDetails(song);
+                }
+            }
+            else
+            {
+                return null;
+            }
+        }
+
         // This is an additive merge - only add new things if they don't conflict with the old
         //  TODO: I'm pretty sure I can clean up this and all the other editing stuff by pushing
         //  the diffing part down into SongDetails (which will also let me unit test it more easily)

@@ -93,9 +93,10 @@
         @Html.AntiForgeryToken();
         <input type="file" name="FileUpload" />
         <br />
-        <input type="checkbox" name="batch" id="batch" /> <text>Batch Upload</text>
-        <input type="submit" name="reloadDatabase" id="Submit" value="Reload" />
-        <input type="submit" name="reloadDatabase" id="Reload" value="Update" />
+        <input type="checkbox" name="batch" id="batch" value="true" /> <text>Batch Upload</text>
+        <input type="submit" name="reloadDatabase" id="Reload" value="Reload" />
+        <input type="submit" name="reloadDatabase" id="Add" value="Add" />
+        <input type="submit" name="reloadDatabase" id="Update" value="Update" />
     }
 }
 

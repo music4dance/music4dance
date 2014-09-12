@@ -258,7 +258,17 @@ namespace m4d.Controllers
                 foreach (Song song in dmc.Songs)
                 {
                     SongDetails sd = new SongDetails(song);
-                    if (sd.Tags == null || sd.Tags.Count == 0)
+
+                    bool retry = true;
+                    foreach (Tag tag in sd.Tags)
+                    {
+                        if (tag.Type.Categories.Contains("Dance"))
+                        {
+                            retry = false;
+                        }
+                    }
+
+                    if (retry)
                     {
                         var map = sd.MapProperyByUsers(Song.DanceRatingField);
 
@@ -290,6 +300,7 @@ namespace m4d.Controllers
                             if (!string.IsNullOrWhiteSpace(tags))
                             {
                                 sd = dmc.EditSong(user, sd, null, null, tags, false);
+                                Trace.WriteLine(string.Format("{0}:{1}", sd.Title, tags));
                             }
                         }
 
@@ -394,7 +405,7 @@ namespace m4d.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "dbAdmin")]
-        public ActionResult ReloadDatabase(string reloadDatabase)
+        public ActionResult ReloadDatabase(string reloadDatabase, bool? batch)
         {
             List<string> lines = UploadFile();
 
@@ -417,7 +428,14 @@ namespace m4d.Controllers
                     }
                 }
 
-                ReloadDB(lines);
+                if (!string.Equals(reloadDatabase, "update", StringComparison.InvariantCultureIgnoreCase))
+                {
+                    ReloadDB(lines, batch);
+                }
+                else
+                {
+                    UpdateDB(lines, batch);
+                }
 
                 SongCounts.ClearCache(); 
 
@@ -1057,11 +1075,59 @@ namespace m4d.Controllers
             Trace.WriteLine("Exiting ReloadTags");
         }
 
+
         /// <summary>
         /// Reloads a list of songs into the database
         /// </summary>
         /// <param name="lines"></param>
-        private void ReloadDB(List<string> lines, bool batch=false)
+        private void UpdateDB(List<string> lines, bool? batch)
+        {
+            Trace.WriteLine("Entering UpdateDB");
+
+            using (DanceMusicContext dmc = new DanceMusicContext())
+            {
+                dmc.Configuration.AutoDetectChangesEnabled = false;
+
+                // Load the dance List
+                Trace.WriteLine("Loading Dances");
+                dmc.Dances.Load();
+
+                Trace.WriteLine("Loading Songs");
+
+                foreach (string line in lines)
+                {
+                    SongDetails sd = new SongDetails(line);
+                    Song song = dmc.FindSong(sd.SongId);
+
+                    string name = sd.ModifiedList.Last().UserName;
+                    ApplicationUser user = dmc.FindOrAddUser(name,DanceMusicContext.EditRole);
+
+                    if (song == null)
+                    {
+                        song = dmc.CreateSong(user,sd);
+                    }
+                    else
+                    {
+                        dmc.UpdateSong(user, song, sd, false);
+                    }
+                    song.Modified = DateTime.Now;
+                }
+
+                dmc.Configuration.AutoDetectChangesEnabled = true;
+                dmc.ChangeTracker.DetectChanges();
+                dmc.SaveChanges();
+            }
+
+            Trace.WriteLine("Clearing Song Cache");
+            SongCounts.ClearCache();
+            Trace.WriteLine("Exiting ReloadDB");
+        }
+
+        /// <summary>
+        /// Reloads a list of songs into the database
+        /// </summary>
+        /// <param name="lines"></param>
+        private void ReloadDB(List<string> lines, bool? batch)
         {
             Trace.WriteLine("Entering ReloadDB");
 
@@ -1109,7 +1175,7 @@ namespace m4d.Controllers
                 }
 
                 Trace.WriteLine("Saving Songs");
-                if (batch)
+                if (batch ?? false)
                 {
                     // Until the bug gets fixed in EFBatchOperations to allow for azure, we'll live with the slower method...
                     EFBatchOperation.For(dmc, dmc.Songs).InsertAll(songs);

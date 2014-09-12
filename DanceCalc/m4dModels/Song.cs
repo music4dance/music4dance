@@ -77,7 +77,7 @@ namespace m4dModels
             TitleHash = Song.CreateTitleHash(Title);
         }
 
-        public bool Edit(ApplicationUser user, SongDetails edit, List<string> addDances, List<string> remDances, string editTags, IFactories factories, IUserMap users)
+        private bool EditCore(ApplicationUser user, SongDetails edit, IFactories factories, IUserMap users)
         {
             bool modified = false;
 
@@ -155,6 +155,12 @@ namespace m4dModels
                 factories.CreateSongProperty(this, AlbumOrder, t, CurrentLog);
             }
 
+            return modified;
+        }
+        public bool Edit(ApplicationUser user, SongDetails edit, List<string> addDances, List<string> remDances, string editTags, IFactories factories, IUserMap users)
+        {
+            bool modified = EditCore(user,edit,factories,users);
+
             modified |= EditDanceRatings(addDances, DanceRatingIncrement, remDances, DanceRatingDecrement, factories);
 
             modified |= EditTags(editTags, factories);
@@ -162,7 +168,46 @@ namespace m4dModels
             modified |= UpdatePurchaseInfo(edit);
 
             return modified;
+        }
 
+        public bool Update(ApplicationUser user, SongDetails update, IFactories factories, IUserMap users)
+        {
+            // Verify that our heads are the same (TODO:move this to debug mode at some point?)
+            List<SongProperty> old = SongProperties.Where(p => !p.IsAction).ToList();
+            List<SongProperty> upd = update.Properties.Where(p => !p.IsAction).ToList();
+            int c = old.Count;
+            for (int i = 0; i < c; i++)
+            {
+                if (upd.Count < i || !string.Equals(old[i].Name, upd[i].Name))
+                {
+                    Trace.WriteLine(string.Format("Unexpected Update: {0}", SongId));
+                    return false;
+                }
+            }
+
+            if (c == upd.Count)
+            {
+                return false;
+            }
+
+            List<SongProperty> mrg = new List<SongProperty>(upd.Skip(c));
+            LoadProperties(mrg);
+
+            UpdatePurchaseInfo(update);
+            AlbumDetails album = update.Albums[0];
+            if (album == null)
+            {
+                Album = null;
+            }
+            else
+            {
+                Album = album.AlbumTrack;
+            }
+
+            UpdateUsers(users);
+            //TODO???FixupMappings(factories);
+
+            return true;
         }
 
         // This is an additive merge - only add new things if they don't conflict with the old
@@ -323,7 +368,7 @@ namespace m4dModels
         public bool AddUser(ApplicationUser user, IUserMap users)
         {
             ModifiedRecord us = users.CreateMapping(this.SongId,user.Id);
-            return AddModifiedBy(us, users);
+            return AddModifiedBy(us);
         }
 
         public bool AddUser(string name, IUserMap users)
@@ -498,6 +543,72 @@ namespace m4dModels
             return changed;
         }
 
+        //public bool EditDanceRatings(IList<DanceRating> dr, IFactories factories)
+        //{
+        //    bool modified = false;
+
+        //    List<DanceRating> dro = DanceRatings.OrderBy(r => r.DanceId).ToList();
+        //    List<DanceRating> drn = dr.OrderBy(r => r.DanceId).ToList();
+
+        //    List<DanceRatingDelta> deltas = new List<DanceRatingDelta>();
+
+        //    int iO = 0;
+        //    int iN = 0;
+        //    while (iO < dro.Count || iN < drn.Count)
+        //    {
+        //        DanceRating o = null;
+        //        string so = "zzzz"; // Default sort to end
+        //        DanceRating n = null;
+        //        string sn = "zzzz"; // Default sort to end
+
+        //        if (iO < dro.Count)
+        //        {
+        //            o = dro[iO];
+        //            so = o.DanceId;
+        //        }
+        //        if (iN < drn.Count)
+        //        {
+        //            n = drn[iN];
+        //            sn = n.DanceId;
+        //        }
+
+        //        int comp = string.Compare(so, sn);
+        //        DanceRatingDelta d = null;
+
+        //        if (comp < 0)
+        //        {
+        //            d = new DanceRatingDelta { DanceId = so, Delta = -o.Weight };
+        //            DanceRatings.Remove(o);
+        //            iO += 1;
+        //        }
+        //        else if (comp > 0)
+        //        {
+        //            d = new DanceRatingDelta { DanceId = sn, Delta = n.Weight };
+        //            factories.CreateDanceRating(this, sn, n.Weight);
+        //            iN += 1;
+        //        }
+        //        else
+        //        {
+        //            int delta = n.Weight - o.Weight;
+        //            if (delta != 0)
+        //            {
+        //                d = new DanceRatingDelta { DanceId = so, Delta = delta };
+        //                o.Weight += delta;
+        //            }
+        //            iO += 1;
+        //            iN += 1;
+        //        }
+
+        //        if (d != null)
+        //        {
+        //            //factories.CreateSongProperty(this, DanceRatingField, d.ToString(), this.CurrentLog);
+        //            modified = true;
+        //        }
+        //    }
+
+        //    return modified;
+        //}
+
         public void AddTag(Tag tag)
         {
             Tag other = null;
@@ -623,6 +734,67 @@ namespace m4dModels
             return ret;
         }
 
+        //private bool EditTags(IList<Tag> tags, IFactories factories)
+        //{
+        //    bool modified = false;
+
+        //    List<Tag> tago = Tags.OrderBy(t => t.Value).ToList();
+        //    List<Tag> tagn = tags.OrderBy(t => t.Value).ToList();
+
+        //    List<DanceRatingDelta> deltas = new List<DanceRatingDelta>();
+
+        //    int iO = 0;
+        //    int iN = 0;
+        //    while (iO < tago.Count || iN < tagn.Count)
+        //    {
+        //        Tag o = null;
+        //        string so = "zzzz"; // Default sort to end
+        //        Tag n = null;
+        //        string sn = "zzzz"; // Default sort to end
+
+        //        if (iO < tago.Count)
+        //        {
+        //            o = tago[iO];
+        //            so = o.Value;
+        //        }
+        //        if (iN < tagn.Count)
+        //        {
+        //            n = tagn[iN];
+        //            sn = n.Value;
+        //        }
+
+        //        int comp = string.Compare(so, sn);
+        //        int delta = 0;
+
+        //        if (comp < 0)
+        //        {
+        //            delta = o.Count;
+        //            Tags.Remove(o);
+        //            iO += 1;
+        //        }
+        //        else if (comp > 0)
+        //        {
+        //            delta = n.Count;
+        //            factories.CreateTag(this, n.Value, n.Count);
+        //            iN += 1;
+        //        }
+        //        else
+        //        {
+        //            delta = n.Count - o.Count;
+        //            o.Count += delta;
+        //            iO += 1;
+        //            iN += 1;
+        //        }
+
+        //        if (delta != 0)
+        //        {
+        //            modified = true;
+        //        }
+        //    }
+
+        //    return modified;
+        //}
+
         public void Delete()
         {
             foreach (PropertyInfo pi in SongBase.ScalarProperties)
@@ -686,7 +858,7 @@ namespace m4dModels
             Debug.Assert(DanceRatings.Count == 0);
             foreach (DanceRating dr in sd.DanceRatings)
             {
-                AddDanceRating(dr);
+                AddDanceRating(dr); ;
             }
 
             if (Tags == null)
@@ -711,7 +883,7 @@ namespace m4dModels
             }
         }
 
-        private bool AddModifiedBy(ModifiedRecord mr, IUserMap map)
+        protected override bool AddModifiedBy(ModifiedRecord mr)
         {
             if (ModifiedBy == null)
             {
@@ -719,29 +891,8 @@ namespace m4dModels
             }
 
             mr.Song = this;
-            mr.SongId = SongId;
 
-            ModifiedRecord other = null;
-
-            if (mr.ApplicationUserId != null)
-            {
-                other = ModifiedBy.FirstOrDefault(r => r.ApplicationUserId == mr.ApplicationUserId);
-            }
-            else if (mr.UserName != null)
-            {
-                other = ModifiedBy.FirstOrDefault(r => r.UserName == mr.UserName);
-            }
-
-            if (other == null)
-            {
-                ModifiedBy.Add(mr);
-                return true;
-            }
-            else
-            {
-                //Trace.WriteLine(string.Format("{0} Duplicate User Rating {1}", Title, mr.ApplicationUserId));
-                return false;
-            }
+            return base.AddModifiedBy(mr);
         }
 
         public void UpdateUsers(IUserMap map)
