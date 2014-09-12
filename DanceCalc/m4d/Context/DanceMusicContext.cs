@@ -162,7 +162,7 @@ namespace m4d.Context
                 song.CurrentLog = CreateSongLog(user, song, Song.EditCommand);
             }
 
-            if (song.Edit(user, edit, addDances, remDances, editTags, this, this))
+            if (song.Edit(user, edit, addDances, remDances, ParseTags(editTags), this, this))
             {
                 if (createLog)
                 {
@@ -1026,6 +1026,60 @@ namespace m4d.Context
         #endregion
 
         #region Tags
+
+        // Take a an arbitrary tag list, pull out categories, create tag types and then re-assemble withough the categories
+        public string ParseTags(string editTags)
+        {
+            if (string.IsNullOrWhiteSpace(editTags))
+            {
+                return string.Empty;
+            }
+
+            StringBuilder sb = new StringBuilder();
+            string sep = string.Empty;
+            string[] values = editTags.Split(new char[] { '|' }, StringSplitOptions.RemoveEmptyEntries);
+
+            foreach (string value in values)
+            {
+                string v = value.Trim();
+                string c = null;
+                bool remove = false;
+                if (v.Length > 0 && v[0] == '-')
+                {
+                    remove = true;
+                    v = v.Substring(1);
+                }
+
+                if (v.Contains('='))
+                {
+                    string[] cells = v.Split(new char[] { '=' });
+                    if (cells.Length == 2)
+                    {
+                        c = cells[0];
+                        v = cells[1];
+                    }
+                    else 
+                    {
+                        Trace.WriteLine(string.Format("Bad Value for Tag: {0}",v));
+                    }
+                }
+
+                if (!remove)
+                {
+                    FindOrCreateTagType(v,c);
+                }
+
+                sb.Append(sep);
+                sep = "|";
+                if (remove)
+                {
+                    sb.Append("-");
+                }
+                sb.Append(v);
+            }
+
+            return sb.ToString();
+        }
 
         public Tag CreateTag(Song song, string value, int count)
         {

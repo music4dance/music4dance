@@ -163,7 +163,22 @@ namespace m4dModels
 
             modified |= EditDanceRatings(addDances, DanceRatingIncrement, remDances, DanceRatingDecrement, factories);
 
-            modified |= EditTags(editTags, factories);
+            StringBuilder tags = new StringBuilder();
+            string danceTags = TagsFromDances(addDances);
+            if (!string.IsNullOrWhiteSpace(editTags))
+            {
+                tags.Append(editTags);
+                if (!string.IsNullOrWhiteSpace(danceTags))
+                {
+                    tags.Append("|");
+                }
+            }
+            if (!string.IsNullOrWhiteSpace(danceTags))
+            {
+                tags.Append(danceTags);
+            }
+
+            modified |= EditTags(tags.ToString(), factories);
 
             modified |= UpdatePurchaseInfo(edit);
 
@@ -543,71 +558,6 @@ namespace m4dModels
             return changed;
         }
 
-        //public bool EditDanceRatings(IList<DanceRating> dr, IFactories factories)
-        //{
-        //    bool modified = false;
-
-        //    List<DanceRating> dro = DanceRatings.OrderBy(r => r.DanceId).ToList();
-        //    List<DanceRating> drn = dr.OrderBy(r => r.DanceId).ToList();
-
-        //    List<DanceRatingDelta> deltas = new List<DanceRatingDelta>();
-
-        //    int iO = 0;
-        //    int iN = 0;
-        //    while (iO < dro.Count || iN < drn.Count)
-        //    {
-        //        DanceRating o = null;
-        //        string so = "zzzz"; // Default sort to end
-        //        DanceRating n = null;
-        //        string sn = "zzzz"; // Default sort to end
-
-        //        if (iO < dro.Count)
-        //        {
-        //            o = dro[iO];
-        //            so = o.DanceId;
-        //        }
-        //        if (iN < drn.Count)
-        //        {
-        //            n = drn[iN];
-        //            sn = n.DanceId;
-        //        }
-
-        //        int comp = string.Compare(so, sn);
-        //        DanceRatingDelta d = null;
-
-        //        if (comp < 0)
-        //        {
-        //            d = new DanceRatingDelta { DanceId = so, Delta = -o.Weight };
-        //            DanceRatings.Remove(o);
-        //            iO += 1;
-        //        }
-        //        else if (comp > 0)
-        //        {
-        //            d = new DanceRatingDelta { DanceId = sn, Delta = n.Weight };
-        //            factories.CreateDanceRating(this, sn, n.Weight);
-        //            iN += 1;
-        //        }
-        //        else
-        //        {
-        //            int delta = n.Weight - o.Weight;
-        //            if (delta != 0)
-        //            {
-        //                d = new DanceRatingDelta { DanceId = so, Delta = delta };
-        //                o.Weight += delta;
-        //            }
-        //            iO += 1;
-        //            iN += 1;
-        //        }
-
-        //        if (d != null)
-        //        {
-        //            //factories.CreateSongProperty(this, DanceRatingField, d.ToString(), this.CurrentLog);
-        //            modified = true;
-        //        }
-        //    }
-
-        //    return modified;
-        //}
 
         public void AddTag(Tag tag)
         {
@@ -676,7 +626,6 @@ namespace m4dModels
             foreach (string value in values)
             {
                 string v = value.Trim();
-                string c = null;
                 int bias = 1;
                 if (v.Length > 0 && v[0] == '-')
                 {
@@ -684,19 +633,6 @@ namespace m4dModels
                     v = v.Substring(1);
                 }
 
-                if (v.Contains('='))
-                {
-                    string[] cells = v.Split(new char[] { '=' });
-                    if (cells.Length == 2)
-                    {
-                        c = cells[0];
-                        v = cells[1];
-                    }
-                    else 
-                    {
-                        Trace.WriteLine(string.Format("Bad Value for Tag: {0}",v));
-                    }
-                }
                 Tag other = FindTag(v);
                 if (other != null)
                 {
@@ -712,10 +648,6 @@ namespace m4dModels
                     Trace.WriteLineIf(bias == -1, string.Format("Bad Bias: {0}", this.ToString()));
                 }
 
-                if (string.IsNullOrWhiteSpace(c) && other.Type != null)
-                {
-                    other.Type.AddCategory(c);
-                }
                 factories.CreateSongProperty(
                     this,
                     TagField,
@@ -733,67 +665,6 @@ namespace m4dModels
 
             return ret;
         }
-
-        //private bool EditTags(IList<Tag> tags, IFactories factories)
-        //{
-        //    bool modified = false;
-
-        //    List<Tag> tago = Tags.OrderBy(t => t.Value).ToList();
-        //    List<Tag> tagn = tags.OrderBy(t => t.Value).ToList();
-
-        //    List<DanceRatingDelta> deltas = new List<DanceRatingDelta>();
-
-        //    int iO = 0;
-        //    int iN = 0;
-        //    while (iO < tago.Count || iN < tagn.Count)
-        //    {
-        //        Tag o = null;
-        //        string so = "zzzz"; // Default sort to end
-        //        Tag n = null;
-        //        string sn = "zzzz"; // Default sort to end
-
-        //        if (iO < tago.Count)
-        //        {
-        //            o = tago[iO];
-        //            so = o.Value;
-        //        }
-        //        if (iN < tagn.Count)
-        //        {
-        //            n = tagn[iN];
-        //            sn = n.Value;
-        //        }
-
-        //        int comp = string.Compare(so, sn);
-        //        int delta = 0;
-
-        //        if (comp < 0)
-        //        {
-        //            delta = o.Count;
-        //            Tags.Remove(o);
-        //            iO += 1;
-        //        }
-        //        else if (comp > 0)
-        //        {
-        //            delta = n.Count;
-        //            factories.CreateTag(this, n.Value, n.Count);
-        //            iN += 1;
-        //        }
-        //        else
-        //        {
-        //            delta = n.Count - o.Count;
-        //            o.Count += delta;
-        //            iO += 1;
-        //            iN += 1;
-        //        }
-
-        //        if (delta != 0)
-        //        {
-        //            modified = true;
-        //        }
-        //    }
-
-        //    return modified;
-        //}
 
         public void Delete()
         {

@@ -259,7 +259,7 @@ namespace m4d.Controllers
                 ApplicationUser user = _db.FindUser(User.Identity.Name);
                 song.UpdateDanceRatings(addDances, Song.DanceRatingCreate);
                 // TOOD: Think about format of editTags...
-                song.AddTags(editTags);
+                song.AddTags(_db.ParseTags(editTags));
 
                 Song newSong = _db.CreateSong(user, song);
 

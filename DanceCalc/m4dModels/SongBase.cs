@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DanceLibrary;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
@@ -237,6 +238,22 @@ namespace m4dModels
                 SongProperty prop = new SongProperty { SongId = this.SongId, Name = DanceRatingField, Value = drd.ToString() };
                 SongProperties.Add(prop);
             }
+
+            UpdateTags(TagsFromDances(dances));
+        }
+
+        public static string TagsFromDances(IEnumerable<string> dances)
+        {
+            StringBuilder tags = new StringBuilder();
+            string sep = "";
+
+            foreach (string d in dances)
+            {
+                tags.Append(sep);
+                tags.Append(Dances.Instance.DanceDictionary[d].Name);
+                sep = "|";
+            }
+            return tags.ToString();
         }
         #endregion
 
