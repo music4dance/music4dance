@@ -1,4 +1,7 @@
-﻿using System.Web;
+﻿using BundleTransformer.Core.Bundles;
+using BundleTransformer.Core.Orderers;
+using BundleTransformer.Core.Transformers;
+using System.Web;
 using System.Web.Optimization;
 
 namespace m4d
@@ -8,6 +11,7 @@ namespace m4d
         // For more information on bundling, visit http://go.microsoft.com/fwlink/?LinkId=301862
         public static void RegisterBundles(BundleCollection bundles)
         {
+            // TOOD: Use the full transformer for jquery as well: http://benjii.me/2012/10/using-less-css-with-mvc4-web-optimization/
             bundles.Add(new ScriptBundle("~/bundles/jquery").Include(
                         "~/Scripts/jquery-{version}.js"));
 
@@ -23,26 +27,53 @@ namespace m4d
                       "~/Scripts/bootstrap.js",
                       "~/Scripts/respond.js"));
 
-            RegisterTheme(bundles, "blog", "gray");
-            RegisterTheme(bundles, "music", "teal");
-            RegisterTheme(bundles, "tools", "orange");
-
-            // TODO: Once I have things figures out with boostrap and themes I think this should go away...
-            bundles.Add(new StyleBundle("~/Content/css").Include(
-                      "~/Content/bootstrap.css",
-                      "~/Content/site.css"));
-
-            bundles.Add(new StyleBundle("~/Content/theme").Include(
-                      "~/Content/bootstrap.css",
-                      "~/Content/site.css"));
+            RegisterTheme(bundles, "blog");
+            RegisterTheme(bundles, "music");
+            RegisterTheme(bundles, "tools");
+            RegisterTheme(bundles, "admin");
         }
 
-        public static void RegisterTheme(BundleCollection bundles, string name, string color)
+        public static void RegisterTheme(BundleCollection bundles, string name)
         {
-            bundles.Add(new StyleBundle("~/bundles/" + name).Include(
-                      "~/Content/" + color + "-bootstrap.css",
-                      "~/Content/" + color + "-bootstrap-theme.css",
-                      "~/Content/site.css"));
+            var bundle = new Bundle("~/bundles/" + name);
+            bundle.Transforms.Add(CssTransformer);
+            bundle.Orderer = Orderer;
+            bundle.Include("~/Content/bootstrap/" + name + "-theme.less",
+//                      "~/Content/bootstrap/" + name + "-overrides.less",
+                      "~/Content/site.css");
+            bundles.Add(bundle);
+
+            //bundles.Add(new StyleBundle("~/bundles/" + name).Include(
+            //          "~/Content/" + color + "-bootstrap.css",
+            //          "~/Content/" + color + "-bootstrap-theme.css",
+            //          "~/Content/site.css"));
         }
+
+        private static IBundleOrderer Orderer
+        {
+            get
+            {
+                if (_orderer == null)
+               {
+                   _orderer = new NullOrderer();
+               }
+               return _orderer;
+            }
+        }
+        private static IBundleOrderer _orderer;
+
+        private static IBundleTransform CssTransformer
+        {
+            get
+            {
+                if (_cssTransformer == null)
+                {
+                    _cssTransformer = new StyleTransformer();
+                }
+                return _cssTransformer;
+            }
+        }
+        private static IBundleTransform _cssTransformer;
+
     }
 }

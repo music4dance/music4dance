@@ -24,6 +24,14 @@ namespace m4d.Controllers
 #endif
     public class AccountController : DMController
     {
+        public override string DefaultTheme
+        {
+            get
+            {
+                return AdminTheme;
+            }
+        }
+
         private ApplicationUserManager _userManager;
 
         public AccountController()

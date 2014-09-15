@@ -14,6 +14,7 @@ namespace m4d.Controllers
         public readonly string MusicTheme = "music";
         public readonly string ToolTheme = "tools";
         public readonly string BlogTheme = "blog";
+        public readonly string AdminTheme = "admin";
 
         public virtual string DefaultTheme { get { return BlogTheme; } }
         public string ThemeName 

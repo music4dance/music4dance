@@ -8,10 +8,10 @@
     <link href='//fonts.googleapis.com/css?family=Source+Sans+Pro|Merienda:700' rel='stylesheet' type='text/css'>
     @{
         string theme = "blog";
-        //if (ViewData.ContainsKey("Theme"))
-        //{
-        //    theme = ViewBag.Theme;
-        //}
+        if (ViewData.ContainsKey("Theme"))
+        {
+            theme = ViewBag.Theme;
+        }
         string themeBundle = "~/bundles/" + theme;
     }
     @Styles.Render(themeBundle)

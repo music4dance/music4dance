@@ -29,6 +29,14 @@ namespace m4d.Controllers
     [RequireHttps]
     public class AdminController : DMController
     {
+        public override string DefaultTheme
+        {
+            get
+            {
+                return AdminTheme;
+            }
+        }
+
         private DanceMusicContext _db = new DanceMusicContext();
 
         #region Commands

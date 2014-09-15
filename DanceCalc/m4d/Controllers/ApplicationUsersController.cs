@@ -17,6 +17,14 @@ namespace m4d.Controllers
     [RequireHttps]
     public class ApplicationUsersController : DMController
     {
+        public override string DefaultTheme
+        {
+            get
+            {
+                return AdminTheme;
+            }
+        }
+
         private DanceMusicContext _db = new DanceMusicContext();
 
         // GET: ApplicationUsers
