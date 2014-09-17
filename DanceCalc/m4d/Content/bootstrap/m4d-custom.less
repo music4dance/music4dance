@@ -1,8 +1,21 @@
-﻿// Shades of gray
-@gray-dark:              lighten(@gray-darker, 10%);
-@gray:                   lighten(@gray-darker, 20%);
-@gray-light:             lighten(@gray-darker, 40%);
-@gray-lighter:           lighten(@gray-darker, 60%);
+﻿@gray-darker:            lighten(#000, 13.5%); // #222
+@gray-dark:              lighten(#000, 20%);   // #333
+@gray:                   lighten(#000, 33.5%); // #555
+@gray-light:             lighten(#000, 46.7%); // #777
+@gray-lighter:           lighten(#000, 93.5%); // #eee
+
+@brand-primary:         #428bca;
+@brand-success:         #5cb85c;
+@brand-info:            #5bc0de;
+@brand-warning:         #f0ad4e;
+@brand-danger:          #d9534f;
+
+/*// Shades of gray
+@gray-darker:            lighten(@gray-base,  0%);
+@gray-dark:              lighten(@gray-base, 10%);
+@gray:                   lighten(@gray-base, 20%);
+@gray-light:             lighten(@gray-base, 40%);
+@gray-lighter:           lighten(@gray-base, 60%);
 
 
 // Brand Colors
@@ -16,15 +29,20 @@
 @table-bg-accent: @gray-lighter;
 @table-bg-hover: @gray-lighter;
 
-// Colored nav-bar
-@bgDefault      : @gray-dark;
-@bgHighlight    : @gray-lighter;
-
 @blog-color: #995600;
 @tools-color: #001671;
 @music-color: #18685D;
 @admin-color: #862A08;
+*/
 
+@blog-color: #000;
+@tools-color: #000;
+@music-color: #000;
+@admin-color: #000;
+
+// Colored nav-bar
+@bgDefault      : @gray-dark;
+@bgHighlight    : @gray-lighter;
 
 .calculator
 {
@@ -32,9 +50,9 @@
     font-size: large;
     font-weight:bold;
     padding: 3px 6px;
-    color: @gray;
+    color: @brand-info;
     background-color: #fff;
-    border-color: @gray-dark;
+    border-color: @brand-primary;
     line-height: 1.42857143;
     text-align: center;
     white-space: nowrap;
