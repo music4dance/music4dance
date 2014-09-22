@@ -993,7 +993,7 @@ namespace m4d.Controllers
                     string userId = cells[0];
                     string userName = cells[1];
                     string roles = cells[2];
-                    string hash = cells[3];
+                    string hash = string.IsNullOrWhiteSpace(cells[3]) ? null : cells[3];
                     string stamp = cells[4];
                     string lockout = cells[5];
                     string providers = cells[6];
