@@ -164,7 +164,6 @@ namespace m4dModels
         public decimal? Tempo { get; set; }
         public string Title { get; set; }
         public string Artist { get; set; }
-        public string Genre { get; set; }
         [Range(0, 9999)]
         public int? Length { get; set; }
         public string Purchase { get; set; }
