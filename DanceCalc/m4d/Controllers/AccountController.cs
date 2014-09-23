@@ -13,9 +13,6 @@ using Microsoft.AspNet.Identity.Owin;
 using m4d.Context;
 using m4dModels;
 
-using Recaptcha.Web;
-using Recaptcha.Web.Mvc;
-
 namespace m4d.Controllers
 {
     [Authorize]
@@ -105,40 +102,19 @@ namespace m4d.Controllers
         {
             if (ModelState.IsValid)
             {
-                RecaptchaVerificationHelper recaptchaHelper = this.GetRecaptchaVerificationHelper();
-
-                if (String.IsNullOrEmpty(recaptchaHelper.Response))
+                var user = new ApplicationUser() { UserName = model.UserName };
+                IdentityResult result = await UserManager.CreateAsync(user, model.Password);
+                if (result.Succeeded)
                 {
-                    ModelState.AddModelError("", "Captcha answer cannot be empty.");
-                    return View(model);
-                }
+                    await SignInAsync(user, isPersistent: false);
 
-                RecaptchaVerificationResult recaptchaResult = await recaptchaHelper.VerifyRecaptchaResponseTaskAsync();
+                    // For more information on how to enable account confirmation and password reset please visit http://go.microsoft.com/fwlink/?LinkID=320771
+                    // Send an email with this link
+                    // string code = await UserManager.GenerateEmailConfirmationTokenAsync(user.Id);
+                    // var callbackUrl = Url.Action("ConfirmEmail", "Account", new { userId = user.Id, code = code }, protocol: Request.Url.Scheme);
+                    // await UserManager.SendEmailAsync(user.Id, "Confirm your account", "Please confirm your account by clicking <a href=\"" + callbackUrl + "\">here</a>");
 
-                if (recaptchaResult != RecaptchaVerificationResult.Success)
-                {
-                    ModelState.AddModelError("", "Incorrect captcha answer.");
-                }
-                else
-                {
-                    var user = new ApplicationUser() { UserName = model.UserName };
-                    IdentityResult result = await UserManager.CreateAsync(user, model.Password);
-                    if (result.Succeeded)
-                    {
-                        await SignInAsync(user, isPersistent: false);
-
-                        // For more information on how to enable account confirmation and password reset please visit http://go.microsoft.com/fwlink/?LinkID=320771
-                        // Send an email with this link
-                        // string code = await UserManager.GenerateEmailConfirmationTokenAsync(user.Id);
-                        // var callbackUrl = Url.Action("ConfirmEmail", "Account", new { userId = user.Id, code = code }, protocol: Request.Url.Scheme);
-                        // await UserManager.SendEmailAsync(user.Id, "Confirm your account", "Please confirm your account by clicking <a href=\"" + callbackUrl + "\">here</a>");
-
-                        return RedirectToAction("Index", "Home");
-                    }
-                    else
-                    {
-                        AddErrors(result);
-                    }
+                    return RedirectToAction("Index", "Home");
                 }
             }
 
