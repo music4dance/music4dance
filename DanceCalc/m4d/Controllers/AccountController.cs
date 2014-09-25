@@ -104,7 +104,7 @@ namespace m4d.Controllers
 
             if (user != null)
             {
-                if (!await UserManager.IsEmailConfirmedAsync(user.Id))
+                if (!await UserManager.IsEmailConfirmedAsync(user.Id) && !await UserManager.IsInRoleAsync(user.Id,DanceMusicContext.EditRole))
                 {
                     // TODO: This workflow is broken for the case that the user had a typo in their email when originally registering
                     //  It would be better to allow the user to see & correct the email address before resending.

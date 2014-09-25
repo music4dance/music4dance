@@ -31,7 +31,7 @@ namespace m4d.Controllers
         public ActionResult Index()
         {
             ViewBag.RoleDictionary = _db.RoleDictionary;
-            return View(_db.Users.ToList());
+            return View(_db.Users.OrderBy(u => u.StartDate).ToList());
         }
 
         // GET: ApplicationUsers/Details/5

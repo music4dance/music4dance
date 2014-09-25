@@ -4,9 +4,10 @@
     ViewBag.Title = "Manage";
 }
 
-<h2>@ViewBag.Title.</h2>
-
+<h3>Welcome @Model.Name</h3>
+<p>You have been a member of the music4dance community since @Model.MemberSince.ToString("d")</p>
 <p class="text-success">@ViewBag.StatusMessage</p>
+
 <div>
     <h4>Change your account settings</h4>
     <hr />

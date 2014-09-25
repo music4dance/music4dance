@@ -319,6 +319,10 @@
     <Compile Include="Migrations\201409222232418_RemoveGenre.Designer.cs">
       <DependentUpon>201409222232418_RemoveGenre.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201409252023256_StartData.cs" />
+    <Compile Include="Migrations\201409252023256_StartData.Designer.cs">
+      <DependentUpon>201409252023256_StartData.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Context\DanceMusicConfiguration.cs" />
     <Compile Include="Context\DanceMusicContext.cs" />
@@ -724,6 +728,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201409222232418_RemoveGenre.resx">
       <DependentUpon>201409222232418_RemoveGenre.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201409252023256_StartData.resx">
+      <DependentUpon>201409252023256_StartData.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>

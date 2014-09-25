@@ -53,11 +53,13 @@ namespace m4d.Controllers
 
             var model = new IndexViewModel
             {
+                Name = User.Identity.GetUserName(),
                 HasPassword = HasPassword(),
                 PhoneNumber = await UserManager.GetPhoneNumberAsync(User.Identity.GetUserId()),
                 TwoFactor = await UserManager.GetTwoFactorEnabledAsync(User.Identity.GetUserId()),
                 Logins = await UserManager.GetLoginsAsync(User.Identity.GetUserId()),
-                BrowserRemembered = await AuthenticationManager.TwoFactorBrowserRememberedAsync(User.Identity.GetUserId())
+                BrowserRemembered = await AuthenticationManager.TwoFactorBrowserRememberedAsync(User.Identity.GetUserId()),
+                MemberSince = GetStartDate()
             };
             return View(model);
         }
@@ -340,6 +342,15 @@ namespace m4d.Controllers
             }
         }
 
+        private DateTime GetStartDate()
+        {
+            var user = UserManager.FindById(User.Identity.GetUserId());
+            if (user != null)
+            {
+                return user.StartDate;
+            }
+            return DateTime.Now;
+        }
         private bool HasPassword()
         {
             var user = UserManager.FindById(User.Identity.GetUserId());
