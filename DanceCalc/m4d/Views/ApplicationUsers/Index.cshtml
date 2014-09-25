@@ -47,10 +47,10 @@
         <th>
             Roles
         </th>
-        <th></th>
         <th>
             EMC
         </th>
+        <th></th>
         <th>
             Lock-End
         </th>
@@ -92,6 +92,12 @@
         </td>
         <td>
             @item.GetRoles(roles)
+        </td>
+        <td>
+            @foreach (var sub in item.Logins)
+            {
+                <text>@sub.LoginProvider[0]</text>
+            }
         </td>
         <td>
             @Html.ActionLink("Change Roles", "ChangeRoles", new { id = item.Id }),

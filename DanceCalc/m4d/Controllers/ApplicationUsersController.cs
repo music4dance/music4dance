@@ -31,7 +31,7 @@ namespace m4d.Controllers
         public ActionResult Index()
         {
             ViewBag.RoleDictionary = _db.RoleDictionary;
-            return View(_db.Users.OrderBy(u => u.StartDate).ToList());
+            return View(_db.Users.OrderByDescending(u => u.StartDate).ToList());
         }
 
         // GET: ApplicationUsers/Details/5
@@ -42,6 +42,7 @@ namespace m4d.Controllers
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
             ApplicationUser applicationUser = _db.Users.Find(id);
+            string s = applicationUser.GetProviders();
             if (applicationUser == null)
             {
                 return HttpNotFound();
