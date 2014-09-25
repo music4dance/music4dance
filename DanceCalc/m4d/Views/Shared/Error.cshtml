@@ -4,8 +4,17 @@
     ViewBag.Title = "Error";
 }
 
-<h1 class="text-danger">Error.</h1>
-<h2 class="text-danger">An error occurred while processing your request. (@Model.ControllerName - @Model.ActionName)</h2>
+<h2 class="text-danger">Error:</h2>
+@{
+    if (String.IsNullOrEmpty(ViewBag.errorMessage))
+    {
+        <p class="text-danger">An error occurred while processing your request.</p>
+    }
+    else
+    {
+        <p class="text-danger">@ViewBag.errorMessage</p>
+    }
+}
 
 @if (User.IsInRole("showDiagnostics"))
 {
