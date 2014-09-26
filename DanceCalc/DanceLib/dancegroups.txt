@@ -2,7 +2,7 @@
   {
     "Name": "Swing",
     "Id" : "SWG",
-    "DanceIds" : ["ECS","JIV","WCS","HST", "CSG", "LHP"]
+    "DanceIds" : ["CSG","ECS","HST","JIV","JSW","WCS","LHP"]
   },
   {
     "Name": "Waltz",
@@ -12,7 +12,7 @@
   {
     "Name": "Foxtrot",
     "Id" : "FXT",
-    "DanceIds" : ["SFT","QST"]
+    "DanceIds" : ["CFT","SFT","QST"]
   },
   {
     "Name": "Tango",
@@ -22,11 +22,11 @@
   {
     "Name": "Latin",
     "Id" : "LTN",
-    "DanceIds" : ["BOL","CHA", "MBO", "RMB", "PDL", "SMB", "SLS", "BCH", "CMB", "MRG"]
+    "DanceIds" : ["BOL","BSN","CHA", "MBO", "RMB", "PDL", "SMB", "SLS", "BCH", "CMB", "MRG"]
   },
   {
     "Name": "Other",
     "Id" : "MSC",
-    "DanceIds" : ["PLK","NC2","PBD","C2S"]
+    "DanceIds" : ["BLU","C2S","NC2","PBD","PLK"]
   },
 ]

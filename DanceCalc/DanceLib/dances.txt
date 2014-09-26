@@ -44,6 +44,24 @@
     ]
   },
   {
+    "Name": "Castle Foxtrot",
+    "Id": "CFT",
+    "Meter": {
+      "Numerator": 4,
+      "Denominator": 4
+    },
+    "Instances": [
+      {
+        "Style": "Social",
+        "TempoRange": {
+          "Min": 15.0,
+          "Max": 25.0
+        },
+        "Exceptions": []
+      }
+    ]
+  },
+  {
     "Name": "Slow Foxtrot",
     "Id": "SFT",
     "Meter": {
@@ -759,6 +777,78 @@
         "TempoRange": {
           "Min": 32.5,
           "Max": 50.0
+        },
+        "Exceptions": []
+      }
+    ]
+  },
+  {
+    "Name": "Bossa Nova",
+    "Id": "BSN",
+    "Meter": {
+      "Numerator": 4,
+      "Denominator": 4
+    },
+    "Instances": [
+      {
+        "Style": "Social",
+        "TempoRange": {
+          "Min": 15.0,
+          "Max": 22.5
+        },
+        "Exceptions": []
+      }
+    ]
+  },
+  {
+    "Name": "Jump Swing",
+    "Id": "JSW",
+    "Meter": {
+      "Numerator": 4,
+      "Denominator": 4
+    },
+    "Instances": [
+      {
+        "Style": "Social",
+        "TempoRange": {
+          "Min": 40.0,
+          "Max": 60.0
+        },
+        "Exceptions": []
+      }
+    ]
+  },
+  {
+    "Name": "Blues",
+    "Id": "BLU",
+    "Meter": {
+      "Numerator": 4,
+      "Denominator": 4
+    },
+    "Instances": [
+      {
+        "Style": "Social",
+        "TempoRange": {
+          "Min": 10.0,
+          "Max": 25.0
+        },
+        "Exceptions": []
+      }
+    ]
+  },
+  {
+    "Name": "Motown",
+    "Id": "MWT",
+    "Meter": {
+      "Numerator": 4,
+      "Denominator": 4
+    },
+    "Instances": [
+      {
+        "Style": "Social",
+        "TempoRange": {
+          "Min": 20.0,
+          "Max": 37.5
         },
         "Exceptions": []
       }
