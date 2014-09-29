@@ -93,13 +93,14 @@ namespace m4d.Migrations
             //    }
             //}
 
-            if (!context.Dances.Any(d => d.Id == "CHA"))
-            {
-                Dances dances = Dances.Instance;
+            Dances dances = Dances.Instance;
 
-                foreach (DanceObject d in dances.AllDances)
+            foreach (DanceObject d in dances.AllDances)
+            {
+                Dance dance = context.Dances.Find(d.Id);
+                if (dance == null)
                 {
-                    Dance dance = new Dance { Id = d.Id };
+                    dance = new Dance { Id = d.Id };
                     context.Dances.Add(dance);
                 }
             }
