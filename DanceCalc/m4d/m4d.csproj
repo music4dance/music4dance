@@ -55,8 +55,9 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\Antlr.3.5.0.2\lib\Antlr3.Runtime.dll</HintPath>
     </Reference>
-    <Reference Include="BundleTransformer.Core">
-      <HintPath>..\packages\BundleTransformer.Core.1.9.13\lib\net40\BundleTransformer.Core.dll</HintPath>
+    <Reference Include="BundleTransformer.Core, Version=1.9.22.0, Culture=neutral, PublicKeyToken=973c344c93aac60d, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\BundleTransformer.Core.1.9.22\lib\net40\BundleTransformer.Core.dll</HintPath>
     </Reference>
     <Reference Include="BundleTransformer.Less">
       <HintPath>..\packages\BundleTransformer.Less.1.9.20\lib\net40\BundleTransformer.Less.dll</HintPath>
@@ -502,15 +503,15 @@
     <Content Include="Content\bootstrap\bootstrap.less" />
     <Content Include="Content\bootstrap\badges.less" />
     <Content Include="Content\bootstrap\alerts.less" />
-    <None Include="BundleTransformer.Configuration.xsd">
-      <SubType>Designer</SubType>
-    </None>
     <Content Include="Content\bootstrap\music-theme.less" />
     <Content Include="Content\bootstrap\tools-theme.less" />
     <Content Include="Content\bootstrap\blog-theme.less" />
     <Content Include="Content\bootstrap\color-nav.less" />
     <Content Include="Content\bootstrap\admin-theme.less" />
     <Content Include="Content\bootstrap\m4d-custom.less" />
+    <None Include="BundleTransformer.Configuration.xsd">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="Properties\PublishProfiles\m4d-old.pubxml" />
     <None Include="Properties\PublishProfiles\m4d.pubxml" />
     <Content Include="MvcDiagnostics.aspx" />
