@@ -2,7 +2,7 @@
   {
     "Name": "Swing",
     "Id" : "SWG",
-    "DanceIds" : ["CSG","ECS","HST","JIV","JSW","WCS","LHP"]
+    "DanceIds" : ["BBA","CSG","ECS","HST","JIV","JSW","WCS","LHP"]
   },
   {
     "Name": "Waltz",

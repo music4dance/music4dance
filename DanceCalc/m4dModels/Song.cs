@@ -267,7 +267,14 @@ namespace m4dModels
 
             modified |= EditDanceRatings(addDances, DanceRatingIncrement, null, 0, factories);
 
-            modified |= UpdatePurchaseInfo(edit);
+            string tags = TagsFromDances(addDances);
+            if (!string.IsNullOrWhiteSpace(tags))
+            {
+                EditTags(tags,factories);
+                modified = true;
+            }
+
+            modified |= UpdatePurchaseInfo(edit,true);
 
             return modified;
         }
@@ -339,7 +346,7 @@ namespace m4dModels
             object eP = edit.GetType().GetProperty(name).GetValue(edit);
             object oP = GetType().GetProperty(name).GetValue(this);
 
-            if (oP != null)
+            if (oP == null || (oP is string && string.IsNullOrWhiteSpace(oP as string)))
             {
                 modified = true;
                 GetType().GetProperty(name).SetValue(this, eP);
@@ -368,10 +375,19 @@ namespace m4dModels
             factories.CreateSongProperty(this, Song.TimeField, time.ToString(), null);
         }
 
-        private bool UpdatePurchaseInfo(SongDetails edit)
+        private bool UpdatePurchaseInfo(SongDetails edit, bool additive = false)
         {
             bool ret = false;
-            string pi = edit.GetPurchaseTags();
+            string pi = null;
+
+            if (additive)
+            {
+                pi = edit.MergePurchaseTags(Purchase);
+            }
+            else
+            {
+                pi = edit.GetPurchaseTags();
+            }
             if (!string.Equals(Purchase, pi))
             {
                 Purchase = pi;

@@ -210,6 +210,7 @@ namespace m4dModels
             {"CONTRIBUTING ARTISTS", ArtistField},
             {"LABEL", PublisherField},
             {"USER", UserField},
+            {"TEMPO", TempoField},
             {"BPM", TempoField},
             {"BEATS-PER-MINUTE", TempoField},
             {"LENGTH", LengthField},
@@ -223,10 +224,36 @@ namespace m4dModels
         public static IList<SongDetails> CreateFromRows(string separator, IList<string> headers, IEnumerable<string> rows, int weight)
         {
             Dictionary<string, SongDetails> songs = new Dictionary<string, SongDetails>();
+            bool itc = string.Equals(separator.Trim(), "ITC");
+            bool itcd = string.Equals(separator.Trim(), "ITC-");
 
             foreach (string line in rows)
             {
-                List<string> cells = new List<string>(Regex.Split(line, separator));
+                List<string> cells = null;
+                
+                if (itc || itcd)
+                {
+                    cells = new List<string>();
+                    Regex re = null;
+                    if (itc) re = new Regex(@"\b*(?<bpm>\d+)(?<title>[^\t]*)\t(?<artist>.*)");
+                    else if (itcd) re = new Regex(@"\b*(?<bpm>\d+)(?<title>[^-]*)-(?<artist>.*)");
+                    Match m = re.Match(line);
+                    if (m.Success)
+                    {
+                        cells.Add(m.Groups["bpm"].Value);
+                        cells.Add(m.Groups["title"].Value);
+                        cells.Add(m.Groups["artist"].Value);
+                    }
+                    else
+                    {
+                        continue;
+                    }
+                }
+                else
+                {
+                    cells = new List<string>(Regex.Split(line, separator));
+                }
+                
 
                 // Concat back the last field (which seems a typical pattern)
                 while (cells.Count > headers.Count)
@@ -520,6 +547,24 @@ namespace m4dModels
             return GetPurchaseTags(Albums);
         }
 
+        public string MergePurchaseTags(string pi)
+        {
+            string oi = SortChars(pi);
+            string ni = GetPurchaseTags();
+
+            oi = oi ?? string.Empty;
+            ni = ni ?? string.Empty;
+
+            var merged = oi.Union(ni);
+            return SortChars(merged);
+        }
+
+        private static string SortChars(IEnumerable<char> chars)
+        {
+            var a = chars.ToArray();
+            Array.Sort(a);
+            return new string(a);
+        }
         public ICollection<PurchaseLink> GetPurchaseLinks(string service = "AIX")
         {
             List<PurchaseLink> links = new List<PurchaseLink>();
@@ -545,7 +590,6 @@ namespace m4dModels
 
         public static string GetPurchaseTags(ICollection<AlbumDetails> albums)
         {
-            StringBuilder sb = new StringBuilder();
             HashSet<char> added = new HashSet<char>();
 
             foreach (AlbumDetails d in albums)
@@ -558,16 +602,17 @@ namespace m4dModels
                         if (!added.Contains(c))
                         {
                             added.Add(c);
-                            sb.Append(c);
                         }
                     }
                 }
             }
 
-            if (sb.Length == 0)
+            if (added.Count == 0)
                 return null;
             else
-                return sb.ToString();
+            {
+                return SortChars(added);
+            }
         }
         public static int GetNextAlbumIndex(ICollection<AlbumDetails> albums)
         {

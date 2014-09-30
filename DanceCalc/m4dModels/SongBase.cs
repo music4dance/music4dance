@@ -243,6 +243,11 @@ namespace m4dModels
 
         public static string TagsFromDances(IEnumerable<string> dances)
         {
+            if (dances == null)
+            {
+                return null;
+            }
+
             StringBuilder tags = new StringBuilder();
             string sep = "";
 

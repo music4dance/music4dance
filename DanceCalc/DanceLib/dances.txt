@@ -854,4 +854,22 @@
       }
     ]
   },
+  {
+    "Name": "Balboa",
+    "Id": "BBA",
+    "Meter": {
+      "Numerator": 4,
+      "Denominator": 4
+    },
+    "Instances": [
+      {
+        "Style": "Social",
+        "TempoRange": {
+          "Min": 40.0,
+          "Max": 65.0
+        },
+        "Exceptions": []
+      }
+    ]
+  },
 ]

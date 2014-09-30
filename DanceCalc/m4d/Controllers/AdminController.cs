@@ -596,7 +596,7 @@ namespace m4d.Controllers
         // Get: //UploadCatalog
         [HttpGet]
         [Authorize(Roles = "dbAdmin")]
-        public ActionResult UploadCatalog(string separator=null, string headers=null, string dances=null, string artist=null, string album=null)
+        public ActionResult UploadCatalog(string separator=null, string headers=null, string dances=null, string artist=null, string album=null, string user=null)
         {
             if (!string.IsNullOrEmpty(separator))
             {
@@ -617,6 +617,10 @@ namespace m4d.Controllers
             if (!string.IsNullOrEmpty(album))
             {
                 ViewBag.Album = album;
+            }
+            if (!string.IsNullOrEmpty(user))
+            {
+                ViewBag.User = user;
             }
             return View();
         }
@@ -722,7 +726,7 @@ namespace m4d.Controllers
             {
                 userName = User.Identity.Name;
             }
-            ApplicationUser user = _db.FindOrAddUser(userName,DanceMusicContext.EditRole);
+            ApplicationUser user = _db.FindOrAddUser(userName,DanceMusicContext.PseudoRole);
 
             List<string> dances = null;
             if (!string.IsNullOrWhiteSpace(danceIds))
@@ -1118,7 +1122,7 @@ namespace m4d.Controllers
                     {
                         dmc.UpdateSong(user, song, sd, false);
                     }
-                    song.Modified = DateTime.Now;
+                    //song.Modified = DateTime.Now;
                 }
 
                 dmc.Configuration.AutoDetectChangesEnabled = true;

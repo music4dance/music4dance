@@ -1014,7 +1014,11 @@ namespace m4d.Context
                 umanager.Create(user, "_this_is_a_placeholder_");
             }
 
-            if (!umanager.IsInRole(user.Id, role))
+            if (string.Equals(role,PseudoRole))
+            {
+                user.LockoutEnabled = true;
+            }
+            else if (!umanager.IsInRole(user.Id, role))
             {
                 umanager.AddToRole(user.Id, role);
             }
@@ -1193,6 +1197,7 @@ namespace m4d.Context
         public static readonly string EditRole = "canEdit";
         public static readonly string DiagRole = "showDiagnostics";
         public static readonly string DbaRole = "dbAdmin";
+        public static readonly string PseudoRole = "pseudoUser";
 
         AWSFetcher _awsFetcher;
 
