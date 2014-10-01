@@ -1,5 +1,6 @@
 ﻿using m4d.Context;
 using m4d.ViewModels;
+using m4dModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -33,6 +34,15 @@ namespace m4d.Controllers
 
                 return View(data);
             }
+        }
+
+        [AllowAnonymous]
+        public ActionResult Tempoes()
+        {
+            ThemeName = ToolTheme;
+            var data = Dance.DanceLibrary.AllDanceTypes;
+
+            return View(data);
         }
 
         [AllowAnonymous]

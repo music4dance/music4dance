@@ -33,14 +33,20 @@ namespace m4d.Controllers
 
     public class DanceController : ApiController
     {
-        public IHttpActionResult GetAllDances()
+        public IHttpActionResult GetAllDances(bool details=false)
         {
             // This should eventually take a filter (or multiple filter) paramter
-
             var dances = Dance.DanceLibrary.AllDanceTypes;
-            var jdance = dances.Select(x => new DanceJson(x));
+            if (details == true)
+            {
+                return Ok(dances);
+            }
+            else
+            {
+                var jdance = dances.Select(x => new DanceJson(x));
 
-            return Ok(jdance);
+                return Ok(jdance);
+            }
         }
 
         public IHttpActionResult GetDance(string id)
