@@ -432,7 +432,7 @@ namespace m4d.Controllers
                     }
                     else
                     {
-                        RestoreDB();
+                        Trace.WriteLine("Requested full reload, but invalid headers, so just doing songs");
                     }
                 }
 
@@ -454,7 +454,6 @@ namespace m4d.Controllers
             {
                 ViewBag.Success = false;
                 ViewBag.Message = "Failed to reload database";
-
             }
 
 
