@@ -237,7 +237,7 @@ namespace m4dModels
                     Regex re = null;
                     if (itc) re = new Regex(@"\b*(?<bpm>\d+)(?<title>[^\t]*)\t(?<artist>.*)");
                     else if (itcd) re = new Regex(@"\b*(?<bpm>\d+)(?<title>[^-]*)-(?<artist>.*)");
-                    Match m = re.Match(line);
+                    Match m = re.Match(line.Trim());
                     if (m.Success)
                     {
                         cells.Add(m.Groups["bpm"].Value);
@@ -552,7 +552,6 @@ namespace m4dModels
             string oi = SortChars(pi);
             string ni = GetPurchaseTags();
 
-            oi = oi ?? string.Empty;
             ni = ni ?? string.Empty;
 
             var merged = oi.Union(ni);
@@ -561,6 +560,8 @@ namespace m4dModels
 
         private static string SortChars(IEnumerable<char> chars)
         {
+            if (chars == null) return String.Empty;
+
             var a = chars.ToArray();
             Array.Sort(a);
             return new string(a);

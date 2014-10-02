@@ -858,6 +858,7 @@ namespace m4d.Context
 
             if (list != null)
             {
+                list = FilterKaraoke(list);
                 if (song != null)
                 {
                     list = song.RankTracks(list);
@@ -869,6 +870,35 @@ namespace m4d.Context
             }
 
             return list;
+        }
+
+        private static IList<ServiceTrack> FilterKaraoke(IList<ServiceTrack> list)
+        {
+            List<ServiceTrack> tracks = new List<ServiceTrack>();
+
+            foreach (var track in list)
+            {
+                if (!ContainsKaraoke(track.Name) && !ContainsKaraoke(track.Album))
+                {
+                    tracks.Add(track);
+                }
+            }
+
+            return tracks;
+        }
+
+        private static bool ContainsKaraoke(string name)
+        {
+            string[] exclude = new string[] {"karaoke","in the style of","a tribute to"};
+            foreach (var s in exclude)
+            {
+                if (name.IndexOf(s,StringComparison.InvariantCultureIgnoreCase) != -1)
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         private IList<ServiceTrack> DoFindMusicServiceSong(SongDetails song, MusicService service, bool clean = false, string title = null, string artist = null)
