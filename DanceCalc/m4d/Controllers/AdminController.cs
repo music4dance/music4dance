@@ -819,7 +819,8 @@ namespace m4d.Controllers
 
             sb.AppendFormat("{0}\r\n",_songBreak);
             bool history = !string.IsNullOrWhiteSpace(useLookupHistory);
-            foreach (Song song in _db.Songs.OrderBy(t => t.Modified))
+            var songlist = _db.Songs.OrderBy(t => t.Modified).ThenBy(t => t.SongId);
+            foreach (Song song in songlist)
             {
                 string[] actions = null;
                 if (history)
@@ -1117,8 +1118,11 @@ namespace m4d.Controllers
                     {
                         song = dmc.CreateSong(user,sd);
                     }
-                    else
+                    else if (sd.IsNull)
                     {
+                        dmc.DeleteSong(user, song);
+                    }
+                    else {
                         dmc.UpdateSong(user, song, sd, false);
                     }
                     //song.Modified = DateTime.Now;
