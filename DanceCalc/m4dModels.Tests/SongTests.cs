@@ -68,16 +68,8 @@ namespace m4dModels.Tests
             Trace.WriteLine(init);
             SongDetails sd = new SongDetails(song);
 
-            DanceRatingDelta rmb = new DanceRatingDelta { DanceId = "RMB", Delta = 5 };
-            DanceRatingDelta cha = new DanceRatingDelta { DanceId = "CHA", Delta = 7 };
-            DanceRatingDelta fxt = new DanceRatingDelta { DanceId = "FXT", Delta = 13 };
-            DanceRatingDelta swg = new DanceRatingDelta { DanceId = "SWG", Delta = 27 };
-            DanceRatingDelta ch2 = new DanceRatingDelta { DanceId = "CHA", Delta = -7 };
-            DanceRatingDelta rm2 = new DanceRatingDelta { DanceId = "RMB", Delta = 200 };
-
-            sd.UpdateDanceRating(rmb);
-            sd.UpdateDanceRating(cha);
-            sd.UpdateDanceRating(fxt);
+            sd.UpdateDanceRatings(new string[] {"RMB","CHA"}, 5);
+            sd.UpdateDanceRatings(new string[] { "FXT" }, 7);
 
             // Create an test an initial small list of dance ratings
             ApplicationUser user = s_users.FindUser("dwgray");
@@ -88,13 +80,17 @@ namespace m4dModels.Tests
 
             // Now mix it up a bit
 
-            sd.UpdateDanceRating(ch2);
-            sd.UpdateDanceRating(rm2);
-            string delta = song.ToString();
-            Trace.WriteLine(delta);
+            sd.UpdateDanceRatings(new string[] { "RMB", "FXT" }, 3);
+            song.Update(user, sd, s_factories, s_users);
             Assert.IsTrue(song.DanceRatings.Count == 3);
             DanceRating drT = song.FindRating("RMB");
-            Assert.IsTrue(drT.Weight == 105);
+            Assert.IsTrue(drT.Weight == 8);
+
+            sd.UpdateDanceRatings(new string[] { "CHA", "FXT" }, -5);
+            song.Update(user, sd, s_factories, s_users);
+            Assert.IsTrue(song.DanceRatings.Count == 2);
+            drT = song.FindRating("FXT");
+            Assert.IsTrue(drT.Weight == 5);
         }
         static string[] titles = new string[] {
             "ñ-é á",

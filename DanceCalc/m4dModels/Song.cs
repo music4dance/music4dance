@@ -208,15 +208,16 @@ namespace m4dModels
             List<SongProperty> mrg = new List<SongProperty>(upd.Skip(c));
             LoadProperties(mrg);
 
-            UpdatePurchaseInfo(update);
-            AlbumDetails album = update.Albums[0];
-            if (album == null)
+            foreach (var prop in mrg)
             {
-                Album = null;
+                SongProperties.Add(prop);
             }
-            else
+
+            UpdatePurchaseInfo(update);
+            Album = null;
+            if (update.Albums != null && update.Albums.Count > 0)
             {
-                Album = album.AlbumTrack;
+                Album = update.Albums[0].AlbumTrack;
             }
 
             UpdateUsers(users);

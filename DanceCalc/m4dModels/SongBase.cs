@@ -221,6 +221,11 @@ namespace m4dModels
             }
 
             dr.Weight += drd.Delta;
+
+            if (dr.Weight <= 0)
+            {
+                DanceRatings.Remove(dr);
+            }
         }
 
         public void UpdateDanceRatings(IEnumerable<string> dances, int weight)
