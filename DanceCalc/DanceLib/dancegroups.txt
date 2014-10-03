@@ -27,6 +27,6 @@
   {
     "Name": "Other",
     "Id" : "MSC",
-    "DanceIds" : ["BLU","C2S","NC2","PBD","PLK"]
+    "DanceIds" : ["BLU","C2S","MWT","NC2","PBD","PLK"]
   },
 ]
