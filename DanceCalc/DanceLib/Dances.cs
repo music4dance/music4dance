@@ -84,6 +84,8 @@ namespace DanceLibrary
         [JsonProperty]
         public List<DanceInstance> Instances { get; set; }
 
+        [JsonProperty]
+        public string GroupName { get; set; }
         public string Description {get;set;}
 
         public Uri Link {get;set;}
@@ -602,6 +604,15 @@ namespace DanceLibrary
             {
                 _allDanceObjects.Add(dg);
                 _danceDictionary.Add(dg.Id, dg);
+
+                foreach (var d in dg.Members)
+                {
+                    DanceType dt = d as DanceType;
+                    if (dt != null)
+                    {
+                        dt.GroupName = dg.Name;
+                    }
+                }
             }
         }
 

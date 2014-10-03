@@ -5,7 +5,7 @@
 <table class="table table-striped table-bordered">
     <thead>
         <tr data-bind="foreach: headers">
-            <td data-bind="click: $parent.sort, text: title" class="btn-link"></td>
+            <td><a data-bind ="click: $parent.sort, text: title" class="btn-link"></a></td>
         </tr>
     </thead>
     <tbody data-bind="foreach: dances">
@@ -14,6 +14,8 @@
             <td align="center"><span data-bind="text: Meter.Numerator"></span>/<span data-bind="text: Meter.Denominator"></span></td>
             <td align="center" data-bind="text: tempoMPM"></td>
             <td align="center" data-bind="text: tempoBPM"></td>
+            <td data-bind="text: GroupName"></td>
+            <td data-bind="text: styles"></td>
         </tr>
     </tbody>
 </table>

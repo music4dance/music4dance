@@ -1,4 +1,6 @@
-﻿function formatRange(min,max)
+﻿// TODONEXT: Implement filtering (by style, bye type, possibly all columns except name)
+
+function formatRange(min, max)
 {
     if (min == max) {
         return min;
@@ -20,6 +22,22 @@ var DanceType = function (data) {
         var numerator = this.Meter.Numerator;
         return formatRange(this.TempoRange.Min * numerator , this.TempoRange.Max * numerator);
     }, this);
+
+    this.styles = ko.computed(function () {
+        var ret = "";
+        if (this.Instances)
+        {
+            var sep = "";
+            for (var i = 0 ; i < this.Instances.length; i++)
+            {
+                ret += sep;
+                ret += this.Instances[i].Style;
+                sep = " , "
+            }
+        }
+
+        return ret;
+    }, this);
 }
 
 var danceMapping = {
@@ -30,9 +48,6 @@ var danceMapping = {
     }
 }
 
-// TODO: Sorting by name is only working in ascending order, not
-//  sure what is going on here because sorting everything else works
-//  fine - is there some default ko behavior that is overriding us?
 function sortString(a, b) {
     return (a < b ? -1 : a > b ? 1 : a == b ? 0 : 0);
 }
@@ -46,7 +61,9 @@ function setupDances(data) {
         { title: 'Name', sortKey: 'Name' },
         { title: 'Meter', sortKey: 'Meter' },
         { title: 'MPM', sortKey: 'MPM' },
-        { title: 'BPM', sortKey: 'BPM' }
+        { title: 'BPM', sortKey: 'BPM' },
+        { title: 'Type', sortKey: 'Type' },
+        { title: 'Style(s)', sortKey: 'Style' },
     ];
 
     viewModel.activeSort = null;
@@ -89,12 +106,21 @@ function setupDances(data) {
                     return ((a.TempoRange.Min * a.Meter.Numerator) - (b.TempoRange.Max * b.Meter.Numerator)) * dir;
                 });
                 break;
+            case 'Type':
+                viewModel.dances.sort(function (a, b) {
+                    return sortString(a.GroupName,b.GroupName) * dir;
+                });
+                break;
+            case 'Style':
+                viewModel.dances.sort(function (a, b) {
+                    return sortString(a.styles(), b.styles()) * dir;
+                });
+                break;
         }
         var prop = header.sortKey;
-        viewModel.dances.sort(function(a,b) {
-            return a[prop] < b[prop] ? -1 : a[prop] > b[prop] ? 1 : a[prop] == b[prop] ? 0 : 0;
-        });
     }
+
+    viewModel.dances.sort(function (a, b) { return sortString(a.Name,b.Name)});
 
     ko.applyBindings(viewModel);
 }
