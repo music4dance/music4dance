@@ -41,8 +41,8 @@ namespace m4d.Controllers
         {
             ThemeName = ToolTheme;
             var data = Dance.DanceLibrary.AllDanceTypes;
-
-            return View(data);
+            ViewBag.DanceStyles = Dance.DanceLibrary.AllDanceGroups;
+            return View(Dance.DanceLibrary);
         }
 
         [AllowAnonymous]
