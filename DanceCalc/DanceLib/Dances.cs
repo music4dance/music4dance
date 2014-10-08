@@ -20,6 +20,30 @@ namespace DanceLibrary
         static internal readonly string Organization = "Organization";
     }
 
+    public class OrgSpec
+    {
+        public string Name { get; set; } // NDCA or DanceSport
+        public string Category { get; set; } // Level or Competitor or NULL
+        public string Qualifier { get; set; } // Level = Bronze or Silter,Gold; Competitor = Professional,Amateur or ProAm
+
+        public string Title
+        {
+            get
+            {
+                string title = "All Organizations";
+                if (Name != "All")
+                {
+                    title = Name;
+                    if (Category != null)
+                    {
+                        title += " (" + Qualifier + ")";
+                    }
+                }
+                return title;
+            }
+        }
+    }
+
     [JsonObject(MemberSerialization.OptIn)]
     public class DanceObject
     {
@@ -37,12 +61,17 @@ namespace DanceLibrary
     public class DanceType : DanceObject
     {
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors"), JsonConstructor]
-        public DanceType(string name, string description, Meter meter, DanceInstance[] instances) 
+        public DanceType(string name, string description, Meter meter, string[] organizations, DanceInstance[] instances) 
         {
             Name = name;
             Description = description;
             Meter = meter;
             Instances = new List<DanceInstance>(instances);
+
+            if (organizations != null)
+            {
+                Organizations = new List<string>(organizations);
+            }
 
             if (instances != null)
             {
@@ -81,6 +110,8 @@ namespace DanceLibrary
             }
         }
 
+        [JsonProperty]
+        public List<string> Organizations { get; set; }
         [JsonProperty]
         public List<DanceInstance> Instances { get; set; }
 
@@ -616,6 +647,11 @@ namespace DanceLibrary
             }
         }
 
+        public static Dances Reset()
+        {
+            _instance = null;
+            return Instance;
+        }
         public static Dances Instance 
         { 
             get
@@ -671,6 +707,25 @@ namespace DanceLibrary
                 return _allDanceGroups;
             }
         }
+
+        public OrgSpec[] Organizations = new OrgSpec[] {
+            new OrgSpec { Name = "All"},
+            new OrgSpec { Name = "DanceSport"},
+            new OrgSpec { Name = "NDCA"},
+            new OrgSpec { Name = "NDCA", Category="Level", Qualifier="Silver,Gold"},
+            new OrgSpec { Name = "NDCA", Category="Level", Qualifier="Bronze"},
+            new OrgSpec { Name = "NDCA", Category="Competitor", Qualifier="Professional,Amateur"},
+            new OrgSpec { Name = "NDCA", Category="Competitor", Qualifier="ProAm"},
+        };
+
+        public KeyValuePair<string, string>[] Styles = new KeyValuePair<string, string>[] {
+            new KeyValuePair<string,string>("all","All Styles"),
+            new KeyValuePair<string,string>("is","International Standard"),
+            new KeyValuePair<string,string>("il","International Latin"),
+            new KeyValuePair<string,string>("as","American Smooth"),
+            new KeyValuePair<string,string>("ar","American Rhythm"),
+            new KeyValuePair<string,string>("s","Social")
+        };
 
         public string GetJSON()
         {

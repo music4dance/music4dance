@@ -12,7 +12,7 @@
   {
     "Name": "Foxtrot",
     "Id" : "FXT",
-    "DanceIds" : ["CFT","SFT","QST"]
+    "DanceIds" : ["CFT","SFT","QST","PBD"]
   },
   {
     "Name": "Tango",
@@ -27,6 +27,6 @@
   {
     "Name": "Other",
     "Id" : "MSC",
-    "DanceIds" : ["BLU","C2S","MWT","NC2","PBD","PLK"]
+    "DanceIds" : ["BLU","C2S","MWT","NC2","PLK"]
   },
 ]

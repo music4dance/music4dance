@@ -6,6 +6,7 @@
       "Numerator": 3,
       "Denominator": 4
     },
+    "Organizations": ["DanceSport","NDCA"],
     "Instances": [
       {
         "Style": "American Smooth",
@@ -68,6 +69,7 @@
       "Numerator": 4,
       "Denominator": 4
     },
+    "Organizations": ["DanceSport","NDCA"],
     "Instances": [
       {
         "Style": "American Smooth",
@@ -118,6 +120,7 @@
       "Numerator": 4,
       "Denominator": 4
     },
+    "Organizations": ["DanceSport","NDCA"],
     "Instances": [
       {
         "Style": "American Smooth",
@@ -161,6 +164,7 @@
       "Numerator": 4,
       "Denominator": 4
     },
+    "Organizations": ["DanceSport","NDCA"],
     "Instances": [
       {
         "Style": "American Smooth",
@@ -179,14 +183,24 @@
       "Numerator": 3,
       "Denominator": 4
     },
+    "Organizations": ["DanceSport","NDCA"],
     "Instances": [
       {
         "Style": "American Smooth",
         "TempoRange": {
-          "Min": 54.0,
+          "Min": 53.0,
           "Max": 54.0
         },
-        "Exceptions": []
+        "Exceptions": [
+          {
+            "Organization": "NDCA",
+            "TempoRange": {
+              "Min": 54.0,
+              "Max": 54.0
+            },
+            "Level": "Bronze"
+          }
+        ]
       },
       {
         "Style": "International Standard",
@@ -213,6 +227,7 @@
       "Numerator": 4,
       "Denominator": 4
     },
+    "Organizations": ["DanceSport","NDCA"],
     "Instances": [
       {
         "Style": "International Standard",
@@ -239,6 +254,7 @@
       "Numerator": 4,
       "Denominator": 4
     },
+    "Organizations": ["DanceSport","NDCA"],
     "Instances": [
       {
         "Style": "American Rhythm",
@@ -252,7 +268,8 @@
             "TempoRange": {
               "Min": 24.0,
               "Max": 24.0
-            }
+            },
+            "Level": "Silver,Gold"
           }
         ]
       }
@@ -265,6 +282,7 @@
       "Numerator": 4,
       "Denominator": 4
     },
+    "Organizations": ["DanceSport","NDCA"],
     "Instances": [
       {
         "Style": "American Rhythm",
@@ -299,6 +317,7 @@
       "Numerator": 4,
       "Denominator": 4
     },
+    "Organizations": ["DanceSport","NDCA"],
     "Instances": [
       {
         "Style": "American Rhythm",
@@ -341,6 +360,7 @@
       "Numerator": 4,
       "Denominator": 4
     },
+    "Organizations": ["DanceSport","NDCA"],
     "Instances": [
       {
         "Style": "International Latin",
@@ -375,21 +395,37 @@
       "Numerator": 4,
       "Denominator": 4
     },
+    "Organizations": ["DanceSport","NDCA"],
     "Instances": [
       {
         "Style": "American Rhythm",
         "TempoRange": {
-          "Min": 32.0,
+          "Min": 30.0,
           "Max": 36.0
         },
         "Exceptions": [
           {
             "Organization": "NDCA",
             "TempoRange": {
-              "Min": 32.0,
+              "Min": 30.0,
               "Max": 32.0
             },
-            "Competitor": "Professional,Amateur"
+            "Level": "Bronze"
+          },
+          {
+            "Organization": "NDCA",
+            "TempoRange": {
+              "Min": 32.0,
+              "Max": 36.0
+            },
+            "Level": "Silver,Gold"
+          },
+          {
+            "Organization": "DanceSport",
+            "TempoRange": {
+              "Min": 30.0,
+              "Max": 34.0
+            },
           }
         ]
       },
@@ -427,6 +463,7 @@
       "Numerator": 4,
       "Denominator": 4
     },
+    "Organizations": ["DanceSport","NDCA"],
     "Instances": [
       {
         "Style": "American Rhythm",
@@ -441,7 +478,7 @@
               "Min": 36.0,
               "Max": 36.0
             },
-            "Competitor": "Professional,Amateur"
+            "Level": "Silver,Gold"
           }
         ]
       }
@@ -454,6 +491,7 @@
       "Numerator": 4,
       "Denominator": 4
     },
+    "Organizations": ["DanceSport","NDCA"],
     "Instances": [
       {
         "Style": "American Rhythm",
@@ -472,6 +510,7 @@
       "Numerator": 4,
       "Denominator": 4
     },
+    "Organizations": ["DanceSport","NDCA"],
     "Instances": [
       {
         "Style": "American Rhythm",
@@ -490,6 +529,7 @@
       "Numerator": 2,
       "Denominator": 4
     },
+    "Organizations": ["DanceSport","NDCA"],
     "Instances": [
       {
         "Style": "American Rhythm",
@@ -508,6 +548,7 @@
       "Numerator": 2,
       "Denominator": 4
     },
+    "Organizations": ["DanceSport","NDCA"],
     "Instances": [
       {
         "Style": "International Latin",
@@ -534,12 +575,13 @@
       "Numerator": 2,
       "Denominator": 4
     },
+    "Organizations": ["DanceSport","NDCA"],
     "Instances": [
       {
         "Style": "International Latin",
         "TempoRange": {
           "Min": 48.0,
-          "Max": 50.0
+          "Max": 52.0
         },
         "Exceptions": [
           {
@@ -551,10 +593,18 @@
             "Competitor": "Professional,Amateur"
           },
           {
+            "Organization": "NDCA",
+            "TempoRange": {
+              "Min": 48.0,
+              "Max": 50.0
+            },
+            "Competitor": "ProAm"
+          },
+          {
             "Organization": "DanceSport",
             "TempoRange": {
               "Min": 50.0,
-              "Max": 50.0
+              "Max": 52.0
             }
           }
         ]
@@ -591,6 +641,7 @@
       "Numerator": 2,
       "Denominator": 4
     },
+    "Organizations": ["DanceSport","NDCA"],
     "Instances": [
       {
         "Style": "American Rhythm",
@@ -611,7 +662,7 @@
     },
     "Instances": [
       {
-        "Style": "American Rhythm",
+        "Style": "Social",
         "TempoRange": {
           "Min": 40.0,
           "Max": 55.0

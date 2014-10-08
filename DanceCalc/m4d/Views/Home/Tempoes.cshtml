@@ -2,30 +2,22 @@
 
 @{
     ViewBag.Title = "Tempoes";
-    var styles = new KeyValuePair<string, string>[] {
-        new KeyValuePair<string,string>("all","All Styles"),
-        new KeyValuePair<string,string>("is","International Standard"),
-        new KeyValuePair<string,string>("il","International Latin"),
-        new KeyValuePair<string,string>("as","American Smooth"),
-        new KeyValuePair<string,string>("ar","American Rhythm"),
-        new KeyValuePair<string,string>("s","Social")
-    };
 }
 
 <div class="row">
-    <div class="dropdown col-md-4">
+    <div class="dropdown col-md-3">
         <a id="filter-style" role="button" data-toggle="dropdown" data-target="#" href="/tempoes" class="btn btn-info btn-block filter-button">
             All Styles <span class="caret"></span>
         </a>
         <ul class="dropdown-menu" role="menu" aria-labelledby="filter-style">
-            @foreach (var element in styles)
+            @foreach (var element in @Model.Styles)
             {
                 string id = "filter-style-" + element.Key;
                 <li><a id="@id" href="#">@element.Value</a></li>
             }
         </ul>
     </div>
-    <div class="dropdown col-md-4">
+    <div class="dropdown col-md-3">
         <a id="filter-meter" role="button" data-toggle="dropdown" data-target="#" href="/tempoes" class="btn btn-info btn-block filter-button">
             All Meters <span class=" caret"></span>
         </a>
@@ -36,7 +28,7 @@
             <li><a id="filter-meter-4" href="#">4/4 MPM</a></li>
         </ul>
     </div>
-    <div class="dropdown col-md-4">
+    <div class="dropdown col-md-3">
         <a id="filter-type" role="button" data-toggle="dropdown" data-target="#" href="/tempoes" class="btn btn-info btn-block filter-button">
             All Types <span class=" caret">
             </span>
@@ -47,6 +39,18 @@
             {
                 string id = "filter-type-" + item.Id;
                 <li><a id="@id" href="#">@item.Name</a></li>
+            }
+        </ul>
+    </div>
+    <div class="dropdown col-md-3">
+        <a id="filter-org" role="button" data-toggle="dropdown" data-target="#" href="/tempoes" class="btn btn-info btn-block filter-button">
+            All Organizations <span class=" caret"></span>
+        </a>
+        <ul class="dropdown-menu" role="menu" aria-labelledby="filter-meter">
+            @for (int i = 0; i < Model.Organizations.Length; i++)
+            {
+                string id = "filter-org-" + i.ToString();
+                <li><a id="@id" href="#">@Model.Organizations[i].Title</a></li>
             }
         </ul>
     </div>
@@ -82,11 +86,17 @@
             }
         ];
         var danceStyles = [
-            @foreach (var item in styles)
+            @foreach (var item in Model.Styles)
             {
                 <text>{ id: "@item.Key", name: "@item.Value" },</text>
             }
         ];
+        var danceOrgs = [
+            @foreach (var item in Model.Organizations)
+            {
+                <text>{ title: "@item.Title", name: "@item.Name", category:"@item.Category", qualifier:"@item.Qualifier"},</text>
+            }
+        ]
     </script>
     @{
         string pageScript = "~/Scripts/tempoes.js" + Page.ScriptQualifier;
