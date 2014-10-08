@@ -99,7 +99,7 @@ namespace DanceLibrary
                 TempoRange tr = Instances[0].TempoRange;
                 for (int i = 1; i < Instances.Count; i++)
                 {
-                    tr.Include(Instances[i].TempoRange);
+                    tr = tr.Include(Instances[i].TempoRange);
                 }
                 return tr;
             }
