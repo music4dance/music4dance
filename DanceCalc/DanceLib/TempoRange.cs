@@ -46,10 +46,10 @@ namespace DanceLibrary
 
         private void Validate()
         {
-            if (_minTempo <= 0M || _minTempo > 250)
+            if (_minTempo <= 0M || _minTempo > 1000)
                 throw new ArgumentOutOfRangeException("min", PositiveDecimal);
 
-            if (_maxTempo <= 0M || _maxTempo > 250)
+            if (_maxTempo <= 0M || _maxTempo > 1000)
                 throw new ArgumentOutOfRangeException("max", PositiveDecimal);
 
             if (_maxTempo < _minTempo)
@@ -110,6 +110,11 @@ namespace DanceLibrary
                 return new TempoRange(Math.Min(_minTempo, other._minTempo), Math.Max(_maxTempo, other._maxTempo));
         }
 
+        public TempoRange ToBpm(Meter meter)
+        {
+            return new TempoRange(_minTempo * meter.Numerator, _maxTempo * meter.Numerator);
+        }
+
         // Formatted values are shown to two decimal places except
         //  when the value is with .01 of an integer, in which case
         //  only the integer is displayed
@@ -135,6 +140,11 @@ namespace DanceLibrary
                 return MinString;
             else
                 return string.Format("{0}-{1}", MinString, MaxString);
+        }
+
+        public bool Contains(decimal tempo)
+        {
+            return tempo >= _minTempo && tempo <= _maxTempo;
         }
 
         private string Format(decimal d)

@@ -17,7 +17,7 @@
 
         string danceLink = "/Song/Search?dances=" + @item.DanceId;
         <div class="list-group col-sm-4">
-            <h4><a href="@danceLink" class="btn-info btn-lg">@item.DanceName <span class="badge">@item.SongCount</span></a></h4>
+            <h4><a href="@danceLink" class="btn btn-info btn-lg">@item.DanceName <span class="badge">@item.SongCount</span></a></h4>
             @*<h4>@Html.ActionLink(item.DanceName, "Search", "Song", new { dances = item.DanceId }, null) <span class="badge">@item.SongCount</span></h4>*@
             @foreach (var sitem in item.Children)
             {

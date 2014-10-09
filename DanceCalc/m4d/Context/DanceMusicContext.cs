@@ -225,6 +225,17 @@ namespace m4d.Context
             }
         }
 
+        public void UpdateDances(ApplicationUser user, Song song, IEnumerable<DanceRatingDelta> deltas, bool doLog=true)
+        {
+            if (doLog)
+            {
+                song.CurrentLog = CreateSongLog(user, song, Song.EditCommand);
+            }
+
+            song.CreateEditProperties(user, Song.EditCommand, this, this);
+            song.EditDanceRatings(deltas, this);
+        }
+
         public Song MergeSongs(ApplicationUser user, List<Song> songs, string title, string artist, decimal? tempo, int? length, string tags, List<AlbumDetails> albums)
         {
             string songIds = string.Join(";", songs.Select(s => s.SongId.ToString()));

@@ -479,6 +479,53 @@ namespace m4dModels
             }
         }
 
+        //  TODO: Ought to be able to refactor both of these into one that calls the other
+        public bool EditDanceRatings(IEnumerable<DanceRatingDelta> deltas, IFactories factories)
+        {
+            SongLog log = CurrentLog;
+
+            foreach (var drd in deltas)
+            {
+                bool valid = true;
+                DanceRating dro = DanceRatings.FirstOrDefault(r => r.DanceId == drd.DanceId);
+                if (drd.Delta > 0)
+                {
+                    if (dro == null)
+                    {
+                        factories.CreateDanceRating(this, drd.DanceId, drd.Delta);
+                    }
+                    else
+                    {
+                        dro.Weight += drd.Delta;
+                    }
+                }
+                else if (drd.Delta < 0)
+                {
+                    if (dro == null)
+                    {
+                        valid = false;
+                    }
+                    else if (dro.Weight + drd.Delta < 0)
+                    {
+                        DanceRatings.Remove(dro);
+                    }
+                    else 
+                    {
+                        dro.Weight += drd.Delta;
+                    }
+                }
+                else
+                {
+                    valid = false;
+                }
+
+                if (valid)
+                {
+                    factories.CreateSongProperty(this, Song.DanceRatingField, drd.ToString(), log);
+                }
+            }
+            return true;
+        }
         public bool EditDanceRatings(IList<string> add_, int addWeight, List<string> remove_, int remWeight, IFactories factories)
         {
             if (add_ == null && remove_ == null)

@@ -333,6 +333,142 @@ namespace m4d.Controllers
             return View("Results");
         }
 
+        //
+        // Get: //AddDanceGroups
+        [Authorize(Roles = "dbAdmin")]
+        public ActionResult AddDanceGroups()
+        {
+            ViewBag.Name = "AddDanceGroups";
+
+            var dict = Dances.Instance.DanceDictionary;
+
+            int count = 0;
+            using (DanceMusicContext dmc = new DanceMusicContext())
+            {
+                dmc.Configuration.AutoDetectChangesEnabled = false;
+
+                ApplicationUser batch = dmc.FindUser("batch");
+                foreach (Song song in dmc.Songs)
+                {
+                    Dictionary<string,DanceRatingDelta> ngs = new Dictionary<string,DanceRatingDelta>();
+                    foreach (var dr in song.DanceRatings)
+                    {
+                        DanceObject d = dict[dr.DanceId];
+                        DanceType dt = d as DanceType;
+                        if (dt != null)
+                        {
+                            string g = dt.GroupId;
+                            if (g != "MSC")
+                            {
+                                DanceRatingDelta drd = null;
+                                if (ngs.TryGetValue(g, out drd))
+                                {
+                                    drd.Delta += 2;
+                                }
+                                else
+                                {
+                                    drd = new DanceRatingDelta(g, 3);
+                                    ngs.Add(g, drd);
+                                }
+                            }
+                            count += 1;
+                        }
+                        else 
+                        {
+                            DanceInstance di = d as DanceInstance;
+                            if (di != null)
+                            {
+                                Trace.WriteLine(string.Format("Dance Instance: {0}", song.Title));
+                            }
+                        }
+                    }
+
+                    if (ngs.Count > 0)
+                    {
+                        dmc.UpdateDances(batch, song, ngs.Values, false);
+                    }
+                }
+
+                dmc.ChangeTracker.DetectChanges();
+                dmc.SaveChanges();
+            }
+
+
+            ViewBag.Success = true;
+            ViewBag.Message = string.Format("Dance groups were added ({0})", count);
+
+            return View("Results");
+        }
+
+        //
+        // Get: //InferDanceTypes
+        [Authorize(Roles = "dbAdmin")]
+        public ActionResult InferDanceTypes()
+        {
+            ViewBag.Name = "InferDanceTypes";
+
+            string[] groups = new string[] {"SWG","TNG","FXT","WLZ"};
+
+            var dict = Dances.Instance.DanceDictionary;
+
+            int count = 0;
+            using (DanceMusicContext dmc = new DanceMusicContext())
+            {
+                dmc.Configuration.AutoDetectChangesEnabled = false;
+
+                ApplicationUser batch = dmc.FindUser("batch");
+                foreach (Song song in dmc.Songs)
+                {
+                    if (song.Tempo != null)
+                    {
+                        decimal tempo = song.Tempo.Value;
+                        List<DanceRatingDelta> nts = new List<DanceRatingDelta>();
+                        foreach (var dr in song.DanceRatings)
+                        {
+                            DanceObject d = dict[dr.DanceId];
+                            DanceGroup dg = d as DanceGroup;
+                            if (dg != null && groups.Contains(dg.Id))
+                            {
+                                foreach (var dto in dg.Members)
+                                {
+                                    DanceType dt = dto as DanceType;
+                                    if (dt.TempoRange.ToBpm(dt.Meter).Contains(tempo))
+                                    {
+                                        // TODO: Consider re-using this code to tag songs as not-strict tempo (but it's actually the dance rating that should be tagged).
+                                        DanceRatingDelta drd = new DanceRatingDelta(dt.Id,4);
+                                        nts.Add(drd);
+                                        count += 1;
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                DanceInstance di = d as DanceInstance;
+                                if (di != null)
+                                {
+                                    Trace.WriteLine(string.Format("Dance Instance: {0}", song.Title));
+                                }
+                            }
+                        }
+
+                        if (nts.Count > 0)
+                        {
+                            dmc.UpdateDances(batch, song, nts, false);
+                        }
+                    }
+                }
+
+                dmc.ChangeTracker.DetectChanges();
+                dmc.SaveChanges();
+            }
+
+
+            ViewBag.Success = true;
+            ViewBag.Message = string.Format("Dance groups were added ({0})", count);
+
+            return View("Results");
+        }
+
 
         //
         // Get: //ClearSongCache
@@ -1145,6 +1281,7 @@ namespace m4d.Controllers
         private void ReloadDB(List<string> lines, bool? batch)
         {
             Trace.WriteLine("Entering ReloadDB");
+            bool b = batch ?? false;
 
             using (DanceMusicContext dmc = new DanceMusicContext())
             {
@@ -1155,9 +1292,15 @@ namespace m4d.Controllers
                 dmc.Dances.Load();
 
                 List<Song> songs = new List<Song>();
-                List<SongProperty> properties = new List<SongProperty>();
-                List<DanceRating> ratings = new List<DanceRating>();
-                BatchUserMap bum = new BatchUserMap(dmc);
+                List<SongProperty> properties = null;
+                List<DanceRating> ratings = null;
+                IUserMap bum = dmc;
+                if (b)
+                {
+                    bum = new BatchUserMap(dmc);
+                    properties = new List<SongProperty>();
+                    ratings = new List<DanceRating>();
+                }
 
                 Trace.WriteLine("Loading Songs");
 
@@ -1171,8 +1314,15 @@ namespace m4d.Controllers
 
                     song.Load(line, bum, dmc);
                     songs.Add(song);
-                    properties.AddRange(song.SongProperties);
-                    ratings.AddRange(song.DanceRatings);
+                    if (b)
+                    {
+                        properties.AddRange(song.SongProperties);
+                        ratings.AddRange(song.DanceRatings);
+                    }
+                    else
+                    {
+                        dmc.Entry(song).State = EntityState.Added;
+                    }
 
                     c += 1;
                     if (c % 100 == 0)
@@ -1187,10 +1337,19 @@ namespace m4d.Controllers
                             Trace.WriteLine(string.Format("Long Song: {0} '{1}'", song.Length, song.Title));
                         }
                     }
+
+                    if (!b && (c % 1000 == 0))
+                    {
+                        Trace.WriteLine("Saving next 1000 songs");
+                        dmc.Configuration.AutoDetectChangesEnabled = true;
+                        dmc.ChangeTracker.DetectChanges();
+                        dmc.SaveChanges();
+                        dmc.Configuration.AutoDetectChangesEnabled = false;
+                    }
                 }
 
                 Trace.WriteLine("Saving Songs");
-                if (batch ?? false)
+                if (b)
                 {
                     // Until the bug gets fixed in EFBatchOperations to allow for azure, we'll live with the slower method...
                     EFBatchOperation.For(dmc, dmc.Songs).InsertAll(songs);
@@ -1199,18 +1358,16 @@ namespace m4d.Controllers
                     EFBatchOperation.For(dmc, dmc.SongProperties).InsertAll(properties);
 
                     Trace.WriteLine("Saving User Mappings");
-                    EFBatchOperation.For(dmc, dmc.Modified).InsertAll(bum.GetMappings());
+                    EFBatchOperation.For(dmc, dmc.Modified).InsertAll((bum as BatchUserMap).GetMappings());
 
                     Trace.WriteLine("Saving Dance Ratings");
                     EFBatchOperation.For(dmc, dmc.DanceRatings).InsertAll(ratings);
                 }
                 else
                 {
-                    foreach (Song song in songs)
-                    {
-                        dmc.Entry(song).State = EntityState.Added;
-                    }
-
+                    Trace.WriteLine("Saving tail");
+                    dmc.Configuration.AutoDetectChangesEnabled = true;
+                    dmc.ChangeTracker.DetectChanges();
                     dmc.SaveChanges();
                 }
             }

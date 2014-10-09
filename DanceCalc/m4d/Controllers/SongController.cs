@@ -983,6 +983,8 @@ namespace m4d.Controllers
             string[] danceList = null;
             if (!string.IsNullOrWhiteSpace(filter.Dances) && !string.Equals(filter.Dances, "ALL"))
             {
+                // TODO: We don't need to expand anything except MSC - should we just special case MSC
+                // and kill this code path...
                 danceList = Dances.Instance.ExpandDanceList(filter.Dances);
 
                 songs = songs.Where(s => s.DanceRatings.Any(dr => danceList.Contains(dr.DanceId)));

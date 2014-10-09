@@ -178,11 +178,15 @@ namespace m4d.ViewModels
                         scType.Children = new List<SongCounts>();
 
                     scType.Children.Add(scInstance);
-                    scType.SongCount += scInstance.SongCount;
+                    //scType.SongCount += scInstance.SongCount;
                 }
             }
 
-            scGroup.SongCount += scType.SongCount;
+            // Only add children to MSC, for other groups they're already built in
+            if (scGroup.DanceId == "MSC")
+            {
+                scGroup.SongCount += scType.SongCount;
+            }
         }
 
         static private SongCounts InfoFromDance(DbSet<Dance> dances, DanceObject d)
@@ -193,14 +197,21 @@ namespace m4d.ViewModels
             }
 
             Dance dance = dances.FirstOrDefault(t => t.Id == d.Id);
-            var ratings = from dr in dance.DanceRatings where !dr.Song.IsNull && dr.Song.Purchase != null select dr;
-            int count = ratings.Count();
-            int max = count > 0 ? ratings.Max(s => s.Weight) : 0;
+
+            int max = 0;
+            int count = 0;
+
+            if (dance != null)
+            {
+                var ratings = from dr in dance.DanceRatings where !dr.Song.IsNull && dr.Song.Purchase != null select dr;
+                count = ratings.Count();
+                max = count > 0 ? ratings.Max(s => s.Weight) : 0;
+            }
 
             var sc = new SongCounts()
             {
-                DanceId = dance.Id,
-                DanceName = dance.Name,
+                DanceId = d.Id,
+                DanceName = d.Name,
                 SongCount = count,
                 MaxWeight = max,
                 Children = null

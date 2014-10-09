@@ -117,6 +117,8 @@ namespace DanceLibrary
 
         [JsonProperty]
         public string GroupName { get; set; }
+        public string GroupId { get; set; }
+
         public string Description {get;set;}
 
         public Uri Link {get;set;}
@@ -642,6 +644,7 @@ namespace DanceLibrary
                     if (dt != null)
                     {
                         dt.GroupName = dg.Name;
+                        dt.GroupId = dg.Id;
                     }
                 }
             }

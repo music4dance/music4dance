@@ -128,6 +128,12 @@ namespace m4dModels
 
         }
 
+        public DanceRatingDelta(string id, int delta)
+        {
+            DanceId = id;
+            Delta = delta;
+        }
+
         public DanceRatingDelta(string value)
         {
             string[] parts = value.Split(new char[] { '+', '-' });
