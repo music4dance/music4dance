@@ -70,7 +70,7 @@ Genre	Britpop
 Genre	broadway-and-vocal
 Genre	caribbean
 Dance	Carolina Shag
-	Castle Foxtrot
+Dance	Castle Foxtrot
 Dance	Cha Cha
 Genre	childrens
 Genre	Children's Music
