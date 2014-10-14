@@ -1,74 +1,69 @@
-﻿// DanceType
+﻿// DanceHeader
+var DanceHeader = function(title,key,detail,parent)
+{
+    this.title = title;
+    this.sortKey = key;
+    this.detailed = detail;
+
+    this.show = ko.computed(function () {
+        return !this.detailed || parent.showDetails();
+    }, this);
+}
+
+// DanceType
 var DanceType = function (data,parent) {
     $.extend(true, this, data);
 
     this.tempoMPM = ko.computed(function () {
-        var tempo = this.computedTempo();
-        if (tempo)
-            return this.formatRange(tempo.Min, tempo.Max);
-        else
-            return "";
+        return this.tempoHelper(parent.styleFilter(), parent.orgFilter(), 1);
     }, this);
 
     this.tempoBPM = ko.computed(function () {
-        var tempo = this.computedTempo();
-        var numerator = this.Meter.Numerator;
-        if (tempo)
-            return this.formatRange(tempo.Min * numerator, tempo.Max * numerator);
-        else
-            return "";
+        return this.tempoHelper(parent.styleFilter(), parent.orgFilter(), this.Meter.Numerator);
     }, this);
 
-    this.computedTempo = ko.computed(function () {
-        var range = this.TempoRange;
-        var si = parent.styleFilter();
-        var oi = parent.orgFilter();
+    this.tempoDS = ko.computed(function () {
+        return this.tempoHelper(parent.styleFilter(), 1, 1);
+    }, this);
 
-        if (si || oi)
-        {
-            range = null;
-            for (var i = 0; i < this.Instances.length; i++)
-            {
-                if (!si || (danceStyles[si].name === this.Instances[i].Style))
-                {
-                    var instance = this.Instances[i];
-                    var match = false;
-                    if (oi && instance.Exceptions && instance.Exceptions.length > 0)
-                    {
-                        var org = danceOrgs[oi];
-                        for (var j = 0; j < instance.Exceptions.length; j++)
-                        {
-                            var ex = instance.Exceptions[j];
-                            if (this.matchException(ex,org))
-                            {
-                                range = this.unionRange(range, ex.TempoRange);
-                                match = true;
-                            }
-                        }
-                    }
-                    if (!match)
-                    {
-                        range = this.unionRange(range,instance.TempoRange);
-                    }
-                }
-            }
-        }
-        return range;
-    },this);
+    this.tempoNDCA = ko.computed(function () {
+        var ret = this.tempoHelper(parent.styleFilter(), 3, 1);
+        if (!ret) ret = this.tempoHelper(parent.styleFilter(), 5, 1);
+        return ret;
+    }, this);
+
+    this.tempoNDCABeginner = ko.computed(function () {
+        var ret = this.tempoHelper(parent.styleFilter(), 4, 1);
+        if (!ret) ret = this.tempoHelper(parent.styleFilter(), 6, 1);
+        return ret;
+    }, this);
+
+    this.computedTempoes = ko.computed(function () {
+        return this.computeTempoes(parent.styleFilter(), 0);
+    }, this);
 
     this.styles = ko.computed(function () {
         var ret = "";
         if (this.Instances)
         {
             var sep = "";
-            for (var i = 0 ; i < this.Instances.length; i++)
-            {
-                ret += sep;
-                ret += this.Instances[i].Style;
-                sep = " , "
+            for (var i = 0 ; i < this.Instances.length; i++) {
+                var style = this.Instances[i].Style;
+                var ps = danceStyles[parent.styleFilter()].name;
+
+                if (parent.styleFilter() === 0 || style === ps) {
+                    ret += sep;
+                    ret += style;
+
+                    if (parent.showDetails()) {
+                        sep = "<br>";
+                    }
+                    else {
+                        sep = ", ";
+                    }
+                }
             }
         }
-
         return ret;
     }, this);
 
@@ -113,8 +108,81 @@ var DanceType = function (data,parent) {
         }
     }
 
-    this.matchException = function(ex, org)
-    {
+    this.computeTempo = function (si,oi) {
+        var range = this.TempoRange;
+
+        if (si || oi) {
+            range = null;
+            for (var i = 0; i < this.Instances.length; i++) {
+                if (!si || (danceStyles[si].name === this.Instances[i].Style)) {
+                    var instance = this.Instances[i];
+                    var match = false;
+                    if (oi && instance.Exceptions && instance.Exceptions.length > 0) {
+                        var org = danceOrgs[oi];
+                        for (var j = 0; j < instance.Exceptions.length; j++) {
+                            var ex = instance.Exceptions[j];
+                            if (this.matchException(ex, org)) {
+                                range = this.unionRange(range, ex.TempoRange);
+                                match = true;
+                            }
+                        }
+                    }
+                    if (!match) {
+                        range = this.unionRange(range, instance.TempoRange);
+                    }
+                }
+            }
+        }
+        return range;
+    };
+
+    this.computeTempoes = function (si, oi) {
+        var ret = [];
+        if (si == 0) {
+            for (var i = 0 ; i < this.Instances.length; i++) {
+                var si = this.findStyleIndex(this.Instances[i].Style);
+                var tempo = this.computeTempo(si, oi);
+                if (tempo) ret.push(tempo);
+            }
+        }
+        else {
+            var tempo = this.computeTempo(si, oi);
+            if (tempo) ret.push(tempo);
+        }
+
+        return ret;
+    };
+
+    this.tempoHelper = function (si, oi, numerator) {
+        var ret = "";
+        if (parent.showDetails()) {
+            var sep = "";
+            var tempoes = this.computeTempoes(si, oi);
+            for (var i = 0; i < tempoes.length; i++) {
+                ret += sep;
+                ret += this.formatRange(tempoes[i].Min * numerator, tempoes[i].Max * numerator);
+                sep = "<br>";
+            }
+        }
+        else {
+            var tempo = this.computeTempo(si, oi);
+            if (tempo) {
+                ret = this.formatRange(tempo.Min * numerator, tempo.Max * numerator);
+            }
+            
+        }
+        return ret;
+    }
+
+    this.findStyleIndex = function (style) {
+        for (var i = 0; i < danceStyles.length; i++) {
+            if (danceStyles[i].name === style)
+                return i;
+        }
+        return -1;
+    };
+
+    this.matchException = function(ex, org) {
         if (ex.Organization !== org.name) {
             return false;
         }
@@ -127,8 +195,7 @@ var DanceType = function (data,parent) {
         }
     }
 
-    this.unionRange = function(a,b)
-    {
+    this.unionRange = function(a,b) {
         if (!a) return b;
         if (!b) return a;
 
@@ -148,19 +215,24 @@ var rootMapping = {
     create: function (options) {
         var self = ko.mapping.fromJS(options.data,danceMapping);
 
-        self.headers = [
-            { title: 'Name', sortKey: 'Name' },
-            { title: 'Meter', sortKey: 'Meter' },
-            { title: 'MPM', sortKey: 'MPM' },
-            { title: 'BPM', sortKey: 'BPM' },
-            { title: 'Type', sortKey: 'Type' },
-            { title: 'Style(s)', sortKey: 'Style' },
-        ];
+        self.headers = ko.observableArray([
+            new DanceHeader('Name', 'Name', false,self),
+            new DanceHeader('Meter', 'Meter', false,self),
+            new DanceHeader('MPM', 'MPM', false,self),
+            new DanceHeader('DS', 'BPM', true,self),
+            new DanceHeader('NDCA A*', 'BPM', true, self),
+            new DanceHeader('NDCA B*', 'BPM', true, self),
+            new DanceHeader('BPM', 'BPM', false, self),
+            new DanceHeader('Type', 'Type', false, self),
+            new DanceHeader('Style(s)', 'Style', false, self)
+        ]);
 
         self.styleFilter = ko.observable(0);
         self.typeFilter = ko.observable(0);
         self.meterFilter = ko.observable(1);
         self.orgFilter = ko.observable(0);
+
+        self.showDetails = ko.observable(false);
 
         return self;
     }
@@ -272,6 +344,14 @@ function setupDances(data) {
         var id = "#filter-org-" + i;
         $(id).click(i, function (evt) { viewModel.handleButton(evt, viewModel.orgFilter) });
     }
+
+    $("#reset").click(function (evt) {
+        evt.preventDefault();
+        viewModel.styleFilter(0);
+        viewModel.typeFilter(0);
+        viewModel.meterFilter(1);
+        viewModel.orgFilter(0);
+    });
 
     ko.applyBindings(viewModel);
 }

@@ -6,7 +6,7 @@
 
 <div class="row">
     <div class="dropdown col-md-3">
-        <a id="filter-style" role="button" data-toggle="dropdown" data-target="#" href="/tempoes" class="btn btn-info btn-block filter-button">
+        <a id="filter-style" role="button" data-toggle="dropdown" data-target="#" href="/Home/Tempoes" class="btn btn-info btn-block filter-button">
             All Styles <span class="caret"></span>
         </a>
         <ul class="dropdown-menu" role="menu" aria-labelledby="filter-style">
@@ -18,7 +18,7 @@
         </ul>
     </div>
     <div class="dropdown col-md-3">
-        <a id="filter-meter" role="button" data-toggle="dropdown" data-target="#" href="/tempoes" class="btn btn-info btn-block filter-button">
+        <a id="filter-meter" role="button" data-toggle="dropdown" data-target="#" href="/Home/Tempoes" class="btn btn-info btn-block filter-button">
             All Meters <span class=" caret"></span>
         </a>
         <ul class="dropdown-menu" role="menu" aria-labelledby="filter-meter">
@@ -29,9 +29,8 @@
         </ul>
     </div>
     <div class="dropdown col-md-3">
-        <a id="filter-type" role="button" data-toggle="dropdown" data-target="#" href="/tempoes" class="btn btn-info btn-block filter-button">
-            All Types <span class=" caret">
-            </span>
+        <a id="filter-type" role="button" data-toggle="dropdown" data-target="#" href="/Home/Tempoes" class="btn btn-info btn-block filter-button">
+            All Types <span class=" caret"></span>
         </a>
         <ul class="dropdown-menu" role="menu" aria-labelledby="filter-type">
             <li><a id="filter-type-ALL" href="#">All Types</a></li>
@@ -43,7 +42,7 @@
         </ul>
     </div>
     <div class="dropdown col-md-3">
-        <a id="filter-org" role="button" data-toggle="dropdown" data-target="#" href="/tempoes" class="btn btn-info btn-block filter-button">
+        <a id="filter-org" role="button" data-toggle="dropdown" data-target="#" href="/Home/Tempoes" class="btn btn-info btn-block filter-button">
             All Organizations <span class=" caret"></span>
         </a>
         <ul class="dropdown-menu" role="menu" aria-labelledby="filter-meter">
@@ -60,20 +59,38 @@
     <table class="table table-striped table-bordered col-md-12">
         <thead>
             <tr data-bind="foreach: headers">
-                <td><a data-bind="click: $parent.sort, text: title" class="btn-link"></a></td>
+                <td data-bind="visible: show"><a data-bind="click: $parent.sort, text: title" class="btn btn-link"></a></td>
             </tr>
         </thead>
         <tbody data-bind="foreach: filteredDances">
             <tr>
                 <td data-bind="text: Name"></td>
                 <td align="center"><span data-bind="text: Meter.Numerator"></span>/<span data-bind="text: Meter.Denominator"></span></td>
-                <td align="center" data-bind="text: tempoMPM"></td>
-                <td align="center" data-bind="text: tempoBPM"></td>
+                <td align="center" data-bind="html: tempoMPM"></td>
+                <td align="center" data-bind="html: tempoDS, visible: $parent.showDetails"></td>
+                <td align="center" data-bind="html: tempoNDCA, visible: $parent.showDetails"></td>
+                <td align="center" data-bind="html: tempoNDCABeginner, visible: $parent.showDetails"></td>
+                <td align="center" data-bind="html: tempoBPM"></td>
                 <td data-bind="text: GroupName"></td>
-                <td data-bind="text: styles"></td>
+                <td data-bind="html: styles"></td>
             </tr>
         </tbody>
     </table>
+</div>
+
+<div class="row">
+    <div class="col-md-6">
+        <a id="reset" role="button" data-target="#" href="/Home/Tempoes" class="btn btn-info btn-block">Reset</a>
+    </div>
+    <div class="checkbox col-md-6">
+        <label>
+            <input id="details" type="checkbox" data-bind="checked: showDetails"/> Show Details
+        </label>
+    </div>
+</div>
+
+<div class="row" data-bind="visible: showDetails"> 
+    <p>(*) A short explanation of the NDCA (National Dance Council of America) columns: For American style dances the "A" column contains tempoes for Silver and Gold levels while the "B" column contains tempoes for Bronze level.  For International style dances the "A" column contains tempoes for Professional and Amateur couples while the "B" column contains tempoes for Pro/Am couples. </p>
 </div>
 
 @section Scripts {
@@ -100,8 +117,8 @@
     </script>
     @{
         string pageScript = "~/Scripts/tempoes.js" + Page.ScriptQualifier;
+        Scripts.Render("~/bundles/jqueryval");
     }
-    @Scripts.Render("~/bundles/jqueryval")
     <script src="@Url.Content("~/Scripts/knockout-3.2.0.js")" type="text/javascript"></script>
     <script src="@Url.Content("~/Scripts/knockout.mapping-latest.js")" type="text/javascript"></script>
     <script src="@Url.Content(pageScript)" type="text/javascript"></script>
