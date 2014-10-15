@@ -21,12 +21,12 @@ namespace DanceLibrary
 
         static TempoType()
         {
-            s_commonTempoes = new List<TempoType>(5);
-            s_commonTempoes.Add(new TempoType(TempoKind.BPM));
-            s_commonTempoes.Add(new TempoType(TempoKind.BPS));
-            s_commonTempoes.Add(new TempoType(TempoKind.MPM,new Meter(2, 4)));
-            s_commonTempoes.Add(new TempoType(TempoKind.MPM,new Meter(3, 4)));
-            s_commonTempoes.Add(new TempoType(TempoKind.MPM,new Meter(4, 4)));
+            s_commonTempi = new List<TempoType>(5);
+            s_commonTempi.Add(new TempoType(TempoKind.BPM));
+            s_commonTempi.Add(new TempoType(TempoKind.BPS));
+            s_commonTempi.Add(new TempoType(TempoKind.MPM,new Meter(2, 4)));
+            s_commonTempi.Add(new TempoType(TempoKind.MPM,new Meter(3, 4)));
+            s_commonTempi.Add(new TempoType(TempoKind.MPM,new Meter(4, 4)));
         }
 
         private TempoType()
@@ -156,16 +156,16 @@ namespace DanceLibrary
             return !(a == b);
         }
 
-        public static ReadOnlyCollection<TempoType> CommonTempoes
+        public static ReadOnlyCollection<TempoType> CommonTempi
         {
             get
             {
-                return new ReadOnlyCollection<TempoType>(s_commonTempoes);
+                return new ReadOnlyCollection<TempoType>(s_commonTempi);
             }
         }
 
 
-        private static List<TempoType> s_commonTempoes;
+        private static List<TempoType> s_commonTempi;
 
 
         #region IConversand Implementation

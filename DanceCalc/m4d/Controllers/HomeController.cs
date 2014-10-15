@@ -37,9 +37,15 @@ namespace m4d.Controllers
         }
 
         [AllowAnonymous]
-        public ActionResult Tempoes()
+        public ActionResult Tempi(bool detailed = false, int style = 0, int meter = 1, int type = 0, int org = 0)
         {
             ThemeName = ToolTheme;
+            ViewBag.paramDetailed = detailed;
+            ViewBag.paramStyle = style;
+            ViewBag.paramMeter = meter;
+            ViewBag.paramType = type;
+            ViewBag.paramOrg = org;
+
             var data = Dance.DanceLibrary.AllDanceTypes;
             ViewBag.DanceStyles = Dance.DanceLibrary.AllDanceGroups;
             return View(Dance.DanceLibrary);

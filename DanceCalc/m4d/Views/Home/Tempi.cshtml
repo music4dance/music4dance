@@ -1,12 +1,12 @@
 ﻿@model DanceLibrary.Dances
 
 @{
-    ViewBag.Title = "Tempoes";
+    ViewBag.Title = "Tempi";
 }
 
 <div class="row">
     <div class="dropdown col-md-3">
-        <a id="filter-style" role="button" data-toggle="dropdown" data-target="#" href="/Home/Tempoes" class="btn btn-info btn-block filter-button">
+        <a id="filter-style" role="button" data-toggle="dropdown" data-target="#" href="/Home/Tempi" class="btn btn-info btn-block filter-button">
             All Styles <span class="caret"></span>
         </a>
         <ul class="dropdown-menu" role="menu" aria-labelledby="filter-style">
@@ -18,7 +18,7 @@
         </ul>
     </div>
     <div class="dropdown col-md-3">
-        <a id="filter-meter" role="button" data-toggle="dropdown" data-target="#" href="/Home/Tempoes" class="btn btn-info btn-block filter-button">
+        <a id="filter-meter" role="button" data-toggle="dropdown" data-target="#" href="/Home/Tempi" class="btn btn-info btn-block filter-button">
             All Meters <span class=" caret"></span>
         </a>
         <ul class="dropdown-menu" role="menu" aria-labelledby="filter-meter">
@@ -29,7 +29,7 @@
         </ul>
     </div>
     <div class="dropdown col-md-3">
-        <a id="filter-type" role="button" data-toggle="dropdown" data-target="#" href="/Home/Tempoes" class="btn btn-info btn-block filter-button">
+        <a id="filter-type" role="button" data-toggle="dropdown" data-target="#" href="/Home/Tempi" class="btn btn-info btn-block filter-button">
             All Types <span class=" caret"></span>
         </a>
         <ul class="dropdown-menu" role="menu" aria-labelledby="filter-type">
@@ -42,7 +42,7 @@
         </ul>
     </div>
     <div class="dropdown col-md-3">
-        <a id="filter-org" role="button" data-toggle="dropdown" data-target="#" href="/Home/Tempoes" class="btn btn-info btn-block filter-button">
+        <a id="filter-org" role="button" data-toggle="dropdown" data-target="#" href="/Home/Tempi" class="btn btn-info btn-block filter-button">
             All Organizations <span class=" caret"></span>
         </a>
         <ul class="dropdown-menu" role="menu" aria-labelledby="filter-meter">
@@ -80,7 +80,7 @@
 
 <div class="row">
     <div class="col-md-6">
-        <a id="reset" role="button" data-target="#" href="/Home/Tempoes" class="btn btn-info btn-block">Reset</a>
+        <a id="reset" role="button" data-target="#" href="/Home/Tempi" class="btn btn-info btn-block">Reset</a>
     </div>
     <div class="checkbox col-md-6">
         <label>
@@ -90,10 +90,11 @@
 </div>
 
 <div class="row" data-bind="visible: showDetails"> 
-    <p>(*) A short explanation of the NDCA (National Dance Council of America) columns: For American style dances the "A" column contains tempoes for Silver and Gold levels while the "B" column contains tempoes for Bronze level.  For International style dances the "A" column contains tempoes for Professional and Amateur couples while the "B" column contains tempoes for Pro/Am couples. </p>
+    <p>(*) A short explanation of the NDCA (National Dance Council of America) columns: For American style dances the "A" column contains Tempi for Silver and Gold levels while the "B" column contains Tempi for Bronze level.  For International style dances the "A" column contains Tempi for Professional and Amateur couples while the "B" column contains Tempi for Pro/Am couples. </p>
 </div>
 
 @section Scripts {
+
     <script>
         var danceTypes = [
             {id: "ALL", name: "All Types"},
@@ -113,12 +114,45 @@
             {
                 <text>{ title: "@item.Title", name: "@item.Name", category:"@item.Category", qualifier:"@item.Qualifier"},</text>
             }
-        ]
+        ];
     </script>
     @{
-        string pageScript = "~/Scripts/tempoes.js" + Page.ScriptQualifier;
+        bool paramDetailed = false;
+        int paramStyle = 0;
+        int paramMeter = 1;
+        int paramType = 0;
+        int paramOrg = 0;
+        
+        if (ViewData.ContainsKey("paramDetailed"))
+        {
+            paramDetailed = @ViewBag.paramDetailed;
+        }
+        if (ViewData.ContainsKey("paramStyle"))
+        {
+            paramStyle = @ViewBag.paramStyle;
+        }
+        if (ViewData.ContainsKey("paramMeter"))
+        {
+            paramMeter = @ViewBag.paramMeter;
+        }
+        if (ViewData.ContainsKey("paramType"))
+        {
+            paramType = @ViewBag.paramType;
+        }
+        if (ViewData.ContainsKey("paramOrg"))
+        {
+            paramOrg = @ViewBag.paramOrg;
+        }
+        <script>
+            var paramDetailed = @(paramDetailed ? "true" : "false");
+            var paramStyle = @paramStyle;
+            var paramMeter = @paramMeter;
+            var paramType = @paramType;
+            var paramOrg = @paramOrg;
+        </script>
+        string pageScript = "~/Scripts/Tempi.js" + Page.ScriptQualifier;
         Scripts.Render("~/bundles/jqueryval");
-    }
+}
     <script src="@Url.Content("~/Scripts/knockout-3.2.0.js")" type="text/javascript"></script>
     <script src="@Url.Content("~/Scripts/knockout.mapping-latest.js")" type="text/javascript"></script>
     <script src="@Url.Content(pageScript)" type="text/javascript"></script>

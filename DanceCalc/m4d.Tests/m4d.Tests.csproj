@@ -112,7 +112,7 @@
     <Content Include="Test Data\backup-snapshot-a.txt" />
     <Content Include="Test Data\backup-snapshot-b.txt" />
     <Content Include="Test Data\backup-snapshot.txt" />
-    <Content Include="Test Data\TEMPOES.TXT" />
+    <Content Include="Test Data\TEMPI.TXT" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

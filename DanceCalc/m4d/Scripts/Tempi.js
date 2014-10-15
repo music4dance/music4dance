@@ -38,8 +38,8 @@ var DanceType = function (data,parent) {
         return ret;
     }, this);
 
-    this.computedTempoes = ko.computed(function () {
-        return this.computeTempoes(parent.styleFilter(), 0);
+    this.computedTempi = ko.computed(function () {
+        return this.computeTempi(parent.styleFilter(), 0);
     }, this);
 
     this.styles = ko.computed(function () {
@@ -127,7 +127,7 @@ var DanceType = function (data,parent) {
                             }
                         }
                     }
-                    if (!match) {
+                    if (!match && (oi ==0 || this.Instances[i].Style !== 'Social')) {
                         range = this.unionRange(range, instance.TempoRange);
                     }
                 }
@@ -136,12 +136,12 @@ var DanceType = function (data,parent) {
         return range;
     };
 
-    this.computeTempoes = function (si, oi) {
+    this.computeTempi = function (si, oi) {
         var ret = [];
         if (si == 0) {
             for (var i = 0 ; i < this.Instances.length; i++) {
-                var si = this.findStyleIndex(this.Instances[i].Style);
-                var tempo = this.computeTempo(si, oi);
+                var siT = this.findStyleIndex(this.Instances[i].Style);
+                var tempo = this.computeTempo(siT, oi);
                 if (tempo) ret.push(tempo);
             }
         }
@@ -157,10 +157,10 @@ var DanceType = function (data,parent) {
         var ret = "";
         if (parent.showDetails()) {
             var sep = "";
-            var tempoes = this.computeTempoes(si, oi);
-            for (var i = 0; i < tempoes.length; i++) {
+            var Tempi = this.computeTempi(si, oi);
+            for (var i = 0; i < Tempi.length; i++) {
                 ret += sep;
-                ret += this.formatRange(tempoes[i].Min * numerator, tempoes[i].Max * numerator);
+                ret += this.formatRange(Tempi[i].Min * numerator, Tempi[i].Max * numerator);
                 sep = "<br>";
             }
         }
@@ -219,7 +219,7 @@ var rootMapping = {
             new DanceHeader('Name', 'Name', false,self),
             new DanceHeader('Meter', 'Meter', false,self),
             new DanceHeader('MPM', 'MPM', false,self),
-            new DanceHeader('DS', 'BPM', true,self),
+            new DanceHeader('DanceSport', 'BPM', true,self),
             new DanceHeader('NDCA A*', 'BPM', true, self),
             new DanceHeader('NDCA B*', 'BPM', true, self),
             new DanceHeader('BPM', 'BPM', false, self),
@@ -227,12 +227,12 @@ var rootMapping = {
             new DanceHeader('Style(s)', 'Style', false, self)
         ]);
 
-        self.styleFilter = ko.observable(0);
-        self.typeFilter = ko.observable(0);
-        self.meterFilter = ko.observable(1);
-        self.orgFilter = ko.observable(0);
+        self.styleFilter = ko.observable(paramStyle);
+        self.typeFilter = ko.observable(paramType);
+        self.meterFilter = ko.observable(paramMeter);
+        self.orgFilter = ko.observable(paramOrg);
 
-        self.showDetails = ko.observable(false);
+        self.showDetails = ko.observable(paramDetailed);
 
         return self;
     }

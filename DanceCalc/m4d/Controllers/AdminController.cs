@@ -596,21 +596,21 @@ namespace m4d.Controllers
             return View("Results");
         }
 
-        #region Tempoes
+        #region Tempi
         //
-        // Post: //UploadTempoes
+        // Post: //UploadTempi
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "dbAdmin")]
-        public ActionResult UploadTempoes()
+        public ActionResult UploadTempi()
         {
             IList<LocalMerger> results = null;
 
             List<string> lines = UploadFile();
 
-            ViewBag.Name = "Upload Tempoes";
+            ViewBag.Name = "Upload Tempi";
             ViewBag.FileId = -1;
-            ViewBag.Action = "CommitUploadTempoes";
+            ViewBag.Action = "CommitUploadTempi";
 
             if (lines.Count > 0)
             {
@@ -624,16 +624,16 @@ namespace m4d.Controllers
 
 
         //
-        // Post: //CommitUploadTempoes
+        // Post: //CommitUploadTempi
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "dbAdmin")]
-        public ActionResult CommitUploadTempoes(int fileId)
+        public ActionResult CommitUploadTempi(int fileId)
         {
             IList<LocalMerger> initial = GetReviewById(fileId);
             IList<LocalMerger> results = null;
 
-            ViewBag.Name = "Upload Tempoes";
+            ViewBag.Name = "Upload Tempi";
             ViewBag.FileId = fileId;
 
             ApplicationUser user = _db.FindUser(User.Identity.Name);
@@ -998,9 +998,9 @@ namespace m4d.Controllers
         }
 
         //
-        // Get: //CleanTempoes
+        // Get: //CleanTempi
         [Authorize(Roles = "dbAdmin")]
-        public ActionResult CleanTempoes()
+        public ActionResult CleanTempi()
         {
             var songs = from s in _db.Songs where s.TitleHash != 0 select s;
             string[] danceList = Dances.Instance.ExpandDanceList("WLZ");
@@ -1035,7 +1035,7 @@ namespace m4d.Controllers
 
             _db.SaveChanges();
 
-            ViewBag.Name = "Clean Tempoes";
+            ViewBag.Name = "Clean Tempi";
             ViewBag.Success = true;
             ViewBag.Message = string.Format("{0} waltzes and {1} sambas fixed",cwlz,csmb);
 

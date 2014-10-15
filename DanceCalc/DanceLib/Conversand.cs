@@ -17,7 +17,7 @@ namespace DanceLibrary
     {
         static Conversands()
         {
-            foreach (TempoType tempo in TempoType.CommonTempoes)
+            foreach (TempoType tempo in TempoType.CommonTempi)
             {
                 s_tempoConversands.Add(tempo);
                 s_allConversands.Add(tempo);

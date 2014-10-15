@@ -21,7 +21,7 @@
     <li>@Html.ActionLink("Merge Candidates - Similar Title", "MergeCandidates", "Song", new { level = 2 }, null)</li>
     <li>@Html.ActionLink("Merge Candidates - Similar (Title + Artist) + All else equal", "MergeCandidates", "Song", new { level = 1 }, null)</li>
     <li>@Html.ActionLink("Merge Candidates - Similar Title + All else equal", "MergeCandidates", "Song", new { level = 0 }, null)</li>
-    <li>@Html.ActionLink("Clean up Tempoes", "CleanTempoes")</li>
+    <li>@Html.ActionLink("Clean up Tempi", "CleanTempi")</li>
     <li>@Html.ActionLink("Fix up Artists", "FixArtists")</li>
     <li>@Html.ActionLink("Update Albums", "UpdateAlbums")</li>
     <li>@Html.ActionLink("Update Tag Types", "UpdateTagTypes")</li>
@@ -80,13 +80,13 @@
     }
     <hr />
 
-    <h3>Upload Tempoes</h3>
-    using (Html.BeginForm("UploadTempoes", "Admin", FormMethod.Post, new { enctype = "multipart/form-data" }))
+    <h3>Upload Tempi</h3>
+    using (Html.BeginForm("UploadTempi", "Admin", FormMethod.Post, new { enctype = "multipart/form-data" }))
     {
         @Html.AntiForgeryToken();
         <input type="file" name="FileUpload" />
         <br />
-        <input type="submit" name="UploadTempoes" id="Submit" value="Upload" />
+        <input type="submit" name="UploadTempi" id="Submit" value="Upload" />
     }
     <hr />
     

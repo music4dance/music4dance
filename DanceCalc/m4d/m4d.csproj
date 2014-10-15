@@ -546,7 +546,7 @@
     <Content Include="Scripts\respond.matchmedia.addListener.min.js" />
     <Content Include="Scripts\respond.min.js" />
     <Content Include="Scripts\SongIndex.js" />
-    <Content Include="Scripts\Tempoes.js" />
+    <Content Include="Scripts\Tempi.js" />
     <Content Include="Scripts\undo.js" />
     <Content Include="Scripts\_references.js" />
     <None Include="Service References\AWSReference\configuration91.svcinfo" />
@@ -689,7 +689,7 @@
     <Content Include="Views\Manage\VerifyPhoneNumber.cshtml" />
     <Content Include="Views\Shared\Info.cshtml" />
     <Content Include="Views\Shared\Lockout.cshtml" />
-    <Content Include="Views\Home\Tempoes.cshtml" />
+    <Content Include="Views\Home\Tempi.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
