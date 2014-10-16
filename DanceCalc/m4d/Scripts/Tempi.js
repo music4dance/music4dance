@@ -265,10 +265,7 @@ function setupDances(data) {
         {
             case 'Name': 
                 viewModel.dances.sort(function (a, b) {
-                    if (header.desc)
-                        return sortString(b.Name, a.Name);
-                    else
-                        return sortString(a.Name, b.Name);
+                    return sortString(b.Name, a.Name) * dir;
                 });
                 break;
             case 'Meter':
@@ -300,8 +297,6 @@ function setupDances(data) {
         var prop = header.sortKey;
     }
 
-    viewModel.dances.sort(function (a, b) { return sortString(a.Name, b.Name) });
-
     viewModel.filteredDances = ko.computed(function () {
         if (viewModel.meterFilter() === 1 && viewModel.typeFilter() === 0 && viewModel.styleFilter() === 0 && viewModel.orgFilter() === 0)
         {
@@ -323,7 +318,6 @@ function setupDances(data) {
         $("#" + base).html(evt.target.innerText + " <span class='caret'></span>");
         filter(evt.data);
     }
-
 
     for (var i = 1; i <= 4; i++) {
         var id = "#filter-meter-" + i;
@@ -352,6 +346,9 @@ function setupDances(data) {
         viewModel.meterFilter(1);
         viewModel.orgFilter(0);
     });
+
+    // Do initial sort
+    viewModel.dances.sort(function (a, b) { return sortString(a.Name, b.Name) });
 
     ko.applyBindings(viewModel);
 }

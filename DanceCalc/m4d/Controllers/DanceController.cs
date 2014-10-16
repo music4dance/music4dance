@@ -61,18 +61,5 @@ namespace m4d.Controllers
                 return NotFound();
             }
         }
-
-        public IHttpActionResult GetDancesByTempo(decimal tempo, int numerator=1)
-        {
-            Tempo t = null;
-            if (numerator == 1)
-                t = new Tempo(tempo, new TempoType(TempoKind.BPM)); // Tempo in beats per minute
-            else
-                t = new Tempo(tempo, new TempoType(TempoKind.MPM, new Meter(numerator, 4))); // Tempo in measures per minute
-
-            var dances = Dance.DanceLibrary.DancesFiltered(t, 10M);
-            var jdance = dances.Select(x => new DanceJson(x));
-            return Ok(jdance);
-        }
     }
 }
