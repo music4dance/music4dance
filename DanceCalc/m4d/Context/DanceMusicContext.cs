@@ -104,6 +104,7 @@ namespace m4d.Context
         #region Events
         protected override void OnModelCreating(System.Data.Entity.DbModelBuilder modelBuilder)
         {
+            modelBuilder.Properties<DateTime>().Configure(c => c.HasColumnType("datetime2"));
             modelBuilder.Entity<Song>().Property(song => song.Tempo).HasPrecision(6, 2);
             modelBuilder.Entity<Song>().Ignore(song => song.CurrentLog);
             modelBuilder.Entity<Song>().Ignore(song => song.AlbumName);

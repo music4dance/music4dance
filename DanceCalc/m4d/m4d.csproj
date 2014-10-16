@@ -330,6 +330,10 @@
     <Compile Include="Migrations\201409252023256_StartData.Designer.cs">
       <DependentUpon>201409252023256_StartData.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201410162052304_DateTime2.cs" />
+    <Compile Include="Migrations\201410162052304_DateTime2.Designer.cs">
+      <DependentUpon>201410162052304_DateTime2.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Context\DanceMusicConfiguration.cs" />
     <Compile Include="Context\DanceMusicContext.cs" />
@@ -740,6 +744,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201409252023256_StartData.resx">
       <DependentUpon>201409252023256_StartData.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201410162052304_DateTime2.resx">
+      <DependentUpon>201410162052304_DateTime2.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
