@@ -26,6 +26,7 @@
     <li>@Html.ActionLink("Update Albums", "UpdateAlbums")</li>
     <li>@Html.ActionLink("Update Tag Types", "UpdateTagTypes")</li>
     <li>@Html.ActionLink("Add Dance Groups", "AddDanceGroups")</li>
+    <li>@Html.ActionLink("Clean Tags", "CleanTags")</li>
     <li>@Html.ActionLink("Infer Dance Types", "InferDanceTypes")</li>
     <li>@Html.ActionLink("Clear Song Cache", "ClearSongCache")</li>
 </ul>
@@ -47,6 +48,7 @@
     <li>@Html.ActionLink("Backup the Database (with lookup history)", "BackupDatabase", new {useLookupHistory = "true" })</li>
     <li>@Html.ActionLink("Update Purchase Info", "UpdatePurchase")</li>
     <li>@Html.ActionLink("Update Title Hashes", "UpdateTitleHash")</li>
+    <li>@Html.ActionLink("Backup Tags", "BackupTags")</li>
     @if (User.IsInRole("dbAdmin"))
     {
         <li>@Html.ActionLink("Restore the Datbase", "RestoreDatabase")</li>

@@ -471,6 +471,79 @@ namespace m4d.Controllers
 
 
         //
+        // Get: //CleanTags
+        [Authorize(Roles = "dbAdmin")]
+        public ActionResult CleanTags()
+        {
+            ViewBag.Name = "CleanTags";
+
+            int count = 0;
+            using (DanceMusicContext dmc = new DanceMusicContext())
+            {
+                dmc.Configuration.AutoDetectChangesEnabled = false;
+
+                SongProperty user = null;
+                SongProperty time = null;
+
+                List<SongProperty> deletions = new List<SongProperty>();
+
+                foreach (SongProperty prop in dmc.SongProperties)
+                {
+                    switch (prop.BaseName)
+                    {
+                        default:
+                            user = null;
+                            time = null;
+                            break;
+                        case Song.UserField:
+                            user = prop;
+                            break;
+                        case Song.TimeField:
+                            time = prop;
+                            break;
+                        case Song.TagField:
+                            // Time ID User tags
+                            if (user != null && user.SongId == prop.SongId)
+                            {
+                                deletions.Add(user);
+                            }
+                            if (time != null && time.SongId == prop.SongId)
+                            {
+                                deletions.Add(time);
+                            }
+                            deletions.Add(prop);
+                            user = null;
+                            time = null;
+                            count += 1;
+                            break;
+                    }
+
+                }
+
+                foreach (var prop in deletions)
+                {
+                    dmc.SongProperties.Remove(prop);
+                }
+                dmc.ChangeTracker.DetectChanges();
+                dmc.SaveChanges();
+
+                foreach (Song song in dmc.Songs)
+                {
+                    song.TagSummary = null;
+                }
+
+                dmc.ChangeTracker.DetectChanges();
+                dmc.SaveChanges();
+            }
+
+
+            ViewBag.Success = true;
+            ViewBag.Message = string.Format("Tags were removed ({0})", count);
+
+            return View("Results");
+        }
+
+        //
         // Get: //ClearSongCache
         [Authorize(Roles = "showDiagnostics")]
         public ActionResult ClearSongCache()
@@ -977,6 +1050,49 @@ namespace m4d.Controllers
             DateTime dt = DateTime.Now;
             string h = history ? "+lookup" : string.Empty;
             return File(stream, "text/plain", string.Format("backup-{0:d4}-{1:d2}-{2:d2}{3}.txt",dt.Year,dt.Month,dt.Day,h));
+        }
+
+        //
+        // Get: //BackupTags
+        // This is a massive kludge to get the old style tag info out of the database
+        [Authorize(Roles = "showDiagnostics")]
+        public ActionResult BackupTags()
+        {
+            StringBuilder sb = new StringBuilder();
+
+            var songlist = _db.Songs.OrderBy(t => t.Modified).ThenBy(t => t.SongId);
+            foreach (Song song in songlist)
+            {
+                string user = "batch";
+                string time = new DateTime(2014, 1, 1).ToString();
+
+                foreach (var prop in song.SongProperties)
+                {
+                    switch (prop.BaseName)
+                    {
+                        case Song.UserField:
+                            user = prop.Value;
+                            break;
+                        case Song.TimeField:
+                            time = prop.Value;
+                            break;
+                        case Song.TagField:
+                            // Time ID User tags
+                            sb.AppendFormat("{0}\tS{1}\t{2}\t{3}\r\n",time,song.SongId.ToString("N"),user,prop.Value);
+                            break;
+                    }
+                }
+            }
+
+
+            // TODO: If we do more of this kind of thing, we should abstract out the streaming
+            string s = sb.ToString();
+            var bytes = Encoding.UTF8.GetBytes(s);
+            MemoryStream stream = new MemoryStream(bytes);
+
+            sb.AppendFormat("{0}\r\n", _userHeader);
+            DateTime dt = DateTime.Now;
+            return File(stream, "text/plain", string.Format("backup-{0:d4}-{1:d2}-{2:d2}.txt", dt.Year, dt.Month, dt.Day));
         }
 
         private const string _songBreak = "+++++SONGS+++++";
