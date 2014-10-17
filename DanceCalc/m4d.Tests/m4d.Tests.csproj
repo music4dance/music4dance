@@ -112,6 +112,7 @@
     <Content Include="Test Data\backup-snapshot-a.txt" />
     <Content Include="Test Data\backup-snapshot-b.txt" />
     <Content Include="Test Data\backup-snapshot.txt" />
+    <Content Include="Test Data\tags-2014-10-16.txt" />
     <Content Include="Test Data\TEMPI.TXT" />
   </ItemGroup>
   <ItemGroup>

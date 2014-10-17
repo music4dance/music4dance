@@ -527,12 +527,19 @@ namespace m4d.Controllers
                 dmc.ChangeTracker.DetectChanges();
                 dmc.SaveChanges();
 
+                foreach (Tag tag in dmc.Tags)
+                {
+                    dmc.Tags.Remove(tag);
+                    count += 1;
+                }
+                dmc.ChangeTracker.DetectChanges();
+                dmc.SaveChanges();
+
+                dmc.Configuration.AutoDetectChangesEnabled = true;
                 foreach (Song song in dmc.Songs)
                 {
                     song.TagSummary = null;
                 }
-
-                dmc.ChangeTracker.DetectChanges();
                 dmc.SaveChanges();
             }
 
