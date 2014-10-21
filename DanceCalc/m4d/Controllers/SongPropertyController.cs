@@ -16,8 +16,6 @@ namespace m4d.Controllers
             }
         }
 
-        private DanceMusicContext _db = new DanceMusicContext();
-
         //
         // GET: /SongProperty/
 
@@ -30,7 +28,7 @@ namespace m4d.Controllers
 
             // Now setup the view
             // Start with all of the songs in the database
-            var songProperties = from s in _db.SongProperties select s;
+            var songProperties = from s in Database.SongProperties select s;
 
             if (start != null)
             {
@@ -48,12 +46,6 @@ namespace m4d.Controllers
             int pageNumber = (page ?? 1);
 
             return View(songProperties.ToPagedList(pageNumber, pageSize));
-        }
-
-        protected override void Dispose(bool disposing)
-        {
-            _db.Dispose();
-            base.Dispose(disposing);
         }
     }
 }

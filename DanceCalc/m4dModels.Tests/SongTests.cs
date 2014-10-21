@@ -62,7 +62,7 @@ namespace m4dModels.Tests
         public void Ratings()
         {
             Song song = new Song();
-            song.Load(@"user=batch	Title=Test	Artist=Me	Tempo=30.0",s_context);
+            song.Load(@"user=batch	Title=Test	Artist=Me	Tempo=30.0",s_service);
 
             string init = song.ToString();
             Trace.WriteLine(init);
@@ -72,8 +72,8 @@ namespace m4dModels.Tests
             sd.UpdateDanceRatings(new string[] { "FXT" }, 7);
 
             // Create an test an initial small list of dance ratings
-            ApplicationUser user = s_context.FindUser("dwgray");
-            song.Update(user, sd, s_context);
+            ApplicationUser user = s_service.FindUser("dwgray");
+            song.Update(user, sd, s_service);
             string first = song.ToString();
             Trace.WriteLine(first);
             Assert.IsTrue(song.DanceRatings.Count == 3);
@@ -81,13 +81,13 @@ namespace m4dModels.Tests
             // Now mix it up a bit
 
             sd.UpdateDanceRatings(new string[] { "RMB", "FXT" }, 3);
-            song.Update(user, sd, s_context);
+            song.Update(user, sd, s_service);
             Assert.IsTrue(song.DanceRatings.Count == 3);
             DanceRating drT = song.FindRating("RMB");
             Assert.IsTrue(drT.Weight == 8);
 
             sd.UpdateDanceRatings(new string[] { "CHA", "FXT" }, -5);
-            song.Update(user, sd, s_context);
+            song.Update(user, sd, s_service);
             Assert.IsTrue(song.DanceRatings.Count == 2);
             drT = song.FindRating("FXT");
             Assert.IsTrue(drT.Weight == 5);
@@ -163,6 +163,6 @@ namespace m4dModels.Tests
             744080883
         };
 
-        static MockContext s_context = new MockContext();
+        static DanceMusicService s_service = new DanceMusicService(new MockContext());
     }
 }

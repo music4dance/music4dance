@@ -37,7 +37,6 @@ namespace m4d.Controllers
             }
         }
 
-        private DanceMusicContext _db = new DanceMusicContext();
 
         #region Commands
         //
@@ -57,14 +56,14 @@ namespace m4d.Controllers
             //List<string> results = new List<string>();
 
             //bool seeded = false;
-            //if (_db.Songs.Any(s => s.Title == "Tea for Two"))
+            //if (Database.Songs.Any(s => s.Title == "Tea for Two"))
             //{
             //    seeded = true;
             //}
 
             //if (!seeded)
             //{
-            //    foreach (string name in _dbs)
+            //    foreach (string name in Databases)
             //    {
             //        string file = string.Format("~/Content/{0}.csv", name);
             //        string path = Server.MapPath(Url.Content(file));
@@ -115,7 +114,7 @@ namespace m4d.Controllers
         {
             ViewBag.Name = "Update Purchase Info";
 
-            var songs = from s in _db.Songs where s.TitleHash != 0 select s;
+            var songs = from s in Database.Songs where s.TitleHash != 0 select s;
 
             foreach (Song song in songs)
             {
@@ -123,7 +122,7 @@ namespace m4d.Controllers
                 song.Purchase = sd.GetPurchaseTags();
             }
 
-            _db.SaveChanges();
+            Database.SaveChanges();
 
             ViewBag.Success = true;
             ViewBag.Message = "Purchase info was successully updated";
@@ -139,7 +138,7 @@ namespace m4d.Controllers
             ViewBag.Name = "UpdateTitleHash";
             int count = 0;
 
-            var songs = from s in _db.Songs where s.TitleHash != 0 select s;
+            var songs = from s in Database.Songs where s.TitleHash != 0 select s;
             foreach (Song song in songs)
             {
                 if (song.UpdateTitleHash())
@@ -147,7 +146,7 @@ namespace m4d.Controllers
                     count += 1;
                 }
             }
-            _db.SaveChanges();
+            Database.SaveChanges();
 
             ViewBag.Success = true;
             ViewBag.Message = string.Format("Title Hashes were reseeded ({0})", count);
@@ -163,8 +162,8 @@ namespace m4d.Controllers
             ViewBag.Name = "FixArtists";
             int count = 0;
 
-            ApplicationUser user = _db.FindUser(User.Identity.Name);
-            var songs = from s in _db.Songs where string.Equals(s.Title,s.Artist) select s;
+            ApplicationUser user = Database.FindUser(User.Identity.Name);
+            var songs = from s in Database.Songs where string.Equals(s.Title,s.Artist) select s;
             foreach (Song song in songs)
             {
                 var artists = from p in song.SongProperties where p.Name == Song.ArtistField select p;
@@ -179,12 +178,12 @@ namespace m4d.Controllers
                     {
                         SongDetails sd = new SongDetails(song);
                         sd.Artist = artist;
-                        _db.EditSong(user, sd, null, null, null);
+                        Database.EditSong(user, sd, null, null, null);
                         count += 1;
                     }
                 }
             }
-            _db.SaveChanges();
+            Database.SaveChanges();
 
             ViewBag.Success = true;
             ViewBag.Message = string.Format("Artists were fixed ({0})", count);
@@ -200,8 +199,8 @@ namespace m4d.Controllers
             ViewBag.Name = "UpdateAlbums";
             int count = 0;
 
-            ApplicationUser user = _db.FindUser(User.Identity.Name);
-            var songs = from s in _db.Songs where s.Title != null select s;
+            ApplicationUser user = Database.FindUser(User.Identity.Name);
+            var songs = from s in Database.Songs where s.Title != null select s;
             foreach (Song song in songs)
             {
                 SongDetails sd = new SongDetails(song);
@@ -213,7 +212,7 @@ namespace m4d.Controllers
                 }
             }
 
-            _db.SaveChanges();
+            Database.SaveChanges();
 
             ViewBag.Success = true;
             ViewBag.Message = string.Format("Albums were fixed ({0})", count);
@@ -228,17 +227,17 @@ namespace m4d.Controllers
         {
             ViewBag.Name = "UpdateTagTypes";
 
-            //_db.TagTypes.Load();
-            //int init = _db.TagTypes.Count();
+            //Database.TagTypes.Load();
+            //int init = Database.TagTypes.Count();
 
             //// Update Dances
-            //foreach (var dance in _db.Dances)
+            //foreach (var dance in Database.Dances)
             //{
-            //    _db.FindOrCreateTagType(dance.Name, "Dance");
+            //    Database.FindOrCreateTagType(dance.Name, "Dance");
             //}
 
             //// Update Genres
-            //var genres = _db.Songs.Select(s => s.Genre).Distinct();
+            //var genres = Database.Songs.Select(s => s.Genre).Distinct();
             //foreach (var genre in genres)
             //{
             //    if (string.IsNullOrWhiteSpace(genre))
@@ -248,83 +247,80 @@ namespace m4d.Controllers
             //    string[] cells = genre.Split(new char[] {','});
             //    foreach (string cell in cells)
             //    {
-            //        _db.FindOrCreateTagType(cell, "Genre");
+            //        Database.FindOrCreateTagType(cell, "Genre");
             //    }
             //}
 
-            //_db.SaveChanges();
-            //int final = _db.TagTypes.Count();
+            //Database.SaveChanges();
+            //int final = Database.TagTypes.Count();
 
             int count = 0;
-            using (DanceMusicContext dmc = new DanceMusicContext())
+            Context.Configuration.AutoDetectChangesEnabled = false;
+
+            Regex didEx = new Regex(@"^([^+-]*)", RegexOptions.Singleline);
+
+            ApplicationUser batch = Database.FindUser("batch");
+            foreach (Song song in Database.Songs)
             {
-                dmc.Configuration.AutoDetectChangesEnabled = false;
+                SongDetails sd = new SongDetails(song);
 
-                Regex didEx = new Regex(@"^([^+-]*)", RegexOptions.Singleline);
-
-                ApplicationUser batch = dmc.FindUser("batch");
-                foreach (Song song in dmc.Songs)
+                bool retry = true;
+                foreach (Tag tag in sd.Tags)
                 {
-                    SongDetails sd = new SongDetails(song);
-
-                    bool retry = true;
-                    foreach (Tag tag in sd.Tags)
+                    if (tag.Type.Categories.Contains("Dance"))
                     {
-                        if (tag.Type.Categories.Contains("Dance"))
-                        {
-                            retry = false;
-                        }
-                    }
-
-                    if (retry)
-                    {
-                        var map = sd.MapProperyByUsers(Song.DanceRatingField);
-
-                        foreach (var kv in map)
-                        {
-                            ApplicationUser user = batch;
-                            if (!string.IsNullOrWhiteSpace(kv.Key))
-                            {
-                                user = dmc.FindUser(kv.Key);
-                            }
-                            StringBuilder sb = new StringBuilder();
-                            string separator = string.Empty;
-                            foreach (var v in kv.Value)
-                            {
-                                Match match = didEx.Match(v);
-                                if (match.Success)
-                                {
-                                    string did = match.Value;
-                                    DanceObject dance = null;
-                                    if (Dances.Instance.DanceDictionary.TryGetValue(did, out dance))
-                                    {
-                                        sb.Append(separator);
-                                        sb.Append(dance.Name);
-                                        separator = "|";
-                                    }
-                                }
-                            }
-                            string tags = sb.ToString();
-                            if (!string.IsNullOrWhiteSpace(tags))
-                            {
-                                sd = dmc.EditSong(user, sd, null, null, tags, false);
-                                Trace.WriteLine(string.Format("{0}:{1}", sd.Title, tags));
-                            }
-                        }
-
-                        count += 1;
-
-                        if (count % 50 == 0)
-                        {
-                            Trace.WriteLine(string.Format("Song Modified={0}", count));
-                        }
+                        retry = false;
                     }
                 }
 
-                dmc.ChangeTracker.DetectChanges();
-                dmc.SaveChanges();
+                if (retry)
+                {
+                    var map = sd.MapProperyByUsers(Song.DanceRatingField);
+
+                    foreach (var kv in map)
+                    {
+                        ApplicationUser user = batch;
+                        if (!string.IsNullOrWhiteSpace(kv.Key))
+                        {
+                            user = Database.FindUser(kv.Key);
+                        }
+                        StringBuilder sb = new StringBuilder();
+                        string separator = string.Empty;
+                        foreach (var v in kv.Value)
+                        {
+                            Match match = didEx.Match(v);
+                            if (match.Success)
+                            {
+                                string did = match.Value;
+                                DanceObject dance = null;
+                                if (Dances.Instance.DanceDictionary.TryGetValue(did, out dance))
+                                {
+                                    sb.Append(separator);
+                                    sb.Append(dance.Name);
+                                    separator = "|";
+                                }
+                            }
+                        }
+                        string tags = sb.ToString();
+                        if (!string.IsNullOrWhiteSpace(tags))
+                        {
+                            sd = Database.EditSong(user, sd, null, null, tags, false);
+                            Trace.WriteLine(string.Format("{0}:{1}", sd.Title, tags));
+                        }
+                    }
+
+                    count += 1;
+
+                    if (count % 50 == 0)
+                    {
+                        Trace.WriteLine(string.Format("Song Modified={0}", count));
+                    }
+                }
             }
 
+            Context.ChangeTracker.DetectChanges();
+            Database.SaveChanges();
+            Context.Configuration.AutoDetectChangesEnabled = true;
 
             ViewBag.Success = true;
             //ViewBag.Message = string.Format("Tags Types were created ({0}).  Songs were fixed as tags({1})", final-init, count);
@@ -343,56 +339,53 @@ namespace m4d.Controllers
             var dict = Dances.Instance.DanceDictionary;
 
             int count = 0;
-            using (DanceMusicContext dmc = new DanceMusicContext())
+            Context.Configuration.AutoDetectChangesEnabled = false;
+
+            ApplicationUser batch = Database.FindUser("batch");
+            foreach (Song song in Database.Songs)
             {
-                dmc.Configuration.AutoDetectChangesEnabled = false;
-
-                ApplicationUser batch = dmc.FindUser("batch");
-                foreach (Song song in dmc.Songs)
+                Dictionary<string,DanceRatingDelta> ngs = new Dictionary<string,DanceRatingDelta>();
+                foreach (var dr in song.DanceRatings)
                 {
-                    Dictionary<string,DanceRatingDelta> ngs = new Dictionary<string,DanceRatingDelta>();
-                    foreach (var dr in song.DanceRatings)
+                    DanceObject d = dict[dr.DanceId];
+                    DanceType dt = d as DanceType;
+                    if (dt != null)
                     {
-                        DanceObject d = dict[dr.DanceId];
-                        DanceType dt = d as DanceType;
-                        if (dt != null)
+                        string g = dt.GroupId;
+                        if (g != "MSC")
                         {
-                            string g = dt.GroupId;
-                            if (g != "MSC")
+                            DanceRatingDelta drd = null;
+                            if (ngs.TryGetValue(g, out drd))
                             {
-                                DanceRatingDelta drd = null;
-                                if (ngs.TryGetValue(g, out drd))
-                                {
-                                    drd.Delta += 2;
-                                }
-                                else
-                                {
-                                    drd = new DanceRatingDelta(g, 3);
-                                    ngs.Add(g, drd);
-                                }
+                                drd.Delta += 2;
                             }
-                            count += 1;
-                        }
-                        else 
-                        {
-                            DanceInstance di = d as DanceInstance;
-                            if (di != null)
+                            else
                             {
-                                Trace.WriteLine(string.Format("Dance Instance: {0}", song.Title));
+                                drd = new DanceRatingDelta(g, 3);
+                                ngs.Add(g, drd);
                             }
                         }
+                        count += 1;
                     }
-
-                    if (ngs.Count > 0)
+                    else 
                     {
-                        dmc.UpdateDances(batch, song, ngs.Values, false);
+                        DanceInstance di = d as DanceInstance;
+                        if (di != null)
+                        {
+                            Trace.WriteLine(string.Format("Dance Instance: {0}", song.Title));
+                        }
                     }
                 }
 
-                dmc.ChangeTracker.DetectChanges();
-                dmc.SaveChanges();
+                if (ngs.Count > 0)
+                {
+                    Database.UpdateDances(batch, song, ngs.Values, false);
+                }
             }
 
+            Context.Configuration.AutoDetectChangesEnabled = true;
+            Context.ChangeTracker.DetectChanges();
+            Database.SaveChanges();
 
             ViewBag.Success = true;
             ViewBag.Message = string.Format("Dance groups were added ({0})", count);
@@ -412,56 +405,52 @@ namespace m4d.Controllers
             var dict = Dances.Instance.DanceDictionary;
 
             int count = 0;
-            using (DanceMusicContext dmc = new DanceMusicContext())
-            {
-                dmc.Configuration.AutoDetectChangesEnabled = false;
+            Context.Configuration.AutoDetectChangesEnabled = false;
 
-                ApplicationUser batch = dmc.FindUser("batch");
-                foreach (Song song in dmc.Songs)
+            ApplicationUser batch = Database.FindUser("batch");
+            foreach (Song song in Database.Songs)
+            {
+                if (song.Tempo != null)
                 {
-                    if (song.Tempo != null)
+                    decimal tempo = song.Tempo.Value;
+                    List<DanceRatingDelta> nts = new List<DanceRatingDelta>();
+                    foreach (var dr in song.DanceRatings)
                     {
-                        decimal tempo = song.Tempo.Value;
-                        List<DanceRatingDelta> nts = new List<DanceRatingDelta>();
-                        foreach (var dr in song.DanceRatings)
+                        DanceObject d = dict[dr.DanceId];
+                        DanceGroup dg = d as DanceGroup;
+                        if (dg != null && groups.Contains(dg.Id))
                         {
-                            DanceObject d = dict[dr.DanceId];
-                            DanceGroup dg = d as DanceGroup;
-                            if (dg != null && groups.Contains(dg.Id))
+                            foreach (var dto in dg.Members)
                             {
-                                foreach (var dto in dg.Members)
+                                DanceType dt = dto as DanceType;
+                                if (dt.TempoRange.ToBpm(dt.Meter).Contains(tempo))
                                 {
-                                    DanceType dt = dto as DanceType;
-                                    if (dt.TempoRange.ToBpm(dt.Meter).Contains(tempo))
-                                    {
-                                        // TODO: Consider re-using this code to tag songs as not-strict tempo (but it's actually the dance rating that should be tagged).
-                                        DanceRatingDelta drd = new DanceRatingDelta(dt.Id,4);
-                                        nts.Add(drd);
-                                        count += 1;
-                                    }
-                                }
-                            }
-                            else
-                            {
-                                DanceInstance di = d as DanceInstance;
-                                if (di != null)
-                                {
-                                    Trace.WriteLine(string.Format("Dance Instance: {0}", song.Title));
+                                    // TODO: Consider re-using this code to tag songs as not-strict tempo (but it's actually the dance rating that should be tagged).
+                                    DanceRatingDelta drd = new DanceRatingDelta(dt.Id,4);
+                                    nts.Add(drd);
+                                    count += 1;
                                 }
                             }
                         }
-
-                        if (nts.Count > 0)
+                        else
                         {
-                            dmc.UpdateDances(batch, song, nts, false);
+                            DanceInstance di = d as DanceInstance;
+                            if (di != null)
+                            {
+                                Trace.WriteLine(string.Format("Dance Instance: {0}", song.Title));
+                            }
                         }
                     }
-                }
 
-                dmc.ChangeTracker.DetectChanges();
-                dmc.SaveChanges();
+                    if (nts.Count > 0)
+                    {
+                        Database.UpdateDances(batch, song, nts, false);
+                    }
+                }
             }
 
+            Context.ChangeTracker.DetectChanges();
+            Database.SaveChanges();
 
             ViewBag.Success = true;
             ViewBag.Message = string.Format("Dance groups were added ({0})", count);
@@ -478,71 +467,67 @@ namespace m4d.Controllers
             ViewBag.Name = "CleanTags";
 
             int count = 0;
-            using (DanceMusicContext dmc = new DanceMusicContext())
+            Context.Configuration.AutoDetectChangesEnabled = false;
+
+            SongProperty user = null;
+            SongProperty time = null;
+
+            List<SongProperty> deletions = new List<SongProperty>();
+
+            foreach (SongProperty prop in Database.SongProperties)
             {
-                dmc.Configuration.AutoDetectChangesEnabled = false;
-
-                SongProperty user = null;
-                SongProperty time = null;
-
-                List<SongProperty> deletions = new List<SongProperty>();
-
-                foreach (SongProperty prop in dmc.SongProperties)
+                switch (prop.BaseName)
                 {
-                    switch (prop.BaseName)
-                    {
-                        default:
-                            user = null;
-                            time = null;
-                            break;
-                        case Song.UserField:
-                            user = prop;
-                            break;
-                        case Song.TimeField:
-                            time = prop;
-                            break;
-                        case Song.TagField:
-                            // Time ID User tags
-                            if (user != null && user.SongId == prop.SongId)
-                            {
-                                deletions.Add(user);
-                            }
-                            if (time != null && time.SongId == prop.SongId)
-                            {
-                                deletions.Add(time);
-                            }
-                            deletions.Add(prop);
-                            user = null;
-                            time = null;
-                            count += 1;
-                            break;
-                    }
-
+                    default:
+                        user = null;
+                        time = null;
+                        break;
+                    case Song.UserField:
+                        user = prop;
+                        break;
+                    case Song.TimeField:
+                        time = prop;
+                        break;
+                    case Song.TagField:
+                        // Time ID User tags
+                        if (user != null && user.SongId == prop.SongId)
+                        {
+                            deletions.Add(user);
+                        }
+                        if (time != null && time.SongId == prop.SongId)
+                        {
+                            deletions.Add(time);
+                        }
+                        deletions.Add(prop);
+                        user = null;
+                        time = null;
+                        count += 1;
+                        break;
                 }
 
-                foreach (var prop in deletions)
-                {
-                    dmc.SongProperties.Remove(prop);
-                }
-                dmc.ChangeTracker.DetectChanges();
-                dmc.SaveChanges();
-
-                foreach (Tag tag in dmc.Tags)
-                {
-                    dmc.Tags.Remove(tag);
-                    count += 1;
-                }
-                dmc.ChangeTracker.DetectChanges();
-                dmc.SaveChanges();
-
-                dmc.Configuration.AutoDetectChangesEnabled = true;
-                foreach (Song song in dmc.Songs)
-                {
-                    song.TagSummary = null;
-                }
-                dmc.SaveChanges();
             }
 
+            foreach (var prop in deletions)
+            {
+                Database.SongProperties.Remove(prop);
+            }
+            Context.ChangeTracker.DetectChanges();
+            Database.SaveChanges();
+
+            foreach (Tag tag in Database.Tags)
+            {
+                Database.Tags.Remove(tag);
+                count += 1;
+            }
+            Context.ChangeTracker.DetectChanges();
+            Database.SaveChanges();
+
+            Context.Configuration.AutoDetectChangesEnabled = true;
+            foreach (Song song in Database.Songs)
+            {
+                song.TagSummary = null;
+            }
+            Database.SaveChanges();
 
             ViewBag.Success = true;
             ViewBag.Message = string.Format("Tags were removed ({0})", count);
@@ -716,7 +701,7 @@ namespace m4d.Controllers
             ViewBag.Name = "Upload Tempi";
             ViewBag.FileId = fileId;
 
-            ApplicationUser user = _db.FindUser(User.Identity.Name);
+            ApplicationUser user = Database.FindUser(User.Identity.Name);
 
             if (initial.Count > 0)
             {
@@ -746,14 +731,14 @@ namespace m4d.Controllers
                             modified = true;
                         }
 
-                        if (modified && _db.EditSong(user, edit, null, null, null) != null)
+                        if (modified && Database.EditSong(user, edit, null, null, null) != null)
                         {
                             results.Add(m);
                         }
                     }
                 }
 
-                _db.SaveChanges();
+                Database.SaveChanges();
             }
 
             return View("ReviewBatch", results);
@@ -782,21 +767,21 @@ namespace m4d.Controllers
                         string[] cells = line.Split(new char[] { '\t' });
                         if (cells.Length == 2)
                         {
-                            _db.FindOrCreateTagType(cells[1], cells[0]);
+                            Database.FindOrCreateTagType(cells[1], cells[0]);
                         }
                     }
                 }
             }
 
-            _db.SaveChanges();
-            foreach (TagType tt in _db.TagTypes)
+            Database.SaveChanges();
+            foreach (TagType tt in Database.TagTypes)
             {
                 if (string.IsNullOrWhiteSpace(tt.Categories))
                 {
                     tt.AddCategory("Genre");
                 }
             }
-            _db.SaveChanges();
+            Database.SaveChanges();
 
             return View("Results");
         }
@@ -941,7 +926,7 @@ namespace m4d.Controllers
             {
                 userName = User.Identity.Name;
             }
-            ApplicationUser user = _db.FindOrAddUser(userName,DanceMusicContext.PseudoRole);
+            ApplicationUser user = Database.FindOrAddUser(userName,DanceMusicService.PseudoRole);
 
             List<string> dances = null;
             if (!string.IsNullOrWhiteSpace(danceIds))
@@ -969,20 +954,20 @@ namespace m4d.Controllers
                     if (m.MatchType == MatchType.None)
                     {
                         m.Left.UpdateDanceRatings(dancesT, Song.DanceRatingAutoCreate);
-                        modified = _db.CreateSong(user, m.Left) != null;
+                        modified = Database.CreateSong(user, m.Left) != null;
                     }
                     // Any other matchtype should result in a merge, which for now is just adding the dance(s) from
                     //  the new list to the existing song (or adding weight).
                     // Now we're going to potentially add tempo - need a more general solution for this going forward
                     else
                     {
-                        modified = _db.AdditiveMerge(user, m.Right.SongId, m.Left, dancesT) != null;
+                        modified = Database.AdditiveMerge(user, m.Right.SongId, m.Left, dancesT) != null;
                     }
                 }
 
                 if (modified)
                 {
-                    _db.SaveChanges();
+                    Database.SaveChanges();
                 }
             }
 
@@ -1014,11 +999,11 @@ namespace m4d.Controllers
             StringBuilder sb = new StringBuilder();
 
             sb.AppendFormat("{0}\r\n",_userHeader);
-            foreach (ApplicationUser user in _db.Users)
+            foreach (ApplicationUser user in Context.Users)
             {
                 string userId = user.Id;
                 string username = user.UserName;
-                string roles = user.GetRoles(_db.RoleDictionary,"|");
+                string roles = user.GetRoles(Context.RoleDictionary,"|");
                 string hash = user.PasswordHash;
                 string stamp = user.SecurityStamp;
                 string lockout = user.LockoutEnabled.ToString();
@@ -1028,14 +1013,14 @@ namespace m4d.Controllers
             }
 
             sb.AppendFormat("{0}\r\n", _tagBreak);
-            foreach (TagType tt in _db.TagTypes)
+            foreach (TagType tt in Database.TagTypes)
             {
                 sb.AppendFormat("{0}\t{1}\r\n", tt.Categories, tt.Value);
             }
 
             sb.AppendFormat("{0}\r\n",_songBreak);
             bool history = !string.IsNullOrWhiteSpace(useLookupHistory);
-            var songlist = _db.Songs.OrderBy(t => t.Modified).ThenBy(t => t.SongId);
+            var songlist = Database.Songs.OrderBy(t => t.Modified).ThenBy(t => t.SongId);
             foreach (Song song in songlist)
             {
                 string[] actions = null;
@@ -1067,7 +1052,7 @@ namespace m4d.Controllers
         {
             StringBuilder sb = new StringBuilder();
 
-            var songlist = _db.Songs.OrderBy(t => t.Modified).ThenBy(t => t.SongId);
+            var songlist = Database.Songs.OrderBy(t => t.Modified).ThenBy(t => t.SongId);
             foreach (Song song in songlist)
             {
                 string user = "batch";
@@ -1125,7 +1110,7 @@ namespace m4d.Controllers
         [Authorize(Roles = "dbAdmin")]
         public ActionResult CleanTempi()
         {
-            var songs = from s in _db.Songs where s.TitleHash != 0 select s;
+            var songs = from s in Database.Songs where s.TitleHash != 0 select s;
             string[] danceList = Dances.Instance.ExpandDanceList("WLZ");
 
             int cwlz = 0;
@@ -1143,7 +1128,7 @@ namespace m4d.Controllers
             }
 
             int csmb = 0;
-            songs = from s in _db.Songs where s.TitleHash != 0 select s;
+            songs = from s in Database.Songs where s.TitleHash != 0 select s;
             songs = songs.Where(s => s.DanceRatings.Count == 1 && s.DanceRatings.Any(dr => dr.DanceId == "SMB"));
             songsT = songs.ToList();
             songs = songs.Where(s => s.Tempo > 175);
@@ -1156,7 +1141,7 @@ namespace m4d.Controllers
                 csmb += 1;
             }
 
-            _db.SaveChanges();
+            Database.SaveChanges();
 
             ViewBag.Name = "Clean Tempi";
             ViewBag.Success = true;
@@ -1183,7 +1168,7 @@ namespace m4d.Controllers
             else
             {
                 Trace.WriteLine("Wiping Database");
-                ObjectContext objectContext = ((IObjectContextAdapter)_db).ObjectContext;
+                ObjectContext objectContext = ((IObjectContextAdapter)Context).ObjectContext;
                 objectContext.DeleteDatabase();
                 migrator = BuildMigrator();
             }
@@ -1197,7 +1182,7 @@ namespace m4d.Controllers
 
         private void ReseedDB()
         {
-            m4d.Migrations.Configuration.DoSeed(_db);
+            m4d.Migrations.Configuration.DoSeed(Context);
         }
 
         private DbMigrator BuildMigrator()
@@ -1262,10 +1247,10 @@ namespace m4d.Controllers
                     string providers = cells[6];
 
                     // Don't trounce existing users
-                    ApplicationUser user = _db.FindUser(userName);
+                    ApplicationUser user = Database.FindUser(userName);
                     if (user == null)
                     {
-                        user = _db.Users.Create();
+                        user = Context.Users.Create();
                         user.Id = userId;
                         user.UserName = userName;
                         user.PasswordHash = hash;
@@ -1277,7 +1262,7 @@ namespace m4d.Controllers
                             string[] roleNames = roles.Split(new char[] {'|'},StringSplitOptions.RemoveEmptyEntries);
                             foreach (string roleName in roleNames)
                             {
-                                IdentityRole role = _db.Roles.FirstOrDefault(r => r.Name == roleName.Trim());
+                                IdentityRole role = Context.Roles.FirstOrDefault(r => r.Name == roleName.Trim());
                                 if (role != null)
                                 {
                                     IdentityUserRole iur = new IdentityUserRole() { UserId = userId, RoleId = role.Id };
@@ -1296,7 +1281,7 @@ namespace m4d.Controllers
                             }
                         }
 
-                        _db.Users.Add(user);
+                        Context.Users.Add(user);
                     }
                 }
             }
@@ -1304,7 +1289,7 @@ namespace m4d.Controllers
             lines.RemoveRange(0, i);
 
             Trace.WriteLine("Saving Changes");
-            _db.SaveChanges();
+            Database.SaveChanges();
 
             Trace.WriteLine("Exiting ReloadUsers");
         }
@@ -1334,14 +1319,14 @@ namespace m4d.Controllers
                     string category = cells[0];
                     string value = cells[1];
 
-                    _db.FindOrCreateTagType(value, category);
+                    Database.FindOrCreateTagType(value, category);
                 }
             }
 
             lines.RemoveRange(0, i);
 
             Trace.WriteLine("Saving Changes");
-            _db.SaveChanges();
+            Database.SaveChanges();
 
             Trace.WriteLine("Exiting ReloadTags");
         }
@@ -1355,150 +1340,144 @@ namespace m4d.Controllers
         {
             Trace.WriteLine("Entering UpdateDB");
 
-            using (DanceMusicContext dmc = new DanceMusicContext())
+            Context.Configuration.AutoDetectChangesEnabled = false;
+
+            // Load the dance List
+            Trace.WriteLine("Loading Dances");
+            Database.Dances.Load();
+
+            Trace.WriteLine("Loading Songs");
+
+            foreach (string line in lines)
             {
-                dmc.Configuration.AutoDetectChangesEnabled = false;
+                SongDetails sd = new SongDetails(line);
+                Song song = Database.FindSong(sd.SongId);
 
-                // Load the dance List
-                Trace.WriteLine("Loading Dances");
-                dmc.Dances.Load();
+                string name = sd.ModifiedList.Last().UserName;
+                ApplicationUser user = Database.FindOrAddUser(name,DanceMusicService.EditRole);
 
-                Trace.WriteLine("Loading Songs");
-
-                foreach (string line in lines)
+                if (song == null)
                 {
-                    SongDetails sd = new SongDetails(line);
-                    Song song = dmc.FindSong(sd.SongId);
-
-                    string name = sd.ModifiedList.Last().UserName;
-                    ApplicationUser user = dmc.FindOrAddUser(name,DanceMusicContext.EditRole);
-
-                    if (song == null)
-                    {
-                        song = dmc.CreateSong(user,sd);
-                    }
-                    else if (sd.IsNull)
-                    {
-                        dmc.DeleteSong(user, song);
-                    }
-                    else {
-                        dmc.UpdateSong(user, song, sd, false);
-                    }
-                    //song.Modified = DateTime.Now;
+                    song = Database.CreateSong(user,sd);
                 }
-
-                dmc.Configuration.AutoDetectChangesEnabled = true;
-                dmc.ChangeTracker.DetectChanges();
-                dmc.SaveChanges();
+                else if (sd.IsNull)
+                {
+                    Database.DeleteSong(user, song);
+                }
+                else {
+                    Database.UpdateSong(user, song, sd, false);
+                }
+                //song.Modified = DateTime.Now;
             }
+
+            Context.Configuration.AutoDetectChangesEnabled = true;
+            Context.ChangeTracker.DetectChanges();
+            Database.SaveChanges();
 
             Trace.WriteLine("Clearing Song Cache");
             SongCounts.ClearCache();
             Trace.WriteLine("Exiting ReloadDB");
         }
 
-        /// <summary>
-        /// Reloads a list of songs into the database
-        /// </summary>
-        /// <param name="lines"></param>
-        private void ReloadDB(List<string> lines, bool? batch)
+    /// <summary>
+    /// Reloads a list of songs into the database
+    /// </summary>
+    /// <param name="lines"></param>
+    private void ReloadDB(List<string> lines, bool? batch)
+    {
+        Trace.WriteLine("Entering ReloadDB");
+        bool b = batch ?? false;
+
+        Context.Configuration.AutoDetectChangesEnabled = false;
+
+        // Load the dance List
+        Trace.WriteLine("Loading Dances");
+        Database.Dances.Load();
+
+        List<Song> songs = new List<Song>();
+        //List<SongProperty> properties = null;
+        //List<DanceRating> ratings = null;
+        //IDanceMusicContext bum = _db;
+        //if (b)
+        //{
+        //    bum = new BatchUserMap(_db);
+        //    properties = new List<SongProperty>();
+        //    ratings = new List<DanceRating>();
+        //}
+
+        Trace.WriteLine("Loading Songs");
+
+        int c = 0;
+        foreach (string line in lines)
         {
-            Trace.WriteLine("Entering ReloadDB");
-            bool b = batch ?? false;
+            DateTime time = DateTime.Now;
+            Song song = new Song();
+            song.Created = time;
+            song.Modified = time;
 
-            using (DanceMusicContext dmc = new DanceMusicContext())
+            song.Load(line, Database);
+            songs.Add(song);
+            //if (b)
+            //{
+            //    properties.AddRange(song.SongProperties);
+            //    ratings.AddRange(song.DanceRatings);
+            //}
+            //else
+            //{
+                Context.Entry(song).State = EntityState.Added;
+            //}
+
+            c += 1;
+            if (c % 100 == 0)
             {
-                dmc.Configuration.AutoDetectChangesEnabled = false;
+                Trace.WriteLine(string.Format("{0} songs loaded", c));
+            }
 
-                // Load the dance List
-                Trace.WriteLine("Loading Dances");
-                dmc.Dances.Load();
-
-                List<Song> songs = new List<Song>();
-                List<SongProperty> properties = null;
-                List<DanceRating> ratings = null;
-                IDanceMusicContext bum = dmc;
-                if (b)
+            if (TraceLevels.General.TraceInfo)
+            {
+                if (song.Length.HasValue && song.Length.Value > 1000)
                 {
-                    bum = new BatchUserMap(dmc);
-                    properties = new List<SongProperty>();
-                    ratings = new List<DanceRating>();
-                }
-
-                Trace.WriteLine("Loading Songs");
-
-                int c = 0;
-                foreach (string line in lines)
-                {
-                    DateTime time = DateTime.Now;
-                    Song song = new Song();
-                    song.Created = time;
-                    song.Modified = time;
-
-                    song.Load(line, bum);
-                    songs.Add(song);
-                    if (b)
-                    {
-                        properties.AddRange(song.SongProperties);
-                        ratings.AddRange(song.DanceRatings);
-                    }
-                    else
-                    {
-                        dmc.Entry(song).State = EntityState.Added;
-                    }
-
-                    c += 1;
-                    if (c % 100 == 0)
-                    {
-                        Trace.WriteLine(string.Format("{0} songs loaded", c));
-                    }
-
-                    if (TraceLevels.General.TraceInfo)
-                    {
-                        if (song.Length.HasValue && song.Length.Value > 1000)
-                        {
-                            Trace.WriteLine(string.Format("Long Song: {0} '{1}'", song.Length, song.Title));
-                        }
-                    }
-
-                    if (!b && (c % 1000 == 0))
-                    {
-                        Trace.WriteLine("Saving next 1000 songs");
-                        dmc.Configuration.AutoDetectChangesEnabled = true;
-                        dmc.ChangeTracker.DetectChanges();
-                        dmc.SaveChanges();
-                        dmc.Configuration.AutoDetectChangesEnabled = false;
-                    }
-                }
-
-                Trace.WriteLine("Saving Songs");
-                if (b)
-                {
-                    // Until the bug gets fixed in EFBatchOperations to allow for azure, we'll live with the slower method...
-                    EFBatchOperation.For(dmc, dmc.Songs).InsertAll(songs);
-
-                    Trace.WriteLine("Saving Properties");
-                    EFBatchOperation.For(dmc, dmc.SongProperties).InsertAll(properties);
-
-                    Trace.WriteLine("Saving User Mappings");
-                    EFBatchOperation.For(dmc, dmc.Modified).InsertAll((bum as BatchUserMap).GetMappings());
-
-                    Trace.WriteLine("Saving Dance Ratings");
-                    EFBatchOperation.For(dmc, dmc.DanceRatings).InsertAll(ratings);
-                }
-                else
-                {
-                    Trace.WriteLine("Saving tail");
-                    dmc.Configuration.AutoDetectChangesEnabled = true;
-                    dmc.ChangeTracker.DetectChanges();
-                    dmc.SaveChanges();
+                    Trace.WriteLine(string.Format("Long Song: {0} '{1}'", song.Length, song.Title));
                 }
             }
 
-            Trace.WriteLine("Clearing Song Cache");
-            SongCounts.ClearCache();
-            Trace.WriteLine("Exiting ReloadDB");
+            if (!b && (c % 1000 == 0))
+            {
+                Trace.WriteLine("Saving next 1000 songs");
+                Context.Configuration.AutoDetectChangesEnabled = true;
+                Context.ChangeTracker.DetectChanges();
+                Database.SaveChanges();
+                Context.Configuration.AutoDetectChangesEnabled = false;
+            }
         }
+
+        Trace.WriteLine("Saving Songs");
+        //if (b)
+        //{
+        //    // Until the bug gets fixed in EFBatchOperations to allow for azure, we'll live with the slower method...
+        //    EFBatchOperation.For(_db, Database.Songs).InsertAll(songs);
+
+        //    Trace.WriteLine("Saving Properties");
+        //    EFBatchOperation.For(_db, Database.SongProperties).InsertAll(properties);
+
+        //    Trace.WriteLine("Saving User Mappings");
+        //    EFBatchOperation.For(_db, Database.Modified).InsertAll((bum as BatchUserMap).GetMappings());
+
+        //    Trace.WriteLine("Saving Dance Ratings");
+        //    EFBatchOperation.For(_db, Database.DanceRatings).InsertAll(ratings);
+        //}
+        //else
+        //{
+            Trace.WriteLine("Saving tail");
+            Context.Configuration.AutoDetectChangesEnabled = true;
+            Context.ChangeTracker.DetectChanges();
+            Database.SaveChanges();
+        //}
+
+        Trace.WriteLine("Clearing Song Cache");
+        SongCounts.ClearCache();
+        Trace.WriteLine("Exiting ReloadDB");
+    }
 
         //private void BuildSchema(string[] lines)
         //{
@@ -1606,22 +1585,22 @@ namespace m4d.Controllers
         //        // TODO: Is this somehow global?  The examples that change this flag have both the using and a try/catch
         //        //  to turn it off.
 
-        //        dmc.Configuration.AutoDetectChangesEnabled = false;
+        //        Database.Configuration.AutoDetectChangesEnabled = false;
         //        // Load the dance List
-        //        dmc.Dances.Load();
+        //        Database.Dances.Load();
 
         //        // Find or Create a user for these entries
-        //        ApplicationUser user = dmc.Users.FirstOrDefault(u => u.UserName == userName);
+        //        ApplicationUser user = Database.Users.FirstOrDefault(u => u.UserName == userName);
         //        //if (user == null)
         //        //{
-        //        //    user = dmc.Users.Create();
+        //        //    user = Database.Users.Create();
         //        //    user.UserName = Name;
-        //        //    user = dmc.Users.Add(user);
+        //        //    user = Database.Users.Add(user);
 
-        //        //    dmc.SaveChanges();
+        //        //    Database.SaveChanges();
         //        //}
 
-        //        //dmc.CreateSongProperty(DanceMusicContext.StartBatchLoadCommand,Name);
+        //        //Database.CreateSongProperty(DanceMusicContext.StartBatchLoadCommand,Name);
 
         //        for (int i = start; i < lines.Length && i < start + count; i++)
         //        {
@@ -1770,11 +1749,11 @@ namespace m4d.Controllers
         //                albums.Add(ad);
         //            }
 
-        //            Song song = dmc.CreateSong(user, title, artist, null, bpm, null, albums);
+        //            Song song = Database.CreateSong(user, title, artist, null, bpm, null, albums);
 
         //            // Now set up the dance associations
 
-        //            dmc.AddDanceRatings(song, idList);
+        //            Database.AddDanceRatings(song, idList);
 
         //            // TODO: this should move down into the db context class 
         //            // And add in the dynamic columns
@@ -1784,19 +1763,19 @@ namespace m4d.Controllers
 
         //                if (!string.IsNullOrEmpty(value))
         //                {
-        //                    dmc.CreateSongProperty(song, _headers[dc], value);
+        //                    Database.CreateSongProperty(song, _headers[dc], value);
         //                }
         //            }
         //        }
 
-        //        //dmc.CreateSongProperty(DanceMusicContext.EndBatchLoadCommand, Name);
-        //        dmc.ChangeTracker.DetectChanges();
+        //        //Database.CreateSongProperty(DanceMusicContext.EndBatchLoadCommand, Name);
+        //        Database.ChangeTracker.DetectChanges();
 
-        //        dmc.SaveChanges();
+        //        Database.SaveChanges();
         //    }
         //}
 
-        //string[] _dbs = new string[] { "JohnCrossan", "LetsDanceDenver", "SalsaSwingBallroom", "SandiegoDJ", "SteveThatDJ", "UsaSwingNet", "WaltersDanceCenter" };
+        //string[] Databases = new string[] { "JohnCrossan", "LetsDanceDenver", "SalsaSwingBallroom", "SandiegoDJ", "SteveThatDJ", "UsaSwingNet", "WaltersDanceCenter" };
         //private readonly int _chunk = 500;
 
         //private List<int> _dynamicColumns = new List<int>();
@@ -1866,7 +1845,7 @@ namespace m4d.Controllers
 
             foreach (SongDetails song in newSongs)
             {
-                var songs = from s in _db.Songs where (s.TitleHash == song.TitleHash) select s;
+                var songs = from s in Database.Songs where (s.TitleHash == song.TitleHash) select s;
 
                 List<SongDetails> candidates = new List<SongDetails>();
                 foreach (Song s in songs)
@@ -2008,7 +1987,7 @@ namespace m4d.Controllers
 
         protected override void Dispose(bool disposing)
         {
-            _db.Dispose();
+            Database.Dispose();
             base.Dispose(disposing);
         }
     }

@@ -1,9 +1,8 @@
-﻿using m4d.Context;
-using m4dModels;
+﻿using m4dModels;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace m4d.ViewModels
+namespace m4dModels
 {
     class MergeCluster
     {
@@ -16,7 +15,7 @@ namespace m4d.ViewModels
         public int PropertyHash { get; set; }
         public List<Song> Songs { get; set; }
         
-        public static List<Song> GetMergeCandidates(DanceMusicContext dmc, int n, int level)
+        public static List<Song> GetMergeCandidates(IDanceMusicContext dmc, int n, int level)
         {
             var songs = from s in dmc.Songs select s;
 

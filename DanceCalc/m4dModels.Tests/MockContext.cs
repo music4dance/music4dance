@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.Entity;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -8,32 +9,91 @@ namespace m4dModels.Tests
 {
     class MockContext : IDanceMusicContext
     {
-        public SongProperty CreateSongProperty(Song song, string name, object value, SongLog log)
+        class TestDanceSet : TestDbSet<Dance>
         {
-            return s_factories.CreateSongProperty(song, name, value, log);
+            public override Dance Find(params object[] keyValues)
+            {
+                var id = keyValues.Single() as string;
+                if (id == null)
+                {
+                    return null;
+                }
+                else
+                {
+                    return this.SingleOrDefault(d => d.Id == id);
+                }
+            }
         }
 
-        public DanceRating CreateDanceRating(Song song, string danceId, int weight)
+        class TagTypeSet : TestDbSet<TagType>
         {
-            return s_factories.CreateDanceRating(song, danceId, weight);
+            public override TagType Find(params object[] keyValues)
+            {
+                var id = keyValues.Single() as string;
+                if (id == null)
+                {
+                    return null;
+                }
+                else
+                {
+                    return this.SingleOrDefault(t => t.Value == id);
+                }
+            }
         }
 
-        public Tag CreateTag(Song song, string value, int count)
+        public MockContext()
         {
-            return s_factories.CreateTag(song, value, count);
+            this.Songs = new TestDbSet<Song>();
+            this.SongProperties = new TestDbSet<SongProperty>();
+            this.Dances = new TestDanceSet();
+            this.DanceRatings = new TestDbSet<DanceRating>();
+            this.Tags = new TestDbSet<Tag>();
+            this.TagTypes = new TagTypeSet();
+            this.Log = new TestDbSet<SongLog>();
+            this.Modified = new TestDbSet<ModifiedRecord>();
+
+        }
+        public DbSet<Song> Songs { get; set; }
+
+        public DbSet<SongProperty> SongProperties { get; set; }
+
+        public DbSet<Dance> Dances { get; set; }
+
+        public DbSet<DanceRating> DanceRatings { get; set; }
+
+        public DbSet<Tag> Tags { get; set; }
+
+        public DbSet<TagType> TagTypes { get; set; }
+
+        public DbSet<SongLog> Log { get; set; }
+
+        public DbSet<ModifiedRecord> Modified { get; set; }
+
+        public int SaveChangesCount { get; private set; } 
+
+        public int SaveChanges()
+        {
+            this.SaveChangesCount++;
+            return 1;
         }
 
         public ApplicationUser FindUser(string name)
         {
             return s_users.FindUser(name);
         }
-
+        public ApplicationUser FindOrAddUser(string name, string role)
+        {
+            return s_users.FindOrAddUser(name, role);
+        }
         public ModifiedRecord CreateMapping(Guid songId, string applicationId)
         {
             return s_users.CreateMapping(songId, applicationId);
         }
 
-        static IFactories s_factories = new MockFactories();
+        public void Dispose()
+        {
+
+        }
         static IUserMap s_users = new MockUserMap();
     }
 }

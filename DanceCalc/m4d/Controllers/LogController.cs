@@ -16,15 +16,13 @@ namespace m4d.Controllers
 {
     public class LogController : DMController
     {
-        private DanceMusicContext _db = new DanceMusicContext();
-
         //
         // GET: /Log/
         [AllowAnonymous]
         public ActionResult Index(int? page)
         {
             Trace.WriteLine("Entering Log.Index");
-            var lines = from l in _db.Log
+            var lines = from l in Database.Log
                         orderby l.Id descending
                         select l;
 
@@ -36,7 +34,7 @@ namespace m4d.Controllers
 
         public FileResult Lines()
         {
-            var lines = from l in _db.Log orderby l.Id
+            var lines = from l in Database.Log orderby l.Id
                         select l;
 
             StringBuilder sb = new StringBuilder();
@@ -88,7 +86,7 @@ namespace m4d.Controllers
 
                 ViewBag.Lines = lines;
 
-                _db.RestoreFromLog(lines);
+                Database.RestoreFromLog(lines);
 
                 return View();
             }
@@ -104,31 +102,21 @@ namespace m4d.Controllers
         [Authorize(Roles = "canEdit")]
         public ActionResult Undo(int[] undo)
         {
-            //using (DanceMusicContext dmc = new DanceMusicContext())
-            //{
-            //    // TODO: Is this somehow global?  The examples that change this flag have both the using and a try/catch
-            //    //  to turn it off.
+            var entries = from e in Database.Log
+                            where undo.Contains(e.Id)
+                            select e;
 
-            //    dmc.Configuration.AutoDetectChangesEnabled = false;
+            ApplicationUser user = Database.FindUser(User.Identity.Name);
 
-            DanceMusicContext dmc = _db;
+            IEnumerable<UndoResult> results = Database.UndoLog(user, entries.ToList());
 
-                var entries = from e in dmc.Log
-                              where undo.Contains(e.Id)
-                              select e;
-
-                ApplicationUser user = dmc.FindUser(User.Identity.Name);
-
-                IEnumerable<UndoResult> results = dmc.UndoLog(user, entries.ToList());
-
-                return View(results);
-            //}
+            return View(results);
         }
 
 
         protected override void Dispose(bool disposing)
         {
-            _db.Dispose();
+            Database.Dispose();
             base.Dispose(disposing);
         }
 	}

@@ -16,6 +16,21 @@ namespace m4dModels.Tests
             return user;
         }
 
+        public ApplicationUser FindOrAddUser(string name, string role)
+        {
+            ApplicationUser user = FindUser(name);
+
+            if (user == null)
+            {
+                user = new ApplicationUser() { UserName = name, Id = Guid.NewGuid().ToString("D") };
+                _users.Add(name, user);
+            }
+
+            // TODO: Should we add a concept of roles into the mock????
+
+            return user;
+        }
+
         public ModifiedRecord CreateMapping(Guid songId, string applicationId)
         {
             ApplicationUser user = _users.Values.First(u => u.Id == applicationId);

@@ -4,6 +4,9 @@ using System.Linq;
 using System.Web;
 using System.Web.Mvc;
 
+using m4dModels;
+using m4d.Context;
+
 namespace m4d.Controllers
 {
     /// <summary>
@@ -11,6 +14,11 @@ namespace m4d.Controllers
     /// </summary>
     public class DMController : Controller
     {
+        public DMController() : base()
+        {
+            Database = new DanceMusicService(new DanceMusicContext());
+        }
+
         public readonly string MusicTheme = "music";
         public readonly string ToolTheme = "tools";
         public readonly string BlogTheme = "blog";
@@ -28,6 +36,15 @@ namespace m4d.Controllers
         {
             ViewBag.Theme = ThemeName;
             return base.View(viewName, masterName, model);
+        }
+
+        protected DanceMusicService Database {get; private set;}
+        protected DanceMusicContext Context { get { return Database.Context as DanceMusicContext; } }
+
+        protected override void Dispose(bool disposing)
+        {
+            Database.Dispose();
+            base.Dispose(disposing);
         }
     }
 }

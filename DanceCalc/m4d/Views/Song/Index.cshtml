@@ -11,8 +11,8 @@
         canEdit = true;
     }
 
-    var dances = (IList<m4d.ViewModels.SongCounts>)ViewBag.Dances;
-    var danceMap = (IDictionary<string, m4d.ViewModels.SongCounts>)ViewBag.DanceMap;
+    var dances = (IList<m4dModels.SongCounts>)ViewBag.Dances;
+    var danceMap = (IDictionary<string, m4dModels.SongCounts>)ViewBag.DanceMap;
     var showDate = ViewBag.SongFilter.SortOrder == "Modified" || ViewBag.SongFilter.SortOrder == "Created";
 }
 
@@ -177,9 +177,9 @@
                         </td>
                         <td>
                             @{ var separator = ""; }
-                            @foreach (var ditem in item.DanceRatings.OrderByDescending(dr => m4d.ViewModels.SongCounts.GetScaledRating(danceMap,dr.DanceId,dr.Weight)))
+                            @foreach (var ditem in item.DanceRatings.OrderByDescending(dr => m4dModels.SongCounts.GetScaledRating(danceMap,dr.DanceId,dr.Weight)))
                             {
-                                string badge = m4d.ViewModels.SongCounts.GetRatingBadge(danceMap,ditem.DanceId,ditem.Weight);
+                                string badge = m4dModels.SongCounts.GetRatingBadge(danceMap,ditem.DanceId,ditem.Weight);
                                 @separator;
                                 <span class="rating @badge">@ditem.Dance.Info.Name</span>
                                 separator = " ";

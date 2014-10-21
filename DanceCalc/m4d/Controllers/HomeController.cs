@@ -28,12 +28,9 @@ namespace m4d.Controllers
         [AllowAnonymous]
         public ActionResult Dances()
         {
-            using (DanceMusicContext db = new DanceMusicContext())
-            {
-                var data = SongCounts.GetSongCounts(db);
+            var data = SongCounts.GetSongCounts(Database);
 
-                return View(data);
-            }
+            return View(data);
         }
 
         [AllowAnonymous]

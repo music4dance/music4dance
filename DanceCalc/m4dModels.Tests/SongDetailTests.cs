@@ -100,14 +100,14 @@ namespace m4dModels.Tests
         {
             var songs = LoadRows();
             Assert.AreEqual(s_rows.Length, songs.Count);
-            ApplicationUser user = s_context.FindUser("dwgray");
+            ApplicationUser user = s_service.FindUser("dwgray");
 
             for (int i = 0; i < s_rowProps.Length; i++)
             {
                 SongDetails sd = songs[i];
 
                 Song s = new Song() { SongId = sd.SongId };
-                s.Create(sd, user, SongBase.CreateCommand, null, s_context);
+                s.Create(sd, user, SongBase.CreateCommand, null, s_service);
 
                 string txt = s.Serialize(new string[] { SongBase.NoSongId });
                 //Trace.WriteLine(txt);
@@ -201,6 +201,6 @@ namespace m4dModels.Tests
         };
 
         static string s_quuen = @"SongId={70b993fa-f821-44c7-bf5d-6076f4fe8f17}	User=batch	Time=3/19/2014 5:03:17 PM	Title=Crazy Little Thing Called Love	Artist=Queen	Tempo=154.0	Album:0=Greatest Hits	Album:1=The Game	Album:2=Queen - Greatest Hits	User=SalsaSwingBallroom	User=SandiegoDJ	User=SteveThatDJ	DanceRating=LHP+10	DanceRating=ECS+5	DanceRating=WCS+10	User=batch	Time=5/7/2014 11:30:58 AM	Length=163	Genre=Rock	Track:1=5	Purchase:1:XS=music.F9021900-0100-11DB-89CA-0019B92A3933	User=batch	Time=5/7/2014 3:32:13 PM	Album:2=Queen: Greatest Hits	Track:2=9	Purchase:2:IS=27243763	Purchase:2:IA=27243728	User=batch	Time=5/20/2014 3:46:15 PM	Track:0=9	Purchase:0:AS=D:B00138K9CM	Purchase:0:AA=D:B00138F72E	User=breanna	Time=6/5/2014 8:46:10 PM	DanceRating=ECS+5	User=breanna	Time=6/9/2014 8:13:17 PM	DanceRating=JIV+6	User=shawntrautman	Time=6/23/2014 1:56:23 PM	DanceRating=SWG+6";
-        static MockContext s_context = new MockContext();
+        static DanceMusicService s_service = new DanceMusicService(new MockContext());
     };
 }

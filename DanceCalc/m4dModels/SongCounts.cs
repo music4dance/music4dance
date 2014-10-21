@@ -1,6 +1,4 @@
 ﻿using DanceLibrary;
-using m4d.Context;
-using m4d.Utilities;
 using m4dModels;
 using System;
 using System.Collections.Generic;
@@ -8,7 +6,7 @@ using System.Data.Entity;
 using System.Diagnostics;
 using System.Linq;
 
-namespace m4d.ViewModels
+namespace m4dModels
 {
     public class SongCounts
     {
@@ -32,20 +30,20 @@ namespace m4d.ViewModels
             }
         }
 
-        static public IList<SongCounts> GetFlatSongCounts(DanceMusicContext dmc)
+        static public IList<SongCounts> GetFlatSongCounts(DanceMusicService dms)
         {
-            Trace.WriteLineIf(TraceLevels.General.TraceVerbose, string.Format("Entering GetFlatSongCounts:  DMC={0}", dmc == null ? "<<NULL>>" : "Valid"));
+            //Trace.WriteLineIf(TraceLevels.General.TraceVerbose, string.Format("Entering GetFlatSongCounts:  dms={0}", dms == null ? "<<NULL>>" : "Valid"));
             List<SongCounts> flat = new List<SongCounts>();
 
-            var tree = GetSongCounts(dmc);
+            var tree = GetSongCounts(dms);
 
-            Trace.WriteLineIf(TraceLevels.General.TraceVerbose, string.Format("Top Level Count={0}", tree == null ? "<<NULL>>" : tree.Count.ToString()));
+            //Trace.WriteLineIf(TraceLevels.General.TraceVerbose, string.Format("Top Level Count={0}", tree == null ? "<<NULL>>" : tree.Count.ToString()));
             flat.AddRange(tree);
 
             foreach (var sc in tree)
             {
                 var children = sc.Children;
-                Trace.WriteLineIf(TraceLevels.General.TraceVerbose, string.Format("{0} Count={1}", sc.DanceName, tree == null ? "<<NULL>>" : tree.Count.ToString()));
+                //Trace.WriteLineIf(TraceLevels.General.TraceVerbose, string.Format("{0} Count={1}", sc.DanceName, tree == null ? "<<NULL>>" : tree.Count.ToString()));
                 flat.AddRange(children);
             }
 
@@ -59,28 +57,28 @@ namespace m4d.ViewModels
 
             flat.Insert(0, all);
 
-#if TRACE
-            if (TraceLevels.General.TraceVerbose)
-            {
-                foreach (var sc in flat)
-                {
-                    Trace.WriteLine(string.Format("{0}: {1}",sc.DanceId,sc.SongCount));
-                }
-            }
-#endif
+//#if TRACE
+//            if (TraceLevels.General.TraceVerbose)
+//            {
+//                foreach (var sc in flat)
+//                {
+//                    Trace.WriteLine(string.Format("{0}: {1}",sc.DanceId,sc.SongCount));
+//                }
+//            }
+//#endif
             return flat;
         }
 
         static private List<SongCounts> s_counts = new List<SongCounts>();
         static private Dictionary<string, SongCounts> s_map = new Dictionary<string, SongCounts>();
 
-        static public IList<SongCounts> GetSongCounts(DanceMusicContext dmc)
+        static public IList<SongCounts> GetSongCounts(DanceMusicService dms)
         {
             lock (s_counts)
             {
                 if (s_counts.Count == 0)
                 {
-                    dmc.Dances.Load();
+                    dms.Dances.Load();
 
                     HashSet<string> used = new HashSet<string>();
 
@@ -88,7 +86,7 @@ namespace m4d.ViewModels
                     foreach (DanceGroup dg in Dances.Instance.AllDanceGroups)
                     {
                         // All groups except other have a valid 'root' node...
-                        var scGroup = InfoFromDance(dmc.Dances,dg);
+                        var scGroup = InfoFromDance(dms.Dances,dg);
                         scGroup.Children = new List<SongCounts>();
 
                         s_counts.Add(scGroup);
@@ -98,7 +96,7 @@ namespace m4d.ViewModels
                             DanceType dtyp = dtypT as DanceType;
                             Debug.Assert(dtyp != null);
 
-                            HandleType(dtyp, dmc.Dances, scGroup);
+                            HandleType(dtyp, dms.Dances, scGroup);
                             used.Add(dtyp.Id);
                         }
                     }
@@ -120,13 +118,13 @@ namespace m4d.ViewModels
         }
 
 
-        static public IDictionary<string,SongCounts> GetDanceMap(DanceMusicContext dmc)
+        static public IDictionary<string,SongCounts> GetDanceMap(DanceMusicService dms)
         {
             lock (s_map)
             {
                 if (s_map.Count == 0)
                 {
-                    IList<SongCounts> list = GetFlatSongCounts(dmc);
+                    IList<SongCounts> list = GetFlatSongCounts(dms);
 
                     foreach (SongCounts sc in list)
                     {

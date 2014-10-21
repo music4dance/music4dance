@@ -278,6 +278,7 @@
     <Compile Include="Controllers\AdminController.cs" />
     <Compile Include="Controllers\ApplicationUsersController.cs" />
     <Compile Include="Controllers\DanceController.cs" />
+    <Compile Include="Controllers\DMApiController.cs" />
     <Compile Include="Controllers\DMController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\LogController.cs" />
@@ -356,9 +357,7 @@
     <Compile Include="Utilities\TraceLevels.cs" />
     <Compile Include="ViewModels\LocalMerger.cs" />
     <Compile Include="ViewModels\ManageViewModels.cs" />
-    <Compile Include="ViewModels\MergeCluster.cs" />
     <Compile Include="ViewModels\ServiceSearchResults.cs" />
-    <Compile Include="ViewModels\SongCounts.cs" />
     <Compile Include="ViewModels\AccountViewModels.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -31,7 +31,7 @@ namespace m4d.Controllers
         public virtual decimal TempoDelta { get; set; }
     }
 
-    public class DanceController : ApiController
+    public class DanceController : DMApiController
     {
         public IHttpActionResult GetAllDances(bool details=false)
         {

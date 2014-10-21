@@ -25,13 +25,11 @@ namespace m4d.Controllers
             }
         }
 
-        private DanceMusicContext _db = new DanceMusicContext();
-
         // GET: ApplicationUsers
         public ActionResult Index()
         {
-            ViewBag.RoleDictionary = _db.RoleDictionary;
-            return View(_db.Users.OrderByDescending(u => u.StartDate).ToList());
+            ViewBag.RoleDictionary = Context.RoleDictionary;
+            return View(Context.Users.OrderByDescending(u => u.StartDate).ToList());
         }
 
         // GET: ApplicationUsers/Details/5
@@ -41,13 +39,13 @@ namespace m4d.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            ApplicationUser applicationUser = _db.Users.Find(id);
+            ApplicationUser applicationUser = Context.Users.Find(id);
             string s = applicationUser.GetProviders();
             if (applicationUser == null)
             {
                 return HttpNotFound();
             }
-            ViewBag.RoleDictionary = _db.RoleDictionary;
+            ViewBag.RoleDictionary = Context.RoleDictionary;
             return View(applicationUser);
         }
 
@@ -66,8 +64,8 @@ namespace m4d.Controllers
         {
             if (ModelState.IsValid)
             {
-                _db.Users.Add(applicationUser);
-                _db.SaveChanges();
+                Context.Users.Add(applicationUser);
+                Context.SaveChanges();
                 return RedirectToAction("Index");
             }
 
@@ -81,7 +79,7 @@ namespace m4d.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            ApplicationUser applicationUser = _db.Users.Find(id);
+            ApplicationUser applicationUser = Context.Users.Find(id);
             if (applicationUser == null)
             {
                 return HttpNotFound();
@@ -98,8 +96,8 @@ namespace m4d.Controllers
         {
             if (ModelState.IsValid)
             {
-                _db.Entry(applicationUser).State = System.Data.Entity.EntityState.Modified;
-                _db.SaveChanges();
+                Context.Entry(applicationUser).State = System.Data.Entity.EntityState.Modified;
+                Context.SaveChanges();
                 return RedirectToAction("Index");
             }
             return View(applicationUser);
@@ -112,12 +110,12 @@ namespace m4d.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            ApplicationUser applicationUser = _db.Users.Find(id);
+            ApplicationUser applicationUser = Context.Users.Find(id);
             if (applicationUser == null)
             {
                 return HttpNotFound();
             }
-            ViewBag.RoleDictionary = _db.RoleDictionary;
+            ViewBag.RoleDictionary = Context.RoleDictionary;
             return View(applicationUser);
         }
 
@@ -133,7 +131,7 @@ namespace m4d.Controllers
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
 
-            ApplicationUser user = _db.Users.Find(id);
+            ApplicationUser user = Context.Users.Find(id);
             if (user == null)
             {
                 return HttpNotFound();
@@ -149,10 +147,10 @@ namespace m4d.Controllers
                 newRoles = new List<string>(roles);
             }
 
-            var ustore = new UserStore<ApplicationUser>(_db);
+            var ustore = new UserStore<ApplicationUser>(Context);
             var umanager = new UserManager<ApplicationUser>(ustore);
 
-            foreach (var role in _db.RoleDictionary.Values)
+            foreach (var role in Context.RoleDictionary.Values)
             {
                 // New Role
                 if (newRoles.Contains(role.Name))
@@ -171,7 +169,7 @@ namespace m4d.Controllers
                 }
             }
 
-            ViewBag.RoleDictionary = _db.RoleDictionary;
+            ViewBag.RoleDictionary = Context.RoleDictionary;
             return View("Details", user);
         }
 
@@ -183,7 +181,7 @@ namespace m4d.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            ApplicationUser applicationUser = _db.Users.Find(id);
+            ApplicationUser applicationUser = Context.Users.Find(id);
             if (applicationUser == null)
             {
                 return HttpNotFound();
@@ -196,9 +194,9 @@ namespace m4d.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult DeleteConfirmed(string id)
         {
-            ApplicationUser applicationUser = _db.Users.Find(id);
-            _db.Users.Remove(applicationUser);
-            _db.SaveChanges();
+            ApplicationUser applicationUser = Context.Users.Find(id);
+            Context.Users.Remove(applicationUser);
+            Context.SaveChanges();
             return RedirectToAction("Index");
         }        
 
@@ -206,7 +204,7 @@ namespace m4d.Controllers
         {
             if (disposing)
             {
-                _db.Dispose();
+                Context.Dispose();
             }
             base.Dispose(disposing);
         }

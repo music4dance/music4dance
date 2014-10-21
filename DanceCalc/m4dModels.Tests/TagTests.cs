@@ -23,8 +23,8 @@ namespace m4dModels.Tests
             Assert.AreEqual(sd.TagSummary, _batch, "Adding to SongDetails Failed");
 
             Song s = new Song();
-            ApplicationUser user = s_context.FindUser("dwgray");
-            s.Create(sd, user, Song.CreateCommand, null, s_context);
+            ApplicationUser user = s_service.FindUser("dwgray");
+            s.Create(sd, user, Song.CreateCommand, null, s_service);
 
             // TODO: Probalby want to abstract this out...
             string result = s.ToString();
@@ -44,23 +44,23 @@ namespace m4dModels.Tests
 
             Assert.AreEqual(sd.TagSummary, _batch, "Adding to SongDetails Failed");
         }
+        // TODO: Re-enable tag category tests once we figure out how wer'e going to implement tags...
+        //[TestMethod]
+        //public void TagCategories()
+        //{
+        //    Song song = new Song();
+        //    Tag t = s_service.CreateTag(song, "Swing", 1);
+        //    TagType tt = t.Type;
 
-        [TestMethod]
-        public void TagCategories()
-        {
-            Song song = new Song();
-            Tag t = s_context.CreateTag(song, "Swing", 1);
-            TagType tt = t.Type;
-
-            Assert.AreEqual(tt.CategoryList[0], "Dance");
-            Assert.AreEqual(tt.CategoryList[1], "Genre");
-        }
+        //    Assert.AreEqual(tt.CategoryList[0], "Dance");
+        //    Assert.AreEqual(tt.CategoryList[1], "Genre");
+        //}
 
         private SongDetails CreateSong()
         {
             return new SongDetails { Title = "A Song (With a subtitle)", Artist = "Crazy Artist" };
         }
 
-        static MockContext s_context = new MockContext();
+        static DanceMusicService s_service = new DanceMusicService(new MockContext());
     }
 }

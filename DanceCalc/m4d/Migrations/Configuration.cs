@@ -61,9 +61,9 @@ namespace m4d.Migrations
                     umanager.Create(user, "maggie");
                 }
 
-                AddToRole(umanager, user.Id, DanceMusicContext.DiagRole);
-                AddToRole(umanager, user.Id, DanceMusicContext.EditRole);
-                AddToRole(umanager, user.Id, DanceMusicContext.DbaRole);
+                AddToRole(umanager, user.Id, DanceMusicService.DiagRole);
+                AddToRole(umanager, user.Id, DanceMusicService.EditRole);
+                AddToRole(umanager, user.Id, DanceMusicService.DbaRole);
             }
 
             //foreach (string name in _diagUsers)
@@ -122,7 +122,7 @@ namespace m4d.Migrations
             }
         }
 
-        private static string[] _roles = new string[] { DanceMusicContext.DiagRole, DanceMusicContext.EditRole, DanceMusicContext.DbaRole };
+        private static string[] _roles = new string[] { DanceMusicService.DiagRole, DanceMusicService.EditRole, DanceMusicService.DbaRole };
         private static string[] _adminUsers = new string[] { "administrator" }; //, "dwgray", "batch" };
         //private static string[] _diagUsers = new string[] { "lukim", "glennn" };
         //private static string[] _editUsers = new string[] { "ajy", "SalsaSwingBallroom", "SandiegoDJ", "UsaSwingNet", "LetsDanceDenver", "SteveThatDJ", "JohnCrossan", "WaltersDanceCenter", "breanna", "buzzle", "michelleds", "shawntrautman", "danceforums", "Century", "bdlist", "DWTS", "SYTYCD" };

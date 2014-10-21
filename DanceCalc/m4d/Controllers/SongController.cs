@@ -35,8 +35,6 @@ namespace m4d.Controllers
             }
         }
 
-        private DanceMusicContext _db = new DanceMusicContext();
-
         #region Commands
 
         [AllowAnonymous]
@@ -220,14 +218,14 @@ namespace m4d.Controllers
         [AllowAnonymous]
         public ActionResult Details(Guid? id = null, string filter = null)
         {
-            SongDetails song = _db.FindSongDetails(id ?? Guid.Empty);
+            SongDetails song = Database.FindSongDetails(id ?? Guid.Empty);
             if (song == null)
             {
                 return HttpNotFound();
             }
 
             ViewBag.SongFilter = ParseFilter(filter);
-            ViewBag.DanceMap = SongCounts.GetDanceMap(_db);
+            ViewBag.DanceMap = SongCounts.GetDanceMap(Database);
             return View(song);
         }
 
@@ -256,28 +254,28 @@ namespace m4d.Controllers
             ViewBag.SongFilter = ParseFilter(filter);
             if (ModelState.IsValid)
             {
-                ApplicationUser user = _db.FindUser(User.Identity.Name);
+                ApplicationUser user = Database.FindUser(User.Identity.Name);
                 song.UpdateDanceRatings(addDances, Song.DanceRatingCreate);
                 // TOOD: Think about format of editTags...
-                song.AddTags(_db.ParseTags(editTags));
+                song.AddTags(Database.ParseTags(editTags));
 
-                Song newSong = _db.CreateSong(user, song);
+                Song newSong = Database.CreateSong(user, song);
 
                 // TODO: Think about if the round-trip is necessary
                 if (newSong != null)
                 {
-                    _db.SaveChanges();
+                    Database.SaveChanges();
                     song = new SongDetails(newSong);
                 }
 
-                ViewBag.DanceMap = SongCounts.GetDanceMap(_db);
+                ViewBag.DanceMap = SongCounts.GetDanceMap(Database);
                 return View("Details", song);
             }
             else
             {
                 // Add back in the danceratings
                 // TODO: This almost certainly doesn't preserve edits...
-                SongDetails songT = _db.FindSongDetails(song.SongId);
+                SongDetails songT = Database.FindSongDetails(song.SongId);
                 ViewBag.DanceListAdd = GetDances();
 
                 // Clean out empty albums
@@ -303,7 +301,7 @@ namespace m4d.Controllers
         [Authorize(Roles = "canEdit")] 
         public ActionResult Edit(Guid? id = null, string filter = null)
         {
-            SongDetails song = _db.FindSongDetails(id??Guid.Empty);
+            SongDetails song = Database.FindSongDetails(id??Guid.Empty);
             if (song == null)
             {
                 return HttpNotFound();
@@ -343,10 +341,10 @@ namespace m4d.Controllers
             if (ModelState.IsValid)
             {
 //#if DEBUG
-//                _db.Dump();
+//                Database.Dump();
 //#endif
 
-                ApplicationUser user = _db.FindUser(User.Identity.Name);
+                ApplicationUser user = Database.FindUser(User.Identity.Name);
 
                 // EditSong makes a distinction between null and an empty list
                 if (addDances == null)
@@ -360,19 +358,19 @@ namespace m4d.Controllers
                 }
 
 //#if DEBUG
-//                _db.Dump();
+//                Database.Dump();
 //#endif
-                SongDetails edit = _db.EditSong(user, song, addDances, remDances, editTags);
+                SongDetails edit = Database.EditSong(user, song, addDances, remDances, editTags);
 
 //#if DEBUG
-//                _db.Dump();
+//                Database.Dump();
 //#endif
 
                 if (edit != null)
                 {
-                    _db.SaveChanges();
+                    Database.SaveChanges();
                     ViewBag.BackAction = "Index";
-                    ViewBag.DanceMap = SongCounts.GetDanceMap(_db);
+                    ViewBag.DanceMap = SongCounts.GetDanceMap(Database);
                     return View("Details", edit);
                 }
                 {
@@ -387,7 +385,7 @@ namespace m4d.Controllers
 
                 // Add back in the danceratings
                 // TODO: This almost certainly doesn't preserve edits...
-                SongDetails songT = _db.FindSongDetails(song.SongId);
+                SongDetails songT = Database.FindSongDetails(song.SongId);
 
                 SetupEditViewBag(songT);
 
@@ -415,7 +413,7 @@ namespace m4d.Controllers
         public ActionResult Delete(Guid id, string filter = null)
         {
             ViewBag.SongFilter = ParseFilter(filter);
-            Song song = _db.Songs.Find(id);
+            Song song = Database.Songs.Find(id);
             if (song == null)
             {
                 return HttpNotFound();
@@ -432,10 +430,10 @@ namespace m4d.Controllers
         public ActionResult DeleteConfirmed(Guid id, string filter = null)
         {
             ViewBag.SongFilter = ParseFilter(filter);
-            Song song = _db.Songs.Find(id);
+            Song song = Database.Songs.Find(id);
             string userName = User.Identity.Name;
-            ApplicationUser user = _db.Users.FirstOrDefault(u => u.UserName == userName);
-            _db.DeleteSong(user,song);
+            ApplicationUser user = Database.FindUser(userName);
+            Database.DeleteSong(user,song);
             return RedirectToAction("Index");
         }
 
@@ -462,11 +460,11 @@ namespace m4d.Controllers
 
             if (autoCommit == true)
             {
-                songs = _db.FindMergeCandidates(10000, songFilter.Level ?? 1);
+                songs = Database.FindMergeCandidates(10000, songFilter.Level ?? 1);
             }
             else
             {
-                songs = _db.FindMergeCandidates(500, songFilter.Level ?? 1);
+                songs = Database.FindMergeCandidates(500, songFilter.Level ?? 1);
             }
 
             int pageSize = 25;
@@ -489,7 +487,7 @@ namespace m4d.Controllers
         public ActionResult BulkEdit(Guid[] selectedSongs, string action, string filter = null)
         {
             ViewBag.SongFilter = ParseFilter(filter);
-            var songs = from s in _db.Songs
+            var songs = from s in Database.Songs
                         where selectedSongs.Contains(s.SongId)
                         select s;
 
@@ -515,7 +513,7 @@ namespace m4d.Controllers
             // See if we can do the actual merge and then return the song details page...
             List<Guid> ids = SongIds.Split(',').Select(s=>Guid.Parse(s)).ToList();
 
-            var songs = from s in _db.Songs
+            var songs = from s in Database.Songs
                         where ids.Contains(s.SongId)
                         select s;
             List<Song> songList = songs.ToList();
@@ -524,7 +522,7 @@ namespace m4d.Controllers
 
             // Get the logged in user
             string userName = User.Identity.Name;
-            ApplicationUser user = _db.Users.FirstOrDefault(u => u.UserName == userName);
+            ApplicationUser user = Database.FindUser(userName);
 
             List<SongDetails> details = songList.Select(s => new SongDetails(s)).ToList();
             List<AlbumDetails> albumsIn = new List<AlbumDetails>();
@@ -569,7 +567,7 @@ namespace m4d.Controllers
 
             //TODONEXT: Merge Tags
             string tags = Request.Form["Tags"];
-            Song song = _db.MergeSongs(user, songList, 
+            Song song = Database.MergeSongs(user, songList, 
                 ResolveStringField(Song.TitleField, songList, Request.Form),
                 ResolveStringField(Song.ArtistField, songList, Request.Form),
                 ResolveDecimalField(Song.TempoField, songList, Request.Form),
@@ -578,9 +576,9 @@ namespace m4d.Controllers
                 albumsOut);
 
             ViewBag.BackAction = "MergeCandidates";
-            ViewBag.DanceMap = SongCounts.GetDanceMap(_db);
+            ViewBag.DanceMap = SongCounts.GetDanceMap(Database);
 
-            return View("Details",_db.FindSongDetails(song.SongId));
+            return View("Details",Database.FindSongDetails(song.SongId));
         }
 
         /// <summary>
@@ -622,7 +620,7 @@ namespace m4d.Controllers
 
             IQueryable<Song> songs = BuildSongList(songFilter);
 
-            ApplicationUser user = _db.FindUser(User.Identity.Name);
+            ApplicationUser user = Database.FindUser(User.Identity.Name);
 
             List<Song> failed = new List<Song>();
             List<SongDetails> succeeded = new List<SongDetails>();
@@ -723,7 +721,7 @@ namespace m4d.Controllers
                             else
                             {
                                 UpdateMusicService(sd, service, foundTrack.Name, foundTrack.Album, foundTrack.Artist, foundTrack.TrackId, foundTrack.CollectionId, foundTrack.AltId, foundTrack.Duration.ToString(), foundTrack.Genre, foundTrack.TrackNumber);
-                                succeeded.Add(_db.EditSong(user, sd, null, null, null));
+                                succeeded.Add(Database.EditSong(user, sd, null, null, null));
                                 tried += 1;
                             }
                         }
@@ -756,7 +754,7 @@ namespace m4d.Controllers
                         // is higher than the previous code
                         if (failcode > failLevel)
                         {
-                            SongProperty sp = _db.SongProperties.Create();
+                            SongProperty sp = Database.SongProperties.Create();
                             sp.Name = Song.FailedLookup;
                             sp.Value = type + ":" + failcode.ToString();
                             song.SongProperties.Add(sp);
@@ -774,7 +772,7 @@ namespace m4d.Controllers
                     break;
             }
 
-            _db.SaveChanges();
+            Database.SaveChanges();
 
             if (ar == null)
             {
@@ -794,7 +792,7 @@ namespace m4d.Controllers
         [Authorize(Roles = "canEdit")]
         public ActionResult MusicServiceSearch(Guid? id = null, string type="X", string title = null, string artist = null, string filter=null)
         {
-            SongDetails song = _db.FindSongDetails(id??Guid.Empty);
+            SongDetails song = Database.FindSongDetails(id??Guid.Empty);
             if (song == null)
             {
                 return HttpNotFound();
@@ -808,7 +806,7 @@ namespace m4d.Controllers
 
             ServiceSearchResults view = new ServiceSearchResults { ServiceType = type, Song = song };
 
-            ViewBag.DanceMap = SongCounts.GetDanceMap(_db);
+            ViewBag.DanceMap = SongCounts.GetDanceMap(Database);
             ViewBag.SongFilter = ParseFilter(filter);
             ViewBag.SongTitle = title;
             ViewBag.SongArtist = artist;
@@ -832,7 +830,7 @@ namespace m4d.Controllers
             }
 
             ViewBag.SongFilter = ParseFilter(filter);
-            SongDetails song = _db.FindSongDetails(songId);
+            SongDetails song = Database.FindSongDetails(songId);
             if (song == null)
             {
                 return HttpNotFound();
@@ -861,9 +859,9 @@ namespace m4d.Controllers
         }
         private MultiSelectList GetDances(IList<DanceRating> ratings = null)
         {
-            List<SimpleDance> Dances = new List<SimpleDance>(_db.Dances.Count());
+            List<SimpleDance> Dances = new List<SimpleDance>(Database.Dances.Count());
 
-            foreach (Dance d in _db.Dances)
+            foreach (Dance d in Database.Dances)
             {
                 Dances.Add(new SimpleDance() { ID = d.Id, Name = d.Info.Name });
             }
@@ -885,11 +883,11 @@ namespace m4d.Controllers
         }
         private ActionResult Delete(IQueryable<Song> songs)
         {
-            ApplicationUser user = _db.FindUser(User.Identity.Name);
+            ApplicationUser user = Database.FindUser(User.Identity.Name);
 
             foreach (Song song in songs)
             {
-                _db.DeleteSong(user, song);
+                Database.DeleteSong(user, song);
             }
 
             return RedirectToAction("Index");
@@ -913,14 +911,14 @@ namespace m4d.Controllers
 
         private void BuildDanceList(SongFilter filter)
         {
-            //IList<SongCounts> songCounts = SongCounts.GetFlatSongCounts(_db);
+            //IList<SongCounts> songCounts = SongCounts.GetFlatSongCounts(Database);
             //var scq = songCounts.Select(s => new { s.DanceId, s.DanceName });
 
             //ViewBag.Dances = new SelectList(scq.AsEnumerable(), "DanceId", "DanceName", filter.Dances);
 
             ViewBag.SelectedDances =  Dances.Instance.FromIds(filter.Dances);
-            ViewBag.Dances = SongCounts.GetSongCounts(_db);
-            ViewBag.DanceMap = SongCounts.GetDanceMap(_db);
+            ViewBag.Dances = SongCounts.GetSongCounts(Database);
+            ViewBag.DanceMap = SongCounts.GetDanceMap(Database);
         }
 
         private IQueryable<Song> BuildSongList(SongFilter filter)
@@ -936,7 +934,7 @@ namespace m4d.Controllers
 
             // Now setup the view
             // Start with all of the songs in the database
-            var songs = from s in _db.Songs where s.TitleHash != 0 select s;
+            var songs = from s in Database.Songs where s.TitleHash != 0 select s;
 
 #if TRACE
             bool traceVerbose = TraceLevels.General.TraceVerbose;
@@ -951,7 +949,7 @@ namespace m4d.Controllers
 
             // Now if the current user is anonymous, filter out anything that we
             //  don't have purchase info for
-            if (!HttpContext.User.IsInRole(DanceMusicContext.EditRole))
+            if (!HttpContext.User.IsInRole(DanceMusicService.EditRole))
             {
                 songs = songs.Where(s => s.Purchase != null);
             }
@@ -963,7 +961,7 @@ namespace m4d.Controllers
             bool userFilter = false;
             if (!string.IsNullOrWhiteSpace(filter.User))
             {
-                ApplicationUser user = _db.FindUser(filter.User);
+                ApplicationUser user = Database.FindUser(filter.User);
                 if (user != null)
                 {
                     songs = from m in user.Modified.AsQueryable() where m.Song.TitleHash != 0 select m.Song;
@@ -1253,7 +1251,7 @@ namespace m4d.Controllers
             try
             {
                 FixupTitleArtist(song, clean, ref title, ref artist);
-                tracks = _db.FindMusicServiceSong(song, service, clean, title, artist);
+                tracks = Context.FindMusicServiceSong(song, service, clean, title, artist);
 
                 if (tracks == null || tracks.Count == 0)
                 {
@@ -1364,7 +1362,7 @@ namespace m4d.Controllers
             if (!string.IsNullOrWhiteSpace(genre))
             {
                 // This will assign a genre type to whatever this tag is
-                TagType tt = _db.FindOrCreateTagType(genre,"Genre");
+                TagType tt = Database.FindOrCreateTagType(genre,"Genre");
                 song.AddTags(tt.Value);
                 ViewBag.TagValues = tt.Value;
             }
@@ -1386,14 +1384,14 @@ namespace m4d.Controllers
         {
             // Get the logged in user
             string userName = User.Identity.Name;
-            ApplicationUser user = _db.Users.FirstOrDefault(u => u.UserName == userName);
+            ApplicationUser user = Database.FindUser(userName);
 
             List<Song> ret = new List<Song>();
             List<Song> cluster = null;
 
             try
             {
-                _db.Configuration.AutoDetectChangesEnabled = false;
+                Context.Configuration.AutoDetectChangesEnabled = false;
 
                 foreach (Song song in songs)
                 {
@@ -1425,8 +1423,8 @@ namespace m4d.Controllers
             }
             finally
             {
-                _db.Configuration.AutoDetectChangesEnabled = false;
-                _db.SaveChanges();
+                Context.Configuration.AutoDetectChangesEnabled = false;
+                Database.SaveChanges();
             }
 
             return ret;
@@ -1435,7 +1433,7 @@ namespace m4d.Controllers
         private Song AutoMerge(List<Song> songs, ApplicationUser user)
         {
             string tags = string.Join("|", songs.Select(s => s.TagSummary));
-            Song song = _db.MergeSongs(user, songs,
+            Song song = Database.MergeSongs(user, songs,
                 ResolveStringField(Song.TitleField, songs),
                 ResolveStringField(Song.ArtistField, songs),
                 ResolveDecimalField(Song.TempoField, songs),
@@ -1509,11 +1507,5 @@ namespace m4d.Controllers
             return ret;
         }
         #endregion
-
-        protected override void Dispose(bool disposing)
-        {
-            _db.Dispose();
-            base.Dispose(disposing);
-        }
     }
 }

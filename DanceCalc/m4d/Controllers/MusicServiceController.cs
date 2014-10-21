@@ -10,13 +10,12 @@ using System.Web.Http;
 
 namespace m4d.Controllers
 {
-    public class MusicServiceController : ApiController
+    public class MusicServiceController : DMApiController
     {
-        private DanceMusicContext _db = new DanceMusicContext();
 
         public IHttpActionResult GetServiceTracks(Guid id, string service, string title=null, string artist=null, string album=null)
         {
-            SongDetails song = _db.FindSongDetails(id);
+            SongDetails song = Database.FindSongDetails(id);
             if (song != null && artist == null && title == null)
             {
                 artist = song.Artist;
@@ -62,7 +61,7 @@ namespace m4d.Controllers
 
             try
             {
-                tracks = _db.FindMusicServiceSong(song, service, clean, title, artist, album);
+                tracks = Context.FindMusicServiceSong(song, service, clean, title, artist, album);
             }
             catch (WebException e)
             {
@@ -70,12 +69,6 @@ namespace m4d.Controllers
             }
 
             return tracks;
-        }
-
-        protected override void Dispose(bool disposing)
-        {
-            _db.Dispose();
-            base.Dispose(disposing);
         }
 
         private static Dictionary<string,IList<ServiceTrack>> s_cache = new Dictionary<string,IList<ServiceTrack>>();

@@ -10,7 +10,7 @@ namespace m4d
             //You can perform a check like the one below to control Glimpse's permissions within your application.
             //More information about RuntimePolicies can be found at http://getglimpse.com/Help/Custom-Runtime-Policy
             var httpContext = policyContext.GetHttpContext();
-            if (!httpContext.Request.IsLocal && !httpContext.User.IsInRole(m4d.Context.DanceMusicContext.DiagRole))
+            if (!httpContext.Request.IsLocal && !httpContext.User.IsInRole(m4dModels.DanceMusicService.DiagRole))
             {
                 return RuntimePolicy.Off;
             }
