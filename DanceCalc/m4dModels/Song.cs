@@ -30,7 +30,7 @@ namespace m4dModels
 
         #region Actions
 
-        public void Create(SongDetails sd, ApplicationUser user, string command, string value, IFactories factories, IUserMap users)
+        public void Create(SongDetails sd, ApplicationUser user, string command, string value, IDanceMusicContext dmc)
         {
             DateTime time = DateTime.Now;
 
@@ -40,18 +40,18 @@ namespace m4dModels
                 log.Initialize(user, this, command);
             }
 
-            factories.CreateSongProperty(this, command, value, log);
+            dmc.CreateSongProperty(this, command, value, log);
 
             // Handle User association
             if (user != null)
             {
-                AddUser(user,users);
-                factories.CreateSongProperty(this, Song.UserField, user.UserName, log);
+                AddUser(user,dmc);
+                dmc.CreateSongProperty(this, Song.UserField, user.UserName, log);
             }
 
             Created = time;
             Modified = time;
-            factories.CreateSongProperty(this, Song.TimeField, time.ToString(), log);
+            dmc.CreateSongProperty(this, Song.TimeField, time.ToString(), log);
 
             Debug.Assert(!string.IsNullOrWhiteSpace(sd.Title));
             foreach (PropertyInfo pi in SongBase.ScalarProperties)
@@ -60,32 +60,32 @@ namespace m4dModels
                 if (prop != null)
                 {
                     pi.SetValue(this, prop);
-                    factories.CreateSongProperty(this, pi.Name, prop, log);
+                    dmc.CreateSongProperty(this, pi.Name, prop, log);
                 }
             }
 
             // Handle Dance Ratings
-            CreateDanceRatings(sd.DanceRatings, factories);
+            CreateDanceRatings(sd.DanceRatings, dmc);
 
             // Handle Tags
-            CreateTags(sd.Tags, factories);
+            CreateTags(sd.Tags, dmc);
 
             // Handle Albums
-            CreateAlbums(sd.Albums, factories);
+            CreateAlbums(sd.Albums, dmc);
 
             Purchase = sd.GetPurchaseTags();
             TitleHash = Song.CreateTitleHash(Title);
         }
 
-        private bool EditCore(ApplicationUser user, SongDetails edit, IFactories factories, IUserMap users)
+        private bool EditCore(ApplicationUser user, SongDetails edit, IDanceMusicContext dmc)
         {
             bool modified = false;
 
-            CreateEditProperties(user, EditCommand, factories, users);
+            CreateEditProperties(user, EditCommand, dmc);
 
             foreach (string field in SongBase.ScalarFields)
             {
-                modified |= UpdateProperty(edit, field, factories);
+                modified |= UpdateProperty(edit, field, dmc);
             }
 
             List<AlbumDetails> oldAlbums = SongDetails.BuildAlbumInfo(this);
@@ -110,7 +110,7 @@ namespace m4dModels
                 if (old != null)
                 {
                     // We're in existing album territory
-                    modified |= album.ModifyInfo(factories, this, old, CurrentLog);
+                    modified |= album.ModifyInfo(dmc, this, old, CurrentLog);
                     oldAlbums.Remove(old);
                 }
                 else
@@ -118,7 +118,7 @@ namespace m4dModels
                     // We're in new territory only do something if the name field is non-empty
                     if (!string.IsNullOrWhiteSpace(album.Name))
                     {
-                        album.CreateProperties(factories, this, CurrentLog);
+                        album.CreateProperties(dmc, this, CurrentLog);
                         modified = true;
                     }
                 }
@@ -128,7 +128,7 @@ namespace m4dModels
             foreach (AlbumDetails album in oldAlbums)
             {
                 modified = true;
-                album.Remove(factories, this, CurrentLog);
+                album.Remove(dmc, this, CurrentLog);
             }
 
             // Now check order and insert a re-order record if they aren't line up...
@@ -152,16 +152,16 @@ namespace m4dModels
             {
                 modified = true;
                 string t = string.Join(",", reorder.Select(x => x.ToString()));
-                factories.CreateSongProperty(this, AlbumOrder, t, CurrentLog);
+                dmc.CreateSongProperty(this, AlbumOrder, t, CurrentLog);
             }
 
             return modified;
         }
-        public bool Edit(ApplicationUser user, SongDetails edit, List<string> addDances, List<string> remDances, string editTags, IFactories factories, IUserMap users)
+        public bool Edit(ApplicationUser user, SongDetails edit, List<string> addDances, List<string> remDances, string editTags, IDanceMusicContext dmc)
         {
-            bool modified = EditCore(user,edit,factories,users);
+            bool modified = EditCore(user,edit,dmc);
 
-            modified |= EditDanceRatings(addDances, DanceRatingIncrement, remDances, DanceRatingDecrement, factories);
+            modified |= EditDanceRatings(addDances, DanceRatingIncrement, remDances, DanceRatingDecrement, dmc);
 
             StringBuilder tags = new StringBuilder();
             string danceTags = TagsFromDances(addDances);
@@ -178,14 +178,14 @@ namespace m4dModels
                 tags.Append(danceTags);
             }
 
-            modified |= EditTags(tags.ToString(), factories);
+            modified |= EditTags(tags.ToString(), dmc);
 
             modified |= UpdatePurchaseInfo(edit);
 
             return modified;
         }
 
-        public bool Update(ApplicationUser user, SongDetails update, IFactories factories, IUserMap users)
+        public bool Update(ApplicationUser user, SongDetails update, IDanceMusicContext dmc)
         {
             // Verify that our heads are the same (TODO:move this to debug mode at some point?)
             List<SongProperty> old = SongProperties.Where(p => !p.IsAction).ToList();
@@ -220,22 +220,22 @@ namespace m4dModels
                 Album = update.Albums[0].AlbumTrack;
             }
 
-            UpdateUsers(users);
+            UpdateUsers(dmc);
             //TODO???FixupMappings(factories);
 
             return true;
         }
 
         // This is an additive merge - only add new things if they don't conflict with the old
-        public bool AdditiveMerge(ApplicationUser user, SongDetails edit, List<string> addDances, IFactories factories, IUserMap users)
+        public bool AdditiveMerge(ApplicationUser user, SongDetails edit, List<string> addDances, IDanceMusicContext dmc)
         {
             bool modified = false;
 
-            CreateEditProperties(user, EditCommand, factories, users);
+            CreateEditProperties(user, EditCommand, dmc);
 
             foreach (string field in SongBase.ScalarFields)
             {
-                modified |= AddProperty(edit, field, factories);
+                modified |= AddProperty(edit, field, dmc);
             }
 
             List<AlbumDetails> oldAlbums = SongDetails.BuildAlbumInfo(this);
@@ -253,25 +253,25 @@ namespace m4dModels
                 if (old != null)
                 {
                     // We're in existing album territory
-                    modified |= album.UpdateInfo(factories, this, old, CurrentLog);
+                    modified |= album.UpdateInfo(dmc, this, old, CurrentLog);
                 }
                 else
                 {
                     // We're in new territory only do something if the name field is non-empty
                     if (!string.IsNullOrWhiteSpace(album.Name))
                     {
-                        album.CreateProperties(factories, this, CurrentLog);
+                        album.CreateProperties(dmc, this, CurrentLog);
                         modified = true;
                     }
                 }
             }
 
-            modified |= EditDanceRatings(addDances, DanceRatingIncrement, null, 0, factories);
+            modified |= EditDanceRatings(addDances, DanceRatingIncrement, null, 0, dmc);
 
             string tags = TagsFromDances(addDances);
             if (!string.IsNullOrWhiteSpace(tags))
             {
-                EditTags(tags,factories);
+                EditTags(tags,dmc);
                 modified = true;
             }
 
@@ -280,7 +280,7 @@ namespace m4dModels
             return modified;
         }
 
-        public void MergeDetails(IEnumerable<Song> songs, IFactories factories, IUserMap users)
+        public void MergeDetails(IEnumerable<Song> songs, IDanceMusicContext dmc)
         {
             // Add in the to/from properties and create new weight table as well as creating the user associations
             Dictionary<string, int> weights = new Dictionary<string, int>();
@@ -301,9 +301,9 @@ namespace m4dModels
 
                 foreach (ModifiedRecord us in from.ModifiedBy)
                 {
-                    if (AddUser(us.ApplicationUser, users))
+                    if (AddUser(us.ApplicationUser, dmc))
                     {
-                        factories.CreateSongProperty(this, Song.UserField, us.ApplicationUser.UserName, this.CurrentLog);
+                        dmc.CreateSongProperty(this, Song.UserField, us.ApplicationUser.UserName, this.CurrentLog);
                     }
                 }
             }
@@ -311,11 +311,11 @@ namespace m4dModels
             // Dump the weight table
             foreach (KeyValuePair<string, int> dance in weights)
             {
-                DanceRating dr = factories.CreateDanceRating(this, dance.Key, dance.Value);
+                DanceRating dr = dmc.CreateDanceRating(this, dance.Key, dance.Value);
 
                 string value = new DanceRatingDelta { DanceId = dance.Key, Delta = dance.Value }.ToString();
 
-                factories.CreateSongProperty(this, Song.DanceRatingField, value, this.CurrentLog);
+                dmc.CreateSongProperty(this, Song.DanceRatingField, value, this.CurrentLog);
             }
 
         }
@@ -358,22 +358,22 @@ namespace m4dModels
         }
 
 
-        public void CreateEditProperties(ApplicationUser user, string command, IFactories factories, IUserMap users)
+        public void CreateEditProperties(ApplicationUser user, string command, IDanceMusicContext dmc)
         {
             // Add the command into the property log
-            factories.CreateSongProperty(this, Song.EditCommand, string.Empty, null);
+            dmc.CreateSongProperty(this, Song.EditCommand, string.Empty, null);
 
             // Handle User association
             if (user != null)
             {
-                AddUser(user, users);
-                factories.CreateSongProperty(this, Song.UserField, user.UserName, null);
+                AddUser(user, dmc);
+                dmc.CreateSongProperty(this, Song.UserField, user.UserName, null);
             }
 
             // Handle Timestamps
             DateTime time = DateTime.Now;
             Modified = time;
-            factories.CreateSongProperty(this, Song.TimeField, time.ToString(), null);
+            dmc.CreateSongProperty(this, Song.TimeField, time.ToString(), null);
         }
 
         private bool UpdatePurchaseInfo(SongDetails edit, bool additive = false)
@@ -772,7 +772,7 @@ namespace m4dModels
 
             Purchase = sd.GetPurchaseTags();
         }
-        public void Restore(SongDetails sd,IUserMap users,IFactories factories)
+        public void Restore(SongDetails sd,IDanceMusicContext dmc)
         {
             RestoreScalar(sd);
 
@@ -803,7 +803,7 @@ namespace m4dModels
             Debug.Assert(Tags.Count == 0);
             foreach (Tag tag in sd.Tags)
             {
-                factories.CreateTag(this, tag.Value, tag.Count);
+                dmc.CreateTag(this, tag.Value, tag.Count);
             }
             TagSummary = sd.TagSummary;
 
@@ -814,7 +814,7 @@ namespace m4dModels
             Debug.Assert(ModifiedBy.Count == 0);
             foreach (ModifiedRecord user in sd.ModifiedBy)
             {
-                AddUser(user.UserName, users);
+                AddUser(user.UserName, dmc);
             }
         }
 
@@ -875,12 +875,12 @@ namespace m4dModels
 
         #region Serialization
 
-        public void Load(string s, IUserMap users, IFactories factories)
+        public void Load(string s, IDanceMusicContext dmc)
         {
             SongDetails sd = new SongDetails(s);
 
-            Restore(sd, users, factories);
-            UpdateUsers(users);
+            Restore(sd, dmc);
+            UpdateUsers(dmc);
         }
 
         public override void Dump()

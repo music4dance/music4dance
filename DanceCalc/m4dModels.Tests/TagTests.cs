@@ -23,8 +23,8 @@ namespace m4dModels.Tests
             Assert.AreEqual(sd.TagSummary, _batch, "Adding to SongDetails Failed");
 
             Song s = new Song();
-            ApplicationUser user = s_users.FindUser("dwgray");
-            s.Create(sd, user, Song.CreateCommand, null, s_factories, s_users);
+            ApplicationUser user = s_context.FindUser("dwgray");
+            s.Create(sd, user, Song.CreateCommand, null, s_context);
 
             // TODO: Probalby want to abstract this out...
             string result = s.ToString();
@@ -49,7 +49,7 @@ namespace m4dModels.Tests
         public void TagCategories()
         {
             Song song = new Song();
-            Tag t = s_factories.CreateTag(song, "Swing", 1);
+            Tag t = s_context.CreateTag(song, "Swing", 1);
             TagType tt = t.Type;
 
             Assert.AreEqual(tt.CategoryList[0], "Dance");
@@ -61,7 +61,6 @@ namespace m4dModels.Tests
             return new SongDetails { Title = "A Song (With a subtitle)", Artist = "Crazy Artist" };
         }
 
-        static MockUserMap s_users = new MockUserMap();
-        static MockFactories s_factories = new MockFactories();
+        static MockContext s_context = new MockContext();
     }
 }

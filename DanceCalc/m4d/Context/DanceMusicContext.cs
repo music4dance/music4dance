@@ -35,7 +35,7 @@ namespace m4d.Context
 {
     public enum UndoAction { Undo, Redo };
 
-    public class DanceMusicContext : IdentityDbContext<ApplicationUser>, IUserMap, IFactories
+    public class DanceMusicContext : IdentityDbContext<ApplicationUser>, IDanceMusicContext
     {
         #region Construction
 
@@ -144,7 +144,7 @@ namespace m4d.Context
             }
 
             Song song = CreateSong(null, createLog);
-            song.Create(sd, user, command, value, this, this);
+            song.Create(sd, user, command, value, this);
 
             song = Songs.Add(song);
             if (createLog)
@@ -163,7 +163,7 @@ namespace m4d.Context
                 song.CurrentLog = CreateSongLog(user, song, Song.EditCommand);
             }
 
-            if (song.Edit(user, edit, addDances, remDances, ParseTags(editTags), this, this))
+            if (song.Edit(user, edit, addDances, remDances, ParseTags(editTags), this))
             {
                 if (createLog)
                 {
@@ -188,7 +188,7 @@ namespace m4d.Context
                 song.CurrentLog = CreateSongLog(user, song, Song.EditCommand);
             }
 
-            if (song.Update(user, edit, this, this))
+            if (song.Update(user, edit, this))
             {
                 if (createLog)
                 {
@@ -214,7 +214,7 @@ namespace m4d.Context
             Song song = Songs.Find(songId);
             song.CurrentLog = CreateSongLog(user, song, Song.EditCommand);
 
-            if (song.AdditiveMerge(user, edit, addDances, this, this))
+            if (song.AdditiveMerge(user, edit, addDances, this))
             {
                 Log.Add(song.CurrentLog);
                 SaveChanges();
@@ -233,7 +233,7 @@ namespace m4d.Context
                 song.CurrentLog = CreateSongLog(user, song, Song.EditCommand);
             }
 
-            song.CreateEditProperties(user, Song.EditCommand, this, this);
+            song.CreateEditProperties(user, Song.EditCommand, this);
             song.EditDanceRatings(deltas, this);
         }
 
@@ -250,7 +250,7 @@ namespace m4d.Context
 
             song = Songs.Add(song);
 
-            song.MergeDetails(songs,this,this);
+            song.MergeDetails(songs,this);
 
             // Delete all of the old songs (With merge-with Id from above)
             foreach (Song from in songs)
@@ -677,7 +677,7 @@ namespace m4d.Context
         {
             string ret = null;
 
-            song.CreateEditProperties(entry.User, Song.EditCommand,this,this);
+            song.CreateEditProperties(entry.User, Song.EditCommand,this);
 
             IList<LogValue> values = entry.GetValues();
             foreach (LogValue lv in values)
@@ -720,7 +720,7 @@ namespace m4d.Context
                 throw new ArgumentOutOfRangeException("song", "Attempting to restore a song that hasn't been deleted");
             }
             SongDetails sd = new SongDetails(song.SongId, song.SongProperties);
-            song.Restore(sd,this, this);
+            song.Restore(sd,this);
             song.UpdateUsers(this);
         }
 

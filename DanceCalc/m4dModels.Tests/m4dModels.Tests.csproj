@@ -74,6 +74,7 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
+    <Compile Include="MockContext.cs" />
     <Compile Include="MockFactories.cs" />
     <Compile Include="MockUserMap.cs" />
     <Compile Include="SongDetailTests.cs" />

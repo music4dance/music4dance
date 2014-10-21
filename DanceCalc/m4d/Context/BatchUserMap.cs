@@ -6,7 +6,7 @@ using System.Web;
 
 namespace m4d.Context
 {
-    public class BatchUserMap : IUserMap
+    public class BatchUserMap : IDanceMusicContext
     {
         private BatchUserMap()
         {
@@ -43,6 +43,21 @@ namespace m4d.Context
 
         private DanceMusicContext _db;
         private Dictionary<string, ModifiedRecord> _map = new Dictionary<string,ModifiedRecord>();
+
+        public SongProperty CreateSongProperty(Song song, string name, object value, SongLog log)
+        {
+            return _db.CreateSongProperty(song, name, value, log);
+        }
+
+        public DanceRating CreateDanceRating(Song song, string danceId, int weight)
+        {
+            return _db.CreateDanceRating(song, danceId, weight);
+        }
+
+        public Tag CreateTag(Song song, string value, int count)
+        {
+            return _db.CreateTag(song, value, count);
+        }
     }
 
 }

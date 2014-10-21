@@ -1417,7 +1417,7 @@ namespace m4d.Controllers
                 List<Song> songs = new List<Song>();
                 List<SongProperty> properties = null;
                 List<DanceRating> ratings = null;
-                IUserMap bum = dmc;
+                IDanceMusicContext bum = dmc;
                 if (b)
                 {
                     bum = new BatchUserMap(dmc);
@@ -1435,7 +1435,7 @@ namespace m4d.Controllers
                     song.Created = time;
                     song.Modified = time;
 
-                    song.Load(line, bum, dmc);
+                    song.Load(line, bum);
                     songs.Add(song);
                     if (b)
                     {
