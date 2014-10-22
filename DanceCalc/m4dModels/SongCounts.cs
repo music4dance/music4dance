@@ -32,18 +32,18 @@ namespace m4dModels
 
         static public IList<SongCounts> GetFlatSongCounts(DanceMusicService dms)
         {
-            //Trace.WriteLineIf(TraceLevels.General.TraceVerbose, string.Format("Entering GetFlatSongCounts:  dms={0}", dms == null ? "<<NULL>>" : "Valid"));
+            Trace.WriteLineIf(TraceLevels.General.TraceVerbose, string.Format("Entering GetFlatSongCounts:  dms={0}", dms == null ? "<<NULL>>" : "Valid"));
             List<SongCounts> flat = new List<SongCounts>();
 
             var tree = GetSongCounts(dms);
 
-            //Trace.WriteLineIf(TraceLevels.General.TraceVerbose, string.Format("Top Level Count={0}", tree == null ? "<<NULL>>" : tree.Count.ToString()));
+            Trace.WriteLineIf(TraceLevels.General.TraceVerbose, string.Format("Top Level Count={0}", tree == null ? "<<NULL>>" : tree.Count.ToString()));
             flat.AddRange(tree);
 
             foreach (var sc in tree)
             {
                 var children = sc.Children;
-                //Trace.WriteLineIf(TraceLevels.General.TraceVerbose, string.Format("{0} Count={1}", sc.DanceName, tree == null ? "<<NULL>>" : tree.Count.ToString()));
+                Trace.WriteLineIf(TraceLevels.General.TraceVerbose, string.Format("{0} Count={1}", sc.DanceName, tree == null ? "<<NULL>>" : tree.Count.ToString()));
                 flat.AddRange(children);
             }
 
@@ -57,15 +57,15 @@ namespace m4dModels
 
             flat.Insert(0, all);
 
-//#if TRACE
-//            if (TraceLevels.General.TraceVerbose)
-//            {
-//                foreach (var sc in flat)
-//                {
-//                    Trace.WriteLine(string.Format("{0}: {1}",sc.DanceId,sc.SongCount));
-//                }
-//            }
-//#endif
+#if TRACE
+            if (TraceLevels.General.TraceVerbose)
+            {
+                foreach (var sc in flat)
+                {
+                    Trace.WriteLine(string.Format("{0}: {1}", sc.DanceId, sc.SongCount));
+                }
+            }
+#endif
             return flat;
         }
 

@@ -96,6 +96,7 @@
     <Compile Include="SongProperty.cs" />
     <Compile Include="AlbumTrack.cs" />
     <Compile Include="TagType.cs" />
+    <Compile Include="TraceLevels.cs" />
     <Compile Include="TrackNumber.cs" />
     <Compile Include="UndoResult.cs" />
     <Compile Include="XboxService.cs" />

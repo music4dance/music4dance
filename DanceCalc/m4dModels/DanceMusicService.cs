@@ -710,12 +710,10 @@ namespace m4dModels
                 song = FindSongBySignature(signature);
             }
 
-            // Figure oiut how to move TraceLevels down to model...
-            //if (song == null)
-            //{
-            //    Trace.WriteLineIf(TraceLevels.General.TraceVerbose, string.Format("Couldn't find song by Id: {0} or signature {1}", id, signature));
-            //}
-
+            if (song == null)
+            {
+                Trace.WriteLineIf(TraceLevels.General.TraceVerbose, string.Format("Couldn't find song by Id: {0} or signature {1}", id, signature));
+            }
 
             return song;
         }

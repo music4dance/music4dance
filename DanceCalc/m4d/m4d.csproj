@@ -354,7 +354,6 @@
     <Compile Include="Utilities\DBExtentions.cs" />
     <Compile Include="Utilities\HtmlExtensions.cs" />
     <Compile Include="Utilities\SongBinder.cs" />
-    <Compile Include="Utilities\TraceLevels.cs" />
     <Compile Include="ViewModels\LocalMerger.cs" />
     <Compile Include="ViewModels\ManageViewModels.cs" />
     <Compile Include="ViewModels\ServiceSearchResults.cs" />

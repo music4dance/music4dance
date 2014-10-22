@@ -5,7 +5,7 @@ using System.Linq;
 using System.Web;
 
 
-namespace m4d.Utilities
+namespace m4dModels
 {
     public class TraceLevels
     {
