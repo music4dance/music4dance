@@ -52,7 +52,6 @@
     @if (User.IsInRole("dbAdmin"))
     {
         <li>@Html.ActionLink("Restore the Datbase", "RestoreDatabase")</li>
-        <li>@Html.ActionLink("Seed the Datbase", "SeedDatabase")</li>
         <li>@Html.ActionLink("Rerun seed function", "Reseed")</li>
         <li>@Html.ActionLink("Upload Catalog", "UploadCatalog")</li>
         <li>@Html.ActionLink("Upload Catalog (Ithaca)", "UploadCatalog", new {separator="ITC", headers="TEMPO,TITLE,ARTIST",user="ithaca"})</li>
