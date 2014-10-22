@@ -110,19 +110,9 @@ namespace m4dModels.Tests
             // NOOP?
         }
 
-
-        public ApplicationUser CreateUser()
-        {
-            return new ApplicationUser();
-        }
-        public ApplicationUser FindUser(string name)
-        {
-            return Users.FirstOrDefault(u => string.Equals(u.UserName,name,StringComparison.InvariantCultureIgnoreCase));
-        }
-
         public ApplicationUser FindOrAddUser(string name, string role)
         {
-            ApplicationUser user = FindUser(name);
+            ApplicationUser user = Users.FirstOrDefault(u => string.Equals(u.UserName, name, StringComparison.InvariantCultureIgnoreCase)); 
 
             if (user == null)
             {
@@ -133,19 +123,6 @@ namespace m4dModels.Tests
             // TODO: Should we add a concept of roles into the mock????
 
             return user;
-        }
-
-        public ModifiedRecord CreateMapping(Guid songId, string applicationId)
-        {
-            ApplicationUser user = Users.Find(applicationId);
-
-            return new ModifiedRecord() { SongId = songId, ApplicationUser = user, ApplicationUserId = user.Id };
-        }
-
-        public void AddUser(ApplicationUser user, string roles)
-        {
-            // TODO: DO we care about roles for testing
-            Users.Add(user);
         }
 
         public void Dispose()

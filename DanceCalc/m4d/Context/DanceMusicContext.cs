@@ -119,45 +119,6 @@ namespace m4d.Context
 
         #endregion
 
-        public override int SaveChanges()
-        {
-            int ret = 0;
-            try
-            {
-                ret = base.SaveChanges();
-            }
-            catch (DbEntityValidationException e)
-            {
-                foreach (var err in e.EntityValidationErrors)
-                {
-                    foreach (var ve in err.ValidationErrors)
-                    {
-                        Trace.WriteLine(ve.ErrorMessage);
-                    }
-                }
-
-                Debug.Assert(false);
-                throw;
-            }
-
-            return ret;
-        }
-
-        public void TrackChanges(bool track)
-        {
-            if (track && Configuration.AutoDetectChangesEnabled == false)
-            {
-                // Turn change tracking back on and update what's been changed
-                //  while it was off
-                Configuration.AutoDetectChangesEnabled = true;
-                ChangeTracker.DetectChanges();
-                SaveChanges();
-            }
-            else if (!track &&  Configuration.AutoDetectChangesEnabled == false)
-            {
-                Configuration.AutoDetectChangesEnabled = false;
-            }
-        }
 
         #region MusicService
         // Obviously not the clean abstraction, but Amazon is different enough that my abstraction
@@ -347,30 +308,13 @@ namespace m4d.Context
 
         #endregion
 
-        public ModifiedRecord CreateMapping(Guid songId, string applicationId)
-        {
-            ModifiedRecord us = Modified.Create();
-            us.ApplicationUserId = applicationId;
-            us.SongId = songId;
-            return us;
-        }
-
-        #region IUserMap
-        public ApplicationUser CreateUser()
-        {
-            return Users.Create();
-        }
-        public ApplicationUser FindUser(string name)
-        {
-            return Users.FirstOrDefault(u => u.UserName.ToLower() == name.ToLower());
-        }
-
+        #region IDanceMusicContext
         public ApplicationUser FindOrAddUser(string name, string role)
         {
             var ustore = new UserStore<ApplicationUser>(this);
             var umanager = new UserManager<ApplicationUser>(ustore);
 
-            var user = FindUser(name);
+            var user = Users.FirstOrDefault(u => u.UserName.ToLower() == name.ToLower());
             if (user == null)
             {
                 user = new ApplicationUser { UserName = name };
@@ -389,23 +333,44 @@ namespace m4d.Context
             return user;
         }
 
-        public void AddUser(ApplicationUser user, string roles)
+        public override int SaveChanges()
         {
-            if (!string.IsNullOrWhiteSpace(roles))
+            int ret = 0;
+            try
             {
-                string[] roleNames = roles.Split(new char[] { '|' }, StringSplitOptions.RemoveEmptyEntries);
-                foreach (string roleName in roleNames)
+                ret = base.SaveChanges();
+            }
+            catch (DbEntityValidationException e)
+            {
+                foreach (var err in e.EntityValidationErrors)
                 {
-                    IdentityRole role = Roles.FirstOrDefault(r => r.Name == roleName.Trim());
-                    if (role != null)
+                    foreach (var ve in err.ValidationErrors)
                     {
-                        IdentityUserRole iur = new IdentityUserRole() { UserId = user.Id, RoleId = role.Id };
-                        user.Roles.Add(iur);
+                        Trace.WriteLine(ve.ErrorMessage);
                     }
                 }
+
+                Debug.Assert(false);
+                throw;
             }
 
-            Users.Add(user);
+            return ret;
+        }
+
+        public void TrackChanges(bool track)
+        {
+            if (track && Configuration.AutoDetectChangesEnabled == false)
+            {
+                // Turn change tracking back on and update what's been changed
+                //  while it was off
+                Configuration.AutoDetectChangesEnabled = true;
+                ChangeTracker.DetectChanges();
+                SaveChanges();
+            }
+            else if (!track && Configuration.AutoDetectChangesEnabled == true)
+            {
+                Configuration.AutoDetectChangesEnabled = false;
+            }
         }
         #endregion
 

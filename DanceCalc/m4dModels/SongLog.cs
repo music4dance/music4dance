@@ -26,7 +26,7 @@ namespace m4dModels
             SongSignature = song.Signature;
         }
 
-        public bool Initialize(string entry, IUserMap userMap)
+        public bool Initialize(string entry, DanceMusicService dms)
         {
             string[] cells = entry.Split(new char[] { '|' });
 
@@ -44,7 +44,7 @@ namespace m4dModels
             string songRef = cells[3];
             SongSignature = cells[4];
 
-            User = userMap.FindUser(userName);
+            User = dms.FindUser(userName);
             if (User == null)
             {
                 Trace.WriteLine(string.Format("Bad User Name: {0}", userName));

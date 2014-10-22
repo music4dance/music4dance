@@ -103,7 +103,7 @@ namespace m4dModels
             return Serialize(null);
         }
 
-        protected void LoadProperties(ICollection<SongProperty> properties) // , IFactories factories, IUserMap users
+        protected void LoadProperties(ICollection<SongProperty> properties) 
         {
             bool created = false;
 

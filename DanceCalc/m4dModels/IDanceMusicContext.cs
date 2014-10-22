@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace m4dModels
 {
-    public interface IDanceMusicContext: IUserMap, IDisposable
+    public interface IDanceMusicContext: IDisposable
     {
         DbSet<Song> Songs { get;  }
 
@@ -30,9 +30,10 @@ namespace m4dModels
         IDbSet<ApplicationUser> Users { get; }
 
         IDbSet<IdentityRole> Roles { get; }
+        ApplicationUser FindOrAddUser(string name, string role);
 
         int SaveChanges();
-
         void TrackChanges(bool track);
+
     }
 }

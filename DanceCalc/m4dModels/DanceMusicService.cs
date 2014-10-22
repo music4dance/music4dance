@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 namespace m4dModels
 {
     public enum UndoAction { Undo, Redo };
-    public class DanceMusicService : IUserMap, IDisposable
+    public class DanceMusicService : IDisposable
     {
         #region Lifetime Management
         private IDanceMusicContext _context;
@@ -294,8 +294,8 @@ namespace m4dModels
 
             if (lv.Name.Equals(Song.UserField))
             {
-                ApplicationUser user = _context.FindUser(lv.Value);
-                song.AddUser(user, _context);
+                ApplicationUser user = FindUser(lv.Value);
+                song.AddUser(user, this);
             }
             else if (lv.Name.Equals(Song.DanceRatingField))
             {
@@ -515,7 +515,7 @@ namespace m4dModels
         {
             SongLog log = _context.Log.Create();
 
-            if (!log.Initialize(line, _context))
+            if (!log.Initialize(line, this))
             {
                 Trace.WriteLine(string.Format("Unable to restore line: {0}", line));
             }
@@ -627,7 +627,7 @@ namespace m4dModels
 
             SongDetails sd = new SongDetails(song.SongId, song.SongProperties);
             song.RestoreScalar(sd);
-            song.UpdateUsers(_context);
+            song.UpdateUsers(this);
 
             return ret;
         }
@@ -932,7 +932,7 @@ namespace m4dModels
                     ApplicationUser user = FindUser(userName);
                     if (user == null)
                     {
-                        user = _context.CreateUser();
+                        user = _context.Users.Create();
                         user.Id = userId;
                         user.UserName = userName;
                         user.PasswordHash = hash;
@@ -949,7 +949,21 @@ namespace m4dModels
                             }
                         }
 
-                        Context.AddUser(user, roles);
+                        if (!string.IsNullOrWhiteSpace(roles))
+                        {
+                            string[] roleNames = roles.Split(new char[] { '|' }, StringSplitOptions.RemoveEmptyEntries);
+                            foreach (string roleName in roleNames)
+                            {
+                                IdentityRole role = Context.Roles.FirstOrDefault(r => r.Name == roleName.Trim());
+                                if (role != null)
+                                {
+                                    IdentityUserRole iur = new IdentityUserRole() { UserId = user.Id, RoleId = role.Id };
+                                    user.Roles.Add(iur);
+                                }
+                            }
+                        }
+
+                        Context.Users.Add(user);
                     }
                 }
             }
@@ -1017,17 +1031,14 @@ namespace m4dModels
                     Trace.WriteLineIf(TraceLevels.General.TraceInfo, string.Format("{0} songs loaded", c));
                 }
 
-                if (TraceLevels.General.TraceInfo)
-                {
-                    if (song.Length.HasValue && song.Length.Value > 1000)
-                    {
-                        Trace.WriteLineIf(TraceLevels.General.TraceInfo, string.Format("Long Song: {0} '{1}'", song.Length, song.Title));
-                    }
-                }
+                Trace.WriteLineIf(TraceLevels.General.TraceInfo && song.Length.HasValue && song.Length.Value > 1000, string.Format("Long Song: {0} '{1}'", song.Length, song.Title));
 
-                Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Saving next 1000 songs");
-                _context.TrackChanges(true);
-                _context.TrackChanges(false);
+                if (c % 1000 == 0)
+                {
+                    Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Saving next 1000 songs");
+                    _context.TrackChanges(true);
+                    _context.TrackChanges(false);
+                }
             }
 
             Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Saving Songs");
@@ -1152,11 +1163,30 @@ namespace m4dModels
         }
 
         #endregion
+
+        #region User
+        public ApplicationUser FindUser(string name)
+        {
+            return _context.Users.FirstOrDefault(u => u.UserName.ToLower() == name.ToLower());
+        }
+
+        public ApplicationUser FindOrAddUser(string name, string role)
+        {
+            return _context.FindOrAddUser(name, role);
+        }
+
+        public ModifiedRecord CreateModified(Guid songId, string applicationId)
+        {
+            ModifiedRecord us = _context.Modified.Create();
+            us.ApplicationUserId = applicationId;
+            us.SongId = songId;
+            return us;
+        }
+        #endregion
         public IList<Song> FindMergeCandidates(int n, int level)
         {
             return MergeCluster.GetMergeCandidates(_context, n, level);
         }
-
         public void Dump()
         {
             // TODO: Create a dump routine to help dump the object graph - definitely need object id of some kind (address)
@@ -1180,31 +1210,5 @@ namespace m4dModels
             //}
         }
 
-
-        #region IUserMap
-        public ApplicationUser CreateUser()
-        {
-            return _context.CreateUser();
-        }
-        public ApplicationUser FindUser(string name)
-        {
-            return _context.FindUser(name);
-        }
-
-        public ApplicationUser FindOrAddUser(string name, string role)
-        {
-            return _context.FindOrAddUser(name, role);
-        }
-
-        public ModifiedRecord CreateMapping(Guid songId, string applicationId)
-        {
-            return _context.CreateMapping(songId, applicationId);
-        }
-
-        public void AddUser(ApplicationUser user, string roles)
-        {
-            _context.AddUser(user, roles);
-        }
-        #endregion
     }
 }

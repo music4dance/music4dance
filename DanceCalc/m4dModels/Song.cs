@@ -397,16 +397,16 @@ namespace m4dModels
             return ret;
         }
 
-        public bool AddUser(ApplicationUser user, IUserMap users)
+        public bool AddUser(ApplicationUser user, DanceMusicService dms)
         {
-            ModifiedRecord us = users.CreateMapping(this.SongId,user.Id);
+            ModifiedRecord us = dms.CreateModified(this.SongId,user.Id);
             return AddModifiedBy(us);
         }
 
-        public bool AddUser(string name, IUserMap users)
+        public bool AddUser(string name, DanceMusicService dms)
         {
-            ApplicationUser u = users.FindUser(name);
-            return AddUser(u, users);
+            ApplicationUser u = dms.FindUser(name);
+            return AddUser(u, dms);
         }
 
         private void CreateAlbums(IList<AlbumDetails> albums, DanceMusicService dms)
@@ -830,7 +830,7 @@ namespace m4dModels
             return base.AddModifiedBy(mr);
         }
 
-        public void UpdateUsers(IUserMap map)
+        public void UpdateUsers(DanceMusicService dms)
         {
             HashSet<string> users = new HashSet<string>();
 
@@ -840,7 +840,7 @@ namespace m4dModels
                 us.SongId = this.SongId;
                 if (us.ApplicationUser == null && us.UserName != null)
                 {
-                    us.ApplicationUser = map.FindUser(us.UserName);
+                    us.ApplicationUser = dms.FindUser(us.UserName);
                 }
                 if (us.ApplicationUser != null && us.ApplicationUserId == null)
                 {
