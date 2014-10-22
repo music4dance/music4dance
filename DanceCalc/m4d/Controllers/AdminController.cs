@@ -232,7 +232,7 @@ namespace m4d.Controllers
                         if (!string.IsNullOrWhiteSpace(tags))
                         {
                             sd = Database.EditSong(user, sd, null, null, tags, false);
-                            Trace.WriteLine(string.Format("{0}:{1}", sd.Title, tags));
+                            Trace.WriteLineIf(TraceLevels.General.TraceInfo,string.Format("{0}:{1}", sd.Title, tags));
                         }
                     }
 
@@ -240,7 +240,7 @@ namespace m4d.Controllers
 
                     if (count % 50 == 0)
                     {
-                        Trace.WriteLine(string.Format("Song Modified={0}", count));
+                        Trace.WriteLineIf(TraceLevels.General.TraceInfo,string.Format("Song Modified={0}", count));
                     }
                 }
             }
@@ -298,7 +298,7 @@ namespace m4d.Controllers
                         DanceInstance di = d as DanceInstance;
                         if (di != null)
                         {
-                            Trace.WriteLine(string.Format("Dance Instance: {0}", song.Title));
+                            Trace.WriteLineIf(TraceLevels.General.TraceInfo,string.Format("Dance Instance: {0}", song.Title));
                         }
                     }
                 }
@@ -363,7 +363,7 @@ namespace m4d.Controllers
                             DanceInstance di = d as DanceInstance;
                             if (di != null)
                             {
-                                Trace.WriteLine(string.Format("Dance Instance: {0}", song.Title));
+                                Trace.WriteLineIf(TraceLevels.General.TraceInfo,string.Format("Dance Instance: {0}", song.Title));
                             }
                         }
                     }
@@ -503,7 +503,7 @@ namespace m4d.Controllers
             ViewBag.Success = true;
             ViewBag.Message = string.Format("Trace message sentt: '{0}'", message);
 
-            Trace.WriteLine(string.Format("Test Trace: '{0}'", message));
+            Trace.WriteLineIf(TraceLevels.General.TraceInfo,string.Format("Test Trace: '{0}'", message));
             return View("Results");
         }
 
@@ -544,32 +544,40 @@ namespace m4d.Controllers
         {
             List<string> lines = UploadFile();
 
-            Trace.WriteLine("File Uploaded Successfully");
+            Trace.WriteLineIf(TraceLevels.General.TraceInfo,"File Uploaded Successfully");
 
             ViewBag.Name = "Restore Database";
             if (lines.Count > 0)
             {
                 if (string.Equals(reloadDatabase,"reload",StringComparison.InvariantCultureIgnoreCase))
                 {
-                    if (string.Equals(lines[0],_userHeader,StringComparison.InvariantCultureIgnoreCase))
+                    if (DanceMusicService.IsUserBreak(lines[0]))
                     {
                         RestoreDB(null);
-                        ReloadUsers(lines);
-                        ReloadTags(lines);
+                        int i = lines.FindIndex(l => DanceMusicService.IsTagBreak(l));
+                        List<string> users = lines.GetRange(0,i).ToList();
+                        lines.RemoveRange(0,i);
+
+                        i = lines.FindIndex(l => DanceMusicService.IsSongBreak(l));
+                        List<string> tags = lines.GetRange(0,i).ToList();
+                        lines.RemoveRange(0,i);
+
+                        Database.LoadUsers(users);
+                        Database.LoadTags(tags);
                     }
                     else
                     {
-                        Trace.WriteLine("Requested full reload, but invalid headers, so just doing songs");
+                        Trace.WriteLineIf(TraceLevels.General.TraceInfo,"Requested full reload, but invalid headers, so just doing songs");
                     }
                 }
 
                 if (!string.Equals(reloadDatabase, "update", StringComparison.InvariantCultureIgnoreCase))
                 {
-                    ReloadDB(lines, batch);
+                    Database.LoadSongs(lines);
                 }
                 else
                 {
-                    UpdateDB(lines, batch);
+                    Database.UpdateSongs(lines);
                 }
 
                 SongCounts.ClearCache(); 
@@ -922,46 +930,13 @@ namespace m4d.Controllers
         [Authorize(Roles = "showDiagnostics")]
         public ActionResult BackupDatabase(string useLookupHistory = null)
         {
-            StringBuilder sb = new StringBuilder();
-
-            sb.AppendFormat("{0}\r\n",_userHeader);
-            foreach (ApplicationUser user in Context.Users)
-            {
-                string userId = user.Id;
-                string username = user.UserName;
-                string roles = user.GetRoles(Context.RoleDictionary,"|");
-                string hash = user.PasswordHash;
-                string stamp = user.SecurityStamp;
-                string lockout = user.LockoutEnabled.ToString();
-                string providers = user.GetProviders();
-
-                sb.AppendFormat("{0}\t{1}\t{2}\t{3}\t{4}\t{5}\t{6}\r\n", userId, username, roles, hash, stamp, lockout, providers);
-            }
-
-            sb.AppendFormat("{0}\r\n", _tagBreak);
-            foreach (TagType tt in Database.TagTypes)
-            {
-                sb.AppendFormat("{0}\t{1}\r\n", tt.Categories, tt.Value);
-            }
-
-            sb.AppendFormat("{0}\r\n",_songBreak);
             bool history = !string.IsNullOrWhiteSpace(useLookupHistory);
-            var songlist = Database.Songs.OrderBy(t => t.Modified).ThenBy(t => t.SongId);
-            foreach (Song song in songlist)
-            {
-                string[] actions = null;
-                if (history)
-                {
-                    actions = new string[] { Song.FailedLookup };
-                }
-                string line = song.Serialize(actions);
-                if (!string.IsNullOrWhiteSpace(line))
-                {
-                    sb.AppendFormat("{0}\r\n", line);
-                }
-            }
 
-            string s = sb.ToString();
+            IList<string> users = Database.SerializeUsers(true);
+            IList<string> tags = Database.SerializeTags(true);
+            IList<string> songs = Database.SerializeSongs(true,history);
+
+            string s = string.Join("\r\n", users) + "\r\n" + string.Join("\r\n", tags) + "\r\n" + string.Join("\r\n", songs);
             var bytes = Encoding.UTF8.GetBytes(s);
             MemoryStream stream = new MemoryStream(bytes);
 
@@ -1008,14 +983,10 @@ namespace m4d.Controllers
             var bytes = Encoding.UTF8.GetBytes(s);
             MemoryStream stream = new MemoryStream(bytes);
 
-            sb.AppendFormat("{0}\r\n", _userHeader);
             DateTime dt = DateTime.Now;
             return File(stream, "text/plain", string.Format("backup-{0:d4}-{1:d2}-{2:d2}.txt", dt.Year, dt.Month, dt.Day));
         }
 
-        private const string _songBreak = "+++++SONGS+++++";
-        private const string _tagBreak = "+++++TAGSS+++++";
-        private const string _userHeader = "UserId\tUserName\tRoles\tPWHash\tSecStamp\tLockout\tProviders";
         //
         // Get: //RestoreDatabase
         //[Authorize(Roles = "dbAdmin")]
@@ -1087,23 +1058,23 @@ namespace m4d.Controllers
             // Roll back to a specific migration or zero
             if (state != null)
             {
-                Trace.WriteLine("Rolling Back Database");
+                Trace.WriteLineIf(TraceLevels.General.TraceInfo,"Rolling Back Database");
                 migrator = BuildMigrator();
                 migrator.Update(state);
             }
             else
             {
-                Trace.WriteLine("Wiping Database");
+                Trace.WriteLineIf(TraceLevels.General.TraceInfo,"Wiping Database");
                 ObjectContext objectContext = ((IObjectContextAdapter)Context).ObjectContext;
                 objectContext.DeleteDatabase();
                 migrator = BuildMigrator();
             }
 
-            Trace.WriteLine("Starting Migrator Update");
+            Trace.WriteLineIf(TraceLevels.General.TraceInfo,"Starting Migrator Update");
             // Apply all migrations up to a specific migration
             migrator.Update();
 
-            Trace.WriteLine("Exiting RestoreDB");
+            Trace.WriteLineIf(TraceLevels.General.TraceInfo,"Exiting RestoreDB");
         }
 
         private void ReseedDB()
@@ -1136,127 +1107,6 @@ namespace m4d.Controllers
 
         #region Build-From-Text
 
-        /// <summary>
-        /// Reloads a list of users into the database
-        /// </summary>
-        /// <param name="lines"></param>
-        private void ReloadUsers(List<string> lines)
-        {
-            Trace.WriteLine("Entering ReloadUsers");
-
-            if (lines == null || lines.Count < 1 || !string.Equals(lines[0],_userHeader,StringComparison.InvariantCultureIgnoreCase))
-            {
-                throw new ArgumentOutOfRangeException();
-            }
-
-            int fieldCount = _userHeader.Split(new char[] { '\t' }).Length;
-            int i = 1;
-            while (i < lines.Count)
-            {
-                string s = lines[i];
-                i += 1;
-
-                if (string.Equals(s,_tagBreak,StringComparison.InvariantCultureIgnoreCase))
-                {
-                    break;
-                }
-
-                string[] cells = s.Split(new char[] { '\t' });
-                if (cells.Length == fieldCount)
-                {
-                    string userId = cells[0];
-                    string userName = cells[1];
-                    string roles = cells[2];
-                    string hash = string.IsNullOrWhiteSpace(cells[3]) ? null : cells[3];
-                    string stamp = cells[4];
-                    string lockout = cells[5];
-                    string providers = cells[6];
-
-                    // Don't trounce existing users
-                    ApplicationUser user = Database.FindUser(userName);
-                    if (user == null)
-                    {
-                        user = Context.Users.Create();
-                        user.Id = userId;
-                        user.UserName = userName;
-                        user.PasswordHash = hash;
-                        user.SecurityStamp = stamp;
-                        user.LockoutEnabled = string.Equals(lockout, "TRUE", StringComparison.InvariantCultureIgnoreCase);
-
-                        if (!string.IsNullOrWhiteSpace(roles))
-                        {
-                            string[] roleNames = roles.Split(new char[] {'|'},StringSplitOptions.RemoveEmptyEntries);
-                            foreach (string roleName in roleNames)
-                            {
-                                IdentityRole role = Context.Roles.FirstOrDefault(r => r.Name == roleName.Trim());
-                                if (role != null)
-                                {
-                                    IdentityUserRole iur = new IdentityUserRole() { UserId = userId, RoleId = role.Id };
-                                    user.Roles.Add(iur);
-                                }
-                            }
-                        }
-
-                        if (!string.IsNullOrWhiteSpace(providers))
-                        {
-                            string[] entries = providers.Split(new char[] { '|' }, StringSplitOptions.RemoveEmptyEntries);
-                            for (int j = 0; j < entries.Length; j += 2)
-                            {
-                                IdentityUserLogin login = new IdentityUserLogin() { LoginProvider = entries[j], ProviderKey = entries[j + 1], UserId = userId };
-                                user.Logins.Add(login);
-                            }
-                        }
-
-                        Context.Users.Add(user);
-                    }
-                }
-            }
-
-            lines.RemoveRange(0, i);
-
-            Trace.WriteLine("Saving Changes");
-            Database.SaveChanges();
-
-            Trace.WriteLine("Exiting ReloadUsers");
-        }
-
-        /// <summary>
-        /// Reloads a list of users into the database
-        /// </summary>
-        /// <param name="lines"></param>
-        private void ReloadTags(List<string> lines)
-        {
-            Trace.WriteLine("Entering ReloadTags");
-
-            int i = 0;
-            while (i < lines.Count)
-            {
-                string s = lines[i];
-                i += 1;
-
-                if (string.Equals(s, _songBreak, StringComparison.InvariantCultureIgnoreCase))
-                {
-                    break;
-                }
-
-                string[] cells = s.Split(new char[] { '\t' });
-                if (cells.Length == 2)
-                {
-                    string category = cells[0];
-                    string value = cells[1];
-
-                    Database.FindOrCreateTagType(value, category);
-                }
-            }
-
-            lines.RemoveRange(0, i);
-
-            Trace.WriteLine("Saving Changes");
-            Database.SaveChanges();
-
-            Trace.WriteLine("Exiting ReloadTags");
-        }
-
 
         /// <summary>
         /// Reloads a list of songs into the database
@@ -1264,15 +1114,15 @@ namespace m4d.Controllers
         /// <param name="lines"></param>
         private void UpdateDB(List<string> lines, bool? batch)
         {
-            Trace.WriteLine("Entering UpdateDB");
+            Trace.WriteLineIf(TraceLevels.General.TraceInfo,"Entering UpdateDB");
 
             Context.Configuration.AutoDetectChangesEnabled = false;
 
             // Load the dance List
-            Trace.WriteLine("Loading Dances");
+            Trace.WriteLineIf(TraceLevels.General.TraceInfo,"Loading Dances");
             Database.Dances.Load();
 
-            Trace.WriteLine("Loading Songs");
+            Trace.WriteLineIf(TraceLevels.General.TraceInfo,"Loading Songs");
 
             foreach (string line in lines)
             {
@@ -1300,111 +1150,10 @@ namespace m4d.Controllers
             Context.ChangeTracker.DetectChanges();
             Database.SaveChanges();
 
-            Trace.WriteLine("Clearing Song Cache");
+            Trace.WriteLineIf(TraceLevels.General.TraceInfo,"Clearing Song Cache");
             SongCounts.ClearCache();
-            Trace.WriteLine("Exiting ReloadDB");
+            Trace.WriteLineIf(TraceLevels.General.TraceInfo,"Exiting ReloadDB");
         }
-
-    /// <summary>
-    /// Reloads a list of songs into the database
-    /// </summary>
-    /// <param name="lines"></param>
-    private void ReloadDB(List<string> lines, bool? batch)
-    {
-        Trace.WriteLine("Entering ReloadDB");
-        bool b = batch ?? false;
-
-        Context.Configuration.AutoDetectChangesEnabled = false;
-
-        // Load the dance List
-        Trace.WriteLine("Loading Dances");
-        Database.Dances.Load();
-
-        List<Song> songs = new List<Song>();
-        //List<SongProperty> properties = null;
-        //List<DanceRating> ratings = null;
-        //IDanceMusicContext bum = _db;
-        //if (b)
-        //{
-        //    bum = new BatchUserMap(_db);
-        //    properties = new List<SongProperty>();
-        //    ratings = new List<DanceRating>();
-        //}
-
-        Trace.WriteLine("Loading Songs");
-
-        int c = 0;
-        foreach (string line in lines)
-        {
-            DateTime time = DateTime.Now;
-            Song song = new Song();
-            song.Created = time;
-            song.Modified = time;
-
-            song.Load(line, Database);
-            songs.Add(song);
-            //if (b)
-            //{
-            //    properties.AddRange(song.SongProperties);
-            //    ratings.AddRange(song.DanceRatings);
-            //}
-            //else
-            //{
-                Context.Entry(song).State = EntityState.Added;
-            //}
-
-            c += 1;
-            if (c % 100 == 0)
-            {
-                Trace.WriteLine(string.Format("{0} songs loaded", c));
-            }
-
-            if (TraceLevels.General.TraceInfo)
-            {
-                if (song.Length.HasValue && song.Length.Value > 1000)
-                {
-                    Trace.WriteLine(string.Format("Long Song: {0} '{1}'", song.Length, song.Title));
-                }
-            }
-
-            if (!b && (c % 1000 == 0))
-            {
-                Trace.WriteLine("Saving next 1000 songs");
-                Context.Configuration.AutoDetectChangesEnabled = true;
-                Context.ChangeTracker.DetectChanges();
-                Database.SaveChanges();
-                Context.Configuration.AutoDetectChangesEnabled = false;
-            }
-        }
-
-        Trace.WriteLine("Saving Songs");
-        //if (b)
-        //{
-        //    // Until the bug gets fixed in EFBatchOperations to allow for azure, we'll live with the slower method...
-        //    EFBatchOperation.For(_db, Database.Songs).InsertAll(songs);
-
-        //    Trace.WriteLine("Saving Properties");
-        //    EFBatchOperation.For(_db, Database.SongProperties).InsertAll(properties);
-
-        //    Trace.WriteLine("Saving User Mappings");
-        //    EFBatchOperation.For(_db, Database.Modified).InsertAll((bum as BatchUserMap).GetMappings());
-
-        //    Trace.WriteLine("Saving Dance Ratings");
-        //    EFBatchOperation.For(_db, Database.DanceRatings).InsertAll(ratings);
-        //}
-        //else
-        //{
-            Trace.WriteLine("Saving tail");
-            Context.Configuration.AutoDetectChangesEnabled = true;
-            Context.ChangeTracker.DetectChanges();
-            Database.SaveChanges();
-        //}
-
-        Trace.WriteLine("Clearing Song Cache");
-        SongCounts.ClearCache();
-        Trace.WriteLine("Exiting ReloadDB");
-    }
-
         #endregion
 
         #region Utilities

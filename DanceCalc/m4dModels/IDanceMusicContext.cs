@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.AspNet.Identity.EntityFramework;
+using System;
 using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
@@ -26,6 +27,12 @@ namespace m4dModels
 
         DbSet<ModifiedRecord> Modified { get; }
 
+        IDbSet<ApplicationUser> Users { get; }
+
+        IDbSet<IdentityRole> Roles { get; }
+
         int SaveChanges();
+
+        void TrackChanges(bool track);
     }
 }

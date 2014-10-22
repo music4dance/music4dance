@@ -1,8 +1,6 @@
 ﻿@model IEnumerable<m4dModels.ApplicationUser>
 
 @{
-    IDictionary<string, Microsoft.AspNet.Identity.EntityFramework.IdentityRole> roles = ViewBag.RoleDictionary;
-
     ViewBag.Title = "Index";
 }
 
@@ -91,7 +89,7 @@
             @item.StartDate.ToString("d")
         </td>
         <td>
-            @item.GetRoles(roles)
+            @item.GetRoles(ViewBag.Roles)
         </td>
         <td>
             @foreach (var sub in item.Logins)

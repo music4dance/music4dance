@@ -143,6 +143,21 @@ namespace m4d.Context
             return ret;
         }
 
+        public void TrackChanges(bool track)
+        {
+            if (track && Configuration.AutoDetectChangesEnabled == false)
+            {
+                // Turn change tracking back on and update what's been changed
+                //  while it was off
+                Configuration.AutoDetectChangesEnabled = true;
+                ChangeTracker.DetectChanges();
+                SaveChanges();
+            }
+            else if (!track &&  Configuration.AutoDetectChangesEnabled == false)
+            {
+                Configuration.AutoDetectChangesEnabled = false;
+            }
+        }
 
         #region MusicService
         // Obviously not the clean abstraction, but Amazon is different enough that my abstraction
@@ -341,6 +356,10 @@ namespace m4d.Context
         }
 
         #region IUserMap
+        public ApplicationUser CreateUser()
+        {
+            return Users.Create();
+        }
         public ApplicationUser FindUser(string name)
         {
             return Users.FirstOrDefault(u => u.UserName.ToLower() == name.ToLower());
@@ -370,28 +389,26 @@ namespace m4d.Context
             return user;
         }
 
-
-        #endregion
-
-        public IDictionary<string, IdentityRole> RoleDictionary
+        public void AddUser(ApplicationUser user, string roles)
         {
-            get
+            if (!string.IsNullOrWhiteSpace(roles))
             {
-                if (_roles == null)
+                string[] roleNames = roles.Split(new char[] { '|' }, StringSplitOptions.RemoveEmptyEntries);
+                foreach (string roleName in roleNames)
                 {
-                    _roles = new Dictionary<string, IdentityRole>();
-
-                    foreach (var role in Roles)
+                    IdentityRole role = Roles.FirstOrDefault(r => r.Name == roleName.Trim());
+                    if (role != null)
                     {
-                        _roles.Add(role.Id, role);
+                        IdentityUserRole iur = new IdentityUserRole() { UserId = user.Id, RoleId = role.Id };
+                        user.Roles.Add(iur);
                     }
                 }
-                return _roles;
             }
+
+            Users.Add(user);
         }
-        private IDictionary<string, IdentityRole> _roles = null;
+        #endregion
 
         AWSFetcher _awsFetcher;
-
     }
 }

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.AspNet.Identity.EntityFramework;
+using System;
 using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
@@ -9,7 +10,7 @@ namespace m4dModels.Tests
 {
     class MockContext : IDanceMusicContext
     {
-        class TestDanceSet : TestDbSet<Dance>
+        class DanceSet : TestDbSet<Dance>
         {
             public override Dance Find(params object[] keyValues)
             {
@@ -41,18 +42,42 @@ namespace m4dModels.Tests
             }
         }
 
-        public MockContext()
+        class ApplicationUserSet : TestDbSet<ApplicationUser>
+        {
+            public override ApplicationUser Find(params object[] keyValues)
+            {
+                var id = keyValues.Single() as string;
+                if (id == null)
+                {
+                    return null;
+                }
+                else
+                {
+                    return this.SingleOrDefault(u => u.Id == id);
+                }
+            }
+        }
+
+        public MockContext(bool seedUsers=true)
         {
             this.Songs = new TestDbSet<Song>();
             this.SongProperties = new TestDbSet<SongProperty>();
-            this.Dances = new TestDanceSet();
+            this.Dances = new DanceSet();
             this.DanceRatings = new TestDbSet<DanceRating>();
             this.Tags = new TestDbSet<Tag>();
             this.TagTypes = new TagTypeSet();
             this.Log = new TestDbSet<SongLog>();
             this.Modified = new TestDbSet<ModifiedRecord>();
+            this.Users = new ApplicationUserSet();
+            this.Roles = new TestDbSet<IdentityRole>();
 
+            if (seedUsers)
+            {
+                Users.Add(new ApplicationUser() {UserName="dwgray", Id="05849D25-0292-44CF-A3E6-74D07D94855C"});
+                Users.Add(new ApplicationUser() {UserName="batch", Id="DE3752CA-42CD-46FB-BEE9-F7163CFB091B"});
+            }
         }
+
         public DbSet<Song> Songs { get; set; }
 
         public DbSet<SongProperty> SongProperties { get; set; }
@@ -69,6 +94,10 @@ namespace m4dModels.Tests
 
         public DbSet<ModifiedRecord> Modified { get; set; }
 
+        public IDbSet<ApplicationUser> Users { get; set; }
+
+        public IDbSet<IdentityRole> Roles { get; set; }
+
         public int SaveChangesCount { get; private set; } 
 
         public int SaveChanges()
@@ -76,24 +105,51 @@ namespace m4dModels.Tests
             this.SaveChangesCount++;
             return 1;
         }
+        public void TrackChanges(bool track)
+        {
+            // NOOP?
+        }
 
+
+        public ApplicationUser CreateUser()
+        {
+            return new ApplicationUser();
+        }
         public ApplicationUser FindUser(string name)
         {
-            return s_users.FindUser(name);
+            return Users.FirstOrDefault(u => string.Equals(u.UserName,name,StringComparison.InvariantCultureIgnoreCase));
         }
+
         public ApplicationUser FindOrAddUser(string name, string role)
         {
-            return s_users.FindOrAddUser(name, role);
+            ApplicationUser user = FindUser(name);
+
+            if (user == null)
+            {
+                user = new ApplicationUser() { UserName = name, Id = Guid.NewGuid().ToString("D") };
+                Users.Add(user);
+            }
+
+            // TODO: Should we add a concept of roles into the mock????
+
+            return user;
         }
+
         public ModifiedRecord CreateMapping(Guid songId, string applicationId)
         {
-            return s_users.CreateMapping(songId, applicationId);
+            ApplicationUser user = Users.Find(applicationId);
+
+            return new ModifiedRecord() { SongId = songId, ApplicationUser = user, ApplicationUserId = user.Id };
+        }
+
+        public void AddUser(ApplicationUser user, string roles)
+        {
+            // TODO: DO we care about roles for testing
+            Users.Add(user);
         }
 
         public void Dispose()
         {
-
         }
-        static IUserMap s_users = new MockUserMap();
     }
 }

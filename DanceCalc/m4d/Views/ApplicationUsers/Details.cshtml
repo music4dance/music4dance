@@ -1,7 +1,6 @@
 ﻿@model m4dModels.ApplicationUser
 
 @{
-    IDictionary<string, Microsoft.AspNet.Identity.EntityFramework.IdentityRole> roles = ViewBag.RoleDictionary;
     ViewBag.Title = "Details";
 }
 
@@ -24,7 +23,7 @@
         </dt>
 
         <dd>
-            @Model.GetRoles(roles)
+            @Model.GetRoles(ViewBag.Roles)
         </dd>
 
         <dt>

@@ -1,8 +1,6 @@
 ﻿@model m4dModels.ApplicationUser
 
 @{
-    IDictionary<string, Microsoft.AspNet.Identity.EntityFramework.IdentityRole> roles = ViewBag.RoleDictionary;
-    
     ViewBag.Title = "ChangeRoles";
 }
 
@@ -20,15 +18,15 @@
             <div class="col-md-12">
                 <div class="checkbox">
                     <label>
-                        <input type="checkbox" name="roles" value="@m4d.Context.DanceMusicContext.EditRole">
+                        <input type="checkbox" name="roles" value="@m4dModels.DanceMusicService.EditRole">
                         Editor
                     </label>
                     <label>
-                        <input type="checkbox" name="roles" value="@m4d.Context.DanceMusicContext.DiagRole">
+                        <input type="checkbox" name="roles" value="@m4dModels.DanceMusicService.DiagRole">
                         Diagnostics
                     </label>
                     <label>
-                        <input type="checkbox" name="roles" value="@m4d.Context.DanceMusicContext.DbaRole">
+                        <input type="checkbox" name="roles" value="@m4dModels.DanceMusicService.DbaRole">
                         Database Administrator
                     </label>
                 </div>

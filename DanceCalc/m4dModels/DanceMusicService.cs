@@ -13,12 +13,19 @@ namespace m4dModels
     public enum UndoAction { Undo, Redo };
     public class DanceMusicService : IUserMap, IDisposable
     {
+        #region Lifetime Management
         private IDanceMusicContext _context;
 
         public DanceMusicService(IDanceMusicContext context)
         {
             _context = context;
         }
+        public void Dispose()
+        {
+            _context.Dispose();
+        }
+
+        #endregion
 
         #region Properties
 
@@ -44,6 +51,11 @@ namespace m4dModels
         {
             return _context.SaveChanges();
         }
+
+        public static readonly string EditRole = "canEdit";
+        public static readonly string DiagRole = "showDiagnostics";
+        public static readonly string DbaRole = "dbAdmin";
+        public static readonly string PseudoRole = "pseudoUser";
 
         #endregion
 
@@ -861,7 +873,285 @@ namespace m4dModels
 
         #endregion
 
-        
+        #region Load
+
+        private const string _songBreak = "+++++SONGS+++++";
+        private const string _tagBreak = "+++++TAGSS+++++";
+        private const string _userHeader = "UserId\tUserName\tRoles\tPWHash\tSecStamp\tLockout\tProviders";
+
+        static public bool IsSongBreak(string line) {
+            return IsBreak(line, _songBreak);
+        }
+        static public bool IsTagBreak(string line)
+        {
+            return IsBreak(line, _tagBreak);
+        }
+        static public bool IsUserBreak(string line)
+        {
+            return IsBreak(line, _userHeader);
+        }
+
+        static private bool IsBreak(string line, string brk)
+        {
+            return string.Equals(line.Trim(), brk, StringComparison.InvariantCultureIgnoreCase);
+        }
+
+        public void LoadUsers(IList<string> lines)
+        {
+            Trace.WriteLineIf(TraceLevels.General.TraceInfo,"Entering LoadUsers");
+
+            if (lines == null || lines.Count < 1 || !string.Equals(lines[0], _userHeader, StringComparison.InvariantCultureIgnoreCase))
+            {
+                throw new ArgumentOutOfRangeException();
+            }
+
+            int fieldCount = _userHeader.Split(new char[] { '\t' }).Length;
+            int i = 1;
+            while (i < lines.Count)
+            {
+                string s = lines[i];
+                i += 1;
+
+                if (string.Equals(s, _tagBreak, StringComparison.InvariantCultureIgnoreCase))
+                {
+                    break;
+                }
+
+                string[] cells = s.Split(new char[] { '\t' });
+                if (cells.Length == fieldCount)
+                {
+                    string userId = cells[0];
+                    string userName = cells[1];
+                    string roles = cells[2];
+                    string hash = string.IsNullOrWhiteSpace(cells[3]) ? null : cells[3];
+                    string stamp = cells[4];
+                    string lockout = cells[5];
+                    string providers = cells[6];
+
+                    // Don't trounce existing users
+                    ApplicationUser user = FindUser(userName);
+                    if (user == null)
+                    {
+                        user = _context.CreateUser();
+                        user.Id = userId;
+                        user.UserName = userName;
+                        user.PasswordHash = hash;
+                        user.SecurityStamp = stamp;
+                        user.LockoutEnabled = string.Equals(lockout, "TRUE", StringComparison.InvariantCultureIgnoreCase);
+
+                        if (!string.IsNullOrWhiteSpace(providers))
+                        {
+                            string[] entries = providers.Split(new char[] { '|' }, StringSplitOptions.RemoveEmptyEntries);
+                            for (int j = 0; j < entries.Length; j += 2)
+                            {
+                                IdentityUserLogin login = new IdentityUserLogin() { LoginProvider = entries[j], ProviderKey = entries[j + 1], UserId = userId };
+                                user.Logins.Add(login);
+                            }
+                        }
+
+                        Context.AddUser(user, roles);
+                    }
+                }
+            }
+
+            Trace.WriteLineIf(TraceLevels.General.TraceInfo,"Saving Changes");
+            SaveChanges();
+            Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Exiting LoadUsers");
+        }
+        public void LoadTags(IList<string> lines)
+        {
+            Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Entering LoadTags");
+
+            int i = 0;
+            while (i < lines.Count)
+            {
+                string s = lines[i];
+                i += 1;
+
+                if (string.Equals(s, _songBreak, StringComparison.InvariantCultureIgnoreCase))
+                {
+                    break;
+                }
+
+                string[] cells = s.Split(new char[] { '\t' });
+                if (cells.Length == 2)
+                {
+                    string category = cells[0];
+                    string value = cells[1];
+
+                    FindOrCreateTagType(value, category);
+                }
+            }
+
+            Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Saving Changes");
+            SaveChanges();
+
+            Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Exiting LoadTags");
+        }
+        public void LoadSongs(IList<string> lines)
+        {
+            Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Entering Load Songs");
+
+            _context.TrackChanges(false);
+
+            // Load the dance List
+            Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Loading Dances");
+            Dances.Load();
+
+            Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Loading Songs");
+
+            int c = 0;
+            foreach (string line in lines)
+            {
+                DateTime time = DateTime.Now;
+                Song song = new Song();
+                song.Created = time;
+                song.Modified = time;
+
+                song.Load(line, this);
+                _context.Songs.Add(song);
+                
+                c += 1;
+                if (c % 100 == 0)
+                {
+                    Trace.WriteLineIf(TraceLevels.General.TraceInfo, string.Format("{0} songs loaded", c));
+                }
+
+                if (TraceLevels.General.TraceInfo)
+                {
+                    if (song.Length.HasValue && song.Length.Value > 1000)
+                    {
+                        Trace.WriteLineIf(TraceLevels.General.TraceInfo, string.Format("Long Song: {0} '{1}'", song.Length, song.Title));
+                    }
+                }
+
+                Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Saving next 1000 songs");
+                _context.TrackChanges(true);
+                _context.TrackChanges(false);
+            }
+
+            Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Saving Songs");
+            Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Saving tail");
+            _context.TrackChanges(true);
+
+            Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Clearing Song Cache");
+            SongCounts.ClearCache();
+            Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Exiting LoadSongs");
+
+        }
+
+        public void UpdateSongs(IList<string> lines)
+        {
+            Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Entering UpdateSongs");
+
+            _context.TrackChanges(false);
+
+            // Load the dance List
+            Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Loading Dances");
+            Dances.Load();
+
+            Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Loading Songs");
+
+            foreach (string line in lines)
+            {
+                SongDetails sd = new SongDetails(line);
+                Song song = FindSong(sd.SongId);
+
+                string name = sd.ModifiedList.Last().UserName;
+                ApplicationUser user = FindOrAddUser(name, DanceMusicService.EditRole);
+
+                if (song == null)
+                {
+                    song = CreateSong(user, sd);
+                }
+                else if (sd.IsNull)
+                {
+                    DeleteSong(user, song);
+                }
+                else
+                {
+                    UpdateSong(user, song, sd, false);
+                }
+                //song.Modified = DateTime.Now;
+            }
+
+            _context.TrackChanges(true);
+            Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Clearing Song Cache");
+            SongCounts.ClearCache();
+            Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Exiting UpdateSongs");
+
+        }
+        #endregion
+
+        #region Save
+        public IList<string> SerializeUsers(bool withHeader=true)
+        {
+            List<string> users = new List<string>();
+
+            if (withHeader)
+            {
+                users.Add(_userHeader);
+            }
+
+            foreach (ApplicationUser user in _context.Users)
+            {
+                string userId = user.Id;
+                string username = user.UserName;
+                string roles = user.GetRoles(Context.Roles, "|");
+                string hash = user.PasswordHash;
+                string stamp = user.SecurityStamp;
+                string lockout = user.LockoutEnabled.ToString();
+                string providers = user.GetProviders();
+
+                users.Add(string.Format("{0}\t{1}\t{2}\t{3}\t{4}\t{5}\t{6}", userId, username, roles, hash, stamp, lockout, providers));
+            }
+
+            return users;
+        }
+
+        public IList<string> SerializeTags(bool withHeader = true)
+        {
+            List<string> tags = new List<string>();
+
+            if (withHeader)
+            {
+                tags.Add(_tagBreak);
+            }
+            foreach (TagType tt in TagTypes)
+            {
+                tags.Add(string.Format("{0}\t{1}", tt.Categories, tt.Value));
+            }
+
+            return tags;
+        }
+        public IList<string> SerializeSongs(bool withHeader = true, bool withHistory = true)
+        {
+            List<string> songs = new List<string>();
+
+            if (withHeader)
+            {
+                songs.Add(_songBreak);
+            }
+
+            var songlist = Songs.OrderBy(t => t.Modified).ThenBy(t => t.SongId);
+            foreach (Song song in songlist)
+            {
+                string[] actions = null;
+                if (withHistory)
+                {
+                    actions = new string[] { Song.FailedLookup };
+                }
+                string line = song.Serialize(actions);
+                if (!string.IsNullOrWhiteSpace(line))
+                {
+                    songs.Add(line);
+                }
+            }
+
+            return songs;
+        }
+
+        #endregion
         public IList<Song> FindMergeCandidates(int n, int level)
         {
             return MergeCluster.GetMergeCandidates(_context, n, level);
@@ -890,12 +1180,12 @@ namespace m4dModels
             //}
         }
 
-        public static readonly string EditRole = "canEdit";
-        public static readonly string DiagRole = "showDiagnostics";
-        public static readonly string DbaRole = "dbAdmin";
-        public static readonly string PseudoRole = "pseudoUser";
 
-        #region IUser
+        #region IUserMap
+        public ApplicationUser CreateUser()
+        {
+            return _context.CreateUser();
+        }
         public ApplicationUser FindUser(string name)
         {
             return _context.FindUser(name);
@@ -910,12 +1200,11 @@ namespace m4dModels
         {
             return _context.CreateMapping(songId, applicationId);
         }
-        #endregion
 
-        public void Dispose()
+        public void AddUser(ApplicationUser user, string roles)
         {
-            _context.Dispose();
+            _context.AddUser(user, roles);
         }
-
+        #endregion
     }
 }

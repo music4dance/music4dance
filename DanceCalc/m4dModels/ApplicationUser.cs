@@ -2,6 +2,7 @@
 using Microsoft.AspNet.Identity.EntityFramework;
 using System;
 using System.Collections.Generic;
+using System.Data.Entity;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
@@ -26,7 +27,7 @@ namespace m4dModels
         }
         public virtual ICollection<ModifiedRecord> Modified { get; set; }
 
-        public string GetRoles(IDictionary<string, IdentityRole> roleMap, string separator=", ")
+        public string GetRoles(IDbSet<IdentityRole> roles, string separator=", ")
         {
             // TODO: Can we do this w/o sending in roleMap?
 
@@ -34,7 +35,7 @@ namespace m4dModels
             string sp = string.Empty;
             foreach (var idRole in Roles)
             {
-                Microsoft.AspNet.Identity.EntityFramework.IdentityRole role = roleMap[idRole.RoleId];
+                Microsoft.AspNet.Identity.EntityFramework.IdentityRole role = roles.Find(idRole.RoleId);
                 sb.Append(sp + role.Name);
                 sp = separator;
             }

@@ -28,7 +28,7 @@ namespace m4d.Controllers
         // GET: ApplicationUsers
         public ActionResult Index()
         {
-            ViewBag.RoleDictionary = Context.RoleDictionary;
+            ViewBag.Roles = Context.Roles;
             return View(Context.Users.OrderByDescending(u => u.StartDate).ToList());
         }
 
@@ -45,7 +45,7 @@ namespace m4d.Controllers
             {
                 return HttpNotFound();
             }
-            ViewBag.RoleDictionary = Context.RoleDictionary;
+            ViewBag.Roles = Context.Roles;
             return View(applicationUser);
         }
 
@@ -115,7 +115,6 @@ namespace m4d.Controllers
             {
                 return HttpNotFound();
             }
-            ViewBag.RoleDictionary = Context.RoleDictionary;
             return View(applicationUser);
         }
 
@@ -150,7 +149,7 @@ namespace m4d.Controllers
             var ustore = new UserStore<ApplicationUser>(Context);
             var umanager = new UserManager<ApplicationUser>(ustore);
 
-            foreach (var role in Context.RoleDictionary.Values)
+            foreach (var role in Context.Roles)
             {
                 // New Role
                 if (newRoles.Contains(role.Name))
@@ -169,7 +168,7 @@ namespace m4d.Controllers
                 }
             }
 
-            ViewBag.RoleDictionary = Context.RoleDictionary;
+            ViewBag.Roles = Context.Roles;
             return View("Details", user);
         }
 

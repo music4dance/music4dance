@@ -8,9 +8,10 @@ namespace m4dModels
     // mapping code into my model assembly
     public interface IUserMap
     {
+        ApplicationUser CreateUser();
         ApplicationUser FindUser(string name);
         ApplicationUser FindOrAddUser(string name, string role);
-
         ModifiedRecord CreateMapping(Guid songId, string applicationId);
+        void AddUser(ApplicationUser user, string roles);
     }
 }
