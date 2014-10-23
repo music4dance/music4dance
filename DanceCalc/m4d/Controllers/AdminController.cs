@@ -556,11 +556,11 @@ namespace m4d.Controllers
                         RestoreDB(null);
                         int i = lines.FindIndex(l => DanceMusicService.IsTagBreak(l));
                         List<string> users = lines.GetRange(0,i).ToList();
-                        lines.RemoveRange(0,i);
+                        lines.RemoveRange(0,i+1);
 
                         i = lines.FindIndex(l => DanceMusicService.IsSongBreak(l));
                         List<string> tags = lines.GetRange(0,i).ToList();
-                        lines.RemoveRange(0,i);
+                        lines.RemoveRange(0,i+1);
 
                         Database.LoadUsers(users);
                         Database.LoadTags(tags);

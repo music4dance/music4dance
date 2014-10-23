@@ -119,7 +119,6 @@ namespace m4d.Context
 
         #endregion
 
-
         #region MusicService
         // Obviously not the clean abstraction, but Amazon is different enough that my abstraction
         //  between itunes and xbox doesn't work.   So I'm going to shoe-horn this in to get it working

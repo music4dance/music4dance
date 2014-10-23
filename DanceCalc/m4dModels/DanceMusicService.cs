@@ -859,10 +859,10 @@ namespace m4dModels
             {
                 type = _context.TagTypes.Create();
                 type.Value = value;
-                TagType added = _context.TagTypes.Add(type);
-                Trace.WriteLine(added.ToString());
+                type = _context.TagTypes.Add(type);
             }
             type.AddCategory(categories);
+            Trace.WriteLine(type.ToString());
             return type;
         }
 
@@ -976,17 +976,8 @@ namespace m4dModels
         {
             Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Entering LoadTags");
 
-            int i = 0;
-            while (i < lines.Count)
+            foreach (string s in lines)
             {
-                string s = lines[i];
-                i += 1;
-
-                if (string.Equals(s, _songBreak, StringComparison.InvariantCultureIgnoreCase))
-                {
-                    break;
-                }
-
                 string[] cells = s.Split(new char[] { '\t' });
                 if (cells.Length == 2)
                 {
