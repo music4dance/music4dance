@@ -57,7 +57,7 @@ namespace DanceTests
             Assert.IsTrue(st.IsClear);
         }
 
-        [TestMethod]
+        //[TestMethod]
         public void TimerAndTiming()
         {
             SongTimer st = PrimeTimer(1875);
