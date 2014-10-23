@@ -1,11 +1,23 @@
-﻿namespace m4dModels
+﻿using System.ComponentModel;
+namespace m4dModels
 {
+    [TypeConverter(typeof(SongFilterConverter))]
     public class SongFilter
     {
         private const string empty = ".";
+
+        static public SongFilter Default
+        {
+            get
+            {
+                return _default;
+            }
+        }
+        static private SongFilter _default = new SongFilter();
+
         public SongFilter()
         {
-
+            Action = "Index";
         }
 
         public SongFilter(string value)

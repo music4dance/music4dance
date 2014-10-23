@@ -35,6 +35,16 @@ namespace m4d.Controllers
             }
         }
 
+        protected override void OnActionExecuting(ActionExecutingContext filterContext)
+        {
+            object o;
+            if (filterContext.ActionParameters.TryGetValue("filter",out o) && o == null)
+            {
+                filterContext.ActionParameters["filter"] = SongFilter.Default;
+            }
+            base.OnActionExecuting(filterContext);
+        }
+
         #region Commands
 
         [AllowAnonymous]
@@ -44,60 +54,56 @@ namespace m4d.Controllers
         }
 
         [AllowAnonymous]
-        public ActionResult Search(string searchString, string dances, string filter)
+        public ActionResult Search(string searchString, string dances, SongFilter filter)
         {
-            SongFilter songFilter = ParseFilter(filter);
-
             if (string.IsNullOrWhiteSpace(searchString))
             {
                 searchString = null;
             }
-            if (!string.Equals(searchString, songFilter.SearchString))
+            if (!string.Equals(searchString, filter.SearchString))
             {
-                songFilter.SearchString = searchString;
-                songFilter.Page = 1;
+                filter.SearchString = searchString;
+                filter.Page = 1;
             }
 
             if (string.IsNullOrWhiteSpace(dances))
             {
                 dances = null;
             }
-            if (!string.Equals(dances, songFilter.Dances))
+            if (!string.Equals(dances, filter.Dances))
             {
-                songFilter.Dances = dances;
-                songFilter.Page = 1;
+                filter.Dances = dances;
+                filter.Page = 1;
             }
 
-            songFilter.Purchase = null;
-            songFilter.TempoMin = null;
-            songFilter.TempoMax = null;
+            filter.Purchase = null;
+            filter.TempoMin = null;
+            filter.TempoMax = null;
 
-            return DoIndex(songFilter);
+            return DoIndex(filter);
         }
 
         [AllowAnonymous]
-        public ActionResult AdvancedSearch(string searchString, string dances, ICollection<string> services, decimal? tempoMin, decimal? tempoMax, string filter)
+        public ActionResult AdvancedSearch(string searchString, string dances, ICollection<string> services, decimal? tempoMin, decimal? tempoMax, SongFilter filter)
         {
-            SongFilter songFilter = ParseFilter(filter);
-
             if (string.IsNullOrWhiteSpace(searchString))
             {
                 searchString = null;
             }
-            if (!string.Equals(searchString, songFilter.SearchString))
+            if (!string.Equals(searchString, filter.SearchString))
             {
-                songFilter.SearchString = searchString;
-                songFilter.Page = 1;
+                filter.SearchString = searchString;
+                filter.Page = 1;
             }
 
             if (string.IsNullOrWhiteSpace(dances))
             {
                 dances = null;
             }
-            if (!string.Equals(dances, songFilter.Dances))
+            if (!string.Equals(dances, filter.Dances))
             {
-                songFilter.Dances = dances;
-                songFilter.Page = 1;
+                filter.Dances = dances;
+                filter.Page = 1;
             }
 
             string purchase = string.Empty;
@@ -105,21 +111,19 @@ namespace m4d.Controllers
             {
                 purchase = string.Concat(services);
             }
-            songFilter.Purchase = purchase;
+            filter.Purchase = purchase;
 
-            songFilter.TempoMin = tempoMin;
-            songFilter.TempoMax = tempoMax;
+            filter.TempoMin = tempoMin;
+            filter.TempoMax = tempoMax;
 
             ViewBag.AdvancedSearch = true;
 
-            return DoIndex(songFilter);
+            return DoIndex(filter);
         }
 
         [AllowAnonymous]
-        public ActionResult Sort(string sortOrder, string filter)
+        public ActionResult Sort(string sortOrder, SongFilter filter)
         {
-            SongFilter songFilter = ParseFilter(filter);
-
             // TODO: Consider doing something to keep the first song of the page on the
             // page when sort-order changes...
             if (!string.IsNullOrWhiteSpace(sortOrder))
@@ -127,96 +131,92 @@ namespace m4d.Controllers
                 switch (sortOrder)
                 {
                     case "Title":
-                        songFilter.SortOrder = String.IsNullOrEmpty(songFilter.SortOrder) ? "Title_desc" : "Title";
+                        filter.SortOrder = String.IsNullOrEmpty(filter.SortOrder) ? "Title_desc" : "Title";
                         break;
                     case "Artist":
-                        songFilter.SortOrder = songFilter.SortOrder == "Artist" ? "Artist_desc" : "Artist";
+                        filter.SortOrder = filter.SortOrder == "Artist" ? "Artist_desc" : "Artist";
                         break;
                     case "Album":
-                        songFilter.SortOrder = songFilter.SortOrder == "Album" ? "Album_desc" : "Album";
+                        filter.SortOrder = filter.SortOrder == "Album" ? "Album_desc" : "Album";
                         break;
                     case "Tempo":
-                        songFilter.SortOrder = songFilter.SortOrder == "Tempo" ? "Tempo_desc" : "Tempo";
+                        filter.SortOrder = filter.SortOrder == "Tempo" ? "Tempo_desc" : "Tempo";
                         break;
                     case "Dances":
-                        songFilter.SortOrder = "Dances";
+                        filter.SortOrder = "Dances";
                         break;
                     case "Created":
-                        songFilter.SortOrder = "Created";
+                        filter.SortOrder = "Created";
                         break;
                     case "Modified":
-                        songFilter.SortOrder = "Modified";
+                        filter.SortOrder = "Modified";
                         break;
                 }
             }
 
-            return DoIndex(songFilter);
+            return DoIndex(filter);
         }
 
         [AllowAnonymous]
-        public ActionResult FilterUser(string user, string filter)
+        public ActionResult FilterUser(string user, SongFilter filter)
         {
-            SongFilter songFilter = ParseFilter(filter);
             if (string.IsNullOrWhiteSpace(user))
             {
-                songFilter.User = null;
+                filter.User = null;
             }
             else
             {
-                songFilter.User = user;
+                filter.User = user;
             }
-            return DoIndex(songFilter);
+            return DoIndex(filter);
         }
 
         [AllowAnonymous]
-        public ActionResult FilterService(ICollection<string> services, string filter)
+        public ActionResult FilterService(ICollection<string> services, SongFilter filter)
         {
-            SongFilter songFilter = ParseFilter(filter);
-
             string purchase = string.Empty;
             if (services != null)
             {
                 purchase = string.Concat(services);
             }
-            songFilter.Purchase = purchase;
-            return DoIndex(songFilter);
+            filter.Purchase = purchase;
+            return DoIndex(filter);
         }
 
         [AllowAnonymous]
-        public ActionResult FilterTempo(decimal? tempoMin, decimal? tempoMax, string filter)
+        public ActionResult FilterTempo(decimal? tempoMin, decimal? tempoMax, SongFilter filter)
         {
-            SongFilter songFilter = ParseFilter(filter);
-            songFilter.TempoMin = tempoMin;
-            songFilter.TempoMax = tempoMax;
+            filter.TempoMin = tempoMin;
+            filter.TempoMax = tempoMax;
 
-            return DoIndex(songFilter);
+            return DoIndex(filter);
         }
 
         //
         // GET: /Index/
         [AllowAnonymous]
-        public ActionResult Index(int? page, string purchase, string filter)
+        public ActionResult Index(int? page, string purchase, SongFilter filter)
         {
-            SongFilter songFilter = ParseFilter(filter);
+            filter = filter ?? SongFilter.Default;
 
             if (page.HasValue)
             {
-                songFilter.Page = page;
+                filter.Page = page;
             }
 
             if (!string.IsNullOrWhiteSpace(purchase))
             {
-                songFilter.Purchase = purchase;
+                filter.Purchase = purchase;
             }
 
-            return DoIndex(songFilter);
+            return DoIndex(filter);
         }
         
         //
         // GET: /Song/Details/5
 
         [AllowAnonymous]
-        public ActionResult Details(Guid? id = null, string filter = null)
+        public ActionResult Details(Guid? id = null, SongFilter filter = null)
         {
             SongDetails song = Database.FindSongDetails(id ?? Guid.Empty);
             if (song == null)
@@ -224,7 +224,7 @@ namespace m4d.Controllers
                 return HttpNotFound();
             }
 
-            ViewBag.SongFilter = ParseFilter(filter);
+            ViewBag.SongFilter = filter;
             ViewBag.DanceMap = SongCounts.GetDanceMap(Database);
             return View(song);
         }
@@ -232,12 +232,12 @@ namespace m4d.Controllers
         //
         // GET: /Song/CreateI
         [Authorize(Roles = "canEdit")] 
-        public ActionResult Create(string filter = null)
+        public ActionResult Create(SongFilter filter = null)
         {
             ViewBag.ShowMPM = true;
             ViewBag.ShowBPM = true;
             ViewBag.DanceListAdd = GetDances();
-            ViewBag.SongFilter = ParseFilter(filter);
+            ViewBag.SongFilter = filter;
             SongDetails sd = new SongDetails();
             ViewBag.BackAction = "Index";
             return View(sd);
@@ -249,9 +249,9 @@ namespace m4d.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "canEdit")]
-        public ActionResult Create(SongDetails song, List<string> addDances, string editTags, string filter = null)
+        public ActionResult Create(SongDetails song, List<string> addDances, string editTags, SongFilter filter = null)
         {
-            ViewBag.SongFilter = ParseFilter(filter);
+            ViewBag.SongFilter = filter;
             if (ModelState.IsValid)
             {
                 ApplicationUser user = Database.FindUser(User.Identity.Name);
@@ -299,7 +299,7 @@ namespace m4d.Controllers
         //
         // GET: /Song/Edit/5
         [Authorize(Roles = "canEdit")] 
-        public ActionResult Edit(Guid? id = null, string filter = null)
+        public ActionResult Edit(Guid? id = null, SongFilter filter = null)
         {
             SongDetails song = Database.FindSongDetails(id??Guid.Empty);
             if (song == null)
@@ -310,7 +310,7 @@ namespace m4d.Controllers
 
             SetupEditViewBag(song);
 
-            ViewBag.SongFilter = ParseFilter(filter);
+            ViewBag.SongFilter = filter;
             return View(song);
         }
 
@@ -335,9 +335,9 @@ namespace m4d.Controllers
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "canEdit")] 
         //public ActionResult Edit([ModelBinder(typeof(m4d.Utilities.SongBinder))]SongDetails song, List<string> addDances, List<string> remDances, string filter = null)
-        public ActionResult Edit(SongDetails song, List<string> addDances, List<string> remDances, string editTags, string filter = null)
+        public ActionResult Edit(SongDetails song, List<string> addDances, List<string> remDances, string editTags, SongFilter filter = null)
         {
-            ViewBag.SongFilter = ParseFilter(filter);
+            ViewBag.SongFilter = filter;
             if (ModelState.IsValid)
             {
 //#if DEBUG
@@ -374,8 +374,7 @@ namespace m4d.Controllers
                     return View("Details", edit);
                 }
                 {
-                    // TODO: Check to see if we lose SongFilter through this path (and how to correct if we do)
-                    return RedirectToAction("Index");
+                    return RedirectToAction("Index", new { filter = filter });
                 }
             }
             else
@@ -410,9 +409,9 @@ namespace m4d.Controllers
         //
         // GET: /Song/Delete/5
         [Authorize(Roles = "canEdit")] 
-        public ActionResult Delete(Guid id, string filter = null)
+        public ActionResult Delete(Guid id, SongFilter filter = null)
         {
-            ViewBag.SongFilter = ParseFilter(filter);
+            ViewBag.SongFilter = filter;
             Song song = Database.Songs.Find(id);
             if (song == null)
             {
@@ -427,55 +426,55 @@ namespace m4d.Controllers
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "canEdit")] 
-        public ActionResult DeleteConfirmed(Guid id, string filter = null)
+        public ActionResult DeleteConfirmed(Guid id, SongFilter filter = null)
         {
-            ViewBag.SongFilter = ParseFilter(filter);
+            ViewBag.SongFilter = filter;
             Song song = Database.Songs.Find(id);
             string userName = User.Identity.Name;
             ApplicationUser user = Database.FindUser(userName);
             Database.DeleteSong(user,song);
-            return RedirectToAction("Index");
+            return RedirectToAction("Index", new { filter = filter });
         }
 
 
         //
         // Merge: /Song/MergeCandidates
         [Authorize(Roles = "canEdit")]
-        public ActionResult MergeCandidates(int? page, int? level, bool? autoCommit, string filter = null)
+        public ActionResult MergeCandidates(int? page, int? level, bool? autoCommit, SongFilter filter)
         {
-            SongFilter songFilter = ParseFilter(filter, "MergeCandidates");
+            filter.Action = "MergeCandidates";
             IList<Song> songs = null;
 
-            BuildDanceList(songFilter);
+            BuildDanceList(filter);
 
             if (page.HasValue)
             {
-                songFilter.Page = page;
+                filter.Page = page;
             }
 
             if (level.HasValue)
             {
-                songFilter.Level = level;
+                filter.Level = level;
             }
 
             if (autoCommit == true)
             {
-                songs = Database.FindMergeCandidates(10000, songFilter.Level ?? 1);
+                songs = Database.FindMergeCandidates(10000, filter.Level ?? 1);
             }
             else
             {
-                songs = Database.FindMergeCandidates(500, songFilter.Level ?? 1);
+                songs = Database.FindMergeCandidates(500, filter.Level ?? 1);
             }
 
             int pageSize = 25;
-            int pageNumber = songFilter.Page ?? 1;
+            int pageNumber = filter.Page ?? 1;
 
             if (autoCommit.HasValue && autoCommit.Value == true)
             {
-                songs = AutoMerge(songs,(int)songFilter.Level);
+                songs = AutoMerge(songs,(int)filter.Level);
             }
 
-            ViewBag.SongFilter = songFilter;
+            ViewBag.SongFilter = filter;
             return View("Index", songs.ToPagedList(pageNumber, pageSize));
         }
 
@@ -484,9 +483,9 @@ namespace m4d.Controllers
         // BulkEdit: /Song/BulkEdit
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "canEdit")]
-        public ActionResult BulkEdit(Guid[] selectedSongs, string action, string filter = null)
+        public ActionResult BulkEdit(Guid[] selectedSongs, string action, SongFilter filter = null)
         {
-            ViewBag.SongFilter = ParseFilter(filter);
+            ViewBag.SongFilter = filter;
             var songs = from s in Database.Songs
                         where selectedSongs.Contains(s.SongId)
                         select s;
@@ -496,7 +495,7 @@ namespace m4d.Controllers
                 case "Merge":
                     return Merge(songs);
                 case "Delete":
-                    return Delete(songs);
+                    return Delete(songs,filter);
                 default:
                     return View("Index");
             }
@@ -507,9 +506,9 @@ namespace m4d.Controllers
         // Merge: /Song/Merge
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "canEdit")]
-        public ActionResult MergeResults(string SongIds, string filter = null)
+        public ActionResult MergeResults(string SongIds, SongFilter filter = null)
         {
-            ViewBag.SongFilter = ParseFilter(filter);
+            ViewBag.SongFilter = filter;
             // See if we can do the actual merge and then return the song details page...
             List<Guid> ids = SongIds.Split(',').Select(s=>Guid.Parse(s)).ToList();
 
@@ -590,7 +589,7 @@ namespace m4d.Controllers
         /// <param name="count">Number of songs to try, 1 is special cased as a user verified single entry</param>
         /// <returns></returns>
         [Authorize(Roles = "canEdit")]
-        public ActionResult BatchMusicService(string type= "X", string options = null, string filter=null, int count = 1)
+        public ActionResult BatchMusicService(string type= "X", string options = null, SongFilter filter=null, int count = 1)
         {
             MusicService service = MusicService.GetService(type);
             if (service == null)
@@ -615,10 +614,9 @@ namespace m4d.Controllers
                 int.TryParse(options.Substring(1), out retryLevel);
             }
 
-            SongFilter songFilter = ParseFilter(filter);
-            songFilter.Purchase = "!" + type;
+            filter.Purchase = "!" + type;
 
-            IQueryable<Song> songs = BuildSongList(songFilter);
+            IQueryable<Song> songs = BuildSongList(filter);
 
             ApplicationUser user = Database.FindUser(User.Identity.Name);
 
@@ -790,7 +788,7 @@ namespace m4d.Controllers
 
         // GET: /Song/MusicServiceSearch/5?search=name
         [Authorize(Roles = "canEdit")]
-        public ActionResult MusicServiceSearch(Guid? id = null, string type="X", string title = null, string artist = null, string filter=null)
+        public ActionResult MusicServiceSearch(Guid? id = null, string type="X", string title = null, string artist = null, SongFilter filter=null)
         {
             SongDetails song = Database.FindSongDetails(id??Guid.Empty);
             if (song == null)
@@ -807,7 +805,7 @@ namespace m4d.Controllers
             ServiceSearchResults view = new ServiceSearchResults { ServiceType = type, Song = song };
 
             ViewBag.DanceMap = SongCounts.GetDanceMap(Database);
-            ViewBag.SongFilter = ParseFilter(filter);
+            ViewBag.SongFilter = filter;
             ViewBag.SongTitle = title;
             ViewBag.SongArtist = artist;
             ViewBag.Type = type;
@@ -821,7 +819,7 @@ namespace m4d.Controllers
         // ChooseMusicService: /Song/ChooseMusicService
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "canEdit")]
-        public ActionResult ChooseMusicService(Guid songId, string type, string name, string album, string artist, string trackId, string collectionId, string alternateId, string duration, string genre, int? trackNum, string filter = null)
+        public ActionResult ChooseMusicService(Guid songId, string type, string name, string album, string artist, string trackId, string collectionId, string alternateId, string duration, string genre, int? trackNum, SongFilter filter)
         {
             MusicService service = MusicService.GetService(type);
             if (service == null)
@@ -829,7 +827,7 @@ namespace m4d.Controllers
                 throw new ArgumentOutOfRangeException("type");
             }
 
-            ViewBag.SongFilter = ParseFilter(filter);
+            ViewBag.SongFilter = filter;
             SongDetails song = Database.FindSongDetails(songId);
             if (song == null)
             {
@@ -846,17 +844,6 @@ namespace m4d.Controllers
         #endregion
 
         #region General Utilities
-        private SongFilter ParseFilter(string f, string action = "Index")
-        {
-            if (string.IsNullOrWhiteSpace(f))
-            {
-                return new SongFilter { Action = action };
-            }
-            else
-            {
-                return new SongFilter(f);
-            }
-        }
         private MultiSelectList GetDances(IList<DanceRating> ratings = null)
         {
             List<SimpleDance> Dances = new List<SimpleDance>(Database.Dances.Count());
@@ -881,7 +868,7 @@ namespace m4d.Controllers
 
             return new MultiSelectList(Dances, "ID", "Name", selarr);
         }
-        private ActionResult Delete(IQueryable<Song> songs)
+        private ActionResult Delete(IQueryable<Song> songs, SongFilter filter)
         {
             ApplicationUser user = Database.FindUser(User.Identity.Name);
 
@@ -890,7 +877,7 @@ namespace m4d.Controllers
                 Database.DeleteSong(user, song);
             }
 
-            return RedirectToAction("Index");
+            return RedirectToAction("Index", new { filter = filter });
         }
 
         #endregion
