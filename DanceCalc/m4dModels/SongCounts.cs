@@ -194,14 +194,14 @@ namespace m4dModels
                 throw new ArgumentNullException("dance");
             }
 
-            Dance dance = dances.FirstOrDefault(t => t.Id == d.Id);
+            Dance dance = dances.Where(t => t.Id == d.Id).Include("DanceRatings.Song").FirstOrDefault();
 
             int max = 0;
             int count = 0;
 
             if (dance != null)
             {
-                var ratings = from dr in dance.DanceRatings where !dr.Song.IsNull && dr.Song.Purchase != null select dr;
+                var ratings = from dr in dance.DanceRatings where dr.Song.TitleHash != 0 && dr.Song.Purchase != null select dr;
                 count = ratings.Count();
                 max = count > 0 ? ratings.Max(s => s.Weight) : 0;
             }
