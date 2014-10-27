@@ -115,6 +115,14 @@ namespace m4dModels
         public int? Page { get; set; }
         public int? Level { get; set; }
 
+        public bool Advanced
+        {
+            get 
+            {
+                return !string.IsNullOrWhiteSpace(Purchase) ||
+                    TempoMin.HasValue || TempoMax.HasValue;
+            }
+        }
         public override string ToString()
         {
             string ret = string.Format("{0}-{1}-{2}-{3}-{4}-{5}-{6}-{7}-{8}-{9}",

@@ -132,8 +132,6 @@ namespace m4d.Controllers
                 filter.Page = 1;
             }
 
-            ViewBag.AdvancedSearch = true;
-
             return DoIndex(filter);
         }
 

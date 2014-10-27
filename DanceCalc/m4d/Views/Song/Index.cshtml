@@ -250,7 +250,7 @@
 
         @section Scripts {
             @{
-                if (ViewBag.AdvancedSearch == true)
+                if (ViewData.ContainsKey("SongFilter") && ViewBag.SongFilter.Advanced)
                 {
                     <script>var showAdvanced = true</script>
                 }
