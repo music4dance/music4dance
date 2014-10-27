@@ -40,8 +40,15 @@ namespace m4d.Controllers
             object o;
             if (filterContext.ActionParameters.TryGetValue("filter",out o) && o == null)
             {
-                filterContext.ActionParameters["filter"] = SongFilter.Default;
+                o =  SongFilter.Default;
+                filterContext.ActionParameters["filter"] = o;
             }
+
+            if (o != null)
+            {
+                ViewBag.SongFilter = o;
+            }
+
             base.OnActionExecuting(filterContext);
         }
 
@@ -111,10 +118,19 @@ namespace m4d.Controllers
             {
                 purchase = string.Concat(services);
             }
-            filter.Purchase = purchase;
 
-            filter.TempoMin = tempoMin;
-            filter.TempoMax = tempoMax;
+            if (filter.Purchase != purchase)
+            {
+                filter.Purchase = purchase;
+                filter.Page = 1;
+            }
+
+            if (filter.TempoMin != tempoMin || filter.TempoMax != tempoMax)
+            {
+                filter.TempoMin = tempoMin;
+                filter.TempoMax = tempoMax;
+                filter.Page = 1;
+            }
 
             ViewBag.AdvancedSearch = true;
 
@@ -224,7 +240,6 @@ namespace m4d.Controllers
                 return HttpNotFound();
             }
 
-            ViewBag.SongFilter = filter;
             ViewBag.DanceMap = SongCounts.GetDanceMap(Database);
             return View(song);
         }
@@ -237,7 +252,6 @@ namespace m4d.Controllers
             ViewBag.ShowMPM = true;
             ViewBag.ShowBPM = true;
             ViewBag.DanceListAdd = GetDances();
-            ViewBag.SongFilter = filter;
             SongDetails sd = new SongDetails();
             ViewBag.BackAction = "Index";
             return View(sd);
@@ -251,7 +265,6 @@ namespace m4d.Controllers
         [Authorize(Roles = "canEdit")]
         public ActionResult Create(SongDetails song, List<string> addDances, string editTags, SongFilter filter = null)
         {
-            ViewBag.SongFilter = filter;
             if (ModelState.IsValid)
             {
                 ApplicationUser user = Database.FindUser(User.Identity.Name);
@@ -310,7 +323,6 @@ namespace m4d.Controllers
 
             SetupEditViewBag(song);
 
-            ViewBag.SongFilter = filter;
             return View(song);
         }
 
@@ -337,7 +349,6 @@ namespace m4d.Controllers
         //public ActionResult Edit([ModelBinder(typeof(m4d.Utilities.SongBinder))]SongDetails song, List<string> addDances, List<string> remDances, string filter = null)
         public ActionResult Edit(SongDetails song, List<string> addDances, List<string> remDances, string editTags, SongFilter filter = null)
         {
-            ViewBag.SongFilter = filter;
             if (ModelState.IsValid)
             {
 //#if DEBUG
@@ -411,7 +422,6 @@ namespace m4d.Controllers
         [Authorize(Roles = "canEdit")] 
         public ActionResult Delete(Guid id, SongFilter filter = null)
         {
-            ViewBag.SongFilter = filter;
             Song song = Database.Songs.Find(id);
             if (song == null)
             {
@@ -428,7 +438,6 @@ namespace m4d.Controllers
         [Authorize(Roles = "canEdit")] 
         public ActionResult DeleteConfirmed(Guid id, SongFilter filter = null)
         {
-            ViewBag.SongFilter = filter;
             Song song = Database.Songs.Find(id);
             string userName = User.Identity.Name;
             ApplicationUser user = Database.FindUser(userName);
@@ -474,7 +483,6 @@ namespace m4d.Controllers
                 songs = AutoMerge(songs,(int)filter.Level);
             }
 
-            ViewBag.SongFilter = filter;
             return View("Index", songs.ToPagedList(pageNumber, pageSize));
         }
 
@@ -485,7 +493,6 @@ namespace m4d.Controllers
         [Authorize(Roles = "canEdit")]
         public ActionResult BulkEdit(Guid[] selectedSongs, string action, SongFilter filter = null)
         {
-            ViewBag.SongFilter = filter;
             var songs = from s in Database.Songs
                         where selectedSongs.Contains(s.SongId)
                         select s;
@@ -508,7 +515,6 @@ namespace m4d.Controllers
         [Authorize(Roles = "canEdit")]
         public ActionResult MergeResults(string SongIds, SongFilter filter = null)
         {
-            ViewBag.SongFilter = filter;
             // See if we can do the actual merge and then return the song details page...
             List<Guid> ids = SongIds.Split(',').Select(s=>Guid.Parse(s)).ToList();
 
@@ -598,7 +604,6 @@ namespace m4d.Controllers
             }
 
             ViewBag.SearchType = type;
-            ViewBag.SongFilter = filter;
             ViewBag.Options = options;
             ViewBag.Error = false;
 
@@ -805,7 +810,6 @@ namespace m4d.Controllers
             ServiceSearchResults view = new ServiceSearchResults { ServiceType = type, Song = song };
 
             ViewBag.DanceMap = SongCounts.GetDanceMap(Database);
-            ViewBag.SongFilter = filter;
             ViewBag.SongTitle = title;
             ViewBag.SongArtist = artist;
             ViewBag.Type = type;
@@ -827,7 +831,6 @@ namespace m4d.Controllers
                 throw new ArgumentOutOfRangeException("type");
             }
 
-            ViewBag.SongFilter = filter;
             SongDetails song = Database.FindSongDetails(songId);
             if (song == null)
             {
@@ -911,8 +914,6 @@ namespace m4d.Controllers
         private IQueryable<Song> BuildSongList(SongFilter filter)
         {
             // Set up the viewbag
-            ViewBag.SongFilter = filter;
-
             ViewBag.TitleClass = string.Empty;
             ViewBag.ArtistClass = string.Empty;
             ViewBag.AlbumClass = string.Empty;
