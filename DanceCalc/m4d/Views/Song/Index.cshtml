@@ -14,6 +14,7 @@
     var dances = (IList<m4dModels.SongCounts>)ViewBag.Dances;
     var danceMap = (IDictionary<string, m4dModels.SongCounts>)ViewBag.DanceMap;
     var showDate = ViewBag.SongFilter.SortOrder == "Modified" || ViewBag.SongFilter.SortOrder == "Created";
+    var songOrder = new m4dModels.SongSort(ViewBag.SongFilter.SortOrder);
 }
 
 @using (Html.BeginForm("Search", "Song", FormMethod.Get, new { id = "search" }))
@@ -118,23 +119,23 @@
                 }
                 <th style="min-width:75pt">
                     @Html.ActionLink("Title", "Sort", new { sortOrder = "Title", filter = ViewBag.SongFilter })
-                    @Html.Raw(ViewBag.TitleSort)
+                    @Html.Raw(songOrder.GetSortGlyph("Title"))
                 </th>
                 <th style="min-width:75pt">
                     @Html.ActionLink("Artist", "Sort", new { sortOrder = "Artist", filter = ViewBag.SongFilter })
-                    @Html.Raw(ViewBag.ArtistSort)
+                    @Html.Raw(songOrder.GetSortGlyph("Artist"))
                 </th>
                 <th style="min-width:75pt" class="hidden-xs">
                     @Html.ActionLink("Album", "Sort", new { sortOrder = "Album", filter = ViewBag.SongFilter })
-                    @Html.Raw(ViewBag.AlbumSort)
+                    @Html.Raw(songOrder.GetSortGlyph("Album"))
                 </th>
                 <th class="hidden-xs">
                     @Html.ActionLink("Tempo (BPM)", "Sort", new { sortOrder = "Tempo", filter = ViewBag.SongFilter })
-                    @Html.Raw(ViewBag.TempoSort)
+                    @Html.Raw(songOrder.GetSortGlyph("Tempo"))
                 </th>
                 <th>
                     @Html.ActionLink("Dances", "Sort", new { sortOrder = "Dances", filter = ViewBag.SongFilter })
-                    @Html.Raw(ViewBag.DancesSort)
+                    @Html.Raw(songOrder.GetSortGlyph("Dances"))
                 </th>
                 <th style="min-width:150px" class="hidden-xs">Purchase</th>
                 @if (showDate)

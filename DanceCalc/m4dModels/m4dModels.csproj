@@ -74,6 +74,7 @@
     <Compile Include="MergeCluster.cs" />
     <Compile Include="SongCounts.cs" />
     <Compile Include="SongFilterConverter.cs" />
+    <Compile Include="SongSort.cs" />
     <Compile Include="Tag.cs" />
     <Compile Include="Dance.cs" />
     <Compile Include="DanceRating.cs" />

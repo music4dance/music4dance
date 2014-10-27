@@ -138,35 +138,7 @@ namespace m4d.Controllers
         [AllowAnonymous]
         public ActionResult Sort(string sortOrder, SongFilter filter)
         {
-            // TODO: Consider doing something to keep the first song of the page on the
-            // page when sort-order changes...
-            if (!string.IsNullOrWhiteSpace(sortOrder))
-            {
-                switch (sortOrder)
-                {
-                    case "Title":
-                        filter.SortOrder = String.IsNullOrEmpty(filter.SortOrder) ? "Title_desc" : "Title";
-                        break;
-                    case "Artist":
-                        filter.SortOrder = filter.SortOrder == "Artist" ? "Artist_desc" : "Artist";
-                        break;
-                    case "Album":
-                        filter.SortOrder = filter.SortOrder == "Album" ? "Album_desc" : "Album";
-                        break;
-                    case "Tempo":
-                        filter.SortOrder = filter.SortOrder == "Tempo" ? "Tempo_desc" : "Tempo";
-                        break;
-                    case "Dances":
-                        filter.SortOrder = "Dances";
-                        break;
-                    case "Created":
-                        filter.SortOrder = "Created";
-                        break;
-                    case "Modified":
-                        filter.SortOrder = "Modified";
-                        break;
-                }
-            }
+            filter.SortOrder = SongSort.DoSort(sortOrder, filter.SortOrder);
 
             return DoIndex(filter);
         }
@@ -193,15 +165,23 @@ namespace m4d.Controllers
             {
                 purchase = string.Concat(services);
             }
-            filter.Purchase = purchase;
+            if (filter.Purchase != purchase)
+            {
+                filter.Purchase = purchase;
+                filter.Page = 1;
+            }
             return DoIndex(filter);
         }
 
         [AllowAnonymous]
         public ActionResult FilterTempo(decimal? tempoMin, decimal? tempoMax, SongFilter filter)
         {
-            filter.TempoMin = tempoMin;
-            filter.TempoMax = tempoMax;
+            if (filter.TempoMin != tempoMin || filter.TempoMax != tempoMax)
+            {
+                filter.TempoMin = tempoMin;
+                filter.TempoMax = tempoMax;
+                filter.Page = 1;
+            }
 
             return DoIndex(filter);
         }
@@ -211,8 +191,6 @@ namespace m4d.Controllers
         [AllowAnonymous]
         public ActionResult Index(int? page, string purchase, SongFilter filter)
         {
-            filter = filter ?? SongFilter.Default;
-
             if (page.HasValue)
             {
                 filter.Page = page;
@@ -317,7 +295,6 @@ namespace m4d.Controllers
             {
                 return HttpNotFound();
             }
-
 
             SetupEditViewBag(song);
 
@@ -619,7 +596,7 @@ namespace m4d.Controllers
 
             filter.Purchase = "!" + type;
 
-            IQueryable<Song> songs = BuildSongList(filter);
+            IQueryable<Song> songs = Database.BuildSongList(filter,!HttpContext.User.IsInRole(DanceMusicService.EditRole));
 
             ApplicationUser user = Database.FindUser(User.Identity.Name);
 
@@ -888,12 +865,11 @@ namespace m4d.Controllers
         {
             Trace.WriteLine(string.Format("Entering Song.Index: dances='{0}',sortOrder='{1}',searchString='{2}'", filter.Dances, filter.SortOrder, filter.SearchString));
 
-            var songs = BuildSongList(filter);
-
+            var songs = Database.BuildSongList(filter, !HttpContext.User.IsInRole(DanceMusicService.EditRole));
+            BuildDanceList(filter);
             int pageSize = 25;
 
             Trace.WriteLine("Exiting Song.Index");
-
             return View("Index", songs.ToPagedList(filter.Page ?? 1, pageSize));
         }
 
@@ -904,312 +880,11 @@ namespace m4d.Controllers
 
             //ViewBag.Dances = new SelectList(scq.AsEnumerable(), "DanceId", "DanceName", filter.Dances);
 
-            ViewBag.SelectedDances =  Dances.Instance.FromIds(filter.Dances);
+            ViewBag.SelectedDances = Dances.Instance.FromIds(filter.Dances);
             ViewBag.Dances = SongCounts.GetSongCounts(Database);
             ViewBag.DanceMap = SongCounts.GetDanceMap(Database);
         }
 
-        private IQueryable<Song> BuildSongList(SongFilter filter)
-        {
-            // Set up the viewbag
-            ViewBag.TitleClass = string.Empty;
-            ViewBag.ArtistClass = string.Empty;
-            ViewBag.AlbumClass = string.Empty;
-
-            BuildDanceList(filter);
-
-            // Now setup the view
-            // Start with all of the songs in the database
-            var songs = from s in Database.Songs where s.TitleHash != 0 select s;
-
-#if TRACE
-            bool traceVerbose = TraceLevels.General.TraceVerbose;
-            int count = 0;
-            int lastCount = 0;
-            if (traceVerbose)
-            {
-                count = lastCount = songs.Count();
-                Trace.WriteLine(string.Format("Total Songs = {0}", count));
-            }
-#endif
-
-            // Now if the current user is anonymous, filter out anything that we
-            //  don't have purchase info for
-            if (!HttpContext.User.IsInRole(DanceMusicService.EditRole))
-            {
-                songs = songs.Where(s => s.Purchase != null);
-            }
-
-            // Filter by user first since we have a nice key to pull from
-            // TODO: This ends up going down a completely different LINQ path
-            //  that is requiring some special casing further along, need
-            //  to dig into how to manage that better...
-            bool userFilter = false;
-            if (!string.IsNullOrWhiteSpace(filter.User))
-            {
-                ApplicationUser user = Database.FindUser(filter.User);
-                if (user != null)
-                {
-                    songs = from m in user.Modified.AsQueryable() where m.Song.TitleHash != 0 select m.Song;
-                    userFilter = true;
-                }
-            }
-
-#if TRACE
-            if (traceVerbose)
-            {
-                count = songs.Count();
-                Trace.WriteLineIf(count != lastCount, string.Format("Songs per user = {0}", songs.Count()));
-                lastCount = count;
-            }
-#endif
-            // Now limit it down to the ones that are marked as a particular dance or dances
-            string[] danceList = null;
-            if (!string.IsNullOrWhiteSpace(filter.Dances) && !string.Equals(filter.Dances, "ALL"))
-            {
-                // TODO: We don't need to expand anything except MSC - should we just special case MSC
-                // and kill this code path...
-                danceList = Dances.Instance.ExpandDanceList(filter.Dances);
-
-                songs = songs.Where(s => s.DanceRatings.Any(dr => danceList.Contains(dr.DanceId)));
-            }
-
-#if TRACE
-            if (traceVerbose)
-            {
-                count = songs.Count();
-                Trace.WriteLineIf(count != lastCount, string.Format("Songs by dance = {0}", songs.Count()));
-                lastCount = count;
-            }
-#endif
-
-            // Now limit it by tempo
-            if (filter.TempoMin.HasValue)
-            {
-                songs = songs.Where(s => (s.Tempo >= filter.TempoMin));
-            }
-            if (filter.TempoMax.HasValue)
-            {
-                songs = songs.Where(s => (s.Tempo <= filter.TempoMax));
-            }
-
-#if TRACE
-            if (traceVerbose)
-            {
-                count = songs.Count();
-                Trace.WriteLineIf(count != lastCount, string.Format("Songs by tempo = {0}", songs.Count()));
-                lastCount = count;
-            }
-#endif
-
-            // Now limit it by anything that has the serach string in the title, album or artist
-            if (!String.IsNullOrEmpty(filter.SearchString))
-            {
-                if (userFilter)
-                {
-                    string str = filter.SearchString.ToUpper();
-                    songs = songs.Where(
-                        s => (s.Title != null && s.Title.ToUpper().Contains(str)) ||
-                        (s.Album != null && s.Album.Contains(str)) ||
-                        (s.Artist != null && s.Artist.Contains(str)) ||
-                        (s.TagSummary != null && s.TagSummary.Contains(str)));
-                }
-                else
-                {
-                    songs = songs.Where(
-                        s => s.Title.Contains(filter.SearchString) ||
-                        s.Album.Contains(filter.SearchString) ||
-                        s.Artist.Contains(filter.SearchString) ||
-                        s.TagSummary.Contains(filter.SearchString));
-                }
-            }
-
-#if TRACE
-            if (traceVerbose)
-            {
-                count = songs.Count();
-                Trace.WriteLineIf(count != lastCount, string.Format("Songs by search = {0}", songs.Count()));
-                lastCount = count;
-            }
-#endif
-
-            // Filter on purcahse info
-            // TODO: Figure out how to get LINQ to do the permutation on contains
-            //  any of "AIX" in a database safe way - right now I'm doing this
-            //  last because I'm pulling things into memory to do the union.
-            //if (!string.IsNullOrWhiteSpace(filter.Purchase))
-            //{
-            //    char[] services = filter.Purchase.ToCharArray();
-
-            //    string c = services[0].ToString();
-            //    var acc = songs.Where(a => a.Purchase.Contains(c));
-            //    string accTag = c;
-
-            //    DumpSongs(acc, c);
-            //    for (int i = 1; i < services.Length; i++)
-            //    {
-            //        c = services[i].ToString();
-            //        IEnumerable<Song> first = acc.AsEnumerable();
-            //        var acc2 = songs.Where(a => a.Purchase.Contains(c));
-            //        DumpSongs(acc2, c);
-            //        IEnumerable<Song> second = acc2.AsEnumerable();
-            //        acc = first.Union(second).AsQueryable();
-            //        //acc = acc.Union(acc2);
-            //        accTag = accTag + "+" + c;
-            //        DumpSongs(acc, accTag);
-            //    }
-            //    songs = acc;
-            //}
-
-            // TODO: There has to be a better way to filter based on available
-            //  service - what I want to do is ask if a particular string contains
-            //  any character from a different string within a the context
-            //  of a Linq EF statement, but I can't figure that out.
-            if (!string.IsNullOrWhiteSpace(filter.Purchase))
-            {
-                bool not = false;
-                string purch = filter.Purchase;
-                if (purch.StartsWith("!"))
-                {
-                    not = true;
-                    purch = purch.Substring(1);
-                }
-
-                char[] services = purch.ToCharArray();
-                if (services.Length == 1)
-                {
-                    string c = services[0].ToString();
-                    if (not)
-                    {
-                        songs = songs.Where(s => s.Purchase == null || !s.Purchase.Contains(c));
-                    }
-                    else
-                    {
-                        songs = songs.Where(s => s.Purchase != null && s.Purchase.Contains(c));
-                    }
-                }
-                else if (services.Length == 2)
-                {
-                    string c0 = services[0].ToString();
-                    string c1 = services[1].ToString();
-
-                    if (not)
-                    {
-                        songs = songs.Where(s => s.Purchase == null || (!s.Purchase.Contains(c0) && !s.Purchase.Contains(c1)));
-                    }
-                    else
-                    {
-                        songs = songs.Where(s => s.Purchase != null && (s.Purchase.Contains(c0) || s.Purchase.Contains(c1)));
-                    }
-                    
-                }
-                else // Better == 3
-                {
-                    if (not)
-                    {
-                        songs = songs.Where(s => s.Purchase == null);
-                    }
-                    else
-                    {
-                        songs = songs.Where(s => s.Purchase != null);
-                    }
-                }
-            }
-
-#if TRACE
-            if (traceVerbose)
-            {
-                count = songs.Count();
-                Trace.WriteLineIf(count != lastCount, string.Format("Songs by purchase = {0}", songs.Count()));
-                lastCount = count;
-            }
-#endif
-
-            // Now sort the list
-            string sortAsc = "<span class='glyphicon glyphicon-sort-by-alphabet'></span>";
-            string sortDsc = "<span class='glyphicon glyphicon-sort-by-alphabet-alt'></span>";
-            string sortNAsc = "<span class='glyphicon glyphicon-sort-by-order'></span>";
-            string sortNDsc = "<span class='glyphicon glyphicon-sort-by-order-alt'></span>";
-
-            switch (filter.SortOrder)
-            {
-                case "Title":
-                default:
-                    songs = songs.OrderBy(s => s.Title);
-                    ViewBag.TitleSort = sortAsc;
-                    break;
-                case "Title_desc":
-                    songs = songs.OrderByDescending(s => s.Title);
-                    ViewBag.TitleSort = sortDsc;
-                    break;
-                case "Artist":
-                    songs = songs.OrderBy(s => s.Artist);
-                    ViewBag.ArtistSort = sortAsc;
-                    break;
-                case "Artist_desc":
-                    songs = songs.OrderByDescending(s => s.Artist);
-                    ViewBag.ArtistSort = sortDsc;
-                    break;
-                case "Album":
-                    songs = songs.OrderBy(s => s.Album);
-                    ViewBag.AlbumSort = sortAsc;
-                    break;
-                case "Album_desc":
-                    songs = songs.OrderByDescending(s => s.Album);
-                    ViewBag.AlbumSort = sortDsc;
-                    break;
-                case "Tempo":
-                    songs = songs.OrderBy(s => s.Tempo);
-                    ViewBag.TempoSort = sortNAsc;
-                    break;
-                case "Tempo_desc":
-                    songs = songs.OrderByDescending(s => s.Tempo);
-                    ViewBag.TempoSort = sortNDsc;
-                    break;
-                case "Dances":
-                    // TODO: Better icon for dance order
-                    // TODO: Get this working for multi-dance selection
-                    {
-                        string did = TrySingleId(danceList);
-                        if (did != null)
-                        {
-                            //DanceRating drE = new DanceRating() { Weight = 0 };
-                            songs = songs.OrderByDescending(s => s.DanceRatings.FirstOrDefault(dr => dr.DanceId.StartsWith(did)).Weight);
-                            ViewBag.TempoSort = sortNDsc;
-                        }
-                    }
-                    break;
-                case "Modified":
-                    songs = songs.OrderBy(s => s.Modified);
-                    break;
-                case "Created":
-                    songs = songs.OrderBy(s => s.Created);
-                    break;
-            }
-
-            return songs;
-        }
-
-        // TODO: This is extremely dependent on the form of the danceIds, just
-        //  a temporary kludge until we get multi-select working
-        private static string TrySingleId(string[] danceList)
-        {
-            string ret = null;
-            if (danceList != null && danceList.Length > 0)
-            {
-                ret = danceList[0].Substring(0,3);
-                for (int i = 1; i < danceList.Length; i++)
-                {
-                    if (!string.Equals(ret,danceList[i].Substring(0,3)))
-                    {
-                        ret = null;
-                        break;
-                    }
-                }
-            }
-
-            return ret;
-        }
         private void DumpSongs(IQueryable<Song> songs, string purchase)
         {
             Debug.WriteLine(string.Format("------------Purchase == {0} ------------", purchase));

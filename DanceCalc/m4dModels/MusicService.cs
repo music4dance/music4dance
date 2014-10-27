@@ -16,7 +16,7 @@ namespace m4dModels
         public string Description { get; private set; }
 
         // This is pretty kludgy but until I implement
-        // a second service taht requires a key I don't
+        // a second service that requires a key I don't
         // want to spend time generalizing
         public virtual bool RequiresKey
         {

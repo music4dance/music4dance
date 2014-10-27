@@ -85,6 +85,7 @@
     <Compile Include="TagTests.cs" />
     <Compile Include="TraceTest.cs" />
     <Compile Include="FunctionalTests.cs" />
+    <Compile Include="SongSortTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\DanceLib\DanceLib.csproj">

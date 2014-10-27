@@ -7,6 +7,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using DanceLibrary;
 
 namespace m4dModels
 {
@@ -774,6 +775,290 @@ namespace m4dModels
 
             return songs;
         }
+        #endregion
+
+        #region Searching
+
+        public  IQueryable<Song> BuildSongList(SongFilter filter, bool anonymous)
+        {
+            // Now setup the view
+            // Start with all of the songs in the database
+            var songs = from s in Songs where s.TitleHash != 0 select s;
+
+#if TRACE
+            bool traceVerbose = TraceLevels.General.TraceVerbose;
+            int count = 0;
+            int lastCount = 0;
+            if (traceVerbose)
+            {
+                count = lastCount = songs.Count();
+                Trace.WriteLine(string.Format("Total Songs = {0}", count));
+            }
+#endif
+
+            // Now if the current user is anonymous, filter out anything that we
+            //  don't have purchase info for
+            if (anonymous)
+            {
+                songs = songs.Where(s => s.Purchase != null);
+            }
+
+            // Filter by user first since we have a nice key to pull from
+            // TODO: This ends up going down a completely different LINQ path
+            //  that is requiring some special casing further along, need
+            //  to dig into how to manage that better...
+            bool userFilter = false;
+            if (!string.IsNullOrWhiteSpace(filter.User))
+            {
+                ApplicationUser user = FindUser(filter.User);
+                if (user != null)
+                {
+                    songs = from m in user.Modified.AsQueryable() where m.Song.TitleHash != 0 select m.Song;
+                    userFilter = true;
+                }
+            }
+
+#if TRACE
+            if (traceVerbose)
+            {
+                count = songs.Count();
+                Trace.WriteLineIf(count != lastCount, string.Format("Songs per user = {0}", songs.Count()));
+                lastCount = count;
+            }
+#endif
+            // Now limit it down to the ones that are marked as a particular dance or dances
+            string[] danceList = null;
+            if (!string.IsNullOrWhiteSpace(filter.Dances) && !string.Equals(filter.Dances, "ALL"))
+            {
+                // TODO: We don't need to expand anything except MSC - should we just special case MSC
+                // and kill this code path...
+                danceList = Dance.DanceLibrary.ExpandDanceList(filter.Dances);
+
+                songs = songs.Where(s => s.DanceRatings.Any(dr => danceList.Contains(dr.DanceId)));
+            }
+
+#if TRACE
+            if (traceVerbose)
+            {
+                count = songs.Count();
+                Trace.WriteLineIf(count != lastCount, string.Format("Songs by dance = {0}", songs.Count()));
+                lastCount = count;
+            }
+#endif
+
+            // Now limit it by tempo
+            if (filter.TempoMin.HasValue)
+            {
+                songs = songs.Where(s => (s.Tempo >= filter.TempoMin));
+            }
+            if (filter.TempoMax.HasValue)
+            {
+                songs = songs.Where(s => (s.Tempo <= filter.TempoMax));
+            }
+
+#if TRACE
+            if (traceVerbose)
+            {
+                count = songs.Count();
+                Trace.WriteLineIf(count != lastCount, string.Format("Songs by tempo = {0}", songs.Count()));
+                lastCount = count;
+            }
+#endif
+
+            // Now limit it by anything that has the serach string in the title, album or artist
+            if (!String.IsNullOrEmpty(filter.SearchString))
+            {
+                if (userFilter)
+                {
+                    string str = filter.SearchString.ToUpper();
+                    songs = songs.Where(
+                        s => (s.Title != null && s.Title.ToUpper().Contains(str)) ||
+                        (s.Album != null && s.Album.Contains(str)) ||
+                        (s.Artist != null && s.Artist.Contains(str)) ||
+                        (s.TagSummary != null && s.TagSummary.Contains(str)));
+                }
+                else
+                {
+                    songs = songs.Where(
+                        s => s.Title.Contains(filter.SearchString) ||
+                        s.Album.Contains(filter.SearchString) ||
+                        s.Artist.Contains(filter.SearchString) ||
+                        s.TagSummary.Contains(filter.SearchString));
+                }
+            }
+
+#if TRACE
+            if (traceVerbose)
+            {
+                count = songs.Count();
+                Trace.WriteLineIf(count != lastCount, string.Format("Songs by search = {0}", songs.Count()));
+                lastCount = count;
+            }
+#endif
+
+            // Filter on purcahse info
+            // TODO: Figure out how to get LINQ to do the permutation on contains
+            //  any of "AIX" in a database safe way - right now I'm doing this
+            //  last because I'm pulling things into memory to do the union.
+            //if (!string.IsNullOrWhiteSpace(filter.Purchase))
+            //{
+            //    char[] services = filter.Purchase.ToCharArray();
+
+            //    string c = services[0].ToString();
+            //    var acc = songs.Where(a => a.Purchase.Contains(c));
+            //    string accTag = c;
+
+            //    DumpSongs(acc, c);
+            //    for (int i = 1; i < services.Length; i++)
+            //    {
+            //        c = services[i].ToString();
+            //        IEnumerable<Song> first = acc.AsEnumerable();
+            //        var acc2 = songs.Where(a => a.Purchase.Contains(c));
+            //        DumpSongs(acc2, c);
+            //        IEnumerable<Song> second = acc2.AsEnumerable();
+            //        acc = first.Union(second).AsQueryable();
+            //        //acc = acc.Union(acc2);
+            //        accTag = accTag + "+" + c;
+            //        DumpSongs(acc, accTag);
+            //    }
+            //    songs = acc;
+            //}
+
+            // TODO: There has to be a better way to filter based on available
+            //  service - what I want to do is ask if a particular string contains
+            //  any character from a different string within a the context
+            //  of a Linq EF statement, but I can't figure that out.
+            if (!string.IsNullOrWhiteSpace(filter.Purchase))
+            {
+                bool not = false;
+                string purch = filter.Purchase;
+                if (purch.StartsWith("!"))
+                {
+                    not = true;
+                    purch = purch.Substring(1);
+                }
+
+                char[] services = purch.ToCharArray();
+                if (services.Length == 1)
+                {
+                    string c = services[0].ToString();
+                    if (not)
+                    {
+                        songs = songs.Where(s => s.Purchase == null || !s.Purchase.Contains(c));
+                    }
+                    else
+                    {
+                        songs = songs.Where(s => s.Purchase != null && s.Purchase.Contains(c));
+                    }
+                }
+                else if (services.Length == 2)
+                {
+                    string c0 = services[0].ToString();
+                    string c1 = services[1].ToString();
+
+                    if (not)
+                    {
+                        songs = songs.Where(s => s.Purchase == null || (!s.Purchase.Contains(c0) && !s.Purchase.Contains(c1)));
+                    }
+                    else
+                    {
+                        songs = songs.Where(s => s.Purchase != null && (s.Purchase.Contains(c0) || s.Purchase.Contains(c1)));
+                    }
+
+                }
+                else // Better == 3
+                {
+                    if (not)
+                    {
+                        songs = songs.Where(s => s.Purchase == null);
+                    }
+                    else
+                    {
+                        songs = songs.Where(s => s.Purchase != null);
+                    }
+                }
+            }
+
+#if TRACE
+            if (traceVerbose)
+            {
+                count = songs.Count();
+                Trace.WriteLineIf(count != lastCount, string.Format("Songs by purchase = {0}", songs.Count()));
+                lastCount = count;
+            }
+#endif
+
+            switch (filter.SortOrder)
+            {
+                case "Title":
+                default:
+                    songs = songs.OrderBy(s => s.Title);
+                    break;
+                case "Title_desc":
+                    songs = songs.OrderByDescending(s => s.Title);
+                    break;
+                case "Artist":
+                    songs = songs.OrderBy(s => s.Artist);
+                    break;
+                case "Artist_desc":
+                    songs = songs.OrderByDescending(s => s.Artist);
+                    break;
+                case "Album":
+                    songs = songs.OrderBy(s => s.Album);
+                    break;
+                case "Album_desc":
+                    songs = songs.OrderByDescending(s => s.Album);
+                    break;
+                case "Tempo":
+                    songs = songs.OrderBy(s => s.Tempo);
+                    break;
+                case "Tempo_desc":
+                    songs = songs.OrderByDescending(s => s.Tempo);
+                    break;
+                case "Dances":
+                    // TODO: Better icon for dance order
+                    // TODO: Get this working for multi-dance selection
+                    {
+                        string did = TrySingleId(danceList);
+                        if (did != null)
+                        {
+                            //DanceRating drE = new DanceRating() { Weight = 0 };
+                            songs = songs.OrderByDescending(s => s.DanceRatings.FirstOrDefault(dr => dr.DanceId.StartsWith(did)).Weight);
+                        }
+                    }
+                    break;
+                case "Modified":
+                    songs = songs.OrderBy(s => s.Modified);
+                    break;
+                case "Created":
+                    songs = songs.OrderBy(s => s.Created);
+                    break;
+            }
+
+            return songs;
+        }
+
+        // TODO: This is extremely dependent on the form of the danceIds, just
+        //  a temporary kludge until we get multi-select working
+        private static string TrySingleId(string[] danceList)
+        {
+            string ret = null;
+            if (danceList != null && danceList.Length > 0)
+            {
+                ret = danceList[0].Substring(0, 3);
+                for (int i = 1; i < danceList.Length; i++)
+                {
+                    if (!string.Equals(ret, danceList[i].Substring(0, 3)))
+                    {
+                        ret = null;
+                        break;
+                    }
+                }
+            }
+
+            return ret;
+        }
+
         #endregion
 
         #region Tags

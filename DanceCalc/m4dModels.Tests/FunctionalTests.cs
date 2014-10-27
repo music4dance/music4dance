@@ -50,6 +50,62 @@ namespace m4dModels.Tests
             //Assert.IsTrue(ListEquivalent(s_users, users));
         }
 
+        [TestMethod]
+        public void FilterTest()
+        {
+            var filter = new SongFilter();
+
+            filter.SortOrder = "Tempo";
+            filter.Dances = "SWG";
+            filter.Purchase = "X";
+
+            var songs = s_dms.BuildSongList(filter,true);
+
+            decimal tempo = 0;
+            int count = 0;
+            foreach (var song in songs)
+            {
+                if (song.Tempo.HasValue)
+                {
+                    Assert.IsTrue(tempo <= song.Tempo);
+                    tempo = song.Tempo.Value;
+                }
+
+                Assert.IsTrue(song.Purchase.Contains('X'));
+
+                count += 1;
+            }
+
+            Trace.WriteLine(string.Format("Filtered Count = {0}", count));
+            Assert.AreEqual(89, count);
+        }
+
+        [TestMethod]
+        public void SearchTest()
+        {
+            var filter = new SongFilter();
+
+            filter.SortOrder = "Title";
+            filter.SearchString = "The";
+
+            var songs = s_dms.BuildSongList(filter, true);
+
+            string title = string.Empty;
+            int count = 0;
+            foreach (var song in songs)
+            {
+                string t = song.Title.ToLower();
+                Assert.IsTrue(t.Contains("the") || song.Artist.ToLower().Contains("the") || song.Album.ToLower().Contains("the") );
+                Assert.IsTrue(string.Compare(t,title) >=0);
+                title = t;
+
+                count += 1;
+            }
+
+            Trace.WriteLine(string.Format("Filtered Count = {0}", count));
+            Assert.AreEqual(109, count);
+        }
+
         static bool ListEquivalent(IList<string> expected, IList<string> actual)
         {
             List<string> expectedExtra = new List<string>();
