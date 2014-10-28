@@ -339,11 +339,11 @@ var getServiceInfo = function(service)
     var t = $('#search').val();
     if (t.length > 0)
     {
-        uri += t;
+        uri += encodeURI(t);
     }
     else
     {
-        uri += $('#Title').val() + "&Artist=" + $('#Artist').val();
+        uri += encodeURI($('#Title').val()) + "&Artist=" + encodeURI($('#Artist').val());
     }
 
     aid = "#" + computeAlbumId(0,"Name");
