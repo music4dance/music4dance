@@ -7,7 +7,7 @@ using System.Web.Http;
 using m4dModels;
 using m4d.Context;
 
-namespace m4d.Controllers
+namespace m4d.APIControllers
 {
     public class DMApiController : ApiController
     {

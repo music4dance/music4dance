@@ -8,7 +8,7 @@ using System.Net;
 using System.Net.Http;
 using System.Web.Http;
 
-namespace m4d.Controllers
+namespace m4d.APIControllers
 {
     public class MusicServiceController : DMApiController
     {
