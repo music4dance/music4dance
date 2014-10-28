@@ -14,6 +14,16 @@ namespace m4d
             routes.IgnoreRoute("{resource}.axd/{*pathInfo}");
 
             routes.MapRoute(
+                name: "Dances",
+                url: "Dances/{group}/{dance}",
+                defaults: new { controller = "Dance", action = "GroupRedirect" }
+            );
+            routes.MapRoute(
+                name: "DanceGroup",
+                url: "Dances/{dance}",
+                defaults: new { controller = "Dance", action = "Index", dance = UrlParameter.Optional }
+            );
+            routes.MapRoute(
                 name: "Default",
                 url: "{controller}/{action}/{id}",
                 defaults: new { controller = "Home", action = "Index", id = UrlParameter.Optional }

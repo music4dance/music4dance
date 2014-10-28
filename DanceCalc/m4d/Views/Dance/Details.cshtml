@@ -1,0 +1,42 @@
+﻿@model m4dModels.SongCounts
+
+@{
+    ViewBag.Title = "Details";
+}
+<ol class="breadcrumb">
+    <li><a href="/">Music4Dance</a></li>
+    <li><a href="/Dances">Dances</a></li>
+    @if (@Model.Parent != null && @Model.Parent.DanceId != "All")
+    {
+        <li><a href="/Dances/@Model.Parent.DanceName">@Model.Parent.DanceName</a></li>
+    }
+    <li><a href="/Dances/@Model.DanceName">@Model.DanceName</a></li>
+</ol>
+
+
+
+<h2>@Model.DanceName</h2>
+<div>
+    <dl class="dl-horizontal">
+
+        <dt>
+            @Html.DisplayNameFor(model => model.SongCount)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.SongCount)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.MaxWeight)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.MaxWeight)
+        </dd>
+
+    </dl>
+</div>
+<p>
+    @Html.ActionLink("Edit", "Edit", new { id = Model.DanceId }) |
+    @Html.ActionLink("Back to List", "Index")
+</p>

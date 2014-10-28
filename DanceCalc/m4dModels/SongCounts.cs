@@ -2,6 +2,7 @@
 using m4dModels;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Data.Entity;
 using System.Diagnostics;
 using System.Linq;
@@ -10,15 +11,17 @@ namespace m4dModels
 {
     public class SongCounts
     {
-        public string DanceName { get; set; }
+        [Key]
         public string DanceId { get; set; }
+        public string DanceName { get; set; }
         public int SongCount { get; set; }
         public int MaxWeight { get; set; }
         public string DanceNameAndCount
         {
             get { return string.Format("{0} ({1})", DanceName, SongCount); }
         }
-
+        public DanceObject Dance { get; set; }
+        public SongCounts Parent { get; set; }
         public List<SongCounts> Children { get; set; }
 
         static public void ClearCache()
@@ -136,6 +139,10 @@ namespace m4dModels
             return s_map;
         }
 
+        static public SongCounts FromName(string name, DanceMusicService dms)
+        {
+            return GetFlatSongCounts(dms).FirstOrDefault(sc => string.Equals(sc.DanceName,name,StringComparison.OrdinalIgnoreCase));
+        }
         static public int GetScaledRating(IDictionary<string,SongCounts> map, string danceId, int weight, int scale = 5)
         {
             // TODO: Need to re-examine how we deal with international/american
@@ -164,6 +171,7 @@ namespace m4dModels
             var scType = InfoFromDance(dances,dtyp);
 
             scGroup.Children.Add(scType);
+            scType.Parent = scGroup;
 
             foreach (DanceObject dinst in dtyp.Instances)
             {
@@ -212,10 +220,12 @@ namespace m4dModels
                 DanceName = d.Name,
                 SongCount = count,
                 MaxWeight = max,
+                Dance = d,
                 Children = null
             };
 
             return sc;
         }
+
     }
 }

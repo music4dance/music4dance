@@ -711,6 +711,11 @@ namespace DanceLibrary
             }
         }
 
+        public DanceObject DanceFromName(string name)
+        {
+            return _allDanceObjects.FirstOrDefault(d => string.Equals(d.Name,name,StringComparison.OrdinalIgnoreCase));
+        }
+
         public OrgSpec[] Organizations = new OrgSpec[] {
             new OrgSpec { Name = "All"},
             new OrgSpec { Name = "DanceSport"},

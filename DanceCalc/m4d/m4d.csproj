@@ -278,6 +278,7 @@
     <Compile Include="Controllers\ApplicationUsersController.cs" />
     <Compile Include="APIControllers\DanceController.cs" />
     <Compile Include="APIControllers\DMApiController.cs" />
+    <Compile Include="Controllers\DanceController.cs" />
     <Compile Include="Controllers\DMController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\LogController.cs" />
@@ -625,7 +626,7 @@
     <Content Include="Views\Shared\_Layout.cshtml" />
     <Content Include="Views\Home\About.cshtml" />
     <Content Include="Views\Home\Contact.cshtml" />
-    <Content Include="Views\Home\Dances.cshtml" />
+    <Content Include="Views\Dance\Index.cshtml" />
     <Content Include="Views\Account\_ChangePasswordPartial.cshtml" />
     <Content Include="Views\Account\_ExternalLoginsListPartial.cshtml" />
     <Content Include="Views\Account\_RemoveAccountPartial.cshtml" />
@@ -691,6 +692,7 @@
     <Content Include="Views\Shared\Info.cshtml" />
     <Content Include="Views\Shared\Lockout.cshtml" />
     <Content Include="Views\Home\Tempi.cshtml" />
+    <Content Include="Views\Dance\Details.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
