@@ -355,12 +355,5 @@ function setupDances(data) {
 
 
 $(document).ready(function () {
-    var uri = '/api/dance?details=true';
-    $.getJSON(uri)
-        .done(function (data) {
-            setupDances(data);
-        })
-        .fail(function (jqXHR, textStatus, err) {
-            window.alert(err);
-        });
+    setupDances(dances);
 });

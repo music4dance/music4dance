@@ -149,10 +149,12 @@
             var paramMeter = @paramMeter;
             var paramType = @paramType;
             var paramOrg = @paramOrg;
+
+            var dances = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model.AllDanceTypes));
         </script>
         string pageScript = "~/Scripts/Tempi.js" + Page.ScriptQualifier;
         Scripts.Render("~/bundles/jqueryval");
-}
+    }
     <script src="@Url.Content("~/Scripts/knockout-3.2.0.js")" type="text/javascript"></script>
     <script src="@Url.Content("~/Scripts/knockout.mapping-latest.js")" type="text/javascript"></script>
     <script src="@Url.Content(pageScript)" type="text/javascript"></script>

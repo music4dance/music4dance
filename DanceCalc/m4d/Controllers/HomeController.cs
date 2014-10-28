@@ -42,8 +42,6 @@ namespace m4d.Controllers
             ViewBag.paramMeter = meter;
             ViewBag.paramType = type;
             ViewBag.paramOrg = org;
-
-            var data = Dance.DanceLibrary.AllDanceTypes;
             ViewBag.DanceStyles = Dance.DanceLibrary.AllDanceGroups;
             return View(Dance.DanceLibrary);
         }
