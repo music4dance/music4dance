@@ -1,0 +1,12 @@
+﻿@model IEnumerable<m4dModels.SongCounts>
+
+@foreach (var item in @Model)
+{
+    if (item.SongCount > 0)
+    {
+        <a id="@item.DanceName" href="#" class="list-group-item dance">
+            <span id="@item.DanceId" class="badge">@item.SongCount</span>
+            @item.DanceName
+        </a>
+    }
+}

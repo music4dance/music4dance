@@ -335,6 +335,10 @@
     <Compile Include="Migrations\201410162052304_DateTime2.Designer.cs">
       <DependentUpon>201410162052304_DateTime2.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201410282212286_DanceInfo.cs" />
+    <Compile Include="Migrations\201410282212286_DanceInfo.Designer.cs">
+      <DependentUpon>201410282212286_DanceInfo.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Context\DanceMusicConfiguration.cs" />
     <Compile Include="Context\DanceMusicContext.cs" />
@@ -526,6 +530,7 @@
     <None Include="Properties\PublishProfiles\music4dance %28dwgray%29.pubxml" />
     <None Include="Properties\PublishProfiles\music4dance.pubxml" />
     <None Include="Scripts\jquery-2.1.1.intellisense.js" />
+    <Content Include="Scripts\editdance.js" />
     <Content Include="Scripts\glimpse-knockout.js" />
     <Content Include="Scripts\jquery-2.1.1.js" />
     <Content Include="Scripts\jquery-2.1.1.min.js" />
@@ -547,6 +552,7 @@
     <Content Include="Scripts\respond.matchmedia.addListener.js" />
     <Content Include="Scripts\respond.matchmedia.addListener.min.js" />
     <Content Include="Scripts\respond.min.js" />
+    <Content Include="Scripts\showdance.js" />
     <Content Include="Scripts\SongIndex.js" />
     <Content Include="Scripts\Tempi.js" />
     <Content Include="Scripts\undo.js" />
@@ -693,6 +699,9 @@
     <Content Include="Views\Shared\Lockout.cshtml" />
     <Content Include="Views\Home\Tempi.cshtml" />
     <Content Include="Views\Dance\Details.cshtml" />
+    <Content Include="Views\Dance\Edit.cshtml" />
+    <Content Include="Views\Shared\_ListSongs.cshtml" />
+    <Content Include="Views\Dance\_DanceList.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
@@ -746,6 +755,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201410162052304_DateTime2.resx">
       <DependentUpon>201410162052304_DateTime2.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201410282212286_DanceInfo.resx">
+      <DependentUpon>201410282212286_DanceInfo.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>

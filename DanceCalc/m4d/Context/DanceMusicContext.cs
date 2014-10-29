@@ -113,6 +113,7 @@ namespace m4d.Context
             modelBuilder.Entity<TagType>().Ignore(tt => tt.CategoryList);
             modelBuilder.Entity<ModifiedRecord>().HasKey(t => new { t.ApplicationUserId, t.SongId });
             modelBuilder.Entity<ModifiedRecord>().Ignore(mr => mr.UserName);
+            modelBuilder.Entity<DanceLink>().HasKey(dl => dl.Id);
 
             base.OnModelCreating(modelBuilder);
         }

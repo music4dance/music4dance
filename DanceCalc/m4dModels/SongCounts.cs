@@ -20,16 +20,52 @@ namespace m4dModels
         {
             get { return string.Format("{0} ({1})", DanceName, SongCount); }
         }
-        public DanceObject Dance { get; set; }
+        public Dance Dance { get; set; }
         public SongCounts Parent { get; set; }
         public List<SongCounts> Children { get; set; }
 
+        public IEnumerable<Song> TopSongs { get; set; }
+        public void SetTopSongs(int n, DanceMusicService dms)
+        {
+            SongFilter filter = new SongFilter
+            {
+                SortOrder = "Dances_10",
+                Dances = DanceId,
+                TempoMax = 500,
+                TempoMin = 1
+            };
+            var songs = dms.BuildSongList(filter, true).ToList();
+
+            if (songs.Count < 10)
+            {
+                filter.TempoMax = null;
+                filter.TempoMin = null;
+                songs = dms.BuildSongList(filter, true).ToList();
+            }
+            TopSongs = songs;
+        }
         static public void ClearCache()
         {
             lock (s_counts)
             {
                 s_counts.Clear();
                 s_map.Clear();
+            }
+        }
+
+        // TODO: This is awfully kludgy, I think the real
+        // solution here is probably to bulk out Dance
+        // a bit more (like with count and possible parent) and 
+        // then not cache as much
+        static public void ReloadDances(DanceMusicService dms)
+        {
+            foreach (Dance dance in dms.Dances)
+            {
+                SongCounts sc = null;
+                if (s_map.TryGetValue(dance.Id, out sc))
+                {
+                    sc.Dance = dance;
+                }
             }
         }
 
@@ -141,7 +177,9 @@ namespace m4dModels
 
         static public SongCounts FromName(string name, DanceMusicService dms)
         {
-            return GetFlatSongCounts(dms).FirstOrDefault(sc => string.Equals(sc.DanceName,name,StringComparison.OrdinalIgnoreCase));
+            SongCounts s = GetFlatSongCounts(dms).FirstOrDefault(sc => string.Equals(sc.DanceName,name,StringComparison.OrdinalIgnoreCase));
+            s.SetTopSongs(10,dms);
+            return s;
         }
         static public int GetScaledRating(IDictionary<string,SongCounts> map, string danceId, int weight, int scale = 5)
         {
@@ -220,7 +258,7 @@ namespace m4dModels
                 DanceName = d.Name,
                 SongCount = count,
                 MaxWeight = max,
-                Dance = d,
+                Dance = dance,
                 Children = null
             };
 

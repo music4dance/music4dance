@@ -1,0 +1,89 @@
+﻿@model m4dModels.Dance
+@using System.Runtime.Serialization.Json
+
+@{
+    ViewBag.Title = "Edit";
+}
+
+<h2>Edit Dance</h2>
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+
+    <div class="form-horizontal">
+        <h4>@Model.Id: @Model.Name</h4>
+        <hr />
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+        @Html.HiddenFor(model => model.Id)
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.Description, new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.TextAreaFor(model => model.Description, new { @class = "form-control", @cols = 160, @rows = 5 } )
+                @Html.ValidationMessageFor(model => model.Description, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            <table class="table-striped col-md-offset-2 col-md-10">
+                <thead>
+                    <tr><td>Description</td><td>Link</td></tr>
+                </thead>
+                <tbody data-bind="foreach: links">
+                    <tr data-bind="attr: {id: 'Links_' + $index()}">
+                        <td>
+                            <div class="editor-field">
+                                <input data-bind="attr: {id: computeLinkId($index(),'Description'), name: computeLinkName($index(),'Description')}, value: Description" type="text" size="80"/>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="editor-field">
+                                <input data-bind="attr: {id: computeLinkId($index(),'Link'), name: computeLinkName($index(),'Link')}, value: Link" type="text" size="80" />
+                            </div>
+                        </td>
+                        <td>
+                            <button type="button" data-bind="attr: {id: 'Delete_' + $index()}, click: $parent.removeLink">X</button>
+                            <input data-bind="attr: {id: computeLinkId($index(),'Id'), name: computeLinkName($index(),'Id')}, value:Id" type="hidden" />
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10">
+                <a class="btn btn-info" role="button" id="AddLink" data-bind="click: newLink">New Link</a>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10">
+                <input type="submit" value="Save" class="btn btn-default" />
+            </div>
+        </div>
+    </div>
+}
+
+<div>
+    @Html.ActionLink("Back to List", "Index")
+</div>
+
+@{
+    string pageScript = "~/Scripts/editdance.js" + Page.ScriptQualifier;
+    MemoryStream stream = new MemoryStream();
+    DataContractJsonSerializer serializer = new DataContractJsonSerializer(typeof(IEnumerable<m4dModels.DanceLink>));
+    serializer.WriteObject(stream, Model.DanceLinks);
+    string linksString = System.Text.Encoding.UTF8.GetString(stream.ToArray());
+}
+
+
+@section Scripts {
+    <script>
+        var links = @Html.Raw(linksString);
+    </script>
+    @Scripts.Render("~/bundles/jqueryval")
+    <script src="@Url.Content("~/Scripts/knockout-3.2.0.js")" type="text/javascript"></script>
+    <script src="@Url.Content("~/Scripts/knockout.mapping-latest.js")" type="text/javascript"></script>
+    <script src="@Url.Content(pageScript)" type="text/javascript"></script>
+}

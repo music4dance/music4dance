@@ -9,9 +9,6 @@
     <li><a href="/Dances">Dances</a></li>
 </ol>
 
-<hgroup>
-    <h2>Dances</h2>
-</hgroup>
 @{
     string[] boxes = { "LTN", "SWG", "TNG", "WLZ", "FXT", "MSC" };
 }
@@ -21,22 +18,23 @@
     {
         var item = Model.FirstOrDefault(m => m.DanceId == box);
 
-        string danceLink = "/Song/Search?dances=" + @item.DanceId;
         <div class="list-group col-sm-4">
-            <h4><a href="@danceLink" class="btn btn-info btn-lg">@item.DanceName <span class="badge">@item.SongCount</span></a></h4>
-            @*<h4>@Html.ActionLink(item.DanceName, "Search", "Song", new { dances = item.DanceId }, null) <span class="badge">@item.SongCount</span></h4>*@
-            @foreach (var sitem in item.Children)
-            {
-                if (sitem.SongCount > 0)
-                {
-                    <a class="list-group-item" href="@("/Song/Search?dances=" + sitem.DanceId)">
-                        <span class="badge">@sitem.SongCount</span>
-                        @sitem.DanceName
-                    </a>
-                }
-            }
+            <h4><span id="@item.DanceName" class="btn btn-info btn-lg dance">@item.DanceName <span id="@item.DanceId" class="badge">@item.SongCount</span></span></h4>
+            @{Html.RenderPartial("_DanceList", item.Children);}
         </div>
     }
 </div>
 
 <p class="col-md-12">Choose from the dances above to go to a list of songs that are suitable to dance that dance to.  You may also choose the headers to get a list of dances of a particular type.</p>
+
+@{
+    string pageScript = "~/Scripts/showdance.js" + Page.ScriptQualifier;
+}
+
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+    <script src="@Url.Content(pageScript)" type="text/javascript"></script>
+}
+
+

@@ -22,5 +22,19 @@ namespace m4dModels.Tests
             Assert.AreEqual("Dances", SongSort.DoSort("Dances", "Dances"));
         }
 
+        [TestMethod]
+        public void ComplexSort()
+        {
+            SongSort ss = new SongSort("Dance_10");
+            Assert.AreEqual("Dance", ss.Id);
+            Assert.AreEqual(10, ss.Count);
+            Assert.IsTrue(!ss.Descending);
+
+            SongSort ss2 = new SongSort("Tempo_desc_10");
+            Assert.AreEqual("Tempo", ss2.Id);
+            Assert.AreEqual(10, ss2.Count);
+            Assert.IsTrue(ss2.Descending);
+        }
+
     }
 }

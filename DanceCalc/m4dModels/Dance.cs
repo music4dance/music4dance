@@ -10,7 +10,9 @@ namespace m4dModels
     public class Dance
     {
         public string Id { get; set; }
+        public string Description { get; set; }
         public virtual ICollection<DanceRating> DanceRatings { get; set; }
+        public virtual ICollection<DanceLink> DanceLinks { get; set; }
 
         public DanceObject Info
         {

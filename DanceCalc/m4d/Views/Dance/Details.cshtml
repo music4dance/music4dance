@@ -1,8 +1,11 @@
 ﻿@model m4dModels.SongCounts
 
 @{
-    ViewBag.Title = "Details";
+    ViewBag.Title = Model.DanceName + " info";
+    ViewBag.NoSort = true;
+    ViewBag.SongFilter = new m4dModels.SongFilter { Dances = @Model.DanceId };
 }
+
 <ol class="breadcrumb">
     <li><a href="/">Music4Dance</a></li>
     <li><a href="/Dances">Dances</a></li>
@@ -13,30 +16,75 @@
     <li><a href="/Dances/@Model.DanceName">@Model.DanceName</a></li>
 </ol>
 
-
-
 <h2>@Model.DanceName</h2>
+
 <div>
-    <dl class="dl-horizontal">
-
-        <dt>
-            @Html.DisplayNameFor(model => model.SongCount)
-        </dt>
-
-        <dd>
-            @Html.DisplayFor(model => model.SongCount)
-        </dd>
-
-        <dt>
-            @Html.DisplayNameFor(model => model.MaxWeight)
-        </dt>
-        <dd>
-            @Html.DisplayFor(model => model.MaxWeight)
-        </dd>
-
-    </dl>
+    @if (string.IsNullOrWhiteSpace(Model.Dance.Description))
+    {
+        <p>We're busy doing research and pulling together a general description for @Model.DanceName dance.  Please check back later for more info.</p>
+    }
+    else
+    {
+        Html.Raw(Model.Dance.Description);
+    }
 </div>
+
+<div>
+    <h3>@Html.ActionLink("music4dance's", "Index", "Home") top 10 @Html.ActionLink(@Model.DanceName, "Search", "Song", new { dances = @Model.DanceId }, null) songs</h3>
+</div>
+<div>
+    @{Html.RenderPartial("_ListSongs", @Model.TopSongs, ViewData);}
+</div>
+
+@if (@Model.Parent != null)
+{
+    var info = Model.Dance.Info;
+    var tempo = info.TempoRange;
+    <div>
+        <h4>Tempo Information</h4>
+        <p>
+            The @Model.DanceName is generally danced to music in a @info.Meter Meter
+            @if (@tempo.Max == @tempo.Min)
+            {
+                <text>at @tempo.Max MPM (@(tempo.Max*info.Meter.Numerator) BPM)</text>
+            }
+            else
+            {
+                <text>between @tempo.Min and @tempo.Max MPM (@(tempo.Min*info.Meter.Numerator) and @(tempo.Max*info.Meter.Numerator) BPM)</text>
+            }
+            . For more information about tempi, please take a look at the @Html.ActionLink("Tempi Tool", "Tempi", "Home").
+        </p>
+    </div>
+}
+
+@if (@Model.Parent == null)
+{
+    <div>
+        <h4>Dances that are roughly grouped into the @Model.DanceName category.</h4>
+        <div class="list-group">
+            @{Html.RenderPartial("_DanceList", @Model.Children);}
+        </div>
+    </div>
+}
+<div>
+    <p>@Html.ActionLink("Browse", "Search", "Song", new { dances = @Model.DanceId }, null) all <b>@Model.SongCount</b> @Model.DanceName songs in the @Html.ActionLink("music4dance's", "Index", "Home") @Html.ActionLink("catalog", "Search", "Song").</p>
+</div>
+
+
 <p>
-    @Html.ActionLink("Edit", "Edit", new { id = Model.DanceId }) |
-    @Html.ActionLink("Back to List", "Index")
+    @if (User.IsInRole("canEdit"))
+    {
+        @Html.ActionLink("Edit", "Edit", new { id = Model.DanceId })
+        <text> | </text>
+    }
 </p>
+
+@{
+    string pageScript = "~/Scripts/showdance.js" + Page.ScriptQualifier;
+}
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+    <script src="@Url.Content(pageScript)" type="text/javascript"></script>
+}
+

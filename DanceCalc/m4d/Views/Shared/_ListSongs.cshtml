@@ -1,0 +1,167 @@
+﻿@model IEnumerable<m4dModels.Song>
+
+@{
+    bool canEdit = false;
+    if (User.IsInRole("canEdit"))
+    {
+        canEdit = true;
+    }
+    bool canSort = true;
+    if (ViewData.ContainsKey("NoSort"))
+    {
+        canSort = !ViewBag.NoSort;
+    }
+
+    var danceMap = (IDictionary<string, m4dModels.SongCounts>)ViewBag.DanceMap;
+    var songOrder = new m4dModels.SongSort(ViewBag.SongFilter.SortOrder);
+    var showDate = songOrder.Id == "Modified" || songOrder.Id == "Created";
+}
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            @if (canEdit)
+            {
+                <th>&nbsp;</th>
+                <th>&nbsp;</th>
+            }
+            <th style="min-width:75pt">
+                @if (canSort)
+                {
+                    @Html.ActionLink("Title", "Sort", "Song", new { sortOrder = "Title", filter = ViewBag.SongFilter }, null)
+                }
+                else
+                {
+                    <text>Title</text>
+                }
+                @Html.Raw(songOrder.GetSortGlyph("Title"))
+            </th>
+            <th style="min-width:75pt">
+                @if (canSort)
+                {
+                    @Html.ActionLink("Artist", "Sort", "Song", new { sortOrder = "Artist", filter = ViewBag.SongFilter }, null)
+                }
+                else
+                {
+                    <text>Artist</text>
+                }
+                @Html.Raw(songOrder.GetSortGlyph("Artist"))
+            </th>
+            <th style="min-width:75pt" class="hidden-xs">
+                @if (canSort)
+                {
+                    @Html.ActionLink("Album", "Sort", "Song", new { sortOrder = "Album", filter = ViewBag.SongFilter }, null)
+                }
+                else
+                {
+                    <text>Album</text>
+                }
+                @Html.Raw(songOrder.GetSortGlyph("Album"))
+            </th>
+            <th class="hidden-xs">
+                @if (canSort)
+                {
+                    @Html.ActionLink("Tempo (BPM)", "Sort", "Song", new { sortOrder = "Tempo", filter = ViewBag.SongFilter }, null)
+                }
+                else
+                {
+                    <text>Tempo (BPM)</text>
+                }
+                @Html.Raw(songOrder.GetSortGlyph("Tempo"))
+            </th>
+            @if (canSort)
+            {
+                <th>
+                    @Html.ActionLink("Dances", "Sort", "Song", new { sortOrder = "Dances", filter = ViewBag.SongFilter }, null)
+                    @Html.Raw(songOrder.GetSortGlyph("Dances"))
+                </th>
+            }
+            <th style="min-width:150px" class="hidden-xs">Purchase</th>
+            @if (showDate)
+            {
+                <th class="hidden-xs">@ViewBag.SongFilter.SortOrder</th>
+            }
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            if (item.Title != null)
+            {
+                <tr>
+                    @if (canEdit)
+                    {
+                        string id = "Selected-" + item.SongId.ToString();
+                        <td><input name="selectedSongs" id="@id" type="checkbox" value="@item.SongId" /></td>
+                        <td><a href="/Song/Edit?id=@item.SongId&filter=@ViewBag.SongFilter" role="button" class="btn btn-link btn-sm"><span class="glyphicon glyphicon-pencil"></span></a></td>
+                    }
+                    <td>
+                        @Html.ActionLink(item.Title, "Details", "Song", new { id = item.SongId, filter = ViewBag.SongFilter }, null)
+                        @if (item.Tempo != null)
+                        {
+                            <small class="hidden-sm hidden-md hidden-lg">(@decimal.Round(item.Tempo.Value).ToString("F0") BPM)</small>
+                        }
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Artist)
+                    </td>
+                    <td class="hidden-xs">
+                        @item.AlbumName
+                    </td>
+                    <td class="hidden-xs">
+                        @if (item.Tempo != null)
+                        {
+                            string tempo = decimal.Round(item.Tempo.Value).ToString("F0");
+                            @tempo;
+                        }
+                    </td>
+                    @if (canSort)
+                    {
+                        <td>
+                            @{ var separator = ""; }
+                            @foreach (var ditem in item.DanceRatings.OrderByDescending(dr => m4dModels.SongCounts.GetScaledRating(danceMap, dr.DanceId, dr.Weight)))
+                            {
+                                string badge = m4dModels.SongCounts.GetRatingBadge(danceMap, ditem.DanceId, ditem.Weight);
+                                @separator;
+                                <span class="rating @badge">@ditem.Dance.Info.Name</span>
+                                              separator = " ";
+                            }
+                        </td>
+                    }
+
+                    <td class="hidden-xs">
+                        @if (!string.IsNullOrEmpty(item.Purchase) && item.Purchase.Contains('X'))
+                        {
+                            var xid = "X" + item.SongId.ToString();
+                            <button id="@xid" type="button"><img src="@Url.Content("~/Content/xbox-logo.png")" alt="Availiable on Xbox Music" width="20" height="20" /></button>
+                        }
+                        @if (!string.IsNullOrEmpty(item.Purchase) && item.Purchase.Contains('I'))
+                        {
+                            var iid = "I" + item.SongId.ToString();
+                            <button id="@iid" type="button"><img src="@Url.Content("~/Content/itunes-logo.png")" alt="Availiable on Itunes" width="20" height="20" /></button>
+                        }
+                        @if (!string.IsNullOrEmpty(item.Purchase) && item.Purchase.Contains('A'))
+                        {
+                            var aid = "A" + item.SongId.ToString();
+                            <button id="@aid" type="button"><img src="@Url.Content("~/Content/amazon-logo.png")" alt="Availiable at Amazon" width="20" height="20" /></button>
+                        }
+                    </td>
+                    @if (showDate)
+                    {
+                        <td class="hidden-xs">
+                            @if (songOrder.Id == "Created")
+                            {
+                                <text>@item.Created.ToString("g")</text>
+                            }
+                            else
+                            {
+                                <text>@item.Modified.ToString("g")</text>
+                            }
+                        </td>
+                    }
+
+                </tr>
+            }
+        }
+    </tbody>
+</table>

@@ -81,6 +81,31 @@ namespace m4dModels.Tests
         }
 
         [TestMethod]
+        public void TopTest()
+        {
+            var filter = new SongFilter();
+
+            filter.SortOrder = "Dances_10";
+            filter.Dances = "SWG";
+
+            var songs = s_dms.BuildSongList(filter, true);
+
+            int weight = int.MaxValue;
+            int count = 0;
+            foreach (var song in songs)
+            {
+                DanceRating dr = song.DanceRatings.FirstOrDefault(r => r.DanceId == "SWG");
+                Assert.IsTrue(dr.Weight <= weight);
+
+                count += 1;
+            }
+
+            Trace.WriteLine(string.Format("Filtered Count = {0}", count));
+            Assert.AreEqual(10, count);
+        }
+
+
+        [TestMethod]
         public void SearchTest()
         {
             var filter = new SongFilter();

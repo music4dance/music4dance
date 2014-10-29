@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -21,20 +22,38 @@ namespace m4dModels
             {
                 sort = "Title";
             }
-            int desc = sort.IndexOf('_');
-            Descending = desc != -1;
-            if (Descending)
+            List<string> list = sort.Split(new char[] { '_' }, StringSplitOptions.None).ToList();
+            int count = -1;
+
+            Id = list[0];
+            list.RemoveAt(0);
+
+            if (list.Count > 0)
             {
-                Id = sort.Substring(0, desc);
+                if (string.Equals(list[0],"desc",StringComparison.OrdinalIgnoreCase))
+                {
+                    Descending = true;
+                    list.RemoveAt(0);
+                }
+                else if (string.Equals(list[0], "asc", StringComparison.OrdinalIgnoreCase))
+                {
+                    list.RemoveAt(0);
+                }
             }
-            else
+
+            if (list.Count > 0)
             {
-                Id = sort;
+                if (!int.TryParse(list[0], out count))
+                {
+                    Trace.WriteLineIf(TraceLevels.General.TraceError, string.Format("Bad Sort: {0}", sort));
+                }
             }
+            Count = count;
         }
 
         public string Id { get; private set; }
         public bool Descending { get; private set; }
+        public int Count { get; private set; }
 
         public bool Numeric { get { return numerical.Contains(Id); } }
         public bool Directional { get { return directional.Contains(Id); } }

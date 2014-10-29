@@ -71,6 +71,7 @@
     <Compile Include="ApplicationUser.cs" />
     <Compile Include="DanceMusicService.cs" />
     <Compile Include="IDanceMusicContext.cs" />
+    <Compile Include="DanceLink.cs" />
     <Compile Include="MergeCluster.cs" />
     <Compile Include="SongCounts.cs" />
     <Compile Include="SongFilterConverter.cs" />

@@ -988,32 +988,22 @@ namespace m4dModels
             }
 #endif
 
-            switch (filter.SortOrder)
+            SongSort songSort = new SongSort(filter.SortOrder);
+
+            switch (songSort.Id)
             {
                 case "Title":
                 default:
-                    songs = songs.OrderBy(s => s.Title);
-                    break;
-                case "Title_desc":
-                    songs = songs.OrderByDescending(s => s.Title);
+                    songs = songSort.Descending ? songs.OrderByDescending(s => s.Title) : songs.OrderBy(s => s.Title);
                     break;
                 case "Artist":
-                    songs = songs.OrderBy(s => s.Artist);
-                    break;
-                case "Artist_desc":
-                    songs = songs.OrderByDescending(s => s.Artist);
+                    songs = songSort.Descending ? songs.OrderByDescending(s => s.Artist) : songs.OrderBy(s => s.Artist);
                     break;
                 case "Album":
-                    songs = songs.OrderBy(s => s.Album);
-                    break;
-                case "Album_desc":
-                    songs = songs.OrderByDescending(s => s.Album);
+                    songs = songSort.Descending ? songs.OrderByDescending(s => s.Album) : songs.OrderBy(s => s.Album);
                     break;
                 case "Tempo":
-                    songs = songs.OrderBy(s => s.Tempo);
-                    break;
-                case "Tempo_desc":
-                    songs = songs.OrderByDescending(s => s.Tempo);
+                    songs = songSort.Descending ? songs.OrderByDescending(s => s.Tempo) : songs.OrderBy(s => s.Tempo);
                     break;
                 case "Dances":
                     // TODO: Better icon for dance order
@@ -1033,6 +1023,12 @@ namespace m4dModels
                 case "Created":
                     songs = songs.OrderBy(s => s.Created);
                     break;
+            }
+
+            // Then take the top n songs if
+            if (songSort.Count != -1)
+            {
+                songs = songs.Take(10);
             }
 
             return songs;
