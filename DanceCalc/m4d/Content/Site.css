@@ -209,3 +209,27 @@ h1, h2, h3, h4, h5, h6 { font-family: "Merienda";font-weight: 700 }
 .filter-button {
     margin: 10px 10px;
 }
+
+
+/* Editor*/
+
+#editor {
+    overflow:scroll; 
+    max-height:300px;
+    height:300px; 
+    border-collapse:separate;
+    border-radius:3px;
+    border:1px solid rgb(128, 128, 128);
+}
+
+#description {
+    overflow:scroll; 
+    max-height:300px;
+    height:300px; 
+    max-width:1200px;
+    width:1200px; 
+    border-collapse:separate;
+    border-radius:3px;
+    border:1px solid rgb(128, 128, 128);
+}
+

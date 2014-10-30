@@ -19,3 +19,6 @@
 /// <reference path="tempi.js" />
 /// <reference path="undo.js" />
 /// <reference path="editdance.js" />
+/// <reference path="showdance.js" />
+/// <reference path="jquery.hotkeys.js" />
+/// <reference path="bootstrap-wysiwyg.js" />

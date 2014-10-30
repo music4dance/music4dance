@@ -20,7 +20,7 @@
 <table class="table table-striped">
     <thead>
         <tr>
-            @if (canEdit)
+            @if (canEdit && canSort)
             {
                 <th>&nbsp;</th>
                 <th>&nbsp;</th>
@@ -29,45 +29,45 @@
                 @if (canSort)
                 {
                     @Html.ActionLink("Title", "Sort", "Song", new { sortOrder = "Title", filter = ViewBag.SongFilter }, null)
+                    @Html.Raw(songOrder.GetSortGlyph("Title"))
                 }
                 else
                 {
                     <text>Title</text>
                 }
-                @Html.Raw(songOrder.GetSortGlyph("Title"))
             </th>
             <th style="min-width:75pt">
                 @if (canSort)
                 {
                     @Html.ActionLink("Artist", "Sort", "Song", new { sortOrder = "Artist", filter = ViewBag.SongFilter }, null)
+                    @Html.Raw(songOrder.GetSortGlyph("Artist"))
                 }
                 else
                 {
                     <text>Artist</text>
                 }
-                @Html.Raw(songOrder.GetSortGlyph("Artist"))
             </th>
             <th style="min-width:75pt" class="hidden-xs">
                 @if (canSort)
                 {
                     @Html.ActionLink("Album", "Sort", "Song", new { sortOrder = "Album", filter = ViewBag.SongFilter }, null)
+                    @Html.Raw(songOrder.GetSortGlyph("Album"))
                 }
                 else
                 {
                     <text>Album</text>
                 }
-                @Html.Raw(songOrder.GetSortGlyph("Album"))
             </th>
             <th class="hidden-xs">
                 @if (canSort)
                 {
                     @Html.ActionLink("Tempo (BPM)", "Sort", "Song", new { sortOrder = "Tempo", filter = ViewBag.SongFilter }, null)
+                    @Html.Raw(songOrder.GetSortGlyph("Tempo"))
                 }
                 else
                 {
                     <text>Tempo (BPM)</text>
                 }
-                @Html.Raw(songOrder.GetSortGlyph("Tempo"))
             </th>
             @if (canSort)
             {
@@ -89,7 +89,7 @@
             if (item.Title != null)
             {
                 <tr>
-                    @if (canEdit)
+                    @if (canEdit && canSort)
                     {
                         string id = "Selected-" + item.SongId.ToString();
                         <td><input name="selectedSongs" id="@id" type="checkbox" value="@item.SongId" /></td>

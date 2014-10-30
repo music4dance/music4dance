@@ -25,7 +25,7 @@
     }
     else
     {
-        Html.Raw(Model.Dance.Description);
+        @Html.Raw(Model.Dance.Description);
     }
 </div>
 
@@ -36,46 +36,60 @@
     @{Html.RenderPartial("_ListSongs", @Model.TopSongs, ViewData);}
 </div>
 
+<div>
+    <p>@Html.ActionLink("Browse", "Search", "Song", new { dances = @Model.DanceId }, null) all <b>@Model.SongCount</b> @Model.DanceName songs in the @Html.ActionLink("music4dance's", "Index", "Home") @Html.ActionLink("catalog", "Search", "Song").</p>
+</div>
+
+
 @if (@Model.Parent != null)
 {
     var info = Model.Dance.Info;
     var tempo = info.TempoRange;
+    <hr />
     <div>
         <h4>Tempo Information</h4>
         <p>
             The @Model.DanceName is generally danced to music in a @info.Meter Meter
             @if (@tempo.Max == @tempo.Min)
             {
-                <text>at @tempo.Max MPM (@(tempo.Max*info.Meter.Numerator) BPM)</text>
+                <text>at @tempo.Max measures per minute (@(tempo.Max * info.Meter.Numerator) beats per minute)</text>
             }
             else
             {
-                <text>between @tempo.Min and @tempo.Max MPM (@(tempo.Min*info.Meter.Numerator) and @(tempo.Max*info.Meter.Numerator) BPM)</text>
+                <text>between @tempo.Min and @tempo.Max measures per minute (@(tempo.Min * info.Meter.Numerator) and @(tempo.Max * info.Meter.Numerator) beats per minute)</text>
             }
-            . For more information about tempi, please take a look at the @Html.ActionLink("Tempi Tool", "Tempi", "Home").
+            .
         </p>
+        <p>For more information about tempi, please take a look at the @Html.ActionLink("Tempi Tool", "Tempi", "Home").</p>
     </div>
 }
 
 @if (@Model.Parent == null)
 {
+    <hr />
     <div>
-        <h4>Dances that are roughly grouped into the @Model.DanceName category.</h4>
+        <h4>Dances that are grouped into the @Model.DanceName category.</h4>
         <div class="list-group">
             @{Html.RenderPartial("_DanceList", @Model.Children);}
         </div>
     </div>
 }
-<div>
-    <p>@Html.ActionLink("Browse", "Search", "Song", new { dances = @Model.DanceId }, null) all <b>@Model.SongCount</b> @Model.DanceName songs in the @Html.ActionLink("music4dance's", "Index", "Home") @Html.ActionLink("catalog", "Search", "Song").</p>
-</div>
 
+@if (Model.Dance.DanceLinks != null && Model.Dance.DanceLinks.Count > 0)
+{
+    <h4>References</h4>
+    <ul>
+        @foreach (var dl in Model.Dance.DanceLinks)
+        {
+            <li><b>@dl.Description:</b> <a href="@dl.Link">@dl.Link</a></li>
+        }
+    </ul>
+}
 
 <p>
     @if (User.IsInRole("canEdit"))
     {
-        @Html.ActionLink("Edit", "Edit", new { id = Model.DanceId })
-        <text> | </text>
+        @Html.ActionLink("Edit", "Edit", new { id = Model.DanceId }, new { @class = "btn btn-default", role = "button" })
     }
 </p>
 

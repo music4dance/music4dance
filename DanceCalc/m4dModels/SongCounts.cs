@@ -59,7 +59,7 @@ namespace m4dModels
         // then not cache as much
         static public void ReloadDances(DanceMusicService dms)
         {
-            foreach (Dance dance in dms.Dances)
+            foreach (Dance dance in dms.Dances.Include("DanceLinks"))
             {
                 SongCounts sc = null;
                 if (s_map.TryGetValue(dance.Id, out sc))
@@ -117,7 +117,7 @@ namespace m4dModels
             {
                 if (s_counts.Count == 0)
                 {
-                    dms.Dances.Load();
+                    dms.Dances.Include("DanceLinks").Load();
 
                     HashSet<string> used = new HashSet<string>();
 

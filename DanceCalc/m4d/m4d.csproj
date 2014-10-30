@@ -521,6 +521,7 @@
     <None Include="Properties\PublishProfiles\m4d-old.pubxml" />
     <None Include="Properties\PublishProfiles\m4d.pubxml" />
     <Content Include="MvcDiagnostics.aspx" />
+    <Content Include="Scripts\bootstrap-wysiwyg.js" />
     <Content Include="Scripts\bootstrap.js" />
     <Content Include="Scripts\bootstrap.min.js" />
     <Content Include="Scripts\chosen.jquery.js" />
@@ -536,6 +537,7 @@
     <Content Include="Scripts\jquery-2.1.1.min.js" />
     <Content Include="Scripts\jquery-2.1.1.min.map" />
     <None Include="Scripts\jquery.validate-vsdoc.js" />
+    <Content Include="Scripts\jquery.hotkeys.js" />
     <Content Include="Scripts\jquery.nouislider.full.min.js" />
     <Content Include="Scripts\jquery.nouislider.min.js" />
     <Content Include="Scripts\jquery.validate.js" />
