@@ -31,7 +31,7 @@ namespace m4d
         {
             var myMessage = new SendGridMessage();
             myMessage.AddTo(message.Destination);
-            myMessage.From = new System.Net.Mail.MailAddress("support@music4dance.net", "music4dance");
+            myMessage.From = new System.Net.Mail.MailAddress("david@music4dance.net", "music4dance");
             myMessage.Subject = message.Subject;
             myMessage.Text = message.Body;
             myMessage.Html = message.Body;
