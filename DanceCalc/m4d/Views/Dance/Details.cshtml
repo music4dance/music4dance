@@ -3,7 +3,18 @@
 @{
     ViewBag.Title = Model.DanceName + " info";
     ViewBag.NoSort = true;
+    ViewBag.ShowTempo = true;
     ViewBag.SongFilter = new m4dModels.SongFilter { Dances = @Model.DanceId };
+
+    string description = @"<p>We're busy doing research and pulling together a general description for " + Model.DanceName + @".  Please check back later for more info.</p>";
+    if (!string.IsNullOrWhiteSpace(Model.Dance.Description))
+    {
+        var md = new MarkdownDeep.Markdown();
+        md.ExtraMode = true;
+        md.SafeMode = false;
+        description = md.Transform(Model.Dance.Description);
+        description = m4dModels.Dance.PrettyDescription(description);
+    }
 }
 
 <ol class="breadcrumb">
@@ -19,14 +30,7 @@
 <h2>@Model.DanceName</h2>
 
 <div>
-    @if (string.IsNullOrWhiteSpace(Model.Dance.Description))
-    {
-        <p>We're busy doing research and pulling together a general description for @Model.DanceName dance.  Please check back later for more info.</p>
-    }
-    else
-    {
-        @Html.Raw(Model.Dance.Description);
-    }
+    @Html.Raw(description)
 </div>
 
 <div>

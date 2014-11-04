@@ -554,8 +554,13 @@ namespace m4d.Controllers
                     if (DanceMusicService.IsUserBreak(lines[0]))
                     {
                         RestoreDB(null);
-                        int i = lines.FindIndex(l => DanceMusicService.IsTagBreak(l));
-                        List<string> users = lines.GetRange(0,i).ToList();
+
+                        int i = lines.FindIndex(l => DanceMusicService.IsDanceBreak(l));
+                        List<string> users = lines.GetRange(0, i).ToList();
+                        lines.RemoveRange(0, i + 1);
+
+                        i = lines.FindIndex(l => DanceMusicService.IsTagBreak(l));
+                        List<string> dances = lines.GetRange(0,i).ToList();
                         lines.RemoveRange(0,i+1);
 
                         i = lines.FindIndex(l => DanceMusicService.IsSongBreak(l));
@@ -563,6 +568,7 @@ namespace m4d.Controllers
                         lines.RemoveRange(0,i+1);
 
                         Database.LoadUsers(users);
+                        Database.LoadDances(dances);
                         Database.LoadTags(tags);
                     }
                     else
@@ -934,9 +940,10 @@ namespace m4d.Controllers
 
             IList<string> users = Database.SerializeUsers(true);
             IList<string> tags = Database.SerializeTags(true);
+            IList<string> dances = Database.SerializeDances(true);
             IList<string> songs = Database.SerializeSongs(true,history);
 
-            string s = string.Join("\r\n", users) + "\r\n" + string.Join("\r\n", tags) + "\r\n" + string.Join("\r\n", songs);
+            string s = string.Join("\r\n", users) + "\r\n" + string.Join("\r\n", dances) + "\r\n" + string.Join("\r\n", tags) + "\r\n" + string.Join("\r\n", songs);
             var bytes = Encoding.UTF8.GetBytes(s);
             MemoryStream stream = new MemoryStream(bytes);
 

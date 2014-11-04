@@ -1,72 +1,40 @@
 ﻿/// Helper functions
 
-//function initToolbarBootstrapBindings() {
-//    var fonts = ['Serif', 'Sans', 'Arial', 'Arial Black', 'Courier',
-//            'Courier New', 'Comic Sans MS', 'Helvetica', 'Impact', 'Lucida Grande', 'Lucida Sans', 'Tahoma', 'Times',
-//            'Times New Roman', 'Verdana'],
-//            fontTarget = $('[title=Font]').siblings('.dropdown-menu');
-//    $.each(fonts, function (idx, fontName) {
-//        fontTarget.append($('<li><a data-edit="fontName ' + fontName + '" style="font-family:\'' + fontName + '\'">' + fontName + '</a></li>'));
-//    });
-//    $('a[title]').tooltip({ container: 'body' });
-//    $('.dropdown-menu input').click(function () { return false; })
-//        .change(function () { $(this).parent('.dropdown-menu').siblings('.dropdown-toggle').dropdown('toggle'); })
-//    .keydown('esc', function () { this.value = ''; $(this).change(); });
+//function copyToEdit() {
+//    var t = $('#editor').cleanHtml();
 
-//    $('[data-role=magic-overlay]').each(function () {
-//        var overlay = $(this), target = $(overlay.data('target'));
-//        overlay.css('opacity', 0).css('position', 'absolute').offset(target.offset()).width(target.outerWidth()).height(target.outerHeight());
-//    });
-//    if ("onwebkitspeechchange" in document.createElement("input")) {
-//        var editorOffset = $('#editor').offset();
-//        $('#voiceBtn').css('position', 'absolute').offset({ top: editorOffset.top, left: editorOffset.left + $('#editor').innerWidth() - 35 });
-//    } else {
-//        $('#voiceBtn').hide();
-//    }
-//};
+//    var rg = /http:\/\/([^\/\.]*)\//gi;
+//    t = t.replace(rg, "/$1/");
 
-//function showErrorAlert(reason, detail) {
-//    var msg = '';
-//    if (reason === 'unsupported-file-type') { msg = "Unsupported format " + detail; }
-//    else {
-//        console.log("error uploading file", reason, detail);
-//    }
-//    $('<div class="alert"> <button type="button" class="close" data-dismiss="alert">&times;</button>' +
-//        '<strong>File upload error</strong> ' + msg + ' </div>').prependTo('#alerts');
-//};
+//    rg = /<p[^>]*>/gi;
+//    t = t.replace(rg, "<p>");
 
-function copyToEdit() {
-    var t = $('#editor').cleanHtml();
+//    rg = /<\/?font[^>]*>/gi;
+//    t = t.replace(rg, "");
 
-    var rg = /http:\/\/([^\/\.]*)\//gi;
-    t = t.replace(rg, "/$1/");
+//    rg = /&nbsp;/gi;
+//    t = t.replace(rg, " ");
 
-    rg = /<p[^>]*>/gi;
-    t = t.replace(rg, "<p>");
+//    rg  = /<span style="mso-spacerun: yes;"> *<\/span>/gi;
+//    t = t.replace(rg, " ");
 
-    rg = /<\/?font[^>]*>/gi;
-    t = t.replace(rg, "");
+//    $('#description').val(t);
+//}
 
-    rg = /&nbsp;/gi;
-    t = t.replace(rg, " ");
-
-    $('#description').val(t);
-}
-
-function pasteToRichEdit() {
-    var s = $('#description').val();
-    $('#editor').html(s);
-}
+//function pasteToRichEdit() {
+//    var s = $('#description').val();
+//    $('#editor').html(s);
+//}
 
 var computeLinkName = function (idx, name) {
     var ret = "DanceLinks[" + idx + "]." + name;
     return ret;
-}
+};
 
 var computeLinkId = function (idx, name) {
     var ret = "DanceLinks_" + idx + "__" + name;
     return ret;
-}
+};
 
 var EditPage = function (data)
 {
@@ -102,11 +70,17 @@ $(document).ready(function () {
     viewModel = ko.mapping.fromJS(data, pageMapping);
 
     ko.applyBindings(viewModel);
-    //initToolbarBootstrapBindings({ fileUploadError: showErrorAlert });
 
-    pasteToRichEdit();
-    $('#editor').wysiwyg();
-    $('#copy').click(function () { copyToEdit(); });
-    $('#paste').click(function () { pasteToRichEdit(); });
-    $('#submit').click(function () { copyToEdit(); });
+    $("textarea.mdd_editor").MarkdownDeep({
+        help_location: "~/Scripts/mdd_help.htm",
+        disableTabHandling: true,
+        resizebar: true
+    });
+    //initToolbarBootstrapBindings(); //fileUploadError: showErrorAlert 
+
+    //pasteToRichEdit();
+    //$('#editor').wysiwyg();
+    //$('#copy').click(function () { copyToEdit(); });
+    //$('#paste').click(function () { pasteToRichEdit(); });
+    //$('#submit').click(function () { copyToEdit(); });
 });

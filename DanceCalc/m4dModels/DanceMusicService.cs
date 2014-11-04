@@ -1158,6 +1158,7 @@ namespace m4dModels
 
         private const string _songBreak = "+++++SONGS+++++";
         private const string _tagBreak = "+++++TAGSS+++++";
+        private const string _danceBreak = "+++++DANCES+++++";
         private const string _userHeader = "UserId\tUserName\tRoles\tPWHash\tSecStamp\tLockout\tProviders";
 
         static public bool IsSongBreak(string line) {
@@ -1170,6 +1171,10 @@ namespace m4dModels
         static public bool IsUserBreak(string line)
         {
             return IsBreak(line, _userHeader);
+        }
+        static public bool IsDanceBreak(string line)
+        {
+            return IsBreak(line, _danceBreak);
         }
 
         static private bool IsBreak(string line, string brk)
@@ -1253,6 +1258,38 @@ namespace m4dModels
             SaveChanges();
             Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Exiting LoadUsers");
         }
+        public void LoadDances(IList<string> lines)
+        {
+            Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Entering LoadSongs");
+
+            LoadDances();
+            bool modified = false;
+            foreach (string s in lines)
+            {
+                if (string.IsNullOrWhiteSpace(s))
+                    continue;
+                List<string> cells = s.Split(new char[] {'\t'}).ToList();
+                Dance d = Dances.Find(cells[0]);
+                if (d != null)
+                {
+                    cells.RemoveAt(0);
+                    modified |= d.Update(cells);
+                }
+                else
+                {
+                    Trace.WriteLineIf(TraceLevels.General.TraceError, string.Format("Bad Dance: {0}",s));
+                }
+            }
+
+            if (modified)
+            {
+                Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Saving Changes");
+                SaveChanges();
+            }
+
+            Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Exiting LoadSongs");
+        }
+
         public void LoadTags(IList<string> lines)
         {
             Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Entering LoadTags");
@@ -1282,7 +1319,7 @@ namespace m4dModels
 
             // Load the dance List
             Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Loading Dances");
-            Dances.Load();
+            LoadDances();
 
             Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Loading Songs");
 
@@ -1331,7 +1368,7 @@ namespace m4dModels
 
             // Load the dance List
             Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Loading Dances");
-            Dances.Load();
+            LoadDances();
 
             Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Loading Songs");
 
@@ -1363,6 +1400,25 @@ namespace m4dModels
             SongCounts.ClearCache();
             Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Exiting UpdateSongs");
 
+        }
+
+        public void SeedDances()
+        {
+            Dances dances = DanceLibrary.Dances.Instance;
+            foreach (DanceObject d in dances.AllDances)
+            {
+                Dance dance = _context.Dances.Find(d.Id);
+                if (dance == null)
+                {
+                    dance = new Dance { Id = d.Id };
+                    _context.Dances.Add(dance);
+                }
+            }
+
+        }
+        private void LoadDances()
+        {
+            Dances.Include("DanceLinks").Load();
         }
         #endregion
 
@@ -1425,6 +1481,28 @@ namespace m4dModels
                     actions = new string[] { Song.FailedLookup };
                 }
                 string line = song.Serialize(actions);
+                if (!string.IsNullOrWhiteSpace(line))
+                {
+                    songs.Add(line);
+                }
+            }
+
+            return songs;
+        }
+
+        public IList<string> SerializeDances(bool withHeader = true)
+        {
+            List<string> songs = new List<string>();
+
+            if (withHeader)
+            {
+                songs.Add(_danceBreak);
+            }
+
+            var dancelist = Dances.OrderBy(d => d.Id);
+            foreach (Dance dance in dancelist)
+            {
+                string line = dance.Serialize();
                 if (!string.IsNullOrWhiteSpace(line))
                 {
                     songs.Add(line);

@@ -14,13 +14,17 @@ namespace m4dModels.Tests
     {
         static FunctionalTests()
         {
+            s_dms.SeedDances();
+
             string dir = System.Environment.CurrentDirectory;
             Trace.WriteLine(dir);
             s_users = File.ReadAllLines(@".\TestData\test-users.txt").ToList();
+            s_dances = File.ReadAllLines(@".\TestData\test-dances.txt").ToList();
             s_tags = File.ReadAllLines(@".\TestData\test-tags.txt").ToList();
             s_songs = File.ReadAllLines(@".\TestData\test-songs.txt").ToList();
 
             s_dms.LoadUsers(s_users);
+            s_dms.LoadDances(s_dances);
             s_dms.LoadTags(s_tags);
             s_dms.LoadSongs(s_songs);
         }
@@ -30,6 +34,8 @@ namespace m4dModels.Tests
         {
             var users = from u in s_dms.Context.Users select u;
             Assert.AreEqual(s_users.Count() - 1, users.Count(),"Count of Users");
+            var dances = from d in s_dms.Context.Dances select d;
+            Assert.AreEqual(s_dances.Count(), dances.Count(), "Count of Dances");
             var tts = from tt in s_dms.Context.TagTypes select tt;
             Assert.AreEqual(s_tags.Count(), tts.Count(), "Count of Tag Types");
             var songs = from s in s_dms.Context.Songs where s.TitleHash != 0 select s;
@@ -41,6 +47,9 @@ namespace m4dModels.Tests
         {
             IList<string> songs = s_dms.SerializeSongs(false,true);
             Assert.IsTrue(ListEquivalent(s_songs, songs));
+
+            IList<string> dances = s_dms.SerializeDances(false);
+            Assert.IsTrue(ListEquivalent(s_dances, dances));
 
             IList<string> tags = s_dms.SerializeTags(false);
             Assert.IsTrue(ListEquivalent(s_tags, tags));
@@ -131,6 +140,16 @@ namespace m4dModels.Tests
             Assert.AreEqual(109, count);
         }
 
+        [TestMethod]
+        public void PrettyLinkTest()
+        {
+            string initial = "*East Coast Swing* is a standardized dance in <//American Rhythm> style dancing as well as a social partner dance.  It is one of a number of different swing dances that developed concurrently with the swing style of jazz music in the mid twentieth century.  This group of dances also includes <//Lindy Hop>,  <//Carolina Shag>, <//Balboa>, <//West Coast Swing>, and <//Jive>.    The *East Coast Swing* is generally danced as the first dance of <//American Rhythm> competitions.";
+
+            string pretty = Dance.PrettyDescription(initial);
+
+            Trace.WriteLine(pretty);
+            Assert.AreEqual("*East Coast Swing* is a standardized dance in <a href='http://en.wikipedia.org/wiki/List_of_DanceSport_dances#Rhythm'>American Rhythm</a> style dancing as well as a social partner dance.  It is one of a number of different swing dances that developed concurrently with the swing style of jazz music in the mid twentieth century.  This group of dances also includes <a href='/Dances/Lindy Hop'>Lindy Hop</a>,  <a href='/Dances/Carolina Shag'>Carolina Shag</a>, <a href='/Dances/Balboa'>Balboa</a>, <a href='/Dances/West Coast Swing'>West Coast Swing</a>, and <a href='/Dances/Jive'>Jive</a>.    The *East Coast Swing* is generally danced as the first dance of <a href='http://en.wikipedia.org/wiki/List_of_DanceSport_dances#Rhythm'>American Rhythm</a> competitions.", pretty);
+        }
         static bool ListEquivalent(IList<string> expected, IList<string> actual)
         {
             List<string> expectedExtra = new List<string>();
@@ -168,6 +187,7 @@ namespace m4dModels.Tests
             return actual.Count == 0 && expectedExtra.Count == 0;
         }
         static List<string> s_users;
+        static List<string> s_dances;
         static List<string> s_tags;
         static List<string> s_songs;
 

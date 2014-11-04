@@ -102,23 +102,24 @@ namespace m4d.Controllers
             // Require the user to have a confirmed email before they can log on.
             var user = await FindByNameOrEmail(model.UserName);
 
-            if (user != null)
+            if (user == null)
             {
-                if (!await UserManager.IsEmailConfirmedAsync(user.Id) && !await UserManager.IsInRoleAsync(user.Id,DanceMusicService.EditRole))
-                {
-                    // TODO: This workflow is broken for the case that the user had a typo in their email when originally registering
-                    //  It would be better to allow the user to see & correct the email address before resending.
-                    string callbackUrl = await SendEmailConfirmationTokenAsync(user.Id, "Confirm your music4dance account - Resend");
-
-                    // Uncomment to debug locally  
-                    // ViewBag.Link = callbackUrl;
-                    ViewBag.errorMessage = "You must have a confirmed email to log on. "
-                                         + "The confirmation token has been resent to <b>"
-                                         + user.Email + "</b>.";
-                    return View("Error");
-                }
+                return View(model);
             }
 
+            if (!await UserManager.IsEmailConfirmedAsync(user.Id) && !await UserManager.IsInRoleAsync(user.Id,DanceMusicService.EditRole))
+            {
+                // TODO: This workflow is broken for the case that the user had a typo in their email when originally registering
+                //  It would be better to allow the user to see & correct the email address before resending.
+                string callbackUrl = await SendEmailConfirmationTokenAsync(user.Id, "Confirm your music4dance account - Resend");
+
+                // Uncomment to debug locally  
+                // ViewBag.Link = callbackUrl;
+                ViewBag.errorMessage = "You must have a confirmed email to log on. "
+                                        + "The confirmation token has been resent to <b>"
+                                        + user.Email + "</b>.";
+                return View("Error");
+            }
             var result = await SignInManager.PasswordSignInAsync(user.UserName, model.Password, model.RememberMe, shouldLockout: true);
             switch (result)
             {

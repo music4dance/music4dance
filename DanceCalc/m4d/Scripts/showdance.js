@@ -1,7 +1,16 @@
 ﻿var OnDance = function(evt)
 {
+    var target = $(evt.target);
+    var id = null;
+    do {
+        id = target.attr('id');
+        target = target.parent();
+    }
+    while (!id)
+
     evt.preventDefault();
-    window.location.href = '/Dances/' + evt.target.id;
+    window.location.href = '/Dances/' + id;
+
 }
 
 var OnSong = function(evt)

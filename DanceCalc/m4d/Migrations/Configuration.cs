@@ -24,18 +24,10 @@ namespace m4d.Migrations
 
         static public void DoSeed(m4d.Context.DanceMusicContext context)
         {
+            DanceMusicService dms = new DanceMusicService(context);
+
             //  This method will be called after migrating to the latest version.
 
-            //  You can use the DbSet<T>.AddOrUpdate() helper extension method 
-            //  to avoid creating duplicate seed data. E.g.
-            //
-            //    context.People.AddOrUpdate(
-            //      p => p.FullName,
-            //      new Person { FullName = "Andrew Peters" },
-            //      new Person { FullName = "Brice Lambson" },
-            //      new Person { FullName = "Rowan Miller" }
-            //    );
-            //
             var rstore = new RoleStore<IdentityRole>(context);
             var rmanager = new RoleManager<IdentityRole>(rstore);
 
@@ -66,44 +58,7 @@ namespace m4d.Migrations
                 AddToRole(umanager, user.Id, DanceMusicService.DbaRole);
             }
 
-            //foreach (string name in _diagUsers)
-            //{
-            //    var user = context.Users.FirstOrDefault(u => u.UserName == name);
-            //    if (user == null)
-            //    {
-            //        user = new ApplicationUser { UserName = name };
-
-            //        umanager.Create(user, "marley");
-            //        AddToRole(umanager, user.Id, DanceMusicContext.DiagRole);
-            //        AddToRole(umanager, user.Id, DanceMusicContext.EditRole);
-            //    }
-            //    else
-            //    {
-            //        RemoveFromRole(umanager, user.Id, DanceMusicContext.DbaRole);
-            //    }
-            //}
-
-            //foreach (string name in _editUsers)
-            //{
-            //    if (!context.Users.Any(u => u.UserName == name))
-            //    {
-            //        var user = new ApplicationUser { UserName = name };
-
-            //        umanager.Create(user, "_this_is_a_placeholder_");
-            //    }
-            //}
-
-            Dances dances = Dances.Instance;
-
-            foreach (DanceObject d in dances.AllDances)
-            {
-                Dance dance = context.Dances.Find(d.Id);
-                if (dance == null)
-                {
-                    dance = new Dance { Id = d.Id };
-                    context.Dances.Add(dance);
-                }
-            }
+            dms.SeedDances();
         }
 
         private static void AddToRole(UserManager<ApplicationUser> um, string user, string role)
