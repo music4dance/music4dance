@@ -997,12 +997,15 @@ namespace m4dModels
                     songs = songSort.Descending ? songs.OrderByDescending(s => s.Title) : songs.OrderBy(s => s.Title);
                     break;
                 case "Artist":
+                    songs = songs.Where(s => s.Title != null);
                     songs = songSort.Descending ? songs.OrderByDescending(s => s.Artist) : songs.OrderBy(s => s.Artist);
                     break;
                 case "Album":
+                    songs = songs.Where(s => s.Album != null);
                     songs = songSort.Descending ? songs.OrderByDescending(s => s.Album) : songs.OrderBy(s => s.Album);
                     break;
                 case "Tempo":
+                    songs = songs.Where(s => s.Tempo != null);
                     songs = songSort.Descending ? songs.OrderByDescending(s => s.Tempo) : songs.OrderBy(s => s.Tempo);
                     break;
                 case "Dances":

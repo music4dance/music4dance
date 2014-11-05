@@ -86,7 +86,7 @@ namespace m4dModels.Tests
             }
 
             Trace.WriteLine(string.Format("Filtered Count = {0}", count));
-            Assert.AreEqual(89, count);
+            Assert.AreEqual(2, count);
         }
 
         [TestMethod]
