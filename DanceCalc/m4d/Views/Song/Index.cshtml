@@ -12,6 +12,7 @@
     }
 
     var dances = (IList<m4dModels.SongCounts>)ViewBag.Dances;
+    IList<DanceLibrary.DanceObject> selected = ViewBag.SelectedDances;
 }
 
 @using (Html.BeginForm("Search", "Song", FormMethod.Get, new { id = "search" }))
@@ -19,7 +20,6 @@
     string danceID = "ALL";
     string danceName = "All Dances";
     // TODO: Is there a reasonable way to do multi-select of dances?  If so do we do it here or at least reflect that state here?
-    IList<DanceLibrary.DanceObject> selected = ViewBag.SelectedDances;
     if (selected != null && selected.Count > 0)
     {
         danceID = selected[0].Id;
@@ -46,70 +46,83 @@
         }
     }
 
-    <div class="input-group" style="margin-top:10px">
-        <div class="input-group-btn search-panel">
-            <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
-                <span id="dance_selector">@danceName</span> <span class="caret"></span>
-            </button>
-            <ul class="dropdown-menu" role="menu">
-                <li id="DID_ALL"><a href="#ALL"><strong>All Dances</strong></a></li>
-                @foreach (var sc in dances.OrderBy(x => x.DanceName))
-                {
-                    string id = "DID_" + sc.DanceId;
-                    string href = "#" + sc.DanceId;
-                    <li id="@id"><a href=@href><strong>@sc.DanceName</strong></a></li>
-                    foreach (var sci in sc.Children.OrderBy(x => x.DanceName))
-                    {
-                        if (sci.SongCount > 0)
+    <div class="row">
+        <div class="col-xs-12">
+            <div class="input-group" style="margin-top:10px">
+                <div class="input-group-btn search-panel">
+                    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                        <span id="dance_selector">@danceName</span> <span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu" role="menu">
+                        <li id="DID_ALL"><a href="#ALL"><strong>All Dances</strong></a></li>
+                        @foreach (var sc in dances.OrderBy(x => x.DanceName))
                         {
-                            id = "DID_" + sci.DanceId;
-                            href = "#" + sci.DanceId;
-                            <li id="@id"><a href=@href><small>&nbsp;@sci.DanceName</small></a></li>
+                            string id = "DID_" + sc.DanceId;
+                            string href = "#" + sc.DanceId;
+                            <li id="@id"><a href=@href><strong>@sc.DanceName</strong></a></li>
+                            foreach (var sci in sc.Children.OrderBy(x => x.DanceName))
+                            {
+                                if (sci.SongCount > 0)
+                                {
+                                    id = "DID_" + sci.DanceId;
+                                    href = "#" + sci.DanceId;
+                                    <li id="@id"><a href=@href><small>&nbsp;@sci.DanceName</small></a></li>
+                                }
+                            }
                         }
-                    }
-                }
-            </ul>
+                    </ul>
+                </div>
+                <input type="hidden" name="dances" id="dances" value="@danceID" />
+                <input type="hidden" name="filter" id="filter" value="@ViewBag.SongFilter.ToString()" />
+                @Html.TextBox("SearchString", ViewBag.SongFilter.SearchString as string, new { @class = "form-control search-text", placeholder = "Artist, Title, or Album" })
+                <span class="input-group-btn">
+                    <button id="submit-search" class="btn btn-default" type="submit"><span class="glyphicon glyphicon-search"></span></button>
+                </span>
+            </div>
         </div>
-        <input type="hidden" name="dances" id="dances" value="@danceID" />
-        <input type="hidden" name="filter" id="filter" value="@ViewBag.SongFilter.ToString()" />
-        @Html.TextBox("SearchString", ViewBag.SongFilter.SearchString as string, new { @class = "form-control search-text", placeholder = "Artist, Title, or Album" })
-        <span class="input-group-btn">
-            <button id="submit-search" class="btn btn-default" type="submit"><span class="glyphicon glyphicon-search"></span></button>
-        </span>
     </div>
-    <div id="AdvancedSearch">
-        <div class="input-group">
-            Include only song available on:
-            <label>
-                <input type="checkbox" name="services" id="serviceX" value="X" @checkX />
-                XBox
-            </label>
-            <label>
-                <input type="checkbox" name="services" id="serviceA" value="A" @checkA />
-                Amazon
-            </label>
-            <label>
-                <input type="checkbox" name="services" id="serviceI" value="I" @checkI />
-                ITunes
-            </label>
-        </div>
+    <div class="row">
+        <div class="col-xs-12">
+            <div id="AdvancedSearch" class="input-group">
+                <div class="input-group">
+                    Include only song available on:
+                    <label>
+                        <input type="checkbox" name="services" id="serviceX" value="X" @checkX />
+                        XBox
+                    </label>
+                    <label>
+                        <input type="checkbox" name="services" id="serviceA" value="A" @checkA />
+                        Amazon
+                    </label>
+                    <label>
+                        <input type="checkbox" name="services" id="serviceI" value="I" @checkI />
+                        ITunes
+                    </label>
+                </div>
 
-        <div class="input-group">
-            Tempo between @Html.TextBox("TempoMin", ViewBag.SongFilter.TempoMin as decimal?, new { @class = "input-small" })&nbsp;and&nbsp;
-            @Html.TextBox("TempoMax", ViewBag.SongFilter.TempoMax as decimal?, new { @class = "input-small" }) &nbsp;BPM
+                <div class="input-group">
+                    Tempo between @Html.TextBox("TempoMin", ViewBag.SongFilter.TempoMin as decimal?, new { @class = "input-small" })&nbsp;and&nbsp;
+                    @Html.TextBox("TempoMax", ViewBag.SongFilter.TempoMax as decimal?, new { @class = "input-small" }) &nbsp;BPM
+                </div>
+            </div>
         </div>
     </div>
 }
-<a id="ToggleAdvanced" href="#" class="btn btn-info btn-xs btn-block" style="margin-top:5px">&nbsp;</a>
+<div class="row">
+    <div class="col-md-12">
+        <a id="ToggleAdvanced" href="#" class="btn btn-info btn-xs btn-block" style="margin-top:5px">&nbsp;</a>
+    </div>
+</div>
 
 @using (Html.BeginForm("BulkEdit", "Song"))
 {
     Html.AntiForgeryToken();
-    Html.RenderPartial("_ListSongs", @Model, ViewData);
-
-    <p>
-        @if (canEdit)
-        {
+    <div class="row col-xs-12">
+        @{Html.RenderPartial("_ListSongs", @Model, ViewData);}
+    </div>
+    if (canEdit)
+    {
+        <div class="row col-xs-12">
             <input type="hidden" name="filter" value="@ViewBag.SongFilter" />
             <input type="submit" name="action" value="Merge" class="btn btn-" />
             <input type="submit" name="action" value="Delete" class="btn" />
@@ -121,28 +134,44 @@
             @Html.ActionLink("ITunes Batch", "BatchMusicService", new { filter = ViewBag.SongFilter, type = "I", count = 10 }, new { @class = "btn btn-success", role = "button" });
             @Html.ActionLink("Amazon Batch", "BatchMusicService", new { filter = ViewBag.SongFilter, type = "A", count = 10 }, new { @class = "btn btn-success", role = "button" });
             @*@Html.ActionLink("XBox Batch", "BatchMusicService", new { filter = ViewBag.SongFilter, type = "X", count = 10, options = "R1" }, new { @class = "btn btn-success", role = "button" });
-            @Html.ActionLink("ITunes Batch", "BatchMusicService", new { filter = ViewBag.SongFilter, type = "I", count = 10, options = "R1" }, new { @class = "btn btn-success", role = "button" });
-            @Html.ActionLink("Amazon Batch", "BatchMusicService", new { filter = ViewBag.SongFilter, type = "A", count = 10, options = "R1" }, new { @class = "btn btn-success", role = "button" });*@
-        }
-    </p>
+                @Html.ActionLink("ITunes Batch", "BatchMusicService", new { filter = ViewBag.SongFilter, type = "I", count = 10, options = "R1" }, new { @class = "btn btn-success", role = "button" });
+                @Html.ActionLink("Amazon Batch", "BatchMusicService", new { filter = ViewBag.SongFilter, type = "A", count = 10, options = "R1" }, new { @class = "btn btn-success", role = "button" });*@
+            }
+        </div>
+    }
 }
 
+<div class="row">
+    <div class="col-md-8">
+        @Html.PagedListPager(Model, page => Url.Action(ViewBag.SongFilter.Action, new { page, filter = ViewBag.SongFilter }))
+    </div>
+    <div class="col-md-2 pagination-align">
         Page @(Model.PageCount < Model.PageNumber ? 0 : Model.PageNumber) of @Model.PageCount
         (@Model.TotalItemCount songs found.)
-
-        @Html.PagedListPager(Model, page => Url.Action(ViewBag.SongFilter.Action, new { page, filter = ViewBag.SongFilter }))
-
-        @section Scripts {
-            @{
-                if (ViewData.ContainsKey("SongFilter") && ViewBag.SongFilter.Advanced)
-                {
-                    <script>var showAdvanced = true</script>
-                }
-                else
-                {
-                    <script>var showAdvanced = false</script>
-                }
-                string pageScript = "~/Scripts/songindex.js" + Page.ScriptQualifier;
+    </div>
+    <div class="col-md-2 pagination-align">
+        @if (selected != null && selected.Count > 0 && selected[0].Id != "All")
+        {
+            foreach (var dance in selected)
+            {
+                @Html.ActionLink(dance.Name + " Page", dance.Name, "Dances", new { filter = ViewBag.SongFilter, type = "I", count = 1 }, new { @class = "btn btn-default", role = "button" });
             }
-            <script src="@Url.Content(pageScript)" type="text/javascript"></script>
         }
+    </div>
+</div>
+    
+@section Scripts 
+{
+    @{
+        if (ViewData.ContainsKey("SongFilter") && ViewBag.SongFilter.Advanced)
+        {
+            <script>var showAdvanced = true</script>
+        }
+        else
+        {
+            <script>var showAdvanced = false</script>
+        }
+        string pageScript = "~/Scripts/songindex.js" + Page.ScriptQualifier;
+    }
+    <script src="@Url.Content(pageScript)" type="text/javascript"></script>
+}
