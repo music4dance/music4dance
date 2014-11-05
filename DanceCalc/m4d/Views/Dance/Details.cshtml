@@ -12,8 +12,9 @@
         var md = new MarkdownDeep.Markdown();
         md.ExtraMode = true;
         md.SafeMode = false;
-        description = md.Transform(Model.Dance.Description);
-        description = m4dModels.Dance.PrettyDescription(description);
+        description = Model.Dance.Description;
+        description = m4dModels.Dance.SmartLinks(description,true);
+        description = md.Transform(description);
     }
 }
 

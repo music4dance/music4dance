@@ -143,12 +143,16 @@ namespace m4dModels.Tests
         [TestMethod]
         public void PrettyLinkTest()
         {
-            string initial = "*East Coast Swing* is a standardized dance in <//American Rhythm> style dancing as well as a social partner dance.  It is one of a number of different swing dances that developed concurrently with the swing style of jazz music in the mid twentieth century.  This group of dances also includes <//Lindy Hop>,  <//Carolina Shag>, <//Balboa>, <//West Coast Swing>, and <//Jive>.    The *East Coast Swing* is generally danced as the first dance of <//American Rhythm> competitions.";
+            string initial = "*East Coast Swing* is a standardized dance in [American Rhythm] style competition dancing as well as a social partner dance.  It is one of a number of different swing dances that developed concurrently with the swing style of jazz music in the mid twentieth century.  This group of dances also includes [Lindy Hop],  [Carolina Shag], [Balboa], [West Coast Swing], and [Jive].  \r\n\r\nThis dance may also be referred to as Eastern Swing, Triple Swing, Triple Step Swing, American Swing, or just Swing.\r\n\r\nThe *East Coast Swing* is generally danced as the first dance of [American Rhythm] competitions.";
+            string expected = @"*East Coast Swing* is a standardized dance in <a href='http://en.wikipedia.org/wiki/List_of_DanceSport_dances#Rhythm'>American Rhythm</a> style competition dancing as well as a social partner dance.  It is one of a number of different swing dances that developed concurrently with the swing style of jazz music in the mid twentieth century.  This group of dances also includes <a href='/Dances/Lindy Hop'>Lindy Hop</a>,  <a href='/Dances/Carolina Shag'>Carolina Shag</a>, <a href='/Dances/Balboa'>Balboa</a>, <a href='/Dances/West Coast Swing'>West Coast Swing</a>, and <a href='/Dances/Jive'>Jive</a>.  
 
-            string pretty = Dance.PrettyDescription(initial);
+This dance may also be referred to as Eastern Swing, Triple Swing, Triple Step Swing, American Swing, or just Swing.
+
+The *East Coast Swing* is generally danced as the first dance of <a href='http://en.wikipedia.org/wiki/List_of_DanceSport_dances#Rhythm'>American Rhythm</a> competitions.";
+            string pretty = Dance.SmartLinks(initial);
 
             Trace.WriteLine(pretty);
-            Assert.AreEqual("*East Coast Swing* is a standardized dance in <a href='http://en.wikipedia.org/wiki/List_of_DanceSport_dances#Rhythm'>American Rhythm</a> style dancing as well as a social partner dance.  It is one of a number of different swing dances that developed concurrently with the swing style of jazz music in the mid twentieth century.  This group of dances also includes <a href='/Dances/Lindy Hop'>Lindy Hop</a>,  <a href='/Dances/Carolina Shag'>Carolina Shag</a>, <a href='/Dances/Balboa'>Balboa</a>, <a href='/Dances/West Coast Swing'>West Coast Swing</a>, and <a href='/Dances/Jive'>Jive</a>.    The *East Coast Swing* is generally danced as the first dance of <a href='http://en.wikipedia.org/wiki/List_of_DanceSport_dances#Rhythm'>American Rhythm</a> competitions.", pretty);
+            Assert.AreEqual(expected, pretty);
         }
         static bool ListEquivalent(IList<string> expected, IList<string> actual)
         {

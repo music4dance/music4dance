@@ -577,13 +577,17 @@ namespace m4d.Controllers
                     }
                 }
 
-                if (!string.Equals(reloadDatabase, "update", StringComparison.InvariantCultureIgnoreCase))
-                {
-                    Database.LoadSongs(lines);
-                }
-                else
+                if (string.Equals(reloadDatabase, "update songs", StringComparison.InvariantCultureIgnoreCase))
                 {
                     Database.UpdateSongs(lines);
+                }
+                else if (string.Equals(reloadDatabase, "update dances", StringComparison.InvariantCultureIgnoreCase))
+                {
+                    Database.LoadDances(lines);
+                }
+                else 
+                {
+                    Database.LoadSongs(lines);
                 }
 
                 SongCounts.ClearCache(); 
