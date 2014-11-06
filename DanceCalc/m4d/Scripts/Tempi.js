@@ -6,7 +6,7 @@ var DanceHeader = function(title,key,detail,parent)
     this.detailed = detail;
 
     this.show = ko.computed(function () {
-        return !this.detailed || parent.showDetails();
+        return !this.detailed || this.detailed();
     }, this);
 }
 
@@ -215,16 +215,31 @@ var rootMapping = {
     create: function (options) {
         var self = ko.mapping.fromJS(options.data,danceMapping);
 
+        self.showDanceSport = ko.computed(function () {
+            ret = self.showDetails() && (self.orgFilter() == 0);
+            return ret;
+        }, this);
+
+        self.showNDCA_A = ko.computed(function () {
+            ret = self.showDetails() && (self.orgFilter() === 0 || self.orgFilter() === 2);
+            return ret;
+        }, this);
+
+        self.showNDCA_B = ko.computed(function () {
+            ret = self.showDetails() && (self.orgFilter() === 0 || self.orgFilter() === 2);
+            return ret;
+        }, this);
+
         self.headers = ko.observableArray([
-            new DanceHeader('Name', 'Name', false,self),
-            new DanceHeader('Meter', 'Meter', false,self),
-            new DanceHeader('MPM', 'MPM', false,self),
-            new DanceHeader('DanceSport', 'BPM', true,self),
-            new DanceHeader('NDCA A*', 'BPM', true, self),
-            new DanceHeader('NDCA B*', 'BPM', true, self),
-            new DanceHeader('BPM', 'BPM', false, self),
-            new DanceHeader('Type', 'Type', false, self),
-            new DanceHeader('Style(s)', 'Style', false, self)
+            new DanceHeader('Name', 'Name', null,self),
+            new DanceHeader('Meter', 'Meter', null, self),
+            new DanceHeader('MPM', 'MPM', null, self),
+            new DanceHeader('DanceSport', 'BPM', self.showDanceSport,self),
+            new DanceHeader('NDCA A*', 'BPM', self.showNDCA_A, self),
+            new DanceHeader('NDCA B*', 'BPM', self.showNDCA_B, self),
+            new DanceHeader('BPM', 'BPM', null, self),
+            new DanceHeader('Type', 'Type', null, self),
+            new DanceHeader('Style(s)', 'Style', null, self)
         ]);
 
         self.styleFilter = ko.observable(paramStyle);
