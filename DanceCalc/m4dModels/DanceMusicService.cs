@@ -1146,7 +1146,6 @@ namespace m4dModels
                 type = _context.TagTypes.Add(type);
             }
             type.AddCategory(categories);
-            Trace.WriteLine(type.ToString());
             return type;
         }
 
