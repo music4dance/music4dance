@@ -1,8 +1,6 @@
-﻿function danceAction(id) {
-    Debug.write("Dance Id=" + id + "\r\n");
+﻿var danceAction = function(id) {
     $('#addDances option[value="' + id + '"]').attr('selected', 'selected');
     $('#addDances').trigger('chosen:updated');
-
 }
 
 /// Helper functions

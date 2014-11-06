@@ -178,7 +178,10 @@ namespace m4dModels
         static public SongCounts FromName(string name, DanceMusicService dms)
         {
             SongCounts s = GetFlatSongCounts(dms).FirstOrDefault(sc => string.Equals(sc.DanceName,name,StringComparison.OrdinalIgnoreCase));
-            s.SetTopSongs(10,dms);
+            if (s!= null)
+            {
+                s.SetTopSongs(10, dms);
+            }
             return s;
         }
         static public int GetScaledRating(IDictionary<string,SongCounts> map, string danceId, int weight, int scale = 5)

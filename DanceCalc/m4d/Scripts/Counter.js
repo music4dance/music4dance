@@ -32,6 +32,19 @@ var labels = ["BPM ", "2/4 MPM ", "3/4 MPM ", "4/4 MPM "];
 var tempoId = "#Tempo";
 var mpmId = "#MPM";
 
+var danceAction = function (id) {
+    for (var i = 0; i < dances.length; i++)
+    {
+        if (dances[i].Id === id)
+        {
+            name = dances[i].Name;
+        }
+    }
+
+    if (name)
+        window.location.href = '/Dances/' + name;
+}
+
 $(document).ready(function () {
     if (typeof paramShowBPM === 'boolean')
     {

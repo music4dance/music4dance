@@ -33,7 +33,15 @@ namespace m4d.Controllers
             else
             {
                 ViewBag.DanceMap = SongCounts.GetDanceMap(Database);
-                return View("Details",SongCounts.FromName(dance, Database));
+                SongCounts sc = SongCounts.FromName(dance, Database);
+                if (sc != null)
+                {
+                    return View("Details", sc);
+                }
+                else
+                {
+                    return HttpNotFound();
+                }
             }
         }
 
