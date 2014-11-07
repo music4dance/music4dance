@@ -10,10 +10,9 @@ namespace m4dModels
         {
             get
             {
-                return _default;
+                return new SongFilter();
             }
         }
-        static private SongFilter _default = new SongFilter();
 
         public SongFilter()
         {

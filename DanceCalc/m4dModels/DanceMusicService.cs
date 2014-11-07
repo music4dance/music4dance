@@ -1013,6 +1013,10 @@ namespace m4dModels
                     // TODO: Get this working for multi-dance selection
                     {
                         string did = TrySingleId(danceList);
+                        if (did == null)
+                        {
+                            did = TrySingleId(new string[] {filter.Dances});
+                        }
                         if (did != null)
                         {
                             //DanceRating drE = new DanceRating() { Weight = 0 };

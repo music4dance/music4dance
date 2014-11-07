@@ -28,9 +28,7 @@ namespace m4d.Controllers
         [AllowAnonymous]
         public ActionResult Dances()
         {
-            var data = SongCounts.GetSongCounts(Database);
-
-            return View(data);
+            return RedirectPermanent("/Dances");
         }
 
         [AllowAnonymous]
