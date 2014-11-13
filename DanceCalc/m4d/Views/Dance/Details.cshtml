@@ -42,7 +42,7 @@
 </div>
 
 <div>
-    <p>@Html.ActionLink("Browse", "Search", "Song", new { dances = @Model.DanceId }, null) all <b>@Model.SongCount</b> @Model.DanceName songs in the @Html.ActionLink("music4dance", "Index", "Home") @Html.ActionLink("catalog", "Search", "Song").</p>
+    <p>@Html.ActionLink("Browse", "Search", "Song", new { dances = @Model.DanceId }, null) all <b>@Model.SongCount</b> @Model.DanceName songs in the music4dance @Html.ActionLink("catalog", "Search", "Song").</p>
 </div>
 
 
@@ -100,10 +100,12 @@
 
 @{
     string pageScript = "~/Scripts/showdance.js" + Page.ScriptQualifier;
+    string msScript = "~/Scripts/musicservice.js" + Page.ScriptQualifier;
 }
 
 @section Scripts {
     @Scripts.Render("~/bundles/jqueryval")
+    <script src="@Url.Content(msScript)" type="text/javascript"></script>
     <script src="@Url.Content(pageScript)" type="text/javascript"></script>
 }
 

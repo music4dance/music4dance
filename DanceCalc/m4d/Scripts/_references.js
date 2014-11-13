@@ -22,3 +22,5 @@
 /// <reference path="songindex.js" />
 /// <reference path="tempi.js" />
 /// <reference path="undo.js" />
+/// <reference path="markdowndeeplib.min.js" />
+/// <reference path="musicservice.js" />

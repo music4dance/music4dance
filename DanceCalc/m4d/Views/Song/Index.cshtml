@@ -48,69 +48,69 @@
 
     <div class="row">
         <div class="col-xs-12">
-            <div class="input-group" style="margin-top:10px">
-                <div class="input-group-btn search-panel">
-                    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
-                        <span id="dance_selector">@danceName</span> <span class="caret"></span>
-                    </button>
-                    <ul class="dropdown-menu" role="menu">
-                        <li id="DID_ALL"><a href="#ALL"><strong>All Dances</strong></a></li>
-                        @foreach (var sc in dances.OrderBy(x => x.DanceName))
+    <div class="input-group" style="margin-top:10px">
+        <div class="input-group-btn search-panel">
+            <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                <span id="dance_selector">@danceName</span> <span class="caret"></span>
+            </button>
+            <ul class="dropdown-menu" role="menu">
+                <li id="DID_ALL"><a href="#ALL"><strong>All Dances</strong></a></li>
+                @foreach (var sc in dances.OrderBy(x => x.DanceName))
+                {
+                    string id = "DID_" + sc.DanceId;
+                    string href = "#" + sc.DanceId;
+                    <li id="@id"><a href=@href><strong>@sc.DanceName</strong></a></li>
+                    foreach (var sci in sc.Children.OrderBy(x => x.DanceName))
+                    {
+                        if (sci.SongCount > 0)
                         {
-                            string id = "DID_" + sc.DanceId;
-                            string href = "#" + sc.DanceId;
-                            <li id="@id"><a href=@href><strong>@sc.DanceName</strong></a></li>
-                            foreach (var sci in sc.Children.OrderBy(x => x.DanceName))
-                            {
-                                if (sci.SongCount > 0)
-                                {
-                                    id = "DID_" + sci.DanceId;
-                                    href = "#" + sci.DanceId;
-                                    <li id="@id"><a href=@href><small>&nbsp;@sci.DanceName</small></a></li>
-                                }
-                            }
+                            id = "DID_" + sci.DanceId;
+                            href = "#" + sci.DanceId;
+                            <li id="@id"><a href=@href><small>&nbsp;@sci.DanceName</small></a></li>
                         }
-                    </ul>
-                </div>
-                <input type="hidden" name="dances" id="dances" value="@danceID" />
-                <input type="hidden" name="filter" id="filter" value="@ViewBag.SongFilter.ToString()" />
-                @Html.TextBox("SearchString", ViewBag.SongFilter.SearchString as string, new { @class = "form-control search-text", placeholder = "Artist, Title, or Album" })
-                <span class="input-group-btn">
-                    <button id="submit-search" class="btn btn-default" type="submit"><span class="glyphicon glyphicon-search"></span></button>
-                </span>
-            </div>
+                    }
+                }
+            </ul>
+        </div>
+        <input type="hidden" name="dances" id="dances" value="@danceID" />
+        <input type="hidden" name="filter" id="filter" value="@ViewBag.SongFilter.ToString()" />
+        @Html.TextBox("SearchString", ViewBag.SongFilter.SearchString as string, new { @class = "form-control search-text", placeholder = "Artist, Title, or Album" })
+        <span class="input-group-btn">
+            <button id="submit-search" class="btn btn-default" type="submit"><span class="glyphicon glyphicon-search"></span></button>
+        </span>
+    </div>
         </div>
     </div>
     <div class="row">
         <div class="col-xs-12">
             <div id="AdvancedSearch" class="input-group">
-                <div class="input-group">
-                    Include only song available on:
-                    <label>
-                        <input type="checkbox" name="services" id="serviceX" value="X" @checkX />
-                        XBox
-                    </label>
-                    <label>
-                        <input type="checkbox" name="services" id="serviceA" value="A" @checkA />
-                        Amazon
-                    </label>
-                    <label>
-                        <input type="checkbox" name="services" id="serviceI" value="I" @checkI />
-                        ITunes
-                    </label>
-                </div>
+        <div class="input-group">
+            Include only song available on:
+            <label>
+                <input type="checkbox" name="services" id="serviceX" value="X" @checkX />
+                XBox
+            </label>
+            <label>
+                <input type="checkbox" name="services" id="serviceA" value="A" @checkA />
+                Amazon
+            </label>
+            <label>
+                <input type="checkbox" name="services" id="serviceI" value="I" @checkI />
+                ITunes
+            </label>
+        </div>
 
-                <div class="input-group">
-                    Tempo between @Html.TextBox("TempoMin", ViewBag.SongFilter.TempoMin as decimal?, new { @class = "input-small" })&nbsp;and&nbsp;
-                    @Html.TextBox("TempoMax", ViewBag.SongFilter.TempoMax as decimal?, new { @class = "input-small" }) &nbsp;BPM
-                </div>
-            </div>
+        <div class="input-group">
+            Tempo between @Html.TextBox("TempoMin", ViewBag.SongFilter.TempoMin as decimal?, new { @class = "input-small" })&nbsp;and&nbsp;
+            @Html.TextBox("TempoMax", ViewBag.SongFilter.TempoMax as decimal?, new { @class = "input-small" }) &nbsp;BPM
+        </div>
+    </div>
         </div>
     </div>
 }
 <div class="row">
     <div class="col-md-12">
-        <a id="ToggleAdvanced" href="#" class="btn btn-info btn-xs btn-block" style="margin-top:5px">&nbsp;</a>
+<a id="ToggleAdvanced" href="#" class="btn btn-info btn-xs btn-block" style="margin-top:5px">&nbsp;</a>
     </div>
 </div>
 
@@ -121,7 +121,7 @@
         @{Html.RenderPartial("_ListSongs", @Model, ViewData);}
     </div>
     if (canEdit)
-    {
+        {
         <div class="row col-xs-12">
             <input type="hidden" name="filter" value="@ViewBag.SongFilter" />
             <input type="submit" name="action" value="Merge" class="btn btn-" />
@@ -134,9 +134,9 @@
             @Html.ActionLink("ITunes Batch", "BatchMusicService", new { filter = ViewBag.SongFilter, type = "I", count = 10 }, new { @class = "btn btn-success", role = "button" });
             @Html.ActionLink("Amazon Batch", "BatchMusicService", new { filter = ViewBag.SongFilter, type = "A", count = 10 }, new { @class = "btn btn-success", role = "button" });
             @*@Html.ActionLink("XBox Batch", "BatchMusicService", new { filter = ViewBag.SongFilter, type = "X", count = 10, options = "R1" }, new { @class = "btn btn-success", role = "button" });
-                @Html.ActionLink("ITunes Batch", "BatchMusicService", new { filter = ViewBag.SongFilter, type = "I", count = 10, options = "R1" }, new { @class = "btn btn-success", role = "button" });
-                @Html.ActionLink("Amazon Batch", "BatchMusicService", new { filter = ViewBag.SongFilter, type = "A", count = 10, options = "R1" }, new { @class = "btn btn-success", role = "button" });*@
-            }
+            @Html.ActionLink("ITunes Batch", "BatchMusicService", new { filter = ViewBag.SongFilter, type = "I", count = 10, options = "R1" }, new { @class = "btn btn-success", role = "button" });
+            @Html.ActionLink("Amazon Batch", "BatchMusicService", new { filter = ViewBag.SongFilter, type = "A", count = 10, options = "R1" }, new { @class = "btn btn-success", role = "button" });*@
+        }
         </div>
     }
 }
@@ -159,19 +159,21 @@
         }
     </div>
 </div>
-    
+
 @section Scripts 
 {
-    @{
-        if (ViewData.ContainsKey("SongFilter") && ViewBag.SongFilter.Advanced)
-        {
-            <script>var showAdvanced = true</script>
+            @{
+                if (ViewData.ContainsKey("SongFilter") && ViewBag.SongFilter.Advanced)
+                {
+                    <script>var showAdvanced = true</script>
+                }
+                else
+                {
+                    <script>var showAdvanced = false</script>
+                }
+                string pageScript = "~/Scripts/songindex.js" + Page.ScriptQualifier;
+                string msScript = "~/Scripts/musicservice.js" + Page.ScriptQualifier;
+            }
+            <script src="@Url.Content(msScript)" type="text/javascript"></script>
+            <script src="@Url.Content(pageScript)" type="text/javascript"></script>
         }
-        else
-        {
-            <script>var showAdvanced = false</script>
-        }
-        string pageScript = "~/Scripts/songindex.js" + Page.ScriptQualifier;
-    }
-    <script src="@Url.Content(pageScript)" type="text/javascript"></script>
-}
