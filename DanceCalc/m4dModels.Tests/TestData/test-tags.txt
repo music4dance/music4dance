@@ -1,186 +1,195 @@
-﻿Genre	acoustic-audio-recordings
-Genre	Adult Alternative
-Genre	Adult Contemporary
-Genre	adult-contemporary-pop
-Genre	album-oriented-rock
-Genre	Alternative
-Genre	Alternative Folk
-Genre	Alternativo & Rock Latino
-Dance	American Bolero
-Dance	American Cha Cha
-Dance	American East Coast Swing
-Dance	American Hustle
-Dance	American Mambo
-Dance	American Merengue
-Dance	American Paso Doble
-Dance	American Peabody
-Dance	American Polka
-Dance	American Rumba
-Dance	American Salsa
-Dance	American Samba
-Dance	American Slow Foxtrot
-Dance	American Slow Waltz
-Dance	American Tango (Ballroom)
-Dance	American Viennese Waltz
-Dance	American West Coast Swing
-Dance	Argentine Tango
-Dance	Bachata
-Genre	Baladas y Boleros
-Dance	Balboa
-Genre	baroque-pop
-Genre	Bebop
-Genre	Big Band
-Genre	big-band-swing
-Genre	bluegrass
-Dance|Genre	Blues
-Genre	Blues / Folk
-Genre	Blues-Rock
-Dance	Bolero
-Genre	bop-jazz
-Dance	Bossa Nova
-Genre	Brazilian
-Genre	brazilian-jazz
-Genre	Britpop
-Genre	broadway-and-vocal
-Genre	caribbean
-Dance	Carolina Shag
-Dance	Castle Foxtrot
-Dance	Cha Cha
-Genre	childrens
-Genre	Children's Music
-Genre	Christian & Gospel
-Genre	Christian / Gospel
-Genre	Classical
-Genre	classic-r-b
-Genre	classic-rock
-Genre	Comedy
-Genre	Comedy / Spoken Word
-Genre	compilations
-Genre	Contemporary Blues
-Genre	Contemporary Country
-Genre	contemporary-country
-Genre	contemporary-folk
-Genre	cool-jazz
-Genre	Country
-Dance	Country Two Step
-Genre	Crossover Jazz
-Dance	Cumbia
-Genre	Dance
-Genre	dance-and-dj
-Genre	Disco
-Genre	Dixieland
-Dance	East Coast Swing
-Genre	Easy Listening
-Genre	easy-listening
-Genre	Electric Blues
-Genre	Electronic
-Genre	Electronic / Dance
-Genre	environmental-sound-effect-recordings
-Genre	Europe
-Genre	european
-Genre	Fitness & Workout
-Genre	folk
-Dance	Foxtrot
-Genre	French Pop
-Genre	funk
-Genre	German Pop
-Genre	Hard Bop
-Genre	Heavy Metal
-Genre	Hip Hop
-Genre	Hip Hop/Rap
-Genre	Holiday
-Genre	Honky Tonk
-Dance	Hustle
-Genre	Indian Pop
-Genre	Instrumental
-Genre	international
-Dance	International Cha Cha
-Dance	International Jive
-Dance	International Paso Doble
-Dance	International QuickStep
-Dance	International Rumba
-Dance	International Samba
-Dance	International Slow Foxtrot
-Dance	International Slow Waltz
-Dance	International Tango (Ballroom)
-Dance	International Viennese Waltz
-Genre	Jazz
-Dance	Jive
-Genre	J-Pop
-Dance	Jump Swing
-Genre	Kids
-Dance|Genre	Latin
-Genre	Latin Jazz
-Genre	Latin Urban
-Dance	Lindy Hop
-Dance	Mambo
-Dance	Merengue
-Dance	Milonga
-Genre	miscellaneous-audio-recordings
-Genre	More
-Genre	Motown
-Genre	movie-scores
-Genre	movie-soundtracks
-Genre	Music
-Dance	Neo Tango
-Genre	New Age
-Dance	Night Club Two Step
-Genre	oldies
-Dance	Other
-Dance	Paso Doble
-Dance	Peabody
-Dance|Genre	Polka
-Genre	Pop
-Genre	Pop Latino
-Genre	Punk
-Dance	QuickStep
-Genre	R&B / Soul
-Genre	R&B/Soul
-Genre	Raices
-Genre	rap-hip-hop
-Genre	r-b
-Genre	Reggae
-Genre	Reggae / Dancehall
-Genre	Regional Mexicano
-Genre	rhythm-and-blues
-Genre	Rock
-Genre	Rock & Roll
-Genre	Rockabilly
-Dance	Rumba
-Dance	Salsa
-Genre	Salsa y Tropical
-Dance	Samba
-Genre	Sertanejo
-Genre	Singer/Songwriter
-Dance	Slow Foxtrot
-Dance	Slow Waltz
-Dance	Social Argentine Tango
-Dance	Social Bachata
-Dance	Social Carolina Shag
-Dance	Social Country Two Step
-Dance	Social Cumbia
-Dance	Social Lindy Hop
-Dance	Social Milonga
-Dance	Social Neo Tango
-Dance	Social Night Club Two Step
-Genre	Soft Rock
-Genre	Soul
-Genre	Soundtrack
-Genre	Soundtracks
-Genre	South America
-Genre	Southern Rock
-Genre	Spoken Word
-Genre	Standards
-Dance|Genre	Swing
-Dance	Tango
-Dance	Tango (Ballroom)
-Genre	Traditional Pop
-Genre	TV Soundtrack
-Genre	Verve
-Dance	Viennese Waltz
-Genre	Vocal
-Genre	Vocal Jazz
-Genre	Vocal Pop
-Dance	Waltz
-Dance	West Coast Swing
-Genre	World
+﻿Music	acoustic-audio-recordings	
+Music	Adult Alternative	
+Music	Adult Contemporary	
+Music	adult-contemporary-pop	
+Music	album-oriented-rock	
+Music	Alternative Folk	
+Music	Alternative	
+Music	Alternativo & Rock Latino	
+Dance	American Bolero	
+Dance	American Cha Cha	
+Dance	American East Coast Swing	
+Dance	American Hustle	
+Dance	American Mambo	
+Dance	American Merengue	
+Dance	American Paso Doble	
+Dance	American Peabody	
+Dance	American Polka	
+Dance	American Rumba	
+Dance	American Salsa	
+Dance	American Samba	
+Dance	American Slow Foxtrot	
+Dance	American Slow Waltz	
+Dance	American Tango (Ballroom)	
+Dance	American Viennese Waltz	
+Dance	American West Coast Swing	
+Dance	Argentine Tango	
+Dance	Bachata	
+Music	Baladas y Boleros	
+Dance	Balboa	
+Music	baroque-pop	
+Music	Bebop	
+Music	Big Band	
+Music	big-band-swing	
+Music	bluegrass	
+Music	Blues / Folk	
+Dance	Blues	
+Music	Blues	
+Music	Blues-Rock	
+Dance	Bolero	
+Music	bop-jazz	
+Dance	Bossa Nova	
+Music	Brazilian	
+Music	brazilian-jazz	
+Music	Britpop	
+Music	broadway-and-vocal	
+Music	caribbean	
+Dance	Carolina Shag	
+Dance	Castle Foxtrot	
+Dance	Cha Cha	
+Music	Children's Music	
+Music	childrens	
+Music	Christian & Gospel	
+Music	Christian / Gospel	
+Music	Classical	
+Music	classic-r-b	
+Music	classic-rock	
+Music	Comedy / Spoken Word	
+Music	Comedy	
+Music	compilations	
+Music	Contemporary Blues	
+Music	Contemporary Country	
+Music	contemporary-country	
+Music	contemporary-folk	
+Music	cool-jazz	
+Dance	Country Two Step	
+Music	Country	
+Music	Crossover Jazz	
+Dance	Cumbia	
+Music	Dance	
+Music	dance-and-dj	
+Music	Disco	
+Music	Dixieland	
+Dance	East Coast Swing	
+Music	Easy Listening	
+Music	easy-listening	Easy Listening:Music
+Music	Electric Blues	
+Music	Electronic / Dance	
+Music	Electronic	
+Music	environmental-sound-effect-recordings	
+Music	Europe	european:Music
+Music	european	
+Music	Fitness & Workout	
+Music	folk	
+Dance	Foxtrot	
+Music	French Pop	
+Music	funk	
+Music	German Pop	
+Music	Hard Bop	
+Music	Heavy Metal	
+Music	Hip Hop/Rap	
+Music	Hip Hop	
+Music	HipHop	
+Music	Holiday	
+Music	Honky Tonk	
+Dance	Hustle	
+Music	Indian Pop	
+Music	Instrumental	
+Dance	International Cha Cha	
+Dance	International Jive	
+Dance	International Paso Doble	
+Dance	International QuickStep	
+Dance	International Rumba	
+Dance	International Samba	
+Dance	International Slow Foxtrot	
+Dance	International Slow Waltz	
+Dance	International Tango (Ballroom)	
+Dance	International Viennese Waltz	
+Music	international	
+Music	Jazz	
+Dance	Jive	
+Music	J-Pop	
+Dance	Jump Swing	
+Music	Kids	
+Music	Latin Jazz	
+Music	Latin Urban	
+Dance	Latin	
+Music	Latin	
+Dance	Lindy Hop	
+Dance	Mambo	
+Dance	Merengue	
+Dance	Milonga	
+Music	miscellaneous-audio-recordings	
+Music	More	
+Music	Motown	
+Music	movie-scores	
+Music	movie-soundtracks	
+Music	Music	
+Dance	Neo Tango	
+Music	New Age	
+Dance	Night Club Two Step	
+Music	oldies	
+Dance	Other	
+Dance	Paso Doble	
+Dance	Peabody	
+Dance	Polka	
+Music	Polka	
+Music	Pop Latino	
+Music	Pop	
+Music	Poppin	
+Music	Punk	
+Dance	QuickStep	
+Music	R&B / Soul	
+Music	R&B/Soul	R&B / Soul:Music
+Music	Raices	
+Music	rap-hip-hop	
+Music	r-b	rhythm-and-blues:Music
+Music	Reggae / Dancehall	
+Music	Reggae	
+Music	Regional Mexicano	
+Music	rhythm-and-blues	
+Music	Rock & Roll	
+Music	Rock	Rock & Roll:Music
+Music	Rockabilly	
+Dance	Rumba	
+Music	Salsa y Tropical	
+Dance	Salsa	
+Dance	Samba	
+Music	Sertanejo	
+Music	Singer/Songwriter	
+Dance	Slow Foxtrot	
+Dance	Slow Waltz	
+Dance	Social Argentine Tango	
+Dance	Social Bachata	
+Dance	Social Carolina Shag	
+Dance	Social Country Two Step	
+Dance	Social Cumbia	
+Dance	Social Lindy Hop	
+Dance	Social Milonga	
+Dance	Social Neo Tango	
+Dance	Social Night Club Two Step	
+Music	Soft Rock	
+Music	Soul	
+Music	Soundtrack	
+Music	Soundtracks	Soundtrack:Music
+Music	South America	
+Music	Southern Rock	
+Music	Spoken Word	
+Music	Standards	
+Other	Strict Tempo	
+Dance	Swing	
+Music	Swing	
+Dance	Tango (Ballroom)	
+Dance	Tango	
+Music	Tango	
+Music	Trad Jazz	
+Music	Traditional Pop	
+Music	TV Soundtrack	
+Music	Verve	
+Dance	Viennese Waltz	
+Music	Vocal Jazz	
+Music	Vocal Pop	
+Music	Vocal	
+Dance	Waltz	
+Dance	West Coast Swing	
+Music	World	

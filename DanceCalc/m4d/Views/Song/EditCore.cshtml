@@ -144,9 +144,9 @@
     <div class="editor-field row col-md-12">
         @{
             string tagValues = string.Empty;
-            if (ViewData.Keys.Contains("TagValues"))
+            if (Model.CurrentUserTags != null)
             {
-                tagValues = ViewBag.TagValues;
+                tagValues = Model.CurrentUserTags.ToString();
             }
         }
         @Html.TextBox("editTags", @tagValues, new { @class = "form-control" })

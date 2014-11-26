@@ -24,9 +24,10 @@
     <li>@Html.ActionLink("Clean up Tempi", "CleanTempi")</li>
     <li>@Html.ActionLink("Fix up Artists", "FixArtists")</li>
     <li>@Html.ActionLink("Update Albums", "UpdateAlbums")</li>
-    <li>@Html.ActionLink("Update Tag Types", "UpdateTagTypes")</li>
-    <li>@Html.ActionLink("Add Dance Groups", "AddDanceGroups")</li>
-    <li>@Html.ActionLink("Clean Tags", "CleanTags")</li>
+    @*<li>@Html.ActionLink("Update Tag Types", "UpdateTagTypes")</li>*@
+    <li>@Html.ActionLink("Update Tag Sumaries", "UpdateTagSumamries")</li>
+    @*<li>@Html.ActionLink("Add Dance Groups", "AddDanceGroups")</li>
+    <li>@Html.ActionLink("Clean Tags", "CleanTags")</li>*@
     <li>@Html.ActionLink("Infer Dance Types", "InferDanceTypes")</li>
     <li>@Html.ActionLink("Clear Song Cache", "ClearSongCache")</li>
 </ul>
@@ -69,6 +70,16 @@
 
 @if (User.IsInRole("dbAdmin"))
 {
+    <hr />
+
+    <h3>Upload Tag Types</h3>
+    using (Html.BeginForm("UploadTagTypes", "Admin", FormMethod.Post, new { enctype = "multipart/form-data" }))
+    {
+        @Html.AntiForgeryToken();
+        <input type="file" name="FileUpload" />
+        <br />
+        <input type="submit" name="UploadTags" id="Submit" value="Upload" />
+    }
     <hr />
 
     <h3>Upload Tags</h3>

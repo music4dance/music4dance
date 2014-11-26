@@ -5,6 +5,8 @@ namespace m4dModels
 {
     public class LogBase
     {
+        protected const char RecordSeparator = '\x1E';
+        protected const char UnitSeparator = '\x1F';
         public string Data { get; set; }
 
         public void UpdateData(string name, string value, string oldValue = null)
@@ -15,7 +17,7 @@ namespace m4dModels
             }
             else
             {
-                Data += "|";
+                Data += RecordSeparator;
             }
 
             if (string.IsNullOrWhiteSpace(value))
@@ -23,17 +25,10 @@ namespace m4dModels
                 value = string.Empty;
             }
 
-            value = value.Replace('|', '_');
-
+            Data += string.Format("{0}{1}{2}", name, UnitSeparator, value);
             if (oldValue != null)
             {
-                oldValue = oldValue.Replace('|', '_');
-            }
-
-            Data += string.Format("{0}\t{1}", name, value);
-            if (oldValue != null)
-            {
-                Data += string.Format("\t{0}", oldValue);
+                Data += string.Format("{0}{1}", UnitSeparator,oldValue);
             }
         }
 
@@ -108,7 +103,7 @@ namespace m4dModels
             {
                 values = new List<LogValue>();
 
-                string[] entries = Data.Split(new char[] { '|' }, StringSplitOptions.RemoveEmptyEntries);
+                string[] entries = Data.Split(new char[] { RecordSeparator }, StringSplitOptions.RemoveEmptyEntries);
 
                 foreach (string entry in entries)
                 {
@@ -116,7 +111,7 @@ namespace m4dModels
                     string value = null;
                     string old = null;
 
-                    string[] cells = entry.Split(new char[] { '\t' });
+                    string[] cells = entry.Split(new char[] { UnitSeparator });
 
                     if (cells.Length > 0)
                     {

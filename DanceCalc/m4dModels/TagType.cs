@@ -9,65 +9,62 @@ namespace m4dModels
     public class TagType : DbObject
     {
         #region Properties
+        public string Key { get; set; }
         // The user visible tag
-        public string Value { get; set; }
-
-        // A | separated list of categories (generally this will be one or maybe two)
-        public string Categories { get; set; }
-        public int Count { get; set; }
-
-        // Helper property to get categories in list form (this is a pseudo-property
-        //  backed by the Categories physical property)
-        public IList<string> CategoryList
+        public string Value 
         {
             get
             {
-                List<string> list = null;
-                if (string.IsNullOrWhiteSpace(Categories))
-                {
-                    list = new List<string>();
-                }
-                else
-                {
-                    list = Categories.Split(new char[] { '|' }).ToList();
-                }
-                return list;
+                return Key.Substring(0, Key.IndexOf(':'));
             }
-            set
+        }
+
+        // A single tag category/namespace
+        public string Category
+        { 
+            get
             {
-                Categories = string.Join("|",value);
+                return Key.Substring(Key.IndexOf(':')+1);
+            }
+        }
+
+        // The total number of refernces to this tag
+        public int Count { get; set; }
+
+        // For tag rings, point to the 'primary' variation of the tag
+        public string PrimaryId { get; set; }
+        public virtual TagType Primary {get; set;}
+        public virtual ICollection<TagType> Ring {get; set;}
+        #endregion
+
+        #region Constructors
+        public TagType() { }
+
+        public TagType(string tag)
+        {
+            if (!tag.Contains(':'))
+            {
+                Key = tag + ":Other";
+            }
+            else
+            {
+                Key = tag;
             }
         }
         #endregion
 
-        public void AddCategory(string categories)
-        {
-            if (string.IsNullOrWhiteSpace(categories))
-            {
-                return;
-            }
-
-            string[] list = categories.Split(new char[] { '|' }, StringSplitOptions.RemoveEmptyEntries);
-
-            foreach (string item in list)
-            {
-                if (!CategoryList.Contains(item))
-                {
-                    if (string.IsNullOrWhiteSpace(Categories))
-                    {
-                        Categories = item;
-                    }
-                    else
-                    {
-                        Categories = Categories + "|" + item;
-                    }
-                }
-            }
-        }
+        #region Operations
 
         public override string ToString()
         {
-            return string.Format("{0}={1}", Value, Categories);
+            return Key;
         }
+
+        public static string BuildKey(string value, string category)
+        {
+            return string.Format("{0}:{1}", value, category);
+        }
+
+        #endregion
     }
 }

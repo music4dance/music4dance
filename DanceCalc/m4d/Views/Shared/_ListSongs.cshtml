@@ -1,10 +1,10 @@
 ﻿@model IEnumerable<m4dModels.Song>
 
 @{
-    bool canEdit = false;
-    if (User.IsInRole("canEdit"))
+    bool isAdmin = false;
+    if (User.IsInRole("dbAdmin"))
     {
-        canEdit = true;
+        isAdmin = true;
     }
     bool canSort = true;
     if (ViewData.ContainsKey("NoSort"))
@@ -20,7 +20,7 @@
 <table class="table table-striped">
     <thead>
         <tr>
-            @if (canEdit && canSort)
+            @if (canSort && isAdmin)
             {
                 <th>&nbsp;</th>
                 <th>&nbsp;</th>
@@ -82,6 +82,7 @@
                 <th class="hidden-xs">@ViewBag.SongFilter.SortOrder</th>
             }
         </tr>
+
     </thead>
     <tbody>
         @foreach (var item in Model)
@@ -89,7 +90,7 @@
             if (item.Title != null)
             {
                 <tr>
-                    @if (canEdit && canSort)
+                    @if (isAdmin && canSort)
                     {
                         string id = "Selected-" + item.SongId.ToString();
                         <td><input name="selectedSongs" id="@id" type="checkbox" value="@item.SongId" /></td>

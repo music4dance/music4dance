@@ -88,10 +88,11 @@ namespace m4d.Context
 
         public DbSet<DanceRating> DanceRatings { get; set; }
 
+#if NEWTAG
         public DbSet<Tag> Tags { get; set; }
 
         public DbSet<TagType> TagTypes { get; set; }
-
+#endif
         public DbSet<SongLog> Log { get; set; }
 
         public DbSet<ModifiedRecord> Modified { get; set; }
@@ -102,15 +103,26 @@ namespace m4d.Context
         protected override void OnModelCreating(System.Data.Entity.DbModelBuilder modelBuilder)
         {
             modelBuilder.Properties<DateTime>().Configure(c => c.HasColumnType("datetime2"));
+
             modelBuilder.Entity<Song>().Property(song => song.Tempo).HasPrecision(6, 2);
             modelBuilder.Entity<Song>().Ignore(song => song.CurrentLog);
             modelBuilder.Entity<Song>().Ignore(song => song.AlbumName);
             modelBuilder.Entity<Dance>().Property(dance => dance.Id).HasMaxLength(5);
             modelBuilder.Entity<Dance>().Ignore(dance => dance.Info);
             modelBuilder.Entity<DanceRating>().HasKey(dr => new { dr.SongId, dr.DanceId });
-            modelBuilder.Entity<Tag>().HasKey(tag => new { tag.SongId, tag.Value });
-            modelBuilder.Entity<TagType>().HasKey(tt => tt.Value);
-            modelBuilder.Entity<TagType>().Ignore(tt => tt.CategoryList);
+
+#if NEWTAG
+            modelBuilder.Entity<Tag>().HasKey(t => new { t.UserId, t.Id });
+            
+            modelBuilder.Entity<TagType>().HasKey(tt => tt.Key);
+            modelBuilder.Entity<TagType>().Ignore(tt => tt.Value);
+            modelBuilder.Entity<TagType>().Ignore(tt => tt.Category);
+            modelBuilder.Entity<TagType>().HasOptional(x => x.Primary)
+                .WithMany(x => x.Ring)
+                .HasForeignKey(x => x.PrimaryId)
+                .WillCascadeOnDelete(false);
+#endif
+
             modelBuilder.Entity<ModifiedRecord>().HasKey(t => new { t.ApplicationUserId, t.SongId });
             modelBuilder.Entity<ModifiedRecord>().Ignore(mr => mr.UserName);
             modelBuilder.Entity<DanceLink>().HasKey(dl => dl.Id);

@@ -128,14 +128,6 @@
 </table>
 
 <hr/>
-<div class="editor-label">
-    Tags:
-</div>
-<div class="editor-field">
-    @Html.TextBox("Tags", @Model.Tags, new { @class = "form-control" })
-</div>
-
-<hr/>
 @Html.Hidden("SongIds",Model.SongIds)
 
 <input type="hidden" name="filter" value="@ViewBag.SongFilter" />

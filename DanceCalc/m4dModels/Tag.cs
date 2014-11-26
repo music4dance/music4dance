@@ -6,12 +6,12 @@ using System.Threading.Tasks;
 
 namespace m4dModels
 {
-    public class Tag :DbObject
+    public class Tag : DbObject
     {
-        public Guid SongId { get; set; }
-        public virtual Song Song { get; set; }
-        public string Value { get; set; }
-        public virtual TagType Type {get; set;}
-        public int Count { get; set; }
+        public DateTime Modified { get; set; }
+        public string Id { get; set; }
+        public TagList Tags { get; set; }
+        public string UserId { get; set; }
+        public ApplicationUser User { get; set; }
     }
 }

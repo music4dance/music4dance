@@ -9,12 +9,20 @@ using System.Threading.Tasks;
 
 namespace m4dModels
 {
-    public class Dance
+    public class Dance : TaggableObject
     {
         public string Id { get; set; }
         public string Description { get; set; }
         public virtual ICollection<DanceRating> DanceRatings { get; set; }
         public virtual ICollection<DanceLink> DanceLinks { get; set; }
+        public override char IdModifier
+        {
+            get { return 'D'; }
+        }
+        public override string TagIdBase
+        {
+            get { return Id; }
+        }
 
         public string SmartLinks()
         {

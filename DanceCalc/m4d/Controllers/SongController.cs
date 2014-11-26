@@ -210,7 +210,7 @@ namespace m4d.Controllers
         [AllowAnonymous]
         public ActionResult Details(Guid? id = null, SongFilter filter = null)
         {
-            SongDetails song = Database.FindSongDetails(id ?? Guid.Empty);
+            SongDetails song = Database.FindSongDetails(id ?? Guid.Empty, User.Identity.Name);
             if (song == null)
             {
                 return HttpNotFound();
@@ -244,10 +244,10 @@ namespace m4d.Controllers
             if (ModelState.IsValid)
             {
                 ApplicationUser user = Database.FindUser(User.Identity.Name);
-                song.UpdateDanceRatings(addDances, Song.DanceRatingCreate);
-                // TOOD: Think about format of editTags...
-                song.AddTags(Database.ParseTags(editTags));
 
+                song.UpdateDanceRatings(addDances, Song.DanceRatingCreate);
+                TagList tags = new TagList(editTags).Add(new TagList(Song.TagsFromDances(addDances)));
+                song.AddTags(tags.ToString(), user, Database, song);
                 Song newSong = Database.CreateSong(user, song);
 
                 // TODO: Think about if the round-trip is necessary
@@ -264,7 +264,7 @@ namespace m4d.Controllers
             {
                 // Add back in the danceratings
                 // TODO: This almost certainly doesn't preserve edits...
-                SongDetails songT = Database.FindSongDetails(song.SongId);
+                SongDetails songT = Database.FindSongDetails(song.SongId, User.Identity.Name);
                 ViewBag.DanceListAdd = GetDances();
 
                 // Clean out empty albums
@@ -290,7 +290,7 @@ namespace m4d.Controllers
         [Authorize(Roles = "canEdit")] 
         public ActionResult Edit(Guid? id = null, SongFilter filter = null)
         {
-            SongDetails song = Database.FindSongDetails(id??Guid.Empty);
+            SongDetails song = Database.FindSongDetails(id ?? Guid.Empty, User.Identity.Name);
             if (song == null)
             {
                 return HttpNotFound();
@@ -370,8 +370,7 @@ namespace m4d.Controllers
 
                 // Add back in the danceratings
                 // TODO: This almost certainly doesn't preserve edits...
-                SongDetails songT = Database.FindSongDetails(song.SongId);
-
+                SongDetails songT = Database.FindSongDetails(song.SongId, User.Identity.Name);
                 SetupEditViewBag(songT);
 
                 // Clean out empty albums
@@ -545,14 +544,11 @@ namespace m4d.Controllers
                 }
             }
 
-            //TODONEXT: Merge Tags
-            string tags = Request.Form["Tags"];
             Song song = Database.MergeSongs(user, songList, 
                 ResolveStringField(Song.TitleField, songList, Request.Form),
                 ResolveStringField(Song.ArtistField, songList, Request.Form),
                 ResolveDecimalField(Song.TempoField, songList, Request.Form),
                 ResolveIntField(Song.LengthField, songList, Request.Form),
-                tags,
                 albumsOut);
 
             ViewBag.BackAction = "MergeCandidates";
@@ -698,8 +694,9 @@ namespace m4d.Controllers
                             }
                             else
                             {
-                                UpdateMusicService(sd, service, foundTrack.Name, foundTrack.Album, foundTrack.Artist, foundTrack.TrackId, foundTrack.CollectionId, foundTrack.AltId, foundTrack.Duration.ToString(), foundTrack.Genre, foundTrack.TrackNumber);
-                                succeeded.Add(Database.EditSong(user, sd, null, null, null));
+                                // TAGTEST: Test updating genres...
+                                UpdateMusicService(sd, service, foundTrack.Name, foundTrack.Album, foundTrack.Artist, foundTrack.TrackId, foundTrack.CollectionId, foundTrack.AltId, foundTrack.Duration.ToString(), foundTrack.TrackNumber);
+                                succeeded.Add(Database.EditSong(user, sd, null, null, Database.NormalizeTags(foundTrack.Genre,"Music")));
                                 tried += 1;
                             }
                         }
@@ -812,7 +809,9 @@ namespace m4d.Controllers
                 return HttpNotFound();
             }
 
-            SongDetails alt = UpdateMusicService(song, service, name, album, artist, trackId, collectionId, alternateId, duration, genre, trackNum);
+            ApplicationUser user = Database.FindUser(User.Identity.Name);
+            SongDetails alt = UpdateMusicService(song, service, name, album, artist, trackId, collectionId, alternateId, duration, trackNum);
+            song.AddTags(Database.NormalizeTags(genre, "Music"), user, Database, song);
 
             ViewBag.OldSong = alt;
 
@@ -941,7 +940,7 @@ namespace m4d.Controllers
             ViewBag.SongTitle = title;
         }
 
-        SongDetails UpdateMusicService(SongDetails song, MusicService service, string name, string album, string artist, string trackId, string collectionId, string alternateId, string duration, string genre, int? trackNum)
+        SongDetails UpdateMusicService(SongDetails song, MusicService service, string name, string album, string artist, string trackId, string collectionId, string alternateId, string duration, int? trackNum)
         {
             // This is a very transitory object to hold the old values for a semi-automated edit
             SongDetails alt = new SongDetails();
@@ -1020,14 +1019,6 @@ namespace m4d.Controllers
                 }
             }
 
-            if (!string.IsNullOrWhiteSpace(genre))
-            {
-                // This will assign a genre type to whatever this tag is
-                TagType tt = Database.FindOrCreateTagType(genre,"Genre");
-                song.AddTags(tt.Value);
-                ViewBag.TagValues = tt.Value;
-            }
-
             return alt;
         }
         private void UpdateMusicServicePurchase(AlbumDetails ad, MusicService service, PurchaseType pt, string trackId, string alternateId = null)
@@ -1093,13 +1084,11 @@ namespace m4d.Controllers
 
         private Song AutoMerge(List<Song> songs, ApplicationUser user)
         {
-            string tags = string.Join("|", songs.Select(s => s.TagSummary));
             Song song = Database.MergeSongs(user, songs,
                 ResolveStringField(Song.TitleField, songs),
                 ResolveStringField(Song.ArtistField, songs),
                 ResolveDecimalField(Song.TempoField, songs),
                 ResolveIntField(Song.LengthField, songs),
-                tags,
                 SongDetails.BuildAlbumInfo(songs)
                 );
 

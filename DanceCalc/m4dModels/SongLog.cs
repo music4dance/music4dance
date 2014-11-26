@@ -6,14 +6,14 @@ namespace m4dModels
 {
 
     // Data Format:
-    //   Name\tValue[\tOld][|Name\tValue[\tOld]]*
+    //   Name<US>Value[<US>Old][<RS>Name<US>Value[<US>Old]]*
     public class SongLog : LogBase 
     {
         public int Id { get; set; }
         public virtual ApplicationUser User { get; set; }
         public DateTime Time { get; set; }
         public string Action { get; set; }
-        public Guid SongReference { get; set; }        
+        public Guid SongReference { get; set; }
         public string SongSignature { get; set; }
 
         public void Initialize(ApplicationUser user, Song song, string action)
@@ -28,9 +28,9 @@ namespace m4dModels
 
         public bool Initialize(string entry, DanceMusicService dms)
         {
-            string[] cells = entry.Split(new char[] { '|' });
+            string[] cells = entry.Split(new char[] { LogBase.RecordSeparator });
 
-            // user|time|command|id|sig|data...
+            // user<RS>time<RS>command<RS>id<RS>sig<RS>[data]*
 
             if (cells.Length < 4)
             {
@@ -73,9 +73,9 @@ namespace m4dModels
                 SongReference = songId;
             }
 
-            Data = string.Join("|",cells,5,cells.Length-5);
+            Data = string.Join(new string(RecordSeparator,1), cells, 5, cells.Length - 5);
 
             return true;
-        }        
+        }
     }
 }

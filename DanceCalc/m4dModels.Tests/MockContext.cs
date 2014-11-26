@@ -37,7 +37,7 @@ namespace m4dModels.Tests
                 }
                 else
                 {
-                    return this.SingleOrDefault(t => t.Value == id);
+                    return this.SingleOrDefault(tt => tt.Key == id);
                 }
             }
         }
@@ -77,6 +77,13 @@ namespace m4dModels.Tests
                 Users.Add(new ApplicationUser() {UserName="batch", Id="DE3752CA-42CD-46FB-BEE9-F7163CFB091B"});
             }
         }
+
+        #region Events
+        //protected override void OnModelCreating(System.Data.Entity.DbModelBuilder modelBuilder)
+        //{
+        //    DanceMusicContextHelpers.ModelCreating(modelBuilder);
+        //}
+        #endregion
 
         public DbSet<Song> Songs { get; set; }
 

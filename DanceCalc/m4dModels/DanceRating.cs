@@ -10,7 +10,7 @@ using System.Threading;
 
 namespace m4dModels
 {
-    public class DanceRating : DbObject
+    public class DanceRating : TaggableObject
     {
         public Guid SongId { get; set; }
         public virtual Song Song { get; set; }
@@ -19,6 +19,34 @@ namespace m4dModels
         public virtual Dance Dance { get; set; }
 
         public int Weight { get; set; }
+
+        public override char IdModifier
+        {
+            get { return 'X'; }
+        }
+
+        public override string TagIdBase
+        {
+            get { return DanceId + SongId.ToString("N"); }
+        }
+
+        public override void RegisterChangedTags(TagList added, TagList removed, ApplicationUser user, DanceMusicService dms, object data)
+        {
+            base.RegisterChangedTags(added, removed, user, dms, data);
+
+            if (data != null)
+            {
+                Song song = data as Song;
+                if (song == null)
+                {
+                    Trace.WriteLineIf(TraceLevels.General.TraceError, "Bad Song");
+                    return;
+                }
+
+                song.ChangeTag(Song.AddedTags + ":" + DanceId, added, dms);
+                song.ChangeTag(Song.RemovedTags + ":" + DanceId, removed, dms);
+            }
+        }
 
         public override void Dump()
         {

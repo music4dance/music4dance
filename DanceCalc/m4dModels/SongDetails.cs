@@ -30,9 +30,9 @@ namespace m4dModels
             Length = song.Length;
             Created = song.Created;
             Modified = song.Modified;
+            TagSummary = song.TagSummary;
 
             RatingsList.AddRange(song.DanceRatings);
-            TagList.AddRange(song.Tags);
             Properties.AddRange(song.SongProperties);
             ModifiedList.AddRange(song.ModifiedBy);
 
@@ -102,12 +102,6 @@ namespace m4dModels
         /// <param name="actions">Actions to include in the serialization</param>
         /// <returns></returns>
 
-        //public static SongDetails CreateFromRow(IList<string> fields, string row)
-        //{
-        //    string[] cells = row.Split(new char[] { '\t' });
-
-        //    return CreateFromRow(fields, new List<string>(cells));
-        //}
         public static SongDetails CreateFromRow(IList<string> fields, IList<string> cells, int weight=1)
         {
             List<SongProperty> properties = new List<SongProperty>();
@@ -286,7 +280,6 @@ namespace m4dModels
         #endregion
 
         #region Properties
-
         public override string Album
         {
             get
@@ -305,31 +298,33 @@ namespace m4dModels
                 throw new NotImplementedException("Album shouldn't be set directly in SongDetails");
             }
         }
-        public override string TagSummary
-        {
-            get
-            {
-                return BuildTagSummary();
-            }
-            set
-            {
-                throw new NotImplementedException("TagSummary shouldn't be set directly in SongDetails");
-            }
-        }
 
-        private string BuildTagSummary()
-        {
-            StringBuilder sb = new StringBuilder();
-            string separator = String.Empty;
-            foreach (Tag tag in Tags)
-            {
-                sb.Append(separator);
-                sb.Append(tag.Value);
-                separator = "|";
-            }
+        // TAGDELETE:
+        //public override string TagSummary
+        //{
+        //    get
+        //    {
+        //        return BuildTagSummary();
+        //    }
+        //    set
+        //    {
+        //        throw new NotImplementedException("TagSummary shouldn't be set directly in SongDetails");
+        //    }
+        //}
 
-            return sb.ToString();
-        }
+        //private string BuildTagSummary()
+        //{
+        //    StringBuilder sb = new StringBuilder();
+        //    string separator = String.Empty;
+        //    foreach (Tag tag in Tags)
+        //    {
+        //        sb.Append(separator);
+        //        sb.Append(tag.Value);
+        //        separator = "|";
+        //    }
+
+        //    return sb.ToString();
+        //}
 
         public override ICollection<DanceRating> DanceRatings 
         { 
@@ -342,17 +337,19 @@ namespace m4dModels
                 throw new NotImplementedException("Shouldn't need to set this explicitly");
             }
         }
-        public override ICollection<Tag> Tags
-        {
-            get
-            {
-                return TagList;
-            }
-            set
-            {
-                throw new NotImplementedException("Shouldn't need to set this explicitly");
-            }
-        }
+
+        // TAGDELETE:
+        //public override ICollection<Tag> Tags
+        //{
+        //    get
+        //    {
+        //        return TagList;
+        //    }
+        //    set
+        //    {
+        //        throw new NotImplementedException("Shouldn't need to set this explicitly");
+        //    }
+        //}
         public override ICollection<ModifiedRecord> ModifiedBy
         {
             get
@@ -431,18 +428,15 @@ namespace m4dModels
         }
         private List<DanceRating> _ratingsList;
 
-        public List<Tag> TagList
+        public TagList CurrentUserTags
         {
-            get
-            {
-                if (_tagList == null)
-                {
-                    _tagList = new List<Tag>();
-                }
-                return _tagList;
-            }
+            get { return _currentUserTags; }
         }
-        private List<Tag> _tagList;
+        public void  SetCurrentUserTags(ApplicationUser user, DanceMusicService dms)
+        {
+            _currentUserTags = UserTags(user, dms);
+        }
+        private TagList _currentUserTags;
 
         public int TitleHash 
         { 

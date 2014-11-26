@@ -174,78 +174,110 @@ namespace m4d.Controllers
             return View("Results");
         }
 
+        ////
+        //// Get: //UpdateTagTypes
+        //[Authorize(Roles = "dbAdmin")]
+        //public ActionResult UpdateTagTypes()
+        //{
+        //    ViewBag.Name = "UpdateTagTypes";
+
+        //    int count = 0;
+        //    Context.Configuration.AutoDetectChangesEnabled = false;
+
+        //    Regex didEx = new Regex(@"^([^+-]*)", RegexOptions.Singleline);
+
+        //    ApplicationUser batch = Database.FindUser("batch");
+        //    foreach (Song song in Database.Songs)
+        //    {
+        //        SongDetails sd = new SongDetails(song);
+
+        //        bool retry = true;
+        //        foreach (Tag tag in sd.Tags)
+        //        {
+        //            if (tag.Type.Categories.Contains("Dance"))
+        //            {
+        //                retry = false;
+        //            }
+        //        }
+
+        //        if (retry)
+        //        {
+        //            var map = sd.MapProperyByUsers(Song.DanceRatingField);
+
+        //            foreach (var kv in map)
+        //            {
+        //                ApplicationUser user = batch;
+        //                if (!string.IsNullOrWhiteSpace(kv.Key))
+        //                {
+        //                    user = Database.FindUser(kv.Key);
+        //                }
+        //                StringBuilder sb = new StringBuilder();
+        //                string separator = string.Empty;
+        //                foreach (var v in kv.Value)
+        //                {
+        //                    Match match = didEx.Match(v);
+        //                    if (match.Success)
+        //                    {
+        //                        string did = match.Value;
+        //                        DanceObject dance = null;
+        //                        if (Dances.Instance.DanceDictionary.TryGetValue(did, out dance))
+        //                        {
+        //                            sb.Append(separator);
+        //                            sb.Append(dance.Name);
+        //                            separator = "|";
+        //                        }
+        //                    }
+        //                }
+        //                string tags = sb.ToString();
+        //                if (!string.IsNullOrWhiteSpace(tags))
+        //                {
+        //                    sd = Database.EditSong(user, sd, null, null, tags, false);
+        //                    Trace.WriteLineIf(TraceLevels.General.TraceInfo,string.Format("{0}:{1}", sd.Title, tags));
+        //                }
+        //            }
+
+        //            count += 1;
+
+        //            if (count % 50 == 0)
+        //            {
+        //                Trace.WriteLineIf(TraceLevels.General.TraceInfo,string.Format("Song Modified={0}", count));
+        //            }
+        //        }
+        //    }
+
+        //    Context.ChangeTracker.DetectChanges();
+        //    Database.SaveChanges();
+        //    Context.Configuration.AutoDetectChangesEnabled = true;
+
+        //    ViewBag.Success = true;
+        //    ViewBag.Message = string.Format(" Songs were fixed as tags({0})", count);
+
+        //    return View("Results");
+        //}
+
+
         //
-        // Get: //UpdateTagTypes
+        // Get: //UpdateTagSummaries
         [Authorize(Roles = "dbAdmin")]
-        public ActionResult UpdateTagTypes()
+        public ActionResult UpdateTagSummaries()
         {
             ViewBag.Name = "UpdateTagTypes";
 
             int count = 0;
+
             Context.Configuration.AutoDetectChangesEnabled = false;
 
-            Regex didEx = new Regex(@"^([^+-]*)", RegexOptions.Singleline);
-
-            ApplicationUser batch = Database.FindUser("batch");
-            foreach (Song song in Database.Songs)
+            foreach (TagType tt in Database.TagTypes)
             {
-                SongDetails sd = new SongDetails(song);
-
-                bool retry = true;
-                foreach (Tag tag in sd.Tags)
-                {
-                    if (tag.Type.Categories.Contains("Dance"))
-                    {
-                        retry = false;
-                    }
-                }
-
-                if (retry)
-                {
-                    var map = sd.MapProperyByUsers(Song.DanceRatingField);
-
-                    foreach (var kv in map)
-                    {
-                        ApplicationUser user = batch;
-                        if (!string.IsNullOrWhiteSpace(kv.Key))
-                        {
-                            user = Database.FindUser(kv.Key);
-                        }
-                        StringBuilder sb = new StringBuilder();
-                        string separator = string.Empty;
-                        foreach (var v in kv.Value)
-                        {
-                            Match match = didEx.Match(v);
-                            if (match.Success)
-                            {
-                                string did = match.Value;
-                                DanceObject dance = null;
-                                if (Dances.Instance.DanceDictionary.TryGetValue(did, out dance))
-                                {
-                                    sb.Append(separator);
-                                    sb.Append(dance.Name);
-                                    separator = "|";
-                                }
-                            }
-                        }
-                        string tags = sb.ToString();
-                        if (!string.IsNullOrWhiteSpace(tags))
-                        {
-                            sd = Database.EditSong(user, sd, null, null, tags, false);
-                            Trace.WriteLineIf(TraceLevels.General.TraceInfo,string.Format("{0}:{1}", sd.Title, tags));
-                        }
-                    }
-
-                    count += 1;
-
-                    if (count % 50 == 0)
-                    {
-                        Trace.WriteLineIf(TraceLevels.General.TraceInfo,string.Format("Song Modified={0}", count));
-                    }
-                }
+                tt.Count = 0;
             }
 
-            Context.ChangeTracker.DetectChanges();
+            foreach (Song song in Database.Songs)
+            {
+                // TODO: Should we reload from properties or from user tags (or either)...
+                count += 1;
+            }
+
             Database.SaveChanges();
             Context.Configuration.AutoDetectChangesEnabled = true;
 
@@ -414,7 +446,8 @@ namespace m4d.Controllers
                     case Song.TimeField:
                         time = prop;
                         break;
-                    case Song.TagField:
+                    case Song.AddedTags:
+                    case Song.RemovedTags:
                         // Time ID User tags
                         if (user != null && user.SongId == prop.SongId)
                         {
@@ -430,7 +463,6 @@ namespace m4d.Controllers
                         count += 1;
                         break;
                 }
-
             }
 
             foreach (var prop in deletions)
@@ -440,6 +472,7 @@ namespace m4d.Controllers
             Context.ChangeTracker.DetectChanges();
             Database.SaveChanges();
 
+#if NEWTAG
             foreach (Tag tag in Database.Tags)
             {
                 Database.Tags.Remove(tag);
@@ -448,10 +481,18 @@ namespace m4d.Controllers
             Context.ChangeTracker.DetectChanges();
             Database.SaveChanges();
 
+            foreach (TagType tt in Database.TagTypes)
+            {
+                tt.Count = 0;
+            }
+            Context.ChangeTracker.DetectChanges();
+            Database.SaveChanges();
+#endif
+
             Context.Configuration.AutoDetectChangesEnabled = true;
             foreach (Song song in Database.Songs)
             {
-                song.TagSummary = null;
+                song.TagSummary.Clean();
             }
             Database.SaveChanges();
 
@@ -692,11 +733,11 @@ namespace m4d.Controllers
 
         #region Tags
         //
-        // Post: //UploadTags
+        // Post: //UploadTagsTypes
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "dbAdmin")]
-        public ActionResult UploadTags()
+        public ActionResult UploadTagTypes()
         {
             List<string> lines = UploadFile();
 
@@ -709,23 +750,129 @@ namespace m4d.Controllers
                     if (!string.IsNullOrWhiteSpace(line))
                     {
                         string[] cells = line.Split(new char[] { '\t' });
-                        if (cells.Length == 2)
+                        if (cells.Length >= 2)
                         {
-                            Database.FindOrCreateTagType(cells[1], cells[0]);
+                            string name = cells[1].Trim();
+                            string cat = cells[0].Trim();
+                            TagType tt = Database.FindOrCreateTagType(name, cat);
+                            if (cells.Length == 3 && !string.IsNullOrWhiteSpace(cells[2]))
+                            {
+                                tt.PrimaryId = cells[2].Trim() + ':' + cat;
+                            }
                         }
                     }
                 }
             }
 
             Database.SaveChanges();
-            foreach (TagType tt in Database.TagTypes)
+            return View("Results");
+        }
+
+        //
+        // Post: //UploadTags
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Authorize(Roles = "dbAdmin")]
+        public ActionResult UploadTags()
+        {
+            List<string> lines = UploadFile();
+
+            ViewBag.Name = "Upload Tags";
+
+            if (lines.Count > 0)
             {
-                if (string.IsNullOrWhiteSpace(tt.Categories))
+                Context.Configuration.AutoDetectChangesEnabled = false;
+
+                Dictionary<string, string> entries = new Dictionary<string, string>();
+                int count = 0;
+                int unique = 0;
+                foreach (string line in lines)
                 {
-                    tt.AddCategory("Genre");
+                    if (!string.IsNullOrWhiteSpace(line))
+                    {
+                        // DATE, SID, user, tag (unqualified)
+                        string[] cells = line.Split(new char[] { '\t' });
+                        if (cells.Length == 4)
+                        {
+                            DateTime dt;
+                            if (!DateTime.TryParse(cells[0], out dt))
+                            {
+                                continue;
+                            }
+                            Guid guid;
+                            if (!Guid.TryParse(cells[1].Substring(1), out guid))
+                            {
+                                continue;
+                            }
+                            string user = cells[2].Trim();
+                            string tag = cells[3].Trim();
+                            string cat = "Music";
+
+                            List<TagType> types = Database.GetTagTypes(tag).ToList();
+                            if (types.Count == 1)
+                            {
+                                cat = types[0].Category;
+                            }
+                            else if (user != "batch" && DanceLibrary.Dances.Instance.DanceFromName(tag) != null)
+                            {
+                                cat = "Dance";
+                            }
+                            tag += ":" + cat;
+
+                            string id = user + ":" + guid.ToString();
+                            string tags = null;
+                            if (entries.TryGetValue(id, out tags))
+                            {
+                                TagList tl = new TagList(tags);
+                                tl = tl.Add(new TagList(tag));
+                                tags = tl.Summary;
+                            }
+                            else
+                            {
+                                tags = tag;
+                                unique += 1;
+                            }
+                            entries[id] = tags;
+                            count += 1;
+
+                            if (count % 500 == 0)
+                            {
+                                Trace.WriteLineIf(/*TraceLevels.General.TraceInfo*/ true, string.Format("Tags Loaded={0}", count));
+                            }
+                        }
+                    }
                 }
+
+                count = 0;
+                foreach (string k in entries.Keys)
+                {
+                    string tags = entries[k];
+                    string[] rg = k.Split(new char[] { ':' });
+
+                    Guid guid = Guid.Parse(rg[1]);
+                    string userName = rg[0];
+
+                    ApplicationUser user = Database.FindUser(userName);
+                    Song song = Database.FindSong(guid);
+
+                    if (user != null && song != null)
+                    {
+                        song.CreateEditProperties(user, SongBase.EditCommand, Database);
+                        song.AddTags(tags, user, Database, song);
+                    }
+
+                    count += 1;
+
+                    if (count % 500 == 0)
+                    {
+                        Trace.WriteLineIf(/*TraceLevels.General.TraceInfo*/ true, string.Format("Tags Saved={0}", count));
+                    }
+                }
+
+                Context.Configuration.AutoDetectChangesEnabled = true;
+                Context.ChangeTracker.DetectChanges();
+                Database.SaveChanges();
             }
-            Database.SaveChanges();
 
             return View("Results");
         }
@@ -956,47 +1103,47 @@ namespace m4d.Controllers
             return File(stream, "text/plain", string.Format("backup-{0:d4}-{1:d2}-{2:d2}{3}.txt",dt.Year,dt.Month,dt.Day,h));
         }
 
-        //
-        // Get: //BackupTags
-        // This is a massive kludge to get the old style tag info out of the database
-        [Authorize(Roles = "showDiagnostics")]
-        public ActionResult BackupTags()
-        {
-            StringBuilder sb = new StringBuilder();
+        ////
+        //// Get: //BackupTags
+        //// This is a massive kludge to get the old style tag info out of the database
+        //[Authorize(Roles = "showDiagnostics")]
+        //public ActionResult BackupTags()
+        //{
+        //    StringBuilder sb = new StringBuilder();
 
-            var songlist = Database.Songs.OrderBy(t => t.Modified).ThenBy(t => t.SongId);
-            foreach (Song song in songlist)
-            {
-                string user = "batch";
-                string time = new DateTime(2014, 1, 1).ToString();
+        //    var songlist = Database.Songs.OrderBy(t => t.Modified).ThenBy(t => t.SongId);
+        //    foreach (Song song in songlist)
+        //    {
+        //        string user = "batch";
+        //        string time = new DateTime(2014, 1, 1).ToString();
 
-                foreach (var prop in song.SongProperties)
-                {
-                    switch (prop.BaseName)
-                    {
-                        case Song.UserField:
-                            user = prop.Value;
-                            break;
-                        case Song.TimeField:
-                            time = prop.Value;
-                            break;
-                        case Song.TagField:
-                            // Time ID User tags
-                            sb.AppendFormat("{0}\tS{1}\t{2}\t{3}\r\n",time,song.SongId.ToString("N"),user,prop.Value);
-                            break;
-                    }
-                }
-            }
+        //        foreach (var prop in song.SongProperties)
+        //        {
+        //            switch (prop.BaseName)
+        //            {
+        //                case Song.UserField:
+        //                    user = prop.Value;
+        //                    break;
+        //                case Song.TimeField:
+        //                    time = prop.Value;
+        //                    break;
+        //                //case Song.TagField:
+        //                //    // Time ID User tags
+        //                //    sb.AppendFormat("{0}\tS{1}\t{2}\t{3}\r\n",time,song.SongId.ToString("N"),user,prop.Value);
+        //                //    break;
+        //            }
+        //        }
+        //    }
 
 
-            // TODO: If we do more of this kind of thing, we should abstract out the streaming
-            string s = sb.ToString();
-            var bytes = Encoding.UTF8.GetBytes(s);
-            MemoryStream stream = new MemoryStream(bytes);
+        //    // TODO: If we do more of this kind of thing, we should abstract out the streaming
+        //    string s = sb.ToString();
+        //    var bytes = Encoding.UTF8.GetBytes(s);
+        //    MemoryStream stream = new MemoryStream(bytes);
 
-            DateTime dt = DateTime.Now;
-            return File(stream, "text/plain", string.Format("backup-{0:d4}-{1:d2}-{2:d2}.txt", dt.Year, dt.Month, dt.Day));
-        }
+        //    DateTime dt = DateTime.Now;
+        //    return File(stream, "text/plain", string.Format("backup-{0:d4}-{1:d2}-{2:d2}.txt", dt.Year, dt.Month, dt.Day));
+        //}
 
         //
         // Get: //RestoreDatabase

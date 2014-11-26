@@ -23,7 +23,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;NEWTAG</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
@@ -33,7 +33,7 @@
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
+    <DefineConstants>TRACE;NEWTAG</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
@@ -76,6 +76,7 @@
     <Compile Include="SongCounts.cs" />
     <Compile Include="SongFilterConverter.cs" />
     <Compile Include="SongSort.cs" />
+    <Compile Include="StringableList.cs" />
     <Compile Include="Tag.cs" />
     <Compile Include="Dance.cs" />
     <Compile Include="DanceRating.cs" />
@@ -96,6 +97,10 @@
     <Compile Include="SongMerge.cs" />
     <Compile Include="SongProperty.cs" />
     <Compile Include="AlbumTrack.cs" />
+    <Compile Include="TagCount.cs" />
+    <Compile Include="TaggableObject.cs" />
+    <Compile Include="TagList.cs" />
+    <Compile Include="TagSummary.cs" />
     <Compile Include="TagType.cs" />
     <Compile Include="TraceLevels.cs" />
     <Compile Include="TrackNumber.cs" />

@@ -32,7 +32,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;NEWTAG</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
@@ -42,7 +42,7 @@
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
+    <DefineConstants>TRACE;NEWTAG</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
@@ -348,6 +348,14 @@
     <Compile Include="Migrations\201410282212286_DanceInfo.cs" />
     <Compile Include="Migrations\201410282212286_DanceInfo.Designer.cs">
       <DependentUpon>201410282212286_DanceInfo.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201411190429116_RemoveTags.cs" />
+    <Compile Include="Migrations\201411190429116_RemoveTags.Designer.cs">
+      <DependentUpon>201411190429116_RemoveTags.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201411200100549_GeneralTags.cs" />
+    <Compile Include="Migrations\201411200100549_GeneralTags.Designer.cs">
+      <DependentUpon>201411200100549_GeneralTags.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Context\DanceMusicConfiguration.cs" />
@@ -779,6 +787,12 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201410282212286_DanceInfo.resx">
       <DependentUpon>201410282212286_DanceInfo.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201411190429116_RemoveTags.resx">
+      <DependentUpon>201411190429116_RemoveTags.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201411200100549_GeneralTags.resx">
+      <DependentUpon>201411200100549_GeneralTags.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>

@@ -18,6 +18,20 @@ namespace m4dModels
         {
             StartDate = DateTime.Now;
         }
+
+        public ApplicationUser(string userName)
+        {
+            StartDate = DateTime.MinValue;
+            UserName = userName;
+        }
+
+        public bool IsPlaceholder
+        {
+            get
+            {
+                return StartDate == DateTime.MinValue;
+            }
+        }
         public async Task<ClaimsIdentity> GenerateUserIdentityAsync(UserManager<ApplicationUser> manager)
         {
             // Note the authenticationType must match the one defined in CookieAuthenticationOptions.AuthenticationType
@@ -57,5 +71,9 @@ namespace m4dModels
             return sb.ToString();
         }
 
+        public override string ToString()
+        {
+            return string.Format("{0}{1}", UserName, IsPlaceholder ? "(P)" : string.Empty);
+        }
     }
 }

@@ -1,0 +1,104 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace m4dModels
+{
+    // TagCount is a helper class to covert betwee a Tag+Count structure and a string of the form Tag[:Count]
+    public class TagCount
+    {
+        #region Properties
+        public string Value { get; set; }
+        public int Count { get; set; }
+        #endregion
+
+        #region Constructors
+        public TagCount(string value, int count)
+        {
+            Value = value;
+            Count = count;
+        }
+
+        public TagCount(string serialized)
+        {
+            if (!Parse(serialized))
+            {
+                throw new ArgumentOutOfRangeException();
+            }
+        }
+        #endregion
+
+        #region Operators
+        public override string ToString()
+        {
+            return Serialize();
+        }
+
+        public override bool Equals(object obj)
+        {
+            TagCount tc = obj as TagCount;
+            if (tc == null)
+                return false;
+            else
+                return (Value == tc.Value) && (Count == tc.Count);
+        }
+
+        public override int GetHashCode()
+        {
+            return Value.GetHashCode() * 1023 ^ Count;
+        }
+
+        public static bool operator ==(TagCount a, TagCount b)
+        {
+            // If both are null, or both are same instance, return true.
+            if (System.Object.ReferenceEquals(a, b))
+            {
+                return true;
+            }
+
+            // Handle a is null case.
+            if (((object)a == null))
+            {
+                return ((object)b == null);
+            }
+
+            return a.Equals(b);
+        }
+        public static bool operator !=(TagCount a, TagCount b)
+        {
+            return !(a == b);
+        }
+        #endregion
+
+        public bool Parse(string s)
+        {
+            bool ret = true;
+            List<string> list = s.Split(new char[] { ':' }, StringSplitOptions.RemoveEmptyEntries).ToList();
+            int c = 1;
+
+            if (list.Count < 1 || list.Count > 3)
+            {
+                return false;
+            }
+
+            if (list.Count > 1)
+            {
+                ret = int.TryParse(list[list.Count-1], out c);
+            }
+            Count = c;
+            Value = list[0].Trim();
+            if (list.Count > 2)
+            {
+                Value += ":" + list[1];
+            }
+            return ret;
+        }
+
+        public string Serialize()
+        {
+            return string.Format("{0}:{1}", Value, Count);
+        }
+    }
+}

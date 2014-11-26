@@ -2,6 +2,11 @@
 
 @{
     var danceMap = (IDictionary<string, m4dModels.SongCounts>)ViewBag.DanceMap;
+    bool canEdit = false;
+    if (User.IsInRole("canEdit"))
+    {
+        canEdit = true;
+    }
 }
 
 <div class="row">
@@ -84,22 +89,25 @@
             <br />
         }
 
-        @if (Model.Tags != null && Model.Tags.Count > 0)
+        @if (Model.TagSummary.Tags.Count != 0)
         {
             string separator = "";
             <div class="display-label">
                 Tags:
             </div>
             <div class="display-field">
-                @foreach (var item in Model.Tags)
+                @foreach (var item in Model.TagSummary.Tags)
                 {
+                    string[] rg = item.Value.Split(new char[] {':'});
+                    string label = rg[1] == "Dance" ? "primary" : "info";
                     @separator;
-                    <span class="label label-info">@item.Value</span>
+                    <span class="label label-@label">@rg[0]</span>
                     separator = " ";
                 }
             </div>
             <br />
         }
+         
 
         @if (Model.HasAlbums)
         {

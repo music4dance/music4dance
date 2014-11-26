@@ -40,10 +40,11 @@ namespace m4dModels
 
         public DbSet<DanceRating> DanceRatings { get { return _context.DanceRatings; } }
 
+#if NEWTAG
         public DbSet<Tag> Tags { get { return _context.Tags; } }
 
         public DbSet<TagType> TagTypes { get { return _context.TagTypes; } }
-
+#endif
         public DbSet<SongLog> Log { get { return _context.Log; } }
 
         public DbSet<ModifiedRecord> Modified { get { return _context.Modified; } }
@@ -101,7 +102,7 @@ namespace m4dModels
                 song.CurrentLog = CreateSongLog(user, song, Song.EditCommand);
             }
 
-            if (song.Edit(user, edit, addDances, remDances, ParseTags(editTags), this))
+            if (song.Edit(user, edit, addDances, remDances, NormalizeTags(editTags,"Other"), this))
             {
                 if (createLog)
                 {
@@ -175,12 +176,11 @@ namespace m4dModels
             song.EditDanceRatings(deltas, this);
         }
 
-        public Song MergeSongs(ApplicationUser user, List<Song> songs, string title, string artist, decimal? tempo, int? length, string tags, List<AlbumDetails> albums)
+        public Song MergeSongs(ApplicationUser user, List<Song> songs, string title, string artist, decimal? tempo, int? length, List<AlbumDetails> albums)
         {
             string songIds = string.Join(";", songs.Select(s => s.SongId.ToString()));
 
             SongDetails sd = new SongDetails(title, artist, tempo, length, albums);
-            sd.AddTags(tags);
 
             Song song = CreateSong(user, sd, Song.MergeCommand, songIds, true);
             song.CurrentLog.SongReference = song.SongId;
@@ -272,86 +272,82 @@ namespace m4dModels
             return ret;
         }
 
-
-        private void RestoreSongProperty(Song song, LogValue lv, UndoAction action)
+        private void DoRestoreValues(Song song, IList<LogValue> values, UndoAction action)
         {
             // For scalar properties and albums just updating the property will
             //  provide the information for rebulding the song
             // For users, this is additive, so no need to do anything except with a new song
-            // For DanceRatings, we're going to update the song here
-            //  since it is cummulative
-
-            SongProperty np = _context.SongProperties.Create();
-
-            np.Song = song;
-            np.Name = lv.Name;
-
-            // This works for everything but Dancerating, which will be overwritten below
-            if (action == UndoAction.Undo)
-                np.Value = lv.Old;
-            else
-                np.Value = lv.Value;
-
-
-            if (lv.Name.Equals(Song.UserField))
+            // For DanceRatings and tags, we're going to update the song here since it is cummulative
+            foreach (LogValue lv in values)
             {
-                ApplicationUser user = FindUser(lv.Value);
-                song.AddUser(user, this);
-            }
-            else if (lv.Name.Equals(Song.DanceRatingField))
-            {
-                DanceRatingDelta drd = new DanceRatingDelta(lv.Value);
-                if (action == UndoAction.Undo)
+                ApplicationUser currentUser = null; 
+                if (!lv.IsAction)
                 {
-                    drd.Delta *= -1;
-                }
+                    SongProperty np = _context.SongProperties.Create();
 
-                np.Value = drd.ToString();
+                    np.Song = song;
+                    np.Name = lv.Name;
 
-                // TODO: Consider implementing a MergeDanceRating at the song level
-                DanceRating dr = song.DanceRatings.FirstOrDefault(d => string.Equals(d.DanceId, drd.DanceId));
-                if (dr == null)
-                {
-                    song.AddDanceRating(new DanceRating() { DanceId = drd.DanceId, Weight = drd.Delta });
-                }
-                else
-                {
-                    dr.Weight += drd.Delta;
-                    if (dr.Weight <= 0)
+                    // This works for everything but Dancerating and Tags, which will be overwritten below
+                    if (action == UndoAction.Undo)
+                        np.Value = lv.Old;
+                    else
+                        np.Value = lv.Value;
+
+                    if (lv.Name.Equals(Song.UserField))
                     {
-                        song.DanceRatings.Remove(dr);
+                        currentUser = FindUser(lv.Value);
+                        song.AddUser(currentUser, this);
                     }
-                }
-            }
-            else if (lv.Name.Equals(Song.TagField))
-            {
-                string value = lv.Value;
-                int delta = 1;
-                if (lv.Value.Length > 0 && lv.Value[0] == '-')
-                {
-                    delta = -1;
-                    value = lv.Value.Substring(1);
-                }
-                if (action == UndoAction.Undo)
-                {
-                    delta *= -1;
-                }
-                Tag tag = song.FindTag(value);
-                if (tag == null)
-                {
-                    song.AddTag(new Tag() { Value = value, Count = 1 });
-                }
-                else
-                {
-                    tag.Count += delta;
-                    if (tag.Count <= 0)
+                    else if (lv.Name.Equals(Song.DanceRatingField))
                     {
-                        song.Tags.Remove(tag);
+                        DanceRatingDelta drd = new DanceRatingDelta(lv.Value);
+                        if (action == UndoAction.Undo)
+                        {
+                            drd.Delta *= -1;
+                        }
+
+                        np.Value = drd.ToString();
+
+                        // TODO: Consider implementing a MergeDanceRating at the song level
+                        DanceRating dr = song.DanceRatings.FirstOrDefault(d => string.Equals(d.DanceId, drd.DanceId));
+                        if (dr == null)
+                        {
+                            song.AddDanceRating(new DanceRating() { DanceId = drd.DanceId, Weight = drd.Delta });
+                        }
+                        else
+                        {
+                            dr.Weight += drd.Delta;
+                            if (dr.Weight <= 0)
+                            {
+                                song.DanceRatings.Remove(dr);
+                            }
+                        }
                     }
+                    else if (lv.Name.Equals(Song.AddedTags) || lv.Name.Equals(Song.RemovedTags))
+                    {
+                        // For tags, we leave the list of tags in place and toggle the add/remove
+                        np.Value = lv.Value;
+                        if (action == UndoAction.Undo)
+                        {
+                            if (lv.Name.Equals(Song.AddedTags))
+                            {
+                                np.Name = Song.RemovedTags;
+                            }
+                            else
+                            {
+                                np.Name = Song.AddedTags;
+                            }
+                        }
+                    }
+
+                    song.SongProperties.Add(np);
                 }
             }
+        }
 
-            song.SongProperties.Add(np);
+        private void RestoreSongProperty(Song song, LogValue lv, UndoAction action)
+        {
         }
 
 
@@ -615,16 +611,7 @@ namespace m4dModels
         {
             string ret = null;
 
-            song.CreateEditProperties(entry.User, Song.EditCommand, this);
-
-            IList<LogValue> values = entry.GetValues();
-            foreach (LogValue lv in values)
-            {
-                if (!lv.IsAction)
-                {
-                    RestoreSongProperty(song, lv, action);
-                }
-            }
+            DoRestoreValues(song, entry.GetValues(), action);
 
             SongDetails sd = new SongDetails(song.SongId, song.SongProperties);
             song.RestoreScalar(sd);
@@ -695,14 +682,7 @@ namespace m4dModels
             song.Created = log.Time;
             song.Modified = DateTime.Now;
 
-            IList<LogValue> values = log.GetValues();
-            foreach (LogValue lv in values)
-            {
-                if (!lv.IsAction)
-                {
-                    RestoreSongProperty(song, lv, UndoAction.Redo);
-                }
-            }
+            DoRestoreValues(song, log.GetValues(), UndoAction.Redo);
 
             RestoreSong(song);
             _context.Songs.Add(song);
@@ -731,7 +711,7 @@ namespace m4dModels
             return song;
         }
 
-        public SongDetails FindSongDetails(Guid id)
+        public SongDetails FindSongDetails(Guid id, string userName = null)
         {
             SongDetails sd = null;
 
@@ -740,6 +720,14 @@ namespace m4dModels
             if (song != null)
                 sd = new SongDetails(song);
 
+            if (userName != null)
+            {
+                ApplicationUser user = FindUser(userName);
+                if (user != null)
+                {
+                    sd.SetCurrentUserTags(user, this);
+                }
+            }
             return sd;
         }
 
@@ -874,16 +862,16 @@ namespace m4dModels
                     songs = songs.Where(
                         s => (s.Title != null && s.Title.ToUpper().Contains(str)) ||
                         (s.Album != null && s.Album.Contains(str)) ||
-                        (s.Artist != null && s.Artist.Contains(str)) ||
-                        (s.TagSummary != null && s.TagSummary.Contains(str)));
+                        (s.Artist != null && s.Artist.Contains(str)));
+                        //(s.TagSummary != null && s.TagSummary.Contains(str)));
                 }
                 else
                 {
                     songs = songs.Where(
                         s => s.Title.Contains(filter.SearchString) ||
                         s.Album.Contains(filter.SearchString) ||
-                        s.Artist.Contains(filter.SearchString) ||
-                        s.TagSummary.Contains(filter.SearchString));
+                        s.Artist.Contains(filter.SearchString));
+                        //s.TagSummary.Contains(filter.SearchString));
                 }
             }
 
@@ -1066,96 +1054,114 @@ namespace m4dModels
 
         #region Tags
 
-        // Take a an arbitrary tag list, pull out categories, create tag types and then re-assemble withough the categories
-        public string ParseTags(string editTags)
+        public TagType FindOrCreateTagType(string tag)
         {
-            if (string.IsNullOrWhiteSpace(editTags))
-            {
-                return string.Empty;
-            }
+            // Create a transitory TagType just for the parsing
+            TagType temp = new TagType(tag);
 
-            StringBuilder sb = new StringBuilder();
-            string sep = string.Empty;
-            string[] values = editTags.Split(new char[] { '|' }, StringSplitOptions.RemoveEmptyEntries);
-
-            foreach (string value in values)
-            {
-                string v = value.Trim();
-                string c = null;
-                bool remove = false;
-                if (v.Length > 0 && v[0] == '-')
-                {
-                    remove = true;
-                    v = v.Substring(1);
-                }
-
-                if (v.Contains('='))
-                {
-                    string[] cells = v.Split(new char[] { '=' });
-                    if (cells.Length == 2)
-                    {
-                        c = cells[0];
-                        v = cells[1];
-                    }
-                    else
-                    {
-                        Trace.WriteLine(string.Format("Bad Value for Tag: {0}", v));
-                    }
-                }
-
-                if (!remove)
-                {
-                    FindOrCreateTagType(v, c);
-                }
-
-                sb.Append(sep);
-                sep = "|";
-                if (remove)
-                {
-                    sb.Append("-");
-                }
-                sb.Append(v);
-            }
-
-            return sb.ToString();
+            return FindOrCreateTagType(temp.Value, temp.Category);
         }
 
-        public Tag CreateTag(Song song, string value, int count)
+        public TagType FindOrCreateTagType(string value, string category)
         {
-            TagType type = FindOrCreateTagType(value, null);
-
-            Tag tag = _context.Tags.Create();
-
-            tag.Song = song;
-            tag.SongId = song.SongId;
-
-            tag.Value = value;
-            tag.Type = type;
-
-            tag.Count = count;
-
-            song.AddTag(tag);
-
-            return tag;
-        }
-
-        public TagType FindOrCreateTagType(string value, string categories)
-        {
-            TagType type = _context.TagTypes.Find(value);
+            TagType type = null;
+            
+#if NEWTAG
+            type = _context.TagTypes.Find(TagType.BuildKey(value, category));
 
             if (type == null)
             {
-                type = _context.TagTypes.Create();
-                type.Value = value;
-                type = _context.TagTypes.Add(type);
+                type = CreateTagType(value, category);
             }
-            type.AddCategory(categories);
+#endif
             return type;
         }
 
-        public IEnumerable<TagType> GetTypes(string category)
+        // TAGDELETE: I think we can get rid of this because is seems easier just to keep
+        //  verbose normalized tags around (looks like a case of over eager optimization)
+        public string CompressTags(string tags, string category)
         {
-            return _context.TagTypes.Where(t => t.Value == category);
+            TagList old = new TagList(tags);
+            List<string> result = new List<string>();
+            foreach (string tag in old.Tags)
+            {
+                List<TagType> types = null;
+                TagType type = null;
+
+#if NEWTAG
+                types = TagTypes.Where(tt => tt.Value == tag).ToList();
+                type = types.FirstOrDefault(tt => tt.Category == category);
+#endif
+                int count = types.Count;
+
+                if (type == null)
+                {
+                    type = CreateTagType(tag, category);
+                    count += 1;
+                }
+
+                if (count > 1)
+                {
+                    result.Add(type.ToString());
+                }
+                else
+                {
+                    result.Add(tag);
+                }
+            }
+
+            return new TagList(result).ToString();
+        }
+
+        // Add in category for tags that don't already have one + create
+        //  tagtype if necessary
+        public string NormalizeTags(string tags, string category)
+        {
+            TagList old = new TagList(tags);
+            List<string> result = new List<string>();
+            foreach (string tag in old.Tags)
+            {
+                string fullTag = tag;
+                string tempTag = tag;
+                string tempCat = category;
+                string[] rg = tag.Split(new char[] { ':' });
+                if (rg.Length == 1)
+                {
+                    fullTag = TagType.BuildKey(tag, category);
+                }
+                else if (rg.Length == 2)
+                {
+                    tempTag = rg[0];
+                    tempCat = rg[1];
+                }
+
+                TagType tt = FindOrCreateTagType(tempTag, tempCat);
+
+                result.Add(fullTag);
+            }
+
+            return new TagList(result).ToString();
+        }
+
+        public IEnumerable<TagType> GetTagTypes(string value)
+        {
+            IEnumerable<TagType> ret = null;
+
+#if NEWTAG
+            ret =  _context.TagTypes.Where(t => t.Key.StartsWith(value + ":"));
+#endif
+            return ret;
+        }
+
+        private TagType CreateTagType(string value, string category) 
+        {
+            TagType type = null;
+#if NEWTAG
+            type = _context.TagTypes.Create();
+            type.Key = TagType.BuildKey(value, category);
+            type = _context.TagTypes.Add(type);
+#endif
+            return type;
         }
 
         #endregion
@@ -1303,12 +1309,18 @@ namespace m4dModels
             foreach (string s in lines)
             {
                 string[] cells = s.Split(new char[] { '\t' });
-                if (cells.Length == 2)
+                TagType tt = null;
+                if (cells.Length >= 2)
                 {
                     string category = cells[0];
                     string value = cells[1];
 
-                    FindOrCreateTagType(value, category);
+                    tt = FindOrCreateTagType(value, category);
+                }
+
+                if (tt != null && cells.Length >= 3 && !string.IsNullOrWhiteSpace(cells[2]))
+                {
+                    tt.PrimaryId = cells[2];
                 }
             }
 
@@ -1462,11 +1474,12 @@ namespace m4dModels
             {
                 tags.Add(_tagBreak);
             }
+#if NEWTAG
             foreach (TagType tt in TagTypes)
             {
-                tags.Add(string.Format("{0}\t{1}", tt.Categories, tt.Value));
+                tags.Add(string.Format("{0}\t{1}\t{2}", tt.Category, tt.Value, tt.PrimaryId));
             }
-
+#endif
             return tags;
         }
         public IList<string> SerializeSongs(bool withHeader = true, bool withHistory = true)

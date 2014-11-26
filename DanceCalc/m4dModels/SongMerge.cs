@@ -94,12 +94,6 @@ namespace m4dModels
             int idx = 0;
             foreach (Song song in songs)
             {
-                if (!string.IsNullOrWhiteSpace(song.TagSummary))
-                {
-                    Tags += separator + song.TagSummary;
-                    separator = "|";
-                }
-
                 foreach (DanceRating dr in song.DanceRatings)
                 {
                     DanceMerge dm = new DanceMerge()
