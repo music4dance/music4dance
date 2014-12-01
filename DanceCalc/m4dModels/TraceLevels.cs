@@ -20,6 +20,8 @@ namespace m4dModels
                     _general = new TraceSwitch("General", "Entire application");
 #if DEBUG
                     _general.Level = TraceLevel.Info;
+#else
+                    _general.Level = TraceLevel.Error;
 #endif
                 }
 
