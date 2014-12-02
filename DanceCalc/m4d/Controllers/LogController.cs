@@ -40,8 +40,8 @@ namespace m4d.Controllers
             StringBuilder sb = new StringBuilder();
             
             foreach (SongLog line in lines)
-            {               
-                sb.AppendFormat("{0}|{1}|{2}|{3}|{4}|{5}\r\n",line.User.UserName,line.Time,line.Action,line.SongReference,line.SongSignature,line.Data);
+            {
+                sb.AppendFormat("{0}\x1E{1}\x1E{2}\x1E{3}\x1E{4}\x1E{5}\r\n", line.User.UserName, line.Time, line.Action, line.SongReference, line.SongSignature, line.Data);
             }
 
             string s = sb.ToString();

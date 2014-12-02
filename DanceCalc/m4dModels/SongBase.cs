@@ -105,7 +105,7 @@ namespace m4dModels
 
         protected void LoadProperties(ICollection<SongProperty> properties) 
         {
-            bool created = false;
+            bool created = SongProperties != null && SongProperties.Count > 0;
             ApplicationUser currentUser = null;
 
             foreach (SongProperty prop in properties)
@@ -440,8 +440,11 @@ namespace m4dModels
                 return false;
             }
         }
-
         protected virtual SongProperty CreateProperty(string name, object value, SongLog log, DanceMusicService dms)
+        {
+            return CreateProperty(name, value, null, log, dms);
+        }
+        protected virtual SongProperty CreateProperty(string name, object value, object old, SongLog log, DanceMusicService dms)
         {
             SongProperty prop = null;
 

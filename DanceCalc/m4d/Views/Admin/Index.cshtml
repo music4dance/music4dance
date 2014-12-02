@@ -47,6 +47,7 @@
 <ul>
     <li>@Html.ActionLink("Backup the Database", "BackupDatabase")</li>
     <li>@Html.ActionLink("Backup the Database (with lookup history)", "BackupDatabase", new {useLookupHistory = "true" })</li>
+    <li>@Html.ActionLink("Backup tail", "BackupTail", new { count = 150 })</li>
     <li>@Html.ActionLink("Update Purchase Info", "UpdatePurchase")</li>
     <li>@Html.ActionLink("Update Title Hashes", "UpdateTitleHash")</li>
     <li>@Html.ActionLink("Backup Tags", "BackupTags")</li>

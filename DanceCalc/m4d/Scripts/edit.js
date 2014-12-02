@@ -1,77 +1,71 @@
-﻿var danceAction = function(id) {
+﻿var danceAction = function (id) {
     $('#addDances option[value="' + id + '"]').attr('selected', 'selected');
     $('#addDances').trigger('chosen:updated');
-}
+};
 
 /// Helper functions
 
 var computeAlbumName = function (idx, name) {
     var ret = "Albums[" + idx + "]." + name;
     return ret;
-}
+};
 
 var computeAlbumId = function (idx, name) {
     var ret = "Albums_" + idx + "__" + name;
     return ret;
-}
+};
 
-var formatDuration = function(seconds)
-{
+var formatDuration = function (seconds) {
     var m = Math.floor(seconds / 60);
     var s = seconds % 60;
     var sec = (s < 10) ? ("0" + s.toString()) : s.toString();
 
     return m.toString() + ":" + sec;
-}
+};
 
-var logoFromEnum = function(e)
-{
+var logoFromEnum = function (e) {
     var ret = null;
-    switch (e)
-    {
+    switch (e) {
         case 1: ret = "/Content/amazon-logo.png";
             break;
         case 2: ret = "/Content/itunes-logo.png";
             break;
         case 3: ret = "/Content/xbox-logo.png";
             break;
-        }
+    }
 
     return ret;
-}
+};
 
 var purchaseLinksFromTrack = function (track) {
     var ret = null;
-    if (track.SongLink != null)
-    {
+    if (track.SongLink != null) {
         ret = track.SongLink;
     }
-    else if (track.AlbumLink != null)
-    {
+    else if (track.AlbumLink != null) {
         ret = track.AlbumLink;
     }
     return [ret];
-}
+};
 
 // Make a field id from an alt-field id:  e.g. alt-title -> Title
-var altToField = function(altId) {
+var altToField = function (altId) {
     var id = altId[4].toUpperCase() + altId.substring(5);
     return id;
-}
+};
 
 // Swap the text of the clicked link with the parent field's value
-var replaceValue = function(self) {
+var replaceValue = function (self) {
     var id = self.context.parentElement.id;
     var field = $("#" + altToField(id));
     var text = self.text();
     self.text(field.val());
     field.val(text);
     //alert(self.context.parentElement.id + ":" + self.text());
-}
+};
 
 var addValue = function (id, val) {
-    if (val == null)
-    {
+    if (val == null) {
         return;
     }
 
@@ -79,31 +73,27 @@ var addValue = function (id, val) {
     var field = $("#" + altToField(id));
 
     var oldVal = field.val();
-    if (val === oldVal)
-    {
+    if (val === oldVal) {
         return;
     }
 
     var dup = false;
-    $("#" + id + " a").each(function (){
-        if ($(this).text() == val)
-        {
+    $("#" + id + " a").each(function () {
+        if ($(this).text() == val) {
             dup = true;
             return false;
         }
     });
 
-    if (!dup)
-    {
+    if (!dup) {
         var node = "<a href='#' role='button' class='btn btn-link'>" + oldVal + "</a>"
         self.append(node);
         field.val(val);
     }
-}
+};
 
 // Track object
-var Track = function(data)
-{
+var Track = function (data) {
     //var mapping = {};//{'observe': ["Name"]};
     //ko.mapping.fromJS(data, mapping, this);
     $.extend(true, this, data);
@@ -115,7 +105,7 @@ var Track = function(data)
     this.serviceLogo = ko.computed(function () {
         return logoFromEnum(this.Service);
     }, this);
-}
+};
 
 var trackMapping = {
     'tracks': {
@@ -125,29 +115,25 @@ var trackMapping = {
     }
 };
 
-var addPurchaseLink = function(link,olist)
-{
-    if (link != null)
-    {
+var addPurchaseLink = function (link, olist) {
+    if (link != null) {
         // TODO: Has to be a cleaner way to find existence ($.inArray isn't working
         //  possibly because we're mapped - may be that going back and figuring
         //  out how to get KO Mapping to mapp the PurchaseLink array but not
         //  the objects is the way to go...
 
         for (var i = 0; i < olist().length; i++) {
-            if (link.Link == olist()[i].Link())
-            {
+            if (link.Link == olist()[i].Link()) {
                 return; // Already have this link
             }
         }
 
         var olink = ko.mapping.fromJS(link);
-        if ($.inArray(olink, olist()) == -1)
-        {
+        if ($.inArray(olink, olist()) == -1) {
             olist.push(olink);
         }
     }
-}
+};
 
 // Album object
 var Album = function (data) {
@@ -156,8 +142,7 @@ var Album = function (data) {
     //{'copy': "PurchaseLinks" }
     ko.mapping.fromJS(data, {}, this);
 
-    self.addPurchase = function(track)
-    {
+    self.addPurchase = function (track) {
         //var pi = self.PurchasInfo();
         //var r = /[AIX][SA]=[^;]*/g, match;
 
@@ -167,25 +152,20 @@ var Album = function (data) {
         var pi = self.PurchaseInfo();
 
         var tpi = track.PurchaseInfo;
-        if (pi == null)
-        {
+        if (pi == null) {
             self.PurchaseInfo(tpi);
         }
-        else if (tpi != null)
-        {
+        else if (tpi != null) {
             // get rid of possible terminal ;
-            if (pi[pi.length-1] == ";")
-            {
-                pi = pi.substring(0,pi.length-1);
+            if (pi[pi.length - 1] == ";") {
+                pi = pi.substring(0, pi.length - 1);
             }
 
             // split up the new purchase info
             tpis = tpi.split(";");
 
-            for (var i = 0; i < tpis.length; i++)
-            {
-                if (pi.indexOf(tpis[i]) == -1)
-                {
+            for (var i = 0; i < tpis.length; i++) {
+                if (pi.indexOf(tpis[i]) == -1) {
                     pi += ";" + tpis[i];
                 }
             }
@@ -198,12 +178,11 @@ var Album = function (data) {
         //addPurchaseLink(track.AlbumLink, self.PurchaseLinks());
 
         // Also add in track number if it wasn't there before
-        if (self.Track() == null)
-        {
+        if (self.Track() == null) {
             self.Track(track.TrackNumber);
         }
     };
-}
+};
 
 Album.prototype.matchTrack = function (track)
 {
@@ -286,7 +265,7 @@ var EditPage = function(data)
         // Finally handle genre
         if (track.Genre != null)
         {
-            var gnew = "Genre=" + track.Genre;
+            var gnew = track.Genre + ":Music";
             var gval = $("#editTags").val();
             if (gval == null)
             {
@@ -319,7 +298,7 @@ var albumMapping = {
             return ko.utils.unwrapObservable(data.Index);
         }
     }
-}
+};
 
 var pageMapping = {
     create: function(options)
@@ -380,10 +359,10 @@ $(document).ready(function () {
         }
     });
 
-    $('#load-xbox').click(function () { getServiceInfo('X') });
-    $('#load-itunes').click(function () { getServiceInfo('I') });
-    $('#load-amazon').click(function () { getServiceInfo('A') });
-    $('#load-all').click(function () { getServiceInfo('_') });
+    $('#load-xbox').click(function () { getServiceInfo('X'); });
+    $('#load-itunes').click(function () { getServiceInfo('I'); });
+    $('#load-amazon').click(function () { getServiceInfo('A'); });
+    $('#load-all').click(function () { getServiceInfo('_'); });
 
     //$('#alt-title a').on("click", function (event) {
     //    event.preventDefault();
@@ -420,6 +399,3 @@ $(document).ready(function () {
 
     ko.applyBindings(viewModel);
 });
-
-
-

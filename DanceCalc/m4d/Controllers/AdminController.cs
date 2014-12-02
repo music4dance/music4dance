@@ -1103,6 +1103,21 @@ namespace m4d.Controllers
             return File(stream, "text/plain", string.Format("backup-{0:d4}-{1:d2}-{2:d2}{3}.txt",dt.Year,dt.Month,dt.Day,h));
         }
 
+        //
+        // Get: //BackupDatabase
+        [Authorize(Roles = "showDiagnostics")]
+        public ActionResult BackupTail(int count = 100)
+        {
+            IList<string> songs = Database.SerializeSongs(true, true, count);
+
+            string s = string.Join("\r\n", songs);
+            var bytes = Encoding.UTF8.GetBytes(s);
+            MemoryStream stream = new MemoryStream(bytes);
+
+            DateTime dt = DateTime.Now;
+            return File(stream, "text/plain", string.Format("tail-{0:d4}-{1:d2}-{2:d2}.txt", dt.Year, dt.Month, dt.Day));
+        }
+
         ////
         //// Get: //BackupTags
         //// This is a massive kludge to get the old style tag info out of the database

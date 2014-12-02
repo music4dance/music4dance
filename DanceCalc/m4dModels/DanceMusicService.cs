@@ -248,8 +248,11 @@ namespace m4dModels
         #endregion
 
         #region Properties
-
         public SongProperty CreateSongProperty(Song song, string name, object value, SongLog log)
+        {
+            return CreateSongProperty(song, name, value, null, log);
+        }
+        public SongProperty CreateSongProperty(Song song, string name, object value, object old, SongLog log)
         {
             SongProperty ret = _context.SongProperties.Create();
             ret.Song = song;
@@ -264,7 +267,7 @@ namespace m4dModels
 
             if (log != null)
             {
-                LogPropertyUpdate(ret, log);
+                LogPropertyUpdate(ret, log,old==null?null:old.ToString());
             }
 
             _context.SongProperties.Add(ret);
@@ -1482,7 +1485,7 @@ namespace m4dModels
 #endif
             return tags;
         }
-        public IList<string> SerializeSongs(bool withHeader = true, bool withHistory = true)
+        public IList<string> SerializeSongs(bool withHeader = true, bool withHistory = true, int max = -1)
         {
             List<string> songs = new List<string>();
 
@@ -1491,7 +1494,12 @@ namespace m4dModels
                 songs.Add(_songBreak);
             }
 
-            var songlist = Songs.OrderBy(t => t.Modified).ThenBy(t => t.SongId);
+            var songlist = Songs.OrderByDescending(t => t.Modified).ThenByDescending(t => t.SongId);
+            if (max != -1)
+            {
+                songlist = songlist.Take(max) as System.Linq.IOrderedQueryable<Song>;
+            }
+
             foreach (Song song in songlist)
             {
                 string[] actions = null;

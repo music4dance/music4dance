@@ -41,18 +41,18 @@ namespace m4dModels
                 log.Initialize(user, this, command);
             }
 
-            CreateProperty(command, value, log, dms);
+            CreateProperty(command, value, null, log, dms);
 
             // Handle User association
             if (user != null)
             {
                 AddUser(user,dms);
-                CreateProperty(Song.UserField, user.UserName, log, dms);
+                CreateProperty(Song.UserField, user.UserName, null, log, dms);
             }
 
             Created = time;
             Modified = time;
-            CreateProperty(Song.TimeField, time.ToString(), log, dms);
+            CreateProperty(Song.TimeField, time.ToString(), null, log, dms);
 
             Debug.Assert(!string.IsNullOrWhiteSpace(sd.Title));
             foreach (PropertyInfo pi in SongBase.ScalarProperties)
@@ -61,7 +61,7 @@ namespace m4dModels
                 if (prop != null)
                 {
                     pi.SetValue(this, prop);
-                    CreateProperty(pi.Name, prop, log, dms);
+                    CreateProperty(pi.Name, prop, null, log, dms);
                 }
             }
 
@@ -153,7 +153,7 @@ namespace m4dModels
             {
                 modified = true;
                 string t = string.Join(",", reorder.Select(x => x.ToString()));
-                CreateProperty(AlbumOrder, t, CurrentLog, dms);
+                CreateProperty(AlbumOrder, t, null, CurrentLog, dms);
             }
 
             return modified;
@@ -179,7 +179,7 @@ namespace m4dModels
         public bool Update(ApplicationUser user, SongDetails update, DanceMusicService dms)
         {
             // Verify that our heads are the same (TODO:move this to debug mode at some point?)
-            List<SongProperty> old = SongProperties.Where(p => !p.IsAction).ToList();
+            List<SongProperty> old = SongProperties.Where(p => !p.IsAction).OrderBy(p => p.Id).ToList();
             List<SongProperty> upd = update.Properties.Where(p => !p.IsAction).ToList();
             int c = old.Count;
             for (int i = 0; i < c; i++)
@@ -296,7 +296,7 @@ namespace m4dModels
                 {
                     if (AddUser(us.ApplicationUser, dms))
                     {
-                        CreateProperty(Song.UserField, us.ApplicationUser.UserName, this.CurrentLog, dms);
+                        CreateProperty(Song.UserField, us.ApplicationUser.UserName, null, this.CurrentLog, dms);
                     }
                 }
 
@@ -340,7 +340,7 @@ namespace m4dModels
 
                 string value = new DanceRatingDelta { DanceId = dance.Key, Delta = dance.Value }.ToString();
 
-                CreateProperty(Song.DanceRatingField, value, this.CurrentLog, dms);
+                CreateProperty(Song.DanceRatingField, value, null, this.CurrentLog, dms);
             }
 
         }
@@ -358,7 +358,7 @@ namespace m4dModels
 
                 GetType().GetProperty(name).SetValue(this, eP);
 
-                CreateProperty(name, eP, CurrentLog, dms);
+                CreateProperty(name, eP, oP, CurrentLog, dms);
             }
 
             return modified;
@@ -376,22 +376,22 @@ namespace m4dModels
             {
                 modified = true;
                 GetType().GetProperty(name).SetValue(this, eP);
-                CreateProperty(name, eP, CurrentLog, dms);
+                CreateProperty(name, eP, null, CurrentLog, dms);
             }
 
             return modified;
         }
 
-        protected override SongProperty CreateProperty(string name, object value, SongLog log, DanceMusicService dms)
+        protected override SongProperty CreateProperty(string name, object value, object old, SongLog log, DanceMusicService dms)
         {
             SongProperty prop = null;
             if (dms != null)
             {
-                prop = dms.CreateSongProperty(this, name, value, log);
+                prop = dms.CreateSongProperty(this, name, value, old, log);
             }
             else
             {
-                base.CreateProperty(name, value, log, dms);
+                base.CreateProperty(name, value, old, log, dms);
             }
 
             return prop;
