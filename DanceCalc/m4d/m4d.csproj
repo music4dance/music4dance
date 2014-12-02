@@ -536,7 +536,6 @@
     <Content Include="Content\bootstrap\bootstrap.less" />
     <Content Include="Content\bootstrap\badges.less" />
     <Content Include="Content\bootstrap\alerts.less" />
-    <None Include="Properties\PublishProfiles\m4d-old.pubxml" />
     <None Include="Properties\PublishProfiles\m4d.pubxml" />
     <Content Include="MvcDiagnostics.aspx" />
     <Content Include="Scripts\bootstrap.js" />
@@ -545,7 +544,6 @@
     <Content Include="Scripts\chosen.jquery.min.js" />
     <Content Include="Scripts\Counter.js" />
     <Content Include="Scripts\edit.js" />
-    <None Include="Properties\PublishProfiles\music4dance %28dwgray%29.pubxml" />
     <None Include="Properties\PublishProfiles\music4dance.pubxml" />
     <None Include="Scripts\jquery-2.1.1.intellisense.js" />
     <Content Include="Scripts\editdance.js" />
@@ -731,6 +729,9 @@
     <Content Include="Views\Dance\Edit.cshtml" />
     <Content Include="Views\Shared\_ListSongs.cshtml" />
     <Content Include="Views\Dance\_DanceList.cshtml" />
+    <None Include="Web.m4d.config">
+      <DependentUpon>Web.config</DependentUpon>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
