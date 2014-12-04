@@ -4,6 +4,10 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@ViewBag.Title - Music4Dance: Shall we dance...to music?</title>
+    @if (@ViewData.ContainsKey("Description"))
+    {
+        <meta name="description" content="@ViewBag.Description"/>
+    }
     <link rel="shortcut icon" href="~/Content/favicon.png" />
     <link href='//fonts.googleapis.com/css?family=Source+Sans+Pro|Merienda:700' rel='stylesheet' type='text/css'>
     @{
