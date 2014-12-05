@@ -136,7 +136,7 @@ namespace m4dModels
             DanceObject dance = Dances.Instance.AllDances.FirstOrDefault(dnc => string.Equals(dnc.Name, d, StringComparison.OrdinalIgnoreCase));
             if (dance != null)
             {
-                return new KeyValuePair<string, string>(dance.Name.Replace(" ", "").ToLower(), string.Format("/Dances/{0}", dance.Name));
+                return new KeyValuePair<string, string>(dance.Name.Replace(" ", "").ToLower(), string.Format("/dances/{0}", dance.CleanName));
             }
             
             string link = null;

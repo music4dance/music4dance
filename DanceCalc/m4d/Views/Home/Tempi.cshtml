@@ -2,12 +2,12 @@
 
 @{
     ViewBag.Title = "Tempi";
-    ViewBag.Description = "A web application that catalogs dance styles by the tempo to which they can be danced both socially and by the standards of several organizers of dance competitions."
+    ViewBag.Description = "A web application that catalogs dance styles by the tempo to which they can be danced both socially and by the standards of several organizers of dance competitions.";
 }
 
 <div class="row">
     <div class="dropdown col-md-3">
-        <a id="filter-style" role="button" data-toggle="dropdown" data-target="#" href="/Home/Tempi" class="btn btn-info btn-block filter-button">
+        <a id="filter-style" role="button" data-toggle="dropdown" data-target="#" href="/home/tempi" class="btn btn-info btn-block filter-button">
             All Styles <span class="caret"></span>
         </a>
         <ul class="dropdown-menu" role="menu" aria-labelledby="filter-style">
@@ -19,7 +19,7 @@
         </ul>
     </div>
     <div class="dropdown col-md-3">
-        <a id="filter-meter" role="button" data-toggle="dropdown" data-target="#" href="/Home/Tempi" class="btn btn-info btn-block filter-button">
+        <a id="filter-meter" role="button" data-toggle="dropdown" data-target="#" href="/home/tempi" class="btn btn-info btn-block filter-button">
             All Meters <span class=" caret"></span>
         </a>
         <ul class="dropdown-menu" role="menu" aria-labelledby="filter-meter">
@@ -30,7 +30,7 @@
         </ul>
     </div>
     <div class="dropdown col-md-3">
-        <a id="filter-type" role="button" data-toggle="dropdown" data-target="#" href="/Home/Tempi" class="btn btn-info btn-block filter-button">
+        <a id="filter-type" role="button" data-toggle="dropdown" data-target="#" href="/home/tempi" class="btn btn-info btn-block filter-button">
             All Types <span class=" caret"></span>
         </a>
         <ul class="dropdown-menu" role="menu" aria-labelledby="filter-type">
@@ -43,7 +43,7 @@
         </ul>
     </div>
     <div class="dropdown col-md-3">
-        <a id="filter-org" role="button" data-toggle="dropdown" data-target="#" href="/Home/Tempi" class="btn btn-info btn-block filter-button">
+        <a id="filter-org" role="button" data-toggle="dropdown" data-target="#" href="/home/tempi" class="btn btn-info btn-block filter-button">
             All Organizations <span class=" caret"></span>
         </a>
         <ul class="dropdown-menu" role="menu" aria-labelledby="filter-meter">
@@ -65,14 +65,14 @@
         </thead>
         <tbody data-bind="foreach: filteredDances">
             <tr>
-                <td><a data-bind="text: Name, attr: {href: '/Dances/' + Name}"></a></td>
+                <td><a data-bind="text: Name, attr: {href: '/dances/' + SeoName}"></a></td>
                 <td align="center"><span data-bind="text: Meter.Numerator"></span>/<span data-bind="text: Meter.Denominator"></span></td>
                 <td align="center" data-bind="html: tempoMPM"></td>
                 <td align="center" data-bind="html: tempoDS, visible: $parent.showDanceSport"></td>
                 <td align="center" data-bind="html: tempoNDCA, visible: $parent.showNDCA_A"></td>
                 <td align="center" data-bind="html: tempoNDCABeginner, visible: $parent.showNDCA_B"></td>
                 <td align="center" data-bind="html: tempoBPM"></td>
-                <td><a data-bind="text: GroupName, attr: {href: '/Dances/' + GroupName}"></a></td>
+                <td><a data-bind="text: GroupName, attr: {href: '/dances/' + GroupName}"></a></td>
                 <td data-bind="html: styles"></td>
             </tr>
         </tbody>

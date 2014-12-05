@@ -21,12 +21,12 @@
 
 <ol class="breadcrumb">
     <li><a href="/">Music4Dance</a></li>
-    <li><a href="/Dances">Dances</a></li>
+    <li><a href="/dances">Dances</a></li>
     @if (@Model.Parent != null && @Model.Parent.DanceId != "All")
     {
-        <li><a href="/Dances/@Model.Parent.DanceName">@Model.Parent.DanceName</a></li>
+        <li><a href="/dances/@Model.Parent.SeoName">@Model.Parent.DanceName</a></li>
     }
-    <li><a href="/Dances/@Model.DanceName">@Model.DanceName</a></li>
+    <li><a href="/dances/@Model.SeoName">@Model.DanceName</a></li>
 </ol>
 
 <h2>@Model.DanceName</h2>

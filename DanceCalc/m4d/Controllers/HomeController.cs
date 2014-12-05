@@ -28,7 +28,7 @@ namespace m4d.Controllers
         [AllowAnonymous]
         public ActionResult Dances()
         {
-            return RedirectPermanent("/Dances");
+            return RedirectPermanent("/dances");
         }
 
         [AllowAnonymous]

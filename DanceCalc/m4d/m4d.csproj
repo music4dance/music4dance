@@ -375,6 +375,7 @@
     <Compile Include="Utilities\AWSFetcher.cs" />
     <Compile Include="Utilities\DBExtentions.cs" />
     <Compile Include="Utilities\HtmlExtensions.cs" />
+    <Compile Include="Utilities\LowerCaseRoute.cs" />
     <Compile Include="Utilities\SongBinder.cs" />
     <Compile Include="ViewModels\LocalMerger.cs" />
     <Compile Include="ViewModels\ManageViewModels.cs" />

@@ -42,7 +42,7 @@ function ShowAdvanced()
 
     $("#AdvancedSearch").show();
     var search = $("#search");
-    search.attr("action", "/Song/AdvancedSearch");
+    search.attr("action", "/song/advancedsearch");
     $("#ToggleAdvanced").html(button);
 }
 
@@ -51,7 +51,7 @@ function ShowBasic()
     var button = '<span id="left-icon" class="glyphicon glyphicon-arrow-down"></span> More <span id="right-icon" class="glyphicon glyphicon-arrow-down"></span>';
 
     $("#AdvancedSearch").hide();
-    $("#search").attr("action", "/Song/Search");
+    $("#search").attr("action", "/song/search");
     $("#ToggleAdvanced").html(button);
 }
 

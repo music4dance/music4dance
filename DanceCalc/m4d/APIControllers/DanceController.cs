@@ -18,6 +18,7 @@ namespace m4d.APIControllers
             Name = d.Name;
             Meter = d.Meter;
             TempoRange = d.TempoRange;
+            SeoName = d.CleanName;
         }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
         public DanceJson(DanceSample d) : this(d.DanceType)
@@ -29,6 +30,7 @@ namespace m4d.APIControllers
         public virtual Meter Meter { get; set; }
         public virtual TempoRange TempoRange { get; set; }
         public virtual decimal TempoDelta { get; set; }
+        public virtual string SeoName { get; set; }
     }
 
     public class DanceController : DMApiController

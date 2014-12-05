@@ -61,7 +61,7 @@
             <th class="hidden-xs">
                 @if (canSort)
                 {
-                    @Html.ActionLink("Tempo (BPM)", "Sort", "Song", new { sortOrder = "Tempo", filter = ViewBag.SongFilter }, null)
+                    @Html.ActionLink("Tempo (BPM)", "sort", "song", new { sortOrder = "Tempo", filter = ViewBag.SongFilter }, null)
                     @Html.Raw(songOrder.GetSortGlyph("Tempo"))
                 }
                 else
@@ -72,7 +72,7 @@
             @if (canSort)
             {
                 <th>
-                    @Html.ActionLink("Dances", "Sort", "Song", new { sortOrder = "Dances", filter = ViewBag.SongFilter }, null)
+                    @Html.ActionLink("Dances", "sort", "song", new { sortOrder = "Dances", filter = ViewBag.SongFilter }, null)
                     @Html.Raw(songOrder.GetSortGlyph("Dances"))
                 </th>
             }
@@ -94,10 +94,10 @@
                     {
                         string id = "Selected-" + item.SongId.ToString();
                         <td><input name="selectedSongs" id="@id" type="checkbox" value="@item.SongId" /></td>
-                        <td><a href="/Song/Edit?id=@item.SongId&filter=@ViewBag.SongFilter" role="button" class="btn btn-link btn-sm"><span class="glyphicon glyphicon-pencil"></span></a></td>
+                        <td><a href="/song/edit?id=@item.SongId&filter=@ViewBag.SongFilter" role="button" class="btn btn-link btn-sm"><span class="glyphicon glyphicon-pencil"></span></a></td>
                     }
                     <td>
-                        @Html.ActionLink(item.Title, "Details", "Song", new { id = item.SongId, filter = ViewBag.SongFilter }, null)
+                        @Html.ActionLink(item.Title, "details", "song", new { id = item.SongId, filter = ViewBag.SongFilter }, null)
                         @if (item.Tempo != null)
                         {
                             <small class="hidden-sm hidden-md hidden-lg">(@decimal.Round(item.Tempo.Value).ToString("F0") BPM)</small>

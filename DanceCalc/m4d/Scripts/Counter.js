@@ -37,12 +37,12 @@ var danceAction = function (id) {
     {
         if (dances[i].Id === id)
         {
-            name = dances[i].Name;
+            name = dances[i].SeoName;
         }
     }
 
     if (name)
-        window.location.href = '/Dances/' + name;
+        window.location.href = '/dances/' + name;
 }
 
 $(document).ready(function () {

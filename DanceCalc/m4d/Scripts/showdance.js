@@ -9,7 +9,7 @@
     while (!id)
 
     evt.preventDefault();
-    window.location.href = '/Dances/' + id;
+    window.location.href = '/dances/' + id;
 
 }
 

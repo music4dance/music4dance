@@ -77,7 +77,7 @@ namespace m4d.Controllers
             {
                 dances = null;
             }
-            if (!string.Equals(dances, filter.Dances))
+            if (!string.Equals(dances, filter.Dances, StringComparison.OrdinalIgnoreCase))
             {
                 filter.Dances = dances;
                 filter.Page = 1;
@@ -107,7 +107,7 @@ namespace m4d.Controllers
             {
                 dances = null;
             }
-            if (!string.Equals(dances, filter.Dances))
+            if (!string.Equals(dances, filter.Dances, StringComparison.OrdinalIgnoreCase))
             {
                 filter.Dances = dances;
                 filter.Page = 1;

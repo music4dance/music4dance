@@ -5,6 +5,8 @@ using System.Web;
 using System.Web.Mvc;
 using System.Web.Routing;
 
+using m4d.Utilities;
+
 namespace m4d
 {
     public class RouteConfig
@@ -13,20 +15,20 @@ namespace m4d
         {
             routes.IgnoreRoute("{resource}.axd/{*pathInfo}");
 
-            routes.MapRoute(
+            routes.MapRouteLowercase(
                 name: "Dances",
-                url: "Dances/{group}/{dance}",
-                defaults: new { controller = "Dance", action = "GroupRedirect" }
+                url: "dances/{group}/{dance}",
+                defaults: new { controller = "dance", action = "GroupRedirect" }
             );
-            routes.MapRoute(
+            routes.MapRouteLowercase(
                 name: "DanceGroup",
-                url: "Dances/{dance}",
-                defaults: new { controller = "Dance", action = "Index", dance = UrlParameter.Optional }
+                url: "dances/{dance}",
+                defaults: new { controller = "dance", action = "index", dance = UrlParameter.Optional }
             );
-            routes.MapRoute(
+            routes.MapRouteLowercase(
                 name: "Default",
                 url: "{controller}/{action}/{id}",
-                defaults: new { controller = "Home", action = "Index", id = UrlParameter.Optional }
+                defaults: new { controller = "home", action = "index", id = UrlParameter.Optional }
             );
         }
     }

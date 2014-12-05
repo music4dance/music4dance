@@ -23,6 +23,10 @@ namespace m4dModels
         public Dance Dance { get; set; }
         public SongCounts Parent { get; set; }
         public List<SongCounts> Children { get; set; }
+        public string SeoName
+        {
+            get { return DanceObject.SeoFriendly(DanceName); }
+        }
 
         public IEnumerable<Song> TopSongs { get; set; }
         public void SetTopSongs(int n, DanceMusicService dms)
@@ -177,7 +181,8 @@ namespace m4dModels
 
         static public SongCounts FromName(string name, DanceMusicService dms)
         {
-            SongCounts s = GetFlatSongCounts(dms).FirstOrDefault(sc => string.Equals(sc.DanceName,name,StringComparison.OrdinalIgnoreCase));
+            name = DanceObject.SeoFriendly(name);
+            SongCounts s = GetFlatSongCounts(dms).FirstOrDefault(sc => string.Equals(sc.SeoName,name));
             if (s!= null)
             {
                 s.SetTopSongs(10, dms);

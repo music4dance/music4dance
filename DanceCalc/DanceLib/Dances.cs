@@ -55,6 +55,23 @@ namespace DanceLibrary
         public virtual Meter Meter { get; set; }
         [JsonProperty]
         public virtual TempoRange TempoRange { get; set; }
+
+        public string CleanName
+        {
+            get
+            {
+                return SeoFriendly(Name);
+            }
+        }
+        public static string SeoFriendly(string name)
+        {
+            if (!string.IsNullOrWhiteSpace(name))
+            {
+                name = name.Replace(' ', '-');
+                name = name.ToLower();
+            }
+            return name;
+        }
     }
 
     [JsonObject(MemberSerialization.OptIn)]
@@ -817,7 +834,7 @@ namespace DanceLibrary
 
         public string[] ExpandDanceList(string dances)
         {
-            IEnumerable<string> initialList = ParseDanceList(dances);
+            IEnumerable<string> initialList = ParseDanceList(dances.ToUpper());
 
             // Would use hashset, but looks like not available on phone?
             Dictionary<string, string> set = new Dictionary<string, string>();
@@ -835,7 +852,7 @@ namespace DanceLibrary
 
         public IList<DanceObject> FromIds(string dances)
         {
-            IEnumerable<string> list = ParseDanceList(dances);
+            IEnumerable<string> list = ParseDanceList(dances.ToUpper());
 
             List<DanceObject> dos = new List<DanceObject>();
 

@@ -819,7 +819,7 @@ namespace m4dModels
 #endif
             // Now limit it down to the ones that are marked as a particular dance or dances
             string[] danceList = null;
-            if (!string.IsNullOrWhiteSpace(filter.Dances) && !string.Equals(filter.Dances, "ALL"))
+            if (!string.IsNullOrWhiteSpace(filter.Dances) && !string.Equals(filter.Dances, "ALL", StringComparison.OrdinalIgnoreCase))
             {
                 // TODO: We don't need to expand anything except MSC - should we just special case MSC
                 // and kill this code path...
@@ -1039,10 +1039,10 @@ namespace m4dModels
             string ret = null;
             if (danceList != null && danceList.Length > 0)
             {
-                ret = danceList[0].Substring(0, 3);
+                ret = danceList[0].Substring(0, 3).ToUpper();
                 for (int i = 1; i < danceList.Length; i++)
                 {
-                    if (!string.Equals(ret, danceList[i].Substring(0, 3)))
+                    if (!string.Equals(ret, danceList[i].Substring(0, 3),StringComparison.OrdinalIgnoreCase))
                     {
                         ret = null;
                         break;

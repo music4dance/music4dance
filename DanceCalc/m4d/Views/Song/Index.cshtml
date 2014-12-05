@@ -153,7 +153,7 @@
         {
             foreach (var dance in selected)
             {
-                @Html.ActionLink(dance.Name + " Page", dance.Name, "Dances", new { filter = ViewBag.SongFilter, type = "I", count = 1 }, new { @class = "btn btn-default", role = "button" });
+                @Html.ActionLink(dance.Name + " Page", dance.Name, "dances", new { filter = ViewBag.SongFilter, type = "I", count = 1 }, new { @class = "btn btn-default", role = "button" });
             }
         }
     </div>

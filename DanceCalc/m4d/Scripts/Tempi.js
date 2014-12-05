@@ -14,6 +14,8 @@ var DanceHeader = function(title,key,detail,parent)
 var DanceType = function (data,parent) {
     $.extend(true, this, data);
 
+    this.SeoName = this.Name.toLowerCase().replace(' ', '-');
+
     this.tempoMPM = ko.computed(function () {
         return this.tempoHelper(parent.styleFilter(), parent.orgFilter(), 1);
     }, this);
