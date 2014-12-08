@@ -8,6 +8,11 @@
     {
         <meta name="description" content="@ViewBag.Description"/>
     }
+    @if (@ViewData.ContainsKey("Canonical"))
+    {
+        <link rel="canonical" href="@ViewBag.Canonical" />
+    }
+
     <link rel="shortcut icon" href="~/Content/favicon.png" />
     <link href='//fonts.googleapis.com/css?family=Source+Sans+Pro|Merienda:700' rel='stylesheet' type='text/css'>
     @{
