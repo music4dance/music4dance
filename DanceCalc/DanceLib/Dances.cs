@@ -852,7 +852,9 @@ namespace DanceLibrary
 
         public IList<DanceObject> FromIds(string dances)
         {
-            IEnumerable<string> list = ParseDanceList(dances.ToUpper());
+            if (dances != null)
+                dances = dances.ToUpper();
+            IEnumerable<string> list = ParseDanceList(dances);
 
             List<DanceObject> dos = new List<DanceObject>();
 
