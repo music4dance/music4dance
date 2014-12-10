@@ -110,8 +110,6 @@
   <ItemGroup>
     <Content Include="App.config" />
     <Content Include="MvcDiagnostics.aspx" />
-    <Content Include="Test Data\backup-snapshot-a.txt" />
-    <Content Include="Test Data\backup-snapshot-b.txt" />
     <Content Include="Test Data\backup-snapshot.txt" />
     <Content Include="Test Data\music-list.TXT" />
     <Content Include="Test Data\tags-2014-10-16.txt" />

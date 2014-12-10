@@ -461,7 +461,7 @@ namespace m4dModels
         {
             if (albums != null)
             {
-                albums = AlbumDetails.MergeAlbums(albums);
+                albums = AlbumDetails.MergeAlbums(albums, Artist,false);
 
                 for (int ia = 0; ia < albums.Count; ia++)
                 {

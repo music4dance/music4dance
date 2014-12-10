@@ -347,7 +347,7 @@ namespace m4dModels
         #endregion
 
         #region Merging
-        public static IList<AlbumDetails> MergeAlbums(IList<AlbumDetails> albums)
+        public static IList<AlbumDetails> MergeAlbums(IList<AlbumDetails> albums, string artist, bool preserveIndices)
         {
             Dictionary<string, List<AlbumDetails>> dict = new Dictionary<string, List<AlbumDetails>>();
 
@@ -355,7 +355,7 @@ namespace m4dModels
 
             foreach (AlbumDetails a in albums)
             {
-                string name = Song.CreateNormalForm(a.Name);
+                string name = SongDetails.CleanAlbum(a.Name,artist);
                 List<AlbumDetails> l = null;
                 if (dict.TryGetValue(name, out l))
                 {
@@ -379,7 +379,7 @@ namespace m4dModels
             List<AlbumDetails> merge = new List<AlbumDetails>();
             foreach (AlbumDetails a in albums)
             {
-                string name = Song.CreateNormalForm(a.Name);
+                string name = SongDetails.CleanAlbum(a.Name, artist);
                 List<AlbumDetails> l = null;
                 if (dict.TryGetValue(name, out l))
                 {
@@ -388,9 +388,12 @@ namespace m4dModels
                 }
             }
 
-            for (int i = 0; i < merge.Count(); i++)
+            if (!preserveIndices)
             {
-                merge[i].Index = i;
+                for (int i = 0; i < merge.Count(); i++)
+                {
+                    merge[i].Index = i;
+                }
             }
 
             return merge;

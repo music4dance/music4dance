@@ -196,7 +196,7 @@ namespace m4dModels
             string sep = string.Empty;
             foreach (SongProperty sp in properties)
             {
-                if (!sp.IsAction || (actions != null && actions.Contains(sp.Name)))
+                if (actions == null || !actions.Contains(sp.Name))
                 {
                     string p = sp.ToString();
 
@@ -212,8 +212,8 @@ namespace m4dModels
         public static void Load(Guid songId, string props, ICollection<SongProperty> properties)
         {
             string[] cells = props.Split(new char[] { '\t' });
-            SongProperty create = new SongProperty(songId, Song.CreateCommand, null);
-            properties.Add(create);
+            //SongProperty create = new SongProperty(songId, Song.CreateCommand, null);
+            //properties.Add(create);
 
             foreach (string cell in cells)
             {

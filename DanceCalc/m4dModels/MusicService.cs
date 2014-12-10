@@ -191,6 +191,12 @@ namespace m4dModels
         {
             return s_idMap.Values;
         }
+
+        public static IEnumerable<MusicService> GetSearchableServices()
+        {
+            return s_idMap.Values.Where(s => s.CID != 'M');
+        }
+
         public static MusicService GetService(ServiceType id)
         {
             return s_idMap[id];

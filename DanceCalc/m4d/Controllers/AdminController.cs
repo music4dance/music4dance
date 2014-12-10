@@ -151,25 +151,45 @@ namespace m4d.Controllers
         public ActionResult UpdateAlbums()
         {
             ViewBag.Name = "UpdateAlbums";
-            int count = 0;
+            int changed = 0;
+            int merged = 0;
+            int scanned = 0;
 
+            Context.TrackChanges(false);
             ApplicationUser user = Database.FindUser(User.Identity.Name);
             var songs = from s in Database.Songs where s.Title != null select s;
             foreach (Song song in songs)
             {
                 SongDetails sd = new SongDetails(song);
-                string album = sd.Album;
-                if (song.Album != album)
+
+                IList<AlbumDetails> albums = AlbumDetails.MergeAlbums(sd.Albums, sd.Artist, true);
+                if (albums.Count != sd.Albums.Count)
                 {
-                    song.Album = album;
-                    count += 1;
+                    sd.Albums = albums.ToList();
+                    Database.EditSong(user, sd, null, null, null, false);
+                    merged += 1;
+                }
+                else
+                {
+                    string album = sd.Album;
+                    if (song.Album != album)
+                    {
+                        song.Album = album;
+                        changed += 1;
+                    }
+                }
+
+                scanned += 1;
+
+                if (scanned % 100 == 0)
+                {
+                    Trace.WriteLine(string.Format("Scanned == {0}; Changed={1}; Merged={2}", scanned, changed, merged));
                 }
             }
-
-            Database.SaveChanges();
+            Context.TrackChanges(true);
 
             ViewBag.Success = true;
-            ViewBag.Message = string.Format("Albums were fixed ({0})", count);
+            ViewBag.Message = string.Format("Albums were fixed ({0}) and Albums were merged ({1})", changed, merged);
 
             return View("Results");
         }
@@ -265,7 +285,7 @@ namespace m4d.Controllers
 
             int count = 0;
 
-            Context.Configuration.AutoDetectChangesEnabled = false;
+            Context.TrackChanges(false);
 
             foreach (TagType tt in Database.TagTypes)
             {
@@ -278,8 +298,7 @@ namespace m4d.Controllers
                 count += 1;
             }
 
-            Database.SaveChanges();
-            Context.Configuration.AutoDetectChangesEnabled = true;
+            Context.TrackChanges(true);
 
             ViewBag.Success = true;
             ViewBag.Message = string.Format(" Songs were fixed as tags({0})", count);
@@ -297,7 +316,7 @@ namespace m4d.Controllers
             var dict = Dances.Instance.DanceDictionary;
 
             int count = 0;
-            Context.Configuration.AutoDetectChangesEnabled = false;
+            Context.TrackChanges(false);
 
             ApplicationUser batch = Database.FindUser("batch");
             foreach (Song song in Database.Songs)
@@ -341,9 +360,7 @@ namespace m4d.Controllers
                 }
             }
 
-            Context.Configuration.AutoDetectChangesEnabled = true;
-            Context.ChangeTracker.DetectChanges();
-            Database.SaveChanges();
+            Context.TrackChanges(true);
 
             ViewBag.Success = true;
             ViewBag.Message = string.Format("Dance groups were added ({0})", count);
@@ -363,7 +380,7 @@ namespace m4d.Controllers
             var dict = Dances.Instance.DanceDictionary;
 
             int count = 0;
-            Context.Configuration.AutoDetectChangesEnabled = false;
+            Context.TrackChanges(false);
 
             ApplicationUser batch = Database.FindUser("batch");
             foreach (Song song in Database.Songs)
@@ -407,8 +424,7 @@ namespace m4d.Controllers
                 }
             }
 
-            Context.ChangeTracker.DetectChanges();
-            Database.SaveChanges();
+            Context.TrackChanges(true);
 
             ViewBag.Success = true;
             ViewBag.Message = string.Format("Dance groups were added ({0})", count);
@@ -425,7 +441,7 @@ namespace m4d.Controllers
             ViewBag.Name = "CleanTags";
 
             int count = 0;
-            Context.Configuration.AutoDetectChangesEnabled = false;
+            Context.TrackChanges(false);
 
             SongProperty user = null;
             SongProperty time = null;
@@ -469,8 +485,8 @@ namespace m4d.Controllers
             {
                 Database.SongProperties.Remove(prop);
             }
-            Context.ChangeTracker.DetectChanges();
-            Database.SaveChanges();
+
+            Context.CheckpointChanges();
 
 #if NEWTAG
             foreach (Tag tag in Database.Tags)
@@ -489,12 +505,14 @@ namespace m4d.Controllers
             Database.SaveChanges();
 #endif
 
-            Context.Configuration.AutoDetectChangesEnabled = true;
+            Context.CheckpointChanges();
+
             foreach (Song song in Database.Songs)
             {
                 song.TagSummary.Clean();
             }
-            Database.SaveChanges();
+
+            Context.TrackChanges(false);
 
             ViewBag.Success = true;
             ViewBag.Message = string.Format("Tags were removed ({0})", count);
@@ -781,7 +799,7 @@ namespace m4d.Controllers
 
             if (lines.Count > 0)
             {
-                Context.Configuration.AutoDetectChangesEnabled = false;
+                Context.TrackChanges(false);
 
                 Dictionary<string, string> entries = new Dictionary<string, string>();
                 int count = 0;
@@ -869,9 +887,7 @@ namespace m4d.Controllers
                     }
                 }
 
-                Context.Configuration.AutoDetectChangesEnabled = true;
-                Context.ChangeTracker.DetectChanges();
-                Database.SaveChanges();
+                Context.TrackChanges(true);
             }
 
             return View("Results");
@@ -1220,6 +1236,31 @@ namespace m4d.Controllers
             return View("Results");
         }
 
+        //
+        // Get: //CleanLookupHistory
+        [Authorize(Roles = "dbAdmin")]
+        public ActionResult CleanLookupHistory()
+        {
+            var properties = from sp in Database.SongProperties where sp.Name == Song.FailedLookup select sp;
+
+            Context.TrackChanges(false);
+            int c = 0;
+            foreach (var property in properties)
+            {
+                Database.SongProperties.Remove(property);
+                c += 1;
+            }
+
+            Context.TrackChanges(true);
+
+            ViewBag.Name = "Clean Lookup History";
+            ViewBag.Success = true;
+            ViewBag.Message = string.Format("{0} lookup records deleted", c);
+
+            return View("Results");
+        }
+
+
         
         #endregion
 
@@ -1289,7 +1330,7 @@ namespace m4d.Controllers
         {
             Trace.WriteLineIf(TraceLevels.General.TraceInfo,"Entering UpdateDB");
 
-            Context.Configuration.AutoDetectChangesEnabled = false;
+            Context.TrackChanges(false);
 
             // Load the dance List
             Trace.WriteLineIf(TraceLevels.General.TraceInfo,"Loading Dances");
@@ -1319,9 +1360,7 @@ namespace m4d.Controllers
                 //song.Modified = DateTime.Now;
             }
 
-            Context.Configuration.AutoDetectChangesEnabled = true;
-            Context.ChangeTracker.DetectChanges();
-            Database.SaveChanges();
+            Context.TrackChanges(true);
 
             Trace.WriteLineIf(TraceLevels.General.TraceInfo,"Clearing Song Cache");
             SongCounts.ClearCache();

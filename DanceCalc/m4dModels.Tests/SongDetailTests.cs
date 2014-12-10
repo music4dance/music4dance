@@ -112,10 +112,10 @@ namespace m4dModels.Tests
                 string txt = s.Serialize(new string[] { SongBase.NoSongId });
                 //Trace.WriteLine(txt);
 
-                Assert.IsTrue(txt.StartsWith("User=dwgray\t"));
+                Assert.IsTrue(txt.StartsWith(".Create=\tUser=dwgray\t"));
                 string[] r = txt.Split(new char[] { '\t' });
                 List<string> l = new List<string>(r);
-                l.RemoveRange(0,2);
+                l.RemoveRange(0,3);
                 txt = string.Join("\t",l);
                 Assert.AreEqual(s_rowProps[i], txt);
                 //Trace.WriteLine(txt);

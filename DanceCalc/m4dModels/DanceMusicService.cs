@@ -102,7 +102,16 @@ namespace m4dModels
                 song.CurrentLog = CreateSongLog(user, song, Song.EditCommand);
             }
 
-            if (song.Edit(user, edit, addDances, remDances, NormalizeTags(editTags,"Other"), this))
+            // Null edit tags is semantically == don't change
+            if (editTags == null)
+            {
+                editTags = song.UserTags(user,this).Summary;
+            }
+            else
+            {
+                editTags = NormalizeTags(editTags, "Other");
+            }
+            if (song.Edit(user, edit, addDances, remDances, editTags, this))
             {
                 if (createLog)
                 {
@@ -1503,7 +1512,7 @@ namespace m4dModels
             foreach (Song song in songlist)
             {
                 string[] actions = null;
-                if (withHistory)
+                if (!withHistory)
                 {
                     actions = new string[] { Song.FailedLookup };
                 }

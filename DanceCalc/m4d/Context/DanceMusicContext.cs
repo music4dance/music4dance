@@ -369,6 +369,13 @@ namespace m4d.Context
             return ret;
         }
 
+        public void CheckpointChanges()
+        {
+            if (Configuration.AutoDetectChangesEnabled == true)
+            {
+                throw new InvalidConstraintException("Attempting a checkpoint without having first disabled auto-detect");
+            }
+        }
         public void TrackChanges(bool track)
         {
             if (track && Configuration.AutoDetectChangesEnabled == false)

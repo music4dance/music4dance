@@ -477,16 +477,17 @@ namespace m4dModels
         {
             AlbumDetails ret = null;
             List<AlbumDetails> candidates = new List<AlbumDetails>();
-            int hash = CreateTitleHash(album);
+            string title = CleanAlbum(album,Artist);
 
             foreach (AlbumDetails ad in Albums)
             {
-                if (CreateTitleHash(ad.Name) == hash)
+                if (string.Equals(CleanAlbum(ad.Name, Artist), title, StringComparison.CurrentCultureIgnoreCase))
                 {
                     candidates.Add(ad);
                     if (string.Equals(ad.Name, album, StringComparison.CurrentCultureIgnoreCase))
                     {
                         ret = ad;
+                        break;
                     }
                 }
             }
@@ -659,10 +660,9 @@ namespace m4dModels
             // First build a hashtable of index->albuminfo, maintaining the total number and the
             // high water mark of indexed albums
 
-            int count = 0;
             int max = 0;
-
             Dictionary<int, AlbumDetails> map = new Dictionary<int, AlbumDetails>();
+            Dictionary<int, AlbumDetails> removed = new Dictionary<int, AlbumDetails>();
 
             // Also keep a list of 'promotions' - current semantics are that if an album
             //  has a promotion it is removed and re-inserted at the head of the list
@@ -685,7 +685,6 @@ namespace m4dModels
                     }
                     else
                     {
-                        count += 1;
                         if (idx > max)
                         {
                             max = idx;
@@ -701,12 +700,16 @@ namespace m4dModels
                         case AlbumField:
                             if (remove)
                             {
-                                d.Name = null;
-                                count -= 1; // This is an album that has been removed
+                                d.Name = null; // This is an album that has been removed
+                                removed[idx] = d;
                             }
                             else
                             {
                                 d.Name = prop.Value;
+                                if (removed.ContainsKey(idx))
+                                {
+                                    removed.Remove(idx);
+                                }
                             }
                             break;
                         case PublisherField:
@@ -759,7 +762,13 @@ namespace m4dModels
                 }
             }
 
-            List<AlbumDetails> albums = new List<AlbumDetails>(count);
+            // Remove the deleted albums
+            foreach (var key in removed.Keys)
+            {
+                map.Remove(key);
+            }
+
+            List<AlbumDetails> albums = new List<AlbumDetails>(map.Count);
 
             // Do the (single) latest full re-order
             if (reorder != null)
@@ -976,6 +985,27 @@ namespace m4dModels
 
             return tracksOut;
         }
+
+        public IList<ServiceTrack> DurationFilter(IList<ServiceTrack> tracks, int epsilon)
+        {
+            return DurationFilter(tracks, Length.Value, epsilon);
+        }
+
+        static public IList<ServiceTrack> DurationFilter(IList<ServiceTrack> tracks, int duration, int epsilon)
+        {
+            List<ServiceTrack> tracksOut = new List<ServiceTrack>();
+
+            foreach (var track in tracks)
+            {
+                if (track.Duration.HasValue && Math.Abs(track.Duration.Value - duration) < epsilon)
+                {
+                    tracksOut.Add(track);
+                }
+            }
+
+            return tracksOut;
+        }
+
         #endregion
     }
 }

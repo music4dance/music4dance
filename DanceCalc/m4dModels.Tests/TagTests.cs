@@ -169,7 +169,7 @@ namespace m4dModels.Tests
             VerifyTagCount("Rumba:Dance", 1, dms);
 
             // Check the serialized result of the whole mess
-            string result = ReplaceTime(song.Serialize(new string[] { SongBase.NoSongId }));
+            string result = ReplaceTime(song.Serialize(new string[] { SongBase.NoSongId, SongBase.EditCommand }));
             Trace.WriteLine(result);
             string expected = @"user=batch	Title=Test	Artist=Me	Tempo=30.0	User=batchTime=00/00/0000 0:00:00 PM	Tag+=Blues:Dance|Bolero:Dance|Latin:Dance|Rumba:Dance	User=dwgrayTime=00/00/0000 0:00:00 PM	Tag+=Bolero:Dance|Cha Cha:Dance|Rumba:Dance	User=batchTime=00/00/0000 0:00:00 PM	Tag-=Blues:Dance|Latin:Dance	User=dwgrayTime=00/00/0000 0:00:00 PM	Tag+=Blues:Dance	Tag-=Rumba:Dance";
             Assert.AreEqual(expected, result);
@@ -201,7 +201,7 @@ namespace m4dModels.Tests
             Assert.AreEqual("Strict Tempo:1|Traditional:1",dr1.TagSummary.ToString());
             s_service.SaveChanges();
 
-            string result = ReplaceTime(song.Serialize(new string[] { SongBase.NoSongId }));
+            string result = ReplaceTime(song.Serialize(new string[] { SongBase.NoSongId, SongBase.EditCommand }));
             Trace.WriteLine(result);
             Assert.AreEqual(@"user=batch	Title=Test	Artist=Me	Tempo=30.0	User=batchTime=00/00/0000 0:00:00 PM	Tag+:BOL=Strict Tempo|Traditional	Tag+:RMB=Non-traditional|Slow", result);
 
@@ -212,7 +212,7 @@ namespace m4dModels.Tests
             song.ChangeDanceTags("RMB", "Slow|International", user2, s_service);
             s_service.SaveChanges();
 
-            result = ReplaceTime(song.Serialize(new string[] { SongBase.NoSongId }));
+            result = ReplaceTime(song.Serialize(new string[] { SongBase.NoSongId, SongBase.EditCommand }));
             Trace.WriteLine(result);
             Assert.AreEqual(@"user=batch	Title=Test	Artist=Me	Tempo=30.0	User=batchTime=00/00/0000 0:00:00 PM	Tag+:BOL=Strict Tempo|Traditional	Tag+:RMB=Non-traditional|Slow	User=dwgrayTime=00/00/0000 0:00:00 PM	Tag+:BOL=Traditional	Tag+:RMB=International|Slow", result);
 
@@ -222,7 +222,7 @@ namespace m4dModels.Tests
             Assert.AreEqual("Traditional:1", dr1.TagSummary.ToString());
             s_service.SaveChanges();
 
-            result = ReplaceTime(song.Serialize(new string[] { SongBase.NoSongId }));
+            result = ReplaceTime(song.Serialize(new string[] { SongBase.NoSongId, SongBase.EditCommand }));
             Trace.WriteLine(result);
             Assert.AreEqual(@"user=batch	Title=Test	Artist=Me	Tempo=30.0	User=batchTime=00/00/0000 0:00:00 PM	Tag+:BOL=Strict Tempo|Traditional	Tag+:RMB=Non-traditional|Slow	User=dwgrayTime=00/00/0000 0:00:00 PM	Tag+:BOL=Traditional	Tag+:RMB=International|Slow	User=batchTime=00/00/0000 0:00:00 PM	Tag-:BOL=Strict Tempo|Traditional", result);
         }

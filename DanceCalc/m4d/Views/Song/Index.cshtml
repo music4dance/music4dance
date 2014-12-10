@@ -127,12 +127,10 @@
             <input type="submit" name="action" value="Merge" class="btn btn-" />
             <input type="submit" name="action" value="Delete" class="btn" />
             @Html.ActionLink("Add New Song", "Create", null, new { @class = "btn btn-default", role = "button" })
-            @Html.ActionLink("XBox Match", "BatchMusicService", new { filter = ViewBag.SongFilter, type = "X", count = 1 }, new { @class = "btn btn-default", role = "button" })
-            @Html.ActionLink("ITunes Match", "BatchMusicService", new { filter = ViewBag.SongFilter, type = "I", count = 1 }, new { @class = "btn btn-default", role = "button" })
-            @Html.ActionLink("Amazon Match", "BatchMusicService", new { filter = ViewBag.SongFilter, type = "A", count = 1 }, new { @class = "btn btn-default", role = "button" })
             @Html.ActionLink("XBox Batch", "BatchMusicService", new { filter = ViewBag.SongFilter, type = "X", count = 10 }, new { @class = "btn btn-success", role = "button" })
             @Html.ActionLink("ITunes Batch", "BatchMusicService", new { filter = ViewBag.SongFilter, type = "I", count = 10 }, new { @class = "btn btn-success", role = "button" })
             @Html.ActionLink("Amazon Batch", "BatchMusicService", new { filter = ViewBag.SongFilter, type = "A", count = 10 }, new { @class = "btn btn-success", role = "button" })
+            @Html.ActionLink("Canonical Batch", "BatchMusicService", new { filter = ViewBag.SongFilter, type = "-", count = 10, options="M" }, new { @class = "btn btn-success", role = "button" })
             @*@Html.ActionLink("XBox Batch", "BatchMusicService", new { filter = ViewBag.SongFilter, type = "X", count = 10, options = "R1" }, new { @class = "btn btn-success", role = "button" });
             @Html.ActionLink("ITunes Batch", "BatchMusicService", new { filter = ViewBag.SongFilter, type = "I", count = 10, options = "R1" }, new { @class = "btn btn-success", role = "button" });
             @Html.ActionLink("Amazon Batch", "BatchMusicService", new { filter = ViewBag.SongFilter, type = "A", count = 10, options = "R1" }, new { @class = "btn btn-success", role = "button" });*@

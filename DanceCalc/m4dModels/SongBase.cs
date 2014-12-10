@@ -633,6 +633,39 @@ namespace m4dModels
             return MungeString(s, false);
         }
 
+        public static string NormalizeAlbumString(string s)
+        {
+            string r = s;
+            if (!string.IsNullOrWhiteSpace(r))
+            {
+                s = r.Normalize(NormalizationForm.FormD);
+
+                StringBuilder sb = new StringBuilder();
+                foreach (char c in s)
+                {
+                    if (Char.IsLetterOrDigit(c))
+                    {
+                        sb.Append(c);
+                    }
+                }
+                r = sb.ToString();
+            }
+
+            return r;
+        }
+        public static string CleanAlbum(string album, string artist)
+        {
+            album = NormalizeAlbumString(album);
+            artist = NormalizeAlbumString(artist);
+
+            if (!string.IsNullOrWhiteSpace(artist))
+            {
+                album = album.Replace(artist, "");
+            }
+
+            return album;
+        }
+
         protected static string[] s_ignore =
         {
             "A",
