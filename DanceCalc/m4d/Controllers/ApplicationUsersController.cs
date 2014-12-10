@@ -60,11 +60,11 @@ namespace m4d.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create([Bind(Include = "Id,Email,EmailConfirmed,PasswordHash,SecurityStamp,PhoneNumber,PhoneNumberConfirmed,TwoFactorEnabled,LockoutEndDateUtc,LockoutEnabled,AccessFailedCount,UserName")] ApplicationUser applicationUser)
+        public ActionResult Create([Bind(Include = "UserName")] ApplicationUser applicationUser)
         {
             if (ModelState.IsValid)
             {
-                Context.Users.Add(applicationUser);
+                Context.FindOrAddUser(applicationUser.UserName, DanceMusicService.PseudoRole,UserManager);
                 Context.SaveChanges();
                 return RedirectToAction("Index");
             }

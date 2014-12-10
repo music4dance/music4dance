@@ -321,25 +321,31 @@ namespace m4d.Context
         #endregion
 
         #region IDanceMusicContext
-        public ApplicationUser FindOrAddUser(string name, string role)
+        public ApplicationUser FindOrAddUser(string name, string role, object umanager)
         {
-            var ustore = new UserStore<ApplicationUser>(this);
-            var umanager = new UserManager<ApplicationUser>(ustore);
+            ApplicationUserManager uman = umanager as ApplicationUserManager;
 
-            var user = Users.FirstOrDefault(u => u.UserName.ToLower() == name.ToLower());
+            var user = uman.FindByName(name);
             if (user == null)
             {
-                user = new ApplicationUser { UserName = name };
-                umanager.Create(user, "_this_is_a_placeholder_");
+                user = new ApplicationUser { UserName = name, Email = name + "@music4dance.net", EmailConfirmed=true, StartDate=DateTime.Now };
+                IdentityResult res = uman.Create(user, "_This_Is_@_placeh0lder_");
+                if (res.Succeeded)
+                {
+                    var user2 = uman.FindByName(name);
+                    Trace.WriteLine(string.Format("{0}:{1}",user2.UserName,user2.Id));
+                }
+                
             }
+
 
             if (string.Equals(role, DanceMusicService.PseudoRole))
             {
                 user.LockoutEnabled = true;
             }
-            else if (!umanager.IsInRole(user.Id, role))
+            else if (!uman.IsInRole(user.Id, role))
             {
-                umanager.AddToRole(user.Id, role);
+                uman.AddToRole(user.Id, role);
             }
 
             return user;

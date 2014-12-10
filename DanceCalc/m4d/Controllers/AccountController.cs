@@ -31,8 +31,6 @@ namespace m4d.Controllers
             }
         }
 
-        private ApplicationUserManager _userManager;
-
         public AccountController()
         {
         }
@@ -41,18 +39,6 @@ namespace m4d.Controllers
         {
             UserManager = userManager;
             SignInManager = signInManager;
-        }
-
-        public ApplicationUserManager UserManager 
-        {
-            get
-            {
-                return _userManager ?? HttpContext.GetOwinContext().GetUserManager<ApplicationUserManager>();
-            }
-            private set
-            {
-                _userManager = value;
-            }
         }
 
         //

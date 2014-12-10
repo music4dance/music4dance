@@ -638,7 +638,7 @@ namespace m4d.Controllers
 
                 if (string.Equals(reloadDatabase, "update songs", StringComparison.InvariantCultureIgnoreCase))
                 {
-                    Database.UpdateSongs(lines);
+                    Database.UpdateSongs(lines,UserManager);
                 }
                 else if (string.Equals(reloadDatabase, "update dances", StringComparison.InvariantCultureIgnoreCase))
                 {
@@ -1033,7 +1033,7 @@ namespace m4d.Controllers
             {
                 userName = User.Identity.Name;
             }
-            ApplicationUser user = Database.FindOrAddUser(userName,DanceMusicService.PseudoRole);
+            ApplicationUser user = Context.FindOrAddUser(userName,DanceMusicService.PseudoRole,UserManager);
 
             List<string> dances = null;
             if (!string.IsNullOrWhiteSpace(danceIds))
@@ -1344,7 +1344,7 @@ namespace m4d.Controllers
                 Song song = Database.FindSong(sd.SongId);
 
                 string name = sd.ModifiedList.Last().UserName;
-                ApplicationUser user = Database.FindOrAddUser(name,DanceMusicService.EditRole);
+                ApplicationUser user = Context.FindOrAddUser(name,DanceMusicService.EditRole,UserManager);
 
                 if (song == null)
                 {

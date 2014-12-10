@@ -117,7 +117,7 @@ namespace m4dModels.Tests
             // NOOP?
         }
 
-        public ApplicationUser FindOrAddUser(string name, string role)
+        public ApplicationUser FindOrAddUser(string name, string role, object umanager)
         {
             ApplicationUser user = Users.FirstOrDefault(u => string.Equals(u.UserName, name, StringComparison.InvariantCultureIgnoreCase)); 
 

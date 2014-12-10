@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNet.Identity.EntityFramework;
+﻿using Microsoft.AspNet.Identity;
+using Microsoft.AspNet.Identity.EntityFramework;
+
 using System;
 using System.Collections.Generic;
 using System.Data.Entity;
@@ -7,6 +9,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+
 using DanceLibrary;
 
 namespace m4dModels
@@ -1390,7 +1393,7 @@ namespace m4dModels
 
         }
 
-        public void UpdateSongs(IList<string> lines)
+        public void UpdateSongs(IList<string> lines, object umanager)
         {
             Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Entering UpdateSongs");
 
@@ -1408,7 +1411,7 @@ namespace m4dModels
                 Song song = FindSong(sd.SongId);
 
                 string name = sd.ModifiedList.Last().UserName;
-                ApplicationUser user = FindOrAddUser(name, DanceMusicService.EditRole);
+                ApplicationUser user = FindOrAddUser(name, DanceMusicService.EditRole,umanager);
 
                 if (song == null)
                 {
@@ -1556,9 +1559,9 @@ namespace m4dModels
             return _context.Users.FirstOrDefault(u => u.UserName.ToLower() == name.ToLower());
         }
 
-        public ApplicationUser FindOrAddUser(string name, string role)
+        public ApplicationUser FindOrAddUser(string name, string role, object umanager)
         {
-            return _context.FindOrAddUser(name, role);
+            return _context.FindOrAddUser(name, role, umanager);
         }
 
         public ModifiedRecord CreateModified(Guid songId, string applicationId)

@@ -7,6 +7,10 @@ using System.Web.Mvc;
 using m4dModels;
 using m4d.Context;
 
+using Owin;
+using Microsoft.Owin.Security;
+using Microsoft.AspNet.Identity.Owin;
+
 namespace m4d.Controllers
 {
     /// <summary>
@@ -40,6 +44,20 @@ namespace m4d.Controllers
 
         protected DanceMusicService Database {get; private set;}
         protected DanceMusicContext Context { get { return Database.Context as DanceMusicContext; } }
+
+        public ApplicationUserManager UserManager
+        {
+            get
+            {
+                return _userManager ?? HttpContext.GetOwinContext().GetUserManager<ApplicationUserManager>();
+            }
+            protected set
+            {
+                _userManager = value;
+            }
+        }
+        private ApplicationUserManager _userManager;
+
 
         protected override void Dispose(bool disposing)
         {
