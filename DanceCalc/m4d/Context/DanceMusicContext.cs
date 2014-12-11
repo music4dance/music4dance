@@ -381,6 +381,11 @@ namespace m4d.Context
             {
                 throw new InvalidConstraintException("Attempting a checkpoint without having first disabled auto-detect");
             }
+            else
+            {
+                TrackChanges(true);
+                TrackChanges(false);
+            }
         }
         public void TrackChanges(bool track)
         {

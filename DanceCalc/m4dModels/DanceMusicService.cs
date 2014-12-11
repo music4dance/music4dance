@@ -1041,7 +1041,7 @@ namespace m4dModels
                 songs = songs.Take(10);
             }
 
-            return songs;
+            return songs; //.Include("SongProperties");
         }
 
         // TODO: This is extremely dependent on the form of the danceIds, just

@@ -907,7 +907,7 @@ namespace m4dModels
                 ret = tracks.OrderByDescending(t => t.TrackRank).ToList();
             }
 
-            if (album != null)
+            if (ret != null && album != null)
             {
                 album = CleanString(album);
 

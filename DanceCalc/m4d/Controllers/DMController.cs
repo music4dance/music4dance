@@ -20,7 +20,6 @@ namespace m4d.Controllers
     {
         public DMController() : base()
         {
-            Database = new DanceMusicService(new DanceMusicContext());
         }
 
         public readonly string MusicTheme = "music";
@@ -42,7 +41,26 @@ namespace m4d.Controllers
             return base.View(viewName, masterName, model);
         }
 
-        protected DanceMusicService Database {get; private set;}
+        protected DanceMusicService Database 
+        {
+            get
+            {
+                if (_database == null)
+                {
+                    _database = new DanceMusicService(new DanceMusicContext());
+                }
+                return _database;
+            }
+        }
+        private DanceMusicService _database = null;
+
+        protected void ResetContext()
+        {
+            var temp = _database;
+            _database = null;
+            temp.Dispose();
+        }
+
         protected DanceMusicContext Context { get { return Database.Context as DanceMusicContext; } }
 
         public ApplicationUserManager UserManager
@@ -61,7 +79,10 @@ namespace m4d.Controllers
 
         protected override void Dispose(bool disposing)
         {
-            Database.Dispose();
+            if (_database != null)
+            {
+                _database.Dispose();
+            }
             base.Dispose(disposing);
         }
     }

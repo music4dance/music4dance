@@ -600,102 +600,117 @@ namespace m4d.Controllers
                 
             }
 
-            IQueryable<Song> songs = Database.BuildSongList(filter,!HttpContext.User.IsInRole(DanceMusicService.EditRole));
-            ApplicationUser user = Database.FindUser(User.Identity.Name);
+            Dictionary<char, ApplicationUser> users = new Dictionary<char, ApplicationUser>();
 
             List<Song> failed = new List<Song>();
             List<SongDetails> succeeded = new List<SongDetails>();
 
-            foreach (Song song in songs)
+            Context.TrackChanges(false);
+
+            int page = 0;
+            bool done = false;
+
+            while (!done)
             {
-                // First check to see if we've already failed a search and at what level
-                //  failLeve is the LOWEST failure code or -1 if none
-
-                int failLevel = -1;
-                SongProperty fail = song.SongProperties.OrderBy(p => p.Value).FirstOrDefault(p => p.Name == Song.FailedLookup && p.Value.StartsWith(type));
-                if (fail != null && fail.Value != null && fail.Value.Length > 2)
+                IQueryable<Song> songs = Database.BuildSongList(filter, !HttpContext.User.IsInRole(DanceMusicService.EditRole)).Skip(page * 1000).Take(1000);
+                int processed = 0;
+                bool modified = false;
+                foreach (Song song in songs)
                 {
-                    int.TryParse(fail.Value.Substring(2), out failLevel);
-                }
+                    processed += 1;
+                    // First check to see if we've already failed a search and at what level
+                    //  failLeve is the LOWEST failure code or -1 if none
 
-                SongDetails sd = new SongDetails(song);
-
-                if (failLevel == retryLevel || count==1)
-                {
-                    // Something of a kludge - we're goint to make type ='-' && failcode == 0 mean that we've tried 
-                    //  the multi-service lookup...
-                    int failcode = service == null ? 0 :-1;
-
-                    List<ServiceTrack> found = new List<ServiceTrack>();
-                    if (service == null)
+                    int failLevel = -1;
+                    SongProperty fail = song.SongProperties.OrderBy(p => p.Value).FirstOrDefault(p => p.Name == Song.FailedLookup && p.Value.StartsWith(type));
+                    if (fail != null && fail.Value != null && fail.Value.Length > 2)
                     {
-                        foreach (MusicService serviceT in MusicService.GetSearchableServices())
-                        {
-                            found.AddRange(MatchSongAndService(sd,serviceT));
-                        }
-                    }
-                    else
-                    {
-                        found.AddRange(MatchSongAndService(sd, service));
+                        int.TryParse(fail.Value.Substring(2), out failLevel);
                     }
 
-                    if (found.Count > 0)
+                    if (failLevel == retryLevel || count == 1)
                     {
-                        // TAGTEST: Test updating genres...
-                        TagList tags = new TagList();
-                        foreach (ServiceTrack foundTrack in found)
+                        SongDetails sd = new SongDetails(song);
+
+                        // Something of a kludge - we're goint to make type ='-' && failcode == 0 mean that we've tried 
+                        //  the multi-service lookup...
+                        int failcode = service == null ? 0 : -1;
+
+                        SongDetails add = null;
+                        if (service == null)
                         {
-                            UpdateMusicService(sd, MusicService.GetService(foundTrack.Service), foundTrack.Name, foundTrack.Album, foundTrack.Artist, foundTrack.TrackId, foundTrack.CollectionId, foundTrack.AltId, foundTrack.Duration.ToString(), foundTrack.TrackNumber);
-                            tags = tags.Add(new TagList(Database.NormalizeTags(foundTrack.Genre, "Music")));
-                        }
-                        succeeded.Add(Database.EditSong(user, sd, null, null, tags.ToString()));
-                        tried += 1;
-                    }
-                    else
-                    {
-                        if (failcode == -1)
-                        {
-                            // We found no tracks
-                            if (found.Count == 0)
+                            foreach (MusicService serviceT in MusicService.GetSearchableServices())
                             {
-                                failcode = 0;
-                            }
-                            else
-                            {
-                                failcode = 1;
+                                SongDetails addT = UpdateSongAndService(sd, serviceT, users);
+                                if (addT != null)
+                                {
+                                    add = addT;
+                                }
                             }
                         }
-                    }
-
-                    //  Add all failures to the list and increment tried
-                    if (failcode >= 0)
-                    {
-                        // Only add in a new failed code to the DB if the code
-                        // is higher than the previous code
-                        if (failcode > failLevel)
+                        else
                         {
-                            SongProperty sp = Database.SongProperties.Create();
-                            sp.Name = Song.FailedLookup;
-                            sp.Value = type + ":" + failcode.ToString();
-                            song.SongProperties.Add(sp);
+                            add = UpdateSongAndService(sd, service, users);
                         }
-                        if (service != null)
+
+                        if (add != null)
                         {
-                            failed.Add(song);
+                            succeeded.Add(add);
                             tried += 1;
                         }
+                        else if (failcode == -1)
+                        {
+                            failcode = 0;
+                        }
+
+                        //  Add all failures to the list and increment tried
+                        if (failcode >= 0)
+                        {
+                            // Only add in a new failed code to the DB if the code
+                            // is higher than the previous code
+                            if (failcode > failLevel)
+                            {
+                                SongProperty sp = Database.SongProperties.Create();
+                                sp.Name = Song.FailedLookup;
+                                sp.Value = type + ":" + failcode.ToString();
+                                song.SongProperties.Add(sp);
+                            }
+                            if (service != null)
+                            {
+                                failed.Add(song);
+                                tried += 1;
+                            }
+                        }
+
+                        modified = true;
+                    }
+                    else
+                    {
+                        skipped += 1;
+                    }
+
+                    if (tried > count)
+                        break;
+
+                    if ((tried + 1) % 25 == 0)
+                    {
+                        Trace.WriteLine(string.Format("{0} songs tried.", tried));
+                        Context.CheckpointChanges();
                     }
                 }
-                else
-                {
-                    skipped += 1;
-                }
 
-                if (count > 1 && tried > count)
-                    break;
+                page += 1;
+                if (processed < 1000)
+                {
+                    done = true;
+                }
+                if (!modified)
+                {
+                    ResetContext();
+                }
             }
 
-            Database.SaveChanges();
+            Context.TrackChanges(true);
 
             ViewBag.Completed = tried <= count;
             ViewBag.Failed = failed;
@@ -703,7 +718,46 @@ namespace m4d.Controllers
             ViewBag.Skipped = skipped;
             return View();
         }
-        public IList<ServiceTrack> MatchSongAndService(SongDetails sd, MusicService service)
+
+        private SongDetails UpdateSongAndService(SongDetails sd, MusicService service, Dictionary<char, ApplicationUser> users)
+        {
+            List<ServiceTrack> found = new List<ServiceTrack>();
+            if (service == null)
+            {
+                foreach (MusicService serviceT in MusicService.GetSearchableServices())
+                {
+                    found.AddRange(MatchSongAndService(sd, serviceT));
+                }
+            }
+            else
+            {
+                found.AddRange(MatchSongAndService(sd, service));
+            }
+
+            if (found.Count > 0)
+            {
+                TagList tags = new TagList();
+                foreach (ServiceTrack foundTrack in found)
+                {
+                    UpdateMusicService(sd, MusicService.GetService(foundTrack.Service), foundTrack.Name, foundTrack.Album, foundTrack.Artist, foundTrack.TrackId, foundTrack.CollectionId, foundTrack.AltId, foundTrack.Duration.ToString(), foundTrack.TrackNumber);
+                    tags = tags.Add(new TagList(Database.NormalizeTags(foundTrack.Genre, "Music")));
+                }
+                ApplicationUser user;
+                if (!users.TryGetValue(service.CID, out user))
+                {
+                    user = Database.FindUser("batch-" + service.CID.ToString().ToLower());
+                    users[service.CID] = user;
+                }
+
+                return Database.EditSong(user, sd, null, null, tags.ToString());
+            }
+            else
+            {
+                return null;
+            }
+
+        }
+        private IList<ServiceTrack> MatchSongAndService(SongDetails sd, MusicService service)
         {
             IList<ServiceTrack> found = new List<ServiceTrack>();
 
@@ -722,30 +776,33 @@ namespace m4d.Controllers
                 // First filter out anything that's not a title-artist match (weak)
                 tracks = sd.TitleArtistFilter(tracks);
 
-                // Then check for exact album match if we don't have a tempo
-                if (!sd.Length.HasValue)
+                if (tracks.Count > 0)
                 {
-                    foreach (ServiceTrack track in tracks)
+                    // Then check for exact album match if we don't have a tempo
+                    if (!sd.Length.HasValue)
                     {
-                        if (sd.FindAlbum(track.Album) != null)
+                        foreach (ServiceTrack track in tracks)
                         {
-                            found.Add(track);
-                            break;
+                            if (sd.FindAlbum(track.Album) != null)
+                            {
+                                found.Add(track);
+                                break;
+                            }
                         }
                     }
-                }
-                // If not exact album match and the song has a length, choose all albums with the same tempo (delta a few seconds)
-                else
-                {
-                    found = sd.DurationFilter(tracks, 6);
-                }
+                    // If not exact album match and the song has a length, choose all albums with the same tempo (delta a few seconds)
+                    else
+                    {
+                        found = sd.DurationFilter(tracks, 6);
+                    }
 
-                // If no album name or length match, choose the 'dominant' version of the title/artist match by clustering lengths
-                //  Note that this degenerates to chosing a single album if that is what is available
-                if (found.Count == 0 && !sd.HasRealAblums)
-                {
-                    ServiceTrack track = SongDetails.FindDominantTrack(tracks);
-                    found = SongDetails.DurationFilter(tracks, track.Duration.Value, 6);
+                    // If no album name or length match, choose the 'dominant' version of the title/artist match by clustering lengths
+                    //  Note that this degenerates to chosing a single album if that is what is available
+                    if (found.Count == 0 && !sd.HasRealAblums)
+                    {
+                        ServiceTrack track = SongDetails.FindDominantTrack(tracks);
+                        found = SongDetails.DurationFilter(tracks, track.Duration.Value, 6);
+                    }
                 }
             }
 
