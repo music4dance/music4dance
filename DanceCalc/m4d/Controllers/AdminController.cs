@@ -646,7 +646,18 @@ namespace m4d.Controllers
                 }
                 else 
                 {
-                    Database.LoadSongs(lines);
+                    int it = 0;
+                    while (lines.Count > 0)
+                    {
+                        Trace.WriteLineIf(TraceLevels.General.TraceInfo, string.Format("Processing Batch {0}", it));
+                        int c = Math.Min(500, lines.Count);
+                        List<string> songs = lines.GetRange(0, c).ToList();
+                        lines.RemoveRange(0, c);
+
+                        Database.LoadSongs(songs);
+                        ResetContext();
+                        it += 1;
+                    }                    
                 }
 
                 SongCounts.ClearCache(); 
