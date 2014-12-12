@@ -96,6 +96,7 @@
                         <td><input name="selectedSongs" id="@id" type="checkbox" value="@item.SongId" /></td>
                         <td><a href="/song/edit?id=@item.SongId&filter=@ViewBag.SongFilter" role="button" class="btn btn-link btn-sm"><span class="glyphicon glyphicon-pencil"></span></a></td>
                     }
+                    
                     <td>
                         @Html.ActionLink(item.Title, "details", "song", new { id = item.SongId, filter = ViewBag.SongFilter }, null)
                         @if (item.Tempo != null)
@@ -103,12 +104,15 @@
                             <small class="hidden-sm hidden-md hidden-lg">(@decimal.Round(item.Tempo.Value).ToString("F0") BPM)</small>
                         }
                     </td>
+
                     <td>
-                        @Html.DisplayFor(modelItem => item.Artist)
+                        @Html.ActionLink(item.Artist, "search", "song", new { searchString=item.Artist, dances="ALL"}, null)
                     </td>
+
                     <td class="hidden-xs">
                         @item.AlbumName
                     </td>
+
                     <td class="hidden-xs">
                         @if (item.Tempo != null)
                         {
@@ -116,6 +120,7 @@
                             @tempo;
                         }
                     </td>
+
                     @if (canSort)
                     {
                         <td>
@@ -124,8 +129,8 @@
                             {
                                 string badge = m4dModels.SongCounts.GetRatingBadge(danceMap, ditem.DanceId, ditem.Weight);
                                 @separator;
-                                <span class="rating @badge">@ditem.Dance.Info.Name</span>
-                                              separator = " ";
+                                <span class="rating @badge">@Html.ActionLink(ditem.Dance.Info.Name, "search", "song", new { searchString = string.Empty, dances = ditem.DanceId }, null)</span>
+                                separator = " ";
                             }
                         </td>
                     }
@@ -147,6 +152,7 @@
                             <button id="@aid" type="button"><img src="@Url.Content("~/Content/amazon-logo.png")" alt="Availiable at Amazon" width="20" height="20" /></button>
                         }
                     </td>
+
                     @if (showDate)
                     {
                         <td class="hidden-xs">

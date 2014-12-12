@@ -564,6 +564,7 @@ namespace m4dModels
         public ICollection<PurchaseLink> GetPurchaseLinks(string service = "AIX")
         {
             List<PurchaseLink> links = new List<PurchaseLink>();
+            service = service.ToUpper();
 
             foreach (MusicService ms in MusicService.GetServices())
             {
