@@ -87,7 +87,7 @@ namespace m4dModels
             }
             else
             {
-                string props = SongProperty.Serialize(SongProperties, actions);
+                string props = SongProperty.Serialize(SongProperties.OrderBy(sp => sp.Id), actions);
                 if (actions != null && actions.Contains(NoSongId))
                 {
                     return props;
