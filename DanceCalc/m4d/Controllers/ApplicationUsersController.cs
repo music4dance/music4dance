@@ -14,7 +14,7 @@ using Microsoft.AspNet.Identity;
 namespace m4d.Controllers
 {
     [Authorize(Roles = "dbAdmin")]
-    [RequireHttps]
+    //[RequireHttps]
     public class ApplicationUsersController : DMController
     {
         public override string DefaultTheme

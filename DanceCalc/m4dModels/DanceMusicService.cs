@@ -1287,7 +1287,7 @@ namespace m4dModels
         }
         public void LoadDances(IList<string> lines)
         {
-            Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Entering LoadSongs");
+            Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Entering Dances");
 
             LoadDances();
             bool modified = false;
@@ -1314,7 +1314,7 @@ namespace m4dModels
                 SaveChanges();
             }
 
-            Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Exiting LoadSongs");
+            Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Exiting Dances");
         }
 
         public void LoadTags(IList<string> lines)

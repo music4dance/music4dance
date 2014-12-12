@@ -26,7 +26,7 @@ using EntityFramework.Utilities;
 namespace m4d.Controllers
 {
     [Authorize]
-    [RequireHttps]
+    //[RequireHttps]
     public class AdminController : DMController
     {
         public override string DefaultTheme

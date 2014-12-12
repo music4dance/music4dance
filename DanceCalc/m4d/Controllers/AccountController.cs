@@ -18,9 +18,9 @@ using m4d.ViewModels;
 namespace m4d.Controllers
 {
     [Authorize]
-#if !DEBUG
-    [RequireHttps]
-#endif
+//#if !DEBUG
+//    [RequireHttps]
+//#endif
     public class AccountController : DMController
     {
         public override string DefaultTheme
