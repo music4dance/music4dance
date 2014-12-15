@@ -169,7 +169,6 @@
                             {
                                 @Html.ActionLink(item.AlbumName, "album", "song", new { title = item.AlbumName }, null);
                             }
-                            
                         </td>
                     }
                     else
@@ -200,7 +199,7 @@
                             {
                                 string badge = m4dModels.SongCounts.GetRatingBadge(danceMap, ditem.DanceId, ditem.Weight);
                                 @separator;
-                                <span class="rating @badge">@Html.ActionLink(ditem.Dance.Info.Name, "search", "song", new { searchString = string.Empty, dances = ditem.DanceId }, null)</span>
+                                <span class="rating @badge">@Html.ActionLink(ditem.Dance.Info.Name, ditem.Dance.Info.Name, "dances")</span>
                                           separator = " ";
                             }
                         </td>

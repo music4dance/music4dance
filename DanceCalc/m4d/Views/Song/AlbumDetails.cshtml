@@ -1,26 +1,36 @@
 ﻿@model m4dModels.AlbumDetails
 
 <div class="display-field">
-    @Model.Name
+    @if (!string.IsNullOrWhiteSpace(Model.Name))
+    {
+        @Html.ActionLink(Model.Name, "album", "song", new { title = Model.Name }, null);
+    }
 </div>
 @if (Model.Track != null)
 {
-<div class="display-label">
-    Track:
-</div>
-<div class="display-field">
-    @Model.Track
-</div>
+    <div class="display-label">
+        Track:
+    </div>
+    <div class="display-field">
+        @Model.Track
+    </div>
 }
 @if (Model.Publisher != null)
 {
-<div class="display-label">
-    Publisher:
-</div>
-<div class="display-field">
-    Model.Publisher
-</div>
+    <div class="display-label">
+        Publisher:
+    </div>
+    <div class="display-field">
+        @Model.Publisher
+    </div>
 }
+@Html.Partial("_PurchaseLinks",Model.PurchaseLinks)
+@*@foreach (var link in @Model.PurchaseLinks)
+{
+    <button id="@xid" type="button"><img src="@Url.Content("~/Content/xbox-logo.png")" alt="Availiable on Xbox Music" width="20" height="20" /></button>
+    <a href="@link.Link"></a>
+}*@
+
 @if (User.IsInRole("showDiagnostics") && Model.HasPurchaseInfo)
 {
 <div class="display-label">

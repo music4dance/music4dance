@@ -34,7 +34,10 @@
             @Html.DisplayNameFor(model => model.Artist):
         </div>
         <div class="display-field">
-            @Html.DisplayFor(model => model.Artist)
+            @if (!string.IsNullOrWhiteSpace(Model.Artist))
+            {
+                @Html.ActionLink(Model.Artist, "search", "song", new { searchString = Model.Artist, dances = "ALL" }, null)
+            }
         </div>
         <br />
 
@@ -82,7 +85,7 @@
                 {
                     string badge = m4dModels.SongCounts.GetRatingBadge(danceMap,item.DanceId,item.Weight);
                     @separator;
-                    <span class="rating @badge">@item.Dance.Info.Name</span>
+                    <span class="rating @badge">@Html.ActionLink(item.Dance.Info.Name, item.Dance.Info.Name, "dances")</span>
                     separator = " ";
                 }
             </div>
