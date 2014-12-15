@@ -232,6 +232,7 @@ namespace m4d.Controllers
 
             if (model != null)
             {
+                ViewBag.DanceMap = SongCounts.GetDanceMap(Database);
                 return View("Album", model);
             }
             else

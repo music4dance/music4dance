@@ -5,6 +5,7 @@
     ViewBag.Description = "General informartion about " + Model.DanceName + " along with a top ten list, tempo informstion, and other resources.";
     ViewBag.NoSort = true;
     ViewBag.ShowTempo = true;
+    ViewBag.HideDances = true;
     ViewBag.SongFilter = new m4dModels.SongFilter { Dances = @Model.DanceId };
 
     string description = @"<p>We're busy doing research and pulling together a general description for " + Model.DanceName + @".  Please check back later for more info.</p>";

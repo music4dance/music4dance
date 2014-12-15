@@ -11,6 +11,11 @@
     {
         canSort = !ViewBag.NoSort;
     }
+    bool hideDances = false;
+    if (ViewData.ContainsKey("HideDances"))
+    {
+        hideDances = ViewBag.HideDances;
+    }
     string albumName = null;
     if (ViewData.ContainsKey("AlbumName"))
     {
@@ -92,11 +97,18 @@
                     <text>Tempo (BPM)</text>
                 }
             </th>
-            @if (canSort)
+            @if (!hideDances)
             {
                 <th>
-                    @Html.ActionLink("Dances", "sort", "song", new { sortOrder = "Dances", filter = ViewBag.SongFilter }, null)
-                    @Html.Raw(songOrder.GetSortGlyph("Dances"))
+                    @if (canSort)
+                    {
+                        @Html.ActionLink("Dances", "sort", "song", new { sortOrder = "Dances", filter = ViewBag.SongFilter }, null)
+                        @Html.Raw(songOrder.GetSortGlyph("Dances"))
+                    }
+                    else
+                    {
+                        <text>Dances</text>
+                    }
                 </th>
             }
             <th style="min-width:150px" class="hidden-xs">Purchase</th>
@@ -180,7 +192,7 @@
                         }
                     </td>
 
-                    @if (canSort)
+                    @if (!hideDances)
                     {
                         <td>
                             @{ var separator = ""; }
