@@ -299,6 +299,18 @@ namespace m4dModels
             }
         }
 
+        public override string Purchase 
+        { 
+            get
+            {
+                return GetPurchaseTags();
+            }
+            set
+            {
+                throw new NotImplementedException("Purchase shouldn't be set directly in SongDetails");
+            }
+        }
+
         // TAGDELETE:
         //public override string TagSummary
         //{
@@ -824,6 +836,50 @@ namespace m4dModels
         #endregion
 
         #region Tracks
+
+        public AlbumDetails AlbumFromTitle(string title)
+        {
+            AlbumDetails ret = null;
+            AlbumDetails alt = null;
+
+            // We'll prefer the normalized album name, but if we can't find it we'll grab the stripped version...
+            string stripped = CreateNormalForm(title);
+            string normal = NormalizeAlbumString(title);
+            foreach (var album in Albums)
+            {
+                if (string.Equals(normal, NormalizeAlbumString(album.Name), StringComparison.InvariantCultureIgnoreCase))
+                {
+                    ret = album;
+                    break;
+                }
+                else if (string.Equals(stripped, NormalizeAlbumString(album.Name), StringComparison.InvariantCultureIgnoreCase))
+                {
+                    alt = album;
+                }
+            }
+
+            if (ret != null)
+            {
+                return ret;
+            }
+            else
+            {
+                return alt;
+            }
+        }
+        public int TrackFromAlbum(string title)
+        {
+            int ret = 0;
+
+            AlbumDetails album = AlbumFromTitle(title);
+            if (album != null && album.Track.HasValue)
+            {
+                ret = album.Track.Value;
+            }
+            return ret;
+        }
+
+
         // <summary>
         /// Finds a representitive of the largest cluster of tracks 
         ///  (clustered by approximate duration) that is an very

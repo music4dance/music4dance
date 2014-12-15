@@ -19,14 +19,6 @@ namespace m4dModels
 
         public override SongLog CurrentLog { get; set; }
 
-        public string AlbumName
-        {
-            get 
-            {
-                return new AlbumTrack(Album).Album;
-            }
-        }
-
         #endregion
 
         #region Actions

@@ -377,6 +377,7 @@
     <Compile Include="Utilities\HtmlExtensions.cs" />
     <Compile Include="Utilities\LowerCaseRoute.cs" />
     <Compile Include="Utilities\SongBinder.cs" />
+    <Compile Include="ViewModels\AlbumViewModel.cs" />
     <Compile Include="ViewModels\LocalMerger.cs" />
     <Compile Include="ViewModels\ManageViewModels.cs" />
     <Compile Include="ViewModels\ServiceSearchResults.cs" />
@@ -730,6 +731,7 @@
     <Content Include="Views\Dance\Edit.cshtml" />
     <Content Include="Views\Shared\_ListSongs.cshtml" />
     <Content Include="Views\Dance\_DanceList.cshtml" />
+    <Content Include="Views\Song\Album.cshtml" />
     <None Include="Web.m4d.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

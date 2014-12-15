@@ -1,0 +1,32 @@
+﻿@model m4d.ViewModels.AlbumViewModel
+
+@{
+    ViewBag.Title = Model.Title;
+    ViewBag.NoSort = true;
+    ViewBag.AlbumName = Model.Title;
+    ViewBag.HideArtist = !string.IsNullOrWhiteSpace(@Model.Artist);
+    ViewBag.SongFilter = new m4dModels.SongFilter { SortOrder = "Album" };
+}
+
+<h2>Album: @Model.Title</h2>
+@if (!string.IsNullOrWhiteSpace(@Model.Artist))
+{
+    <h2>Artist: @Model.Artist</h2>
+}
+
+<div class="row col-xs-12">
+    @{Html.RenderPartial("_ListSongs", @Model.Songs, ViewData);}
+</div>
+
+
+@section Scripts
+{
+    @{
+        string msScript = "~/Scripts/musicservice.js" + Page.ScriptQualifier;
+    }
+    <script src="@Url.Content(msScript)" type="text/javascript"></script>
+}
+
+
+
+

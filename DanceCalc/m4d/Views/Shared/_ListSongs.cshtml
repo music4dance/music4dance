@@ -1,4 +1,4 @@
-﻿@model IEnumerable<m4dModels.Song>
+﻿@model IEnumerable<m4dModels.SongBase>
 
 @{
     bool isAdmin = false;
@@ -11,7 +11,17 @@
     {
         canSort = !ViewBag.NoSort;
     }
-
+    string albumName = null;
+    if (ViewData.ContainsKey("AlbumName"))
+    {
+        albumName = ViewBag.AlbumName;
+    }
+    bool hideArtist = false;
+    if (ViewData.ContainsKey("HideArtist"))
+    {
+        hideArtist = ViewBag.HideArtist;
+    }
+    
     var danceMap = (IDictionary<string, m4dModels.SongCounts>)ViewBag.DanceMap;
     var songOrder = new m4dModels.SongSort(ViewBag.SongFilter.SortOrder);
     var showDate = songOrder.Id == "Modified" || songOrder.Id == "Created";
@@ -36,28 +46,41 @@
                     <text>Title</text>
                 }
             </th>
-            <th style="min-width:75pt">
-                @if (canSort)
-                {
-                    @Html.ActionLink("Artist", "Sort", "Song", new { sortOrder = "Artist", filter = ViewBag.SongFilter }, null)
-                    @Html.Raw(songOrder.GetSortGlyph("Artist"))
-                }
-                else
-                {
-                    <text>Artist</text>
-                }
-            </th>
-            <th style="min-width:75pt" class="hidden-xs">
-                @if (canSort)
-                {
-                    @Html.ActionLink("Album", "Sort", "Song", new { sortOrder = "Album", filter = ViewBag.SongFilter }, null)
-                    @Html.Raw(songOrder.GetSortGlyph("Album"))
-                }
-                else
-                {
-                    <text>Album</text>
-                }
-            </th>
+            @if (!hideArtist)
+            {
+                <th style="min-width:75pt">
+                    @if (canSort)
+                    {
+                        @Html.ActionLink("Artist", "Sort", "Song", new { sortOrder = "Artist", filter = ViewBag.SongFilter }, null)
+                        @Html.Raw(songOrder.GetSortGlyph("Artist"))
+                    }
+                    else
+                    {
+                        <text>Artist</text>
+                    }
+                </th>
+            }
+            @if (albumName == null)
+            {
+                <th style="min-width:75pt" class="hidden-xs">
+                    @if (canSort)
+                    {
+                        @Html.ActionLink("Album", "Sort", "Song", new { sortOrder = "Album", filter = ViewBag.SongFilter }, null)
+                        @Html.Raw(songOrder.GetSortGlyph("Album"))
+                    }
+                    else
+                    {
+                        <text>Album</text>
+                    }
+                </th>
+
+            }
+            else
+            {
+                <th style="min-width:75pt" class="hidden-xs">
+                    Track
+                </th>
+            }
             <th class="hidden-xs">
                 @if (canSort)
                 {
@@ -83,10 +106,22 @@
             }
         </tr>
 
+
+
+
+
+
+
     </thead>
     <tbody>
         @foreach (var item in Model)
         {
+            m4dModels.SongDetails sd = null;
+            if (albumName != null)
+            {
+                sd = item as m4dModels.SongDetails;
+            }
+            
             if (item.Title != null)
             {
                 <tr>
@@ -96,7 +131,7 @@
                         <td><input name="selectedSongs" id="@id" type="checkbox" value="@item.SongId" /></td>
                         <td><a href="/song/edit?id=@item.SongId&filter=@ViewBag.SongFilter" role="button" class="btn btn-link btn-sm"><span class="glyphicon glyphicon-pencil"></span></a></td>
                     }
-                    
+
                     <td>
                         @Html.ActionLink(item.Title, "details", "song", new { id = item.SongId, filter = ViewBag.SongFilter }, null)
                         @if (item.Tempo != null)
@@ -105,14 +140,38 @@
                         }
                     </td>
 
-                    <td>
-                        @Html.ActionLink(item.Artist, "search", "song", new { searchString=item.Artist, dances="ALL"}, null)
-                    </td>
+                    @if (!hideArtist)
+                    {
+                        <td>
+                            @if (!string.IsNullOrWhiteSpace(item.Artist))
+                            {
+                                @Html.ActionLink(item.Artist, "search", "song", new { searchString = item.Artist, dances = "ALL" }, null)
+                            }
+                        </td>
+                    }
 
-                    <td class="hidden-xs">
-                        @item.AlbumName
-                    </td>
-
+                    @if (albumName == null)
+                    {
+                        <td class="hidden-xs">
+                            @if (!string.IsNullOrWhiteSpace(item.AlbumName))
+                            {
+                                @Html.ActionLink(item.AlbumName, "album", "song", new { title = item.AlbumName }, null);
+                            }
+                            
+                        </td>
+                    }
+                    else
+                    { 
+                        <td class="hidden-xs">
+                            @{
+                                int track = sd.TrackFromAlbum(albumName);
+                                if (track > 0)
+                                { 
+                                    @track.ToString();
+                                }
+                            }
+                        </td>
+                    }
                     <td class="hidden-xs">
                         @if (item.Tempo != null)
                         {
@@ -130,7 +189,7 @@
                                 string badge = m4dModels.SongCounts.GetRatingBadge(danceMap, ditem.DanceId, ditem.Weight);
                                 @separator;
                                 <span class="rating @badge">@Html.ActionLink(ditem.Dance.Info.Name, "search", "song", new { searchString = string.Empty, dances = ditem.DanceId }, null)</span>
-                                separator = " ";
+                                          separator = " ";
                             }
                         </td>
                     }
@@ -171,4 +230,5 @@
             }
         }
     </tbody>
+
 </table>

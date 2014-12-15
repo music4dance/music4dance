@@ -159,18 +159,18 @@
 
 @section Scripts 
 {
-            @{
-                if (ViewData.ContainsKey("SongFilter") && ViewBag.SongFilter.Advanced)
-                {
-                    <script>var showAdvanced = true</script>
-                }
-                else
-                {
-                    <script>var showAdvanced = false</script>
-                }
-                string pageScript = "~/Scripts/songindex.js" + Page.ScriptQualifier;
-                string msScript = "~/Scripts/musicservice.js" + Page.ScriptQualifier;
-            }
-            <script src="@Url.Content(msScript)" type="text/javascript"></script>
-            <script src="@Url.Content(pageScript)" type="text/javascript"></script>
+    @{
+        if (ViewData.ContainsKey("SongFilter") && ViewBag.SongFilter.Advanced)
+        {
+            <script>var showAdvanced = true</script>
         }
+        else
+        {
+            <script>var showAdvanced = false</script>
+        }
+        string pageScript = "~/Scripts/songindex.js" + Page.ScriptQualifier;
+        string msScript = "~/Scripts/musicservice.js" + Page.ScriptQualifier;
+    }
+    <script src="@Url.Content(msScript)" type="text/javascript"></script>
+    <script src="@Url.Content(pageScript)" type="text/javascript"></script>
+}

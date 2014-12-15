@@ -182,7 +182,7 @@ namespace m4dModels
         public string Artist { get; set; }
         [Range(0, 9999)]
         public int? Length { get; set; }
-        public string Purchase { get; set; }
+        public virtual string Purchase { get; set; }
         public DateTime Created { get; set; }
         public DateTime Modified { get; set; }
         public virtual string Album { get; set; }
@@ -213,6 +213,14 @@ namespace m4dModels
         {
             get { return null; }
             set { }
+        }
+
+        public string AlbumName
+        {
+            get
+            {
+                return new AlbumTrack(Album).Album;
+            }
         }
 
         #endregion

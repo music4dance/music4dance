@@ -220,6 +220,27 @@ namespace m4d.Controllers
             return View(song);
         }
 
+        [AllowAnonymous]
+        public ActionResult Album(string title)
+        {
+            AlbumViewModel model = null;
+
+            if (!string.IsNullOrWhiteSpace(title))
+            {
+                model = AlbumViewModel.Create(title, Database);
+            }
+
+            if (model != null)
+            {
+                return View("Album", model);
+            }
+            else
+            {
+                return HttpNotFound(string.Format("Album '{0}' not found.",title));
+            }
+        }
+
+
         //
         // GET: /Song/CreateI
         [Authorize(Roles = "canEdit")] 

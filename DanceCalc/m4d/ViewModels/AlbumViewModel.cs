@@ -1,0 +1,113 @@
+﻿using m4dModels;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
+using System.Web;
+
+namespace m4d.ViewModels
+{
+    // TODONEXT: Finish up album links
+    //  Figure out why albums aren't being found
+    //  Figure out why track is always zero on the album page
+    //  Think about if we want to limit albums to artist/album
+    //    if not, probalby need to rething sort....
+    //    Any easy way to distinguish if an album is really an album
+    //     or just has the same/similar title????
+    public class AlbumViewModel
+    {
+        [Key]
+        public string Title {get;set;}
+        public string Artist {get;set;}
+        public IList<SongDetails> Songs {get;set;}
+
+        static public AlbumViewModel Create(string title, DanceMusicService dms)
+        {
+            // TODO: if we really don't have distinct in linq syntax should probably use function syntax for the whole thing...
+            var ids = (from sp in dms.SongProperties
+                where sp.Name.StartsWith(SongBase.AlbumField) && sp.Value == title
+                select sp.SongId).Distinct();
+            var songs = from s in dms.Songs
+                where ids.Contains(s.SongId)
+                select s;
+
+            Dictionary<int,SongDetails> map = new Dictionary<int,SongDetails>();
+            int max = 0;
+            int floor = -1;
+
+            string artist = null;
+            bool uniqueArtist = true;
+
+            string albumTitle = null;
+
+            foreach (var song in songs)
+            {
+                SongDetails sd = new SongDetails(song);
+                AlbumDetails album = sd.AlbumFromTitle(title);
+                if (album != null)
+                {
+                    int track = 0;
+                    if (!album.Track.HasValue || album.Track.Value == 0 || map.ContainsKey(album.Track.Value))
+                    {
+                        track = floor;
+                        floor -= 1;
+                    }
+                    else
+                    {
+                        track = album.Track.Value;
+                    }
+
+                    map.Add(track, sd);
+                    max = Math.Max(max, track);
+
+                    if (artist == null && !string.IsNullOrWhiteSpace(sd.Artist))
+                    {
+                        artist = SongBase.CreateNormalForm(sd.Artist);
+                    }
+                    else if (uniqueArtist)
+                    {
+                        if (!string.Equals(SongBase.CreateNormalForm(sd.Artist), artist, StringComparison.InvariantCultureIgnoreCase))
+                        {
+                            uniqueArtist = false;
+                        }
+                    }
+
+                    if (albumTitle == null)
+                    {
+                        albumTitle = album.Name;
+                    }
+                }
+            }
+
+            List<SongDetails> list = new List<SongDetails>();
+            // First add in the tracks that have valid #'s in order
+            for (int i = 0; i <= max; i++)
+            {
+                SongDetails sd = null;
+                if (map.TryGetValue(i,out sd))
+                {
+                    list.Add(sd);
+                }
+            }
+            // Then append the tracks that either don't have a number or are dups
+            for (int i = -1; i > floor; i--)
+            {
+                SongDetails sd = null;
+                if (map.TryGetValue(i, out sd))
+                {
+                    list.Add(sd);
+                }
+            }
+
+            if (list.Count > 0)
+            {
+                AlbumViewModel viewModel = new AlbumViewModel { Title = albumTitle, Artist = uniqueArtist ? list[0].Artist : string.Empty, Songs = list };
+                return viewModel;
+            }
+            else
+            {
+                return null;
+            }
+        }
+    }
+}
