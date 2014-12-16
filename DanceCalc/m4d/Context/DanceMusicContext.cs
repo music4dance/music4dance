@@ -113,7 +113,7 @@ namespace m4d.Context
 
 #if NEWTAG
             modelBuilder.Entity<Tag>().HasKey(t => new { t.UserId, t.Id });
-            
+
             modelBuilder.Entity<TagType>().HasKey(tt => tt.Key);
             modelBuilder.Entity<TagType>().Ignore(tt => tt.Value);
             modelBuilder.Entity<TagType>().Ignore(tt => tt.Category);

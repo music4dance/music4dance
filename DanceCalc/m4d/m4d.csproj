@@ -297,6 +297,7 @@
     <Compile Include="APIControllers\PurchaseInfoController.cs" />
     <Compile Include="Controllers\SongController.cs" />
     <Compile Include="Controllers\SongPropertyController.cs" />
+    <Compile Include="Controllers\TagController.cs" />
     <Compile Include="GlimpseSecurityPolicy.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
@@ -732,6 +733,11 @@
     <Content Include="Views\Shared\_ListSongs.cshtml" />
     <Content Include="Views\Dance\_DanceList.cshtml" />
     <Content Include="Views\Song\Album.cshtml" />
+    <Content Include="Views\Tag\Create.cshtml" />
+    <Content Include="Views\Tag\Delete.cshtml" />
+    <Content Include="Views\Tag\Details.cshtml" />
+    <Content Include="Views\Tag\Edit.cshtml" />
+    <Content Include="Views\Tag\Index.cshtml" />
     <None Include="Web.m4d.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
