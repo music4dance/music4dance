@@ -104,7 +104,8 @@
                     string[] rg = item.Value.Split(new char[] {':'});
                     string label = rg[1] == "Dance" ? "primary" : "info";
                     @separator;
-                    <span class="label label-@label">@rg[0]</span>
+                    @Html.ActionLink(rg[0],"tags","song", new { tags = item.Value }, new {@class="label label-" + label})
+                    @*<span class="label label-@label">@rg[0]</span>*@
                     separator = " ";
                 }
             </div>

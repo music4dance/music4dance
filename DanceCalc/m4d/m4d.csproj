@@ -383,6 +383,7 @@
     <Compile Include="ViewModels\ManageViewModels.cs" />
     <Compile Include="ViewModels\ServiceSearchResults.cs" />
     <Compile Include="ViewModels\AccountViewModels.cs" />
+    <Compile Include="ViewModels\TagTypeView.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="BingSiteAuth.xml" />
@@ -738,6 +739,7 @@
     <Content Include="Views\Tag\Details.cshtml" />
     <Content Include="Views\Tag\Edit.cshtml" />
     <Content Include="Views\Tag\Index.cshtml" />
+    <Content Include="Views\Song\Tags.cshtml" />
     <None Include="Web.m4d.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

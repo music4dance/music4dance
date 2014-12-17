@@ -1,0 +1,15 @@
+﻿@model PagedList.IPagedList<m4dModels.Song>
+@using PagedList.Mvc;
+
+@{
+    ViewBag.Title = "Tags";
+    ViewBag.SongFilter = new m4dModels.SongFilter();
+    var dances = (IList<m4dModels.SongCounts>)ViewBag.Dances;
+    IList<DanceLibrary.DanceObject> selected = ViewBag.SelectedDances;
+}
+
+<h2>@ViewBag.Tags</h2>
+
+<div class="row col-xs-12">
+    @{Html.RenderPartial("_ListSongs", @Model, ViewData);}
+</div>

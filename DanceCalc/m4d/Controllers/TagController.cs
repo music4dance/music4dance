@@ -8,17 +8,17 @@ using System.Web;
 using System.Web.Mvc;
 using m4d.Context;
 using m4dModels;
+using m4d.ViewModels;
+using System.Diagnostics;
 
 namespace m4d.Controllers
 {
-    public class TagController : Controller
+    public class TagController : DMController
     {
-        private DanceMusicContext db = new DanceMusicContext();
-
         // GET: Tag
         public ActionResult Index()
         {
-            var tagTypes = db.TagTypes.Include(t => t.Primary);
+            var tagTypes = Database.TagTypes.Include(t => t.Primary).OrderBy(t => t.Key);
             return View(tagTypes.ToList());
         }
 
@@ -29,7 +29,7 @@ namespace m4d.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            TagType tagType = db.TagTypes.Find(id);
+            TagType tagType = Database.TagTypes.Find(TagType.TagDecode(id));
             if (tagType == null)
             {
                 return HttpNotFound();
@@ -40,7 +40,7 @@ namespace m4d.Controllers
         // GET: Tag/Create
         public ActionResult Create()
         {
-            ViewBag.PrimaryId = new SelectList(db.TagTypes, "Key", "PrimaryId");
+            ViewBag.PrimaryId = new SelectList(Database.TagTypes, "Key", "PrimaryId");
             return View();
         }
 
@@ -53,12 +53,12 @@ namespace m4d.Controllers
         {
             if (ModelState.IsValid)
             {
-                db.TagTypes.Add(tagType);
-                db.SaveChanges();
+                Database.TagTypes.Add(tagType);
+                Database.SaveChanges();
                 return RedirectToAction("Index");
             }
 
-            ViewBag.PrimaryId = new SelectList(db.TagTypes, "Key", "PrimaryId", tagType.PrimaryId);
+            ViewBag.PrimaryId = new SelectList(Database.TagTypes, "Key", "PrimaryId", tagType.PrimaryId);
             return View(tagType);
         }
 
@@ -69,13 +69,18 @@ namespace m4d.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            TagType tagType = db.TagTypes.Find(id);
+            TagType tagType = Database.TagTypes.Find(TagType.TagDecode(id));
             if (tagType == null)
             {
                 return HttpNotFound();
             }
-            ViewBag.PrimaryId = new SelectList(db.TagTypes, "Key", "PrimaryId", tagType.PrimaryId);
-            return View(tagType);
+            string pid = tagType.PrimaryId;
+            if (pid == null)
+            {
+                pid = tagType.Key;
+            }
+            ViewBag.PrimaryId = new SelectList(Database.TagTypes, "Key", "Key", pid);
+            return View(new TagTypeView(tagType));
         }
 
         // POST: Tag/Edit/5
@@ -83,15 +88,121 @@ namespace m4d.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit([Bind(Include = "Key,Count,PrimaryId")] TagType tagType)
+        public ActionResult Edit([Bind(Include = "Key,Count,PrimaryId")] TagType tagType, string newKey)
         {
             if (ModelState.IsValid)
             {
-                db.Entry(tagType).State = System.Data.Entity.EntityState.Modified;
-                db.SaveChanges();
+                if (string.Equals(tagType.Key,newKey))
+                {
+                    if (string.Equals(tagType.Key,tagType.PrimaryId))
+                    {
+                        tagType.PrimaryId = null;
+                        tagType.Primary = null;
+                    }
+                    Context.Entry(tagType).State = System.Data.Entity.EntityState.Modified;
+                    Database.SaveChanges();
+                }
+                else
+                {
+                    // TODONEXT: Get this to work
+
+                    // NOTE: This should work more smoothly because the only foreign
+                    //  keys dependant on this as a primary key are in the TagType table itself
+
+                    // Save off the parent
+                    TagType parent = null;
+                    if (string.Equals(tagType.Key, tagType.PrimaryId))
+                    {
+                        tagType.PrimaryId = null;
+                        tagType.Primary = null;
+                    }
+                    else
+                    {
+                        parent = tagType.Primary;
+                    }
+
+                    // Save off the children
+                    TagType oldTT = Database.TagTypes.Find(tagType.Key);
+                    List<string> children = new List<string>();
+                    if (oldTT.Ring != null)
+                    {
+                        foreach (var child in oldTT.Ring)
+                        {
+                            children.Add(child.Key);
+                        }
+
+                        oldTT.Ring.Clear();
+                    }
+
+                    // Delete the old type
+                    Database.TagTypes.Remove(oldTT);
+                    Database.SaveChanges();
+
+                    // Add the new type and put back in the child references
+                    TagType newTT = Database.TagTypes.Create();
+                    newTT.Copy(tagType);
+                    newTT.Key = newKey;
+
+                    foreach (var c in children)
+                    {
+                        TagType child = Database.TagTypes.Find(c);
+                        child.PrimaryId = newKey;
+                        child.Primary = newTT;
+                        newTT.Ring.Add(child);
+                    }
+
+                    Database.TagTypes.Add(newTT);
+                    Database.SaveChanges();
+
+                    // Go through the Tag table and fix up all of the references
+                    List<Guid> songIds = new List<Guid>();
+                    var tags = from t in Database.Tags where t.Tags.Summary.Contains(oldTT.Key) select t;
+                    foreach (var tag in tags)
+                    {
+                        tag.Tags.Summary = tag.Tags.Summary.Replace(oldTT.Key, newKey);
+                        
+                        // TODO: We're handling songs now, but need to generalize to other taggable objects
+                        //  Also should figure out how to pull out id in a more general way
+                        if (tag.Id.StartsWith("S:"))
+                        {
+                            songIds.Add(new Guid(tag.Id.Substring(2)));
+                        }
+                        else
+                        {
+                            Trace.WriteLine("When did we start supporting tags on non-songs");
+                        }
+                    }
+                    Database.SaveChanges();
+
+                    // Use the tag table to reference all the affected songs and fix them
+                    //  Bothe the TagSummary and the Properties
+                    foreach (Guid songId in songIds)
+                    {
+                        Song song = Database.FindSong(songId);
+
+                        if (song != null)
+                        {
+                            song.TagSummary.Summary = song.TagSummary.Summary.Replace(oldTT.Key, newKey);
+                        }
+
+                        foreach (var prop in song.SongProperties)
+                        {
+                            if (prop.Name == Song.AddedTags || prop.Name == Song.RemovedTags)
+                            {
+                                prop.Value = (prop.Value as string).Replace(oldTT.Key, newKey);
+                            }
+                        }
+                    }
+                    Database.SaveChanges();
+                }
                 return RedirectToAction("Index");
             }
-            ViewBag.PrimaryId = new SelectList(db.TagTypes, "Key", "PrimaryId", tagType.PrimaryId);
+            string pid = tagType.PrimaryId;
+            if (pid == null)
+            {
+                pid = tagType.Key;
+            }
+            ViewBag.PrimaryId = new SelectList(Database.TagTypes, "Key", "Key", pid);
             return View(tagType);
         }
 
@@ -102,7 +213,7 @@ namespace m4d.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            TagType tagType = db.TagTypes.Find(id);
+            TagType tagType = Database.TagTypes.Find(TagType.TagDecode(id));
             if (tagType == null)
             {
                 return HttpNotFound();
@@ -115,9 +226,9 @@ namespace m4d.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult DeleteConfirmed(string id)
         {
-            TagType tagType = db.TagTypes.Find(id);
-            db.TagTypes.Remove(tagType);
-            db.SaveChanges();
+            TagType tagType = Database.TagTypes.Find(TagType.TagDecode(id));
+            Database.TagTypes.Remove(tagType);
+            Database.SaveChanges();
             return RedirectToAction("Index");
         }
 
@@ -125,7 +236,7 @@ namespace m4d.Controllers
         {
             if (disposing)
             {
-                db.Dispose();
+                Database.Dispose();
             }
             base.Dispose(disposing);
         }

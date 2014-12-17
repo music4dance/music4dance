@@ -20,13 +20,16 @@
         <th>
             @Html.DisplayNameFor(model => model.Primary.PrimaryId)
         </th>
+        <th>
+            Ring
+        </th>
         <th></th>
     </tr>
 
 @foreach (var item in Model) {
     <tr>
         <td>
-            @Html.DisplayFor(modelItem => item.Key)
+            @Html.ActionLink(item.Key, "tags", "song", new { tags = item.Key }, null)
         </td>
         <td>
             @Html.DisplayFor(modelItem => item.Count)
@@ -35,9 +38,23 @@
             @Html.DisplayFor(modelItem => item.PrimaryId)
         </td>
         <td>
-            @Html.ActionLink("Edit", "Edit", new { id=item.Key }) |
-            @Html.ActionLink("Details", "Details", new { id=item.Key }) |
-            @Html.ActionLink("Delete", "Delete", new { id=item.Key })
+            @if (item.Ring != null && item.Ring.Count > 0)
+            {
+                string separator = "";
+                foreach (var child in item.Ring)
+                {
+                    @separator
+                    @child.Key
+                }
+            }
+        </td>
+
+
+
+        <td>
+            @Html.ActionLink("Edit", "Edit", new { id=item.EncodedKey }) |
+            @Html.ActionLink("Details", "Details", new { id=item.EncodedKey }) |
+            @Html.ActionLink("Delete", "Delete", new { id=item.EncodedKey })
         </td>
     </tr>
 }

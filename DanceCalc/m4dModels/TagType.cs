@@ -35,6 +35,11 @@ namespace m4dModels
         public string PrimaryId { get; set; }
         public virtual TagType Primary {get; set;}
         public virtual ICollection<TagType> Ring {get; set;}
+
+        public string EncodedKey
+        {
+            get { return TagEncode(Key); }
+        }
         #endregion
 
         #region Constructors
@@ -51,6 +56,28 @@ namespace m4dModels
                 Key = tag;
             }
         }
+
+        public TagType(TagType tt)
+        {
+            Copy(tt);
+        }
+
+        public void Copy(TagType tt)
+        {
+            Key = tt.Key;
+            PrimaryId = tt.PrimaryId;
+            Primary = tt.Primary;
+            Count = tt.Count;
+            if (tt.Ring != null)
+            {
+                Ring = new List<TagType>(tt.Ring);
+            }
+            else
+            {
+                Ring = new List<TagType>();
+            }
+        }
+
         #endregion
 
         #region Operations

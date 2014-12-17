@@ -7,7 +7,6 @@ namespace m4dModels.Tests
     [TestClass]
     public class TagFormatTests
     {
-        // TODONEXT: Get these tests working then encode/decode tags in tag index
         [TestMethod]
         public void EncodeTags()
         {

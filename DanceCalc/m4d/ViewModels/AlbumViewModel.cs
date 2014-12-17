@@ -7,13 +7,6 @@ using System.Web;
 
 namespace m4d.ViewModels
 {
-    // TODONEXT: Finish up album links
-    //  Figure out why albums aren't being found
-    //  Figure out why track is always zero on the album page
-    //  Think about if we want to limit albums to artist/album
-    //    if not, probalby need to rething sort....
-    //    Any easy way to distinguish if an album is really an album
-    //     or just has the same/similar title????
     public class AlbumViewModel
     {
         [Key]
