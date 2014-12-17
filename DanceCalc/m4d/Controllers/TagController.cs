@@ -40,7 +40,7 @@ namespace m4d.Controllers
         // GET: Tag/Create
         public ActionResult Create()
         {
-            ViewBag.PrimaryId = new SelectList(Database.TagTypes, "Key", "PrimaryId");
+            SetupPrimary();
             return View();
         }
 
@@ -58,8 +58,16 @@ namespace m4d.Controllers
                 return RedirectToAction("Index");
             }
 
-            ViewBag.PrimaryId = new SelectList(Database.TagTypes, "Key", "PrimaryId", tagType.PrimaryId);
+            SetupPrimary();
             return View(tagType);
+        }
+
+        private void SetupPrimary()
+        {
+            List<TagType> tagTypes = Database.TagTypes.ToList();
+            TagType nullTT = new TagType();
+            tagTypes.Insert(0, nullTT);
+            ViewBag.PrimaryId = new SelectList(tagTypes, "Key", "Key", string.Empty);
         }
 
         // GET: Tag/Edit/5
@@ -104,8 +112,6 @@ namespace m4d.Controllers
                 }
                 else
                 {
-                    // TODONEXT: Get this to work
-
                     // NOTE: This should work more smoothly because the only foreign
                     //  keys dependant on this as a primary key are in the TagType table itself
 

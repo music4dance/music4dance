@@ -7,6 +7,7 @@
     {
         canEdit = true;
     }
+    HashSet<string> danceTags = new HashSet<string>();
 }
 
 <div class="row">
@@ -28,8 +29,8 @@
     </div>
 </div>
 
-<fieldset class="row">
-    <div class="col-md-12">
+<div class="row">
+    <fieldset class="col-md-12">
         <div class="display-label">
             @Html.DisplayNameFor(model => model.Artist):
         </div>
@@ -60,100 +61,101 @@
                 @Html.DisplayNameFor(model => model.Length):
             </div>
             <div class="display-field">
-                @Html.DisplayFor(model => model.Length,"SongDuration")
+                @Html.DisplayFor(model => model.Length, "SongDuration")
             </div>
             <br />
         }
+    </fieldset>
+</div>
 
-        @if (Model.DanceRatings != null)
-        {
-            string dl = null;
-            string separator = "";
-            if (Model.DanceRatings.Count == 1)
-            {
-                dl = "Dance: ";
-            }
-            else
-            {
-                dl = "Dances: ";
-            }
-            <div class="display-label">
-                @dl
-            </div>
-            <div class="display-field">
-                @foreach (var item in Model.DanceRatings)
-                {
-                    string badge = m4dModels.SongCounts.GetRatingBadge(danceMap,item.DanceId,item.Weight);
-                    @separator;
-                    <span class="rating @badge">@Html.ActionLink(item.Dance.Info.Name, item.Dance.Info.Name, "dances")</span>
-                    separator = " ";
-                }
-            </div>
-            <br />
-        }
-
-        @if (Model.TagSummary.Tags.Count != 0)
-        {
+@if (Model.TagSummary.Tags.Count != 0)
+{
+    <div class="row">
+        <div class="col-md-12">
+            @{
             string separator = "";
             <div class="display-label">
                 Tags:
             </div>
             <div class="display-field">
-                @foreach (var item in Model.TagSummary.Tags)
+            @foreach (var item in Model.TagSummary.Tags)
+            {
+                string[] rg = item.Value.Split(new char[] { ':' });
+                if (rg[1] == "Dance")
                 {
-                    string[] rg = item.Value.Split(new char[] {':'});
-                    string label = rg[1] == "Dance" ? "primary" : "info";
+                    danceTags.Add(rg[0].ToLower());
+                }
+                else
+                {
+                    string label = rg[1] == "Music" ? "primary" : "info";
                     @separator;
-                    @Html.ActionLink(rg[0],"tags","song", new { tags = item.Value }, new {@class="label label-" + label})
-                    @*<span class="label label-@label">@rg[0]</span>*@
+                    @Html.ActionLink(rg[0], "tags", "song", new { tags = item.Value }, new { @class = "label label-" + label })
                     separator = " ";
                 }
+            }
             </div>
-            <br />
-        }
-         
+            }
+        </div>
+    </div>
+}
 
-        @if (Model.HasAlbums)
-        {
-            if (Model.Albums.Count == 1)
+@if (Model.DanceRatings != null)
+{
+    <div class="row">
+        <div class="col-md-12" style="padding-top:5px">
+            @{
+                string dl = null;
+                string separator = "";
+                if (Model.DanceRatings.Count == 1)
+                {
+                    dl = "Dance: ";
+                }
+                else
+                {
+                    dl = "Dances: ";
+                }
+                <div class="display-label">
+                    @dl
+                </div>
+                <div class="display-field">
+                @foreach (var item in Model.DanceRatings)
+                {
+                    string badge = m4dModels.SongCounts.GetRatingBadge(danceMap, item.DanceId, item.Weight);
+                    string tag = danceTags.Contains(item.Dance.Name.ToLower()) ? "dance-tag" : string.Empty;
+                        @separator;
+                        <span class="rating @badge @tag">@Html.ActionLink(item.Dance.Info.Name, item.Dance.Info.Name, "dances")</span>
+                    separator = " ";
+                }
+                </div>
+            }
+        </div>
+    </div>
+}
+
+@if (Model.HasAlbums)
+{
+    <div class="row">
+        <div class="col-md-12">
+            @if (Model.Albums.Count == 1)
             {
                 <div class="display-label">
                     Album:
                 </div>
-                @Html.Partial("AlbumDetails", Model.Albums[0]);
-            <br />
+                    @Html.Partial("AlbumDetails", Model.Albums[0]);
+                    <br />
             }
             else
             {
                 <div class="display-label">
                     Albums:
                 </div>
-                <ul>
-                    @foreach (m4dModels.AlbumDetails album in Model.Albums)
+                    <ul>
+                        @foreach (m4dModels.AlbumDetails album in Model.Albums)
                     {
-                        <li>@Html.Partial("AlbumDetails", album)</li>
+                            <li>@Html.Partial("AlbumDetails", album)</li>
                     }
-                </ul>
+                    </ul>
             }
-        }
-
-        <div>&nbsp;</div>
-        @*<div class="display-label">
-                @Html.DisplayNameFor(model => model.Created):
         </div>
-        <div class="display-field">
-            @Html.DisplayFor(model => model.Created)
-        </div>
-        <br />
-
-        <div class="display-label">
-            @Html.DisplayNameFor(model => model.Modified):
-        </div>
-        <div class="display-field">
-            @Html.DisplayFor(model => model.Modified)
-        </div>
-        <br />
-        <br />*@
     </div>
-</fieldset>
-
+}

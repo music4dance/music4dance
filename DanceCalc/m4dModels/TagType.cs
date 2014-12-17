@@ -40,6 +40,11 @@ namespace m4dModels
         {
             get { return TagEncode(Key); }
         }
+
+        public bool IsNull
+        {
+            get { return string.IsNullOrWhiteSpace(Key); }
+        }
         #endregion
 
         #region Constructors

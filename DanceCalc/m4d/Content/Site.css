@@ -213,3 +213,8 @@ h1, h2, h3, h4, h5, h6 { font-family: "Merienda";font-weight: 700 }
 .pagination-align {
     margin: 20px 0
 }
+
+.dance-tag
+{
+    font-weight: bold;
+}
