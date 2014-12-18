@@ -207,16 +207,29 @@ namespace m4d.Controllers
         [AllowAnonymous]
         public ActionResult Tags(string tags, int? page)
         {
-            // TODO: We're going to kludge up a quick tags page separate from
-            //  the rest of the song index, but this should be folded back when
-            //  we have time (in fact for now tags == tag)
-            ViewBag.Tags = tags;
             ViewBag.DanceMap = SongCounts.GetDanceMap(Database);
 
-            var songs = from s in Database.Songs where s.TitleHash != 0 && s.TagSummary.Summary.Contains(tags) orderby s.Title select s;
+            TagList list = new TagList(tags);
+            ICollection<TagType> types = Database.GetTagRings(list);
+            ViewBag.Tags = types;
+
+            List<string> tagsExpanded = new List<string>();
+
+            foreach (var tt in types)
+            {
+                tagsExpanded.Add(tt.Key);
+                if (tt.Ring != null)
+                {
+                    foreach (var sub in tt.Ring)
+                    {
+                        tagsExpanded.Add(sub.Key);
+                    }
+                }
+            }
+
+            var songs = from s in Database.Songs where s.TitleHash != 0 && tagsExpanded.Any(val => s.TagSummary.Summary.Contains(val)) orderby s.Title select s;
 
             return View("Tags", songs.ToPagedList(page ?? 1, 25));
-            
         }
         
         //

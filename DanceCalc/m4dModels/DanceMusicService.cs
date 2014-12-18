@@ -1168,6 +1168,26 @@ namespace m4dModels
             return ret;
         }
 
+        public ICollection<TagType> GetTagRings(TagList tags)
+        {
+            Dictionary<string, TagType> map = new Dictionary<string, TagType>();
+
+            foreach (var tag in tags.Tags)
+            {
+                TagType tt = TagTypes.Find(tag);
+                while (tt.Primary != null)
+                {
+                    tt = tt.Primary;
+                }
+                if (!map.ContainsKey(tt.Key))
+                {
+                    map.Add(tt.Key, tt);
+                }
+            }
+
+            return map.Values;
+        }
+
         private TagType CreateTagType(string value, string category) 
         {
             TagType type = null;
