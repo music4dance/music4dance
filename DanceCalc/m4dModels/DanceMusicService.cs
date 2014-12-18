@@ -1576,9 +1576,19 @@ namespace m4dModels
         #region User
         public ApplicationUser FindUser(string name)
         {
-            return _context.Users.FirstOrDefault(u => u.UserName.ToLower() == name.ToLower());
+            ApplicationUser user = null;
+            if (!_userMap.TryGetValue(name, out user))
+            {
+                user = _context.Users.FirstOrDefault(u => u.UserName.ToLower() == name.ToLower());
+                if (user != null)
+                {
+                    _userMap.Add(name, user);
+                }
+            }
+            return user;
         }
 
+        private Dictionary<string, ApplicationUser> _userMap = new Dictionary<string, ApplicationUser>();
         public ApplicationUser FindOrAddUser(string name, string role, object umanager)
         {
             return _context.FindOrAddUser(name, role, umanager);
