@@ -1077,18 +1077,12 @@ namespace m4dModels
             return FindOrCreateTagType(temp.Value, temp.Category);
         }
 
-        public TagType FindOrCreateTagType(string value, string category)
+        public TagType FindOrCreateTagType(string value, string category, string primary = null)
         {
             TagType type = null;
             
-#if NEWTAG
-            type = _context.TagTypes.Find(TagType.BuildKey(value, category));
+            type = _context.TagTypes.Find(TagType.BuildKey(value, category)) ?? CreateTagType(value, category);
 
-            if (type == null)
-            {
-                type = CreateTagType(value, category);
-            }
-#endif
             return type;
         }
 
@@ -1188,14 +1182,15 @@ namespace m4dModels
             return map.Values;
         }
 
-        private TagType CreateTagType(string value, string category) 
+        private TagType CreateTagType(string value, string category, string primary = null) 
         {
             TagType type = null;
-#if NEWTAG
+
             type = _context.TagTypes.Create();
             type.Key = TagType.BuildKey(value, category);
+            type.PrimaryId = primary;
             type = _context.TagTypes.Add(type);
-#endif
+
             return type;
         }
 

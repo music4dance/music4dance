@@ -92,6 +92,15 @@ namespace m4dModels
             return Key;
         }
 
+        public TagType GetPrimary()
+        {
+            TagType p = this;
+            while (p.Primary != null)
+            {
+                p = p.Primary;
+            }
+            return p;
+        }
         public static string BuildKey(string value, string category)
         {
             return string.Format("{0}:{1}", value, category);

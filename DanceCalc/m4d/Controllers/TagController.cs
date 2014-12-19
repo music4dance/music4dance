@@ -116,15 +116,10 @@ namespace m4d.Controllers
                     //  keys dependant on this as a primary key are in the TagType table itself
 
                     // Save off the parent
-                    TagType parent = null;
                     if (string.Equals(tagType.Key, tagType.PrimaryId))
                     {
                         tagType.PrimaryId = null;
                         tagType.Primary = null;
-                    }
-                    else
-                    {
-                        parent = tagType.Primary;
                     }
 
                     // Save off the children

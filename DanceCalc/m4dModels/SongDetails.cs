@@ -311,32 +311,6 @@ namespace m4dModels
             }
         }
 
-        // TAGDELETE:
-        //public override string TagSummary
-        //{
-        //    get
-        //    {
-        //        return BuildTagSummary();
-        //    }
-        //    set
-        //    {
-        //        throw new NotImplementedException("TagSummary shouldn't be set directly in SongDetails");
-        //    }
-        //}
-
-        //private string BuildTagSummary()
-        //{
-        //    StringBuilder sb = new StringBuilder();
-        //    string separator = String.Empty;
-        //    foreach (Tag tag in Tags)
-        //    {
-        //        sb.Append(separator);
-        //        sb.Append(tag.Value);
-        //        separator = "|";
-        //    }
-
-        //    return sb.ToString();
-        //}
 
         public override ICollection<DanceRating> DanceRatings 
         { 
@@ -350,18 +324,6 @@ namespace m4dModels
             }
         }
 
-        // TAGDELETE:
-        //public override ICollection<Tag> Tags
-        //{
-        //    get
-        //    {
-        //        return TagList;
-        //    }
-        //    set
-        //    {
-        //        throw new NotImplementedException("Shouldn't need to set this explicitly");
-        //    }
-        //}
         public override ICollection<ModifiedRecord> ModifiedBy
         {
             get

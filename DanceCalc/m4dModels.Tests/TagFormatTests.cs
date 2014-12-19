@@ -31,7 +31,7 @@ namespace m4dModels.Tests
         }
 
 
-        static string[] Decoded = new string[]
+        static readonly string[] Decoded = new string[]
         {
             "Thé!üt + (Avíañ):Ñúgg--t",
             "Blues / Folk:Music",
@@ -39,7 +39,7 @@ namespace m4dModels.Tests
             "contemporary-rhythm-and-blues:Music",
         };
 
-        static string[] Encoded = new string[]
+        static readonly string[] Encoded = new string[]
         {
             "Thé-21üt-w-2b-w-28Avíañ-29-pÑúgg----t",
             "Blues-w-s-wFolk-pMusic",

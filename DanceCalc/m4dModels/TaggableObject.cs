@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Diagnostics;
+using System.Data.Entity.Migrations;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace m4dModels
 {
@@ -65,7 +63,7 @@ namespace m4dModels
             return newTags;
         }
 
-        // Rmove any tags from tags that have previously been added by the user and return a list
+        // Remove any tags from tags that have previously been added by the user and return a list
         //  of the actually removed tags in canonical form
         public TagList RemoveTags(string tags, ApplicationUser user, DanceMusicService dms = null, object data = null)
         {
@@ -109,16 +107,14 @@ namespace m4dModels
 
         private void DoUpdate(TagList added, TagList removed, ApplicationUser user, DanceMusicService dms, object data)
         {
-            //if (data == null)
-            //{
-            //    data = this;
-            //}
             if (TagSummary == null)
             {
                 TagSummary = new TagSummary();
             }
 
-            TagSummary.ChangeTags(added, removed);
+            TagList addRing = ConvertToRing(added,dms);
+            TagList delRing = ConvertToRing(removed, dms);
+            TagSummary.ChangeTags(addRing, delRing);
             UpdateTagTypes(added, removed, dms);
             RegisterChangedTags(added, removed, user, dms, data);
         }
@@ -224,5 +220,26 @@ namespace m4dModels
             return ut;
         }
 
+        public void UpdateTagSummary(DanceMusicService dms)
+        {
+            string tagId = TagId;
+            var tags = from t in dms.Context.Tags where t.Id == tagId select t;
+
+            TagSummary = new TagSummary();
+            foreach (var tag in tags)
+            {
+                TagSummary.ChangeTags(ConvertToRing(tag.Tags, dms),null);
+            }
+        }
+
+        private static TagList ConvertToRing(TagList tags, DanceMusicService dms)
+        {
+            if (tags == null)
+                return null;
+            if (dms == null)
+                return tags;
+
+            return new TagList(tags.Tags.Select(t => (dms.TagTypes.Find(t)??new TagType{Key=t}).GetPrimary()).Select(tt => tt.Key).ToList());
+        }
     }
 }

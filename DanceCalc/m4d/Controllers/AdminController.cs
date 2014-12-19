@@ -281,28 +281,50 @@ namespace m4d.Controllers
         [Authorize(Roles = "dbAdmin")]
         public ActionResult UpdateTagSummaries()
         {
-            ViewBag.Name = "UpdateTagTypes";
+            ViewBag.Name = "UpdateTagSummaries";
 
             int count = 0;
 
             Context.TrackChanges(false);
 
-            foreach (TagType tt in Database.TagTypes)
+            Dictionary<string,int> counts = new Dictionary<string, int>();
+            foreach (var tt in Database.TagTypes)
             {
-                tt.Count = 0;
+                counts.Add(tt.Key, tt.Count);
             }
 
+            // Do the actual update
             foreach (Song song in Database.Songs)
             {
-                // TODO: Should we reload from properties or from user tags (or either)...
+                song.UpdateTagSummary(Database);
                 count += 1;
             }
 
-            Context.TrackChanges(true);
+            // Validate that we didn't change counts...
+            bool changed = false;
+            foreach (var tt in Database.TagTypes)
+            {
+                int c = 0;
+                if (!counts.TryGetValue(tt.Key, out c) || c != tt.Count)
+                {
+                    changed = true;
+                    break;
+                }
+            }
 
-            ViewBag.Success = true;
-            ViewBag.Message = string.Format(" Songs were fixed as tags({0})", count);
+            if (changed)
+            {
+                ViewBag.Success = false;
+                ViewBag.Message = "Changed underlying count unexpectedly";
+            }
+            else
+            {
+                Context.TrackChanges(true);
 
+                ViewBag.Success = true;
+                ViewBag.Message = string.Format(" Songs were fixed as tags({0})", count);
+
+            }
             return View("Results");
         }
 

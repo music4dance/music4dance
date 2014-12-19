@@ -21,7 +21,12 @@ namespace m4dModels.Tests
             s_service.FindOrCreateTagType("Salsa", "Music");
             s_service.FindOrCreateTagType("Salsa", "Dance");
             s_service.FindOrCreateTagType("Pop", "Music");
-            s_service.FindOrCreateTagType("Foxtrot", "Dance");
+            TagType tt = s_service.FindOrCreateTagType("Foxtrot", "Dance");
+            TagType tt1 = s_service.FindOrCreateTagType("fox-trot", "Dance","FoxTrot");
+            TagType tt2 = s_service.FindOrCreateTagType("Fox Trot", "Dance", "FoxTrot");
+
+            tt1.Primary = tt;
+            tt2.Primary = tt;
         }
         #region TagType
         [TestMethod]
@@ -171,8 +176,39 @@ namespace m4dModels.Tests
             // Check the serialized result of the whole mess
             string result = ReplaceTime(song.Serialize(new string[] { SongBase.NoSongId, SongBase.EditCommand }));
             Trace.WriteLine(result);
-            string expected = @"user=batch	Title=Test	Artist=Me	Tempo=30.0	User=batchTime=00/00/0000 0:00:00 PM	Tag+=Blues:Dance|Bolero:Dance|Latin:Dance|Rumba:Dance	User=dwgrayTime=00/00/0000 0:00:00 PM	Tag+=Bolero:Dance|Cha Cha:Dance|Rumba:Dance	User=batchTime=00/00/0000 0:00:00 PM	Tag-=Blues:Dance|Latin:Dance	User=dwgrayTime=00/00/0000 0:00:00 PM	Tag+=Blues:Dance	Tag-=Rumba:Dance";
+            const string expected = @"user=batch	Title=Test	Artist=Me	Tempo=30.0	User=batchTime=00/00/0000 0:00:00 PM	Tag+=Blues:Dance|Bolero:Dance|Latin:Dance|Rumba:Dance	User=dwgrayTime=00/00/0000 0:00:00 PM	Tag+=Bolero:Dance|Cha Cha:Dance|Rumba:Dance	User=batchTime=00/00/0000 0:00:00 PM	Tag-=Blues:Dance|Latin:Dance	User=dwgrayTime=00/00/0000 0:00:00 PM	Tag+=Blues:Dance	Tag-=Rumba:Dance";
             Assert.AreEqual(expected, result);
+        }
+
+        [TestMethod]
+        public void SongTagUpdateSummary()
+        {
+            // Create a song
+            Song song = new Song();
+            song.Load(@"user=batch	Title=Test	Artist=Me	Tempo=30.0", s_service);
+
+            // Use batch to add a couple of tags (via change)
+            ApplicationUser user = s_service == null ? new ApplicationUser("batch") : s_service.FindUser("batch");
+            ApplicationUser user2 = s_service == null ? new ApplicationUser("dwgray") : s_service.FindUser("dwgray");
+
+            song.CreateEditProperties(user, SongBase.EditCommand, s_service);
+            song.ChangeTags("fox-trot:Dance|Swing:Dance", user, s_service, song);
+
+            song.CreateEditProperties(user2, SongBase.EditCommand, s_service);
+            song.ChangeTags("Fox Trot:Dance|Swing:Dance", user2, s_service, song);
+
+            Trace.WriteLine(song.TagSummary.ToString());
+            const string expected = @"Foxtrot:Dance:2|Swing:Dance:2";
+            Assert.AreEqual(expected,song.TagSummary.ToString());
+
+            int cft = s_service.TagTypes.Find("Foxtrot:Dance").Count;
+            int cswing = s_service.TagTypes.Find("Swing:Dance").Count;
+
+            song.UpdateTagSummary(s_service);
+            Assert.AreEqual(expected, song.TagSummary.ToString());
+
+            Assert.AreEqual(cft, s_service.TagTypes.Find("Foxtrot:Dance").Count);
+            Assert.AreEqual(cswing, s_service.TagTypes.Find("Swing:Dance").Count);
         }
 
         [TestMethod]
@@ -227,11 +263,6 @@ namespace m4dModels.Tests
             Assert.AreEqual(@"user=batch	Title=Test	Artist=Me	Tempo=30.0	User=batchTime=00/00/0000 0:00:00 PM	Tag+:BOL=Strict Tempo|Traditional	Tag+:RMB=Non-traditional|Slow	User=dwgrayTime=00/00/0000 0:00:00 PM	Tag+:BOL=Traditional	Tag+:RMB=International|Slow	User=batchTime=00/00/0000 0:00:00 PM	Tag-:BOL=Strict Tempo|Traditional", result);
         }
 
-        [TestMethod]
-        public void TestTagRing()
-        {
-
-        }
 
         static string ReplaceTime(string s)
         {
