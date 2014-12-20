@@ -302,7 +302,7 @@ namespace m4dModels
                     switch (bn)
                     {
                         case UserField:
-                            currentUser = new ApplicationUser(prop.Value);
+                            currentUser = dms.FindUser(prop.Value);
                             userWritten = false;
                             break;
                         case AddedTags:
@@ -699,6 +699,8 @@ namespace m4dModels
             {
                 ModifiedBy.Remove(u);
             }
+
+            Modified = DateTime.Now;
         }
 
         public void RestoreScalar(SongDetails sd)

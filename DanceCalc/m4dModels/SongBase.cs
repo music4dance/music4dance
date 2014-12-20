@@ -81,7 +81,7 @@ namespace m4dModels
         /// <returns></returns>
         public string Serialize(string[] actions)
         {
-            if (string.IsNullOrWhiteSpace(Title))
+            if (string.IsNullOrWhiteSpace(Title) && !actions.Contains(DeleteCommand))
             {
                 return null;
             }

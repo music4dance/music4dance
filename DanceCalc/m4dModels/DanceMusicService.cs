@@ -1527,19 +1527,30 @@ namespace m4dModels
                 songlist = songlist.Take(max) as System.Linq.IOrderedQueryable<Song>;
             }
 
+            string[] actions = null;
+            List<string> alist = new List<string>();
+            if (!withHistory)
+            {
+                alist.Add(SongBase.FailedLookup);
+            }
+            if (max != -1)
+            {
+                alist.Add(SongBase.DeleteCommand);
+            }
+            if (alist.Count > 0)
+            {
+                actions = alist.ToArray();
+            }
+
             foreach (Song song in songlist)
             {
-                string[] actions = null;
-                if (!withHistory)
-                {
-                    actions = new string[] { Song.FailedLookup };
-                }
                 string line = song.Serialize(actions);
                 if (!string.IsNullOrWhiteSpace(line))
                 {
                     songs.Add(line);
                 }
             }
+            //songs.AddRange(songlist.Select(song => song.Serialize(actions)).Where(line => !string.IsNullOrWhiteSpace(line)));
 
             return songs;
         }

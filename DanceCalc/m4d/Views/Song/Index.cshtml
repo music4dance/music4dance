@@ -116,7 +116,7 @@
 
 @using (Html.BeginForm("BulkEdit", "Song"))
 {
-    Html.AntiForgeryToken();
+    @Html.AntiForgeryToken()
     <div class="row col-xs-12">
         @{Html.RenderPartial("_ListSongs", @Model, ViewData);}
     </div>
