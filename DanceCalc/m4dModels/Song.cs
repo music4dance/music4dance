@@ -402,7 +402,7 @@ namespace m4dModels
             }
             if (rg.Length > 1)
             {
-                cmd = rg[1];
+                val = rg[1];
             }
 
             CreateProperty(rg[0], cmd, val, null, dms);

@@ -1530,7 +1530,7 @@ namespace m4dModels
             }
             if (max != -1)
             {
-                alist.Add(SongBase.DeleteCommand);
+                alist.Add(SongBase.SerializeDeleted);
             }
             if (alist.Count > 0)
             {

@@ -50,6 +50,7 @@ namespace m4dModels
         public const string RedoCommand = ".Redo";
         public const string FailedLookup = ".FailedLookup"; // 0: Not found on Title/Artist; 1: Not found on Title/Artist/Album
         public const string NoSongId = ".NoSongId"; // Pseudo action for serialization
+        public const string SerializeDeleted = ".SerializeDeleted"; // Pseudo action for serialization
 
         public const string SuccessResult = ".Success";
         public const string FailResult = ".Fail";
@@ -81,7 +82,7 @@ namespace m4dModels
         /// <returns></returns>
         public string Serialize(string[] actions)
         {
-            if (string.IsNullOrWhiteSpace(Title) && (actions == null || !actions.Contains(DeleteCommand)))
+            if (string.IsNullOrWhiteSpace(Title) && (actions == null || !actions.Contains(SerializeDeleted)))
             {
                 return null;
             }
