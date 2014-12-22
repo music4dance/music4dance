@@ -1379,6 +1379,7 @@ namespace m4d.Controllers
                 string name = sd.ModifiedList.Last().UserName;
                 ApplicationUser user = Context.FindOrAddUser(name,DanceMusicService.EditRole,UserManager);
 
+                //TODONEXT: Figure out why delete still isn't being recorded during merge....
                 if (song == null)
                 {
                     song = Database.CreateSong(user,sd);

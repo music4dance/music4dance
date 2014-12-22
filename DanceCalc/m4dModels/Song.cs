@@ -391,8 +391,21 @@ namespace m4dModels
 
         public void CreateEditProperties(ApplicationUser user, string command, DanceMusicService dms)
         {
+            string[] rg = command.Split(new char[] {'='}, StringSplitOptions.RemoveEmptyEntries);
             // Add the command into the property log
-            CreateProperty(Song.EditCommand, string.Empty, null, dms);
+            string cmd = SongBase.EditCommand;
+            string val = null;
+
+            if (rg.Length > 0)
+            {
+                cmd = rg[0];
+            }
+            if (rg.Length > 1)
+            {
+                cmd = rg[1];
+            }
+
+            CreateProperty(rg[0], cmd, val, null, dms);
 
             // Handle User association
             if (user != null)
@@ -679,26 +692,12 @@ namespace m4dModels
             }
         }
 
-        public void Delete()
+        public void Delete(ApplicationUser user, DanceMusicService dms)
         {
-            foreach (PropertyInfo pi in SongBase.ScalarProperties)
-            {
-                pi.SetValue(this, null);
-            }
+            CreateEditProperties(user, DeleteCommand, dms);
 
+            ClearValues();
             TitleHash = 0;
-
-            List<DanceRating> drs = DanceRatings.ToList();
-            foreach (DanceRating dr in drs)
-            {
-                DanceRatings.Remove(dr);
-            }
-
-            List<ModifiedRecord> us = ModifiedBy.ToList();
-            foreach (ModifiedRecord u in us)
-            {
-                ModifiedBy.Remove(u);
-            }
 
             Modified = DateTime.Now;
         }
@@ -732,11 +731,10 @@ namespace m4dModels
             {
                 SongProperties = new List<SongProperty>();
             }
-            Debug.Assert(SongProperties.Count == 0);
-            foreach (SongProperty prop in sd.SongProperties)
+            Debug.Assert(SongProperties.Count == 0 || SongProperties.Count == sd.SongProperties.Count);
+            if (SongProperties.Count == 0)
             {
-                // TODO: Should be able to pull this condition once we've got genres cleaned
-                if (prop.BaseName != "Genre")
+                foreach (SongProperty prop in sd.SongProperties)
                 {
                     SongProperties.Add(new SongProperty() { Song = this, SongId = this.SongId, Name = prop.Name, Value = prop.Value });
                 }

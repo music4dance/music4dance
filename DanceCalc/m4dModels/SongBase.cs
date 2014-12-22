@@ -81,7 +81,7 @@ namespace m4dModels
         /// <returns></returns>
         public string Serialize(string[] actions)
         {
-            if (string.IsNullOrWhiteSpace(Title) && !actions.Contains(DeleteCommand))
+            if (string.IsNullOrWhiteSpace(Title) && (actions == null || !actions.Contains(DeleteCommand)))
             {
                 return null;
             }
@@ -107,58 +107,66 @@ namespace m4dModels
         {
             bool created = SongProperties != null && SongProperties.Count > 0;
             ApplicationUser currentUser = null;
+            bool deleted = false;
 
             foreach (SongProperty prop in properties)
             {
                 string bn = prop.BaseName;
 
-                if (!prop.IsAction)
+                switch (bn)
                 {
-                    switch (bn)
-                    {
-                        case UserField:
-                            currentUser = new ApplicationUser(prop.Value);
-                            // TOOD: if the placeholder user works, we should use it to simplify the ModifiedRecord
-                            AddModifiedBy(new ModifiedRecord { SongId = this.SongId, UserName = prop.Value });
-                            break;
-                        case DanceRatingField:
-                            UpdateDanceRating(prop.Value);
-                            break;
-                        case AddedTags:
-                            AddTags(prop.Value, currentUser);
-                            break;
-                        case RemovedTags:
-                            RemoveTags(prop.Value, currentUser);
-                            break;
-                        case AlbumField:
-                        case PublisherField:
-                        case TrackField:
-                        case PurchaseField:
-                            // All of these are taken care of with build album
-                            break;
-                        case TimeField:
+                    case UserField:
+                        currentUser = new ApplicationUser(prop.Value);
+                        // TOOD: if the placeholder user works, we should use it to simplify the ModifiedRecord
+                        AddModifiedBy(new ModifiedRecord { SongId = this.SongId, UserName = prop.Value });
+                        break;
+                    case DanceRatingField:
+                        UpdateDanceRating(prop.Value);
+                        break;
+                    case AddedTags:
+                        AddTags(prop.Value, currentUser);
+                        break;
+                    case RemovedTags:
+                        RemoveTags(prop.Value, currentUser);
+                        break;
+                    case AlbumField:
+                    case PublisherField:
+                    case TrackField:
+                    case PurchaseField:
+                        // All of these are taken care of with build album
+                        break;
+                    case DeleteCommand:
+                        deleted = string.IsNullOrEmpty(prop.Value) ||
+                            string.Equals(prop.Value, "true",StringComparison.OrdinalIgnoreCase);
+                        break;
+                    case TimeField:
+                        {
+                            DateTime time = (DateTime)prop.ObjectValue;
+                            if (!created)
                             {
-                                DateTime time = (DateTime)prop.ObjectValue;
-                                if (!created)
-                                {
-                                    Created = time;
-                                    created = true;
-                                }
-                                Modified = time;
+                                Created = time;
+                                created = true;
                             }
-                            break;
-                        default:
-                            // All of the simple properties we can just set
+                            Modified = time;
+                        }
+                        break;
+                    default:
+                        // All of the simple properties we can just set
+                        if (!prop.IsAction)
+                        {
+                            PropertyInfo pi = this.GetType().GetProperty(bn);
+                            if (pi != null)
                             {
-                                PropertyInfo pi = this.GetType().GetProperty(bn);
-                                if (pi != null)
-                                {
-                                    pi.SetValue(this, prop.ObjectValue);
-                                }
+                                pi.SetValue(this, prop.ObjectValue);
                             }
-                            break;
-                    }
+                        }
+                        break;
                 }
+            }
+
+            if (deleted)
+            {
+                ClearValues();
             }
         }
         #endregion
@@ -466,6 +474,25 @@ namespace m4dModels
             return prop;
         }
 
+        protected void ClearValues()
+        {
+            foreach (PropertyInfo pi in SongBase.ScalarProperties)
+            {
+                pi.SetValue(this, null);
+            }
+
+            List<DanceRating> drs = DanceRatings.ToList();
+            foreach (DanceRating dr in drs)
+            {
+                DanceRatings.Remove(dr);
+            }
+
+            List<ModifiedRecord> us = ModifiedBy.ToList();
+            foreach (ModifiedRecord u in us)
+            {
+                ModifiedBy.Remove(u);
+            }
+        }
 
         #region TitleArtist
         public bool TitleArtistMatch(string title, string artist)

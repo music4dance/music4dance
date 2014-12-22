@@ -205,7 +205,7 @@ namespace m4dModels
             // Delete all of the old songs (With merge-with Id from above)
             foreach (Song from in songs)
             {
-                RemoveSong(from);
+                RemoveSong(from, user);
             }
 
             SaveChanges();
@@ -218,20 +218,14 @@ namespace m4dModels
         public void DeleteSong(ApplicationUser user, Song song, string command = Song.DeleteCommand)
         {
             LogSongCommand(command, song, user);
-            RemoveSong(song);
+            RemoveSong(song,user);
             SaveChanges();
         }
 
-        private void RemoveSong(Song song)
+        private void RemoveSong(Song song, ApplicationUser user)
         {
-            song.Delete();
-            //var entry = Entry(song);
-            //if (entry != null)
-            //{
-            //    entry.State = EntityState.Modified;
-            //}
+            song.Delete(user, this);
         }
-
         #endregion
 
         #region Dance Ratings
@@ -456,7 +450,7 @@ namespace m4dModels
                 switch (action)
                 {
                     case Song.DeleteCommand:
-                        error = Undelete(song);
+                        error = Undelete(song,user);
                         break;
                     case Song.MergeCommand:
                         error = Unmerge(entry, song);
@@ -465,7 +459,7 @@ namespace m4dModels
                         error = RestoreValuesFromLog(entry, song, UndoAction.Undo);
                         break;
                     case Song.CreateCommand:
-                        RemoveSong(song);
+                        RemoveSong(song,user);
                         break;
                     case Song.UndoCommand:
                     case Song.RedoCommand:
@@ -494,11 +488,11 @@ namespace m4dModels
             return result;
         }
 
-        private string Undelete(Song song)
+        private string Undelete(Song song, ApplicationUser user)
         {
             string ret = null;
 
-            RestoreSong(song);
+            RestoreSong(song, user);
 
             return ret;
         }
@@ -514,11 +508,11 @@ namespace m4dModels
             ICollection<Song> songs = SongsFromList(t);
             foreach (Song s in songs)
             {
-                RestoreSong(s);
+                RestoreSong(s, entry.User);
             }
 
             // Now delete the merged song
-            RemoveSong(song);
+            RemoveSong(song,entry.User);
 
             return ret;
         }
@@ -552,7 +546,7 @@ namespace m4dModels
             switch (log.Action)
             {
                 case Song.DeleteCommand:
-                    RemoveSong(song);
+                    RemoveSong(song,log.User);
                     break;
                 case Song.EditCommand:
                     RestoreValuesFromLog(log, song, UndoAction.Redo);
@@ -582,16 +576,16 @@ namespace m4dModels
             switch (entry.Action)
             {
                 case Song.DeleteCommand:
-                    RemoveSong(song);
+                    RemoveSong(song,entry.User);
                     break;
                 case Song.MergeCommand:
-                    error = Remerge(entry, song);
+                    error = Remerge(entry, song, entry.User);
                     break;
                 case Song.EditCommand:
                     error = RestoreValuesFromLog(entry, song, UndoAction.Redo);
                     break;
                 case Song.CreateCommand:
-                    RestoreSong(song);
+                    RestoreSong(song,entry.User);
                     break;
                 default:
                     error = string.Format("'{0}' action not yet supported for Redo.", entry.Action);
@@ -635,30 +629,31 @@ namespace m4dModels
             return ret;
         }
 
-        private string Remerge(SongLog entry, Song song)
+        private string Remerge(SongLog entry, Song song, ApplicationUser user)
         {
             string ret = null;
 
             // First, restore the merged to song
-            RestoreSong(song);
+            RestoreSong(song,user);
 
             // Then remove the merged from songs
             string t = entry.GetData(Song.MergeCommand);
             ICollection<Song> songs = SongsFromList(t);
             foreach (Song s in songs)
             {
-                RemoveSong(s);
+                RemoveSong(s,user);
             }
 
             return ret;
         }
 
-        private void RestoreSong(Song song)
+        private void RestoreSong(Song song, ApplicationUser user)
         {
             if (!string.IsNullOrWhiteSpace(song.Title))
             {
                 throw new ArgumentOutOfRangeException("song", "Attempting to restore a song that hasn't been deleted");
             }
+            song.CreateEditProperties(user, SongBase.DeleteCommand + "=false", this);
             SongDetails sd = new SongDetails(song.SongId, song.SongProperties);
             song.Restore(sd, this);
             song.UpdateUsers(this);
@@ -684,7 +679,7 @@ namespace m4dModels
                 {
                     foreach (Song d in SongsFromList(initV))
                     {
-                        RemoveSong(d);
+                        RemoveSong(d,log.User);
                     }
                 }
                 catch (Exception e)
@@ -699,7 +694,7 @@ namespace m4dModels
 
             DoRestoreValues(song, log.GetValues(), UndoAction.Redo);
 
-            RestoreSong(song);
+            RestoreSong(song,log.User);
             _context.Songs.Add(song);
         }
         #endregion
