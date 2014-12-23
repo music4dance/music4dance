@@ -206,8 +206,8 @@ namespace m4dModels
         {
             SetupCollections();
             // Verify that our heads are the same (TODO:move this to debug mode at some point?)
-            List<SongProperty> old = SongProperties.Where(p => !p.IsAction).OrderBy(p => p.Id).ToList();
-            List<SongProperty> upd = update.Properties.Where(p => !p.IsAction).ToList();
+            List<SongProperty> old = SongProperties.OrderBy(p => p.Id).ToList(); // Where(p => !p.IsAction).
+            List<SongProperty> upd = update.Properties.ToList(); // Where(p => !p.IsAction).
             int c = old.Count;
             for (int i = 0; i < c; i++)
             {
