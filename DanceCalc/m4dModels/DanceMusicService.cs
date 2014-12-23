@@ -78,6 +78,7 @@ namespace m4dModels
 
             return song;
         }
+
         public Song CreateSong(ApplicationUser user, SongDetails sd, string command = SongBase.CreateCommand, string value = null, bool createLog = true)
         {
             if (string.Equals(sd.Title, sd.Artist))
@@ -85,7 +86,7 @@ namespace m4dModels
                 Trace.WriteLine(string.Format("Title and Artist are the same ({0})", sd.Title));
             }
 
-            Song song = CreateSong(null, createLog);
+            Song song = CreateSong(sd.SongId, createLog);
             song.Create(sd, user, command, value, this);
 
             song = _context.Songs.Add(song);
@@ -1423,24 +1424,29 @@ namespace m4dModels
                 SongDetails sd = new SongDetails(line);
                 Song song = FindSong(sd.SongId);
 
-                SongProperty up = sd.FirstProperty(SongBase.UserField); //sd.ModifiedList.Last().UserName;
-                string name = up != null ? up.Value as string : "batch";
-                
-                ApplicationUser user = FindOrAddUser(name, DanceMusicService.EditRole,umanager);
 
                 if (song == null)
                 {
-                    song = CreateSong(user, sd, null, null, false);
-                }
-                else if (sd.IsNull)
-                {
-                    DeleteSong(user, song, false);
+                    SongProperty up = sd.FirstProperty(SongBase.UserField);
+                    ApplicationUser user = FindOrAddUser(up != null ? up.Value as string : "batch", DanceMusicService.EditRole, umanager);
+
+                    song = CreateSong(sd.SongId);
+                    UpdateSong(user, song, sd, false);
+                    Songs.Add(song);
                 }
                 else
                 {
-                    UpdateSong(user, song, sd, false);
+                    SongProperty up = sd.LastProperty(SongBase.UserField);
+                    ApplicationUser user = FindOrAddUser(up != null ? up.Value as string : "batch", DanceMusicService.EditRole, umanager);
+                    if (sd.IsNull)
+                    {
+                        DeleteSong(user, song, false);
+                    }
+                    else
+                    {
+                        UpdateSong(user, song, sd, false);
+                    }
                 }
-                //song.Modified = DateTime.Now;
             }
 
             _context.TrackChanges(true);

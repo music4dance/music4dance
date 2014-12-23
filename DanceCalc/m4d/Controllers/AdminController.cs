@@ -92,7 +92,7 @@ namespace m4d.Controllers
             ViewBag.Name = "UpdateTitleHash";
             int count = 0;
 
-            var songs = from s in Database.Songs where s.TitleHash != 0 select s;
+            var songs = from s in Database.Songs select s;
             foreach (Song song in songs)
             {
                 if (song.UpdateTitleHash())
@@ -1351,56 +1351,6 @@ namespace m4d.Controllers
         }
         
         #endregion        
-
-        #region Build-From-Text
-
-
-        /// <summary>
-        /// Reloads a list of songs into the database
-        /// </summary>
-        /// <param name="lines"></param>
-        private void UpdateDB(List<string> lines, bool? batch)
-        {
-            Trace.WriteLineIf(TraceLevels.General.TraceInfo,"Entering UpdateDB");
-
-            Context.TrackChanges(false);
-
-            // Load the dance List
-            Trace.WriteLineIf(TraceLevels.General.TraceInfo,"Loading Dances");
-            Database.Dances.Load();
-
-            Trace.WriteLineIf(TraceLevels.General.TraceInfo,"Loading Songs");
-
-            foreach (string line in lines)
-            {
-                SongDetails sd = new SongDetails(line);
-                Song song = Database.FindSong(sd.SongId);
-
-                string name = sd.ModifiedList.Last().UserName;
-                ApplicationUser user = Context.FindOrAddUser(name,DanceMusicService.EditRole,UserManager);
-
-                //TODONEXT: Figure out why delete still isn't being recorded during merge....
-                if (song == null)
-                {
-                    song = Database.CreateSong(user,sd);
-                }
-                else if (sd.IsNull)
-                {
-                    Database.DeleteSong(user, song);
-                }
-                else {
-                    Database.UpdateSong(user, song, sd, false);
-                }
-                //song.Modified = DateTime.Now;
-            }
-
-            Context.TrackChanges(true);
-
-            Trace.WriteLineIf(TraceLevels.General.TraceInfo,"Clearing Song Cache");
-            SongCounts.ClearCache();
-            Trace.WriteLineIf(TraceLevels.General.TraceInfo,"Exiting ReloadDB");
-        }
-        #endregion
 
         #region Utilities
 

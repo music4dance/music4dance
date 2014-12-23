@@ -23,6 +23,37 @@ namespace m4dModels
 
         #region Actions
 
+        //// Re-create a song from the song properties alone
+        //public void Create(SongDetails sd, DanceMusicService dms)
+        //{
+        //    // First pull the properties over
+        //    if (SongProperties = null)
+        //    {
+        //        SongProperties = new List<SongProperty>();
+        //    }
+
+        //    foreach (SongProperty prop in sd.Properties)
+        //    {
+        //        SongProperty.Add(new SongProperty { SongId = this.SongId, Name = prop.Name, Value = prop.Value });
+        //    }
+
+        //    // Then grab the scalar values
+        //    RestoreScalar(sd);
+
+        //    // Handle Dance Ratings
+        //    CreateDanceRatings(sd.DanceRatings, dms);
+
+        //    // Handle Tags
+        //    TagsFromProperties(user, sd, dms, sd);
+
+        //    // Handle Albums
+        //    CreateAlbums(sd.Albums, dms);
+
+        //    Purchase = sd.GetPurchaseTags();
+        //    TitleHash = Song.CreateTitleHash(Title);
+
+        //}
+
         public void Create(SongDetails sd, ApplicationUser user, string command, string value, DanceMusicService dms)
         {
             DateTime time = DateTime.Now;
@@ -33,7 +64,10 @@ namespace m4dModels
                 log.Initialize(user, this, command);
             }
 
-            CreateProperty(command, value, null, log, dms);
+            if (!string.IsNullOrWhiteSpace(command))
+            {
+                CreateProperty(command, value, null, log, dms);
+            }
 
             // Handle User association
             if (user != null)
@@ -170,6 +204,7 @@ namespace m4dModels
 
         public bool Update(ApplicationUser user, SongDetails update, DanceMusicService dms)
         {
+            SetupCollections();
             // Verify that our heads are the same (TODO:move this to debug mode at some point?)
             List<SongProperty> old = SongProperties.Where(p => !p.IsAction).OrderBy(p => p.Id).ToList();
             List<SongProperty> upd = update.Properties.Where(p => !p.IsAction).ToList();
@@ -204,7 +239,8 @@ namespace m4dModels
             }
 
             UpdateUsers(dms);
-            //TODO???FixupMappings(dms);
+
+            TitleHash = Song.CreateTitleHash(Title);
 
             return true;
         }
@@ -812,7 +848,7 @@ namespace m4dModels
         public bool UpdateTitleHash()
         {
             bool ret = false;
-            int hash = CreateTitleHash(Title);
+            int hash = string.IsNullOrWhiteSpace(Title) ? 0 : CreateTitleHash(Title);
             if (hash != TitleHash)
             {
                 TitleHash = hash;
@@ -855,5 +891,22 @@ namespace m4dModels
         }
         
         #endregion
+
+        private void SetupCollections()
+        {
+            // TODO: Use this in constructor???  Move to SongBase???
+            if (DanceRatings == null)
+            {
+                DanceRatings = new List<DanceRating>();
+            }
+            if (ModifiedBy == null)
+            {
+                ModifiedBy = new List<ModifiedRecord>();
+            }
+            if (SongProperties == null)
+            {
+                SongProperties = new List<SongProperty>();
+            }
+        }
     }
 }
