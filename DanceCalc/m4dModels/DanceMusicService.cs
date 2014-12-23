@@ -215,9 +215,12 @@ namespace m4dModels
             return song;
         }
 
-        public void DeleteSong(ApplicationUser user, Song song, string command = Song.DeleteCommand)
+        public void DeleteSong(ApplicationUser user, Song song, bool createLog=true)
         {
-            LogSongCommand(command, song, user);
+            if (createLog)
+            {
+                LogSongCommand(Song.DeleteCommand, song, user);
+            }
             RemoveSong(song,user);
             SaveChanges();
         }
@@ -1420,16 +1423,18 @@ namespace m4dModels
                 SongDetails sd = new SongDetails(line);
                 Song song = FindSong(sd.SongId);
 
-                string name = sd.ModifiedList.Last().UserName;
+                SongProperty up = sd.FirstProperty(SongBase.UserField); //sd.ModifiedList.Last().UserName;
+                string name = up != null ? up.Value as string : "batch";
+                
                 ApplicationUser user = FindOrAddUser(name, DanceMusicService.EditRole,umanager);
 
                 if (song == null)
                 {
-                    song = CreateSong(user, sd);
+                    song = CreateSong(user, sd, null, null, false);
                 }
                 else if (sd.IsNull)
                 {
-                    DeleteSong(user, song);
+                    DeleteSong(user, song, false);
                 }
                 else
                 {

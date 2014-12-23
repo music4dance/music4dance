@@ -338,7 +338,6 @@ namespace m4d.Context
                 
             }
 
-
             if (string.Equals(role, DanceMusicService.PseudoRole))
             {
                 user.LockoutEnabled = true;
@@ -348,7 +347,9 @@ namespace m4d.Context
                 uman.AddToRole(user.Id, role);
             }
 
-            return user;
+            ApplicationUser ctxtUser = Users.Find(user.Id); //Users.FirstOrDefault(u => string.Equals(u.UserName, name, StringComparison.InvariantCultureIgnoreCase)); 
+            Debug.Assert(ctxtUser != null);
+            return ctxtUser;
         }
 
         public override int SaveChanges()

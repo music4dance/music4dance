@@ -475,6 +475,11 @@ namespace m4dModels
             return prop;
         }
 
+        public SongProperty FirstProperty(string name)
+        {
+            return SongProperties.FirstOrDefault(p => p.Name == name);
+        }
+
         protected void ClearValues()
         {
             foreach (PropertyInfo pi in SongBase.ScalarProperties)
