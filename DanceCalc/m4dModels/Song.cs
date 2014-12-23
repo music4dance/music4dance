@@ -405,7 +405,7 @@ namespace m4dModels
                 val = rg[1];
             }
 
-            CreateProperty(rg[0], cmd, val, null, dms);
+            CreateProperty(cmd, val, null, dms);
 
             // Handle User association
             if (user != null)
