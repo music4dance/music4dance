@@ -1,11 +1,10 @@
-﻿using DanceLibrary;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
+using DanceLibrary;
 
 namespace m4dModels
 {
@@ -45,7 +44,7 @@ namespace m4dModels
             }
         }
 
-        private static Regex s_dex = new Regex(@"\[(?<dance>[^\]]*)\]", RegexOptions.Compiled);
+        private static readonly Regex s_dex = new Regex(@"\[(?<dance>[^\]]*)\]", RegexOptions.Compiled);
         private static string LinkDances(string s)
         {
             StringBuilder sb = new StringBuilder();
@@ -116,7 +115,7 @@ namespace m4dModels
 
         private static KeyValuePair<string,string>? FindLink(string d)
         {
-            List<string> list = d.Split(new char[] { ' ', '\n', '\t', '\r', '\f', '\v' }, StringSplitOptions.RemoveEmptyEntries).ToList();
+            List<string> list = d.Split(new[] { ' ', '\n', '\t', '\r', '\f', '\v' }, StringSplitOptions.RemoveEmptyEntries).ToList();
 
             while (list.Count > 0)
             {
@@ -139,7 +138,7 @@ namespace m4dModels
                 return new KeyValuePair<string, string>(dance.Name.Replace(" ", "").ToLower(), string.Format("/dances/{0}", dance.CleanName));
             }
             
-            string link = null;
+            string link;
             d = d.ToLower();
             if (!s_links.TryGetValue(d,out link))
             {
@@ -150,7 +149,7 @@ namespace m4dModels
             return new KeyValuePair<string, string>(d.Replace(" ", ""), link);
         }
 
-        static Dictionary<string, string> s_links = new Dictionary<string, string>()
+        static readonly Dictionary<string, string> s_links = new Dictionary<string, string>()
         {
             {"swing music", "http://en.wikipedia.org/wiki/Swing_music"},
             {"tango music", "http://en.wikipedia.org/wiki/Tango"},
@@ -166,14 +165,7 @@ namespace m4dModels
             {
                 string desc = cells[0];
                 cells.RemoveAt(0);
-                if (string.IsNullOrWhiteSpace(desc))
-                {
-                    desc = null;
-                }
-                else
-                {
-                    desc = desc.Replace(@"\r", "\r").Replace(@"\n", "\n");
-                }
+                desc = string.IsNullOrWhiteSpace(desc) ? null : desc.Replace(@"\r", "\r").Replace(@"\n", "\n");
                 if (!string.Equals(desc,Description,StringComparison.Ordinal))
                 {
                     modified = true;
@@ -217,15 +209,7 @@ namespace m4dModels
 
         public DanceObject Info
         {
-            get
-            {
-                if (_info == null)
-                {
-                    _info = DanceLibrary.DanceDictionary[Id];
-                }
-
-                return _info;
-            }
+            get { return _info ?? (_info = DanceLibrary.DanceDictionary[Id]); }
         }
 
         public string Name
@@ -261,10 +245,10 @@ namespace m4dModels
         {
             get
             {
-                return _dances;
+                return s_dances;
             }
         }
 
-        private static Dances _dances = global::DanceLibrary.Dances.Instance;
+        private static readonly Dances s_dances = Dances.Instance;
     }
 }

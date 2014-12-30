@@ -1,11 +1,8 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Globalization;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 
 namespace m4dModels
 {
@@ -73,15 +70,15 @@ namespace m4dModels
             if (user != null)
             {
                 AddUser(user,dms);
-                CreateProperty(Song.UserField, user.UserName, null, log, dms);
+                CreateProperty(UserField, user.UserName, null, log, dms);
             }
 
             Created = time;
             Modified = time;
-            CreateProperty(Song.TimeField, time.ToString(), null, log, dms);
+            CreateProperty(TimeField, time.ToString(), null, log, dms);
 
             Debug.Assert(!string.IsNullOrWhiteSpace(sd.Title));
-            foreach (PropertyInfo pi in SongBase.ScalarProperties)
+            foreach (PropertyInfo pi in ScalarProperties)
             {
                 object prop = pi.GetValue(sd);
                 if (prop != null)
@@ -101,7 +98,7 @@ namespace m4dModels
             CreateAlbums(sd.Albums, dms);
 
             Purchase = sd.GetPurchaseTags();
-            TitleHash = Song.CreateTitleHash(Title);
+            TitleHash = CreateTitleHash(Title);
         }
 
         private bool EditCore(ApplicationUser user, SongDetails edit, DanceMusicService dms)
@@ -110,7 +107,7 @@ namespace m4dModels
 
             CreateEditProperties(user, EditCommand, dms);
 
-            foreach (string field in SongBase.ScalarFields)
+            foreach (string field in ScalarFields)
             {
                 modified |= UpdateProperty(edit, field, dms);
             }
@@ -240,7 +237,7 @@ namespace m4dModels
 
             UpdateUsers(dms);
 
-            TitleHash = Song.CreateTitleHash(Title);
+            TitleHash = CreateTitleHash(Title);
 
             return true;
         }
@@ -252,7 +249,7 @@ namespace m4dModels
 
             CreateEditProperties(user, EditCommand, dms);
 
-            foreach (string field in SongBase.ScalarFields)
+            foreach (string field in ScalarFields)
             {
                 modified |= AddProperty(edit, field, dms);
             }
@@ -324,7 +321,7 @@ namespace m4dModels
                 {
                     if (AddUser(us.ApplicationUser, dms))
                     {
-                        CreateProperty(Song.UserField, us.ApplicationUser.UserName, null, this.CurrentLog, dms);
+                        CreateProperty(UserField, us.ApplicationUser.UserName, null, this.CurrentLog, dms);
                     }
                 }
 
@@ -368,7 +365,7 @@ namespace m4dModels
 
                 string value = new DanceRatingDelta { DanceId = dance.Key, Delta = dance.Value }.ToString();
 
-                CreateProperty(Song.DanceRatingField, value, null, this.CurrentLog, dms);
+                CreateProperty(DanceRatingField, value, null, this.CurrentLog, dms);
             }
 
         }
@@ -380,7 +377,7 @@ namespace m4dModels
             object eP = edit.GetType().GetProperty(name).GetValue(edit);
             object oP = GetType().GetProperty(name).GetValue(this);
 
-            if (!object.Equals(eP, oP))
+            if (!Equals(eP, oP))
             {
                 modified = true;
 
@@ -429,7 +426,7 @@ namespace m4dModels
         {
             string[] rg = command.Split(new char[] {'='}, StringSplitOptions.RemoveEmptyEntries);
             // Add the command into the property log
-            string cmd = SongBase.EditCommand;
+            string cmd = EditCommand;
             string val = null;
 
             if (rg.Length > 0)
@@ -447,13 +444,13 @@ namespace m4dModels
             if (user != null)
             {
                 AddUser(user, dms);
-                CreateProperty(Song.UserField, user.UserName, null, dms);
+                CreateProperty(UserField, user.UserName, null, dms);
             }
 
             // Handle Timestamps
             DateTime time = DateTime.Now;
             Modified = time;
-            CreateProperty(Song.TimeField, time.ToString(), null, dms);
+            CreateProperty(TimeField, time.ToString(), null, dms);
         }
 
         private bool UpdatePurchaseInfo(SongDetails edit, bool additive = false)
@@ -461,14 +458,7 @@ namespace m4dModels
             bool ret = false;
             string pi = null;
 
-            if (additive)
-            {
-                pi = edit.MergePurchaseTags(Purchase);
-            }
-            else
-            {
-                pi = edit.GetPurchaseTags();
-            }
+            pi = additive ? edit.MergePurchaseTags(Purchase) : edit.GetPurchaseTags();
             if (!string.Equals(Purchase, pi))
             {
                 Purchase = pi;
@@ -560,7 +550,7 @@ namespace m4dModels
             {
                 dms.CreateDanceRating(this, dr.DanceId, dr.Weight);
                 CreateProperty(
-                    Song.DanceRatingField,
+                    DanceRatingField,
                     new DanceRatingDelta { DanceId = dr.DanceId, Delta = dr.Weight }.ToString(),
                     CurrentLog,
                     dms
@@ -610,7 +600,7 @@ namespace m4dModels
 
                 if (valid)
                 {
-                    dms.CreateSongProperty(this, Song.DanceRatingField, drd.ToString(), log);
+                    dms.CreateSongProperty(this, DanceRatingField, drd.ToString(), log);
                 }
             }
             return true;
@@ -668,7 +658,7 @@ namespace m4dModels
                 {
                     dr.Weight += delta;
 
-                    CreateProperty(Song.DanceRatingField, new DanceRatingDelta { DanceId = dr.DanceId, Delta = delta }.ToString(), log, dms);
+                    CreateProperty(DanceRatingField, new DanceRatingDelta { DanceId = dr.DanceId, Delta = delta }.ToString(), log, dms);
 
                     changed = true;
                 }
@@ -690,7 +680,7 @@ namespace m4dModels
                     if (dr != null)
                     {
                         CreateProperty(
-                            Song.DanceRatingField,
+                            DanceRatingField,
                             new DanceRatingDelta { DanceId = ndr, Delta = DanceRatingInitial }.ToString(),
                             log, dms
                         );
@@ -744,12 +734,12 @@ namespace m4dModels
             {
                 SongId = sd.SongId;
             }
-            foreach (PropertyInfo pi in SongBase.ScalarProperties)
+            foreach (PropertyInfo pi in ScalarProperties)
             {
                 object v = pi.GetValue(sd);
                 pi.SetValue(this, v);
             }
-            TitleHash = Song.CreateTitleHash(Title);
+            TitleHash = CreateTitleHash(Title);
 
             if (sd.HasAlbums)
             {

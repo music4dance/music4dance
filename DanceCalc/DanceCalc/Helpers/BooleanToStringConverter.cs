@@ -12,7 +12,7 @@ namespace DanceCalc
             string[] values = {"_FALSE_","_TRUE_"};
             if (t != null)
             {
-                string[] valuesT = t.Split(new char[] { ',' });                
+                string[] valuesT = t.Split(',');                
                 if (valuesT.Length > 1)
                 {
                     values = valuesT;

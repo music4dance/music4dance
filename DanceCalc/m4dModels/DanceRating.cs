@@ -1,12 +1,8 @@
-﻿using DanceLibrary;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
 using System.Diagnostics;
 using System.Linq;
-using System.Text;
-using System.Threading;
-
+using DanceLibrary;
 
 namespace m4dModels
 {
@@ -66,7 +62,7 @@ namespace m4dModels
             {
                 string list = null;
                 string[] ids = null;
-                if (DanceRating.DanceMap.TryGetValue(SongDetails.CleanDanceName(dances), out list))
+                if (DanceMap.TryGetValue(SongDetails.CleanDanceName(dances), out list))
                 {
                     ids = list.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
                 }
@@ -113,7 +109,7 @@ namespace m4dModels
         }
 
         private static bool s_builtDM = false;
-        private static Dictionary<string, string> s_danceMap = new Dictionary<string, string>()
+        private static readonly Dictionary<string, string> s_danceMap = new Dictionary<string, string>()
         {
             {"CROSSSTEPWALTZ","SWZ"}, {"SLOWANDCROSSSTEPWALTZ","SWZ"},
             {"SOCIALTANGO","TNG"},
@@ -164,7 +160,11 @@ namespace m4dModels
 
         public DanceRatingDelta(string value)
         {
-            string[] parts = value.Split(new char[] { '+', '-' });
+            if (value == null)
+            {
+                throw new ArgumentNullException(@"value");
+            }
+            string[] parts = value.Split('+', '-');
 
             int sign = value.Contains('-') ? -1 : 1;
             int offset = 1;

@@ -211,11 +211,11 @@ namespace m4dModels
 
         public static void Load(Guid songId, string props, ICollection<SongProperty> properties)
         {
-            string[] cells = props.Split(new char[] { '\t' });
+            string[] cells = props.Split('\t');
 
             foreach (string cell in cells)
             {
-                string[] values = cell.Split(new char[] { '=' });
+                string[] values = cell.Split('=');
 
                 if (values.Length == 2)
                 {
@@ -271,7 +271,7 @@ namespace m4dModels
 
             if (name.Contains(":"))
             {
-                string[] parts = name.Split(new char[] { ':' });
+                string[] parts = name.Split(':');
 
                 if (parts.Length > 2)
                 {
@@ -288,7 +288,7 @@ namespace m4dModels
 
             if (name.Contains(":"))
             {
-                string[] parts = name.Split(new char[] { ':' });
+                string[] parts = name.Split(':');
 
                 if (parts.Length > 1)
                 {

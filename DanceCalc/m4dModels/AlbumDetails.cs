@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Diagnostics;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Text;
@@ -9,6 +8,7 @@ using System.Text.RegularExpressions;
 
 namespace m4dModels
 {
+    // ReSharper disable once InconsistentNaming
     public enum ServiceType { None, Amazon, ITunes, XBox, AMG, Max };
     public enum PurchaseType { None, Album, Song, Max };
 
@@ -26,10 +26,7 @@ namespace m4dModels
             Publisher = a.Publisher;
             Track = a.Track;
 
-            if (a.Purchase != null)
-                Purchase = new Dictionary<string, string>(a.Purchase);
-            else
-                Purchase = new Dictionary<string, string>();
+            Purchase = a.Purchase != null ? new Dictionary<string, string>(a.Purchase) : new Dictionary<string, string>();
         }
         #endregion
 
@@ -74,6 +71,7 @@ namespace m4dModels
             //  in order to get more easily consumable information
             //  into json
             get { return GetPurchaseLinks();}
+            // ReSharper disable once ValueParameterNotUsed
             set {  }
         }
 
@@ -213,15 +211,15 @@ namespace m4dModels
             
         }
 
-        private static string BuildPurchaseKey(PurchaseType pt, ServiceType ms)
+        private static string BuildPurchaseKey(PurchaseType purchaseType, ServiceType serviceType)
         {
-            if (pt == PurchaseType.None)
-                throw new ArgumentOutOfRangeException("PurchaseType");
+            if (purchaseType == PurchaseType.None)
+                throw new ArgumentOutOfRangeException("purchaseType");
 
-            if (ms == ServiceType.None)
-                throw new ArgumentOutOfRangeException("ServiceType");
+            if (serviceType == ServiceType.None)
+                throw new ArgumentOutOfRangeException("serviceType");
 
-            return MusicService.GetService(ms).BuildPurchaseKey(pt);
+            return MusicService.GetService(serviceType).BuildPurchaseKey(purchaseType);
         }
         public void SetPurchaseInfo(string purchase)
         {
@@ -230,7 +228,7 @@ namespace m4dModels
                 return;
             }
 
-            string[] values = purchase.Split(new char[] { ';' });
+            string[] values = purchase.Split(';');
 
             foreach (string value in values)
             {
@@ -247,27 +245,12 @@ namespace m4dModels
 
         public PurchaseLink GetPurchaseLink(ServiceType ms)
         {
-            PurchaseLink l = GetPurchaseLink(ms, PurchaseType.Song);
-            if (l == null)
-            {
-                l = GetPurchaseLink(ms, PurchaseType.Album);
-            }
-            return l;
+            return GetPurchaseLink(ms, PurchaseType.Song) ?? GetPurchaseLink(ms, PurchaseType.Album);
         }
 
         public IList<PurchaseLink> GetPurchaseLinks()
         {
-            List<PurchaseLink> links = new List<PurchaseLink>();
-
-            foreach (MusicService service in MusicService.GetServices())
-            {
-                PurchaseLink link = GetPurchaseLink(service.ID);
-                if (link != null)
-                {
-                    links.Add(link);
-                }
-            }
-            return links;
+            return MusicService.GetServices().Select(service => GetPurchaseLink(service.ID)).Where(link => link != null).ToList();
         }
 
         public PurchaseLink GetPurchaseLink(ServiceType ms, PurchaseType pt)
@@ -279,8 +262,8 @@ namespace m4dModels
             MusicService service = MusicService.GetService(ms);
             string albumKey = service.BuildPurchaseKey(PurchaseType.Album);
             string songKey = service.BuildPurchaseKey(PurchaseType.Song);
-            string albumInfo = null;
-            string songInfo = null;
+            string albumInfo;
+            string songInfo;
 
             Purchase.TryGetValue(albumKey, out albumInfo);
             Purchase.TryGetValue(songKey, out songInfo);
@@ -291,16 +274,16 @@ namespace m4dModels
         public bool PurchaseDiff(DanceMusicService dms, Song song, AlbumDetails old, SongLog log)
         {
             bool modified = false;
-            Dictionary<string, string> add = new Dictionary<string, string>();
 
             // First delete all of the keys that are in old but not in new
             if (old.Purchase != null)
             {
+                // ReSharper disable once LoopCanBeConvertedToQuery
                 foreach (string key in old.Purchase.Keys)
                 {
                     if (Purchase != null && !Purchase.ContainsKey(key))
                     {
-                        modified |= ChangeProperty(dms, song, this.Index, Song.PurchaseField, key, Purchase[key], null, log);
+                        modified |= ChangeProperty(dms, song, Index, SongBase.PurchaseField, key, Purchase[key], null, log);
                     }
                 }
             }
@@ -313,12 +296,12 @@ namespace m4dModels
                     if (old.Purchase == null || !old.Purchase.ContainsKey(key))
                     {
                         // Add
-                        modified |= ChangeProperty(dms, song, this.Index, Song.PurchaseField, key, null, Purchase[key], log);
+                        modified |= ChangeProperty(dms, song, Index, SongBase.PurchaseField, key, null, Purchase[key], log);
                     }
                     else if (old.Purchase != null && old.Purchase.ContainsKey(key) && !string.Equals(Purchase[key], old.Purchase[key]))
                     {
                         // Change
-                        modified |= ChangeProperty(dms, song, this.Index, Song.PurchaseField, key, old.Purchase[key], Purchase[key], log);
+                        modified |= ChangeProperty(dms, song, Index, SongBase.PurchaseField, key, old.Purchase[key], Purchase[key], log);
                     }
                 }
             }
@@ -328,8 +311,6 @@ namespace m4dModels
 
         public void PurchaseAdd(DanceMusicService dms, Song song, AlbumDetails old, SongLog log)
         {
-            Dictionary<string, string> add = new Dictionary<string, string>();
-
             // Now add all of the keys that are in new but either don't exist or are different in old
             if (Purchase != null)
             {
@@ -338,12 +319,12 @@ namespace m4dModels
                     if (old.Purchase == null || !old.Purchase.ContainsKey(key))
                     {
                         // Add
-                        ChangeProperty(dms, song, this.Index, Song.PurchaseField, key, null, Purchase[key], log);
+                        ChangeProperty(dms, song, Index, SongBase.PurchaseField, key, null, Purchase[key], log);
                     }
                 }
             }
         }
-        
+
         #endregion
 
         #region Merging
@@ -355,8 +336,8 @@ namespace m4dModels
 
             foreach (AlbumDetails a in albums)
             {
-                string name = SongDetails.CleanAlbum(a.Name,artist);
-                List<AlbumDetails> l = null;
+                var name = SongBase.CleanAlbum(a.Name,artist);
+                List<AlbumDetails> l;
                 if (dict.TryGetValue(name, out l))
                 {
                     duplicate = true;
@@ -379,8 +360,8 @@ namespace m4dModels
             List<AlbumDetails> merge = new List<AlbumDetails>();
             foreach (AlbumDetails a in albums)
             {
-                string name = SongDetails.CleanAlbum(a.Name, artist);
-                List<AlbumDetails> l = null;
+                string name = SongBase.CleanAlbum(a.Name, artist);
+                List<AlbumDetails> l;
                 if (dict.TryGetValue(name, out l))
                 {
                     dict.Remove(name);
@@ -411,29 +392,29 @@ namespace m4dModels
         }
         private void Merge(AlbumDetails album)
         {
-            if (string.IsNullOrWhiteSpace(this.Publisher))
+            if (string.IsNullOrWhiteSpace(Publisher))
             {
-                this.Publisher = album.Publisher;
+                Publisher = album.Publisher;
             }
-            if (!this.Track.HasValue)
+            if (!Track.HasValue)
             {
-                this.Track = album.Track;
+                Track = album.Track;
             }
 
-            if (!this.HasPurchaseInfo)
+            if (!HasPurchaseInfo)
             {
-                this.Purchase = album.Purchase;
+                Purchase = album.Purchase;
             }
             else if (album.HasPurchaseInfo)
             {
                 // Case where both albums have purchase info: Merge the dictionaries keeping all unique entries
-                foreach (string key in this.Purchase.Keys)
+                foreach (string key in Purchase.Keys)
                 {
                     album.Purchase.Remove(key);
                 }
                 foreach (KeyValuePair<string, string> p in album.Purchase)
                 {
-                    this.Purchase[p.Key] = p.Value;
+                    Purchase[p.Key] = p.Value;
                 }
             }
         }
@@ -453,9 +434,9 @@ namespace m4dModels
             }
             else
             {
-                modified |= ChangeProperty(dms, song, old.Index, Song.AlbumField, null, old.Name, Name, log);
-                modified |= ChangeProperty(dms, song, old.Index, Song.TrackField, null, old.Track, Track, log);
-                modified |= ChangeProperty(dms, song, old.Index, Song.PublisherField, null, old.Publisher, Publisher, log);
+                modified |= ChangeProperty(dms, song, old.Index, SongBase.AlbumField, null, old.Name, Name, log);
+                modified |= ChangeProperty(dms, song, old.Index, SongBase.TrackField, null, old.Track, Track, log);
+                modified |= ChangeProperty(dms, song, old.Index, SongBase.PublisherField, null, old.Publisher, Publisher, log);
 
                 modified |= PurchaseDiff(dms, song, old, log);
             }
@@ -465,22 +446,22 @@ namespace m4dModels
 
         public void Remove(DanceMusicService dms, Song song, SongLog log)
         {
-            ChangeProperty(dms, song, Index, Song.AlbumField, null, Name, null, log);
+            ChangeProperty(dms, song, Index, SongBase.AlbumField, null, Name, null, log);
             if (Track.HasValue)
-                ChangeProperty(dms, song, Index, Song.TrackField, null, Track, null, log);
+                ChangeProperty(dms, song, Index, SongBase.TrackField, null, Track, null, log);
             
             if (!string.IsNullOrWhiteSpace(Publisher))
-                ChangeProperty(dms, song, Index, Song.PublisherField, null, Publisher, null, log);
+                ChangeProperty(dms, song, Index, SongBase.PublisherField, null, Publisher, null, log);
         }
 
         // Additive update
         public bool UpdateInfo(DanceMusicService dms, Song song, AlbumDetails old, SongLog log)
         {
-            bool modified = true;
+            bool modified = false;
 
-            modified |= UpdateProperty(dms, song, old.Index, Song.AlbumField, null, old.Name, Name, log);
-            modified |= UpdateProperty(dms, song, old.Index, Song.TrackField, null, old.Track, Track, log);
-            modified |= UpdateProperty(dms, song, old.Index, Song.PublisherField, null, old.Publisher, Publisher, log);
+            modified |= UpdateProperty(dms, song, old.Index, SongBase.AlbumField, null, old.Name, Name, log);
+            modified |= UpdateProperty(dms, song, old.Index, SongBase.TrackField, null, old.Track, Track, log);
+            modified |= UpdateProperty(dms, song, old.Index, SongBase.PublisherField, null, old.Publisher, Publisher, log);
 
             PurchaseAdd(dms, song, old, log);
 
@@ -491,17 +472,17 @@ namespace m4dModels
         {
             if (string.IsNullOrWhiteSpace(Name))
             {
-                throw new ArgumentOutOfRangeException("album");
+                throw new FieldAccessException(@"Name");
             }
 
-            AddProperty(dms, song, Index, Song.AlbumField, null, Name, log);
-            AddProperty(dms, song, Index, Song.TrackField, null, Track, log);
-            AddProperty(dms, song, Index, Song.PublisherField, null, Publisher, log);
+            AddProperty(dms, song, Index, SongBase.AlbumField, null, Name, log);
+            AddProperty(dms, song, Index, SongBase.TrackField, null, Track, log);
+            AddProperty(dms, song, Index, SongBase.PublisherField, null, Publisher, log);
             if (Purchase != null)
             {
                 foreach (KeyValuePair<string, string> purchase in Purchase)
                 {
-                    AddProperty(dms, song, Index, Song.PurchaseField, purchase.Key, purchase.Value, log);
+                    AddProperty(dms, song, Index, SongBase.PurchaseField, purchase.Key, purchase.Value, log);
                 }
             }
         }
@@ -515,9 +496,9 @@ namespace m4dModels
 
             SongProperty op = song.SongProperties.FirstOrDefault(p => p.Name == fullName);
 
-            if (op == null || string.Equals(op.Value, value))
+            if (op == null || Equals(op.Value, value))
             {
-                SongProperty np = dms.CreateSongProperty(song, fullName, value, log);
+                dms.CreateSongProperty(song, fullName, value, log);
             }
         }
 
@@ -526,11 +507,11 @@ namespace m4dModels
         {
             bool modified = false;
 
-            if (!object.Equals(oldValue, newValue))
+            if (!Equals(oldValue, newValue))
             {
                 string fullName = SongProperty.FormatName(name, idx, qual);
 
-                SongProperty np = dms.CreateSongProperty(song, fullName, newValue, log);
+                dms.CreateSongProperty(song, fullName, newValue, log);
 
                 modified = true;
             }
@@ -546,7 +527,7 @@ namespace m4dModels
             {
                 string fullName = SongProperty.FormatName(name, idx, qual);
 
-                SongProperty np = dms.CreateSongProperty(song, fullName, newValue, log);
+                dms.CreateSongProperty(song, fullName, newValue, log);
 
                 modified = true;
             }
@@ -555,8 +536,8 @@ namespace m4dModels
         }
 
 
-        static Regex s_wordPattern = new Regex(@"\W");
-        static HashSet<string> s_ballroomWords = new HashSet<string>() { "ballroom", "latin", "ultimate", "standard", "dancing", "competition", "classics", "dance" };
+        static readonly Regex s_wordPattern = new Regex(@"\W");
+        static readonly HashSet<string> s_ballroomWords = new HashSet<string>() { "ballroom", "latin", "ultimate", "standard", "dancing", "competition", "classics", "dance" };
 
         #endregion
     }

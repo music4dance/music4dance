@@ -1,9 +1,7 @@
-﻿using DanceLibrary;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using DanceLibrary;
+using Microsoft.CSharp.RuntimeBinder;
 
 namespace m4dModels
 {
@@ -46,7 +44,7 @@ namespace m4dModels
                     {
                         altId = tracks.OtherIds.music_amg;
                     }
-                    catch (Microsoft.CSharp.RuntimeBinder.RuntimeBinderException)
+                    catch (RuntimeBinderException)
                     {
                     }
                 }

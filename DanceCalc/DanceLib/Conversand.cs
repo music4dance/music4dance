@@ -63,7 +63,7 @@ namespace DanceLibrary
         {
             IConversand ret = null;
 
-            string[] rg = s.Split(new char[] { ':' }, StringSplitOptions.RemoveEmptyEntries);
+            string[] rg = s.Split(new[] { ':' }, StringSplitOptions.RemoveEmptyEntries);
 
             if (rg.Length != 2)
                 throw new ArgumentOutOfRangeException("conversand serialization must be of the form 'TypeName:Value'");

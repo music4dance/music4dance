@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace m4dModels
 {
@@ -73,14 +72,7 @@ namespace m4dModels
             PrimaryId = tt.PrimaryId;
             Primary = tt.Primary;
             Count = tt.Count;
-            if (tt.Ring != null)
-            {
-                Ring = new List<TagType>(tt.Ring);
-            }
-            else
-            {
-                Ring = new List<TagType>();
-            }
+            Ring = tt.Ring != null ? new List<TagType>(tt.Ring) : new List<TagType>();
         }
 
         #endregion

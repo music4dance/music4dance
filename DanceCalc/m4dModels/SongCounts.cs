@@ -1,11 +1,10 @@
-﻿using DanceLibrary;
-using m4dModels;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Entity;
 using System.Diagnostics;
 using System.Linq;
+using DanceLibrary;
 
 namespace m4dModels
 {
@@ -113,7 +112,7 @@ namespace m4dModels
         }
 
         static private List<SongCounts> s_counts = new List<SongCounts>();
-        static private Dictionary<string, SongCounts> s_map = new Dictionary<string, SongCounts>();
+        static private readonly Dictionary<string, SongCounts> s_map = new Dictionary<string, SongCounts>();
 
         static public IList<SongCounts> GetSongCounts(DanceMusicService dms)
         {

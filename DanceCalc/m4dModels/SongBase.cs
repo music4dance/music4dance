@@ -1,5 +1,4 @@
-﻿using DanceLibrary;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
@@ -7,7 +6,7 @@ using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using System.Text;
-using System.Threading.Tasks;
+using DanceLibrary;
 
 namespace m4dModels
 {
@@ -56,14 +55,14 @@ namespace m4dModels
         public const string FailResult = ".Fail";
         public const string MessageData = ".Message";
 
-        public static readonly string[] ScalarFields = new string[] {Song.TitleField, Song.ArtistField, Song.TempoField, Song.LengthField};
+        public static readonly string[] ScalarFields = new string[] {TitleField, ArtistField, TempoField, LengthField};
 
         public static readonly PropertyInfo[] ScalarProperties = new PropertyInfo[]
         {
-            typeof(SongBase).GetProperty(SongBase.TitleField),
-            typeof(SongBase).GetProperty(SongBase.ArtistField),
-            typeof(SongBase).GetProperty(SongBase.TempoField),
-            typeof(SongBase).GetProperty(SongBase.LengthField),
+            typeof(SongBase).GetProperty(TitleField),
+            typeof(SongBase).GetProperty(ArtistField),
+            typeof(SongBase).GetProperty(TempoField),
+            typeof(SongBase).GetProperty(LengthField),
         };
 
         public static readonly int DanceRatingCreate = 10;  // TODO: when we allow a user to manually add a song, give lots of credit
@@ -487,7 +486,7 @@ namespace m4dModels
 
         protected void ClearValues()
         {
-            foreach (PropertyInfo pi in SongBase.ScalarProperties)
+            foreach (PropertyInfo pi in ScalarProperties)
             {
                 pi.SetValue(this, null);
             }
@@ -524,14 +523,14 @@ namespace m4dModels
         {
             get
             {
-                return Song.CleanString(Title);
+                return CleanString(Title);
             }
         }
         public string CleanArtist
         {
             get
             {
-                return Song.CleanString(Artist);
+                return CleanString(Artist);
             }
         }
         
@@ -550,8 +549,8 @@ namespace m4dModels
 
         protected static string BuildSignature(string artist, string title)
         {
-            artist = (artist == null) ? string.Empty : artist;
-            title = (title == null) ? string.Empty : title;
+            artist = artist ?? string.Empty;
+            title = title ?? string.Empty;
 
             string ret = string.Format("{0} {1}", CreateNormalForm(artist), CreateNormalForm(title));
 
@@ -806,14 +805,14 @@ namespace m4dModels
         {
             if ((name.Length > 0) && (name[0] == quote) && (name[name.Length - 1] == quote))
             {
-                name = name.Trim(new char[] { quote });
+                name = name.Trim(quote);
             }
             return name;
         }
 
         static public string Unsort(string name)
         {
-            string[] parts = name.Split(new char[] { ',' });
+            string[] parts = name.Split(',');
             if (parts.Length == 1)
             {
                 return parts[0].Trim();

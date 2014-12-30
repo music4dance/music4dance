@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace m4dModels
 {
@@ -32,7 +29,7 @@ namespace m4dModels
             string[] cells = new string[] { };
             if (s != null)
             {
-                cells = s.Split(new char[] { ':' });
+                cells = s.Split(':');
             }
             if (cells.Length > 0 && int.TryParse(cells[cells.Length - 1], out track))
             {

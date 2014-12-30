@@ -2,20 +2,19 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace m4dModels
 {
     public class SongSort
     {
-        private static string[] directional = new string[] { "Title", "Artist", "Album", "Tempo" };
-        private static string[] numerical = new string[] { "Tempo", "Modified", "Created" };
+        private static readonly string[] s_directional = { "Title", "Artist", "Album", "Tempo" };
+        private static readonly string[] s_numerical = { "Tempo", "Modified", "Created" };
 
-        private static string sortAsc = "<span class='glyphicon glyphicon-sort-by-alphabet'></span>";
-        private static string sortDsc = "<span class='glyphicon glyphicon-sort-by-alphabet-alt'></span>";
-        private static string sortNAsc = "<span class='glyphicon glyphicon-sort-by-order'></span>";
-        private static string sortNDsc = "<span class='glyphicon glyphicon-sort-by-order-alt'></span>";
+        private const string SortAsc = "<span class='glyphicon glyphicon-sort-by-alphabet'></span>";
+        private const string SortDsc = "<span class='glyphicon glyphicon-sort-by-alphabet-alt'></span>";
+        private const string SortNAsc = "<span class='glyphicon glyphicon-sort-by-order'></span>";
+        private const string SortNDsc = "<span class='glyphicon glyphicon-sort-by-order-alt'></span>";
+
         public SongSort(string sort)
         {
             if (string.IsNullOrWhiteSpace(sort))
@@ -55,27 +54,27 @@ namespace m4dModels
         public bool Descending { get; private set; }
         public int Count { get; private set; }
 
-        public bool Numeric { get { return numerical.Contains(Id); } }
-        public bool Directional { get { return directional.Contains(Id); } }
+        public bool Numeric { get { return s_numerical.Contains(Id); } }
+        public bool Directional { get { return s_directional.Contains(Id); } }
         public string GetSortGlyph(string column) 
         {
             string ret = string.Empty;
             if (column == Id)
             {
-                if (numerical.Contains(Id))
+                if (s_numerical.Contains(Id))
                 {
-                    ret = Descending ? sortNDsc : sortNAsc;
+                    ret = Descending ? SortNDsc : SortNAsc;
                 }
                 else
                 {
-                    ret = Descending ? sortDsc : sortAsc;
+                    ret = Descending ? SortDsc : SortAsc;
                 }
             }
             return ret;
         }
         public void Resort(string newOrder)
         {
-            if (newOrder == Id && directional.Contains(newOrder))
+            if (newOrder == Id && s_directional.Contains(newOrder))
             {
                 Descending = !Descending;
             }

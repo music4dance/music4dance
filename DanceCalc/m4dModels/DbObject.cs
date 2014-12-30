@@ -1,9 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
-using System.Diagnostics;
-using System.Threading;
-
-
-namespace m4dModels
+﻿namespace m4dModels
 {
     public class DbObject
     {

@@ -1,9 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 namespace m4dModels
 {
@@ -18,10 +15,10 @@ namespace m4dModels
 
         public AlbumTrack(string title, TrackNumber track)
         {
-            StringBuilder sb = new StringBuilder(title);
+            var sb = new StringBuilder(title);
             if (track != null)
             {
-                sb.AppendFormat("|{0}", track.ToString());
+                sb.AppendFormat("|{0}", track);
             }
             _val = sb.ToString();
         }
@@ -34,7 +31,7 @@ namespace m4dModels
             }
         }
 
-        static readonly Regex _validator = new Regex(@"^([\d]{1,3})(:[\d]{1,3}){0,2}$");
+        static readonly Regex s_validator = new Regex(@"^([\d]{1,3})(:[\d]{1,3}){0,2}$");
         private string[] Split()
         {
             string[] ret = new string[] {null,null};
@@ -42,7 +39,7 @@ namespace m4dModels
             if (_val != null)
             {
                 int idx = _val.LastIndexOf('|');
-                if (idx == -1 || !_validator.IsMatch(_val.Substring(idx + 1)))
+                if (idx == -1 || !s_validator.IsMatch(_val.Substring(idx + 1)))
                 {
                     if (idx==_val.Length-1)
                     {
@@ -80,14 +77,11 @@ namespace m4dModels
 
         public int CompareTo(object other)
         {
-            if (other is AlbumTrack)
-            {
-                return _val.CompareTo(((AlbumTrack)other)._val);
-            }
+            var track = other as AlbumTrack;
+            if (track != null)
+                return string.Compare(_val,track._val,StringComparison.OrdinalIgnoreCase);
             else
-            {
                 return -1;
-            }
         }
 
         public override bool Equals(object obj)

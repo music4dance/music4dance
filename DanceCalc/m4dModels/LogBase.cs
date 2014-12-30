@@ -111,7 +111,7 @@ namespace m4dModels
                     string value = null;
                     string old = null;
 
-                    string[] cells = entry.Split(new char[] { UnitSeparator });
+                    string[] cells = entry.Split(UnitSeparator);
 
                     if (cells.Length > 0)
                     {

@@ -1,12 +1,10 @@
-﻿using DanceLibrary;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
 using System.Linq;
-using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
+using DanceLibrary;
 
 namespace m4dModels
 {
@@ -96,12 +94,6 @@ namespace m4dModels
         #endregion
 
         #region Serialization
-        /// <summary>
-        /// Serialize the song to a single string
-        /// </summary>
-        /// <param name="actions">Actions to include in the serialization</param>
-        /// <returns></returns>
-
         public static SongDetails CreateFromRow(IList<string> fields, IList<string> cells, int weight=1)
         {
             List<SongProperty> properties = new List<SongProperty>();
@@ -115,7 +107,7 @@ namespace m4dModels
                     cell = cell.Trim();
                     if ((cell.Length > 0) && (cell[0] == '"') && (cell[cell.Length-1] == '"'))
                     {
-                        cell = cell.Trim(new char[] {'"'});
+                        cell = cell.Trim('"');
                     }
                     switch (SongProperty.ParseBaseName(baseName))
                     {
@@ -181,7 +173,7 @@ namespace m4dModels
         public static List<string> BuildHeaderMap(string line, char separator = '\t')
         {
             List<string> map = new List<string>();
-            string[] headers = line.ToUpper().Split(new char[] { separator });
+            string[] headers = line.ToUpper().Split(separator);
 
             for (int i = 0; i < headers.Length; i++)
             {
@@ -196,7 +188,7 @@ namespace m4dModels
             return map;
         }
 
-        private static Dictionary<string, string> s_propertyMap = new Dictionary<string, string>()
+        private static readonly Dictionary<string, string> s_propertyMap = new Dictionary<string, string>()
         {
             {"DANCE", DanceRatingField},
             {"TITLE", TitleField},
@@ -258,7 +250,7 @@ namespace m4dModels
 
                 if (cells.Count == headers.Count)
                 {
-                    SongDetails sd = SongDetails.CreateFromRow(headers, cells, weight);
+                    SongDetails sd = CreateFromRow(headers, cells, weight);
                     if (sd != null)
                     {
                         string ta = sd.TitleArtistString;
@@ -349,14 +341,7 @@ namespace m4dModels
         }
         public List<AlbumDetails> Albums
         {
-            get
-            {
-                if (_albums == null)
-                {
-                    _albums = new List<AlbumDetails>();
-                }
-                return _albums;
-            }
+            get { return _albums ?? (_albums = new List<AlbumDetails>()); }
             set
             {
                 _albums = value;
@@ -366,39 +351,18 @@ namespace m4dModels
 
         public List<SongProperty> Properties
         {
-            get
-            {
-                if (_properties == null)
-                {
-                    _properties = new List<SongProperty>();
-                }
-                return _properties;
-            }
+            get { return _properties ?? (_properties = new List<SongProperty>()); }
         }
         private List<SongProperty> _properties;
         public List<ModifiedRecord> ModifiedList
         {
-            get
-            {
-                if (_modifiedList == null)
-                {
-                    _modifiedList = new List<ModifiedRecord>();
-                }
-                return _modifiedList;
-            }
+            get { return _modifiedList ?? (_modifiedList = new List<ModifiedRecord>()); }
         }
         private List<ModifiedRecord> _modifiedList;
 
         public List<DanceRating> RatingsList 
         {
-            get
-            {
-                if (_ratingsList == null)
-                {
-                    _ratingsList = new List<DanceRating>();
-                }
-                return _ratingsList;
-            }
+            get { return _ratingsList ?? (_ratingsList = new List<DanceRating>()); }
         }
         private List<DanceRating> _ratingsList;
 
@@ -688,14 +652,7 @@ namespace m4dModels
                             }
                             break;
                         case PublisherField:
-                            if (remove)
-                            {
-                                d.Publisher = null;
-                            }
-                            else
-                            {
-                                d.Publisher = prop.Value;
-                            }
+                            d.Publisher = remove ? null : prop.Value;
                             break;
                         case TrackField:
                             if (remove)
@@ -842,7 +799,7 @@ namespace m4dModels
         }
 
 
-        // <summary>
+        /// <summary>
         /// Finds a representitive of the largest cluster of tracks 
         ///  (clustered by approximate duration) that is an very
         ///  close title/artist match
@@ -851,16 +808,8 @@ namespace m4dModels
         /// <returns></returns>
         public static ServiceTrack FindDominantTrack(IList<ServiceTrack> tracks)
         {
-            IList<ServiceTrack> ordered = RankTracksByCluster(tracks,null);
-            if (ordered != null)
-            {
-                return tracks.First();
-            }
-            else 
-            {
-                return null;
-            }
-            
+            var ordered = RankTracksByCluster(tracks,null);
+            return ordered != null ? tracks.First() : null;
         }
 
         public IList<ServiceTrack> RankTracks(IList<ServiceTrack> tracks)
@@ -955,14 +904,7 @@ namespace m4dModels
         {
             foreach (var t in tracks)
             {
-                if (t.Duration.HasValue)
-                {
-                    t.TrackRank = Math.Abs(duration - t.Duration.Value);
-                }
-                else 
-                {
-                    t.TrackRank = int.MaxValue;
-                }
+                t.TrackRank = t.Duration.HasValue ? Math.Abs(duration - t.Duration.Value) : int.MaxValue;
             }
 
             return tracks.OrderBy(t => t.TrackRank).ToList();

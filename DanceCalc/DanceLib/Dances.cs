@@ -259,7 +259,7 @@ namespace DanceLibrary
         {
             get 
             {
-                string[] words = Style.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+                string[] words = Style.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
                 Debug.Assert(words.Length > 0);
                 return words[0];
             }

@@ -28,7 +28,7 @@ namespace m4dModels
 
         public bool Initialize(string entry, DanceMusicService dms)
         {
-            string[] cells = entry.Split(new char[] { LogBase.RecordSeparator });
+            string[] cells = entry.Split(LogBase.RecordSeparator);
 
             // user<RS>time<RS>command<RS>id<RS>sig<RS>[data]*
 

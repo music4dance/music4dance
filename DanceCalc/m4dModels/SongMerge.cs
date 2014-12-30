@@ -111,12 +111,12 @@ namespace m4dModels
             }
         }
 
-        static string[] _mergeFields = { 
-            Song.TitleField, 
-            Song.ArtistField, 
-            Song.AlbumListField, 
-            Song.TempoField, 
-            Song.LengthField 
+        static readonly string[] _mergeFields = { 
+            SongBase.TitleField, 
+            SongBase.ArtistField, 
+            SongBase.AlbumListField, 
+            SongBase.TempoField, 
+            SongBase.LengthField 
         };
 
     }

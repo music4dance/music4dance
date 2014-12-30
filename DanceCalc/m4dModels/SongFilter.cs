@@ -31,7 +31,7 @@ namespace m4dModels
                 value = value.Replace("\\-", "~");
             }
 
-            string[] cells = value.Split(new char[] { '-' });
+            string[] cells = value.Split('-');
 
             for (int i = 0; i < cells.Length; i++)
             {

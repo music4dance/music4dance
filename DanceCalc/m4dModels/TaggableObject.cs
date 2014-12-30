@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Data.Entity.Migrations;
 using System.Linq;
 
 namespace m4dModels
@@ -188,16 +187,7 @@ namespace m4dModels
 
             if (ut == null)
             {
-                if (dms != null)
-                {
-#if NEWTAG
-                    ut = dms.Tags.Create();
-#endif
-                }
-                else
-                {
-                    ut = new Tag();
-                }
+                ut = dms != null ? dms.Tags.Create() : new Tag();
                 ut.UserId = user.Id;
                 ut.User = user;
                 ut.Id = TagId;

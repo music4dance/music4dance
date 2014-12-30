@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace m4dModels
 {
@@ -75,7 +74,7 @@ namespace m4dModels
             artist = artist ?? string.Empty;
             title = title ?? string.Empty;
 
-            string searchEnc = System.Uri.EscapeDataString(artist + " " + title);
+            string searchEnc = Uri.EscapeDataString(artist + " " + title);
             string req = string.Format(_request, searchEnc);
             return req;
         }
@@ -138,7 +137,7 @@ namespace m4dModels
 
             if (!string.IsNullOrWhiteSpace(pi))
             {
-                string[] parts = pi.Split(new char[] { '=' });
+                string[] parts = pi.Split('=');
 
                 if (parts.Length == 2 && TryParsePurchaseType(parts[0], out pt, out ms))
                 {
@@ -276,14 +275,14 @@ namespace m4dModels
             s_cidMap.Add('M', amg);
         }
 
-        private static Dictionary<ServiceType, MusicService> s_idMap;
-        private static Dictionary<char, MusicService> s_cidMap;
+        private static readonly Dictionary<ServiceType, MusicService> s_idMap;
+        private static readonly Dictionary<char, MusicService> s_cidMap;
         
         #endregion
 
         #region PurchaseType
-        private static char[] s_purchaseTypes = new char[] { '#', 'A', 'S' };
-        private static string[] s_purchaseTypesEx = new string[] { "None", "Album", "Song" }; 
+        private static readonly char[] s_purchaseTypes = new char[] { '#', 'A', 'S' };
+        private static readonly string[] s_purchaseTypesEx = new string[] { "None", "Album", "Song" }; 
         #endregion
     }
 }
