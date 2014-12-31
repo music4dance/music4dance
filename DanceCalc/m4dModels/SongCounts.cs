@@ -64,10 +64,13 @@ namespace m4dModels
         {
             foreach (Dance dance in dms.Dances.Include("DanceLinks"))
             {
-                SongCounts sc = null;
-                if (s_map.TryGetValue(dance.Id, out sc))
+                lock (s_map)
                 {
-                    sc.Dance = dance;
+                    SongCounts sc;
+                    if (s_map.TryGetValue(dance.Id, out sc))
+                    {
+                        sc.Dance = dance;
+                    }
                 }
             }
         }

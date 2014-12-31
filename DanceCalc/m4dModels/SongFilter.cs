@@ -72,7 +72,7 @@ namespace m4dModels
             }
             if (cells.Length > 6 && !string.IsNullOrWhiteSpace(cells[6]))
             {
-                decimal minTempo = 0;
+                decimal minTempo;
                 if (decimal.TryParse(cells[6], out minTempo))
                 {
                     TempoMin = minTempo;
@@ -80,7 +80,7 @@ namespace m4dModels
             }
             if (cells.Length > 7 && !string.IsNullOrWhiteSpace(cells[7]))
             {
-                decimal maxTempo = 0;
+                decimal maxTempo;
                 if (decimal.TryParse(cells[7], out maxTempo))
                 {
                     TempoMax = maxTempo;
@@ -88,7 +88,7 @@ namespace m4dModels
             }
             if (cells.Length > 8 && !string.IsNullOrWhiteSpace(cells[8]))
             {
-                int page = 0;
+                int page;
                 if (int.TryParse(cells[8], out page))
                 {
                     Page = page;
@@ -96,7 +96,7 @@ namespace m4dModels
             }
             if (cells.Length > 9 && !string.IsNullOrWhiteSpace(cells[9]))
             {
-                int level = 0;
+                int level;
                 if (int.TryParse(cells[9], out level))
                 {
                     Level = level;

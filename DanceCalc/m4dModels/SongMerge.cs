@@ -89,7 +89,6 @@ namespace m4dModels
             // Create lists of dances and tags that can be merged
             Ratings = new List<DanceMerge>();
             Tags = string.Empty;
-            string separator = string.Empty;
 
             int idx = 0;
             foreach (Song song in songs)

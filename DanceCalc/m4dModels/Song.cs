@@ -116,14 +116,12 @@ namespace m4dModels
 
             bool foundFirst = false;
 
-            List<int> promotions = new List<int>();
-
             Album = null;
 
-            for (int aidx = 0; aidx < edit.Albums.Count; aidx++)
+            foreach (AlbumDetails album in edit.Albums)
             {
-                AlbumDetails album = edit.Albums[aidx];
-                AlbumDetails old = oldAlbums.FirstOrDefault(a => a.Index == album.Index);
+                var album1 = album;
+                AlbumDetails old = oldAlbums.FirstOrDefault(a => a.Index == album1.Index);
 
                 if (!foundFirst && !string.IsNullOrEmpty(album.Name))
                 {
@@ -256,10 +254,10 @@ namespace m4dModels
 
             List<AlbumDetails> oldAlbums = SongDetails.BuildAlbumInfo(this);
 
-            for (int aidx = 0; aidx < edit.Albums.Count; aidx++)
+            foreach (AlbumDetails album in edit.Albums)
             {
-                AlbumDetails album = edit.Albums[aidx];
-                AlbumDetails old = oldAlbums.FirstOrDefault(a => a.Index == album.Index);
+                var album1 = album;
+                AlbumDetails old = oldAlbums.FirstOrDefault(a => a.Index == album1.Index);
 
                 if (string.IsNullOrWhiteSpace(Album) && !string.IsNullOrEmpty(album.Name))
                 {
@@ -306,7 +304,7 @@ namespace m4dModels
             {
                 foreach (DanceRating dr in from.DanceRatings)
                 {
-                    int weight = 0;
+                    int weight;
                     if (weights.TryGetValue(dr.DanceId, out weight))
                     {
                         weights[dr.DanceId] = weight + dr.Weight;
@@ -361,9 +359,9 @@ namespace m4dModels
             // Dump the weight table
             foreach (KeyValuePair<string, int> dance in weights)
             {
-                DanceRating dr = dms.CreateDanceRating(this, dance.Key, dance.Value);
+                dms.CreateDanceRating(this, dance.Key, dance.Value);
 
-                string value = new DanceRatingDelta { DanceId = dance.Key, Delta = dance.Value }.ToString();
+                var value = new DanceRatingDelta { DanceId = dance.Key, Delta = dance.Value }.ToString();
 
                 CreateProperty(DanceRatingField, value, null, this.CurrentLog, dms);
             }
@@ -424,7 +422,7 @@ namespace m4dModels
 
         public void CreateEditProperties(ApplicationUser user, string command, DanceMusicService dms)
         {
-            string[] rg = command.Split(new char[] {'='}, StringSplitOptions.RemoveEmptyEntries);
+            string[] rg = command.Split(new[] {'='}, StringSplitOptions.RemoveEmptyEntries);
             // Add the command into the property log
             string cmd = EditCommand;
             string val = null;
@@ -456,7 +454,7 @@ namespace m4dModels
         private bool UpdatePurchaseInfo(SongDetails edit, bool additive = false)
         {
             bool ret = false;
-            string pi = null;
+            string pi;
 
             pi = additive ? edit.MergePurchaseTags(Purchase) : edit.GetPurchaseTags();
             if (!string.Equals(Purchase, pi))
@@ -469,7 +467,7 @@ namespace m4dModels
 
         public bool AddUser(ApplicationUser user, DanceMusicService dms)
         {
-            ModifiedRecord us = null;
+            ModifiedRecord us;
             if (dms != null)
             {
                 us = dms.CreateModified(this.SongId, user.Id);
@@ -849,13 +847,15 @@ namespace m4dModels
         #endregion
 
         #region Serialization
-        static string _guidMatch = "d40817d45b68427d86e989fa21773b48";
+        // ReSharper disable once ConvertToConstant.Local
+        // ReSharper disable once FieldCanBeMadeReadOnly.Local
+        static string s_guidMatch = "d40817d45b68427d86e989fa21773b48";
 
         public void Load(string s, DanceMusicService dms)
         {
             SongDetails sd = new SongDetails(s);
 
-            if (sd.SongId == new Guid(_guidMatch))
+            if (sd.SongId == new Guid(s_guidMatch))
             {
                 Trace.WriteLine("THis is the bad one?");
             }

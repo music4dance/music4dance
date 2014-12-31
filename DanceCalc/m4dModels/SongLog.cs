@@ -28,7 +28,7 @@ namespace m4dModels
 
         public bool Initialize(string entry, DanceMusicService dms)
         {
-            string[] cells = entry.Split(LogBase.RecordSeparator);
+            string[] cells = entry.Split(RecordSeparator);
 
             // user<RS>time<RS>command<RS>id<RS>sig<RS>[data]*
 
@@ -62,7 +62,7 @@ namespace m4dModels
                 Time = time;
             }
 
-            Guid songId = Guid.Empty;
+            Guid songId;
             if (!Guid.TryParse(songRef, out songId))
             {
                 Trace.WriteLine(string.Format("Bad SongId: {0}", songRef));

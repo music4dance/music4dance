@@ -39,8 +39,8 @@ namespace m4dModels
                     return;
                 }
 
-                song.ChangeTag(Song.AddedTags + ":" + DanceId, added, dms);
-                song.ChangeTag(Song.RemovedTags + ":" + DanceId, removed, dms);
+                song.ChangeTag(SongBase.AddedTags + ":" + DanceId, added, dms);
+                song.ChangeTag(SongBase.RemovedTags + ":" + DanceId, removed, dms);
             }
         }
 
@@ -56,19 +56,19 @@ namespace m4dModels
         {
             List<DanceRatingDelta> drds = new List<DanceRatingDelta>();
 
-            string[] dl = dances.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+            string[] dl = dances.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
 
             foreach (string ds in dl)
             {
-                string list = null;
+                string list;
                 string[] ids = null;
-                if (DanceMap.TryGetValue(SongDetails.CleanDanceName(dances), out list))
+                if (DanceMap.TryGetValue(SongBase.CleanDanceName(dances), out list))
                 {
-                    ids = list.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+                    ids = list.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
                 }
                 else if (Dances.Instance.DanceDictionary.ContainsKey(ds))
                 {
-                    ids = new string[] {ds};
+                    ids = new[] {ds};
                 }
 
                 if (ids != null)
@@ -96,7 +96,7 @@ namespace m4dModels
                     {
                         foreach (DanceObject d in Dance.DanceLibrary.DanceDictionary.Values)
                         {
-                            string name = SongDetails.CleanDanceName(d.Name);
+                            string name = SongBase.CleanDanceName(d.Name);
                             s_danceMap.Add(name, d.Id);
                         }
 

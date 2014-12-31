@@ -16,8 +16,6 @@ namespace m4dModels
         
         public static List<Song> GetMergeCandidates(IDanceMusicContext dmc, int n, int level)
         {
-            var songs = from s in dmc.Songs select s;
-
             Dictionary<int,MergeCluster> clusters = new Dictionary<int,MergeCluster>();
 
             foreach (Song song in dmc.Songs)
@@ -26,7 +24,7 @@ namespace m4dModels
                 {
                     //Trace.WriteLine("{0}\t{1}", song.TitleHash, song.Title);
 
-                    MergeCluster mc = null;
+                    MergeCluster mc;
 
                     if (!clusters.TryGetValue(song.TitleHash, out mc))
                     {
@@ -111,7 +109,7 @@ namespace m4dModels
                             }
 
                             MergeCluster lump;
-                            int hash = Song.CreateTitleHash(s.Artist);
+                            int hash = SongBase.CreateTitleHash(s.Artist);
                             if (!lumps.TryGetValue(hash, out lump))
                             {
 

@@ -55,7 +55,7 @@ namespace m4dModels
                 {
                     string sg = s.Substring(idField.Length, t - idField.Length);
                     s = s.Substring(t + 1);
-                    Guid g = Guid.Empty;
+                    Guid g;
                     if (Guid.TryParse(sg, out g))
                     {
                         SongId = g;
@@ -175,9 +175,9 @@ namespace m4dModels
             List<string> map = new List<string>();
             string[] headers = line.ToUpper().Split(separator);
 
-            for (int i = 0; i < headers.Length; i++)
+            foreach (var t in headers)
             {
-                string header = headers[i].Trim().ToUpper();
+                string header = t.Trim().ToUpper();
                 string field = null;
                 // If this fails, we want to add a null to our list because
                 // that indicates a column we don't care about
@@ -215,14 +215,12 @@ namespace m4dModels
 
             foreach (string line in rows)
             {
-                List<string> cells = null;
+                List<string> cells;
                 
                 if (itc || itcd)
                 {
                     cells = new List<string>();
-                    Regex re = null;
-                    if (itc) re = new Regex(@"\b*(?<bpm>\d+)(?<title>[^\t]*)\t(?<artist>.*)");
-                    else if (itcd) re = new Regex(@"\b*(?<bpm>\d+)(?<title>[^-]*)-(?<artist>.*)");
+                    var re = itc ? new Regex(@"\b*(?<bpm>\d+)(?<title>[^\t]*)\t(?<artist>.*)") : new Regex(@"\b*(?<bpm>\d+)(?<title>[^-]*)-(?<artist>.*)");
                     Match m = re.Match(line.Trim());
                     if (m.Success)
                     {
@@ -572,7 +570,7 @@ namespace m4dModels
 
                 foreach (AlbumDetails ad in next)
                 {
-                    if (!results.Any(d => d.Name == ad.Name))
+                    if (results.All(d => d.Name != ad.Name))
                     {
                         results.Add(ad);
                     }
@@ -592,7 +590,7 @@ namespace m4dModels
         }
         public static List<AlbumDetails> BuildAlbumInfo(IEnumerable<SongProperty> properties)
         {
-            List<string> names = new List<string>(new string[] {
+            List<string> names = new List<string>(new[] {
                 AlbumField,PublisherField,TrackField,PurchaseField,AlbumPromote,AlbumOrder
             });
 
@@ -661,7 +659,7 @@ namespace m4dModels
                             }
                             else
                             {
-                                int t = 0;
+                                int t;
                                 int.TryParse(prop.Value, out t);
                                 d.Track = t;
                             }
@@ -688,7 +686,7 @@ namespace m4dModels
                         case AlbumOrder:
                             // Forget all previous promotions and do a re-order base ond values
                             promotions.Clear();
-                            reorder = prop.Value.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries).Select(s => int.Parse(s)).ToList();
+                            reorder = prop.Value.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries).Select(s => int.Parse(s)).ToList();
                             break;
                     }
                 }
@@ -705,13 +703,12 @@ namespace m4dModels
             // Do the (single) latest full re-order
             if (reorder != null)
             {
-                List<AlbumDetails> orig = albums;
                 albums = new List<AlbumDetails>();
 
-                for (int i = 0; i < reorder.Count; i++)
+                foreach (int t in reorder)
                 {
                     AlbumDetails d;
-                    if (map.TryGetValue(reorder[i], out d))
+                    if (map.TryGetValue(t, out d))
                     {
                         albums.Add(d);
                     }
@@ -731,10 +728,10 @@ namespace m4dModels
             }
 
             // Now do individual (trivial) promotions
-            for (int i = 0; i < promotions.Count; i++)
+            foreach (int t in promotions)
             {
                 AlbumDetails d;
-                if (map.TryGetValue(promotions[i], out d) && d.Name != null)
+                if (map.TryGetValue(t, out d) && d.Name != null)
                 {
                     albums.Remove(d);
                     albums.Insert(0, d);

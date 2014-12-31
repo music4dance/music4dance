@@ -154,7 +154,7 @@ namespace m4dModels
                         // All of the simple properties we can just set
                         if (!prop.IsAction)
                         {
-                            PropertyInfo pi = this.GetType().GetProperty(bn);
+                            PropertyInfo pi = GetType().GetProperty(bn);
                             if (pi != null)
                             {
                                 pi.SetValue(this, prop.ObjectValue);
@@ -411,7 +411,7 @@ namespace m4dModels
                     {
                         foreach (string user in current)
                         {
-                            IList<string> values = null;
+                            IList<string> values;
                             if (!map.TryGetValue(user, out values))
                             {
                                 values = new List<string>();
@@ -462,7 +462,7 @@ namespace m4dModels
         }
         protected virtual SongProperty CreateProperty(string name, object value, object old, SongLog log, DanceMusicService dms)
         {
-            SongProperty prop = null;
+            SongProperty prop;
 
             if (SongProperties == null)
             {
@@ -727,7 +727,7 @@ namespace m4dModels
         {
             string up = name.ToUpper();
 
-            string[] parts = up.Split(new char[] { ' ', '-', '\t', '/', '&', '-', '+', '(', ')' }, StringSplitOptions.RemoveEmptyEntries);
+            string[] parts = up.Split(new[] { ' ', '-', '\t', '/', '&', '-', '+', '(', ')' }, StringSplitOptions.RemoveEmptyEntries);
 
             string ret = string.Join("", parts);
 
@@ -834,9 +834,9 @@ namespace m4dModels
             {
                 string[] parts = new string[] { name };
                 if (name.IndexOf('&') != -1)
-                    parts = name.Split(new char[] { '&' }, StringSplitOptions.RemoveEmptyEntries);
+                    parts = name.Split(new[] { '&' }, StringSplitOptions.RemoveEmptyEntries);
                 else if (name.IndexOf('/') != -1)
-                    parts = name.Split(new char[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
+                    parts = name.Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
 
                 string separator = string.Empty;
                 StringBuilder sb = new StringBuilder();
@@ -859,7 +859,7 @@ namespace m4dModels
         {
             string up = name.ToUpper();
 
-            string[] parts = up.Split(new char[] { ' ', '-', '\t', '/', '&', '-', '+', '(', ')' }, StringSplitOptions.RemoveEmptyEntries);
+            string[] parts = up.Split(new[] { ' ', '-', '\t', '/', '&', '-', '+', '(', ')' }, StringSplitOptions.RemoveEmptyEntries);
 
             string ret = string.Join("", parts);
 

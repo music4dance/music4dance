@@ -35,7 +35,7 @@ namespace m4dModels
                 {
                     value.Replace("\\<EQ>\\", "=");
                 }
-                if (string.Equals(name, Song.TempoField))
+                if (string.Equals(name, SongBase.TempoField))
                 {
                     value = FormatTempo(value);
                 }
@@ -78,7 +78,7 @@ namespace m4dModels
                 object ret = null;
                 switch (BaseName)
                 {
-                    case Song.TempoField:
+                    case SongBase.TempoField:
                         // decimal
                         if (Value != null)
                         {
@@ -87,9 +87,9 @@ namespace m4dModels
                             ret = v;
                         }
                         break;
-                    case Song.LengthField:
-                    case Song.TrackField:
-                    case Song.DanceRatingField:
+                    case SongBase.LengthField:
+                    case SongBase.TrackField:
+                    case SongBase.DanceRatingField:
                         //int
                         if (Value != null)
                         {
@@ -98,7 +98,7 @@ namespace m4dModels
                             ret = v;
                         }
                         break;
-                    case Song.TimeField:
+                    case SongBase.TimeField:
                         {
                             DateTime v;
                             DateTime.TryParse(Value, out v);
@@ -166,7 +166,7 @@ namespace m4dModels
             {
                 value = string.Empty;
             }
-            else if (string.Equals(BaseName, Song.TempoField))
+            else if (string.Equals(BaseName, SongBase.TempoField))
             {
                 value = FormatTempo(value);
             }
@@ -292,7 +292,7 @@ namespace m4dModels
 
                 if (parts.Length > 1)
                 {
-                    int val = 0;
+                    int val;
                     if (int.TryParse(parts[1], out val))
                     {
                         idx = val;

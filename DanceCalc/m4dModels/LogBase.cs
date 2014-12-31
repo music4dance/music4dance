@@ -103,7 +103,7 @@ namespace m4dModels
             {
                 values = new List<LogValue>();
 
-                string[] entries = Data.Split(new char[] { RecordSeparator }, StringSplitOptions.RemoveEmptyEntries);
+                string[] entries = Data.Split(new[] { RecordSeparator }, StringSplitOptions.RemoveEmptyEntries);
 
                 foreach (string entry in entries)
                 {

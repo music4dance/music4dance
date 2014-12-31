@@ -21,7 +21,7 @@ namespace m4dModels
             {
                 sort = "Title";
             }
-            List<string> list = sort.Split(new char[] { '_' }, StringSplitOptions.None).ToList();
+            List<string> list = sort.Split(new[] { '_' }, StringSplitOptions.None).ToList();
             int count = -1;
 
             Id = list[0];

@@ -161,7 +161,7 @@ namespace m4dModels
 
         static private int ConvertHexDigit(char c)
         {
-            int ret = 0;
+            int ret;
             if (char.IsDigit(c))
             {
                 ret = c - '0';

@@ -107,7 +107,7 @@ namespace m4dModels
                 return tags;
             }
 
-            string[] rg = serialized.Split(new char[] { '|' }, StringSplitOptions.RemoveEmptyEntries);
+            string[] rg = serialized.Split(new[] { '|' }, StringSplitOptions.RemoveEmptyEntries);
 
             foreach (string s in rg)
             {
