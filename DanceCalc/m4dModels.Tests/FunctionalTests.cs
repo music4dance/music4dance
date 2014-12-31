@@ -12,53 +12,38 @@ namespace m4dModels.Tests
     [TestClass]
     public class FunctionalTests
     {
-        static FunctionalTests()
-        {
-            s_dms.SeedDances();
-
-            string dir = System.Environment.CurrentDirectory;
-            Trace.WriteLine(dir);
-            s_users = File.ReadAllLines(@".\TestData\test-users.txt").ToList();
-            s_dances = File.ReadAllLines(@".\TestData\test-dances.txt").ToList();
-            s_tags = File.ReadAllLines(@".\TestData\test-tags.txt").ToList();
-            s_songs = File.ReadAllLines(@".\TestData\test-songs.txt").ToList();
-
-            s_dms.LoadUsers(s_users);
-            s_dms.LoadDances(s_dances);
-            s_dms.LoadTags(s_tags);
-            s_dms.LoadSongs(s_songs);
-        }
+        private static readonly DanceMusicTester s_service = new DanceMusicTester();
 
         [TestMethod]
         public void LoadDatabase()
         {
-            var users = from u in s_dms.Context.Users select u;
-            Assert.AreEqual(s_users.Count() - 1, users.Count(),"Count of Users");
-            var dances = from d in s_dms.Context.Dances select d;
-            Assert.AreEqual(s_dances.Count(), dances.Count(), "Count of Dances");
+            var users = from u in s_service.Dms.Context.Users select u;
+            Assert.AreEqual(s_service.Users.Count() - 1, users.Count(),"Count of Users");
+            var dances = from d in s_service.Dms.Context.Dances select d;
+            Assert.AreEqual(s_service.Dances.Count(), dances.Count(), "Count of Dances");
 #if NEWTAG
-            var tts = from tt in s_dms.Context.TagTypes select tt;
-            Assert.AreEqual(s_tags.Count(), tts.Count(), "Count of Tag Types");
+            var tts = from tt in s_service.Dms.Context.TagTypes select tt;
+            Assert.AreEqual(s_service.Tags.Count(), tts.Count(), "Count of Tag Types");
 #endif
-            var songs = from s in s_dms.Context.Songs where s.TitleHash != 0 select s;
-            Assert.AreEqual(s_songs.Count(), s_dms.Songs.Count(),"Count of Songs");
+            var songs = from s in s_service.Dms.Context.Songs where s.TitleHash != 0 select s;
+            Assert.AreEqual(s_service.Songs.Count(), s_service.Dms.Songs.Count(),"Count of Songs");
         }
 
         [TestMethod]
         public void SaveDatabase()
         {
-            IList<string> songs = s_dms.SerializeSongs(false,true);
+            IList<string> songs = s_service.Dms.SerializeSongs(false,true);
             //foreach (string s in songs)
             //{
             //    Trace.WriteLine(s);
             //}
             //Assert.IsTrue(ListEquivalent(s_songs, songs));
 
-            IList<string> dances = s_dms.SerializeDances(false);
-            Assert.IsTrue(ListEquivalent(s_dances, dances));
+            IList<string> dances = s_service.Dms.SerializeDances(false);
+            Assert.IsTrue(ListEquivalent(s_service.Dances, dances));
 
-            IList<string> tags = s_dms.SerializeTags(false);
-            Assert.IsTrue(ListEquivalent(s_tags, tags));
+            IList<string> tags = s_service.Dms.SerializeTags(false);
+            Assert.IsTrue(ListEquivalent(s_service.Tags, tags));
 
             // TODO: To get this to work, we have to add in roles to the Mock Context.
             //IList<string> users = s_dms.SerializeUsers(true);
@@ -74,7 +59,7 @@ namespace m4dModels.Tests
             filter.Dances = "SWG";
             filter.Purchase = "X";
 
-            var songs = s_dms.BuildSongList(filter,true);
+            var songs = s_service.Dms.BuildSongList(filter,true);
 
             decimal tempo = 0;
             int count = 0;
@@ -103,7 +88,7 @@ namespace m4dModels.Tests
             filter.SortOrder = "Dances_10";
             filter.Dances = "SWG";
 
-            var songs = s_dms.BuildSongList(filter, true);
+            var songs = s_service.Dms.BuildSongList(filter, true);
 
             int weight = int.MaxValue;
             int count = 0;
@@ -128,7 +113,7 @@ namespace m4dModels.Tests
             filter.SortOrder = "Title";
             filter.SearchString = "The";
 
-            var songs = s_dms.BuildSongList(filter, true);
+            var songs = s_service.Dms.BuildSongList(filter, true);
 
             string title = string.Empty;
             int count = 0;
@@ -203,11 +188,5 @@ The *East Coast Swing* is generally danced as the first dance of <a href='http:/
 
             return actual.Count == 0 && expectedExtra.Count == 0;
         }
-        static List<string> s_users;
-        static List<string> s_dances;
-        static List<string> s_tags;
-        static List<string> s_songs;
-
-        static DanceMusicService s_dms = new DanceMusicService(new MockContext(false));
     }
 }

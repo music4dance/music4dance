@@ -76,6 +76,7 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
+    <Compile Include="DanceMusicTester.cs" />
     <Compile Include="DbTestSet.cs" />
     <Compile Include="MockContext.cs" />
     <Compile Include="SongDetailTests.cs" />
@@ -89,6 +90,7 @@
     <Compile Include="FunctionalTests.cs" />
     <Compile Include="SongSortTests.cs" />
     <Compile Include="TagFormatTests.cs" />
+    <Compile Include="EditTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\DanceLib\DanceLib.csproj">

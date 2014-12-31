@@ -26,6 +26,14 @@ namespace m4dModels.Tests
             }
         }
 
+        class SongSet : TestDbSet<Song>
+        {
+            public override Song Find(params object[] keyValues)
+            {
+                var id = keyValues.Single() as Guid?;
+                return id == null ? null : this.SingleOrDefault(s => s.SongId == id);
+            }
+        }
         class TagTypeSet : TestDbSet<TagType>
         {
             public override TagType Find(params object[] keyValues)
@@ -60,7 +68,7 @@ namespace m4dModels.Tests
 
         public MockContext(bool seedUsers=true)
         {
-            this.Songs = new TestDbSet<Song>();
+            this.Songs = new SongSet();
             this.SongProperties = new TestDbSet<SongProperty>();
             this.Dances = new DanceSet();
             this.DanceRatings = new TestDbSet<DanceRating>();

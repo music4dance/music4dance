@@ -537,69 +537,28 @@ namespace m4d.Controllers
         // Merge: /Song/Merge
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "canEdit")]
-        public ActionResult MergeResults(string SongIds, SongFilter filter = null)
+        public ActionResult MergeResults(string songIds, SongFilter filter = null)
         {
             // See if we can do the actual merge and then return the song details page...
-            List<Guid> ids = SongIds.Split(',').Select(s=>Guid.Parse(s)).ToList();
+            var ids = songIds.Split(',').Select(s=>Guid.Parse(s)).ToList();
 
             var songs = from s in Database.Songs
                         where ids.Contains(s.SongId)
                         select s;
-            List<Song> songList = songs.ToList();
+            var songList = songs.ToList();
 
             // Create a merged version of the song (and commit to DB)
 
             // Get the logged in user
-            string userName = User.Identity.Name;
-            ApplicationUser user = Database.FindUser(userName);
+            var userName = User.Identity.Name;
+            var user = Database.FindUser(userName);
 
-            List<SongDetails> details = songList.Select(s => new SongDetails(s)).ToList();
-            List<AlbumDetails> albumsIn = new List<AlbumDetails>();
-            List<AlbumDetails> albumsOut = new List<AlbumDetails>();
-
-            foreach (SongDetails sd in details)
-            {
-                albumsIn.AddRange(sd.Albums);
-            }
-
-            int defIdx = -1;
-            string def = Request.Form[Song.AlbumListField];
-            if (!string.IsNullOrWhiteSpace(def))
-            {
-                int.TryParse(def, out defIdx);
-            }
-
-            int idx = 0;
-            if (defIdx >= 0 && albumsIn.Count > defIdx)
-            {
-                AlbumDetails t = albumsIn[defIdx];
-                t.Index = 0;
-                albumsOut.Add(t);
-                idx = 1;
-            }
-
-            for (int i = 0; i < albumsIn.Count; i++)
-            {
-                if (i != defIdx)
-                {
-                    string name = Song.AlbumListField + "_" + i.ToString();
-
-                    if (defIdx == -1 || Request.Form.AllKeys.Contains(name))
-                    {
-                        AlbumDetails t = albumsIn[i];
-                        t.Index = idx;
-                        albumsOut.Add(t);
-                        idx += 1;
-                    }
-                }
-            }
-
-            Song song = Database.MergeSongs(user, songList, 
-                ResolveStringField(Song.TitleField, songList, Request.Form),
-                ResolveStringField(Song.ArtistField, songList, Request.Form),
-                ResolveDecimalField(Song.TempoField, songList, Request.Form),
-                ResolveIntField(Song.LengthField, songList, Request.Form),
-                albumsOut);
+            var song = Database.MergeSongs(user, songList, 
+                ResolveStringField(SongBase.TitleField, songList, Request.Form),
+                ResolveStringField(SongBase.ArtistField, songList, Request.Form),
+                ResolveDecimalField(SongBase.TempoField, songList, Request.Form),
+                ResolveIntField(SongBase.LengthField, songList, Request.Form),
+                Request.Form[SongBase.AlbumListField], new HashSet<string>(Request.Form.AllKeys));
 
             ViewBag.BackAction = "MergeCandidates";
             ViewBag.DanceMap = SongCounts.GetDanceMap(Database);
@@ -1182,10 +1141,10 @@ namespace m4d.Controllers
         private Song AutoMerge(List<Song> songs, ApplicationUser user)
         {
             Song song = Database.MergeSongs(user, songs,
-                ResolveStringField(Song.TitleField, songs),
-                ResolveStringField(Song.ArtistField, songs),
-                ResolveDecimalField(Song.TempoField, songs),
-                ResolveIntField(Song.LengthField, songs),
+                ResolveStringField(SongBase.TitleField, songs),
+                ResolveStringField(SongBase.ArtistField, songs),
+                ResolveDecimalField(SongBase.TempoField, songs),
+                ResolveIntField(SongBase.LengthField, songs),
                 SongDetails.BuildAlbumInfo(songs)
                 );
 

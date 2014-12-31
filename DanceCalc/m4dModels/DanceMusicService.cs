@@ -172,13 +172,57 @@ namespace m4dModels
             song.EditDanceRatings(deltas, this);
         }
 
+        private List<AlbumDetails> MergeAlbums(IList<Song> songs, string def, HashSet<string> keys)
+        {
+            var details = songs.Select(s => new SongDetails(s)).ToList();
+            var albumsIn = new List<AlbumDetails>();
+            var albumsOut = new List<AlbumDetails>();
+
+            foreach (var sd in details)
+            {
+                albumsIn.AddRange(sd.Albums);
+            }
+
+            var defIdx = -1;
+            if (!string.IsNullOrWhiteSpace(def))
+            {
+                int.TryParse(def, out defIdx);
+            }
+
+            var idx = 0;
+            if (defIdx >= 0 && albumsIn.Count > defIdx)
+            {
+                var t = albumsIn[defIdx];
+                t.Index = 0;
+                albumsOut.Add(t);
+                idx = 1;
+            }
+
+            for (var i = 0; i < albumsIn.Count; i++)
+            {
+                if (i == defIdx) continue;
+
+                string name = SongBase.AlbumListField + "_" + i.ToString();
+
+                if (defIdx == -1 || keys.Contains(name))
+                {
+                    var t = albumsIn[i];
+                    t.Index = idx;
+                    albumsOut.Add(t);
+                    idx += 1;
+                }
+            }
+
+            return albumsOut;
+        }
+
         public Song MergeSongs(ApplicationUser user, List<Song> songs, string title, string artist, decimal? tempo, int? length, List<AlbumDetails> albums)
         {
-            string songIds = string.Join(";", songs.Select(s => s.SongId.ToString()));
+            var songIds = string.Join(";", songs.Select(s => s.SongId.ToString()));
 
-            SongDetails sd = new SongDetails(title, artist, tempo, length, albums);
+            var sd = new SongDetails(title, artist, tempo, length, albums);
 
-            Song song = CreateSong(user, sd, SongBase.MergeCommand, songIds, true);
+            var song = CreateSong(user, sd, SongBase.MergeCommand, songIds, true);
             song.CurrentLog.SongReference = song.SongId;
             song.CurrentLog.SongSignature = song.Signature;
 
@@ -187,7 +231,7 @@ namespace m4dModels
             song.MergeDetails(songs, this);
 
             // Delete all of the old songs (With merge-with Id from above)
-            foreach (Song from in songs)
+            foreach (var from in songs)
             {
                 RemoveSong(from, user);
             }
@@ -197,6 +241,11 @@ namespace m4dModels
             SongCounts.ClearCache();
 
             return song;
+        }
+
+        public Song MergeSongs(ApplicationUser user, List<Song> songs, string title, string artist, decimal? tempo, int? length, string defAlbums, HashSet<string> keys)
+        {
+            return MergeSongs(user,songs,title,artist,tempo,length,MergeAlbums(songs, defAlbums, keys));
         }
 
         public void DeleteSong(ApplicationUser user, Song song, bool createLog=true)
