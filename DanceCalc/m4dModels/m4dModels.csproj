@@ -69,13 +69,19 @@
     <Compile Include="AlbumDetails.cs" />
     <Compile Include="AmazonService.cs" />
     <Compile Include="ApplicationUser.cs" />
+    <Compile Include="DanceMerge.cs" />
     <Compile Include="DanceMusicService.cs" />
+    <Compile Include="DanceRatingDelta.cs" />
     <Compile Include="IDanceMusicContext.cs" />
     <Compile Include="DanceLink.cs" />
     <Compile Include="MergeCluster.cs" />
+    <Compile Include="PurchaseType.cs" />
+    <Compile Include="ServiceType.cs" />
     <Compile Include="SongCounts.cs" />
     <Compile Include="SongFilterConverter.cs" />
+    <Compile Include="SongPropertyMerge.cs" />
     <Compile Include="SongSort.cs" />
+    <Compile Include="SpotifyService.cs" />
     <Compile Include="StringableList.cs" />
     <Compile Include="Tag.cs" />
     <Compile Include="Dance.cs" />
@@ -104,6 +110,7 @@
     <Compile Include="TagType.cs" />
     <Compile Include="TraceLevels.cs" />
     <Compile Include="TrackNumber.cs" />
+    <Compile Include="UndoAction.cs" />
     <Compile Include="UndoResult.cs" />
     <Compile Include="XboxService.cs" />
   </ItemGroup>

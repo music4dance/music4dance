@@ -9,8 +9,6 @@ using System.Text.RegularExpressions;
 namespace m4dModels
 {
     // ReSharper disable once InconsistentNaming
-    public enum ServiceType { None, Amazon, ITunes, XBox, AMG, Max };
-    public enum PurchaseType { None, Album, Song, Max };
 
     [DataContract]
     public class AlbumDetails

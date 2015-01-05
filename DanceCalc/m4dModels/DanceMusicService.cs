@@ -8,7 +8,6 @@ using Microsoft.AspNet.Identity.EntityFramework;
 
 namespace m4dModels
 {
-    public enum UndoAction { Undo, Redo };
     public class DanceMusicService : IDisposable
     {
         #region Lifetime Management
