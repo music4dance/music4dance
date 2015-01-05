@@ -2,10 +2,17 @@
 
 namespace m4dModels
 {
+    // ReSharper disable once InconsistentNaming
     public class ITunesService : MusicService
     {
-        public ITunesService(ServiceType id, char cid, string name, string target, string description, string link, string request) :
-            base(id, cid, name, target, description, link, request)
+        public ITunesService() :
+            base(ServiceType.ITunes,
+                'I',
+                "ITunes",
+                "itunes_store",
+                "Buy it on ITunes",
+                "http://itunes.apple.com/album/id{1}?i={0}&uo=4&at=11lwtf",
+                "https://itunes.apple.com/search?term={0}&media=music&entity=song&limit=200")
         {
         }
         protected override string BuildPurchaseLink(PurchaseType pt, string album, string song)

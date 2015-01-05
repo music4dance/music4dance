@@ -2,8 +2,14 @@
 {
     class AmazonService : MusicService
     {
-        public AmazonService(ServiceType id, char cid, string name, string target, string description, string link, string request) :
-            base(id, cid, name, target, description, link, request)
+        public AmazonService() :
+            base(ServiceType.Amazon,
+                'A',
+                "Amazon",
+                "amazon_store",
+                "Available on Amazon",
+                "http://www.amazon.com/gp/product/{0}/ref=as_li_ss_tl?ie=UTF8&camp=1789&creative=390957&creativeASIN={0}&linkCode=as2&tag=music4dance-20",
+                null)
         {
         }
         protected override string BuildPurchaseLink(PurchaseType pt, string album, string song)

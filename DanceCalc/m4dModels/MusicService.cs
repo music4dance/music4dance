@@ -226,41 +226,17 @@ namespace m4dModels
             s_idMap = new Dictionary<ServiceType, MusicService>();
             s_cidMap = new Dictionary<char, MusicService>();
 
-            MusicService amazon = new AmazonService(
-                ServiceType.Amazon,
-                'A',
-                "Amazon",
-                "amazon_store",
-                "Available on Amazon",
-                "http://www.amazon.com/gp/product/{0}/ref=as_li_ss_tl?ie=UTF8&camp=1789&creative=390957&creativeASIN={0}&linkCode=as2&tag=music4dance-20",
-                null
-            );
+            MusicService amazon = new AmazonService();
             s_idMap.Add(ServiceType.Amazon, amazon);
-            s_cidMap.Add('A', amazon);
+            s_cidMap.Add(amazon.CID, amazon);
 
-            MusicService itunes = new ITunesService(
-                ServiceType.ITunes,
-                'I',
-                "ITunes",
-                "itunes_store",
-                "Buy it on ITunes",
-                "http://itunes.apple.com/album/id{1}?i={0}&uo=4&at=11lwtf",
-                "https://itunes.apple.com/search?term={0}&media=music&entity=song&limit=200"
-            );
+            MusicService itunes = new ITunesService();
             s_idMap.Add(ServiceType.ITunes, itunes);
-            s_cidMap.Add('I', itunes);
+            s_cidMap.Add(itunes.CID, itunes);
 
-            MusicService xbox = new XboxService(
-                ServiceType.XBox,
-                'X',
-                "XBox",
-                "xbox_store",
-                "Play it on Xbox Music",
-                "http://music.xbox.com/Track/{0}?partnerID=Music4Dance?action=play",
-                "https://music.xboxlive.com/1/content/music/search?q={0}&filters=tracks"
-            );
+            MusicService xbox = new XboxService();
             s_idMap.Add(ServiceType.XBox, xbox);
-            s_cidMap.Add('X', xbox);
+            s_cidMap.Add(xbox.CID, xbox);
 
             MusicService amg = new MusicService(
                 ServiceType.AMG,
