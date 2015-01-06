@@ -260,9 +260,16 @@ namespace m4d.Context
             request = (HttpWebRequest)WebRequest.Create(req);
             request.Method = WebRequestMethods.Http.Get;
             request.Accept = "application/json";
-            if (service.RequiresKey)
+
+            // TODO: Take another pass at generalizing authorization
+            switch (service.Id)
             {
-                request.Headers.Add("Authorization", XboxAuthorization);
+                case ServiceType.XBox:
+                    request.Headers.Add("Authorization", XboxAuthorization);
+                    break;
+                case ServiceType.Spotify:
+                    request.Headers.Add("Authorization", SpotifyAuthorization);
+                    break;
             }
 
             using (response = (HttpWebResponse)request.GetResponse())
@@ -302,7 +309,6 @@ namespace m4d.Context
                     const string clientSecret = "iGvYm97JA+qYV1K2lvh8sAnL8Pebp5cN2KjvGnOD4gI=";
 
                     s_admAuth = new AdmAuthentication(clientId, clientSecret);
-
                 }
 
                 return "Bearer " + s_admAuth.GetAccessToken().access_token;
@@ -311,24 +317,23 @@ namespace m4d.Context
 
         private static AdmAuthentication s_admAuth = null;
 
-        //private static AuthenticationToken SpotifyAuthorization
-        //{
-        //    get
-        //    {
-        //        if (s_spotAuth == null)
-        //        {
-        //            s_spotAuth = new AuthenticationToken()
-        //            {
-        //                access_token = "",
-        //                ExpiresOn = DateTime.Now.AddSeconds(3600),
-        //                RefreshToken = "",
-        //                token_type = "Bearer"
-        //            };
-        //        }
-        //    }
-        //}
+        private static string SpotifyAuthorization
+        {
+            get
+            {
+                if (s_spotAuth == null)
+                {
+                    const string clientId = "***REMOVED***";
+                    const string clientSecret = "***REMOVED***";
 
-        //private static AuthenticationToken s_spotAuth = null;
+                    s_spotAuth = new SpotAuthentication(clientId, clientSecret);
+                }
+
+                return "Bearer " + s_spotAuth.GetAccessToken().access_token;
+            }
+        }
+
+        private static SpotAuthentication s_spotAuth = null;
         #endregion
 
         #region IDanceMusicContext
