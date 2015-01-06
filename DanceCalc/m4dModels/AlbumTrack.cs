@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Text;
 using System.Text.RegularExpressions;
+// ReSharper disable RedundantCast.0
+// ReSharper disable RedundantCast
 
 namespace m4dModels
 {
@@ -38,19 +40,20 @@ namespace m4dModels
 
             if (_val != null)
             {
-                int idx = _val.LastIndexOf('|');
+                var val = _val;
+                int idx = val.LastIndexOf('|');
                 if (idx == -1 || !s_validator.IsMatch(_val.Substring(idx + 1)))
                 {
-                    if (idx==_val.Length-1)
+                    if (idx==val.Length-1)
                     {
-                        _val = _val.Substring(0,idx);
+                        val = val.Substring(0,idx);
                     }
-                    ret[0] = _val;
+                    ret[0] = val;
                 }
                 else
                 {
-                    ret[0] = _val.Substring(0, idx);
-                    ret[1] = _val.Substring(idx + 1);
+                    ret[0] = val.Substring(0, idx);
+                    ret[1] = val.Substring(idx + 1);
                 }
             }
 
@@ -93,7 +96,7 @@ namespace m4dModels
         {
             return _val.GetHashCode();
         }
-
+        
         public static bool operator ==(AlbumTrack a, AlbumTrack b)
         {
             if ((object)a == null || (object)b == null)
@@ -116,6 +119,6 @@ namespace m4dModels
         }
         #endregion
 
-        private string _val;
+        private readonly string _val;
     }
 }
