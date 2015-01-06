@@ -30,7 +30,9 @@ var logoFromEnum = function (e) {
             break;
         case 2: ret = "/Content/itunes-logo.png";
             break;
-        case 3: ret = "/Content/xbox-logo.png";
+        case 3: ret = "/Content/spotify-logo.png";
+            break;
+        case 4: ret = "/Content/xbox-logo.png";
             break;
     }
 
@@ -323,8 +325,8 @@ var getServiceInfo = function(service)
         uri += encodeURI($('#Title').val()) + "&Artist=" + encodeURI($('#Artist').val());
     }
 
-    aid = "#" + computeAlbumId(0,"Name");
-    afield = $(aid);
+    var aid = "#" + computeAlbumId(0,"Name");
+    var afield = $(aid);
     if (afield.length)
     {
         uri += "&Album=" + afield.val();
@@ -361,6 +363,7 @@ $(document).ready(function () {
 
     $('#load-xbox').click(function () { getServiceInfo('X'); });
     $('#load-itunes').click(function () { getServiceInfo('I'); });
+    $('#load-spotify').click(function () { getServiceInfo('S'); });
     $('#load-amazon').click(function () { getServiceInfo('A'); });
     $('#load-all').click(function () { getServiceInfo('_'); });
 

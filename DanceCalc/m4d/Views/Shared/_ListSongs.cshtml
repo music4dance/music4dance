@@ -221,6 +221,11 @@
                             var aid = "A" + item.SongId.ToString();
                             <button id="@aid" type="button"><img src="@Url.Content("~/Content/amazon-logo.png")" alt="Availiable at Amazon" width="20" height="20" /></button>
                         }
+                        @if (!string.IsNullOrEmpty(item.Purchase) && item.Purchase.Contains('S'))
+                        {
+                            var aid = "S" + item.SongId.ToString();
+                            <button id="@aid" type="button"><img src="@Url.Content("~/Content/spotify-logo.png")" alt="Availiable on Spotify" width="20" height="20" /></button>
+                        }
                     </td>
 
                     @if (showDate)

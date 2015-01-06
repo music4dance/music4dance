@@ -433,6 +433,8 @@
     <Content Include="Content\orange-bootstrap-theme.css" />
     <Content Include="Content\orange-bootstrap.css" />
     <Content Include="Content\PagedList.css" />
+    <Content Include="Content\spotify-charm.png" />
+    <Content Include="Content\spotify-logo.png" />
     <Content Include="Content\teal-bootstrap-min.css" />
     <Content Include="Content\teal-bootstrap-theme.css" />
     <Content Include="Content\teal-bootstrap.css" />

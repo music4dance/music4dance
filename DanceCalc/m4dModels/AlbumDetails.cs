@@ -47,6 +47,8 @@ namespace m4dModels
         // IS = Itunes Song
         // AA = Amazon Album
         // AS = Amazon Song
+        // SA = Spotify Album
+        // SS = Spotify Song
         // XA = Xbox Album
         // XS = Xbox Song
         // MS = AMG Song

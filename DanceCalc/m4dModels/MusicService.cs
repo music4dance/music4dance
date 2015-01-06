@@ -226,19 +226,11 @@ namespace m4dModels
             s_idMap = new Dictionary<ServiceType, MusicService>();
             s_cidMap = new Dictionary<char, MusicService>();
 
-            MusicService amazon = new AmazonService();
-            s_idMap.Add(ServiceType.Amazon, amazon);
-            s_cidMap.Add(amazon.CID, amazon);
-
-            MusicService itunes = new ITunesService();
-            s_idMap.Add(ServiceType.ITunes, itunes);
-            s_cidMap.Add(itunes.CID, itunes);
-
-            MusicService xbox = new XboxService();
-            s_idMap.Add(ServiceType.XBox, xbox);
-            s_cidMap.Add(xbox.CID, xbox);
-
-            MusicService amg = new MusicService(
+            AddService(new AmazonService());
+            AddService(new ITunesService());
+            AddService(new SpotifyService());
+            AddService(new XboxService());
+            AddService(new MusicService(
                 ServiceType.AMG,
                 'M',
                 "American Music Group",
@@ -246,11 +238,14 @@ namespace m4dModels
                 null,
                 null,
                 null
-            );
-            s_idMap.Add(ServiceType.AMG, amg);
-            s_cidMap.Add('M', amg);
+            ));
         }
 
+        private static void AddService(MusicService service)
+        {
+            s_idMap.Add(service.ID, service);
+            s_cidMap.Add(service.CID, service);            
+        }
         private static readonly Dictionary<ServiceType, MusicService> s_idMap;
         private static readonly Dictionary<char, MusicService> s_cidMap;
         

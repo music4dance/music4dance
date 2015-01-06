@@ -569,7 +569,7 @@ namespace m4d.Controllers
         /// <summary>
         /// Batch up searching a music service
         /// </summary>
-        /// <param name="type">Music service type (currently X=XBox,A=Amazon,I=ITunes)</param>
+        /// <param name="type">Music service type (currently X=XBox,A=Amazon,S=Spotify,I=ITunes)</param>
         /// <param name="options">May be more complex in future - currently Rn where n is retyr level</param>
         /// <param name="filter">Standard filter for song list</param>
         /// <param name="count">Number of songs to try, 1 is special cased as a user verified single entry</param>

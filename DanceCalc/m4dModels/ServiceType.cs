@@ -1,4 +1,5 @@
 namespace m4dModels
 {
-    public enum ServiceType { None, Amazon, ITunes, XBox, AMG, Max };
+    // ReSharper disable once InconsistentNaming
+    public enum ServiceType { None, Amazon, ITunes, Spotify, XBox, AMG, Max };
 }
