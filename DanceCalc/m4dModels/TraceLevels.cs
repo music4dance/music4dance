@@ -12,6 +12,7 @@ namespace m4dModels
             {
                 if (_general == null)
                 {
+                    // ReSharper disable once UseObjectOrCollectionInitializer
                     _general = new TraceSwitch("General", "Entire application");
 #if DEBUG
                     _general.Level = TraceLevel.Info;

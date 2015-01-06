@@ -178,7 +178,7 @@ namespace m4dModels
             foreach (var t in headers)
             {
                 string header = t.Trim().ToUpper();
-                string field = null;
+                string field;
                 // If this fails, we want to add a null to our list because
                 // that indicates a column we don't care about
                 s_propertyMap.TryGetValue(header, out field);
@@ -916,7 +916,7 @@ namespace m4dModels
                 if (track.Duration.HasValue)
                 {
                     int cluster = (track.Duration.Value + offset) / size;
-                    List<ServiceTrack> list = null;
+                    List<ServiceTrack> list;
                     if (!ret.TryGetValue(cluster,out list))
                     {
                         list = new List<ServiceTrack>();

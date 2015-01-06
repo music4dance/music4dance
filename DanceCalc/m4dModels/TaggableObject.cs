@@ -17,7 +17,7 @@ namespace m4dModels
     //  Implement & Test Tag Rings????
     public abstract class TaggableObject : DbObject
     {
-        public TaggableObject()
+        protected TaggableObject()
         {
             TagSummary = new TagSummary();
         }
@@ -166,7 +166,6 @@ namespace m4dModels
 
             if (tag == null && dms != null)
             {
-#if NEWTAG
                 tag = dms.Tags.FirstOrDefault(t => t.UserId == user.Id && t.Id == TagId);
                 if (tag != null)
                 {
@@ -176,14 +175,13 @@ namespace m4dModels
                     }
                     Tags.Add(tag);
                 }
-#endif
             }
             return tag;
         }
 
         private Tag FindOrCreateUserTags(ApplicationUser user, DanceMusicService dms)
         {
-            Tag ut = FindUserTag(user, dms);
+            var ut = FindUserTag(user, dms);
 
             if (ut == null)
             {
@@ -195,9 +193,7 @@ namespace m4dModels
 
                 if (dms != null)
                 {
-#if NEWTAG
                     dms.Tags.Add(ut);
-#endif
                 }
 
                 if (Tags == null)

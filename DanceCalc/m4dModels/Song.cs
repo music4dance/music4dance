@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
+// ReSharper disable ArrangeThisQualifier
 
 namespace m4dModels
 {
@@ -319,7 +320,7 @@ namespace m4dModels
                 {
                     if (AddUser(us.ApplicationUser, dms))
                     {
-                        CreateProperty(UserField, us.ApplicationUser.UserName, null, this.CurrentLog, dms);
+                        CreateProperty(UserField, us.ApplicationUser.UserName, null, CurrentLog, dms);
                     }
                 }
 
@@ -363,7 +364,7 @@ namespace m4dModels
 
                 var value = new DanceRatingDelta { DanceId = dance.Key, Delta = dance.Value }.ToString();
 
-                CreateProperty(DanceRatingField, value, null, this.CurrentLog, dms);
+                CreateProperty(DanceRatingField, value, null, CurrentLog, dms);
             }
 
         }
@@ -470,7 +471,7 @@ namespace m4dModels
             ModifiedRecord us;
             if (dms != null)
             {
-                us = dms.CreateModified(this.SongId, user.Id);
+                us = dms.CreateModified(SongId, user.Id);
                 us.ApplicationUser = user;
             }
             else
@@ -502,7 +503,7 @@ namespace m4dModels
                             Album = albums[0].AlbumTrack;
                         }
 
-                        ad.CreateProperties(dms, this, this.CurrentLog);
+                        ad.CreateProperties(dms, this, CurrentLog);
                     }
                 }
             }
@@ -807,9 +808,9 @@ namespace m4dModels
 
         public void UpdateUsers(DanceMusicService dms)
         {
-            HashSet<string> users = new HashSet<string>();
+            var users = new HashSet<string>();
 
-            foreach (ModifiedRecord us in ModifiedBy)
+            foreach (var us in ModifiedBy)
             {
                 us.Song = this;
                 us.SongId = this.SongId;

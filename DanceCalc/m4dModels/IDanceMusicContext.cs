@@ -7,24 +7,14 @@ namespace m4dModels
     public interface IDanceMusicContext: IDisposable
     {
         DbSet<Song> Songs { get;  }
-
         DbSet<SongProperty> SongProperties { get;  }
-
         DbSet<Dance> Dances { get; }
-
         DbSet<DanceRating> DanceRatings { get; }
-
-#if NEWTAG
         DbSet<Tag> Tags { get; }
-
         DbSet<TagType> TagTypes { get; }
-#endif
         DbSet<SongLog> Log { get; }
-
         DbSet<ModifiedRecord> Modified { get; }
-
         IDbSet<ApplicationUser> Users { get; }
-
         IDbSet<IdentityRole> Roles { get; }
         ApplicationUser FindOrAddUser(string name, string role, object umanager);
 

@@ -21,10 +21,8 @@ namespace m4dModels.Tests
             Assert.AreEqual(s_service.Users.Count() - 1, users.Count(),"Count of Users");
             var dances = from d in s_service.Dms.Context.Dances select d;
             Assert.AreEqual(s_service.Dances.Count(), dances.Count(), "Count of Dances");
-#if NEWTAG
             var tts = from tt in s_service.Dms.Context.TagTypes select tt;
             Assert.AreEqual(s_service.Tags.Count(), tts.Count(), "Count of Tag Types");
-#endif
             var songs = from s in s_service.Dms.Context.Songs where s.TitleHash != 0 select s;
             Assert.AreEqual(s_service.Songs.Count(), s_service.Dms.Songs.Count(),"Count of Songs");
         }

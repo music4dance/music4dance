@@ -27,22 +27,13 @@ namespace m4dModels
         #region Properties
 
         public IDanceMusicContext Context { get { return _context; } }
-
         public DbSet<Song> Songs { get { return _context.Songs; } }
-
         public DbSet<SongProperty> SongProperties { get { return _context.SongProperties; } }
-
         public DbSet<Dance> Dances { get { return _context.Dances; } }
-
         public DbSet<DanceRating> DanceRatings { get { return _context.DanceRatings; } }
-
-#if NEWTAG
         public DbSet<Tag> Tags { get { return _context.Tags; } }
-
         public DbSet<TagType> TagTypes { get { return _context.TagTypes; } }
-#endif
         public DbSet<SongLog> Log { get { return _context.Log; } }
-
         public DbSet<ModifiedRecord> Modified { get { return _context.Modified; } }
 
         public int SaveChanges()
@@ -981,7 +972,6 @@ namespace m4dModels
             {
                 count = songs.Count();
                 Trace.WriteLineIf(count != lastCount, string.Format("Songs by purchase = {0}", songs.Count()));
-                lastCount = count;
             }
 #endif
 
@@ -1068,30 +1058,24 @@ namespace m4dModels
         }
 
         public TagType FindOrCreateTagType(string value, string category, string primary = null)
-        {
-            TagType type = null;
-            
-            type = _context.TagTypes.Find(TagType.BuildKey(value, category)) ?? CreateTagType(value, category);
-
-            return type;
+        {            
+            return _context.TagTypes.Find(TagType.BuildKey(value, category)) ?? CreateTagType(value, category);
         }
 
         // TAGDELETE: I think we can get rid of this because is seems easier just to keep
         //  verbose normalized tags around (looks like a case of over eager optimization)
         public string CompressTags(string tags, string category)
         {
-            TagList old = new TagList(tags);
-            List<string> result = new List<string>();
-            foreach (string tag in old.Tags)
+            var old = new TagList(tags);
+            var result = new List<string>();
+            foreach (var tag in old.Tags)
             {
                 List<TagType> types = null;
                 TagType type = null;
 
-#if NEWTAG
                 types = TagTypes.Where(tt => tt.Value == tag).ToList();
                 type = types.FirstOrDefault(tt => tt.Category == category);
-#endif
-                int count = types.Count;
+                var count = types.Count;
 
                 if (type == null)
                 {
@@ -1137,12 +1121,7 @@ namespace m4dModels
 
         public IEnumerable<TagType> GetTagTypes(string value)
         {
-            IEnumerable<TagType> ret = null;
-
-#if NEWTAG
-            ret =  _context.TagTypes.Where(t => t.Key.StartsWith(value + ":"));
-#endif
-            return ret;
+            return _context.TagTypes.Where(t => t.Key.StartsWith(value + ":"));
         }
 
         public ICollection<TagType> GetTagRings(TagList tags)
@@ -1486,18 +1465,14 @@ namespace m4dModels
 
         public IList<string> SerializeTags(bool withHeader = true)
         {
-            List<string> tags = new List<string>();
+            var tags = new List<string>();
 
             if (withHeader)
             {
                 tags.Add(_tagBreak);
             }
-#if NEWTAG
-            foreach (TagType tt in TagTypes)
-            {
-                tags.Add(string.Format("{0}\t{1}\t{2}", tt.Category, tt.Value, tt.PrimaryId));
-            }
-#endif
+            tags.AddRange(TagTypes.Select(tt => string.Format("{0}\t{1}\t{2}", tt.Category, tt.Value, tt.PrimaryId)));
+
             return tags;
         }
         public IList<string> SerializeSongs(bool withHeader = true, bool withHistory = true, int max = -1)

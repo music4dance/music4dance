@@ -7,6 +7,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using DanceLibrary;
+// ReSharper disable ArrangeThisQualifier
 
 namespace m4dModels
 {

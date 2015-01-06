@@ -510,7 +510,6 @@ namespace m4d.Controllers
 
             Context.CheckpointChanges();
 
-#if NEWTAG
             foreach (Tag tag in Database.Tags)
             {
                 Database.Tags.Remove(tag);
@@ -525,7 +524,6 @@ namespace m4d.Controllers
             }
             Context.ChangeTracker.DetectChanges();
             Database.SaveChanges();
-#endif
 
             Context.CheckpointChanges();
 

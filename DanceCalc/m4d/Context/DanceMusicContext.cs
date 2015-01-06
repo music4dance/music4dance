@@ -81,22 +81,13 @@ namespace m4d.Context
 
         #region Properties
         public DbSet<Song> Songs { get; set; }
-
         public DbSet<SongProperty> SongProperties { get; set; }
-
         public DbSet<Dance> Dances { get; set; }
-
         public DbSet<DanceRating> DanceRatings { get; set; }
-
-#if NEWTAG
         public DbSet<Tag> Tags { get; set; }
-
         public DbSet<TagType> TagTypes { get; set; }
-#endif
         public DbSet<SongLog> Log { get; set; }
-
         public DbSet<ModifiedRecord> Modified { get; set; }
-
         #endregion
 
         #region Events
@@ -111,7 +102,6 @@ namespace m4d.Context
             modelBuilder.Entity<Dance>().Ignore(dance => dance.Info);
             modelBuilder.Entity<DanceRating>().HasKey(dr => new { dr.SongId, dr.DanceId });
 
-#if NEWTAG
             modelBuilder.Entity<Tag>().HasKey(t => new { t.UserId, t.Id });
 
             modelBuilder.Entity<TagType>().HasKey(tt => tt.Key);
@@ -121,7 +111,6 @@ namespace m4d.Context
                 .WithMany(x => x.Ring)
                 .HasForeignKey(x => x.PrimaryId)
                 .WillCascadeOnDelete(false);
-#endif
 
             modelBuilder.Entity<ModifiedRecord>().HasKey(t => new { t.ApplicationUserId, t.SongId });
             modelBuilder.Entity<ModifiedRecord>().Ignore(mr => mr.UserName);
