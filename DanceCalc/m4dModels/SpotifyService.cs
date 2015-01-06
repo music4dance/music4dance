@@ -58,7 +58,7 @@ namespace m4dModels
                 int trackNum = track.track_number;
                 if (track.disc_number > 1)
                 {
-                    trackNum = new TrackNumber(trackNum, (int)track.disk_number, null);
+                    trackNum = new TrackNumber(trackNum, (int)track.disc_number, null);
                 }
                 var st = new ServiceTrack
                 {

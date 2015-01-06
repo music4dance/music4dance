@@ -15,6 +15,15 @@
     @Html.ActionLink("Back to List", (string)ViewBag.SongFilter.Action, new { filter = ViewBag.SongFilter }, new { @class = "btn btn-small btn-primary", role = "button" })
 </div>
 
+@if (ViewData.ContainsKey("Errors"))
+{
+    <div>
+        @foreach (System.Exception error in ViewBag.Errors)
+        {
+            <p>@error.Message</p>
+        }
+    </div>    
+}
 @section Scripts {
     @{
         string pageScript = "~/Scripts/edit.js" + Page.ScriptQualifier;
@@ -23,16 +32,16 @@
         {
             <script>var paramNumerator = @ViewBag.paramNumerator;</script>
         }
-        MemoryStream stream = new MemoryStream();
-        DataContractJsonSerializer serializer = new DataContractJsonSerializer(typeof(IEnumerable<m4dModels.AlbumDetails>));
+        var stream = new MemoryStream();
+        var serializer = new DataContractJsonSerializer(typeof(IEnumerable<m4dModels.AlbumDetails>));
         serializer.WriteObject(stream, Model.Albums);
-        string albumsString = System.Text.Encoding.UTF8.GetString(stream.ToArray());
+        var albumsString = System.Text.Encoding.UTF8.GetString(stream.ToArray());
     }
     <script>
         var paramShowMPM = true;
         var paramShowBPM = true;
         var paramEpsVisible = 0.1;
-        var songId = '@Model.SongId.ToString()';
+        var songId = "@Model.SongId.ToString()";
         var albums = @Html.Raw(albumsString);
     </script>
 

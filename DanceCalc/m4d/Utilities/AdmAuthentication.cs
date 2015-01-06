@@ -1,19 +1,17 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Net;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
-using System.Runtime.Serialization.Json;
+using System.Net;
 using System.Runtime.Serialization;
-using System.ServiceModel.Channels;
-using System.ServiceModel;
+using System.Runtime.Serialization.Json;
+using System.Text;
 using System.Threading;
 using System.Web;
 
 namespace m4d.Utilities
 {
     [DataContract]
+    [SuppressMessage("ReSharper", "InconsistentNaming")]
     public class AdmAccessToken
     {
         [DataMember]
@@ -28,40 +26,38 @@ namespace m4d.Utilities
 
     public class AdmAuthentication : IDisposable
     {
-        public static readonly string DatamarketAccessUri = "https://datamarket.accesscontrol.windows.net/v2/OAuth2-13";
-        private string clientId;
-        private string clientSecret;
-        private string request;
-        private AdmAccessToken token;
-        private Timer accessTokenRenewer;
+        private const string DatamarketAccessUri = "https://datamarket.accesscontrol.windows.net/v2/OAuth2-13";
+        private readonly string _clientId;
+        private readonly string _request;
+        private AdmAccessToken _token;
+        private readonly Timer _accessTokenRenewer;
 
         //Access token expires every 10 minutes. Renew it every 9 minutes only.
         private const int RefreshTokenDuration = 9;
 
         public AdmAuthentication(string clientId, string clientSecret)
         {
-            this.clientId = clientId;
-            this.clientSecret = clientSecret;
+            _clientId = clientId;
             //If clientid or client secret has special characters, encode before sending request
-            this.request = string.Format("grant_type=client_credentials&client_id={0}&client_secret={1}&scope=http://music.xboxlive.com", HttpUtility.UrlEncode(clientId), HttpUtility.UrlEncode(clientSecret));
-            this.token = HttpPost(DatamarketAccessUri, this.request);
+            _request = string.Format("grant_type=client_credentials&client_id={0}&client_secret={1}&scope=http://music.xboxlive.com", HttpUtility.UrlEncode(clientId), HttpUtility.UrlEncode(clientSecret));
+            _token = HttpPost(DatamarketAccessUri, _request);
             //renew the token every specfied minutes
-            accessTokenRenewer = new Timer(new TimerCallback(OnTokenExpiredCallback), this, TimeSpan.FromMinutes(RefreshTokenDuration), TimeSpan.FromMilliseconds(-1));
+            _accessTokenRenewer = new Timer(OnTokenExpiredCallback, this, TimeSpan.FromMinutes(RefreshTokenDuration), TimeSpan.FromMilliseconds(-1));
         }
 
         public AdmAccessToken GetAccessToken()
         {
-            return this.token;
+            return _token;
         }
 
 
         private void RenewAccessToken()
         {
-            AdmAccessToken newAccessToken = HttpPost(DatamarketAccessUri, this.request);
+            var newAccessToken = HttpPost(DatamarketAccessUri, _request);
             //swap the new token with old one
             //Note: the swap is thread unsafe
-            this.token = newAccessToken;
-            Console.WriteLine(string.Format("Renewed token for user: {0} is: {1}", this.clientId, this.token.access_token));
+            _token = newAccessToken;
+            Console.WriteLine(@"Renewed token for user: {0} is: {1}", this._clientId, this._token.access_token);
         }
 
         private void OnTokenExpiredCallback(object stateInfo)
@@ -78,7 +74,7 @@ namespace m4d.Utilities
             {
                 try
                 {
-                    accessTokenRenewer.Change(TimeSpan.FromMinutes(RefreshTokenDuration), TimeSpan.FromMilliseconds(-1));
+                    _accessTokenRenewer.Change(TimeSpan.FromMinutes(RefreshTokenDuration), TimeSpan.FromMilliseconds(-1));
                 }
                 catch (Exception ex)
                 {
@@ -88,30 +84,29 @@ namespace m4d.Utilities
         }
 
 
-        private AdmAccessToken HttpPost(string DatamarketAccessUri, string requestDetails)
+        private static AdmAccessToken HttpPost(string datamarketAccessUri, string requestDetails)
         {
             //Prepare OAuth request 
-            WebRequest webRequest = WebRequest.Create(DatamarketAccessUri);
+            var webRequest = WebRequest.Create(datamarketAccessUri);
             webRequest.ContentType = "application/x-www-form-urlencoded";
             webRequest.Method = "POST";
-            byte[] bytes = Encoding.ASCII.GetBytes(requestDetails);
+            var bytes = Encoding.ASCII.GetBytes(requestDetails);
             webRequest.ContentLength = bytes.Length;
-            using (Stream outputStream = webRequest.GetRequestStream())
+            using (var outputStream = webRequest.GetRequestStream())
             {
                 outputStream.Write(bytes, 0, bytes.Length);
             }
-            using (WebResponse webResponse = webRequest.GetResponse())
+            using (var webResponse = webRequest.GetResponse())
             {
-                DataContractJsonSerializer serializer = new DataContractJsonSerializer(typeof(AdmAccessToken));
+                var serializer = new DataContractJsonSerializer(typeof(AdmAccessToken));
                 //Get deserialized object from JSON stream
-                AdmAccessToken token = (AdmAccessToken)serializer.ReadObject(webResponse.GetResponseStream());
-                return token;
+                return (AdmAccessToken)serializer.ReadObject(webResponse.GetResponseStream());
             }
         }
 
         public void Dispose()
         {
-            accessTokenRenewer.Dispose();
+            _accessTokenRenewer.Dispose();
             //GC.SuppressFinalize(this);
         }
     }

@@ -20,6 +20,10 @@ using Microsoft.AspNet.Identity;
 using System.Data.Entity.Validation;
 using System.Net;
 using System.IO;
+using Antlr.Runtime;
+using Microsoft.Owin.Security.OAuth;
+using Microsoft.Owin.Security.Twitter.Messages;
+using SpotifyWebAPI;
 
 // Let's see if we can mock up a recoverable log file by spitting out
 // something resembling a tab-separated flat list of songs items with a
@@ -294,8 +298,8 @@ namespace m4d.Context
             {
                 if (s_admAuth == null)
                 {
-                    string clientId = "music4dance";
-                    string clientSecret = "iGvYm97JA+qYV1K2lvh8sAnL8Pebp5cN2KjvGnOD4gI=";
+                    const string clientId = "music4dance";
+                    const string clientSecret = "iGvYm97JA+qYV1K2lvh8sAnL8Pebp5cN2KjvGnOD4gI=";
 
                     s_admAuth = new AdmAuthentication(clientId, clientSecret);
 
@@ -307,6 +311,24 @@ namespace m4d.Context
 
         private static AdmAuthentication s_admAuth = null;
 
+        //private static AuthenticationToken SpotifyAuthorization
+        //{
+        //    get
+        //    {
+        //        if (s_spotAuth == null)
+        //        {
+        //            s_spotAuth = new AuthenticationToken()
+        //            {
+        //                access_token = "",
+        //                ExpiresOn = DateTime.Now.AddSeconds(3600),
+        //                RefreshToken = "",
+        //                token_type = "Bearer"
+        //            };
+        //        }
+        //    }
+        //}
+
+        //private static AuthenticationToken s_spotAuth = null;
         #endregion
 
         #region IDanceMusicContext

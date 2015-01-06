@@ -34,7 +34,7 @@ namespace m4dModels
         [DataMember]
         public string Publisher { get; set; }
         [DataMember]
-        [Range(1, 999)]
+        [Range(1, 999999999)]
         public int? Track { get; set; }
         // This is the serialization and default ordering index
         //  Actual order will be affected by repeated application

@@ -415,8 +415,7 @@ namespace m4d.Controllers
             }
             else
             {
-                var errors = ModelState.SelectMany(x => x.Value.Errors.Select(z => z.Exception));
-
+                ViewBag.Errors = ModelState.SelectMany(x => x.Value.Errors.Select(z => z.Exception));
 
                 // Add back in the danceratings
                 // TODO: This almost certainly doesn't preserve edits...
