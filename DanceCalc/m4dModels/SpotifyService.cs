@@ -1,8 +1,5 @@
-using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using DanceLibrary;
-using Microsoft.CSharp.RuntimeBinder;
 
 namespace m4dModels
 {
@@ -61,7 +58,7 @@ namespace m4dModels
                 int trackNum = track.track_number;
                 if (track.disc_number > 1)
                 {
-                    trackNum = (int) (new TrackNumber(trackNum, (int)track.disk_number, null));
+                    trackNum = new TrackNumber(trackNum, (int)track.disk_number, null);
                 }
                 var st = new ServiceTrack
                 {

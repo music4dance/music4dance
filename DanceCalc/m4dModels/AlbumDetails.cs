@@ -250,7 +250,7 @@ namespace m4dModels
 
         public IList<PurchaseLink> GetPurchaseLinks()
         {
-            return MusicService.GetServices().Select(service => GetPurchaseLink(service.ID)).Where(link => link != null).ToList();
+            return MusicService.GetServices().Select(service => GetPurchaseLink(service.Id)).Where(link => link != null).ToList();
         }
 
         public PurchaseLink GetPurchaseLink(ServiceType ms, PurchaseType pt)

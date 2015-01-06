@@ -8,7 +8,7 @@ namespace m4dModels
     public class MusicService
     {
         #region Properties
-        public ServiceType ID { get; private set; }
+        public ServiceType Id { get; private set; }
         public char CID { get; private set; }
         public string Name { get; private set; }
         public string Target { get; private set; }
@@ -21,6 +21,9 @@ namespace m4dModels
         {
             get { return false;}
         }
+
+        protected string AssociateLink { get; set; }
+        protected string Request { get; set; }
         
         #endregion
 
@@ -60,13 +63,13 @@ namespace m4dModels
             string info = (pt == PurchaseType.Song) ? song : album;
 
             if (info != null)
-                return string.Format(_associateLink, info);
+                return string.Format(AssociateLink, info);
             else
                 return null;
         }
         public virtual string BuildSearchRequest(string artist, string title)
         {
-            if (_request == null)
+            if (Request == null)
             {
                 return null;
             }
@@ -75,7 +78,7 @@ namespace m4dModels
             title = title ?? string.Empty;
 
             string searchEnc = Uri.EscapeDataString(artist + " " + title);
-            string req = string.Format(_request, searchEnc);
+            string req = string.Format(Request, searchEnc);
             return req;
         }
 
@@ -89,24 +92,21 @@ namespace m4dModels
             throw new NotImplementedException();
         }
 
-        protected string _associateLink;
-        protected string _request;
         #endregion
 
         #region Constructors
-        private MusicService() { }
 
         protected MusicService(
             ServiceType id, char cid,
             string name, string target, string description, string link, string request)
         {
-            ID = id;
+            Id = id;
             CID = cid;
             Name = name;
             Target = target;
             Description = description;
-            _associateLink = link;
-            _request = request;
+            AssociateLink = link;
+            Request = request;
         }
         
         #endregion
@@ -168,7 +168,7 @@ namespace m4dModels
             {
                 throw new ArgumentOutOfRangeException("abbrv");
             }
-            ms = service.ID;
+            ms = service.Id;
 
             switch (abbrv[1])
             {
@@ -243,7 +243,7 @@ namespace m4dModels
 
         private static void AddService(MusicService service)
         {
-            s_idMap.Add(service.ID, service);
+            s_idMap.Add(service.Id, service);
             s_cidMap.Add(service.CID, service);            
         }
         private static readonly Dictionary<ServiceType, MusicService> s_idMap;
@@ -252,8 +252,8 @@ namespace m4dModels
         #endregion
 
         #region PurchaseType
-        private static readonly char[] s_purchaseTypes = new char[] { '#', 'A', 'S' };
-        private static readonly string[] s_purchaseTypesEx = new string[] { "None", "Album", "Song" }; 
+        private static readonly char[] s_purchaseTypes = { '#', 'A', 'S' };
+        private static readonly string[] s_purchaseTypesEx = { "None", "Album", "Song" }; 
         #endregion
     }
 }

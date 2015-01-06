@@ -1079,7 +1079,7 @@ namespace m4d.Controllers
         }
         private void UpdateMusicServicePurchase(AlbumDetails ad, MusicService service, PurchaseType pt, string trackId, string alternateId = null)
         {
-            ad.SetPurchaseInfo(pt, service.ID, trackId);
+            ad.SetPurchaseInfo(pt, service.Id, trackId);
             if (!string.IsNullOrWhiteSpace(alternateId))
             {
                 ad.SetPurchaseInfo(pt, ServiceType.AMG, alternateId);

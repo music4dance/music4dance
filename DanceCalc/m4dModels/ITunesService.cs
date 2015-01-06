@@ -20,7 +20,7 @@ namespace m4dModels
             // TODO: itunes would need a different kind of link for album only lookup...
             if (pt == PurchaseType.Song && album != null && song != null)
             {
-                return string.Format(_associateLink, song, album);
+                return string.Format(AssociateLink, song, album);
             }
             else
             {

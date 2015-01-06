@@ -508,7 +508,7 @@ namespace m4dModels
                 {
                     foreach (AlbumDetails album in Albums)
                     {
-                        PurchaseLink l = album.GetPurchaseLink(ms.ID);
+                        PurchaseLink l = album.GetPurchaseLink(ms.Id);
                         if (l != null)
                         {
                             links.Add(l);
