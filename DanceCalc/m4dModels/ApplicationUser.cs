@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 namespace m4dModels
 {
     // You can add profile data for the user by adding more properties to your ApplicationUser class, please visit http://go.microsoft.com/fwlink/?LinkID=317594 to learn more.
-    public class ApplicationUser : IdentityUser
+    public sealed class ApplicationUser : IdentityUser
     {
         public DateTime StartDate { get; set; }
 
@@ -39,17 +39,17 @@ namespace m4dModels
             // Add custom user claims here
             return userIdentity;
         }
-        public virtual ICollection<ModifiedRecord> Modified { get; set; }
+        public ICollection<ModifiedRecord> Modified { get; set; }
 
         public string GetRoles(IDbSet<IdentityRole> roles, string separator=", ")
         {
             // TODO: Can we do this w/o sending in roleMap?
 
-            StringBuilder sb = new StringBuilder();
-            string sp = string.Empty;
+            var sb = new StringBuilder();
+            var sp = string.Empty;
             foreach (var idRole in Roles)
             {
-                Microsoft.AspNet.Identity.EntityFramework.IdentityRole role = roles.Find(idRole.RoleId);
+                var role = roles.Find(idRole.RoleId);
                 sb.Append(sp + role.Name);
                 sp = separator;
             }
@@ -59,12 +59,12 @@ namespace m4dModels
 
         public string GetProviders()
         {
-            StringBuilder sb = new StringBuilder();
-            string sp = string.Empty;
+            var sb = new StringBuilder();
+            var sp = string.Empty;
             foreach (var provider in Logins)
             {
-                string name = provider.LoginProvider;
-                string key = provider.ProviderKey;
+                var name = provider.LoginProvider;
+                var key = provider.ProviderKey;
                 sb.Append(string.Format("{0}{1}|{2}",sp,name,key));
                 sp = "|";
             }
