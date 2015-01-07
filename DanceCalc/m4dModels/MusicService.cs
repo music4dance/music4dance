@@ -203,7 +203,7 @@ namespace m4dModels
 
         public static MusicService GetService(char cid)
         {
-            if (s_cidMap.ContainsKey(cid))
+            if (s_cidMap.ContainsKey(char.ToUpper(cid)))
             {
                 return s_cidMap[cid];
             }

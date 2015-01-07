@@ -261,15 +261,10 @@ namespace m4d.Context
             request.Method = WebRequestMethods.Http.Get;
             request.Accept = "application/json";
 
-            // TODO: Take another pass at generalizing authorization
-            switch (service.Id)
+            var auth = AdmAuthentication.GetServiceAuthorization(service.Id);
+            if (auth != null)
             {
-                case ServiceType.XBox:
-                    request.Headers.Add("Authorization", XboxAuthorization);
-                    break;
-                case ServiceType.Spotify:
-                    request.Headers.Add("Authorization", SpotifyAuthorization);
-                    break;
+                request.Headers.Add("Authorization",auth);
             }
 
             using (response = (HttpWebResponse)request.GetResponse())
@@ -287,53 +282,10 @@ namespace m4d.Context
                 }
             }
 
-            if (responseString != null)
-            {
-                responseString = service.PreprocessSearchResponse(responseString);
-                dynamic results = System.Web.Helpers.Json.Decode(responseString);
-                return service.ParseSearchResults(results);
-            }
-            else
-            {
-                return new List<ServiceTrack>();
-            }
+            responseString = service.PreprocessSearchResponse(responseString);
+            dynamic results = System.Web.Helpers.Json.Decode(responseString);
+            return service.ParseSearchResults(results);
         }
-
-        private static string XboxAuthorization
-        {
-            get
-            {
-                if (s_admAuth == null)
-                {
-                    const string clientId = "music4dance";
-                    const string clientSecret = "iGvYm97JA+qYV1K2lvh8sAnL8Pebp5cN2KjvGnOD4gI=";
-
-                    s_admAuth = new AdmAuthentication(clientId, clientSecret);
-                }
-
-                return "Bearer " + s_admAuth.GetAccessToken().access_token;
-            }
-        }
-
-        private static AdmAuthentication s_admAuth = null;
-
-        private static string SpotifyAuthorization
-        {
-            get
-            {
-                if (s_spotAuth == null)
-                {
-                    const string clientId = "***REMOVED***";
-                    const string clientSecret = "***REMOVED***";
-
-                    s_spotAuth = new SpotAuthentication(clientId, clientSecret);
-                }
-
-                return "Bearer " + s_spotAuth.GetAccessToken().access_token;
-            }
-        }
-
-        private static SpotAuthentication s_spotAuth = null;
         #endregion
 
         #region IDanceMusicContext
