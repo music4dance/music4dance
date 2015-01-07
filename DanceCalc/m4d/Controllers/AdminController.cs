@@ -1137,6 +1137,9 @@ namespace m4d.Controllers
         {
             bool history = !string.IsNullOrWhiteSpace(useLookupHistory);
 
+            //TODO: For some reason lazy loading isn't working for the roles collection, so explicitly loading (for now)
+            Context.Users.AsQueryable().Include("Roles").Load();
+
             IList<string> users = Database.SerializeUsers(true);
             IList<string> tags = Database.SerializeTags(true);
             IList<string> dances = Database.SerializeDances(true);
