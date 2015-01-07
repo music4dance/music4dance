@@ -1323,15 +1323,15 @@ namespace m4dModels
         }
         public void LoadSongs(IList<string> lines)
         {
-            Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Entering Load Songs");
+            //Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Entering Load Songs");
 
             _context.TrackChanges(false);
 
             // Load the dance List
-            Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Loading Dances");
+            //Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Loading Dances");
             LoadDances();
 
-            Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Loading Songs");
+            //Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Loading Songs");
 
             int c = 0;
             foreach (string line in lines)
@@ -1343,12 +1343,12 @@ namespace m4dModels
                 _context.Songs.Add(song);
                 
                 c += 1;
-                if (c % 100 == 0)
-                {
-                    Trace.WriteLineIf(TraceLevels.General.TraceInfo, string.Format("{0} songs loaded", c));
-                }
+                //if (c % 100 == 0)
+                //{
+                //    Trace.WriteLineIf(TraceLevels.General.TraceInfo, string.Format("{0} songs loaded", c));
+                //}
 
-                Trace.WriteLineIf(TraceLevels.General.TraceInfo && song.Length.HasValue && song.Length.Value > 1000, string.Format("Long Song: {0} '{1}'", song.Length, song.Title));
+                //Trace.WriteLineIf(TraceLevels.General.TraceInfo && song.Length.HasValue && song.Length.Value > 1000, string.Format("Long Song: {0} '{1}'", song.Length, song.Title));
 
                 if (c % 1000 == 0)
                 {
@@ -1358,13 +1358,13 @@ namespace m4dModels
                 }
             }
 
-            Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Saving Songs");
-            Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Saving tail");
+            //Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Saving Songs");
+            //Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Saving tail");
             _context.TrackChanges(true);
 
-            Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Clearing Song Cache");
-            SongCounts.ClearCache();
-            Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Exiting LoadSongs");
+            //Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Clearing Song Cache");
+            //SongCounts.ClearCache();
+            //Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Exiting LoadSongs");
 
         }
 

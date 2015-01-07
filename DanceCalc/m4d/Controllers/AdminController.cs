@@ -667,9 +667,10 @@ namespace m4d.Controllers
                 else 
                 {
                     int it = 0;
+                    int ct = lines.Count / 500;
                     while (lines.Count > 0)
                     {
-                        Trace.WriteLineIf(TraceLevels.General.TraceInfo, string.Format("Processing Batch {0}", it));
+                        Trace.WriteLineIf(TraceLevels.General.TraceInfo, string.Format("Processing Batch {0} of {1}", it, ct));
                         int c = Math.Min(500, lines.Count);
                         List<string> songs = lines.GetRange(0, c).ToList();
                         lines.RemoveRange(0, c);
