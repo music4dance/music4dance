@@ -1471,7 +1471,12 @@ namespace m4dModels
             {
                 tags.Add(_tagBreak);
             }
-            tags.AddRange(TagTypes.Select(tt => string.Format("{0}\t{1}\t{2}", tt.Category, tt.Value, tt.PrimaryId)));
+
+            // ReSharper disable once LoopCanBeConvertedToQuery
+            foreach (var tt in TagTypes)
+            {
+                tags.Add(string.Format("{0}\t{1}\t{2}", tt.Category, tt.Value, tt.PrimaryId));
+            }
 
             return tags;
         }
