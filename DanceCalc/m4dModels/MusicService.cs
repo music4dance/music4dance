@@ -203,15 +203,9 @@ namespace m4dModels
 
         public static MusicService GetService(char cid)
         {
-            if (s_cidMap.ContainsKey(char.ToUpper(cid)))
-            {
-                return s_cidMap[cid];
-            }
-            else
-            {
-                return null;
-            }
+            return s_cidMap.GetValueOrDefault(char.ToUpper(cid));
         }
+
         public static MusicService GetService(string type)
         {
             if (string.IsNullOrEmpty(type))

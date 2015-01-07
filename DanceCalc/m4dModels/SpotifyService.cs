@@ -43,17 +43,19 @@ namespace m4dModels
                 var album = track.album;
 
                 // TODO: Genre appears to be broken????
-
-                Trace.WriteLine(string.Format("TrackId={0}", (string)track.id));
-                Trace.WriteLine(string.Format("Name={0}", (string)track.name));
-                Trace.WriteLine(string.Format("Artist={0}", (string)(artist == null ? null : artist.name)));
-                Trace.WriteLine(string.Format("Album={0}", (string)(album == null ? null : album.name)));
-                Trace.WriteLine(string.Format("CollectionId={0}", (string)(album == null ? null : album.id)));
-                Trace.WriteLine(string.Format("ImageUrl={0}", imageUrl));
-//                Trace.WriteLine(string.Format("Genre={0}", (string)((artist == null || artist.genres.Length == 0) ? null : artist.genres[0])));
-                Trace.WriteLine(string.Format("Duration={0}", (string)((track.duration_ms + 500)/1000).ToString()));
-                Trace.WriteLine(string.Format("DiscNumber={0}", (string)track.disc_number.ToString()));
-                Trace.WriteLine(string.Format("TrackNumber={0}", (string)track.track_number.ToString()));
+                if (TraceLevels.General.TraceVerbose)
+                {
+                    Trace.WriteLine(string.Format("TrackId={0}", (string)track.id));
+                    Trace.WriteLine(string.Format("Name={0}", (string)track.name));
+                    Trace.WriteLine(string.Format("Artist={0}", (string)(artist == null ? null : artist.name)));
+                    Trace.WriteLine(string.Format("Album={0}", (string)(album == null ? null : album.name)));
+                    Trace.WriteLine(string.Format("CollectionId={0}", (string)(album == null ? null : album.id)));
+                    Trace.WriteLine(string.Format("ImageUrl={0}", imageUrl));
+                    //                Trace.WriteLine(string.Format("Genre={0}", (string)((artist == null || artist.genres.Length == 0) ? null : artist.genres[0])));
+                    Trace.WriteLine(string.Format("Duration={0}", (string)((track.duration_ms + 500) / 1000).ToString()));
+                    Trace.WriteLine(string.Format("DiscNumber={0}", (string)track.disc_number.ToString()));
+                    Trace.WriteLine(string.Format("TrackNumber={0}", (string)track.track_number.ToString()));                    
+                }
 
                 int trackNum = track.track_number;
                 if (track.disc_number > 1)

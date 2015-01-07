@@ -72,6 +72,7 @@
     <Compile Include="DanceMerge.cs" />
     <Compile Include="DanceMusicService.cs" />
     <Compile Include="DanceRatingDelta.cs" />
+    <Compile Include="DictionaryExtensions.cs" />
     <Compile Include="IDanceMusicContext.cs" />
     <Compile Include="DanceLink.cs" />
     <Compile Include="MergeCluster.cs" />
