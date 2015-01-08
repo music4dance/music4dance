@@ -1,11 +1,7 @@
 ﻿@model IEnumerable<m4dModels.SongBase>
 
 @{
-    bool isAdmin = false;
-    if (User.IsInRole("dbAdmin"))
-    {
-        isAdmin = true;
-    }
+    bool isAdmin = User.IsInRole("dbAdmin");
     bool canSort = true;
     if (ViewData.ContainsKey("NoSort"))
     {
@@ -111,11 +107,15 @@
                     }
                 </th>
             }
-            <th style="min-width:30px">Play</th>
+            <th style="min-width: 30px">Play</th>
+            @if (isAdmin)
+            {
+                <th></th>
+            }
             @if (showDate)
             {
                 <th class="hidden-xs">@ViewBag.SongFilter.SortOrder</th>
-            }
+            }            
         </tr>
     </thead>
     <tbody>
@@ -126,7 +126,7 @@
             {
                 sd = item as m4dModels.SongDetails;
             }
-            
+
             if (item.Title != null)
             {
                 <tr>
@@ -165,14 +165,14 @@
                         </td>
                     }
                     else
-                    { 
+                    {
                         <td class="hidden-xs">
                             @{
-                                int track = sd.TrackFromAlbum(albumName);
-                                if (track > 0)
-                                { 
-                                    @track.ToString();
-                                }
+                        int track = sd.TrackFromAlbum(albumName);
+                        if (track > 0)
+                        {
+                            @track.ToString();
+                        }
                             }
                         </td>
                     }
@@ -198,7 +198,7 @@
                         </td>
                     }
 
-                    <td class="hidden-xs">
+                    <td>
                         @if (!string.IsNullOrWhiteSpace(item.Purchase))
                         {
                             var id = "Play" + item.SongId.ToString();
@@ -229,6 +229,10 @@
                             </div>
                         }
                     </td>
+                    @if (isAdmin)
+                    {
+                        <td>@item.Purchase</td>
+                    }
 
                     @if (showDate)
                     {
