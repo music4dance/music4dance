@@ -111,19 +111,12 @@
                     }
                 </th>
             }
-            <th style="min-width:150px" class="hidden-xs">Purchase</th>
+            <th style="min-width:30px">Play</th>
             @if (showDate)
             {
                 <th class="hidden-xs">@ViewBag.SongFilter.SortOrder</th>
             }
         </tr>
-
-
-
-
-
-
-
     </thead>
     <tbody>
         @foreach (var item in Model)
@@ -206,25 +199,34 @@
                     }
 
                     <td class="hidden-xs">
-                        @if (!string.IsNullOrEmpty(item.Purchase) && item.Purchase.Contains('X'))
+                        @if (!string.IsNullOrWhiteSpace(item.Purchase))
                         {
-                            var xid = "X" + item.SongId.ToString();
-                            <button id="@xid" type="button"><img src="@Url.Content("~/Content/xbox-logo.png")" alt="Availiable on Xbox Music" width="20" height="20" /></button>
-                        }
-                        @if (!string.IsNullOrEmpty(item.Purchase) && item.Purchase.Contains('I'))
-                        {
-                            var iid = "I" + item.SongId.ToString();
-                            <button id="@iid" type="button"><img src="@Url.Content("~/Content/itunes-logo.png")" alt="Availiable on Itunes" width="20" height="20" /></button>
-                        }
-                        @if (!string.IsNullOrEmpty(item.Purchase) && item.Purchase.Contains('A'))
-                        {
-                            var aid = "A" + item.SongId.ToString();
-                            <button id="@aid" type="button"><img src="@Url.Content("~/Content/amazon-logo.png")" alt="Availiable at Amazon" width="20" height="20" /></button>
-                        }
-                        @if (!string.IsNullOrEmpty(item.Purchase) && item.Purchase.Contains('S'))
-                        {
-                            var aid = "S" + item.SongId.ToString();
-                            <button id="@aid" type="button"><img src="@Url.Content("~/Content/spotify-logo.png")" alt="Availiable on Spotify" width="20" height="20" /></button>
+                            var id = "Play" + item.SongId.ToString();
+                            <div class="btn-group">
+                                <button id="@id" type="button" class="btn dropdown-toggle" data-toggle="dropdown" aria-expanded="false"><img src="@Url.Content("~/Content/playbutton.png")" alt="Play" width="20" height="20" /></button>
+                                <ul class="dropdown-menu" role="menu">
+                                    @if (!string.IsNullOrEmpty(item.Purchase) && item.Purchase.Contains('X'))
+                                    {
+                                        var xid = "X" + item.SongId.ToString();
+                                        <li><a href="#" id="@xid" class="play-link"><img src='@Url.Content("~/Content/xbox-logo.png")' alt="Availiable on Xbox Music" width="20" height="20" /> Xbox Music</a></li>
+                                    }
+                                    @if (!string.IsNullOrEmpty(item.Purchase) && item.Purchase.Contains('I'))
+                                    {
+                                        var iid = "I" + item.SongId.ToString();
+                                        <li><a href="#" id="@iid" class="play-link"><img src='@Url.Content("~/Content/itunes-logo.png")' alt=" availiable on itunes" width="20" height="20" /> ITunes</a></li>
+                                    }
+                                    @if (!string.IsNullOrEmpty(item.Purchase) && item.Purchase.Contains('A'))
+                                    {
+                                        var aid = "A" + item.SongId.ToString();
+                                        <li><a href="#" id="@aid" class="play-link"><img src='@Url.Content("~/Content/amazon-logo.png")' alt=" availiable at amazon" width="20" height="20" /> Amazon</a></li>
+                                    }
+                                    @if (!string.IsNullOrEmpty(item.Purchase) && item.Purchase.Contains('S'))
+                                    {
+                                        var aid = "S" + item.SongId.ToString();
+                                        <li><a href="#" id="@aid" class="play-link"><img src='@Url.Content("~/Content/spotify-logo.png")' alt=" availiable on spotify" width="20" height="20" /> Spotify</a></li>
+                                    }
+                                </ul>
+                            </div>
                         }
                     </td>
 

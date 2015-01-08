@@ -497,7 +497,7 @@ namespace m4dModels
             Array.Sort(a);
             return new string(a);
         }
-        public ICollection<PurchaseLink> GetPurchaseLinks(string service = "AIX")
+        public ICollection<PurchaseLink> GetPurchaseLinks(string service = "AIXS")
         {
             List<PurchaseLink> links = new List<PurchaseLink>();
             service = service.ToUpper();

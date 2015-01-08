@@ -1,18 +1,18 @@
 ﻿$(document).ready(function () {
     // Handling for purchase links
     var uri = '/api/purchaseinfo/';
-    $("td > button").click(function () {
+    $(".play-link").click(function () {
         //window.alert("You clicked me!(" + this.id + ")");
+
         $.getJSON(uri + this.id)
-            .done(function (data) {
+            .done(function(data) {
                 if (data.Target == null) {
                     window.location(data.Link);
-                }
-                else {
+                } else {
                     window.open(data.Link, data.Target)
                 }
             })
-            .fail(function (jqXHR, textStatus, err) {
+            .fail(function(jqXHR, textStatus, err) {
                 window.alert(err);
                 //$('#product').text('Error: ' + err);
             });
