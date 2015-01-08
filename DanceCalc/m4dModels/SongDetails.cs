@@ -521,6 +521,17 @@ namespace m4dModels
             return links;
         }
 
+        public string GetPurchaseId(ServiceType service)
+        {
+            string ret = null;
+            foreach (var album in Albums)
+            {
+                ret = album.GetPurchaseIdentifier(service,PurchaseType.Song);
+                if (ret != null)
+                    break;
+            }
+            return ret;
+        }
         public static string GetPurchaseTags(ICollection<AlbumDetails> albums)
         {
             HashSet<char> added = new HashSet<char>();

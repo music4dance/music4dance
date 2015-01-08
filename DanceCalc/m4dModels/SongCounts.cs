@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Data.Entity;
 using System.Diagnostics;
 using System.Linq;
+using System.Text;
 using DanceLibrary;
 
 namespace m4dModels
@@ -27,7 +28,9 @@ namespace m4dModels
             get { return DanceObject.SeoFriendly(DanceName); }
         }
 
-        public IEnumerable<Song> TopSongs { get; set; }
+        public IEnumerable<Song> TopSongs { get; private set; }
+
+        public string TopSpotify { get; private set; }
         public void SetTopSongs(int n, DanceMusicService dms)
         {
             SongFilter filter = new SongFilter
@@ -45,7 +48,23 @@ namespace m4dModels
                 filter.TempoMin = null;
                 songs = dms.BuildSongList(filter, true).ToList();
             }
+
             TopSongs = songs;
+
+            var spotify = new StringBuilder();
+            var sep = "";
+            foreach (var song in songs)
+            {
+                if (!song.Purchase.Contains('S')) continue;
+
+                var sd = new SongDetails(song);
+                var id = sd.GetPurchaseId(ServiceType.Spotify);
+                spotify.Append(sep);
+                spotify.Append(id);
+                sep = ",";
+            }
+
+            TopSpotify = spotify.ToString();
         }
         static public void ClearCache()
         {

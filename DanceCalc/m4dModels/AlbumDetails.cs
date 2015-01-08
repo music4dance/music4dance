@@ -271,6 +271,17 @@ namespace m4dModels
             return service.GetPurchaseLink(pt, albumInfo, songInfo);
         }
 
+        public string GetPurchaseIdentifier(ServiceType ms, PurchaseType pt)
+        {
+            // Short-circuit if there is no purchase info for this ablum
+            if (Purchase == null)
+                return null;
+
+            string value;
+            return Purchase.TryGetValue(MusicService.GetService(ms).BuildPurchaseKey(pt), out value) ? value : null;
+            
+        }
+
         public bool PurchaseDiff(DanceMusicService dms, Song song, AlbumDetails old, SongLog log)
         {
             bool modified = false;
