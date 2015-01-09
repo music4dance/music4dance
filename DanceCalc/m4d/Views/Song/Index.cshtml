@@ -29,6 +29,7 @@
     string checkX = string.Empty;
     string checkA = string.Empty;
     string checkI = string.Empty;
+    string checkS = string.Empty;
     string purchase = ViewBag.SongFilter.Purchase;
     if (!string.IsNullOrWhiteSpace(purchase))
     {
@@ -43,6 +44,10 @@
         if (purchase.Contains('I'))
         {
             checkI = "checked";
+        }
+        if (purchase.Contains('S'))
+        {
+            checkS = "checked";
         }
     }
 
@@ -99,7 +104,7 @@
                         ITunes
                     </label>
                     <label>
-                        <input type="checkbox" name="services" id="serviceS" value="S" @checkI />
+                        <input type="checkbox" name="services" id="serviceS" value="S" @checkS />
                         Spotify
                     </label>
                 </div>
@@ -165,9 +170,12 @@
 @if (!string.IsNullOrWhiteSpace(ViewBag.Spotify))
 {
 <div class="row">
-    <div class="col-md-8">
+    <div class="col-md-12">
         <iframe src="https://embed.spotify.com/?uri=spotify:trackset:music4dance:@ViewBag.Spotify" frameborder="0" allowtransparency="true"></iframe>
     </div>
+    @*<div class="col-md-4">
+        <a href="http://open.spotify.com/tracks/@ViewBag.Spotify">Play on Spotify</a>
+    </div>*@
 </div>
 }
 
