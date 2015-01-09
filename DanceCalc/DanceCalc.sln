@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
-VisualStudioVersion = 12.0.30723.0
+VisualStudioVersion = 12.0.31101.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{69ADF94E-AE63-4954-BD58-BD56BFE93656}"
 	ProjectSection(SolutionItems) = preProject
@@ -41,9 +41,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Contract", "Contract\Contra
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XboxMusicClient", "XboxMusicClient\XboxMusicClient.csproj", "{12C43A5C-A071-4629-8157-A63CBBCE0B1E}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "m4d-redirect", "m4d-redirect\m4d-redirect.csproj", "{5111FC48-720F-41AC-BD42-BD531C5D7986}"
+EndProject
 Global
 	GlobalSection(TeamFoundationVersionControl) = preSolution
-		SccNumberOfProjects = 11
+		SccNumberOfProjects = 12
 		SccEnterpriseProvider = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
 		SccTeamFoundationServer = https://thegray.visualstudio.com/defaultcollection
 		SccLocalPath0 = .
@@ -77,6 +79,9 @@ Global
 		SccProjectUniqueName10 = XboxMusicClient\\XboxMusicClient.csproj
 		SccProjectName10 = XboxMusicClient
 		SccLocalPath10 = XboxMusicClient
+		SccProjectUniqueName11 = m4d-redirect\\m4d-redirect.csproj
+		SccProjectName11 = m4d-redirect
+		SccLocalPath11 = m4d-redirect
 	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -177,6 +182,14 @@ Global
 		{12C43A5C-A071-4629-8157-A63CBBCE0B1E}.Release|Any CPU.Build.0 = Release|Any CPU
 		{12C43A5C-A071-4629-8157-A63CBBCE0B1E}.Release|ARM.ActiveCfg = Release|Any CPU
 		{12C43A5C-A071-4629-8157-A63CBBCE0B1E}.Release|x86.ActiveCfg = Release|Any CPU
+		{5111FC48-720F-41AC-BD42-BD531C5D7986}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5111FC48-720F-41AC-BD42-BD531C5D7986}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5111FC48-720F-41AC-BD42-BD531C5D7986}.Debug|ARM.ActiveCfg = Debug|Any CPU
+		{5111FC48-720F-41AC-BD42-BD531C5D7986}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{5111FC48-720F-41AC-BD42-BD531C5D7986}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5111FC48-720F-41AC-BD42-BD531C5D7986}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5111FC48-720F-41AC-BD42-BD531C5D7986}.Release|ARM.ActiveCfg = Release|Any CPU
+		{5111FC48-720F-41AC-BD42-BD531C5D7986}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
