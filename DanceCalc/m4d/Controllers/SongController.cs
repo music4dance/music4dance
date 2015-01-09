@@ -16,6 +16,7 @@ using System.Web;
 using System.Web.Helpers;
 using System.Web.Mvc;
 using m4d;
+using Newtonsoft.Json.Converters;
 
 namespace m4d.Controllers
 {
@@ -920,10 +921,12 @@ namespace m4d.Controllers
 
             var songs = Database.BuildSongList(filter, !HttpContext.User.IsInRole(DanceMusicService.EditRole));
             BuildDanceList(filter);
-            int pageSize = 25;
 
             Trace.WriteLine("Exiting Song.Index");
-            return View("Index", songs.ToPagedList(filter.Page ?? 1, pageSize));
+            var list = songs.ToPagedList(filter.Page ?? 1, 25);
+            ViewBag.Spotify = Database.GetPurchaseInfo(ServiceType.Spotify,list.ToList());
+            
+            return View("Index", list);
         }
 
         private void BuildDanceList(SongFilter filter)

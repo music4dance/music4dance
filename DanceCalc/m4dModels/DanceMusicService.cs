@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data.Entity;
 using System.Diagnostics;
 using System.Linq;
+using System.Text;
 using DanceLibrary;
 using Microsoft.AspNet.Identity.EntityFramework;
 
@@ -1022,6 +1023,24 @@ namespace m4dModels
             }
 
             return songs; //.Include("SongProperties");
+        }
+
+        public string GetPurchaseInfo(ServiceType serviceType, IEnumerable<Song> songs)
+        {
+            var sb = new StringBuilder();
+            var sep = "";
+            foreach (var song in songs)
+            {
+                if (!song.Purchase.Contains('S')) continue;
+
+                var sd = new SongDetails(song);
+                var id = sd.GetPurchaseId(ServiceType.Spotify);
+                sb.Append(sep);
+                sb.Append(id);
+                sep = ",";
+            }
+
+            return sb.ToString();
         }
 
         // TODO: This is extremely dependent on the form of the danceIds, just

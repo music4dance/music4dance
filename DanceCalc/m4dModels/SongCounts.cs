@@ -51,20 +51,7 @@ namespace m4dModels
 
             TopSongs = songs;
 
-            var spotify = new StringBuilder();
-            var sep = "";
-            foreach (var song in songs)
-            {
-                if (!song.Purchase.Contains('S')) continue;
-
-                var sd = new SongDetails(song);
-                var id = sd.GetPurchaseId(ServiceType.Spotify);
-                spotify.Append(sep);
-                spotify.Append(id);
-                sep = ",";
-            }
-
-            TopSpotify = spotify.ToString();
+            TopSpotify = dms.GetPurchaseInfo(ServiceType.Spotify, songs);
         }
         static public void ClearCache()
         {
