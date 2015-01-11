@@ -5,11 +5,18 @@ using System.Data.Entity;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.AspNet.Identity;
 
 namespace m4dModels.Tests
 {
     class MockContext : IDanceMusicContext
     {
+        public static DanceMusicService CreateService(bool seedUsers)
+        {
+            var context = new MockContext(seedUsers);
+            var umanager = new UserManager<ApplicationUser>(new MockUserStore(context));
+            return new DanceMusicService(context, umanager);            
+        }
         class DanceSet : TestDbSet<Dance>
         {
             public override Dance Find(params object[] keyValues)
@@ -123,21 +130,6 @@ namespace m4dModels.Tests
         public void TrackChanges(bool track)
         {
             // NOOP?
-        }
-
-        public ApplicationUser FindOrAddUser(string name, string role, object umanager)
-        {
-            ApplicationUser user = Users.FirstOrDefault(u => string.Equals(u.UserName, name, StringComparison.InvariantCultureIgnoreCase)); 
-
-            if (user == null)
-            {
-                user = new ApplicationUser() { UserName = name, Id = Guid.NewGuid().ToString("D") };
-                Users.Add(user);
-            }
-
-            // TODO: Should we add a concept of roles into the mock????
-
-            return user;
         }
 
         public void Dispose()

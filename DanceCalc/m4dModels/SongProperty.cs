@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 
@@ -105,7 +106,20 @@ namespace m4dModels
                             ret = v;
                         }
                         break;
+                    case SongBase.OwnerHash:
+                        {
+                            int hash;
+                            if (int.TryParse(Value, NumberStyles.HexNumber, CultureInfo.CurrentCulture, out hash))
+                            {
+                                ret = hash;
+                            }
+                            else
+                            {
+                                ret = null;
+                            }
 
+                        }
+                        break;
                     default:
                         ret = Value;
                         break;

@@ -28,14 +28,14 @@ namespace m4d.Controllers
         public ApplicationUsersController()
         {
             //TODO: For some reason lazy loading isn't working for the roles collection, so explicitly loading (for now)
-            Context.Users.AsQueryable().Include("Roles").Load();
+            //Context.Users.AsQueryable().Include("Roles").Load();
         }
 
         // GET: ApplicationUsers
         public ActionResult Index()
         {
-            ViewBag.Roles = Context.Roles;
-            return View(Context.Users.OrderByDescending(u => u.StartDate).ToList());
+            //ViewBag.Roles = Context.Roles;
+            return View(UserManager);
         }
 
         // GET: ApplicationUsers/Details/5
@@ -45,14 +45,10 @@ namespace m4d.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            ApplicationUser applicationUser = Context.Users.Find(id);
-            string s = applicationUser.GetProviders();
-            if (applicationUser == null)
-            {
-                return HttpNotFound();
-            }
+
+            //TODO: Figure out how to get user details (login & roles) down to view
             ViewBag.Roles = Context.Roles;
-            return View(applicationUser);
+            return View(UserManager.FindById(id));
         }
 
         // GET: ApplicationUsers/Create
@@ -70,7 +66,7 @@ namespace m4d.Controllers
         {
             if (ModelState.IsValid)
             {
-                Context.FindOrAddUser(applicationUser.UserName, DanceMusicService.PseudoRole,UserManager);
+                Database.FindOrAddUser(applicationUser.UserName, DanceMusicService.PseudoRole);
                 Context.SaveChanges();
                 return RedirectToAction("Index");
             }

@@ -11,6 +11,10 @@ namespace m4dModels
         public Guid SongId { get; set; }
         public virtual Song Song { get; set; }
 
+        // This is both a boolean to indicate that the user owns the track
+        //  and a hash for the filename so that in the future hopefully
+        //  we can do a quick match on the user's machine
+        public int? Owned { get; set; }
         public string UserName 
         {
             get

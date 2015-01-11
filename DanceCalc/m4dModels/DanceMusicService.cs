@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using DanceLibrary;
+using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.EntityFramework;
 
 namespace m4dModels
@@ -13,10 +14,12 @@ namespace m4dModels
     {
         #region Lifetime Management
         private readonly IDanceMusicContext _context;
+        private readonly UserManager<ApplicationUser> _userManager;
 
-        public DanceMusicService(IDanceMusicContext context)
+        public DanceMusicService(IDanceMusicContext context, UserManager<ApplicationUser> userManager)
         {
             _context = context;
+            _userManager = userManager;
         }
         public void Dispose()
         {
@@ -135,14 +138,16 @@ namespace m4dModels
         // This is an additive merge - only add new things if they don't conflict with the old
         //  TODO: I'm pretty sure I can clean up this and all the other editing stuff by pushing
         //  the diffing part down into SongDetails (which will also let me unit test it more easily)
-        public SongDetails AdditiveMerge(ApplicationUser user, Guid songId, SongDetails edit, List<string> addDances)
+        public SongDetails AdditiveMerge(ApplicationUser user, Guid songId, SongDetails edit, List<string> addDances, bool createLog = true)
         {
             Song song = _context.Songs.Find(songId);
-            song.CurrentLog = CreateSongLog(user, song, SongBase.EditCommand);
+            if (createLog)
+                song.CurrentLog = CreateSongLog(user, song, SongBase.EditCommand);
 
             if (song.AdditiveMerge(user, edit, addDances, this))
             {
-                _context.Log.Add(song.CurrentLog);
+                if (song.CurrentLog != null)
+                    _context.Log.Add(song.CurrentLog);
                 SaveChanges();
                 return FindSongDetails(songId);
             }
@@ -789,7 +794,16 @@ namespace m4dModels
 
         #region Searching
 
-        public  IQueryable<Song> BuildSongList(SongFilter filter, bool anonymous)
+        [Flags]
+        public enum CruftFilter
+        {
+            NoCruft = 0x00,
+            NoPublishers = 0x01,
+            NoDances =0x02,
+            AllCruft = 0x03
+        };
+
+        public  IQueryable<Song> BuildSongList(SongFilter filter, CruftFilter cruft=CruftFilter.NoCruft)
         {
             // Now setup the view
             // Start with all of the songs in the database
@@ -808,7 +822,7 @@ namespace m4dModels
 
             // Now if the current user is anonymous, filter out anything that we
             //  don't have purchase info for
-            if (anonymous)
+            if ((cruft & CruftFilter.NoPublishers) != CruftFilter.NoPublishers)
             {
                 songs = songs.Where(s => s.Purchase != null);
             }
@@ -823,7 +837,7 @@ namespace m4dModels
                 ApplicationUser user = FindUser(filter.User);
                 if (user != null)
                 {
-                    songs = from m in user.Modified.AsQueryable() where m.Song.TitleHash != 0 select m.Song;
+                    songs = from m in Modified where m.ApplicationUserId == user.Id && m.Song.TitleHash != 0 select m.Song;
                     userFilter = true;
                 }
             }
@@ -845,6 +859,10 @@ namespace m4dModels
                 danceList = Dance.DanceLibrary.ExpandDanceList(filter.Dances);
 
                 songs = songs.Where(s => s.DanceRatings.Any(dr => danceList.Contains(dr.DanceId)));
+            }
+            else if ((cruft & CruftFilter.NoDances) != CruftFilter.NoDances)
+            {
+                songs = songs.Where(s => s.DanceRatings.Any());
             }
 
 #if TRACE
@@ -1031,7 +1049,7 @@ namespace m4dModels
             var sep = "";
             foreach (var song in songs)
             {
-                if (!song.Purchase.Contains('S')) continue;
+                if (song.Purchase == null || !song.Purchase.Contains('S')) continue;
 
                 var sd = new SongDetails(song);
                 var id = sd.GetPurchaseId(ServiceType.Spotify);
@@ -1342,12 +1360,9 @@ namespace m4dModels
         }
         public void LoadSongs(IList<string> lines)
         {
-            //Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Entering Load Songs");
-
             _context.TrackChanges(false);
 
             // Load the dance List
-            //Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Loading Dances");
             LoadDances();
 
             //Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Loading Songs");
@@ -1362,12 +1377,10 @@ namespace m4dModels
                 _context.Songs.Add(song);
                 
                 c += 1;
-                //if (c % 100 == 0)
-                //{
-                //    Trace.WriteLineIf(TraceLevels.General.TraceInfo, string.Format("{0} songs loaded", c));
-                //}
-
-                //Trace.WriteLineIf(TraceLevels.General.TraceInfo && song.Length.HasValue && song.Length.Value > 1000, string.Format("Long Song: {0} '{1}'", song.Length, song.Title));
+                if (c % 100 == 0)
+                {
+                    Trace.WriteLineIf(TraceLevels.General.TraceInfo, string.Format("{0} songs loaded", c));
+                }
 
                 if (c % 1000 == 0)
                 {
@@ -1377,17 +1390,10 @@ namespace m4dModels
                 }
             }
 
-            //Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Saving Songs");
-            //Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Saving tail");
             _context.TrackChanges(true);
-
-            //Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Clearing Song Cache");
-            //SongCounts.ClearCache();
-            //Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Exiting LoadSongs");
-
         }
 
-        public void UpdateSongs(IList<string> lines, object umanager)
+        public void UpdateSongs(IList<string> lines)
         {
             Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Entering UpdateSongs");
 
@@ -1408,7 +1414,7 @@ namespace m4dModels
                 if (song == null)
                 {
                     SongProperty up = sd.FirstProperty(SongBase.UserField);
-                    ApplicationUser user = FindOrAddUser(up != null ? up.Value as string : "batch", EditRole, umanager);
+                    ApplicationUser user = FindOrAddUser(up != null ? up.Value as string : "batch", EditRole);
 
                     song = CreateSong(sd.SongId);
                     UpdateSong(user, song, sd, false);
@@ -1417,7 +1423,7 @@ namespace m4dModels
                 else
                 {
                     SongProperty up = sd.LastProperty(SongBase.UserField);
-                    ApplicationUser user = FindOrAddUser(up != null ? up.Value as string : "batch", EditRole, umanager);
+                    ApplicationUser user = FindOrAddUser(up != null ? up.Value as string : "batch", EditRole);
                     if (sd.IsNull)
                     {
                         DeleteSong(user, song, false);
@@ -1465,16 +1471,16 @@ namespace m4dModels
             {
                 users.Add(_userHeader);
             }
-
-            foreach (ApplicationUser user in _context.Users)
+            
+            foreach (var user in _userManager.Users)
             {
                 string userId = user.Id;
                 string username = user.UserName;
-                string roles = user.GetRoles(Context.Roles, "|");
+                string roles = string.Join("|", _userManager.GetRoles(user.Id));
                 string hash = user.PasswordHash;
                 string stamp = user.SecurityStamp;
                 string lockout = user.LockoutEnabled.ToString();
-                string providers = user.GetProviders();
+                string providers = string.Join("|", _userManager.GetLogins(user.Id));
 
                 users.Add(string.Format("{0}\t{1}\t{2}\t{3}\t{4}\t{5}\t{6}", userId, username, roles, hash, stamp, lockout, providers));
             }
@@ -1569,22 +1575,34 @@ namespace m4dModels
         #region User
         public ApplicationUser FindUser(string name)
         {
-            ApplicationUser user = null;
-            if (!_userMap.TryGetValue(name, out user))
-            {
-                user = _context.Users.FirstOrDefault(u => u.UserName.ToLower() == name.ToLower());
-                if (user != null)
-                {
-                    _userMap.Add(name, user);
-                }
-            }
-            return user;
+            return _userManager.FindByName(name);
         }
-
-        private readonly Dictionary<string, ApplicationUser> _userMap = new Dictionary<string, ApplicationUser>();
-        public ApplicationUser FindOrAddUser(string name, string role, object umanager)
+        public ApplicationUser FindOrAddUser(string name, string role)
         {
-            return _context.FindOrAddUser(name, role, umanager);
+            var user = _userManager.FindByName(name);
+
+            if (user == null)
+            {
+                user = new ApplicationUser { UserName = name, Email = name + "@music4dance.net", EmailConfirmed = true, StartDate = DateTime.Now };
+                var res = _userManager.Create(user, "_This_Is_@_placeh0lder_");
+                if (res.Succeeded)
+                {
+                    var user2 = _userManager.FindByName(name);
+                    Trace.WriteLine(string.Format("{0}:{1}", user2.UserName, user2.Id));
+                }
+
+            }
+
+            if (string.Equals(role, PseudoRole))
+            {
+                user.LockoutEnabled = true;
+            }
+            else if (!_userManager.IsInRole(user.Id, role))
+            {
+                _userManager.AddToRole(user.Id, role);
+            }
+
+            return user;
         }
 
         public ModifiedRecord CreateModified(Guid songId, string applicationId)

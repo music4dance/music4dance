@@ -42,7 +42,19 @@
     <hr />
     <div class="row">
         <div id="songDump" class="col-md-12">
-            <code style="white-space:pre">@Model.ToString()</code>
+            <code style="white-space: pre">@Model.ToString()</code>
         </div>
     </div>
+
+    <hr />
+    <div class="row">
+        <div id="users" class="col-md-12">
+            @if (Model.ModifiedBy != null)
+            {
+                var t = string.Join(",", Model.ModifiedBy.Select(m => m.UserName));
+                <text>@t</text>
+            }
+        </div>
+    </div>
+
 }

@@ -1,4 +1,5 @@
-﻿@model IEnumerable<m4dModels.ApplicationUser>
+﻿@using Microsoft.AspNet.Identity
+@model ApplicationUserManager
 
 @{
     ViewBag.Title = "Index";
@@ -34,10 +35,10 @@
             LOS
         </th>
         <th>
-            @Html.DisplayNameFor(model => model.UserName)
+            UserName
         </th>
         <th>
-            @Html.DisplayNameFor(model => model.Email)
+            Email
         </th>
         <th>
             Date
@@ -46,18 +47,22 @@
             Roles
         </th>
         <th>
+            Logins
+        </th>
+        <th>
             EMC
         </th>
-        <th></th>
         <th>
             Lock-End
         </th>
         <th>
             AFC
         </th>
+        <th></th>
     </tr>
 
-@foreach (var item in Model) {
+@foreach (var item in Model.Users.OrderByDescending(u => u.StartDate).ToList())
+{
     <tr>
         @*
         <td>
@@ -89,22 +94,10 @@
             @item.StartDate.ToString("d")
         </td>
         <td>
-            @item.GetRoles(ViewBag.Roles)
+            @string.Join(",",Model.GetRoles(item.Id))
         </td>
         <td>
-            @foreach (var sub in item.Logins)
-            {
-                <text>@sub.LoginProvider[0]</text>
-            }
-        </td>
-        <td>
-            @Html.ActionLink("Change Roles", "ChangeRoles", new { id = item.Id }),
-            @Html.ActionLink("List Songs", "FilterUser", "Song", new { user = item.UserName }, null),
-            @Html.ActionLink("Delete", "Delete", new { id=item.Id })
-    @*
-        @Html.ActionLink("Edit", "Edit", new { id=item.Id }) |
-        @Html.ActionLink("Details", "Details", new { id=item.Id }) |
-    *@
+            @string.Join(",",Model.GetLogins(item.Id))
         </td>
         <td>
             @Html.DisplayFor(modelItem => item.EmailConfirmed)
@@ -114,6 +107,15 @@
         </td>
         <td>
             @Html.DisplayFor(modelItem => item.AccessFailedCount)
+        </td>
+        <td>
+            @Html.ActionLink("Change Roles", "ChangeRoles", new { id = item.Id }),
+            @Html.ActionLink("List Songs", "FilterUser", "Song", new { user = item.UserName }, null),
+            @Html.ActionLink("Delete", "Delete", new { id = item.Id })
+            @*
+            @Html.ActionLink("Edit", "Edit", new { id=item.Id }) |
+            @Html.ActionLink("Details", "Details", new { id=item.Id }) |
+            *@
         </td>
     </tr>
 }

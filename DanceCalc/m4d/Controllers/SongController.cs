@@ -621,7 +621,7 @@ namespace m4d.Controllers
 
             while (!done)
             {
-                IQueryable<Song> songs = Database.BuildSongList(filter, !HttpContext.User.IsInRole(DanceMusicService.EditRole)).Skip(page * 1000).Take(1000);
+                IQueryable<Song> songs = Database.BuildSongList(filter, DanceMusicService.CruftFilter.NoDances).Skip(page * 1000).Take(1000);
                 int processed = 0;
                 bool modified = false;
                 foreach (Song song in songs)
@@ -919,7 +919,7 @@ namespace m4d.Controllers
         {
             Trace.WriteLine(string.Format("Entering Song.Index: dances='{0}',sortOrder='{1}',searchString='{2}'", filter.Dances, filter.SortOrder, filter.SearchString));
 
-            var songs = Database.BuildSongList(filter, !HttpContext.User.IsInRole(DanceMusicService.EditRole));
+            var songs = Database.BuildSongList(filter, HttpContext.User.IsInRole(DanceMusicService.EditRole) ? DanceMusicService.CruftFilter.AllCruft : DanceMusicService.CruftFilter.NoCruft);
             BuildDanceList(filter);
 
             Trace.WriteLine("Exiting Song.Index");

@@ -16,7 +16,6 @@ namespace m4dModels
         DbSet<ModifiedRecord> Modified { get; }
         IDbSet<ApplicationUser> Users { get; }
         IDbSet<IdentityRole> Roles { get; }
-        ApplicationUser FindOrAddUser(string name, string role, object umanager);
 
         int SaveChanges();
         void TrackChanges(bool track);

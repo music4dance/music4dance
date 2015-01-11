@@ -71,6 +71,20 @@ namespace m4dModels
             return sb.ToString();
         }
 
+        public static string SerializeProviders(IEnumerable<UserLoginInfo> logins)
+        {
+            var sb = new StringBuilder();
+            var sp = string.Empty;
+            foreach (var provider in logins)
+            {
+                var name = provider.LoginProvider;
+                var key = provider.ProviderKey;
+                sb.Append(string.Format("{0}{1}|{2}", sp, name, key));
+                sp = "|";
+            }
+            return sb.ToString();            
+        }
+
         public override string ToString()
         {
             return string.Format("{0}{1}", UserName, IsPlaceholder ? "(P)" : string.Empty);

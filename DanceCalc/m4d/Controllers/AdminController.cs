@@ -658,7 +658,7 @@ namespace m4d.Controllers
 
                 if (string.Equals(reloadDatabase, "update songs", StringComparison.InvariantCultureIgnoreCase))
                 {
-                    Database.UpdateSongs(lines,UserManager);
+                    Database.UpdateSongs(lines);
                 }
                 else if (string.Equals(reloadDatabase, "update dances", StringComparison.InvariantCultureIgnoreCase))
                 {
@@ -666,19 +666,21 @@ namespace m4d.Controllers
                 }
                 else 
                 {
-                    int it = 0;
-                    int ct = lines.Count / 500;
-                    while (lines.Count > 0)
-                    {
-                        Trace.WriteLineIf(TraceLevels.General.TraceInfo, string.Format("Processing Batch {0} of {1}", it, ct));
-                        int c = Math.Min(500, lines.Count);
-                        List<string> songs = lines.GetRange(0, c).ToList();
-                        lines.RemoveRange(0, c);
+                    //int it = 0;
+                    //int ct = lines.Count / 500;
+                    //while (lines.Count > 0)
+                    //{
+                    //    Trace.WriteLineIf(TraceLevels.General.TraceInfo, string.Format("Processing Batch {0} of {1}", it, ct));
+                    //    int c = Math.Min(500, lines.Count);
+                    //    List<string> songs = lines.GetRange(0, c).ToList();
+                    //    lines.RemoveRange(0, c);
 
-                        Database.LoadSongs(songs);
-                        ResetContext();
-                        it += 1;
-                    }                    
+                    //    Database.LoadSongs(songs);
+                    //    ResetContext();
+                    //    it += 1;
+                    //}                    
+
+                    Database.LoadSongs(lines);
                 }
 
                 SongCounts.ClearCache(); 
@@ -712,9 +714,11 @@ namespace m4d.Controllers
             ViewBag.FileId = -1;
             ViewBag.Action = "CommitUploadTempi";
 
+            ApplicationUser user = Database.FindUser(User.Identity.Name);
+
             if (lines.Count > 0)
             {
-                IList<SongDetails> songs = SongsFromFile(lines);
+                IList<SongDetails> songs = SongsFromFile(user,lines);
                 results = MatchSongs(songs,MatchMethod.Tempo);
                 ViewBag.FileId = CacheReview(results);
             }
@@ -738,42 +742,47 @@ namespace m4d.Controllers
 
             ApplicationUser user = Database.FindUser(User.Identity.Name);
 
+            Context.TrackChanges(false);
+            var changed = 0;
+            var added = 0;
+
             if (initial.Count > 0)
             {
                 results = new List<LocalMerger>();
-
+                
                 foreach (LocalMerger m in initial)
                 {
-                    // We only want to auto-update if there isn't a conflict
-                    if (!m.Conflict)
+                    var sd = m.Left;
+                    // If there is an existing song
+                    
+                    if (m.Right != null)
                     {
-                        SongDetails sd = m.Left;
-                        SongDetails edit = m.Right;
-
-                        bool modified = false;
-
-                        // Handle Scalar values
-                        if (!edit.Tempo.HasValue && sd.Tempo.HasValue)
+                        var add = Database.AdditiveMerge(user, m.Right.SongId, sd, null, false);
+                        if (add != null)
                         {
-                            modified = true;
-                            edit.Tempo = sd.Tempo;
-                        }
-
-                        // Now see if we have new album info
-                        if (sd.HasAlbums && edit.FindAlbum(sd.Albums[0].Name) == null)
-                        {
-                            edit.Albums.Insert(0, sd.Albums[0]);
-                            modified = true;
-                        }
-
-                        if (modified && Database.EditSong(user, edit, null, null, null) != null)
-                        {
+                            m.Right = add;
                             results.Add(m);
                         }
+                        changed += 1;
+                    }
+                    // Otherwise add it
+                    else
+                    {
+                        var add = Database.CreateSong(user, sd, SongBase.CreateCommand, null, false);
+                        if (add != null)
+                        {
+                            Database.Songs.Add(add);
+                        }
+                        added += 1;
+                    }
+
+                    if (((added + changed) % 100) == 0)
+                    {
+                        Trace.WriteLine(string.Format("Tempo updated: {0}", added+changed));
                     }
                 }
 
-                Database.SaveChanges();
+                Context.TrackChanges(true);
             }
 
             return View("ReviewBatch", results);
@@ -993,7 +1002,9 @@ namespace m4d.Controllers
                 headerList = HeaderFromList(CleanSeparator(separator), ref songs);
             }
 
-            IList<SongDetails> newSongs = SongsFromList(CleanSeparator(separator), headerList, songs);
+            ApplicationUser appuser = Database.FindUser(user);
+           
+            IList<SongDetails> newSongs = SongsFromList(appuser,CleanSeparator(separator), headerList, songs);
 
             bool hasArtist = false;
             if (!string.IsNullOrEmpty(artist))
@@ -1065,7 +1076,7 @@ namespace m4d.Controllers
             {
                 userName = User.Identity.Name;
             }
-            ApplicationUser user = Context.FindOrAddUser(userName,DanceMusicService.PseudoRole,UserManager);
+            ApplicationUser user = Database.FindOrAddUser(userName,DanceMusicService.PseudoRole);
 
             List<string> dances = null;
             if (!string.IsNullOrWhiteSpace(danceIds))
@@ -1355,7 +1366,6 @@ namespace m4d.Controllers
         #endregion        
 
         #region Utilities
-
         private IList<string> HeaderFromList(string separator, ref string songs)
         {
             int cidx = songs.IndexOfAny(System.Environment.NewLine.ToCharArray());
@@ -1368,7 +1378,7 @@ namespace m4d.Controllers
             var map = SongDetails.BuildHeaderMap(line);
 
             // Kind of kludgy, but temporary build the header
-            //  map to see if it's valid then pass back a comma
+            //  map to see if it's valid then pass back a cownomma
             // separated list of headers...
             if (map != null && map.Any(p => p != null))
             {
@@ -1381,20 +1391,20 @@ namespace m4d.Controllers
             }
         }
 
-        private IList<SongDetails> SongsFromList(string separator, IList<string> headers, string songText)
+        private IList<SongDetails> SongsFromList(ApplicationUser user, string separator, IList<string> headers, string songText)
         {
             string[] lines = songText.Split(System.Environment.NewLine.ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
 
-            return SongDetails.CreateFromRows(separator, headers, lines, Song.DanceRatingAutoCreate);
+            return SongDetails.CreateFromRows(user, separator, headers, lines, Song.DanceRatingAutoCreate);
         }
 
-        private IList<SongDetails> SongsFromFile(List<string> lines)
+        private static IList<SongDetails> SongsFromFile(ApplicationUser user, IList<string> lines)
         {
-            List<SongDetails> songs = new List<SongDetails>();
+            var songs = new List<SongDetails>();
 
-            List<string> map = SongDetails.BuildHeaderMap(lines[0]);
+            var map = SongDetails.BuildHeaderMap(lines[0]);
             lines.RemoveAt(0);
-            return SongDetails.CreateFromRows("\t", map, lines, Song.DanceRatingAutoCreate);
+            return SongDetails.CreateFromRows(user, "\t", map, lines, SongBase.DanceRatingAutoCreate);
         }
         private enum MatchMethod {None, Tempo, Merge};
 
@@ -1466,23 +1476,15 @@ namespace m4d.Controllers
                 switch (method)
                 {
                     case MatchMethod.Tempo:
-                        if (match == null)
-                        {
-                            m = null;
-                        }
-                        else
-                        {
+                        if (match != null)
                             m.Conflict = song.TempoConflict(match, 3);
-                        }
                         break;
                     case MatchMethod.Merge:
                         // Do we need to do anything special here???
                         break;
                 }
-                if (m != null)
-                {
-                    merge.Add(m);
-                }
+
+                merge.Add(m);
             }
 
             return merge;
@@ -1543,11 +1545,5 @@ namespace m4d.Controllers
         static IList<IList<LocalMerger>> s_reviews = new List<IList<LocalMerger>>();
 
         #endregion
-
-        protected override void Dispose(bool disposing)
-        {
-            Database.Dispose();
-            base.Dispose(disposing);
-        }
     }
 }

@@ -41,6 +41,9 @@ namespace m4dModels
         public const string AddedTags = "Tag+";
         public const string RemovedTags = "Tag-";
 
+        // User/Song info
+        public const string OwnerHash = "OwnerHash";
+
         // Commands
         public const string CreateCommand = ".Create";
         public const string EditCommand = ".Edit";
@@ -108,6 +111,7 @@ namespace m4dModels
         {
             bool created = SongProperties != null && SongProperties.Count > 0;
             ApplicationUser currentUser = null;
+            ModifiedRecord currentModified = null;
             bool deleted = false;
 
             foreach (SongProperty prop in properties)
@@ -119,7 +123,8 @@ namespace m4dModels
                     case UserField:
                         currentUser = new ApplicationUser(prop.Value);
                         // TOOD: if the placeholder user works, we should use it to simplify the ModifiedRecord
-                        AddModifiedBy(new ModifiedRecord { SongId = this.SongId, UserName = prop.Value });
+                        currentModified = new ModifiedRecord {SongId = this.SongId, UserName = prop.Value};
+                        AddModifiedBy(currentModified);
                         break;
                     case DanceRatingField:
                         UpdateDanceRating(prop.Value);
@@ -149,6 +154,12 @@ namespace m4dModels
                                 created = true;
                             }
                             Modified = time;
+                        }
+                        break;
+                    case OwnerHash:
+                        if (currentModified != null)
+                        {
+                            currentModified.Owned = (int?) prop.ObjectValue;
                         }
                         break;
                     default:
@@ -520,6 +531,18 @@ namespace m4dModels
                 return CreateNormalForm(Title) + "+" + CreateNormalForm(Artist);
             }
         }
+
+        public string TitleArtistAlbumString
+        {
+            get
+            {
+                var ta = TitleArtistString;
+                var album = Album;
+
+                return (album == null) ? ta : ta + "+" + CreateNormalForm(album);
+            }
+        }
+
         public string CleanTitle
         {
             get
@@ -814,9 +837,9 @@ namespace m4dModels
         static public string Unsort(string name)
         {
             string[] parts = name.Split(',');
-            if (parts.Length == 1)
+            if (parts.Length == 1 || parts.Any(s => s.All(c => !char.IsLetter(c))))
             {
-                return parts[0].Trim();
+                return name.Trim();
             }
             else if (parts.Length == 2)
             {

@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
+using Microsoft.AspNet.Identity;
 
 namespace m4dModels.Tests
 {
@@ -10,7 +11,7 @@ namespace m4dModels.Tests
     {
         public DanceMusicTester(List<string> songs = null)
         {
-            Dms = new DanceMusicService(new MockContext(false));
+            Dms = MockContext.CreateService(false);
 
             Dms.SeedDances();
 

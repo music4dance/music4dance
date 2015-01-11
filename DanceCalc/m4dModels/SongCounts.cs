@@ -40,13 +40,13 @@ namespace m4dModels
                 TempoMax = 500,
                 TempoMin = 1
             };
-            var songs = dms.BuildSongList(filter, true).ToList();
+            var songs = dms.BuildSongList(filter).ToList();
 
             if (songs.Count < 10)
             {
                 filter.TempoMax = null;
                 filter.TempoMin = null;
-                songs = dms.BuildSongList(filter, true).ToList();
+                songs = dms.BuildSongList(filter).ToList();
             }
 
             TopSongs = songs;

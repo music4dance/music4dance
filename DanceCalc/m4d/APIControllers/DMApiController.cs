@@ -1,6 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using Microsoft.AspNet.Identity.Owin;
+
 using System.Web;
 using System.Web.Http;
 
@@ -14,15 +13,24 @@ namespace m4d.APIControllers
         public DMApiController()
             : base()
         {
-            Database = new DanceMusicService(new DanceMusicContext());
         }
-        protected DanceMusicService Database { get; private set; }
+        protected DanceMusicService Database
+        {
+            get
+            {
+                if (_database == null)
+                {
+                    _database = new DanceMusicService(HttpContext.Current.GetOwinContext().Get<DanceMusicContext>(), HttpContext.Current.GetOwinContext().GetUserManager<ApplicationUserManager>());
+                }
+                return _database;
+            }
+        }
+        private DanceMusicService _database = null;
 
         protected DanceMusicContext Context { get { return Database.Context as DanceMusicContext; } }
 
         protected override void Dispose(bool disposing)
         {
-            Database.Dispose();
             base.Dispose(disposing);
         }
     }

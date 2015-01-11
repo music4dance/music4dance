@@ -112,12 +112,5 @@ namespace m4d.Controllers
 
             return View(results);
         }
-
-
-        protected override void Dispose(bool disposing)
-        {
-            Database.Dispose();
-            base.Dispose(disposing);
-        }
 	}
 }

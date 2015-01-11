@@ -68,7 +68,15 @@ namespace m4dModels
             }
 
             // Handle User association
-            if (user != null)
+            if (sd.ModifiedBy != null && sd.ModifiedList.Count > 0 && AddUser(sd.ModifiedList[0].UserName,dms))
+            {
+                var mr = ModifiedBy.First();
+                mr.Owned = sd.ModifiedList[0].Owned;
+
+                CreateProperty(UserField, mr.UserName, null, log, dms);
+                CreateProperty(OwnerHash, mr.Owned, null, log, dms);
+            }
+            else if (user != null)
             {
                 AddUser(user,dms);
                 CreateProperty(UserField, user.UserName, null, log, dms);
@@ -194,6 +202,7 @@ namespace m4dModels
             modified |= ChangeTags(tags.Summary, user, dms, this);
 
             modified |= UpdatePurchaseInfo(edit);
+            modified |= UpdateModified(user, edit, dms, true);
 
             return modified;
         }
@@ -293,10 +302,27 @@ namespace m4dModels
             }
 
             modified |= UpdatePurchaseInfo(edit,true);
+            modified |= UpdateModified(user, edit, dms, false);
 
             return modified;
         }
 
+        private bool UpdateModified(ApplicationUser user, SongDetails edit, DanceMusicService dms, bool force)
+        {
+            var modified = false;
+            var mr = ModifiedBy.FirstOrDefault(m => m.UserName == user.UserName);
+            if (mr != null)
+            {
+                var mrN = edit.ModifiedBy.FirstOrDefault(m => m.UserName == user.UserName);
+                if (mrN != null && (force || mrN.Owned.HasValue) && (mr.Owned != mrN.Owned))
+                {
+                    modified = true;
+                    mr.Owned = mrN.Owned;
+                    CreateProperty(OwnerHash, mr.Owned, CurrentLog, dms);
+                }
+            }
+            return modified;
+        }
         public void MergeDetails(IEnumerable<Song> songs, DanceMusicService dms)
         {
             // Add in the to/from properties and create new weight table as well as creating the user associations
@@ -454,11 +480,10 @@ namespace m4dModels
 
         private bool UpdatePurchaseInfo(SongDetails edit, bool additive = false)
         {
-            bool ret = false;
-            string pi;
+            var ret = false;
+            var pi = additive ? edit.MergePurchaseTags(Purchase) : edit.GetPurchaseTags();
 
-            pi = additive ? edit.MergePurchaseTags(Purchase) : edit.GetPurchaseTags();
-            if (!string.Equals(Purchase, pi))
+            if ((Purchase ?? string.Empty) != (pi ?? string.Empty))
             {
                 Purchase = pi;
                 ret = true;

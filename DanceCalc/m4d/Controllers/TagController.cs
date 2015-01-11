@@ -232,14 +232,5 @@ namespace m4d.Controllers
             Database.SaveChanges();
             return RedirectToAction("Index");
         }
-
-        protected override void Dispose(bool disposing)
-        {
-            if (disposing)
-            {
-                Database.Dispose();
-            }
-            base.Dispose(disposing);
-        }
     }
 }

@@ -163,6 +163,6 @@ namespace m4dModels.Tests
             744080883
         };
 
-        static DanceMusicService s_service = new DanceMusicService(new MockContext());
+        static DanceMusicService s_service = MockContext.CreateService(true);
     }
 }

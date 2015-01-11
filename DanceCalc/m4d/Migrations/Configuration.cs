@@ -24,7 +24,10 @@ namespace m4d.Migrations
 
         static public void DoSeed(m4d.Context.DanceMusicContext context)
         {
-            DanceMusicService dms = new DanceMusicService(context);
+            var ustore = new UserStore<ApplicationUser>(context);
+            var umanager = new UserManager<ApplicationUser>(ustore);
+
+            DanceMusicService dms = new DanceMusicService(context,umanager);
 
             //  This method will be called after migrating to the latest version.
 
@@ -40,8 +43,6 @@ namespace m4d.Migrations
                 }
             }
 
-            var ustore = new UserStore<ApplicationUser>(context);
-            var umanager = new UserManager<ApplicationUser>(ustore);
 
             foreach (string name in _adminUsers)
             {

@@ -378,6 +378,10 @@
     <Compile Include="Migrations\201411200100549_GeneralTags.Designer.cs">
       <DependentUpon>201411200100549_GeneralTags.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201501071958002_OwnerHash.cs" />
+    <Compile Include="Migrations\201501071958002_OwnerHash.Designer.cs">
+      <DependentUpon>201501071958002_OwnerHash.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Context\DanceMusicConfiguration.cs" />
     <Compile Include="Context\DanceMusicContext.cs" />
@@ -833,6 +837,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201411200100549_GeneralTags.resx">
       <DependentUpon>201411200100549_GeneralTags.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201501071958002_OwnerHash.resx">
+      <DependentUpon>201501071958002_OwnerHash.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>

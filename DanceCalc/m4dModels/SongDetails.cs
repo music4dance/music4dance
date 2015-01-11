@@ -94,9 +94,11 @@ namespace m4dModels
         #endregion
 
         #region Serialization
-        public static SongDetails CreateFromRow(IList<string> fields, IList<string> cells, int weight=1)
+        public static SongDetails CreateFromRow(ApplicationUser user, IList<string> fields, IList<string> cells, int weight=1)
         {
             List<SongProperty> properties = new List<SongProperty>();
+            var specifiedUser = false;
+            var specifiedAction = false;
             for (int i = 0; i < cells.Count; i++)
             {
                 if (fields[i] != null)
@@ -109,7 +111,9 @@ namespace m4dModels
                     {
                         cell = cell.Trim('"');
                     }
-                    switch (SongProperty.ParseBaseName(baseName))
+
+                    specifiedAction |= SongProperty.IsActionName(baseName);
+                    switch (baseName)
                     {
                         case DanceRatingField:
                             // Any positive delta here will be translated into whatever the creator
@@ -155,6 +159,12 @@ namespace m4dModels
                         case PurchaseField:
                             qual = SongProperty.ParseQualifier(fields[i]);
                             break;
+                        case OwnerHash:
+                            cell = cell.GetHashCode().ToString("X");
+                            break;
+                        case UserField:
+                            specifiedUser = true;
+                            break;
                     }
 
                     if (!string.IsNullOrWhiteSpace(cell))
@@ -166,8 +176,21 @@ namespace m4dModels
                 }
             }
 
-            SongDetails song = new SongDetails(Guid.Empty, properties);
-            return song;
+
+            if (user != null)
+            {
+                if (!specifiedUser)
+                {
+                    properties.Insert(0, new SongProperty(Guid.Empty, TimeField, DateTime.Now.ToString()));
+                    properties.Insert(0, new SongProperty(Guid.Empty, UserField, user.UserName));
+                }
+                if (!specifiedAction)
+                {
+                    properties.Insert(0, new SongProperty(Guid.Empty, CreateCommand));
+                }
+            }
+
+            return new SongDetails(Guid.Empty, properties);
         }
 
         public static List<string> BuildHeaderMap(string line, char separator = '\t')
@@ -204,10 +227,11 @@ namespace m4dModels
             {"ALBUM", AlbumField},
             {"#", TrackField},
             {"PUBLISHER", PublisherField},
-            {"AMAZONTRACK", SongProperty.FormatName(PurchaseField,null,"AS")}
+            {"AMAZONTRACK", SongProperty.FormatName(PurchaseField,null,"AS")},
+            {"PATH",OwnerHash}
         };
 
-        public static IList<SongDetails> CreateFromRows(string separator, IList<string> headers, IEnumerable<string> rows, int weight)
+        public static IList<SongDetails> CreateFromRows(ApplicationUser user, string separator, IList<string> headers, IEnumerable<string> rows, int weight)
         {
             Dictionary<string, SongDetails> songs = new Dictionary<string, SongDetails>();
             bool itc = string.Equals(separator.Trim(), "ITC");
@@ -248,10 +272,10 @@ namespace m4dModels
 
                 if (cells.Count == headers.Count)
                 {
-                    SongDetails sd = CreateFromRow(headers, cells, weight);
+                    SongDetails sd = CreateFromRow(user, headers, cells, weight);
                     if (sd != null)
                     {
-                        string ta = sd.TitleArtistString;
+                        string ta = sd.TitleArtistAlbumString;
                         if (string.Equals(sd.Title,sd.Artist))
                         {
                             Trace.WriteLine(string.Format("Title and Artist are the same ({0})",sd.Title));
@@ -260,7 +284,16 @@ namespace m4dModels
                         {
                             songs.Add(ta,sd);
                         }
+                        else
+                        {
+                            Trace.WriteLineIf(TraceLevels.General.TraceInfo,string.Format("Duplicate Title/Artist/Album: {0}",line));
+                        }
                     }
+                }
+                else
+                {
+                    Trace.WriteLineIf(TraceLevels.General.TraceInfo,
+                        string.Format("Bad cell count {0} != {1}: {2}", cells.Count, headers.Count, line));
                 }
             }
 

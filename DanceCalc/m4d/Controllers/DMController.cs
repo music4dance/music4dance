@@ -47,7 +47,7 @@ namespace m4d.Controllers
             {
                 if (_database == null)
                 {
-                    _database = new DanceMusicService(new DanceMusicContext());
+                    _database = new DanceMusicService(HttpContext.GetOwinContext().Get<DanceMusicContext>(), HttpContext.GetOwinContext().GetUserManager<ApplicationUserManager>());
                 }
                 return _database;
             }

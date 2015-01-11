@@ -13,7 +13,7 @@ namespace m4dModels.Tests
     {
         static TagTests()
         {
-            s_service = new DanceMusicService(new MockContext());
+            s_service = MockContext.CreateService(true);
             s_service.SeedDances();
 
             s_service.FindOrCreateTagType("Swing", "Music");

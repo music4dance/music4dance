@@ -57,7 +57,7 @@ namespace m4dModels.Tests
             filter.Dances = "SWG";
             filter.Purchase = "X";
 
-            var songs = s_service.Dms.BuildSongList(filter,true);
+            var songs = s_service.Dms.BuildSongList(filter);
 
             decimal tempo = 0;
             int count = 0;
@@ -86,7 +86,7 @@ namespace m4dModels.Tests
             filter.SortOrder = "Dances_10";
             filter.Dances = "SWG";
 
-            var songs = s_service.Dms.BuildSongList(filter, true);
+            var songs = s_service.Dms.BuildSongList(filter);
 
             int weight = int.MaxValue;
             int count = 0;
@@ -106,12 +106,10 @@ namespace m4dModels.Tests
         [TestMethod]
         public void SearchTest()
         {
-            var filter = new SongFilter();
+            var filter = new SongFilter {SortOrder = "Title", SearchString = "The"};
 
-            filter.SortOrder = "Title";
-            filter.SearchString = "The";
 
-            var songs = s_service.Dms.BuildSongList(filter, true);
+            var songs = s_service.Dms.BuildSongList(filter);
 
             string title = string.Empty;
             int count = 0;
