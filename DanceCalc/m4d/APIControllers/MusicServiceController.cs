@@ -1,12 +1,9 @@
-﻿using m4d.Context;
-using m4dModels;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Net;
-using System.Net.Http;
 using System.Web.Http;
+using m4dModels;
 
 namespace m4d.APIControllers
 {
@@ -24,7 +21,7 @@ namespace m4d.APIControllers
 
             string key = string.Format("{0}|{1}|{2}|{3}", id, service, artist, title);
 
-            IList<ServiceTrack> tracks = null;
+            IList<ServiceTrack> tracks;
 
             if (!s_cache.TryGetValue(key,out tracks))
             {

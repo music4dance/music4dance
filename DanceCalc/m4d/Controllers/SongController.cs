@@ -1,22 +1,14 @@
-﻿using DanceLibrary;
-using m4d.Utilities;
+﻿using System;
+using System.Collections.Generic;
+using System.Collections.Specialized;
+using System.Diagnostics;
+using System.Linq;
+using System.Net;
+using System.Web.Mvc;
+using DanceLibrary;
 using m4d.ViewModels;
 using m4dModels;
 using PagedList;
-using m4d.Context;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
-using System.Linq;
-using System.Net;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Web;
-using System.Web.Helpers;
-using System.Web.Mvc;
-using m4d;
-using Newtonsoft.Json.Converters;
 
 namespace m4d.Controllers
 {
@@ -411,7 +403,7 @@ namespace m4d.Controllers
                     return View("Details", edit);
                 }
                 {
-                    return RedirectToAction("Index", new { filter = filter });
+                    return RedirectToAction("Index", new {filter });
                 }
             }
             else
@@ -466,7 +458,7 @@ namespace m4d.Controllers
             string userName = User.Identity.Name;
             ApplicationUser user = Database.FindUser(userName);
             Database.DeleteSong(user,song);
-            return RedirectToAction("Index", new { filter = filter });
+            return RedirectToAction("Index", new {filter });
         }
 
 
@@ -476,7 +468,7 @@ namespace m4d.Controllers
         public ActionResult MergeCandidates(int? page, int? level, bool? autoCommit, SongFilter filter)
         {
             filter.Action = "MergeCandidates";
-            IList<Song> songs = null;
+            IList<Song> songs;
 
             BuildDanceList(filter);
 
@@ -502,7 +494,7 @@ namespace m4d.Controllers
             int pageSize = 25;
             int pageNumber = filter.Page ?? 1;
 
-            if (autoCommit.HasValue && autoCommit.Value == true)
+            if (autoCommit.HasValue && autoCommit.Value)
             {
                 songs = AutoMerge(songs,(int)filter.Level);
             }
@@ -909,7 +901,7 @@ namespace m4d.Controllers
                 Database.DeleteSong(user, song);
             }
 
-            return RedirectToAction("Index", new { filter = filter });
+            return RedirectToAction("Index", new { filter });
         }
 
         #endregion
@@ -946,7 +938,7 @@ namespace m4d.Controllers
             Debug.WriteLine(string.Format("------------Purchase == {0} ------------", purchase));
             foreach (Song t in songs)
             {
-                Debug.WriteLine(string.Format("{0}: {1}", t.Title, t.Purchase));
+                Debug.WriteLine("{0}: {1}", t.Title, t.Purchase);
             }
         }
 
@@ -1158,7 +1150,7 @@ namespace m4d.Controllers
 
             return View("Merge", sm);
         }
-        private string ResolveStringField(string fieldName, IList<Song> songs, System.Collections.Specialized.NameValueCollection form = null)
+        private string ResolveStringField(string fieldName, IList<Song> songs, NameValueCollection form = null)
         {
             object obj = ResolveMergeField(fieldName, songs, form);
 
@@ -1166,25 +1158,24 @@ namespace m4d.Controllers
         }
 
 
-        private int? ResolveIntField(string fieldName, IList<Song> songs, System.Collections.Specialized.NameValueCollection form = null)
+        private int? ResolveIntField(string fieldName, IList<Song> songs, NameValueCollection form = null)
         {
             int? ret = ResolveMergeField(fieldName, songs, form) as int?;
 
             return ret;
         }
 
-        private decimal? ResolveDecimalField(string fieldName, IList<Song> songs, System.Collections.Specialized.NameValueCollection form = null)
+        private decimal? ResolveDecimalField(string fieldName, IList<Song> songs, NameValueCollection form = null)
         {
             decimal? ret = ResolveMergeField(fieldName, songs, form) as decimal?;
 
             return ret;
         }
 
-        private object ResolveMergeField(string fieldName, IList<Song> songs, System.Collections.Specialized.NameValueCollection form = null)
+        private object ResolveMergeField(string fieldName, IList<Song> songs, NameValueCollection form = null)
         {
             // If fieldName doesn't exist, this means that we didn't add a radio button for the field because all the
             //  values were the same.  So just return the value of the first song.
-            object ret = null;
 
             // if form is != null we disambiguate based on form otherwise it's the first non-null field
 
@@ -1211,8 +1202,7 @@ namespace m4d.Controllers
                 }
             }
 
-            ret = songs[idx].GetType().GetProperty(fieldName).GetValue(songs[idx]);
-            return ret;
+            return songs[idx].GetType().GetProperty(fieldName).GetValue(songs[idx]);
         }
         #endregion
     }

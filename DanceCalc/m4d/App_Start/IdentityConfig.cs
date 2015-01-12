@@ -1,20 +1,17 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Data.Entity;
-using System.Linq;
+using System.Configuration;
+using System.Net;
+using System.Net.Mail;
 using System.Security.Claims;
 using System.Threading.Tasks;
-using System.Web;
+using m4d.Context;
+using m4dModels;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.EntityFramework;
 using Microsoft.AspNet.Identity.Owin;
 using Microsoft.Owin;
 using Microsoft.Owin.Security;
-using m4d.Context;
-using m4dModels;
 using SendGrid;
-using System.Net;
-using System.Configuration;
 
 namespace m4d
 {
@@ -31,7 +28,7 @@ namespace m4d
         {
             var myMessage = new SendGridMessage();
             myMessage.AddTo(message.Destination);
-            myMessage.From = new System.Net.Mail.MailAddress("david@music4dance.net", "music4dance");
+            myMessage.From = new MailAddress("david@music4dance.net", "music4dance");
             myMessage.Subject = message.Subject;
             myMessage.Text = message.Body;
             myMessage.Html = message.Body;
@@ -45,15 +42,7 @@ namespace m4d
             var transportWeb = new Web(credentials);
 
             // Send the email.
-            if (transportWeb != null)
-            {
-                await transportWeb.DeliverAsync(myMessage);
-            }
-            else
-            {
-                System.Diagnostics.Trace.TraceError("Failed to create Web transport.");
-                await Task.FromResult(0);
-            }
+            await transportWeb.DeliverAsync(myMessage);
         }
 
     }

@@ -2,11 +2,6 @@
 
 @{
     var danceMap = (IDictionary<string, m4dModels.SongCounts>)ViewBag.DanceMap;
-    bool canEdit = false;
-    if (User.IsInRole("canEdit"))
-    {
-        canEdit = true;
-    }
     HashSet<string> danceTags = new HashSet<string>();
 }
 
@@ -80,7 +75,7 @@
             <div class="display-field">
             @foreach (var item in Model.TagSummary.Tags)
             {
-                string[] rg = item.Value.Split(new char[] { ':' });
+                string[] rg = item.Value.Split(':');
                 if (rg[1] == "Dance")
                 {
                     danceTags.Add(rg[0].ToLower());
@@ -104,7 +99,7 @@
     <div class="row">
         <div class="col-md-12" style="padding-top:5px">
             @{
-                string dl = null;
+                string dl;
                 string separator = "";
                 if (Model.DanceRatings.Count == 1)
                 {

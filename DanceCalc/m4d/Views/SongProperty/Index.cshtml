@@ -5,16 +5,7 @@
 
 @{
     ViewBag.Title = "Properties";
-    bool canEdit = false;
-    if (User.IsInRole("canEdit"))
-    {
-        canEdit = true;
-    }
-    bool showDiag = false;
-    if (User.IsInRole("showDiagnostics"))
-    {
-        showDiag = true;
-    }
+    bool showDiag = User.IsInRole("showDiagnostics");
 }
 
 <h2>@ViewBag.Title</h2>

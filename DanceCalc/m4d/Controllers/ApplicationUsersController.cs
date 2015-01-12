@@ -1,15 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data;
+﻿using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
 using System.Net;
-using System.Web;
 using System.Web.Mvc;
-using m4d.Context;
 using m4dModels;
-using Microsoft.AspNet.Identity.EntityFramework;
 using Microsoft.AspNet.Identity;
+using Microsoft.AspNet.Identity.EntityFramework;
 
 namespace m4d.Controllers
 {
@@ -98,7 +94,7 @@ namespace m4d.Controllers
         {
             if (ModelState.IsValid)
             {
-                Context.Entry(applicationUser).State = System.Data.Entity.EntityState.Modified;
+                Context.Entry(applicationUser).State = EntityState.Modified;
                 Context.SaveChanges();
                 return RedirectToAction("Index");
             }
@@ -138,15 +134,8 @@ namespace m4d.Controllers
                 return HttpNotFound();
             }
 
-            List<string> newRoles = null;
-            if (roles == null)
-            {
-                newRoles = new List<string>();
-            }
-            else
-            {
-                newRoles = new List<string>(roles);
-            }
+            List<string> newRoles;
+            newRoles = roles == null ? new List<string>() : new List<string>(roles);
 
             var ustore = new UserStore<ApplicationUser>(Context);
             var umanager = new UserManager<ApplicationUser>(ustore);

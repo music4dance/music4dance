@@ -53,7 +53,7 @@
                     }
                     else
                     {
-                        string[] alternates = (value as string).Split(new char[] {'|'});
+                        string[] alternates = (value as string).Split('|');
                         bool first = true;
                         foreach (string alternate in alternates)
                         { 
@@ -62,7 +62,7 @@
                                 <br />
                                 <input type="radio" style="width:auto;background-color:inherit" name="@spm.Name" value="@i" @Html.Raw(primaryClick) />
                             }
-                            @alternate.ToString()
+                            @alternate
                             if (spm.Selection != -1)
                             {
                                 string name = spm.Name + "_" + i.ToString();
@@ -97,7 +97,7 @@
                 string label = dm.DanceName + " (" + dm.Weight.ToString() + ")";
                 string name = "Dance-" + dm.DanceId + "-" + dm.Weight;
                 string isChecked = "";
-                if (dm.Keep == true)
+                if (dm.Keep)
                 {
                     isChecked = "checked";
                 }

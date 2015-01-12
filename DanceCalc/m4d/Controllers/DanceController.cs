@@ -1,12 +1,9 @@
-﻿using m4dModels;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
-using System.Web.Mvc;
-using DanceLibrary;
-using System.Data;
+﻿using System;
+using System.Data.Entity;
 using System.Diagnostics;
+using System.Linq;
+using System.Web.Mvc;
+using m4dModels;
 
 namespace m4d.Controllers
 {
@@ -49,7 +46,7 @@ namespace m4d.Controllers
         [AllowAnonymous]
         public ActionResult GroupRedirect(string group, string dance)
         {
-            return RedirectToActionPermanent("Index", new {dance=dance});
+            return RedirectToActionPermanent("Index", new {dance});
         }
 
         //
@@ -85,15 +82,15 @@ namespace m4d.Controllers
                         if (link.Id == Guid.Empty)
                         {
                             link.Id = Guid.NewGuid();
-                            Context.Entry(link).State = System.Data.Entity.EntityState.Added;
+                            Context.Entry(link).State = EntityState.Added;
                         }
                         else
                         {
-                            Context.Entry(link).State = System.Data.Entity.EntityState.Modified;
+                            Context.Entry(link).State = EntityState.Modified;
                         }
                     }
                 }
-                Context.Entry(dance).State = System.Data.Entity.EntityState.Modified;
+                Context.Entry(dance).State = EntityState.Modified;
                 Database.SaveChanges();
 
                 SongCounts.ReloadDances(Database);

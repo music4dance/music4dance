@@ -1,16 +1,14 @@
-﻿using DanceLibrary;
-using System;
-using System.Collections.Generic;
+﻿using System;
+using System.ComponentModel;
 using System.Diagnostics;
-using System.Linq;
-using System.Web;
 using System.Web.Mvc;
+using DanceLibrary;
 
 namespace m4d.Utilities
 {
     public class SongBinder : DefaultModelBinder
     {
-        protected override void BindProperty(ControllerContext controllerContext, ModelBindingContext bindingContext, System.ComponentModel.PropertyDescriptor propertyDescriptor)
+        protected override void BindProperty(ControllerContext controllerContext, ModelBindingContext bindingContext, PropertyDescriptor propertyDescriptor)
         {
             if (propertyDescriptor.Name == "Length")
             {

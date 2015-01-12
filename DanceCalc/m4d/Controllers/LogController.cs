@@ -1,16 +1,13 @@
-﻿using PagedList;
-using m4d.Context;
-using m4d.ViewModels;
-using m4dModels;
-using System;
+﻿using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
-using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Web;
-using System.Web.Helpers;
 using System.Web.Mvc;
-using System.Diagnostics;
+using m4dModels;
+using PagedList;
 
 namespace m4d.Controllers
 {
@@ -74,11 +71,11 @@ namespace m4d.Controllers
 
 
                 HttpPostedFileBase file = Request.Files.Get(0);
-                System.IO.Stream stream = file.InputStream;
+                Stream stream = file.InputStream;
 
                 TextReader tr = new StreamReader(stream);
 
-                string s = null;
+                string s;
                 while ((s = tr.ReadLine()) != null)
                 {
                     lines.Add(s);
@@ -92,7 +89,7 @@ namespace m4d.Controllers
             }
             else
             {
-                return new HttpStatusCodeResult(System.Net.HttpStatusCode.BadRequest, "No File Uploaded");
+                return new HttpStatusCodeResult(HttpStatusCode.BadRequest, "No File Uploaded");
             }
         }
 

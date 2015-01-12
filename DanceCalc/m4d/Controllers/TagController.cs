@@ -1,15 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Data.Entity;
+using System.Diagnostics;
 using System.Linq;
 using System.Net;
-using System.Web;
 using System.Web.Mvc;
-using m4d.Context;
-using m4dModels;
 using m4d.ViewModels;
-using System.Diagnostics;
+using m4dModels;
 
 namespace m4d.Controllers
 {
@@ -107,7 +104,7 @@ namespace m4d.Controllers
                         tagType.PrimaryId = null;
                         tagType.Primary = null;
                     }
-                    Context.Entry(tagType).State = System.Data.Entity.EntityState.Modified;
+                    Context.Entry(tagType).State = EntityState.Modified;
                     Database.SaveChanges();
                 }
                 else
@@ -190,7 +187,7 @@ namespace m4d.Controllers
                         {
                             if (prop.Name == Song.AddedTags || prop.Name == Song.RemovedTags)
                             {
-                                prop.Value = (prop.Value as string).Replace(oldTT.Key, newKey);
+                                prop.Value = prop.Value.Replace(oldTT.Key, newKey);
                             }
                         }
                     }

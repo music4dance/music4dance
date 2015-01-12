@@ -1,14 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
+﻿using System.Web;
 using System.Web.Mvc;
-
-using m4dModels;
 using m4d.Context;
-
-using Owin;
-using Microsoft.Owin.Security;
+using m4dModels;
 using Microsoft.AspNet.Identity.Owin;
 
 namespace m4d.Controllers

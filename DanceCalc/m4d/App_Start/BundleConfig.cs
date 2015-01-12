@@ -1,8 +1,6 @@
-﻿using BundleTransformer.Core.Bundles;
+﻿using System.Web.Optimization;
 using BundleTransformer.Core.Orderers;
 using BundleTransformer.Core.Transformers;
-using System.Web;
-using System.Web.Optimization;
 
 namespace m4d
 {

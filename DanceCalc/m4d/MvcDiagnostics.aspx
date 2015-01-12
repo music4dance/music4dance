@@ -1,9 +1,6 @@
 ﻿<%@ Page Language="C#" AutoEventWireup="true" %>
-
-<%@ Import Namespace="System.Collections.Generic" %>
 <%@ Import Namespace="System.Diagnostics" %>
 <%@ Import Namespace="System.Globalization" %>
-<%@ Import Namespace="System.Linq" %>
 <%@ Import Namespace="System.Reflection" %>
 <%@ Import Namespace="System.Security" %>
 <%@ Import Namespace="System.Web.Compilation" %>

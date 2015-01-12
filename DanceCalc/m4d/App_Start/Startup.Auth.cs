@@ -1,14 +1,11 @@
-﻿using Microsoft.AspNet.Identity;
-using Microsoft.Owin;
-using Owin;
-using Microsoft.Owin.Security.Cookies;
-using Microsoft.Owin.Security.Google;
+﻿using System;
 using m4d.Context;
 using m4dModels;
+using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.Owin;
-using System;
-
-using m4d;
+using Microsoft.Owin;
+using Microsoft.Owin.Security.Cookies;
+using Owin;
 
 namespace m4d
 {

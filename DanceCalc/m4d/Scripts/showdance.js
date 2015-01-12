@@ -1,7 +1,7 @@
 ﻿var OnDance = function(evt)
 {
     var target = $(evt.target);
-    var id = null;
+    var id;
     do {
         id = target.attr('id');
         target = target.parent();

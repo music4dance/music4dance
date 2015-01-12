@@ -1,9 +1,8 @@
-﻿using m4dModels;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
-using System.Web;
+using m4dModels;
 
 namespace m4d.ViewModels
 {
@@ -39,7 +38,7 @@ namespace m4d.ViewModels
                 AlbumDetails album = sd.AlbumFromTitle(title);
                 if (album != null)
                 {
-                    int track = 0;
+                    int track;
                     if (!album.Track.HasValue || album.Track.Value == 0 || map.ContainsKey(album.Track.Value))
                     {
                         track = floor;
@@ -76,7 +75,7 @@ namespace m4d.ViewModels
             // First add in the tracks that have valid #'s in order
             for (int i = 0; i <= max; i++)
             {
-                SongDetails sd = null;
+                SongDetails sd;
                 if (map.TryGetValue(i,out sd))
                 {
                     list.Add(sd);
@@ -85,7 +84,7 @@ namespace m4d.ViewModels
             // Then append the tracks that either don't have a number or are dups
             for (int i = -1; i > floor; i--)
             {
-                SongDetails sd = null;
+                SongDetails sd;
                 if (map.TryGetValue(i, out sd))
                 {
                     list.Add(sd);

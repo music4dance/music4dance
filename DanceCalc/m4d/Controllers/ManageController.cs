@@ -3,13 +3,11 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
+using m4d.ViewModels;
+using m4dModels;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.Owin;
 using Microsoft.Owin.Security;
-
-using m4d;
-using m4d.ViewModels;
-using m4dModels;
 
 namespace m4d.Controllers
 {

@@ -1,29 +1,18 @@
-﻿using DanceLibrary;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
 using System.Data.Common;
 using System.Data.Entity;
-using System.Data.Entity.Infrastructure;
+using System.Data.Entity.Validation;
 using System.Diagnostics;
-using System.Linq;
-using System.Globalization;
-using System.Text;
-using Microsoft.AspNet.Identity.EntityFramework;
-using System.Reflection;
-
-using m4d.ViewModels;
+using System.IO;
+using System.Net;
+using System.Web.Helpers;
 using m4d.Utilities;
 using m4dModels;
 using Microsoft.AspNet.Identity;
-using System.Data.Entity.Validation;
-using System.Net;
-using System.IO;
-using Antlr.Runtime;
-using Microsoft.Owin.Security.OAuth;
-using Microsoft.Owin.Security.Twitter.Messages;
-using SpotifyWebAPI;
+using Microsoft.AspNet.Identity.EntityFramework;
 
 // Let's see if we can mock up a recoverable log file by spitting out
 // something resembling a tab-separated flat list of songs items with a
@@ -74,7 +63,7 @@ namespace m4d.Context
 
         private static DbConnection CreateConnection(string connectionString, string providerInvariantName)
         {
-            DbConnection connection = null;
+            DbConnection connection;
             DbProviderFactory factory = DbProviderFactories.GetFactory(providerInvariantName);
             connection = factory.CreateConnection();
             connection.ConnectionString = connectionString;
@@ -95,7 +84,7 @@ namespace m4d.Context
         #endregion
 
         #region Events
-        protected override void OnModelCreating(System.Data.Entity.DbModelBuilder modelBuilder)
+        protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
             modelBuilder.Properties<DateTime>().Configure(c => c.HasColumnType("datetime2"));
 
@@ -132,7 +121,7 @@ namespace m4d.Context
 
         public IList<ServiceTrack> FindMusicServiceSong(SongDetails song, MusicService service, bool clean = false, string title = null, string artist = null, string album = null)
         {
-            IList<ServiceTrack> list = null;
+            IList<ServiceTrack> list;
 
             if (service != null)
             {
@@ -200,7 +189,7 @@ namespace m4d.Context
 
         private IList<ServiceTrack> DoFindMusicServiceSong(SongDetails song, MusicService service, bool clean = false, string title = null, string artist = null)
         {
-            IList<ServiceTrack> tracks = null;
+            IList<ServiceTrack> tracks;
             switch (service.Id)
             {
                 case ServiceType.Amazon:
@@ -243,13 +232,10 @@ namespace m4d.Context
 
         private IList<ServiceTrack> FindMSSongGeneral(SongDetails song, MusicService service, bool clean = false, string title = null, string artist = null)
         {
-            HttpWebRequest request = null;
-            HttpWebResponse response = null;
-
-            string responseString = null;
+            HttpWebResponse response;
+            string responseString;
 
             // Make Music database request
-
             string req = service.BuildSearchRequest(artist, title);
 
             if (req == null)
@@ -257,7 +243,7 @@ namespace m4d.Context
                 return null;
             }
 
-            request = (HttpWebRequest)WebRequest.Create(req);
+            var request = (HttpWebRequest)WebRequest.Create(req);
             request.Method = WebRequestMethods.Http.Get;
             request.Accept = "application/json";
 
@@ -283,7 +269,7 @@ namespace m4d.Context
             }
 
             responseString = service.PreprocessSearchResponse(responseString);
-            dynamic results = System.Web.Helpers.Json.Decode(responseString);
+            dynamic results = Json.Decode(responseString);
             return service.ParseSearchResults(results);
         }
         #endregion
@@ -322,7 +308,7 @@ namespace m4d.Context
 
         public override int SaveChanges()
         {
-            int ret = 0;
+            int ret;
             try
             {
                 ret = base.SaveChanges();
@@ -346,7 +332,7 @@ namespace m4d.Context
 
         public void CheckpointChanges()
         {
-            if (Configuration.AutoDetectChangesEnabled == true)
+            if (Configuration.AutoDetectChangesEnabled)
             {
                 throw new InvalidConstraintException("Attempting a checkpoint without having first disabled auto-detect");
             }
@@ -366,7 +352,7 @@ namespace m4d.Context
                 ChangeTracker.DetectChanges();
                 SaveChanges();
             }
-            else if (!track && Configuration.AutoDetectChangesEnabled == true)
+            else if (!track && Configuration.AutoDetectChangesEnabled)
             {
                 Configuration.AutoDetectChangesEnabled = false;
             }

@@ -1,9 +1,8 @@
+using System.Data.Entity.Migrations;
+using System.Diagnostics;
+
 namespace m4d.Migrations
 {
-    using System;
-    using System.Data.Entity.Migrations;
-    using System.Diagnostics;
-    
     public partial class SongPurchase : DbMigration
     {
         public override void Up()

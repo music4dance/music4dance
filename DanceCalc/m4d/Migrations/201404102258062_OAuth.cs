@@ -1,9 +1,8 @@
+using System.Data.Entity.Migrations;
+using System.Diagnostics;
+
 namespace m4d.Migrations
 {
-    using System;
-    using System.Data.Entity.Migrations;
-    using System.Diagnostics;
-    
     public partial class OAuth : DbMigration
     {
         // I Refactored OAuth into Base because index creation is messes up wrt SQL Azure's

@@ -1,5 +1,6 @@
-﻿@using System.Text
-@model m4dModels.SongCounts
+﻿@using m4dModels
+@using MarkdownDeep
+@model SongCounts
 
 @{
     ViewBag.Title = Model.DanceName + " Information, Top Ten List, and Resources.";
@@ -7,16 +8,16 @@
     ViewBag.NoSort = true;
     ViewBag.ShowTempo = true;
     ViewBag.HideDances = true;
-    ViewBag.SongFilter = new m4dModels.SongFilter { Dances = @Model.DanceId };
+    ViewBag.SongFilter = new SongFilter { Dances = @Model.DanceId };
 
     string description = @"<p>We're busy doing research and pulling together a general description for " + Model.DanceName + @".  Please check back later for more info.</p>";
     if (!string.IsNullOrWhiteSpace(Model.Dance.Description))
     {
-        var md = new MarkdownDeep.Markdown();
+        var md = new Markdown();
         md.ExtraMode = true;
         md.SafeMode = false;
         description = Model.Dance.Description;
-        description = m4dModels.Dance.SmartLinks(description,true);
+        description = Dance.SmartLinks(description,true);
         description = md.Transform(description);
     }
 }

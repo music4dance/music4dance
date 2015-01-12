@@ -1,5 +1,4 @@
-﻿using System.Web;
-using System.Web.Mvc;
+﻿using System.Web.Mvc;
 
 namespace m4d
 {
@@ -8,7 +7,7 @@ namespace m4d
         public static void RegisterGlobalFilters(GlobalFilterCollection filters)
         {
             filters.Add(new HandleErrorAttribute());
-            filters.Add(new System.Web.Mvc.AuthorizeAttribute());
+            filters.Add(new AuthorizeAttribute());
             filters.Add(new RequireHttpsAttribute());
         }
     }

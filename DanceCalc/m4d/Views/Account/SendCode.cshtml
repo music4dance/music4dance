@@ -5,6 +5,7 @@
 
 <h2>@ViewBag.Title.</h2>
 
+@* ReSharper disable once RedundantAnonymousTypePropertyName *@
 @using (Html.BeginForm("SendCode", "Account", new { ReturnUrl = Model.ReturnUrl }, FormMethod.Post, new { @class = "form-horizontal", role = "form" })) {
     @Html.AntiForgeryToken()
     @Html.Hidden("rememberMe", @Model.RememberMe)

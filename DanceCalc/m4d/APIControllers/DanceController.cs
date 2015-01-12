@@ -1,17 +1,14 @@
-﻿using DanceLibrary;
-using m4dModels;
-using System;
-using System.Collections.Generic;
+﻿using System.Diagnostics.CodeAnalysis;
 using System.Linq;
-using System.Net;
-using System.Net.Http;
 using System.Web.Http;
+using DanceLibrary;
+using m4dModels;
 
 namespace m4d.APIControllers
 {
     public class DanceJson
     {
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
+        [SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
         public DanceJson(DanceObject d)
         {
             Id = d.Id;
@@ -20,7 +17,7 @@ namespace m4d.APIControllers
             TempoRange = d.TempoRange;
             SeoName = d.CleanName;
         }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
+        [SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
         public DanceJson(DanceSample d) : this(d.DanceType)
         {
             TempoDelta = d.TempoDelta;
@@ -39,7 +36,7 @@ namespace m4d.APIControllers
         {
             // This should eventually take a filter (or multiple filter) paramter
             var dances = Dance.DanceLibrary.AllDanceTypes;  //global::DanceLibrary.Dances.Reset().AllDanceTypes;
-            if (details == true)
+            if (details)
             {
                 return Ok(dances);
             }
@@ -53,7 +50,7 @@ namespace m4d.APIControllers
 
         public IHttpActionResult GetDance(string id)
         {
-            DanceObject o = null;
+            DanceObject o;
             if (Dance.DanceLibrary.DanceDictionary.TryGetValue(id, out o))
             {
                 return Ok(new DanceJson(o));

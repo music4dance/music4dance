@@ -1,8 +1,6 @@
-﻿using PagedList;
-using System.Linq;
+﻿using System.Linq;
 using System.Web.Mvc;
-
-using m4d.Context;
+using PagedList;
 
 namespace m4d.Controllers
 {

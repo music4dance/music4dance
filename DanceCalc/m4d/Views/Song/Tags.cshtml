@@ -1,15 +1,17 @@
-﻿@model PagedList.IPagedList<m4dModels.Song>
-@using PagedList.Mvc;
+﻿@using System.Text
+@using DanceLibrary
+@using m4dModels
+@model PagedList.IPagedList<Song>
 
 @{
-    var dances = (IList<m4dModels.SongCounts>)ViewBag.Dances;
-    IList<DanceLibrary.DanceObject> selected = ViewBag.SelectedDances;
+    var dances = (IList<SongCounts>)ViewBag.Dances;
+    IList<DanceObject> selected = ViewBag.SelectedDances;
     
-    System.Text.StringBuilder sb = new System.Text.StringBuilder();
+    StringBuilder sb = new StringBuilder();
     string sep = string.Empty;
     if (ViewData.ContainsKey("Tags"))
     {
-        foreach (var tag in ViewBag.Tags as ICollection<m4dModels.TagType>)
+        foreach (var tag in ViewBag.Tags as ICollection<TagType>)
         {
             sb.Append(sep);
             sb.Append(tag.Value);
@@ -18,7 +20,7 @@
     }
     string prettyTags = sb.ToString();
     ViewBag.Title = string.Format("Songs tagged with {0}", prettyTags);
-    ViewBag.SongFilter = new m4dModels.SongFilter();
+    ViewBag.SongFilter = new SongFilter();
 }
 
 @*TODO: Make these linkable tags*@

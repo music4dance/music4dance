@@ -1,4 +1,4 @@
-﻿@model System.Web.Mvc.HandleErrorInfo
+﻿@model HandleErrorInfo
 
 @{
     ViewBag.Title = "Error";
@@ -23,7 +23,7 @@
     <p><b>Target Site:</b>@Model.Exception.TargetSite</p>
     
     <h3>Stack Trace:</h3>
-    string[] frames = Model.Exception.StackTrace.Split(new char[] { '\n' }, StringSplitOptions.RemoveEmptyEntries);
+    string[] frames = Model.Exception.StackTrace.Split(new[] { '\n' }, StringSplitOptions.RemoveEmptyEntries);
     <ul>
         @foreach (string s in frames)
         {

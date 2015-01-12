@@ -1,27 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Data.Entity;
+using System.Data.Entity.Core.Objects;
+using System.Data.Entity.Infrastructure;
+using System.Data.Entity.Migrations;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Web;
 using System.Web.Mvc;
-using System.Text;
-
-using m4d.Migrations;
-using m4d.Context;
+using DanceLibrary;
 using m4d.Scrapers;
 using m4d.ViewModels;
 using m4dModels;
-using DanceLibrary;
-using System.Text.RegularExpressions;
-using System.Data.Entity.Infrastructure;
-using System.Data.Entity.Migrations;
-using m4d.Utilities;
-using Microsoft.AspNet.Identity.EntityFramework;
-using Microsoft.AspNet.Identity;
-using System.Data.Entity.Core.Objects;
-using EntityFramework.Utilities;
+using Configuration = m4d.Migrations.Configuration;
 
 namespace m4d.Controllers
 {
@@ -304,7 +298,7 @@ namespace m4d.Controllers
             bool changed = false;
             foreach (var tt in Database.TagTypes)
             {
-                int c = 0;
+                int c;
                 if (!counts.TryGetValue(tt.Key, out c) || c != tt.Count)
                 {
                     changed = true;
@@ -353,7 +347,7 @@ namespace m4d.Controllers
                         string g = dt.GroupId;
                         if (g != "MSC")
                         {
-                            DanceRatingDelta drd = null;
+                            DanceRatingDelta drd;
                             if (ngs.TryGetValue(g, out drd))
                             {
                                 drd.Delta += 2;
@@ -808,7 +802,7 @@ namespace m4d.Controllers
                 {
                     if (!string.IsNullOrWhiteSpace(line))
                     {
-                        string[] cells = line.Split(new char[] { '\t' });
+                        string[] cells = line.Split('\t');
                         if (cells.Length >= 2)
                         {
                             string name = cells[1].Trim();
@@ -850,7 +844,7 @@ namespace m4d.Controllers
                     if (!string.IsNullOrWhiteSpace(line))
                     {
                         // DATE, SID, user, tag (unqualified)
-                        string[] cells = line.Split(new char[] { '\t' });
+                        string[] cells = line.Split('\t');
                         if (cells.Length == 4)
                         {
                             DateTime dt;
@@ -872,14 +866,14 @@ namespace m4d.Controllers
                             {
                                 cat = types[0].Category;
                             }
-                            else if (user != "batch" && DanceLibrary.Dances.Instance.DanceFromName(tag) != null)
+                            else if (user != "batch" && Dances.Instance.DanceFromName(tag) != null)
                             {
                                 cat = "Dance";
                             }
                             tag += ":" + cat;
 
                             string id = user + ":" + guid.ToString();
-                            string tags = null;
+                            string tags;
                             if (entries.TryGetValue(id, out tags))
                             {
                                 TagList tl = new TagList(tags);
@@ -906,7 +900,7 @@ namespace m4d.Controllers
                 foreach (string k in entries.Keys)
                 {
                     string tags = entries[k];
-                    string[] rg = k.Split(new char[] { ':' });
+                    string[] rg = k.Split(':');
 
                     Guid guid = Guid.Parse(rg[1]);
                     string userName = rg[0];
@@ -992,7 +986,7 @@ namespace m4d.Controllers
             }
             IList<LocalMerger> results = null;
 
-            IList<string> headerList = null;
+            IList<string> headerList;
             if (!string.IsNullOrWhiteSpace(headers))
             {
                  headerList = SongDetails.BuildHeaderMap(headers, ',');
@@ -1070,8 +1064,6 @@ namespace m4d.Controllers
             ViewBag.Headers = headers;
             ViewBag.Separator = separator;
 
-            separator = CleanSeparator(separator);
-
             if (string.IsNullOrWhiteSpace(userName))
             {
                 userName = User.Identity.Name;
@@ -1081,7 +1073,7 @@ namespace m4d.Controllers
             List<string> dances = null;
             if (!string.IsNullOrWhiteSpace(danceIds))
             {
-                dances = new List<string>(danceIds.Split(new char[] { ';' }));
+                dances = new List<string>(danceIds.Split(';'));
             }
 
             if (initial.Count > 0)
@@ -1090,7 +1082,7 @@ namespace m4d.Controllers
 
                 foreach (LocalMerger m in initial)
                 {
-                    List<string> dancesT = dances;
+                    List<string> dancesT;
                     if (m.Left.DanceRatings != null && m.Left.DanceRatings.Count > 0)
                     {
                         dancesT = m.Left.DanceRatings.Select(dr => dr.DanceId).ToList();
@@ -1151,9 +1143,9 @@ namespace m4d.Controllers
             //TODO: For some reason lazy loading isn't working for the roles collection, so explicitly loading (for now)
             Context.Users.AsQueryable().Include("Roles").Load();
 
-            IList<string> users = Database.SerializeUsers(true);
-            IList<string> tags = Database.SerializeTags(true);
-            IList<string> dances = Database.SerializeDances(true);
+            IList<string> users = Database.SerializeUsers();
+            IList<string> tags = Database.SerializeTags();
+            IList<string> dances = Database.SerializeDances();
             IList<string> songs = Database.SerializeSongs(true,history);
 
             string s = string.Join("\r\n", users) + "\r\n" + string.Join("\r\n", dances) + "\r\n" + string.Join("\r\n", tags) + "\r\n" + string.Join("\r\n", songs);
@@ -1247,9 +1239,9 @@ namespace m4d.Controllers
 
             int cwlz = 0;
             songs = songs.Where(s => s.DanceRatings.Any(dr => danceList.Contains(dr.DanceId)));
-            List<Song> songsT = songs.ToList();
+            //List<Song> songsT = songs.ToList();
             songs = songs.Where(s => s.Tempo > 190);
-            songsT = songs.ToList();
+            //songsT = songs.ToList();
 
             foreach (var song in songs)
             {
@@ -1262,9 +1254,9 @@ namespace m4d.Controllers
             int csmb = 0;
             songs = from s in Database.Songs where s.TitleHash != 0 select s;
             songs = songs.Where(s => s.DanceRatings.Count == 1 && s.DanceRatings.Any(dr => dr.DanceId == "SMB"));
-            songsT = songs.ToList();
+            //songsT = songs.ToList();
             songs = songs.Where(s => s.Tempo > 175);
-            songsT = songs.ToList();
+            //songsT = songs.ToList();
             foreach (var song in songs)
             {
                 decimal newTempo = (song.Tempo.Value / 2);
@@ -1311,35 +1303,35 @@ namespace m4d.Controllers
         #endregion
 
         #region Migration-Restore
-        private void RestoreDB(string state="InitialCreate")
+
+        private void RestoreDB(string state = "InitialCreate")
         {
-            DbMigrator migrator = null;
+            DbMigrator migrator;
 
             // Roll back to a specific migration or zero
             if (state != null)
             {
-                Trace.WriteLineIf(TraceLevels.General.TraceInfo,"Rolling Back Database");
+                Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Rolling Back Database");
                 migrator = BuildMigrator();
                 migrator.Update(state);
             }
             else
             {
-                Trace.WriteLineIf(TraceLevels.General.TraceInfo,"Wiping Database");
-                ObjectContext objectContext = ((IObjectContextAdapter)Context).ObjectContext;
+                Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Wiping Database");
+                var objectContext = ((IObjectContextAdapter)Context).ObjectContext;
                 objectContext.DeleteDatabase();
                 migrator = BuildMigrator();
             }
 
-            Trace.WriteLineIf(TraceLevels.General.TraceInfo,"Starting Migrator Update");
+            Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Starting Migrator Update");
             // Apply all migrations up to a specific migration
             migrator.Update();
 
-            Trace.WriteLineIf(TraceLevels.General.TraceInfo,"Exiting RestoreDB");
+            Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Exiting RestoreDB");
         }
-
         private void ReseedDB()
         {
-            m4d.Migrations.Configuration.DoSeed(Context);
+            Configuration.DoSeed(Context);
         }
 
         private DbMigrator BuildMigrator()
@@ -1349,12 +1341,12 @@ namespace m4d.Controllers
             return new DbMigrator(configuration);
         }
 
-        private m4d.Migrations.Configuration BuildConfiguration()
+        private Configuration BuildConfiguration()
         {
             string sqlConnectionString = System.Configuration.ConfigurationManager.ConnectionStrings["DefaultConnection"].ConnectionString;
             var connectionInfo = new DbConnectionInfo(sqlConnectionString, "System.Data.SqlClient");
 
-            var configuration = new m4d.Migrations.Configuration
+            var configuration = new Configuration
             {
                 TargetDatabase = connectionInfo,
                 AutomaticMigrationsEnabled = false
@@ -1362,13 +1354,12 @@ namespace m4d.Controllers
 
             return configuration;
         }
-        
-        #endregion        
+        #endregion
 
         #region Utilities
         private IList<string> HeaderFromList(string separator, ref string songs)
         {
-            int cidx = songs.IndexOfAny(System.Environment.NewLine.ToCharArray());
+            int cidx = songs.IndexOfAny(Environment.NewLine.ToCharArray());
             if (cidx == -1)
             {
                 return null;
@@ -1382,7 +1373,7 @@ namespace m4d.Controllers
             // separated list of headers...
             if (map != null && map.Any(p => p != null))
             {
-                songs = songs.Substring(cidx).TrimStart(System.Environment.NewLine.ToCharArray());
+                songs = songs.Substring(cidx).TrimStart(Environment.NewLine.ToCharArray());
                 return map;
             }
             else
@@ -1393,7 +1384,7 @@ namespace m4d.Controllers
 
         private IList<SongDetails> SongsFromList(ApplicationUser user, string separator, IList<string> headers, string songText)
         {
-            string[] lines = songText.Split(System.Environment.NewLine.ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
+            string[] lines = songText.Split(Environment.NewLine.ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
 
             return SongDetails.CreateFromRows(user, separator, headers, lines, Song.DanceRatingAutoCreate);
         }
@@ -1502,8 +1493,8 @@ namespace m4d.Controllers
                 ViewBag.Size = files[key].ContentLength;
                 ViewBag.ContentType = files[key].ContentType;
 
-                HttpPostedFileBase file = Request.Files.Get(0);
-                System.IO.Stream stream = file.InputStream;
+                var file = Request.Files.Get(0);
+                var stream = file.InputStream;
 
                 TextReader tr = new StreamReader(stream);
 

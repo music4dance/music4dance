@@ -1,21 +1,19 @@
-﻿using m4dModels;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Web;
-
-//using AWSReference.com.amazonaws.ecs;
-using m4d.AWSReference;
 using System.Diagnostics;
-using System.Threading.Tasks;
-using System.ServiceModel;
-using System.ServiceModel.Description;
-using System.ServiceModel.Channels;
-using System.ServiceModel.Dispatcher;
-using System.Xml;
-using System.Text.RegularExpressions;
-using System.Text;
+using System.Diagnostics.CodeAnalysis;
 using System.Security.Cryptography;
+using System.ServiceModel;
+using System.ServiceModel.Channels;
+using System.ServiceModel.Description;
+using System.ServiceModel.Dispatcher;
+using System.Text;
+using System.Text.RegularExpressions;
+using System.Threading;
+using System.Xml;
+using m4d.AWSReference;
+using m4dModels;
+//using AWSReference.com.amazonaws.ecs;
 
 namespace m4d.Utilities
 {
@@ -109,23 +107,20 @@ namespace m4d.Utilities
 
         public void ApplyDispatchBehavior(ServiceEndpoint serviceEndpoint, EndpointDispatcher endpointDispatcher)
         {
-            return;
         }
 
         public void Validate(ServiceEndpoint serviceEndpoint)
         {
-            return;
         }
 
         public void AddBindingParameters(ServiceEndpoint serviceEndpoint, BindingParameterCollection bindingParameters)
         {
-            return;
         }
         #endregion
     }
 
 
-    [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1001:TypesThatOwnDisposableFieldsShouldBeDisposable")]
+    [SuppressMessage("Microsoft.Design", "CA1001:TypesThatOwnDisposableFieldsShouldBeDisposable")]
     public class AWSFetcher : IDisposable
     {
         private const string accessKeyId = "***REMOVED***";
@@ -134,15 +129,14 @@ namespace m4d.Utilities
         private const string endPointAddress = "https://webservices.amazon.com/onca/soap?Service=AWSECommerceService";
         //"https://webservices.amazon.fr/onca/soap?Service=AWSECommerceService"
 
-        BasicHttpBinding _binding;
         AWSECommerceServicePortTypeClient _client;
 
         public AWSFetcher()
         {
             // create a WCF Amazon ECS client
-            _binding = new BasicHttpBinding(BasicHttpSecurityMode.Transport);
-            _binding.MaxReceivedMessageSize = int.MaxValue;
-            _client = new AWSECommerceServicePortTypeClient(_binding, new EndpointAddress(endPointAddress));
+            var binding = new BasicHttpBinding(BasicHttpSecurityMode.Transport);
+            binding.MaxReceivedMessageSize = int.MaxValue;
+            _client = new AWSECommerceServicePortTypeClient(binding, new EndpointAddress(endPointAddress));
 
             // add authentication to the ECS client
             _client.ChannelFactory.Endpoint.Behaviors.Add(new AmazonSigningEndpointBehavior(accessKeyId, secretKeyId));
@@ -260,7 +254,7 @@ namespace m4d.Utilities
                 artist = item.ItemAttributes.Creator[0].Value;
             }
 
-            int trackNum = 0;
+            int trackNum;
             int? ntrackNum = null;
 
             if (int.TryParse(item.ItemAttributes.TrackSequence, out trackNum))
@@ -317,20 +311,21 @@ namespace m4d.Utilities
             string log = string.Format("FindTrack - {0} - Title: '{1}' Artist:'{2}'", DateTime.Now, title, artist);
             Trace.WriteLine(log);
 
-            ItemSearchRequest request = null;
-            ItemSearch itemSearch = null;
+            var request = new ItemSearchRequest
+            {
+                SearchIndex = "DigitalMusic",
+                Title = title,
+                Keywords = artist,
+                RelationshipType = new[] {"Tracks"},
+                ResponseGroup = new[] {"ItemAttributes", "RelatedItems"}
+            };
 
-            request = new ItemSearchRequest();
-            request.SearchIndex = "DigitalMusic";
-            request.Title = title;
-            request.Keywords = artist;
-            request.RelationshipType = new string[] { "Tracks" };
-            request.ResponseGroup = new string[] { "ItemAttributes", "RelatedItems" };
-
-            itemSearch = new ItemSearch();
-            itemSearch.AssociateTag = associateTag;
-            itemSearch.AWSAccessKeyId = accessKeyId;
-            itemSearch.Request = new ItemSearchRequest[] { request };
+            var itemSearch = new ItemSearch
+            {
+                AssociateTag = associateTag,
+                AWSAccessKeyId = accessKeyId,
+                Request = new[] {request}
+            };
 
             ItemSearchResponse r = null;
             while (r == null)
@@ -339,10 +334,10 @@ namespace m4d.Utilities
                 {
                     r = _client.ItemSearch(itemSearch);
                 }
-                catch (System.ServiceModel.ServerTooBusyException e)
+                catch (ServerTooBusyException e)
                 {
                     Trace.WriteLine("FindTrack: " + e.Message);
-                    System.Threading.Thread.Sleep(5000);
+                    Thread.Sleep(5000);
                 }
             }
             return r;
@@ -350,18 +345,19 @@ namespace m4d.Utilities
 
         private ItemLookupResponse DoLookupTrack(string asin)
         {
-            ItemLookupRequest request = null;
-            ItemLookup itemLookup = null;
+            var request = new ItemLookupRequest
+            {
+                ItemId = new[] {asin},
+                RelationshipType = new[] {"Tracks"},
+                ResponseGroup = new[] {"ItemAttributes", "RelatedItems"}
+            };
 
-            request = new ItemLookupRequest();
-            request.ItemId = new string[] {asin};
-            request.RelationshipType = new string[] { "Tracks" };
-            request.ResponseGroup = new string[] { "ItemAttributes", "RelatedItems" };
-
-            itemLookup = new ItemLookup();
-            itemLookup.AssociateTag = associateTag;
-            itemLookup.AWSAccessKeyId = accessKeyId;
-            itemLookup.Request = new ItemLookupRequest[] { request };
+            var itemLookup = new ItemLookup
+            {
+                AssociateTag = associateTag,
+                AWSAccessKeyId = accessKeyId,
+                Request = new[] {request}
+            };
 
             ItemLookupResponse r = null;
             while (r == null)
@@ -370,10 +366,10 @@ namespace m4d.Utilities
                 {
                     r = _client.ItemLookup(itemLookup);
                 }
-                catch (System.ServiceModel.ServerTooBusyException e)
+                catch (ServerTooBusyException e)
                 {
                     Trace.WriteLine("LookupTrack: " + e.Message);
-                    System.Threading.Thread.Sleep(5000);
+                    Thread.Sleep(5000);
                 }
             }
             return r;
@@ -392,7 +388,7 @@ namespace m4d.AWSReference
     {
         public static implicit operator ImageSet[](ImageSet i)
         {
-            return new ImageSet[] { i };
+            return new[] { i };
         }
 
         public static implicit operator ImageSet(ImageSet[] i)

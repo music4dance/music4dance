@@ -1,8 +1,7 @@
+using System.Data.Entity.Migrations;
+
 namespace m4d.Migrations
 {
-    using System;
-    using System.Data.Entity.Migrations;
-    
     public partial class OwnerHash : DbMigration
     {
         public override void Up()
