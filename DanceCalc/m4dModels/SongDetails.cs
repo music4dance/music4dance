@@ -8,7 +8,6 @@ using DanceLibrary;
 
 namespace m4dModels
 {
-    // TODONEXT: Get reloading the DB (or loading from string) to handle tags correctly
     // This is a transitory object (really a ViewModel object) that is used for 
     // viewing and editing a song, it shouldn't ever end up in a database,
     // it's meant to aggregate the information about a song in an easily digestible way
