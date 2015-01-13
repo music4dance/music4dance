@@ -7,6 +7,7 @@ using System.Data.Entity;
 using System.Data.Entity.Validation;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Web.Helpers;
 using m4d.Utilities;
@@ -342,6 +343,36 @@ namespace m4d.Context
                 TrackChanges(false);
             }
         }
+
+        public void CheckpointSongs()
+        {
+            if (Configuration.AutoDetectChangesEnabled)
+            {
+                throw new InvalidConstraintException("Attempting a checkpoint without having first disabled auto-detect");
+            }
+            else
+            {
+                TrackChanges(true);
+                TrackChanges(false);
+
+                RemoveEntities<Song>();
+                RemoveEntities<SongProperty>();
+                RemoveEntities<DanceRating>();
+                RemoveEntities<Tag>();
+                RemoveEntities<ModifiedRecord>();
+                RemoveEntities<SongLog>();
+            }
+        }
+
+        private void RemoveEntities<T>() where T : class
+        {
+            List<T> list = new List<T>();
+            foreach (var unknown in Set<T>().Local)
+                list.Add(unknown);
+            foreach (var p in list) 
+                Entry(p).State = EntityState.Detached;
+        }
+
         public void TrackChanges(bool track)
         {
             if (track && Configuration.AutoDetectChangesEnabled == false)

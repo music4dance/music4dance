@@ -19,7 +19,7 @@ namespace m4dModels
 
         int SaveChanges();
         void TrackChanges(bool track);
-
+        void CheckpointSongs();
     }
 
     //public static class DanceMusicContextHelpers

@@ -1385,8 +1385,7 @@ namespace m4dModels
                 if (c % 1000 == 0)
                 {
                     Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Saving next 1000 songs");
-                    _context.TrackChanges(true);
-                    _context.TrackChanges(false);
+                    _context.CheckpointSongs();
                 }
             }
 

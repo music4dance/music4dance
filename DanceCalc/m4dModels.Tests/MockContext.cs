@@ -132,6 +132,8 @@ namespace m4dModels.Tests
             // NOOP?
         }
 
+        public void CheckpointSongs() { }
+
         public void Dispose()
         {
         }
