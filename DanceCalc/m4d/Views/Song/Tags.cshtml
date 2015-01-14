@@ -1,6 +1,7 @@
 ﻿@using System.Text
 @using DanceLibrary
 @using m4dModels
+@using PagedList.Mvc;
 @model PagedList.IPagedList<Song>
 
 @{
@@ -28,4 +29,14 @@
 
 <div class="row col-xs-12">
     @{Html.RenderPartial("_ListSongs", @Model, ViewData);}
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        @Html.PagedListPager(Model, page => Url.Action(ViewBag.SongFilter.Action, new { page, filter = ViewBag.SongFilter }))
+    </div>
+    <div class="col-md-4 pagination-align">
+        Page @(Model.PageCount < Model.PageNumber ? 0 : Model.PageNumber) of @Model.PageCount
+        (@Model.TotalItemCount songs found.)
+    </div>
 </div>

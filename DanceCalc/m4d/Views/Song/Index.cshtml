@@ -5,11 +5,7 @@
 
 @{
     ViewBag.Title = "Songs for Dancing";
-    bool isAdmin = false;
-    if (User.IsInRole("dbAdmin"))
-    {
-        isAdmin = true;
-    }
+    bool isAdmin = User.IsInRole("dbAdmin");
 
     var dances = (IList<m4dModels.SongCounts>)ViewBag.Dances;
     IList<DanceLibrary.DanceObject> selected = ViewBag.SelectedDances;

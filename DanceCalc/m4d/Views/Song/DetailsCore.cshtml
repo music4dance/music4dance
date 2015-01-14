@@ -116,9 +116,10 @@
                 @foreach (var item in Model.DanceRatings)
                 {
                     string badge = m4dModels.SongCounts.GetRatingBadge(danceMap, item.DanceId, item.Weight);
-                    string tag = danceTags.Contains(item.Dance.Name.ToLower()) ? "dance-tag" : string.Empty;
-                        @separator;
-                        <span class="rating @badge @tag">@Html.ActionLink(item.Dance.Info.Name, item.Dance.Info.Name, "dances")</span>
+                    string name = danceMap[item.DanceId].DanceName;
+                    string tag = danceTags.Contains(name.ToLower()) ? "dance-tag" : string.Empty;
+                    @separator;
+                    <span class="rating @badge @tag">@Html.ActionLink(name, name, "dances")</span>
                     separator = " ";
                 }
                 </div>

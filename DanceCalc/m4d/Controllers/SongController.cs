@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
+using System.Data.Entity;
 using System.Diagnostics;
 using System.Linq;
 using System.Net;
@@ -213,16 +214,13 @@ namespace m4d.Controllers
                 tagsExpanded.Add(tt.Key);
                 if (tt.Ring != null)
                 {
-                    foreach (var sub in tt.Ring)
-                    {
-                        tagsExpanded.Add(sub.Key);
-                    }
+                    tagsExpanded.AddRange(tt.Ring.Select(sub => sub.Key));
                 }
             }
 
             var songs = from s in Database.Songs where s.TitleHash != 0 && tagsExpanded.Any(val => s.TagSummary.Summary.Contains(val)) orderby s.Title select s;
 
-            return View("Tags", songs.ToPagedList(page ?? 1, 25));
+            return View("Tags", songs.Include("DanceRatings").Include("ModifiedBy").Include("SongProperties").ToPagedList(page ?? 1, 25));
         }
         
         //

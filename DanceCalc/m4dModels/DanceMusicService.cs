@@ -720,7 +720,8 @@ namespace m4dModels
         public Song FindSong(Guid id, string signature = null)
         {
             // First find a match id
-            Song song = _context.Songs.Find(id);
+            //Song song = _context.Songs.Find(id);
+            var song = _context.Songs.Where(s => s.SongId == id).Include("DanceRatings").Include("ModifiedBy").Include("SongProperties").Single();
 
             // TODO: Think about signature mis-matches, we can't do the straighforward fail on mis-match because
             //  we're using this for edit and it's perfectly reasonable to edit parts of the sig...
@@ -742,17 +743,19 @@ namespace m4dModels
         {
             SongDetails sd = null;
 
-            Song song = _context.Songs.Find(id);
+            var song = FindSong(id);
 
             if (song != null)
+            {
                 sd = new SongDetails(song);
 
-            if (userName != null)
-            {
-                ApplicationUser user = FindUser(userName);
-                if (user != null)
+                if (userName != null)
                 {
-                    sd.SetCurrentUserTags(user, this);
+                    var user = FindUser(userName);
+                    if (user != null)
+                    {
+                        sd.SetCurrentUserTags(user, this);
+                    }
                 }
             }
             return sd;
@@ -1040,7 +1043,7 @@ namespace m4dModels
                 songs = songs.Take(10);
             }
 
-            return songs; //.Include("SongProperties");
+            return songs.Include("DanceRatings").Include("ModifiedBy").Include("SongProperties");
         }
 
         public string GetPurchaseInfo(ServiceType serviceType, IEnumerable<Song> songs)

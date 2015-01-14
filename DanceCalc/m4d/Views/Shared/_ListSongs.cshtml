@@ -5,6 +5,7 @@
     bool canSort = true;
     if (ViewData.ContainsKey("NoSort"))
     {
+        
         canSort = !ViewBag.NoSort;
     }
     bool hideDances = false;
@@ -190,9 +191,12 @@
                             @{ var separator = ""; }
                             @foreach (var ditem in item.DanceRatings.OrderByDescending(dr => m4dModels.SongCounts.GetScaledRating(danceMap, dr.DanceId, dr.Weight)))
                             {
+                                // TODO: Dance name pulled from the danceMap doesn't require a db lookup - is there a way
+                                //  to make the more intuitive ditem.Dance.Name work without a lookup???
                                 string badge = m4dModels.SongCounts.GetRatingBadge(danceMap, ditem.DanceId, ditem.Weight);
+                                string name = danceMap[ditem.DanceId].DanceName;
                                 @separator;
-                                <span class="rating @badge">@Html.ActionLink(ditem.Dance.Info.Name, ditem.Dance.Info.Name, "dances")</span>
+                                <span class="rating @badge">@Html.ActionLink(name, name, "dances")</span>
                                           separator = " ";
                             }
                         </td>
