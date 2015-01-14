@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Reflection.Emit;
 using System.Text;
 
 namespace m4dModels
@@ -176,27 +178,35 @@ namespace m4dModels
         }
         public override string ToString()
         {
-            StringBuilder sb = new StringBuilder();
-            int? work = Work;
-            int? volume = Volume;
-            int? track = Track;
+            return Format();
+        }
+
+        private static readonly string[] s_invariantFormat = new string[] { "{0:D3}:", "{0:D3}:", "{0:D3}"};
+        private static readonly string[] s_friendlyFormat = new string[] {"Work {0}, ", "Disk {0}, ","Track {0}" };
+        public string Format(string specifier = null)
+        {
+            var sb = new StringBuilder();
+            var work = Work;
+            var volume = Volume;
+            var track = Track;
+
+            var format = string.IsNullOrWhiteSpace(specifier) ? s_invariantFormat : s_friendlyFormat;
 
             if (work.HasValue)
             {
-                sb.AppendFormat("{0:D3}:", work.Value);
+                sb.AppendFormat(format[0], work.Value);
             }
             if (volume.HasValue)
             {
-                sb.AppendFormat("{0:D3}:", volume.Value);
+                sb.AppendFormat(format[1], volume.Value);
             }
             if (track.HasValue)
             {
-                sb.AppendFormat("{0:D3}", track.Value);
+                sb.AppendFormat(format[2], track.Value);
             }
 
             return sb.ToString();
         }
-
         #endregion
 
         private int _val;

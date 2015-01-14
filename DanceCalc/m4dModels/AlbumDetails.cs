@@ -98,6 +98,11 @@ namespace m4dModels
                 return new AlbumTrack(Name, new TrackNumber(Track??0));
             }
         }
+
+        public string FormattedTrack 
+        {
+            get { return Track.HasValue ? new TrackNumber(Track.Value).Format("F") : string.Empty; }
+        }
         #endregion
 
         #region Purchase Serialization

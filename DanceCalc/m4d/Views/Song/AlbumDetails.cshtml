@@ -8,11 +8,8 @@
 </div>
 @if (Model.Track != null)
 {
-    <div class="display-label">
-        Track:
-    </div>
     <div class="display-field">
-        @Model.Track
+        @Model.FormattedTrack
     </div>
 }
 @if (Model.Publisher != null)
