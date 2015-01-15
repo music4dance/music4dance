@@ -721,7 +721,7 @@ namespace m4dModels
         {
             // First find a match id
             //Song song = _context.Songs.Find(id);
-            var song = _context.Songs.Where(s => s.SongId == id).Include("DanceRatings").Include("ModifiedBy").Include("SongProperties").Single();
+            var song = _context.Songs.Where(s => s.SongId == id).Include("DanceRatings").Include("ModifiedBy").Include("SongProperties").FirstOrDefault();
 
             // TODO: Think about signature mis-matches, we can't do the straighforward fail on mis-match because
             //  we're using this for edit and it's perfectly reasonable to edit parts of the sig...
@@ -1407,11 +1407,11 @@ namespace m4dModels
 
             Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Loading Songs");
 
+            int c = 0;
             foreach (string line in lines)
             {
                 SongDetails sd = new SongDetails(line);
                 Song song = FindSong(sd.SongId);
-
 
                 if (song == null)
                 {
@@ -1434,6 +1434,12 @@ namespace m4dModels
                     {
                         UpdateSong(user, song, sd, false);
                     }
+                }
+
+                c += 1;
+                if (c % 100 == 0)
+                {
+                    Trace.WriteLineIf(TraceLevels.General.TraceInfo, string.Format("{0} songs updated", c));
                 }
             }
 
