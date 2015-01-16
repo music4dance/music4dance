@@ -161,6 +161,14 @@ table.songlist
     max-width:90%;
 }
 
+.rating-block {
+    white-space: nowrap;
+}
+
+.rating-block:before {
+    display: inline;
+}
+
 .rating {
     white-space: nowrap;
     display: inline;

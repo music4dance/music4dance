@@ -4,14 +4,6 @@
     ViewBag.Title = Model.Title;
 }
 
-<div class="row">
-    <div class="col-md-12">
-        <hgroup>
-            <h1>@Html.DisplayFor(model => model.Title)</h1>
-        </hgroup>
-    </div>
-</div>
-
 @Html.Partial("DetailsCore")
 <div class="row">
     <div id="songDetails" class="col-md-12">
@@ -56,5 +48,14 @@
             }
         </div>
     </div>
-
 }
+
+@section Scripts
+{
+    <script>
+        $(function () {
+            $('[data-toggle="tooltip"]').tooltip()
+        })
+    </script>
+}
+
