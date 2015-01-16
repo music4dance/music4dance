@@ -2,7 +2,7 @@
 
 @{
     var danceMap = (IDictionary<string, m4dModels.SongCounts>)ViewBag.DanceMap;
-    HashSet<string> danceTags = new HashSet<string>();
+    var danceTags = new HashSet<string>();
 }
 
 <div class="row">
@@ -50,8 +50,6 @@
 
         @if (Model.Length != null)
         {
-            DanceLibrary.SongDuration duration = new DanceLibrary.SongDuration((decimal)Model.Length);
-            string length = duration.ToString("M");
             <div class="display-label">
                 @Html.DisplayNameFor(model => model.Length):
             </div>
@@ -68,21 +66,21 @@
     <div class="row">
         <div class="col-md-12">
             @{
-            string separator = "";
+            var separator = "";
             <div class="display-label">
                 Tags:
             </div>
             <div class="display-field">
             @foreach (var item in Model.TagSummary.Tags)
             {
-                string[] rg = item.Value.Split(':');
+                var rg = item.Value.Split(':');
                 if (rg[1] == "Dance")
                 {
                     danceTags.Add(rg[0].ToLower());
                 }
                 else
                 {
-                    string label = rg[1] == "Music" ? "primary" : "info";
+                    var label = rg[1] == "Music" ? "primary" : "info";
                     @separator;
                     @Html.ActionLink(rg[0], "tags", "song", new { tags = item.Value }, new { @class = "label label-" + label })
                     separator = " ";
@@ -99,25 +97,17 @@
     <div class="row">
         <div class="col-md-12" style="padding-top:5px">
             @{
-                string dl;
-                string separator = "";
-                if (Model.DanceRatings.Count == 1)
-                {
-                    dl = "Dance: ";
-                }
-                else
-                {
-                    dl = "Dances: ";
-                }
+                var separator = "";
+                var dl = Model.DanceRatings.Count == 1 ? "Dance: " : "Dances: ";
                 <div class="display-label">
                     @dl
                 </div>
                 <div class="display-field">
                 @foreach (var item in Model.DanceRatings)
                 {
-                    string badge = m4dModels.SongCounts.GetRatingBadge(danceMap, item.DanceId, item.Weight);
-                    string name = danceMap[item.DanceId].DanceName;
-                    string tag = danceTags.Contains(name.ToLower()) ? "dance-tag" : string.Empty;
+                    var badge = m4dModels.SongCounts.GetRatingBadge(danceMap, item.DanceId, item.Weight);
+                    var name = danceMap[item.DanceId].DanceName;
+                    var tag = danceTags.Contains(name.ToLower()) ? "dance-tag" : string.Empty;
                     @separator;
                     <span class="rating @badge @tag">@Html.ActionLink(name, name, "dances")</span>
                     separator = " ";
@@ -146,7 +136,7 @@
                     Albums:
                 </div>
                     <ul>
-                        @foreach (m4dModels.AlbumDetails album in Model.Albums)
+                        @foreach (var album in Model.Albums)
                     {
                             <li>@Html.Partial("AlbumDetails", album)</li>
                     }
