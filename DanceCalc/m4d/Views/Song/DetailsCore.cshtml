@@ -74,6 +74,7 @@
                     {
                         var label = rg[1] == "Music" ? "primary" : "info";
                         @Html.ActionLink(rg[0], "tags", "song", new {tags = item.Value}, new {@class = "label label-" + label})
+                        <text> </text>
                     }
                 }
             }
