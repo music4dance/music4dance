@@ -76,6 +76,7 @@
                         <ul class="dropdown-menu" role="menu">
                             <li><a href="https://www.music4dance.net/blog">Blog</a></li>
                             <li>@Html.ActionLink("About", "About", "Home")</li>
+                            <li>@Html.ActionLink("Site Map", "sitemap", "Home")</li>
                         </ul>
                     </li>
 
@@ -98,9 +99,10 @@
             <hr />
             <div class="col-md-12">
                 <footer>
-                    <p>&copy; @DateTime.Now.Year - Music4Dance.net - 
-                    @Html.ActionLink("Terms of Service","TermsOfService","Home") - 
-                    @Html.ActionLink("Privacy Policy", "PrivacyPolicy","Home")
+                    <p>&copy; @DateTime.Now.Year - Music4Dance.net -
+                    @Html.ActionLink("Site Map", "sitemap", "Home") - 
+                    @Html.ActionLink("Terms of Service","termsofservice","Home") - 
+                    @Html.ActionLink("Privacy Policy", "privacypolicy","Home")
                     </p>
                 </footer>
             </div>

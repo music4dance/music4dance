@@ -772,6 +772,7 @@
     <Content Include="Views\Tag\Edit.cshtml" />
     <Content Include="Views\Tag\Index.cshtml" />
     <Content Include="Views\Song\Tags.cshtml" />
+    <Content Include="Views\Home\SiteMap.cshtml" />
     <None Include="Web.m4d.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

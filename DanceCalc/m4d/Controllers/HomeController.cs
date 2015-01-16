@@ -1,4 +1,5 @@
-﻿using System.Web.Mvc;
+﻿using System.Linq;
+using System.Web.Mvc;
 using m4dModels;
 
 namespace m4d.Controllers
@@ -23,6 +24,14 @@ namespace m4d.Controllers
         public ActionResult Dances()
         {
             return RedirectPermanent("/dances");
+        }
+
+        [AllowAnonymous]
+        public ActionResult SiteMap()
+        {
+            ThemeName = BlogTheme;
+            var data = SongCounts.GetFlatSongCounts(Database).OrderBy(sc => sc.DanceName);
+            return View(data);
         }
 
         [AllowAnonymous]
@@ -63,8 +72,7 @@ namespace m4d.Controllers
         [AllowAnonymous]
         public ActionResult Contact()
         {
-            ViewBag.Message = ViewBag.Message = "As noted on the homepage, this is an Alpha site, feel free to email with comments and suggestions.";
-
+            ThemeName = BlogTheme;
             return View();
         }
 
