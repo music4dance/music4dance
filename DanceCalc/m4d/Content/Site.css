@@ -229,6 +229,10 @@ h1, h2, h3, h4, h5, h6 { font-family: "Merienda";font-weight: 700 }
     color: white;
 }
 
+.tag-text:hover, .tag-text:focus {
+    color: white;
+}
+
 /* Move into LESS if this works*/
 
 .label-music {

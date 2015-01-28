@@ -359,6 +359,10 @@ var Tag = function(value,parent) {
         return ret;
     }, this);
 
+    // TODO: Can't seem to get this to fire even with what appears to be an identical pattern to other tool tips...
+    //self.tooltip = ko.pureComputed(function () {
+    //    return 'Click to ' + (self.isUserTag() ? 'remove from' : 'add to') + ' your tags';
+    //}, this);
 
     self.toggleUser = function() {
         var value = self.value();
@@ -747,12 +751,16 @@ $(document).ready(function () {
         danceAction(data.selected);
     });
 
-    //var tooltips = $('[data-show='tooltip']');
+    //var tooltips = $('[data-show="tooltip"]');
     //tooltips.livequery(function() {
-    //    $(this).tooltip({selector:'[data-show='tooltip']'});
+    //    $(this).tooltip({selector:'[data-show="tooltip"]'});
     //});
 
-    //$('body').tooltip({ selector: '[data-show=tooltip]' });
+    //$('[data-toggle="tooltip"]').livequery(function () {
+    //    $(this).tooltip();
+    //});
+
+    $('body').tooltip({ selector: '[data-show=tooltip]' });
 
     $('#addTags').on('show.bs.modal', function(event) {
         var button = $(event.relatedTarget);

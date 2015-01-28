@@ -5,11 +5,11 @@
 
     <ul class="panel-body list-group" data-bind="foreach: song.DanceRatings">
         <li class="list-group-item">
-            <span class="rating-block" data-show="tooltip" data-placement="top" data-bind="css: Badge, attr: {title:tooltip}">
+            <span class="rating-block" data-show="tooltip" data-placement="top" data-bind="css: Badge, attr: {'data-original-title':tooltip}">
                 <a data-bind="attr: {href: link}, text: DanceName, css:danceTag"></a>
             </span>
             &nbsp;
-            <a role="button" class="label label-default" data-show="tooltip" data-placement="top" data-bind="attr: {title:liketip},  visible:canEdit"><img data-bind="click:toggleVote, attr: {src:voteImage, 'alt':voteName}" /></a>
+            <a role="button" class="label label-default" data-show="tooltip" data-placement="top" data-bind="attr: {'data-original-title':liketip},  visible:canEdit"><img data-bind="click:toggleVote, attr: {src:voteImage, 'alt':voteName}" /></a>
             <span data-bind="template: {name:'tag-template',foreach:TagSummary.tagTypes}"></span>
         </li>
     </ul>
