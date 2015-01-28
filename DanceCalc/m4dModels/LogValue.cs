@@ -25,6 +25,16 @@ namespace m4dModels
             get { return SongProperty.IsComplexName(Name); }
         }
 
+        public string BaseName
+        {
+            get { return SongProperty.ParseBaseName(Name); }
+        }
+
+
+        public string DanceQualifier
+        {
+            get { return SongProperty.ParsePart(Name, 1); }
+        }
         public string Name { get; set; }
         public string Value { get; set; }
         public string Old { get; set; }

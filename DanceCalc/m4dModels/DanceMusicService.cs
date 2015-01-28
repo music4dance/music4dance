@@ -324,18 +324,19 @@ namespace m4dModels
             return ret;
         }
 
-        private void DoRestoreValues(Song song, IList<LogValue> values, UndoAction action)
+        private void DoRestoreValues(Song song, SongLog entry, UndoAction action)
         {
             // For scalar properties and albums just updating the property will
             //  provide the information for rebulding the song
             // For users, this is additive, so no need to do anything except with a new song
             // For DanceRatings and tags, we're going to update the song here since it is cummulative
-            foreach (LogValue lv in values)
+            ApplicationUser currentUser = entry.User;
+            foreach (LogValue lv in entry.GetValues())
             {
-                ApplicationUser currentUser; 
                 if (!lv.IsAction)
                 {
-                    SongProperty np = _context.SongProperties.Create();
+                    var np = _context.SongProperties.Create();
+                    var baseName = lv.BaseName;
 
                     np.Song = song;
                     np.Name = lv.Name;
@@ -373,17 +374,27 @@ namespace m4dModels
                             }
                         }
                     }
-                    else if (lv.Name.Equals(SongBase.AddedTags) || lv.Name.Equals(SongBase.RemovedTags))
+                    // For tags, we leave the list of tags in place and toggle the add/remove
+                    else if (baseName.Equals(SongBase.AddedTags) || baseName.Equals(SongBase.RemovedTags))
                     {
-                        // For tags, we leave the list of tags in place and toggle the add/remove
-                        np.Value = lv.Value;
-                        if (action == UndoAction.Undo)
-                        {
-                            np.Name = lv.Name.Equals(SongBase.AddedTags) ? SongBase.RemovedTags : SongBase.AddedTags;
-                        }
+                        // TODONEXT: Test this
+                        var add = (baseName.Equals(SongBase.AddedTags) && action == UndoAction.Redo) ||
+                                   (baseName.Equals(SongBase.RemovedTags) && action == UndoAction.Undo);
+
+                        np = null;
+                        TaggableObject tobj = song;
+                        var dq = lv.DanceQualifier;
+                        if (dq != null)
+                            tobj = song.FindRating(dq);
+
+                        if (add)
+                            tobj.AddTags(lv.Value, currentUser, this, song);
+                        else
+                            tobj.RemoveTags(lv.Value, currentUser, this, song);                        
                     }
 
-                    song.SongProperties.Add(np);
+                    if (np != null)
+                        song.SongProperties.Add(np);
                 }
             }
         }
@@ -648,15 +659,14 @@ namespace m4dModels
 
         private string RestoreValuesFromLog(SongLog entry, Song song, UndoAction action)
         {
-            string ret = null;
+            song.CreateEditProperties(entry.User,(action == UndoAction.Undo) ? SongBase.UndoCommand : SongBase.RedoCommand,this);
+            DoRestoreValues(song, entry, action);
 
-            DoRestoreValues(song, entry.GetValues(), action);
-
-            SongDetails sd = new SongDetails(song.SongId, song.SongProperties);
+            var sd = new SongDetails(song.SongId, song.SongProperties);
             song.RestoreScalar(sd);
             song.UpdateUsers(this);
 
-            return ret;
+            return null;
         }
 
         private string Remerge(SongLog entry, Song song, ApplicationUser user)
@@ -722,7 +732,7 @@ namespace m4dModels
             song.Created = log.Time;
             song.Modified = DateTime.Now;
 
-            DoRestoreValues(song, log.GetValues(), UndoAction.Redo);
+            DoRestoreValues(song, log, UndoAction.Redo);
 
             RestoreSong(song,log.User);
             _context.Songs.Add(song);

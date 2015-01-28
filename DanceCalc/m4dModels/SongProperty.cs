@@ -273,51 +273,36 @@ namespace m4dModels
             }
             return value;
         }
+
+        public static string ParsePart(string name, int idx)
+        {
+            var parts = name.Split(':');
+            return (parts.Length > idx) ? parts[idx] : null;
+        }
+
         public static string ParseBaseName(string name)
         {
-            int i = name.IndexOf(':');
-
-            if (i >= 0)
-            {
-                name = name.Substring(0, i);
-            }
-
-            return name;
+            return ParsePart(name, 0);
         }
+
 
         public static string ParseQualifier(string name)
         {
-            string qual = null;
-
-            if (name.Contains(":"))
-            {
-                string[] parts = name.Split(':');
-
-                if (parts.Length > 2)
-                {
-                    qual = parts[2];
-                }
-            }
-
-            return qual;
+            return ParsePart(name, 2);
         }
 
         public static int? ParseIndex(string name)
         {
             int? idx = null;
 
-            if (name.Contains(":"))
+            var part = ParsePart(name, 1);
+            if (part != null)
             {
-                string[] parts = name.Split(':');
-
-                if (parts.Length > 1)
+                int val;
+                if (int.TryParse(part, out val))
                 {
-                    int val;
-                    if (int.TryParse(parts[1], out val))
-                    {
-                        idx = val;
-                    }
-                }
+                    idx = val;
+                }                
             }
 
             return idx;
