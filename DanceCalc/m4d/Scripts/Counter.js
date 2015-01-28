@@ -128,11 +128,14 @@ $(document).ready(function () {
         });
     });
 
-    $('#epsilon').noUiSlider({
-        start: [5],
-        step: 1,
-        range: { 'min': [1], 'max': [50]}
-    });
+    var epsilon = $('#epsilon');
+    if (epsilon.length > 0) {
+        epsilon.noUiSlider({
+            start: [5],
+            step: 1,
+            range: { 'min': [1], 'max': [50] }
+        });
+    }
     //$('#tempo').focus(function () { setFocus(true);});
 });
 

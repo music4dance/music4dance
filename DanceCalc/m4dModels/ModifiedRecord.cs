@@ -5,6 +5,20 @@ namespace m4dModels
 {
     public class ModifiedRecord
     {
+        public ModifiedRecord()
+        {
+        }
+
+        public ModifiedRecord(ModifiedRecord mod)
+        {
+            ApplicationUserId = mod.ApplicationUserId;
+            SongId = mod.SongId;
+            if (mod.ApplicationUser != null)
+            {
+                _userName = mod.ApplicationUser.UserName;
+            }
+        }
+
         public string ApplicationUserId { get; set; }
         public virtual ApplicationUser ApplicationUser { get; set; }
 

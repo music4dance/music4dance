@@ -224,3 +224,29 @@ h1, h2, h3, h4, h5, h6 { font-family: "Merienda";font-weight: 700 }
 .play-link {
     
 }
+
+.tag-text {
+    color: white;
+}
+
+/* Move into LESS if this works*/
+
+.label-music {
+    background: #18685D;
+}
+
+.label-tempo {
+    background: #001671;
+}
+
+.label-style {
+    background: #995600;
+}
+
+.label-other {
+    background: darkgray;
+}
+
+.rating-voted {
+    font-weight: bold;
+}

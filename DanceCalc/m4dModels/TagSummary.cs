@@ -29,6 +29,22 @@ namespace m4dModels
             return tc.Count;
         }
 
+        public HashSet<string> GetTagSet(string type)
+        {
+            var tags = new HashSet<string>();
+
+            foreach (var tag in Tags)
+            {
+                var rg = tag.Value.Split(':');
+
+                if (rg[1] == type)
+                {
+                    tags.Add(rg[0].ToLower());
+                }
+            }
+            return tags;
+        }
+
         #endregion
 
         #region Constructors

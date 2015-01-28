@@ -25,3 +25,4 @@
 /// <reference path="jquery-2.1.3.js" />
 /// <reference path="npm.js" />
 /// <reference path="jquery.validate.js" />
+/// <reference path="jquery.livequery.min.js" />

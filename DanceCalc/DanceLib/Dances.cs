@@ -850,29 +850,47 @@ namespace DanceLibrary
             return set.Keys.ToArray();
         }
 
+        public IList<DanceObject> FromIds(IEnumerable<string> dances)
+        {
+            List<DanceObject> dos = new List<DanceObject>();
+            if (dances == null) return dos;
+
+            foreach (string s in dances)
+            {
+                DanceObject d = null;
+                if (_danceDictionary.TryGetValue(s, out d))
+                {
+                    dos.Add(d);
+                }
+
+            }
+
+            return dos;            
+        }
         public IList<DanceObject> FromIds(string dances)
         {
             if (dances != null)
                 dances = dances.ToUpper();
             IEnumerable<string> list = ParseDanceList(dances);
 
-            List<DanceObject> dos = new List<DanceObject>();
+            return FromIds(list);
+        }
 
-            if (list != null)
-            {
-                foreach (string s in list)
-                {
-                    DanceObject d = null;
-                    if (_danceDictionary.TryGetValue(s, out d))
-                    {
-                        dos.Add(d);
-                    }
-                    
-                }
-            }
+        public IList<DanceObject> FromNames(IEnumerable<string> dances)
+        {
+            var dos = new List<DanceObject>();
+            if (dances == null) return dos;
+
+            dos.AddRange(dances.Select(s => AllDances.FirstOrDefault(d => string.Equals(s, d.Name, StringComparison.OrdinalIgnoreCase))).Where(dobj => dobj != null));
 
             return dos;
         }
+
+        public IList<DanceObject> FromNames(string dances)
+        {
+            return FromNames(ParseDanceList(dances));
+        }
+
 
         private IEnumerable<string> ParseDanceList(string dances)
         {

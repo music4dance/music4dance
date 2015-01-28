@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Runtime.Serialization;
 using System.Text;
 using System.Text.RegularExpressions;
 using DanceLibrary;
@@ -11,6 +12,8 @@ namespace m4dModels
     // This is a transitory object (really a ViewModel object) that is used for 
     // viewing and editing a song, it shouldn't ever end up in a database,
     // it's meant to aggregate the information about a song in an easily digestible way
+    [DataContract]
+    [KnownType(typeof(DanceRatingInfo))]
     public class SongDetails : SongBase
     {
         #region Construction
@@ -30,8 +33,21 @@ namespace m4dModels
             TagSummary = song.TagSummary;
 
             RatingsList.AddRange(song.DanceRatings);
-            Properties.AddRange(song.SongProperties);
-            ModifiedList.AddRange(song.ModifiedBy);
+            if (song.SongProperties != null)
+            {
+                foreach (var prop in song.SongProperties)
+                {
+                    Properties.Add(new SongProperty(prop));
+                }                
+            }
+
+            if (song.ModifiedBy != null)
+            {
+                foreach (var mod in song.ModifiedBy)
+                {
+                    ModifiedList.Add(new ModifiedRecord(mod));
+                }            
+            }
 
             BuildAlbumInfo();
         }
@@ -299,6 +315,15 @@ namespace m4dModels
             return new List<SongDetails>(songs.Values);
         }
 
+        public void SetupSerialization(ApplicationUser user, DanceMusicService dms)
+        {
+            if (RatingsList == null || RatingsList.Count == 0) return;
+
+            var ratings = new List<DanceRating>(RatingsList.Count);
+            ratings.AddRange(RatingsList.Select(rating => new DanceRatingInfo(rating, user, dms)));
+            _ratingsList = ratings;
+        }
+
         #endregion
 
         #region Properties
@@ -369,6 +394,7 @@ namespace m4dModels
                 throw new NotImplementedException("Shouldn't need to set this explicitly");
             }
         }
+        [DataMember]
         public List<AlbumDetails> Albums
         {
             get { return _albums ?? (_albums = new List<AlbumDetails>()); }
@@ -396,15 +422,19 @@ namespace m4dModels
         }
         private List<DanceRating> _ratingsList;
 
+        [DataMember]
         public TagList CurrentUserTags
         {
             get { return _currentUserTags; }
+            set { throw new NotImplementedException("Shouldn't hit the setter for this.");}
         }
         public void  SetCurrentUserTags(ApplicationUser user, DanceMusicService dms)
         {
             _currentUserTags = UserTags(user, dms);
         }
         private TagList _currentUserTags;
+
+
 
         public int TitleHash 
         { 

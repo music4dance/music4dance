@@ -28,10 +28,5 @@ namespace m4d.APIControllers
         private DanceMusicService _database = null;
 
         protected DanceMusicContext Context { get { return Database.Context as DanceMusicContext; } }
-
-        protected override void Dispose(bool disposing)
-        {
-            base.Dispose(disposing);
-        }
     }
 }

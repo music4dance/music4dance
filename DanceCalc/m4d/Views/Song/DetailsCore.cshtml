@@ -1,10 +1,5 @@
 ﻿@model m4dModels.SongDetails
 
-@{
-    var danceMap = (IDictionary<string, m4dModels.SongCounts>)ViewBag.DanceMap;
-    var danceTags = new HashSet<string>();
-}
-
 <div class="page-header">
     <h1>@Model.Title <small>by @Html.ActionLink(Model.Artist, "search", "song", new { searchString = Model.Artist, dances = "ALL" }, null)</small></h1>
 </div>
@@ -16,13 +11,15 @@
                 ViewBag.UseLogo = false;
                 @Html.Partial("_PurchaseLinks", Model.GetPurchaseLinks())
                 @Html.ActionLink("Back to List", (string)ViewBag.SongFilter.Action, new { filter = ViewBag.SongFilter }, new { @class = "btn btn-ml btn-primary", role = "button" })
+                <a href="#" role="button" class="btn btn-ml btn-primary" data-bind="visible:changed, click:saveRatings">Save</a>
             }
         </div>
         <div class="visible-xs">
             @{
                 ViewBag.UseLogo = true;
                 @Html.Partial("_PurchaseLinks", Model.GetPurchaseLinks())
-                @Html.ActionLink("Back to List", (string)ViewBag.SongFilter.Action, new { filter = ViewBag.SongFilter }, new { @class = "btn btn-primary", role = "button" })
+                @Html.ActionLink("Back to List", (string) ViewBag.SongFilter.Action, new {filter = ViewBag.SongFilter}, new {@class = "btn btn-primary", role = "button"})
+                <a href="#" role="button" class="btn btn-ml btn-primary" data-bind="visible:changed, click:saveRatings">Save</a>
             }
         </div>
     </div>
@@ -30,18 +27,6 @@
 
 <div class="row">
     <fieldset>
-        <div class="col-sm-2">
-            @if (Model.Tempo != null)
-            {
-                <div class="display-label">
-                    @Html.DisplayNameFor(model => model.Tempo):
-                </div>
-                <div class="display-field">
-                    @decimal.Round(Model.Tempo.Value).ToString("F0") BPM
-                </div>
-                <br/>
-            }
-        </div>
         <div class="col-sm-2">
             @if (Model.Length != null)
             {
@@ -54,7 +39,19 @@
                 <br />
             }
         </div>
-</fieldset>
+        <div class="col-sm-2">
+            @if (Model.Tempo != null)
+            {
+                <div class="display-label">
+                    @Html.DisplayNameFor(model => model.Tempo):
+                </div>
+                <div class="display-field">
+                    @decimal.Round(Model.Tempo.Value).ToString("F0") BPM
+                </div>
+                <br />
+            }
+        </div>
+    </fieldset>
 </div>
 
 @if (Model.TagSummary.Tags.Count != 0)
@@ -62,22 +59,7 @@
     <div class="row">
         <div class="col-md-12">
             <h4>
-            @{
-                foreach (var item in Model.TagSummary.Tags)
-                {
-                    var rg = item.Value.Split(':');
-                    if (rg[1] == "Dance")
-                    {
-                        danceTags.Add(rg[0].ToLower());
-                    }
-                    else
-                    {
-                        var label = rg[1] == "Music" ? "primary" : "info";
-                        @Html.ActionLink(rg[0], "tags", "song", new {tags = item.Value}, new {@class = "label label-" + label})
-                        <text> </text>
-                    }
-                }
-            }
+                @Html.Partial("ItemTags")
             </h4>
         </div>
     </div>
@@ -87,22 +69,7 @@
 {
     <div class="row">
         <div class="col-md-12" style="padding-top: 5px">
-            <div class="panel panel-default">
-                <div class="panel-heading">
-                    <h3 class="panel-title">Dances</h3>
-                </div>
-                <ul class="panel-body list-group">
-                    @foreach (var item in Model.DanceRatings)
-                    {
-                        var badge = m4dModels.SongCounts.GetRatingBadge(danceMap, item.DanceId, item.Weight);
-                        var name = danceMap[item.DanceId].DanceName;
-                        var max = danceMap[item.DanceId].MaxWeight;
-                        var tag = danceTags.Contains(name.ToLower()) ? "dance-tag" : string.Empty;
-                        var tip = item.Weight + " votes where the top song in the " + name + " category has " + max + " votes.";
-                        <li class="list-group-item"><span class="rating-block @badge @tag" data-toggle="tooltip" data-placement="top" title="@tip"></span>@Html.ActionLink(name, name, "dances")</li>
-                    }
-                </ul>
-            </div>
+            @Html.Partial("Dances")
         </div>
     </div>
 }

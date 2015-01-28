@@ -87,17 +87,24 @@ namespace m4d.Context
         #region Events
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
+            modelBuilder.Ignore<SongBase>();
+            modelBuilder.Ignore<SongDetails>();
+            modelBuilder.Ignore<DanceRatingInfo>();
+            modelBuilder.Ignore<TaggableObject>();
+
             modelBuilder.Properties<DateTime>().Configure(c => c.HasColumnType("datetime2"));
 
             modelBuilder.Entity<Song>().Property(song => song.Tempo).HasPrecision(6, 2);
             modelBuilder.Entity<Song>().Ignore(song => song.CurrentLog);
             modelBuilder.Entity<Song>().Ignore(song => song.AlbumName);
+
             modelBuilder.Entity<Dance>().Property(dance => dance.Id).HasMaxLength(5);
             modelBuilder.Entity<Dance>().Ignore(dance => dance.Info);
             modelBuilder.Entity<DanceRating>().HasKey(dr => new { dr.SongId, dr.DanceId });
 
+            modelBuilder.Entity<TaggableObject>().Ignore(to => to.TagId);
+            //modelBuilder.Entity<TaggableObject>().HasKey(to => to.TagIdBase);
             modelBuilder.Entity<Tag>().HasKey(t => new { t.UserId, t.Id });
-
             modelBuilder.Entity<TagType>().HasKey(tt => tt.Key);
             modelBuilder.Entity<TagType>().Ignore(tt => tt.Value);
             modelBuilder.Entity<TagType>().Ignore(tt => tt.Category);
@@ -108,6 +115,7 @@ namespace m4d.Context
 
             modelBuilder.Entity<ModifiedRecord>().HasKey(t => new { t.ApplicationUserId, t.SongId });
             modelBuilder.Entity<ModifiedRecord>().Ignore(mr => mr.UserName);
+
             modelBuilder.Entity<DanceLink>().HasKey(dl => dl.Id);
 
             base.OnModelCreating(modelBuilder);

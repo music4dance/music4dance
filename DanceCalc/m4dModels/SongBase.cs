@@ -5,12 +5,14 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.Serialization;
 using System.Text;
 using DanceLibrary;
 // ReSharper disable ArrangeThisQualifier
 
 namespace m4dModels
 {
+    [DataContract]
     public abstract class SongBase : TaggableObject
     {
         #region Constants
@@ -194,21 +196,32 @@ namespace m4dModels
             get { return SongId.ToString("N"); }
         }
 
+        [DataMember]
         public Guid SongId { get; set; }
 
         [Range(5.0, 500.0)]
+        [DataMember]
         public decimal? Tempo { get; set; }
+        [DataMember]
         public string Title { get; set; }
+        [DataMember]
         public string Artist { get; set; }
         [Range(0, 9999)]
+        [DataMember]
         public int? Length { get; set; }
+        [DataMember]
         public virtual string Purchase { get; set; }
+        [DataMember]
         public DateTime Created { get; set; }
+        [DataMember]
         public DateTime Modified { get; set; }
         public virtual string Album { get; set; }
 
+        [DataMember]
         public virtual ICollection<DanceRating> DanceRatings { get; set; }
+        [DataMember]
         public virtual ICollection<ModifiedRecord> ModifiedBy { get; set; }
+        [DataMember]
         public virtual ICollection<SongProperty> SongProperties { get; set; }
 
         // These are helper properties (they don't map to database columns)
@@ -294,7 +307,6 @@ namespace m4dModels
                 UpdateDanceRating(drd, true);
             }
         }
-
         public static string TagsFromDances(IEnumerable<string> dances)
         {
             if (dances == null)
@@ -314,6 +326,7 @@ namespace m4dModels
             }
             return tags.ToString();
         }
+
         #endregion
 
         #region Tags

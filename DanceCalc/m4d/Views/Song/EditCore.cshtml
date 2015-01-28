@@ -1,11 +1,12 @@
-﻿@model m4dModels.SongDetails
+﻿@using m4dModels
+@model SongDetails
 
 @using (Html.BeginForm((string)ViewBag.Action, "Song", null, FormMethod.Post, new { @class="form-horizontal"}))
 {
     @Html.AntiForgeryToken()
     @Html.ValidationSummary(true)
-
-    m4dModels.SongDetails old = null;
+    const bool canEdit = true;
+    SongDetails old = null;
     ViewBag.UseLogo = true;
 
     try
@@ -96,28 +97,12 @@
         </div>
     </div>
 
-    <hr class="row col-md-12" />
-    <div class="display-label row col-md-12">
-        Dance(s):
+    <div class="row">
+        <div class="col-md-12" style="padding-top: 5px">
+            @Html.Partial("Dances")
+        </div>
     </div>
-    <div class="display-field row col-md-12">
-        @{ var separator = ""; }
-        @if (Model.DanceRatings != null)
-        {
-            foreach (var item in Model.DanceRatings)
-            {
-                @separator;
-                @Html.DisplayFor(model => item.Dance.Info.Name)
-                if (item.Weight > 1)
-                {
-                    <b>(@item.Weight)</b>
-                }
-                separator = ", ";
-            }
-            <br />
-        }
-    </div>
-
+    
     if (ViewData.ContainsKey("DanceListRemove"))
     {
         <div class="editor-label row col-md-12">
@@ -148,6 +133,9 @@
             {
                 tagValues = Model.CurrentUserTags.ToString();
             }
+            <h4>
+                @Html.Partial("ItemTags")
+            </h4> 
         }
         @Html.TextBox("editTags", @tagValues, new { @class = "form-control" })
     </div>
@@ -156,7 +144,7 @@
     <div class="row col-md-12">
         <table>
             <tr><td></td><td class="album-header">Album</td><td class="track-header">Track</td><td class="publisher-header">Label</td><td class="delete-header"></td></tr>
-            <tbody data-bind="foreach: albums">
+            <tbody data-bind="foreach: song.Albums">
                 <tr data-bind="attr: {id: 'Album_' + $index()}">
                     <td>
                         <div data-bind="ifnot: $index() == 0">
@@ -195,7 +183,7 @@
         </table>
     </div>
     <div class="row col-md-12">
-        <a class="btn btn-info" role="button" id="AddAlbum" data-bind="click: newAlbum">New Album</a>
+        <a class="btn btn-info" role="button" id="AddAlbum" data-bind="click: song.newAlbum">New Album</a>
     </div>
     <hr class="row col-md-12" />
 
@@ -223,7 +211,7 @@
         <tbody data-bind="foreach: tracks">
             <tr>
                 <td><a data-bind="attr: {href: SongLink.Link}" class="btn" role="button"><img width="30" height="30" data-bind="attr: {src: serviceLogo}" /></a></td>
-                <td><a href="#" class="btn btn-default" role="button" data-bind="click: $parent.chooseTrack"><img width="30" height="30" data-bind="attr: {src: ImageUrl}" /></a></td>
+                <td><a href="#" class="btn btn-default" role="button" data-bind="click: $parent.song.chooseTrack"><img width="30" height="30" data-bind="attr: {src: ImageUrl}" /></a></td>
                 <td data-bind="text: Name"></td>
                 <td data-bind="text: Album"></td>
                 <td data-bind="text: Artist"></td>

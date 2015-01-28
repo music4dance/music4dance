@@ -5,7 +5,7 @@ using System.Text;
 
 namespace m4dModels
 {
-    public class TagType : DbObject
+    public class TagType
     {
         #region Properties
         public string Key { get; set; }

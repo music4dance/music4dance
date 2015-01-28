@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.Entity.Core.Metadata.Edm;
+using System.Diagnostics;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace m4dModels.Tests
@@ -23,7 +25,6 @@ namespace m4dModels.Tests
                 service.Dms.FindSong(new Guid("{80c8c7d8-486c-4169-bb5e-0e0091cfe435}"))
             };
 
-            // TODONEXT: test for mergesongs
             var song = service.Dms.MergeSongs(
                 service.Dms.FindUser("batch"),
                 songs,
@@ -50,13 +51,65 @@ namespace m4dModels.Tests
 
             Assert.AreEqual(expected,result);
         }
+        private const string MergeResult = @".Merge=2ea20b99-b2f2-4139-ba22-ad84a73ed8f3;80c8c7d8-486c-4169-bb5e-0e0091cfe435	User=batchTime=00/00/0000 0:00:00 PM	Title=You Should Be Dancing	Artist=Bee Gees	Tempo=124.0	Length=258	Album:00=Number Ones	Track:00=9	Purchase:00:AS=D:B001KQLYIA	Purchase:00:AA=D:B001KQE5PE	Purchase:00:IS=294932501	Purchase:00:IA=294932492	Purchase:00:XS=music.01C52301-0100-11DB-89CA-0019B92A3933	Album:01=The Bee Gees - Their Greatest Hits	Album:02=Children Of The World	Track:02=1	Purchase:02:AS=D:B00124SGOA	Purchase:02:AA=D:B00124LFR0	Purchase:02:IS=270905494	Purchase:02:IA=270905436	Purchase:02:XS=music.E145BF00-0100-11DB-89CA-0019B92A3933	Album:03=The Ultimate Bee Gees	Track:03=1	Purchase:03:AS=D:B002TSKCLS	Purchase:03:AA=D:B002TSKCKY	Purchase:03:IS=336672046	Purchase:03:IA=336671732	Purchase:03:XS=music.EFFE0802-0100-11DB-89CA-0019B92A3933	Album:04=Saturday Night Fever: The Original Movie Soundtrack (Remastered)	Track:04=13	Purchase:04:IS=263509379	Purchase:04:IA=263508370	Purchase:04:XS=music.577CAD00-0100-11DB-89CA-0019B92A3933	Album:05=Despicable Me (Original Motion Picture Soundtrack)	Track:05=9	Purchase:05:IS=379630704	Purchase:05:IA=379630607	Album:06=One Night Only (Live)	Track:06=24	Purchase:06:IS=270899203	Purchase:06:IA=270899149	Purchase:06:XS=music.8144BF00-0100-11DB-89CA-0019B92A3933	Album:07=Despicable Me	Track:07=9	Purchase:07:XS=music.33F76806-0100-11DB-89CA-0019B92A3933	User=SalsaSwingBallroom	.Edit=	User=SalsaSwingBallroomTime=00/00/0000 0:00:00 PM	Tag+=Hustle:Dance	User=ithaca	User=batch-a	User=batch-i	User=batch-x	.Edit=	User=ithacaTime=00/00/0000 0:00:00 PM	Tag+=Hustle:Dance	.Edit=	User=batchTime=00/00/0000 0:00:00 PM	Tag+=Pop:Music|Rock:Music	.Edit=	User=batch-aTime=00/00/0000 0:00:00 PM	Tag+=adult-contemporary-pop:Music|pop:Music	.Edit=	User=batch-iTime=00/00/0000 0:00:00 PM	Tag+=Pop:Music|Rock:Music|Soundtrack:Music	.Edit=	User=batch-xTime=00/00/0000 0:00:00 PM	Tag+=R&B / Soul:Music|Rock:Music	DanceRating=HST+10	DanceRating=SWG+6	DanceRating=CSG+8	DanceRating=WCS+8	DanceRating=LHP+8";
 
         //[TestMethod]
         //public void Edit()
         //{
         //}
 
-        private const string MergeResult = @".Merge=2ea20b99-b2f2-4139-ba22-ad84a73ed8f3;80c8c7d8-486c-4169-bb5e-0e0091cfe435	User=batchTime=00/00/0000 0:00:00 PM	Title=You Should Be Dancing	Artist=Bee Gees	Tempo=124.0	Length=258	Album:00=Number Ones	Track:00=9	Purchase:00:AS=D:B001KQLYIA	Purchase:00:AA=D:B001KQE5PE	Purchase:00:IS=294932501	Purchase:00:IA=294932492	Purchase:00:XS=music.01C52301-0100-11DB-89CA-0019B92A3933	Album:01=The Bee Gees - Their Greatest Hits	Album:02=Children Of The World	Track:02=1	Purchase:02:AS=D:B00124SGOA	Purchase:02:AA=D:B00124LFR0	Purchase:02:IS=270905494	Purchase:02:IA=270905436	Purchase:02:XS=music.E145BF00-0100-11DB-89CA-0019B92A3933	Album:03=The Ultimate Bee Gees	Track:03=1	Purchase:03:AS=D:B002TSKCLS	Purchase:03:AA=D:B002TSKCKY	Purchase:03:IS=336672046	Purchase:03:IA=336671732	Purchase:03:XS=music.EFFE0802-0100-11DB-89CA-0019B92A3933	Album:04=Saturday Night Fever: The Original Movie Soundtrack (Remastered)	Track:04=13	Purchase:04:IS=263509379	Purchase:04:IA=263508370	Purchase:04:XS=music.577CAD00-0100-11DB-89CA-0019B92A3933	Album:05=Despicable Me (Original Motion Picture Soundtrack)	Track:05=9	Purchase:05:IS=379630704	Purchase:05:IA=379630607	Album:06=One Night Only (Live)	Track:06=24	Purchase:06:IS=270899203	Purchase:06:IA=270899149	Purchase:06:XS=music.8144BF00-0100-11DB-89CA-0019B92A3933	Album:07=Despicable Me	Track:07=9	Purchase:07:XS=music.33F76806-0100-11DB-89CA-0019B92A3933	User=SalsaSwingBallroom	.Edit=	User=SalsaSwingBallroomTime=00/00/0000 0:00:00 PM	Tag+=Hustle:Dance	User=ithaca	User=batch-a	User=batch-i	User=batch-x	.Edit=	User=ithacaTime=00/00/0000 0:00:00 PM	Tag+=Hustle:Dance	.Edit=	User=batchTime=00/00/0000 0:00:00 PM	Tag+=Pop:Music|Rock:Music	.Edit=	User=batch-aTime=00/00/0000 0:00:00 PM	Tag+=adult-contemporary-pop:Music|pop:Music	.Edit=	User=batch-iTime=00/00/0000 0:00:00 PM	Tag+=Pop:Music|Rock:Music|Soundtrack:Music	.Edit=	User=batch-xTime=00/00/0000 0:00:00 PM	Tag+=R&B / Soul:Music|Rock:Music	DanceRating=HST+10	DanceRating=SWG+6	DanceRating=CSG+8	DanceRating=WCS+8	DanceRating=LHP+8";
+
+        [TestMethod]
+        public void UpdateRatings()
+        {
+            var service = new DanceMusicTester(
+                new List<string>()
+                {
+                    @"SongId={2ea20b99-b2f2-4139-ba22-ad84a73ed8f3}	.Create=	User=SalsaSwingBallroom	Time=3/17/2014 5:44:03 PM	Title=You Should Be Dancing	Artist=The Bee Gees	Tempo=124.0	Album:0=The Bee Gees - Their Greatest Hits	DanceRating=HST+5	Tag+=Hustle:Dance	User=batch	Time=10/9/2014 11:00:37 AM	DanceRating=SWG+1	User=batch	Time=10/9/2014 12:09:19 PM	DanceRating=CSG+2	DanceRating=WCS+2	DanceRating=LHP+2	DanceRating=HST+2", 
+                });
+
+            UserTag[] tags = {new UserTag {Id="",Tags=new TagList("Swing:Dance|Jump Swing:Dance|Funk:Music|Even:Tempo")}};
+
+            var userSsb = service.Dms.FindUser("SalsaSwingBallroom");
+            var changed = service.Dms.EditTags(userSsb, new Guid("2ea20b99-b2f2-4139-ba22-ad84a73ed8f3"), tags, false);
+            Assert.IsTrue(changed);
+
+            var song = service.Dms.FindSong(new Guid("{2ea20b99-b2f2-4139-ba22-ad84a73ed8f3}"));
+            var result = DanceMusicTester.ReplaceTime(song.Serialize(new[] { SongBase.NoSongId }));
+            Trace.WriteLine(result);
+
+            var tag = song.FindUserTag(userSsb, service.Dms);
+            Assert.AreEqual(@"Even:Tempo|Funk:Music|Jump Swing:Dance|Swing:Dance", tag.Tags.Summary);
+            var ttFunk = service.Dms.FindOrCreateTagType("Funk", "Music");
+            Assert.AreEqual(1,ttFunk.Count);
+
+            var userDwg = service.Dms.FindUser("dwgray");
+            UserTag[] tags2 = {
+                new UserTag { Id = "", Tags = new TagList("Even:Tempo|Jump Swing:Dance") },
+                new UserTag { Id = "HST", Tags = new TagList("Slow:Tempo|Traditional:Tempo|Crazy:Other") }
+            };
+
+            changed = service.Dms.EditTags(userDwg, new Guid("2ea20b99-b2f2-4139-ba22-ad84a73ed8f3"), tags2, false);
+            result = DanceMusicTester.ReplaceTime(song.Serialize(new[] { SongBase.NoSongId }));
+            Trace.WriteLine(result);
+
+            Assert.IsTrue(changed);
+            tag = song.FindUserTag(userDwg, service.Dms);
+            Assert.AreEqual(@"Even:Tempo|Jump Swing:Dance",tag.Tags.Summary);
+
+            var dr = song.FindRating("HST");
+            Assert.IsNotNull(dr);
+            tag = dr.FindUserTag(userDwg, service.Dms);
+            Assert.AreEqual(@"Crazy:Other|Slow:Tempo|Traditional:Tempo", tag.Tags.Summary);
+
+            Assert.AreEqual(@"Crazy:Other:1|Slow:Tempo:1|Traditional:Tempo:1", dr.TagSummary.Summary);
+
+            var expected = DanceMusicTester.ReplaceTime(UpdateResult);
+            Assert.AreEqual(expected, result);
+        }
+
+        private const string UpdateResult =
+            @".Create=	User=SalsaSwingBallroomTime=00/00/0000 0:00:00 PM	Title=You Should Be Dancing	Artist=The Bee Gees	Tempo=124.0	Album:0=The Bee Gees - Their Greatest Hits	DanceRating=HST+5	Tag+=Hustle:Dance	User=batchTime=00/00/0000 0:00:00 PM	DanceRating=SWG+1	User=batchTime=00/00/0000 0:00:00 PM	DanceRating=CSG+2	DanceRating=WCS+2	DanceRating=LHP+2	DanceRating=HST+2	.Edit=	User=SalsaSwingBallroomTime=00/00/0000 0:00:00 PM	Tag+=Even:Tempo|Funk:Music|Jump Swing:Dance|Swing:Dance	Tag-=Hustle:Dance	DanceRating=HST-1	DanceRating=SWG+3	DanceRating=JSW+6	.Edit=	User=dwgrayTime=00/00/0000 0:00:00 PM	Tag+=Even:Tempo|Jump Swing:Dance	DanceRating=JSW+3	Tag+:HST=Crazy:Other|Slow:Tempo|Traditional:Tempo";
     }
 }
 

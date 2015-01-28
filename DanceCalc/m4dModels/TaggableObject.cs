@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
+using System.Runtime.Serialization;
 
 namespace m4dModels
 {
@@ -15,7 +16,8 @@ namespace m4dModels
     //  Go through and make sure we're hitting TAGTEST
     //  Go through the old tagging code rip TAGDELETE
     //  Implement & Test Tag Rings????
-    public abstract class TaggableObject : DbObject
+    [DataContract]
+    public abstract class TaggableObject
     {
         protected TaggableObject()
         {
@@ -24,13 +26,20 @@ namespace m4dModels
         public abstract char IdModifier { get; }
         public abstract string TagIdBase {get;}
 
+        [DataMember]
         public string TagId
         {
             get
             {
                 return string.Format("{0}:{1}", IdModifier, TagIdBase);
             }
+            set
+            {
+                throw new NotImplementedException(
+                    "If we hit this it means we're trying to deserialize a Taggable object - Not sure we want to do this");
+            }
         }
+        [DataMember]
         public TagSummary TagSummary { get; set; }
 
         // TODO: Do we actually want this?  Or should this be a dms based operations rather than a property
@@ -91,7 +100,7 @@ namespace m4dModels
             TagList userTags = ut.Tags;
 
             TagList added = newTags.Subtract(userTags);
-            TagList removed = userTags == null ? null : userTags.Subtract(newTags);
+            TagList removed = userTags == null ? new TagList() : userTags.Subtract(newTags);
 
             if (added.Tags.Count > 0 || removed.Tags.Count > 0)
             {
@@ -161,7 +170,7 @@ namespace m4dModels
             Tag tag = null;
             if (Tags != null)
             {
-                tag = Tags.FirstOrDefault(t => t.User == user);
+                tag = Tags.FirstOrDefault(t => (t.User == user) && (t.Id == TagId));
             }
 
             if (tag == null && dms != null)

@@ -222,13 +222,14 @@ namespace m4d.Controllers
         [AllowAnonymous]
         public ActionResult Details(Guid? id = null, SongFilter filter = null)
         {
-            SongDetails song = Database.FindSongDetails(id ?? Guid.Empty, User.Identity.Name);
+            SongDetails song = Database.FindSongDetails(id ?? Guid.Empty, true, User.Identity.Name);
             if (song == null)
             {
                 return HttpNotFound();
             }
 
             ViewBag.DanceMap = SongCounts.GetDanceMap(Database);
+            ViewBag.DanceList = GetDancesSingle();
             return View(song);
         }
 
@@ -322,7 +323,7 @@ namespace m4d.Controllers
         [Authorize(Roles = "canEdit")] 
         public ActionResult Edit(Guid? id = null, SongFilter filter = null)
         {
-            var song = Database.FindSongDetails(id ?? Guid.Empty, User.Identity.Name);
+            var song = Database.FindSongDetails(id ?? Guid.Empty, true, User.Identity.Name);
             if (song == null)
             {
                 return HttpNotFound();
@@ -341,12 +342,14 @@ namespace m4d.Controllers
             IList<DanceRating> ratingsList = song.RatingsList;
             ViewBag.DanceListRemove = GetDances(ratingsList);
             ViewBag.DanceListAdd = GetDances();
+            ViewBag.DanceList = GetDancesSingle();
 
-            if (ratingsList.Any(r => r.Dance.Name.Contains("Waltz")))
+            if (ratingsList.Any(r => (r as DanceRatingInfo).DanceName.Contains("Waltz")))
             {
                 ViewBag.paramNumerator = 3;
             }
 
+            ViewBag.DanceMap = SongCounts.GetDanceMap(Database);
         }
         //
         // POST: /Song/Edit/5
@@ -391,7 +394,7 @@ namespace m4d.Controllers
 
                 // Add back in the danceratings
                 // TODO: This almost certainly doesn't preserve edits...
-                var songT = Database.FindSongDetails(song.SongId, User.Identity.Name);
+                var songT = Database.FindSongDetails(song.SongId, true, User.Identity.Name);
                 SetupEditViewBag(songT);
 
                 // Clean out empty albums
@@ -821,12 +824,7 @@ namespace m4d.Controllers
         #region General Utilities
         private MultiSelectList GetDances(IList<DanceRating> ratings = null)
         {
-            var dances = new List<SimpleDance>(Database.Dances.Count());
-            // ReSharper disable once LoopCanBeConvertedToQuery
-            foreach (var d in Database.Dances)
-            {
-                dances.Add(new SimpleDance() { Id = d.Id, Name = d.Info.Name });
-            }
+            var dances = GetSimpleDances();
 
             string[] selarr = null;
 
@@ -838,6 +836,29 @@ namespace m4d.Controllers
             }
 
             return new MultiSelectList(dances, "ID", "Name", selarr);
+        }
+
+        private IEnumerable<SelectListItem> GetDancesSingle()
+        {
+            var dances = new List<SelectListItem>(Database.Dances.Count());
+            dances.Add(new SelectListItem() { Value = string.Empty, Text = string.Empty, Selected = true });
+            // ReSharper disable once LoopCanBeConvertedToQuery
+            foreach (var d in Database.Dances)
+            {
+                dances.Add(new SelectListItem() { Value = d.Id, Text = d.Info.Name, Selected=false });
+            }
+            return dances;            
+        }
+
+        private IEnumerable<SimpleDance> GetSimpleDances()
+        {
+            var dances = new List<SimpleDance>(Database.Dances.Count());
+            // ReSharper disable once LoopCanBeConvertedToQuery
+            foreach (var d in Database.Dances)
+            {
+                dances.Add(new SimpleDance() { Id = d.Id, Name = d.Info.Name });
+            }
+            return dances;
         }
         private ActionResult Delete(IQueryable<Song> songs, SongFilter filter)
         {

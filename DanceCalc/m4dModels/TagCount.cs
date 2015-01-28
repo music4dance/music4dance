@@ -1,14 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Serialization;
 
 namespace m4dModels
 {
+
     // TagCount is a helper class to covert betwee a Tag+Count structure and a string of the form Tag[:Count]
+    [DataContract]
     public class TagCount
     {
         #region Properties
+        [DataMember]
         public string Value { get; set; }
+        [DataMember]
         public int Count { get; set; }
         #endregion
 

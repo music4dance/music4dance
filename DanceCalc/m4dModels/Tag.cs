@@ -2,7 +2,7 @@
 
 namespace m4dModels
 {
-    public class Tag : DbObject
+    public class Tag
     {
         public DateTime Modified { get; set; }
         public string Id { get; set; }

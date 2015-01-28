@@ -8,7 +8,7 @@ using System.Text;
 
 namespace m4dModels
 {
-    public class SongProperty : DbObject
+    public class SongProperty
     {
         // Name Syntax: BaseName[:idx[:qual]]
         // idx is zeros based indes for multi-value fields (only album at this point?)
@@ -21,6 +21,12 @@ namespace m4dModels
         {
         }
 
+        public SongProperty(SongProperty prop)
+        {
+            SongId = prop.SongId;
+            Name = prop.Name;
+            Value = prop.Value;
+        }
         public SongProperty(Guid songId, string name, string value)
         {
             SongId = songId;
@@ -338,16 +344,6 @@ namespace m4dModels
             return name;
         }
         
-        #endregion
-
-        #region Diagnostics
-        public override void Dump()
-        {
-            base.Dump();
-
-            string output = string.Format("Id={0},SongId={1},Name={2},Value={3}", Id, SongId, Name, Value);
-            Trace.WriteLine(output);
-        }
         #endregion
     }
 }

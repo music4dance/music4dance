@@ -168,6 +168,19 @@ namespace m4dModels
             song.EditDanceRatings(deltas, this);
         }
 
+        public bool EditTags(ApplicationUser user, Guid songId, IEnumerable<UserTag> tags, bool doLog = true)
+        {
+            var song = _context.Songs.Find(songId);
+            if (doLog)
+                song.CurrentLog = CreateSongLog(user, song, SongBase.EditCommand);
+
+            if (!song.EditTags(user, tags, this)) return false;
+
+            if (song.CurrentLog != null)
+                _context.Log.Add(song.CurrentLog);
+            SaveChanges();
+            return true;
+        }
         private List<AlbumDetails> MergeAlbums(IList<Song> songs, string def, HashSet<string> keys)
         {
             var details = songs.Select(s => new SongDetails(s)).ToList();
@@ -739,25 +752,29 @@ namespace m4dModels
             return song;
         }
 
-        public SongDetails FindSongDetails(Guid id, string userName = null)
+        public SongDetails FindSongDetails(Guid id, bool forSerialization = false, string userName = null)
         {
-            SongDetails sd = null;
-
             var song = FindSong(id);
 
-            if (song != null)
-            {
-                sd = new SongDetails(song);
+            if (song == null)
+                return null;
 
-                if (userName != null)
+            var sd = new SongDetails(song);
+
+            if (userName != null)
+            {
+                var user = FindUser(userName);
+                if (user != null)
                 {
-                    var user = FindUser(userName);
-                    if (user != null)
-                    {
-                        sd.SetCurrentUserTags(user, this);
-                    }
+                    sd.SetCurrentUserTags(user, this);
+                }
+
+                if (forSerialization)
+                {
+                    sd.SetupSerialization(user,this);
                 }
             }
+
             return sd;
         }
 
@@ -1625,28 +1642,5 @@ namespace m4dModels
         {
             return MergeCluster.GetMergeCandidates(_context, n, level);
         }
-        public void Dump()
-        {
-            // TODO: Create a dump routine to help dump the object graph - definitely need object id of some kind (address)
-
-            Trace.WriteLine("------------------- songs ------------------");
-            foreach (Song song in _context.Songs.Local)
-            {
-                song.Dump();
-            }
-
-            Trace.WriteLine("------------------- properties ------------------");
-            foreach (SongProperty prop in _context.SongProperties.Local)
-            {
-                prop.Dump();
-            }
-
-            //Trace.WriteLine("------------------- users ------------------");
-            //foreach (ApplicationUser user in Users.Local)
-            //{
-            //    user.Dump();
-            //}
-        }
-
     }
 }

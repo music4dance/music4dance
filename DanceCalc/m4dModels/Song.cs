@@ -20,38 +20,6 @@ namespace m4dModels
         #endregion
 
         #region Actions
-
-        //// Re-create a song from the song properties alone
-        //public void Create(SongDetails sd, DanceMusicService dms)
-        //{
-        //    // First pull the properties over
-        //    if (SongProperties = null)
-        //    {
-        //        SongProperties = new List<SongProperty>();
-        //    }
-
-        //    foreach (SongProperty prop in sd.Properties)
-        //    {
-        //        SongProperty.Add(new SongProperty { SongId = this.SongId, Name = prop.Name, Value = prop.Value });
-        //    }
-
-        //    // Then grab the scalar values
-        //    RestoreScalar(sd);
-
-        //    // Handle Dance Ratings
-        //    CreateDanceRatings(sd.DanceRatings, dms);
-
-        //    // Handle Tags
-        //    TagsFromProperties(user, sd, dms, sd);
-
-        //    // Handle Albums
-        //    CreateAlbums(sd.Albums, dms);
-
-        //    Purchase = sd.GetPurchaseTags();
-        //    TitleHash = Song.CreateTitleHash(Title);
-
-        //}
-
         public void Create(SongDetails sd, ApplicationUser user, string command, string value, DanceMusicService dms)
         {
             DateTime time = DateTime.Now;
@@ -307,6 +275,54 @@ namespace m4dModels
             return modified;
         }
 
+        public bool EditTags(ApplicationUser user, IEnumerable<UserTag> tags, DanceMusicService dms)
+        {
+            // TODONEXT: Get the server editting of the tags working
+            var modified = false;
+            var hash = new Dictionary<string, TagList>();
+            foreach (var tag in tags)
+            {
+                hash[tag.Id] = tag.Tags;
+            }
+
+            CreateEditProperties(user, EditCommand, dms);
+
+            // First handle the top-level tags, this will incidently add any new danceratings
+            //  implied by those tags
+            modified = ChangeTags(hash[""].Summary, user, dms, "Dances");
+
+            // TODONEXT: Get dancerating tags working against the existing test, then check live scenario (don't forget logging)
+
+            // Edit the tags for each of the dance ratings: Note that I'm stripping out blank dance ratings
+            //  at the client, so need to make sure that we remove any tags from dance ratings on the server
+            //  that aren't passed through in our tag list.
+
+            foreach (var dr in DanceRatings)
+            {
+                TagList tl;
+                if (!hash.TryGetValue(dr.DanceId, out tl))
+                    tl = new TagList();
+                modified |= dr.ChangeTags(tl.Summary, user, dms, this);
+            }
+
+            return modified;
+        }
+
+        public override void RegisterChangedTags(TagList added, TagList removed, ApplicationUser user, DanceMusicService dms, object data)
+        {
+            base.RegisterChangedTags(added, removed, user, dms, data);
+
+            var test = data as string;
+            if (string.Equals("Dances", test, StringComparison.OrdinalIgnoreCase))
+            {
+                EditDanceRatings(TagsToDanceIds(added), 3, TagsToDanceIds(removed), -1, dms);
+            }                
+        }
+
+        private static IList<string> TagsToDanceIds(TagList tags)
+        {
+            return DanceLibrary.Dances.Instance.FromNames(tags.Filter("Dance").StripType()).Select(d => d.Id).ToList();
+        }
         private bool UpdateModified(ApplicationUser user, SongDetails edit, DanceMusicService dms, bool force)
         {
             var modified = false;
@@ -629,7 +645,7 @@ namespace m4dModels
             }
             return true;
         }
-        public bool EditDanceRatings(IList<string> add_, int addWeight, List<string> remove_, int remWeight, DanceMusicService dms)
+        public bool EditDanceRatings(IList<string> add_, int addWeight, IList<string> remove_, int remWeight, DanceMusicService dms)
         {
             if (add_ == null && remove_ == null)
             {
@@ -665,7 +681,7 @@ namespace m4dModels
                 }
 
                 // This handles the decremented weights
-                if (remove != null && !remove.Contains(dr.DanceId))
+                if (remove != null && remove.Contains(dr.DanceId))
                 {
                     if (!added)
                     {
@@ -888,24 +904,7 @@ namespace m4dModels
 
             Restore(sd, dms);
             UpdateUsers(dms);
-        }
-
-        public override void Dump()
-        {
-            base.Dump();
-
-            string output = string.Format("Id={0},Title={1},Album={2},Artist={3}", SongId, Title, Album, Artist);
-            Trace.WriteLine(output);
-            //if (ModifiedBy != null)
-            //{
-            //    foreach (ApplicationUser user in ModifiedBy)
-            //    {
-            //        Debug.Write("\t");
-            //        user.Dump();
-            //    }
-            //}
-        }
-        
+        }        
         #endregion
 
         private void SetupCollections()

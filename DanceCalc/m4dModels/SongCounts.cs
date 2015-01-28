@@ -218,6 +218,25 @@ namespace m4dModels
             //return "/Content/thermometer-" + scaled.ToString() + ".png";
             return "rating-" + scaled.ToString();
         }
+
+        static public DanceRatingInfo GetRatingInfo(IDictionary<string, SongCounts> map, string danceId, int weight)
+        {
+            var sc = map[danceId];
+            return new DanceRatingInfo
+            {
+                DanceId = danceId,
+                DanceName = sc.DanceName,
+                Weight = weight,
+                Max = sc.MaxWeight,
+                Badge = GetRatingBadge(map, danceId, weight)
+            };
+        }
+
+        static public IEnumerable<DanceRatingInfo> GetRatingInfo(IDictionary<string, SongCounts> map, SongBase song)
+        {
+            return song.DanceRatings.Select(dr => GetRatingInfo(map, dr.DanceId, dr.Weight)).ToList();
+        }
+
         static private void HandleType(DanceType dtyp, DbSet<Dance> dances, SongCounts scGroup)
         {
             Dance d = dances.FirstOrDefault(t => t.Id == dtyp.Id);

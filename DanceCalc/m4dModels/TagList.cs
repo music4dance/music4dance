@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Linq;
 
 namespace m4dModels
 {
@@ -76,6 +77,19 @@ namespace m4dModels
 
             return new TagList(ret);
         }
+
+        public TagList Filter(string tagType)
+        {
+            var filtered = Tags.Where(tag => tag.EndsWith(":" + tagType)).ToList();
+            return new TagList(filtered);
+        }
+
+        public IList<string> StripType()
+        {
+            var tags = Tags.Select(tag => tag.Substring(0, tag.IndexOf(':'))).ToList();
+            return tags;
+        }
+
         #endregion
 
         #region Implementation

@@ -1,18 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Runtime.Serialization;
 using DanceLibrary;
 
 namespace m4dModels
 {
+    [DataContract]
     public class DanceRating : TaggableObject
     {
+        [DataMember]
         public Guid SongId { get; set; }
         public virtual Song Song { get; set; }
-
+        [DataMember]
         public string DanceId { get; set; }
         public virtual Dance Dance { get; set; }
-
+        [DataMember]
         public int Weight { get; set; }
 
         public override char IdModifier
@@ -41,14 +44,6 @@ namespace m4dModels
                 song.ChangeTag(SongBase.AddedTags + ":" + DanceId, added, dms);
                 song.ChangeTag(SongBase.RemovedTags + ":" + DanceId, removed, dms);
             }
-        }
-
-        public override void Dump()
-        {
-            base.Dump();
-
-            string output = string.Format("DanceId={0},SongId={1},Name={2},Value={3}", DanceId, SongId, Dance.Name, Weight);
-            Trace.WriteLine(output);
         }
 
         public static IEnumerable<DanceRatingDelta> BuildDeltas(string dances, int delta)
