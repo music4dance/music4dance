@@ -46,33 +46,33 @@ var danceAction = function (id) {
 
 /// Helper functions
 var computeAlbumName = function (idx, name) {
-    var ret = "Albums[" + idx + "]." + name;
+    var ret = 'Albums[' + idx + '].' + name;
     return ret;
 };
 
 var computeAlbumId = function (idx, name) {
-    var ret = "Albums_" + idx + "__" + name;
+    var ret = 'Albums_' + idx + '__' + name;
     return ret;
 };
 
 var formatDuration = function (seconds) {
     var m = Math.floor(seconds / 60);
     var s = seconds % 60;
-    var sec = (s < 10) ? ("0" + s.toString()) : s.toString();
+    var sec = (s < 10) ? ('0' + s.toString()) : s.toString();
 
-    return m.toString() + ":" + sec;
+    return m.toString() + ':' + sec;
 };
 
 var logoFromEnum = function (e) {
     var ret = null;
     switch (e) {
-        case 1: ret = "/Content/amazon-logo.png";
+        case 1: ret = '/Content/amazon-logo.png';
             break;
-        case 2: ret = "/Content/itunes-logo.png";
+        case 2: ret = '/Content/itunes-logo.png';
             break;
-        case 3: ret = "/Content/spotify-logo.png";
+        case 3: ret = '/Content/spotify-logo.png';
             break;
-        case 4: ret = "/Content/xbox-logo.png";
+        case 4: ret = '/Content/xbox-logo.png';
             break;
     }
 
@@ -99,11 +99,10 @@ var altToField = function (altId) {
 // Swap the text of the clicked link with the parent field's value
 var replaceValue = function (self) {
     var id = self.context.parentElement.id;
-    var field = $("#" + altToField(id));
+    var field = $('#' + altToField(id));
     var text = self.text();
     self.text(field.val());
     field.val(text);
-    //alert(self.context.parentElement.id + ":" + self.text());
 };
 
 var addValue = function (id, val) {
@@ -111,8 +110,8 @@ var addValue = function (id, val) {
         return;
     }
 
-    var self = $("#" + id);
-    var field = $("#" + altToField(id));
+    var self = $('#' + id);
+    var field = $('#' + altToField(id));
 
     var oldVal = field.val();
     if (val === oldVal) {
@@ -120,15 +119,16 @@ var addValue = function (id, val) {
     }
 
     var dup = false;
-    $("#" + id + " a").each(function () {
-        if ($(this).text() == val) {
+    $('#' + id + ' a').each(function () {
+        if ($(this).text() === val) {
             dup = true;
             return false;
         }
+        return true;
     });
 
     if (!dup) {
-        var node = "<a href='#' role='button' class='btn btn-link'>" + oldVal + "</a>"
+        var node = '<a href="#" role="button" class="btn btn-link">' + oldVal + '</a>';
         self.append(node);
         field.val(val);
     }
@@ -136,7 +136,7 @@ var addValue = function (id, val) {
 
 // Track object
 var Track = function (data) {
-    //var mapping = {};//{'observe': ["Name"]};
+    //var mapping = {};//{'observe': ['Name']};
     //ko.mapping.fromJS(data, mapping, this);
     $.extend(true, this, data);
 
@@ -276,7 +276,7 @@ var Rating = function(data,parent) {
 var Album = function (data) {
     var self = this;
 
-    //{'copy': "PurchaseLinks" }
+    //{'copy': 'PurchaseLinks' }
     ko.mapping.fromJS(data, {}, this);
 
     self.addPurchase = function (track) {
@@ -294,16 +294,16 @@ var Album = function (data) {
         }
         else if (tpi != null) {
             // get rid of possible terminal ;
-            if (pi[pi.length - 1] == ";") {
+            if (pi[pi.length - 1] === ';') {
                 pi = pi.substring(0, pi.length - 1);
             }
 
             // split up the new purchase info
-            var tpis = tpi.split(";");
+            var tpis = tpi.split(';');
 
             for (var i = 0; i < tpis.length; i++) {
-                if (pi.indexOf(tpis[i]) == -1) {
-                    pi += ";" + tpis[i];
+                if (pi && pi.indexOf(tpis[i]) === -1) {
+                    pi += ';' + tpis[i];
                 }
             }
 
@@ -323,7 +323,7 @@ var Album = function (data) {
 
 Album.prototype.matchTrack = function (track)
 {
-    return (this.Track() == null || this.Track() == track.TrackNumber) && this.Name().toLowerCase() == track.Album.toLowerCase();
+    return (this.Track() == null || this.Track() === track.TrackNumber) && this.Name().toLowerCase() === track.Album.toLowerCase();
 };
 
 var Tag = function(value,parent) {
@@ -376,7 +376,7 @@ var Tag = function(value,parent) {
         }
 
         viewModel.changed(true);
-    }
+    };
 };
 
 var TagType = function(summary, name, label) {
@@ -468,8 +468,7 @@ var TagSummary = function(data, parent, forSong) {
     self.findUserTag = function(tag, cat) {
         var tagO = self.findTag(tag, cat);
         return (tagO && tagO.isUserTag()) ? tagO : null;
-    }
-
+    };
     self.removeTag = function (tag, cat) {
         // Is there an existing match?
         var tagO = self.findTag(tag, cat);
@@ -528,10 +527,8 @@ var TagSummary = function(data, parent, forSong) {
             sep = '|';
         }
         return s;
-    }
-}
-
-// Song object
+    };
+}; // Song object
 var Song = function (data) {
     var self = this;
 
@@ -547,8 +544,7 @@ var Song = function (data) {
             max = Math.max(max, a.Index() + 1);
         }
         return max;
-    }
-
+    };
     self.newAlbum = function () {
         var idx = self.nextIndex();
         var temp = ko.mapping.fromJS({ Index: idx, Name: null, Publisher: null, Track: null, PurchaseInfo: null, PurchaseLinks: null }, albumMapping);
@@ -557,15 +553,14 @@ var Song = function (data) {
 
     self.removeAlbum = function (data, event) {
         self.Albums.mappedRemove({ Index: data.Index });
-        event.preventDefault();a
+        event.preventDefault();
     };
 
     self.promoteAlbum = function (data, event) {
         var temp = self.Albums.mappedRemove({ Index: data.Index });
         self.Albums.unshift(temp[0]);
         event.preventDefault();
-    }
-
+    };
     self.findAlbum = function (track) {
         for (var i = 0; i < viewModel.song.Albums().length; i++) {
             var a = viewModel.song.Albums()[i];
@@ -575,13 +570,11 @@ var Song = function (data) {
         }
 
         return null;
-    }
-
+    };
     self.chooseTrack = function (track, event) {
         event.preventDefault();
 
         // Update the track info
-        var id = track.TrackId;
         var name = track.Album;
         var num = track.TrackNumber;
 
@@ -592,7 +585,7 @@ var Song = function (data) {
         }
         else {
             var idx = self.nextIndex();
-            var temp = new Album({ Index: idx, Name: track.Album, Track: track.TrackNumber, Publisher: "", PurchaseInfo: track.PurchaseInfo, PurchaseLinks: purchaseLinksFromTrack(track) });
+            var temp = new Album({ Index: idx, Name: name, Track: num, Publisher: '', PurchaseInfo: track.PurchaseInfo, PurchaseLinks: purchaseLinksFromTrack(track) });
             self.Albums.push(temp);
         }
 
@@ -606,27 +599,25 @@ var Song = function (data) {
 
         // Finally handle genre
         if (track.Genre != null) {
-            var gnew = track.Genre + ":Music";
-            var gval = $("#editTags").val();
+            var gnew = track.Genre + ':Music';
+            var gval = $('#editTags').val();
             if (gval == null) {
-                gval = "";
+                gval = '';
             }
-            var glist = gval.toLowerCase().split("|");
+            var glist = gval.toLowerCase().split('|');
 
-            if (glist.indexOf(gnew.toLowerCase()) == -1) {
+            if (glist.indexOf(gnew.toLowerCase()) === -1) {
                 if (gval.length > 0) {
-                    gval += "|";
+                    gval += '|';
                 }
                 gval += gnew;
             }
 
-            $("#editTags").val(gval);
+            $('#editTags').val(gval);
         }
     };
 
-}
-
-// EditPage object
+}; // EditPage object
 var EditPage = function(data) {
     var self = this;
 
@@ -651,7 +642,7 @@ var EditPage = function(data) {
             dataType: 'json',
             url: uri,
             data: source,
-            success: function (data) {
+            success: function (/*data*/) {
                 self.changed(false);
             },
             error: function (error) {
@@ -659,10 +650,8 @@ var EditPage = function(data) {
                 window.jError('An error has occurred while saving the new part source: ' + jsonValue, { TimeShown: 3000 });
             }
         });
-    }
-
-}
-
+    };
+};
 var albumMapping = {
     'Albums': {
         create: function(options) {
@@ -698,8 +687,7 @@ var songMapping = {
             return new Song(options.data);
         }
     }
-}
-
+};
 var pageMapping = {
     create: function(options) {
         return new EditPage(options.data);
@@ -715,10 +703,10 @@ var getServiceInfo = function(service) {
     }
     else
     {
-        uri += encodeURI($('#Title').val()) + "&Artist=" + encodeURI($('#Artist').val());
+        uri += encodeURI($('#Title').val()) + '&Artist=' + encodeURI($('#Artist').val());
     }
 
-    var aid = "#" + computeAlbumId(0,"Name");
+    var aid = '#' + computeAlbumId(0,'Name');
     var afield = $(aid);
     if (afield.length)
     {
@@ -731,11 +719,10 @@ var getServiceInfo = function(service) {
             var m = { tracks: data };
             viewModel = ko.mapping.fromJS(m, trackMapping, viewModel);
         })
-        .fail(function (jqXHR, textStatus, err) {
+        .fail(function (jqXhr, textStatus /*,err*/) {
             console.log(textStatus);
         });
-}
-
+};
 $(document).ready(function () {
     $('#counter-control').hide();
     $('#toggle-count').click(function () {
@@ -760,9 +747,9 @@ $(document).ready(function () {
         danceAction(data.selected);
     });
 
-    //var tooltips = $('[data-show="tooltip"]');
+    //var tooltips = $('[data-show='tooltip']');
     //tooltips.livequery(function() {
-    //    $(this).tooltip({selector:'[data-show="tooltip"]'});
+    //    $(this).tooltip({selector:'[data-show='tooltip']'});
     //});
 
     //$('body').tooltip({ selector: '[data-show=tooltip]' });
@@ -801,28 +788,28 @@ $(document).ready(function () {
     $('#load-amazon').click(function () { getServiceInfo('A'); });
     $('#load-all').click(function () { getServiceInfo('_'); });
 
-    $('#alt-title').on("click", ".btn", null, function (event) {
+    $('#alt-title').on('click', '.btn', null, function (event) {
         event.preventDefault();
         replaceValue($(this));
     });
-    $('#alt-artist').on("click", ".btn", null, function (event) {
+    $('#alt-artist').on('click', '.btn', null, function (event) {
         event.preventDefault();
         replaceValue($(this));
     });
-    $('#alt-length').on("click", ".btn", null, function (event) {
+    $('#alt-length').on('click', '.btn', null, function (event) {
         event.preventDefault();
         replaceValue($(this));
     });
-    $('#alt-tempo').on("click", ".btn", null, function (event) {
+    $('#alt-tempo').on('click', '.btn', null, function (event) {
         event.preventDefault();
         replaceValue($(this));
     });
 
-    $(document).ajaxSend(function (event, request, settings) {
+    $(document).ajaxSend(function (/*event, request, settings*/) {
         $('#loading-indicator').show();
     });
 
-    $(document).ajaxComplete(function (event, request, settings) {
+    $(document).ajaxComplete(function (/*event, request, settings*/) {
         $('#loading-indicator').hide();
     });
 
