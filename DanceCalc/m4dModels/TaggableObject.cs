@@ -230,6 +230,14 @@ namespace m4dModels
 
         private void UpdateUserTag(Tag tag, DanceMusicService dms)
         {
+            if (tag.User.IsPlaceholder) 
+            {
+                tag.User = dms.FindUser(tag.User.UserName);//dms.FindOrAddUser(tag.User.UserName);
+                if (tag.User == null)
+                {
+                    throw new InvalidCastException("tag");
+                }
+            }
             var ut = FindOrCreateUserTags(tag.User, dms);
             if (ut.Tags.Summary != tag.Tags.Summary)
             {

@@ -211,11 +211,11 @@ namespace m4dModels
                 Album = update.Albums[0].AlbumTrack;
             }
 
-            UpdateUsers(dms);
-
             UpdateUserTags(dms);
 
             UpdateDanceTags(dms);
+
+            UpdateUsers(dms);
 
             TitleHash = CreateTitleHash(Title);
 
