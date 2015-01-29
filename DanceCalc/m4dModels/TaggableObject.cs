@@ -215,6 +215,7 @@ namespace m4dModels
             return ut;
         }
 
+
         public void UpdateTagSummary(DanceMusicService dms)
         {
             string tagId = TagId;
@@ -223,7 +224,34 @@ namespace m4dModels
             TagSummary = new TagSummary();
             foreach (var tag in tags)
             {
-                TagSummary.ChangeTags(ConvertToRing(tag.Tags, dms),null);
+                TagSummary.ChangeTags(ConvertToRing(tag.Tags, dms), null);
+            }
+        }
+
+        private void UpdateUserTag(Tag tag, DanceMusicService dms)
+        {
+            var ut = FindOrCreateUserTags(tag.User, dms);
+            if (ut.Tags.Summary != tag.Tags.Summary)
+            {
+                ut.Tags = tag.Tags;
+                ut.Modified = DateTime.Now;
+            }
+        }
+        public void UpdateUserTags(DanceMusicService dms)
+        {
+            if (Tags == null) return;
+
+            var tags = Tags;
+            Tags = null;
+
+            foreach (var tag in tags)
+            {
+                UpdateUserTag(tag, dms);
+                var ring = ConvertToRing(tag.Tags, dms);
+                if (ring.Summary != tag.Tags.Summary)
+                {
+                    TagSummary.ChangeTags(ring, tag.Tags);
+                }
             }
         }
 

@@ -377,19 +377,14 @@ namespace m4dModels
                     // For tags, we leave the list of tags in place and toggle the add/remove
                     else if (baseName.Equals(SongBase.AddedTags) || baseName.Equals(SongBase.RemovedTags))
                     {
+                        np = null;
                         var add = (baseName.Equals(SongBase.AddedTags) && action == UndoAction.Redo) ||
                                    (baseName.Equals(SongBase.RemovedTags) && action == UndoAction.Undo);
 
-                        np = null;
-                        TaggableObject tobj = song;
-                        var dq = lv.DanceQualifier;
-                        if (dq != null)
-                            tobj = song.FindRating(dq);
-
                         if (add)
-                            tobj.AddTags(lv.Value, currentUser, this, song);
+                            song.AddObjectTags(lv.DanceQualifier, lv.Value, currentUser, this);
                         else
-                            tobj.RemoveTags(lv.Value, currentUser, this, song);                        
+                            song.RemoveObjectTags(lv.DanceQualifier, lv.Value, currentUser, this);
                     }
 
                     if (np != null)
@@ -397,12 +392,6 @@ namespace m4dModels
                 }
             }
         }
-
-        private void RestoreSongProperty(Song song, LogValue lv, UndoAction action)
-        {
-        }
-
-
         #endregion
 
         #region Logging

@@ -132,10 +132,10 @@ namespace m4dModels
                         UpdateDanceRating(prop.Value);
                         break;
                     case AddedTags:
-                        AddTags(prop.Value, currentUser);
+                        AddObjectTags(prop.DanceQualifier, prop.Value, currentUser);
                         break;
                     case RemovedTags:
-                        RemoveTags(prop.Value, currentUser);
+                        RemoveObjectTags(prop.DanceQualifier, prop.Value, currentUser);
                         break;
                     case AlbumField:
                     case PublisherField:
@@ -367,6 +367,25 @@ namespace m4dModels
                 }
             }
         }
+
+        public TagList AddObjectTags(string qualifier, string tags, ApplicationUser user, DanceMusicService dms=null)
+        {
+            TaggableObject tobj = this;
+            if (!string.IsNullOrWhiteSpace(qualifier))
+                tobj = FindRating(qualifier);
+
+            return tobj.AddTags(tags, user, dms, (dms == null) ? null : this);
+        }
+
+        public TagList RemoveObjectTags(string qualifier, string tags, ApplicationUser user, DanceMusicService dms = null)
+        {
+            TaggableObject tobj = this;
+            if (!string.IsNullOrWhiteSpace(qualifier))
+                tobj = FindRating(qualifier);
+
+            return tobj.RemoveTags(tags, user, dms, (dms == null) ? null : this);
+        }
+
 
         #endregion
 

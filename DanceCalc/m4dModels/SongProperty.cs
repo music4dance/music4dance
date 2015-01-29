@@ -175,6 +175,14 @@ namespace m4dModels
                 return ParseQualifier(Name);
             }
         }
+
+        public string DanceQualifier
+        {
+            get
+            {
+                return ParsePart(Name,1);
+            }
+        }
         
         #endregion
 

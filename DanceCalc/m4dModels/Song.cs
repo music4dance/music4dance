@@ -213,6 +213,10 @@ namespace m4dModels
 
             UpdateUsers(dms);
 
+            UpdateUserTags(dms);
+
+            UpdateDanceTags(dms);
+
             TitleHash = CreateTitleHash(Title);
 
             return true;
@@ -872,6 +876,14 @@ namespace m4dModels
             }
         }
 
+        public void UpdateDanceTags(DanceMusicService dms)
+        {
+            if (DanceRatings == null) return;
+            foreach (var d in DanceRatings)
+            {
+                d.UpdateUserTags(dms);
+            }
+        }
         public bool UpdateTitleHash()
         {
             bool ret = false;
@@ -900,7 +912,7 @@ namespace m4dModels
             }
 
             Restore(sd, dms);
-            UpdateUsers(dms);
+            UpdateUsers(dms);            
         }        
         #endregion
 

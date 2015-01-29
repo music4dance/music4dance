@@ -104,8 +104,6 @@ namespace m4dModels
                         }
                     }
                 }
-
-
             }
 
             Summary = Serialize(tags);

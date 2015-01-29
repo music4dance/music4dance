@@ -8,7 +8,7 @@ using Microsoft.AspNet.Identity;
 
 namespace m4dModels.Tests
 {
-    public class MockUserStore : IUserStore<ApplicationUser>
+    public class MockUserStore : IUserStore<ApplicationUser>, IUserRoleStore<ApplicationUser>
     {
         public MockUserStore(IDanceMusicContext dmc)
         {
@@ -44,6 +44,27 @@ namespace m4dModels.Tests
 
         public void Dispose()
         {            
+        }
+
+        public Task AddToRoleAsync(ApplicationUser user, string roleName)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<IList<string>> GetRolesAsync(ApplicationUser user)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<bool> IsInRoleAsync(ApplicationUser user, string roleName)
+        {
+            // TODO: We should consider mocking roles for real
+            return Task.FromResult(true);
+        }
+
+        public Task RemoveFromRoleAsync(ApplicationUser user, string roleName)
+        {
+            throw new NotImplementedException();
         }
     }
 }
