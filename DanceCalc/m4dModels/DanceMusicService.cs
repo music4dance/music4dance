@@ -377,7 +377,6 @@ namespace m4dModels
                     // For tags, we leave the list of tags in place and toggle the add/remove
                     else if (baseName.Equals(SongBase.AddedTags) || baseName.Equals(SongBase.RemovedTags))
                     {
-                        // TODONEXT: Test this
                         var add = (baseName.Equals(SongBase.AddedTags) && action == UndoAction.Redo) ||
                                    (baseName.Equals(SongBase.RemovedTags) && action == UndoAction.Undo);
 
@@ -540,7 +539,6 @@ namespace m4dModels
 
         private string Unmerge(SongLog entry, Song song)
         {
-            // TODONEXT: Unmerge is crashing...
             string ret = null;
 
             // First restore the merged songs

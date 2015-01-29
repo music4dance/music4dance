@@ -277,7 +277,6 @@ namespace m4dModels
 
         public bool EditTags(ApplicationUser user, IEnumerable<UserTag> tags, DanceMusicService dms)
         {
-            // TODONEXT: Get the server editting of the tags working
             var modified = false;
             var hash = new Dictionary<string, TagList>();
             foreach (var tag in tags)
@@ -290,8 +289,6 @@ namespace m4dModels
             // First handle the top-level tags, this will incidently add any new danceratings
             //  implied by those tags
             modified = ChangeTags(hash[""].Summary, user, dms, "Dances");
-
-            // TODONEXT: Get dancerating tags working against the existing test, then check live scenario (don't forget logging)
 
             // Edit the tags for each of the dance ratings: Note that I'm stripping out blank dance ratings
             //  at the client, so need to make sure that we remove any tags from dance ratings on the server

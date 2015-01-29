@@ -13,7 +13,7 @@ var voteState = {
     UP: 1
 };
 
-// TODONEXT: get BS tooltips working, check log undo/redo, check incremental song upload/download, get this working on edit page, definitely clean up!
+// TODONEXT: check incremental song upload/download, get this working on edit page, definitely clean up!
 var danceAction = function (id) {
     var option = $('#addDance > option[value=' + id + ']');
     var name = option.text();
