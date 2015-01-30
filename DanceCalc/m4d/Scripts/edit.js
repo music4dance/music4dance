@@ -13,7 +13,6 @@ var voteState = {
     UP: 1
 };
 
-// TODONEXT: check incremental song upload/download, get this working on edit page, definitely clean up!
 var danceAction = function (id) {
     var option = $('#addDance > option[value=' + id + ']');
     var name = option.text();
@@ -346,7 +345,7 @@ var Tag = function(value,parent) {
     }, this);
 
     self.url = ko.pureComputed(function () {
-        return '/song/tags?tags=' + encodeURIComponent(self.tag) + ':' + encodeURIComponent(self.cat);
+        return '/song/tags?tags=' + encodeURIComponent(self.tag()) + ':' + encodeURIComponent(self.cat());
     }, this);
 
     self.isUserTag = ko.pureComputed(function() {
