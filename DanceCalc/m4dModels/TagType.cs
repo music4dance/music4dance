@@ -51,14 +51,7 @@ namespace m4dModels
 
         public TagType(string tag)
         {
-            if (!tag.Contains(':'))
-            {
-                Key = tag + ":Other";
-            }
-            else
-            {
-                Key = tag;
-            }
+            Key = !tag.Contains(':') ? tag + ":Other" : tag;
         }
 
         public TagType(TagType tt)
@@ -86,7 +79,7 @@ namespace m4dModels
 
         public TagType GetPrimary()
         {
-            TagType p = this;
+            var p = this;
             while (p.Primary != null)
             {
                 p = p.Primary;
@@ -100,45 +93,42 @@ namespace m4dModels
 
         public static string TagEncode(string tag)
         {
-            StringBuilder sb = new StringBuilder();
+            var sb = new StringBuilder();
 
-            foreach (char c in tag)
+            foreach (var c in tag)
             {
                 if (char.IsLetterOrDigit(c))
                 {
                     sb.Append(c);
                 }
-                else if (c == '-')
+                else switch (c)
                 {
-                    sb.Append("--");
-                }
-                else if (c== ':')
-                {
-                    sb.Append("-p"); //seParator
-                }
-                else if (c=='&')
-                {
-                    sb.Append("-m"); //aMpersand
-                }
-                else if (c=='/')
-                {
-                    sb.Append("-s"); //Slash
-                }
-                else if (c==' ')
-                {
-                    sb.Append("-w"); //Slash
-                }
-                else
-                {
-                    int i = c;
-                    if (i > 256) 
-                    {
-                        throw new ArgumentOutOfRangeException(string.Format("Invalid tag character: {0}",c));
-                    }
-                    else
-                    {
-                        sb.AppendFormat("-{0:x2}",i);
-                    }
+                    case '-':
+                        sb.Append("--");
+                        break;
+                    case ':':
+                        sb.Append("-p"); //seParator
+                        break;
+                    case '&':
+                        sb.Append("-m"); //aMpersand
+                        break;
+                    case '/':
+                        sb.Append("-s"); //Slash
+                        break;
+                    case ' ':
+                        sb.Append("-w"); //Slash
+                        break;
+                    default:
+                        int i = c;
+                        if (i > 256) 
+                        {
+                            throw new ArgumentOutOfRangeException(string.Format("Invalid tag character: {0}",c));
+                        }
+                        else
+                        {
+                            sb.AppendFormat("-{0:x2}",i);
+                        }
+                        break;
                 }
             }
 
@@ -175,12 +165,12 @@ namespace m4dModels
 
         public static string TagDecode(string tag)
         {
-            StringBuilder sb = new StringBuilder();
+            var sb = new StringBuilder();
 
-            int cch = tag.Length;
-            for (int ich = 0; ich < cch; ich++)
+            var cch = tag.Length;
+            for (var ich = 0; ich < cch; ich++)
             {
-                char c = tag[ich];
+                var c = tag[ich];
                 if (c == '-')
                 {
                     ich += 1;
@@ -189,49 +179,49 @@ namespace m4dModels
                         throw new ArgumentOutOfRangeException(string.Format("Invalid tags: ends with escape: '{0}'", tag));
                     }
 
-                    char c1 = tag[ich];
-                    if (c1 == '-')
+                    var c1 = tag[ich];
+                    switch (c1)
                     {
-                        sb.Append('-');
-                    }
-                    else if (c1 == 'p')
-                    {
-                        sb.Append(':'); //seParator
-                    }
-                    else if (c1 == 'm')
-                    {
-                        sb.Append('&'); //aMpersand
-                    }
-                    else if (c1 == 's')
-                    {
-                        sb.Append('/'); //Slash
-                    }
-                    else if (c1 == 'w')
-                    {
-                        sb.Append(' '); //White
-                    }
-                    else if (IsHexDigit(c1))
-                    {
-                        int i = ConvertHexDigit(c1) * 16;
-                        ich += 1;
-                        if (ich == cch)
-                        {
-                            throw new ArgumentOutOfRangeException(string.Format("Invalid tags: ends with escape + single digit: '{0}'", tag));
-                        }
+                        case '-':
+                            sb.Append('-');
+                            break;
+                        case 'p':
+                            sb.Append(':'); //seParator
+                            break;
+                        case 'm':
+                            sb.Append('&'); //aMpersand
+                            break;
+                        case 's':
+                            sb.Append('/'); //Slash
+                            break;
+                        case 'w':
+                            sb.Append(' '); //White
+                            break;
+                        default:
+                            if (IsHexDigit(c1))
+                            {
+                                var i = ConvertHexDigit(c1) * 16;
+                                ich += 1;
+                                if (ich == cch)
+                                {
+                                    throw new ArgumentOutOfRangeException(string.Format("Invalid tags: ends with escape + single digit: '{0}'", tag));
+                                }
 
-                        char c2 = tag[ich];
-                        if (!IsHexDigit(c2))
-                        {
-                            throw new ArgumentOutOfRangeException(string.Format("Invalid tags: invalid escape at {0}: '{1}'", ich, tag));
-                        }
+                                var c2 = tag[ich];
+                                if (!IsHexDigit(c2))
+                                {
+                                    throw new ArgumentOutOfRangeException(string.Format("Invalid tags: invalid escape at {0}: '{1}'", ich, tag));
+                                }
 
-                        i += ConvertHexDigit(c2);
+                                i += ConvertHexDigit(c2);
 
-                        sb.Append((char)i);
-                    }
-                    else
-                    {
-                        throw new ArgumentOutOfRangeException(string.Format("Invalid tags: invalid escape at {0}: '{1}'", ich, tag));
+                                sb.Append((char)i);
+                            }
+                            else
+                            {
+                                throw new ArgumentOutOfRangeException(string.Format("Invalid tags: invalid escape at {0}: '{1}'", ich, tag));
+                            }
+                            break;
                     }
                 }
                 else
@@ -242,7 +232,6 @@ namespace m4dModels
 
             return sb.ToString();
         }
-
         #endregion
     }
 }

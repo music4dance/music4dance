@@ -41,11 +41,8 @@ namespace m4dModels
 
         public override bool Equals(object obj)
         {
-            TagCount tc = obj as TagCount;
-            if (tc == null)
-                return false;
-            else
-                return (Value == tc.Value) && (Count == tc.Count);
+            var tc = obj as TagCount;
+            return (tc != null) && (Value == tc.Value) && (Count == tc.Count);
         }
 
         public override int GetHashCode()

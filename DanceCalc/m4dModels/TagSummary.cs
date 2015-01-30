@@ -22,11 +22,8 @@ namespace m4dModels
         }
         public int TagCount(string name)
         {
-            TagCount tc = Tags.FirstOrDefault(t => string.Equals(t.Value, name, StringComparison.InvariantCultureIgnoreCase));
-            if (tc == null)
-                return 0;
-
-            return tc.Count;
+            var tc = Tags.FirstOrDefault(t => string.Equals(t.Value, name, StringComparison.InvariantCultureIgnoreCase));
+            return tc == null ? 0 : tc.Count;
         }
 
         public HashSet<string> GetTagSet(string type)
@@ -44,7 +41,6 @@ namespace m4dModels
             }
             return tags;
         }
-
         #endregion
 
         #region Constructors
@@ -114,28 +110,25 @@ namespace m4dModels
         #region Implementation
         static private List<TagCount> Parse(string serialized)
         {
-            List<TagCount> tags = new List<TagCount>();
+            var tags = new List<TagCount>();
 
             if (string.IsNullOrWhiteSpace(serialized))
             {
                 return tags;
             }
 
-            string[] rg = serialized.Split(new[] { '|' }, StringSplitOptions.RemoveEmptyEntries);
+            var rg = serialized.Split(new[] { '|' }, StringSplitOptions.RemoveEmptyEntries);
 
-            foreach (string s in rg)
-            {
-                tags.Add(new TagCount(s));
-            }
+            tags.AddRange(rg.Select(s => new TagCount(s)));
 
-            tags.Sort((sc1,sc2)=>sc1.Value.CompareTo(sc2.Value));
+            tags.Sort((sc1,sc2)=>String.Compare(sc1.Value, sc2.Value, StringComparison.Ordinal));
             return tags;
         }
 
         static private string Serialize(IEnumerable<TagCount> tags)
         {
             List<TagCount> list = tags.ToList();
-            list.Sort((sc1, sc2) => sc1.Value.CompareTo(sc2.Value));
+            list.Sort((sc1, sc2) => String.Compare(sc1.Value, sc2.Value, StringComparison.Ordinal));
             return string.Join("|", list);
         }
         #endregion

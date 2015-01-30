@@ -57,11 +57,11 @@ namespace m4dModels
         // the actually added tags in canonical form
         virtual public TagList AddTags(string tags, ApplicationUser user, DanceMusicService dms = null, object data = null)
         {
-            TagList added = new TagList(tags);
-            Tag ut = FindOrCreateUserTags(user, dms);
+            var added = new TagList(tags);
+            var ut = FindOrCreateUserTags(user, dms);
 
-            TagList newTags = added.Subtract(ut.Tags);
-            TagList allTags = ut.Tags.Add(newTags);
+            var newTags = added.Subtract(ut.Tags);
+            var allTags = ut.Tags.Add(newTags);
 
             ut.Modified = DateTime.Now;
             ut.Tags = allTags;
@@ -75,12 +75,12 @@ namespace m4dModels
         //  of the actually removed tags in canonical form
         public TagList RemoveTags(string tags, ApplicationUser user, DanceMusicService dms = null, object data = null)
         {
-            TagList removed = new TagList(tags);
-            Tag ut = FindOrCreateUserTags(user, dms);
+            var removed = new TagList(tags);
+            var ut = FindOrCreateUserTags(user, dms);
 
-            TagList badTags = removed.Subtract(ut.Tags);
-            TagList oldTags = removed.Subtract(badTags);
-            TagList newTags = ut.Tags.Subtract(oldTags);
+            var badTags = removed.Subtract(ut.Tags);
+            var oldTags = removed.Subtract(badTags);
+            var newTags = ut.Tags.Subtract(oldTags);
 
             ut.Modified = DateTime.Now;
             ut.Tags = newTags;
@@ -94,41 +94,36 @@ namespace m4dModels
         //  return true if tags have actually changed
         public bool ChangeTags(string tags, ApplicationUser user, DanceMusicService dms = null, object data = null)
         {
-            bool changed = false;
-            TagList newTags = new TagList(tags);
-            Tag ut = FindOrCreateUserTags(user, dms);
-            TagList userTags = ut.Tags;
+            var newTags = new TagList(tags);
+            var ut = FindOrCreateUserTags(user, dms);
+            var userTags = ut.Tags;
 
-            TagList added = newTags.Subtract(userTags);
-            TagList removed = userTags == null ? new TagList() : userTags.Subtract(newTags);
+            var added = newTags.Subtract(userTags);
+            var removed = userTags == null ? new TagList() : userTags.Subtract(newTags);
 
-            if (added.Tags.Count > 0 || removed.Tags.Count > 0)
-            {
-                ut.Modified = DateTime.Now;
-                ut.Tags = newTags;
-                DoUpdate(added, removed, user, dms, data);
-                changed = true;
-            }
+            if (added.Tags.Count <= 0 && removed.Tags.Count <= 0) return false;
 
-            return changed;
+            ut.Modified = DateTime.Now;
+            ut.Tags = newTags;
+            DoUpdate(added, removed, user, dms, data);
+
+            return true;
         }
 
         private void DoUpdate(TagList added, TagList removed, ApplicationUser user, DanceMusicService dms, object data)
         {
             if (TagSummary == null)
-            {
                 TagSummary = new TagSummary();
-            }
 
-            TagList addRing = ConvertToRing(added,dms);
-            TagList delRing = ConvertToRing(removed, dms);
+            var addRing = ConvertToRing(added,dms);
+            var delRing = ConvertToRing(removed, dms);
             TagSummary.ChangeTags(addRing, delRing);
             UpdateTagTypes(added, removed, dms);
             RegisterChangedTags(added, removed, user, dms, data);
         }
 
         // TODO: Think about if we need both implementations (dms and stand-alone);
-        private void UpdateTagTypes(TagList added, TagList removed, DanceMusicService dms)
+        private static void UpdateTagTypes(TagList added, TagList removed, DanceMusicService dms)
         {
             if (dms == null)
                 return;
@@ -138,53 +133,43 @@ namespace m4dModels
                 foreach (string tag in added.Tags)
                 {
                     // Create a transitory tag type to parse the tag string
-                    TagType tt = dms.FindOrCreateTagType(tag);
+                    var tt = dms.FindOrCreateTagType(tag);
                     tt.Count += 1;
                 }
             }
 
-            if (removed != null)
+            if (removed == null) return;
+
+            foreach (var tt in removed.Tags.Select(dms.FindOrCreateTagType))
             {
-                foreach (string tag in removed.Tags)
+                tt.Count -= 1;
+                if (tt.Count <= 0)
                 {
-                    // Create a transitory tag type to parse the tag string
-                    TagType tt = dms.FindOrCreateTagType(tag);
-                    tt.Count -= 1;
-                    if (tt.Count <= 0)
-                    {
-                        dms.TagTypes.Remove(tt);
-                    }
+                    dms.TagTypes.Remove(tt);
                 }
             }
         }
         public virtual TagList UserTags(ApplicationUser user, DanceMusicService dms=null)
         {
             var tag = FindUserTag(user, dms);
-            if (tag == null)
-                return new TagList();
-            else
-                return tag.Tags;
+            return tag == null ? new TagList() : tag.Tags;
         }
+
         public Tag FindUserTag(ApplicationUser user, DanceMusicService dms=null)
         {
             Tag tag = null;
             if (Tags != null)
-            {
                 tag = Tags.FirstOrDefault(t => (t.User == user) && (t.Id == TagId));
-            }
 
-            if (tag == null && dms != null)
-            {
-                tag = dms.Tags.FirstOrDefault(t => t.UserId == user.Id && t.Id == TagId);
-                if (tag != null)
-                {
-                    if (Tags == null)
-                    {
-                        Tags = new List<Tag>();
-                    }
-                    Tags.Add(tag);
-                }
-            }
+            if (tag != null || dms == null) return tag;
+
+            tag = dms.Tags.FirstOrDefault(t => t.UserId == user.Id && t.Id == TagId);
+            if (tag == null) return null;
+
+            if (Tags == null)
+                Tags = new List<Tag>();
+
+            Tags.Add(tag);
             return tag;
         }
 
@@ -192,25 +177,22 @@ namespace m4dModels
         {
             var ut = FindUserTag(user, dms);
 
-            if (ut == null)
+            if (ut != null) return ut;
+
+            ut = dms != null ? dms.Tags.Create() : new Tag();
+            ut.UserId = user.Id;
+            ut.User = user;
+            ut.Id = TagId;
+            ut.Tags = new TagList();
+
+            if (dms != null)
+                dms.Tags.Add(ut);
+
+            if (Tags == null)
             {
-                ut = dms != null ? dms.Tags.Create() : new Tag();
-                ut.UserId = user.Id;
-                ut.User = user;
-                ut.Id = TagId;
-                ut.Tags = new TagList();
-
-                if (dms != null)
-                {
-                    dms.Tags.Add(ut);
-                }
-
-                if (Tags == null)
-                {
-                    Tags = new List<Tag>();
-                }
-                Tags.Add(ut);
+                Tags = new List<Tag>();
             }
+            Tags.Add(ut);
 
             return ut;
         }
@@ -218,7 +200,7 @@ namespace m4dModels
 
         public void UpdateTagSummary(DanceMusicService dms)
         {
-            string tagId = TagId;
+            var tagId = TagId;
             var tags = from t in dms.Context.Tags where t.Id == tagId select t;
 
             TagSummary = new TagSummary();
@@ -239,11 +221,10 @@ namespace m4dModels
                 }
             }
             var ut = FindOrCreateUserTags(tag.User, dms);
-            if (ut.Tags.Summary != tag.Tags.Summary)
-            {
-                ut.Tags = tag.Tags;
-                ut.Modified = DateTime.Now;
-            }
+            if (ut.Tags.Summary == tag.Tags.Summary) return;
+
+            ut.Tags = tag.Tags;
+            ut.Modified = DateTime.Now;
         }
         public void UpdateUserTags(DanceMusicService dms)
         {
@@ -267,10 +248,9 @@ namespace m4dModels
         {
             if (tags == null)
                 return null;
-            if (dms == null)
-                return tags;
 
-            return new TagList(tags.Tags.Select(t => (dms.TagTypes.Find(t)??new TagType{Key=t}).GetPrimary()).Select(tt => tt.Key).ToList());
+            return (dms == null) ? tags : 
+                new TagList(tags.Tags.Select(t => (dms.TagTypes.Find(t)??new TagType{Key=t}).GetPrimary()).Select(tt => tt.Key).ToList());
         }
     }
 }

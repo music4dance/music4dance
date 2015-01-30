@@ -48,31 +48,17 @@ namespace m4dModels
         // Subtract 'other' from this list - get's the tags in this list that aren't in delta
         public TagList Subtract(TagList other)
         {
-            List<string> ret = new List<string>();
+            var trg = other == null ? new List<string>() : other.Tags;
 
-            IList<string> src = Tags;
-            IList<string> trg = other == null ? new List<string>() : other.Tags;
-
-            foreach (string s in src)
-            {
-                if (!trg.Contains(s))
-                {
-                    ret.Add(s);
-                }
-            }
-
-            return new TagList(ret);
+            return new TagList(Tags.Where(s => !trg.Contains(s)).ToList());
         }
 
         public TagList Add(TagList other)
         {
-            List<string> ret = Tags;
-            foreach (string tag in other.Tags)
+            var ret = Tags;
+            foreach (var tag in other.Tags.Where(tag => !ret.Contains(tag)))
             {
-                if (!ret.Contains(tag))
-                {
-                    ret.Add(tag);
-                }
+                ret.Add(tag);
             }
 
             return new TagList(ret);
@@ -95,19 +81,14 @@ namespace m4dModels
         #region Implementation
         static private List<string> Parse(string serialized)
         {
-            List<string> tags = new List<string>();
+            var tags = new List<string>();
 
             if (string.IsNullOrWhiteSpace(serialized))
             {
                 return tags;
             }
 
-            string[] rg = serialized.Split(new[] { '|' }, StringSplitOptions.RemoveEmptyEntries);
-
-            foreach (string s in rg)
-            {
-                tags.Add(s);
-            }
+            tags.AddRange(serialized.Split(new[] { '|' }, StringSplitOptions.RemoveEmptyEntries));
 
             tags.Sort();
 
