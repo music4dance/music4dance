@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
@@ -56,14 +57,7 @@ namespace m4d.Controllers
 
         private async Task<ApplicationUser> FindByNameOrEmail(string s)
         {
-            ApplicationUser user = await UserManager.FindByNameAsync(s);
-
-            if (user == null)
-            {
-                user = await UserManager.FindByEmailAsync(s);
-            }
-
-            return user;
+            return await UserManager.FindByNameAsync(s) ?? await UserManager.FindByEmailAsync(s);
         }
 
         //
@@ -90,7 +84,7 @@ namespace m4d.Controllers
             {
                 // TODO: This workflow is broken for the case that the user had a typo in their email when originally registering
                 //  It would be better to allow the user to see & correct the email address before resending.
-                string callbackUrl = await SendEmailConfirmationTokenAsync(user.Id, "Confirm your music4dance account - Resend");
+                await SendEmailConfirmationTokenAsync(user.Id, "Confirm your music4dance account - Resend");
 
                 // Uncomment to debug locally  
                 // ViewBag.Link = callbackUrl;
@@ -110,7 +104,7 @@ namespace m4d.Controllers
                     // ReSharper disable once RedundantAnonymousTypePropertyName
                     return RedirectToAction("SendCode", new { ReturnUrl = returnUrl, RememberMe = model.RememberMe });
                 default:
-                    ModelState.AddModelError("", "Invalid login attempt.");
+                    ModelState.AddModelError("", @"Invalid login attempt.");
                     return View(model);
             }
         }
@@ -128,7 +122,7 @@ namespace m4d.Controllers
             var user = await UserManager.FindByIdAsync(await SignInManager.GetVerifiedUserIdAsync());
             if (user != null)
             {
-                var code = await UserManager.GenerateTwoFactorTokenAsync(user.Id, provider);
+                await UserManager.GenerateTwoFactorTokenAsync(user.Id, provider);
             }
             return View(new VerifyCodeViewModel { Provider = provider, ReturnUrl = returnUrl, RememberMe = rememberMe });
         }
@@ -158,7 +152,7 @@ namespace m4d.Controllers
                     return View("Lockout");
                 //case SignInStatus.Failure:
                 default:
-                    ModelState.AddModelError("", "Invalid code.");
+                    ModelState.AddModelError("", @"Invalid code.");
                     return View(model);
             }
         }
@@ -192,7 +186,8 @@ namespace m4d.Controllers
                     // var callbackUrl = Url.Action("ConfirmEmail", "Account", new { userId = user.Id, code = code }, protocol: Request.Url.Scheme);
                     // await UserManager.SendEmailAsync(user.Id, "Confirm your account", "Please confirm your account by clicking <a href=\"" + callbackUrl + "\">here</a>");
 
-                    var callbackUrl = await SendEmailConfirmationTokenAsync(user.Id, "Confirm your music4dance account");
+                    /*var callbackUrl=*/
+                    await SendEmailConfirmationTokenAsync(user.Id, "Confirm your music4dance account");
 
                     // Uncomment to debug locally 
                     // TempData["ViewBagLink"] = callbackUrl;
@@ -209,12 +204,13 @@ namespace m4d.Controllers
             return View(model);
         }
 
-        private async Task<string> SendEmailConfirmationTokenAsync(string userID, string subject)
+        private async Task<string> SendEmailConfirmationTokenAsync(string userId, string subject)
         {
-            string code = await UserManager.GenerateEmailConfirmationTokenAsync(userID);
-            var callbackUrl = Url.Action("ConfirmEmail", "Account",
-               new { userId = userID, code }, Request.Url.Scheme);
-            await UserManager.SendEmailAsync(userID, subject,
+            if (Request.Url == null) throw new MemberAccessException("Request.Url");
+
+            var code = await UserManager.GenerateEmailConfirmationTokenAsync(userId);
+            var callbackUrl = Url.Action("ConfirmEmail", "Account", new { userID = userId, code }, Request.Url.Scheme);
+            await UserManager.SendEmailAsync(userId, subject,
                "Please confirm your email account by clicking <a href=\"" + callbackUrl + "\">here</a>");
 
             return callbackUrl;
@@ -247,25 +243,22 @@ namespace m4d.Controllers
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> ForgotPassword(ForgotPasswordViewModel model)
         {
-            if (ModelState.IsValid)
-            {
-                var user = await UserManager.FindByEmailAsync(model.Email);
-                if (user == null || !(await UserManager.IsEmailConfirmedAsync(user.Id)))
-                {
-                    // Don't reveal that the user does not exist or is not confirmed
-                    return View("ForgotPasswordConfirmation");
-                }
+            if (Request.Url == null) throw new MemberAccessException("Request.Url");
+            if (!ModelState.IsValid) return View(model);
 
-                // For more information on how to enable account confirmation and password reset please visit http://go.microsoft.com/fwlink/?LinkID=320771
-                // Send an email with this link
-                string code = await UserManager.GeneratePasswordResetTokenAsync(user.Id);
-                var callbackUrl = Url.Action("ResetPassword", "Account", new { userId = user.Id, code }, Request.Url.Scheme);
-                await UserManager.SendEmailAsync(user.Id, "Reset Password", "Please reset your password by clicking <a href=\"" + callbackUrl + "\">here</a>");
-                return RedirectToAction("ForgotPasswordConfirmation", "Account");
+            var user = await UserManager.FindByEmailAsync(model.Email);
+            if (user == null || !(await UserManager.IsEmailConfirmedAsync(user.Id)))
+            {
+                // Don't reveal that the user does not exist or is not confirmed
+                return View("ForgotPasswordConfirmation");
             }
 
-            // If we got this far, something failed, redisplay form
-            return View(model);
+            // For more information on how to enable account confirmation and password reset please visit http://go.microsoft.com/fwlink/?LinkID=320771
+            // Send an email with this link
+            var code = await UserManager.GeneratePasswordResetTokenAsync(user.Id);
+            var callbackUrl = Url.Action("ResetPassword", "Account", new { userId = user.Id, code }, Request.Url.Scheme);
+            await UserManager.SendEmailAsync(user.Id, "Reset Password", "Please reset your password by clicking <a href=\"" + callbackUrl + "\">here</a>");
+            return RedirectToAction("ForgotPasswordConfirmation", "Account");
         }
 
         //

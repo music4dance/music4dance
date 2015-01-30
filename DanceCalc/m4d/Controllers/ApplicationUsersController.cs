@@ -21,11 +21,11 @@ namespace m4d.Controllers
             }
         }
 
-        public ApplicationUsersController()
-        {
-            //TODO: For some reason lazy loading isn't working for the roles collection, so explicitly loading (for now)
-            //Context.Users.AsQueryable().Include("Roles").Load();
-        }
+        //public ApplicationUsersController()
+        //{
+        //    //TODO: For some reason lazy loading isn't working for the roles collection, so explicitly loading (for now)
+        //    //Context.Users.AsQueryable().Include("Roles").Load();
+        //}
 
         // GET: ApplicationUsers
         public ActionResult Index()
