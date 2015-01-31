@@ -311,6 +311,7 @@
     <Compile Include="APIControllers\DMApiController.cs" />
     <Compile Include="Controllers\DanceController.cs" />
     <Compile Include="Controllers\DMController.cs" />
+    <Compile Include="Controllers\ErrorController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\LogController.cs" />
     <Compile Include="Controllers\ManageController.cs" />
@@ -781,6 +782,7 @@
     <Content Include="Views\Home\SiteMap.cshtml" />
     <Content Include="Views\Song\ItemTags.cshtml" />
     <Content Include="Views\Song\Dances.cshtml" />
+    <Content Include="Views\Error\Index.cshtml" />
     <None Include="Web.m4d.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
