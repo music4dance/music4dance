@@ -97,7 +97,7 @@
             @string.Join(",",Model.GetRoles(item.Id))
         </td>
         <td>
-            @string.Join(",",Model.GetLogins(item.Id))
+            @string.Join(",",Model.GetLogins(item.Id).Select(l => l.LoginProvider))
         </td>
         <td>
             @Html.DisplayFor(modelItem => item.EmailConfirmed)

@@ -305,10 +305,15 @@ namespace m4d.Controllers
         // GET: /Manage/LinkLoginCallback
         public async Task<ActionResult> LinkLoginCallback()
         {
-            var loginInfo = await AuthenticationManager.GetExternalLoginInfoAsync(XsrfKey, User.Identity.GetUserId());
+            var userId = User.Identity.GetUserId();
+            var loginInfo = await AuthenticationManager.GetExternalLoginInfoAsync(XsrfKey, userId);
             if (loginInfo == null)
             {
                 return RedirectToAction("ManageLogins", new { Message = ManageMessageId.Error });
+            }
+            if (loginInfo.Email == null)
+            {
+                loginInfo.Email = await UserManager.GetEmailAsync(userId);
             }
             var result = await UserManager.AddLoginAsync(User.Identity.GetUserId(), loginInfo.Login);
             return result.Succeeded ? RedirectToAction("ManageLogins") : RedirectToAction("ManageLogins", new { Message = ManageMessageId.Error });

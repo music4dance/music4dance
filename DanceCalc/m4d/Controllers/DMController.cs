@@ -69,6 +69,71 @@ namespace m4d.Controllers
         }
         private ApplicationUserManager _userManager;
 
+        //// Used for XSRF protection when adding external logins
+        //protected const string XsrfKey = "XsrfId";
+
+        //protected IAuthenticationManager AuthenticationManager
+        //{
+        //    get
+        //    {
+        //        return HttpContext.GetOwinContext().Authentication;
+        //    }
+        //}
+
+        //protected async Task<ExternalLoginInfo> GetExternalLoginInfoAsync()
+        //{
+        //    var userId = User.Identity.GetUserId();
+        //    var loginInfo = await AuthenticationManager.GetExternalLoginInfoAsync(XsrfKey, userId);
+        //    if (loginInfo == null)
+        //    {
+        //        return null;
+        //    }
+
+        //    if (loginInfo.Email == null)
+        //    {
+        //        var authResult = await AuthenticationManager.AuthenticateAsync(DefaultAuthenticationTypes.ExternalCookie);
+
+        //        if (authResult != null && authResult.Identity != null && authResult.Identity.IsAuthenticated)
+        //        {
+        //            var claimsIdentity = authResult.Identity;
+        //            var providerKeyClaim = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier);
+
+        //            var providerKey = providerKeyClaim.Value;
+        //            var issuer = providerKeyClaim.Issuer;
+        //            var name = claimsIdentity.FindFirstValue(ClaimTypes.Name);
+        //            var emailAddress = claimsIdentity.FindFirstValue(ClaimTypes.Email);
+
+        //            Trace.WriteLine(string.Format("providerKey={0};issuer={1};name={2};emailAddress={3}", providerKey, issuer, name, emailAddress));
+
+        //            loginInfo.Email = emailAddress;
+        //        }
+        //    }
+
+        //    if (loginInfo.Email == null)
+        //    {
+        //        loginInfo.Email = await UserManager.GetEmailAsync(userId);
+        //    }
+
+        //    return loginInfo;
+        //}
+
+        //protected void AddErrors(IdentityResult result)
+        //{
+        //    foreach (var error in result.Errors)
+        //    {
+        //        ModelState.AddModelError("", error);
+        //    }
+        //}
+
+        //protected ActionResult RedirectToLocal(string returnUrl)
+        //{
+        //    if (Url.IsLocalUrl(returnUrl))
+        //    {
+        //        return Redirect(returnUrl);
+        //    }
+        //    return RedirectToAction("Index", "Home");
+        //}
+
 
         protected override void Dispose(bool disposing)
         {

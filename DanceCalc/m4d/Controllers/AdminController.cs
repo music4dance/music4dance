@@ -529,15 +529,15 @@ namespace m4d.Controllers
                     {
                         RestoreDb(null);
 
-                        var i = lines.FindIndex(l => DanceMusicService.IsDanceBreak(l));
+                        var i = lines.FindIndex(DanceMusicService.IsDanceBreak);
                         var users = lines.GetRange(0, i).ToList();
                         lines.RemoveRange(0, i + 1);
 
-                        i = lines.FindIndex(l => DanceMusicService.IsTagBreak(l));
+                        i = lines.FindIndex(DanceMusicService.IsTagBreak);
                         var dances = lines.GetRange(0,i).ToList();
                         lines.RemoveRange(0,i+1);
 
-                        i = lines.FindIndex(l => DanceMusicService.IsSongBreak(l));
+                        i = lines.FindIndex(DanceMusicService.IsSongBreak);
                         var tags = lines.GetRange(0,i).ToList();
                         lines.RemoveRange(0,i+1);
 
@@ -551,11 +551,15 @@ namespace m4d.Controllers
                     }
                 }
 
-                if (string.Equals(reloadDatabase, "update songs", StringComparison.InvariantCultureIgnoreCase))
+                if (string.Equals(reloadDatabase, "songs", StringComparison.InvariantCultureIgnoreCase))
                 {
                     Database.UpdateSongs(lines);
                 }
-                else if (string.Equals(reloadDatabase, "update dances", StringComparison.InvariantCultureIgnoreCase))
+                else if (string.Equals(reloadDatabase, "users", StringComparison.InvariantCultureIgnoreCase))
+                {
+                    Database.LoadUsers(lines);
+                }
+                else if (string.Equals(reloadDatabase, "dances", StringComparison.InvariantCultureIgnoreCase))
                 {
                     Database.LoadDances(lines);
                 }
@@ -1006,19 +1010,15 @@ namespace m4d.Controllers
         //
         // Get: //BackupDatabase
         [Authorize(Roles = "showDiagnostics")]
-        public ActionResult BackupDatabase(string useLookupHistory = null)
+        public ActionResult BackupDatabase(bool users = true, bool tags = true, bool dances = true, bool songs = true, string useLookupHistory = null)
         {
             var history = !string.IsNullOrWhiteSpace(useLookupHistory);
 
-            //TODO: For some reason lazy loading isn't working for the roles collection, so explicitly loading (for now)
-            //Context.Users.AsQueryable().Include("Roles").Load();
+            var s = (users ? string.Join("\r\n", Database.SerializeUsers()) + "\r\n" : string.Empty) +
+                    (dances ? string.Join("\r\n", Database.SerializeDances()) + "\r\n" : string.Empty) +
+                    (tags ? string.Join("\r\n", Database.SerializeTags()) + "\r\n" : string.Empty) +
+                    (tags ? string.Join("\r\n", Database.SerializeSongs(true,history)) + "\r\n" : string.Empty);
 
-            var users = Database.SerializeUsers();
-            var tags = Database.SerializeTags();
-            var dances = Database.SerializeDances();
-            var songs = Database.SerializeSongs(true,history);
-
-            var s = string.Join("\r\n", users) + "\r\n" + string.Join("\r\n", dances) + "\r\n" + string.Join("\r\n", tags) + "\r\n" + string.Join("\r\n", songs);
             var bytes = Encoding.UTF8.GetBytes(s);
             var stream = new MemoryStream(bytes);
 

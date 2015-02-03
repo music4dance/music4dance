@@ -186,11 +186,11 @@ namespace m4d.Controllers
                     // var callbackUrl = Url.Action("ConfirmEmail", "Account", new { userId = user.Id, code = code }, protocol: Request.Url.Scheme);
                     // await UserManager.SendEmailAsync(user.Id, "Confirm your account", "Please confirm your account by clicking <a href=\"" + callbackUrl + "\">here</a>");
 
-                    /*var callbackUrl=*/
-                    await SendEmailConfirmationTokenAsync(user.Id, "Confirm your music4dance account");
+                    //var callbackUrl=
+                        await SendEmailConfirmationTokenAsync(user.Id, "Confirm your music4dance account");
 
                     // Uncomment to debug locally 
-                    // TempData["ViewBagLink"] = callbackUrl;
+                    //TempData["ViewBagLink"] = callbackUrl;
 
                      ViewBag.Message = "Please check your email and confirm your account, you're email must be confirmed "
                                      + "before you can log in.";
@@ -224,8 +224,27 @@ namespace m4d.Controllers
             {
                 return View("Error");
             }
-            var result = await UserManager.ConfirmEmailAsync(userId, code);
-            return View(result.Succeeded ? "ConfirmEmail" : "Error");
+            IdentityResult result;
+            try
+            {
+                result = await UserManager.ConfirmEmailAsync(userId, code);
+            }
+            catch (InvalidOperationException ioe)
+            {
+                // ConfirmEmailAsync throws when the userId is not found.
+                ViewBag.errorMessage = ioe.Message;
+                return View("Error");                
+            }
+
+            if (result.Succeeded)
+            {
+                return View();
+            }
+
+            // If we got this far, something failed.
+            AddErrors(result);
+            ViewBag.errorMessage = "ConfirmEmail failed";
+            return View("Error");
         }
 
         //
@@ -470,8 +489,8 @@ namespace m4d.Controllers
             {
                 return Redirect(returnUrl);
             }
-                return RedirectToAction("Index", "Home");
-            }
+            return RedirectToAction("Index", "Home");
+        }
 
         internal class ChallengeResult : HttpUnauthorizedResult
         {

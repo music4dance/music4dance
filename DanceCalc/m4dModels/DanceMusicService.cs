@@ -1316,9 +1316,15 @@ namespace m4dModels
             SaveChanges();
             Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Exiting LoadUsers");
         }
+
         public void LoadDances(IList<string> lines)
         {
             Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Entering Dances");
+
+            if (lines.Count > 0 && IsDanceBreak(lines[0]))
+            {
+                lines.RemoveAt(0);
+            }
 
             LoadDances();
             bool modified = false;
@@ -1421,6 +1427,11 @@ namespace m4dModels
 
             Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Loading Songs");
 
+            if (lines.Count > 0 && IsSongBreak(lines[0]))
+            {
+                lines.RemoveAt(0);
+            }
+
             int c = 0;
             foreach (string line in lines)
             {
@@ -1461,7 +1472,6 @@ namespace m4dModels
             Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Clearing Song Cache");
             SongCounts.ClearCache();
             Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Exiting UpdateSongs");
-
         }
 
         public void SeedDances()
@@ -1502,7 +1512,7 @@ namespace m4dModels
                 string hash = user.PasswordHash;
                 string stamp = user.SecurityStamp;
                 string lockout = user.LockoutEnabled.ToString();
-                string providers = string.Join("|", _userManager.GetLogins(user.Id));
+                string providers = string.Join("|", _userManager.GetLogins(user.Id).Select(l => l.LoginProvider + "|" + l.ProviderKey));
 
                 users.Add(string.Format("{0}\t{1}\t{2}\t{3}\t{4}\t{5}\t{6}", userId, username, roles, hash, stamp, lockout, providers));
             }

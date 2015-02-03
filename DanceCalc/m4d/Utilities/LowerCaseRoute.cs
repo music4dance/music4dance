@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Security.Cryptography;
 using System.Web.Mvc;
 using System.Web.Routing;
 
@@ -17,13 +19,23 @@ namespace m4d.Utilities
 
         public override VirtualPathData GetVirtualPath(RequestContext requestContext, RouteValueDictionary values)
         {
-            VirtualPathData path = base.GetVirtualPath(requestContext, values);
+            foreach (var key in s_keys)
+            {
+                if (!values.ContainsKey(key))
+                    continue;
 
-            if (path != null)
-                path.VirtualPath = path.VirtualPath.ToLowerInvariant();
+                var s = values[key] as string;
+                if (s != null)
+                {
+                    values[key] = s.ToLowerInvariant();
+                }
+            }
 
-            return path;
+            return base.GetVirtualPath(requestContext, values);
         }
+
+        //private static HashSet<string> s_keys = new HashSet<string>() {"controller", "action", "id", "group", "dance"};
+        private static readonly string[] s_keys =  {"controller", "action", "id", "group", "dance" };
     }
 
     public static class RouteCollectionExtensions
