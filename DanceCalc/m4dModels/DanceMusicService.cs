@@ -82,57 +82,31 @@ namespace m4dModels
             return song;
         }
 
-        public SongDetails EditSong(ApplicationUser user, SongDetails edit, List<string> addDances, List<string> remDances, string editTags, bool createLog = true)
+        public SongDetails EditSong(ApplicationUser user, SongDetails edit, IEnumerable<UserTag> tags = null, bool createLog = true)
         {
             Song song = _context.Songs.Find(edit.SongId);
             if (createLog)
-            {
                 song.CurrentLog = CreateSongLog(user, song, SongBase.EditCommand);
-            }
 
-            // Null edit tags is semantically == don't change
-            editTags = editTags == null ? song.UserTags(user,this).Summary : NormalizeTags(editTags, "Other");
-            if (song.Edit(user, edit, addDances, remDances, editTags, this))
-            {
-                if (createLog)
-                {
-                    _context.Log.Add(song.CurrentLog);
-                    return FindSongDetails(edit.SongId);
-                }
-                else
-                {
-                    return new SongDetails(song);
-                }
-            }
-            else
-            {
-                return null;
-            }
+            if (!song.Edit(user, edit, tags, this)) return null;
+
+            if (createLog)
+                _context.Log.Add(song.CurrentLog);
+
+            return new SongDetails(song,user.UserName,this);
         }
 
         public SongDetails UpdateSong(ApplicationUser user, Song song, SongDetails edit, bool createLog = true)
         {
             if (createLog)
-            {
                 song.CurrentLog = CreateSongLog(user, song, SongBase.EditCommand);
-            }
 
-            if (song.Update(user, edit, this))
-            {
-                if (createLog)
-                {
-                    _context.Log.Add(song.CurrentLog);
-                    return FindSongDetails(edit.SongId);
-                }
-                else
-                {
-                    return new SongDetails(song);
-                }
-            }
-            else
-            {
-                return null;
-            }
+            if (!song.Update(user, edit, this)) return null;
+
+            if (createLog)
+                _context.Log.Add(song.CurrentLog);
+
+            return new SongDetails(song,user.UserName);
         }
 
         // This is an additive merge - only add new things if they don't conflict with the old
@@ -149,7 +123,7 @@ namespace m4dModels
                 if (song.CurrentLog != null)
                     _context.Log.Add(song.CurrentLog);
                 SaveChanges();
-                return FindSongDetails(songId);
+                return FindSongDetails(songId,user.UserName);
             }
             else
             {
@@ -749,28 +723,14 @@ namespace m4dModels
             return song;
         }
 
-        public SongDetails FindSongDetails(Guid id, bool forSerialization = false, string userName = null)
+        public SongDetails FindSongDetails(Guid id, string userName = null)
         {
             var song = FindSong(id);
 
             if (song == null)
                 return null;
 
-            var sd = new SongDetails(song);
-
-            if (userName != null)
-            {
-                var user = FindUser(userName);
-                if (user != null)
-                {
-                    sd.SetCurrentUserTags(user, this);
-                }
-
-                if (forSerialization)
-                {
-                    sd.SetupSerialization(user,this);
-                }
-            }
+            var sd = new SongDetails(song,userName,this);
 
             return sd;
         }

@@ -158,19 +158,15 @@ namespace m4dModels
         }
 
         // Edit 'this' based on songdetails + extras
-        public bool Edit(ApplicationUser user, SongDetails edit, List<string> addDances, List<string> remDances, string editTags, DanceMusicService dms)
+        public bool Edit(ApplicationUser user, SongDetails edit, IEnumerable<UserTag> tags, DanceMusicService dms)
         {
-            bool modified = EditCore(user,edit,dms);
-
-            modified |= EditDanceRatings(addDances, DanceRatingIncrement, remDances, DanceRatingDecrement, dms);
-
-            TagList tags = new TagList(editTags).Add(new TagList(TagsFromDances(addDances)));
-
-            //TAGTEST: Basic editting
-            modified |= ChangeTags(tags.Summary, user, dms, this);
+            var modified = EditCore(user,edit,dms);
 
             modified |= UpdatePurchaseInfo(edit);
             modified |= UpdateModified(user, edit, dms, true);
+
+            if (tags != null)
+                modified |= InternalEditTags(user, tags, dms);
 
             return modified;
         }
@@ -281,14 +277,19 @@ namespace m4dModels
 
         public bool EditTags(ApplicationUser user, IEnumerable<UserTag> tags, DanceMusicService dms)
         {
+            CreateEditProperties(user, EditCommand, dms);
+
+            return InternalEditTags(user, tags, dms);
+        }
+
+        private bool InternalEditTags(ApplicationUser user, IEnumerable<UserTag> tags, DanceMusicService dms)
+        {
             var modified = false;
             var hash = new Dictionary<string, TagList>();
             foreach (var tag in tags)
             {
                 hash[tag.Id] = tag.Tags;
             }
-
-            CreateEditProperties(user, EditCommand, dms);
 
             // First handle the top-level tags, this will incidently add any new danceratings
             //  implied by those tags
@@ -306,7 +307,7 @@ namespace m4dModels
                 modified |= dr.ChangeTags(tl.Summary, user, dms, this);
             }
 
-            return modified;
+            return modified;            
         }
 
         public override void RegisterChangedTags(TagList added, TagList removed, ApplicationUser user, DanceMusicService dms, object data)

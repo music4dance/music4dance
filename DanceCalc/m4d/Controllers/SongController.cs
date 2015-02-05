@@ -222,7 +222,7 @@ namespace m4d.Controllers
         [AllowAnonymous]
         public ActionResult Details(Guid? id = null, SongFilter filter = null)
         {
-            SongDetails song = Database.FindSongDetails(id ?? Guid.Empty, true, User.Identity.Name);
+            SongDetails song = Database.FindSongDetails(id ?? Guid.Empty, User.Identity.Name);
             if (song == null)
             {
                 return HttpNotFound();
@@ -262,8 +262,8 @@ namespace m4d.Controllers
         {
             ViewBag.ShowMPM = true;
             ViewBag.ShowBPM = true;
-            ViewBag.DanceListAdd = GetDances();
-            SongDetails sd = new SongDetails();
+            var sd = new SongDetails();
+            ViewBag.DanceList = GetDancesSingle();
             ViewBag.BackAction = "Index";
             return View(sd);
         }
@@ -293,12 +293,12 @@ namespace m4d.Controllers
                 }
 
                 ViewBag.DanceMap = SongCounts.GetDanceMap(Database);
+                ViewBag.DanceList = GetDancesSingle();
                 return View("Details", song);
             }
             else
             {
-                // Add back in the danceratings
-                ViewBag.DanceListAdd = GetDances();
+                ViewBag.DanceList = GetDancesSingle();
 
                 // Clean out empty albums
                 for (var i = 0; i < song.Albums.Count; )
@@ -323,7 +323,7 @@ namespace m4d.Controllers
         [Authorize(Roles = "canEdit")] 
         public ActionResult Edit(Guid? id = null, SongFilter filter = null)
         {
-            var song = Database.FindSongDetails(id ?? Guid.Empty, true, User.Identity.Name);
+            var song = Database.FindSongDetails(id ?? Guid.Empty, User.Identity.Name);
             if (song == null)
             {
                 return HttpNotFound();
@@ -340,8 +340,6 @@ namespace m4d.Controllers
             ViewBag.ShowBPM = true;
 
             IList<DanceRating> ratingsList = song.RatingsList;
-            ViewBag.DanceListRemove = GetDances(ratingsList);
-            ViewBag.DanceListAdd = GetDances();
             ViewBag.DanceList = GetDancesSingle();
 
             if (ratingsList.Any(r => (r as DanceRatingInfo).DanceName.Contains("Waltz")))
@@ -357,44 +355,48 @@ namespace m4d.Controllers
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "canEdit")] 
         //public ActionResult Edit([ModelBinder(typeof(m4d.Utilities.SongBinder))]SongDetails song, List<string> addDances, List<string> remDances, string filter = null)
-        public ActionResult Edit(SongDetails song, List<string> addDances, List<string> remDances, string editTags, SongFilter filter = null)
+        public ActionResult Edit(SongDetails song, string userTags, SongFilter filter = null)
         {
             if (ModelState.IsValid)
             {
                 var user = Database.FindUser(User.Identity.Name);
+                var jt = JTags.FromJson(userTags);                
 
-                // EditSong makes a distinction between null and an empty list
-                if (addDances == null)
-                {
-                    addDances = new List<string>();
-                }
-
-                if (remDances == null)
-                {
-                    remDances = new List<string>();
-                }
-
-                var edit = Database.EditSong(user, song, addDances, remDances, editTags);
+                var edit = Database.EditSong(user, song, jt.ToUserTags());
 
                 // ReSharper disable once InvertIf
                 if (edit != null)
                 {
                     Database.SaveChanges();
+
+                    // TODO: Need to figure out a cleaner way to make editsong return a fully hydrated songdetails before save happens (for batch mode)
+                    //  Possibly get SongDetails constructor to hydrate CurrentUser tags from properties collection rather than going to the db?
+                    edit = Database.FindSongDetails(edit.SongId, user.UserName);
+
                     ViewBag.BackAction = "Index";
                     ViewBag.DanceMap = SongCounts.GetDanceMap(Database);
+                    ViewBag.DanceList = GetDancesSingle(); 
                     return View("Details", edit);
                 }
-                {
-                    return RedirectToAction("Index", new {filter });
-                }
+
+                return RedirectToAction("Index", new {filter });
             }
             else
             {
-                ViewBag.Errors = ModelState.SelectMany(x => x.Value.Errors.Select(z => z.Exception));
+                var errors =  ModelState.SelectMany(x => x.Value.Errors.Select(z => z.Exception));
+                ViewBag.Errors = errors;
+
+                if (TraceLevels.General.TraceError)
+                {
+                    foreach (var error in errors)
+                    {
+                        Trace.WriteLine(error.Message);
+                    }
+                }
 
                 // Add back in the danceratings
                 // TODO: This almost certainly doesn't preserve edits...
-                var songT = Database.FindSongDetails(song.SongId, true, User.Identity.Name);
+                var songT = Database.FindSongDetails(song.SongId, User.Identity.Name);
                 SetupEditViewBag(songT);
 
                 // Clean out empty albums
@@ -702,19 +704,17 @@ namespace m4d.Controllers
                     tags = tags.Add(new TagList(Database.NormalizeTags(foundTrack.Genre, "Music")));
                 }
                 ApplicationUser user;
+                // ReSharper disable once InvertIf
                 if (!users.TryGetValue(service.CID, out user))
                 {
                     user = Database.FindUser("batch-" + service.CID.ToString().ToLower());
                     users[service.CID] = user;
                 }
 
-                return Database.EditSong(user, sd, null, null, tags.ToString());
-            }
-            else
-            {
-                return null;
+                return Database.EditSong(user, sd, new[] {new UserTag {Id=string.Empty,Tags=tags}});
             }
 
+            return null;
         }
         private IList<ServiceTrack> MatchSongAndService(SongDetails sd, MusicService service)
         {

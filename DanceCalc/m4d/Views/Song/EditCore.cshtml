@@ -51,8 +51,7 @@
     <div class="form-group row">
         @Html.LabelFor(model => model.Length, new { @class = "control-label col-md-2" })
         <div class="col-md-10">
-            @Html.EditorFor(model => model.Length, "SongDuration")
-            @*@Html.ValidationMessageFor(model => model.Length)*@
+            @Html.EditorFor(model => model.Length, "SongDuration")            
 
             <div class="editor-alternate" id="alt-length">
                 @if (old != null && old.Length != null)
@@ -96,6 +95,13 @@
             <span class="col-md-4" style="text-align:right">MORE</span>
         </div>
     </div>
+    <div class="row">
+        <div class="col-md-12">
+            <h4>
+                @Html.Partial("ItemTags")
+            </h4>
+        </div>
+    </div>
 
     <div class="row">
         <div class="col-md-12" style="padding-top: 5px">
@@ -103,43 +109,6 @@
         </div>
     </div>
     
-    if (ViewData.ContainsKey("DanceListRemove"))
-    {
-        <div class="editor-label row col-md-12">
-            Remove Dances from this list to vote them down.
-        </div>
-        <div class="editor-field row col-md-12">
-            @Html.ListBox("remDances", ViewBag.DanceListRemove as MultiSelectList, new { @class = "chzn-select", data_placeholder = "Remove Dances to Vote Down..." })
-        </div>
-    }
-    if (ViewData.ContainsKey("DanceListAdd"))
-    {
-        <div class="editor-label row col-md-12">
-            Add dances to this list to vote them up.
-        </div>
-        <div class="editor-field row col-md-12">
-            @Html.ListBox("addDances", ViewBag.DanceListAdd as MultiSelectList, new { @class = "chzn-select", data_placeholder = "Choose Dances to Vote Up..." })
-        </div>
-        <br />
-    }
-    <hr class="row col-md-12" />
-    <div class="editor-label row col-md-12">
-        Tags: (@Model.TagSummary)
-    </div>
-    <div class="editor-field row col-md-12">
-        @{
-            string tagValues = string.Empty;
-            if (Model.CurrentUserTags != null)
-            {
-                tagValues = Model.CurrentUserTags.ToString();
-            }
-            <h4>
-                @Html.Partial("ItemTags")
-            </h4> 
-        }
-        @Html.TextBox("editTags", @tagValues, new { @class = "form-control" })
-    </div>
-
     <hr class="row col-md-12" />
     <div class="row col-md-12">
         <table>
@@ -247,8 +216,11 @@
     <hr class="row col-md-12" />
 
     <p class="row col-md-12">
-        <input type="hidden" name="filter" value="@ViewBag.SongFilter" />
-        <input type="submit" value="@ViewBag.Submit" class="btn btn-default" />
+        <input type="hidden" name="filter" value="@ViewBag.SongFilter"/>
+        <input type="hidden" name="userTags" id="userTags"/>
+        @*<input type="submit" value="Save" class="btn btn-default" />*@
+        <input type="submit" id="save" name="operation" value="@ViewBag.Submit" class="btn btn-default" />
     </p>
 }
 
+@Html.Partial("_TagEditor")

@@ -628,10 +628,8 @@ var EditPage = function(data) {
 
     self.canEdit = ko.observable(canEdit);
 
-    self.saveRatings = function () {
-        var uri = '/api/updateratings/' + self.song.SongId();
-
-        var source = { Tags: [{ Id:'', Tags:self.song.TagSummary.serializeUser() }] };
+    self.getRatings = function() {
+        var source = { Tags: [{ Id: '', Tags: self.song.TagSummary.serializeUser() }] };
 
         for (var i = 0; i < self.song.DanceRatings().length; i++) {
             var rating = self.song.DanceRatings()[i];
@@ -639,6 +637,14 @@ var EditPage = function(data) {
             if (user)
                 source.Tags.push({ Id: rating.DanceId(), Tags: user });
         }
+
+        return source;
+    };
+
+    self.saveRatings = function () {
+        var uri = '/api/updateratings/' + self.song.SongId();
+
+        var source = self.getRatings();
 
         $.ajax({
             type: 'POST',
@@ -655,6 +661,7 @@ var EditPage = function(data) {
         });
     };
 };
+
 var albumMapping = {
     'Albums': {
         create: function(options) {
@@ -750,15 +757,6 @@ $(document).ready(function () {
         danceAction(data.selected);
     });
 
-    //var tooltips = $('[data-show="tooltip"]');
-    //tooltips.livequery(function() {
-    //    $(this).tooltip({selector:'[data-show="tooltip"]'});
-    //});
-
-    //$('[data-toggle="tooltip"]').livequery(function () {
-    //    $(this).tooltip();
-    //});
-
     $('body').tooltip({ selector: '[data-show=tooltip]' });
 
     $('#addTags').on('show.bs.modal', function(event) {
@@ -818,6 +816,11 @@ $(document).ready(function () {
 
     $(document).ajaxComplete(function (/*event, request, settings*/) {
         $('#loading-indicator').hide();
+    });
+
+    $('#save').click(function () {
+        var t = JSON.stringify(viewModel.getRatings());
+        $('#userTags').val(t);
     });
 
     var data = { tracks: [], song: song, newTags:'', changed:false };

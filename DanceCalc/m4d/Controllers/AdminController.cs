@@ -125,7 +125,7 @@ namespace m4d.Controllers
                 if (artist == null) continue;
 
                 var sd = new SongDetails(song) {Artist = artist};
-                Database.EditSong(user, sd, null, null, null);
+                Database.EditSong(user, sd, null, false);
                 count += 1;
             }
             Database.SaveChanges();
@@ -157,7 +157,7 @@ namespace m4d.Controllers
                 if (albums.Count != sd.Albums.Count)
                 {
                     sd.Albums = albums.ToList();
-                    Database.EditSong(user, sd, null, null, null, false);
+                    Database.EditSong(user, sd, null, false);
                     merged += 1;
                 }
                 else
