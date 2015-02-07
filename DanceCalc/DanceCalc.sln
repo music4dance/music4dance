@@ -43,9 +43,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XboxMusicClient", "XboxMusi
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "m4d-redirect", "m4d-redirect\m4d-redirect.csproj", "{5111FC48-720F-41AC-BD42-BD531C5D7986}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SoundTouch.Net", "SoundTouch.Net\SoundTouch.Net.csproj", "{EA570592-1FAB-412F-AA0C-159C947608CD}"
+EndProject
 Global
 	GlobalSection(TeamFoundationVersionControl) = preSolution
-		SccNumberOfProjects = 12
+		SccNumberOfProjects = 13
 		SccEnterpriseProvider = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
 		SccTeamFoundationServer = https://thegray.visualstudio.com/defaultcollection
 		SccLocalPath0 = .
@@ -82,6 +84,9 @@ Global
 		SccProjectUniqueName11 = m4d-redirect\\m4d-redirect.csproj
 		SccProjectName11 = m4d-redirect
 		SccLocalPath11 = m4d-redirect
+		SccProjectUniqueName12 = SoundTouch.Net\\SoundTouch.Net.csproj
+		SccProjectName12 = SoundTouch.Net
+		SccLocalPath12 = SoundTouch.Net
 	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -190,6 +195,14 @@ Global
 		{5111FC48-720F-41AC-BD42-BD531C5D7986}.Release|Any CPU.Build.0 = Release|Any CPU
 		{5111FC48-720F-41AC-BD42-BD531C5D7986}.Release|ARM.ActiveCfg = Release|Any CPU
 		{5111FC48-720F-41AC-BD42-BD531C5D7986}.Release|x86.ActiveCfg = Release|Any CPU
+		{EA570592-1FAB-412F-AA0C-159C947608CD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EA570592-1FAB-412F-AA0C-159C947608CD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EA570592-1FAB-412F-AA0C-159C947608CD}.Debug|ARM.ActiveCfg = Debug|Any CPU
+		{EA570592-1FAB-412F-AA0C-159C947608CD}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{EA570592-1FAB-412F-AA0C-159C947608CD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EA570592-1FAB-412F-AA0C-159C947608CD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EA570592-1FAB-412F-AA0C-159C947608CD}.Release|ARM.ActiveCfg = Release|Any CPU
+		{EA570592-1FAB-412F-AA0C-159C947608CD}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
