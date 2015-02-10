@@ -51,14 +51,19 @@ namespace m4dModels
 
             BuildAlbumInfo();
 
-            if (user == null || dms == null) return;
+            if (dms == null) return;
 
-            var au = dms.FindUser(user);
-            if (au != null)
+            ApplicationUser au = null;
+            if (user != null)
             {
-                SetCurrentUserTags(au, dms);
-                SetupSerialization(au, dms);
+                 au = dms.FindUser(user);
+                if (au != null)
+                {
+                    SetCurrentUserTags(au, dms);
+                }
             }
+
+            SetupSerialization(au, dms);
         }
 
         // TODO: I want to be able to create SongDetails as a completely disconnected object

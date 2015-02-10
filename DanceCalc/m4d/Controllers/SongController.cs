@@ -804,7 +804,7 @@ namespace m4d.Controllers
                 throw new ArgumentOutOfRangeException("type");
             }
 
-            var song = Database.FindSongDetails(songId);
+            var song = Database.FindSongDetails(songId, User.Identity.Name);
             if (song == null)
             {
                 return HttpNotFound();
