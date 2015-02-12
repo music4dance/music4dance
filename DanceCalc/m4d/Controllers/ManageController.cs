@@ -393,7 +393,7 @@ namespace m4d.Controllers
                 CountryCodes.Codes.Select(code => new SelectListItem { Text = code.Value, Value = code.Key }).OrderBy(cc => cc.Text).ToList();
             profile.ContactOptions = ApplicationUser.ContactOptions;
             profile.ServiceOptions =
-                MusicService.GetServices().Select(s => new KeyValuePair<char, string>(s.CID, s.Name)).ToList();            
+                MusicService.GetProfileServices().Select(s => new KeyValuePair<char, string>(s.CID, s.Name)).ToList();
         }
 
 #region Helpers

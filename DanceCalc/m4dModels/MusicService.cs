@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Remoting.Messaging;
 using System.Text;
 
 namespace m4dModels
@@ -22,6 +23,8 @@ namespace m4dModels
             get { return false;}
         }
 
+        public virtual bool IsSearchable { get {return true;}}
+        public virtual bool ShowInProfile { get { return true; }}
         protected string AssociateLink { get; set; }
         protected string Request { get; set; }
         
@@ -193,7 +196,12 @@ namespace m4dModels
 
         public static IEnumerable<MusicService> GetSearchableServices()
         {
-            return s_idMap.Values.Where(s => s.CID != 'M');
+            return s_idMap.Values.Where(s => s.IsSearchable);
+        }
+
+        public static IEnumerable<MusicService> GetProfileServices()
+        {
+            return s_idMap.Values.Where(s => s.ShowInProfile);            
         }
 
         public static MusicService GetService(ServiceType id)
@@ -224,15 +232,9 @@ namespace m4dModels
             AddService(new ITunesService());
             AddService(new SpotifyService());
             AddService(new XboxService());
-            AddService(new MusicService(
-                ServiceType.AMG,
-                'M',
-                "American Music Group",
-                null,
-                null,
-                null,
-                null
-            ));
+            AddService(new MusicServiceStub(ServiceType.Emusic, 'E', "EMusic"));
+            AddService(new MusicServiceStub(ServiceType.Pandora, 'P', "Pandora"));
+            AddService(new MusicServiceStub(ServiceType.AMG,'M',"American Music Group",false));
         }
 
         private static void AddService(MusicService service)
