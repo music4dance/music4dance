@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
@@ -390,11 +391,19 @@ namespace m4d.Controllers
 
             // Sign in the user with this external login provider if the user already has a login
             var result = await SignInManager.ExternalSignInAsync(loginInfo, isPersistent: false);
+
+            var email = loginInfo.Email;
+            if (string.IsNullOrWhiteSpace(email))
+            {
+                var ext = await AuthenticationManager.GetExternalIdentityAsync(DefaultAuthenticationTypes.ExternalCookie);
+                email = ext.Claims.First(x => x.Type.Contains("emailaddress")).Value;
+            }
+
             switch (result)
             {
                 case SignInStatus.Success:
                 {
-                    var user = await UserManager.FindByEmailAsync(loginInfo.Email);
+                    var user = await UserManager.FindByEmailAsync(email);
                     return ProfileRedirect(returnUrl, user);   
                 }                    
                 case SignInStatus.LockedOut:

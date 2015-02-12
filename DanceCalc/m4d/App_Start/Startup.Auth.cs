@@ -5,6 +5,9 @@ using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.Owin;
 using Microsoft.Owin;
 using Microsoft.Owin.Security.Cookies;
+using Microsoft.Owin.Security.Facebook;
+using Microsoft.Owin.Security.Google;
+using Microsoft.Owin.Security.MicrosoftAccount;
 using Owin;
 
 namespace m4d
@@ -47,21 +50,35 @@ namespace m4d
             app.UseTwoFactorRememberBrowserCookie(DefaultAuthenticationTypes.TwoFactorRememberBrowserCookie);
 
             // Uncomment the following lines to enable logging in with third party login providers
-            app.UseMicrosoftAccountAuthentication(
-                clientId: "000000004412450B",
-                clientSecret: "0C6Mny6RCkYuHTF62sHVD-ZdQ-fypRuL");
+            var ms = new MicrosoftAccountAuthenticationOptions
+            {
+                ClientId = "000000004412450B",
+                ClientSecret = "0C6Mny6RCkYuHTF62sHVD-ZdQ-fypRuL"
+            };
+            ms.Scope.Add("wl.basic");
+            ms.Scope.Add("wl.emails");
+            app.UseMicrosoftAccountAuthentication(ms);
+
 
             //app.UseTwitterAuthentication(
             //   consumerKey: "",
             //   consumerSecret: "");
 
-            app.UseFacebookAuthentication(
-               appId: "503791763032198",
-               appSecret: "***REMOVED***");
-
-            app.UseGoogleAuthentication(
-                clientId: "818567039467-mjpj2i4712esqje2rrd4mjjb6lntmqq7.apps.googleusercontent.com",
-                clientSecret: "***REMOVED***");
+            var fb = new FacebookAuthenticationOptions
+            {
+                AppId = "503791763032198", 
+                AppSecret = "***REMOVED***"
+            };
+            fb.Scope.Add("email");
+            fb.SignInAsAuthenticationType = DefaultAuthenticationTypes.ExternalCookie;
+            app.UseFacebookAuthentication(fb);
+            
+            var gg = new GoogleOAuth2AuthenticationOptions
+            {
+                ClientId = "818567039467-mjpj2i4712esqje2rrd4mjjb6lntmqq7.apps.googleusercontent.com",
+                ClientSecret = "***REMOVED***"
+            };
+            app.UseGoogleAuthentication(gg);
         }
     }
 }
