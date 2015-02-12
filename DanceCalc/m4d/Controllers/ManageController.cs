@@ -330,7 +330,7 @@ namespace m4d.Controllers
 
         //
         // GET: /Manage/EditProfile
-        public async Task<ActionResult> EditProfile()
+        public async Task<ActionResult> EditProfile(string returnUrl = null)
         {
             var user = await UserManager.FindByIdAsync(User.Identity.GetUserId());
             if (user == null)
@@ -348,6 +348,7 @@ namespace m4d.Controllers
             };
             SetUpProfile(profile);
 
+            ViewBag.ReturnUrl = returnUrl;
             return View(profile);
         }
 
@@ -356,7 +357,7 @@ namespace m4d.Controllers
         // POST: /Manage/LinkLogin
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> EditProfile(ProfileViewModel profile)
+        public async Task<ActionResult> EditProfile(ProfileViewModel profile, string returnUrl)
         {
             if (!ModelState.IsValid)
             {
@@ -376,7 +377,10 @@ namespace m4d.Controllers
             // TODO: Error handling here
             if (r.Succeeded)
             {
-                return RedirectToAction("Index", "Manage");    
+                if (string.IsNullOrWhiteSpace(returnUrl) || !Url.IsLocalUrl(returnUrl))
+                    return RedirectToAction("Index", "Manage");
+                
+                return Redirect(returnUrl);
             }
 
             ViewBag.StatusMessage = r.Errors.FirstOrDefault();

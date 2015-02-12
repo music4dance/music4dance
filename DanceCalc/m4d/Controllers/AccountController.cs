@@ -97,7 +97,7 @@ namespace m4d.Controllers
             switch (result)
             {
                 case SignInStatus.Success:
-                    return RedirectToLocal(returnUrl);
+                    return ProfileRedirect(returnUrl, user);
                 case SignInStatus.LockedOut:
                     return View("Lockout");
                 case SignInStatus.RequiresVerification:
@@ -393,7 +393,10 @@ namespace m4d.Controllers
             switch (result)
             {
                 case SignInStatus.Success:
-                return RedirectToLocal(returnUrl);
+                {
+                    var user = await UserManager.FindByEmailAsync(loginInfo.Email);
+                    return ProfileRedirect(returnUrl, user);   
+                }                    
                 case SignInStatus.LockedOut:
                     return View("Lockout");
                 case SignInStatus.RequiresVerification:
@@ -435,7 +438,7 @@ namespace m4d.Controllers
                     if (result.Succeeded)
                     {
                         await SignInManager.SignInAsync(user, isPersistent: false, rememberBrowser: false);
-                        return RedirectToLocal(returnUrl);
+                        return ProfileRedirect(returnUrl, user);
                     }
                 }
                 AddErrors(result);
@@ -491,6 +494,14 @@ namespace m4d.Controllers
             }
             return RedirectToAction("Index", "Home");
         }
+
+        private ActionResult ProfileRedirect(string returnUrl, ApplicationUser user)
+        {
+            return (user != null && user.Region == null)
+                ? RedirectToAction("EditProfile", "Manage", new { ReturnUrl = returnUrl })
+                : RedirectToLocal(returnUrl);
+        }
+
 
         internal class ChallengeResult : HttpUnauthorizedResult
         {
