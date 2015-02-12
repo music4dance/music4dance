@@ -21,7 +21,7 @@ namespace m4dModels
         {
         }
 
-        public SongDetails(Song song, string user=null, DanceMusicService dms=null)
+        public SongDetails(Song song, string user=null, DanceMusicService dms=null, bool forSerialization=true)
         {
             SongId = song.SongId;
             Tempo = song.Tempo;
@@ -63,7 +63,8 @@ namespace m4dModels
                 }
             }
 
-            SetupSerialization(au, dms);
+            if (forSerialization)
+                SetupSerialization(au, dms);
         }
 
         // TODO: I want to be able to create SongDetails as a completely disconnected object

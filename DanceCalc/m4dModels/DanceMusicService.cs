@@ -106,7 +106,7 @@ namespace m4dModels
             if (createLog)
                 _context.Log.Add(song.CurrentLog);
 
-            return new SongDetails(song,user.UserName,this);
+            return new SongDetails(song,user.UserName,this,false);
         }
 
         // This is an additive merge - only add new things if they don't conflict with the old
