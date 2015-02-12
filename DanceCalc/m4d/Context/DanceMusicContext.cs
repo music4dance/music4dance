@@ -118,6 +118,9 @@ namespace m4d.Context
 
             modelBuilder.Entity<DanceLink>().HasKey(dl => dl.Id);
 
+            modelBuilder.Entity<ApplicationUser>().Property(u => u.Region).HasMaxLength(2);
+            modelBuilder.Entity<ApplicationUser>().Property(u => u.ServicePreference).HasMaxLength(10);
+
             base.OnModelCreating(modelBuilder);
         }
 

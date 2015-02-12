@@ -16,7 +16,7 @@
     }
 }
 
-@if (User.IsInRole("showDiagnostics"))
+@if (User.IsInRole("showDiagnostics") && Model != null)
 {
     string hresult = "0x" + Model.Exception.HResult.ToString("X8");
     <p><b>Exception:</b>@Model.Exception.Message (@hresult)</p>

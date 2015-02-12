@@ -15,14 +15,7 @@
         <dt>Password:</dt>
         <dd>
             [
-            @if (Model.HasPassword)
-            {
-                @Html.ActionLink("Change your password", "ChangePassword")
-            }
-            else
-            {
-                @Html.ActionLink("Create", "SetPassword")
-            }
+            @(Model.HasPassword ? Html.ActionLink("Change your password", "ChangePassword") : Html.ActionLink("Create", "SetPassword"))
             ]
         </dd>
         <dt>External Logins:</dt>
@@ -82,7 +75,22 @@
 
     <hr/>
     <div>
+        <h4>Your Profile Preferences [@Html.ActionLink("Edit","EditProfile")]</h4>
+        <dl class="dl-horizontal">
+            <dt>Region:</dt>
+            <dd>@Model.Region</dd>
+            <dt>Privacy:</dt>
+            <dd>@Model.Privacy</dd>
+            <dt>Contact Preferences:</dt>
+            <dd>@string.Join(", ",@Model.CanContact)</dd>
+            <dt>Music Streaming<br/>and Purchase service<br/>preferences:</dt>
+            <dd>@string.Join(", ", @Model.ServicePreference)</dd>
+        </dl>
+    </div>
+
+    <hr/>
+    <div>
         <h4>View your music4dance</h4>
-        <p>@Html.ActionLink("Show songs I've modified", "FilterUser", "Song", new { user = @User.Identity.GetUserName() }, null)</p>
+        <p>@Html.ActionLink("Show songs that you have modified", "FilterUser", "Song", new {user = @User.Identity.GetUserName()}, null)</p>
     </div>
 </div>

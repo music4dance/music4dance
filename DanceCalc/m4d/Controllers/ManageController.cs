@@ -1,4 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Data.Entity;
+using System.Drawing;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Web;
@@ -49,15 +52,21 @@ namespace m4d.Controllers
                 : message == ManageMessageId.RemovePhoneSuccess ? "Your phone number was removed."
                 : "";
 
+            var id = User.Identity.GetUserId();
+            var au = UserManager.FindById(id);
             var model = new IndexViewModel
             {
                 Name = User.Identity.GetUserName(),
                 HasPassword = HasPassword(),
-                PhoneNumber = await UserManager.GetPhoneNumberAsync(User.Identity.GetUserId()),
-                TwoFactor = await UserManager.GetTwoFactorEnabledAsync(User.Identity.GetUserId()),
-                Logins = await UserManager.GetLoginsAsync(User.Identity.GetUserId()),
-                BrowserRemembered = await AuthenticationManager.TwoFactorBrowserRememberedAsync(User.Identity.GetUserId()),
-                MemberSince = GetStartDate()
+                //PhoneNumber = await UserManager.GetPhoneNumberAsync(User.Identity.GetUserId()),
+                //TwoFactor = await UserManager.GetTwoFactorEnabledAsync(User.Identity.GetUserId()),
+                Logins = await UserManager.GetLoginsAsync(id),
+                //BrowserRemembered = await AuthenticationManager.TwoFactorBrowserRememberedAsync(User.Identity.GetUserId()),
+                MemberSince = GetStartDate(),
+                Region = au.RegionName,
+                Privacy = au.PrivacyDescription,
+                CanContact = au.ContactDescription,
+                ServicePreference = au.ServicePreferenceDescription
             };
             return View(model);
         }
@@ -317,6 +326,70 @@ namespace m4d.Controllers
             }
             var result = await UserManager.AddLoginAsync(User.Identity.GetUserId(), loginInfo.Login);
             return result.Succeeded ? RedirectToAction("ManageLogins") : RedirectToAction("ManageLogins", new { Message = ManageMessageId.Error });
+        }
+
+        //
+        // GET: /Manage/EditProfile
+        public async Task<ActionResult> EditProfile()
+        {
+            var user = await UserManager.FindByIdAsync(User.Identity.GetUserId());
+            if (user == null)
+            {
+                return View("Error");
+            }
+
+            var profile = new ProfileViewModel
+            {
+                Name = user.UserName,
+                Region = user.Region ?? "US",
+                PublicProfile = user.Privacy > 0,
+                ContactSelection = user.ContactSelection,
+                ServiceSelection = (user.ServicePreference == null) ? new List<char>() : (user.ServicePreference.Select(c => c).ToList())
+            };
+            SetUpProfile(profile);
+
+            return View(profile);
+        }
+
+        
+        //
+        // POST: /Manage/LinkLogin
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<ActionResult> EditProfile(ProfileViewModel profile)
+        {
+            if (!ModelState.IsValid)
+            {
+                SetUpProfile(profile);
+                return View(profile);
+            }
+
+            var user = await UserManager.FindByNameAsync(profile.Name);
+            user.Region = profile.Region;
+            user.Privacy = (byte) (profile.PublicProfile ? 255 : 0);
+            user.ServicePreference = (profile.ServiceSelection == null) ? string.Empty : new string(profile.ServiceSelection.ToArray());
+            user.CanContact = (profile.ContactSelection == null) ? ContactStatus.None : 
+                (ContactStatus) profile.ContactSelection.Aggregate<byte, byte>(0, (current, cnt) => (byte) (current | cnt));
+
+            var r = await UserManager.UpdateAsync(user);
+
+            // TODO: Error handling here
+            if (r.Succeeded)
+            {
+                return RedirectToAction("Index", "Manage");    
+            }
+
+            ViewBag.StatusMessage = r.Errors.FirstOrDefault();
+            return View("Error");
+        }
+
+        private static void SetUpProfile(ProfileViewModel profile)
+        {
+            profile.RegionItems =
+                CountryCodes.Codes.Select(code => new SelectListItem { Text = code.Value, Value = code.Key }).OrderBy(cc => cc.Text).ToList();
+            profile.ContactOptions = ApplicationUser.ContactOptions;
+            profile.ServiceOptions =
+                MusicService.GetServices().Select(s => new KeyValuePair<char, string>(s.CID, s.Name)).ToList();            
         }
 
 #region Helpers

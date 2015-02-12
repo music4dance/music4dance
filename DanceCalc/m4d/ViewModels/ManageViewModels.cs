@@ -3,6 +3,8 @@ using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNet.Identity;
 using Microsoft.Owin.Security;
 using System;
+using System.Web.Mvc;
+using m4dModels;
 
 namespace m4d.ViewModels
 {
@@ -15,6 +17,13 @@ namespace m4d.ViewModels
         public bool TwoFactor { get; set; }
         public bool BrowserRemembered { get; set; }
         public DateTime MemberSince { get; set; }
+
+        // These are user readable strings/enumerable strings
+        public string Region { get; set; }
+        public string Privacy { get; set; }
+        public IEnumerable<string> CanContact { get; set; }
+        public IEnumerable<string> ServicePreference { get; set; }
+
     }
 
     public class ManageLoginsViewModel
@@ -38,7 +47,7 @@ namespace m4d.ViewModels
 
         [DataType(DataType.Password)]
         [Display(Name = "Confirm new password")]
-        [Compare("NewPassword", ErrorMessage = "The new password and confirmation password do not match.")]
+        [System.ComponentModel.DataAnnotations.Compare("NewPassword", ErrorMessage = "The new password and confirmation password do not match.")]
         public string ConfirmPassword { get; set; }
     }
 
@@ -57,7 +66,7 @@ namespace m4d.ViewModels
 
         [DataType(DataType.Password)]
         [Display(Name = "Confirm new password")]
-        [Compare("NewPassword", ErrorMessage = "The new password and confirmation password do not match.")]
+        [System.ComponentModel.DataAnnotations.Compare("NewPassword", ErrorMessage = "The new password and confirmation password do not match.")]
         public string ConfirmPassword { get; set; }
     }
 
@@ -85,5 +94,22 @@ namespace m4d.ViewModels
     {
         public string SelectedProvider { get; set; }
         public ICollection<System.Web.Mvc.SelectListItem> Providers { get; set; }
+    }
+
+    public class ProfileViewModel
+    {
+        [Key]
+        public string Name { get; set; }
+
+        public string Region { get; set; }
+
+        public IEnumerable<SelectListItem> RegionItems { get; set; }
+
+        public bool PublicProfile { get; set; }
+        public List<KeyValuePair<byte,string>> ContactOptions { get; set; }
+        public List<byte> ContactSelection { get; set; }
+        public List<KeyValuePair<char,string>> ServiceOptions { get; set; }
+        public List<char> ServiceSelection { get; set; }
+
     }
 }
