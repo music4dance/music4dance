@@ -1291,6 +1291,8 @@ namespace m4dModels
                     if (extended)
                     {
                         user.StartDate = date;
+                        user.Email = email;
+                        user.EmailConfirmed = emailConfirmed;
                         user.Region = region;
                         user.Privacy = privacy;
                         user.CanContact = (ContactStatus)canContact;
