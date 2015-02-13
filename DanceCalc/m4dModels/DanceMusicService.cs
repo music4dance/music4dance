@@ -1177,7 +1177,7 @@ namespace m4dModels
         private const string _songBreak = "+++++SONGS+++++";
         private const string _tagBreak = "+++++TAGSS+++++";
         private const string _danceBreak = "+++++DANCES+++++";
-        private const string _userHeader = "UserId\tUserName\tRoles\tPWHash\tSecStamp\tLockout\tProviders\tStartDat\tRegion\tPrivacy\tCanContact\tServicePreference";
+        private const string _userHeader = "UserId\tUserName\tRoles\tPWHash\tSecStamp\tLockout\tProviders\tEmail\tEmailConfirmed\tStartDate\tRegion\tPrivacy\tCanContact\tServicePreference";
 
         static public bool IsSongBreak(string line) {
             return IsBreak(line, _songBreak);
@@ -1231,58 +1231,89 @@ namespace m4dModels
                 var stamp = cells[4];
                 var lockout = cells[5];
                 var providers = cells[6];
-                
-                // Don't trounce existing users
+                string email = null;
+                var emailConfirmed = false;
+                var date = new DateTime();
+                string region = null;
+                byte privacy = 0;
+                var canContact = ContactStatus.None;
+                string servicePreference = null;
+
+                var extended = cells.Length >= 13;
+                if (extended)
+                {
+                    email = cells[7];
+                    bool.TryParse(cells[8], out emailConfirmed);
+                    DateTime.TryParse(cells[9], out date);
+                    region = cells[10];
+                    Byte.TryParse(cells[11], out privacy);
+                    byte canContactT;
+                    Byte.TryParse(cells[12], out canContactT);
+                    canContact = (ContactStatus)canContactT;
+                    servicePreference = cells[13];
+                }
+
                 var user = FindUser(userName);
-                if (user != null) continue;
+                var create = user == null;                    
 
-                user = _context.Users.Create();
-                user.Id = userId;
-                user.UserName = userName;
-                user.PasswordHash = hash;
-                user.SecurityStamp = stamp;
-                user.LockoutEnabled = string.Equals(lockout, "TRUE", StringComparison.InvariantCultureIgnoreCase);
-
-                if (!string.IsNullOrWhiteSpace(providers))
+                if (create)
                 {
-                    var entries = providers.Split(new[] { '|' }, StringSplitOptions.RemoveEmptyEntries);
-                    for (var j = 0; j < entries.Length; j += 2)
+                    user = _context.Users.Create();
+                    user.Id = userId;
+                    user.UserName = userName;
+                    user.PasswordHash = hash;
+                    user.SecurityStamp = stamp;
+                    user.LockoutEnabled = string.Equals(lockout, "TRUE", StringComparison.InvariantCultureIgnoreCase);
+
+                    if (!string.IsNullOrWhiteSpace(providers))
                     {
-                        var login = new IdentityUserLogin() { LoginProvider = entries[j], ProviderKey = entries[j + 1], UserId = userId };
-                        user.Logins.Add(login);
+                        var entries = providers.Split(new[] { '|' }, StringSplitOptions.RemoveEmptyEntries);
+                        for (var j = 0; j < entries.Length; j += 2)
+                        {
+                            var login = new IdentityUserLogin() { LoginProvider = entries[j], ProviderKey = entries[j + 1], UserId = userId };
+                            user.Logins.Add(login);
+                        }
+                    }
+
+                    if (!string.IsNullOrWhiteSpace(roles))
+                    {
+                        var roleNames = roles.Split(new[] { '|' }, StringSplitOptions.RemoveEmptyEntries);
+                        foreach (var roleName in roleNames)
+                        {
+                            var role = Context.Roles.FirstOrDefault(r => r.Name == roleName.Trim());
+                            if (role == null) continue;
+
+                            var iur = new IdentityUserRole() { UserId = user.Id, RoleId = role.Id };
+                            user.Roles.Add(iur);
+                        }
+                    }
+
+                    if (extended)
+                    {
+                        user.StartDate = date;
+                        user.Region = region;
+                        user.Privacy = privacy;
+                        user.CanContact = (ContactStatus)canContact;
+                        user.ServicePreference = servicePreference;                        
+                    }
+
+                    Context.Users.Add(user);                                    
+                }
+                else if (extended)
+                {
+                    if (string.IsNullOrWhiteSpace(user.Email) && !string.IsNullOrWhiteSpace(email))
+                    {
+                        user.Email = email;
+                        user.EmailConfirmed = emailConfirmed;
+                    }
+                    if (string.IsNullOrWhiteSpace(user.Region) && !string.IsNullOrWhiteSpace(region))
+                    {
+                        user.Region = region;
+                        user.Privacy = privacy;
+                        user.CanContact = canContact;
+                        user.ServicePreference = servicePreference;                        
                     }
                 }
-
-                if (!string.IsNullOrWhiteSpace(roles))
-                {
-                    var roleNames = roles.Split(new[] { '|' }, StringSplitOptions.RemoveEmptyEntries);
-                    foreach (var roleName in roleNames)
-                    {
-                        var role = Context.Roles.FirstOrDefault(r => r.Name == roleName.Trim());
-                        if (role == null) continue;
-
-                        var iur = new IdentityUserRole() { UserId = user.Id, RoleId = role.Id };
-                        user.Roles.Add(iur);
-                    }
-                }
-
-                if (cells.Length >= 11)
-                {
-                    DateTime date;
-                    DateTime.TryParse(cells[7], out date);
-                    byte privacy;
-                    Byte.TryParse(cells[9], out privacy);
-                    byte canContact;
-                    Byte.TryParse(cells[10], out canContact);
-
-                    user.StartDate = date;
-                    user.Region = cells[8];
-                    user.Privacy = privacy;
-                    user.CanContact = (ContactStatus) canContact;
-                    user.ServicePreference = cells[11];
-                }
-
-                Context.Users.Add(user);
             }
 
             Trace.WriteLineIf(TraceLevels.General.TraceInfo,"Saving Changes");
@@ -1486,14 +1517,16 @@ namespace m4dModels
                 var stamp = user.SecurityStamp;
                 var lockout = user.LockoutEnabled.ToString();
                 var providers = string.Join("|", _userManager.GetLogins(user.Id).Select(l => l.LoginProvider + "|" + l.ProviderKey));
+                var email = user.Email;
+                var emailConfirmed = user.EmailConfirmed;
                 var time = user.StartDate.ToString("g");
                 var region = user.Region;
                 var privacy = user.Privacy.ToString();
                 var canContact = ((byte) user.CanContact).ToString();
                 var servicePreference = user.ServicePreference;
 
-                users.Add(string.Format("{0}\t{1}\t{2}\t{3}\t{4}\t{5}\t{6}\t{7}\t{8}\t{9}\t{10}\t{11}", 
-                    userId, username, roles, hash, stamp, lockout, providers,time,region,privacy,canContact,servicePreference));
+                users.Add(string.Format("{0}\t{1}\t{2}\t{3}\t{4}\t{5}\t{6}\t{7}\t{8}\t{9}\t{10}\t{11}\t{12}\t{13}", 
+                    userId, username, roles, hash, stamp, lockout, providers,email,emailConfirmed,time,region,privacy,canContact,servicePreference));
             }
 
             return users;
