@@ -34,7 +34,9 @@ namespace m4dModels
         public PurchaseLink GetPurchaseLink(PurchaseType pt, string album, string song)
         {
             PurchaseLink ret = null;
-            string link = BuildPurchaseLink(pt, album, song);
+            string[] regions = null;
+            string id = ParseRegionInfo(song, out regions);
+            string link = BuildPurchaseLink(pt, album, id);
             if (link != null)
             {
 
@@ -44,7 +46,8 @@ namespace m4dModels
                     Target = Target,
                     Logo = Name + "-logo.png",
                     Charm = Name + "-charm.png",
-                    AltText = Description
+                    AltText = Description,
+                    AvailableMarkets = regions
                 };
             }
 
@@ -184,6 +187,22 @@ namespace m4dModels
             }
 
             return true;
+        }
+
+        static public string ParseRegionInfo(string value, out string[] regions)
+        {
+            regions = null;
+
+            if (value == null || !value.EndsWith("]")) return value;
+
+            var fields = value.Split('[');
+
+            if (fields.Length == 2)
+            {
+                regions = fields[1].Substring(0,fields[1].Length-1).Split(',');
+            }
+
+            return fields[0];
         }
         
         #endregion

@@ -16,5 +16,7 @@ namespace m4dModels
         public string Charm { get; set; }
         [DataMember]
         public string AltText { get; set; }
+        [DataMember]
+        public string[] AvailableMarkets { get; set; }
     }
 }
