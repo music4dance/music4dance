@@ -506,7 +506,7 @@ namespace m4d.Controllers
 
         private ActionResult ProfileRedirect(string returnUrl, ApplicationUser user)
         {
-            return (user != null && user.Region == null)
+            return (user != null && string.IsNullOrWhiteSpace(user.Region))
                 ? RedirectToAction("EditProfile", "Manage", new { ReturnUrl = returnUrl })
                 : RedirectToLocal(returnUrl);
         }

@@ -341,7 +341,7 @@ namespace m4d.Controllers
             var profile = new ProfileViewModel
             {
                 Name = user.UserName,
-                Region = user.Region ?? "US",
+                Region = string.IsNullOrWhiteSpace(user.Region) ? "US" : user.Region,
                 PublicProfile = user.Privacy > 0,
                 ContactSelection = user.ContactSelection,
                 ServiceSelection = (user.ServicePreference == null) ? new List<char>() : (user.ServicePreference.Select(c => c).ToList())
