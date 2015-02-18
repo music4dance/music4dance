@@ -6,13 +6,17 @@
 
 <h2 class="text-danger">Error:</h2>
 @{
-    if (String.IsNullOrEmpty(ViewBag.errorMessage))
+    if (!string.IsNullOrEmpty(ViewBag.errorMessage))
     {
-        <p class="text-danger">An error occurred while processing your request.</p>
+        <p class="text-danger">@Html.Raw(ViewBag.errorMessage)</p>
+    }
+    else if (!string.IsNullOrEmpty(ViewBag.StatusMessage))
+    {
+        <p class="text-danger">@Html.Raw(ViewBag.StatusMessage)</p>
     }
     else
     {
-        <p class="text-danger">@Html.Raw(ViewBag.errorMessage)</p>
+        <p class="text-danger">An error occurred while processing your request.</p>
     }
 }
 
