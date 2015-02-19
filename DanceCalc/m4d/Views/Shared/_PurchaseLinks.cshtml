@@ -1,13 +1,13 @@
 ﻿@model IEnumerable<m4dModels.PurchaseLink>
 
-@foreach (m4dModels.PurchaseLink link in Model)
+@foreach (var link in Model)
 {
-    string target = string.Empty;
+    var target = string.Empty;
     if (link.Target != null)
     {
         target = "target='" + link.Target + "'";
     }
-    string image = link.Charm;
+    var image = link.Charm;
     if (ViewData.ContainsKey("UseLogo") && ViewBag.UseLogo)
     { 
         image = link.Logo;

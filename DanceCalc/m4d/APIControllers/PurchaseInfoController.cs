@@ -1,8 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Web;
 using System.Web.Http;
 using m4dModels;
+using Microsoft.Ajax.Utilities;
+using Microsoft.AspNet.Identity;
 
 namespace m4d.APIControllers
 {
@@ -25,7 +28,13 @@ namespace m4d.APIControllers
                 return NotFound();
             }
 
-            ICollection<PurchaseLink> links = song.GetPurchaseLinks(serviceType);
+            var user = Database.FindUser(HttpContext.Current.User.Identity.GetUserName());
+            string region = "US";
+            if (user != null && !string.IsNullOrWhiteSpace(user.Region))
+            {
+                region = user.Region;
+            }
+            ICollection<PurchaseLink> links = song.GetPurchaseLinks(serviceType,region);
             PurchaseLink link = links.First();
 
             if (link == null) 

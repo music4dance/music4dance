@@ -1,5 +1,6 @@
 ﻿@using m4dModels
 @using MarkdownDeep
+@using m4d.Utilities
 @model SongCounts
 
 @{
@@ -10,16 +11,16 @@
     ViewBag.HideDances = true;
     ViewBag.SongFilter = new SongFilter { Dances = @Model.DanceId };
 
-    string description = @"<p>We're busy doing research and pulling together a general description for " + Model.DanceName + @".  Please check back later for more info.</p>";
+    var description = @"<p>We're busy doing research and pulling together a general description for " + Model.DanceName + @".  Please check back later for more info.</p>";
     if (!string.IsNullOrWhiteSpace(Model.Dance.Description))
     {
-        var md = new Markdown();
-        md.ExtraMode = true;
-        md.SafeMode = false;
+        var md = new Markdown {ExtraMode = true, SafeMode = false};
         description = Model.Dance.Description;
         description = Dance.SmartLinks(description,true);
         description = md.Transform(description);
     }
+
+    var topSpotify = @DanceMusicService.PurchaseLinksToInfo(@Model.TopSpotify, User.Region());
 }
 
 <ol class="breadcrumb">
@@ -46,7 +47,7 @@
 </div>
 
 <div>
-    <iframe src="https://embed.spotify.com/?uri=spotify:trackset:@Model.DanceName:@Model.TopSpotify" frameborder="0" allowtransparency="true"></iframe>
+    <iframe src="https://embed.spotify.com/?uri=spotify:trackset:@Model.DanceName:@topSpotify" frameborder="0" allowtransparency="true"></iframe>
 </div>
 
 <div>

@@ -574,7 +574,7 @@ namespace m4dModels
             Array.Sort(a);
             return new string(a);
         }
-        public ICollection<PurchaseLink> GetPurchaseLinks(string service = "AIXS")
+        public ICollection<PurchaseLink> GetPurchaseLinks(string service = "AIXS", string region=null)
         {
             List<PurchaseLink> links = new List<PurchaseLink>();
             service = service.ToUpper();
@@ -585,7 +585,7 @@ namespace m4dModels
                 {
                     foreach (AlbumDetails album in Albums)
                     {
-                        PurchaseLink l = album.GetPurchaseLink(ms.Id);
+                        PurchaseLink l = album.GetPurchaseLink(ms.Id,region);
                         if (l != null)
                         {
                             links.Add(l);
@@ -609,6 +609,7 @@ namespace m4dModels
             }
             return ret;
         }
+
         public static string GetPurchaseTags(ICollection<AlbumDetails> albums)
         {
             HashSet<char> added = new HashSet<char>();

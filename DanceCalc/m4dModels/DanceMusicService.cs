@@ -1020,22 +1020,36 @@ namespace m4dModels
             return songs.Include("DanceRatings").Include("ModifiedBy").Include("SongProperties");
         }
 
-        public string GetPurchaseInfo(ServiceType serviceType, IEnumerable<Song> songs)
+        public ICollection<ICollection<PurchaseLink>> GetPurchaseLinks(ServiceType serviceType, IEnumerable<Song> songs, string region = null)
         {
-            var sb = new StringBuilder();
-            var sep = "";
+            var links = new List<ICollection<PurchaseLink>>();
+            var cid = MusicService.GetService(serviceType).CID;
+            var sid = cid.ToString();
+
             foreach (var song in songs)
             {
-                if (song.Purchase == null || !song.Purchase.Contains('S')) continue;
+                if (song.Purchase == null || !song.Purchase.Contains(cid)) continue;
 
                 var sd = new SongDetails(song);
-                var id = sd.GetPurchaseId(ServiceType.Spotify);
-                sb.Append(sep);
-                sb.Append(id);
-                sep = ",";
+                var l = sd.GetPurchaseLinks(sid,region);
+                if (l != null)
+                    links.Add(l);
             }
 
-            return sb.ToString();
+            return links;
+        }
+
+        public string GetPurchaseInfo(ServiceType serviceType, IEnumerable<Song> songs, string region)
+        {
+            var songLinks = GetPurchaseLinks(serviceType, songs, region);
+            var results = (from links in songLinks select links.FirstOrDefault() into link where link != null select link.SongId).ToList();
+            return string.Join(",", results);
+        }
+
+        public static string PurchaseLinksToInfo(ICollection<ICollection<PurchaseLink>> songLinks, string region)
+        {
+            var results = (from links in songLinks select links.SingleOrDefault(l => l.AvailableMarkets == null || l.AvailableMarkets.Contains(region)) into link where link != null select link.SongId).ToList();
+            return string.Join(",",results);
         }
 
         // TODO: This is extremely dependent on the form of the danceIds, just

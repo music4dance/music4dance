@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Globalization;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Text;
@@ -248,9 +249,9 @@ namespace m4dModels
             }
         }
 
-        public PurchaseLink GetPurchaseLink(ServiceType ms)
+        public PurchaseLink GetPurchaseLink(ServiceType ms, string region=null)
         {
-            return GetPurchaseLink(ms, PurchaseType.Song) ?? GetPurchaseLink(ms, PurchaseType.Album);
+            return GetPurchaseLink(ms, PurchaseType.Song, region) ?? GetPurchaseLink(ms, PurchaseType.Album, region);
         }
 
         public IList<PurchaseLink> GetPurchaseLinks()
@@ -258,22 +259,25 @@ namespace m4dModels
             return MusicService.GetServices().Select(service => GetPurchaseLink(service.Id)).Where(link => link != null).ToList();
         }
 
-        public PurchaseLink GetPurchaseLink(ServiceType ms, PurchaseType pt)
+        public PurchaseLink GetPurchaseLink(ServiceType ms, PurchaseType pt, string region=null)
         {
             // Short-circuit if there is no purchase info for this ablum
             if (Purchase == null)
                 return null;
-
-            MusicService service = MusicService.GetService(ms);
-            string albumKey = service.BuildPurchaseKey(PurchaseType.Album);
-            string songKey = service.BuildPurchaseKey(PurchaseType.Song);
+            
+            var service = MusicService.GetService(ms);
+            var albumKey = service.BuildPurchaseKey(PurchaseType.Album);
+            var songKey = service.BuildPurchaseKey(PurchaseType.Song);
             string albumInfo;
             string songInfo;
 
             Purchase.TryGetValue(albumKey, out albumInfo);
             Purchase.TryGetValue(songKey, out songInfo);
 
-            return service.GetPurchaseLink(pt, albumInfo, songInfo);
+            var link =  service.GetPurchaseLink(pt, albumInfo, songInfo);
+            return link != null && !string.IsNullOrWhiteSpace(region) && link.AvailableMarkets != null && !link.AvailableMarkets.Contains(region)
+                ? null
+                : link;
         }
 
         public string GetPurchaseIdentifier(ServiceType ms, PurchaseType pt)

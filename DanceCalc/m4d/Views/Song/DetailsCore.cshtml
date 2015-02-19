@@ -1,15 +1,23 @@
-﻿@model m4dModels.SongDetails
+﻿@using m4d.Utilities
+@model m4dModels.SongDetails
 
 <div class="page-header">
     <h1>@Model.Title <small>by @Html.ActionLink(Model.Artist, "search", "song", new { searchString = Model.Artist, dances = "ALL" }, null)</small></h1>
 </div>
+@{
+    var region = User.Region();
+    if (string.IsNullOrWhiteSpace(region))
+    {
+        region = "US";
+    }
+}
 
 <div class="row">
     <div class="col-md-12">
         <div class="hidden-xs">
             @{
                 ViewBag.UseLogo = false;
-                @Html.Partial("_PurchaseLinks", Model.GetPurchaseLinks())
+                @Html.Partial("_PurchaseLinks", Model.GetPurchaseLinks("AISX",region))
                 @Html.ActionLink("Back to List", (string)ViewBag.SongFilter.Action, new { filter = ViewBag.SongFilter }, new { @class = "btn btn-ml btn-primary", role = "button" })
                 <a href="#" role="button" class="btn btn-ml btn-primary" data-bind="visible:changed, click:saveRatings">Save</a>
             }
@@ -17,7 +25,7 @@
         <div class="visible-xs">
             @{
                 ViewBag.UseLogo = true;
-                @Html.Partial("_PurchaseLinks", Model.GetPurchaseLinks())
+                @Html.Partial("_PurchaseLinks", Model.GetPurchaseLinks("AISX", region))
                 @Html.ActionLink("Back to List", (string) ViewBag.SongFilter.Action, new {filter = ViewBag.SongFilter}, new {@class = "btn btn-primary", role = "button"})
                 <a href="#" role="button" class="btn btn-ml btn-primary" data-bind="visible:changed, click:saveRatings">Save</a>
             }

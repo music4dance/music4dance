@@ -30,7 +30,7 @@ namespace m4dModels
 
         public IEnumerable<Song> TopSongs { get; private set; }
 
-        public string TopSpotify { get; private set; }
+        public ICollection<ICollection<PurchaseLink>> TopSpotify { get; private set; }
         public void SetTopSongs(int n, DanceMusicService dms)
         {
             SongFilter filter = new SongFilter
@@ -51,8 +51,9 @@ namespace m4dModels
 
             TopSongs = songs;
 
-            TopSpotify = dms.GetPurchaseInfo(ServiceType.Spotify, songs);
+            TopSpotify = dms.GetPurchaseLinks(ServiceType.Spotify, songs);
         }
+
         static public void ClearCache()
         {
             lock (s_counts)

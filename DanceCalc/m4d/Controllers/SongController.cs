@@ -7,6 +7,7 @@ using System.Linq;
 using System.Net;
 using System.Web.Mvc;
 using DanceLibrary;
+using m4d.Utilities;
 using m4d.ViewModels;
 using m4dModels;
 using PagedList;
@@ -884,7 +885,8 @@ namespace m4d.Controllers
 
             Trace.WriteLine("Exiting Song.Index");
             var list = songs.ToPagedList(filter.Page ?? 1, 25);
-            ViewBag.Spotify = Database.GetPurchaseInfo(ServiceType.Spotify,list.ToList());
+
+            ViewBag.Spotify = Database.GetPurchaseInfo(ServiceType.Spotify,list.ToList(),User.Region());
             
             return View("Index", list);
         }

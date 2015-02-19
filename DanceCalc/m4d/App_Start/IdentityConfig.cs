@@ -122,7 +122,11 @@ namespace m4d
 
         public override Task<ClaimsIdentity> CreateUserIdentityAsync(ApplicationUser user)
         {
-            return user.GenerateUserIdentityAsync((ApplicationUserManager)UserManager);
+            var identity =  user.GenerateUserIdentityAsync((ApplicationUserManager)UserManager);
+
+            identity.Result.AddClaim(new Claim("Region", string.IsNullOrWhiteSpace(user.Region) ? "US" : user.Region));
+
+            return identity;
         }
 
         public static ApplicationSignInManager Create(IdentityFactoryOptions<ApplicationSignInManager> options, IOwinContext context)

@@ -43,6 +43,8 @@ namespace m4dModels
                 ret = new PurchaseLink
                 {
                     Link = link,
+                    AlbumId = album,
+                    SongId = song,
                     Target = Target,
                     Logo = Name + "-logo.png",
                     Charm = Name + "-charm.png",
@@ -216,7 +218,7 @@ namespace m4dModels
             if (regions == null) return id;
 
             var sb = new StringBuilder(id);
-            sb.Append(id + "[");
+            sb.Append("[");
             var sep = string.Empty;
             foreach (var r in regions)
             {

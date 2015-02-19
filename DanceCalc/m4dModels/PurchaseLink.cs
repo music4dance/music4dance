@@ -17,6 +17,10 @@ namespace m4dModels
         [DataMember]
         public string AltText { get; set; }
         [DataMember]
+        public string SongId { get; set; }
+        [DataMember]
+        public string AlbumId { get; set; }
+        [DataMember]
         public string[] AvailableMarkets { get; set; }
     }
 }
