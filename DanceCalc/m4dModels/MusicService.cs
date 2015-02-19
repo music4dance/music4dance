@@ -37,6 +37,7 @@ namespace m4dModels
             string[] regions = null;
             string id = ParseRegionInfo(song, out regions);
             string link = BuildPurchaseLink(pt, album, id);
+
             if (link != null)
             {
 
@@ -44,7 +45,7 @@ namespace m4dModels
                 {
                     Link = link,
                     AlbumId = album,
-                    SongId = song,
+                    SongId = id,
                     Target = Target,
                     Logo = Name + "-logo.png",
                     Charm = Name + "-charm.png",
