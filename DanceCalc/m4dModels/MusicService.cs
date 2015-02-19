@@ -26,8 +26,8 @@ namespace m4dModels
         public virtual bool IsSearchable { get {return true;}}
         public virtual bool ShowInProfile { get { return true; }}
         protected string AssociateLink { get; set; }
-        protected string Request { get; set; }
-        
+        protected string SearchRequest { get; set; }
+        protected string TrackRequest { get; set; }
         #endregion
 
         #region Methods
@@ -75,25 +75,30 @@ namespace m4dModels
         }
         public virtual string BuildSearchRequest(string artist, string title)
         {
-            if (Request == null)
-            {
-                return null;
-            }
-
-            artist = artist ?? string.Empty;
-            title = title ?? string.Empty;
-
-            string searchEnc = Uri.EscapeDataString(artist + " " + title);
-            string req = string.Format(Request, searchEnc);
-            return req;
+            return BuildRequest(SearchRequest,(artist ?? string.Empty) + " " + (title ?? string.Empty));
         }
 
-        public virtual string PreprocessSearchResponse(string response)
+        public string BuildTrackRequest(string id)
+        {
+            return BuildRequest(TrackRequest, id);
+        }
+
+        private string BuildRequest(string request, string value)
+        {
+            return request == null ? null : string.Format(request, Uri.EscapeDataString(value));
+        }
+
+        public virtual string PreprocessResponse(string response)
         {
             return response;
         }
 
         public virtual IList<ServiceTrack> ParseSearchResults(dynamic results)
+        {
+            throw new NotImplementedException();
+        }
+
+        public virtual ServiceTrack ParseTrackResults(dynamic results)
         {
             throw new NotImplementedException();
         }
@@ -104,7 +109,7 @@ namespace m4dModels
 
         protected MusicService(
             ServiceType id, char cid,
-            string name, string target, string description, string link, string request)
+            string name, string target, string description, string link, string searchRequest, string trackRequest=null)
         {
             Id = id;
             CID = cid;
@@ -112,7 +117,8 @@ namespace m4dModels
             Target = target;
             Description = description;
             AssociateLink = link;
-            Request = request;
+            SearchRequest = searchRequest;
+            TrackRequest = trackRequest;
         }
         
         #endregion
@@ -204,7 +210,25 @@ namespace m4dModels
 
             return fields[0];
         }
-        
+
+        public static string FormatRegionInfo(string id, string[] regions)
+        {
+            if (regions == null) return id;
+
+            var sb = new StringBuilder(id);
+            sb.Append(id + "[");
+            var sep = string.Empty;
+            foreach (var r in regions)
+            {
+                sb.Append(sep);
+                sb.Append(r);
+                sep = ",";
+            }
+            sb.Append("]");
+
+            return sb.ToString();
+        }
+
         #endregion
 
         #region Services

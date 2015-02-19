@@ -14,8 +14,10 @@ using DanceLibrary;
 using m4d.Scrapers;
 using m4d.ViewModels;
 using System.Web;
+using System.Web.Http.Tracing;
 using m4dModels;
 using Configuration = m4d.Migrations.Configuration;
+using TraceLevel = System.Diagnostics.TraceLevel;
 
 namespace m4d.Controllers
 {
@@ -481,6 +483,59 @@ namespace m4d.Controllers
             ViewBag.Message = string.Format("Trace message sentt: '{0}'", message);
 
             Trace.WriteLineIf(TraceLevels.General.TraceInfo,string.Format("Test Trace: '{0}'", message));
+            return View("Results");
+        }
+
+        //
+        // Get: //SpotifyRegions
+        [Authorize(Roles = "dbAdmin")]
+        public ActionResult SpotifyRegions(int count=int.MaxValue)
+        {
+            ViewBag.Name = "SpotifyRegions";
+            var changed = 0;
+            var skipped = 0;
+            var failed = 0;
+
+            Context.TrackChanges(false);
+            var properties = from p in Database.SongProperties
+                where p.Name.StartsWith("Purchase") && p.Name.EndsWith(":SS")
+                select p;
+
+            var spotify = MusicService.GetService(ServiceType.Spotify);
+            foreach (var prop in properties)
+            {
+                string[] regions = null;
+                MusicService.ParseRegionInfo(prop.Value, out regions);
+                if (regions != null)
+                {
+                    skipped += 1;
+                    continue;
+                }
+
+                var track = Context.GetMusicServiceTrack(prop.Value,spotify);
+                if (track.AvailableMarkets == null)
+                {
+                    failed += 1;
+                }
+                else
+                {
+                    prop.Value = MusicService.FormatRegionInfo(track.TrackId,track.AvailableMarkets);
+                    changed += 1;
+                }
+
+                if (changed % 100 == 0)
+                {
+                    Trace.WriteLine(string.Format("Skipped == {0}; Changed={1}; Failed={2}", skipped, changed, failed));
+                }
+
+                if (changed + failed > count)
+                    break;
+            }
+            Context.TrackChanges(true);
+
+            ViewBag.Success = true;
+            ViewBag.Message = string.Format("Updated purchase info: Skipped == {0}; Changed={1}; Failed={2}", skipped, changed, failed);
+
             return View("Results");
         }
 

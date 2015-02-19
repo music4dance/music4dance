@@ -170,6 +170,13 @@ namespace m4d.Context
             return list;
         }
 
+        public ServiceTrack GetMusicServiceTrack(string id, MusicService service)
+        {
+            var request = service.BuildTrackRequest(id);
+            dynamic results = GetMusicServiceResults(request, service);
+            return service.ParseTrackResults(results);
+        }
+
         private static IList<ServiceTrack> FilterKaraoke(IList<ServiceTrack> list)
         {
             List<ServiceTrack> tracks = new List<ServiceTrack>();
@@ -244,28 +251,31 @@ namespace m4d.Context
 
         private IList<ServiceTrack> FindMSSongGeneral(SongDetails song, MusicService service, bool clean = false, string title = null, string artist = null)
         {
+            dynamic results = GetMusicServiceResults(service.BuildSearchRequest(artist, title), service);
+            return service.ParseSearchResults(results);
+        }
+
+        private static dynamic GetMusicServiceResults(string request, MusicService service)
+        {
             HttpWebResponse response;
             string responseString;
 
-            // Make Music database request
-            string req = service.BuildSearchRequest(artist, title);
-
-            if (req == null)
+            if (request == null)
             {
                 return null;
             }
 
-            var request = (HttpWebRequest)WebRequest.Create(req);
-            request.Method = WebRequestMethods.Http.Get;
-            request.Accept = "application/json";
+            var req = (HttpWebRequest)WebRequest.Create(request);
+            req.Method = WebRequestMethods.Http.Get;
+            req.Accept = "application/json";
 
             var auth = AdmAuthentication.GetServiceAuthorization(service.Id);
             if (auth != null)
             {
-                request.Headers.Add("Authorization",auth);
+                req.Headers.Add("Authorization", auth);
             }
 
-            using (response = (HttpWebResponse)request.GetResponse())
+            using (response = (HttpWebResponse)req.GetResponse())
             {
                 if (response.StatusCode == HttpStatusCode.OK)
                 {
@@ -280,10 +290,10 @@ namespace m4d.Context
                 }
             }
 
-            responseString = service.PreprocessSearchResponse(responseString);
-            dynamic results = Json.Decode(responseString);
-            return service.ParseSearchResults(results);
+            responseString = service.PreprocessResponse(responseString);
+            return Json.Decode(responseString);
         }
+
         #endregion
 
         #region IDanceMusicContext

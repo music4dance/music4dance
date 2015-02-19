@@ -29,7 +29,7 @@ namespace m4dModels
 
             return base.BuildPurchaseLink(pt, album, song);
         }
-        public override string PreprocessSearchResponse(string response)
+        public override string PreprocessResponse(string response)
         {
             return response.Replace(@"""music.amg""", @"""music_amg""");
         }

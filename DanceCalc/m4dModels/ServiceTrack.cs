@@ -37,5 +37,7 @@ namespace m4dModels
         public int? TrackNumber { get; set; }
         [DataMember]
         public int? TrackRank { get; set; }
+        [DataMember]
+        public string[] AvailableMarkets { get; set; }
     }
 }
