@@ -135,8 +135,8 @@ var addValue = function (id, val) {
 
 // Track object
 var Track = function (data) {
-    //var mapping = {};//{'observe': ['Name']};
-    //ko.mapping.fromJS(data, mapping, this);
+    var self = this;
+
     $.extend(true, this, data);
 
     this.durationFormatted = ko.pureComputed(function () {
@@ -145,6 +145,30 @@ var Track = function (data) {
 
     this.serviceLogo = ko.pureComputed(function () {
         return logoFromEnum(this.Service);
+    }, this);
+
+    this.FullPurchaseInfo = ko.pureComputed(function () {
+        return PurchaseInfoArray().join(';');
+    }, this);
+
+    this.MarketString = ko.pureComputed(function () {
+        return (self.AvailableMarkets === null) ? '' : '[' + this.AvailableMarkets.join() + ']';
+    }, this);
+
+    this.PurchaseInfoArray = ko.pureComputed(function () {
+        var ret = [];
+
+        var tpis = this.PurchaseInfo.split(';');
+
+        for (var i = 0; i < tpis.length; i++) {
+            var v = tpis[i];
+            if (v.match(/[a-z]S=.*/i)) {
+                v += self.MarketString();
+            }
+            ret.push(v);
+        }
+
+        return ret;
     }, this);
 };
 
@@ -287,19 +311,16 @@ var Album = function (data) {
         // First do the string based purchase info
         var pi = self.PurchaseInfo();
 
-        var tpi = track.PurchaseInfo;
         if (pi == null) {
-            self.PurchaseInfo(tpi);
+            self.PurchaseInfo(track.FullPurchaseInfo());
         }
-        else if (tpi != null) {
+        else if (track != null) {
             // get rid of possible terminal ;
             if (pi[pi.length - 1] === ';') {
                 pi = pi.substring(0, pi.length - 1);
             }
 
-            // split up the new purchase info
-            var tpis = tpi.split(';');
-
+            var tpis = track.PurchaseInfoArray();
             for (var i = 0; i < tpis.length; i++) {
                 if (pi && pi.indexOf(tpis[i]) === -1) {
                     pi += ';' + tpis[i];
