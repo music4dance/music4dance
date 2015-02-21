@@ -552,6 +552,7 @@ namespace m4d.Controllers
                 if ((changed+updated) % 100 == 0)
                 {
                     Trace.WriteLine(string.Format("Skipped == {0}; Changed={1}; Updated={2}; Failed={3}", skipped, changed, updated, failed));
+                    System.Threading.Thread.Sleep(5000);
                 }
 
                 if (changed + failed > count)
