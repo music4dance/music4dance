@@ -38,6 +38,8 @@ namespace m4dModels
         [DataMember]
         public int? TrackRank { get; set; }
         [DataMember]
+        public bool? IsPlayable { get; set; }
+        [DataMember]
         public string[] AvailableMarkets { get; set; }
     }
 }

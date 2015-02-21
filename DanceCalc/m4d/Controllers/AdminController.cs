@@ -489,10 +489,11 @@ namespace m4d.Controllers
         //
         // Get: //SpotifyRegions
         [Authorize(Roles = "dbAdmin")]
-        public ActionResult SpotifyRegions(int count=int.MaxValue)
+        public ActionResult SpotifyRegions(int count=int.MaxValue, string region="US")
         {
             ViewBag.Name = "SpotifyRegions";
             var changed = 0;
+            var updated = 0;
             var skipped = 0;
             var failed = 0;
 
@@ -505,27 +506,52 @@ namespace m4d.Controllers
             foreach (var prop in properties)
             {
                 string[] regions = null;
-                MusicService.ParseRegionInfo(prop.Value, out regions);
-                if (regions != null)
+                string id = MusicService.ParseRegionInfo(prop.Value, out regions);
+                if (null == regions)
+                {
+                    var track = Context.GetMusicServiceTrack(prop.Value, spotify);
+                    if (track.AvailableMarkets == null)
+                    {
+                        failed += 1;
+                    }
+                    else
+                    {
+                        prop.Value = MusicService.FormatRegionInfo(track.TrackId, track.AvailableMarkets);
+                        regions = track.AvailableMarkets;
+                        changed += 1;
+                    }
+                }
+
+                if (regions == null || string.IsNullOrWhiteSpace(region) || regions.Contains(region))
                 {
                     skipped += 1;
-                    continue;
+                }
+                else if (!string.IsNullOrWhiteSpace(region))
+                {
+                    var track = Context.GetMusicServiceTrack(id, spotify, region);
+                    if (track.IsPlayable == true)
+                    {
+                        track = Context.GetMusicServiceTrack(track.TrackId, spotify);
+                        if (track != null)
+                        {
+                            prop.Value = MusicService.FormatRegionInfo(track.TrackId,
+                                MusicService.MergeRegions(regions, track.AvailableMarkets));
+                            updated += 1;
+                        }
+                        else
+                        {
+                            failed += 1;
+                        }
+                    }
+                    else
+                    {
+                        skipped += 1;
+                    }
                 }
 
-                var track = Context.GetMusicServiceTrack(prop.Value,spotify);
-                if (track.AvailableMarkets == null)
+                if ((changed+updated) % 100 == 0)
                 {
-                    failed += 1;
-                }
-                else
-                {
-                    prop.Value = MusicService.FormatRegionInfo(track.TrackId,track.AvailableMarkets);
-                    changed += 1;
-                }
-
-                if (changed % 100 == 0)
-                {
-                    Trace.WriteLine(string.Format("Skipped == {0}; Changed={1}; Failed={2}", skipped, changed, failed));
+                    Trace.WriteLine(string.Format("Skipped == {0}; Changed={1}; Updated={2}; Failed={3}", skipped, changed, updated, failed));
                 }
 
                 if (changed + failed > count)
@@ -534,7 +560,7 @@ namespace m4d.Controllers
             Context.TrackChanges(true);
 
             ViewBag.Success = true;
-            ViewBag.Message = string.Format("Updated purchase info: Skipped == {0}; Changed={1}; Failed={2}", skipped, changed, failed);
+            ViewBag.Message = string.Format("Updated purchase info: Skipped == {0}; Changed={1}; Udpated={2}; Failed={3}", skipped, changed, updated, failed);
 
             return View("Results");
         }

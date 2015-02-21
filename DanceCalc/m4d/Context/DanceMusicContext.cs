@@ -170,9 +170,9 @@ namespace m4d.Context
             return list;
         }
 
-        public ServiceTrack GetMusicServiceTrack(string id, MusicService service)
+        public ServiceTrack GetMusicServiceTrack(string id, MusicService service, string region=null)
         {
-            var request = service.BuildTrackRequest(id);
+            var request = service.BuildTrackRequest(id,region);
             dynamic results = GetMusicServiceResults(request, service);
             return service.ParseTrackResults(results);
         }

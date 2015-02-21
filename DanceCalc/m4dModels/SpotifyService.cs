@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Diagnostics;
+using Microsoft.CSharp.RuntimeBinder;
 
 namespace m4dModels
 {
@@ -73,16 +74,31 @@ namespace m4dModels
             }
 
             string[] availableMarkets = null;
-            if (track.available_markets != null)
+            try
             {
-                var marketList = new List<string>();
-                foreach (object o in track.available_markets)
+                if (track.available_markets != null)
                 {
-                    var s = o as string;
-                    if (s != null) marketList.Add(s);
+                    var marketList = new List<string>();
+                    foreach (object o in track.available_markets)
+                    {
+                        var s = o as string;
+                        if (s != null) marketList.Add(s);
+                    }
+                    availableMarkets = marketList.ToArray();
                 }
-                availableMarkets = marketList.ToArray();
             }
+            catch (RuntimeBinderException)
+            {
+            }
+            bool? isPlayable = null;
+            try
+            {
+                isPlayable = track.is_playable;
+            }
+            catch (RuntimeBinderException)
+            {
+            }
+
             var st = new ServiceTrack
             {
                 Service = ServiceType.Spotify,
@@ -97,6 +113,7 @@ namespace m4dModels
                 //Genre = (artist == null || artist.genres.Length == 0) ? null : artist.genres[0],
                 Duration = (track.duration_ms + 500) / 1000,
                 TrackNumber = trackNum,
+                IsPlayable = isPlayable,
                 AvailableMarkets = availableMarkets
             };
 

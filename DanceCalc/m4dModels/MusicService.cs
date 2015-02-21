@@ -81,9 +81,14 @@ namespace m4dModels
             return BuildRequest(SearchRequest,(artist ?? string.Empty) + " " + (title ?? string.Empty));
         }
 
-        public string BuildTrackRequest(string id)
+        public string BuildTrackRequest(string id, string region=null)
         {
-            return BuildRequest(TrackRequest, id);
+            var ret = BuildRequest(TrackRequest, id);
+            if (!string.IsNullOrWhiteSpace(region))
+            {
+                ret += "?market=" + region;
+            }
+            return ret;
         }
 
         private string BuildRequest(string request, string value)
@@ -230,6 +235,15 @@ namespace m4dModels
             sb.Append("]");
 
             return sb.ToString();
+        }
+
+        public static string[] MergeRegions(string[] a, string[] b)
+        {
+            if (b == null) return a;
+            // ReSharper disable once ConvertIfStatementToReturnStatement
+            if (a == null) return b;
+
+            return new List<string>(a).Concat(b).Distinct().OrderBy(x => x).ToArray();
         }
 
         #endregion
