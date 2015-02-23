@@ -6,7 +6,7 @@ namespace m4dModels
     [TypeConverter(typeof(SongFilterConverter))]
     public class SongFilter
     {
-        private const string empty = ".";
+        private const string Empty = ".";
         private const char SubChar = '\u001a';
         private static readonly string s_subString = new string(SubChar, 1);
         private const char Separator = '-';
@@ -40,7 +40,7 @@ namespace m4dModels
 
             for (var i = 0; i < cells.Length; i++)
             {
-                if (string.Equals(cells[i], empty))
+                if (string.Equals(cells[i], Empty))
                 {
                     cells[i] = string.Empty;
                 }
@@ -136,10 +136,10 @@ namespace m4dModels
                 Format(SearchString),
                 Format(Purchase),
                 Format(User),
-                TempoMin.HasValue ? Format(TempoMin.Value.ToString(CultureInfo.InvariantCulture)) : empty,
-                TempoMax.HasValue ? Format(TempoMax.Value.ToString(CultureInfo.InvariantCulture)) : empty,
-                Page.HasValue ? Format(Page.Value.ToString()) : empty,
-                Level.HasValue ? Format(Level.Value.ToString()) : empty
+                TempoMin.HasValue ? Format(TempoMin.Value.ToString(CultureInfo.InvariantCulture)) : Empty,
+                TempoMax.HasValue ? Format(TempoMax.Value.ToString(CultureInfo.InvariantCulture)) : Empty,
+                Page.HasValue ? Format(Page.Value.ToString()) : Empty,
+                Level.HasValue ? Format(Level.Value.ToString()) : Empty
                 );
 
             return ret;
@@ -149,7 +149,7 @@ namespace m4dModels
         {
             if (string.IsNullOrWhiteSpace(s))
             {
-                return empty;
+                return Empty;
             }
             return s.Contains("-") ? s.Replace("-", @"\-") : s;
         }

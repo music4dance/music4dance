@@ -26,33 +26,33 @@ namespace m4dModels.Tests
             TestFilters(true);
         }
 
-        private void TestFilters(bool withEncoding)
+        private static void TestFilters(bool withEncoding)
         {
-            string simple = "{0}Simple filter fails round-trip: {1}";
-            string s = RoundTrip(_f1, _f1, simple, 1, false);
-            RoundTrip(s, _f1, simple, 1, withEncoding);
+            const string simple = "{0}Simple filter fails round-trip: {1}";
+            var s = RoundTrip(F1, F1, simple, 1, false);
+            RoundTrip(s, F1, simple, 1, withEncoding);
 
-            string complex = "{0}Complex filter fails round-trip: {1}";
-            s = RoundTrip(_f2, _f2, complex, 1, false);
-            RoundTrip(s, _f2, complex, 2, withEncoding);
+            const string complex = "{0}Complex filter fails round-trip: {1}";
+            s = RoundTrip(F2, F2, complex, 1, false);
+            RoundTrip(s, F2, complex, 2, withEncoding);
         }
 
-        private string RoundTrip(string fi, string f0, string message, int n, bool withEncoding)
+        private static string RoundTrip(string fi, string f0, string message, int n, bool withEncoding)
         {
-            SongFilter f = new SongFilter(fi);
-            string s = f.ToString();
+            var f = new SongFilter(fi);
+            var s = f.ToString();
 
             // Round-trip http encoding to make sure that we preserve our values
             if (withEncoding)
             {
-                string enc = HttpUtility.HtmlEncode(s);
+                var enc = HttpUtility.HtmlEncode(s);
                 s = HttpUtility.HtmlDecode(enc);
             }
             Assert.AreEqual(s, f0, string.Format(message,withEncoding?"Encoded ":string.Empty,n));
             return s;
         }
 
-        const string _f1 = @"Index-SWG-Album-Goodman-X-.-50-150-1-.";
-        const string _f2 = @"Index-SWG-\\--\\-\\--X-.-.-.-1-.";
+        const string F1 = @"Index-SWG-Album-Goodman-X-.-50-150-1-.";
+        const string F2 = @"Index-SWG-\\--\\-\\--X-.-.-.-1-.";
     }
 }
