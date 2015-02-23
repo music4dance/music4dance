@@ -1,11 +1,16 @@
 ﻿using System.ComponentModel;
+using System.Globalization;
+
 namespace m4dModels
 {
     [TypeConverter(typeof(SongFilterConverter))]
     public class SongFilter
     {
         private const string empty = ".";
-
+        private const char SubChar = '\u001a';
+        private static readonly string s_subString = new string(SubChar, 1);
+        private const char Separator = '-';
+ 
         static public SongFilter Default
         {
             get
@@ -24,16 +29,16 @@ namespace m4dModels
             if (string.IsNullOrWhiteSpace(value))
                 return;
 
-            bool fancy = false;
-            if (value.Contains("\\-"))
+            var fancy = false;
+            if (value.Contains(@"\-"))
             {
                 fancy = true;
-                value = value.Replace("\\-", "~");
+                value = value.Replace(@"\-", s_subString);
             }
 
-            string[] cells = value.Split('-');
+            var cells = value.Split(Separator);
 
-            for (int i = 0; i < cells.Length; i++)
+            for (var i = 0; i < cells.Length; i++)
             {
                 if (string.Equals(cells[i], empty))
                 {
@@ -42,7 +47,7 @@ namespace m4dModels
                 
                 if (fancy)
                 {
-                    cells[i] = cells[i].Replace('~', '-');
+                    cells[i] = cells[i].Replace(SubChar, Separator);
                 }
             }
 
@@ -124,15 +129,15 @@ namespace m4dModels
         }
         public override string ToString()
         {
-            string ret = string.Format("{0}-{1}-{2}-{3}-{4}-{5}-{6}-{7}-{8}-{9}",
+            var ret = string.Format("{0}-{1}-{2}-{3}-{4}-{5}-{6}-{7}-{8}-{9}",
                 Format(Action),
                 Format(Dances),
                 Format(SortOrder),
                 Format(SearchString),
                 Format(Purchase),
                 Format(User),
-                TempoMin.HasValue ? Format(TempoMin.Value.ToString()) : empty,
-                TempoMax.HasValue ? Format(TempoMax.Value.ToString()) : empty,
+                TempoMin.HasValue ? Format(TempoMin.Value.ToString(CultureInfo.InvariantCulture)) : empty,
+                TempoMax.HasValue ? Format(TempoMax.Value.ToString(CultureInfo.InvariantCulture)) : empty,
                 Page.HasValue ? Format(Page.Value.ToString()) : empty,
                 Level.HasValue ? Format(Level.Value.ToString()) : empty
                 );
@@ -140,20 +145,14 @@ namespace m4dModels
             return ret;
         }
 
-        private string Format(string s)
+        private static string Format(string s)
         {
             if (string.IsNullOrWhiteSpace(s))
             {
                 return empty;
             }
-            else if (s.Contains("-"))
-            {
-                return s.Replace("-", "\\-");
-            }
-            else
-            {
-                return s;
-            }
+            return s.Contains("-") ? s.Replace("-", @"\-") : s;
         }
+
     }
 }
