@@ -1,5 +1,11 @@
-﻿using System.ComponentModel;
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Diagnostics;
 using System.Globalization;
+using System.Linq;
+using System.Reflection;
+using System.Text;
 
 namespace m4dModels
 {
@@ -10,6 +16,7 @@ namespace m4dModels
         private const char SubChar = '\u001a';
         private static readonly string s_subString = new string(SubChar, 1);
         private const char Separator = '-';
+        private static readonly string s_sepString = new string(Separator, 1);
  
         static public SongFilter Default
         {
@@ -17,6 +24,12 @@ namespace m4dModels
             {
                 return new SongFilter();
             }
+        }
+
+        static SongFilter()
+        {
+            var info = typeof(SongFilter).GetProperties(BindingFlags.Public | BindingFlags.Instance);
+            s_propertyInfo = info.Where(p => p.CanRead && p.CanWrite).ToList();            
         }
 
         public SongFilter()
@@ -49,63 +62,33 @@ namespace m4dModels
                 {
                     cells[i] = cells[i].Replace(SubChar, Separator);
                 }
-            }
 
-            if (cells.Length > 0 && !string.IsNullOrWhiteSpace(cells[0]))
-            {
-                Action = cells[0];
-            }
-            if (cells.Length > 1 && !string.IsNullOrWhiteSpace(cells[1]))
-            {
-                Dances = cells[1];
-            }
-            if (cells.Length > 2 && !string.IsNullOrWhiteSpace(cells[2]))
-            {
-                SortOrder = cells[2];
-            }
-            if (cells.Length > 3 && !string.IsNullOrWhiteSpace(cells[3]))
-            {
-                SearchString = cells[3];
-            }
-            if (cells.Length > 4 && !string.IsNullOrWhiteSpace(cells[4]))
-            {
-                Purchase = cells[4];
-            }
-            if (cells.Length > 5 && !string.IsNullOrWhiteSpace(cells[5]))
-            {
-                User = cells[5];
-            }
-            if (cells.Length > 6 && !string.IsNullOrWhiteSpace(cells[6]))
-            {
-                decimal minTempo;
-                if (decimal.TryParse(cells[6], out minTempo))
+                var pi = s_propertyInfo[i];
+
+                object v = null;
+                if (!string.IsNullOrWhiteSpace(cells[i]))
                 {
-                    TempoMin = minTempo;
+                    var type = pi.PropertyType;
+                    if (type == typeof(string))
+                    {
+                        v = cells[i];
+                    }
+                    else
+                    {
+                        // This should get the underlying type for a nullable type or just the type otherwise
+                        var ut = Nullable.GetUnderlyingType(pi.PropertyType) ?? pi.PropertyType;
+                        try
+                        {
+                            v = ut.InvokeMember("Parse", BindingFlags.Static | BindingFlags.Public | BindingFlags.InvokeMethod, null, null, new object[] {cells[i]});
+                        }
+                        catch (Exception e)
+                        {
+                            Trace.WriteLine(e.Message);
+                        }
+                    }
                 }
-            }
-            if (cells.Length > 7 && !string.IsNullOrWhiteSpace(cells[7]))
-            {
-                decimal maxTempo;
-                if (decimal.TryParse(cells[7], out maxTempo))
-                {
-                    TempoMax = maxTempo;
-                }
-            }
-            if (cells.Length > 8 && !string.IsNullOrWhiteSpace(cells[8]))
-            {
-                int page;
-                if (int.TryParse(cells[8], out page))
-                {
-                    Page = page;
-                }
-            }
-            if (cells.Length > 9 && !string.IsNullOrWhiteSpace(cells[9]))
-            {
-                int level;
-                if (int.TryParse(cells[9], out level))
-                {
-                    Level = level;
-                }
+
+                pi.SetValue(this,v);
             }
         }
         public string Action { get; set; }
@@ -129,30 +112,25 @@ namespace m4dModels
         }
         public override string ToString()
         {
-            var ret = string.Format("{0}-{1}-{2}-{3}-{4}-{5}-{6}-{7}-{8}-{9}",
-                Format(Action),
-                Format(Dances),
-                Format(SortOrder),
-                Format(SearchString),
-                Format(Purchase),
-                Format(User),
-                TempoMin.HasValue ? Format(TempoMin.Value.ToString(CultureInfo.InvariantCulture)) : Empty,
-                TempoMax.HasValue ? Format(TempoMax.Value.ToString(CultureInfo.InvariantCulture)) : Empty,
-                Page.HasValue ? Format(Page.Value.ToString()) : Empty,
-                Level.HasValue ? Format(Level.Value.ToString()) : Empty
-                );
+            var ret = new StringBuilder();
 
-            return ret;
+            var sep = string.Empty;
+            foreach (var p in s_propertyInfo)
+            {
+                ret.Append(sep);
+                var v = p.GetValue(this);
+                ret.Append(v == null ? Empty : Format(v.ToString()));
+                sep = s_sepString;
+            }
+
+            return ret.ToString();
         }
 
         private static string Format(string s)
         {
-            if (string.IsNullOrWhiteSpace(s))
-            {
-                return Empty;
-            }
             return s.Contains("-") ? s.Replace("-", @"\-") : s;
         }
 
+        private static List<PropertyInfo> s_propertyInfo=null;
     }
 }
