@@ -43,39 +43,12 @@ input[type="checkbox"].input-validation-error {
 }
 
 /* songlist table */
-table.songlist tr:nth-child(odd)
-{
-    background-color: lightgray;
-}
-
-table.songlist th 
-{
-    background-color: silver;
-    padding-left: 5px;
-    padding-right: 5px;
-}
-
-table.songlist td
-{
-    padding-left: 3px;
-    padding-right: 3px;
-}
-
-table.songlist 
-{
-    border-color: silver;
-    border-right-width: medium;
-    border-left-width: medium;
-    border-left-style:solid;
-    border-right-style:solid;
-    border-bottom-width:thick;
-    border-bottom-style:solid;
-}
 
 table.table-songs > tbody > tr > td
 {
     vertical-align: middle;
 }
+
 /* Details pages */
 
 .label {
