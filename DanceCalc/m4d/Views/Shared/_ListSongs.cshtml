@@ -1,28 +1,11 @@
 ﻿@model IEnumerable<m4dModels.SongBase>
 
 @{
-    bool isAdmin = User.IsInRole("dbAdmin");
-    bool canSort = true;
-    if (ViewData.ContainsKey("NoSort"))
-    {
-        
-        canSort = !ViewBag.NoSort;
-    }
-    bool hideDances = false;
-    if (ViewData.ContainsKey("HideDances"))
-    {
-        hideDances = ViewBag.HideDances;
-    }
-    string albumName = null;
-    if (ViewData.ContainsKey("AlbumName"))
-    {
-        albumName = ViewBag.AlbumName;
-    }
-    bool hideArtist = false;
-    if (ViewData.ContainsKey("HideArtist"))
-    {
-        hideArtist = ViewBag.HideArtist;
-    }
+    var isAdmin = User.IsInRole("dbAdmin");        
+    var canSort = ViewData.ContainsKey("NoSort") ? !ViewBag.NoSort : true;
+    var hideDances = ViewData.ContainsKey("HideDances") ? ViewBag.HideDances : false;
+    string albumName = ViewData.ContainsKey("AlbumName") ? ViewBag.AlbumName : null;    
+    var hideArtist = ViewData.ContainsKey("HideArtist") ? ViewBag.HideArtist : false;
     
     var danceMap = (IDictionary<string, m4dModels.SongCounts>)ViewBag.DanceMap;
     var songOrder = new m4dModels.SongSort(ViewBag.SongFilter.SortOrder);
@@ -133,7 +116,7 @@
                 <tr>
                     @if (isAdmin && canSort)
                     {
-                        string id = "Selected-" + item.SongId.ToString();
+                        var id = "Selected-" + item.SongId;
                         <td><input name="selectedSongs" id="@id" type="checkbox" value="@item.SongId" /></td>
                         <td><a href="/song/edit?id=@item.SongId&filter=@ViewBag.SongFilter" role="button" class="btn btn-link btn-sm"><span class="glyphicon glyphicon-pencil"></span></a></td>
                     }
@@ -161,7 +144,7 @@
                         <td class="hidden-xs">
                             @if (!string.IsNullOrWhiteSpace(item.AlbumName))
                             {
-                                @Html.ActionLink(item.AlbumName, "album", "song", new { title = item.AlbumName }, null);
+                                @Html.ActionLink(item.AlbumName, "album", "song", new { title = item.AlbumName }, null)
                             }
                         </td>
                     }
@@ -169,10 +152,10 @@
                     {
                         <td class="hidden-xs">
                             @{
-                        int track = sd.TrackFromAlbum(albumName);
+                        var track = sd.TrackFromAlbum(albumName);
                         if (track > 0)
                         {
-                            @track.ToString();
+                            @track.ToString()
                         }
                             }
                         </td>
@@ -180,8 +163,8 @@
                     <td class="hidden-xs">
                         @if (item.Tempo != null)
                         {
-                            string tempo = decimal.Round(item.Tempo.Value).ToString("F0");
-                            @tempo;
+                            var tempo = decimal.Round(item.Tempo.Value).ToString("F0");
+                            @tempo
                         }
                     </td>
 
@@ -193,9 +176,9 @@
                             {
                                 // TODO: Dance name pulled from the danceMap doesn't require a db lookup - is there a way
                                 //  to make the more intuitive ditem.Dance.Name work without a lookup???
-                                string badge = m4dModels.SongCounts.GetRatingBadge(danceMap, ditem.DanceId, ditem.Weight);
-                                string name = danceMap[ditem.DanceId].DanceName;
-                                @separator;
+                                var badge = m4dModels.SongCounts.GetRatingBadge(danceMap, ditem.DanceId, ditem.Weight);
+                                var name = danceMap[ditem.DanceId].DanceName;
+                                @separator
                                 <span class="rating @badge">@Html.ActionLink(name, name, "dances")</span>
                                           separator = " ";
                             }
