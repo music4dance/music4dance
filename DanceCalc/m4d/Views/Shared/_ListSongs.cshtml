@@ -12,7 +12,7 @@
     var showDate = songOrder.Id == "Modified" || songOrder.Id == "Created";
 }
 
-<table class="table table-striped">
+<table class="table table-striped table-songs">
     <thead>
         <tr>
             <th style="min-width: 30px">Play</th>
@@ -118,28 +118,28 @@
                     <td>
                         @if (!string.IsNullOrWhiteSpace(item.Purchase))
                         {
-                            var id = "Play" + item.SongId.ToString();
+                            var id = "Play" + item.SongId;
                             <div class="btn-group">
-                                <button id="@id" type="button" class="btn dropdown-toggle" data-toggle="dropdown" aria-expanded="false"><img src="@Url.Content("~/Content/playbutton.png")" alt="Play" width="20" height="20" /></button>
+                                <a href="#" id="@id" role="button" class="btn dropdown-toggle" data-toggle="dropdown" aria-expanded="false"><img src="@Url.Content("~/Content/playbutton.png")" alt="Play" width="20" height="20" /></a>
                                 <ul class="dropdown-menu" role="menu">
                                     @if (!string.IsNullOrEmpty(item.Purchase) && item.Purchase.Contains('X'))
                                     {
-                                        var xid = "X" + item.SongId.ToString();
+                                        var xid = "X" + item.SongId;
                                         <li><a href="#" id="@xid" class="play-link"><img src='@Url.Content("~/Content/xbox-logo.png")' alt="Availiable on Xbox Music" width="20" height="20" /> Xbox Music</a></li>
                                     }
                                     @if (!string.IsNullOrEmpty(item.Purchase) && item.Purchase.Contains('I'))
                                     {
-                                        var iid = "I" + item.SongId.ToString();
+                                        var iid = "I" + item.SongId;
                                         <li><a href="#" id="@iid" class="play-link"><img src='@Url.Content("~/Content/itunes-logo.png")' alt=" availiable on itunes" width="20" height="20" /> ITunes</a></li>
                                     }
                                     @if (!string.IsNullOrEmpty(item.Purchase) && item.Purchase.Contains('A'))
                                     {
-                                        var aid = "A" + item.SongId.ToString();
+                                        var aid = "A" + item.SongId;
                                         <li><a href="#" id="@aid" class="play-link"><img src='@Url.Content("~/Content/amazon-logo.png")' alt=" availiable at amazon" width="20" height="20" /> Amazon</a></li>
                                     }
                                     @if (!string.IsNullOrEmpty(item.Purchase) && item.Purchase.Contains('S'))
                                     {
-                                        var aid = "S" + item.SongId.ToString();
+                                        var aid = "S" + item.SongId;
                                         <li><a href="#" id="@aid" class="play-link"><img src='@Url.Content("~/Content/spotify-logo.png")' alt=" availiable on spotify" width="20" height="20" /> Spotify</a></li>
                                     }
                                 </ul>

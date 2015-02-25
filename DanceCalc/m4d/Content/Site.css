@@ -72,6 +72,10 @@ table.songlist
     border-bottom-style:solid;
 }
 
+table.table-songs > tbody > tr > td
+{
+    vertical-align: middle;
+}
 /* Details pages */
 
 .label {
