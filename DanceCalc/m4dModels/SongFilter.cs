@@ -113,13 +113,23 @@ namespace m4dModels
         public override string ToString()
         {
             var ret = new StringBuilder();
+            var nullBuff = new StringBuilder();
 
             var sep = string.Empty;
-            foreach (var p in s_propertyInfo)
+            foreach (var v in s_propertyInfo.Select(p => p.GetValue(this)))
             {
-                ret.Append(sep);
-                var v = p.GetValue(this);
-                ret.Append(v == null ? Empty : Format(v.ToString()));
+                if (v == null)
+                {
+                    nullBuff.Append(sep);
+                    nullBuff.Append(Empty);
+                }
+                else
+                {
+                    ret.Append(nullBuff);
+                    nullBuff.Clear();
+                    ret.Append(sep);
+                    ret.Append(Format(v.ToString()));
+                }
                 sep = s_sepString;
             }
 
@@ -131,6 +141,6 @@ namespace m4dModels
             return s.Contains("-") ? s.Replace("-", @"\-") : s;
         }
 
-        private static List<PropertyInfo> s_propertyInfo=null;
+        private static readonly List<PropertyInfo> s_propertyInfo=null;
     }
 }

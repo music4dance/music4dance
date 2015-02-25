@@ -28,8 +28,12 @@ namespace m4dModels.Tests
 
         private static void TestFilters(bool withEncoding)
         {
+            const string trivial = "{0}Trivial filter fails round-trip: {1}";
+            var s = RoundTrip("", "", trivial, 1, false);
+            RoundTrip(s, "", trivial, 1, withEncoding);
+
             const string simple = "{0}Simple filter fails round-trip: {1}";
-            var s = RoundTrip(F1, F1, simple, 1, false);
+            s = RoundTrip(F1, F1, simple, 1, false);
             RoundTrip(s, F1, simple, 1, withEncoding);
 
             const string complex = "{0}Complex filter fails round-trip: {1}";
@@ -52,7 +56,7 @@ namespace m4dModels.Tests
             return s;
         }
 
-        const string F1 = @"Index-SWG-Album-Goodman-X-.-50-150-1-.";
-        const string F2 = @"Index-SWG-\\--\\-\\--X-.-.-.-1-.";
+        const string F1 = @"Index-SWG-Album-Goodman-X-.-50-150-1";
+        const string F2 = @"Index-SWG-\\--\\-\\--X";
     }
 }
