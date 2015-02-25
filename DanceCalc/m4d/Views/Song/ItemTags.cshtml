@@ -1,6 +1,6 @@
 ﻿<script type="text/html" id="tag-template">
     <span data-bind="foreach: list">
-        <span class="label label-music" data-bind="css:'label-' + $parent.nameLower()" style="margin-right: 5px">
+        <span class="label" data-bind="css:'label-' + $parent.nameLower()" style="margin-right: 5px">
             <a role="button" class="tag-text" data-bind="text: tag, attr: {href: url}"></a>
             <a role="button" href="#" class="glyphicon tag-text" data-bind="css:tagClass, click:toggleUser, visible:$root.canEdit" data-show="tooltip" data-original-title="Click to add or remove from your tags"></a>
         </span>

@@ -1,4 +1,5 @@
-﻿@model IEnumerable<m4dModels.SongBase>
+﻿Da@using Microsoft.AspNet.Identity
+@model IEnumerable<m4dModels.SongBase>
 
 @{
     var isAdmin = User.IsInRole("dbAdmin");        
@@ -15,6 +16,7 @@
 <table class="table table-striped">
     <thead>
         <tr>
+            <th style="min-width: 30px">Play</th>
             @if (canSort && isAdmin)
             {
                 <th>&nbsp;</th>
@@ -44,10 +46,11 @@
                         <text>Artist</text>
                     }
                 </th>
-            }
+            }            
             @if (albumName == null)
             {
-                <th style="min-width:75pt" class="hidden-xs">
+                @* TODO: Reinstate album name when we get user selectable columns
+                    <th style="min-width:75pt" class="hidden-xs">
                     @if (canSort)
                     {
                         @Html.ActionLink("Album", "Sort", "Song", new { sortOrder = "Album", filter = ViewBag.SongFilter }, null)
@@ -57,8 +60,7 @@
                     {
                         <text>Album</text>
                     }
-                </th>
-
+                </th>*@
             }
             else
             {
@@ -69,7 +71,7 @@
             <th class="hidden-xs">
                 @if (canSort)
                 {
-                    @Html.ActionLink("Tempo (BPM)", "sort", "song", new { sortOrder = "Tempo", filter = ViewBag.SongFilter }, null)
+                    @Html.ActionLink("Tempo (BPM)", "sort", "song", new {sortOrder = "Tempo", filter = ViewBag.SongFilter}, null)
                     @Html.Raw(songOrder.GetSortGlyph("Tempo"))
                 }
                 else
@@ -91,7 +93,7 @@
                     }
                 </th>
             }
-            <th style="min-width: 30px">Play</th>
+            <th>Tags</th>
             @if (isAdmin)
             {
                 <th></th>
@@ -99,7 +101,7 @@
             @if (showDate)
             {
                 <th class="hidden-xs">@ViewBag.SongFilter.SortOrder</th>
-            }            
+            }
         </tr>
     </thead>
     <tbody>
@@ -114,77 +116,6 @@
             if (item.Title != null)
             {
                 <tr>
-                    @if (isAdmin && canSort)
-                    {
-                        var id = "Selected-" + item.SongId;
-                        <td><input name="selectedSongs" id="@id" type="checkbox" value="@item.SongId" /></td>
-                        <td><a href="/song/edit?id=@item.SongId&filter=@ViewBag.SongFilter" role="button" class="btn btn-link btn-sm"><span class="glyphicon glyphicon-pencil"></span></a></td>
-                    }
-
-                    <td>
-                        @Html.ActionLink(item.Title, "details", "song", new { id = item.SongId, filter = ViewBag.SongFilter }, null)
-                        @if (item.Tempo != null)
-                        {
-                            <small class="hidden-sm hidden-md hidden-lg">(@decimal.Round(item.Tempo.Value).ToString("F0") BPM)</small>
-                        }
-                    </td>
-
-                    @if (!hideArtist)
-                    {
-                        <td>
-                            @if (!string.IsNullOrWhiteSpace(item.Artist))
-                            {
-                                @Html.ActionLink(item.Artist, "search", "song", new { searchString = item.Artist, dances = "ALL" }, null)
-                            }
-                        </td>
-                    }
-
-                    @if (albumName == null)
-                    {
-                        <td class="hidden-xs">
-                            @if (!string.IsNullOrWhiteSpace(item.AlbumName))
-                            {
-                                @Html.ActionLink(item.AlbumName, "album", "song", new { title = item.AlbumName }, null)
-                            }
-                        </td>
-                    }
-                    else
-                    {
-                        <td class="hidden-xs">
-                            @{
-                        var track = sd.TrackFromAlbum(albumName);
-                        if (track > 0)
-                        {
-                            @track.ToString()
-                        }
-                            }
-                        </td>
-                    }
-                    <td class="hidden-xs">
-                        @if (item.Tempo != null)
-                        {
-                            var tempo = decimal.Round(item.Tempo.Value).ToString("F0");
-                            @tempo
-                        }
-                    </td>
-
-                    @if (!hideDances)
-                    {
-                        <td>
-                            @{ var separator = ""; }
-                            @foreach (var ditem in item.DanceRatings.OrderByDescending(dr => m4dModels.SongCounts.GetScaledRating(danceMap, dr.DanceId, dr.Weight)))
-                            {
-                                // TODO: Dance name pulled from the danceMap doesn't require a db lookup - is there a way
-                                //  to make the more intuitive ditem.Dance.Name work without a lookup???
-                                var badge = m4dModels.SongCounts.GetRatingBadge(danceMap, ditem.DanceId, ditem.Weight);
-                                var name = danceMap[ditem.DanceId].DanceName;
-                                @separator
-                                <span class="rating @badge">@Html.ActionLink(name, name, "dances")</span>
-                                          separator = " ";
-                            }
-                        </td>
-                    }
-
                     <td>
                         @if (!string.IsNullOrWhiteSpace(item.Purchase))
                         {
@@ -216,6 +147,84 @@
                             </div>
                         }
                     </td>
+                    @if (isAdmin && canSort)
+                    {
+                        var id = "Selected-" + item.SongId;
+                        <td><input name="selectedSongs" id="@id" type="checkbox" value="@item.SongId" /></td>
+                        <td><a href="/song/edit?id=@item.SongId&filter=@ViewBag.SongFilter" role="button" class="btn btn-link btn-sm"><span class="glyphicon glyphicon-pencil"></span></a></td>
+                    }
+
+                    <td>
+                        @Html.ActionLink(item.Title, "details", "song", new { id = item.SongId, filter = ViewBag.SongFilter }, null)
+                        @if (item.Tempo != null)
+                        {
+                            <small class="hidden-sm hidden-md hidden-lg">(@decimal.Round(item.Tempo.Value).ToString("F0") BPM)</small>
+                        }
+                    </td>
+
+                    @if (!hideArtist)
+                    {
+                        <td>
+                            @if (!string.IsNullOrWhiteSpace(item.Artist))
+                            {
+                                @Html.ActionLink(item.Artist, "search", "song", new { searchString = item.Artist, dances = "ALL" }, null)
+                            }
+                        </td>
+                    }
+
+                    @if (albumName == null)
+                    {
+                        @*<td class="hidden-xs">
+                            @if (!string.IsNullOrWhiteSpace(item.AlbumName))
+                            {
+                                @Html.ActionLink(item.AlbumName, "album", "song", new { title = item.AlbumName }, null)
+                            }
+                        </td>*@
+                    }
+                    else
+                    {
+                        <td class="hidden-xs">
+                            @{
+                                var track = sd.TrackFromAlbum(albumName);
+                                if (track > 0)
+                                {
+                                    @track.ToString()
+                                }
+                            }
+                        </td>
+                    }
+                    <td class="hidden-xs">
+                        @if (item.Tempo != null)
+                        {
+                            var tempo = decimal.Round(item.Tempo.Value).ToString("F0");
+                            @tempo
+                        }
+                    </td>
+                    @if (!hideDances)
+                    {
+                        <td>
+                            @foreach (var ditem in item.DanceRatings.OrderByDescending(dr => m4dModels.SongCounts.GetScaledRating(danceMap, dr.DanceId, dr.Weight)))
+                            {
+                                // TODO: Dance name pulled from the danceMap doesn't require a db lookup - is there a way
+                                //  to make the more intuitive ditem.Dance.Name work without a lookup???
+                                var badge = m4dModels.SongCounts.GetRatingBadge(danceMap, ditem.DanceId, ditem.Weight);
+                                var name = danceMap[ditem.DanceId].DanceName;
+                                <span class="rating @badge" style="margin-right: 5px">@Html.ActionLink(name, name, "dances")</span>
+                            }
+                        </td>
+                    }
+                    <td>
+                        @foreach (var titem in item.TagSummary.Tags)
+                        {
+                            var tc = titem.TagClass.ToLower();
+                            if (tc != "dance")
+                            {
+                                var url = "/song/tags?tags=" + WebUtility.UrlEncode(titem.TagValue) + ":" + WebUtility.UrlEncode(titem.TagClass);
+                                <span class="label label-@tc" style="margin-right: 5px"><a role="button" class="tag-text" href="@url">@titem.TagValue</a></span>
+                            }
+                        }
+                    </td>
+
                     @if (isAdmin)
                     {
                         <td>@item.Purchase</td>

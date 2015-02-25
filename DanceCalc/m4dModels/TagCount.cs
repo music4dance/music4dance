@@ -15,6 +15,9 @@ namespace m4dModels
         public string Value { get; set; }
         [DataMember]
         public int Count { get; set; }
+
+        public string TagValue { get { return Value.Split(':')[0]; } }
+        public string TagClass { get { return (Value.Contains(':') ? Value.Substring(Value.LastIndexOf(':')+1) : null); } }
         #endregion
 
         #region Constructors
