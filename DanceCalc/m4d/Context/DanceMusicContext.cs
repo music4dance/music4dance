@@ -141,31 +141,20 @@ namespace m4d.Context
             }
             else
             {
-                List<ServiceTrack> acc = new List<ServiceTrack>();
-                foreach (var servT in MusicService.GetServices())
+                var acc = new List<ServiceTrack>();
+                foreach (var t in MusicService.GetSearchableServices().Select(servT => DoFindMusicServiceSong(song, servT, clean, title, artist)).Where(t => t != null))
                 {
-                    IList<ServiceTrack> t = DoFindMusicServiceSong(song, servT, clean, title, artist);
-                    if (t != null)
-                    {
-                        acc.AddRange(t);
-                    }
+                    acc.AddRange(t);
                 }
 
                 list = acc;
             }
 
-            if (list != null)
-            {
-                list = FilterKaraoke(list);
-                if (song != null)
-                {
-                    list = song.RankTracks(list);
-                }
-                else
-                {
-                    list = SongDetails.RankTracksByCluster(list, album);
-                }
-            }
+            if (list == null) return null;
+
+            list = FilterKaraoke(list);
+
+            list = song != null ? song.RankTracks(list) : SongDetails.RankTracksByCluster(list, album);
 
             return list;
         }

@@ -489,7 +489,7 @@ namespace m4d.Controllers
         //
         // Get: //SpotifyRegions
         [Authorize(Roles = "dbAdmin")]
-        public ActionResult SpotifyRegions(int count=int.MaxValue, string region="US")
+        public ActionResult SpotifyRegions(int count=int.MaxValue, int start=0, string region="US")
         {
             ViewBag.Name = "SpotifyRegions";
             var changed = 0;
@@ -505,6 +505,11 @@ namespace m4d.Controllers
             var spotify = MusicService.GetService(ServiceType.Spotify);
             foreach (var prop in properties)
             {
+                if (skipped < start)
+                {
+                    skipped += 1;
+                    continue;
+                }
                 string[] regions = null;
                 string id = MusicService.ParseRegionInfo(prop.Value, out regions);
                 if (null == regions)
@@ -549,7 +554,7 @@ namespace m4d.Controllers
                     }
                 }
 
-                if ((changed+updated) % 100 == 0)
+                if ((changed+updated) % 100 == 99)
                 {
                     Trace.WriteLine(string.Format("Skipped == {0}; Changed={1}; Updated={2}; Failed={3}", skipped, changed, updated, failed));
                     System.Threading.Thread.Sleep(5000);

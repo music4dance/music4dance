@@ -529,7 +529,7 @@ namespace m4d.Controllers
 
             ViewBag.BackAction = "MergeCandidates";
             ViewBag.DanceMap = SongCounts.GetDanceMap(Database);
-
+            ViewBag.DanceList = GetDancesSingle();
             return View("Details",Database.FindSongDetails(song.SongId));
         }
 
@@ -1136,7 +1136,7 @@ namespace m4d.Controllers
 
             // if form is != null we disambiguate based on form otherwise it's the first non-null field
 
-            var idx = 0;
+            var idx = 0;            
             if (form != null)
             {
                 var s = form[fieldName];
@@ -1149,9 +1149,9 @@ namespace m4d.Controllers
             {
                 for (var i = 0; i < songs.Count; i++)
                 {
-                    var song = songs[i];
+                    var s = songs[i];
 
-                    if (song.GetType().GetProperty(fieldName).GetValue(song) != null)
+                    if (s.GetType().GetProperty(fieldName).GetValue(s) != null)
                     {
                         idx = i;
                         break;
@@ -1159,7 +1159,11 @@ namespace m4d.Controllers
                 }
             }
 
-            return songs[idx].GetType().GetProperty(fieldName).GetValue(songs[idx]);
+            var song = songs[idx];
+            var type = song.GetType();
+            var prop = type.GetProperty(fieldName);
+            var o = prop.GetValue(song);
+            return o;
         }
         #endregion
     }

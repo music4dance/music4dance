@@ -140,19 +140,19 @@ var Track = function (data) {
     $.extend(true, this, data);
 
     this.durationFormatted = ko.pureComputed(function () {
-        return formatDuration(this.Duration);
+        return formatDuration(self.Duration);
     }, this);
 
     this.serviceLogo = ko.pureComputed(function () {
-        return logoFromEnum(this.Service);
+        return logoFromEnum(self.Service);
     }, this);
 
     this.FullPurchaseInfo = ko.pureComputed(function () {
-        return PurchaseInfoArray().join(';');
+        return self.PurchaseInfoArray().join(';');
     }, this);
 
     this.MarketString = ko.pureComputed(function () {
-        return (self.AvailableMarkets === null) ? '' : '[' + this.AvailableMarkets.join() + ']';
+        return (self.AvailableMarkets === null) ? '' : '[' + self.AvailableMarkets.join() + ']';
     }, this);
 
     this.PurchaseInfoArray = ko.pureComputed(function () {
