@@ -175,10 +175,10 @@ namespace m4dModels
         {
             SetupCollections();
             // Verify that our heads are the same (TODO:move this to debug mode at some point?)
-            List<SongProperty> old = SongProperties.OrderBy(p => p.Id).ToList(); // Where(p => !p.IsAction).
-            List<SongProperty> upd = update.Properties.ToList(); // Where(p => !p.IsAction).
-            int c = old.Count;
-            for (int i = 0; i < c; i++)
+            var old = SongProperties.OrderBy(p => p.Id).ToList(); // Where(p => !p.IsAction).
+            var upd = update.Properties.ToList(); // Where(p => !p.IsAction).
+            var c = old.Count;
+            for (var i = 0; i < c; i++)
             {
                 if (upd.Count < i || !string.Equals(old[i].Name, upd[i].Name))
                 {
@@ -187,12 +187,13 @@ namespace m4dModels
                 }
             }
 
+            // Nothing has changed
             if (c == upd.Count)
             {
                 return false;
             }
 
-            List<SongProperty> mrg = new List<SongProperty>(upd.Skip(c));
+            var mrg = new List<SongProperty>(upd.Skip(c));
             LoadProperties(mrg);
 
             foreach (var prop in mrg)

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data.Entity;
 using System.Diagnostics;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using DanceLibrary;
 using Microsoft.AspNet.Identity;
@@ -1452,25 +1453,39 @@ namespace m4dModels
                 lines.RemoveAt(0);
             }
 
-            int c = 0;
-            foreach (string line in lines)
+            var c = 0;
+            foreach (var line in lines)
             {
-                SongDetails sd = new SongDetails(line);
-                Song song = FindSong(sd.SongId);
+                if (line.StartsWith("//"))
+                    continue;
+
+                var sd = new SongDetails(line);
+                var song = FindSong(sd.SongId);
 
                 if (song == null)
                 {
-                    SongProperty up = sd.FirstProperty(SongBase.UserField);
-                    ApplicationUser user = FindOrAddUser(up != null ? up.Value as string : "batch", EditRole);
+                    var up = sd.FirstProperty(SongBase.UserField);
+                    var user = FindOrAddUser(up != null ? up.Value : "batch", EditRole);
 
                     song = CreateSong(sd.SongId);
                     UpdateSong(user, song, sd, false);
                     Songs.Add(song);
+
+                    // This was a merge so delete the input songs
+                    if (sd.Properties.Count > 0 && sd.Properties[0].Name == SongBase.MergeCommand)
+                    {
+                        up = sd.LastProperty(SongBase.UserField);
+                        var list = SongsFromList(sd.Properties[0].Value);
+                        foreach (var s in list)
+                        {
+                            DeleteSong(user, s, false);
+                        }
+                    }
                 }
                 else
                 {
-                    SongProperty up = sd.LastProperty(SongBase.UserField);
-                    ApplicationUser user = FindOrAddUser(up != null ? up.Value as string : "batch", EditRole);
+                    var up = sd.LastProperty(SongBase.UserField);
+                    var user = FindOrAddUser(up != null ? up.Value : "batch", EditRole);
                     if (sd.IsNull)
                     {
                         DeleteSong(user, song, false);
