@@ -9,23 +9,22 @@ namespace m4d.APIControllers
 {
     public class MusicServiceController : DMApiController
     {
-
         public IHttpActionResult GetServiceTracks(Guid id, string service, string title=null, string artist=null, string album=null)
         {
-            SongDetails song = Database.FindSongDetails(id);
+            var song = Database.FindSongDetails(id);
             if (song != null && artist == null && title == null)
             {
                 artist = song.Artist;
                 title = song.Title;
             }
 
-            string key = string.Format("{0}|{1}|{2}|{3}", id, service, artist, title);
+            var key = string.Format("{0}|{1}|{2}|{3}", id, service, artist, title);
 
             IList<ServiceTrack> tracks;
 
             if (!s_cache.TryGetValue(key,out tracks))
             {
-                MusicService ms = MusicService.GetService(service[0]);
+                var ms = MusicService.GetService(service[0]);
                 tracks = InternalGetServiceTracks(song,ms,false,title,artist,album);
 
                 if (tracks == null || tracks.Count == 0)
@@ -41,10 +40,8 @@ namespace m4d.APIControllers
             {
                 return NotFound();
             }
-            else
-            {
-                s_cache[key] = tracks;
-            }
+
+            s_cache[key] = tracks;
 
             return Ok(tracks);
         }
@@ -52,8 +49,6 @@ namespace m4d.APIControllers
         // TODO:  Pretty sure we can pull the 'clean' parameter from this and descendents
         private IList<ServiceTrack> InternalGetServiceTracks(SongDetails song, MusicService service, bool clean, string title, string artist, string album)
         {
-            Guid songId = Guid.Empty;
-
             IList<ServiceTrack> tracks = null;
 
             try
@@ -68,6 +63,6 @@ namespace m4d.APIControllers
             return tracks;
         }
 
-        private static Dictionary<string,IList<ServiceTrack>> s_cache = new Dictionary<string,IList<ServiceTrack>>();
+        private static readonly Dictionary<string,IList<ServiceTrack>> s_cache = new Dictionary<string,IList<ServiceTrack>>();
     }
 }
