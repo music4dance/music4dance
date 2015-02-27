@@ -25,6 +25,7 @@ namespace m4dModels
 
         public virtual bool IsSearchable { get {return true;}}
         public virtual bool ShowInProfile { get { return true; }}
+        public virtual bool HasRegions { get { return false; } }
         protected string AssociateLink { get; set; }
         protected string SearchRequest { get; set; }
         protected string TrackRequest { get; set; }

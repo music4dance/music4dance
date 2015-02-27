@@ -16,10 +16,13 @@
     <thead>
         <tr>
             <th style="min-width: 30px">Play</th>
-            @if (canSort && isAdmin)
+            @if (isAdmin)
             {
                 <th>&nbsp;</th>
-                <th>&nbsp;</th>
+                if (canSort)
+                {
+                    <th>&nbsp;</th>
+                }
             }
             <th style="min-width:75pt">
                 @if (canSort)
@@ -146,10 +149,13 @@
                             </div>
                         }
                     </td>
-                    @if (isAdmin && canSort)
+                    @if (isAdmin)
                     {
                         var id = "Selected-" + item.SongId;
-                        <td><input name="selectedSongs" id="@id" type="checkbox" value="@item.SongId" /></td>
+                        if (canSort)
+                        {
+                            <td><input name="selectedSongs" id="@id" type="checkbox" value="@item.SongId" /></td>
+                        }
                         <td><a href="/song/edit?id=@item.SongId&filter=@ViewBag.SongFilter" role="button" class="btn btn-link btn-sm"><span class="glyphicon glyphicon-pencil"></span></a></td>
                     }
 

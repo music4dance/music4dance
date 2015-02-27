@@ -131,20 +131,22 @@ namespace m4d.Context
         //  between itunes and xbox doesn't work.   So I'm going to shoe-horn this in to get it working
         //  and refactor later.
 
-        public IList<ServiceTrack> FindMusicServiceSong(SongDetails song, MusicService service, bool clean = false, string title = null, string artist = null, string album = null)
+        public IList<ServiceTrack> FindMusicServiceSong(SongDetails song, MusicService service, bool clean = false, string title = null, string artist = null, string album = null, string region = null)
         {
             IList<ServiceTrack> list;
 
             if (service != null)
             {
-                list = DoFindMusicServiceSong(song, service, clean, title, artist);
+                list = DoFindMusicServiceSong(song, service, clean, title, artist, region);
             }
             else
             {
                 var acc = new List<ServiceTrack>();
-                foreach (var t in MusicService.GetSearchableServices().Select(servT => DoFindMusicServiceSong(song, servT, clean, title, artist)).Where(t => t != null))
+                foreach (var s in MusicService.GetSearchableServices())
                 {
-                    acc.AddRange(t);
+                    var tracks = DoFindMusicServiceSong(song, s, clean, title, artist, region);
+
+                    if (tracks != null) acc.AddRange(tracks);
                 }
 
                 list = acc;
@@ -153,6 +155,7 @@ namespace m4d.Context
             if (list == null) return null;
 
             list = FilterKaraoke(list);
+
 
             list = song != null ? song.RankTracks(list) : SongDetails.RankTracksByCluster(list, album);
 
@@ -166,6 +169,16 @@ namespace m4d.Context
             return service.ParseTrackResults(results);
         }
 
+        public ServiceTrack CoerceTrackRegion(string id, MusicService service, string region)
+        {
+            if (string.IsNullOrWhiteSpace(region)) return null;
+
+            var track = GetMusicServiceTrack(id, service, region);
+
+            if (track == null) return null;
+
+            return track.IsPlayable == false ? null : GetMusicServiceTrack(track.TrackId, service);
+        }
         private static IList<ServiceTrack> FilterKaraoke(IList<ServiceTrack> list)
         {
             List<ServiceTrack> tracks = new List<ServiceTrack>();
@@ -195,7 +208,7 @@ namespace m4d.Context
             return false;
         }
 
-        private IList<ServiceTrack> DoFindMusicServiceSong(SongDetails song, MusicService service, bool clean = false, string title = null, string artist = null)
+        private IList<ServiceTrack> DoFindMusicServiceSong(SongDetails song, MusicService service, bool clean = false, string title = null, string artist = null, string region=null)
         {
             IList<ServiceTrack> tracks;
             switch (service.Id)
@@ -208,14 +221,40 @@ namespace m4d.Context
                     break;
             }
 
-            if (tracks != null)
+            if (tracks == null) return null;
+
+            // Convoluted way of saying that we should coerce regions for spotify
+
+            if (service.HasRegions && !string.IsNullOrWhiteSpace(region))
             {
+                var dict = new Dictionary<string, ServiceTrack>();
                 foreach (var track in tracks)
                 {
-                    track.AlbumLink = service.GetPurchaseLink(PurchaseType.Album, track.CollectionId, track.TrackId);
-                    track.SongLink = service.GetPurchaseLink(PurchaseType.Song, track.CollectionId, track.TrackId);
-                    track.PurchaseInfo = AlbumDetails.BuildPurchaseInfo(service.Id, track.CollectionId, track.TrackId);
+                    if (dict.ContainsKey(track.TrackId)) continue;
+
+                    ServiceTrack t = null;
+                    if (!track.AvailableMarkets.Contains(region))
+                    {
+                        t = CoerceTrackRegion(track.TrackId, service, region);
+                        if (t != null)
+                        {
+                            t.AvailableMarkets = MusicService.MergeRegions(t.AvailableMarkets, track.AvailableMarkets);
+                        }
+                    }
+
+                    if (t == null) t = track;
+
+                    dict[t.TrackId] = t;
                 }
+
+                tracks = dict.Values.ToList();
+            }
+
+            foreach (var track in tracks)
+            {
+                track.AlbumLink = service.GetPurchaseLink(PurchaseType.Album, track.CollectionId, track.TrackId);
+                track.SongLink = service.GetPurchaseLink(PurchaseType.Song, track.CollectionId, track.TrackId);
+                track.PurchaseInfo = AlbumDetails.BuildPurchaseInfo(service.Id, track.CollectionId, track.TrackId);
             }
             return tracks;
         }

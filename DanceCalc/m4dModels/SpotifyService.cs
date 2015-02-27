@@ -18,6 +18,11 @@ namespace m4dModels
         {
         }
 
+        public override bool HasRegions
+        {
+            get { return true; }
+        }
+
         public override IList<ServiceTrack> ParseSearchResults(dynamic results)
         {
             var ret = new List<ServiceTrack>();

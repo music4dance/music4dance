@@ -533,24 +533,17 @@ namespace m4d.Controllers
                 }
                 else if (!string.IsNullOrWhiteSpace(region))
                 {
-                    var track = Context.GetMusicServiceTrack(id, spotify, region);
-                    if (track.IsPlayable == true)
+                    var track = Context.CoerceTrackRegion(id, spotify, region);
+                    if (track != null)
                     {
-                        track = Context.GetMusicServiceTrack(track.TrackId, spotify);
-                        if (track != null)
-                        {
-                            prop.Value = MusicService.FormatRegionInfo(track.TrackId,
-                                MusicService.MergeRegions(regions, track.AvailableMarkets));
-                            updated += 1;
-                        }
-                        else
-                        {
-                            failed += 1;
-                        }
+                        prop.Value = MusicService.FormatRegionInfo(track.TrackId,
+                            MusicService.MergeRegions(regions, track.AvailableMarkets));
+                        updated += 1;
+                        
                     }
                     else
                     {
-                        skipped += 1;
+                        failed += 1;
                     }
                 }
 

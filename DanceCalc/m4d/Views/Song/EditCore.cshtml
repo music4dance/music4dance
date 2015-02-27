@@ -118,7 +118,7 @@
                     <td>
                         <div data-bind="ifnot: $index() == 0">
                             <a href="#" class="btn btn-sm btn-default">
-                                <span id="toggle-count-display" class="glyphicon glyphicon-arrow-up" data-bind="click:$parent.promoteAlbum"></span>
+                                <span id="toggle-count-display" class="glyphicon glyphicon-arrow-up" data-bind="click:$root.song.promoteAlbum"></span>
                             </a>
                         </div>
                     </td>
@@ -138,7 +138,7 @@
                         </div>
                     </td>
                     <td>
-                        <button type="button" data-bind="attr: {id: 'Delete_' + $index()}, click: $parent.removeAlbum">X</button>
+                        <button type="button" data-bind="attr: {id: 'Delete_' + $index()}, click: $root.song.removeAlbum">X</button>
                         <input data-bind="attr:{id: computeAlbumId($index(),'PurchaseInfo'), name: computeAlbumName($index(),'PurchaseInfo')}, value:PurchaseInfo" type="hidden" />
                         <input data-bind="attr: {id: computeAlbumId($index(),'Index'), name: computeAlbumName($index(),'Index')}, value:Index" type="hidden" />
                     </td>
@@ -180,7 +180,7 @@
         <tbody data-bind="foreach: tracks">
             <tr>
                 <td><a data-bind="attr: {href: SongLink.Link}" class="btn" role="button"><img width="30" height="30" data-bind="attr: {src: serviceLogo}" /></a></td>
-                <td><a href="#" class="btn btn-default" role="button" data-bind="click: $parent.song.chooseTrack"><img width="30" height="30" data-bind="attr: {src: ImageUrl}" /></a></td>
+                <td><a href="#" class="btn btn-default" role="button" data-bind="click: $root.song.chooseTrack"><img width="30" height="30" data-bind="attr: {src: ImageUrl}" /></a></td>
                 <td data-bind="text: Name"></td>
                 <td data-bind="text: Album"></td>
                 <td data-bind="text: Artist"></td>

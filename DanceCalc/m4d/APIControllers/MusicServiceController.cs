@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Drawing;
 using System.Net;
 using System.Web.Http;
 using m4dModels;
@@ -9,7 +10,8 @@ namespace m4d.APIControllers
 {
     public class MusicServiceController : DMApiController
     {
-        public IHttpActionResult GetServiceTracks(Guid id, string service, string title=null, string artist=null, string album=null)
+        // TODONEXT:When doing manual add of track information, make sure we get the US info (pull the stuff from SpotifyUpdate and put it here somehow?
+        public IHttpActionResult GetServiceTracks(Guid id, string service, string title = null, string artist = null, string album = null, string region=null)
         {
             var song = Database.FindSongDetails(id);
             if (song != null && artist == null && title == null)
@@ -25,14 +27,14 @@ namespace m4d.APIControllers
             if (!s_cache.TryGetValue(key,out tracks))
             {
                 var ms = MusicService.GetService(service[0]);
-                tracks = InternalGetServiceTracks(song,ms,false,title,artist,album);
+                tracks = InternalGetServiceTracks(song,ms,false,title,artist,album, region);
 
                 if (tracks == null || tracks.Count == 0)
                 {
                     artist = SongBase.CleanString(artist);
                     title = SongBase.CleanString(title);
 
-                    tracks = InternalGetServiceTracks(song, ms, true, title, artist, album);
+                    tracks = InternalGetServiceTracks(song, ms, true, title, artist, album, region);
                 }
             }
 
@@ -47,13 +49,13 @@ namespace m4d.APIControllers
         }
 
         // TODO:  Pretty sure we can pull the 'clean' parameter from this and descendents
-        private IList<ServiceTrack> InternalGetServiceTracks(SongDetails song, MusicService service, bool clean, string title, string artist, string album)
+        private IList<ServiceTrack> InternalGetServiceTracks(SongDetails song, MusicService service, bool clean, string title, string artist, string album, string region)
         {
             IList<ServiceTrack> tracks = null;
 
             try
             {
-                tracks = Context.FindMusicServiceSong(song, service, clean, title, artist, album);
+                tracks = Context.FindMusicServiceSong(song, service, clean, title, artist, album, region);
             }
             catch (WebException e)
             {

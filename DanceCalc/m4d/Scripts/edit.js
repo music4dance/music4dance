@@ -609,7 +609,7 @@ var Song = function (data) {
         }
         else {
             var idx = self.nextIndex();
-            var temp = new Album({ Index: idx, Name: name, Track: num, Publisher: '', PurchaseInfo: track.PurchaseInfo, PurchaseLinks: purchaseLinksFromTrack(track) });
+            var temp = new Album({ Index: idx, Name: name, Track: num, Publisher: '', PurchaseInfo: track.FullPurchaseInfo(), PurchaseLinks: purchaseLinksFromTrack(track) });
             self.Albums.push(temp);
         }
 
@@ -726,7 +726,7 @@ var pageMapping = {
 };
 
 var getServiceInfo = function(service) {
-    var uri = '/api/musicservice/' + viewModel.song.SongId() + '?service=' + service.toString() + '&Title=';
+    var uri = '/api/musicservice/' + viewModel.song.SongId() + '?region=US&service=' + service.toString() + '&Title=';
     var t = $('#search').val();
     if (t.length > 0)
     {
