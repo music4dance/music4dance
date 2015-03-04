@@ -1,6 +1,5 @@
-﻿using System;
+﻿using System.Diagnostics;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System.Diagnostics;
 
 namespace m4dModels.Tests
 {
@@ -10,12 +9,12 @@ namespace m4dModels.Tests
         [TestMethod]
         public void NormalForm()
         {
-            for (int i = 0; i < titles.Length; i++)
+            for (var i = 0; i < Titles.Length; i++)
             {
-                string t = titles[i];
+                var t = Titles[i];
 
-                string n = Song.CreateNormalForm(t);
-                Assert.AreEqual<string>(normal[i], n);
+                var n = SongBase.CreateNormalForm(t);
+                Assert.AreEqual(Normal[i], n);
                 //Trace.WriteLine(string.Format("{0}",Song.CreateTitleHash(t)));
             }
         }
@@ -23,24 +22,37 @@ namespace m4dModels.Tests
         [TestMethod]
         public void TitleHash()
         {
-            for (int i = 0; i < hashes.Length; i++)
+            for (var i = 0; i < Hashes.Length; i++)
             {
-                string t = titles[i];
+                var t = Titles[i];
 
-                int hash = Song.CreateTitleHash(t);
-                Assert.AreEqual<int>(hashes[i], hash);
+                var hash = SongBase.CreateTitleHash(t);
+                Assert.AreEqual(Hashes[i], hash);
+            }
+        }
+
+        [TestMethod]
+        public void NormalString()
+        {
+            for (var i = 0; i < Titles.Length; i++)
+            {
+                var t = Titles[i];
+
+                var n = SongBase.CreateNormalForm(t);
+                Assert.AreEqual(Normal[i], n);
+                //Trace.WriteLine(string.Format("{0}",Song.CreateTitleHash(t)));
             }
         }
 
         [TestMethod]
         public void CleanString()
         {
-            for (int i = 0; i < titles.Length; i++)
+            for (var i = 0; i < Titles.Length; i++)
             {
-                string t = titles[i];
+                var t = Titles[i];
 
-                string n = Song.CreateNormalForm(t);
-                Assert.AreEqual<string>(normal[i], n);
+                var n = SongBase.CleanString(t);
+                Assert.AreEqual(Clean[i], n);
                 //Trace.WriteLine(string.Format("{0}",Song.CreateTitleHash(t)));
             }
         }
@@ -48,51 +60,51 @@ namespace m4dModels.Tests
         [TestMethod]
         public void AlbumFields()
         {
-            Assert.IsTrue(Song.IsAlbumField(Song.AlbumField));
-            Assert.IsFalse(Song.IsAlbumField(Song.TitleField));
+            Assert.IsTrue(SongBase.IsAlbumField(SongBase.AlbumField));
+            Assert.IsFalse(SongBase.IsAlbumField(SongBase.TitleField));
 
-            Assert.IsTrue(Song.IsAlbumField(Song.PublisherField + ":0"));
-            Assert.IsTrue(Song.IsAlbumField(Song.TrackField + ":45:A"));
+            Assert.IsTrue(SongBase.IsAlbumField(SongBase.PublisherField + ":0"));
+            Assert.IsTrue(SongBase.IsAlbumField(SongBase.TrackField + ":45:A"));
 
-            Assert.IsFalse(Song.IsAlbumField(null));
-            Assert.IsFalse(Song.IsAlbumField("#"));
+            Assert.IsFalse(SongBase.IsAlbumField(null));
+            Assert.IsFalse(SongBase.IsAlbumField("#"));
         }
 
         [TestMethod]
         public void Ratings()
         {
-            Song song = new Song();
-            song.Load(@"user=batch	Title=Test	Artist=Me	Tempo=30.0",s_service);
+            var song = new Song();
+            song.Load(@"user=batch	Title=Test	Artist=Me	Tempo=30.0",Service);
 
-            string init = song.ToString();
+            var init = song.ToString();
             Trace.WriteLine(init);
-            SongDetails sd = new SongDetails(song);
+            var sd = new SongDetails(song);
 
-            sd.UpdateDanceRatings(new string[] {"RMB","CHA"}, 5);
-            sd.UpdateDanceRatings(new string[] { "FXT" }, 7);
+            sd.UpdateDanceRatings(new[] {"RMB","CHA"}, 5);
+            sd.UpdateDanceRatings(new[] { "FXT" }, 7);
 
             // Create an test an initial small list of dance ratings
-            ApplicationUser user = s_service.FindUser("dwgray");
-            song.Update(user, sd, s_service);
-            string first = song.ToString();
+            var user = Service.FindUser("dwgray");
+            song.Update(user, sd, Service);
+            var first = song.ToString();
             Trace.WriteLine(first);
             Assert.IsTrue(song.DanceRatings.Count == 3);
 
             // Now mix it up a bit
 
-            sd.UpdateDanceRatings(new string[] { "RMB", "FXT" }, 3);
-            song.Update(user, sd, s_service);
+            sd.UpdateDanceRatings(new[] { "RMB", "FXT" }, 3);
+            song.Update(user, sd, Service);
             Assert.IsTrue(song.DanceRatings.Count == 3);
-            DanceRating drT = song.FindRating("RMB");
+            var drT = song.FindRating("RMB");
             Assert.IsTrue(drT.Weight == 8);
 
-            sd.UpdateDanceRatings(new string[] { "CHA", "FXT" }, -5);
-            song.Update(user, sd, s_service);
+            sd.UpdateDanceRatings(new[] { "CHA", "FXT" }, -5);
+            song.Update(user, sd, Service);
             Assert.IsTrue(song.DanceRatings.Count == 2);
             drT = song.FindRating("FXT");
             Assert.IsTrue(drT.Weight == 5);
         }
-        static string[] titles = new string[] {
+        static readonly string[] Titles = {
             "ñ-é á",
             "Señor  Bolero",
             "Viaje Tiemp  Atrás",
@@ -111,7 +123,7 @@ namespace m4dModels.Tests
             "Can't [get] [no (satisfaction)] for's real"
         };
 
-        static string[] normal = new string[] {
+        static readonly string[] Normal = {
             "NE",
             "SENORBOLERO",
             "VIAJETIEMPATRAS",
@@ -130,24 +142,26 @@ namespace m4dModels.Tests
             "CANTFORSREAL"
         };
 
-        static string[] clean = new string[] {
+        static readonly string[] Clean = {
             "ñ é á",
             "Señor Bolero",
             "Viaje Tiemp Atrás",
             "Solo Tu",
             "Señales De Humo",
             "España Cañi",
-            "Y Qu les Filles Qui M interessent",
+            "Y'a Qu'les Filles Qui M'interessent",
             "Namorádo",
-            "Satisfaction (I Can t Get No)",
+            "Satisfaction",
             "Satisfaction",
             "Moliendo Café",
-            "This is Life",
+            "is Life",
             "How Stranger can Live",
+            "Satisfaction",
+            "Satisfaction",
             "Can't for's real"
         };
 
-        static int[] hashes = new int[] {
+        static readonly int[] Hashes = {
             -838486046,
             335748376,
             1113827306,
@@ -163,6 +177,6 @@ namespace m4dModels.Tests
             744080883
         };
 
-        static DanceMusicService s_service = MockContext.CreateService(true);
+        static readonly DanceMusicService Service = MockContext.CreateService(true);
     }
 }

@@ -702,7 +702,7 @@ namespace m4dModels
                         UnicodeCategory uc = char.GetUnicodeCategory(c);
                         if (uc != UnicodeCategory.NonSpacingMark && sb.Length > wordBreak)
                         {
-                            string word = sb.ToString(wordBreak, sb.Length - wordBreak);
+                            string word = sb.ToString(wordBreak, sb.Length - wordBreak).ToUpper().Trim();
                             if (s_ignore.Contains(word))
                             {
                                 sb.Length = wordBreak;
@@ -723,7 +723,7 @@ namespace m4dModels
                 }
             }
 
-            return sb.ToString();
+            return sb.ToString().Trim();
         }
         public static string CreateNormalForm(string s)
         {
