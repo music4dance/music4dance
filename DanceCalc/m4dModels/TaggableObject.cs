@@ -223,6 +223,21 @@ namespace m4dModels
             var ut = FindOrCreateUserTags(tag.User, dms);
             if (ut.Tags.Summary == tag.Tags.Summary) return;
 
+            var removed = ut.Tags.Subtract(tag.Tags);
+            var added = tag.Tags.Subtract(ut.Tags);
+
+            foreach (var t in removed.Tags)
+            {
+                var tt = dms.TagTypes.Find(t);
+                if (tt != null) tt.Count -= 1;
+            }
+
+            foreach (var t in added.Tags)
+            {
+                var tt = dms.FindOrCreateTagType(t);
+                if (tt != null) tt.Count += 1;
+            }
+
             ut.Tags = tag.Tags;
             ut.Modified = DateTime.Now;
         }
