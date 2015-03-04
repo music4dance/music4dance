@@ -1,11 +1,23 @@
-﻿Music	acoustic-audio-recordings	
+﻿Music	Acid Jazz	
+Music	acid-jazz	Acid Jazz:Music
+Music	Acoustic Audio Recording	
+Music	acoustic-audio-recordings	Acoustic Audio Recording:Music
 Music	Adult Alternative	
 Music	Adult Contemporary	
-Music	adult-contemporary-pop	
-Music	album-oriented-rock	
+Music	adult-alternative-pop	Adult Alternative:Music
+Music	adult-contemporary-pop	Adult Contemporary:Music
+Music	Africa	
+Music	African	
+Music	Album Oriented Rock	
+Music	album-oriented-rock	Album Oriented Rock:Music
+Music	Alt Country Rock	
+Music	alt-country-rock	Alt Country Rock:Music
 Music	Alternative Folk	
+Music	Alternative Metal	
 Music	Alternative	
+Music	alternative-metal	Alternative Metal:Music
 Music	Alternativo & Rock Latino	
+Music	Ambient	
 Dance	American Bolero	
 Dance	American Cha Cha	
 Dance	American East Coast Swing	
@@ -23,77 +35,120 @@ Dance	American Slow Waltz
 Dance	American Tango (Ballroom)	
 Dance	American Viennese Waltz	
 Dance	American West Coast Swing	
+Music	Arena Rock	
 Dance	Argentine Tango	
 Dance	Bachata	
 Music	Baladas y Boleros	
 Dance	Balboa	
-Music	baroque-pop	
+Music	Baroque Pop	
+Music	baroque-pop	Baroque Pop:Music
 Music	Bebop	
 Music	Big Band	
-Music	big-band-swing	
-Music	bluegrass	
+Music	big-band-swing	Big Band:Music
+Music	Bluegrass	
 Music	Blues / Folk	
 Dance	Blues	
 Music	Blues	
 Music	Blues-Rock	
 Dance	Bolero	
-Music	bop-jazz	
+Music	Bop Jazz	
+Music	bop-jazz	Bop Jazz:Music
 Dance	Bossa Nova	
+Music	Bossa Nova	
+Music	Brazilian Jazz	
 Music	Brazilian	
-Music	brazilian-jazz	
+Music	brazilian-jazz	Brazilian Jazz:Music
 Music	Britpop	
-Music	broadway-and-vocal	
-Music	caribbean	
+Music	Broadway and Vocal	
+Music	broadway-and-vocal	Broadway and Vocal:Music
+Music	Caribbean	
 Dance	Carolina Shag	
 Dance	Castle Foxtrot	
+Music	CCM	
+Music	Celtic	
 Dance	Cha Cha	
-Music	Children's Music	
-Music	childrens	
-Music	Christian & Gospel	
+Music	Children's Music	Childrens:Music
+Music	Childrens	
+Music	Christian & Gospel	Christian / Gospel:Music
 Music	Christian / Gospel	
+Music	christian-and-gospel	Christian / Gospel:Music
+Music	Christmas	
+Music	Classic Rhythm and Blues	
+Music	Classic Rock	
 Music	Classical	
-Music	classic-r-b	
-Music	classic-rock	
+Music	classic-r-b	Classic Rhythm and Blues:Music
+Music	classic-rock	Classic Rock:Music
 Music	Comedy / Spoken Word	
 Music	Comedy	
-Music	compilations	
+Music	Compilations	
 Music	Contemporary Blues	
 Music	Contemporary Country	
-Music	contemporary-country	
-Music	contemporary-folk	
-Music	cool-jazz	
+Music	Contemporary Folk	
+Music	Contemporary Jazz	
+Music	Contemporary Latin	
+Music	Contemporary Rhythm and Blues	
+Music	Contemporary Singer/Songwriter	
+Music	contemporary-country	Contemporary Country:Music
+Music	contemporary-folk	Contemporary Folk:Music
+Music	contemporary-rhythm-and-blues	Contemporary Rhythm and Blues:Music
+Music	Cool Jazz	
+Music	cool-jazz	Cool Jazz:Music
+Music	Country Rock	
 Dance	Country Two Step	
 Music	Country	
+Music	country-rock	Country Rock:Music
 Music	Crossover Jazz	
 Dance	Cumbia	
+Music	Dance and DJ	
+Music	Dance Pop	
 Music	Dance	
-Music	dance-and-dj	
+Music	dance-and-dj	Dance and DJ:Music
+Music	dance-pop	Dance Pop:Music
 Music	Disco	
 Music	Dixieland	
+Music	Doo Wop	
 Dance	East Coast Swing	
 Music	Easy Listening	
 Music	easy-listening	Easy Listening:Music
+Music	Electric Blues Guitar	
 Music	Electric Blues	
+Music	electric-blues-guitar	Electric Blues Guitar:Music
 Music	Electronic / Dance	
 Music	Electronic	
+Music	Environmental Sound Effect Recording	
 Music	environmental-sound-effect-recordings	
-Music	Europe	european:Music
-Music	european	
+Music	Euro Pop	
+Music	Europe	European:Music
+Music	European	
+Music	euro-pop	Euro Pop:Music
 Music	Fitness & Workout	
-Music	folk	
+Music	Folk Rock	
+Music	Folk	
+Music	folk-rock	Folk Rock:Music
 Dance	Foxtrot	
 Music	French Pop	
-Music	funk	
+Music	Funk	
 Music	German Pop	
+Music	Glam Rock	
+Music	Goth Rock	
+Music	Hair Metal	
+Music	Halloween	
 Music	Hard Bop	
+Music	Hard Rock and Metal	
+Music	hard-rock-and-metal	Hard Rock and Metal:Music
 Music	Heavy Metal	
-Music	Hip Hop/Rap	
+Music	Hip Hop/Rap	Rap:Music
 Music	Hip Hop	
-Music	HipHop	
+Music	HipHop	Hip Hop:Music
+Music	Hip-Hop	Hip Hop:Music
 Music	Holiday	
 Music	Honky Tonk	
+Music	House	
 Dance	Hustle	
 Music	Indian Pop	
+Music	Indian	
+Music	Indie Rock	
+Music	Inspirational	
 Music	Instrumental	
 Dance	International Cha Cha	
 Dance	International Jive	
@@ -105,60 +160,81 @@ Dance	International Slow Foxtrot
 Dance	International Slow Waltz	
 Dance	International Tango (Ballroom)	
 Dance	International Viennese Waltz	
-Music	international	
+Music	International	
 Music	Jazz	
 Dance	Jive	
 Music	J-Pop	
 Dance	Jump Swing	
-Music	Kids	
+Music	Kids	Childrens:Music
 Music	Latin Jazz	
+Music	Latin Rap	
 Music	Latin Urban	
 Dance	Latin	
 Music	Latin	
+Music	latin-american	Latin:Music
 Dance	Lindy Hop	
+Music	Lounge	
 Dance	Mambo	
+Music	Meditation	
 Dance	Merengue	
 Dance	Milonga	
-Music	miscellaneous-audio-recordings	
+Music	Miscellaneous Audio Recording	
+Music	miscellaneous-audio-recordings	Miscellaneous Audio Recording:Music
 Music	More	
 Music	Motown	
-Music	movie-scores	
-Music	movie-soundtracks	
+Music	movie-scores	Soundtrack:Music
+Music	movie-soundtracks	Soundtrack:Music
+Music	MPB	
 Music	Music	
+Music	Musicals	
 Dance	Neo Tango	
 Music	New Age	
+Music	new-age	New Age:Music
 Dance	Night Club Two Step	
-Music	oldies	
+Music	Old School Rap	
+Music	Oldies	
+Music	old-school-rap	Old School Rap:Music
+Music	Opera	
+Music	Original Score	Soundtrack:Music
 Dance	Other	
 Dance	Paso Doble	
 Dance	Peabody	
 Dance	Polka	
 Music	Polka	
 Music	Pop Latino	
+Music	Pop Rap	
+Music	Pop/Rock	
 Music	Pop	
-Music	Poppin	
+Music	pop-rap	Pop Rap:Music
+Music	Progressive Rock	
+Music	progressive-rock	Progressive Rock:Music
 Music	Punk	
 Dance	QuickStep	
 Music	R&B / Soul	
 Music	R&B/Soul	R&B / Soul:Music
 Music	Raices	
-Music	rap-hip-hop	
-Music	r-b	rhythm-and-blues:Music
+Music	Rap	
+Music	rap-hip-hop	Rap:Music
+Music	r-b	Rhythm and Blues:Music
 Music	Reggae / Dancehall	
 Music	Reggae	
 Music	Regional Mexicano	
-Music	rhythm-and-blues	
+Music	Rhythm and Blues	
+Music	rhythm-and-blues	Rhythm and Blues:Music
 Music	Rock & Roll	
 Music	Rock	Rock & Roll:Music
 Music	Rockabilly	
+Music	Roots Rock	
 Dance	Rumba	
 Music	Salsa y Tropical	
 Dance	Salsa	
 Dance	Samba	
+Music	Samba	
 Music	Sertanejo	
 Music	Singer/Songwriter	
 Dance	Slow Foxtrot	
 Dance	Slow Waltz	
+Music	Smooth Jazz	
 Dance	Social Argentine Tango	
 Dance	Social Bachata	
 Dance	Social Carolina Shag	
@@ -177,14 +253,20 @@ Music	Southern Rock
 Music	Spoken Word	
 Music	Standards	
 Other	Strict Tempo	
+Tempo	Strict	
+Music	Surf	
 Dance	Swing	
 Music	Swing	
 Dance	Tango (Ballroom)	
 Dance	Tango	
 Music	Tango	
 Music	Trad Jazz	
+Music	Traditional Country	
+Music	Traditional Folk	
 Music	Traditional Pop	
+Style	Traditional	
 Music	TV Soundtrack	
+Music	Urban Cowboy	
 Music	Verve	
 Dance	Viennese Waltz	
 Music	Vocal Jazz	

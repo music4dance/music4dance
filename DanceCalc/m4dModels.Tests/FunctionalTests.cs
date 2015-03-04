@@ -51,11 +51,7 @@ namespace m4dModels.Tests
         [TestMethod]
         public void FilterTest()
         {
-            var filter = new SongFilter();
-
-            filter.SortOrder = "Tempo";
-            filter.Dances = "SWG";
-            filter.Purchase = "X";
+            var filter = new SongFilter {SortOrder = "Tempo", Dances = "SWG", Purchase = "X"};
 
             var songs = s_service.Dms.BuildSongList(filter);
 
@@ -81,10 +77,8 @@ namespace m4dModels.Tests
         [TestMethod]
         public void TopTest()
         {
-            var filter = new SongFilter();
+            var filter = new SongFilter {SortOrder = "Dances_10", Dances = "SWG"};
 
-            filter.SortOrder = "Dances_10";
-            filter.Dances = "SWG";
 
             var songs = s_service.Dms.BuildSongList(filter);
 
@@ -107,7 +101,6 @@ namespace m4dModels.Tests
         public void SearchTest()
         {
             var filter = new SongFilter {SortOrder = "Title", SearchString = "The"};
-
 
             var songs = s_service.Dms.BuildSongList(filter);
 
@@ -148,6 +141,42 @@ The *East Coast Swing* is generally danced as the first dance of <a href='http:/
             //}
             Assert.AreEqual(expected, pretty);
         }
+
+        [TestMethod]
+        public void TagSuggestionTest()
+        {
+            const string twoStep = "Night Club Two Step:Dance:187";
+            const string childrens = "Children's Music:Music:1";
+            const string country = "Country:Music:83";
+            const string waltz = "Waltz:Dance:1";
+            const string foxtrot = "Foxtrot:Dance:1";
+            const string vocal = "Vocal Pop:Music:4";
+
+            var user = s_service.Dms.FindUser("batch");
+            var userid = new Guid(user.Id);
+
+            ValidateTagSummary(s_service.Dms.GetTagSuggestions(), 38, twoStep, childrens, "All Tags");
+            ValidateTagSummary(s_service.Dms.GetTagSuggestions(userid),34,country, waltz, "Batch Tags");
+            ValidateTagSummary(s_service.Dms.GetTagSuggestions(userid, null, null, int.MaxValue, true), 32, country, waltz,
+                "Batch Normalized Tags");
+            ValidateTagSummary(s_service.Dms.GetTagSuggestions(userid, 'S', "Music"), 31, country, childrens, "Batch Genre Tags");
+            ValidateTagSummary(s_service.Dms.GetTagSuggestions(userid, 'S', "Dance"), 3, foxtrot, waltz, "Batch Dance Tags");
+            ValidateTagSummary(s_service.Dms.GetTagSuggestions(userid, 'S', "Music", 10, true), 10,
+                country,vocal,"Top Batch Genere Tags");
+        }
+
+        private void ValidateTagSummary(IEnumerable<TagCount> tags, int expectedCount, string first, string last, string name)
+        {
+            var list = tags.ToList();
+            Trace.WriteLine("All tags=" + list.Count);
+            Assert.AreEqual(expectedCount, list.Count, name + " length");
+
+            Trace.WriteLine("First:" + list[0]);
+            Assert.AreEqual(first,list[0].Serialize(),name + " first");
+            Trace.WriteLine("Last:" + list[list.Count-1]);
+            Assert.AreEqual(last, list[list.Count - 1].Serialize(), name + " last");
+        }
+
         static bool ListEquivalent(IList<string> expected, IList<string> actual)
         {
             List<string> expectedExtra = new List<string>();
