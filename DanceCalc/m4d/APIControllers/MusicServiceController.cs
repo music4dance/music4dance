@@ -10,7 +10,6 @@ namespace m4d.APIControllers
 {
     public class MusicServiceController : DMApiController
     {
-        // TODONEXT:When doing manual add of track information, make sure we get the US info (pull the stuff from SpotifyUpdate and put it here somehow?
         public IHttpActionResult GetServiceTracks(Guid id, string service, string title = null, string artist = null, string album = null, string region=null)
         {
             var song = Database.FindSongDetails(id);

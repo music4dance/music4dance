@@ -133,6 +133,11 @@ var addValue = function (id, val) {
     }
 };
 
+var normalizeName = function(name) {
+    name = name.toLowerCase();
+    name = name.replace(/[^a-z0-9]/g, '');
+    return name;
+}
 // Track object
 var Track = function (data) {
     var self = this;
@@ -339,12 +344,12 @@ var Album = function (data) {
             self.Track(track.TrackNumber);
         }
     };
+    
+    self.matchTrack = function(track) {
+        return (self.Track() == null || self.Track() === track.TrackNumber) && normalizeName(self.Name()) === normalizeName(track.Album);
+    }
 };
 
-Album.prototype.matchTrack = function (track)
-{
-    return (this.Track() == null || this.Track() === track.TrackNumber) && this.Name().toLowerCase() === track.Album.toLowerCase();
-};
 
 var Tag = function(value,parent) {
     var self = this;

@@ -303,7 +303,7 @@ namespace m4dModels
                 {
                     if (Purchase != null && !Purchase.ContainsKey(key))
                     {
-                        modified |= ChangeProperty(dms, song, Index, SongBase.PurchaseField, key, Purchase[key], null, log);
+                        modified |= ChangeProperty(dms, song, Index, SongBase.PurchaseField, key, old.Purchase[key], null, log);
                     }
                 }
             }
