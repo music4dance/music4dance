@@ -628,25 +628,12 @@ var Song = function (data) {
 
         // Finally handle genre
         if (track.Genre != null) {
-            var gnew = track.Genre + ':Music';
-            var gval = $('#editTags').val();
-            if (gval == null) {
-                gval = '';
-            }
-            var glist = gval.toLowerCase().split('|');
-
-            if (glist.indexOf(gnew.toLowerCase()) === -1) {
-                if (gval.length > 0) {
-                    gval += '|';
-                }
-                gval += gnew;
-            }
-
-            $('#editTags').val(gval);
+            self.TagSummary.addTag(track.Genre, 'Music');
         }
     };
 
 }; // EditPage object
+
 var EditPage = function(data) {
     var self = this;
 
