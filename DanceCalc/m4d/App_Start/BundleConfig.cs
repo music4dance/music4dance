@@ -25,6 +25,13 @@ namespace m4d
                       "~/Scripts/bootstrap.js",
                       "~/Scripts/respond.js"));
 
+            bundles.Add(new ScriptBundle("~/bundles/knockout").Include(
+                      "~/Scripts/knockout-3.2.0.js",
+                      "~/Scripts/knockout.mapping-latest.js"));
+
+            bundles.Add(new ScriptBundle("~/bundles/knockout").Include(
+                      "~/Scripts/chosen.jquery.js"));
+
             RegisterTheme(bundles, "blog");
             RegisterTheme(bundles, "music");
             RegisterTheme(bundles, "tools");
