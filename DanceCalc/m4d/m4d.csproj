@@ -599,8 +599,6 @@
     <Content Include="Scripts\jquery-2.1.3.js" />
     <Content Include="Scripts\jquery-2.1.3.min.js" />
     <Content Include="Scripts\jquery.hotkeys.js" />
-    <Content Include="Scripts\jquery.livequery.js" />
-    <Content Include="Scripts\jquery.livequery.min.js" />
     <Content Include="Scripts\jquery.nouislider.full.min.js" />
     <Content Include="Scripts\jquery.nouislider.min.js" />
     <Content Include="Scripts\jquery-2.1.3.min.map" />
@@ -793,6 +791,7 @@
     <Content Include="Views\Error\Index.cshtml" />
     <Content Include="Views\Shared\_TagEditor.cshtml" />
     <Content Include="Views\Manage\EditProfile.cshtml" />
+    <Content Include="Views\Song\SetupSongScript.cshtml" />
     <None Include="Web.m4d.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

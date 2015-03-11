@@ -1,26 +1,7 @@
-﻿@using System.Runtime.Serialization.Json
-@using m4dModels
+﻿@using m4dModels
 @model SongDetails
 
-@{
-    if (ViewData.ContainsKey("paramNumerator"))
-    {
-        <script> var paramNumerator = @ViewBag.paramNumerator; </script>
-    }
-    var stream = new MemoryStream();
-    var serializer = new DataContractJsonSerializer(typeof(SongDetails));
-    serializer.WriteObject(stream, Model);
-    var songString = System.Text.Encoding.UTF8.GetString(stream.ToArray());
-    var canEdit = User.IsInRole("canEdit") ? "true" : "false";
-}
-
-<script>
-    var paramShowMPM = true;
-    var paramShowBPM = true;
-    var paramEpsVisible = 0.1;
-    var canEdit = @canEdit;
-    var song = @Html.Raw(songString);
-</script>
+@Html.Partial("SetupSongScript")
 
 @using (Html.BeginForm((string)ViewBag.Action, "Song", null, FormMethod.Post, new { @class="form-horizontal"}))
 {

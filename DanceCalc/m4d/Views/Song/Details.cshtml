@@ -1,5 +1,4 @@
-﻿@using System.Runtime.Serialization.Json
-@using m4dModels
+﻿@using m4dModels
 @model SongDetails
 
 @{
@@ -7,6 +6,7 @@
 }
 
 @Html.Partial("DetailsCore")
+
 <div class="row">
     <div id="songDetails" class="col-md-12">
         @if (User.IsInRole("canEdit"))
@@ -56,28 +56,11 @@
     @{
         string pageScript = "~/Scripts/edit.js" + Page.ScriptQualifier;
         string counterScript = "~/Scripts/counter.js" + Page.ScriptQualifier;
-        if (ViewData.ContainsKey("paramNumerator"))
-        {
-            <script> var paramNumerator = @ViewBag.paramNumerator; </script>
-        }
-        var stream = new MemoryStream();
-        var serializer = new DataContractJsonSerializer(typeof(SongDetails));
-        serializer.WriteObject(stream, Model);
-        var songString = System.Text.Encoding.UTF8.GetString(stream.ToArray());
-        var canEdit = User.IsInRole("canEdit") ? "true" : "false";
     }
-    <script>
-        var paramShowMPM = true;
-        var paramShowBPM = true;
-        var paramEpsVisible = 0.1;
-        var song = @Html.Raw(songString);
-        var canEdit = @canEdit;
-    </script>
 
     @Scripts.Render("~/bundles/jqueryval")
-    <script src="@Url.Content("~/Scripts/jquery.livequery.min.js")" type="text/javascript"></script>
     <script src="@Url.Content("~/Scripts/chosen.jquery.js")" type="text/javascript"></script>
-    <script src="@Url.Content("~/Scripts/knockout-3.2.0.js")" type="text/javascript"></script>
+    <script src="@Url.Content("~/Scripts/knockout-3.3.0.js")" type="text/javascript"></script>
     <script src="@Url.Content("~/Scripts/knockout.mapping-latest.js")" type="text/javascript"></script>
     <script src="~/Scripts/jquery.nouislider.full.min.js" type="text/javascript"></script>
     <script src="@Url.Content(counterScript)" type="text/javascript"></script>

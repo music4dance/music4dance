@@ -1,6 +1,8 @@
 ﻿@using m4d.Utilities
 @model m4dModels.SongDetails
 
+@Html.Partial("SetupSongScript")
+
 <div class="page-header">
     <h1>@Model.Title <small>by @Html.ActionLink(Model.Artist, "search", "song", new { searchString = Model.Artist, dances = "ALL" }, null)</small></h1>
 </div>
