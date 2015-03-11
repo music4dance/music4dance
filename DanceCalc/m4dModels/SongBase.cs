@@ -272,7 +272,12 @@ namespace m4dModels
 
         public void UpdateDanceRating(DanceRatingDelta drd, bool updateProperties = false)
         {
-            DanceRating dr = DanceRatings.FirstOrDefault(r => r.DanceId.Equals(drd.DanceId));
+            if (DanceRatings == null)
+            {
+                DanceRatings = new List<DanceRating>();
+            }
+
+            var dr = DanceRatings.FirstOrDefault(r => r.DanceId.Equals(drd.DanceId));
 
             if (dr == null)
             {
@@ -287,11 +292,9 @@ namespace m4dModels
                 DanceRatings.Remove(dr);
             }
 
-            if (updateProperties)
-            {
-                SongProperty prop = new SongProperty { SongId = this.SongId, Name = DanceRatingField, Value = drd.ToString() };
-                SongProperties.Add(prop);
-            }
+            if (!updateProperties) return;
+
+            SongProperties.Add(new SongProperty { SongId = this.SongId, Name = DanceRatingField, Value = drd.ToString() });
         }
 
         public void UpdateDanceRatings(IEnumerable<string> dances, int weight)

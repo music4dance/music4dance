@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.Linq;
 using System.Reflection;
 // ReSharper disable ArrangeThisQualifier
@@ -20,11 +21,12 @@ namespace m4dModels
         #endregion
 
         #region Actions
-        public void Create(SongDetails sd, ApplicationUser user, string command, string value, DanceMusicService dms)
-        {
-            DateTime time = DateTime.Now;
 
-            SongLog log = CurrentLog;
+        public void Create(ApplicationUser user, string command, string value, bool addUser, DanceMusicService dms)
+        {
+            var time = DateTime.Now;
+            
+            var log = CurrentLog;
             if (log != null)
             {
                 log.Initialize(user, this, command);
@@ -35,34 +37,43 @@ namespace m4dModels
                 CreateProperty(command, value, null, log, dms);
             }
 
+            Created = time;
+            Modified = time;
+
+            CreateProperty(TimeField, time.ToString(CultureInfo.InvariantCulture), null, log, dms);
+
+            if (!addUser || user == null) return;
+
+            AddUser(user, dms);
+            CreateProperty(UserField, user.UserName, null, log, dms);
+        }
+
+        public void Create(SongDetails sd, ApplicationUser user, string command, string value, DanceMusicService dms)
+        {
+            var log = CurrentLog;
+            var addUser = !(sd.ModifiedBy != null && sd.ModifiedList.Count > 0 && AddUser(sd.ModifiedList[0].UserName, dms));
+
+            Create(user, command, value, addUser, dms);
+
             // Handle User association
-            if (sd.ModifiedBy != null && sd.ModifiedList.Count > 0 && AddUser(sd.ModifiedList[0].UserName,dms))
+            if (!addUser)
             {
+                // This is the Modified record created when we computed the addUser condition above
                 var mr = ModifiedBy.First();
                 mr.Owned = sd.ModifiedList[0].Owned;
 
                 CreateProperty(UserField, mr.UserName, null, log, dms);
                 CreateProperty(OwnerHash, mr.Owned, null, log, dms);
             }
-            else if (user != null)
-            {
-                AddUser(user,dms);
-                CreateProperty(UserField, user.UserName, null, log, dms);
-            }
-
-            Created = time;
-            Modified = time;
-            CreateProperty(TimeField, time.ToString(), null, log, dms);
 
             Debug.Assert(!string.IsNullOrWhiteSpace(sd.Title));
-            foreach (PropertyInfo pi in ScalarProperties)
+            foreach (var pi in ScalarProperties)
             {
-                object prop = pi.GetValue(sd);
-                if (prop != null)
-                {
-                    pi.SetValue(this, prop);
-                    CreateProperty(pi.Name, prop, null, log, dms);
-                }
+                var prop = pi.GetValue(sd);
+                if (prop == null) continue;
+
+                pi.SetValue(this, prop);
+                CreateProperty(pi.Name, prop, null, log, dms);
             }
 
             // Handle Dance Ratings
@@ -194,12 +205,9 @@ namespace m4dModels
             }
 
             var mrg = new List<SongProperty>(upd.Skip(c));
-            LoadProperties(mrg);
 
-            foreach (var prop in mrg)
-            {
-                SongProperties.Add(prop);
-            }
+            UpdateProperties(mrg);
+            UpdateFromService(dms);
 
             UpdatePurchaseInfo(update);
             Album = null;
@@ -208,17 +216,33 @@ namespace m4dModels
                 Album = update.Albums[0].AlbumTrack;
             }
 
+            return true;
+        }
+
+        public void UpdateProperties(ICollection<SongProperty> properties, string[] excluded = null)
+        {
+            LoadProperties(properties);
+
+            foreach (var prop in properties.Where(prop => excluded == null || !excluded.Contains(prop.BaseName)))
+            {
+                SongProperties.Add(prop);
+            }
+            
+        }
+
+
+        public void UpdateFromService(DanceMusicService dms)
+        {
             UpdateUserTags(dms);
 
             UpdateDanceTags(dms);
 
             UpdateUsers(dms);
 
-            TitleHash = CreateTitleHash(Title);
-
-            return true;
+            TitleHash = CreateTitleHash(Title);            
         }
 
+        
         // This is an additive merge - only add new things if they don't conflict with the old
         public bool AdditiveMerge(ApplicationUser user, SongDetails edit, List<string> addDances, DanceMusicService dms)
         {
@@ -342,6 +366,7 @@ namespace m4dModels
             }
             return modified;
         }
+
         public void MergeDetails(IEnumerable<Song> songs, DanceMusicService dms)
         {
             // Add in the to/from properties and create new weight table as well as creating the user associations
@@ -531,25 +556,23 @@ namespace m4dModels
             return AddUser(u, dms);
         }
 
-        private void CreateAlbums(IList<AlbumDetails> albums, DanceMusicService dms)
+        public void CreateAlbums(IList<AlbumDetails> albums, DanceMusicService dms)
         {
-            if (albums != null)
+            if (albums == null) return;
+
+            albums = AlbumDetails.MergeAlbums(albums, Artist,false);
+
+            for (var ia = 0; ia < albums.Count; ia++)
             {
-                albums = AlbumDetails.MergeAlbums(albums, Artist,false);
+                var ad = albums[ia];
+                if (string.IsNullOrWhiteSpace(ad.Name)) continue;
 
-                for (int ia = 0; ia < albums.Count; ia++)
+                if (ia == 0)
                 {
-                    AlbumDetails ad = albums[ia];
-                    if (!string.IsNullOrWhiteSpace(ad.Name))
-                    {
-                        if (ia == 0)
-                        {
-                            Album = albums[0].AlbumTrack;
-                        }
-
-                        ad.CreateProperties(dms, this, CurrentLog);
-                    }
+                    Album = albums[0].AlbumTrack;
                 }
+
+                ad.CreateProperties(dms, this, CurrentLog);
             }
         }
 

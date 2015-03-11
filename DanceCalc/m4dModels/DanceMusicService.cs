@@ -70,10 +70,20 @@ namespace m4dModels
 
         public Song CreateSong(ApplicationUser user, SongDetails sd, string command = SongBase.CreateCommand, string value = null, bool createLog = true)
         {
-            Trace.WriteLineIf(string.Equals(sd.Title, sd.Artist),string.Format("Title and Artist are the same ({0})", sd.Title));
+            if (sd != null)
+            {
+                Trace.WriteLineIf(string.Equals(sd.Title, sd.Artist), string.Format("Title and Artist are the same ({0})", sd.Title));                
+            }
 
-            var song = CreateSong(sd.SongId, createLog);
-            song.Create(sd, user, command, value, this);
+            var song = CreateSong((sd == null) ? (Guid?) null : sd.SongId, createLog);
+            if (sd == null)
+            {
+                song.Create(user, command, value, true, this);
+            }
+            else
+            {
+                song.Create(sd, user, command, value, this);                
+            }
 
             song = _context.Songs.Add(song);
             if (createLog)
@@ -205,21 +215,22 @@ namespace m4dModels
         {
             var songIds = string.Join(";", songs.Select(s => s.SongId.ToString()));
 
-            var sd = new SongDetails(title, artist, tempo, length, albums);
-
-            var song = CreateSong(user, sd, SongBase.MergeCommand, songIds, true);
+            var song = CreateSong(user, null, SongBase.MergeCommand, songIds);
             song.CurrentLog.SongReference = song.SongId;
             song.CurrentLog.SongSignature = song.Signature;
 
             song = _context.Songs.Add(song);
 
-            song.MergeDetails(songs, this);
-
-            // Delete all of the old songs (With merge-with Id from above)
+            // Add in the properties for all of the songs and then delete them
             foreach (var from in songs)
             {
+                song.UpdateProperties(from.SongProperties, new[] { SongBase.FailedLookup, SongBase.AlbumField, SongBase.TrackField, SongBase.PublisherField, SongBase.PurchaseField });
                 RemoveSong(from, user);
             }
+            song.UpdateFromService(this);
+
+            var sd = new SongDetails(title,artist,tempo,length,albums);
+            song.Edit(user, sd, null, this);
 
             SaveChanges();
 

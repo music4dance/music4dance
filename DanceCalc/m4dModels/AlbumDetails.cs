@@ -555,7 +555,6 @@ namespace m4dModels
             return modified;
         }
 
-
         static readonly Regex s_wordPattern = new Regex(@"\W");
         static readonly HashSet<string> s_ballroomWords = new HashSet<string>() { "ballroom", "latin", "ultimate", "standard", "dancing", "competition", "classics", "dance" };
 

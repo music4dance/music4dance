@@ -104,18 +104,19 @@ namespace m4dModels.Tests
 
             for (int i = 0; i < s_rowProps.Length; i++)
             {
-                SongDetails sd = songs[i];
+                var sd = songs[i];
 
-                Song s = new Song() { SongId = sd.SongId };
+                var s = new Song() { SongId = sd.SongId };
                 s.Create(sd, user, SongBase.CreateCommand, null, s_service);
 
-                string txt = s.Serialize(new string[] { SongBase.NoSongId });
+                var txt = s.Serialize(new string[] { SongBase.NoSongId });
                 //Trace.WriteLine(txt);
 
-                Assert.IsTrue(txt.StartsWith(".Create=\tUser=dwgray\t"));
-                string[] r = txt.Split(new char[] { '\t' });
-                List<string> l = new List<string>(r);
-                l.RemoveRange(0,3);
+                var r = txt.Split('\t');
+                var l = new List<string>(r);
+                Assert.AreEqual(".Create=",l[0]);
+                Assert.AreEqual("User=dwgray", l[2]);
+                l.RemoveRange(0, 3);
                 txt = string.Join("\t",l);
                 Assert.AreEqual(s_rowProps[i], txt);
                 //Trace.WriteLine(txt);
