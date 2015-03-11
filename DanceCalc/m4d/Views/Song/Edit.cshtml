@@ -1,6 +1,4 @@
 ﻿@model m4dModels.SongDetails
-@using System.Runtime.Serialization.Json
-@using m4dModels
 
 @{
     ViewBag.Title = "Edit";
@@ -29,23 +27,7 @@
     @{
         string pageScript = "~/Scripts/edit.js" + Page.ScriptQualifier;
         string counterScript = "~/Scripts/counter.js" + Page.ScriptQualifier;
-        if (ViewData.ContainsKey("paramNumerator"))
-        {
-            <script> var paramNumerator = @ViewBag.paramNumerator; </script>
-        }
-        var stream = new MemoryStream();
-        var serializer = new DataContractJsonSerializer(typeof(SongDetails));
-        serializer.WriteObject(stream, Model);
-        var songString = System.Text.Encoding.UTF8.GetString(stream.ToArray());
-        var canEdit = User.IsInRole("canEdit") ? "true" : "false";
     }
-    <script>
-        var paramShowMPM = true;
-        var paramShowBPM = true;
-        var paramEpsVisible = 0.1;
-        var canEdit = @canEdit;
-        var song = @Html.Raw(songString);
-    </script>
 
     @Scripts.Render("~/bundles/jqueryval")
     <script src="@Url.Content("~/Scripts/jquery.livequery.min.js")" type="text/javascript"></script>
