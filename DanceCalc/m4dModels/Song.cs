@@ -48,7 +48,7 @@ namespace m4dModels
             CreateProperty(UserField, user.UserName, null, log, dms);
         }
 
-        public void Create(SongDetails sd, ApplicationUser user, string command, string value, DanceMusicService dms)
+        public void Create(SongDetails sd, IEnumerable<UserTag> tags, ApplicationUser user, string command, string value, DanceMusicService dms)
         {
             var log = CurrentLog;
             var addUser = !(sd.ModifiedBy != null && sd.ModifiedList.Count > 0 && AddUser(sd.ModifiedList[0].UserName, dms));
@@ -76,11 +76,18 @@ namespace m4dModels
                 CreateProperty(pi.Name, prop, null, log, dms);
             }
 
-            // Handle Dance Ratings
-            CreateDanceRatings(sd.DanceRatings, dms);
+            if (tags == null)
+            {
+                // Handle Dance Ratings
+                CreateDanceRatings(sd.DanceRatings, dms);
 
-            // Handle Tags
-            TagsFromProperties(user, sd, dms, sd);
+                // Handle Tags
+                TagsFromProperties(user, sd, dms, sd);                
+            }
+            else
+            {
+                InternalEditTags(user, tags, dms);
+            }
 
             // Handle Albums
             CreateAlbums(sd.Albums, dms);
@@ -676,6 +683,10 @@ namespace m4dModels
             if (add_ == null && remove_ == null)
             {
                 return false;
+            }
+            if (DanceRatings == null)
+            {
+                DanceRatings = new List<DanceRating>();
             }
 
             SongLog log = CurrentLog;

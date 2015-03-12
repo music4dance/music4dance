@@ -68,7 +68,7 @@ namespace m4dModels
             return song;
         }
 
-        public Song CreateSong(ApplicationUser user, SongDetails sd, string command = SongBase.CreateCommand, string value = null, bool createLog = true)
+        public Song CreateSong(ApplicationUser user, SongDetails sd=null,  IEnumerable<UserTag> tags = null, string command = SongBase.CreateCommand, string value = null, bool createLog = true)
         {
             if (sd != null)
             {
@@ -82,7 +82,7 @@ namespace m4dModels
             }
             else
             {
-                song.Create(sd, user, command, value, this);                
+                song.Create(sd, tags, user, command, value, this);                
             }
 
             song = _context.Songs.Add(song);
@@ -92,6 +92,11 @@ namespace m4dModels
             }
 
             return song;
+        }
+
+        public SongDetails CreateSongDetails(ApplicationUser user, SongDetails sd, IEnumerable<UserTag> tags = null, bool createLog = true)
+        {
+            return new SongDetails(CreateSong(user, sd, tags, SongBase.CreateCommand, null, createLog),user.UserName,this);
         }
 
         public SongDetails EditSong(ApplicationUser user, SongDetails edit, IEnumerable<UserTag> tags = null, bool createLog = true)
@@ -215,7 +220,7 @@ namespace m4dModels
         {
             var songIds = string.Join(";", songs.Select(s => s.SongId.ToString()));
 
-            var song = CreateSong(user, null, SongBase.MergeCommand, songIds);
+            var song = CreateSong(user, null,null, SongBase.MergeCommand, songIds);
             song.CurrentLog.SongReference = song.SongId;
             song.CurrentLog.SongSignature = song.Signature;
 

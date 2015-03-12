@@ -107,7 +107,7 @@ namespace m4dModels.Tests
                 var sd = songs[i];
 
                 var s = new Song() { SongId = sd.SongId };
-                s.Create(sd, user, SongBase.CreateCommand, null, s_service);
+                s.Create(sd, null, user, SongBase.CreateCommand, null, s_service);
 
                 var txt = s.Serialize(new string[] { SongBase.NoSongId });
                 //Trace.WriteLine(txt);

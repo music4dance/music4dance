@@ -275,27 +275,26 @@ namespace m4d.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "canEdit")]
-        public ActionResult Create(SongDetails song, List<string> addDances, string editTags, SongFilter filter = null)
+        public ActionResult Create(SongDetails song, string userTags, SongFilter filter = null)
         {
             if (ModelState.IsValid)
             {
-                ApplicationUser user = Database.FindUser(User.Identity.Name);
+                var user = Database.FindUser(User.Identity.Name);
+                var jt = JTags.FromJson(userTags);                
 
-                song.UpdateDanceRatings(addDances, SongBase.DanceRatingCreate);
-                var tags = new TagList(editTags).Add(new TagList(SongBase.TagsFromDances(addDances)));
-                song.AddTags(tags.ToString(), user, Database, song);
-                var newSong = Database.CreateSong(user, song);
+                //song.UpdateDanceRatings(addDances, SongBase.DanceRatingCreate);
+                //var tags = new TagList(editTags).Add(new TagList(SongBase.TagsFromDances(addDances)));
+                //song.AddTags(tags.ToString(), user, Database, song);
+                var newSong = Database.CreateSongDetails(user, song, jt.ToUserTags());
 
-                // TODO: Think about if the round-trip is necessary
                 if (newSong != null)
                 {
                     Database.SaveChanges();
-                    song = new SongDetails(newSong);
                 }
 
                 ViewBag.DanceMap = SongCounts.GetDanceMap(Database);
                 ViewBag.DanceList = GetDancesSingle();
-                return View("Details", song);
+                return View("Details", newSong);
             }
             else
             {

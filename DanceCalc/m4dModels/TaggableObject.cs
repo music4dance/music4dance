@@ -265,7 +265,7 @@ namespace m4dModels
                 return null;
 
             return (dms == null) ? tags : 
-                new TagList(tags.Tags.Select(t => (dms.TagTypes.Find(t)??new TagType{Key=t}).GetPrimary()).Select(tt => tt.Key).ToList());
+                new TagList(tags.Tags.Select(t => (dms.TagTypes.Find(t)??new TagType{Key=t}).GetPrimary()).Select(tt => tt.Key).Distinct().ToList());
         }
     }
 }

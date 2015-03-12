@@ -732,7 +732,7 @@ namespace m4d.Controllers
                 // Otherwise add it
                 else
                 {
-                    var add = Database.CreateSong(user, sd, SongBase.CreateCommand, null, false);
+                    var add = Database.CreateSong(user, sd, null, SongBase.CreateCommand, null, false);
                     if (add != null)
                     {
                         Database.Songs.Add(add);
