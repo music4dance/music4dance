@@ -1,6 +1,5 @@
-﻿using System;
+﻿using System.Diagnostics;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System.Diagnostics;
 
 namespace m4dModels.Tests
 {
