@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
-using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -14,9 +13,9 @@ namespace m4dModels
     {
         private const string Empty = ".";
         private const char SubChar = '\u001a';
-        private static readonly string s_subString = new string(SubChar, 1);
+        private static readonly string SSubString = new string(SubChar, 1);
         private const char Separator = '-';
-        private static readonly string s_sepString = new string(Separator, 1);
+        private static readonly string SSepString = new string(Separator, 1);
  
         static public SongFilter Default
         {
@@ -29,7 +28,7 @@ namespace m4dModels
         static SongFilter()
         {
             var info = typeof(SongFilter).GetProperties(BindingFlags.Public | BindingFlags.Instance);
-            s_propertyInfo = info.Where(p => p.CanRead && p.CanWrite).ToList();            
+            SPropertyInfo = info.Where(p => p.CanRead && p.CanWrite).ToList();            
         }
 
         public SongFilter()
@@ -46,7 +45,7 @@ namespace m4dModels
             if (value.Contains(@"\-"))
             {
                 fancy = true;
-                value = value.Replace(@"\-", s_subString);
+                value = value.Replace(@"\-", SSubString);
             }
 
             var cells = value.Split(Separator);
@@ -63,7 +62,7 @@ namespace m4dModels
                     cells[i] = cells[i].Replace(SubChar, Separator);
                 }
 
-                var pi = s_propertyInfo[i];
+                var pi = SPropertyInfo[i];
 
                 object v = null;
                 if (!string.IsNullOrWhiteSpace(cells[i]))
@@ -116,7 +115,7 @@ namespace m4dModels
             var nullBuff = new StringBuilder();
 
             var sep = string.Empty;
-            foreach (var v in s_propertyInfo.Select(p => p.GetValue(this)))
+            foreach (var v in SPropertyInfo.Select(p => p.GetValue(this)))
             {
                 if (v == null)
                 {
@@ -130,7 +129,7 @@ namespace m4dModels
                     ret.Append(sep);
                     ret.Append(Format(v.ToString()));
                 }
-                sep = s_sepString;
+                sep = SSepString;
             }
 
             return ret.ToString();
@@ -141,6 +140,6 @@ namespace m4dModels
             return s.Contains("-") ? s.Replace("-", @"\-") : s;
         }
 
-        private static readonly List<PropertyInfo> s_propertyInfo=null;
+        private static readonly List<PropertyInfo> SPropertyInfo;
     }
 }
