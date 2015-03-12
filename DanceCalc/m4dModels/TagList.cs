@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Data;
 using System.Linq;
 
 namespace m4dModels
@@ -31,10 +32,16 @@ namespace m4dModels
             Summary = Serialize(Parse(serialized));
         }
 
-        public TagList(List<string> tags)
+        public TagList(IList<string> tags)
         {
-            tags.Sort();
-            Summary = Serialize(tags);
+            var list = tags.ToList();
+            list.Sort();
+            Summary = Serialize(list);
+        }
+
+        public bool IsQualified
+        {
+            get { return string.IsNullOrWhiteSpace(Summary) || Summary[0] == '+' || Summary[0] == '-'; }
         }
 
         #endregion
@@ -70,12 +77,38 @@ namespace m4dModels
             return new TagList(filtered);
         }
 
-        public IList<string> StripType()
+        public TagList ExtractAdd()
         {
-            var tags = Tags.Select(tag => tag.Substring(0, tag.IndexOf(':'))).ToList();
-            return tags;
+            return Extract('+');
         }
 
+        public TagList ExtractRemove()
+        {
+            return Extract('-');
+        }
+
+        private TagList Extract(char c)
+        {
+            if (!IsQualified) throw new InvalidConstraintException();
+
+            return string.IsNullOrWhiteSpace(Summary) ? 
+                new TagList() : 
+                new TagList(Tags.Where(tag => tag[0] == c).Select(tag => tag.Substring(1)).ToList());
+        }
+        public IList<string> StripType()
+        {
+            return Tags.Select(tag => tag.Substring(0, tag.IndexOf(':'))).ToList();
+        }
+
+        public IList<string> StripQualifier()
+        {
+            return Tags.Select(TrimQualifier).ToList();
+        }
+
+        public IList<string> Strip()
+        {
+            return Tags.Select(tag => TrimQualifier(tag.Substring(0, tag.IndexOf(':')))).ToList();
+        }
         #endregion
 
         #region Implementation
@@ -98,6 +131,13 @@ namespace m4dModels
         static private string Serialize(List<string> tags)
         {
             return string.Join("|", tags);
+        }
+
+        static private string TrimQualifier(string tag)
+        {
+            if (string.IsNullOrWhiteSpace(tag)) return tag;
+
+            return (tag[0] == '+' || tag[0] == '-') ? tag.Substring(1) : tag;
         }
         #endregion
     }

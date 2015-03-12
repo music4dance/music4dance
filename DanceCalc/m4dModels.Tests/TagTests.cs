@@ -88,24 +88,49 @@ namespace m4dModels.Tests
             Assert.AreEqual(SimpleSub, lsub.ToString());
         }
 
+        [TestMethod]
+        public void TagTestAdd()
+        {
+            var l = new TagList(SimpleSummary);
+            var l2 = new TagList(SimpleList2);
 
-        // TODO: Not sure we can test this disconnected from the EF stuff...
-        //[TestMethod]
-        //public void DanceTagTestChange()
-        //{
-        //    TagType ecsLong = s_service.FindOrCreateTagType("East Coast Swing", "Dance");
-        //    TagType ecsShort = s_service.FindOrCreateTagType("ECS", "Dance");
-        //    TagType ecsMed = s_service.FindOrCreateTagType("EC Swing", "Dance");
+            var ladd = l.Add(l2);
+            Assert.AreEqual(SimpleAdd, ladd.ToString());
+        }
 
-        //    ecsShort.Primary = ecsLong;
-        //    ecsMed.Primary = ecsLong;
-        //}
+        [TestMethod]
+        public void TagTestFilter()
+        {
+            var l = new TagList(QualifiedList);
 
-        //[TestMethod]
-        //public void UserTagTestChange()
-        //{
+            var d = l.Filter("Dance");
+            Assert.AreEqual(2,d.Tags.Count);
+        }
 
-        //}
+        [TestMethod]
+        public void TagTestStrip()
+        {
+            var l = new TagList(QualifiedList);
+
+            var s = new TagList(l.Strip());
+
+            var r = s.ToString();
+            Assert.AreEqual(r, "Bolero|Latin|Nontraditional|Pop|Rumba");
+        }
+
+        [TestMethod]
+        public void TagTestExtract()
+        {
+            var l = new TagList(QualifiedList);
+
+            var add = l.ExtractAdd().ToString();
+            Assert.AreEqual("Bolero:Dance|Latin:Music|Nontraditional:Tempo",add);
+
+            var rem = l.ExtractRemove().ToString();
+            Assert.AreEqual("Pop:Music|Rumba:Dance", rem);
+        }
+
+
 
         [TestMethod]
         public void SongTagTestChangeWithService()
@@ -267,8 +292,11 @@ namespace m4dModels.Tests
         private const string SimpleList = "Blues|Bolero|Latin|Rumba";
         private const string SimpleList2 = "Rumba|Bolero|Cha Cha";
         private const string SimpleSub = "Blues|Latin";
+        private const string SimpleAdd = "Blues|Bolero|Cha Cha|Latin|Rumba";
         private const string SimpleExpanded = "Blues:1|Bolero:1|Latin:1|Rumba:1";
         private const string ComplexSummary = "Blues:23|Bolero:11|Latin:19|Rumba:67";
+
+        private const string QualifiedList = "+Bolero:Dance|+Latin:Music|+Nontraditional:Tempo|-Rumba:Dance|-Pop:Music";
 
         #endregion
     }
