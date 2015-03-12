@@ -56,7 +56,7 @@ namespace m4dModels.Tests
             return s;
         }
 
-        const string F1 = @"Index-SWG-Album-Goodman-X-.-50-150-1";
+        const string F1 = @"Index-SWG-Album-Goodman-X-.-50-150-1-%2BPop%3AMusic";
         const string F2 = @"Index-SWG-\\--\\-\\--X";
     }
 }

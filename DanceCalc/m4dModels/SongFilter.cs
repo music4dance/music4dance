@@ -99,6 +99,7 @@ namespace m4dModels
         public decimal? TempoMin { get; set; }
         public decimal? TempoMax { get; set; }
         public int? Page { get; set; }
+        public string Tags { get; set; }
         public int? Level { get; set; }
 
         public bool Advanced
