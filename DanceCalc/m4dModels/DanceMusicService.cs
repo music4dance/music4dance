@@ -919,6 +919,41 @@ namespace m4dModels
             }
 #endif
 
+            // Now Handle Tag Filtering
+            if (!string.IsNullOrWhiteSpace(filter.Tags))
+            {
+                var tlInclude = new TagList(filter.Tags);
+                var tlExclude = new TagList();
+
+                if (tlInclude.IsQualified)
+                {
+                    var temp = tlInclude;
+                    tlInclude = temp.ExtractAdd();
+                    tlExclude = temp.ExtractRemove();
+                }
+
+                // We're accepting either a straight include list of tags or a qualified list (+/- for include/exlude)
+                // TODO: For now this is going to be explicit (i&i&!e*!e) - do we need a stronger expression syntax at this level
+                //  or can we do some kind of top level OR of queries?
+
+                var typeInclude = GetTagRings(tlInclude).Select(tt => tt.Key).ToList();
+                var typeExclude = GetTagRings(tlExclude).Select(tt => tt.Key).ToList();
+
+                songs = from s in songs where s.TitleHash != 0 && typeInclude.All(val => s.TagSummary.Summary.Contains(val)) select s;
+                if (typeExclude.Count > 0)
+                {
+                    songs = from s in songs where !typeExclude.Any(val => s.TagSummary.Summary.Contains(val)) select s;
+                }
+            }
+
+#if TRACE
+            if (traceVerbose)
+            {
+                count = songs.Count();
+                Trace.WriteLineIf(count != lastCount, string.Format("Songs by tags = {0}", songs.Count()));
+            }
+#endif
+
             // Filter on purcahse info
             // TODO: Figure out how to get LINQ to do the permutation on contains
             //  any of "AIX" in a database safe way - right now I'm doing this

@@ -193,39 +193,12 @@ namespace m4d.Controllers
         }
 
         [AllowAnonymous]
-        public ActionResult Tags(string tags, int? page)
+        public ActionResult Tags(string tags, SongFilter filter)
         {
-            ViewBag.DanceMap = SongCounts.GetDanceMap(Database);
+            filter.Tags = tags;
+            filter.Page = null;
 
-            var tlInclude = new TagList(tags);
-            var tlExclude = new TagList();
-
-            if (tlInclude.IsQualified)
-            {
-                var temp = tlInclude;
-                tlInclude = temp.ExtractAdd();
-                tlExclude = temp.ExtractRemove();
-            }
-
-            // We're accepting either a straight include list of tags or a qualified list (+/- for include/exlude)
-            // TODO: For now this is going to be explicit (i&i&!e*!e) - do we need a stronger expression syntax at this level
-            //  or can we do some kind of top level OR of queries?
-
-            var typeInclude = Database.GetTagRings(tlInclude).Select(tt => tt.Key).ToList();
-            var typeExclude = Database.GetTagRings(tlExclude).Select(tt => tt.Key).ToList();
-
-
-            ViewBag.IncludeTags = typeInclude;
-            ViewBag.ExcludeTags = typeExclude;
-
-            var songs = from s in Database.Songs where s.TitleHash != 0 && typeInclude.All(val => s.TagSummary.Summary.Contains(val)) select s;
-            if (typeExclude.Count > 0)
-            {
-                songs = from s in songs where !typeExclude.Any(val => s.TagSummary.Summary.Contains(val)) select s;
-            }
-            var ordered = from s in songs orderby s.Title select s;
-
-            return View("Tags", ordered.Include("DanceRatings").Include("ModifiedBy").Include("SongProperties").ToPagedList(page ?? 1, 25));
+            return DoIndex(filter);
         }
         
         //

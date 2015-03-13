@@ -1,4 +1,5 @@
-﻿@model IEnumerable<m4dModels.SongBase>
+﻿@using m4dModels
+@model IEnumerable<m4dModels.SongBase>
 
 @{
     var isAdmin = User.IsInRole("dbAdmin");        
@@ -95,7 +96,17 @@
                     }
                 </th>
             }
-            <th>Tags</th>
+            <th>
+                Tags
+                @if (!string.IsNullOrWhiteSpace(ViewBag.SongFilter.Tags))
+                {
+                    // TOOD: This is just displaying the trivial version, need to figure out how to show the user
+                    //  a more complex filter (but can defer that until we figure out how to get the user
+                    //  to specify one).
+                    var temp = new TagList(ViewBag.SongFilter.Tags).Strip()[0];
+                    <text>(@temp)</text>
+                }
+            </th>
             @if (isAdmin)
             {
                 <th></th>
@@ -224,11 +235,13 @@
                             var tc = titem.TagClass.ToLower();
                             if (tc != "dance")
                             {
-                                var url = "/song/tags?tags=" + WebUtility.UrlEncode(titem.TagValue) + ":" + WebUtility.UrlEncode(titem.TagClass);
+                                var url = "/song/tags?tags=" + WebUtility.UrlEncode(titem.TagValue) + ":" + WebUtility.UrlEncode(titem.TagClass) +
+                                    "&filter=" + WebUtility.UrlEncode(ViewBag.SongFilter.ToString());
                                 <span class="label label-@tc" style="margin-right: 5px"><a role="button" class="tag-text" href="@url">@titem.TagValue</a></span>
                             }
                         }
                     </td>
+
 
                     @if (isAdmin)
                     {

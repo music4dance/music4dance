@@ -784,7 +784,6 @@
     <Content Include="Views\Tag\Details.cshtml" />
     <Content Include="Views\Tag\Edit.cshtml" />
     <Content Include="Views\Tag\Index.cshtml" />
-    <Content Include="Views\Song\Tags.cshtml" />
     <Content Include="Views\Home\SiteMap.cshtml" />
     <Content Include="Views\Song\ItemTags.cshtml" />
     <Content Include="Views\Song\Dances.cshtml" />
