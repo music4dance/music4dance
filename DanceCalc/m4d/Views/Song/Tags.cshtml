@@ -8,24 +8,33 @@
     var dances = (IList<SongCounts>)ViewBag.Dances;
     IList<DanceObject> selected = ViewBag.SelectedDances;
     
-    StringBuilder sb = new StringBuilder();
-    string sep = string.Empty;
-    if (ViewData.ContainsKey("Tags"))
+    string incString = "Anything";
+    string excString = null;
+
+    if (ViewData.ContainsKey("IncludeTags"))
     {
-        foreach (var tag in ViewBag.Tags as ICollection<TagType>)
-        {
-            sb.Append(sep);
-            sb.Append(tag.Value);
-            sep = ", ";
-        }
+        var include = ViewBag.IncludeTags as ICollection<string>;
+        incString = include != null && include.Any() ? string.Join(",", include) : "Anything";
     }
-    string prettyTags = sb.ToString();
-    ViewBag.Title = string.Format("Songs tagged with {0}", prettyTags);
+
+    if (ViewData.ContainsKey("ExcludeTags"))
+    {
+        var exclude = ViewBag.ExcludeTags as ICollection<string>;
+        excString = exclude != null &&  exclude.Any() ? string.Join(",", exclude) : null;
+    }
+        
+    var title =string.Format("Songs tagged with {0}", incString);
+    if (excString != null)
+    {
+        title += string.Format("and not tagged with {0}", excString);        
+    }
+        
+    ViewBag.Title = title;
     ViewBag.SongFilter = new SongFilter();
 }
 
 @*TODO: Make these linkable tags*@
-<h2>@prettyTags</h2>
+<h2>@title</h2>
 
 <div class="row col-xs-12">
     @{Html.RenderPartial("_ListSongs", @Model, ViewData);}

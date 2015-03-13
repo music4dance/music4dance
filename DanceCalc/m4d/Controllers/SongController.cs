@@ -197,24 +197,35 @@ namespace m4d.Controllers
         {
             ViewBag.DanceMap = SongCounts.GetDanceMap(Database);
 
-            TagList list = new TagList(tags);
-            ICollection<TagType> types = Database.GetTagRings(list);
-            ViewBag.Tags = types;
+            var tlInclude = new TagList(tags);
+            var tlExclude = new TagList();
 
-            List<string> tagsExpanded = new List<string>();
-
-            foreach (var tt in types)
+            if (tlInclude.IsQualified)
             {
-                tagsExpanded.Add(tt.Key);
-                if (tt.Ring != null)
-                {
-                    tagsExpanded.AddRange(tt.Ring.Select(sub => sub.Key));
-                }
+                var temp = tlInclude;
+                tlInclude = temp.ExtractAdd();
+                tlExclude = temp.ExtractRemove();
             }
 
-            var songs = from s in Database.Songs where s.TitleHash != 0 && tagsExpanded.Any(val => s.TagSummary.Summary.Contains(val)) orderby s.Title select s;
+            // We're accepting either a straight include list of tags or a qualified list (+/- for include/exlude)
+            // TODO: For now this is going to be explicit (i&i&!e*!e) - do we need a stronger expression syntax at this level
+            //  or can we do some kind of top level OR of queries?
 
-            return View("Tags", songs.Include("DanceRatings").Include("ModifiedBy").Include("SongProperties").ToPagedList(page ?? 1, 25));
+            var typeInclude = Database.GetTagRings(tlInclude).Select(tt => tt.Key).ToList();
+            var typeExclude = Database.GetTagRings(tlExclude).Select(tt => tt.Key).ToList();
+
+
+            ViewBag.IncludeTags = typeInclude;
+            ViewBag.ExcludeTags = typeExclude;
+
+            var songs = from s in Database.Songs where s.TitleHash != 0 && typeInclude.All(val => s.TagSummary.Summary.Contains(val)) select s;
+            if (typeExclude.Count > 0)
+            {
+                songs = from s in songs where !typeExclude.Any(val => s.TagSummary.Summary.Contains(val)) select s;
+            }
+            var ordered = from s in songs orderby s.Title select s;
+
+            return View("Tags", ordered.Include("DanceRatings").Include("ModifiedBy").Include("SongProperties").ToPagedList(page ?? 1, 25));
         }
         
         //
