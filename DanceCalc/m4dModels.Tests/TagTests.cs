@@ -130,7 +130,19 @@ namespace m4dModels.Tests
             Assert.AreEqual("Pop:Music|Rumba:Dance", rem);
         }
 
+        [TestMethod]
+        public void TagTestQualifiedSubtract()
+        {
+            var l = new TagList(QualifiedList);
+            var l2 = new TagList("Bolero:Dance|Nontraditional:Tempo|Rumba:Dance|Pop:Music");
 
+            var lsub = l.Subtract(l2);
+            Assert.AreEqual("+Latin:Music", lsub.ToString());
+
+            l2 = new TagList("-Bolero:Dance|+Nontraditional:Tempo|+Rumba:Dance|-Pop:Music");
+            lsub = l.Subtract(l2);
+            Assert.AreEqual("+Latin:Music", lsub.ToString());
+        }
 
         [TestMethod]
         public void SongTagTestChangeWithService()
@@ -155,6 +167,7 @@ namespace m4dModels.Tests
             Assert.AreNotEqual(null, tt);
             Assert.AreEqual(count, tt.Count);
         }
+
         void SongTagTestChange(DanceMusicService dms)
         {
             // Create a song

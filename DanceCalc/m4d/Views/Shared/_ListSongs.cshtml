@@ -100,11 +100,31 @@
                 Tags
                 @if (!string.IsNullOrWhiteSpace(ViewBag.SongFilter.Tags))
                 {
-                    // TOOD: This is just displaying the trivial version, need to figure out how to show the user
-                    //  a more complex filter (but can defer that until we figure out how to get the user
-                    //  to specify one).
-                    var temp = new TagList(ViewBag.SongFilter.Tags).Strip()[0];
-                    <text>(@temp)</text>
+                    var tags = new TagList(ViewBag.SongFilter.Tags);
+                    var inc = tags.ExtractAdd();
+                    var exc = tags.ExtractRemove();
+                    if (!inc.IsEmpty)
+                    {                        
+                        <br/><span>Included:</span>
+                        foreach (var tag in inc.Tags)
+                        {
+                            var rg = tag.Split(':');
+                            var url = "/song/removetags?tags=" + WebUtility.UrlEncode(tag) + "&filter=" + WebUtility.UrlEncode(ViewBag.SongFilter.ToString());
+                            <span class="label label-@rg[1].ToLower()" style="margin-right: 5px"><a role="button" class="tag-text" href="@url">@rg[0]</a></span>
+                        }
+
+                    }
+                    if (!exc.IsEmpty)
+                    {
+                        <br /><span>Excluded:</span>
+                        foreach (var tag in exc.Tags)
+                        {
+                            var rg = tag.Split(':');
+                            var url = "/song/removetags?tags=" + WebUtility.UrlEncode(tag) + "&filter=" + WebUtility.UrlEncode(ViewBag.SongFilter.ToString());
+                            <span class="label label-@rg[1].ToLower()" style="margin-right: 5px"><a role="button" class="tag-text" href="@url">@rg[0]</a></span>
+                        }
+
+                    }
                 }
             </th>
             @if (isAdmin)

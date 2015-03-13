@@ -195,12 +195,45 @@ namespace m4d.Controllers
         [AllowAnonymous]
         public ActionResult Tags(string tags, SongFilter filter)
         {
-            filter.Tags = tags;
+            filter.Tags = null;
+            filter.Page = null;
+
+            if (!string.IsNullOrWhiteSpace(tags))
+            {
+                var list = new TagList(tags).AddMissingQualifier('+');
+                filter.Tags = list.ToString();
+            }
+
+            return DoIndex(filter);
+        }
+
+        [AllowAnonymous]
+        public ActionResult AddTags(string tags, SongFilter filter)
+        {
+            var add = new TagList(tags);
+            var old = new TagList(filter.Tags);
+
+            // First remove any tags from the old list
+            old = old.Subtract(add);
+            var ret = old.Add(add.AddMissingQualifier('+'));
+            filter.Tags = ret.ToString();
             filter.Page = null;
 
             return DoIndex(filter);
         }
-        
+
+        [AllowAnonymous]
+        public ActionResult RemoveTags(string tags, SongFilter filter)
+        {
+            var sub = new TagList(tags);
+            var old = new TagList(filter.Tags);
+            var ret = old.Subtract(sub);
+            filter.Tags = ret.ToString();
+            filter.Page = null;
+
+            return DoIndex(filter);
+        }
+
         //
         // GET: /Song/Details/5
 

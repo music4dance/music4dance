@@ -44,6 +44,10 @@ namespace m4dModels
             get { return string.IsNullOrWhiteSpace(Summary) || Summary[0] == '+' || Summary[0] == '-'; }
         }
 
+        public bool IsEmpty
+        {
+            get { return string.IsNullOrWhiteSpace(Summary); }
+        }
         #endregion
 
         #region Operators
@@ -53,11 +57,16 @@ namespace m4dModels
         }
 
         // Subtract 'other' from this list - get's the tags in this list that aren't in delta
+        // This is resilient to qualifiers (subtract 'tag:type' will remove any of 'tag:type', '-tag:type', '+tag:type'
         public TagList Subtract(TagList other)
         {
-            var trg = other == null ? new List<string>() : other.Tags;
+            IList<string> trg = new List<string>();
+            if (other != null)
+            {
+                trg = other.IsQualified ? other.StripQualifier() : other.Tags;
+            }
 
-            return new TagList(Tags.Where(s => !trg.Contains(s)).ToList());
+            return new TagList(Tags.Where(s => !trg.Contains(TrimQualifier(s))).ToList());
         }
 
         public TagList Add(TagList other)
@@ -109,6 +118,19 @@ namespace m4dModels
         {
             return Tags.Select(tag => TrimQualifier(tag.Substring(0, tag.IndexOf(':')))).ToList();
         }
+
+        public TagList AddQualifier(char q)
+        {
+            var qual = new string(q,1);
+
+            return new TagList(Tags.Select(tag => qual + TrimQualifier(tag)).ToList());
+        }
+
+        public TagList AddMissingQualifier(char q)
+        {
+            return IsQualified ? this : AddQualifier(q);
+        }
+
         #endregion
 
         #region Implementation
