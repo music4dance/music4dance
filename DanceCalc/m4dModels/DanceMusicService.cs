@@ -1047,12 +1047,15 @@ namespace m4dModels
                 case "Dances":
                     // TODO: Better icon for dance order
                     // TODO: Get this working for multi-dance selection
-                    {
-                        string did = TrySingleId(danceList) ?? TrySingleId(new[] {filter.Dances});
+                    {                        
+                        string did = TrySingleId(danceList) ?? (filter.Dances == null ? null : TrySingleId(new[] {filter.Dances}));
                         if (did != null)
                         {
-                            //DanceRating drE = new DanceRating() { Weight = 0 };
                             songs = songs.OrderByDescending(s => s.DanceRatings.FirstOrDefault(dr => dr.DanceId.StartsWith(did)).Weight);
+                        }
+                        else
+                        {
+                            songs = songs.OrderByDescending(s => s.DanceRatings.Max(dr => dr.Weight));
                         }
                     }
                     break;
@@ -1110,7 +1113,7 @@ namespace m4dModels
         private static string TrySingleId(string[] danceList)
         {
             string ret = null;
-            if (danceList != null && danceList.Length > 0)
+            if (danceList != null && danceList.Length > 0 && !string.IsNullOrWhiteSpace(danceList[0]))
             {
                 ret = danceList[0].Substring(0, 3).ToUpper();
                 for (int i = 1; i < danceList.Length; i++)
