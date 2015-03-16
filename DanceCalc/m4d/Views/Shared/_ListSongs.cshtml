@@ -104,13 +104,13 @@
                     var inc = tags.ExtractAdd();
                     var exc = tags.ExtractRemove();
                     if (!inc.IsEmpty)
-                    {                        
+                    {
                         <br/><span>Included:</span>
                         foreach (var tag in inc.Tags)
                         {
                             var rg = tag.Split(':');
                             var url = "/song/removetags?tags=" + WebUtility.UrlEncode(tag) + "&filter=" + WebUtility.UrlEncode(ViewBag.SongFilter.ToString());
-                            <span class="label label-@rg[1].ToLower()" style="margin-right: 5px"><a role="button" class="tag-text" href="@url">@rg[0]</a></span>
+                            <span class="label label-@rg[1].ToLower()" style="margin-right: 5px"><a role="button" class="tag-text" href="@url">@rg[0] <span class="glyphicon glyphicon-remove-sign"></span></a></span>
                         }
 
                     }
@@ -121,7 +121,7 @@
                         {
                             var rg = tag.Split(':');
                             var url = "/song/removetags?tags=" + WebUtility.UrlEncode(tag) + "&filter=" + WebUtility.UrlEncode(ViewBag.SongFilter.ToString());
-                            <span class="label label-@rg[1].ToLower()" style="margin-right: 5px"><a role="button" class="tag-text" href="@url">@rg[0]</a></span>
+                            <span class="label label-@rg[1].ToLower()" style="margin-right: 5px"><a role="button" class="tag-text" href="@url">@rg[0] <span class="glyphicon glyphicon-remove-sign"></span></a></span>
                         }
 
                     }
@@ -255,9 +255,16 @@
                             var tc = titem.TagClass.ToLower();
                             if (tc != "dance")
                             {
-                                var url = "/song/tags?tags=" + WebUtility.UrlEncode(titem.TagValue) + ":" + WebUtility.UrlEncode(titem.TagClass) +
+                                var url = "/song/addtags?tags={0}" + WebUtility.UrlEncode(titem.TagValue) + ":" + WebUtility.UrlEncode(titem.TagClass) +
                                     "&filter=" + WebUtility.UrlEncode(ViewBag.SongFilter.ToString());
-                                <span class="label label-@tc" style="margin-right: 5px"><a role="button" class="tag-text" href="@url">@titem.TagValue</a></span>
+
+                                <div class="btn-group">
+                                    <a href="#" role="button" class="dropdown-toggle label label-@tc" data-toggle="dropdown" aria-expanded="false">@titem.TagValue</a>
+                                    <ul class="dropdown-menu" role="menu">
+                                        <li><a href="@string.Format(url,"%2B")">Include songs tagged as @titem.TagValue</a></li>
+                                        <li><a href="@string.Format(url,"%2D")">Exclude songs tagged as @titem.TagValue</a></li>
+                                    </ul>
+                                </div>
                             }
                         }
                     </td>
