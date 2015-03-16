@@ -490,6 +490,8 @@ namespace m4d.Controllers
                 songs = AutoMerge(songs,filter.Level??1);
             }
 
+            ViewBag.ShowLength = true;
+
             return View("Index", songs.ToPagedList(filter.Page ?? 1, 25));
         }
 

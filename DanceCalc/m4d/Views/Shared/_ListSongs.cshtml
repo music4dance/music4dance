@@ -1,4 +1,5 @@
-﻿@using m4dModels
+﻿@using DanceLibrary
+@using m4dModels
 @model IEnumerable<m4dModels.SongBase>
 
 @{
@@ -7,6 +8,7 @@
     var hideDances = ViewData.ContainsKey("HideDances") ? ViewBag.HideDances : false;
     string albumName = ViewData.ContainsKey("AlbumName") ? ViewBag.AlbumName : null;    
     var hideArtist = ViewData.ContainsKey("HideArtist") ? ViewBag.HideArtist : false;
+    var showLength = ViewData.ContainsKey("ShowLength") ? ViewBag.ShowLength : false;
     
     var danceMap = (IDictionary<string, m4dModels.SongCounts>)ViewBag.DanceMap;
     var songOrder = new m4dModels.SongSort(ViewBag.SongFilter.SortOrder);
@@ -82,6 +84,14 @@
                     <text>Tempo (BPM)</text>
                 }
             </th>
+            @if (showLength)
+            {
+                <th class="hidden-xs">
+                    Length
+                </th>
+            }
+
+
             @if (!hideDances)
             {
                 <th>
@@ -232,10 +242,18 @@
                     <td class="hidden-xs">
                         @if (item.Tempo != null)
                         {
-                            var tempo = decimal.Round(item.Tempo.Value).ToString("F0");
-                            @tempo
+                            @(decimal.Round(item.Tempo.Value).ToString("F0"))
                         }
                     </td>
+                    @if (showLength)
+                    {
+                        <td class="hidden-xs">
+                            @if (item.Length != null)
+                            {
+                                @((new SongDuration(item.Length.Value)).ToString());
+                            }
+                        </td>
+                    }
                     @if (!hideDances)
                     {
                         <td>
