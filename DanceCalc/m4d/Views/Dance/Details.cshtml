@@ -5,7 +5,7 @@
 
 @{
     ViewBag.Title = Model.DanceName + " Information, Top Ten List, and Resources.";
-    ViewBag.Description = "General informartion about " + Model.DanceName + " along with a top ten list, tempo informstion, and other resources.";
+    ViewBag.Description = "General information about the dance" + Model.DanceName + " along with a top ten song list, preferred tempo details, and other resources.";
     ViewBag.NoSort = true;
     ViewBag.ShowTempo = true;
     ViewBag.HideDances = true;
@@ -40,7 +40,7 @@
 </div>
 
 <div>
-    <h3>@Html.ActionLink("music4dance's", "Index", "Home") top 10 @Html.ActionLink(@Model.DanceName, "Search", "Song", new { dances = @Model.DanceId }, null) songs</h3>
+    <h3>@Html.ActionLink("music4dance's", "Index", "Home") top 10 songs for dancing @Html.ActionLink(@Model.DanceName, "Search", "Song", new { dances = @Model.DanceId }, null)</h3>
 </div>
 <div>
     @{Html.RenderPartial("_ListSongs", @Model.TopSongs, ViewData);}
