@@ -76,6 +76,11 @@ namespace m4d.Controllers
             {
                 filter.Dances = dances;
                 filter.Page = 1;
+
+                if (string.IsNullOrWhiteSpace(filter.SortOrder))
+                {
+                    filter.SortOrder = "Dances";
+                }
             }
 
             filter.Purchase = null;
