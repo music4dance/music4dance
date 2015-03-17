@@ -88,12 +88,12 @@ namespace m4dModels
 
         public TagList ExtractAdd()
         {
-            return Extract('+');
+            return IsQualified ? Extract('+') : this;
         }
 
         public TagList ExtractRemove()
         {
-            return Extract('-');
+            return IsQualified ? Extract('-') : new TagList();
         }
 
         private TagList Extract(char c)
