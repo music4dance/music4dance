@@ -1,9 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Data.Entity.ModelConfiguration.Configuration;
+using System.Diagnostics;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 //using System.Diagnostics;
-using m4dModels;
-using System.Collections.Generic;
-using System.Diagnostics;
 
 namespace m4dModels.Tests
 {
@@ -13,9 +13,9 @@ namespace m4dModels.Tests
         [TestMethod]
         public void TitleArtistMatch()
         {
-            SongDetails sd1 = new SongDetails { Title = "A Song (With a subtitle)", Artist = "Crazy Artist" };
-            SongDetails sd2 = new SongDetails { Title = "Moliendo Café", Artist = "The Who" };
-            SongDetails sd3 = new SongDetails { Title = "If the song or not", Artist = "Señor Bolero" };
+            var sd1 = new SongDetails { Title = "A Song (With a subtitle)", Artist = "Crazy Artist" };
+            var sd2 = new SongDetails { Title = "Moliendo Café", Artist = "The Who" };
+            var sd3 = new SongDetails { Title = "If the song or not", Artist = "Señor Bolero" };
 
             Assert.IsTrue(sd1.TitleArtistMatch("A Song (With a subtitle)","Crazy Artist"),"SD1: Exact");
             Assert.IsTrue(sd1.TitleArtistMatch("Song", "Crazy Artist"), "SD1: Weak");
@@ -34,18 +34,18 @@ namespace m4dModels.Tests
         public void LoadingDetails()
         {
             var songs = Load();
-            Assert.AreEqual(s_data.Length, songs.Count);
+            Assert.AreEqual(SData.Length, songs.Count);
         }
 
         [TestMethod]
         public void SavingDetails()
         {
             var songs = Load();
-            Assert.AreEqual(songs.Count, s_data.Length);
-            for (int i = 0; i < songs.Count; i++)
+            Assert.AreEqual(songs.Count, SData.Length);
+            for (var i = 0; i < songs.Count; i++)
             {
-                SongDetails s = songs[i];
-                DiffSerialized(s.ToString(), s_data[i], s.SongId);
+                var s = songs[i];
+                DiffSerialized(s.ToString(), SData[i], s.SongId);
             }
         }
         private static void DiffSerialized(string org, string str, Guid id)
@@ -59,7 +59,7 @@ namespace m4dModels.Tests
             {
                 if (org.Length == str.Length)
                 {
-                    for (int ich = 0; ich < str.Length; ich++)
+                    for (var ich = 0; ich < str.Length; ich++)
                     {
                         if (org[ich] != str[ich])
                         {
@@ -83,51 +83,58 @@ namespace m4dModels.Tests
         [TestMethod]
         public void LoadingRowDetails()
         {
-            var songs = LoadRows();
-            Assert.AreEqual(s_rows.Length, songs.Count);
+            var songs = LoadRows(SHeader,SRows);
+            Assert.AreEqual(SRows.Length, songs.Count);
 
-            for (int i = 0; i < s_rowProps.Length; i++ )
+            for (var i = 0; i < SRowProps.Length; i++ )
             {
                 var song = songs[i];
-                string r = song.Serialize(new string[] { SongBase.NoSongId });
+                var r = song.Serialize(new[] { SongBase.NoSongId });
                 //Trace.WriteLine(r);
-                Assert.AreEqual(s_rowProps[i], r);
+                Assert.AreEqual(SRowProps[i], r);
             }
         }
 
         [TestMethod]
         public void CreatingSongs()
         {
-            var songs = LoadRows();
-            Assert.AreEqual(s_rows.Length, songs.Count);
-            ApplicationUser user = s_service.FindUser("dwgray");
+            var songs = LoadRows(SHeader,SRows);
+            Assert.AreEqual(SRows.Length, songs.Count);
 
-            for (int i = 0; i < s_rowProps.Length; i++)
+            ValidateSongs(songs,SRowProps);
+        }
+
+        private void ValidateSongs(IList<SongDetails> songs, IReadOnlyCollection<string> props)
+        {
+            var user = SService.FindUser("dwgray");
+
+            for (var i = 0; i < props.Count; i++)
             {
                 var sd = songs[i];
 
                 var s = new Song() { SongId = sd.SongId };
-                s.Create(sd, null, user, SongBase.CreateCommand, null, s_service);
+                s.Create(sd, null, user, SongBase.CreateCommand, null, SService);
 
-                var txt = s.Serialize(new string[] { SongBase.NoSongId });
-                //Trace.WriteLine(txt);
+                var txt = s.Serialize(new[] { SongBase.NoSongId });
+                Trace.WriteLine(txt);
 
                 var r = txt.Split('\t');
                 var l = new List<string>(r);
-                Assert.AreEqual(".Create=",l[0]);
+                Assert.AreEqual(".Create=", l[0]);
                 Assert.AreEqual("User=dwgray", l[2]);
                 l.RemoveRange(0, 3);
-                txt = string.Join("\t",l);
-                Assert.AreEqual(s_rowProps[i], txt);
+                txt = string.Join("\t", l);
+                Assert.AreEqual(SRowProps[i], txt);
                 //Trace.WriteLine(txt);
             }
         }
+
         [TestMethod]
         public void PropertyByUser()
         {
-            SongDetails song = new SongDetails(s_quuen);
+            var song = new SongDetails(SQuuen);
 
-            var map = song.MapProperyByUsers(Song.DanceRatingField);
+            var map = song.MapProperyByUsers(SongBase.DanceRatingField);
 
             //foreach (var kv in map)
             //{
@@ -151,8 +158,8 @@ namespace m4dModels.Tests
 
         static IList<SongDetails> Load()
         {
-            List<SongDetails> songs = new List<SongDetails>();
-            foreach (string str in s_data)
+            var songs = new List<SongDetails>();
+            foreach (var str in SData)
             {
                 songs.Add(new SongDetails(str));
             }
@@ -160,14 +167,14 @@ namespace m4dModels.Tests
             return songs;
         }
 
-        static IList<SongDetails> LoadRows()
+        static IList<SongDetails> LoadRows(string header, string[] rows)
         {
-            IList<string> headers = SongDetails.BuildHeaderMap(s_header);
-            IList<SongDetails> ret = SongDetails.CreateFromRows(null,"\t",headers,s_rows,5);
+            IList<string> headers = SongDetails.BuildHeaderMap(header);
+            var ret = SongDetails.CreateFromRows(null,"\t",headers,rows,5);
             return ret;
         }
 
-        static string[] s_data =
+        static readonly string[] SData =
         {
             @"SongId={70b993fa-f821-44c7-bf5d-6076f4fe8f17}	User=batch	Time=3/19/2014 5:03:17 PM	Title=Crazy Little Thing Called Love	Artist=Queen	Tempo=154.0	Album:0=Greatest Hits	Album:1=The Game	Album:2=Queen - Greatest Hits	User=SalsaSwingBallroom	User=SandiegoDJ	User=SteveThatDJ	DanceRating=LHP+10	DanceRating=ECS+5	DanceRating=WCS+10	User=batch	Time=5/7/2014 11:30:58 AM	Length=163	Genre=Rock	Track:1=5	Purchase:1:XS=music.F9021900-0100-11DB-89CA-0019B92A3933	User=batch	Time=5/7/2014 3:32:13 PM	Album:2=Queen: Greatest Hits	Track:2=9	Purchase:2:IS=27243763	Purchase:2:IA=27243728	User=batch	Time=5/20/2014 3:46:15 PM	Track:0=9	Purchase:0:AS=D:B00138K9CM	Purchase:0:AA=D:B00138F72E	User=breanna	Time=6/5/2014 8:46:10 PM	DanceRating=ECS+5	User=breanna	Time=6/9/2014 8:13:17 PM	DanceRating=JIV+6	User=shawntrautman	Time=6/23/2014 1:56:23 PM	DanceRating=SWG+6	User=SalsaSwingBallroom	Time=9/4/2014 8:06:37 PM	Tag=Lindy Hop	Tag=East Coast Swing	Tag=West Coast Swing	User=SandiegoDJ	Time=9/4/2014 8:06:37 PM	Tag=Lindy Hop	Tag=East Coast Swing	Tag=West Coast Swing	User=SteveThatDJ	Time=9/4/2014 8:06:37 PM	Tag=Lindy Hop	Tag=East Coast Swing	Tag=West Coast Swing	User=breanna	Time=9/4/2014 8:06:37 PM	Tag=East Coast Swing	Tag=Jive	User=shawntrautman	Time=9/4/2014 8:06:37 PM	Tag=Swing	User=batch	Time=9/4/2014 8:06:37 PM	Tag=Rock	User=SalsaSwingBallroom	Time=9/4/2014 8:11:39 PM	Tag=Lindy Hop	Tag=East Coast Swing	Tag=West Coast Swing	User=SandiegoDJ	Time=9/4/2014 8:11:39 PM	Tag=Lindy Hop	Tag=East Coast Swing	Tag=West Coast Swing	User=SteveThatDJ	Time=9/4/2014 8:11:39 PM	Tag=Lindy Hop	Tag=East Coast Swing	Tag=West Coast Swing	User=breanna	Time=9/4/2014 8:11:39 PM	Tag=East Coast Swing	Tag=Jive	User=shawntrautman	Time=9/4/2014 8:11:39 PM	Tag=Swing	User=batch	Time=9/4/2014 8:11:39 PM	Tag=Rock",
             @"SongId={ea55fcea-35f5-4d0d-81b5-a5264395945d}	Purchase:1:IA=554530	User=batch	Time=5/21/2014 9:15:26 PM	Length=155	Purchase:1:AS=D:B000W0CTAW	Purchase:1:AA=D:B000W0B00W	Purchase:1:IS=554314	Genre=Jazz	Length=156	Time=5/21/2014 7:16:49 PM	User=batch	PromoteAlbum:1=	Purchase:1:XS=music.B76B0F00-0100-11DB-89CA-0019B92A3933	Track:1=5	Album:1=Sings Great American Songwriters	Genre=Pop	Length=155	Time=5/21/2014 2:04:51 PM	User=batch	DanceRating=FXT+5	Album:0=The Ultimate Ballroom Album 12	Tempo=116.0	Artist=Carmen McRae	Title=Blue Moon	Time=3/17/2014 5:43:50 PM	User=SalsaSwingBallroom",
@@ -176,8 +183,9 @@ namespace m4dModels.Tests
             @"SongId={52cb6e8c-6f0f-469e-ac83-d353cbab6c96}	User=batch	Time=6/9/2014 8:54:43 PM	Title=Lady Marmalade	Artist=Christina Aguilera, Mya, Pink,  & Lil Kim	DanceRating=HST+5	User=batch	Time=7/4/2014 9:54:35 PM	Artist=Christina Aguilera	Length=264	Genre=Pop	Album:00=Moulin Rouge	Track:00=2	Purchase:00:XS=music.9F480F00-0100-11DB-89CA-0019B92A3933	PromoteAlbum:00=	User=batch	Time=7/4/2014 9:55:04 PM	Length=265	Album:00=Moulin Rouge (Soundtrack from the Motion Picture)	Purchase:00:IS=3577756	Purchase:00:IA=3579609	User=batch	Time=7/4/2014 9:55:49 PM	Album:01=Music From Nicole Kidman Movies	Track:01=3	Purchase:01:AS=D:B004XOHIH2	Purchase:01:AA=D:B004XOHHXM	PromoteAlbum:01=",
         };
 
-        static string s_header = @"Title	Artist	BPM	Dance	Album	AMAZONTRACK";
-        static string[] s_rows =
+        private const string SHeader = @"Title	Artist	BPM	Dance	Album	AMAZONTRACK";
+
+        static readonly string[] SRows =
         {
             @"Black Sheep	Gin Wigmore	30	WCS	Gravel & Wine [+digital booklet]	B00BYKXC82",
             @"The L Train	Gabriel Yared	26	SWZ	Shall We Dance?	B001NYTZJY",
@@ -189,7 +197,7 @@ namespace m4dModels.Tests
             @"All For You	Imelda May	30	SFT	More Mayhem	B008VSKRAQ",
         };
 
-        static string[] s_rowProps =
+        static readonly string[] SRowProps =
         {
             @"Title=Black Sheep	Artist=Gin Wigmore	Tempo=30.0	DanceRating=WCS+5	Album:00=Gravel & Wine [+digital booklet]	Purchase:00:AS=B00BYKXC82",
             @"Title=The L Train	Artist=Gabriel Yared	Tempo=26.0	DanceRating=SWZ+5	Album:00=Shall We Dance?	Purchase:00:AS=B001NYTZJY",
@@ -201,7 +209,7 @@ namespace m4dModels.Tests
             @"Title=All For You	Artist=Imelda May	Tempo=30.0	DanceRating=SFT+5	Album:00=More Mayhem	Purchase:00:AS=B008VSKRAQ",
         };
 
-        static string s_quuen = @"SongId={70b993fa-f821-44c7-bf5d-6076f4fe8f17}	User=batch	Time=3/19/2014 5:03:17 PM	Title=Crazy Little Thing Called Love	Artist=Queen	Tempo=154.0	Album:0=Greatest Hits	Album:1=The Game	Album:2=Queen - Greatest Hits	User=SalsaSwingBallroom	User=SandiegoDJ	User=SteveThatDJ	DanceRating=LHP+10	DanceRating=ECS+5	DanceRating=WCS+10	User=batch	Time=5/7/2014 11:30:58 AM	Length=163	Genre=Rock	Track:1=5	Purchase:1:XS=music.F9021900-0100-11DB-89CA-0019B92A3933	User=batch	Time=5/7/2014 3:32:13 PM	Album:2=Queen: Greatest Hits	Track:2=9	Purchase:2:IS=27243763	Purchase:2:IA=27243728	User=batch	Time=5/20/2014 3:46:15 PM	Track:0=9	Purchase:0:AS=D:B00138K9CM	Purchase:0:AA=D:B00138F72E	User=breanna	Time=6/5/2014 8:46:10 PM	DanceRating=ECS+5	User=breanna	Time=6/9/2014 8:13:17 PM	DanceRating=JIV+6	User=shawntrautman	Time=6/23/2014 1:56:23 PM	DanceRating=SWG+6";
-        static DanceMusicService s_service = MockContext.CreateService(true);
+        private const string SQuuen = @"SongId={70b993fa-f821-44c7-bf5d-6076f4fe8f17}	User=batch	Time=3/19/2014 5:03:17 PM	Title=Crazy Little Thing Called Love	Artist=Queen	Tempo=154.0	Album:0=Greatest Hits	Album:1=The Game	Album:2=Queen - Greatest Hits	User=SalsaSwingBallroom	User=SandiegoDJ	User=SteveThatDJ	DanceRating=LHP+10	DanceRating=ECS+5	DanceRating=WCS+10	User=batch	Time=5/7/2014 11:30:58 AM	Length=163	Genre=Rock	Track:1=5	Purchase:1:XS=music.F9021900-0100-11DB-89CA-0019B92A3933	User=batch	Time=5/7/2014 3:32:13 PM	Album:2=Queen: Greatest Hits	Track:2=9	Purchase:2:IS=27243763	Purchase:2:IA=27243728	User=batch	Time=5/20/2014 3:46:15 PM	Track:0=9	Purchase:0:AS=D:B00138K9CM	Purchase:0:AA=D:B00138F72E	User=breanna	Time=6/5/2014 8:46:10 PM	DanceRating=ECS+5	User=breanna	Time=6/9/2014 8:13:17 PM	DanceRating=JIV+6	User=shawntrautman	Time=6/23/2014 1:56:23 PM	DanceRating=SWG+6";
+        static readonly DanceMusicService SService = MockContext.CreateService(true);
     };
 }
