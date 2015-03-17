@@ -1050,7 +1050,7 @@ namespace m4d.Controllers
                 // Matchtype of none indicates a new (to us) song, so just add it
                 if (m.MatchType == MatchType.None)
                 {
-                    m.Left.UpdateDanceRatings(dancesT, Song.DanceRatingAutoCreate);
+                    m.Left.UpdateDanceRatings(dancesT, SongBase.DanceRatingAutoCreate);
                     modified = Database.CreateSong(user, m.Left) != null;
                 }
                 // Any other matchtype should result in a merge, which for now is just adding the dance(s) from
