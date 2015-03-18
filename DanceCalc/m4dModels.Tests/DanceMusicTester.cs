@@ -1,9 +1,9 @@
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
-using Microsoft.AspNet.Identity;
 
 namespace m4dModels.Tests
 {
@@ -15,7 +15,7 @@ namespace m4dModels.Tests
 
             Dms.SeedDances();
 
-            var dir = System.Environment.CurrentDirectory;
+            var dir = Environment.CurrentDirectory;
             Trace.WriteLine(dir);
             Users = File.ReadAllLines(@".\TestData\test-users.txt").ToList();
             Dances = File.ReadAllLines(@".\TestData\test-dances.txt").ToList();
@@ -47,7 +47,7 @@ namespace m4dModels.Tests
             else
             {
                 Regex r = new Regex("\tTime=[^\t]*");
-                return r.Replace(s, "Time=00/00/0000 0:00:00 PM");
+                return r.Replace(s, "\tTime=00/00/0000 0:00:00 PM");
             }
         }
 

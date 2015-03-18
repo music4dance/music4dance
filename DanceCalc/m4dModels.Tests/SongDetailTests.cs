@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data.Entity.ModelConfiguration.Configuration;
 using System.Diagnostics;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 //using System.Diagnostics;
 
 namespace m4dModels.Tests
@@ -34,18 +34,18 @@ namespace m4dModels.Tests
         public void LoadingDetails()
         {
             var songs = Load();
-            Assert.AreEqual(SData.Length, songs.Count);
+            Assert.AreEqual(s_sData.Length, songs.Count);
         }
 
         [TestMethod]
         public void SavingDetails()
         {
             var songs = Load();
-            Assert.AreEqual(songs.Count, SData.Length);
+            Assert.AreEqual(songs.Count, s_sData.Length);
             for (var i = 0; i < songs.Count; i++)
             {
                 var s = songs[i];
-                DiffSerialized(s.ToString(), SData[i], s.SongId);
+                DiffSerialized(s.ToString(), s_sData[i], s.SongId);
             }
         }
         private static void DiffSerialized(string org, string str, Guid id)
@@ -83,49 +83,41 @@ namespace m4dModels.Tests
         [TestMethod]
         public void LoadingRowDetails()
         {
-            var songs = LoadRows(SHeader,SRows);
-            Assert.AreEqual(SRows.Length, songs.Count);
+            var songs = LoadRows(SHeader,s_sRows);
+            Assert.AreEqual(s_sRows.Length, songs.Count);
 
-            for (var i = 0; i < SRowProps.Length; i++ )
+            for (var i = 0; i < s_sRowProps.Length; i++ )
             {
                 var song = songs[i];
-                var r = song.Serialize(new[] { SongBase.NoSongId });
-                //Trace.WriteLine(r);
-                Assert.AreEqual(SRowProps[i], r);
+                var r = DanceMusicTester.ReplaceTime(song.Serialize(new[] { SongBase.NoSongId }));
+                Trace.WriteLine(r);
+                Assert.AreEqual(s_sRowProps[i], r);
             }
         }
 
         [TestMethod]
         public void CreatingSongs()
         {
-            var songs = LoadRows(SHeader,SRows);
-            Assert.AreEqual(SRows.Length, songs.Count);
+            var songs = LoadRows(SHeader,s_sRows);
+            Assert.AreEqual(s_sRows.Length, songs.Count);
 
-            ValidateSongs(songs,SRowProps);
+            ValidateSongs(songs,s_sRowProps);
         }
 
         private void ValidateSongs(IList<SongDetails> songs, IReadOnlyCollection<string> props)
         {
-            var user = SService.FindUser("dwgray");
+            var user = s_sService.FindUser("dwgray");
 
             for (var i = 0; i < props.Count; i++)
             {
                 var sd = songs[i];
 
                 var s = new Song() { SongId = sd.SongId };
-                s.Create(sd, null, user, SongBase.CreateCommand, null, SService);
+                s.Create(sd, null, user, SongBase.CreateCommand, null, s_sService);
 
-                var txt = s.Serialize(new[] { SongBase.NoSongId });
+                var txt = DanceMusicTester.ReplaceTime(s.Serialize(new[] { SongBase.NoSongId }));
                 Trace.WriteLine(txt);
-
-                var r = txt.Split('\t');
-                var l = new List<string>(r);
-                Assert.AreEqual(".Create=", l[0]);
-                Assert.AreEqual("User=dwgray", l[2]);
-                l.RemoveRange(0, 3);
-                txt = string.Join("\t", l);
-                Assert.AreEqual(SRowProps[i], txt);
-                //Trace.WriteLine(txt);
+                Assert.AreEqual(s_sRowProps[i], txt);
             }
         }
 
@@ -159,7 +151,7 @@ namespace m4dModels.Tests
         static IList<SongDetails> Load()
         {
             var songs = new List<SongDetails>();
-            foreach (var str in SData)
+            foreach (var str in s_sData)
             {
                 songs.Add(new SongDetails(str));
             }
@@ -169,12 +161,16 @@ namespace m4dModels.Tests
 
         static IList<SongDetails> LoadRows(string header, string[] rows)
         {
+            if (rows == null) throw new ArgumentNullException("rows");
+
+            var user = s_sService.FindUser("dwgray");
+
             IList<string> headers = SongDetails.BuildHeaderMap(header);
-            var ret = SongDetails.CreateFromRows(null,"\t",headers,rows,5);
+            var ret = SongDetails.CreateFromRows(user,"\t",headers,rows,5);
             return ret;
         }
 
-        static readonly string[] SData =
+        static readonly string[] s_sData =
         {
             @"SongId={70b993fa-f821-44c7-bf5d-6076f4fe8f17}	User=batch	Time=3/19/2014 5:03:17 PM	Title=Crazy Little Thing Called Love	Artist=Queen	Tempo=154.0	Album:0=Greatest Hits	Album:1=The Game	Album:2=Queen - Greatest Hits	User=SalsaSwingBallroom	User=SandiegoDJ	User=SteveThatDJ	DanceRating=LHP+10	DanceRating=ECS+5	DanceRating=WCS+10	User=batch	Time=5/7/2014 11:30:58 AM	Length=163	Genre=Rock	Track:1=5	Purchase:1:XS=music.F9021900-0100-11DB-89CA-0019B92A3933	User=batch	Time=5/7/2014 3:32:13 PM	Album:2=Queen: Greatest Hits	Track:2=9	Purchase:2:IS=27243763	Purchase:2:IA=27243728	User=batch	Time=5/20/2014 3:46:15 PM	Track:0=9	Purchase:0:AS=D:B00138K9CM	Purchase:0:AA=D:B00138F72E	User=breanna	Time=6/5/2014 8:46:10 PM	DanceRating=ECS+5	User=breanna	Time=6/9/2014 8:13:17 PM	DanceRating=JIV+6	User=shawntrautman	Time=6/23/2014 1:56:23 PM	DanceRating=SWG+6	User=SalsaSwingBallroom	Time=9/4/2014 8:06:37 PM	Tag=Lindy Hop	Tag=East Coast Swing	Tag=West Coast Swing	User=SandiegoDJ	Time=9/4/2014 8:06:37 PM	Tag=Lindy Hop	Tag=East Coast Swing	Tag=West Coast Swing	User=SteveThatDJ	Time=9/4/2014 8:06:37 PM	Tag=Lindy Hop	Tag=East Coast Swing	Tag=West Coast Swing	User=breanna	Time=9/4/2014 8:06:37 PM	Tag=East Coast Swing	Tag=Jive	User=shawntrautman	Time=9/4/2014 8:06:37 PM	Tag=Swing	User=batch	Time=9/4/2014 8:06:37 PM	Tag=Rock	User=SalsaSwingBallroom	Time=9/4/2014 8:11:39 PM	Tag=Lindy Hop	Tag=East Coast Swing	Tag=West Coast Swing	User=SandiegoDJ	Time=9/4/2014 8:11:39 PM	Tag=Lindy Hop	Tag=East Coast Swing	Tag=West Coast Swing	User=SteveThatDJ	Time=9/4/2014 8:11:39 PM	Tag=Lindy Hop	Tag=East Coast Swing	Tag=West Coast Swing	User=breanna	Time=9/4/2014 8:11:39 PM	Tag=East Coast Swing	Tag=Jive	User=shawntrautman	Time=9/4/2014 8:11:39 PM	Tag=Swing	User=batch	Time=9/4/2014 8:11:39 PM	Tag=Rock",
             @"SongId={ea55fcea-35f5-4d0d-81b5-a5264395945d}	Purchase:1:IA=554530	User=batch	Time=5/21/2014 9:15:26 PM	Length=155	Purchase:1:AS=D:B000W0CTAW	Purchase:1:AA=D:B000W0B00W	Purchase:1:IS=554314	Genre=Jazz	Length=156	Time=5/21/2014 7:16:49 PM	User=batch	PromoteAlbum:1=	Purchase:1:XS=music.B76B0F00-0100-11DB-89CA-0019B92A3933	Track:1=5	Album:1=Sings Great American Songwriters	Genre=Pop	Length=155	Time=5/21/2014 2:04:51 PM	User=batch	DanceRating=FXT+5	Album:0=The Ultimate Ballroom Album 12	Tempo=116.0	Artist=Carmen McRae	Title=Blue Moon	Time=3/17/2014 5:43:50 PM	User=SalsaSwingBallroom",
@@ -185,31 +181,31 @@ namespace m4dModels.Tests
 
         private const string SHeader = @"Title	Artist	BPM	Dance	Album	AMAZONTRACK";
 
-        static readonly string[] SRows =
+        static readonly string[] s_sRows =
         {
             @"Black Sheep	Gin Wigmore	30	WCS	Gravel & Wine [+digital booklet]	B00BYKXC82",
             @"The L Train	Gabriel Yared	26	SWZ	Shall We Dance?	B001NYTZJY",
             @"Come Wake Me Up	Rascal Flatts	51	VWZ	Changed (Deluxe Version) [+Digital Booklet]	B007MSUAV2",
             @"Inflitrado	Bajofondo	30	TNG	Mar Dulce	B001C3G8MS",
-            @"Des Croissants de Soleil	Emilie-Claire Barlow	24	RMBI,BOL	Des croissants de soleil	B009CW0JFS",
+            @"Des Croissants de Soleil	Emilie-Claire Barlow	24	BOL,RMBI	Des croissants de soleil	B009CW0JFS",
             @"Private Eyes	Brazilian Love Affair	31	RMBA	Brazilian Lounge - Les Mysteres De Rio	B007UK5L52",
             @"Glam	Dimie Cat	50	QST	Glam!	B0042D1W6C",
             @"All For You	Imelda May	30	SFT	More Mayhem	B008VSKRAQ",
         };
 
-        static readonly string[] SRowProps =
+        static readonly string[] s_sRowProps =
         {
-            @"Title=Black Sheep	Artist=Gin Wigmore	Tempo=30.0	DanceRating=WCS+5	Album:00=Gravel & Wine [+digital booklet]	Purchase:00:AS=B00BYKXC82",
-            @"Title=The L Train	Artist=Gabriel Yared	Tempo=26.0	DanceRating=SWZ+5	Album:00=Shall We Dance?	Purchase:00:AS=B001NYTZJY",
-            @"Title=Come Wake Me Up	Artist=Rascal Flatts	Tempo=51.0	DanceRating=VWZ+5	Album:00=Changed (Deluxe Version) [+Digital Booklet]	Purchase:00:AS=B007MSUAV2",
-            @"Title=Inflitrado	Artist=Bajofondo	Tempo=30.0	DanceRating=TNG+5	Album:00=Mar Dulce	Purchase:00:AS=B001C3G8MS",
-            @"Title=Des Croissants de Soleil	Artist=Emilie-Claire Barlow	Tempo=24.0	DanceRating=RMBI+5	DanceRating=BOL+5	Album:00=Des croissants de soleil	Purchase:00:AS=B009CW0JFS",
-            @"Title=Private Eyes	Artist=Brazilian Love Affair	Tempo=31.0	DanceRating=RMBA+5	Album:00=Brazilian Lounge - Les Mysteres De Rio	Purchase:00:AS=B007UK5L52",
-            @"Title=Glam	Artist=Dimie Cat	Tempo=50.0	DanceRating=QST+5	Album:00=Glam!	Purchase:00:AS=B0042D1W6C",
-            @"Title=All For You	Artist=Imelda May	Tempo=30.0	DanceRating=SFT+5	Album:00=More Mayhem	Purchase:00:AS=B008VSKRAQ",
+            @".Create=	User=dwgray	Time=00/00/0000 0:00:00 PM	Title=Black Sheep	Artist=Gin Wigmore	Tempo=30.0	Tag+=West Coast Swing:Dance	DanceRating=WCS+5	Album:00=Gravel & Wine [+digital booklet]	Purchase:00:AS=B00BYKXC82",
+            @".Create=	User=dwgray	Time=00/00/0000 0:00:00 PM	Title=The L Train	Artist=Gabriel Yared	Tempo=26.0	Tag+=Slow Waltz:Dance	DanceRating=SWZ+5	Album:00=Shall We Dance?	Purchase:00:AS=B001NYTZJY",
+            @".Create=	User=dwgray	Time=00/00/0000 0:00:00 PM	Title=Come Wake Me Up	Artist=Rascal Flatts	Tempo=51.0	Tag+=Viennese Waltz:Dance	DanceRating=VWZ+5	Album:00=Changed (Deluxe Version) [+Digital Booklet]	Purchase:00:AS=B007MSUAV2",
+            @".Create=	User=dwgray	Time=00/00/0000 0:00:00 PM	Title=Inflitrado	Artist=Bajofondo	Tempo=30.0	Tag+=Tango:Dance	DanceRating=TNG+5	Album:00=Mar Dulce	Purchase:00:AS=B001C3G8MS",
+            @".Create=	User=dwgray	Time=00/00/0000 0:00:00 PM	Title=Des Croissants de Soleil	Artist=Emilie-Claire Barlow	Tempo=24.0	Tag+=Bolero:Dance|International Rumba:Dance	DanceRating=BOL+5	DanceRating=RMBI+5	Album:00=Des croissants de soleil	Purchase:00:AS=B009CW0JFS",
+            @".Create=	User=dwgray	Time=00/00/0000 0:00:00 PM	Title=Private Eyes	Artist=Brazilian Love Affair	Tempo=31.0	Tag+=American Rumba:Dance	DanceRating=RMBA+5	Album:00=Brazilian Lounge - Les Mysteres De Rio	Purchase:00:AS=B007UK5L52",
+            @".Create=	User=dwgray	Time=00/00/0000 0:00:00 PM	Title=Glam	Artist=Dimie Cat	Tempo=50.0	Tag+=QuickStep:Dance	DanceRating=QST+5	Album:00=Glam!	Purchase:00:AS=B0042D1W6C",
+            @".Create=	User=dwgray	Time=00/00/0000 0:00:00 PM	Title=All For You	Artist=Imelda May	Tempo=30.0	Tag+=Slow Foxtrot:Dance	DanceRating=SFT+5	Album:00=More Mayhem	Purchase:00:AS=B008VSKRAQ",
         };
 
         private const string SQuuen = @"SongId={70b993fa-f821-44c7-bf5d-6076f4fe8f17}	User=batch	Time=3/19/2014 5:03:17 PM	Title=Crazy Little Thing Called Love	Artist=Queen	Tempo=154.0	Album:0=Greatest Hits	Album:1=The Game	Album:2=Queen - Greatest Hits	User=SalsaSwingBallroom	User=SandiegoDJ	User=SteveThatDJ	DanceRating=LHP+10	DanceRating=ECS+5	DanceRating=WCS+10	User=batch	Time=5/7/2014 11:30:58 AM	Length=163	Genre=Rock	Track:1=5	Purchase:1:XS=music.F9021900-0100-11DB-89CA-0019B92A3933	User=batch	Time=5/7/2014 3:32:13 PM	Album:2=Queen: Greatest Hits	Track:2=9	Purchase:2:IS=27243763	Purchase:2:IA=27243728	User=batch	Time=5/20/2014 3:46:15 PM	Track:0=9	Purchase:0:AS=D:B00138K9CM	Purchase:0:AA=D:B00138F72E	User=breanna	Time=6/5/2014 8:46:10 PM	DanceRating=ECS+5	User=breanna	Time=6/9/2014 8:13:17 PM	DanceRating=JIV+6	User=shawntrautman	Time=6/23/2014 1:56:23 PM	DanceRating=SWG+6";
-        static readonly DanceMusicService SService = MockContext.CreateService(true);
+        static readonly DanceMusicService s_sService = MockContext.CreateService(true);
     };
 }

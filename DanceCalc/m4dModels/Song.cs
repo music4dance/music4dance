@@ -36,15 +36,14 @@ namespace m4dModels
                 CreateProperty(command, value, null, log, dms);
             }
 
+            if (!addUser || user == null) return;
+
             Created = time;
             Modified = time;
 
-            CreateProperty(TimeField, time.ToString(CultureInfo.InvariantCulture), null, log, dms);
-
-            if (!addUser || user == null) return;
-
             AddUser(user, dms);
             CreateProperty(UserField, user.UserName, null, log, dms);
+            CreateProperty(TimeField, time.ToString(CultureInfo.InvariantCulture), null, log, dms);
         }
 
         public void Create(SongDetails sd, IEnumerable<UserTag> tags, ApplicationUser user, string command, string value, DanceMusicService dms)
@@ -62,7 +61,9 @@ namespace m4dModels
                 mr.Owned = sd.ModifiedList[0].Owned;
 
                 CreateProperty(UserField, mr.UserName, null, log, dms);
-                CreateProperty(OwnerHash, mr.Owned, null, log, dms);
+                CreateProperty(TimeField, Created.ToString(CultureInfo.InvariantCulture), null, log, dms);
+                if (mr.Owned.HasValue)
+                    CreateProperty(OwnerHash, mr.Owned, null, log, dms);
             }
 
             Debug.Assert(!string.IsNullOrWhiteSpace(sd.Title));
@@ -77,11 +78,11 @@ namespace m4dModels
 
             if (tags == null)
             {
+                // Handle Tags
+                TagsFromProperties(user, sd, dms, sd);
+
                 // Handle Dance Ratings
                 CreateDanceRatings(sd.DanceRatings, dms);
-
-                // Handle Tags
-                TagsFromProperties(user, sd, dms, sd);                
             }
             else
             {
@@ -582,6 +583,7 @@ namespace m4dModels
             }
         }
 
+        // If dms != null, create the properties
         public void AddDanceRating(DanceRating dr)
         {
             dr.Song = this;
@@ -611,7 +613,7 @@ namespace m4dModels
                 Trace.WriteLine(string.Format("{0} Duplicate Dance Rating {1}", Title, dr.DanceId));
             }
         }
-        private void CreateDanceRatings(IEnumerable<DanceRating> ratings, DanceMusicService dms)
+        public void CreateDanceRatings(IEnumerable<DanceRating> ratings, DanceMusicService dms)
         {
             if (ratings == null)
             {

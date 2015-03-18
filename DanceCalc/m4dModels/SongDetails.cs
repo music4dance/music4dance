@@ -126,87 +126,82 @@ namespace m4dModels
         #region Serialization
         public static SongDetails CreateFromRow(ApplicationUser user, IList<string> fields, IList<string> cells, int weight=1)
         {
-            List<SongProperty> properties = new List<SongProperty>();
+            var properties = new List<SongProperty>();
             var specifiedUser = false;
             var specifiedAction = false;
-            for (int i = 0; i < cells.Count; i++)
+            for (var i = 0; i < cells.Count; i++)
             {
-                if (fields[i] != null)
+                if (fields[i] == null) continue;
+
+                var cell = cells[i];
+                var baseName = SongProperty.ParseBaseName(fields[i]);
+                string qual = null;
+                cell = cell.Trim();
+                if ((cell.Length > 0) && (cell[0] == '"') && (cell[cell.Length-1] == '"'))
                 {
-                    string cell = cells[i];
-                    string baseName = SongProperty.ParseBaseName(fields[i]);
-                    string qual = null;
-                    cell = cell.Trim();
-                    if ((cell.Length > 0) && (cell[0] == '"') && (cell[cell.Length-1] == '"'))
+                    cell = cell.Trim('"');
+                }
+
+                specifiedAction |= SongProperty.IsActionName(baseName);
+                switch (baseName)
+                {
+                    case DanceRatingField:
+                        // Any positive delta here will be translated into whatever the creator
+                        //  decides is appropriate, just need this property to be appropriately
+                        //  parsable as a DRD.
                     {
-                        cell = cell.Trim('"');
+                        var ratings = DanceRating.BuildDeltas(cell, weight).ToList();
+                        properties.Add(new SongProperty(Guid.Empty, AddedTags, TagsFromDances(ratings.Select(r => r.DanceId))));
+                        properties.AddRange(ratings.Select(rating => new SongProperty(Guid.Empty, baseName, rating.ToString())));
+                        cell = null;
                     }
-
-                    specifiedAction |= SongProperty.IsActionName(baseName);
-                    switch (baseName)
-                    {
-                        case DanceRatingField:
-                            // Any positive delta here will be translated into whatever the creator
-                            //  decides is appropriate, just need this property to be appropriately
-                            //  parsable as a DRD.
+                        break;
+                    case LengthField:
+                        if (!string.IsNullOrWhiteSpace(cell))
+                        {
+                            try
                             {
-                                IEnumerable<DanceRatingDelta> ratings = DanceRating.BuildDeltas(cell, weight);
-                                foreach (var rating in ratings)
-                                {
-                                    SongProperty prop = new SongProperty(Guid.Empty, baseName, rating.ToString());
-                                    properties.Add(prop);
-                                }
-
+                                var d = new SongDuration(cell);
+                                var l = d.Length;
+                                cell = l.ToString("F0");
+                            }
+                            catch (ArgumentOutOfRangeException)
+                            {
                                 cell = null;
                             }
-                            break;
-                        case LengthField:
-                            if (!string.IsNullOrWhiteSpace(cell))
-                            {
-                                try
-                                {
-                                    SongDuration d = new SongDuration(cell);
-                                    decimal l = d.Length;
-                                    cell = l.ToString("F0");
-                                }
-                                catch (ArgumentOutOfRangeException)
-                                {
-                                    cell = null;
-                                }
-                            }
-                            break;
-                        case ArtistField:
-                            cell = CleanArtistString(cell);
-                            break;
-                        case TitleField:
-                            cell = CleanText(cell);
-                            // Song is not valid without a title
-                            if (string.IsNullOrWhiteSpace(cell))
-                            {
-                                return null;
-                            }
-                            break;
-                        case PurchaseField:
-                            qual = SongProperty.ParseQualifier(fields[i]);
-                            break;
-                        case OwnerHash:
-                            cell = cell.GetHashCode().ToString("X");
-                            break;
-                        case UserField:
-                            specifiedUser = true;
-                            break;
-                    }
-
-                    if (!string.IsNullOrWhiteSpace(cell))
-                    {
-                        int idx = IsAlbumField(fields[i]) ? 0 : -1;
-                        SongProperty prop = new SongProperty(Guid.Empty, baseName, cell, idx, qual);
-                        properties.Add(prop);
-                    }
+                        }
+                        break;
+                    case ArtistField:
+                        cell = CleanArtistString(cell);
+                        break;
+                    case TitleField:
+                        cell = CleanText(cell);
+                        // Song is not valid without a title
+                        if (string.IsNullOrWhiteSpace(cell))
+                        {
+                            return null;
+                        }
+                        break;
+                    case PurchaseField:
+                        qual = SongProperty.ParseQualifier(fields[i]);
+                        break;
+                    case OwnerHash:
+                        cell = cell.GetHashCode().ToString("X");
+                        break;
+                    case UserField:
+                        specifiedUser = true;
+                        break;
                 }
+
+                if (string.IsNullOrWhiteSpace(cell)) continue;
+
+                var idx = IsAlbumField(fields[i]) ? 0 : -1;
+                var prop = new SongProperty(Guid.Empty, baseName, cell, idx, qual);
+                properties.Add(prop);
             }
 
 
+            // ReSharper disable once InvertIf
             if (user != null)
             {
                 if (!specifiedUser)

@@ -8,17 +8,17 @@ namespace m4dModels.Tests
     {
         static TagTests()
         {
-            SService = MockContext.CreateService(true);
-            SService.SeedDances();
+            s_sService = MockContext.CreateService(true);
+            s_sService.SeedDances();
 
-            SService.FindOrCreateTagType("Swing", "Music");
-            SService.FindOrCreateTagType("Swing", "Dance");
-            SService.FindOrCreateTagType("Salsa", "Music");
-            SService.FindOrCreateTagType("Salsa", "Dance");
-            SService.FindOrCreateTagType("Pop", "Music");
-            var tt = SService.FindOrCreateTagType("Foxtrot", "Dance");
-            var tt1 = SService.FindOrCreateTagType("fox-trot", "Dance","FoxTrot");
-            var tt2 = SService.FindOrCreateTagType("Fox Trot", "Dance", "FoxTrot");
+            s_sService.FindOrCreateTagType("Swing", "Music");
+            s_sService.FindOrCreateTagType("Swing", "Dance");
+            s_sService.FindOrCreateTagType("Salsa", "Music");
+            s_sService.FindOrCreateTagType("Salsa", "Dance");
+            s_sService.FindOrCreateTagType("Pop", "Music");
+            var tt = s_sService.FindOrCreateTagType("Foxtrot", "Dance");
+            var tt1 = s_sService.FindOrCreateTagType("fox-trot", "Dance","FoxTrot");
+            var tt2 = s_sService.FindOrCreateTagType("Fox Trot", "Dance", "FoxTrot");
 
             tt1.Primary = tt;
             tt2.Primary = tt;
@@ -27,23 +27,23 @@ namespace m4dModels.Tests
         [TestMethod]
         public void TestCompressTags()
         {
-            var t = SService.CompressTags("Swing|Salsa|Pop|Blues","Music");
+            var t = s_sService.CompressTags("Swing|Salsa|Pop|Blues","Music");
             Assert.AreEqual("Blues|Pop|Salsa:Music|Swing:Music", t);
 
-            t = SService.CompressTags("Salsa|Blues|Foxtrot", "Dance");
+            t = s_sService.CompressTags("Salsa|Blues|Foxtrot", "Dance");
             Assert.AreEqual("Blues:Dance|Foxtrot|Salsa:Dance", t);
 
-            t = SService.CompressTags("Joe|Bro", "Other");
+            t = s_sService.CompressTags("Joe|Bro", "Other");
             Assert.AreEqual("Bro|Joe", t);
         }
 
         [TestMethod]
         public void TestNormalizeTags()
         {
-            var t = SService.NormalizeTags("Swing:Dance|Swing|Salsa|Pop|Blues", "Music");
+            var t = s_sService.NormalizeTags("Swing:Dance|Swing|Salsa|Pop|Blues", "Music");
             Assert.AreEqual("Blues:Music|Pop:Music|Salsa:Music|Swing:Dance|Swing:Music", t);
 
-            t = SService.NormalizeTags("Salsa|Blues|Foxtrot|Blues:Music", "Dance");
+            t = s_sService.NormalizeTags("Salsa|Blues|Foxtrot|Blues:Music", "Dance");
             Assert.AreEqual("Blues:Dance|Blues:Music|Foxtrot:Dance|Salsa:Dance", t);
         }
 
@@ -147,7 +147,7 @@ namespace m4dModels.Tests
         [TestMethod]
         public void SongTagTestChangeWithService()
         {
-            SongTagTestChange(SService);
+            SongTagTestChange(s_sService);
         }
 
         [TestMethod]
@@ -209,7 +209,7 @@ namespace m4dModels.Tests
             // Check the serialized result of the whole mess
             var result = DanceMusicTester.ReplaceTime(song.Serialize(new[] { SongBase.NoSongId, SongBase.EditCommand }));
             Trace.WriteLine(result);
-            const string expected = @"user=batch	Title=Test	Artist=Me	Tempo=30.0	User=batchTime=00/00/0000 0:00:00 PM	Tag+=Blues:Dance|Bolero:Dance|Latin:Dance|Rumba:Dance	User=dwgrayTime=00/00/0000 0:00:00 PM	Tag+=Bolero:Dance|Cha Cha:Dance|Rumba:Dance	User=batchTime=00/00/0000 0:00:00 PM	Tag-=Blues:Dance|Latin:Dance	User=dwgrayTime=00/00/0000 0:00:00 PM	Tag+=Blues:Dance	Tag-=Rumba:Dance";
+            const string expected = @"user=batch	Title=Test	Artist=Me	Tempo=30.0	User=batch	Time=00/00/0000 0:00:00 PM	Tag+=Blues:Dance|Bolero:Dance|Latin:Dance|Rumba:Dance	User=dwgray	Time=00/00/0000 0:00:00 PM	Tag+=Bolero:Dance|Cha Cha:Dance|Rumba:Dance	User=batch	Time=00/00/0000 0:00:00 PM	Tag-=Blues:Dance|Latin:Dance	User=dwgray	Time=00/00/0000 0:00:00 PM	Tag+=Blues:Dance	Tag-=Rumba:Dance";
             Assert.AreEqual(expected, result);
         }
 
@@ -218,31 +218,31 @@ namespace m4dModels.Tests
         {
             // Create a song
             var song = new Song();
-            song.Load(@"user=batch	Title=Test	Artist=Me	Tempo=30.0", SService);
+            song.Load(@"user=batch	Title=Test	Artist=Me	Tempo=30.0", s_sService);
 
             // Use batch to add a couple of tags (via change)
-            var user = SService == null ? new ApplicationUser("batch") : SService.FindUser("batch");
-            var user2 = SService == null ? new ApplicationUser("dwgray") : SService.FindUser("dwgray");
+            var user = s_sService == null ? new ApplicationUser("batch") : s_sService.FindUser("batch");
+            var user2 = s_sService == null ? new ApplicationUser("dwgray") : s_sService.FindUser("dwgray");
 
-            song.CreateEditProperties(user, SongBase.EditCommand, SService);
-            song.ChangeTags("fox-trot:Dance|Swing:Dance", user, SService, song);
+            song.CreateEditProperties(user, SongBase.EditCommand, s_sService);
+            song.ChangeTags("fox-trot:Dance|Swing:Dance", user, s_sService, song);
 
-            song.CreateEditProperties(user2, SongBase.EditCommand, SService);
-            song.ChangeTags("Fox Trot:Dance|Swing:Dance", user2, SService, song);
+            song.CreateEditProperties(user2, SongBase.EditCommand, s_sService);
+            song.ChangeTags("Fox Trot:Dance|Swing:Dance", user2, s_sService, song);
 
             Trace.WriteLine(song.TagSummary.ToString());
             const string expected = @"Foxtrot:Dance:2|Swing:Dance:2";
             Assert.AreEqual(expected,song.TagSummary.ToString());
 
             // ReSharper disable once PossibleNullReferenceException
-            var cft = SService.TagTypes.Find("Foxtrot:Dance").Count;
-            var cswing = SService.TagTypes.Find("Swing:Dance").Count;
+            var cft = s_sService.TagTypes.Find("Foxtrot:Dance").Count;
+            var cswing = s_sService.TagTypes.Find("Swing:Dance").Count;
 
-            song.UpdateTagSummary(SService);
+            song.UpdateTagSummary(s_sService);
             Assert.AreEqual(expected, song.TagSummary.ToString());
 
-            Assert.AreEqual(cft, SService.TagTypes.Find("Foxtrot:Dance").Count);
-            Assert.AreEqual(cswing, SService.TagTypes.Find("Swing:Dance").Count);
+            Assert.AreEqual(cft, s_sService.TagTypes.Find("Foxtrot:Dance").Count);
+            Assert.AreEqual(cswing, s_sService.TagTypes.Find("Swing:Dance").Count);
         }
 
         [TestMethod]
@@ -250,55 +250,54 @@ namespace m4dModels.Tests
         {
             // Create a song
             var song = new Song();
-            song.Load(@"user=batch	Title=Test	Artist=Me	Tempo=30.0", SService);
+            song.Load(@"user=batch	Title=Test	Artist=Me	Tempo=30.0", s_sService);
 
             // Use batch to add a couple of dance ratings and tags
-            var user = SService.FindUser("batch");
-            song.CreateEditProperties(user, SongBase.EditCommand, SService);
+            var user = s_sService.FindUser("batch");
+            song.CreateEditProperties(user, SongBase.EditCommand, s_sService);
             var dr1 = new DanceRating { DanceId = "BOL", Weight = 5 };
             var dr2 = new DanceRating { DanceId = "RMB", Weight = 7 };
-            song.AddDanceRating(dr1);
-            song.AddDanceRating(dr2);
+            song.CreateDanceRatings(new[] {dr1,dr2},s_sService);
 
             dr1 = song.FindRating("BOL");
             Assert.AreNotEqual(null, dr1);
             dr2 = song.FindRating("RMB");
             Assert.AreNotEqual(null, dr2);
 
-            song.ChangeDanceTags("BOL","Strict Tempo|Traditional", user, SService);
-            song.ChangeDanceTags("RMB","Non-traditional|Slow", user, SService);
+            song.ChangeDanceTags("BOL","Strict Tempo|Traditional", user, s_sService);
+            song.ChangeDanceTags("RMB","Non-traditional|Slow", user, s_sService);
 
             Assert.AreEqual("Strict Tempo:1|Traditional:1",dr1.TagSummary.ToString());
-            SService.SaveChanges();
+            s_sService.SaveChanges();
 
             var result = DanceMusicTester.ReplaceTime(song.Serialize(new[] { SongBase.NoSongId, SongBase.EditCommand }));
             Trace.WriteLine(result);
-            Assert.AreEqual(@"user=batch	Title=Test	Artist=Me	Tempo=30.0	User=batchTime=00/00/0000 0:00:00 PM	Tag+:BOL=Strict Tempo|Traditional	Tag+:RMB=Non-traditional|Slow", result);
+            Assert.AreEqual(@"user=batch	Title=Test	Artist=Me	Tempo=30.0	User=batch	Time=00/00/0000 0:00:00 PM	DanceRating=BOL+5	DanceRating=RMB+7	Tag+:BOL=Strict Tempo|Traditional	Tag+:RMB=Non-traditional|Slow", result);
 
             // Now use dwgray to modify one of them
-            var user2 = SService.FindUser("dwgray");
-            song.CreateEditProperties(user2, SongBase.EditCommand, SService);
-            song.ChangeDanceTags("BOL", "Traditional", user2, SService);
-            song.ChangeDanceTags("RMB", "Slow|International", user2, SService);
-            SService.SaveChanges();
+            var user2 = s_sService.FindUser("dwgray");
+            song.CreateEditProperties(user2, SongBase.EditCommand, s_sService);
+            song.ChangeDanceTags("BOL", "Traditional", user2, s_sService);
+            song.ChangeDanceTags("RMB", "Slow|International", user2, s_sService);
+            s_sService.SaveChanges();
 
             result = DanceMusicTester.ReplaceTime(song.Serialize(new[] { SongBase.NoSongId, SongBase.EditCommand }));
             Trace.WriteLine(result);
-            Assert.AreEqual(@"user=batch	Title=Test	Artist=Me	Tempo=30.0	User=batchTime=00/00/0000 0:00:00 PM	Tag+:BOL=Strict Tempo|Traditional	Tag+:RMB=Non-traditional|Slow	User=dwgrayTime=00/00/0000 0:00:00 PM	Tag+:BOL=Traditional	Tag+:RMB=International|Slow", result);
+            Assert.AreEqual(@"user=batch	Title=Test	Artist=Me	Tempo=30.0	User=batch	Time=00/00/0000 0:00:00 PM	DanceRating=BOL+5	DanceRating=RMB+7	Tag+:BOL=Strict Tempo|Traditional	Tag+:RMB=Non-traditional|Slow	User=dwgray	Time=00/00/0000 0:00:00 PM	Tag+:BOL=Traditional	Tag+:RMB=International|Slow", result);
 
             // Finally use batch to remove a couple of tags
-            song.CreateEditProperties(user, SongBase.EditCommand, SService);
-            song.ChangeDanceTags("BOL", null, user, SService);
+            song.CreateEditProperties(user, SongBase.EditCommand, s_sService);
+            song.ChangeDanceTags("BOL", null, user, s_sService);
             Assert.AreEqual("Traditional:1", dr1.TagSummary.ToString());
-            SService.SaveChanges();
+            s_sService.SaveChanges();
 
             result = DanceMusicTester.ReplaceTime(song.Serialize(new[] { SongBase.NoSongId, SongBase.EditCommand }));
             Trace.WriteLine(result);
-            Assert.AreEqual(@"user=batch	Title=Test	Artist=Me	Tempo=30.0	User=batchTime=00/00/0000 0:00:00 PM	Tag+:BOL=Strict Tempo|Traditional	Tag+:RMB=Non-traditional|Slow	User=dwgrayTime=00/00/0000 0:00:00 PM	Tag+:BOL=Traditional	Tag+:RMB=International|Slow	User=batchTime=00/00/0000 0:00:00 PM	Tag-:BOL=Strict Tempo|Traditional", result);
+            Assert.AreEqual(@"user=batch	Title=Test	Artist=Me	Tempo=30.0	User=batch	Time=00/00/0000 0:00:00 PM	DanceRating=BOL+5	DanceRating=RMB+7	Tag+:BOL=Strict Tempo|Traditional	Tag+:RMB=Non-traditional|Slow	User=dwgray	Time=00/00/0000 0:00:00 PM	Tag+:BOL=Traditional	Tag+:RMB=International|Slow	User=batch	Time=00/00/0000 0:00:00 PM	Tag-:BOL=Strict Tempo|Traditional", result);
         }
 
 
-        static readonly DanceMusicService SService;
+        static readonly DanceMusicService s_sService;
 
 
         private const string SimpleSummary = "Rumba|Bolero|Latin|Blues";
