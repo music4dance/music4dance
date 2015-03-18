@@ -129,6 +129,7 @@ namespace m4dModels
             var properties = new List<SongProperty>();
             var specifiedUser = false;
             var specifiedAction = false;
+            SongProperty tagProperty = null;
             for (var i = 0; i < cells.Count; i++)
             {
                 if (fields[i] == null) continue;
@@ -149,12 +150,21 @@ namespace m4dModels
                         // Any positive delta here will be translated into whatever the creator
                         //  decides is appropriate, just need this property to be appropriately
                         //  parsable as a DRD.
-                    {
-                        var ratings = DanceRating.BuildDeltas(cell, weight).ToList();
-                        properties.Add(new SongProperty(Guid.Empty, AddedTags, TagsFromDances(ratings.Select(r => r.DanceId))));
-                        properties.AddRange(ratings.Select(rating => new SongProperty(Guid.Empty, baseName, rating.ToString())));
-                        cell = null;
-                    }
+                        {
+                            var w = weight;
+                            if (fields.Count > i + 1 && fields[i + 1] == "R")
+                            {
+                                if (!int.TryParse(cells[i + 1], out w))
+                                    w = weight;
+                                i += 1;
+                            }
+                            var ratings = DanceRating.BuildDeltas(cell, w).ToList();
+                            tagProperty = new SongProperty(Guid.Empty, AddedTags,
+                                TagsFromDances(ratings.Select(r => r.DanceId)));
+                            properties.Add(tagProperty);
+                            properties.AddRange(ratings.Select(rating => new SongProperty(Guid.Empty, baseName, rating.ToString())));
+                            cell = null;
+                        }
                         break;
                     case LengthField:
                         if (!string.IsNullOrWhiteSpace(cell))
@@ -190,6 +200,55 @@ namespace m4dModels
                         break;
                     case UserField:
                         specifiedUser = true;
+                        break;
+                    case AddedTags:
+                        {
+                            var tags = new List<string>();
+                            cell = cell.ToUpper();
+                            if (cell.Contains("ENGLISH LANGUAGE"))
+                            {
+                                tags.Add("English:Other");
+                            }
+                            if (cell.Contains("SPANISH LANGUAGE"))
+                            {
+                                tags.Add("Spanish:Other");
+                            }
+                            if (cell.Contains("TRADITIONAL") || cell.Contains("TYPICAL") || cell.Contains("OLD SOUNDING"))
+                            {
+                                tags.Add("Traditional:Style");
+                            }
+                            if (cell.Contains("CONTEMPORARY"))
+                            {
+                                tags.Add("Contemporary:Style");
+                            }
+                            if (cell.Contains("MODERN"))
+                            {
+                                tags.Add("Modern:Style");
+                            }
+                            if (cell.Contains("HIGH ENERGY"))
+                            {
+                                tags.Add("High Energy:Style");
+                            }
+                            if (cell.Contains("LOW ENERGY"))
+                            {
+                                tags.Add("Low Energy:Style");
+                            }
+                            if (tags.Count > 0)
+                            {
+                                var tl = new TagList(tags);
+                                if (tagProperty != null)
+                                {
+                                    tl = tl.Add(new TagList(tagProperty.Value));
+                                    tagProperty.Value = tl.ToString();
+                                }
+                                else
+                                {
+                                    tagProperty = new SongProperty(Guid.Empty,AddedTags,tl.ToString());
+                                    properties.Add(tagProperty);
+                                }
+                            }
+                            cell = null;
+                        }
                         break;
                 }
 
@@ -253,7 +312,10 @@ namespace m4dModels
             {"#", TrackField},
             {"PUBLISHER", PublisherField},
             {"AMAZONTRACK", SongProperty.FormatName(PurchaseField,null,"AS")},
-            {"PATH",OwnerHash}
+            {"PATH",OwnerHash},
+            {"TIME",LengthField},
+            {"COMMENT",AddedTags},
+            {"RATING","R"},
         };
 
         public static IList<SongDetails> CreateFromRows(ApplicationUser user, string separator, IList<string> headers, IEnumerable<string> rows, int weight)

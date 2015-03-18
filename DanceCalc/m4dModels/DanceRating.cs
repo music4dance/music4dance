@@ -56,7 +56,7 @@ namespace m4dModels
             {
                 string list;
                 string[] ids = null;
-                if (DanceMap.TryGetValue(SongBase.CleanDanceName(dances), out list))
+                if (DanceMap.TryGetValue(SongBase.CleanDanceName(ds), out list))
                 {
                     ids = list.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
                 }
@@ -114,6 +114,9 @@ namespace m4dModels
             {"FOXTROTTRIPLESWING","SFT,ECS"},
             {"TRIPLESWINGFOXTROT","SFT,ECS"},
             {"TRIPLESWING","ECS"},
+            {"SWINGEC","ECS"},
+            {"SWINGJIVE","JIV"},
+            {"SWINGWC","WCS"},
             {"WCSWING","WCS"},
             {"SINGLESWING","SWG"},
             {"SINGLETIMESWING","SWG"},
