@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data.Entity.ModelConfiguration.Configuration;
 using System.Diagnostics;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -97,7 +96,10 @@ namespace m4dModels.Tests
         private void ValidateLoadingRowDetails(string header, string[] rows, string[] expected)
         {
             if (expected == null) throw new ArgumentNullException("expected");
-            var songs = LoadRows(header, rows);
+
+            DanceMusicService service = MockContext.CreateService(true);
+
+            var songs = LoadRows(header, rows, service);
 
             for (var i = 0; i < expected.Length; i++)
             {
@@ -111,26 +113,42 @@ namespace m4dModels.Tests
         [TestMethod]
         public void CreatingSongs()
         {
-            var songs = LoadRows(SHeader,s_sRows);
+            var service = MockContext.CreateService(true);
+            var songs = LoadRows(SHeader,s_sRows,service);
 
-            ValidateSongs(songs,s_sRowProps);
-        }
+            var guids = CreateSongs(SHeader,s_sRows,service).ToList();
 
-        private void ValidateSongs(IList<SongDetails> songs, IReadOnlyCollection<string> props)
-        {
-            var user = s_sService.FindUser("dwgray");
-
-            for (var i = 0; i < props.Count; i++)
+            Assert.AreEqual(guids.Count(), service.Songs.Count());
+            for (var i = 0; i < guids.Count(); i++)
             {
-                var sd = songs[i];
-
-                var s = new Song() { SongId = sd.SongId };
-                s.Create(sd, null, user, SongBase.CreateCommand, null, s_sService);
+                var s = service.Songs.Find(guids[i]);
+                Assert.IsNotNull(s);
 
                 var txt = DanceMusicTester.ReplaceTime(s.Serialize(new[] { SongBase.NoSongId }));
                 Trace.WriteLine(txt);
                 Assert.AreEqual(s_sRowProps[i], txt);
             }
+
+        }
+
+        private IEnumerable<Guid> CreateSongs(string header, string[] rows, DanceMusicService service)
+        {
+            var ids = new List<Guid>();
+
+            var user = service.FindUser("dwgray");
+            var songs = LoadRows(header, rows, service);
+
+            foreach (var sd in songs)
+            {
+                var s = new Song() { SongId = Guid.NewGuid() };
+                s.Create(sd, null, user, SongBase.CreateCommand, null, service);
+                service.Songs.Add(s);
+                ids.Add(s.SongId);
+            }
+
+            service.SaveChanges();
+
+            return ids;
         }
 
         [TestMethod]
@@ -165,11 +183,11 @@ namespace m4dModels.Tests
             return s_sData.Select(str => new SongDetails(str)).ToList();
         }
 
-        static IList<SongDetails> LoadRows(string header, string[] rows)
+        static IList<SongDetails> LoadRows(string header, string[] rows, DanceMusicService service)
         {
             if (rows == null) throw new ArgumentNullException("rows");
 
-            var user = s_sService.FindUser("dwgray");
+            var user = service.FindUser("dwgray");
 
             IList<string> headers = SongDetails.BuildHeaderMap(header);
             var ret = SongDetails.CreateFromRows(user,"\t",headers,rows,5);
@@ -230,6 +248,5 @@ namespace m4dModels.Tests
         };
 
         private const string SQuuen = @"SongId={70b993fa-f821-44c7-bf5d-6076f4fe8f17}	User=batch	Time=3/19/2014 5:03:17 PM	Title=Crazy Little Thing Called Love	Artist=Queen	Tempo=154.0	Album:0=Greatest Hits	Album:1=The Game	Album:2=Queen - Greatest Hits	User=SalsaSwingBallroom	User=SandiegoDJ	User=SteveThatDJ	DanceRating=LHP+10	DanceRating=ECS+5	DanceRating=WCS+10	User=batch	Time=5/7/2014 11:30:58 AM	Length=163	Genre=Rock	Track:1=5	Purchase:1:XS=music.F9021900-0100-11DB-89CA-0019B92A3933	User=batch	Time=5/7/2014 3:32:13 PM	Album:2=Queen: Greatest Hits	Track:2=9	Purchase:2:IS=27243763	Purchase:2:IA=27243728	User=batch	Time=5/20/2014 3:46:15 PM	Track:0=9	Purchase:0:AS=D:B00138K9CM	Purchase:0:AA=D:B00138F72E	User=breanna	Time=6/5/2014 8:46:10 PM	DanceRating=ECS+5	User=breanna	Time=6/9/2014 8:13:17 PM	DanceRating=JIV+6	User=shawntrautman	Time=6/23/2014 1:56:23 PM	DanceRating=SWG+6";
-        static readonly DanceMusicService s_sService = MockContext.CreateService(true);
     };
 }
