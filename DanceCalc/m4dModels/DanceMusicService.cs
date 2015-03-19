@@ -129,23 +129,18 @@ namespace m4dModels
         // This is an additive merge - only add new things if they don't conflict with the old
         //  TODO: I'm pretty sure I can clean up this and all the other editing stuff by pushing
         //  the diffing part down into SongDetails (which will also let me unit test it more easily)
-        public SongDetails AdditiveMerge(ApplicationUser user, Guid songId, SongDetails edit, List<string> addDances, bool createLog = true)
+        public bool AdditiveMerge(ApplicationUser user, Guid songId, SongDetails edit, List<string> addDances, bool createLog = true)
         {
-            Song song = _context.Songs.Find(songId);
+            var song = _context.Songs.Find(songId);
             if (createLog)
                 song.CurrentLog = CreateSongLog(user, song, SongBase.EditCommand);
 
-            if (song.AdditiveMerge(user, edit, addDances, this))
-            {
-                if (song.CurrentLog != null)
-                    _context.Log.Add(song.CurrentLog);
-                SaveChanges();
-                return FindSongDetails(songId,user.UserName);
-            }
-            else
-            {
-                return null;
-            }
+            if (!song.AdditiveMerge(user, edit, addDances, this)) return false;
+
+            if (song.CurrentLog != null)
+                _context.Log.Add(song.CurrentLog);
+            SaveChanges();
+            return true;
         }
 
         public void UpdateDances(ApplicationUser user, Song song, IEnumerable<DanceRatingDelta> deltas, bool doLog = true)
@@ -1076,6 +1071,121 @@ namespace m4dModels
             return songs.Include("DanceRatings").Include("ModifiedBy").Include("SongProperties");
         }
 
+        public enum MatchMethod { None, Tempo, Merge };
+
+        public IList<LocalMerger> MatchSongs(IList<SongDetails> newSongs, MatchMethod method)
+        {
+            var merge = new List<LocalMerger>();
+
+            foreach (var song in newSongs)
+            {
+                var songT = song;
+                var songs = from s in Songs where (s.TitleHash == songT.TitleHash) select s;
+
+                var candidates = new List<SongDetails>();
+                foreach (var s in songs)
+                {
+                    // Title-Artist match at minimum
+                    if (string.Equals(SongBase.CreateNormalForm(s.Artist), SongBase.CreateNormalForm(song.Artist)))
+                    {
+                        candidates.Add(new SongDetails(s));
+                    }
+                }
+
+                SongDetails match = null;
+                var type = MatchType.None;
+
+                if (candidates.Count > 0)
+                {
+                    // Now we have a list of existing songs that are a title-artist match to our new song - so see
+                    //  if we have a title-artist-album match
+
+                    if (song.HasAlbums)
+                    {
+                        var songD = song;
+                        foreach (var s in candidates.Where(s => s.FindAlbum(songD.Albums[0].Name) != null))
+                        {
+                            match = s;
+                            type = MatchType.Exact;
+                            break;
+                        }
+                    }
+
+                    // If not, try for a length match
+                    if (match == null && song.Length.HasValue)
+                    {
+                        var songD = song;
+                        foreach (var s in candidates.Where(s => s.Length.HasValue && Math.Abs(s.Length.Value - songD.Length.Value) < 5))
+                        {
+                            match = s;
+                            type = MatchType.Length;
+                            break;
+                        }
+                    }
+
+                    // TODO: We may want to make this even weaker (especially for merge): If merge doesn't have album remove candidate.HasRealAlbums?
+
+                    // Otherwise, if there is only one candidate and it doesn't have any 'real'
+                    //  albums, we will choose it
+                    if (match == null && candidates.Count == 1 && (!song.HasAlbums || !candidates[0].HasRealAblums))
+                    {
+                        type = MatchType.Weak;
+                        match = candidates[0];
+                    }
+                }
+
+                var m = new LocalMerger { Left = song, Right = match, MatchType = type, Conflict = false };
+                switch (method)
+                {
+                    case MatchMethod.Tempo:
+                        if (match != null)
+                            m.Conflict = song.TempoConflict(match, 3);
+                        break;
+                    case MatchMethod.Merge:
+                        // Do we need to do anything special here???
+                        break;
+                }
+
+                merge.Add(m);
+            }
+
+            return merge;
+        }
+
+        public bool MergeCatalog(ApplicationUser user, IList<LocalMerger> merges, IEnumerable<string> dances = null)
+        {
+            var modified = false;
+
+            var dancesL = dances == null ? new List<string>() : dances.ToList();
+
+            foreach (var m in merges)
+            {
+
+                // Matchtype of none indicates a new (to us) song, so just add it
+                if (m.MatchType == MatchType.None)
+                {
+                    if (dancesL.Any())
+                    {
+                        m.Left.UpdateDanceRatings(dancesL, SongBase.DanceRatingCreate);
+                    }
+                    var temp = CreateSong(user, m.Left);
+                    if (temp != null)
+                    {
+                        modified = true;
+                        m.Left.SongId = temp.SongId;
+                    }
+                }
+                // Any other matchtype should result in a merge, which for now is just adding the dance(s) from
+                //  the new list to the existing song (or adding weight).
+                // Now we're going to potentially add tempo - need a more general solution for this going forward
+                else
+                {
+                    modified = AdditiveMerge(user, m.Right.SongId, m.Left, dancesL);
+                }
+            }
+
+            return modified;
+        }
         public ICollection<ICollection<PurchaseLink>> GetPurchaseLinks(ServiceType serviceType, IEnumerable<Song> songs, string region = null)
         {
             var links = new List<ICollection<PurchaseLink>>();

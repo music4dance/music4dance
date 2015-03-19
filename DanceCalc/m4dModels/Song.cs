@@ -253,16 +253,11 @@ namespace m4dModels
         // This is an additive merge - only add new things if they don't conflict with the old
         public bool AdditiveMerge(ApplicationUser user, SongDetails edit, List<string> addDances, DanceMusicService dms)
         {
-            bool modified = false;
-
             CreateEditProperties(user, EditCommand, dms);
 
-            foreach (string field in ScalarFields)
-            {
-                modified |= AddProperty(edit, field, dms);
-            }
+            bool modified = ScalarFields.Aggregate(false, (current, field) => current | AddProperty(edit, field, dms));
 
-            List<AlbumDetails> oldAlbums = SongDetails.BuildAlbumInfo(this);
+            var oldAlbums = SongDetails.BuildAlbumInfo(this);
 
             foreach (AlbumDetails album in edit.Albums)
             {
@@ -290,15 +285,22 @@ namespace m4dModels
                 }
             }
 
-            modified |= EditDanceRatings(addDances, DanceRatingIncrement, null, 0, dms);
-
-            //TAGTEST: Additive merge
             if (addDances != null && addDances.Count > 0)
             {
-                string tags = string.Join("|", addDances);
+                var tags = string.Join("|", addDances);
                 tags = dms.NormalizeTags(tags, "Dance");
-                TagList newTags = AddTags(tags, user, dms, this);
+                var newTags = AddTags(tags, user, dms, this);
                 modified = newTags != null && !string.IsNullOrWhiteSpace(tags);
+
+                modified |= EditDanceRatings(addDances, DanceRatingIncrement, null, 0, dms);
+            }
+            else
+            {
+                // Handle Tags
+                TagsFromProperties(user, edit, dms, edit);
+
+                // Handle Dance Ratings
+                CreateDanceRatings(edit.DanceRatings, dms);
             }
 
             modified |= UpdatePurchaseInfo(edit,true);
@@ -468,21 +470,26 @@ namespace m4dModels
         // Only update if the old song didn't have this property
         private bool AddProperty(SongDetails edit, string name, DanceMusicService dms)
         {
-            bool modified = false;
+            var eP = edit.GetType().GetProperty(name).GetValue(edit);
+            var oP = GetType().GetProperty(name).GetValue(this);
 
-            object eP = edit.GetType().GetProperty(name).GetValue(edit);
-            object oP = GetType().GetProperty(name).GetValue(this);
+            // Edit property is null or whitespace and Old property isn't null or whitespace
+            if (NullIfWhitespace(eP) == null || NullIfWhitespace(oP) != null)
+                return false;
 
-            if (oP == null || (oP is string && string.IsNullOrWhiteSpace(oP as string)))
-            {
-                modified = true;
-                GetType().GetProperty(name).SetValue(this, eP);
-                CreateProperty(name, eP, null, CurrentLog, dms);
-            }
+            GetType().GetProperty(name).SetValue(this, eP);
+            CreateProperty(name, eP, null, CurrentLog, dms);
 
-            return modified;
+            return true;
         }
 
+        private static object NullIfWhitespace(object o)
+        {
+            var s = o as string;
+            if (s != null && string.IsNullOrWhiteSpace(s)) o = null;
+
+            return o;
+        }
         protected override SongProperty CreateProperty(string name, object value, object old, SongLog log, DanceMusicService dms)
         {
             SongProperty prop = null;

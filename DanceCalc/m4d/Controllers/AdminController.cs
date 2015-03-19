@@ -684,7 +684,7 @@ namespace m4d.Controllers
             if (lines.Count <= 0) return View("Error");
 
             var songs = SongsFromFile(user,lines);
-            results = MatchSongs(songs,MatchMethod.Tempo);
+            results = Database.MatchSongs(songs,DanceMusicService.MatchMethod.Tempo);
             ViewBag.FileId = CacheReview(results);
 
             return View("ReviewBatch", results);
@@ -722,12 +722,12 @@ namespace m4d.Controllers
                 if (m.Right != null)
                 {
                     var add = Database.AdditiveMerge(user, m.Right.SongId, sd, null, false);
-                    if (add != null)
+                    if (add)
                     {
-                        m.Right = add;
+                        m.Right = Database.FindSongDetails(m.Right.SongId,user.UserName);;
                         results.Add(m);
+                        changed += 1;
                     }
-                    changed += 1;
                 }
                 // Otherwise add it
                 else
@@ -995,7 +995,7 @@ namespace m4d.Controllers
             // ReSharper disable once InvertIf
             if (newSongs.Count > 0)
             {
-                results = MatchSongs(newSongs, MatchMethod.Merge);
+                results = Database.MatchSongs(newSongs,DanceMusicService.MatchMethod.Merge);
                 ViewBag.FileId = CacheReview(results);
             }
 
@@ -1033,34 +1033,7 @@ namespace m4d.Controllers
 
             if (initial.Count <= 0) return View("Error");
 
-            var modified = false;
-
-            foreach (var m in initial)
-            {
-                List<string> dancesT;
-                if (m.Left.DanceRatings != null && m.Left.DanceRatings.Count > 0)
-                {
-                    dancesT = m.Left.DanceRatings.Select(dr => dr.DanceId).ToList();
-                }
-                else
-                {
-                    dancesT = dances;
-                }
-
-                // Matchtype of none indicates a new (to us) song, so just add it
-                if (m.MatchType == MatchType.None)
-                {
-                    m.Left.UpdateDanceRatings(dancesT, SongBase.DanceRatingAutoCreate);
-                    modified = Database.CreateSong(user, m.Left) != null;
-                }
-                // Any other matchtype should result in a merge, which for now is just adding the dance(s) from
-                //  the new list to the existing song (or adding weight).
-                // Now we're going to potentially add tempo - need a more general solution for this going forward
-                else
-                {
-                    modified = Database.AdditiveMerge(user, m.Right.SongId, m.Left, dancesT) != null;
-                }
-            }
+            var modified = Database.MergeCatalog(user, initial, dances);
 
             if (modified)
             {
@@ -1300,86 +1273,6 @@ namespace m4d.Controllers
             var map = SongDetails.BuildHeaderMap(lines[0]);
             lines.RemoveAt(0);
             return SongDetails.CreateFromRows(user, "\t", map, lines, SongBase.DanceRatingAutoCreate);
-        }
-        private enum MatchMethod {None, Tempo, Merge};
-
-        private IList<LocalMerger> MatchSongs(IList<SongDetails> newSongs, MatchMethod method)
-        {
-            var merge = new List<LocalMerger>();
-
-            foreach (var song in newSongs)
-            {
-                var songT = song;
-                var songs = from s in Database.Songs where (s.TitleHash == songT.TitleHash) select s;
-
-                var candidates = new List<SongDetails>();
-                foreach (var s in songs)
-                {
-                    // Title-Artist match at minimum
-                    if (string.Equals(SongBase.CreateNormalForm(s.Artist), SongBase.CreateNormalForm(song.Artist)))
-                    {
-                        candidates.Add(new SongDetails(s));
-                    }
-                }
-
-                SongDetails match = null;
-                var type = MatchType.None;
-
-                if (candidates.Count > 0)
-                {
-                    // Now we have a list of existing songs that are a title-artist match to our new song - so see
-                    //  if we have a title-artist-album match
-
-                    if (song.HasAlbums)
-                    {
-                        var songD = song;
-                        foreach (var s in candidates.Where(s => s.FindAlbum(songD.Albums[0].Name) != null))
-                        {
-                            match = s;
-                            type = MatchType.Exact;
-                            break;
-                        }
-                    }
-
-                    // If not, try for a length match
-                    if (match == null && song.Length.HasValue)
-                    {
-                        var songD = song;
-                        foreach (var s in candidates.Where(s => s.Length.HasValue && Math.Abs(s.Length.Value - songD.Length.Value) < 5))
-                        {
-                            match = s;
-                            type = MatchType.Length;
-                            break;
-                        }
-                    }
-
-                    // TODO: We may want to make this even weaker (especially for merge): If merge doesn't have album remove candidate.HasRealAlbums?
-
-                    // Otherwise, if there is only one candidate and it doesn't have any 'real'
-                    //  albums, we will choose it
-                    if (match == null && candidates.Count == 1 && (!song.HasAlbums || !candidates[0].HasRealAblums))
-                    {
-                        type = MatchType.Weak;
-                        match = candidates[0];
-                    }
-                }
-
-                var m = new LocalMerger { Left = song, Right = match, MatchType = type, Conflict = false };
-                switch (method)
-                {
-                    case MatchMethod.Tempo:
-                        if (match != null)
-                            m.Conflict = song.TempoConflict(match, 3);
-                        break;
-                    case MatchMethod.Merge:
-                        // Do we need to do anything special here???
-                        break;
-                }
-
-                merge.Add(m);
-            }
-
-            return merge;
         }
 
         List<string> UploadFile() 

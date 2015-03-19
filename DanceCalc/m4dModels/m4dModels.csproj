@@ -83,6 +83,7 @@
     <Compile Include="ErrorModel.cs" />
     <Compile Include="IDanceMusicContext.cs" />
     <Compile Include="DanceLink.cs" />
+    <Compile Include="LocalMerger.cs" />
     <Compile Include="MergeCluster.cs" />
     <Compile Include="MusicServiceStub.cs" />
     <Compile Include="PurchaseType.cs" />

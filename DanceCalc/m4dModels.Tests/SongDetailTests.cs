@@ -93,6 +93,96 @@ namespace m4dModels.Tests
             ValidateLoadingRowDetails(NHeader, s_nRows, s_nRowProps);
         }
 
+        [TestMethod]
+        public void CreatingSongs()
+        {
+            var service = MockContext.CreateService(true);
+            var guids = CreateSongs(SHeader,s_sRows,service).ToList();
+
+            Assert.AreEqual(guids.Count(), service.Songs.Count());
+            for (var i = 0; i < guids.Count(); i++)
+            {
+                var s = service.Songs.Find(guids[i]);
+                Assert.IsNotNull(s);
+
+                var txt = DanceMusicTester.ReplaceTime(s.Serialize(new[] { SongBase.NoSongId }));
+                Trace.WriteLine(txt);
+                Assert.AreEqual(s_sRowProps[i], txt);
+            }
+        }
+
+        [TestMethod]
+        public void LoadingCatalog()
+        {
+            var service = MockContext.CreateService(true);
+            var guids = CreateSongs(SHeader, s_sRows, service).ToList();
+
+            Assert.AreEqual(guids.Count(), service.Songs.Count());
+
+            var songs = LoadRows(NHeader, s_nRows, service);
+
+            var merges = service.MatchSongs(songs, DanceMusicService.MatchMethod.Merge);
+
+            Assert.IsTrue(service.MergeCatalog(service.FindUser("dwgray"),merges));
+
+            var i = 0;
+            foreach (var song in merges.Select(merge => service.Songs.Find(merge.Right != null ? merge.Right.SongId : merge.Left.SongId)))
+            {
+                Assert.IsNotNull(song);
+                var txt = DanceMusicTester.ReplaceTime(song.Serialize(new[] { SongBase.NoSongId }));
+                Trace.WriteLine(txt);
+                Assert.AreEqual(s_nMergeProps[i++], txt);
+            }
+        }
+
+        [TestMethod]
+        public void LoadingDanceCatalog()
+        {
+            var service = MockContext.CreateService(true);
+            var guids = CreateSongs(SHeader, s_sRows, service).ToList();
+
+            Assert.AreEqual(guids.Count(), service.Songs.Count());
+
+            var songs = LoadRows(DHeader, s_dRows, service);
+
+            var merges = service.MatchSongs(songs, DanceMusicService.MatchMethod.Merge);
+
+            Assert.IsTrue(service.MergeCatalog(service.FindUser("dwgray"), merges, new[] {"VWZ"}));
+
+            var i = 0;
+            foreach (var song in merges.Select(merge => service.Songs.Find(merge.Right != null ? merge.Right.SongId : merge.Left.SongId)))
+            {
+                Assert.IsNotNull(song);
+                var txt = DanceMusicTester.ReplaceTime(song.Serialize(new[] { SongBase.NoSongId }));
+                Trace.WriteLine(txt);
+                Assert.AreEqual(s_dMergeProps[i++], txt);
+            }
+        }
+        [TestMethod]
+        public void PropertyByUser()
+        {
+            var song = new SongDetails(SQuuen);
+
+            var map = song.MapProperyByUsers(SongBase.DanceRatingField);
+
+            //foreach (var kv in map)
+            //{
+            //    Trace.WriteLine(string.Format("{0}:{1}",kv.Key,string.Join(",",kv.Value)));
+            //}
+
+            //SalsaSwingBallroom:LHP+10,ECS+5,WCS+10
+            //SandiegoDJ:LHP+10,ECS+5,WCS+10
+            //SteveThatDJ:LHP+10,ECS+5,WCS+10
+            //breanna:ECS+5,JIV+6
+            //shawntrautman:SWG+6
+            Assert.IsTrue(map["SalsaSwingBallroom"].Count == 3);
+            Assert.IsTrue(map["SandiegoDJ"].Count == 3);
+            Assert.IsTrue(map["SteveThatDJ"].Count == 3);
+            Assert.IsTrue(map["breanna"].Count == 2);
+            Assert.IsTrue(map["shawntrautman"].Count == 1);
+            Assert.IsFalse(map.ContainsKey("dwgray"));
+        }
+
         private void ValidateLoadingRowDetails(string header, string[] rows, string[] expected)
         {
             if (expected == null) throw new ArgumentNullException("expected");
@@ -108,27 +198,6 @@ namespace m4dModels.Tests
                 Trace.WriteLine(r);
                 Assert.AreEqual(expected[i], r);
             }
-        }
-
-        [TestMethod]
-        public void CreatingSongs()
-        {
-            var service = MockContext.CreateService(true);
-            var songs = LoadRows(SHeader,s_sRows,service);
-
-            var guids = CreateSongs(SHeader,s_sRows,service).ToList();
-
-            Assert.AreEqual(guids.Count(), service.Songs.Count());
-            for (var i = 0; i < guids.Count(); i++)
-            {
-                var s = service.Songs.Find(guids[i]);
-                Assert.IsNotNull(s);
-
-                var txt = DanceMusicTester.ReplaceTime(s.Serialize(new[] { SongBase.NoSongId }));
-                Trace.WriteLine(txt);
-                Assert.AreEqual(s_sRowProps[i], txt);
-            }
-
         }
 
         private IEnumerable<Guid> CreateSongs(string header, string[] rows, DanceMusicService service)
@@ -150,33 +219,6 @@ namespace m4dModels.Tests
 
             return ids;
         }
-
-        [TestMethod]
-        public void PropertyByUser()
-        {
-            var song = new SongDetails(SQuuen);
-
-            var map = song.MapProperyByUsers(SongBase.DanceRatingField);
-
-            //foreach (var kv in map)
-            //{
-            //    Trace.WriteLine(string.Format("{0}:{1}",kv.Key,string.Join(",",kv.Value)));
-            //}
-
-            //SalsaSwingBallroom:LHP+10,ECS+5,WCS+10
-            //SandiegoDJ:LHP+10,ECS+5,WCS+10
-            //SteveThatDJ:LHP+10,ECS+5,WCS+10
-            //breanna:ECS+5,JIV+6
-            //shawntrautman:SWG+6
-
-            Assert.IsTrue(map["SalsaSwingBallroom"].Count == 3);
-            Assert.IsTrue(map["SandiegoDJ"].Count == 3);
-            Assert.IsTrue(map["SteveThatDJ"].Count == 3);
-            Assert.IsTrue(map["breanna"].Count == 2);
-            Assert.IsTrue(map["shawntrautman"].Count == 1);
-            Assert.IsFalse(map.ContainsKey("dwgray"));
-        }
-
 
         static IList<SongDetails> Load()
         {
@@ -245,6 +287,29 @@ namespace m4dModels.Tests
             @".Create=	User=dwgray	Time=00/00/0000 0:00:00 PM	Tag+=English:Other|Foxtrot:Dance|Traditional:Style	DanceRating=FXT+5	Title=Glam	Tempo=50.0	Length=200	Artist=Dimie Cat",
             @".Create=	User=dwgray	Time=00/00/0000 0:00:00 PM	Tag+=Samba:Dance|Spanish:Other	DanceRating=SMB+3	Title=Drop It On Me (Ft Daddy Yankee)	Tempo=100.0	Length=234	Artist=Ricky Martin",
             @".Create=	User=dwgray	Time=00/00/0000 0:00:00 PM	Tag+=Mambo:Dance|Salsa:Dance|Traditional:Style	DanceRating=MBO+4	DanceRating=SLS+4	Title=Bailemos Otra Vez	Tempo=195.0	Length=308	Artist=Jose Alberto El Canario"
+        };
+
+        private static readonly string[] s_nMergeProps =
+        {
+            @".Create=	User=dwgray	Time=00/00/0000 0:00:00 PM	Title=Glam	Artist=Dimie Cat	Tempo=50.0	Tag+=QuickStep:Dance	DanceRating=QST+5	Album:00=Glam!	Purchase:00:AS=B0042D1W6C	.Edit=	User=dwgray	Time=00/00/0000 0:00:00 PM	Length=200	Tag+=English:Other|Foxtrot:Dance|Traditional:Style	DanceRating=FXT+5",
+            @".Create=	User=dwgray	Time=00/00/0000 0:00:00 PM	Title=Drop It On Me (Ft Daddy Yankee)	Artist=Ricky Martin	Tempo=100.0	Length=234	Tag+=Samba:Dance|Spanish:Other	DanceRating=SMB+3",
+            @".Create=	User=dwgray	Time=00/00/0000 0:00:00 PM	Title=Bailemos Otra Vez	Artist=Jose Alberto El Canario	Tempo=195.0	Length=308	Tag+=Mambo:Dance|Salsa:Dance|Traditional:Style	DanceRating=MBO+4	DanceRating=SLS+4",
+        };
+
+        private const string DHeader = @"Title	Artist	Comment";
+
+        private static readonly string[] s_dRows =
+        {
+            @"The L Train	Gabriel Yared	Traditional Waltz",
+            @"Come Wake Me Up	Rascal Flatts	Contemporary Waltz",
+            @"A very traditional Waltz	Strauss	Old English Language",
+        };
+
+        private static readonly string[] s_dMergeProps =
+        {
+            @".Create=	User=dwgray	Time=00/00/0000 0:00:00 PM	Title=The L Train	Artist=Gabriel Yared	Tempo=26.0	Tag+=Slow Waltz:Dance	DanceRating=SWZ+5	Album:00=Shall We Dance?	Purchase:00:AS=B001NYTZJY	.Edit=	User=dwgray	Time=00/00/0000 0:00:00 PM	Tag+=VWZ:Dance	DanceRating=VWZ+6",
+            @".Create=	User=dwgray	Time=00/00/0000 0:00:00 PM	Title=Come Wake Me Up	Artist=Rascal Flatts	Tempo=51.0	Tag+=Viennese Waltz:Dance	DanceRating=VWZ+5	Album:00=Changed (Deluxe Version) [+Digital Booklet]	Purchase:00:AS=B007MSUAV2	.Edit=	User=dwgray	Time=00/00/0000 0:00:00 PM	Tag+=VWZ:Dance	DanceRating=VWZ+3",
+            @".Create=	User=dwgray	Time=00/00/0000 0:00:00 PM	Title=A very traditional Waltz	Artist=Strauss	Tag+=English:Other	DanceRating=VWZ+10",
         };
 
         private const string SQuuen = @"SongId={70b993fa-f821-44c7-bf5d-6076f4fe8f17}	User=batch	Time=3/19/2014 5:03:17 PM	Title=Crazy Little Thing Called Love	Artist=Queen	Tempo=154.0	Album:0=Greatest Hits	Album:1=The Game	Album:2=Queen - Greatest Hits	User=SalsaSwingBallroom	User=SandiegoDJ	User=SteveThatDJ	DanceRating=LHP+10	DanceRating=ECS+5	DanceRating=WCS+10	User=batch	Time=5/7/2014 11:30:58 AM	Length=163	Genre=Rock	Track:1=5	Purchase:1:XS=music.F9021900-0100-11DB-89CA-0019B92A3933	User=batch	Time=5/7/2014 3:32:13 PM	Album:2=Queen: Greatest Hits	Track:2=9	Purchase:2:IS=27243763	Purchase:2:IA=27243728	User=batch	Time=5/20/2014 3:46:15 PM	Track:0=9	Purchase:0:AS=D:B00138K9CM	Purchase:0:AA=D:B00138F72E	User=breanna	Time=6/5/2014 8:46:10 PM	DanceRating=ECS+5	User=breanna	Time=6/9/2014 8:13:17 PM	DanceRating=JIV+6	User=shawntrautman	Time=6/23/2014 1:56:23 PM	DanceRating=SWG+6";

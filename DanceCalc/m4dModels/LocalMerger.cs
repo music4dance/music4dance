@@ -1,6 +1,4 @@
-﻿using m4dModels;
-
-namespace m4d.ViewModels
+﻿namespace m4dModels
 {
     // Exact = Title, Artist, Album
     // Length = Title, Artist, Length

@@ -15,7 +15,9 @@ namespace m4dModels.Tests
         {
             var context = new MockContext(seedUsers);
             var umanager = new UserManager<ApplicationUser>(new MockUserStore(context));
-            return new DanceMusicService(context, umanager);            
+            var service = new DanceMusicService(context, umanager);
+            service.SeedDances();
+            return service;
         }
         class DanceSet : TestDbSet<Dance>
         {
