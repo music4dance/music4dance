@@ -446,7 +446,7 @@ namespace m4d.Controllers
                     result = await UserManager.AddLoginAsync(user.Id, info.Login);
                     if (result.Succeeded)
                     {
-                        await SignInManager.SignInAsync(user, isPersistent: false, rememberBrowser: false);
+                        await SignInManager.ExternalSignInAsync(info, isPersistent: false);
                         return ProfileRedirect(returnUrl, user);
                     }
                 }
