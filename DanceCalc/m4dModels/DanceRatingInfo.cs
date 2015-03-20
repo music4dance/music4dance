@@ -14,6 +14,7 @@ namespace m4dModels
 
         public DanceRatingInfo(DanceRating dr, ApplicationUser user, DanceMusicService dms)
         {
+            // TODO: Make this more resilient - server appears to have gotten into a state where SongCounts weren't returning this map correctly
             var map = SongCounts.GetDanceMap(dms);
 
             DanceId = dr.DanceId;
