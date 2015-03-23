@@ -60,24 +60,19 @@ namespace m4d.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult Create([Bind(Include = "UserName")] ApplicationUser applicationUser)
         {
-            if (ModelState.IsValid)
-            {
-                Database.FindOrAddUser(applicationUser.UserName, DanceMusicService.PseudoRole);
-                Context.SaveChanges();
-                return RedirectToAction("Index");
-            }
+            if (!ModelState.IsValid) return View(applicationUser);
 
-            return View(applicationUser);
+            Database.FindOrAddUser(applicationUser.UserName, DanceMusicService.PseudoRole);
+            Context.SaveChanges();
+            return RedirectToAction("Index");
         }
 
         // GET: Users/Edit/5
         public ActionResult Edit(string id)
         {
-            if (id == null)
-            {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
-            }
-            ApplicationUser applicationUser = Context.Users.Find(id);
+            if (id == null) return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+
+            var applicationUser = Context.Users.Find(id);
             if (applicationUser == null)
             {
                 return HttpNotFound();
@@ -92,13 +87,11 @@ namespace m4d.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult Edit([Bind(Include = "Id,Email,EmailConfirmed,PasswordHash,SecurityStamp,PhoneNumber,PhoneNumberConfirmed,TwoFactorEnabled,LockoutEndDateUtc,LockoutEnabled,AccessFailedCount,UserName")] ApplicationUser applicationUser)
         {
-            if (ModelState.IsValid)
-            {
-                Context.Entry(applicationUser).State = EntityState.Modified;
-                Context.SaveChanges();
-                return RedirectToAction("Index");
-            }
-            return View(applicationUser);
+            if (!ModelState.IsValid) return View(applicationUser);
+
+            Context.Entry(applicationUser).State = EntityState.Modified;
+            Context.SaveChanges();
+            return RedirectToAction("Index");
         }
 
         // GET: Users/ChangeRoles/5
@@ -108,11 +101,12 @@ namespace m4d.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            ApplicationUser applicationUser = Context.Users.Find(id);
+            var applicationUser = UserManager.FindById(id);
             if (applicationUser == null)
             {
                 return HttpNotFound();
             }
+            ViewBag.Roles = Context.Roles;
             return View(applicationUser);
         }
 
@@ -128,33 +122,29 @@ namespace m4d.Controllers
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
 
-            ApplicationUser user = Context.Users.Find(id);
+            var user = UserManager.FindById(id);
             if (user == null)
             {
                 return HttpNotFound();
             }
 
-            List<string> newRoles;
-            newRoles = roles == null ? new List<string>() : new List<string>(roles);
-
-            var ustore = new UserStore<ApplicationUser>(Context);
-            var umanager = new UserManager<ApplicationUser>(ustore);
+            var newRoles = roles == null ? new List<string>() : new List<string>(roles);
 
             foreach (var role in Context.Roles)
             {
                 // New Role
                 if (newRoles.Contains(role.Name))
                 {
-                    if (!user.Roles.Any(iur => iur.RoleId == role.Id))
+                    if (user.Roles.All(iur => iur.RoleId != role.Id))
                     {
-                        umanager.AddToRole(user.Id, role.Name);
+                        UserManager.AddToRole(user.Id, role.Name);
                     }
                 }
                 else 
                 { 
-                    if (!user.Roles.Any(iur => iur.RoleId == role.Id))
+                    if (user.Roles.Any(iur => iur.RoleId == role.Id))
                     {
-                        umanager.RemoveFromRole(user.Id, role.Name);
+                        UserManager.RemoveFromRole(user.Id, role.Name);
                     }
                 }
             }
@@ -171,7 +161,7 @@ namespace m4d.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            ApplicationUser applicationUser = Context.Users.Find(id);
+            var applicationUser = UserManager.FindById(id);
             if (applicationUser == null)
             {
                 return HttpNotFound();
@@ -184,7 +174,7 @@ namespace m4d.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult DeleteConfirmed(string id)
         {
-            ApplicationUser applicationUser = Context.Users.Find(id);
+            var applicationUser = UserManager.FindById(id);
             Context.Users.Remove(applicationUser);
             Context.SaveChanges();
             return RedirectToAction("Index");

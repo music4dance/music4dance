@@ -2,6 +2,11 @@
 
 @{
     ViewBag.Title = "ChangeRoles";
+
+    var roles = @Model.GetRoles(ViewBag.Roles);
+    var editCheck = roles.Contains("canEdit") ? "checked" : string.Empty;
+    var diagCheck = roles.Contains("showDiagnostics") ? "checked" : string.Empty;
+    var dbaCheck = roles.Contains("dbAdmin") ? "checked" : string.Empty;
 }
 
 <h2>ChangeRoles for @Model.UserName</h2>
@@ -18,15 +23,15 @@
             <div class="col-md-12">
                 <div class="checkbox">
                     <label>
-                        <input type="checkbox" name="roles" value="@m4dModels.DanceMusicService.EditRole">
+                        <input type="checkbox" name="roles" value="@m4dModels.DanceMusicService.EditRole" @editCheck>
                         Editor
                     </label>
                     <label>
-                        <input type="checkbox" name="roles" value="@m4dModels.DanceMusicService.DiagRole">
+                        <input type="checkbox" name="roles" value="@m4dModels.DanceMusicService.DiagRole" @diagCheck>
                         Diagnostics
                     </label>
                     <label>
-                        <input type="checkbox" name="roles" value="@m4dModels.DanceMusicService.DbaRole">
+                        <input type="checkbox" name="roles" value="@m4dModels.DanceMusicService.DbaRole" @dbaCheck>
                         Database Administrator
                     </label>
                 </div>
