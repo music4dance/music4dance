@@ -6,15 +6,18 @@
 <h2>Error</h2>
 <div>
     @{
-        string message = null;
-        switch (Model.HttpStatusCode)
+        var message = Model.Message;
+        if (string.IsNullOrWhiteSpace(message))
         {
-            case 404:
-                message = "The page you requested wasn't found.";
-                break;
-            case 500:
-                message = string.Concat("The following server error was encountered:<br /> ", Model.Exception.Message);
-                break;
+            switch (Model.HttpStatusCode)
+            {
+                case 404:
+                    message = "The page you requested wasn't found.";
+                    break;
+                case 500:
+                    message = string.Concat("The following server error was encountered:<br /> ", Model.Exception.Message);
+                    break;
+            }
         }
     }
 
@@ -23,7 +26,7 @@
 
 <div>
     <h3>Here are a few things to try:</h3>
-    <ul>        
+    <ul>
         <li>Try our <a href="https://www.music4dance.net/dances">dances page</a> if you're looking for information about a particular dance style.</li>
         <li>Try our <a href="https://www.music4dance.net/song">songs page</a> if you're looking for dance information about a particular song or artist.</li>
         <li>Try our <a href="https://www.music4dance.net/blog">blog</a> if you're looking for information about relating music to dance.</li>

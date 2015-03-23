@@ -740,13 +740,25 @@ namespace m4dModels
         {
             var song = FindSong(id);
 
-            if (song == null)
-                return null;
-
-            var sd = new SongDetails(song,userName,this);
-
-            return sd;
+            return song == null ? null : new SongDetails(song,userName,this);
         }
+
+        public SongDetails FindMergedSong(Guid id, string userName = null)
+        {
+            while (true)
+            {
+                var idS = id.ToString();
+                var property = SongProperties.FirstOrDefault(p => p.Name == SongBase.MergeCommand && p.Value.Contains(idS));
+
+                if (property == null) return null;
+
+                var sd = FindSongDetails(property.SongId, userName);
+                if (sd != null) return sd;
+
+                id = property.SongId;
+            }
+        }
+
 
         private Song FindSongBySignature(string signature)
         {

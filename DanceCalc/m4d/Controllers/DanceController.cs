@@ -2,6 +2,7 @@
 using System.Data.Entity;
 using System.Diagnostics;
 using System.Linq;
+using System.Net;
 using System.Web.Mvc;
 using m4dModels;
 
@@ -37,7 +38,7 @@ namespace m4d.Controllers
                 }
                 else
                 {
-                    return HttpNotFound();
+                    return ReturnError(HttpStatusCode.NotFound, string.Format("The dance with the name = {0} isn't defined.", dance));
                 }
             }
         }
@@ -62,7 +63,7 @@ namespace m4d.Controllers
             }
             else
             {
-                return HttpNotFound();
+                return ReturnError(HttpStatusCode.NotFound,string.Format("The dance with id = {0} isn't defined.",id));
             }
         }
         //

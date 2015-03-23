@@ -19,7 +19,7 @@ namespace m4d.Controllers
                 Response.StatusCode = statusCode; 
                 Response.TrySkipIisCustomErrors = true;
 
-                return View(model);
+                return View("HttpError",model);
             }
             else
             {

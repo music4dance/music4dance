@@ -1,4 +1,6 @@
-﻿using System.Web;
+﻿using System;
+using System.Net;
+using System.Web;
 using System.Web.Mvc;
 using m4d.Context;
 using m4dModels;
@@ -28,6 +30,15 @@ namespace m4d.Controllers
         }
         private string _themeName = null;
 
+        public ActionResult ReturnError(HttpStatusCode statusCode = HttpStatusCode.InternalServerError, string message = null, Exception exception = null)
+        {
+            var model = new ErrorModel { HttpStatusCode = (int)statusCode, Message=message, Exception = exception };
+
+            Response.StatusCode = (int)statusCode;
+            Response.TrySkipIisCustomErrors = true;
+
+            return View("HttpError",model);
+        }
         protected override ViewResult View(string viewName, string masterName, object model)
         {
             ViewBag.Theme = ThemeName;
@@ -36,13 +47,11 @@ namespace m4d.Controllers
 
         protected DanceMusicService Database 
         {
-            get
-            {
-                if (_database == null)
-                {
-                    _database = new DanceMusicService(HttpContext.GetOwinContext().Get<DanceMusicContext>(), HttpContext.GetOwinContext().GetUserManager<ApplicationUserManager>());
-                }
-                return _database;
+            get {
+                return _database ??
+                       (_database =
+                           new DanceMusicService(HttpContext.GetOwinContext().Get<DanceMusicContext>(),
+                               HttpContext.GetOwinContext().GetUserManager<ApplicationUserManager>()));
             }
         }
         private DanceMusicService _database = null;
