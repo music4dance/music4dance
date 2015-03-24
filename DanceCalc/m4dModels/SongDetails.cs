@@ -367,13 +367,14 @@ namespace m4dModels
                         {
                             Trace.WriteLine(string.Format("Title and Artist are the same ({0})",sd.Title));
                         }
-                        if (!songs.ContainsKey(ta))
+                        SongDetails old;
+                        if (songs.TryGetValue(ta, out old))
                         {
-                            songs.Add(ta,sd);
+                            old.MergeRow(user,sd);
                         }
                         else
                         {
-                            Trace.WriteLineIf(TraceLevels.General.TraceInfo,string.Format("Duplicate Title/Artist/Album: {0}",line));
+                            songs.Add(ta,sd);
                         }
                     }
                 }
@@ -385,6 +386,32 @@ namespace m4dModels
             }
 
             return new List<SongDetails>(songs.Values);
+        }
+
+        private void MergeRow(ApplicationUser user, SongDetails other)
+        {
+            if (other.Length.HasValue && !Length.HasValue)
+            {
+                Length = other.Length;
+                CreateProperty(LengthField, other.Length.Value,null,null);
+            }
+            if (other.Tempo.HasValue && !Tempo.HasValue)
+            {
+                Tempo = other.Tempo;
+                CreateProperty(TempoField, other.Tempo.Value, null, null);
+            }
+
+            var tagPropOther = other.LastProperty(AddedTags);
+            if (tagPropOther != null)
+            {
+                var tagProp = LastProperty(AddedTags);
+                tagProp.Value = (new TagList(tagProp.Value)).Add(new TagList(tagPropOther.Value)).ToString();
+            }
+
+            foreach (var dr in other.DanceRatings)
+            {
+                UpdateDanceRating(new DanceRatingDelta(dr.DanceId,dr.Weight),true);
+            }
         }
 
         public void SetupSerialization(ApplicationUser user, DanceMusicService dms)

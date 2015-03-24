@@ -90,7 +90,7 @@ namespace m4dModels.Tests
         [TestMethod]
         public void LoadingTaggedRowDetails()
         {
-            ValidateLoadingRowDetails(NHeader, s_nRows, s_nRowProps);
+            ValidateLoadingRowDetails(NHeader, s_nRows, s_nRowProps, 1);
         }
 
         [TestMethod]
@@ -119,7 +119,7 @@ namespace m4dModels.Tests
 
             Assert.AreEqual(guids.Count(), service.Songs.Count());
 
-            var songs = LoadRows(NHeader, s_nRows, service);
+            var songs = LoadRows(NHeader, s_nRows, service, 1);
 
             var merges = service.MatchSongs(songs, DanceMusicService.MatchMethod.Merge);
 
@@ -183,13 +183,13 @@ namespace m4dModels.Tests
             Assert.IsFalse(map.ContainsKey("dwgray"));
         }
 
-        private void ValidateLoadingRowDetails(string header, string[] rows, string[] expected)
+        private void ValidateLoadingRowDetails(string header, string[] rows, string[] expected, int dups = 0)
         {
             if (expected == null) throw new ArgumentNullException("expected");
 
             DanceMusicService service = MockContext.CreateService(true);
 
-            var songs = LoadRows(header, rows, service);
+            var songs = LoadRows(header, rows, service, dups);
 
             for (var i = 0; i < expected.Length; i++)
             {
@@ -225,7 +225,7 @@ namespace m4dModels.Tests
             return s_sData.Select(str => new SongDetails(str)).ToList();
         }
 
-        static IList<SongDetails> LoadRows(string header, string[] rows, DanceMusicService service)
+        static IList<SongDetails> LoadRows(string header, string[] rows, DanceMusicService service, int dups = 0)
         {
             if (rows == null) throw new ArgumentNullException("rows");
 
@@ -234,7 +234,7 @@ namespace m4dModels.Tests
             IList<string> headers = SongDetails.BuildHeaderMap(header);
             var ret = SongDetails.CreateFromRows(user,"\t",headers,rows,5);
 
-            Assert.AreEqual(rows.Length, ret.Count);
+            Assert.AreEqual(rows.Length, ret.Count+dups);
             return ret;
         }
 
@@ -257,7 +257,7 @@ namespace m4dModels.Tests
             @"Inflitrado	Bajofondo	30	TNG	Mar Dulce	B001C3G8MS",
             @"Des Croissants de Soleil	Emilie-Claire Barlow	24	BOL,RMBI	Des croissants de soleil	B009CW0JFS",
             @"Private Eyes	Brazilian Love Affair	31	RMBA	Brazilian Lounge - Les Mysteres De Rio	B007UK5L52",
-            @"Glam	Dimie Cat	50	QST	Glam!	B0042D1W6C",
+            @"Glam	Dimie Cat	200	QST	Glam!	B0042D1W6C",
             @"All For You	Imelda May	30	SFT	More Mayhem	B008VSKRAQ",
         };
 
@@ -269,7 +269,7 @@ namespace m4dModels.Tests
             @".Create=	User=dwgray	Time=00/00/0000 0:00:00 PM	Title=Inflitrado	Artist=Bajofondo	Tempo=30.0	Tag+=Tango:Dance	DanceRating=TNG+5	Album:00=Mar Dulce	Purchase:00:AS=B001C3G8MS",
             @".Create=	User=dwgray	Time=00/00/0000 0:00:00 PM	Title=Des Croissants de Soleil	Artist=Emilie-Claire Barlow	Tempo=24.0	Tag+=Bolero:Dance|International Rumba:Dance	DanceRating=BOL+5	DanceRating=RMBI+5	Album:00=Des croissants de soleil	Purchase:00:AS=B009CW0JFS",
             @".Create=	User=dwgray	Time=00/00/0000 0:00:00 PM	Title=Private Eyes	Artist=Brazilian Love Affair	Tempo=31.0	Tag+=American Rumba:Dance	DanceRating=RMBA+5	Album:00=Brazilian Lounge - Les Mysteres De Rio	Purchase:00:AS=B007UK5L52",
-            @".Create=	User=dwgray	Time=00/00/0000 0:00:00 PM	Title=Glam	Artist=Dimie Cat	Tempo=50.0	Tag+=QuickStep:Dance	DanceRating=QST+5	Album:00=Glam!	Purchase:00:AS=B0042D1W6C",
+            @".Create=	User=dwgray	Time=00/00/0000 0:00:00 PM	Title=Glam	Artist=Dimie Cat	Tempo=200.0	Tag+=QuickStep:Dance	DanceRating=QST+5	Album:00=Glam!	Purchase:00:AS=B0042D1W6C",
             @".Create=	User=dwgray	Time=00/00/0000 0:00:00 PM	Title=All For You	Artist=Imelda May	Tempo=30.0	Tag+=Slow Foxtrot:Dance	DanceRating=SFT+5	Album:00=More Mayhem	Purchase:00:AS=B008VSKRAQ",
         };
 
@@ -277,23 +277,24 @@ namespace m4dModels.Tests
 
         private static readonly string[] s_nRows =
         {
-            @"Foxtrot	5	Glam	50	3:20	Dimie Cat	traditional english language foxtrot",
+            @"Foxtrot	5	Glam	120	3:20	Dimie Cat	traditional english language foxtrot",
             @"Samba	3	Drop It On Me (Ft Daddy Yankee)	100	3:54	Ricky Martin	good pop-latin spanish language samba",
-            @"Mambo,Salsa	4	Bailemos Otra Vez	195	5:08	Jose Alberto El Canario	Old sounding overall mambo/salsa with a clear rhythm"
+            @"Mambo,Salsa	4	Bailemos Otra Vez	195		Jose Alberto El Canario	Old sounding overall mambo/salsa with a clear rhythm",
+            @"Cha Cha	3	Bailemos Otra Vez	195	5:08	Jose Alberto El Canario	"
         };
 
         private static readonly string[] s_nRowProps =
         {
-            @".Create=	User=dwgray	Time=00/00/0000 0:00:00 PM	Tag+=English:Other|Foxtrot:Dance|Traditional:Style	DanceRating=FXT+5	Title=Glam	Tempo=50.0	Length=200	Artist=Dimie Cat",
+            @".Create=	User=dwgray	Time=00/00/0000 0:00:00 PM	Tag+=English:Other|Foxtrot:Dance|Traditional:Style	DanceRating=FXT+5	Title=Glam	Tempo=120.0	Length=200	Artist=Dimie Cat",
             @".Create=	User=dwgray	Time=00/00/0000 0:00:00 PM	Tag+=Samba:Dance|Spanish:Other	DanceRating=SMB+3	Title=Drop It On Me (Ft Daddy Yankee)	Tempo=100.0	Length=234	Artist=Ricky Martin",
-            @".Create=	User=dwgray	Time=00/00/0000 0:00:00 PM	Tag+=Mambo:Dance|Salsa:Dance|Traditional:Style	DanceRating=MBO+4	DanceRating=SLS+4	Title=Bailemos Otra Vez	Tempo=195.0	Length=308	Artist=Jose Alberto El Canario"
+            @".Create=	User=dwgray	Time=00/00/0000 0:00:00 PM	Tag+=Cha Cha:Dance|Mambo:Dance|Salsa:Dance|Traditional:Style	DanceRating=MBO+4	DanceRating=SLS+4	Title=Bailemos Otra Vez	Tempo=195.0	Artist=Jose Alberto El Canario	Length=308	DanceRating=CHA+3"
         };
 
         private static readonly string[] s_nMergeProps =
         {
-            @".Create=	User=dwgray	Time=00/00/0000 0:00:00 PM	Title=Glam	Artist=Dimie Cat	Tempo=50.0	Tag+=QuickStep:Dance	DanceRating=QST+5	Album:00=Glam!	Purchase:00:AS=B0042D1W6C	.Edit=	User=dwgray	Time=00/00/0000 0:00:00 PM	Length=200	Tag+=English:Other|Foxtrot:Dance|Traditional:Style	DanceRating=FXT+5",
+            @".Create=	User=dwgray	Time=00/00/0000 0:00:00 PM	Title=Glam	Artist=Dimie Cat	Tempo=200.0	Tag+=QuickStep:Dance	DanceRating=QST+5	Album:00=Glam!	Purchase:00:AS=B0042D1W6C	.Edit=	User=dwgray	Time=00/00/0000 0:00:00 PM	Length=200	Tag+=English:Other|Foxtrot:Dance|Traditional:Style	DanceRating=FXT+5",
             @".Create=	User=dwgray	Time=00/00/0000 0:00:00 PM	Title=Drop It On Me (Ft Daddy Yankee)	Artist=Ricky Martin	Tempo=100.0	Length=234	Tag+=Samba:Dance|Spanish:Other	DanceRating=SMB+3",
-            @".Create=	User=dwgray	Time=00/00/0000 0:00:00 PM	Title=Bailemos Otra Vez	Artist=Jose Alberto El Canario	Tempo=195.0	Length=308	Tag+=Mambo:Dance|Salsa:Dance|Traditional:Style	DanceRating=MBO+4	DanceRating=SLS+4",
+            @".Create=	User=dwgray	Time=00/00/0000 0:00:00 PM	Title=Bailemos Otra Vez	Artist=Jose Alberto El Canario	Tempo=195.0	Length=308	Tag+=Cha Cha:Dance|Mambo:Dance|Salsa:Dance|Traditional:Style	DanceRating=MBO+4	DanceRating=SLS+4	DanceRating=CHA+3",
         };
 
         private const string DHeader = @"Title	Artist	Comment";
