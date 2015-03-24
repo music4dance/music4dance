@@ -786,7 +786,6 @@
     <Content Include="Views\Home\SiteMap.cshtml" />
     <Content Include="Views\Song\ItemTags.cshtml" />
     <Content Include="Views\Song\Dances.cshtml" />
-    <Content Include="Views\Error\Index.cshtml" />
     <Content Include="Views\Shared\_TagEditor.cshtml" />
     <Content Include="Views\Manage\EditProfile.cshtml" />
     <Content Include="Views\Song\SetupSongScript.cshtml" />
@@ -796,6 +795,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
+    <Folder Include="Views\Error\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="packages.config">
