@@ -789,6 +789,7 @@
     <Content Include="Views\Shared\_TagEditor.cshtml" />
     <Content Include="Views\Manage\EditProfile.cshtml" />
     <Content Include="Views\Song\SetupSongScript.cshtml" />
+    <Content Include="Views\Shared\HttpError.cshtml" />
     <None Include="Web.m4d.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
