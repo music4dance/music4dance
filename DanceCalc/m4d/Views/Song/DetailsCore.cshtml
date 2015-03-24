@@ -4,7 +4,13 @@
 @Html.Partial("SetupSongScript")
 
 <div class="page-header">
-    <h1>@Model.Title <small>by @Html.ActionLink(Model.Artist, "search", "song", new { searchString = Model.Artist, dances = "ALL" }, null)</small></h1>
+    <h1>
+        @Model.Title
+        @if (!string.IsNullOrWhiteSpace(@Model.Artist))
+        {
+            <small>by @Html.ActionLink(Model.Artist, "search", "song", new { searchString = Model.Artist, dances = "ALL" }, null)</small>
+        }    
+    </h1>
 </div>
 @{
     var region = User.Region();
