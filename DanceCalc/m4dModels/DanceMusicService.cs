@@ -85,8 +85,6 @@ namespace m4dModels
                 song.Create(sd, tags, user, command, value, this);
             }
 
-            song.InferDances(user);
-
             song = _context.Songs.Add(song);
             if (createLog)
             {
@@ -1181,7 +1179,7 @@ namespace m4dModels
                 {
                     if (dancesL.Any())
                     {
-                        m.Left.UpdateAndInferDanceRatings(user, dancesL, SongBase.DanceRatingInitial);
+                        m.Left.UpdateDanceRatingsAndTags(user, dancesL, SongBase.DanceRatingInitial);
                     }
                     var temp = CreateSong(user, m.Left);
                     if (temp != null)

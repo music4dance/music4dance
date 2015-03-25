@@ -156,7 +156,8 @@ namespace m4dModels.Tests
                 Assert.IsNotNull(song);
                 var txt = DanceMusicTester.ReplaceTime(song.Serialize(new[] { SongBase.NoSongId }));
                 Trace.WriteLine(txt);
-                Assert.AreEqual(s_dMergeProps[i++], txt);
+                Assert.AreEqual(s_dMergeProps[i], txt,string.Format("Failed on Line {0}",i));
+                i += 1;
             }
         }
         [TestMethod]

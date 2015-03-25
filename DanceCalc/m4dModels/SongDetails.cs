@@ -554,7 +554,7 @@ namespace m4dModels
             } 
         }
 
-        public void UpdateAndInferDanceRatings(ApplicationUser user, IEnumerable<string> dances, int weight)
+        public void UpdateDanceRatingsAndTags(ApplicationUser user, IEnumerable<string> dances, int weight)
         {
             var enumerable = dances as IList<string> ?? dances.ToList();
             var tags = TagsFromDances(enumerable);
@@ -562,8 +562,6 @@ namespace m4dModels
             if (added != null && !added.IsEmpty)
                 Properties.Add(new SongProperty(Guid.Empty, AddedTags,added.ToString()));
             UpdateDanceRatings(enumerable,weight);
-
-            InferDances(user);
         }
 
         #endregion
