@@ -183,8 +183,13 @@ namespace m4dModels
             modified |= UpdatePurchaseInfo(edit);
             modified |= UpdateModified(user, edit, dms, true);
 
-            if (tags != null)
-                modified |= InternalEditTags(user, tags, dms);
+            if (tags == null) return modified;
+
+            modified |= InternalEditTags(user, tags, dms);
+            if (modified)
+            {
+                InferDances(user);
+            }
 
             return modified;
         }

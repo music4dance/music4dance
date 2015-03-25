@@ -82,8 +82,10 @@ namespace m4dModels
             }
             else
             {
-                song.Create(sd, tags, user, command, value, this);                
+                song.Create(sd, tags, user, command, value, this);
             }
+
+            song.InferDances(user);
 
             song = _context.Songs.Add(song);
             if (createLog)
