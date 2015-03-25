@@ -159,7 +159,7 @@ namespace m4dModels
         {
             Tag tag = null;
             if (Tags != null)
-                tag = Tags.FirstOrDefault(t => (t.User == user) && (t.Id == TagId));
+                tag = Tags.FirstOrDefault(t => (t.User.UserName == user.UserName) && (t.Id == TagId));
 
             if (tag != null || dms == null) return tag;
 

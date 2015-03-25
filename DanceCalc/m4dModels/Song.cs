@@ -287,12 +287,13 @@ namespace m4dModels
 
             if (addDances != null && addDances.Count > 0)
             {
-                var tags = string.Join("|", addDances);
-                tags = dms.NormalizeTags(tags, "Dance");
+                var tags = TagsFromDances(addDances);
                 var newTags = AddTags(tags, user, dms, this);
                 modified = newTags != null && !string.IsNullOrWhiteSpace(tags);
 
                 modified |= EditDanceRatings(addDances, DanceRatingIncrement, null, 0, dms);
+
+                InferDances(user);
             }
             else
             {
