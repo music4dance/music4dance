@@ -778,6 +778,15 @@ namespace m4dModels
             "THE",
             "THIS"
         };
+        protected static IList<string> TagsToDanceIds(TagList tags)
+        {
+            return TagsToDances(tags).Select(d => d.Id).ToList();
+        }
+
+        protected static IList<DanceObject> TagsToDances(TagList tags)
+        {
+            return Dances.Instance.FromNames(tags.Filter("Dance").StripType()).ToList();
+        }
 
         #endregion
 

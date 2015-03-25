@@ -355,10 +355,6 @@ namespace m4dModels
             }                
         }
 
-        private static IList<string> TagsToDanceIds(TagList tags)
-        {
-            return DanceLibrary.Dances.Instance.FromNames(tags.Filter("Dance").StripType()).Select(d => d.Id).ToList();
-        }
         private bool UpdateModified(ApplicationUser user, SongDetails edit, DanceMusicService dms, bool force)
         {
             var modified = false;

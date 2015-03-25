@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.Entity;
 using System.Diagnostics;
 using System.Linq;
 using System.Runtime.Serialization;
@@ -370,7 +371,7 @@ namespace m4dModels
                         SongDetails old;
                         if (songs.TryGetValue(ta, out old))
                         {
-                            old.MergeRow(user,sd);
+                            old.MergeRow(sd);
                         }
                         else
                         {
@@ -385,10 +386,16 @@ namespace m4dModels
                 }
             }
 
-            return new List<SongDetails>(songs.Values);
+            var ret = new List<SongDetails>(songs.Values);
+
+            foreach (var sd in ret)
+            {
+                sd.InferDances(user);
+            }
+            return ret;
         }
 
-        private void MergeRow(ApplicationUser user, SongDetails other)
+        private void MergeRow(SongBase other)
         {
             if (other.Length.HasValue && !Length.HasValue)
             {
@@ -414,6 +421,80 @@ namespace m4dModels
             }
         }
 
+        private void InferDances(ApplicationUser user)
+        {
+            // Get the dances from the current user's tags
+            SetCurrentUserTags(user,null);
+            var tags = CurrentUserTags;
+
+            // Infer dance groups != MSC
+            var dict = Dances.Instance.DanceDictionary;
+
+            var dances = TagsToDances(tags);
+            var ngs = new Dictionary<string,DanceRatingDelta>();
+            var groups = new HashSet<string>();
+
+            // ReSharper disable once LoopCanBePartlyConvertedToQuery
+            foreach (var dance in dances)
+            {
+                var dt = dance as DanceType;
+                if (dt == null)
+                {
+                    var dg = dance as DanceGroup;
+                    if (dg == null)
+                        continue;
+                    if (dg.Id != "MSC" && dg.Id != "LTN") 
+                        groups.Add(dg.Id);
+                }
+                else
+                {
+                    var g = dt.GroupId;
+                    if (g == "MSC") continue;
+
+                    if (g != "LTN")
+                        groups.Add(g);
+
+                    DanceRatingDelta drd;
+                    if (ngs.TryGetValue(g, out drd))
+                    {
+                        drd.Delta += 1;
+                    }
+                    else
+                    {
+                        drd = new DanceRatingDelta(g, 1);
+                        ngs.Add(g, drd);
+                    }
+                }
+
+            }
+
+            foreach (var ng in ngs.Values)
+            {
+                UpdateDanceRating(ng, true);
+            }
+
+            // If we have tempo, infer dances from group (SWG, FXT, TNG, WLZ)
+            if (!Tempo.HasValue) return;
+
+            var tempo = Tempo.Value;
+
+            // ReSharper disable once LoopCanBeConvertedToQuery
+            // ReSharper disable once LoopCanBePartlyConvertedToQuery
+            foreach (var gid in groups)
+            {
+                var dg = dict[gid] as DanceGroup;
+                if (dg == null) continue;
+
+                foreach (var dto in dg.Members)
+                {
+                    var dt = dto as DanceType;
+                    if (dt == null || !dt.TempoRange.ToBpm(dt.Meter).Contains(tempo)) continue;
+
+                    var drd = new DanceRatingDelta(dt.Id, 1);
+                    UpdateDanceRating(drd, true);
+                }
+            }
+        }
         public void SetupSerialization(ApplicationUser user, DanceMusicService dms)
         {
             if (RatingsList == null || RatingsList.Count == 0) return;
@@ -527,9 +608,42 @@ namespace m4dModels
             get { return _currentUserTags; }
             set { throw new NotImplementedException("Shouldn't hit the setter for this.");}
         }
-        public void  SetCurrentUserTags(ApplicationUser user, DanceMusicService dms)
+        public void SetCurrentUserTags(ApplicationUser user, DanceMusicService dms)
         {
+            if (user == null) return;
+
             _currentUserTags = UserTags(user, dms);
+
+            if (user.UserName == null || (_currentUserTags != null && !_currentUserTags.IsEmpty)) return;
+
+            var userName = user.UserName;
+
+            // Build the tags from the properties
+            var acc = new TagList();
+            string cu = null;
+            foreach (var prop in Properties)
+            {
+                switch (prop.Name)
+                {
+                    case UserField:
+                        cu = prop.Value;
+                        break;
+                    case AddedTags:
+                        if (userName.Equals(cu))
+                        {
+                            acc = acc.Add(new TagList(prop.Value));
+                        }
+                        break;
+                    case RemovedTags:
+                        if (userName.Equals(cu))
+                        {
+                            acc = acc.Subtract(new TagList(prop.Value));
+                        }
+                        break;
+                }
+            }
+
+            _currentUserTags = acc;
         }
         private TagList _currentUserTags;
 
