@@ -1166,6 +1166,7 @@ namespace m4dModels
 
         public bool MergeCatalog(ApplicationUser user, IList<LocalMerger> merges, IEnumerable<string> dances = null)
         {
+            // TODONEXT: Get InferDance working from this context...
             var modified = false;
 
             var dancesL = dances == null ? new List<string>() : dances.ToList();
@@ -1178,7 +1179,7 @@ namespace m4dModels
                 {
                     if (dancesL.Any())
                     {
-                        m.Left.UpdateDanceRatings(dancesL, SongBase.DanceRatingCreate);
+                        m.Left.UpdateAndInferDanceRatings(user, dancesL, SongBase.DanceRatingInitial);
                     }
                     var temp = CreateSong(user, m.Left);
                     if (temp != null)

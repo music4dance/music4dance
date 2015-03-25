@@ -71,11 +71,11 @@ namespace m4dModels
             typeof(SongBase).GetProperty(LengthField),
         };
 
-        public static readonly int DanceRatingCreate = 10;  // TODO: when we allow a user to manually add a song, give lots of credit
-        public static readonly int DanceRatingInitial = 6;
-        public static readonly int DanceRatingIncrement = 3;
-        public static readonly int DanceRatingAutoCreate = 5;
-        public static readonly int DanceRatingDecrement = -2;
+        public static readonly int DanceRatingCreate = 7;  // TODO: when we allow a user to manually add a song, give lots of credit
+        public static readonly int DanceRatingInitial = 4;
+        public static readonly int DanceRatingIncrement = 2;
+        public static readonly int DanceRatingAutoCreate = 3;
+        public static readonly int DanceRatingDecrement = -1;
 
         #endregion
 

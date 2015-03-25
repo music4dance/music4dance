@@ -647,8 +647,6 @@ namespace m4dModels
         }
         private TagList _currentUserTags;
 
-
-
         public int TitleHash 
         { 
             get 
@@ -656,6 +654,17 @@ namespace m4dModels
                 return CreateTitleHash(Title); 
             } 
         }
+
+        public void UpdateAndInferDanceRatings(ApplicationUser user, IEnumerable<string> dances, int weight)
+        {
+            var enumerable = dances as IList<string> ?? dances.ToList();
+            var tags = TagsFromDances(enumerable);
+            AddTags(tags, user);
+            UpdateDanceRatings(enumerable,weight);
+
+            InferDances(user);
+        }
+
         #endregion
 
         #region Album
