@@ -1180,6 +1180,7 @@ namespace m4dModels
                     if (dancesL.Any())
                     {
                         m.Left.UpdateDanceRatingsAndTags(user, dancesL, SongBase.DanceRatingInitial);
+                        m.Left.InferDances(user);
                     }
                     var temp = CreateSong(user, m.Left);
                     if (temp != null)
