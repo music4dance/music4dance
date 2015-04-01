@@ -322,7 +322,7 @@ namespace m4d.Controllers
 
                 ViewBag.DanceMap = SongCounts.GetDanceMap(Database);
                 ViewBag.DanceList = GetDancesSingle();
-                return View("Details", newSong);
+                return View("details", newSong);
             }
             else
             {
@@ -404,7 +404,7 @@ namespace m4d.Controllers
                     ViewBag.BackAction = "Index";
                     ViewBag.DanceMap = SongCounts.GetDanceMap(Database);
                     ViewBag.DanceList = GetDancesSingle(); 
-                    return View("Details", edit);
+                    return View("details", edit);
                 }
 
                 return RedirectToAction("Index", new {filter });
@@ -559,7 +559,7 @@ namespace m4d.Controllers
             ViewBag.BackAction = "MergeCandidates";
             ViewBag.DanceMap = SongCounts.GetDanceMap(Database);
             ViewBag.DanceList = GetDancesSingle();
-            return View("Details",Database.FindSongDetails(song.SongId));
+            return View("details",Database.FindSongDetails(song.SongId));
         }
 
         /// <summary>

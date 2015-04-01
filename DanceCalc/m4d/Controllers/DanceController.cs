@@ -34,7 +34,7 @@ namespace m4d.Controllers
                 SongCounts sc = SongCounts.FromName(dance, Database);
                 if (sc != null)
                 {
-                    return View("Details", sc);
+                    return View("details", sc);
                 }
                 else
                 {

@@ -905,16 +905,16 @@ namespace m4dModels
                     songs = songs.Where(
                         s => (s.Title != null && s.Title.ToUpper().Contains(str)) ||
                         (s.Album != null && s.Album.Contains(str)) ||
-                        (s.Artist != null && s.Artist.Contains(str)));
-                        //(s.TagSummary != null && s.TagSummary.Contains(str)));
+                        (s.Artist != null && s.Artist.Contains(str)) ||
+                        (s.TagSummary != null && s.TagSummary.Summary.Contains(str)));
                 }
                 else
                 {
                     songs = songs.Where(
                         s => s.Title.Contains(filter.SearchString) ||
                         s.Album.Contains(filter.SearchString) ||
-                        s.Artist.Contains(filter.SearchString));
-                        //s.TagSummary.Contains(filter.SearchString));
+                        s.Artist.Contains(filter.SearchString) ||
+                        s.TagSummary.Summary.Contains(filter.SearchString));
                 }
             }
 
