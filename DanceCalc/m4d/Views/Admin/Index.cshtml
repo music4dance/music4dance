@@ -63,7 +63,8 @@
         <li>@Html.ActionLink("Restore the Datbase", "RestoreDatabase")</li>
         <li>@Html.ActionLink("Rerun seed function", "Reseed")</li>
         <li>@Html.ActionLink("Upload Catalog", "UploadCatalog")</li>
-        <li>@Html.ActionLink("Upload Catalog (Ithaca)", "UploadCatalog", new {separator="ITC", headers="TEMPO,TITLE,ARTIST",user="ithaca"})</li>
+        <li>@Html.ActionLink("Upload Catalog (Ithaca)", "UploadCatalog", new {separator = "ITC", headers = "TEMPO,TITLE,ARTIST", user = "ithaca"})</li>
+        <li>@Html.ActionLink("Upload Catalog (DWTS)", "UploadCatalog", new { separator = @"\t", headers = "DANCERS,DANCE,TITLE+ARTIST", user = "dwts", tags = "Episode 1:Other|Season 20:Other|United States:Other|DWTS:Other" })</li>
         <li>@Html.ActionLink("Upload Album", "UploadCatalog", new { headers="Title", separator=@"\t" })</li>
     }
 </ul>

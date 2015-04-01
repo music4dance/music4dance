@@ -46,6 +46,10 @@ namespace m4dModels
         // User/Song info
         public const string OwnerHash = "OwnerHash";
 
+        // Special cases for reading scraped data
+        public const string TitleArtistCell = "TitleArtist";
+        public const string DancersCell = "Dancers";
+
         // Commands
         public const string CreateCommand = ".Create";
         public const string EditCommand = ".Edit";

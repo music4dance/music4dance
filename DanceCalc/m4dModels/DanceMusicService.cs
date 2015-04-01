@@ -135,11 +135,12 @@ namespace m4dModels
             if (createLog)
                 song.CurrentLog = CreateSongLog(user, song, SongBase.EditCommand);
 
-            if (!song.AdditiveMerge(user, edit, addDances, this)) return false;
+            if (!song.AdditiveMerge(user, edit, addDances, this)) 
+                return false;
 
             if (song.CurrentLog != null)
                 _context.Log.Add(song.CurrentLog);
-            SaveChanges();
+
             return true;
         }
 
@@ -1166,7 +1167,6 @@ namespace m4dModels
 
         public bool MergeCatalog(ApplicationUser user, IList<LocalMerger> merges, IEnumerable<string> dances = null)
         {
-            // TODONEXT: Get InferDance working from this context...
             var modified = false;
 
             var dancesL = dances == null ? new List<string>() : dances.ToList();

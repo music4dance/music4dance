@@ -1,10 +1,11 @@
-﻿@{
+﻿@model IEnumerable<m4dModels.LocalMerger>
+
+@{
     ViewBag.Title = ViewBag.Name;
-    int matches = 0;
-    int conflicts = 0;
+    var matches = 0;
+    var conflicts = 0;
 }
 
-@model IEnumerable<m4d.ViewModels.LocalMerger>
 
 <h2>@ViewBag.Title</h2>
 

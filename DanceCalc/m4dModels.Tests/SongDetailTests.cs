@@ -94,6 +94,12 @@ namespace m4dModels.Tests
         }
 
         [TestMethod]
+        public void LoadingDwtsRowDetails()
+        {
+            ValidateLoadingRowDetails(WHeader, s_wRows, s_wRowProps, 0, "Season 19:Other|Episode 1:Other");
+        }
+
+        [TestMethod]
         public void CreatingSongs()
         {
             var service = MockContext.CreateService(true);
@@ -185,24 +191,29 @@ namespace m4dModels.Tests
             Assert.IsFalse(map.ContainsKey("dwgray"));
         }
 
-        static private void ValidateLoadingRowDetails(string header, string[] rows, string[] expected, int dups = 0)
+        static private void ValidateLoadingRowDetails(string header, string[] rows, string[] expected, int dups = 0, string tags=null)
         {
             if (expected == null) throw new ArgumentNullException("expected");
 
-            DanceMusicService service = MockContext.CreateService(true);
+            var service = MockContext.CreateService(true);
+            var user = service.FindUser("dwgray");
 
             var songs = LoadRows(header, rows, service, dups);
 
             for (var i = 0; i < expected.Length; i++)
             {
                 var song = songs[i];
+                if (tags != null)
+                {
+                    song.AddTags(tags, user, service, song);
+                }
                 var r = DanceMusicTester.ReplaceTime(song.Serialize(new[] { SongBase.NoSongId }));
                 Trace.WriteLine(r);
                 Assert.AreEqual(expected[i], r);
             }
         }
 
-        private IEnumerable<Guid> CreateSongs(string header, string[] rows, DanceMusicService service)
+        private static IEnumerable<Guid> CreateSongs(string header, string[] rows, DanceMusicService service)
         {
             var ids = new List<Guid>();
 
@@ -326,6 +337,21 @@ namespace m4dModels.Tests
             @".Create=	User=dwgray	Time=00/00/0000 0:00:00 PM	Title=Come Wake Me Up	Artist=Rascal Flatts	Tempo=153.0	Tag+=Viennese Waltz:Dance	DanceRating=VWZ+5	DanceRating=WLZ+1	Album:00=Changed (Deluxe Version) [+Digital Booklet]	Purchase:00:AS=B007MSUAV2	.Edit=	User=dwgray	Time=00/00/0000 0:00:00 PM	DanceRating=VWZ+2	DanceRating=WLZ+1",
             @".Create=	User=dwgray	Time=00/00/0000 0:00:00 PM	Title=A very traditional Waltz	Artist=Strauss	Tag+=English:Other	Tag+=Viennese Waltz:Dance	DanceRating=VWZ+4	DanceRating=WLZ+1",
         };
+
+        private const string WHeader = @"Dancers	Dance	Title+Artist";
+
+        private static readonly string[] s_wRows =
+        {
+            @"Antonio & Cheryl	Cha-cha-cha	""Tonight (I'm Lovin' You)""—Enrique Iglesias feat. Ludacris & DJ Frank E",
+            @"Lea & Artem	Foxtrot	""This Will Be (An Everlasting Love)""—Natalie Cole",
+        };
+
+        private static readonly string[] s_wRowProps =
+        {
+            @".Create=	User=dwgray	Time=00/00/0000 0:00:00 PM	Tag+=Cha Cha:Dance	DanceRating=CHA+5	Tag+:CHA=Antonio:Other|Cheryl:Other	Title=Tonight (I'm Lovin' You)	Artist=Enrique Iglesias feat. Ludacris & DJ Frank E	DanceRating=LTN+1	Tag+=Episode 1:Other|Season 19:Other",
+            @".Create=	User=dwgray	Time=00/00/0000 0:00:00 PM	Tag+=Foxtrot:Dance	DanceRating=FXT+5	Tag+:FXT=Artem:Other|Lea:Other	Title=This Will Be (An Everlasting Love)	Artist=Natalie Cole	Tag+=Episode 1:Other|Season 19:Other",
+        };
+
 
         private const string SQuuen = @"SongId={70b993fa-f821-44c7-bf5d-6076f4fe8f17}	User=batch	Time=3/19/2014 5:03:17 PM	Title=Crazy Little Thing Called Love	Artist=Queen	Tempo=154.0	Album:0=Greatest Hits	Album:1=The Game	Album:2=Queen - Greatest Hits	User=SalsaSwingBallroom	User=SandiegoDJ	User=SteveThatDJ	DanceRating=LHP+10	DanceRating=ECS+5	DanceRating=WCS+10	User=batch	Time=5/7/2014 11:30:58 AM	Length=163	Genre=Rock	Track:1=5	Purchase:1:XS=music.F9021900-0100-11DB-89CA-0019B92A3933	User=batch	Time=5/7/2014 3:32:13 PM	Album:2=Queen: Greatest Hits	Track:2=9	Purchase:2:IS=27243763	Purchase:2:IA=27243728	User=batch	Time=5/20/2014 3:46:15 PM	Track:0=9	Purchase:0:AS=D:B00138K9CM	Purchase:0:AA=D:B00138F72E	User=breanna	Time=6/5/2014 8:46:10 PM	DanceRating=ECS+5	User=breanna	Time=6/9/2014 8:13:17 PM	DanceRating=JIV+6	User=shawntrautman	Time=6/23/2014 1:56:23 PM	DanceRating=SWG+6";
     };

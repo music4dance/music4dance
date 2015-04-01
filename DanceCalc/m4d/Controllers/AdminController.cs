@@ -900,8 +900,10 @@ namespace m4d.Controllers
         // Get: //UploadCatalog
         [HttpGet]
         [Authorize(Roles = "dbAdmin")]
-        public ActionResult UploadCatalog(string separator=null, string headers=null, string dances=null, string artist=null, string album=null, string user=null)
+        public ActionResult UploadCatalog(string separator=null, string headers=null, string dances=null, string artist=null, string album=null, string user=null, string tags=null)
         {
+            // TODONEXT: Verify that Dancers columns  "Title"―Artist style field work 
+            // TODO:  This is probably a case where creating a viewmodel would be the right things to do...
             if (!string.IsNullOrEmpty(separator))
             {
                 ViewBag.Separator = separator;
@@ -926,6 +928,10 @@ namespace m4d.Controllers
             {
                 ViewBag.User = user;
             }
+            if (!string.IsNullOrEmpty(tags))
+            {
+                ViewBag.Tags = tags;
+            }
             return View();
         }
 
@@ -934,7 +940,7 @@ namespace m4d.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "dbAdmin")]
-        public ActionResult UploadCatalog(string songs, string separator, string headers, string user, string dances, string artist, string album)
+        public ActionResult UploadCatalog(string songs, string separator, string headers, string user, string dances, string artist, string album, string tags)
         {
             ViewBag.Name = "Upload Catalog";
 
@@ -970,7 +976,9 @@ namespace m4d.Controllers
                 ad = new AlbumDetails { Name = album };
             }
 
-            if (hasArtist || hasAlbum)
+            tags = !string.IsNullOrEmpty(tags) ? tags.Trim() : null;
+
+            if (hasArtist || hasAlbum || (tags != null))
             {
                 foreach (var sd in newSongs)
                 {
@@ -981,6 +989,10 @@ namespace m4d.Controllers
                     if (hasAlbum && string.IsNullOrEmpty(sd.Album))
                     {
                         sd.Albums.Add(ad);
+                    }
+                    if (tags != null)
+                    {
+                        sd.AddTags(tags,appuser,Database,sd,false);
                     }
                 }
             }

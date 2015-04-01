@@ -55,7 +55,7 @@ namespace m4dModels
 
         // Add any tags from tags that haven't already been added by the user and return a list of
         // the actually added tags in canonical form
-        virtual public TagList AddTags(string tags, ApplicationUser user, DanceMusicService dms = null, object data = null)
+        virtual public TagList AddTags(string tags, ApplicationUser user, DanceMusicService dms = null, object data = null, bool updateTypes=true)
         {
             var added = new TagList(tags);
             var ut = FindOrCreateUserTags(user, dms);
@@ -66,14 +66,14 @@ namespace m4dModels
             ut.Modified = DateTime.Now;
             ut.Tags = allTags;
 
-            DoUpdate(newTags, null, user, dms, data);
+            DoUpdate(newTags, null, user, dms, data, updateTypes);
 
             return newTags;
         }
 
         // Remove any tags from tags that have previously been added by the user and return a list
         //  of the actually removed tags in canonical form
-        public TagList RemoveTags(string tags, ApplicationUser user, DanceMusicService dms = null, object data = null)
+        public TagList RemoveTags(string tags, ApplicationUser user, DanceMusicService dms = null, object data = null, bool updateTypes=true)
         {
             var removed = new TagList(tags);
             var ut = FindOrCreateUserTags(user, dms);
@@ -85,14 +85,14 @@ namespace m4dModels
             ut.Modified = DateTime.Now;
             ut.Tags = newTags;
 
-            DoUpdate(null, oldTags, user, dms, data);
+            DoUpdate(null, oldTags, user, dms, data, updateTypes);
 
             return oldTags;
         }
 
         // Change the user's set of tags for this object to reflect the tags parameter
         //  return true if tags have actually changed
-        public bool ChangeTags(string tags, ApplicationUser user, DanceMusicService dms = null, object data = null)
+        public bool ChangeTags(string tags, ApplicationUser user, DanceMusicService dms = null, object data = null, bool updateTypes=true)
         {
             var newTags = new TagList(tags);
             var ut = FindOrCreateUserTags(user, dms);
@@ -105,12 +105,12 @@ namespace m4dModels
 
             ut.Modified = DateTime.Now;
             ut.Tags = newTags;
-            DoUpdate(added, removed, user, dms, data);
+            DoUpdate(added, removed, user, dms, data, updateTypes);
 
             return true;
         }
 
-        private void DoUpdate(TagList added, TagList removed, ApplicationUser user, DanceMusicService dms, object data)
+        private void DoUpdate(TagList added, TagList removed, ApplicationUser user, DanceMusicService dms, object data, bool updateTypes=true)
         {
             if (TagSummary == null)
                 TagSummary = new TagSummary();
@@ -118,7 +118,8 @@ namespace m4dModels
             var addRing = ConvertToRing(added,dms);
             var delRing = ConvertToRing(removed, dms);
             TagSummary.ChangeTags(addRing, delRing);
-            UpdateTagTypes(added, removed, dms);
+            if (updateTypes && dms != null)
+                UpdateTagTypes(added, removed, dms);
             RegisterChangedTags(added, removed, user, dms, data);
         }
 

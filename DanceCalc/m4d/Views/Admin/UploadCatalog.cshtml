@@ -7,12 +7,13 @@
 @using (Html.BeginForm("UploadCatalog", "Admin", FormMethod.Post, new { @class="form", enctype = "multipart/form-data" }))
 { 
     @Html.AntiForgeryToken();
-    string separator = " - ";
-    string header = "TITLE,ARTIST";
-    string user = "";
-    string dances = "";
-    string album = "";
-    string artist = "";
+    var separator = " - ";
+    var header = "TITLE,ARTIST";
+    var user = "";
+    var dances = "";
+    var album = "";
+    var artist = "";
+    var tags = "";
     
     if (ViewData.ContainsKey("Separator") && !string.IsNullOrWhiteSpace(ViewBag.Separator))
     {
@@ -36,7 +37,11 @@
     }
     if (ViewData.ContainsKey("Album") && !string.IsNullOrWhiteSpace(ViewBag.Album))
     {
-        artist = ViewBag.Album;
+        album = ViewBag.Album;
+    }
+    if (ViewData.ContainsKey("Tags") && !string.IsNullOrWhiteSpace(ViewBag.Tags))
+    {
+        tags = ViewBag.Tags;
     }
     
     <div class="form-group">
@@ -62,6 +67,10 @@
     <div class="form-group">
         <span class="control-label">Album:</span>
         <input type="text" name="album" value="@album" />
+    </div>
+    <div class="form-group">
+        <span class="control-label">Tags:</span>
+        <input type="text" name="tags" value="@tags" />
     </div>
     <div class="form-group">
         <span class="control-label">Table:</span>

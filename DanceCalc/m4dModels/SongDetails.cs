@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data.Entity;
 using System.Diagnostics;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Runtime.Serialization;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -131,11 +132,17 @@ namespace m4dModels
             var specifiedUser = false;
             var specifiedAction = false;
             SongProperty tagProperty = null;
+            List<string> tags = null;
+            List<DanceRatingDelta> ratings = null;
+            List<string> danceTags = null;
+            List<SongProperty> danceTagProperties = null;
+
             for (var i = 0; i < cells.Count; i++)
             {
                 if (fields[i] == null) continue;
 
                 var cell = cells[i];
+
                 var baseName = SongProperty.ParseBaseName(fields[i]);
                 string qual = null;
                 cell = cell.Trim();
@@ -159,7 +166,7 @@ namespace m4dModels
                                     w = weight;
                                 i += 1;
                             }
-                            var ratings = DanceRating.BuildDeltas(cell, w).ToList();
+                            ratings = DanceRating.BuildDeltas(cell, w).ToList();
                             tagProperty = new SongProperty(Guid.Empty, AddedTags,
                                 TagsFromDances(ratings.Select(r => r.DanceId)));
                             properties.Add(tagProperty);
@@ -193,6 +200,16 @@ namespace m4dModels
                             return null;
                         }
                         break;
+                    case TitleArtistCell:
+                        var re = new Regex(@"""(?<title>[^""]*)""\s*[―—](?<artist>.*)");
+                        var m = re.Match(cell);
+                        if (m.Success)
+                        {
+                            properties.Add(new SongProperty(Guid.Empty, TitleField, m.Groups["title"].Value));
+                            properties.Add(new SongProperty(Guid.Empty, ArtistField, m.Groups["artist"].Value));
+                        }
+                        cell = null;
+                        break;
                     case PurchaseField:
                         qual = SongProperty.ParseQualifier(fields[i]);
                         break;
@@ -204,7 +221,7 @@ namespace m4dModels
                         break;
                     case AddedTags:
                         {
-                            var tags = new List<string>();
+                            tags = new List<string>();
                             cell = cell.ToUpper();
                             if (cell.Contains("ENGLISH LANGUAGE"))
                             {
@@ -234,23 +251,54 @@ namespace m4dModels
                             {
                                 tags.Add("Low Energy:Style");
                             }
-                            if (tags.Count > 0)
-                            {
-                                var tl = new TagList(tags);
-                                if (tagProperty != null)
-                                {
-                                    tl = tl.Add(new TagList(tagProperty.Value));
-                                    tagProperty.Value = tl.ToString();
-                                }
-                                else
-                                {
-                                    tagProperty = new SongProperty(Guid.Empty,AddedTags,tl.ToString());
-                                    properties.Add(tagProperty);
-                                }
-                            }
                             cell = null;
                         }
                         break;
+                    case DancersCell:
+                        var dancers = cell.Split(new[] { '&' }, StringSplitOptions.RemoveEmptyEntries);
+                        danceTags = dancers.Select(dancer => dancer.Trim() + ":Other").ToList();
+                        cell = null;
+                        break;
+                }
+
+                if (tags != null && tags.Count > 0)
+                {
+                    var tl = new TagList(tags);
+
+                    if (tagProperty != null)
+                    {
+                        tl = tl.Add(new TagList(tagProperty.Value));
+                        tagProperty.Value = tl.ToString();
+                    }
+                    else
+                    {
+                        tagProperty = new SongProperty(Guid.Empty, AddedTags, tl.ToString());
+                        properties.Add(tagProperty);
+                    }
+                }
+                tags = null;
+
+                if (danceTags != null && ratings != null)
+                {
+                    var tl = new TagList(danceTags);
+                    if (danceTagProperties != null  && danceTagProperties.Count > 0)
+                    {
+                        tl = tl.Add(new TagList(danceTagProperties[0].Value));
+                        foreach (var p in danceTagProperties)
+                        {
+                            p.Value = tl.ToString();
+                        }
+                    }
+                    else
+                    {
+                        danceTagProperties = new List<SongProperty>();
+                        foreach (var p in ratings.Select(drd => new SongProperty(Guid.Empty, AddedTags, tl.ToString(), -1, drd.DanceId)))
+                        {
+                            properties.Add(p);
+                            danceTagProperties.Add(p);
+                        }
+                    }
+                    danceTags = null;
                 }
 
                 if (string.IsNullOrWhiteSpace(cell)) continue;
@@ -317,6 +365,8 @@ namespace m4dModels
             {"TIME",LengthField},
             {"COMMENT",AddedTags},
             {"RATING","R"},
+            {"DANCERS",DancersCell},
+            {"TITLE+ARTIST",TitleArtistCell}
         };
 
         public static IList<SongDetails> CreateFromRows(ApplicationUser user, string separator, IList<string> headers, IEnumerable<string> rows, int weight)

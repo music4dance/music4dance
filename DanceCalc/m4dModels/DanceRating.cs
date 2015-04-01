@@ -124,6 +124,7 @@ namespace m4dModels
             {"HUSTLESTREETSWING","HST"},
             {"HUSTLECHACHA","HST,CHA"},
             {"CHACHAHUSTLE","HST,CHA"},
+            {"CHACHACHA","CHA"},
             {"CLUBTWOSTEP","NC2"},{"NIGHTCLUB2STEP","NC2"},
             {"TANGOARGENTINO","ATN"},
             {"MERENGUETECHNOMERENGUE","MRG"},

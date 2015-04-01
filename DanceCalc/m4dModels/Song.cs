@@ -79,10 +79,12 @@ namespace m4dModels
             if (tags == null)
             {
                 // Handle Tags
-                TagsFromProperties(user, sd, dms, sd);
+                TagsFromProperties(user, sd, dms, this);
 
                 // Handle Dance Ratings
                 CreateDanceRatings(sd.DanceRatings, dms);
+
+                DanceTagsFromProperties(user, sd, dms, this);
             }
             else
             {
@@ -303,10 +305,12 @@ namespace m4dModels
             else
             {
                 // Handle Tags
-                TagsFromProperties(user, edit, dms, edit);
+                modified |= TagsFromProperties(user, edit, dms, this);
 
                 // Handle Dance Ratings
                 CreateDanceRatings(edit.DanceRatings, dms);
+
+                modified |= DanceTagsFromProperties(user, edit, dms, this);
             }
 
             modified |= UpdatePurchaseInfo(edit,true);
@@ -622,14 +626,14 @@ namespace m4dModels
                 Trace.WriteLine(string.Format("{0} Duplicate Dance Rating {1}", Title, dr.DanceId));
             }
         }
-        public void CreateDanceRatings(IEnumerable<DanceRating> ratings, DanceMusicService dms)
+        public bool CreateDanceRatings(IEnumerable<DanceRating> ratings, DanceMusicService dms)
         {
             if (ratings == null)
             {
-                return;
+                return false;
             }
 
-            foreach (DanceRating dr in ratings)
+            foreach (var dr in ratings)
             {
                 dms.CreateDanceRating(this, dr.DanceId, dr.Weight);
                 CreateProperty(
@@ -639,6 +643,8 @@ namespace m4dModels
                     dms
                 );
             }
+
+            return true;
         }
 
         //  TODO: Ought to be able to refactor both of these into one that calls the other
@@ -785,10 +791,10 @@ namespace m4dModels
             return changed;
         }
 
-        // TAGTEST: Reload database & log restore?
-        private void TagsFromProperties(ApplicationUser user, SongDetails sd, DanceMusicService dms, object data)
+        private bool BaseTagsFromProperties(ApplicationUser user, SongDetails sd, DanceMusicService dms, object data, bool dance)
         {
-            foreach (SongProperty p in sd.SongProperties)
+            bool modified = false;
+            foreach (var p in sd.SongProperties)
             {
                 switch (p.BaseName)
                 {
@@ -796,13 +802,59 @@ namespace m4dModels
                         user = dms.FindUser(p.Value);
                         break;
                     case AddedTags:
-                        AddTags(p.Value, user, dms, data);
+                        var qual = p.DanceQualifier;
+                        if (qual == null && !dance)
+                        {
+                            modified |= !AddTags(p.Value, user, dms, data).IsEmpty;
+                        }
+                        else if (qual != null && dance)
+                        {
+                            var rating = DanceRatings.FirstOrDefault(r => r.DanceId == qual);
+                            
+                            if (rating != null)
+                            {
+                                modified = !rating.AddTags(p.Value,user,dms,data).IsEmpty;
+                            }
+                            else
+                            {
+                                Debug.Assert(false);
+                            }
+                        }
                         break;
                     case RemovedTags:
-                        RemoveTags(p.Value, user, dms, data);
+                        qual = p.DanceQualifier;
+                        if (qual == null && !dance)
+                        {
+                            modified |= !RemoveTags(p.Value, user, dms, data).IsEmpty;
+                        }
+                        else if (qual != null && dance)
+                        {
+                            var rating = DanceRatings.FirstOrDefault(r => r.DanceId == qual);
+                            
+                            if (rating != null)
+                            {
+                                modified |= !rating.RemoveTags(p.Value,user,dms,data).IsEmpty;
+                            }
+                            else
+                            {
+                                Debug.Assert(false);
+                            }
+                        }
                         break;
                 }
             }
+
+            return modified;
+        }
+
+        private bool TagsFromProperties(ApplicationUser user, SongDetails sd, DanceMusicService dms, object data)
+        {
+            return BaseTagsFromProperties(user,sd,dms,data,false);
+        }
+
+        private bool DanceTagsFromProperties(ApplicationUser user, SongDetails sd, DanceMusicService dms, object data)
+        {
+            return BaseTagsFromProperties(user, sd, dms, data, true);
         }
 
         public void Delete(ApplicationUser user, DanceMusicService dms)
@@ -880,6 +932,7 @@ namespace m4dModels
                 currentUser = mr.ApplicationUser;
             }
             TagsFromProperties(currentUser, sd, dms, null);
+            DanceTagsFromProperties(currentUser, sd, dms, null);
         }
 
         protected override bool AddModifiedBy(ModifiedRecord mr)
