@@ -3,15 +3,15 @@
 @model IEnumerable<SongBase>
 
 @{
-    var isAdmin = User.IsInRole("dbAdmin");        
+    var isAdmin = User.IsInRole("dbAdmin");
     var canSort = ViewData.ContainsKey("NoSort") ? !ViewBag.NoSort : true;
     var hideDances = ViewData.ContainsKey("HideDances") ? ViewBag.HideDances : false;
     string albumName = ViewData.ContainsKey("AlbumName") ? ViewBag.AlbumName : null;    
     var hideArtist = ViewData.ContainsKey("HideArtist") ? ViewBag.HideArtist : false;
     var showLength = ViewData.ContainsKey("ShowLength") ? ViewBag.ShowLength : false;
     
-    var danceMap = (IDictionary<string, m4dModels.SongCounts>)ViewBag.DanceMap;
-    var songOrder = new m4dModels.SongSort(ViewBag.SongFilter.SortOrder);
+    var danceMap = (IDictionary<string, SongCounts>)ViewBag.DanceMap;
+    var songOrder = new SongSort(ViewBag.SongFilter.SortOrder);
     var showDate = songOrder.Id == "Modified" || songOrder.Id == "Created";
 }
 
@@ -150,10 +150,10 @@
     <tbody>
         @foreach (var item in Model)
         {
-            m4dModels.SongDetails sd = null;
+            SongDetails sd = null;
             if (albumName != null)
             {
-                sd = item as m4dModels.SongDetails;
+                sd = item as SongDetails;
             }
 
             if (item.Title != null)
@@ -257,13 +257,27 @@
                     @if (!hideDances)
                     {
                         <td>
-                            @foreach (var ditem in item.DanceRatings.OrderByDescending(dr => m4dModels.SongCounts.GetScaledRating(danceMap, dr.DanceId, dr.Weight)))
+                            @foreach (var ditem in item.DanceRatings.OrderByDescending(dr => SongCounts.GetScaledRating(danceMap, dr.DanceId, dr.Weight)))
                             {
                                 // TODO: Dance name pulled from the danceMap doesn't require a db lookup - is there a way
                                 //  to make the more intuitive ditem.Dance.Name work without a lookup???
-                                var badge = m4dModels.SongCounts.GetRatingBadge(danceMap, ditem.DanceId, ditem.Weight);
+                                var badge = SongCounts.GetRatingBadge(danceMap, ditem.DanceId, ditem.Weight);
                                 var name = danceMap[ditem.DanceId].DanceName;
-                                <span class="rating @badge" style="margin-right: 5px">@Html.ActionLink(name, name, "dances")</span>
+                                var label = name;
+                                var tags = string.Empty;
+                                if (!string.IsNullOrWhiteSpace(ditem.TagSummary.Summary))
+                                {
+                                    label = "<b>" + label + "</b>";
+                                    tags += "<br/>";
+                                    foreach (var dtitem in ditem.TagSummary.Tags)
+                                    {
+                                        tags += "<span class=\"label label-" + dtitem.TagClass.ToLower() + "\">" + dtitem.TagValue + "</span> ";
+                                    }
+                                }
+                                <span class="rating @badge" style="margin-right: 5px">
+                                    <a href='#' data-container='body' data-toggle='popover' data-placement='left' data-title='@Html.ActionLink(name, name, "dances")'
+                                       data-content='@Html.ActionLink(name + " dance page...", name, "dances")<br />@Html.ActionLink("List all " + name + " songs...", "search", "song", new {dances = ditem.DanceId}, null) @Html.Raw(tags)'>@Html.Raw(label)</a>
+                                </span>
                             }
                         </td>
                     }

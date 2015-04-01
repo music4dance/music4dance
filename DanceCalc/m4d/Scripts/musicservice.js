@@ -1,7 +1,7 @@
-﻿$(document).ready(function () {
+﻿$(document).ready(function() {
     // Handling for purchase links
     var uri = '/api/purchaseinfo/';
-    $(".play-link").click(function () {
+    $(".play-link").click(function() {
         //window.alert("You clicked me!(" + this.id + ")");
 
         $.getJSON(uri + this.id)
@@ -17,4 +17,6 @@
                 //$('#product').text('Error: ' + err);
             });
     });
+
+    $('[data-toggle="popover"]').popover({html:true, trigger:'focus'});
 });
