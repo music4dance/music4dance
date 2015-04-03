@@ -274,10 +274,13 @@
                                         tags += "<span class=\"label label-" + dtitem.TagClass.ToLower() + "\">" + dtitem.TagValue + "</span> ";
                                     }
                                 }
-                                <span class="rating @badge" style="margin-right: 5px">
+                                @*<span class="rating @badge" style="margin-right: 5px">
                                     <a href='#' data-container='body' data-toggle='popover' data-placement='left' data-title='@Html.ActionLink(name, name, "dances")'
                                        data-content='@Html.ActionLink(name + " dance page...", name, "dances")<br />@Html.ActionLink("List all " + name + " songs...", "search", "song", new {dances = ditem.DanceId}, null) @Html.Raw(tags)'>@Html.Raw(label)</a>
-                                </span>
+                                </span>*@
+                                <a href='#' class='rating @badge label label-music' role='button'
+                                    data-container='body' data-toggle='popover' data-placement='left' data-title='@Html.ActionLink(name, name, "dances")'
+                                    data-content='@Html.ActionLink(name + " dance page...", name, "dances")<br />@Html.ActionLink("List all " + name + " songs...", "search", "song", new {dances = ditem.DanceId}, null) @Html.Raw(tags)'>@Html.Raw(label)</a>
                             }
                         </td>
                     }
