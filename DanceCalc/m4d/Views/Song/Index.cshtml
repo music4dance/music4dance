@@ -119,30 +119,31 @@
     </div>
 </div>
 
-@using (Html.BeginForm("BulkEdit", "Song"))
+@if (isAdmin)
 {
-    @Html.AntiForgeryToken()
-    <div class="row col-xs-12">
-        @{Html.RenderPartial("_ListSongs", @Model, ViewData);}
-    </div>
-    if (isAdmin)
+    using (Html.BeginForm("BulkEdit", "Song"))
     {
+        @Html.AntiForgeryToken()
+        Html.RenderPartial("_ListSongs", @Model, ViewData);
         <div class="row col-xs-12">
-            <input type="hidden" name="filter" value="@ViewBag.SongFilter" />
-            <input type="submit" name="action" value="Merge" class="btn btn-" />
-            <input type="submit" name="action" value="Delete" class="btn" />
-            @Html.ActionLink("Add New Song", "Create", null, new { @class = "btn btn-default", role = "button" })
-            @Html.ActionLink("XBox Batch", "BatchMusicService", new { filter = ViewBag.SongFilter, type = "X", count = 10 }, new { @class = "btn btn-success", role = "button" })
-            @Html.ActionLink("ITunes Batch", "BatchMusicService", new { filter = ViewBag.SongFilter, type = "I", count = 10 }, new { @class = "btn btn-success", role = "button" })
-            @Html.ActionLink("Spotify Batch", "BatchMusicService", new { filter = ViewBag.SongFilter, type = "S", count = 10 }, new { @class = "btn btn-success", role = "button" })
-            @Html.ActionLink("Amazon Batch", "BatchMusicService", new { filter = ViewBag.SongFilter, type = "A", count = 10 }, new { @class = "btn btn-success", role = "button" })
-            @Html.ActionLink("Canonical Batch", "BatchMusicService", new { filter = ViewBag.SongFilter, type = "-", count = 10, options = "M" }, new { @class = "btn btn-success", role = "button" })
-            @*@Html.ActionLink("XBox Batch", "BatchMusicService", new { filter = ViewBag.SongFilter, type = "X", count = 10, options = "R1" }, new { @class = "btn btn-success", role = "button" });
-                @Html.ActionLink("ITunes Batch", "BatchMusicService", new { filter = ViewBag.SongFilter, type = "I", count = 10, options = "R1" }, new { @class = "btn btn-success", role = "button" });
-                @Html.ActionLink("Amazon Batch", "BatchMusicService", new { filter = ViewBag.SongFilter, type = "A", count = 10, options = "R1" }, new { @class = "btn btn-success", role = "button" });*@
+            <input type="hidden" name="filter" value="@ViewBag.SongFilter"/>
+            <input type="submit" name="action" value="Merge" class="btn btn-"/>
+            <input type="submit" name="action" value="Delete" class="btn"/>
+            @Html.ActionLink("Add New Song", "Create", null, new {@class = "btn btn-default", role = "button"})
+            @Html.ActionLink("XBox Batch", "BatchMusicService", new {filter = ViewBag.SongFilter, type = "X", count = 10}, new {@class = "btn btn-success", role = "button"})
+            @Html.ActionLink("ITunes Batch", "BatchMusicService", new {filter = ViewBag.SongFilter, type = "I", count = 10}, new {@class = "btn btn-success", role = "button"})
+            @Html.ActionLink("Spotify Batch", "BatchMusicService", new {filter = ViewBag.SongFilter, type = "S", count = 10}, new {@class = "btn btn-success", role = "button"})
+            @Html.ActionLink("Amazon Batch", "BatchMusicService", new {filter = ViewBag.SongFilter, type = "A", count = 10}, new {@class = "btn btn-success", role = "button"})
+            @Html.ActionLink("Canonical Batch", "BatchMusicService", new {filter = ViewBag.SongFilter, type = "-", count = 10, options = "M"}, new {@class = "btn btn-success", role = "button"})
         </div>
     }
 }
+else
+{
+    Html.RenderPartial("_ListSongs", @Model, ViewData);
+}
+
+
 
 <div class="row">
     <div class="col-md-8">
