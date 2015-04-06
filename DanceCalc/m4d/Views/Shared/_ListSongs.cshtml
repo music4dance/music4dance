@@ -267,7 +267,7 @@
                                 var tags = string.Empty;
                                 if (!string.IsNullOrWhiteSpace(ditem.TagSummary.Summary))
                                 {
-                                    label = "<b>" + label + "</b>";
+                                    label = label + " <span class='glyphicon glyphicon-asterisk' aria-hidden='true'></span>";
                                     tags += "<br/>";
                                     foreach (var dtitem in ditem.TagSummary.Tags)
                                     {
@@ -278,7 +278,7 @@
                                     <a href='#' data-container='body' data-toggle='popover' data-placement='left' data-title='@Html.ActionLink(name, name, "dances")'
                                        data-content='@Html.ActionLink(name + " dance page...", name, "dances")<br />@Html.ActionLink("List all " + name + " songs...", "search", "song", new {dances = ditem.DanceId}, null) @Html.Raw(tags)'>@Html.Raw(label)</a>
                                 </span>*@
-                                <a href='#' class='rating @badge label label-music' role='button'
+                                <a href='#!' class='rating @badge label label-music' role='button'
                                     data-container='body' data-toggle='popover' data-placement='left' data-title='@Html.ActionLink(name, name, "dances")'
                                     data-content='@Html.ActionLink(name + " dance page...", name, "dances")<br />@Html.ActionLink("List all " + name + " songs...", "search", "song", new {dances = ditem.DanceId}, null) @Html.Raw(tags)'>@Html.Raw(label)</a>
                             }
