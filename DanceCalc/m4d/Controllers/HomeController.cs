@@ -21,6 +21,19 @@ namespace m4d.Controllers
         }
 
         [AllowAnonymous]
+        public ActionResult Home()
+        {
+            return View();
+        }
+
+        [AllowAnonymous]
+        public ActionResult Credits()
+        {
+            ThemeName = BlogTheme;
+            return View();
+        }
+
+        [AllowAnonymous]
         public ActionResult Dances()
         {
             return RedirectPermanent("/dances");

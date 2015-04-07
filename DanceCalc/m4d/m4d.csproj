@@ -795,6 +795,8 @@
     <Content Include="Views\Manage\EditProfile.cshtml" />
     <Content Include="Views\Song\SetupSongScript.cshtml" />
     <Content Include="Views\Shared\HttpError.cshtml" />
+    <Content Include="Views\Home\Credits.cshtml" />
+    <Content Include="Views\Home\Home.cshtml" />
     <None Include="Web.m4d.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
