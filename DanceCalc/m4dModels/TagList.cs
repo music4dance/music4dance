@@ -143,7 +143,7 @@ namespace m4dModels
                 return tags;
             }
 
-            tags.AddRange(serialized.Split(new[] { '|' }, StringSplitOptions.RemoveEmptyEntries));
+            tags.AddRange(serialized.Split(new[] {'|'}, StringSplitOptions.RemoveEmptyEntries).Select(tag => tag.Trim()));
 
             tags.Sort();
 
