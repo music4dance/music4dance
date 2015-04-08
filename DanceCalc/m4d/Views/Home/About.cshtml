@@ -1,45 +1,47 @@
 ﻿@{
     ViewBag.Title = "About";
+    ViewBag.Canonical = "https://www.music4dance.net";
+    ViewBag.Description = "music4dance.net is an online catalog, tools and eductational resources that help Ballroom, Salsa, Swing, Tango and other dancers find fun and exiting music.";
 }
-<div class="jumbotron" align="center">
-    <img src="~/Content/BlackBanner.png" title="music4dance" class="banner" />
-    <h1>What is Music4Dance.Net?</h1>
-    <p class="lead">I'm just starting to spin up this site, so please feel free to email feedback and suggestions to: <a href="mailto:david@music4dance.net">david@music4dance.net</a></p>
-</div>
 
 <div class="row">
-    <div class="col-md-3">
-        <h2>It is an idea</h2>
-        <p>
-            This is an early concrete representation of an idea that has been floating around in my head since I first started learning to ballroom dance in the early 1990s (man that was a long time ago).
-            As someone with a fairly robust music background and a very robust foundation in computer science, it's always annoyed me that there isn't a good way to find music to dance to.
-        </p>
+    <div class="col-md-4">
+        <h1 class="music">Music</h1>
+        <p class="neutral">Are you learning to partner dance and looking for practice music?  Or are you choreographing a piece and looking for new ideas for music?</p>
+        <p class="neutral">Our <a href="/dances">dances page</a> is a quick reference for the styles of dance that will link you to a page for each dance including a description, a top ten list, and more.</p>
+        <p class="neutral">Or go directly to our <a href="/song">database of songs</a> where you can quickly search for a <a href="/song/search?SearchString=Aspettami">song</a> or sort a list of songs by attributes like <a href="/song/search?dances=SWG&filter=Index-.-Tempo-.-.-.-.-.-.-.">tempo</a> or <a href="/song/search?dances=ECS&filter=Index-.-Dances-.-.-.-.-.-.-.">popularity</a>.</p>
+        <p class="neutral">Most of the songs in our <a href="/song">database</a> are linked to purchase or streaming links for <a href="/song/advancedsearch?services=I">ITunes</a>, <a href="/song/advancedsearch?services=A">Amazon</a>, <a href="/song/advancedsearch?services=S">Spotify</a>, and <a href="/song/advancedsearch?services=X">Xbox Music</a> so try clicking on the logo of your prefered music source and listen or purchase the music that you've discovered here.</p>
+        <p class="neutral">Don't see your style of dance here? <a href="mailto:david@music4dance.net">Let us know</a> and we'll be happy to expand our catalog.</p>
+        <p class="neutral">Do you use a different streaming provider or purchase your music from a different source? <a href="mailto:david@music4dance.net">Tell us about it</a> and we'll take a look into expanding our support.</p>
     </div>
-    <div class="col-md-3">
-        <h2>My first very small step</h2>
-        <p>
-            The problem is, my grand vision of how to solve this problem requires <i>a lot</i> of moving parts.  But after reading The Lean Startup I decided to use this as a way of trying to bite off small chucks
-            of a project to get a minimal viable product.  The result of this was a small windows phone 7 application that asks you to tap out the beat of a song that you're listening to and will show you
-            which dances in its database it would work for.  This is based entirely on tempo and meter and has nothing to do with the style of the song.
-        </p>
-        <p><a class="btn btn-default" href="http://www.windowsphone.com/en-us/store/app/dancecalc/b414c752-cc97-e011-986b-78e7d1fa76f8">See the app&raquo;</a></p>        
+    <div class="col-md-4">
+        <h1 class="tools">Tools</h1>
+        <p class="neutral">Do you have a favorite song (or songs) that you would like to match to a dance style?  Use our <a href="/home/counter">dance counter page</a> to help you answer that question.</p>
+        <p class="neutral">Are you curious about how fast quickstep is compared to jive?  Or are you starting practice to competition tempo music and aren't quite sure what tempo to dance Paso Doble to?  Use our <a href="/home/tempi">dance tempi page</a> to explore the relationships between dance tempi as well as the tempi prescribed for partern dances by several organizations that regulate dance competitions.</p>
+        <p class="neutral">We have more useful tools for dancers coming soon.  <a href="mailto:david@music4dance.net">Let us know</a> if you have an idea for a tool that could help match music to dances or otherwise help dancers find music.</p>
     </div>
-    <div class="col-md-3">
-        <h2>But not many people own windows phones</h2>
-        <p>
-            Aside from the above being a very small part of the solution, the platform isn't a particularly good test case.  I chose it because I was interested in trying my hand at windows phone programming
-            not because I thought it was the best initial platform for my circumstances at the time.  <p>More recently I pulled most of the functionality from that application to make it available on the site.</p>
+    <div class="col-md-4">
+        <h1 class="blog">Info</h1>
+        <p class="neutral">
+            Are you looking for more information on how music relates to dance, follow our <a href="https://www.music4dance.net/blog">blog</a>.
         </p>
-        <p><a class="btn btn-default" href="/home/counter">Use the counter&raquo;</a></p>
-    </div>
-    <div class="col-md-3">
-        <h2>Besides, what I really want to do</h2>
-        <p>
-            Is to be able to generate a playlist of songs to dance a slow salsa or fast West Coast Swing or a Viennese Waltz to.  I'd like to do this against my own library or against one of
-            a multitude of streaming and mp3 purchase services.  The first baby step for that is the songs section of this website, where I've pulled together a bunch of that information
-            from a number of different sources, merged and edited, so that I've got at least a start of a database of song title/artist/albums associated with various dances and provided deep links to Xbox Music, ITunes and Amazon where I could.  In the long run I would like this
-            to be crowd sourced both with new content and ratings, but for now enjoy the browsing and please use the links when buying music that you've discovered here, as that will help fund improvements.
+        <h4 class="blog">Introducing Music4Dance.Net/Blog</h4>
+        <p class="neutral">I’m an amateur dancer and with some training in music who also happens to be a professional software engineer. I love dancing... <a href="https://www.music4dance.net/blog/hello-world/">[Read more]</a> </p>
+        <h4 class="blog">The Two Questions that Inspired Music4Dance</h4>
+        <p class="neutral">As a beginning ballroom dancer there were two questions that kept coming up... <a href="https://www.music4dance.net/blog/the-two-questions-that-inspired-music4dance/">[Read more]</a> </p>
+        <h4 class="blog">Question 1: I’m learning to Cha Cha, where is some great music for practicing?</h4>
+        <p class="neutral">So how do I do that?  Dance generally co-evolves with music, so to get a very traditional song... <a href="https://www.music4dance.net/blog/question-1-im-learning-to-cha-cha-where-is-some-great-music-for-practicing/">[Read more]</a> </p>
+        <h4 class="blog">Question 2: What dance styles can I dance to my favorite song(s)?</h4>
+        <p class="neutral">One of the things that amazes me about the best dance teachers... <a href="https://www.music4dance.net/blog/question-2-what-dance-styles-can-i-dance-to-my-favorite-songs/">[Read more]</a></p>
+        <h4 class="blog">The Pink Martini Solution</h4>
+        <p class="neutral">
+            Not all artists are created equal when it comes to creating dance-able music. For instance... <a href="https://www.music4dance.net/blog/the-pink-martini-solution/">[Read more]</a>
+            <h4 class="blog">Help: How would you group this dance style?</h4>
+        <p class="neutral">
+            One of the fun things about learning more about different dance styles is... <a href="https://www.music4dance.net/blog/help-how-would-you-group-this-dance-style/">[Read more]</a>
+            <h4 class="blog">The “Dancing with the Stars” Solution</h4>
+        <p class="neutral">
+            I learned to dance in part because <a href="http://www.imdb.com/title/tt0092890/?ref_=nv_sr_1"><i>Dirty Dancing</i></a> made me want to be Johnny Castle... <a href="https://www.music4dance.net/blog/the-dancing-with-the-stars-solution/">[Read more]</a>
         </p>
-        <p><a class="btn btn-default" href="/song">Browse the Song Database&raquo;</a></p>
     </div>
 </div>

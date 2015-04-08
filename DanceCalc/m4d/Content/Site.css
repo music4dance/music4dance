@@ -86,21 +86,24 @@ table.table-songs > tbody > tr > td
     border: 4px solid;
     border-radius: 3px;
 
+/*36.160.146*/
 .music
 {
     color: #24a092;
 }
 
-.tools
+/*204.119.0*/
+.blog
 {
     color: #cc7700;
 }
 
-.blog
+/*0.22.113*/
+.tools
 {
     color: #001671;
 }
-*/
+
 
 #mt
 {

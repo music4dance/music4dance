@@ -457,10 +457,12 @@
     <Content Include="Content\heart-broken-icon.png" />
     <Content Include="Content\heart-icon.png" />
     <Content Include="Content\heart-outline-icon.png" />
+    <Content Include="Content\info.png" />
     <Content Include="Content\itunes-charm.png" />
     <Content Include="Content\itunes-logo.png" />
     <Content Include="Content\jquery.nouislider.css" />
     <Content Include="Content\jquery.nouislider.pips.css" />
+    <Content Include="Content\music.png" />
     <Content Include="Content\Music4DanceBannerColor.png" />
     <Content Include="Content\orange-bootstrap-min.css" />
     <Content Include="Content\orange-bootstrap-theme.css" />
@@ -484,6 +486,7 @@
     <Content Include="Content\thermometer-3.png" />
     <Content Include="Content\thermometer-4.png" />
     <Content Include="Content\thermometer-5.png" />
+    <Content Include="Content\tools.png" />
     <Content Include="Content\xbox-logo.png" />
     <Content Include="Content\xbox-charm.png" />
     <Content Include="Global.asax" />
