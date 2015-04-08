@@ -235,3 +235,62 @@ h1, h2, h3, h4, h5, h6 { font-family: "Merienda";font-weight: 700 }
 .list-clean {
     list-style-type: none;
 }
+
+.centeredImage {
+    text-align: center;
+    margin-top: 0;
+    margin-bottom: 0;
+    padding: 0;
+}
+
+#danceCarouselIndicators li {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  margin: 1px;
+  text-indent: -999px;
+  border: 1px solid #424242;
+  border-radius: 10px;
+  cursor: pointer;
+  background-color: #424242 \9;
+  background-color: rgba(66, 66, 66, 0);
+}
+
+#danceCarouselIndicators .active {
+  margin: 0;
+  width: 12px;
+  height: 12px;
+  background-color: #424242;
+}
+
+.dance-title {
+    font-size: 3em;
+    font-family: "Merienda";
+    font-weight: 700
+}
+
+.dance-list {
+    font-size: 2em;
+    font-family: "Merienda";
+    font-weight: 700
+}
+
+.carousel-control.small {
+    width: 10%;
+}
+
+.ballroom-image {
+    background-image: url(ballroom.png)
+}
+
+.swing-image {
+    background-image: url(swing.png)
+}
+
+.salsa-image {
+    background-image: url(salsa.png)
+}
+
+.tango-image {
+    background-image: url(tango.png)
+}
