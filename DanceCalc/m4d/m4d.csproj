@@ -437,6 +437,7 @@
     <Content Include="Content\ajax-loader.gif" />
     <Content Include="Content\amazon-charm.png" />
     <Content Include="Content\amazon-logo.png" />
+    <Content Include="Content\ballroom-bkg.png" />
     <Content Include="Content\ballroom.png" />
     <Content Include="Content\BlackBanner.png" />
     <Content Include="Content\blue-help.png" />
@@ -466,10 +467,13 @@
     <Content Include="Content\orange-bootstrap.css" />
     <Content Include="Content\PagedList.css" />
     <Content Include="Content\playbutton.png" />
+    <Content Include="Content\salsa-bkg.png" />
     <Content Include="Content\salsa.png" />
     <Content Include="Content\spotify-charm.png" />
     <Content Include="Content\spotify-logo.png" />
+    <Content Include="Content\swing-bkg.png" />
     <Content Include="Content\swing.png" />
+    <Content Include="Content\tango-bkg.png" />
     <Content Include="Content\tango.png" />
     <Content Include="Content\teal-bootstrap-min.css" />
     <Content Include="Content\teal-bootstrap-theme.css" />

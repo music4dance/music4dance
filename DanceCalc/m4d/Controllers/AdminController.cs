@@ -902,7 +902,6 @@ namespace m4d.Controllers
         [Authorize(Roles = "dbAdmin")]
         public ActionResult UploadCatalog(string separator=null, string headers=null, string dances=null, string artist=null, string album=null, string user=null, string tags=null)
         {
-            // TODONEXT: Verify that Dancers columns  "Title"―Artist style field work 
             // TODO:  This is probably a case where creating a viewmodel would be the right things to do...
             if (!string.IsNullOrEmpty(separator))
             {

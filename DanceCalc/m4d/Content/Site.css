@@ -264,33 +264,70 @@ h1, h2, h3, h4, h5, h6 { font-family: "Merienda";font-weight: 700 }
 }
 
 .dance-title {
-    font-size: 3em;
+    font-size: 2em;
     font-family: "Merienda";
     font-weight: 700
 }
 
 .dance-list {
-    font-size: 2em;
+    font-size: 1.5em;
     font-family: "Merienda";
     font-weight: 700
+}
+
+@media (min-width: 1200px) {
+    .dance-title {
+        font-size: 3em;
+    }
+}
+
+@media (min-width: 1200px) {
+    .dance-list {
+        font-size: 2em;
+    }
 }
 
 .carousel-control.small {
     width: 10%;
 }
 
-.ballroom-image {
-    background-image: url(ballroom.png)
+@media (max-width: 992px) {
+    .ballroom-image {
+        background-image: url(ballroom-bkg.png);
+        background-size: 400px 400px;
+        background-repeat: no-repeat;
+        background-position: center;
+        min-height:550px;
+    }
 }
 
-.swing-image {
-    background-image: url(swing.png)
+@media (max-width: 992px) {
+    .swing-image {
+        background-image: url(swing-bkg.png);
+        background-size: 400px 400px;
+        background-repeat: no-repeat;
+        background-position: center;
+        min-height:550px;
+    }
 }
 
-.salsa-image {
-    background-image: url(salsa.png)
+@media (max-width: 992px) {
+    .salsa-image {
+        background-image: url(salsa-bkg.png);
+        background-size: 400px 400px;
+        background-repeat: no-repeat;
+        background-position: center;
+        min-height:550px;
+    }
 }
 
-.tango-image {
-    background-image: url(tango.png)
+@media (max-width: 992px) {
+    .tango-image {
+        background-image: url(tango-bkg.png);
+        background-size: 400px 400px;
+        background-repeat: no-repeat;
+        background-position: center;
+        min-height:550px;
+    }
 }
+
