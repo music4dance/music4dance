@@ -906,7 +906,7 @@ namespace m4dModels
                         s => (s.Title != null && s.Title.ToUpper().Contains(str)) ||
                         (s.Album != null && s.Album.Contains(str)) ||
                         (s.Artist != null && s.Artist.Contains(str)) ||
-                        (s.TagSummary != null && s.TagSummary.Summary.Contains(str)));
+                        (s.TagSummary.Summary != null && s.TagSummary.Summary.Contains(str)));
                 }
                 else
                 {
