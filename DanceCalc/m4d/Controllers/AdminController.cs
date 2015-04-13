@@ -441,6 +441,44 @@ namespace m4d.Controllers
         }
 
         //
+        // Get: //FixZeroTime
+        [Authorize(Roles = "dbAdmin")]
+        public ActionResult FixZeroTime()
+        {
+            ViewBag.Name = "FixZeroTime";
+
+            Context.TrackChanges(false);
+            var count = 0;
+
+            var zeroes = Database.SongProperties.Where(prop => prop.Name == SongBase.TimeField && prop.Value == "01/01/0001 00:00:00").ToList();
+
+            foreach (var prop in zeroes)
+            {
+                var times = prop.Song.SongProperties.Where(p => p.Name == SongBase.TimeField && p.Value != "01/01/0001 00:00:00").OrderBy(p => p.Id).ToList();
+
+                var np = times.FirstOrDefault();
+
+                if (np == null) continue;
+
+                var d =  np.ObjectValue as DateTime?;
+
+                if (!d.HasValue) continue;
+
+                prop.Value = np.Value;
+                prop.Song.Created = d.Value;
+
+                count += 1;
+            }
+            Context.TrackChanges(true);
+
+            ViewBag.Success = true;
+            ViewBag.Message = string.Format("Times were wrong {0}, fixed ({1})", zeroes.Count, count);
+
+            return View("Results");
+        }
+
+
+        //
         // Get: //ClearSongCache
         [Authorize(Roles = "showDiagnostics")]
         public ActionResult ClearSongCache()

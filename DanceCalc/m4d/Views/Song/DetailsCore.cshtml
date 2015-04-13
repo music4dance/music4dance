@@ -109,4 +109,26 @@
     </div>
 }
 
+<div class="row">
+    <fieldset>
+        <div class="col-sm-3">
+            <div class="display-label">
+                @Html.DisplayNameFor(model => model.Created):
+            </div>
+            <div class="display-field">
+                @Html.DisplayFor(model => model.Created)
+            </div>
+            <br />
+        </div>
+        <div class="col-sm-3">
+            <div class="display-label">
+                @Html.DisplayNameFor(model => model.Modified):
+            </div>
+            <div class="display-field">
+                @Html.DisplayFor(model => model.Modified)
+            </div>
+        </div>
+    </fieldset>
+</div>
+
 @Html.Partial("_TagEditor")
