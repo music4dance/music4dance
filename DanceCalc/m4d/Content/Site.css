@@ -275,7 +275,8 @@ h1, h2, h3, h4, h5, h6 { font-family: "Merienda";font-weight: 700 }
 .dance-list {
     font-size: 1.5em;
     font-family: "Merienda";
-    font-weight: 700
+    font-weight: 700;
+    list-style-type: none;
 }
 
 @media (min-width: 1200px) {
@@ -334,3 +335,6 @@ h1, h2, h3, h4, h5, h6 { font-family: "Merienda";font-weight: 700 }
     }
 }
 
+@media (max-height: 800px) {
+    #banner { display: none;}
+}

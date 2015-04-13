@@ -32,7 +32,7 @@
     };
 }
 
-<div class="row col-md-12 hidden-xs hidden-sm hidden-md" style="background-color: #424242">
+<div id="banner" class="row col-md-12 hidden-xs hidden-sm hidden-md" style="background-color: #424242">
     <div class="centeredImage"><img src="~/Content/Music4DanceBannerColor.png" alt="Shall we dance to music?" /></div>
 </div>
 <div id="danceCarousel" class="carousel slide row col-md-12" data-ride="carousel" style="padding-top: 10px; padding-bottom: 10px">
@@ -49,14 +49,13 @@
         {
             var dance = dances[i];
             var mainLink = dance.TopDance ?? "index";
-            <!-- TODNEXT: Figure out how to get the silhottes faded and used as BG images for mobile size -->
             <div class="item @(i == 0 ? "active" : string.Empty) @(dance.Image + "-image") row">
                 <div class="col-md-4 col-md-offset-2 col-xs-8 col-xs-offset-2">
                     <div class="dance-title">@Html.ActionLink("Music for " + @dance.Title + " Dancers", @mainLink, "dances")</div>
                     <ul class="dance-list">
                         @foreach (var dm in dance.Dances)
                         {
-                            <li>@Html.ActionLink(@dm.Title, @dm.Name, "dances")</li>
+                            <li><span class="glyphicon glyphicon-music" aria-hidden="true"></span> @Html.ActionLink(@dm.Title, @dm.Name, "dances")</li>
                         }
                     </ul>
                 </div>
