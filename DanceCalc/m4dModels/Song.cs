@@ -36,10 +36,10 @@ namespace m4dModels
                 CreateProperty(command, value, null, log, dms);
             }
 
-            if (!addUser || user == null) return;
-
             Created = time;
             Modified = time;
+
+            if (!addUser || user == null) return;
 
             AddUser(user, dms);
             CreateProperty(UserField, user.UserName, null, log, dms);
@@ -96,11 +96,12 @@ namespace m4dModels
 
             Purchase = sd.GetPurchaseTags();
             TitleHash = CreateTitleHash(Title);
+            SetTimesFromProperties();
         }
 
         private bool EditCore(ApplicationUser user, SongDetails edit, DanceMusicService dms)
         {
-            bool modified = false;
+            var modified = false;
 
             CreateEditProperties(user, EditCommand, dms);
 
@@ -933,6 +934,7 @@ namespace m4dModels
             }
             TagsFromProperties(currentUser, sd, dms, null);
             DanceTagsFromProperties(currentUser, sd, dms, null);
+            SetTimesFromProperties();
         }
 
         protected override bool AddModifiedBy(ModifiedRecord mr)

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Data.SqlTypes;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
@@ -628,6 +629,35 @@ namespace m4dModels
             SongProperties.Add(prop);
 
             return prop;
+        }
+
+        public bool SetTimesFromProperties()
+        {
+            var first = FirstProperty(TimeField);
+            if (first == null) return false;
+
+            var last = LastProperty(TimeField);
+
+            var firstTime = first.ObjectValue as DateTime?;
+            var lastTime = last.ObjectValue as DateTime?;
+
+            if (firstTime == null || lastTime == null) return false;
+
+            var modified = false;
+            if (Created != firstTime)
+            {
+                Created = firstTime.Value;
+                modified = true;
+            }
+
+            // ReSharper disable once InvertIf
+            if (Modified != lastTime)
+            {
+                Modified = lastTime.Value;
+                modified = true;
+            }
+
+            return modified;
         }
 
         public SongProperty FirstProperty(string name)
