@@ -477,6 +477,39 @@ namespace m4d.Controllers
             return View("Results");
         }
 
+        //
+        // Get: // TimesFromProperties
+        [Authorize(Roles = "dbAdmin")]
+        public ActionResult TimesFromProperties()
+        {
+            ViewBag.Name = "TimesFromProperties";
+
+            Context.TrackChanges(false);
+            var modified = 0;
+            var count = 0;
+
+            foreach (var song in Database.Songs.Where(s => s.TitleHash != 0))
+            {
+                if (song.SetTimesFromProperties())
+                {
+                    modified += 1;
+                }
+
+                count += 1;
+
+                if (count%1000 != 0) continue;
+
+                Trace.WriteLine(string.Format("Checkpoint at {0}", count));
+                Context.CheckpointChanges();
+            }
+            Context.TrackChanges(true);
+
+            ViewBag.Success = true;
+            ViewBag.Message = string.Format("Times were update {0}, total convered = {1}", modified,count);
+
+            return View("Results");
+        }
+
 
         //
         // Get: //ClearSongCache
