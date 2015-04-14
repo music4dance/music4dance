@@ -624,7 +624,7 @@ namespace m4dModels
             }
             else
             {
-                Trace.WriteLine(string.Format("{0} Duplicate Dance Rating {1}", Title, dr.DanceId));
+                other.Weight += dr.Weight;
             }
         }
         public bool CreateDanceRatings(IEnumerable<DanceRating> ratings, DanceMusicService dms)
