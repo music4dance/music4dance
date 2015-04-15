@@ -196,7 +196,9 @@ namespace m4d.Context
 
         private static bool ContainsKaraoke(string name)
         {
-            string[] exclude = new string[] { "karaoke", "in the style of", "a tribute to" };
+            if (string.IsNullOrWhiteSpace(name)) return false;
+
+            var exclude = new string[] { "karaoke", "in the style of", "a tribute to" };
             foreach (var s in exclude)
             {
                 if (name.IndexOf(s, StringComparison.InvariantCultureIgnoreCase) != -1)
