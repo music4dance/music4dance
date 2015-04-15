@@ -222,6 +222,8 @@ namespace m4dModels
                     case AddedTags:
                         {
                             tags = new List<string>();
+                            danceTags = new List<string>();
+
                             cell = cell.ToUpper();
                             if (cell.Contains("ENGLISH LANGUAGE"))
                             {
@@ -231,18 +233,6 @@ namespace m4dModels
                             {
                                 tags.Add("Spanish:Other");
                             }
-                            if (cell.Contains("TRADITIONAL") || cell.Contains("TYPICAL") || cell.Contains("OLD SOUNDING"))
-                            {
-                                tags.Add("Traditional:Style");
-                            }
-                            if (cell.Contains("CONTEMPORARY"))
-                            {
-                                tags.Add("Contemporary:Style");
-                            }
-                            if (cell.Contains("MODERN"))
-                            {
-                                tags.Add("Modern:Style");
-                            }
                             if (cell.Contains("HIGH ENERGY"))
                             {
                                 tags.Add("High Energy:Style");
@@ -251,6 +241,31 @@ namespace m4dModels
                             {
                                 tags.Add("Low Energy:Style");
                             }
+                            if (cell.Contains("MEDIUM ENERGY"))
+                            {
+                                tags.Add("Medium Energy:Style");
+                            }
+                            if (cell.Contains("INSTRUMENTAL"))
+                            {
+                                tags.Add("Instrumental:Style");
+                            }
+
+                            if (cell.Contains("TRADITIONAL") || cell.Contains("TYPICAL") || cell.Contains("OLD SOUNDING") || cell.Contains("CLASSIC"))
+                            {
+                                danceTags.Add("Traditional:Style");
+                            }
+                            if (cell.Contains("CONTEMPORARY"))
+                            {
+                                danceTags.Add("Contemporary:Style");
+                            }
+                            if (cell.Contains("MODERN"))
+                            {
+                                danceTags.Add("Modern:Style");
+                            }
+
+                            if (tags.Count == 0) tags = null;
+                            if (danceTags.Count == 0) danceTags = null;
+
                             cell = null;
                         }
                         break;

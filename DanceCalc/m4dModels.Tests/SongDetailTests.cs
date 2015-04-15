@@ -311,16 +311,16 @@ namespace m4dModels.Tests
 
         private static readonly string[] s_nRowProps =
         {
-            @".Create=	User=dwgray	Time=00/00/0000 0:00:00 PM	Tag+=English:Other|Foxtrot:Dance|Traditional:Style	DanceRating=FXT+5	Title=Glam	Tempo=120.0	Length=200	Artist=Dimie Cat	DanceRating=SFT+1",
+            @".Create=	User=dwgray	Time=00/00/0000 0:00:00 PM	Tag+=English:Other|Foxtrot:Dance	DanceRating=FXT+5	Title=Glam	Tempo=120.0	Length=200	Artist=Dimie Cat	Tag+:FXT=Traditional:Style	DanceRating=SFT+1",
             @".Create=	User=dwgray	Time=00/00/0000 0:00:00 PM	Tag+=Samba:Dance|Spanish:Other	DanceRating=SMB+3	Title=Drop It On Me (Ft Daddy Yankee)	Tempo=100.0	Length=234	Artist=Ricky Martin	DanceRating=LTN+1",
-            @".Create=	User=dwgray	Time=00/00/0000 0:00:00 PM	Tag+=Cha Cha:Dance|Mambo:Dance|Salsa:Dance|Traditional:Style	DanceRating=MBO+4	DanceRating=SLS+4	Title=Bailemos Otra Vez	Tempo=195.0	Artist=Jose Alberto El Canario	Length=308	DanceRating=CHA+3	DanceRating=LTN+3"
+            @".Create=	User=dwgray	Time=00/00/0000 0:00:00 PM	Tag+=Cha Cha:Dance|Mambo:Dance|Salsa:Dance	DanceRating=MBO+4	DanceRating=SLS+4	Title=Bailemos Otra Vez	Tempo=195.0	Artist=Jose Alberto El Canario	Tag+:MBO=Traditional:Style	Tag+:SLS=Traditional:Style	Length=308	DanceRating=CHA+3	DanceRating=LTN+3"
         };
 
         private static readonly string[] s_nMergeProps =
         {
-            @".Create=	User=dwgray	Time=00/00/0000 0:00:00 PM	Title=Glam	Artist=Dimie Cat	Tempo=200.0	Tag+=QuickStep:Dance	DanceRating=QST+6	DanceRating=FXT+1	Album:00=Glam!	Purchase:00:AS=B0042D1W6C	.Edit=	User=dwgray	Time=00/00/0000 0:00:00 PM	Length=200	Tag+=English:Other|Foxtrot:Dance|Traditional:Style	DanceRating=FXT+5	DanceRating=SFT+1",
+            @".Create=	User=dwgray	Time=00/00/0000 0:00:00 PM	Title=Glam	Artist=Dimie Cat	Tempo=200.0	Tag+=QuickStep:Dance	DanceRating=QST+6	DanceRating=FXT+1	Album:00=Glam!	Purchase:00:AS=B0042D1W6C	.Edit=	User=dwgray	Time=00/00/0000 0:00:00 PM	Length=200	Tag+=English:Other|Foxtrot:Dance	DanceRating=FXT+5	DanceRating=SFT+1	Tag+:FXT=Traditional:Style",
             @".Create=	User=dwgray	Time=00/00/0000 0:00:00 PM	Title=Drop It On Me (Ft Daddy Yankee)	Artist=Ricky Martin	Tempo=100.0	Length=234	Tag+=Samba:Dance|Spanish:Other	DanceRating=SMB+3	DanceRating=LTN+1",
-            @".Create=	User=dwgray	Time=00/00/0000 0:00:00 PM	Title=Bailemos Otra Vez	Artist=Jose Alberto El Canario	Tempo=195.0	Length=308	Tag+=Cha Cha:Dance|Mambo:Dance|Salsa:Dance|Traditional:Style	DanceRating=MBO+4	DanceRating=SLS+4	DanceRating=CHA+3	DanceRating=LTN+3",
+            @".Create=	User=dwgray	Time=00/00/0000 0:00:00 PM	Title=Bailemos Otra Vez	Artist=Jose Alberto El Canario	Tempo=195.0	Length=308	Tag+=Cha Cha:Dance|Mambo:Dance|Salsa:Dance	DanceRating=MBO+4	DanceRating=SLS+4	DanceRating=CHA+3	DanceRating=LTN+3	Tag+:MBO=Traditional:Style	Tag+:SLS=Traditional:Style",
         };
 
         private const string DHeader = @"Title	Artist	Comment";
