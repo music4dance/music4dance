@@ -659,6 +659,8 @@ namespace m4dModels
 
         public AlbumDetails FindAlbum(string album)
         {
+            if (string.IsNullOrWhiteSpace(album)) return null;
+
             AlbumDetails ret = null;
             List<AlbumDetails> candidates = new List<AlbumDetails>();
             string title = CleanAlbum(album,Artist);

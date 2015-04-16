@@ -712,7 +712,10 @@ namespace m4d.Controllers
                 }
             }
 
-            Context.TrackChanges(true);
+            if (failed.Count + succeeded.Count > 0)
+            {
+                Context.TrackChanges(true);
+            }
 
             ViewBag.Completed = tried <= count;
             ViewBag.Failed = failed;
@@ -966,6 +969,7 @@ namespace m4d.Controllers
             {
                 ViewBag.Error = true;
                 ViewBag.Status = we.Message;
+                Trace.WriteLine(string.Format("Failed '{0}' on Song '{1}",we.Message,song));
             }
 
             return tracks;

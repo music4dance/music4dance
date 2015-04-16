@@ -898,6 +898,8 @@ namespace m4dModels
         }
         public static string CleanAlbum(string album, string artist)
         {
+            if (string.IsNullOrWhiteSpace(album)) return null;
+
             album = NormalizeAlbumString(album);
             artist = NormalizeAlbumString(artist);
 
