@@ -1,5 +1,7 @@
 ﻿@model m4dModels.Dance
 @using System.Runtime.Serialization.Json
+@using System.Web.Services.Discovery
+@using Microsoft.Ajax.Utilities
 
 @{
     ViewBag.Title = "Edit";
@@ -73,10 +75,18 @@
 
 @{
     string pageScript = "~/Scripts/editdance.js" + Page.ScriptQualifier;
-    MemoryStream stream = new MemoryStream();
-    DataContractJsonSerializer serializer = new DataContractJsonSerializer(typeof(IEnumerable<m4dModels.DanceLink>));
-    serializer.WriteObject(stream, Model.DanceLinks);
-    string linksString = System.Text.Encoding.UTF8.GetString(stream.ToArray());
+    string linksString;
+    if (Model.DanceLinks == null)
+    {
+        linksString = "[]";
+    }
+    else
+    {
+        MemoryStream stream = new MemoryStream();
+        DataContractJsonSerializer serializer = new DataContractJsonSerializer(typeof(IEnumerable<m4dModels.DanceLink>));
+        serializer.WriteObject(stream, Model.DanceLinks);
+        linksString = System.Text.Encoding.UTF8.GetString(stream.ToArray());
+    }
 }
 
 @section Scripts {

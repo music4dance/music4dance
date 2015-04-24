@@ -209,7 +209,7 @@ namespace m4dModels
 
         public DanceObject Info
         {
-            get { return _info ?? (_info = DanceLibrary.DanceDictionary[Id]); }
+            get { return _info ?? (_info = DanceLibrary.DanceDictionary[Id.ToUpper()]); }
         }
 
         public string Name

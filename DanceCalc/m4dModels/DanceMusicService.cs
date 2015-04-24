@@ -1566,22 +1566,23 @@ namespace m4dModels
             }
 
             LoadDances();
-            bool modified = false;
-            foreach (string s in lines)
+            var modified = false;
+            foreach (var s in lines)
             {
                 if (string.IsNullOrWhiteSpace(s))
                     continue;
-                List<string> cells = s.Split('\t').ToList();
-                Dance d = Dances.Find(cells[0]);
-                if (d != null)
+                var cells = s.Split('\t').ToList();
+                var d = Dances.Find(cells[0]);
+                if (d == null)
                 {
-                    cells.RemoveAt(0);
-                    modified |= d.Update(cells);
+                    d = Dances.Create();
+                    d.Id = cells[0];
+                    Dances.Add(d);
+                    modified = true;
                 }
-                else
-                {
-                    Trace.WriteLineIf(TraceLevels.General.TraceError, string.Format("Bad Dance: {0}",s));
-                }
+
+                cells.RemoveAt(0);
+                modified |= d.Update(cells);
             }
 
             if (modified)

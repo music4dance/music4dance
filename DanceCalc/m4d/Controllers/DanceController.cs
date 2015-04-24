@@ -73,11 +73,11 @@ namespace m4d.Controllers
         [Authorize(Roles = "canEdit")]
         public ActionResult Edit(Dance dance)
         {
-            if (ModelState.IsValid)
+            if (ModelState.IsValid && dance.Info != null)
             {
                 if (dance.DanceLinks != null)
                 {
-                    foreach (DanceLink link in dance.DanceLinks)
+                    foreach (var link in dance.DanceLinks)
                     {
                         link.DanceId = dance.Id;
                         if (link.Id == Guid.Empty)
@@ -98,17 +98,14 @@ namespace m4d.Controllers
 
                 return RedirectToAction("Index", new { dance = dance.Name });
             }
-            else
-            {
-                var errors = ModelState.SelectMany(x => x.Value.Errors.Select(z => z.Exception));
-                foreach (var error in errors)
-                {
-                    if (error != null)
-                        Trace.WriteLine(error.ToString());
-                }
 
-                return View(dance);
+            var errors = ModelState.SelectMany(x => x.Value.Errors.Select(z => z.Exception));
+            foreach (var error in errors.Where(error => error != null))
+            {
+                Trace.WriteLine(error.ToString());
             }
+
+            return View(dance);
         }
     }
 }

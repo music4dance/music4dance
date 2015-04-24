@@ -21,17 +21,21 @@ namespace DanceTests
         readonly string[] _51HAll = {
             "QuickStep: Style=(International Standard), Delta=()",
             "Salsa: Style=(Social), Delta=()",
+            "Charleston: Style=(Social), Delta=()",
             "Jump Swing: Style=(Social), Delta=()",
             "Balboa: Style=(Social), Delta=()",
             "Mambo: Style=(American Rhythm), Delta=(+0.50MPM)",
+            "Collegiate Shag: Style=(Social), Delta=(+1.50MPM)",
             "Milonga: Style=(Social), Delta=(+1.50MPM)",
         };
 
         readonly string[] _51HNR = {
             "QuickStep: Style=(International Standard), Delta=()",
             "Salsa: Style=(Social), Delta=()",
+            "Charleston: Style=(Social), Delta=()",
             "Jump Swing: Style=(Social), Delta=()",
             "Balboa: Style=(Social), Delta=()",
+            "Collegiate Shag: Style=(Social), Delta=(+1.50MPM)",
             "Milonga: Style=(Social), Delta=(+1.50MPM)",
         };
 
@@ -101,7 +105,8 @@ namespace DanceTests
 
 
         readonly string[] _Waltz = {
-            "Slow Waltz: Style=(American Smooth, International Standard), Delta=()"
+            "Slow Waltz: Style=(American Smooth, International Standard), Delta=()",
+            "Cross-step Waltz: Style=(Social), Delta=(-4.50MPM)"
         };
 
         readonly string[] _NullDances = { };

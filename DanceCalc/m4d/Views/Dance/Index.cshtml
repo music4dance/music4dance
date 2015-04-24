@@ -12,7 +12,7 @@
 </ol>
 
 @{
-    string[] boxes = { "LTN", "SWG", "TNG", "WLZ", "FXT", "MSC" };
+    string[] boxes = { "LTN", "SWG", "FXT", "TNG", "WLZ", "MSC" };
 }
 
 <div class="row">
@@ -20,7 +20,7 @@
     {
         var item = Model.FirstOrDefault(m => m.DanceId == box);
 
-        <div class="list-group col-sm-4">
+        <div class="list-group col-sm-3">
             <h4><span id="@item.SeoName" class="btn btn-info btn-lg dance">@item.DanceName <span id="@item.DanceId" class="badge">@item.SongCount</span></span></h4>
             @{Html.RenderPartial("_DanceList", item.Children);}
         </div>

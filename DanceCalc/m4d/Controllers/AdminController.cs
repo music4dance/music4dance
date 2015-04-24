@@ -330,8 +330,10 @@ namespace m4d.Controllers
                             var dt = dto as DanceType;
                             if (dt == null || !dt.TempoRange.ToBpm(dt.Meter).Contains(tempo)) continue;
 
+                            if (song.DanceRatings.Any(x => x.DanceId == dt.Id)) continue;
+
                             // TODO: Consider re-using this code to tag songs as not-strict tempo (but it's actually the dance rating that should be tagged).
-                            var drd = new DanceRatingDelta(dt.Id,4);
+                            var drd = new DanceRatingDelta(dt.Id, 4);
                             nts.Add(drd);
                             count += 1;
                         }
@@ -1152,7 +1154,7 @@ namespace m4d.Controllers
             var s = (users ? string.Join("\r\n", Database.SerializeUsers()) + "\r\n" : string.Empty) +
                     (dances ? string.Join("\r\n", Database.SerializeDances()) + "\r\n" : string.Empty) +
                     (tags ? string.Join("\r\n", Database.SerializeTags()) + "\r\n" : string.Empty) +
-                    (tags ? string.Join("\r\n", Database.SerializeSongs(true,history)) + "\r\n" : string.Empty);
+                    (songs ? string.Join("\r\n", Database.SerializeSongs(true,history)) + "\r\n" : string.Empty);
 
             var bytes = Encoding.UTF8.GetBytes(s);
             var stream = new MemoryStream(bytes);

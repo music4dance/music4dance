@@ -45,6 +45,24 @@
     ]
   },
   {
+    "Name": "Cross-step Waltz",
+    "Id": "CSW",
+    "Meter": {
+      "Numerator": 3,
+      "Denominator": 4
+    },
+    "Instances": [
+      {
+        "Style": "Social",
+        "TempoRange": {
+          "Min": 36.0,
+          "Max": 40.0
+        },
+        "Exceptions": []
+      }
+    ]
+  },
+  {
     "Name": "Castle Foxtrot",
     "Id": "CFT",
     "Meter": {
@@ -761,6 +779,24 @@
       }
     ]
   },
+   {
+    "Name": "Charleston",
+    "Id": "CST",
+    "Meter": {
+      "Numerator": 4,
+      "Denominator": 4
+    },
+    "Instances": [
+      {
+        "Style": "Social",
+        "TempoRange": {
+          "Min": 50.0,
+          "Max": 75.0
+        },
+        "Exceptions": []
+      }
+    ]
+  },
   {
     "Name": "Carolina Shag",
     "Id": "CSG",
@@ -774,6 +810,24 @@
         "TempoRange": {
           "Min": 27.0,
           "Max": 33.0
+        },
+        "Exceptions": []
+      }
+    ]
+  },
+  {
+    "Name": "Collegiate Shag",
+    "Id": "CLS",
+    "Meter": {
+      "Numerator": 4,
+      "Denominator": 4
+    },
+    "Instances": [
+      {
+        "Style": "Social",
+        "TempoRange": {
+          "Min": 45.0,
+          "Max": 50.0
         },
         "Exceptions": []
       }
