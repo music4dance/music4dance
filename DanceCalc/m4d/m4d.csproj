@@ -471,6 +471,7 @@
     <Content Include="Content\playbutton.png" />
     <Content Include="Content\salsa-bkg.png" />
     <Content Include="Content\salsa.png" />
+    <Content Include="Content\song-page.png" />
     <Content Include="Content\spotify-charm.png" />
     <Content Include="Content\spotify-logo.png" />
     <Content Include="Content\swing-bkg.png" />
