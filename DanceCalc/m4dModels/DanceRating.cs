@@ -105,7 +105,7 @@ namespace m4dModels
         private static bool s_builtDM = false;
         private static readonly Dictionary<string, string> s_danceMap = new Dictionary<string, string>()
         {
-            {"CROSSSTEPWALTZ","SWZ"}, {"SLOWANDCROSSSTEPWALTZ","SWZ"},
+            {"SLOWANDCROSSSTEPWALTZ","SWZ,CSW"},
             {"SOCIALTANGO","TNG"},
             {"VIENNESE","VWZ"},{"MODERATETOFASTWALTZ","VWZ"},
             {"SLOWDANCEFOXTROT","SFT"},
