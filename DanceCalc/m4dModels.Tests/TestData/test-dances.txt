@@ -17,10 +17,16 @@ CFTS
 CHA	The *Cha Cha* is danced to the music of the same name introduced by Cuban composer and violinist Enrique Jordin in 1953. This rhythm was developed from the danzon by a syncopation of the fourth beat. The Cha Cha is danced in 4/4 time and the fourth beat is split in two.  This give the cha cha both its characteristic rhythm (2, 3,4 & 1) and its onomatopoeic name (two  three Cha Cha one).\r\n\r\nThe *Cha Cha* is generally danced as the first dance of [American Rhythm] and second dance of the [International Latin] five dance competitions.\r\n
 CHAA	
 CHAI	
+CLS	
+CLSS	
 CMB	
 CMBS	
 CSG	
 CSGS	
+CST	
+CSTS	
+CSW	
+CSWS	
 ECS	*East Coast Swing* is a standardized dance in [American Rhythm] style competition dancing as well as a social partner dance.  It is one of a number of different swing dances that developed concurrently with the swing style of jazz music in the mid twentieth century.  This group of dances also includes [Lindy Hop],  [Carolina Shag], [Balboa], [West Coast Swing], and [Jive].  \r\n\r\nThis dance may also be referred to as Eastern Swing, Triple Swing, Triple Step Swing, American Swing, or just Swing.\r\n\r\nThe *East Coast Swing* is generally danced as the first dance of [American Rhythm] competitions.  	4c33a167-e7e6-41e6-aafd-72eaf1629ce5	Wikipedia	http://en.wikipedia.org/wiki/East_Coast_Swing
 ECSA	
 FXT	Foxtrot is the family of dances that developed in the nineteen tens and is danced to much the same music as the [Swing] dances. Both the [American Smooth] and the [International Standard] competition rounds contain [Slow Foxtrot]  and International style also contains a faster version of the *Foxtrot* called the [Quickstep]. Other dances in this family include the [Peabody] and the [Castle Foxtrot].	4fad1550-e0ca-47fc-b6a1-789dea71e67c	Wikipedia	http://en.wikipedia.org/wiki/Foxtrot
