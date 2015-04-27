@@ -53,9 +53,8 @@
 <hr />
 <h3> Initializiation Tasks</h3>
 <ul>
-    <li>@Html.ActionLink("Backup the Database", "BackupDatabase")</li>
+    <li>@Html.ActionLink("Backup the Database", "BackupDatabase"), @Html.ActionLink("Users", "BackupDatabase", new { tags = false, dances = false, songs = false }), @Html.ActionLink("Dances", "BackupDatabase", new { tags = false, users = false, songs = false })</li>
     <li>@Html.ActionLink("Backup the Database (with lookup history)", "BackupDatabase", new {useLookupHistory = "true" })</li>
-    <li>@Html.ActionLink("Backup users", "BackupDatabase", new {  tags = false, dances = false, songs = false })</li>
     <li>@Html.ActionLink("Backup tail", "BackupTail", new {count = 150})</li>
     <li>@Html.ActionLink("Backup tail (500)", "BackupTail", new { count = 500 })</li>
     <li>@Html.ActionLink("Update Purchase Info", "UpdatePurchase")</li>
