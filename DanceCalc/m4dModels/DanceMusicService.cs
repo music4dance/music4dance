@@ -845,7 +845,7 @@ namespace m4dModels
                 }
             }
 
-#if TRACE
+#if TRACETag
             if (traceVerbose)
             {
                 count = songs.Count();
@@ -896,7 +896,7 @@ namespace m4dModels
             }
 #endif
 
-            // Now limit it by anything that has the serach string in the title, album or artist
+            // Now limit it by anything that has the search string in the title, album or artist
             if (!String.IsNullOrEmpty(filter.SearchString))
             {
                 if (userFilter)
@@ -947,10 +947,10 @@ namespace m4dModels
                 var typeInclude = GetTagRings(tlInclude).Select(tt => tt.Key).ToList();
                 var typeExclude = GetTagRings(tlExclude).Select(tt => tt.Key).ToList();
 
-                songs = from s in songs where s.TitleHash != 0 && typeInclude.All(val => s.TagSummary.Summary.Contains(val)) select s;
+                songs = from s in songs where s.TitleHash != 0 && typeInclude.All(val => s.TagSummary.Summary.Contains(val) || s.DanceRatings.Any(dr => dr.TagSummary.Summary.Contains(val))) select s;
                 if (typeExclude.Count > 0)
                 {
-                    songs = from s in songs where !typeExclude.Any(val => s.TagSummary.Summary.Contains(val)) select s;
+                    songs = from s in songs where !typeExclude.Any(val => s.TagSummary.Summary.Contains(val) || s.DanceRatings.Any(dr => dr.TagSummary.Summary.Contains(val))) select s;
                 }
             }
 
@@ -1529,10 +1529,10 @@ namespace m4dModels
                         user.Region = region;
                         user.Privacy = privacy;
                         user.CanContact = (ContactStatus)canContact;
-                        user.ServicePreference = servicePreference;                        
+                        user.ServicePreference = servicePreference;
                     }
 
-                    Context.Users.Add(user);                                    
+                    Context.Users.Add(user);
                 }
                 else if (extended)
                 {
