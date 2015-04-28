@@ -35,18 +35,34 @@
 
 <h2>@Model.DanceName</h2>
 
-<div>
-    @Html.Raw(description)
+<div class="row">
+    <div class="col-md-8 big-text">@Html.Raw(description)</div>
+    <div class="col-md-2 col-md-offset-1 list-group">
+        <a href="#top-ten" class="list-group-item">Top Ten Songs</a>
+        <a href="#spotify-player" class="list-group-item">Spotify Player</a>
+        @if (@Model.Parent != null)
+        {
+            <a href="#tempo-info" class="list-group-item">Tempo Info</a>
+        }
+        else
+        {
+            <a href="#dance-styles" class="list-group-item">Dance Sytles</a>
+        }
+        @if (Model.Dance.DanceLinks != null && Model.Dance.DanceLinks.Count > 0)
+        {
+            <a href="#references" class="list-group-item">References</a>
+        }
+    </div>
 </div>
 
 <div>
     <h3>@Html.ActionLink("music4dance's", "Index", "Home") top 10 songs for dancing @Html.ActionLink(@Model.DanceName, "Search", "Song", new { dances = @Model.DanceId }, null)</h3>
 </div>
-<div>
+<div id="top-ten">
     @{Html.RenderPartial("_ListSongs", @Model.TopSongs, ViewData);}
 </div>
 
-<div>
+<div id="spotify-player">
     <iframe src="https://embed.spotify.com/?uri=spotify:trackset:@Model.DanceName:@topSpotify" frameborder="0" allowtransparency="true"></iframe>
 </div>
 
@@ -60,7 +76,7 @@
     var info = Model.Dance.Info;
     var tempo = info.TempoRange;
     <hr />
-    <div>
+    <div id="tempo-info">
         <h4>Tempo Information</h4>
         <p>
             The @Model.DanceName is generally danced to music in a @info.Meter Meter
@@ -81,7 +97,7 @@
 @if (@Model.Parent == null)
 {
     <hr />
-    <div>
+    <div id="dance-styles">
         <h4>Dances that are grouped into the @Model.DanceName category.</h4>
         <div class="list-group">
             @{Html.RenderPartial("_DanceList", @Model.Children);}
@@ -91,7 +107,7 @@
 
 @if (Model.Dance.DanceLinks != null && Model.Dance.DanceLinks.Count > 0)
 {
-    <h4>References</h4>
+    <h4 id="references">References</h4>
     <ul>
         @foreach (var dl in Model.Dance.DanceLinks)
         {

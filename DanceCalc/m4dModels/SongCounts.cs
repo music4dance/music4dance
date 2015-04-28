@@ -30,28 +30,6 @@ namespace m4dModels
         public IEnumerable<Song> TopSongs { get; private set; }
 
         public ICollection<ICollection<PurchaseLink>> TopSpotify { get; private set; }
-        public void SetTopSongs(int n, DanceMusicService dms)
-        {
-            SongFilter filter = new SongFilter
-            {
-                SortOrder = "Dances_10",
-                Dances = DanceId,
-                TempoMax = 500,
-                TempoMin = 1
-            };
-            var songs = dms.BuildSongList(filter).ToList();
-
-            if (songs.Count < 10)
-            {
-                filter.TempoMax = null;
-                filter.TempoMin = null;
-                songs = dms.BuildSongList(filter).ToList();
-            }
-
-            TopSongs = songs;
-
-            TopSpotify = dms.GetPurchaseLinks(ServiceType.Spotify, songs);
-        }
 
         static public void ClearCache()
         {
@@ -183,12 +161,7 @@ namespace m4dModels
         static public SongCounts FromName(string name, DanceMusicService dms)
         {
             name = DanceObject.SeoFriendly(name);
-            var s = GetFlatSongCounts(dms).FirstOrDefault(sc => string.Equals(sc.SeoName,name));
-            if (s!= null)
-            {
-                s.SetTopSongs(10, dms);
-            }
-            return s;
+            return  GetFlatSongCounts(dms).FirstOrDefault(sc => string.Equals(sc.SeoName,name));
         }
         static public int GetScaledRating(IDictionary<string,SongCounts> map, string danceId, int weight, int scale = 5)
         {

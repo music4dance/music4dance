@@ -16,7 +16,7 @@
 }
 
 <div class="row">
-    @foreach (string box in boxes)
+    @foreach (var box in boxes)
     {
         var item = Model.FirstOrDefault(m => m.DanceId == box);
 
