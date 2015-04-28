@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Data.Entity.Core.Common.CommandTrees;
 using System.Linq;
 
 namespace m4dModels
@@ -41,6 +42,12 @@ namespace m4dModels
             }
             return tags;
         }
+
+        public bool IsEmpty
+        {
+            get { return string.IsNullOrWhiteSpace(Summary); }
+        }
+
         #endregion
 
         #region Constructors
@@ -54,6 +61,12 @@ namespace m4dModels
             // Normalize the tags summary by pushing it through parse/deserialize
             Summary = Serialize(Parse(serialized));
         }
+
+        public TagSummary(IEnumerable<TagCount> tags)
+        {
+            Summary = Serialize(tags);
+        }
+
         #endregion
 
         #region Operators
@@ -69,13 +82,13 @@ namespace m4dModels
 
         public void ChangeTags(TagList added, TagList removed)
         {
-            IList<TagCount> tags = Tags;
+            var tags = Tags;
 
             if (added != null)
             {
                 foreach (string s in added.Tags)
                 {
-                    TagCount tc = tags.FirstOrDefault(t => string.Equals(t.Value, s, StringComparison.InvariantCultureIgnoreCase));
+                    var tc = tags.FirstOrDefault(t => string.Equals(t.Value, s, StringComparison.InvariantCultureIgnoreCase));
                     if (tc == null)
                     {
                         tc = new TagCount(s, 0);
@@ -90,14 +103,13 @@ namespace m4dModels
             {
                 foreach (string s in removed.Tags)
                 {
-                    TagCount tc = tags.FirstOrDefault(t => string.Equals(t.Value, s, StringComparison.InvariantCultureIgnoreCase));
-                    if (tc != null)
+                    var tc = tags.FirstOrDefault(t => string.Equals(t.Value, s, StringComparison.InvariantCultureIgnoreCase));
+                    if (tc == null) continue;
+
+                    tc.Count -= 1;
+                    if (tc.Count <= 0)
                     {
-                        tc.Count -= 1;
-                        if (tc.Count <= 0)
-                        {
-                            tags.Remove(tc);
-                        }
+                        tags.Remove(tc);
                     }
                 }
             }
@@ -127,7 +139,7 @@ namespace m4dModels
 
         static private string Serialize(IEnumerable<TagCount> tags)
         {
-            List<TagCount> list = tags.ToList();
+            var list = tags as List<TagCount> ?? tags.ToList();
             list.Sort((sc1, sc2) => String.Compare(sc1.Value, sc2.Value, StringComparison.Ordinal));
             return string.Join("|", list);
         }

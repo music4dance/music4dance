@@ -402,6 +402,10 @@
     <Compile Include="Migrations\201502112056341_UserInfo.Designer.cs">
       <DependentUpon>201502112056341_UserInfo.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201504272344073_EnhancedDance.cs" />
+    <Compile Include="Migrations\201504272344073_EnhancedDance.Designer.cs">
+      <DependentUpon>201504272344073_EnhancedDance.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Context\DanceMusicConfiguration.cs" />
     <Compile Include="Context\DanceMusicContext.cs" />
@@ -883,6 +887,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201502112056341_UserInfo.resx">
       <DependentUpon>201502112056341_UserInfo.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201504272344073_EnhancedDance.resx">
+      <DependentUpon>201504272344073_EnhancedDance.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>

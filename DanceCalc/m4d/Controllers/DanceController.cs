@@ -28,19 +28,10 @@ namespace m4d.Controllers
 
                 return View(data);
             }
-            else
-            {
-                ViewBag.DanceMap = SongCounts.GetDanceMap(Database);
-                SongCounts sc = SongCounts.FromName(dance, Database);
-                if (sc != null)
-                {
-                    return View("details", sc);
-                }
-                else
-                {
-                    return ReturnError(HttpStatusCode.NotFound, string.Format("The dance with the name = {0} isn't defined.", dance));
-                }
-            }
+
+            ViewBag.DanceMap = SongCounts.GetDanceMap(Database);
+            var sc = SongCounts.FromName(dance, Database);
+            return sc != null ? View("details", sc) : ReturnError(HttpStatusCode.NotFound, string.Format("The dance with the name = {0} isn't defined.", dance));
         }
 
         // GET: GroupRedirect/group/dance

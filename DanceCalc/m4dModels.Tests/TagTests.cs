@@ -49,6 +49,25 @@ namespace m4dModels.Tests
 
         #endregion
 
+        #region TagAccumulator
+
+        [TestMethod]
+        public void TagAccTest()
+        {
+            var ts1 = new TagSummary("Blues:Music:3|Pop:Music:5|Salsa:Music:7|Swing:Dance:11|Swing:Music:1");
+            var ts2 = new TagSummary("Pop:Music:3|Salsa:Music:5|Swing:Music:7|Waltz:Dance:3");
+
+            var ta = new TagAccumulator(ts1.Summary);
+            var ts3 = ta.TagSummary();
+            Assert.AreEqual(ts1.Summary,ts3.Summary);
+
+            ta.AddTags(ts2.Summary);
+            Trace.WriteLine(ta);
+            Assert.AreEqual("Blues:Music:3|Pop:Music:8|Salsa:Music:12|Swing:Dance:11|Swing:Music:8|Waltz:Dance:3",ta.ToString());
+        }
+
+        #endregion
+
         #region NewTests
         [TestMethod]
         public void TagTestSummary()

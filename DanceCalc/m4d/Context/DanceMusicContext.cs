@@ -78,6 +78,8 @@ namespace m4d.Context
         public DbSet<SongProperty> SongProperties { get; set; }
         public DbSet<Dance> Dances { get; set; }
         public DbSet<DanceRating> DanceRatings { get; set; }
+        // ReSharper disable once InconsistentNaming
+        public DbSet<TopN> TopNs { get; set; }
         public DbSet<Tag> Tags { get; set; }
         public DbSet<TagType> TagTypes { get; set; }
         public DbSet<SongLog> Log { get; set; }
@@ -100,7 +102,10 @@ namespace m4d.Context
 
             modelBuilder.Entity<Dance>().Property(dance => dance.Id).HasMaxLength(5);
             modelBuilder.Entity<Dance>().Ignore(dance => dance.Info);
+            // ReSharper disable once SimilarAnonymousTypeNearby
             modelBuilder.Entity<DanceRating>().HasKey(dr => new { dr.SongId, dr.DanceId });
+            // ReSharper disable once SimilarAnonymousTypeNearby
+            modelBuilder.Entity<TopN>().HasKey(tn => new { tn.DanceId, tn.SongId });
 
             modelBuilder.Entity<TaggableObject>().Ignore(to => to.TagId);
             //modelBuilder.Entity<TaggableObject>().HasKey(to => to.TagIdBase);
@@ -401,25 +406,21 @@ namespace m4d.Context
             {
                 throw new InvalidConstraintException("Attempting a checkpoint without having first disabled auto-detect");
             }
-            else
-            {
-                TrackChanges(true);
-                TrackChanges(false);
 
-                RemoveEntities<Song>();
-                RemoveEntities<SongProperty>();
-                RemoveEntities<DanceRating>();
-                RemoveEntities<Tag>();
-                RemoveEntities<ModifiedRecord>();
-                RemoveEntities<SongLog>();
-            }
+            TrackChanges(true);
+            TrackChanges(false);
+
+            RemoveEntities<Song>();
+            RemoveEntities<SongProperty>();
+            RemoveEntities<DanceRating>();
+            RemoveEntities<Tag>();
+            RemoveEntities<ModifiedRecord>();
+            RemoveEntities<SongLog>();
         }
 
         private void RemoveEntities<T>() where T : class
         {
-            List<T> list = new List<T>();
-            foreach (var unknown in Set<T>().Local)
-                list.Add(unknown);
+            var list = Set<T>().Local.ToList();
             foreach (var p in list) 
                 Entry(p).State = EntityState.Detached;
         }

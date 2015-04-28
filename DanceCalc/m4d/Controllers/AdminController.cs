@@ -15,6 +15,7 @@ using m4d.Scrapers;
 using m4d.ViewModels;
 using System.Web;
 using System.Web.Http.Tracing;
+using m4d.APIControllers;
 using m4dModels;
 using Configuration = m4d.Migrations.Configuration;
 using TraceLevel = System.Diagnostics.TraceLevel;
@@ -661,6 +662,98 @@ namespace m4d.Controllers
         }
 
 
+        //
+        // Get: //RebuildDances
+        [Authorize(Roles = "dbAdmin")]
+        public ActionResult RebuildDances()
+        {
+            // Clear out the Top10s
+            Context.Database.ExecuteSqlCommand("TRUNCATE TABLE dbo.TopNs");
+
+            Context.TrackChanges(false);
+
+            // TODONEXT: Build tag clouds for Dances and Everything
+            //  Add include/exclude as permanent fixtures and link them to appropriate cloud
+            //  Rework the dance pages.
+            //  Think about how we might fix the multi-categorization problem (LTN vs. International Latin)
+            //  Actually replace SongCounts
+
+            // Get the Max Weight and Count of songs for each dance
+            foreach (var dance in Database.Dances.Include("TopSongs"))
+            {
+                Trace.WriteLineIf(TraceLevels.General.TraceInfo,"Computing info for " + dance.Name);
+                dance.SongCount = dance.DanceRatings.Select(dr => dr.Song.Purchase).Count(p => p != null);
+                dance.MaxWeight = (dance.SongCount == 0) ? 0 : dance.DanceRatings.Max(dr => dr.Weight);
+
+                var filter = new SongFilter
+                {
+                    SortOrder = "Dances_10",
+                    Dances = dance.Id,
+                    TempoMax = 500,
+                    TempoMin = 1
+                };
+                var songs = Database.BuildSongList(filter).ToList();
+
+                if (songs.Count < 10)
+                {
+                    filter.TempoMax = null;
+                    filter.TempoMin = null;
+                    songs = Database.BuildSongList(filter).ToList();
+                }
+
+                if (songs.Count == 0) continue;
+
+                var rank = 1;
+                foreach (var s in songs)
+                {
+                    var tn = Context.TopNs.Create();
+                    tn.Dance = dance;
+                    tn.Song = s;
+                    tn.Rank = rank;
+
+                    Context.TopNs.Add(tn);
+                    rank += 1;
+                }
+            }
+
+            Context.TrackChanges(true);
+
+            ViewBag.Success = true;
+            ViewBag.Message = "Dances were successfully updated";
+
+            return View("Results");
+        }
+
+        //
+        // Get: //RebuildDances
+        [Authorize(Roles = "dbAdmin")]
+        public ActionResult RebuildDanceTags()
+        {
+            Context.TrackChanges(false);
+
+            
+            foreach (var dance in Database.Dances)
+            {
+                var dT = dance;
+                var acc = new TagAccumulator();
+
+                foreach (var rating in Database.DanceRatings.Where(dr => dr.DanceId == dT.Id).Include("Song"))
+                {
+                    acc.AddTags(rating.TagSummary);
+                    acc.AddTags(rating.Song.TagSummary);
+                }
+                dance.SongTags = acc.TagSummary();
+
+                Context.CheckpointSongs();
+            }
+
+            Context.TrackChanges(true);
+
+            ViewBag.Success = true;
+            ViewBag.Message = "Dance tags were successfully updated";
+
+            return View("Results");
+        }
 
         //
         // Get: //ReloadDatabase

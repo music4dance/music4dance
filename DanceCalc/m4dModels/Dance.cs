@@ -14,6 +14,13 @@ namespace m4dModels
         public string Description { get; set; }
         public virtual ICollection<DanceRating> DanceRatings { get; set; }
         public virtual ICollection<DanceLink> DanceLinks { get; set; }
+
+        // Properties that are batch generated
+        public int SongCount { get; set; }
+        public int MaxWeight { get; set; }
+        public TagSummary SongTags { get; set; }
+        public virtual ICollection<TopN> TopSongs { get; set; }
+
         public override char IdModifier
         {
             get { return 'D'; }
