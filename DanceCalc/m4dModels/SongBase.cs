@@ -356,13 +356,13 @@ namespace m4dModels
                     var dg = dance as DanceGroup;
                     if (dg == null)
                         continue;
-                    if (dg.Id != "MSC" && dg.Id != "LTN")
+                    if (dg.Id != "MSC" && dg.Id != "LTN" && dg.Id != "PRF")
                         groups.Add(dg.Id);
                 }
                 else
                 {
                     var g = dt.GroupId;
-                    if (g == "MSC") continue;
+                    if (g == "MSC" || g == "PRF") continue;
 
                     if (g != "LTN")
                         groups.Add(g);

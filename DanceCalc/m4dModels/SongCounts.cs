@@ -228,7 +228,8 @@ namespace m4dModels
             }
 
             // Only add children to MSC, for other groups they're already built in
-            if (scGroup.DanceId == "MSC" || scGroup.DanceId == "HDN")
+
+            if (scGroup.DanceId == "MSC" || scGroup.DanceId == "PRF")
             {
                 scGroup.SongCount += scType.SongCount;
             }
