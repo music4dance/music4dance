@@ -10,6 +10,10 @@ namespace m4dModels
 {
     public class Dance : TaggableObject
     {
+        public Dance()
+        {
+            SongTags = new TagSummary();
+        }
         public string Id { get; set; }
         public string Description { get; set; }
         public virtual ICollection<DanceRating> DanceRatings { get; set; }

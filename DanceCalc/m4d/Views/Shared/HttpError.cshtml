@@ -1,4 +1,5 @@
-﻿@model m4dModels.ErrorModel
+﻿@using m4dModels
+@model m4dModels.ErrorModel
 @{
     ViewBag.Title = "Error";
 }
@@ -38,3 +39,24 @@
         <li>If all else fails please <a href="mailto:david@music4dance.net"> send us an email</a> and let us know what went wrong.</li>
     </ul>
 </div>
+
+
+@if ((TraceLevels.General.TraceVerbose || User.IsInRole("showDiagnostics")) && Model != null)
+{
+    string hresult = "0x" + Model.Exception.HResult.ToString("X8");
+    <p><b>Exception:</b>@Model.Exception.Message (@hresult)</p>
+    if (Model.Exception.InnerException != null)
+    {
+        <p><b>Inner Exception:</b>@Model.Exception.InnerException.Message</p>
+    }
+    <p><b>Target Site:</b>@Model.Exception.TargetSite</p>
+
+    <h3>Stack Trace:</h3>
+    string[] frames = Model.Exception.StackTrace.Split(new[] { '\n' }, StringSplitOptions.RemoveEmptyEntries);
+    <ul>
+        @foreach (string s in frames)
+        {
+            <li>@s</li>
+        }
+    </ul>
+}
