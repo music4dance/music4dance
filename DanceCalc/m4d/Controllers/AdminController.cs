@@ -2,28 +2,22 @@
 using System.Collections.Generic;
 using System.Configuration;
 using System.Data.Entity;
-using System.Data.Entity.Core.Objects;
 using System.Data.Entity.Infrastructure;
 using System.Data.Entity.Migrations;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Web.Mvc;
 using DanceLibrary;
 using m4d.Scrapers;
-using m4d.ViewModels;
-using System.Web;
-using System.Web.Http.Tracing;
-using m4d.APIControllers;
 using m4dModels;
 using Configuration = m4d.Migrations.Configuration;
-using TraceLevel = System.Diagnostics.TraceLevel;
 
 namespace m4d.Controllers
 {
     [Authorize]
-    //[RequireHttps]
     public class AdminController : DMController
     {
         public override string DefaultTheme
@@ -531,7 +525,7 @@ namespace m4d.Controllers
 
         //
         // Get: //SetTraceLevel
-        [Authorize(Roles = "showDiagnostics")]
+        [AllowAnonymous]
         public ActionResult SetTraceLevel(int level)
         {
             ViewBag.Name = "Set Trace Level";
@@ -548,7 +542,7 @@ namespace m4d.Controllers
 
         //
         // Get: //TestTrace
-        [Authorize(Roles = "showDiagnostics")]
+        [AllowAnonymous]
         public ActionResult TestTrace(string message)
         {
             ViewBag.Name = "Test Trace";
@@ -624,7 +618,7 @@ namespace m4d.Controllers
                 if ((changed+updated) % 100 == 99)
                 {
                     Trace.WriteLine(string.Format("Skipped == {0}; Changed={1}; Updated={2}; Failed={3}", skipped, changed, updated, failed));
-                    System.Threading.Thread.Sleep(5000);
+                    Thread.Sleep(5000);
                 }
 
                 if (changed + failed > count)

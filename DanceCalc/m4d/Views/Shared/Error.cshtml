@@ -1,4 +1,5 @@
-﻿@model HandleErrorInfo
+﻿@using m4dModels
+@model HandleErrorInfo
 
 @{
     ViewBag.Title = "Error";
@@ -20,10 +21,14 @@
     }
 }
 
-@if (User.IsInRole("showDiagnostics") && Model != null)
+@if ((TraceLevels.General.TraceVerbose || User.IsInRole("showDiagnostics")) && Model != null)
 {
     string hresult = "0x" + Model.Exception.HResult.ToString("X8");
     <p><b>Exception:</b>@Model.Exception.Message (@hresult)</p>
+    if (Model.Exception.InnerException != null)
+    {
+        <p><b>Inner Exception:</b>@Model.Exception.InnerException.Message</p>
+    }
     <p><b>Target Site:</b>@Model.Exception.TargetSite</p>
     
     <h3>Stack Trace:</h3>

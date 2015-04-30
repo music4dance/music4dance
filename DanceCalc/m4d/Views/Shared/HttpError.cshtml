@@ -16,6 +16,10 @@
                     break;
                 case 500:
                     message = string.Concat("The following server error was encountered:<br /> ", Model.Exception.Message);
+                    if (Model.Exception.InnerException != null)
+                    {
+                        message += string.Format(" ({0})", Model.Exception.InnerException.Message);
+                    }
                     break;
             }
         }
