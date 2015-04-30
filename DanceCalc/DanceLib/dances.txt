@@ -977,4 +977,148 @@
       }
     ]
   },
+  {
+    "Name": "Jazz",
+    "Id": "JAZ",
+    "Meter": {
+      "Numerator": 1,
+      "Denominator": 1
+    },
+    "Instances": [
+      {
+        "Style": "Performance",
+        "TempoRange": {
+          "Min": 1.0,
+          "Max": 500.0
+        },
+        "Exceptions": []
+      }
+    ]
+  },
+  {
+    "Name": "Contemporary",
+    "Id": "CNT",
+    "Meter": {
+      "Numerator": 1,
+      "Denominator": 1
+    },
+    "Instances": [
+      {
+        "Style": "Performance",
+        "TempoRange": {
+          "Min": 1.0,
+          "Max": 500.0
+        },
+        "Exceptions": []
+      }
+    ]
+  },
+  {
+    "Name": "Ballet",
+    "Id": "BLT",
+    "Meter": {
+      "Numerator": 1,
+      "Denominator": 1
+    },
+    "Instances": [
+      {
+        "Style": "Performance",
+        "TempoRange": {
+          "Min": 1.0,
+          "Max": 500.0
+        },
+        "Exceptions": []
+      }
+    ]
+  },
+  {
+    "Name": "Broadway",
+    "Id": "BDW",
+    "Meter": {
+      "Numerator": 1,
+      "Denominator": 1
+    },
+    "Instances": [
+      {
+        "Style": "Performance",
+        "TempoRange": {
+          "Min": 1.0,
+          "Max": 500.0
+        },
+        "Exceptions": []
+      }
+    ]
+  },
+  {
+    "Name": "Tap",
+    "Id": "TAP",
+    "Meter": {
+      "Numerator": 1,
+      "Denominator": 1
+    },
+    "Instances": [
+      {
+        "Style": "Performance",
+        "TempoRange": {
+          "Min": 1.0,
+          "Max": 500.0
+        },
+        "Exceptions": []
+      }
+    ]
+  },
+  {
+    "Name": "Hip-Hop",
+    "Id": "HHP",
+    "Meter": {
+      "Numerator": 1,
+      "Denominator": 1
+    },
+    "Instances": [
+      {
+        "Style": "Performance",
+        "TempoRange": {
+          "Min": 1.0,
+          "Max": 500.0
+        },
+        "Exceptions": []
+      }
+    ]
+  },
+  {
+    "Name": "Bollywood",
+    "Id": "BWD",
+    "Meter": {
+      "Numerator": 1,
+      "Denominator": 1
+    },
+    "Instances": [
+      {
+        "Style": "Performance",
+        "TempoRange": {
+          "Min": 1.0,
+          "Max": 500.0
+        },
+        "Exceptions": []
+      }
+    ]
+  },
+  {
+    "Name": "Disco",
+    "Id": "DSC",
+    "Meter": {
+      "Numerator": 1,
+      "Denominator": 1
+    },
+    "Instances": [
+      {
+        "Style": "Performance",
+        "TempoRange": {
+          "Min": 1.0,
+          "Max": 500.0
+        },
+        "Exceptions": []
+      }
+    ]
+  },
 ]

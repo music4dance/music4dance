@@ -82,6 +82,11 @@ namespace m4d.Controllers
                         }
                     }
                 }
+                if (dance.SongTags == null)
+                {
+                    dance.SongTags = new TagSummary();
+                }
+
                 Context.Entry(dance).State = EntityState.Modified;
                 Database.SaveChanges();
 

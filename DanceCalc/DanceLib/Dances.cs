@@ -629,6 +629,10 @@ namespace DanceLibrary
             {
                 _allDanceObjects.Add(dt);
                 _danceDictionary.Add(dt.Id, dt);
+                if (dt.Instances.All(di => di.StyleId != 'P'))
+                {
+                    _npDanceTypes.Add(dt);
+                }
             }
 
             foreach (DanceInstance di in _allDanceInstances)
@@ -636,7 +640,6 @@ namespace DanceLibrary
                 _allDanceObjects.Add(di);
                 _danceDictionary.Add(di.Id, di);
             }
-
         }
 
         private void LoadGroups()
@@ -720,6 +723,10 @@ namespace DanceLibrary
             }
         }
 
+        public IEnumerable<DanceType> NonPerformanceDanceTypes
+        {
+            get { return _npDanceTypes; }
+        }
         public IEnumerable<DanceGroup> AllDanceGroups
         {
             get
@@ -749,7 +756,8 @@ namespace DanceLibrary
             new KeyValuePair<string,string>("il","International Latin"),
             new KeyValuePair<string,string>("as","American Smooth"),
             new KeyValuePair<string,string>("ar","American Rhythm"),
-            new KeyValuePair<string,string>("s","Social")
+            new KeyValuePair<string,string>("s","Social"),
+            new KeyValuePair<string,string>("p","Performance"),
         };
 
         public string GetJSON()
@@ -770,6 +778,7 @@ namespace DanceLibrary
         private List<DanceGroup> _allDanceGroups = new List<DanceGroup>();
         private List<DanceObject> _allDanceObjects = new List<DanceObject>();
         private Dictionary<string, DanceObject> _danceDictionary = new Dictionary<string, DanceObject>();
+        private List<DanceType> _npDanceTypes = new List<DanceType>();
 
         private decimal SignedMin(decimal a, decimal b)
         {
@@ -787,6 +796,9 @@ namespace DanceLibrary
             Dictionary<string,DanceSample> dances = new Dictionary<string,DanceSample>();
             foreach (DanceInstance di in _allDanceInstances)
             {
+                // TODO: For now, let's just filter out "Performance" dances, we can think about how to pull them in more generally later
+                if (di.StyleId == 'P') continue;
+
                 // Meter is absolute, and null values in some of the other classes are also absolue so check those first
                 if (meter == null || di.CanMatch(meter))
                 {

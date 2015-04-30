@@ -154,7 +154,7 @@
             var paramType = @paramType;
             var paramOrg = @paramOrg;
 
-            var dances = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model.AllDanceTypes));
+            var dances = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model.NonPerformanceDanceTypes));
         </script>
         string pageScript = "~/Scripts/Tempi.js" + Page.ScriptQualifier;
         Scripts.Render("~/bundles/jqueryval");

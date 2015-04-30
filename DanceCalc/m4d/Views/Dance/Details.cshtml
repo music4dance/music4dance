@@ -21,6 +21,7 @@
     }
 
     var topSpotify = @DanceMusicService.PurchaseLinksToInfo(@Model.TopSpotify, User.Region());
+    var tags = @Model.Dance.SongTags.Tags;
 }
 
 <ol class="breadcrumb">
@@ -38,11 +39,17 @@
 <div class="row">
     <div class="col-md-8 big-text">@Html.Raw(description)</div>
     <div class="col-md-2 col-md-offset-1 list-group">
-        <a href="#top-ten" class="list-group-item">Top Ten Songs</a>
-        <a href="#spotify-player" class="list-group-item">Spotify Player</a>
-        @if (@Model.Parent != null)
+        @if (Model.TopSongs.Any())
         {
-            <a href="#tempo-info" class="list-group-item">Tempo Info</a>
+            <a href="#top-ten" class="list-group-item">Top Ten Songs</a>
+            <a href="#spotify-player" class="list-group-item">Spotify Player</a>
+        }
+        @if (Model.Parent != null)
+        {
+            if (Model.Dance.Info.Meter.Numerator != 1)
+            {
+                <a href="#tempo-info" class="list-group-item">Tempo Info</a>
+            }
         }
         else
         {
@@ -52,27 +59,33 @@
         {
             <a href="#references" class="list-group-item">References</a>
         }
-        <a href="#tags" class="list-group-item">Tags</a>
+        @if (tags.Count > 0)
+        {
+            <a href="#tags" class="list-group-item">Tags</a>
+        }
     </div>
 </div>
 
-<div>
-    <h3>@Html.ActionLink("music4dance's", "Index", "Home") top 10 songs for dancing @Html.ActionLink(@Model.DanceName, "Search", "Song", new { dances = @Model.DanceId }, null)</h3>
-</div>
-<div id="top-ten">
-    @{Html.RenderPartial("_ListSongs", @Model.TopSongs, ViewData);}
-</div>
+@if (Model.TopSongs.Any())
+{
+    <div>
+        <h3>@Html.ActionLink("music4dance's", "Index", "Home") top 10 songs for dancing @Html.ActionLink(@Model.DanceName, "Search", "Song", new { dances = @Model.DanceId }, null)</h3>
+    </div>
+    <div id="top-ten">
+        @{Html.RenderPartial("_ListSongs", @Model.TopSongs, ViewData);}
+    </div>
 
-<div id="spotify-player">
-    <iframe src="https://embed.spotify.com/?uri=spotify:trackset:@Model.DanceName:@topSpotify" frameborder="0" allowtransparency="true"></iframe>
-</div>
+    <div id="spotify-player">
+        <iframe src="https://embed.spotify.com/?uri=spotify:trackset:@Model.DanceName:@topSpotify" frameborder="0" allowtransparency="true"></iframe>
+    </div>
 
-<div>
-    <p>@Html.ActionLink("Browse", "Search", "Song", new { dances = @Model.DanceId }, null) all <b>@Model.SongCount</b> @Model.DanceName songs in the music4dance @Html.ActionLink("catalog", "Search", "Song").</p>
-</div>
+    <div>
+        <p>@Html.ActionLink("Browse", "Search", "Song", new { dances = @Model.DanceId }, null) all <b>@Model.SongCount</b> @Model.DanceName songs in the music4dance @Html.ActionLink("catalog", "Search", "Song").</p>
+    </div>
+}
 
 
-@if (@Model.Parent != null)
+@if (@Model.Parent != null && Model.Dance.Info.Meter.Numerator != 1)
 {
     var info = Model.Dance.Info;
     var tempo = info.TempoRange;
@@ -117,36 +130,40 @@
     </ul>
 }
 
-<h4 id="tags">Tags</h4>
-<div>
-    @{
-        var tags = @Model.Dance.SongTags.Tags;
-        var max = tags.Where(t => t.TagClass != "Dance").Max(t => t.Count);
-        var inc = ((float)max) / 10;
-    }
-    @foreach (var titem in tags)
-    {
-        var tc = titem.TagClass.ToLower();
-        if (tc != "dance")
-        {
-            var size = "cloud-" + (int)Math.Floor(titem.Count / inc);
-            var url = "/song/addtags?tags={0}" + WebUtility.UrlEncode(titem.TagValue) + ":" + WebUtility.UrlEncode(titem.TagClass) +
-                      "&filter=" + WebUtility.UrlEncode(ViewBag.SongFilter.ToString());
 
-            <div class="btn-group @size">
-                <a href="#" role="button" class="dropdown-toggle label label-@tc" data-toggle="dropdown" aria-expanded="false">@titem.TagValue</a>
-                <ul class="dropdown-menu" role="menu">
-                    <li>
-                        <a href="@string.Format(url, "%2B")">Include songs tagged as @titem.TagValue</a>
-                    </li>
-                    <li>
-                        <a href="@string.Format(url, "%2D")">Exclude songs tagged as @titem.TagValue</a>
-                    </li>
-                </ul>
-            </div>
+@if (tags.Count > 0)
+{
+    <h4 id="tags">Tags</h4>
+    <div>
+        @{
+
+    var max = tags.Where(t => t.TagClass != "Dance").Max(t => t.Count);
+    var inc = ((float)max) / 10;
         }
-    }
-</div>
+        @foreach (var titem in tags)
+        {
+            var tc = titem.TagClass.ToLower();
+            if (tc != "dance")
+            {
+                var size = "cloud-" + (int)Math.Floor(titem.Count / inc);
+                var url = "/song/addtags?tags={0}" + WebUtility.UrlEncode(titem.TagValue) + ":" + WebUtility.UrlEncode(titem.TagClass) +
+                          "&filter=" + WebUtility.UrlEncode(ViewBag.SongFilter.ToString());
+
+                <div class="btn-group @size">
+                    <a href="#" role="button" class="dropdown-toggle label label-@tc" data-toggle="dropdown" aria-expanded="false">@titem.TagValue</a>
+                    <ul class="dropdown-menu" role="menu">
+                        <li>
+                            <a href="@string.Format(url, "%2B")">Include songs tagged as @titem.TagValue</a>
+                        </li>
+                        <li>
+                            <a href="@string.Format(url, "%2D")">Exclude songs tagged as @titem.TagValue</a>
+                        </li>
+                    </ul>
+                </div>
+            }
+        }
+    </div>
+}
 
 <p>
     @if (User.IsInRole("canEdit"))

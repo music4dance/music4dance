@@ -29,4 +29,9 @@
     "Id" : "MSC",
     "DanceIds" : ["BLU","C2S","MWT","NC2","PLK"]
   },
+  {
+    "Name": "Performance",
+    "Id" : "PRF",
+    "DanceIds" : ["BDW","BLT","BWD","DSC","CNT","HHP","JAZ","TAP"]
+  },
 ]

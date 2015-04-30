@@ -35,7 +35,7 @@ namespace m4d.APIControllers
         public IHttpActionResult GetAllDances(bool details=false)
         {
             // This should eventually take a filter (or multiple filter) paramter
-            var dances = Dance.DanceLibrary.AllDanceTypes;  //global::DanceLibrary.Dances.Reset().AllDanceTypes;
+            var dances = Dance.DanceLibrary.NonPerformanceDanceTypes;
             if (details)
             {
                 return Ok(dances);

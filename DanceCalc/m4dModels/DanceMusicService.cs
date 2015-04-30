@@ -1577,6 +1577,7 @@ namespace m4dModels
                 {
                     d = Dances.Create();
                     d.Id = cells[0];
+                    d.SongTags = new TagSummary();
                     Dances.Add(d);
                     modified = true;
                 }
