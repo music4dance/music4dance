@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data.Entity;
+using System.Data.Entity.ModelConfiguration.Configuration;
 using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -132,9 +133,9 @@ namespace m4dModels
             var specifiedUser = false;
             var specifiedAction = false;
             SongProperty tagProperty = null;
-            List<string> tags = null;
+            IList<string> tags = null;
             List<DanceRatingDelta> ratings = null;
-            List<string> danceTags = null;
+            IList<string> danceTags = null;
             List<SongProperty> danceTagProperties = null;
 
             for (var i = 0; i < cells.Count; i++)
@@ -269,9 +270,27 @@ namespace m4dModels
                             cell = null;
                         }
                         break;
+                    case SongTags:
+                        if (!string.IsNullOrWhiteSpace(cell))
+                        {
+                            var tcs = SongProperty.ParsePart(fields[i], 1);
+                            if (string.IsNullOrWhiteSpace(tcs)) tcs = "Other";
+                            tags = new TagList(cell).Normalize(tcs).ToStringList();
+                        }
+                        cell = null;
+                        break;
                     case DancersCell:
                         var dancers = cell.Split(new[] { '&' }, StringSplitOptions.RemoveEmptyEntries);
                         danceTags = dancers.Select(dancer => dancer.Trim() + ":Other").ToList();
+                        cell = null;
+                        break;
+                    case DanceTags:
+                        if (!string.IsNullOrWhiteSpace(cell))
+                        {
+                            var tc = SongProperty.ParsePart(fields[i], 1);
+                            if (string.IsNullOrWhiteSpace(tc)) tc = "Other";
+                            danceTags = new TagList(cell).Normalize(tc).ToStringList();
+                        }
                         cell = null;
                         break;
                 }
@@ -343,17 +362,23 @@ namespace m4dModels
 
         public static List<string> BuildHeaderMap(string line, char separator = '\t')
         {
-            List<string> map = new List<string>();
-            string[] headers = line.ToUpper().Split(separator);
+            var map = new List<string>();
+            var headers = line.Split(separator);
 
-            foreach (var t in headers)
+            foreach (var header in headers.Select(t => t.Trim()))
             {
-                string header = t.Trim().ToUpper();
+                var parts = header.Split(':');
                 string field;
                 // If this fails, we want to add a null to our list because
                 // that indicates a column we don't care about
-                s_propertyMap.TryGetValue(header, out field);
-                map.Add(field);
+                if (parts.Length > 0 &&  s_propertyMap.TryGetValue(parts[0].ToUpper(), out field))
+                {
+                    map.Add((parts.Length > 1) ? field + ":" + parts[1] : field);
+                }
+                else
+                {
+                    map.Add(null);
+                }
             }
 
             return map;
@@ -381,7 +406,9 @@ namespace m4dModels
             {"COMMENT",AddedTags},
             {"RATING","R"},
             {"DANCERS",DancersCell},
-            {"TITLE+ARTIST",TitleArtistCell}
+            {"TITLE+ARTIST",TitleArtistCell},
+            {"DANCETAGS",DanceTags},
+            {"SONGTAGS",SongTags},
         };
 
         public static IList<SongDetails> CreateFromRows(ApplicationUser user, string separator, IList<string> headers, IEnumerable<string> rows, int weight)

@@ -50,6 +50,8 @@ namespace m4dModels
         // Special cases for reading scraped data
         public const string TitleArtistCell = "TitleArtist";
         public const string DancersCell = "Dancers";
+        public const string DanceTags = "DanceTags";
+        public const string SongTags = "SongTags";
 
         // Commands
         public const string CreateCommand = ".Create";

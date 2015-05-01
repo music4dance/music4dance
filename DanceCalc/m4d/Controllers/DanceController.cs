@@ -70,7 +70,7 @@ namespace m4d.Controllers
                 {
                     foreach (var link in dance.DanceLinks)
                     {
-                        link.DanceId = dance.Id;
+                        link.DanceId = dance.Id.ToUpper();
                         if (link.Id == Guid.Empty)
                         {
                             link.Id = Guid.NewGuid();

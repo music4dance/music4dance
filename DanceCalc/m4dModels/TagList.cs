@@ -131,6 +131,29 @@ namespace m4dModels
             return IsQualified ? this : AddQualifier(q);
         }
 
+        public TagList Normalize(string category)
+        {
+            var result = new List<string>();
+            foreach (var tag in Tags)
+            {
+                var fields = tag.Split(':');
+                var fullTag = tag;
+                if (fields.Length == 1)
+                {
+                    fullTag = fields[0] + ":" + category;
+                }
+
+                result.Add(fullTag);
+            }
+
+            return new TagList(result);
+        }
+
+        public IList<string> ToStringList()
+        {
+            return Parse(Summary);
+        }
+
         #endregion
 
         #region Implementation
