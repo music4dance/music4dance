@@ -53,10 +53,11 @@
 <hr />
 <h3> Initializiation Tasks</h3>
 <ul>
-    <li>@Html.ActionLink("Backup the Database", "BackupDatabase"), @Html.ActionLink("Users", "BackupDatabase", new { tags = false, dances = false, songs = false }), @Html.ActionLink("Dances", "BackupDatabase", new { tags = false, users = false, songs = false })</li>
-    <li>@Html.ActionLink("Backup the Database (with lookup history)", "BackupDatabase", new {useLookupHistory = "true" })</li>
+    <li>@Html.ActionLink("RebuildDanceInfo", "RebuildDanceInfo")</li>
+    <li>@Html.ActionLink("Backup the Database", "BackupDatabase"), @Html.ActionLink("Users", "BackupDatabase", new {tags = false, dances = false, songs = false}), @Html.ActionLink("Dances", "BackupDatabase", new {tags = false, users = false, songs = false})</li>
+    <li>@Html.ActionLink("Backup the Database (with lookup history)", "BackupDatabase", new {useLookupHistory = "true"})</li>
     <li>@Html.ActionLink("Backup tail", "BackupTail", new {count = 150})</li>
-    <li>@Html.ActionLink("Backup tail (500)", "BackupTail", new { count = 500 })</li>
+    <li>@Html.ActionLink("Backup tail (500)", "BackupTail", new {count = 500})</li>
     <li>@Html.ActionLink("Update Purchase Info", "UpdatePurchase")</li>
     <li>@Html.ActionLink("Update Title Hashes", "UpdateTitleHash")</li>
     <li>@Html.ActionLink("Backup Tags", "BackupTags")</li>
@@ -68,9 +69,9 @@
         <li>@Html.ActionLink("Rerun seed function", "Reseed")</li>
         <li>@Html.ActionLink("Upload Catalog", "UploadCatalog")</li>
         <li>@Html.ActionLink("Upload Catalog (Ithaca)", "UploadCatalog", new {separator = "ITC", headers = "TEMPO,TITLE,ARTIST", user = "ithaca"})</li>
-        <li>@Html.ActionLink("Upload Catalog (DWTS)", "UploadCatalog", new { separator = @"\t", headers = "DANCERS,DANCE,TITLE+ARTIST", user = "dwts", tags = "Episode 5:Other|Season 20:Other|United States:Other|DWTS:Other" })</li>
-        <li>@Html.ActionLink("Upload Catalog (Paul)", "UploadCatalog", new { separator = @"\t", headers = "Dance,Rating,Title,BPM,Length,Artist,Comment", user = "paul" })</li>
-        <li>@Html.ActionLink("Upload Album", "UploadCatalog", new { headers="Title", separator=@"\t" })</li>
+        <li>@Html.ActionLink("Upload Catalog (DWTS)", "UploadCatalog", new {separator = @"\t", headers = "DANCERS,DANCE,TITLE+ARTIST", user = "dwts", tags = "Episode 5:Other|Season 20:Other|United States:Other|DWTS:Other"})</li>
+        <li>@Html.ActionLink("Upload Catalog (Paul)", "UploadCatalog", new {separator = @"\t", headers = "Dance,Rating,Title,BPM,Length,Artist,Comment", user = "paul"})</li>
+        <li>@Html.ActionLink("Upload Album", "UploadCatalog", new {headers = "Title", separator = @"\t"})</li>
     }
 </ul>
 

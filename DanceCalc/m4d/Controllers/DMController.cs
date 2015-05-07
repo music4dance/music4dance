@@ -28,7 +28,9 @@ namespace m4d.Controllers
             get { return _themeName ?? DefaultTheme; }
             set { _themeName = value; }
         }
-        private string _themeName = null;
+        private string _themeName;
+
+        public string HelpPage { get; set; }
 
         public ActionResult ReturnError(HttpStatusCode statusCode = HttpStatusCode.InternalServerError, string message = null, Exception exception = null)
         {
@@ -42,6 +44,7 @@ namespace m4d.Controllers
         protected override ViewResult View(string viewName, string masterName, object model)
         {
             ViewBag.Theme = ThemeName;
+            ViewBag.Help = HelpPage;
             return base.View(viewName, masterName, model);
         }
 

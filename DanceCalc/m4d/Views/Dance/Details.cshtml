@@ -136,14 +136,14 @@
     <h4 id="tags">Tags</h4>
     <div>
         @{
-
-    var max = tags.Where(t => t.TagClass != "Dance").Max(t => t.Count);
-    var inc = ((float)max) / 10;
+            var max = tags.Where(t => t.TagClass != "Dance").Max(t => t.Count);
+            var inc = ((float)max) / 10;
+            var valid = new[] { "music", "other", "style", "tempo" };
         }
         @foreach (var titem in tags)
         {
             var tc = titem.TagClass.ToLower();
-            if (tc != "dance")
+            if (valid.Contains(tc))
             {
                 var size = "cloud-" + (int)Math.Floor(titem.Count / inc);
                 var url = "/song/addtags?tags={0}" + WebUtility.UrlEncode(titem.TagValue) + ":" + WebUtility.UrlEncode(titem.TagClass) +

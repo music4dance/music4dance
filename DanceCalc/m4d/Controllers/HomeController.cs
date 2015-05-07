@@ -57,6 +57,7 @@ namespace m4d.Controllers
             ViewBag.paramType = type;
             ViewBag.paramOrg = org;
             ViewBag.DanceStyles = Dance.DanceLibrary.AllDanceGroups;
+            HelpPage = "dance-tempi";
             return View(Dance.DanceLibrary);
         }
 
@@ -97,14 +98,14 @@ namespace m4d.Controllers
             ViewBag.paramShowBPM = showBPM;
             ViewBag.ShowEpsilon = showEpsilon;
 
+            HelpPage = "tempo-counter";
             return View();
         }
 
         [AllowAnonymous]
         public ActionResult CounterHelp()
         {
-            ThemeName = ToolTheme;
-            return View();
+            return RedirectPermanent("/blog/music4dance-help/tempo-counter/");
         }
     }
 }

@@ -26,9 +26,11 @@ namespace m4d.Controllers
             {
                 var data = SongCounts.GetSongCounts(Database);
 
+                HelpPage = "dance-styles";
                 return View(data);
             }
 
+            HelpPage = "dance-details";
             ViewBag.DanceMap = SongCounts.GetDanceMap(Database);
             var sc = SongCounts.FromName(dance, Database);
             return sc != null ? View("details", sc) : ReturnError(HttpStatusCode.NotFound, string.Format("The dance with the name = {0} isn't defined.", dance));

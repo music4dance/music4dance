@@ -24,6 +24,10 @@ namespace m4d.Controllers
 
     public class SongController : DMController
     {
+        public SongController()
+        {
+            HelpPage = "song-list";
+        }
         public override string DefaultTheme
         {
             get
