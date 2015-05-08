@@ -737,6 +737,7 @@ namespace m4d.Controllers
                 var tags = new TagList();
                 foreach (var foundTrack in found)
                 {
+                    
                     UpdateMusicService(sd, MusicService.GetService(foundTrack.Service), foundTrack.Name, foundTrack.Album, foundTrack.Artist, foundTrack.TrackId, foundTrack.CollectionId, foundTrack.AltId, foundTrack.Duration.ToString(), foundTrack.TrackNumber);
                     tags = tags.Add(new TagList(Database.NormalizeTags(foundTrack.Genre, "Music")));
                 }
@@ -1058,6 +1059,10 @@ namespace m4d.Controllers
                     var sd = new SongDuration(duration);
 
                     var length = decimal.ToInt32(sd.Length);
+                    if (length > 9999)
+                    {
+                        length = 9999;
+                    }
 
                     if (length != song.Length)
                     {

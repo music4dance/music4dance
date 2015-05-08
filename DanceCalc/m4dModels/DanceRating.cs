@@ -50,7 +50,7 @@ namespace m4dModels
         {
             List<DanceRatingDelta> drds = new List<DanceRatingDelta>();
 
-            string[] dl = dances.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+            string[] dl = dances.Split(new[] { ',','/' }, StringSplitOptions.RemoveEmptyEntries);
 
             foreach (string ds in dl)
             {

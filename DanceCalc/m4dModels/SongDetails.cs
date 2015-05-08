@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data.Entity;
 using System.Data.Entity.ModelConfiguration.Configuration;
 using System.Diagnostics;
+using System.Globalization;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Runtime.Serialization;
@@ -293,6 +294,30 @@ namespace m4dModels
                         }
                         cell = null;
                         break;
+                    case MeasureTempo:
+                        decimal tempo;
+                        if (decimal.TryParse(cell, out tempo))
+                        {
+                            var numerator = 4;
+                            if (ratings != null && ratings.Count > 0)
+                            {
+                                var did = ratings[0].DanceId;
+                                var d = Dances.Instance.DanceDictionary[did];
+                                if (d != null)
+                                {
+                                    numerator = d.Meter.Numerator;
+                                }
+                            }
+                            tempo = tempo*numerator;
+                            cell = tempo.ToString(CultureInfo.InvariantCulture);
+                            baseName = TempoField;
+                        }
+                        else
+                        {
+                            cell = null;
+                        }
+                        
+                        break;
                 }
 
                 if (tags != null && tags.Count > 0)
@@ -409,6 +434,7 @@ namespace m4dModels
             {"TITLE+ARTIST",TitleArtistCell},
             {"DANCETAGS",DanceTags},
             {"SONGTAGS",SongTags},
+            {"MPM", MeasureTempo},
         };
 
         public static IList<SongDetails> CreateFromRows(ApplicationUser user, string separator, IList<string> headers, IEnumerable<string> rows, int weight)

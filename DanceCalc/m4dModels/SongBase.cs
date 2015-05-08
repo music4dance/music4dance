@@ -52,6 +52,7 @@ namespace m4dModels
         public const string DancersCell = "Dancers";
         public const string DanceTags = "DanceTags";
         public const string SongTags = "SongTags";
+        public const string MeasureTempo = "MPM";
 
         // Commands
         public const string CreateCommand = ".Create";
