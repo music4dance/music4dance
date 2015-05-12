@@ -420,7 +420,6 @@ namespace m4d.Context
 
         public void LoadDances()
         {
-            // TODONEXT: Check the other uses of Dances.Include and see if we want to defer to this...
             Configuration.LazyLoadingEnabled = false;
 
             Dances.Include("DanceLinks").Include("TopSongs.Song.DanceRatings").Load();

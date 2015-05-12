@@ -1752,7 +1752,7 @@ namespace m4dModels
         }
         private void LoadDances()
         {
-            Dances.Include("DanceLinks").Load();
+            Context.LoadDances();
         }
         #endregion
 

@@ -1366,14 +1366,13 @@ namespace m4d.Controllers
 
             Context.TrackChanges(false);
 
-            // TODONEXT: Build tag cloud for everything
-            //  Add include/exclude as permanent fixtures in the header and link them to appropriate cloud
+            // TODONEXT: Add include/exclude as permanent fixtures in the header and link them to appropriate cloud
             //  Think about how we might fix the multi-categorization problem (LTN vs. International Latin)
             //  Actually replace SongCounts
 
             // Get the Max Weight and Count of songs for each dance
 
-            foreach (var dance in Database.Dances.Include("TopSongs"))
+            foreach (var dance in Database.Dances.Include("TopSongs.Song.DanceRatings"))
             {
                 Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Computing info for " + dance.Name);
                 dance.SongCount = dance.DanceRatings.Select(dr => dr.Song.Purchase).Count(p => p != null);
