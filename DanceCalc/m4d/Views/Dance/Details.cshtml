@@ -134,35 +134,7 @@
 @if (tags.Count > 0)
 {
     <h4 id="tags">Tags</h4>
-    <div>
-        @{
-            var max = tags.Where(t => t.TagClass != "Dance").Max(t => t.Count);
-            var inc = ((float)max) / 10;
-            var valid = new[] { "music", "other", "style", "tempo" };
-        }
-        @foreach (var titem in tags)
-        {
-            var tc = titem.TagClass.ToLower();
-            if (valid.Contains(tc))
-            {
-                var size = "cloud-" + (int)Math.Floor(titem.Count / inc);
-                var url = "/song/addtags?tags={0}" + WebUtility.UrlEncode(titem.TagValue) + ":" + WebUtility.UrlEncode(titem.TagClass) +
-                          "&filter=" + WebUtility.UrlEncode(ViewBag.SongFilter.ToString());
-
-                <div class="btn-group @size">
-                    <a href="#" role="button" class="dropdown-toggle label label-@tc" data-toggle="dropdown" aria-expanded="false">@titem.TagValue</a>
-                    <ul class="dropdown-menu" role="menu">
-                        <li>
-                            <a href="@string.Format(url, "%2B")">Include songs tagged as @titem.TagValue</a>
-                        </li>
-                        <li>
-                            <a href="@string.Format(url, "%2D")">Exclude songs tagged as @titem.TagValue</a>
-                        </li>
-                    </ul>
-                </div>
-            }
-        }
-    </div>
+    Html.RenderPartial("_TagCloud",tags);
 }
 
 <p>

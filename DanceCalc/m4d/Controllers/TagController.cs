@@ -12,7 +12,20 @@ namespace m4d.Controllers
 {
     public class TagController : DMController
     {
+        public TagController()
+        {
+            HelpPage = "tag-cloud";
+        }
+        public override string DefaultTheme
+        {
+            get
+            {
+                return MusicTheme;
+            }
+        }
+
         // GET: Tag
+        [AllowAnonymous]
         public ActionResult Index()
         {
             var tagTypes = Database.TagTypes.Include(t => t.Primary).OrderBy(t => t.Key);

@@ -1,60 +1,67 @@
-﻿@model IEnumerable<m4dModels.TagType>
+﻿@using m4dModels
+@model IEnumerable<m4dModels.TagType>
 
 @{
-    ViewBag.Title = "Tag Editor";
+    ViewBag.Title = "Tag Cloud";
 }
-<h2>Tags</h2>
-<p>
-    @Html.ActionLink("Create New", "Create")
-</p>
-<table class="table">
-    <tr>
-        <th>
-            @Html.DisplayNameFor(model => model.Key)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.Count)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.Primary.PrimaryId)
-        </th>
-        <th>
-            Ring
-        </th>
-        <th></th>
-    </tr>
+<h1>Tag Cloud</h1>
 
-@foreach (var item in Model) {
-    <tr>
-        <td>
-            @Html.ActionLink(item.Key, "tags", "song", new { tags = item.Key }, null)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.Count)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.PrimaryId)
-        </td>
-        <td>
-            @if (item.Ring != null && item.Ring.Count > 0)
-            {
-                string separator = "";
-                foreach (var child in item.Ring)
-                {
-                    @separator
-                    @child.Key
-                }
-            }
-        </td>
+@Html.Partial("_TagCloud",TagType.ToTagCounts(Model))
 
+@if (User.IsInRole("canEdit"))
+{
+    <p>
+        @Html.ActionLink("Create New", "Create")
+    </p>
+    <table class="table">
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Key)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Count)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Primary.PrimaryId)
+            </th>
+            <th>
+                Ring
+            </th>
+            <th></th>
+        </tr>
 
+        @foreach (var item in Model)
+        {
+            var item1 = item;
+            <tr>
+                <td>
+                    @Html.ActionLink(item.Key, "tags", "song", new {tags = item.Key}, null)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item1.Count)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item1.PrimaryId)
+                </td>
+                <td>
+                    @if (item.Ring != null && item.Ring.Count > 0)
+                    {
+                        var separator = "";
+                        foreach (var child in item.Ring)
+                        {
+                            @separator
+                            @child.Key
+                            separator = ",";
+                        }
+                    }
+                </td>
 
-        <td>
-            @Html.ActionLink("Edit", "Edit", new { id=item.EncodedKey }) |
-            @Html.ActionLink("Details", "Details", new { id=item.EncodedKey }) |
-            @Html.ActionLink("Delete", "Delete", new { id=item.EncodedKey })
-        </td>
-    </tr>
+                <td>
+                    @Html.ActionLink("Edit", "Edit", new {id = item.EncodedKey}) |
+                    @Html.ActionLink("Details", "Details", new {id = item.EncodedKey}) |
+                    @Html.ActionLink("Delete", "Delete", new {id = item.EncodedKey})
+                </td>
+            </tr>
+        }
+    </table>
 }
-
-</table>

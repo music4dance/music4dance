@@ -68,6 +68,17 @@ namespace m4dModels
             Ring = tt.Ring != null ? new List<TagType>(tt.Ring) : new List<TagType>();
         }
 
+        // TODO: Think TagType should be derived from tagcount?
+        public static implicit operator TagCount(TagType tt)
+        {
+            return new TagCount(tt.Key,tt.Count);
+        }
+
+        public static IEnumerable<TagCount> ToTagCounts(IEnumerable<TagType> ttl)
+        {
+            return ttl.Select(tt => (TagCount) tt);
+        }
+
         #endregion
 
         #region Operations
