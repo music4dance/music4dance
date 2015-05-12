@@ -155,6 +155,26 @@
             {
                 sd = item as SongDetails;
             }
+            List<DanceRating> scaledDances = null;
+            if (item.DanceRatings != null)
+            {
+                scaledDances = item.DanceRatings.OrderByDescending(dr => SongCounts.GetScaledRating(danceMap, dr.DanceId, dr.Weight)).ToList();
+            }
+            string tempoString = null;
+            if (item.Tempo.HasValue)
+            {
+                var numerator = 4;
+                if (scaledDances != null && scaledDances.Count > 0)
+                {
+                    var did = scaledDances[0].DanceId;
+                    if (!string.IsNullOrWhiteSpace(did))
+                    {
+                        var d = Dances.Instance.DanceDictionary[did];
+                        numerator = d.Meter.Numerator;
+                    }
+                }
+                tempoString = string.Format("<a href='/home/counter?numerator={1}&tempo={0}'>{0}</a>", decimal.Round(item.Tempo.Value), numerator);
+            }
 
             if (item.Title != null)
             {
@@ -202,9 +222,9 @@
 
                     <td>
                         @Html.ActionLink(item.Title, "details", "song", new { id = item.SongId, filter = ViewBag.SongFilter }, null)
-                        @if (item.Tempo != null)
+                        @if (tempoString != null)
                         {
-                            <small class="hidden-sm hidden-md hidden-lg">(@decimal.Round(item.Tempo.Value).ToString("F0") BPM)</small>
+                            <small class="hidden-sm hidden-md hidden-lg">(@Html.Raw(tempoString) BPM)</small>
                         }
                     </td>
 
@@ -221,28 +241,28 @@
                     @if (albumName == null)
                     {
                         @*<td class="hidden-xs">
-                            @if (!string.IsNullOrWhiteSpace(item.AlbumName))
-                            {
-                                @Html.ActionLink(item.AlbumName, "album", "song", new { title = item.AlbumName }, null)
-                            }
-                        </td>*@
+                                @if (!string.IsNullOrWhiteSpace(item.AlbumName))
+                                {
+                                    @Html.ActionLink(item.AlbumName, "album", "song", new { title = item.AlbumName }, null)
+                                }
+                            </td>*@
                     }
                     else
                     {
                         <td class="hidden-xs">
                             @{
-                                var track = sd.TrackFromAlbum(albumName);
-                                if (track > 0)
-                                {
-                                    @track.ToString()
-                                }
+                        var track = sd.TrackFromAlbum(albumName);
+                        if (track > 0)
+                        {
+                            @track.ToString()
+                        }
                             }
                         </td>
                     }
                     <td class="hidden-xs">
-                        @if (item.Tempo != null)
+                        @if (tempoString != null)
                         {
-                            @(decimal.Round(item.Tempo.Value).ToString("F0"))
+                            @Html.Raw(tempoString)
                         }
                     </td>
                     @if (showLength)
@@ -257,30 +277,33 @@
                     @if (!hideDances)
                     {
                         <td>
-                            @foreach (var ditem in item.DanceRatings.OrderByDescending(dr => SongCounts.GetScaledRating(danceMap, dr.DanceId, dr.Weight)))
+                            @if (scaledDances != null)
                             {
-                                // TODO: Dance name pulled from the danceMap doesn't require a db lookup - is there a way
-                                //  to make the more intuitive ditem.Dance.Name work without a lookup???
-                                var badge = SongCounts.GetRatingBadge(danceMap, ditem.DanceId, ditem.Weight);
-                                var name = danceMap[ditem.DanceId].DanceName;
-                                var label = name;
-                                var tags = string.Empty;
-                                if (!string.IsNullOrWhiteSpace(ditem.TagSummary.Summary))
+                                foreach (var ditem in scaledDances)
                                 {
-                                    label = label + " <span class='glyphicon glyphicon-asterisk' aria-hidden='true'></span>";
-                                    tags += "<br/>";
-                                    foreach (var dtitem in ditem.TagSummary.Tags)
+                                    // TODO: Dance name pulled from the danceMap doesn't require a db lookup - is there a way
+                                    //  to make the more intuitive ditem.Dance.Name work without a lookup???
+                                    var badge = SongCounts.GetRatingBadge(danceMap, ditem.DanceId, ditem.Weight);
+                                    var name = danceMap[ditem.DanceId].DanceName;
+                                    var label = name;
+                                    var tags = string.Empty;
+                                    if (!string.IsNullOrWhiteSpace(ditem.TagSummary.Summary))
                                     {
-                                        tags += "<span class=\"label label-" + dtitem.TagClass.ToLower() + "\">" + dtitem.TagValue + "</span> ";
+                                        label = label + " <span class='glyphicon glyphicon-asterisk' aria-hidden='true'></span>";
+                                        tags += "<br/>";
+                                        foreach (var dtitem in ditem.TagSummary.Tags)
+                                        {
+                                            tags += "<span class=\"label label-" + dtitem.TagClass.ToLower() + "\">" + dtitem.TagValue + "</span> ";
+                                        }
                                     }
+                                        @*<span class="rating @badge" style="margin-right: 5px">
+                                                <a href='#' data-container='body' data-toggle='popover' data-placement='left' data-title='@Html.ActionLink(name, name, "dances")'
+                                                   data-content='@Html.ActionLink(name + " dance page...", name, "dances")<br />@Html.ActionLink("List all " + name + " songs...", "search", "song", new {dances = ditem.DanceId}, null) @Html.Raw(tags)'>@Html.Raw(label)</a>
+                                            </span>*@
+                                        <a href='#!' class='rating @badge label label-music' role='button'
+                                           data-container='body' data-toggle='popover' data-placement='left' data-title='@Html.ActionLink(name, name, "dances")'
+                                           data-content='@Html.ActionLink(name + " dance page...", name, "dances")<br />@Html.ActionLink("List all " + name + " songs...", "search", "song", new {dances = ditem.DanceId}, null) @Html.Raw(tags)'>@Html.Raw(label)</a>
                                 }
-                                @*<span class="rating @badge" style="margin-right: 5px">
-                                    <a href='#' data-container='body' data-toggle='popover' data-placement='left' data-title='@Html.ActionLink(name, name, "dances")'
-                                       data-content='@Html.ActionLink(name + " dance page...", name, "dances")<br />@Html.ActionLink("List all " + name + " songs...", "search", "song", new {dances = ditem.DanceId}, null) @Html.Raw(tags)'>@Html.Raw(label)</a>
-                                </span>*@
-                                <a href='#!' class='rating @badge label label-music' role='button'
-                                    data-container='body' data-toggle='popover' data-placement='left' data-title='@Html.ActionLink(name, name, "dances")'
-                                    data-content='@Html.ActionLink(name + " dance page...", name, "dances")<br />@Html.ActionLink("List all " + name + " songs...", "search", "song", new {dances = ditem.DanceId}, null) @Html.Raw(tags)'>@Html.Raw(label)</a>
                             }
                         </td>
                     }
@@ -328,5 +351,7 @@
             }
         }
     </tbody>
+
+
 
 </table>

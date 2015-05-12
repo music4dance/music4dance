@@ -12,6 +12,10 @@
         {
             <script>var paramNumerator = @ViewBag.paramNumerator;</script>
         }
+        if (ViewData.ContainsKey("paramTempo"))
+        {
+            <script>var paramTempo = @ViewBag.paramTempo;</script>
+        }
         if (ViewData.ContainsKey("paramShowMPM"))
         {
             <script>var paramShowMPM = @(ViewBag.paramShowMPM ? "true" : "false");</script>

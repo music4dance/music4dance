@@ -136,6 +136,8 @@ namespace m4dModels.Tests
 
         public void CheckpointSongs() { }
 
+        public void LoadDances() { }
+
         public void Dispose()
         {
         }

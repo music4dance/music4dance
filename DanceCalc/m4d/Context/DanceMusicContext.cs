@@ -418,6 +418,16 @@ namespace m4d.Context
             RemoveEntities<SongLog>();
         }
 
+        public void LoadDances()
+        {
+            // TODONEXT: Check the other uses of Dances.Include and see if we want to defer to this...
+            Configuration.LazyLoadingEnabled = false;
+
+            Dances.Include("DanceLinks").Include("TopSongs.Song.DanceRatings").Load();
+
+            Configuration.LazyLoadingEnabled = true;
+        }
+
         private void RemoveEntities<T>() where T : class
         {
             var list = Set<T>().Local.ToList();

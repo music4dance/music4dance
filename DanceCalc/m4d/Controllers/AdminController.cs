@@ -1372,6 +1372,7 @@ namespace m4d.Controllers
             //  Actually replace SongCounts
 
             // Get the Max Weight and Count of songs for each dance
+
             foreach (var dance in Database.Dances.Include("TopSongs"))
             {
                 Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Computing info for " + dance.Name);

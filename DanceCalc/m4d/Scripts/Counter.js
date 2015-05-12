@@ -60,6 +60,10 @@ $(document).ready(function () {
         setNumeratorControl(paramNumerator);
     }
 
+    if (typeof paramTempo == 'number') {
+        $(tempoId).val(paramTempo);
+    }
+
     if (typeof paramEpsVisible === 'number') {
         defvisible = epsVisible = paramEpsVisible;
         $("#epsilon").val(epsVisible * 100);
@@ -193,6 +197,7 @@ function timerReset(noRefresh) {
     counter = 0;
     average = 0;
     intervals = [];
+    rate = 0;
     last = 0;
     if (!noRefresh)
     {
@@ -349,7 +354,7 @@ function updateDances()
 function updateRate(newRate)
 {
     console.log("Rate=" + newRate);
-    if (rate == newRate)
+    if (rate === newRate)
     {
         return;
     }
@@ -364,7 +369,7 @@ function roundTempo(t)
     if ($.isNumeric(t))
     {
         var r = Math.round(t * 10) / 10;
-        return r.toFixed(1);
+        return Number(r.toFixed(1));
     }
     else
     {
@@ -398,13 +403,13 @@ function setupDances(data)
         updateRate(mpmT);
     }
     else if (tempoT !== 0) {
-        updateRate(tempoT / numerator);
+        updateRate(roundTempo(tempoT / numerator));
     }
 }
 
 function setNumeratorControl(num)
 {
-    if (numerator != num) {
+    if (numerator !== num) {
         $("#mt").empty();
         $("#mt").append(labels[num - 1]);
         $("#mt").append("<span class='caret'></span>");
@@ -414,7 +419,7 @@ function setNumeratorControl(num)
 
 function setNumerator(num)
 {
-    if (numerator != num)
+    if (numerator !== num)
     {
         var old = numerator;
         setNumeratorControl(num);
@@ -422,8 +427,8 @@ function setNumerator(num)
         var r = (old * rate) / num;
         r = roundTempo(r);
 
-        timerReset(rate != 0);
-        if (rate != 0)
+        timerReset(rate !== 0);
+        if (rate !== 0)
         {
             updateRate(r);
         }

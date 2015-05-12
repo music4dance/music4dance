@@ -48,7 +48,8 @@ namespace m4dModels
         {
             lock (s_map)
             {
-                foreach (var dance in dms.Dances.Include("DanceLinks").Include("TopSongs"))
+                dms.Context.LoadDances();
+                foreach (var dance in dms.Dances)
                 {
                     SongCounts sc;
                     if (s_map.TryGetValue(dance.Id, out sc))
@@ -105,7 +106,7 @@ namespace m4dModels
             {
                 if (s_counts.Count != 0) return s_counts;
 
-                dms.Dances.Include("DanceLinks").Include("TopSongs").Load();
+                dms.Context.LoadDances();
 
                 var used = new HashSet<string>();
 

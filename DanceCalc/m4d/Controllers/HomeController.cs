@@ -91,12 +91,22 @@ namespace m4d.Controllers
         }
 
         [AllowAnonymous]
-        public ActionResult Counter(bool showMPM=true, bool showBPM=false, bool showEpsilon=true)
+        public ActionResult Counter(bool showMPM=true, bool showBPM=false, bool showEpsilon=true, int? numerator=null, decimal? tempo= null)
         {
             ThemeName = ToolTheme;
             ViewBag.paramShowMPM = showMPM;
             ViewBag.paramShowBPM = showBPM;
             ViewBag.ShowEpsilon = showEpsilon;
+
+            if (numerator.HasValue && numerator != 0)
+            {
+                ViewBag.paramNumerator = numerator.Value;
+            }
+
+            if (tempo.HasValue)
+            {
+                ViewBag.paramTempo = tempo.Value;
+            }
 
             HelpPage = "tempo-counter";
             return View();
