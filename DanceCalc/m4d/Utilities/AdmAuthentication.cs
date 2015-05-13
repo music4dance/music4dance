@@ -56,10 +56,10 @@ namespace m4d.Utilities
                     _token = CreateToken();
                     if (AccessTokenRenewer == null)
                     {
-                        AccessTokenRenewer = new Timer(OnTokenExpiredCallback, this, _token.ExpiresIn, TimeSpan.FromMilliseconds(-1));
+                        AccessTokenRenewer = new Timer(OnTokenExpiredCallback, this, _token.ExpiresIn, _token.ExpiresIn);
                     }
                 }
-                return _token;                
+                return _token;
             }
         }
 

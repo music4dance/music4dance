@@ -97,7 +97,7 @@ $(document).ready(function () {
         // Look for changes in the value
         $(this).bind("propertychange keyup input paste", function(event){
             // If value has changed...
-            if ($(this).data('oldVal') != $(this).val()) {
+            if ($(this).data('oldVal') !== $(this).val()) {
                 // Updated stored value
                 $(this).data('oldVal', $(this).val());
                 
@@ -197,7 +197,7 @@ function timerReset(noRefresh) {
     counter = 0;
     average = 0;
     intervals = [];
-    rate = 0;
+    //rate = 0;
     last = 0;
     if (!noRefresh)
     {
