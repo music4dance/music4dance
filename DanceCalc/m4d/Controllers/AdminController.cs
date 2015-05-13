@@ -713,7 +713,7 @@ namespace m4d.Controllers
             {
                 if (string.Equals(reloadDatabase,"reload",StringComparison.InvariantCultureIgnoreCase))
                 {
-                    if (DanceMusicService.IsUserBreak(lines[0]))
+                    if (DanceMusicService.IsCompleteBackup(lines))
                     {
                         RestoreDb(null);
 
@@ -732,10 +732,20 @@ namespace m4d.Controllers
                         Database.LoadUsers(users);
                         Database.LoadDances(dances);
                         Database.LoadTags(tags);
+
+                        reloadDatabase = "loadSongs";
                     }
-                    else
+                    else if (DanceMusicService.IsSongBreak(lines[0]))
                     {
-                        Trace.WriteLineIf(TraceLevels.General.TraceInfo,"Requested full reload, but invalid headers, so just doing songs");
+                        reloadDatabase = "songs";
+                    }
+                    else if (DanceMusicService.IsUserBreak(lines[0]))
+                    {
+                        reloadDatabase = "users";
+                    }
+                    else if (DanceMusicService.IsDanceBreak(lines[0]))
+                    {
+                        reloadDatabase = "dances";
                     }
                 }
 
@@ -751,7 +761,7 @@ namespace m4d.Controllers
                 {
                     Database.LoadDances(lines);
                 }
-                else 
+                else if (string.Equals(reloadDatabase, "loadSongs", StringComparison.InvariantCultureIgnoreCase))
                 {
                     Database.LoadSongs(lines);
                 }
@@ -759,7 +769,7 @@ namespace m4d.Controllers
                 SongCounts.ClearCache(); 
 
                 ViewBag.Success = true;
-                ViewBag.Message = "Database was successfully restored and reloaded";
+                ViewBag.Message = "Database was successfully restored and reloaded (" + reloadDatabase + ")";
             }
             else
             {
