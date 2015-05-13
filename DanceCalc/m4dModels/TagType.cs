@@ -76,7 +76,20 @@ namespace m4dModels
 
         public static IEnumerable<TagCount> ToTagCounts(IEnumerable<TagType> ttl)
         {
-            return ttl.Select(tt => (TagCount) tt);
+            var d = new Dictionary<string, TagCount>();
+            foreach (var tt in ttl)
+            {
+                var p = tt.GetPrimary();
+                TagCount tc;
+                if (!d.TryGetValue(p.Key, out tc))
+                {
+                    tc = new TagCount(p.Key,0);
+                    d[tt.Key] = tc;
+                }
+                tc.Count += tt.Count;
+            }
+
+            return d.Values.OrderBy(tc => tc.Value);
         }
 
         #endregion
