@@ -39,6 +39,7 @@ namespace m4d.Context
         public DanceMusicContext()
             : base("DefaultConnection", throwIfV1Schema: false)
         {
+            Database.CommandTimeout = 360;
         }
 
         private static DbConnection CreateConnection(string nameOrConnectionString)
