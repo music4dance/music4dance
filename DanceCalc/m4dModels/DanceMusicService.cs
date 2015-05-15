@@ -1414,7 +1414,7 @@ namespace m4dModels
 
         static public bool IsCompleteBackup(IList<string> lines)
         {
-            string[] breaks = {_tagBreak, _danceBreak, _songBreak};
+            string[] breaks = {_danceBreak, _tagBreak, _songBreak};
 
             if (lines == null || lines.Count == 0 || !IsUserBreak(lines[0])) return false;
 

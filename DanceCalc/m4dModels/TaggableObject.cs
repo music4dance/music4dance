@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Diagnostics;
 using System.Linq;
 using System.Runtime.Serialization;
 
@@ -199,16 +200,26 @@ namespace m4dModels
         }
 
 
-        public void UpdateTagSummary(DanceMusicService dms)
+        public bool UpdateTagSummary(DanceMusicService dms)
         {
             var tagId = TagId;
             var tags = from t in dms.Context.Tags where t.Id == tagId select t;
+
+            var ts = TagSummary;
 
             TagSummary = new TagSummary();
             foreach (var tag in tags)
             {
                 TagSummary.ChangeTags(ConvertToRing(tag.Tags, dms), null);
             }
+
+            var changed = ts.Summary != TagSummary.Summary;
+            if (changed && TraceLevels.General.TraceVerbose)
+            {
+                Trace.WriteLine(string.Format("{0}: {1} - {2}",TagId,ts.Summary,TagSummary.Summary));
+            }
+
+            return changed;
         }
 
         private void UpdateUserTag(Tag tag, DanceMusicService dms)

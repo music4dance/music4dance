@@ -12,6 +12,9 @@
 <h3>Tags</h3>
 <ul>
     <li>@Html.ActionLink("Tag List", "index", "tag")</li>
+    <li>@Html.ActionLink("Check Tag Types", "UpdateTagTypes", new { update = false }, null)</li>
+    <li>@Html.ActionLink("Update Tag Types", "UpdateTagTypes", new { update = true }, null)</li>
+    <li>@Html.ActionLink("Update Tag Summaries", "UpdateTagSummaries")</li>
 </ul>
 
 <h3>Logging</h3>
@@ -31,8 +34,6 @@
     <li>@Html.ActionLink("Remove Lookup History", "CleanLookupHistory")</li>
     <li>@Html.ActionLink("Fix up Zero Times", "FixZeroTime")</li>
     <li>@Html.ActionLink("Times from Properties", "TimesFromProperties")</li>
-    @*<li>@Html.ActionLink("Update Tag Types", "UpdateTagTypes")</li>*@
-    <li>@Html.ActionLink("Update Tag Summaries", "UpdateTagSummaries")</li>
     @*<li>@Html.ActionLink("Add Dance Groups", "AddDanceGroups")</li>
     <li>@Html.ActionLink("Clean Tags", "CleanTags")</li>*@
     <li>@Html.ActionLink("Infer Dance Types", "InferDanceTypes")</li>

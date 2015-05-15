@@ -5,6 +5,7 @@ using System.Data.Entity;
 using System.Data.Entity.Infrastructure;
 using System.Data.Entity.Migrations;
 using System.Diagnostics;
+using System.Diagnostics.PerformanceData;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -183,49 +184,136 @@ namespace m4d.Controllers
         }
 
         //
+        // Get: //UpdateTagTypes
+        [Authorize(Roles = "dbAdmin")]
+        public ActionResult UpdateTagTypes(bool update=false)
+        {
+            var oldCounts = Database.TagTypes.ToDictionary(tt => tt.Key.ToUpper(), tt => tt.Count);
+            var newCounts = new Dictionary<string, Dictionary<string,int>>();
+
+            // Compute the tag type count based on the user tags
+            // ReSharper disable once LoopCanBePartlyConvertedToQuery
+            foreach (var ut in Database.Tags)
+            {
+                foreach (var tag in ut.Tags.Tags)
+                {
+                    var norm = tag.ToUpper();
+                    Dictionary<string, int> n;
+                    if (!newCounts.TryGetValue(norm, out n))
+                    {
+                        n = new Dictionary<string, int>();
+                        newCounts[norm] = n;
+                    }
+
+                    if (n.ContainsKey(tag))
+                    {
+                        n[tag] += 1;
+                    }
+                    else
+                    {
+                        n[tag] = 1;
+                    }
+                }
+            }
+
+            if (update)
+            {
+                Context.TrackChanges(false);
+            }
+
+            var changed = 0;
+            foreach (var nc in newCounts)
+            {
+                var key = nc.Key;
+                var val = nc.Value.Sum(v => v.Value);
+
+                if (!oldCounts.ContainsKey(key))
+                {
+                    Trace.WriteLine(string.Format("A\t{0}\t\t{1}", key, val));
+                    if (update)
+                    {
+                        var tt = Database.TagTypes.Create();
+                        tt.Key = nc.Value.Keys.First();
+                        tt.Count = val;
+                        Database.TagTypes.Add(tt);
+                    }
+                    changed += 1;
+                }
+                else 
+                {
+                    if (val != oldCounts[key])
+                    {
+                        Trace.WriteLine(string.Format("C\t{0}\t{1}\t{2}", key, oldCounts[key], val));
+                        if (update)
+                        {
+                            var tt = Database.TagTypes.Find(key);
+                            tt.Count = val;
+                        }
+                        changed += 1;
+                    }
+                    oldCounts.Remove(key);
+                }
+            }
+
+            foreach (var oc in oldCounts.Where(oc => oc.Value > 0))
+            {
+                Trace.WriteLine(string.Format("R\t{0}\t{1}\t", oc.Key, oc.Value));
+                if (update)
+                {
+                    var tt = Database.TagTypes.Find(oc.Key);
+                    tt.Count = 0;
+                }
+                changed += 1;
+            }
+
+            if (update)
+            {
+                Context.TrackChanges(true);
+            }
+
+            ViewBag.Success = true;
+            ViewBag.Message = string.Format("Type counts were changed ({0})", changed);
+            return View("Results");
+
+        }
+
+        //
         // Get: //UpdateTagSummaries
         [Authorize(Roles = "dbAdmin")]
         public ActionResult UpdateTagSummaries()
         {
             ViewBag.Name = "UpdateTagSummaries";
 
-            var count = 0;
-
             Context.TrackChanges(false);
 
             var counts = Database.TagTypes.ToDictionary(tt => tt.Key, tt => tt.Count);
 
             // Do the actual update
-            foreach (var song in Database.Songs)
-            {
-                song.UpdateTagSummary(Database);
-                count += 1;
-            }
+            var sumChanged = Enumerable.Sum(Database.Songs, song => song.UpdateTagSummary(Database) ? 1 : 0) + 
+                Enumerable.Sum(Database.DanceRatings, dr => dr.UpdateTagSummary(Database) ? 1 : 0);
 
             // Validate that we didn't change counts...
-            var changed = false;
+            var typeChanged = 0;
             foreach (var tt in Database.TagTypes)
             {
                 int c;
-                // ReSharper disable once InvertIf
-                if (!counts.TryGetValue(tt.Key, out c) || c != tt.Count)
-                {
-                    changed = true;
-                    break;
-                }
+                if (counts.TryGetValue(tt.Key, out c) && c == tt.Count) continue;
+
+                typeChanged += 1;
+                break;
             }
 
-            if (changed)
+            if (typeChanged > 0)
             {
                 ViewBag.Success = false;
-                ViewBag.Message = "Changed underlying count unexpectedly";
+                ViewBag.Message =  string.Format("Changed underlying count unexpectedly ({0})",typeChanged);
             }
             else
             {
                 Context.TrackChanges(true);
 
                 ViewBag.Success = true;
-                ViewBag.Message = string.Format(" Songs were fixed as tags({0})", count);
+                ViewBag.Message = string.Format(" Songs/DanceRatings were fixed as tags({0})", sumChanged);
 
             }
             return View("Results");
