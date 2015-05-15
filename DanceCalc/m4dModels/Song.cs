@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
@@ -79,12 +80,12 @@ namespace m4dModels
             if (tags == null)
             {
                 // Handle Tags
-                TagsFromProperties(user, sd, dms, this);
+                TagsFromProperties(user, sd.Properties, dms, this);
 
                 // Handle Dance Ratings
                 CreateDanceRatings(sd.DanceRatings, dms);
 
-                DanceTagsFromProperties(user, sd, dms, this);
+                DanceTagsFromProperties(user, sd.Properties, dms, this);
             }
             else
             {
@@ -254,10 +255,28 @@ namespace m4dModels
 
             UpdateUsers(dms);
 
-            TitleHash = CreateTitleHash(Title);            
+            TitleHash = CreateTitleHash(Title);
         }
 
-        
+        public void RebuildUserTags(DanceMusicService tms)
+        {
+            // Clean out any cached user tags, these will be from the 'real' context
+
+            if (Tags != null)
+            {
+                Tags.Clear();
+            }
+
+            foreach (var dr in DanceRatings)
+            {
+                if (dr.Tags == null) continue;
+
+                dr.Tags.Clear();
+            }
+            TagsFromProperties(null, SongProperties, tms, this);
+            DanceTagsFromProperties(null, SongProperties, tms, this);
+        }
+
         // This is an additive merge - only add new things if they don't conflict with the old
         public bool AdditiveMerge(ApplicationUser user, SongDetails edit, List<string> addDances, DanceMusicService dms)
         {
@@ -306,12 +325,12 @@ namespace m4dModels
             else
             {
                 // Handle Tags
-                modified |= TagsFromProperties(user, edit, dms, this);
+                modified |= TagsFromProperties(user, edit.Properties, dms, this);
 
                 // Handle Dance Ratings
                 CreateDanceRatings(edit.DanceRatings, dms);
 
-                modified |= DanceTagsFromProperties(user, edit, dms, this);
+                modified |= DanceTagsFromProperties(user, edit.Properties, dms, this);
             }
 
             modified |= UpdatePurchaseInfo(edit,true);
@@ -792,10 +811,10 @@ namespace m4dModels
             return changed;
         }
 
-        private bool BaseTagsFromProperties(ApplicationUser user, SongDetails sd, DanceMusicService dms, object data, bool dance)
+        private bool BaseTagsFromProperties(ApplicationUser user, IEnumerable<SongProperty> properties, DanceMusicService dms, object data, bool dance)
         {
             bool modified = false;
-            foreach (var p in sd.SongProperties)
+            foreach (var p in properties)
             {
                 switch (p.BaseName)
                 {
@@ -848,14 +867,14 @@ namespace m4dModels
             return modified;
         }
 
-        private bool TagsFromProperties(ApplicationUser user, SongDetails sd, DanceMusicService dms, object data)
+        private bool TagsFromProperties(ApplicationUser user, IEnumerable<SongProperty> properties, DanceMusicService dms, object data)
         {
-            return BaseTagsFromProperties(user,sd,dms,data,false);
+            return BaseTagsFromProperties(user,properties,dms,data,false);
         }
 
-        private bool DanceTagsFromProperties(ApplicationUser user, SongDetails sd, DanceMusicService dms, object data)
+        private bool DanceTagsFromProperties(ApplicationUser user, IEnumerable<SongProperty> properties, DanceMusicService dms, object data)
         {
-            return BaseTagsFromProperties(user, sd, dms, data, true);
+            return BaseTagsFromProperties(user, properties, dms, data, true);
         }
 
         public void Delete(ApplicationUser user, DanceMusicService dms)
@@ -932,8 +951,8 @@ namespace m4dModels
             {
                 currentUser = mr.ApplicationUser;
             }
-            TagsFromProperties(currentUser, sd, dms, null);
-            DanceTagsFromProperties(currentUser, sd, dms, null);
+            TagsFromProperties(currentUser, sd.Properties, dms, null);
+            DanceTagsFromProperties(currentUser, sd.Properties, dms, null);
             SetTimesFromProperties();
         }
 

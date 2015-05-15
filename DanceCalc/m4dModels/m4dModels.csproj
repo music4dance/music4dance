@@ -79,6 +79,7 @@
     <Compile Include="DanceMusicService.cs" />
     <Compile Include="DanceRatingDelta.cs" />
     <Compile Include="DanceRatingInfo.cs" />
+    <Compile Include="DbTestSet.cs" />
     <Compile Include="DictionaryExtensions.cs" />
     <Compile Include="ErrorModel.cs" />
     <Compile Include="IDanceMusicContext.cs" />
@@ -115,6 +116,7 @@
     <Compile Include="SongProperty.cs" />
     <Compile Include="AlbumTrack.cs" />
     <Compile Include="TagAccumulator.cs" />
+    <Compile Include="TagContext.cs" />
     <Compile Include="TagCount.cs" />
     <Compile Include="TaggableObject.cs" />
     <Compile Include="TagList.cs" />

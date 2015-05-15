@@ -9,38 +9,42 @@ namespace m4dModels.Tests
     [TestClass]
     public class FunctionalTests
     {
-        private static readonly DanceMusicTester Service = new DanceMusicTester();
+        private static readonly DanceMusicTester s_service = new DanceMusicTester();
 
         [TestMethod]
         public void LoadDatabase()
         {
-            var users = from u in Service.Dms.Context.Users select u;
-            Assert.AreEqual(Service.Users.Count() - 1, users.Count(),"Count of Users");
-            var dances = from d in Service.Dms.Context.Dances select d;
-            Assert.AreEqual(Service.Dances.Count(), dances.Count(), "Count of Dances");
-            var tts = from tt in Service.Dms.Context.TagTypes select tt;
-            Assert.AreEqual(Service.Tags.Count(), tts.Count(), "Count of Tag Types");
-            var songs = from s in Service.Dms.Context.Songs where s.TitleHash != 0 select s;
-            Assert.AreEqual(Service.Songs.Count(), songs.Count(),"Count of Songs");
+            var users = from u in s_service.Dms.Context.Users select u;
+            Assert.AreEqual(s_service.Users.Count() - 1, users.Count(),"Count of Users");
+            var dances = from d in s_service.Dms.Context.Dances select d;
+            Assert.AreEqual(s_service.Dances.Count(), dances.Count(), "Count of Dances");
+            //foreach (var s in s_service.Dms.SerializeTags())
+            //{
+            //    Trace.WriteLine(s);
+            //}
+            var tts = from tt in s_service.Dms.Context.TagTypes select tt;
+            Assert.AreEqual(s_service.Tags.Count(), tts.Count(), "Count of Tag Types");
+            var songs = from s in s_service.Dms.Context.Songs where s.TitleHash != 0 select s;
+            Assert.AreEqual(s_service.Songs.Count(), songs.Count(),"Count of Songs");
         }
 
         [TestMethod]
         public void SaveDatabase()
         {
-            Assert.IsNotNull(Service);
+            Assert.IsNotNull(s_service);
             //var songs = 
-            Service.Dms.SerializeSongs(false);
+            s_service.Dms.SerializeSongs(false);
             //foreach (string s in songs)
             //{
             //    Trace.WriteLine(s);
             //}
             //Assert.IsTrue(ListEquivalent(s_songs, songs));
 
-            var dances = Service.Dms.SerializeDances(false);
-            Assert.IsTrue(ListEquivalent(Service.Dances, dances));
+            var dances = s_service.Dms.SerializeDances(false);
+            Assert.IsTrue(ListEquivalent(s_service.Dances, dances));
 
-            var tags = Service.Dms.SerializeTags(false);
-            Assert.IsTrue(ListEquivalent(Service.Tags, tags));
+            var tags = s_service.Dms.SerializeTags(false);
+            Assert.IsTrue(ListEquivalent(s_service.Tags, tags));
 
             // TODO: To get this to work, we have to add in roles to the Mock Context.
             //IList<string> users = s_dms.SerializeUsers(true);
@@ -52,7 +56,7 @@ namespace m4dModels.Tests
         {
             var filter = new SongFilter {SortOrder = "Tempo", Dances = "SWG", Purchase = "X"};
 
-            var songs = Service.Dms.BuildSongList(filter);
+            var songs = s_service.Dms.BuildSongList(filter);
 
             decimal tempo = 0;
             var count = 0;
@@ -79,7 +83,7 @@ namespace m4dModels.Tests
             var filter = new SongFilter {SortOrder = "Dances_10", Dances = "SWG"};
 
 
-            var songs = Service.Dms.BuildSongList(filter);
+            var songs = s_service.Dms.BuildSongList(filter);
 
             var weight = int.MaxValue;
             var count = 0;
@@ -103,7 +107,7 @@ namespace m4dModels.Tests
         {
             var filter = new SongFilter {SortOrder = "Title", SearchString = "The"};
 
-            var songs = Service.Dms.BuildSongList(filter);
+            var songs = s_service.Dms.BuildSongList(filter);
 
             var title = string.Empty;
             var count = 0;
@@ -150,20 +154,51 @@ The *East Coast Swing* is generally danced as the first dance of <a href='http:/
             const string childrens = "Children's Music:Music:1";
             const string country = "Country:Music:83";
             const string waltz = "Waltz:Dance:1";
-            const string foxtrot = "Foxtrot:Dance:1";
+            const string swing = "Swing:Dance:2";
             const string vocal = "Vocal Pop:Music:4";
 
-            var user = Service.Dms.FindUser("batch");
+            var user = s_service.Dms.FindUser("batch");
             var userid = new Guid(user.Id);
 
-            ValidateTagSummary(Service.Dms.GetTagSuggestions(), 38, twoStep, childrens, "All Tags");
-            ValidateTagSummary(Service.Dms.GetTagSuggestions(userid),34,country, waltz, "Batch Tags");
-            ValidateTagSummary(Service.Dms.GetTagSuggestions(userid, null, null, int.MaxValue, true), 32, country, waltz,
-                "Batch Normalized Tags");
-            ValidateTagSummary(Service.Dms.GetTagSuggestions(userid, 'S', "Music"), 31, country, childrens, "Batch Genre Tags");
-            ValidateTagSummary(Service.Dms.GetTagSuggestions(userid, 'S', "Dance"), 3, foxtrot, waltz, "Batch Dance Tags");
-            ValidateTagSummary(Service.Dms.GetTagSuggestions(userid, 'S', "Music", 10, true), 10,
-                country,vocal,"Top Batch Genere Tags");
+            ValidateTagSummary(s_service.Dms.GetTagSuggestions(), 42, twoStep, childrens, "All Tags");
+            ValidateTagSummary(s_service.Dms.GetTagSuggestions(userid),34,country, waltz, "Batch Tags");
+            ValidateTagSummary(s_service.Dms.GetTagSuggestions(userid, null, null, int.MaxValue, true), 32, country, waltz,"Batch Normalized Tags");
+            ValidateTagSummary(s_service.Dms.GetTagSuggestions(userid, 'S', "Music"), 31, country, childrens, "Batch Genre Tags");
+            ValidateTagSummary(s_service.Dms.GetTagSuggestions(userid, 'S', "Dance"), 3, swing, waltz, "Batch Dance Tags");
+            ValidateTagSummary(s_service.Dms.GetTagSuggestions(userid, 'S', "Music", 10, true), 10,country,vocal,"Top Batch Genere Tags");
+        }
+
+        [TestMethod]
+        public void RebuildTags()
+        {
+            var tracker = TagContext.CreateService(s_service.Dms);
+
+            foreach (var song in s_service.Dms.Songs)
+            {
+                song.RebuildUserTags(tracker);
+            }
+
+            var expected = new HashSet<string>()
+            {
+                "X:WLZ4849b9656cdf497d8a9f01552748d8ed:5683e917-05da-4721-9d2d-4863ee1c14ef:\"Allison:Other|Riker:Other\"",
+                "S:90a6356cd219451ea1f401a8f73b3731:20fd55c1-5677-42f2-872c-0ed34b51221b:\"Foxtrot:Dance\"",
+                "S:45890911a6d84aa08afb0a40d06a3ab5:1e4f07cb-9bfd-4098-bef1-acad112e26b3:\"Night Club Two Step:Dance\""
+            };
+            var c = tracker.Tags.Count();
+            Trace.WriteLine("Count = " + c);
+            //Assert.AreEqual(tracker.Tags.Count(),500);
+            foreach (var s in tracker.Tags.Select(t => t.ToString()))
+            {
+                Trace.WriteLine(s);
+
+                if (!expected.Contains(s)) continue;
+
+                expected.Remove(s);
+                if (expected.Count == 0)
+                    break;
+            }
+
+            Assert.AreEqual(0,expected.Count);
         }
 
         private static void ValidateTagSummary(IEnumerable<TagCount> tags, int expectedCount, string first, string last, string name)

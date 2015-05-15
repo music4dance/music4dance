@@ -9,5 +9,10 @@ namespace m4dModels
         public TagList Tags { get; set; }
         public string UserId { get; set; }
         public ApplicationUser User { get; set; }
+
+        public override string ToString()
+        {
+            return string.Format("{0}:{1}:\"{2}\"", Id, UserId, Tags);
+        }
     }
 }

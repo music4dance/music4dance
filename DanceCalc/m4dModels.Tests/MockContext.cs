@@ -1,11 +1,9 @@
-﻿using Microsoft.AspNet.Identity.EntityFramework;
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.Data.Entity;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Microsoft.AspNet.Identity;
+using Microsoft.AspNet.Identity.EntityFramework;
+using m4dModels;
 
 namespace m4dModels.Tests
 {
@@ -43,21 +41,6 @@ namespace m4dModels.Tests
                 return id == null ? null : this.SingleOrDefault(s => s.SongId == id);
             }
         }
-        class TagTypeSet : TestDbSet<TagType>
-        {
-            public override TagType Find(params object[] keyValues)
-            {
-                var id = keyValues.Single() as string;
-                if (id == null)
-                {
-                    return null;
-                }
-                else
-                {
-                    return this.SingleOrDefault(tt => tt.Key == id);
-                }
-            }
-        }
 
         class ApplicationUserSet : TestDbSet<ApplicationUser>
         {
@@ -77,16 +60,16 @@ namespace m4dModels.Tests
 
         public MockContext(bool seedUsers=true)
         {
-            this.Songs = new SongSet();
-            this.SongProperties = new TestDbSet<SongProperty>();
-            this.Dances = new DanceSet();
-            this.DanceRatings = new TestDbSet<DanceRating>();
-            this.Tags = new TestDbSet<Tag>();
-            this.TagTypes = new TagTypeSet();
-            this.Log = new TestDbSet<SongLog>();
-            this.Modified = new TestDbSet<ModifiedRecord>();
-            this.Users = new ApplicationUserSet();
-            this.Roles = new TestDbSet<IdentityRole>();
+            Songs = new SongSet();
+            SongProperties = new TestDbSet<SongProperty>();
+            Dances = new DanceSet();
+            DanceRatings = new TestDbSet<DanceRating>();
+            Tags = new TestDbSet<Tag>();
+            TagTypes = new TagTypeSet();
+            Log = new TestDbSet<SongLog>();
+            Modified = new TestDbSet<ModifiedRecord>();
+            Users = new ApplicationUserSet();
+            Roles = new TestDbSet<IdentityRole>();
 
             if (seedUsers)
             {
@@ -126,7 +109,7 @@ namespace m4dModels.Tests
 
         public int SaveChanges()
         {
-            this.SaveChangesCount++;
+            SaveChangesCount++;
             return 1;
         }
         public void TrackChanges(bool track)

@@ -78,7 +78,6 @@
   </Choose>
   <ItemGroup>
     <Compile Include="DanceMusicTester.cs" />
-    <Compile Include="DbTestSet.cs" />
     <Compile Include="MockContext.cs" />
     <Compile Include="MockUserStore.cs" />
     <Compile Include="MusicServiceTests.cs" />

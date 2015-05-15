@@ -744,6 +744,29 @@ namespace m4d.Controllers
         }
 
         //
+        // Get: //RebuildUserTags
+        [Authorize(Roles = "dbAdmin")]
+        public ActionResult RebuildUserTags(bool update=false)
+        {
+            Database.Context.TrackChanges(false);
+
+            var tracker = TagContext.CreateService(Database);
+
+            //TODONEXT: Do a diff of the user tags in the tracker and the user tags in the real db, and dump/update based on the diff
+            foreach (var song in Database.Songs)
+            {
+                song.RebuildUserTags(tracker);
+            }
+
+            Database.Context.TrackChanges(true);
+
+            ViewBag.Success = true;
+            ViewBag.Message = "User Tags were successfully rebuilt";
+
+            return View("Results");
+        }
+
+        //
         // Get: //RebuildDanceInfo
         [Authorize(Roles = "dbAdmin")]
         public ActionResult RebuildDanceInfo()

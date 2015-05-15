@@ -42,6 +42,11 @@ namespace m4dModels
         public DbSet<SongLog> Log { get { return _context.Log; } }
         public DbSet<ModifiedRecord> Modified { get { return _context.Modified; } }
 
+        public UserManager<ApplicationUser> UserManager
+        {
+            get { return _userManager; }
+        }
+
         public int SaveChanges()
         {
             return _context.SaveChanges();
@@ -291,10 +296,16 @@ namespace m4dModels
         }
         public SongProperty CreateSongProperty(Song song, string name, object value, object old, SongLog log)
         {
-            SongProperty ret = _context.SongProperties.Create();
+            var csp = _context.SongProperties;
+
+            var ret = csp == null ? new SongProperty() : csp.Create();
+
             ret.Song = song;
             ret.Name = name;
             ret.Value = SongProperty.SerializeValue(value);
+
+            if (csp == null)
+                return ret;
 
             if (song.SongProperties == null)
             {

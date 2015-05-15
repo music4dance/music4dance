@@ -1,21 +1,21 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Data.Entity;
 using System.Data.Entity.Infrastructure;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace m4dModels.Tests
+namespace m4dModels
 {
     public class TestDbSet<TEntity> : DbSet<TEntity>, IQueryable, IEnumerable<TEntity>, IDbAsyncEnumerable<TEntity>
         where TEntity : class
     {
-        ObservableCollection<TEntity> _data;
-        IQueryable _query;
+        readonly ObservableCollection<TEntity> _data;
+        readonly IQueryable _query;
 
         public TestDbSet()
         {
@@ -71,7 +71,7 @@ namespace m4dModels.Tests
             get { return new TestDbAsyncQueryProvider<TEntity>(_query.Provider); }
         }
 
-        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
+        IEnumerator IEnumerable.GetEnumerator()
         {
             return _data.GetEnumerator();
         }
@@ -180,6 +180,22 @@ namespace m4dModels.Tests
         object IDbAsyncEnumerator.Current
         {
             get { return Current; }
+        }
+    }
+
+    public class TagTypeSet : TestDbSet<TagType>
+    {
+        public override TagType Find(params object[] keyValues)
+        {
+            var id = keyValues.Single() as string;
+            if (id == null)
+            {
+                return null;
+            }
+            else
+            {
+                return this.SingleOrDefault(tt => tt.Key == id);
+            }
         }
     }
 }
