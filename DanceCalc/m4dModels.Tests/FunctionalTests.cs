@@ -160,9 +160,9 @@ The *East Coast Swing* is generally danced as the first dance of <a href='http:/
             var user = s_service.Dms.FindUser("batch");
             var userid = new Guid(user.Id);
 
-            ValidateTagSummary(s_service.Dms.GetTagSuggestions(), 42, twoStep, childrens, "All Tags");
-            ValidateTagSummary(s_service.Dms.GetTagSuggestions(userid),34,country, waltz, "Batch Tags");
-            ValidateTagSummary(s_service.Dms.GetTagSuggestions(userid, null, null, int.MaxValue, true), 32, country, waltz,"Batch Normalized Tags");
+            ValidateTagSummary(s_service.Dms.GetTagSuggestions(), 44, twoStep, childrens, "All Tags");
+            ValidateTagSummary(s_service.Dms.GetTagSuggestions(userid),36,country, waltz, "Batch Tags");
+            ValidateTagSummary(s_service.Dms.GetTagSuggestions(userid, null, null, int.MaxValue, true), 34, country, waltz,"Batch Normalized Tags");
             ValidateTagSummary(s_service.Dms.GetTagSuggestions(userid, 'S', "Music"), 31, country, childrens, "Batch Genre Tags");
             ValidateTagSummary(s_service.Dms.GetTagSuggestions(userid, 'S', "Dance"), 3, swing, waltz, "Batch Dance Tags");
             ValidateTagSummary(s_service.Dms.GetTagSuggestions(userid, 'S', "Music", 10, true), 10,country,vocal,"Top Batch Genere Tags");
