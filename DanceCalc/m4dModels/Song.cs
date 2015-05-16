@@ -869,11 +869,23 @@ namespace m4dModels
 
         private bool TagsFromProperties(ApplicationUser user, IEnumerable<SongProperty> properties, DanceMusicService dms, object data)
         {
-            return BaseTagsFromProperties(user,properties,dms,data,false);
+            // Clear out cached user tags
+            Tags = null;
+
+            return BaseTagsFromProperties(user, properties, dms, data, false);
         }
 
         private bool DanceTagsFromProperties(ApplicationUser user, IEnumerable<SongProperty> properties, DanceMusicService dms, object data)
         {
+            // Clear out cached user tags
+            if (DanceRatings != null)
+            {
+                foreach (var dr in DanceRatings)
+                {
+                    dr.Tags = null;
+                }
+            }
+
             return BaseTagsFromProperties(user, properties, dms, data, true);
         }
 
