@@ -169,24 +169,21 @@ The *East Coast Swing* is generally danced as the first dance of <a href='http:/
         }
 
         [TestMethod]
-        public void RebuildTags()
+        public void RebuildUserTags()
         {
             var tracker = TagContext.CreateService(s_service.Dms);
 
+            var user = s_service.Dms.FindUser("batch");
             foreach (var song in s_service.Dms.Songs)
             {
-                song.RebuildUserTags(tracker);
+                song.RebuildUserTags(user,tracker);
             }
 
-            var expected = new HashSet<string>()
-            {
-                "X:WLZ4849b9656cdf497d8a9f01552748d8ed:5683e917-05da-4721-9d2d-4863ee1c14ef:\"Allison:Other|Riker:Other\"",
-                "S:90a6356cd219451ea1f401a8f73b3731:20fd55c1-5677-42f2-872c-0ed34b51221b:\"Foxtrot:Dance\"",
-                "S:45890911a6d84aa08afb0a40d06a3ab5:1e4f07cb-9bfd-4098-bef1-acad112e26b3:\"Night Club Two Step:Dance\""
-            };
+            var expected = new HashSet<string>(_userTags);
+
             var c = tracker.Tags.Count();
             Trace.WriteLine("Count = " + c);
-            //Assert.AreEqual(tracker.Tags.Count(),500);
+            Assert.AreEqual(tracker.Tags.Count(),845);
             foreach (var s in tracker.Tags.Select(t => t.ToString()))
             {
                 Trace.WriteLine(s);
@@ -200,6 +197,40 @@ The *East Coast Swing* is generally danced as the first dance of <a href='http:/
 
             Assert.AreEqual(0,expected.Count);
         }
+
+        [TestMethod]
+        public void RestoreUserTags()
+        {
+            // Delete some specific tags
+            foreach (var rg in _userTags.Select(ut => ut.Split(':')))
+            {
+                var tid = rg[0] + ':' + rg[1];
+                var uid = rg[2];
+                var tag = s_service.Dms.Tags.Find(uid,tid);
+                Assert.IsNotNull(tag);
+                s_service.Dms.Tags.Remove(tag);
+                tag = s_service.Dms.Tags.Find(uid,tid);
+                Assert.IsNull(tag);
+            }
+
+            // Rebuild them
+            s_service.Dms.RebuildUserTags("batch",true);
+
+            // Verify that they exists
+            foreach (var rg in _userTags.Select(ut => ut.Split(':')))
+            {
+                Assert.IsTrue(rg.Length > 2);
+
+                Assert.IsNotNull(s_service.Dms.Tags.Find(rg[2], rg[0] + ':' + rg[1]));
+            }
+        }
+
+        private static string[] _userTags =
+        {
+            "X:WLZ4849b9656cdf497d8a9f01552748d8ed:5683e917-05da-4721-9d2d-4863ee1c14ef:\"Allison:Other|Riker:Other\"",
+            "S:90a6356cd219451ea1f401a8f73b3731:20fd55c1-5677-42f2-872c-0ed34b51221b:\"Foxtrot:Dance\"",
+            "S:45890911a6d84aa08afb0a40d06a3ab5:1e4f07cb-9bfd-4098-bef1-acad112e26b3:\"Night Club Two Step:Dance\""
+        };
 
         private static void ValidateTagSummary(IEnumerable<TagCount> tags, int expectedCount, string first, string last, string name)
         {

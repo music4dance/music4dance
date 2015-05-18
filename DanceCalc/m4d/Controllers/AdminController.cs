@@ -750,13 +750,7 @@ namespace m4d.Controllers
         {
             Database.Context.TrackChanges(false);
 
-            var tracker = TagContext.CreateService(Database);
-
-            //TODONEXT: Do a diff of the user tags in the tracker and the user tags in the real db, and dump/update based on the diff
-            foreach (var song in Database.Songs)
-            {
-                song.RebuildUserTags(tracker);
-            }
+            Database.RebuildUserTags(User.Identity.Name,update);
 
             Database.Context.TrackChanges(true);
 

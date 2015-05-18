@@ -64,7 +64,7 @@ namespace m4dModels.Tests
             SongProperties = new TestDbSet<SongProperty>();
             Dances = new DanceSet();
             DanceRatings = new TestDbSet<DanceRating>();
-            Tags = new TestDbSet<Tag>();
+            Tags = new TagSet();
             TagTypes = new TagTypeSet();
             Log = new TestDbSet<SongLog>();
             Modified = new TestDbSet<ModifiedRecord>();

@@ -258,23 +258,12 @@ namespace m4dModels
             TitleHash = CreateTitleHash(Title);
         }
 
-        public void RebuildUserTags(DanceMusicService tms)
+        public void RebuildUserTags(ApplicationUser user, DanceMusicService tms)
         {
-            // Clean out any cached user tags, these will be from the 'real' context
+            var properties = SongProperties.OrderBy(p => p.Id).ToList();
 
-            if (Tags != null)
-            {
-                Tags.Clear();
-            }
-
-            foreach (var dr in DanceRatings)
-            {
-                if (dr.Tags == null) continue;
-
-                dr.Tags.Clear();
-            }
-            TagsFromProperties(null, SongProperties, tms, this);
-            DanceTagsFromProperties(null, SongProperties, tms, this);
+            TagsFromProperties(user, properties, tms, this);
+            DanceTagsFromProperties(user, properties, tms, this);
         }
 
         // This is an additive merge - only add new things if they don't conflict with the old

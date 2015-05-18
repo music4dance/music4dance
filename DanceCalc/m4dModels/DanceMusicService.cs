@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data.Entity;
 using System.Diagnostics;
 using System.Linq;
+using System.Net.Mime;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Web.Mvc.Html;
@@ -1766,6 +1767,81 @@ namespace m4dModels
             Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Clearing Song Cache");
             SongCounts.ClearCache();
             Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Exiting UpdateSongs");
+        }
+
+        // ReSharper disable once FieldCanBeMadeReadOnly.Local
+        private static Guid _guidError = new Guid("25053e8c-5f1e-441e-bd54-afdab5b1b638");
+
+        public void RebuildUserTags(string userName, bool update)
+        {
+            var tracker = TagContext.CreateService(this);
+
+            var user = FindUser(userName);
+            var c = 0;
+            foreach (var song in Songs)
+            {
+                if (song.SongId == _guidError)
+                {
+                    Trace.WriteLine("This One: " + song.ToString());
+                }
+                song.RebuildUserTags(user, tracker);
+                c += 1;
+                Trace.WriteLineIf(
+                    TraceLevels.General.TraceInfo && c % 1000 == 0,
+                    string.Format("{0} songs loaded", c));
+            }
+
+            var newTags = new Dictionary<string, Tag>();
+
+            foreach (var ut in tracker.Tags)
+            {
+                var key = ut.Id + ut.UserId;
+                newTags.Add(key, ut);
+            }
+
+            // First go through the old tags & remove or modify
+            var remove = new List<Tag>();
+            foreach (var ot in Tags)
+            {
+                var key = ot.Id + ot.UserId;
+                Tag nt;
+
+                if (newTags.TryGetValue(key, out nt))
+                {
+                    newTags.Remove(key);
+
+                    if (string.Equals(ot.Tags.ToString(), nt.Tags.ToString(), StringComparison.OrdinalIgnoreCase))
+                        continue;
+                    Trace.WriteLine(string.Format("C\t{0}\t{1}", ot.ToString(), nt.ToString()));
+                    if (update)
+                    {
+                        ot.Tags = nt.Tags;
+                    }
+                }
+                else
+                {
+                    Trace.WriteLine(string.Format("D\t{0}\t", ot.ToString()));
+                    if (update)
+                    {
+                        remove.Add(ot);
+                    }
+                }
+            }
+
+            // Do the actual removes
+            Trace.WriteLine("Remove old tags");
+            foreach (var rt in remove)
+            {
+                Tags.Remove(rt);
+            }
+
+            // Then do the adds
+            Trace.WriteLine("Add new user tags");
+            foreach (var nt in newTags.Values)
+            {
+                Trace.WriteLine(string.Format("A\t\t{0}\t", nt.ToString()));
+                Tags.Add(nt);
+            }
         }
 
         public void SeedDances()
