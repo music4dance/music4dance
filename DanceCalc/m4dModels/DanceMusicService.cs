@@ -1791,6 +1791,9 @@ namespace m4dModels
                 {
                     Trace.WriteLine("This One: " + song.ToString());
                 }
+
+                if (song.IsNull) continue;
+
                 song.RebuildUserTags(user, tracker);
                 c += 1;
                 if (c % 1000 == 0)
