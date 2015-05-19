@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Net.Mime;
 using System.Runtime.InteropServices;
+using System.Security.Cryptography;
 using System.Text;
 using System.Web.Mvc.Html;
 using DanceLibrary;
@@ -533,7 +534,7 @@ namespace m4dModels
             // First restore the merged songs
             string t = entry.GetData(SongBase.MergeCommand);
 
-            ICollection<Song> songs = SongsFromList(t);
+            IEnumerable<Song> songs = SongsFromList(t);
             foreach (Song s in songs)
             {
                 RestoreSong(s, entry.User);
@@ -665,7 +666,7 @@ namespace m4dModels
 
             // Then remove the merged from songs
             string t = entry.GetData(SongBase.MergeCommand);
-            ICollection<Song> songs = SongsFromList(t);
+            IEnumerable<Song> songs = SongsFromList(t);
             foreach (Song s in songs)
             {
                 RemoveSong(s,user);
@@ -785,7 +786,7 @@ namespace m4dModels
             return string.Equals(sig1, sig2, StringComparison.Ordinal);
         }
 
-        private ICollection<Song> SongsFromList(string list)
+        private IEnumerable<Song> SongsFromList(string list)
         {
             string[] dels = list.Split(';');
             List<Song> songs = new List<Song>(list.Length);
@@ -1772,14 +1773,19 @@ namespace m4dModels
         // ReSharper disable once FieldCanBeMadeReadOnly.Local
         private static Guid _guidError = new Guid("25053e8c-5f1e-441e-bd54-afdab5b1b638");
 
-        public void RebuildUserTags(string userName, bool update)
+        public void RebuildUserTags(string userName, bool update, string songIds=null)
         {
             _context.TrackChanges(false);
             var tracker = TagContext.CreateService(this);
 
             var user = FindUser(userName);
             var c = 0;
-            foreach (var song in Songs)
+
+            if (songIds != null) songIds = songIds.Replace("-", string.Empty);
+
+            var songs = (songIds == null) ? Songs : SongsFromList(songIds);
+
+            foreach (var song in songs)
             {
                 if (song.SongId == _guidError)
                 {
@@ -1808,7 +1814,23 @@ namespace m4dModels
 
             // First go through the old tags & remove or modify
             var remove = new List<Tag>();
-            foreach (var ot in Tags)
+
+            var tagIdList = (songIds == null)
+                ? null
+                : songIds.Split(new char[] { ';' }, StringSplitOptions.RemoveEmptyEntries).ToList();
+
+            var tags = (songIds == null) ? Tags : Tags.Where(t => tagIdList.Any(id => t.Id.EndsWith(id)));
+
+            if (TraceLevels.General.TraceVerbose)
+            {
+                var l = tags.ToList();
+                foreach (var t in l)
+                {
+                    Trace.WriteLine(t);
+                }
+            }
+
+            foreach (var ot in tags)
             {
                 var key = ot.Id + ot.UserId;
                 Tag nt;

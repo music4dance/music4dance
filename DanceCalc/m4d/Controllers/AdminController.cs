@@ -746,9 +746,13 @@ namespace m4d.Controllers
         //
         // Get: //RebuildUserTags
         [Authorize(Roles = "dbAdmin")]
-        public ActionResult RebuildUserTags(bool update=false)
+        public ActionResult RebuildUserTags(bool update=false, string songIds=null)
         {
-            Database.RebuildUserTags(User.Identity.Name,update);
+            Database.Context.TrackChanges(false);
+
+            Database.RebuildUserTags(User.Identity.Name,update,songIds);
+
+            Database.Context.TrackChanges(true);
 
             ViewBag.Success = true;
             ViewBag.Message = "User Tags were successfully rebuilt";
