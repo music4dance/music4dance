@@ -419,6 +419,37 @@ namespace m4d.Context
             RemoveEntities<SongLog>();
         }
 
+        // TODO: Figure out if there is a type-safe way to do this...
+        public void ClearEntities(IEnumerable<string> entities)
+        {
+            foreach (var s in entities)
+            {
+                switch (s)
+                {
+                    case "Song":
+                        RemoveEntities<Song>();
+                        break;
+                    case "SongProperty":
+                        RemoveEntities<SongProperty>();
+                        break;
+                    case "DanceRating":
+                        RemoveEntities<DanceRating>();
+                        break;
+                    case "Tag":
+                        RemoveEntities<Tag>();
+                        break;
+                    case "ModifiedRecord":
+                        RemoveEntities<ModifiedRecord>();
+                        break;
+                    case "SongLog":
+                        RemoveEntities<SongLog>();
+                        break;
+                    case "TopN":
+                        RemoveEntities<TopN>();
+                        break;
+                }
+            }
+        }
         public void LoadDances()
         {
             Configuration.LazyLoadingEnabled = false;

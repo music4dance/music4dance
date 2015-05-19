@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Data.Entity;
 using Microsoft.AspNet.Identity.EntityFramework;
 
@@ -20,6 +21,8 @@ namespace m4dModels
         int SaveChanges();
         void TrackChanges(bool track);
         void CheckpointSongs();
+
+        void ClearEntities(IEnumerable<string> entities);
 
         void LoadDances();
     }

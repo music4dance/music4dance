@@ -748,11 +748,7 @@ namespace m4d.Controllers
         [Authorize(Roles = "dbAdmin")]
         public ActionResult RebuildUserTags(bool update=false)
         {
-            Database.Context.TrackChanges(false);
-
             Database.RebuildUserTags(User.Identity.Name,update);
-
-            Database.Context.TrackChanges(true);
 
             ViewBag.Success = true;
             ViewBag.Message = "User Tags were successfully rebuilt";

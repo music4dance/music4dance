@@ -1774,6 +1774,7 @@ namespace m4dModels
 
         public void RebuildUserTags(string userName, bool update)
         {
+            _context.TrackChanges(false);
             var tracker = TagContext.CreateService(this);
 
             var user = FindUser(userName);
@@ -1786,10 +1787,16 @@ namespace m4dModels
                 }
                 song.RebuildUserTags(user, tracker);
                 c += 1;
-                Trace.WriteLineIf(
-                    TraceLevels.General.TraceInfo && c % 1000 == 0,
-                    string.Format("{0} songs loaded", c));
+                if (c % 1000 == 0)
+                {
+                    Trace.WriteLineIf(
+                        TraceLevels.General.TraceInfo,
+                        string.Format("{0} songs loaded", c));
+                    }
+                    _context.ClearEntities(new string[]{"SongProperty","DanceRating"});
             }
+
+            _context.CheckpointSongs();
 
             var newTags = new Dictionary<string, Tag>();
 
@@ -1842,6 +1849,8 @@ namespace m4dModels
                 Trace.WriteLine(string.Format("A\t\t{0}\t", nt.ToString()));
                 Tags.Add(nt);
             }
+
+            _context.TrackChanges(false);
         }
 
         public void SeedDances()

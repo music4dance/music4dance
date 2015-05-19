@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
 using Microsoft.AspNet.Identity;
@@ -7,7 +8,7 @@ using m4dModels;
 
 namespace m4dModels.Tests
 {
-    class MockContext : IDanceMusicContext
+    internal class MockContext : IDanceMusicContext
     {
         public static DanceMusicService CreateService(bool seedUsers)
         {
@@ -17,7 +18,8 @@ namespace m4dModels.Tests
             service.SeedDances();
             return service;
         }
-        class DanceSet : TestDbSet<Dance>
+
+        private class DanceSet : TestDbSet<Dance>
         {
             public override Dance Find(params object[] keyValues)
             {
@@ -33,7 +35,7 @@ namespace m4dModels.Tests
             }
         }
 
-        class SongSet : TestDbSet<Song>
+        private class SongSet : TestDbSet<Song>
         {
             public override Song Find(params object[] keyValues)
             {
@@ -42,7 +44,7 @@ namespace m4dModels.Tests
             }
         }
 
-        class ApplicationUserSet : TestDbSet<ApplicationUser>
+        private class ApplicationUserSet : TestDbSet<ApplicationUser>
         {
             public override ApplicationUser Find(params object[] keyValues)
             {
@@ -58,7 +60,7 @@ namespace m4dModels.Tests
             }
         }
 
-        public MockContext(bool seedUsers=true)
+        public MockContext(bool seedUsers = true)
         {
             Songs = new SongSet();
             SongProperties = new TestDbSet<SongProperty>();
@@ -73,16 +75,18 @@ namespace m4dModels.Tests
 
             if (seedUsers)
             {
-                Users.Add(new ApplicationUser() {UserName="dwgray", Id="05849D25-0292-44CF-A3E6-74D07D94855C"});
-                Users.Add(new ApplicationUser() {UserName="batch", Id="DE3752CA-42CD-46FB-BEE9-F7163CFB091B"});
+                Users.Add(new ApplicationUser() {UserName = "dwgray", Id = "05849D25-0292-44CF-A3E6-74D07D94855C"});
+                Users.Add(new ApplicationUser() {UserName = "batch", Id = "DE3752CA-42CD-46FB-BEE9-F7163CFB091B"});
             }
         }
 
         #region Events
+
         //protected override void OnModelCreating(System.Data.Entity.DbModelBuilder modelBuilder)
         //{
         //    DanceMusicContextHelpers.ModelCreating(modelBuilder);
         //}
+
         #endregion
 
         public DbSet<Song> Songs { get; set; }
@@ -105,21 +109,26 @@ namespace m4dModels.Tests
 
         public IDbSet<IdentityRole> Roles { get; set; }
 
-        public int SaveChangesCount { get; private set; } 
+        public int SaveChangesCount { get; private set; }
 
         public int SaveChanges()
         {
             SaveChangesCount++;
             return 1;
         }
+
         public void TrackChanges(bool track)
         {
             // NOOP?
         }
 
-        public void CheckpointSongs() { }
+        public void CheckpointSongs()
+        {
+        }
 
-        public void LoadDances() { }
+        public void ClearEntities(IEnumerable<string> entities) { }
+
+    public void LoadDances() { }
 
         public void Dispose()
         {

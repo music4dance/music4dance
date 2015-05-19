@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Data.Entity;
 using Microsoft.AspNet.Identity.EntityFramework;
 
@@ -50,19 +51,21 @@ namespace m4dModels
 
         public int SaveChanges()
         {
-            throw new NotImplementedException();
+            return 0;
         }
 
         public void TrackChanges(bool track)
         {
-            throw new NotImplementedException();
         }
 
         public void CheckpointSongs()
         {
-            throw new NotImplementedException();
         }
 
+        public void ClearEntities(IEnumerable<string> entities)
+        {
+            
+        }
         public void LoadDances()
         {
             throw new NotImplementedException();
