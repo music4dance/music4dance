@@ -761,15 +761,34 @@ namespace m4d.Controllers
         [Authorize(Roles = "dbAdmin")]
         public ActionResult RebuildDanceInfo()
         {
-            InternalRebuildDances(true);
+            if (!AdminMonitor.StartTask("RebuildDanceInfo"))
+            {
+                ViewBag.Success = false;
+                ViewBag.Message = "There is another admin task in process";
 
-            InternalRebuildDanceTags();
-            SongCounts.ClearCache();
+                return View("Results");                
+            }
 
-            ViewBag.Success = true;
-            ViewBag.Message = "Dance info was successfully rebuilt";
+            try
+            {
+                InternalRebuildDances(true);
 
-            return View("Results");
+                InternalRebuildDanceTags();
+                SongCounts.ClearCache();
+
+                AdminMonitor.CompleteTask(true, "Finished rebuilding Dance Info");
+                ViewBag.Success = true;
+                ViewBag.Message = "Dance info was successfully rebuilt";
+
+                return View("Results");
+            }
+            catch (Exception e)
+            {
+                AdminMonitor.CompleteTask(false, "Dance info failed to rebuild", e);
+                ViewBag.Success = false;
+                ViewBag.Message = "Dance info failed to rebuild";
+                return View("Results");
+            }            
         }
 
         //
@@ -777,12 +796,31 @@ namespace m4d.Controllers
         [Authorize(Roles = "dbAdmin")]
         public ActionResult RebuildDances()
         {
-            InternalRebuildDances(false);
+            if (!AdminMonitor.StartTask("RebuildDances"))
+            {
+                ViewBag.Success = false;
+                ViewBag.Message = "There is another admin task in process";
 
-            ViewBag.Success = true;
-            ViewBag.Message = "Dances were successfully updated";
+                return View("Results");
+            }
 
-            return View("Results");
+            try
+            {
+                InternalRebuildDances(false);
+                AdminMonitor.CompleteTask(true, "Finished rebuilding Dances");
+
+                ViewBag.Success = true;
+                ViewBag.Message = "Dances were successfully updated";
+
+                return View("Results");
+            }
+            catch (Exception e)
+            {
+                AdminMonitor.CompleteTask(false, "Dances failed to rebuild", e);
+                ViewBag.Success = false;
+                ViewBag.Message = "Dances failed to rebuild";
+                return View("Results");
+            }
         }
 
         //
@@ -790,12 +828,31 @@ namespace m4d.Controllers
         [Authorize(Roles = "dbAdmin")]
         public ActionResult RebuildDanceTags()
         {
-            InternalRebuildDanceTags();
+            if (!AdminMonitor.StartTask("RebuildDanceTags"))
+            {
+                ViewBag.Success = false;
+                ViewBag.Message = "There is another admin task in process";
 
-            ViewBag.Success = true;
-            ViewBag.Message = "Dance tags were successfully updated";
+                return View("Results");
+            }
 
-            return View("Results");
+            try
+            {
+                InternalRebuildDanceTags();
+                AdminMonitor.CompleteTask(true, "Finished rebuilding Dance Tags");
+
+                ViewBag.Success = true;
+                ViewBag.Message = "Dance tags were successfully updated";
+
+                return View("Results");
+            }
+            catch (Exception e)
+            {
+                AdminMonitor.CompleteTask(false, "Dances Tags failed to rebuild", e);
+                ViewBag.Success = false;
+                ViewBag.Message = "Dances Tags failed to rebuild";
+                return View("Results");
+            }
         }
 
         //
@@ -1511,8 +1568,11 @@ namespace m4d.Controllers
 
             // Get the Max Weight and Count of songs for each dance
 
+            var index = 0;
             foreach (var dance in Database.Dances.Include("TopSongs.Song.DanceRatings"))
             {
+                AdminMonitor.UpdateTask("UpdateDance = " + dance.Name,index++);
+
                 Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Computing info for " + dance.Name);
                 dance.SongCount = dance.DanceRatings.Select(dr => dr.Song.Purchase).Count(p => p != null);
                 dance.MaxWeight = (dance.SongCount == 0) ? 0 : dance.DanceRatings.Max(dr => dr.Weight);
@@ -1560,8 +1620,11 @@ namespace m4d.Controllers
         {
             Context.TrackChanges(false);
 
+            var index = 0;
             foreach (var dance in Database.Dances)
             {
+                AdminMonitor.UpdateTask("UpdateTags: Dance = " + dance.Name, index++);
+
                 var dT = dance;
                 var acc = new TagAccumulator();
 
