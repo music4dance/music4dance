@@ -748,11 +748,7 @@ namespace m4d.Controllers
         [Authorize(Roles = "dbAdmin")]
         public ActionResult RebuildUserTags(bool update=false, string songIds=null)
         {
-            Database.Context.TrackChanges(false);
-
             Database.RebuildUserTags(User.Identity.Name,update,songIds);
-
-            Database.Context.TrackChanges(true);
 
             ViewBag.Success = true;
             ViewBag.Message = "User Tags were successfully rebuilt";
@@ -809,81 +805,109 @@ namespace m4d.Controllers
         [Authorize(Roles = "dbAdmin")]
         public ActionResult ReloadDatabase(string reloadDatabase, bool? batch)
         {
-            var lines = UploadFile();
-
-            Trace.WriteLineIf(TraceLevels.General.TraceInfo,"File Uploaded Successfully");
-
             ViewBag.Name = "Restore Database";
-            if (lines.Count > 0)
-            {
-                if (string.Equals(reloadDatabase,"reload",StringComparison.InvariantCultureIgnoreCase))
-                {
-                    if (DanceMusicService.IsCompleteBackup(lines))
-                    {
-                        RestoreDb(null);
 
-                        var i = lines.FindIndex(DanceMusicService.IsDanceBreak);
-                        var users = lines.GetRange(0, i).ToList();
-                        lines.RemoveRange(0, i + 1);
-
-                        i = lines.FindIndex(DanceMusicService.IsTagBreak);
-                        var dances = lines.GetRange(0,i).ToList();
-                        lines.RemoveRange(0,i+1);
-
-                        i = lines.FindIndex(DanceMusicService.IsSongBreak);
-                        var tags = lines.GetRange(0,i).ToList();
-                        lines.RemoveRange(0,i+1);
-
-                        Database.LoadUsers(users);
-                        Database.LoadDances(dances);
-                        Database.LoadTags(tags);
-
-                        reloadDatabase = "loadSongs";
-                    }
-                    else if (DanceMusicService.IsSongBreak(lines[0]))
-                    {
-                        reloadDatabase = "songs";
-                    }
-                    else if (DanceMusicService.IsUserBreak(lines[0]))
-                    {
-                        reloadDatabase = "users";
-                    }
-                    else if (DanceMusicService.IsDanceBreak(lines[0]))
-                    {
-                        reloadDatabase = "dances";
-                    }
-                }
-
-                if (string.Equals(reloadDatabase, "songs", StringComparison.InvariantCultureIgnoreCase))
-                {
-                    Database.UpdateSongs(lines);
-                }
-                else if (string.Equals(reloadDatabase, "users", StringComparison.InvariantCultureIgnoreCase))
-                {
-                    Database.LoadUsers(lines);
-                }
-                else if (string.Equals(reloadDatabase, "dances", StringComparison.InvariantCultureIgnoreCase))
-                {
-                    Database.LoadDances(lines);
-                }
-                else if (string.Equals(reloadDatabase, "loadSongs", StringComparison.InvariantCultureIgnoreCase))
-                {
-                    Database.LoadSongs(lines);
-                }
-
-                SongCounts.ClearCache(); 
-
-                ViewBag.Success = true;
-                ViewBag.Message = "Database was successfully restored and reloaded (" + reloadDatabase + ")";
-            }
-            else
+            if (!AdminMonitor.StartTask("ReloadDatabase", "UploadFile"))
             {
                 ViewBag.Success = false;
-                ViewBag.Message = "Failed to reload database";
+                ViewBag.Message = "There is another admin task in process";
+                return View("Results");
+            }
+
+            try
+            {
+                var lines = UploadFile();
+
+                Trace.WriteLineIf(TraceLevels.General.TraceInfo, "File Uploaded Successfully");
+                AdminMonitor.UpdateTask("Compute Type");
+
+                if (lines.Count > 0)
+                {
+                    if (string.Equals(reloadDatabase, "reload", StringComparison.InvariantCultureIgnoreCase))
+                    {
+                        if (DanceMusicService.IsCompleteBackup(lines))
+                        {
+                            AdminMonitor.UpdateTask("Wipe Database");
+                            RestoreDb(null);
+
+                            var i = lines.FindIndex(DanceMusicService.IsDanceBreak);
+                            var users = lines.GetRange(0, i).ToList();
+                            lines.RemoveRange(0, i + 1);
+
+                            i = lines.FindIndex(DanceMusicService.IsTagBreak);
+                            var dances = lines.GetRange(0, i).ToList();
+                            lines.RemoveRange(0, i + 1);
+
+                            i = lines.FindIndex(DanceMusicService.IsSongBreak);
+                            var tags = lines.GetRange(0, i).ToList();
+                            lines.RemoveRange(0, i + 1);
+
+                            Database.LoadUsers(users);
+                            Database.LoadDances(dances);
+                            Database.LoadTags(tags);
+
+                            reloadDatabase = "loadSongs";
+                        }
+                        else if (DanceMusicService.IsSongBreak(lines[0]))
+                        {
+                            reloadDatabase = "songs";
+                        }
+                        else if (DanceMusicService.IsUserBreak(lines[0]))
+                        {
+                            reloadDatabase = "users";
+                        }
+                        else if (DanceMusicService.IsDanceBreak(lines[0]))
+                        {
+                            reloadDatabase = "dances";
+                        }
+                    }
+
+                    if (string.Equals(reloadDatabase, "songs", StringComparison.InvariantCultureIgnoreCase))
+                    {
+                        Database.UpdateSongs(lines);
+                    }
+                    else if (string.Equals(reloadDatabase, "users", StringComparison.InvariantCultureIgnoreCase))
+                    {
+                        Database.LoadUsers(lines);
+                    }
+                    else if (string.Equals(reloadDatabase, "dances", StringComparison.InvariantCultureIgnoreCase))
+                    {
+                        Database.LoadDances(lines);
+                    }
+                    else if (string.Equals(reloadDatabase, "loadSongs", StringComparison.InvariantCultureIgnoreCase))
+                    {
+                        Database.LoadSongs(lines);
+                    }
+
+                    SongCounts.ClearCache();
+
+                    AdminMonitor.CompleteTask(true, "Database restored: " + reloadDatabase);
+                    ViewBag.Success = true;
+                    ViewBag.Message = "Database was successfully restored and reloaded (" + reloadDatabase + ")";
+                }
+                else
+                {
+                    AdminMonitor.CompleteTask(false, "Empty File or Bad File Format");
+                    ViewBag.Success = false;
+                    ViewBag.Message = "Empty File or Bad File Format";
+                }
+            }
+            catch (Exception e)
+            {
+                AdminMonitor.CompleteTask(false, string.Format("{0}: {1}",reloadDatabase,e.Message), e);
             }
 
 
             return View("Results");
+        }
+
+
+        //
+        // Get: //RebuildDances
+        [Authorize(Roles = "dbAdmin")]
+        public ActionResult AdminStatus()
+        {
+            return View(AdminMonitor.Status);
         }
 
         #region Tempi

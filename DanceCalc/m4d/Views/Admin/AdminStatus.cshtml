@@ -1,0 +1,33 @@
+﻿@using m4dModels
+@model AdminStatus
+
+@{
+    ViewBag.Title = "Long Running Task Status";
+}
+
+<h2>Long Running Task Status: @(Model.IsRunning ? "Running" : (Model.Succeeded ? "Succeeded" : "Failed"))</h2>
+
+<p>@Model.Status</p>
+
+@if (Model.Exception != null)
+{
+    <p>Execption: @Model.Exception.Message</p>
+    if (Model.Exception.InnerException != null)
+    {
+        <p>Inner: @Model.Exception.InnerException.Message</p>
+    }
+
+    if (!string.IsNullOrEmpty(Model.Exception.StackTrace))
+    {
+        <h3>Stack Trace:</h3>
+        var frames = Model.Exception.StackTrace.Split(new[] { '\n' }, StringSplitOptions.RemoveEmptyEntries);
+        <ul>
+            @foreach (var s in frames)
+            {
+                <li>@s</li>
+            }
+        </ul>
+    }
+}
+
+

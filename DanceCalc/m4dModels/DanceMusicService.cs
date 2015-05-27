@@ -1480,6 +1480,7 @@ namespace m4dModels
             var i = 1;
             while (i < lines.Count)
             {
+                AdminMonitor.UpdateTask("LoadUsers",i-1);
                 var s = lines[i];
                 i += 1;
 
@@ -1599,10 +1600,13 @@ namespace m4dModels
                 lines.RemoveAt(0);
             }
 
+            AdminMonitor.UpdateTask("LoadDances");
             LoadDances();
             var modified = false;
-            foreach (var s in lines)
+            for (var index = 0; index < lines.Count; index++)
             {
+                var s = lines[index];
+                AdminMonitor.UpdateTask("LoadDances", index+1);
                 if (string.IsNullOrWhiteSpace(s))
                     continue;
                 var cells = s.Split('\t').ToList();
@@ -1633,9 +1637,12 @@ namespace m4dModels
         {
             Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Entering LoadTags");
 
-            foreach (string s in lines)
+            for (var index = 0; index < lines.Count; index++)
             {
-                string[] cells = s.Split('\t');
+                var s = lines[index];
+                AdminMonitor.UpdateTask("LoadTags", index + 1);
+
+                var cells = s.Split('\t');
                 TagType tt = null;
                 if (cells.Length >= 2)
                 {
@@ -1775,107 +1782,125 @@ namespace m4dModels
 
         public void RebuildUserTags(string userName, bool update, string songIds=null)
         {
-            _context.TrackChanges(false);
-            var tracker = TagContext.CreateService(this);
+            if (!AdminMonitor.StartTask("RebuildUserTags")) return;
 
-            var user = FindUser(userName);
-            var c = 0;
-
-            if (songIds != null) songIds = songIds.Replace("-", string.Empty);
-
-            var songs = (songIds == null) ? Songs : SongsFromList(songIds);
-
-            foreach (var song in songs)
+            try
             {
-                if (song.SongId == _guidError)
+                _context.TrackChanges(false);
+                var tracker = TagContext.CreateService(this);
+
+                var user = FindUser(userName);
+                var c = 0;
+
+                if (songIds != null) songIds = songIds.Replace("-", string.Empty);
+
+                var songs = (songIds == null) ? Songs : SongsFromList(songIds);
+
+                foreach (var song in songs)
                 {
-                    Trace.WriteLine("This One: " + song.ToString());
-                }
+                    AdminMonitor.UpdateTask("Running Songs", c);
 
-                if (song.IsNull) continue;
-
-                song.RebuildUserTags(user, tracker);
-                c += 1;
-                if (c % 1000 == 0)
-                {
-                    Trace.WriteLineIf(
-                        TraceLevels.General.TraceInfo,
-                        string.Format("{0} songs loaded", c));
-                    }
-                    _context.ClearEntities(new string[]{"SongProperty","DanceRating"});
-            }
-
-            _context.CheckpointSongs();
-
-            var newTags = new Dictionary<string, Tag>();
-
-            foreach (var ut in tracker.Tags)
-            {
-                var key = ut.Id + ut.UserId;
-                newTags.Add(key, ut);
-            }
-
-            // First go through the old tags & remove or modify
-            var remove = new List<Tag>();
-
-            var tagIdList = (songIds == null)
-                ? null
-                : songIds.Split(new char[] { ';' }, StringSplitOptions.RemoveEmptyEntries).ToList();
-
-            var tags = (songIds == null) ? Tags : Tags.Where(t => tagIdList.Any(id => t.Id.EndsWith(id)));
-
-            if (TraceLevels.General.TraceVerbose)
-            {
-                var l = tags.ToList();
-                foreach (var t in l)
-                {
-                    Trace.WriteLine(t);
-                }
-            }
-
-            foreach (var ot in tags)
-            {
-                var key = ot.Id + ot.UserId;
-                Tag nt;
-
-                if (newTags.TryGetValue(key, out nt))
-                {
-                    newTags.Remove(key);
-
-                    if (string.Equals(ot.Tags.ToString(), nt.Tags.ToString(), StringComparison.OrdinalIgnoreCase))
-                        continue;
-                    Trace.WriteLine(string.Format("C\t{0}\t{1}", ot.ToString(), nt.ToString()));
-                    if (update)
+                    if (song.SongId == _guidError)
                     {
-                        ot.Tags = nt.Tags;
+                        Trace.WriteLine("This One: " + song.ToString());
                     }
-                }
-                else
-                {
-                    Trace.WriteLine(string.Format("D\t{0}\t", ot.ToString()));
-                    if (update)
+
+                    if (song.IsNull) continue;
+
+                    song.RebuildUserTags(user, tracker);
+                    c += 1;
+                    if (c%1000 == 0)
                     {
-                        remove.Add(ot);
+                        Trace.WriteLineIf(
+                            TraceLevels.General.TraceInfo,
+                            string.Format("{0} songs loaded", c));
+                    }
+                    _context.ClearEntities(new string[] {"SongProperty", "DanceRating"});
+                }
+
+                _context.CheckpointSongs();
+
+                AdminMonitor.UpdateTask("Computing Tags");
+
+                var newTags = new Dictionary<string, Tag>();
+
+                foreach (var ut in tracker.Tags)
+                {
+                    var key = ut.Id + ut.UserId;
+                    newTags.Add(key, ut);
+                }
+
+                // First go through the old tags & remove or modify
+                var remove = new List<Tag>();
+
+                var tagIdList = (songIds == null)
+                    ? null
+                    : songIds.Split(new char[] {';'}, StringSplitOptions.RemoveEmptyEntries).ToList();
+
+                var tags = (songIds == null) ? Tags : Tags.Where(t => tagIdList.Any(id => t.Id.EndsWith(id)));
+
+                if (TraceLevels.General.TraceVerbose)
+                {
+                    var l = tags.ToList();
+                    foreach (var t in l)
+                    {
+                        Trace.WriteLine(t);
                     }
                 }
-            }
 
-            // Do the actual removes
-            Trace.WriteLine("Remove old tags");
-            foreach (var rt in remove)
+                foreach (var ot in tags)
+                {
+                    var key = ot.Id + ot.UserId;
+                    Tag nt;
+
+                    if (newTags.TryGetValue(key, out nt))
+                    {
+                        newTags.Remove(key);
+
+                        if (string.Equals(ot.Tags.ToString(), nt.Tags.ToString(), StringComparison.OrdinalIgnoreCase))
+                            continue;
+                        Trace.WriteLine(string.Format("C\t{0}\t{1}", ot.ToString(), nt.ToString()));
+                        if (update)
+                        {
+                            ot.Tags = nt.Tags;
+                        }
+                    }
+                    else
+                    {
+                        Trace.WriteLine(string.Format("D\t{0}\t", ot.ToString()));
+                        if (update)
+                        {
+                            remove.Add(ot);
+                        }
+                    }
+                }
+
+                AdminMonitor.UpdateTask("Removing Tags");
+                // Do the actual removes
+                Trace.WriteLine("Remove old tags");
+                foreach (var rt in remove)
+                {
+                    Tags.Remove(rt);
+                }
+
+                AdminMonitor.UpdateTask("Adding Tags");
+                // Then do the adds
+                Trace.WriteLine("Add new user tags");
+                foreach (var nt in newTags.Values)
+                {
+                    Trace.WriteLine(string.Format("A\t\t{0}\t", nt.ToString()));
+                    Tags.Add(nt);
+                }
+
+                AdminMonitor.UpdateTask("Updating Database");
+                _context.TrackChanges(true);
+            }
+            catch (Exception e)
             {
-                Tags.Remove(rt);
+                AdminMonitor.CompleteTask(false,e.Message,e);
             }
 
-            // Then do the adds
-            Trace.WriteLine("Add new user tags");
-            foreach (var nt in newTags.Values)
-            {
-                Trace.WriteLine(string.Format("A\t\t{0}\t", nt.ToString()));
-                Tags.Add(nt);
-            }
-
-            _context.TrackChanges(false);
+            AdminMonitor.CompleteTask(true,"Success");
         }
 
         public void SeedDances()
