@@ -133,86 +133,81 @@ namespace m4d.Controllers
                     }
 
                     // Save off the children
-                    TagType oldTT = Database.TagTypes.Find(tagType.Key);
-                    List<string> children = new List<string>();
-                    if (oldTT.Ring != null)
+                    var oldTagType = Database.TagTypes.Find(tagType.Key);
+                    var children = new List<string>();
+                    if (oldTagType.Ring != null)
                     {
-                        foreach (var child in oldTT.Ring)
-                        {
-                            children.Add(child.Key);
-                        }
-
-                        oldTT.Ring.Clear();
+                        children.AddRange(oldTagType.Ring.Select(child => child.Key));
+                        oldTagType.Ring.Clear();
                     }
 
                     // Delete the old type
-                    Database.TagTypes.Remove(oldTT);
+                    Database.TagTypes.Remove(oldTagType);
                     Database.SaveChanges();
 
                     // Add the new type and put back in the child references
-                    TagType newTT = Database.TagTypes.Create();
-                    newTT.Copy(tagType);
-                    newTT.Key = newKey;
+                    var temp = new TagType(newKey);
+                    var newTagType = Database.FindOrCreateTagType(tagType.Value, temp.Category, temp.PrimaryId);
 
                     foreach (var c in children)
                     {
-                        TagType child = Database.TagTypes.Find(c);
+                        var child = Database.TagTypes.Find(c);
                         child.PrimaryId = newKey;
-                        child.Primary = newTT;
-                        newTT.Ring.Add(child);
+                        child.Primary = newTagType;
+                        if (newTagType.Ring.All(tt => tt.Key != newKey))
+                        {
+                            newTagType.Ring.Add(child);
+                        }
                     }
-
-                    Database.TagTypes.Add(newTT);
                     Database.SaveChanges();
 
                     // Go through the Tag table and fix up all of the references
-                    List<Guid> songIds = new List<Guid>();
-                    var tags = from t in Database.Tags where t.Tags.Summary.Contains(oldTT.Key) select t;
+                    var songIds = new List<Guid>();
+                    var tags = from t in Database.Tags where t.Tags.Summary.Contains(oldTagType.Key) select t;
                     foreach (var tag in tags)
                     {
-                        tag.Tags.Summary = tag.Tags.Summary.Replace(oldTT.Key, newKey);
+                        tag.Tags.Summary = tag.Tags.Summary.Replace(oldTagType.Key, newKey);
+                        newTagType.Count += 1;
                         
-                        // TODO: We're handling songs now, but need to generalize to other taggable objects
+                        // TODO: We're handling songs and dance references now, but need to generalize to other taggable objects
                         //  Also should figure out how to pull out id in a more general way
                         if (tag.Id.StartsWith("S:"))
                         {
                             songIds.Add(new Guid(tag.Id.Substring(2)));
                         }
+                        else if (tag.Id.StartsWith("X:"))
+                        {
+                            songIds.Add(new Guid(tag.Id.Substring(5)));
+                        }
                         else
                         {
-                            Trace.WriteLine("When did we start supporting tags on non-songs");
+                            Trace.WriteLine("When did we start supporting tags on non-songs/dance references");
                         }
                     }
                     Database.SaveChanges();
 
                     // Use the tag table to reference all the affected songs and fix them
-                    //  Bothe the TagSummary and the Properties
-                    foreach (Guid songId in songIds)
+                    //  Both the TagSummary and the Properties
+                    foreach (var song in songIds.Select(songId => Database.FindSong(songId)).Where(song => song != null))
                     {
-                        Song song = Database.FindSong(songId);
+                        song.TagSummary.Summary = song.TagSummary.Summary.Replace(oldTagType.Key, newKey);
 
-                        if (song != null)
+                        foreach (var prop in song.SongProperties.Where(prop => prop.Name == SongBase.AddedTags || prop.Name == SongBase.RemovedTags).Where(prop => prop.Value.Contains(oldTagType.Key)))
                         {
-                            song.TagSummary.Summary = song.TagSummary.Summary.Replace(oldTT.Key, newKey);
+                            prop.Value = prop.Value.Replace(oldTagType.Key, newKey);
                         }
 
-                        foreach (var prop in song.SongProperties)
+                        foreach (var dr in song.DanceRatings)
                         {
-                            if (prop.Name == Song.AddedTags || prop.Name == Song.RemovedTags)
-                            {
-                                prop.Value = prop.Value.Replace(oldTT.Key, newKey);
-                            }
+                            dr.TagSummary.Summary = dr.TagSummary.Summary.Replace(oldTagType.Key, newKey);
                         }
                     }
                     Database.SaveChanges();
                 }
                 return RedirectToAction("Index");
             }
-            string pid = tagType.PrimaryId;
-            if (pid == null)
-            {
-                pid = tagType.Key;
-            }
+            var pid = tagType.PrimaryId ?? tagType.Key;
+
             ViewBag.PrimaryId = new SelectList(Database.TagTypes, "Key", "Key", pid);
             return View(tagType);
         }
