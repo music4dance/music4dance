@@ -622,7 +622,7 @@ namespace m4d.Controllers
 
             while (!done)
             {
-                var songs = Database.BuildSongList(filter, DanceMusicService.CruftFilter.NoDances).Skip(page * 1000).Take(1000);
+                var songs = Database.BuildSongList(filter, DanceMusicService.CruftFilter.NoPublishers).Skip(page * 1000).Take(1000).ToList();
                 var processed = 0;
                 var modified = false;
                 foreach (var song in songs)
