@@ -1677,13 +1677,12 @@ namespace m4dModels
             // Load the dance List
             LoadDances();
 
-            //Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Loading Songs");
-
-            int c = 0;
-            foreach (string line in lines)
+            var c = 0;
+            foreach (var line in lines)
             {
-                DateTime time = DateTime.Now;
-                Song song = new Song {Created = time, Modified = time};
+                AdminMonitor.UpdateTask("LoadSongs",c);
+                var time = DateTime.Now;
+                var song = new Song {Created = time, Modified = time};
 
                 song.Load(line, this);
                 _context.Songs.Add(song);
@@ -1726,6 +1725,8 @@ namespace m4dModels
             {
                 if (line.StartsWith("//"))
                     continue;
+
+                AdminMonitor.UpdateTask("UpdateSongs", c);
 
                 var sd = new SongDetails(line);
                 var song = FindSong(sd.SongId);
