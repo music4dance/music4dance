@@ -135,6 +135,7 @@
             @Html.ActionLink("Spotify Batch", "BatchMusicService", new {filter = ViewBag.SongFilter, type = "S", count = 10}, new {@class = "btn btn-success", role = "button"})
             @Html.ActionLink("Amazon Batch", "BatchMusicService", new {filter = ViewBag.SongFilter, type = "A", count = 10}, new {@class = "btn btn-success", role = "button"})
             @Html.ActionLink("Canonical Batch", "BatchMusicService", new {filter = ViewBag.SongFilter, type = "-", count = 10, options = "M"}, new {@class = "btn btn-success", role = "button"})
+            @Html.ActionLink("Backup List", "BackupTail", "Admin", new { filter = ViewBag.SongFilter, count=-1}, new { @class = "btn btn-default", role = "button" })
         </div>
     }
 }

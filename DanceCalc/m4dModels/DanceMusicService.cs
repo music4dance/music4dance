@@ -1974,16 +1974,17 @@ namespace m4dModels
 
             return tags;
         }
-        public IList<string> SerializeSongs(bool withHeader = true, bool withHistory = true, int max = -1)
+        public IList<string> SerializeSongs(bool withHeader = true, bool withHistory = true, int max = -1, SongFilter filter = null)
         {
-            List<string> songs = new List<string>();
+            var songs = new List<string>();
 
             if (withHeader)
             {
                 songs.Add(_songBreak);
             }
 
-            var songlist = Songs.OrderByDescending(t => t.Modified).ThenByDescending(t => t.SongId);
+            var songlist = (filter == null ? Songs : BuildSongList(filter)).OrderByDescending(t => t.Modified).ThenByDescending(t => t.SongId);
+
             if (max != -1)
             {
                 songlist = songlist.Take(max) as IOrderedQueryable<Song>;
