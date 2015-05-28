@@ -192,7 +192,7 @@ namespace m4d.Controllers
                     {
                         song.TagSummary.Summary = song.TagSummary.Summary.Replace(oldTagType.Key, newKey);
 
-                        foreach (var prop in song.SongProperties.Where(prop => prop.Name == SongBase.AddedTags || prop.Name == SongBase.RemovedTags).Where(prop => prop.Value.Contains(oldTagType.Key)))
+                        foreach (var prop in song.SongProperties.Where(prop => prop.Name.StartsWith(SongBase.AddedTags) || prop.Name.StartsWith(SongBase.RemovedTags)).Where(prop => prop.Value.Contains(oldTagType.Key)))
                         {
                             prop.Value = prop.Value.Replace(oldTagType.Key, newKey);
                         }
