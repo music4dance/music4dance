@@ -279,6 +279,7 @@
                         <td>
                             @if (scaledDances != null)
                             {
+                                var bstring = "<br />";
                                 foreach (var ditem in scaledDances)
                                 {
                                     // TODO: Dance name pulled from the danceMap doesn't require a db lookup - is there a way
@@ -296,13 +297,14 @@
                                             tags += "<span class=\"label label-" + dtitem.TagClass.ToLower() + "\">" + dtitem.TagValue + "</span> ";
                                         }
                                     }
-                                        @*<span class="rating @badge" style="margin-right: 5px">
-                                                <a href='#' data-container='body' data-toggle='popover' data-placement='left' data-title='@Html.ActionLink(name, name, "dances")'
-                                                   data-content='@Html.ActionLink(name + " dance page...", name, "dances")<br />@Html.ActionLink("List all " + name + " songs...", "search", "song", new {dances = ditem.DanceId}, null) @Html.Raw(tags)'>@Html.Raw(label)</a>
-                                            </span>*@
-                                        <a href='#!' class='rating @badge label label-music' role='button'
-                                           data-container='body' data-toggle='popover' data-placement='left' data-title='@Html.ActionLink(name, name, "dances")'
-                                           data-content='@Html.ActionLink(name + " dance page...", name, "dances")<br />@Html.ActionLink("List all " + name + " songs...", "search", "song", new {dances = ditem.DanceId}, null) @Html.Raw(tags)'>@Html.Raw(label)</a>
+                                    MvcHtmlString content = MvcHtmlString.Create(
+                                        Html.ActionLink(name + " dance page...", name, "dances").ToString() + bstring +
+                                        Html.ActionLink("List all " + name + " songs...", "search", "song", new { dances = ditem.DanceId }, null).ToString() + bstring +
+                                        tags);
+                                    
+                                    <a href='#!' class='rating @badge label label-music' role='button'
+                                       data-container='body' data-toggle='popover' data-placement='left' data-title='@Html.ActionLink(name, name, "dances")'
+                                       data-content='@content'>@Html.Raw(label)</a>
                                 }
                             }
                         </td>
@@ -317,7 +319,7 @@
                                     "&filter=" + WebUtility.UrlEncode(ViewBag.SongFilter.ToString());
 
                                 <div class="btn-group">
-                                    <a href="#" role="button" class="dropdown-toggle label label-@tc" data-toggle="dropdown" aria-expanded="false">@titem.TagValue</a>
+                                    <a href="#!" role="button" class="dropdown-toggle label label-@tc" data-toggle="dropdown" aria-expanded="false">@titem.TagValue</a>
                                     <ul class="dropdown-menu" role="menu">
                                         <li><a href="@string.Format(url,"%2B")">Include songs tagged as @titem.TagValue</a></li>
                                         <li><a href="@string.Format(url,"%2D")">Exclude songs tagged as @titem.TagValue</a></li>
