@@ -454,8 +454,11 @@
     <Content Include="Content\chosen-sprite%402x.png" />
     <Content Include="Content\chosen-sprite.png" />
     <Content Include="Content\chosen.css" />
+    <Content Include="Content\dance-50.png" />
+    <Content Include="Content\dance-tempo-50.png" />
     <Content Include="Content\favicon.png" />
     <Content Include="Content\fonts\glyphicons-halflings-regular.svg" />
+    <Content Include="Content\genre-50.png" />
     <Content Include="Content\gray-bootstrap-min.css" />
     <Content Include="Content\gray-bootstrap-theme.css" />
     <Content Include="Content\gray-bootstrap.css" />
@@ -482,11 +485,13 @@
     <Content Include="Content\spotify-logo.png" />
     <Content Include="Content\swing-bkg.png" />
     <Content Include="Content\swing.png" />
+    <Content Include="Content\tag-50.png" />
     <Content Include="Content\tango-bkg.png" />
     <Content Include="Content\tango.png" />
     <Content Include="Content\teal-bootstrap-min.css" />
     <Content Include="Content\teal-bootstrap-theme.css" />
     <Content Include="Content\teal-bootstrap.css" />
+    <Content Include="Content\tempo-50.png" />
     <Content Include="Content\thermometer-0.png" />
     <Content Include="Content\thermometer-1.png" />
     <Content Include="Content\thermometer-2.png" />
@@ -608,6 +613,7 @@
     <Content Include="Content\bootstrap\alerts.less" />
     <Content Include="Content\bootstrap-theme.css.map" />
     <Content Include="Content\bootstrap.css.map" />
+    <Content Include="App_Code\TagHelpers.cshtml" />
     <None Include="Properties\PublishProfiles\m4d.pubxml" />
     <Content Include="MvcDiagnostics.aspx" />
     <Content Include="Scripts\bootstrap.js" />
@@ -820,6 +826,7 @@
     <Content Include="Views\Home\Credits.cshtml" />
     <Content Include="Views\Home\Home.cshtml" />
     <Content Include="Views\Admin\AdminStatus.cshtml" />
+    <Content Include="Views\Shared\_TagCloud.cshtml" />
     <None Include="Web.m4d.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

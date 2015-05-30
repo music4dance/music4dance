@@ -5,7 +5,7 @@
 @{
     var tags = Model as List<TagCount> ?? Model.ToList();
     var max = tags.Where(t => t.TagClass != "Dance").Max(t => t.Count);
-    var inc = ((float)max) / 10;
+    var inc = ((float)max) / 100;
     var valid = new[] { "music", "other", "style", "tempo" };
     var filter = string.Empty;
     if (ViewData.ContainsKey("SongFilter"))
@@ -35,23 +35,11 @@
         }
 
         shown += 1;
-        var size = "cloud-" + (int)Math.Floor(titem.Count / inc);
-        var url = "/song/addtags?tags={0}" + WebUtility.UrlEncode(titem.TagValue) + ":" + WebUtility.UrlEncode(titem.TagClass) + filter;
-
-        <div class="btn-group @size">
-            <a href="#" role="button" class="dropdown-toggle label label-@tc" data-toggle="dropdown" aria-expanded="false">@titem.TagValue</a>
-            <ul class="dropdown-menu" role="menu">
-                <li>
-                    <a href="@string.Format(url, "%2B")">Include songs tagged as @titem.TagValue</a>
-                </li>
-                <li>
-                    <a href="@string.Format(url, "%2D")">Exclude songs tagged as @titem.TagValue</a>
-                </li>
-            </ul>
-        </div>
+        
+        @TagHelpers.TagButton(titem,ViewBag.SongFilter,inc)
     }
     @if (User.IsInRole("showDiagnostics"))
     {
-        <p>Max = @max Inc = @inc Shown = @shown Skipped = @skipped Empty = @empty</p>
+        <p>Max = @max Perc = @inc Shown = @shown Skipped = @skipped Empty = @empty</p>
     }
 </div>

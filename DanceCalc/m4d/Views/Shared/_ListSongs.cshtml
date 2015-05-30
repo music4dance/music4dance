@@ -15,6 +15,7 @@
     var showDate = songOrder.Id == "Modified" || songOrder.Id == "Created";
 }
 
+
 <table class="table table-striped table-songs">
     <thead>
         <tr>
@@ -291,15 +292,15 @@
                                     if (!string.IsNullOrWhiteSpace(ditem.TagSummary.Summary))
                                     {
                                         label = label + " <span class='glyphicon glyphicon-asterisk' aria-hidden='true'></span>";
-                                        tags += "<br/>";
+                                        tags += bstring;
                                         foreach (var dtitem in ditem.TagSummary.Tags)
                                         {
-                                            tags += "<span class=\"label label-" + dtitem.TagClass.ToLower() + "\">" + dtitem.TagValue + "</span> ";
+                                            tags += TagHelpers.TagButton(dtitem, ViewBag.SongFilter); //"<span class=\"label label-" + dtitem.TagClass.ToLower() + "\">" + dtitem.TagValue + "</span> ";
                                         }
                                     }
                                     MvcHtmlString content = MvcHtmlString.Create(
                                         Html.ActionLink(name + " dance page...", name, "dances").ToString() + bstring +
-                                        Html.ActionLink("List all " + name + " songs...", "search", "song", new { dances = ditem.DanceId }, null).ToString() + bstring +
+                                        Html.ActionLink("List all " + name + " songs...", "search", "song", new { dances = ditem.DanceId }, null).ToString() +
                                         tags);
                                     
                                     <a href='#!' class='rating @badge label label-music' role='button'
@@ -310,22 +311,9 @@
                         </td>
                     }
                     <td>
-                        @foreach (var titem in item.TagSummary.Tags)
+                        @foreach (var titem in item.TagSummary.Tags.Where(t => !string.Equals(t.TagClass, "dance", StringComparison.OrdinalIgnoreCase)))
                         {
-                            var tc = titem.TagClass.ToLower();
-                            if (tc != "dance")
-                            {
-                                var url = "/song/addtags?tags={0}" + WebUtility.UrlEncode(titem.TagValue) + ":" + WebUtility.UrlEncode(titem.TagClass) +
-                                    "&filter=" + WebUtility.UrlEncode(ViewBag.SongFilter.ToString());
-
-                                <div class="btn-group">
-                                    <a href="#!" role="button" class="dropdown-toggle label label-@tc" data-toggle="dropdown" aria-expanded="false">@titem.TagValue</a>
-                                    <ul class="dropdown-menu" role="menu">
-                                        <li><a href="@string.Format(url,"%2B")">Include songs tagged as @titem.TagValue</a></li>
-                                        <li><a href="@string.Format(url,"%2D")">Exclude songs tagged as @titem.TagValue</a></li>
-                                    </ul>
-                                </div>
-                            }
+                            @TagHelpers.TagButton(titem, ViewBag.SongFilter)
                         }
                     </td>
 

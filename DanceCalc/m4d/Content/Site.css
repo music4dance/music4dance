@@ -224,11 +224,11 @@ h1, h2, h3, h4, h5, h6 { font-family: "Merienda";font-weight: 700 }
 }
 
 .label-style {
-    background: #995600;
+    background: #E25828;
 }
 
 .label-other {
-    background: darkgray;
+    background: #995600;
 }
 
 .rating-voted {
@@ -342,12 +342,12 @@ h1, h2, h3, h4, h5, h6 { font-family: "Merienda";font-weight: 700 }
 .big-text { font-size: 150%}
 
 .cloud-0 {font-size: 100%}
-.cloud-1 {font-size: 200%}
-.cloud-2 {font-size: 220%}
-.cloud-3 {font-size: 240%}
-.cloud-4 {font-size: 260%}
-.cloud-5 {font-size: 280%}
-.cloud-6 {font-size: 300%}
-.cloud-7 {font-size: 310%}
-.cloud-8 {font-size: 320%}
-.cloud-9 {font-size: 330%}
+.cloud-1 {font-size: 120%}
+.cloud-2 {font-size: 140%}
+.cloud-3 {font-size: 160%}
+.cloud-4 {font-size: 180%}
+.cloud-5 {font-size: 200%}
+.cloud-6 {font-size: 220%}
+.cloud-7 {font-size: 240%}
+.cloud-8 {font-size: 260%}
+.cloud-9 {font-size: 280%}
