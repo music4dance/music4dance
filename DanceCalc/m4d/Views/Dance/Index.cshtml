@@ -4,7 +4,8 @@
     ViewBag.Title = "Dance Style Index";
     ViewBag.Description = "A list of partner dancing styles, including Ballroom, Salsa, Swing, and Tango.";
     ViewBag.ShowTempo = false;
-
+    string[] boxes = { "LTN", "SWG", "FXT", "TNG", "WLZ", "MSC" };
+}
 
 
 <ol class="breadcrumb">
@@ -12,9 +13,6 @@
     <li><a href="/dances">Dances</a></li>
 </ol>
 
-@{
-    string[] boxes = { "LTN", "SWG", "FXT", "TNG", "WLZ", "MSC" };
-}
 
 <div class="row">
     @foreach (var box in boxes)

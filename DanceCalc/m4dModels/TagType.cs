@@ -256,6 +256,24 @@ namespace m4dModels
 
             return sb.ToString();
         }
+
+        public static string ClassToName(string cls)
+        {
+            var name = "tag";
+            switch (cls.ToLower())
+            {
+                case "style":
+                    name = "dance";
+                    break;
+                case "tempo":
+                    name = "tempo";
+                    break;
+                case "music":
+                    name = "genre";
+                    break;
+            }
+            return name;
+        }
         #endregion
     }
 }

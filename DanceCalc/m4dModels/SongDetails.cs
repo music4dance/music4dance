@@ -237,19 +237,19 @@ namespace m4dModels
                             }
                             if (cell.Contains("HIGH ENERGY"))
                             {
-                                tags.Add("High Energy:Style");
+                                tags.Add("High Energy:Other");
                             }
                             if (cell.Contains("LOW ENERGY"))
                             {
-                                tags.Add("Low Energy:Style");
+                                tags.Add("Low Energy:Other");
                             }
                             if (cell.Contains("MEDIUM ENERGY"))
                             {
-                                tags.Add("Medium Energy:Style");
+                                tags.Add("Medium Energy:Other");
                             }
                             if (cell.Contains("INSTRUMENTAL"))
                             {
-                                tags.Add("Instrumental:Style");
+                                tags.Add("Instrumental:Other");
                             }
 
                             if (cell.Contains("TRADITIONAL") || cell.Contains("TYPICAL") || cell.Contains("OLD SOUNDING") || cell.Contains("CLASSIC"))

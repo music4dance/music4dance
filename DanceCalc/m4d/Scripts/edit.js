@@ -350,6 +350,7 @@ var Album = function (data) {
     }
 };
 
+var classMap = { 'style': 'dance', 'tempo': 'tempo', 'music': 'genre' };
 
 var Tag = function(value,parent) {
     var self = this;
@@ -372,6 +373,15 @@ var Tag = function(value,parent) {
 
     self.url = ko.pureComputed(function () {
         return '/song/tags?tags=' + encodeURIComponent(self.tag()) + ':' + encodeURIComponent(self.cat());
+    }, this);
+
+    self.isrc = ko.pureComputed(function () {
+        var cls = 'tag';
+        var key = self.cat().toLowerCase();
+        if (classMap.hasOwnProperty(key)) {
+            cls = classMap[key];
+        }
+        return '/content/' + cls + '-50.png';
     }, this);
 
     self.isUserTag = ko.pureComputed(function() {

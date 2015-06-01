@@ -12,20 +12,7 @@
     }
     var tc = tag.TagClass.ToLower();
     var url = "/song/addtags?tags={0}" + WebUtility.UrlEncode(tag.TagValue) + ":" + WebUtility.UrlEncode(tag.TagClass) + filterString;
-    var ic = "tag";
-    switch (tc)
-    {
-        case "style":
-            ic = "dance";
-            break;
-        case "tempo":
-            ic = "tempo";
-            break;
-        case "music":
-            ic = "genre";
-            break;
-    }
-    var img = "/Content/" + ic + "-50.png";
+    var img = "/Content/" + TagType.ClassToName(tc) + "-50.png";
 
     var size = string.Empty;
     if (cloudSize > 0)
