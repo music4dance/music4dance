@@ -1,31 +1,32 @@
-﻿@model PagedList.IPagedList<m4dModels.Song>
+﻿@model PagedList.IPagedList<Song>
 @using PagedList.Mvc;
 
 @*<link href="/Content/PagedList.css" rel="stylesheet" type="text/css" />*@
 
 @{
     ViewBag.Title = "Songs for Dancing";
-    bool isAdmin = User.IsInRole("dbAdmin");
+    ViewBag.Description = "music4dance catalog: " + ViewBag.SongFilter.Description;
+    var isAdmin = User.IsInRole("dbAdmin");
 
-    var dances = (IList<m4dModels.SongCounts>)ViewBag.Dances;
+    var dances = (IList<SongCounts>)ViewBag.Dances;
     IList<DanceLibrary.DanceObject> selected = ViewBag.SelectedDances;
 }
 
 @using (Html.BeginForm("Search", "Song", FormMethod.Get, new { id = "search" }))
 {
-    string danceID = "ALL";
-    string danceName = "All Dances";
+    var danceId = "ALL";
+    var danceName = "All Dances";
     // TODO: Is there a reasonable way to do multi-select of dances?  If so do we do it here or at least reflect that state here?
     if (selected != null && selected.Count > 0)
     {
-        danceID = selected[0].Id;
+        danceId = selected[0].Id;
         danceName = selected[0].Name;
     }
 
-    string checkX = string.Empty;
-    string checkA = string.Empty;
-    string checkI = string.Empty;
-    string checkS = string.Empty;
+    var checkX = string.Empty;
+    var checkA = string.Empty;
+    var checkI = string.Empty;
+    var checkS = string.Empty;
     string purchase = ViewBag.SongFilter.Purchase;
     if (!string.IsNullOrWhiteSpace(purchase))
     {
@@ -73,7 +74,7 @@
                         }
                     </ul>
                 </div>
-                <input type="hidden" name="dances" id="dances" value="@danceID" />
+                <input type="hidden" name="dances" id="dances" value="@danceId" />
                 <input type="hidden" name="filter" id="filter" value="@ViewBag.SongFilter.ToString()" />
                 @Html.TextBox("SearchString", ViewBag.SongFilter.SearchString as string, new { @class = "form-control search-text", placeholder = "Artist, Title, or Album" })
                 <span class="input-group-btn">
@@ -159,7 +160,7 @@ else
         {
             foreach (var dance in selected)
             {
-                @Html.ActionLink(dance.Name + " Page", dance.Name, "dances", new { filter = ViewBag.SongFilter, type = "I", count = 1 }, new { @class = "btn btn-default", role = "button" });
+                @Html.ActionLink(dance.Name + " Page", dance.Name, "dances", new { filter = ViewBag.SongFilter, type = "I", count = 1 }, new { @class = "btn btn-default", role = "button" })
             }
         }
     </div>
@@ -175,6 +176,11 @@ else
         <a href="http://open.spotify.com/tracks/@ViewBag.Spotify">Play on Spotify</a>
     </div>*@
 </div>
+}
+
+@if (!ViewBag.SongFilter.IsEmpty)
+{
+    <h3>@ViewBag.SongFilter.Description</h3>
 }
 
 @section Scripts

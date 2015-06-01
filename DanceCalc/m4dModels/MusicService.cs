@@ -247,6 +247,25 @@ namespace m4dModels
             return new List<string>(a).Concat(b).Distinct().OrderBy(x => x).ToArray();
         }
 
+        public static string FormatPurchaseFilter(string pf, string separator = ", ")
+        {
+            if (string.IsNullOrWhiteSpace(pf))
+                return null;
+
+            List<string> services = new List<string>();
+            foreach (var c in pf)
+            {
+                if (!s_cidMap.ContainsKey(c)) continue;
+
+                MusicService service = s_cidMap[c];
+                services.Add(service.Name);
+            }
+
+            if (services.Count == 0)
+                return null;
+
+            return string.Join(separator, services);
+        }
         #endregion
 
         #region Services
@@ -262,7 +281,7 @@ namespace m4dModels
 
         public static IEnumerable<MusicService> GetProfileServices()
         {
-            return s_idMap.Values.Where(s => s.ShowInProfile);            
+            return s_idMap.Values.Where(s => s.ShowInProfile);
         }
 
         public static MusicService GetService(ServiceType id)

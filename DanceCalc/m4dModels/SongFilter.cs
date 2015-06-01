@@ -28,7 +28,7 @@ namespace m4dModels
         static SongFilter()
         {
             var info = typeof(SongFilter).GetProperties(BindingFlags.Public | BindingFlags.Instance);
-            SPropertyInfo = info.Where(p => p.CanRead && p.CanWrite).ToList();            
+            s_propertyInfo = info.Where(p => p.CanRead && p.CanWrite).ToList();
         }
 
         public SongFilter()
@@ -62,7 +62,7 @@ namespace m4dModels
                     cells[i] = cells[i].Replace(SubChar, Separator);
                 }
 
-                var pi = SPropertyInfo[i];
+                var pi = s_propertyInfo[i];
 
                 object v = null;
                 if (!string.IsNullOrWhiteSpace(cells[i]))
@@ -116,7 +116,7 @@ namespace m4dModels
             var nullBuff = new StringBuilder();
 
             var sep = string.Empty;
-            foreach (var v in SPropertyInfo.Select(p => p.GetValue(this)))
+            foreach (var v in s_propertyInfo.Select(p => p.GetValue(this)))
             {
                 if (v == null)
                 {
@@ -136,11 +136,98 @@ namespace m4dModels
             return ret.ToString();
         }
 
+        public bool IsEmpty
+        {
+            get
+            {
+                for (var i = 0; i < s_propertyInfo.Count; i++)
+                {
+                    object o = s_propertyInfo[i].GetValue(this);
+                    if (o != null && !IsAltDefault(o,i)) {
+                        return false;
+                    }
+                }
+
+                return true;
+            }
+        }
+        public string Description
+        {
+            get
+            {
+                // All [dance] songs [including the text "<SearchString>] [Available on [XBox|Amazon|ITunes|Spotify] [Including tags TI] [Excluding tag TX] [Tempo Range] 
+                // TODO: Later? [Edited by User] [(Page n)]
+                // TOOD: If we pass in context, we can have user name + we can do better stuff with the tags...
+
+                string name = "All songs";
+                string separator = string.Empty;
+                var dd = DanceLibrary.Dances.Instance.DanceDictionary;
+                if (!string.IsNullOrWhiteSpace(Dances) && !string.Equals(Dances, "ALL", StringComparison.InvariantCultureIgnoreCase) && dd.ContainsKey(Dances))
+                {
+                    name = string.Format(string.Format("All {0} songs", DanceLibrary.Dances.Instance.DanceDictionary[Dances].Name));
+                }
+
+                StringBuilder sb = new StringBuilder(name);
+
+                if (!string.IsNullOrWhiteSpace(SearchString))
+                {
+                    sb.AppendFormat(" containing the text \"{0}\"",SearchString);
+                    separator = ",";
+                }
+
+                if (!string.IsNullOrWhiteSpace(Purchase))
+                {
+                    sb.AppendFormat("{0} available on {1}",separator,MusicService.FormatPurchaseFilter(Purchase, " or "));
+                    separator = ",";
+                }
+
+                var tags = new TagList(Tags);
+                var inc = tags.ExtractAdd();
+                var exc = tags.ExtractRemove();
+
+                if (inc.Tags.Count > 0)
+                {
+                    sb.AppendFormat("{0} including tag{1} {2}", separator, inc.Tags.Count > 1 ? "s" : "",string.Join(" and ",inc.Strip()));
+                    separator = ",";
+                }
+                if (exc.Tags.Count > 0)
+                {
+                    sb.AppendFormat("{0} excluding tag{1} {2}", separator, exc.Tags.Count > 1 ? "s" : "", string.Join(" or ", exc.Strip()));
+                    separator = ",";
+                }
+
+                if (TempoMin.HasValue && TempoMax.HasValue)
+                {
+                    sb.AppendFormat("{0} having tempo between {1} and {2} beats per measure", separator, TempoMin.Value, TempoMax.Value);
+                }
+                else if (TempoMin.HasValue)
+                {
+                    sb.AppendFormat("{0} having tempo greater than {1} beats per measure", separator, TempoMin.Value);
+                }
+                else if (TempoMax.HasValue)
+                {
+                    sb.AppendFormat("{0} having tempo less than {1} beats per measure", separator, TempoMax.Value);
+                }
+
+                return sb.ToString();
+            }
+        }
         private static string Format(string s)
         {
             return s.Contains("-") ? s.Replace("-", @"\-") : s;
         }
 
-        private static readonly List<PropertyInfo> SPropertyInfo;
+        private static bool IsAltDefault(object o, int index)
+        {
+            if (index > s_altDefaults.Length -1) return false;
+
+            var s = o as string;
+            Debug.Assert(s != null, "Need to support non-string defaults now???"); 
+
+            return string.Equals(s, s_altDefaults[index],StringComparison.InvariantCultureIgnoreCase);
+        }
+
+        private static readonly List<PropertyInfo> s_propertyInfo;
+        private static readonly string[] s_altDefaults = {"index","all"};
     }
 }

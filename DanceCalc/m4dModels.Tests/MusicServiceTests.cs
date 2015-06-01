@@ -38,6 +38,15 @@ namespace m4dModels.Tests
                 }
             }
         }
+
+        [TestMethod]
+        public void TestFilter()
+        {
+            Assert.IsNull(MusicService.FormatPurchaseFilter(""));
+            Assert.IsNull(MusicService.FormatPurchaseFilter("BZY"));
+            Assert.AreEqual("Amazon, Spotify",MusicService.FormatPurchaseFilter("AS"));
+            Assert.AreEqual("ITunes; XBox", MusicService.FormatPurchaseFilter("IX","; "));
+        }
     }
 }
 

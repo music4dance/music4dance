@@ -1,6 +1,6 @@
 ﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-
+using System.Diagnostics;
 using m4dModels;
 using System.Web;
 
@@ -26,6 +26,31 @@ namespace m4dModels.Tests
             TestFilters(true);
         }
 
+        [TestMethod]
+        public void FilterDescription()
+        {
+            var f1 = new SongFilter("Index-FXT-.-.-XI-.-100-120-1-+Instrumental:Music");
+            //Trace.WriteLine(f1.Description);
+            Assert.AreEqual(@"All Foxtrot songs available on XBox or ITunes, including tag Instrumental, having tempo between 100 and 120 beats per measure",f1.Description);
+            var f2 = new SongFilter("Index-ALL-Dances-Funk-.-.-.-.-.-+Rock & Roll:Music|\\-Jazz:Music|\\-Pop:Music");
+            //Trace.WriteLine(f2.Description);
+            Assert.AreEqual(@"All songs containing the text ""Funk"", including tag Rock & Roll, excluding tags Jazz or Pop", f2.Description);
+            var f3 = new SongFilter("Index-ALL-.-.--.-100-.-1");
+            //Trace.WriteLine(f3.Description);
+            Assert.AreEqual(@"All songs having tempo greater than 100 beats per measure", f3.Description);
+            var f4 = new SongFilter("Index-ALL-Title-.--.-.-150-1");
+            //Trace.WriteLine(f4.Description);
+            Assert.AreEqual(@"All songs having tempo less than 150 beats per measure", f4.Description);
+        }
+
+        [TestMethod]
+        private void TestEmpty()
+        {
+            Assert.IsTrue(new SongFilter("Index-ALL").IsEmpty);
+            Assert.IsTrue(new SongFilter("Index").IsEmpty);
+            Assert.IsFalse(new SongFilter("Index-ALL-Title-.--.-.-150-1").IsEmpty);
+        }
+
         private static void TestFilters(bool withEncoding)
         {
             const string trivial = "{0}Trivial filter fails round-trip: {1}";
@@ -40,6 +65,7 @@ namespace m4dModels.Tests
             s = RoundTrip(F2, F2, complex, 1, false);
             RoundTrip(s, F2, complex, 2, withEncoding);
         }
+
 
         private static string RoundTrip(string fi, string f0, string message, int n, bool withEncoding)
         {
