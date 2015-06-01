@@ -5,7 +5,7 @@
     ViewBag.NoSort = true;
     ViewBag.AlbumName = Model.Title;
     ViewBag.HideArtist = !string.IsNullOrWhiteSpace(@Model.Artist);
-    ViewBag.SongFilter = new m4dModels.SongFilter { SortOrder = "Album" };
+    ViewBag.SongFilter = new SongFilter { SortOrder = "Album" };
 }
 
 <h2>Album: @Model.Title</h2>

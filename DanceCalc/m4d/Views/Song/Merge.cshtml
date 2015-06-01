@@ -1,4 +1,4 @@
-﻿@model m4dModels.SongMerge
+﻿@model SongMerge
 
 @{
     ViewBag.Title = "Merge";
@@ -20,7 +20,7 @@
             i = i + 1;
         }
     </tr>
-    @foreach (m4dModels.SongPropertyMerge spm in Model.Properties)
+    @foreach (SongPropertyMerge spm in Model.Properties)
     {
         <tr>
             <th>@spm.Name</th>
@@ -92,7 +92,7 @@
     <tr><th>Dances</th><td>
         @{
             int idx = 0;
-            foreach (m4dModels.DanceMerge dm in Model.Ratings)
+            foreach (DanceMerge dm in Model.Ratings)
             {
                 string label = dm.DanceName + " (" + dm.Weight.ToString() + ")";
                 string name = "Dance-" + dm.DanceId + "-" + dm.Weight;

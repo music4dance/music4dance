@@ -1,7 +1,5 @@
-﻿@model m4dModels.Dance
+﻿@model Dance
 @using System.Runtime.Serialization.Json
-@using System.Web.Services.Discovery
-@using Microsoft.Ajax.Utilities
 
 @{
     ViewBag.Title = "Edit";
@@ -83,7 +81,7 @@
     else
     {
         MemoryStream stream = new MemoryStream();
-        DataContractJsonSerializer serializer = new DataContractJsonSerializer(typeof(IEnumerable<m4dModels.DanceLink>));
+        DataContractJsonSerializer serializer = new DataContractJsonSerializer(typeof(IEnumerable<DanceLink>));
         serializer.WriteObject(stream, Model.DanceLinks);
         linksString = System.Text.Encoding.UTF8.GetString(stream.ToArray());
     }

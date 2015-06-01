@@ -1,15 +1,11 @@
-﻿@model PagedList.IPagedList<m4dModels.SongLog>
+﻿@model PagedList.IPagedList<SongLog>
 @using PagedList.Mvc;
 
 @*<link href="/Content/PagedList.css" rel="stylesheet" type="text/css" />*@
 
 @{
     ViewBag.Title = "Log";
-    bool canEdit = false;
-    if (User.IsInRole("canEdit"))
-    {
-        canEdit = true;
-    }
+    bool canEdit = User.IsInRole("canEdit");
 }
 
 <h2>Index</h2>

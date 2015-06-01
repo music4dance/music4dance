@@ -1,4 +1,4 @@
-﻿@model IEnumerable<m4dModels.UndoResult>
+﻿@model IEnumerable<UndoResult>
 
 @{
     ViewBag.Title = "Undo Results";
@@ -36,19 +36,19 @@
     </tr>
 
     @foreach (var item in Model) {
-        string message = "Internal Error";
+        var message = "Internal Error";
     
-        int? LID = item.Result.GetIntData(m4dModels.Song.SuccessResult);
+        var LID = item.Result.GetIntData(SongBase.SuccessResult);
         if (LID.HasValue)
         {
             message = "Success";
         }
         else
         {
-            LID = item.Result.GetIntData(m4dModels.Song.FailResult);
+            LID = item.Result.GetIntData(SongBase.FailResult);
             if (LID.HasValue)
             {
-                message = "Failed: " + item.Result.GetData(m4dModels.Song.MessageData);
+                message = "Failed: " + item.Result.GetData(SongBase.MessageData);
             }
         }
         

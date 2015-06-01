@@ -1,4 +1,4 @@
-﻿@model m4dModels.ApplicationUser
+﻿@model ApplicationUser
 
 @{
     ViewBag.Title = "ChangeRoles";
@@ -23,15 +23,15 @@
             <div class="col-md-12">
                 <div class="checkbox">
                     <label>
-                        <input type="checkbox" name="roles" value="@m4dModels.DanceMusicService.EditRole" @editCheck>
+                        <input type="checkbox" name="roles" value="@DanceMusicService.EditRole" @editCheck>
                         Editor
                     </label>
                     <label>
-                        <input type="checkbox" name="roles" value="@m4dModels.DanceMusicService.DiagRole" @diagCheck>
+                        <input type="checkbox" name="roles" value="@DanceMusicService.DiagRole" @diagCheck>
                         Diagnostics
                     </label>
                     <label>
-                        <input type="checkbox" name="roles" value="@m4dModels.DanceMusicService.DbaRole" @dbaCheck>
+                        <input type="checkbox" name="roles" value="@DanceMusicService.DbaRole" @dbaCheck>
                         Database Administrator
                     </label>
                 </div>
