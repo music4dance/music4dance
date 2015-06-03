@@ -3,15 +3,23 @@
 @{
     ViewBag.Title = "Tempi";
     ViewBag.Description = "A web application that catalogs dance styles by the tempo to which they can be danced both socially and by the standards of several organizers of dance competitions.";
+
+    var paramDetailed = (ViewData.ContainsKey("paramDetailed")) ? ViewBag.paramDetailed : false;
+    var paramStyle = (ViewData.ContainsKey("paramStyle")) ? @ViewBag.paramStyle : 0;
+    var paramMeter = (ViewData.ContainsKey("paramMeter")) ? @ViewBag.paramMeter : 1;
+    var paramType = (ViewData.ContainsKey("paramType")) ? @ViewBag.paramType : 0;
+    var paramOrg = (ViewData.ContainsKey("paramOrg")) ? @ViewBag.paramOrg : 0;
+
+    var danceGroups = Model.AllDanceGroups.ToList();
 }
 
 <div class="row">
     <div class="dropdown col-md-3">
         <a id="filter-style" role="button" data-toggle="dropdown" data-target="#" href="/home/tempi" class="btn btn-info btn-block filter-button">
-            All Styles <span class="caret"></span>
+            @Model.Styles[paramStyle].Value <span class="caret"></span>
         </a>
         <ul class="dropdown-menu" role="menu" aria-labelledby="filter-style">
-            @foreach (var element in @Model.Styles)
+            @foreach (var element in Model.Styles)
             {
                 var id = "filter-style-" + element.Key;
                 <li><a id="@id" href="#">@element.Value</a></li>
@@ -20,7 +28,7 @@
     </div>
     <div class="dropdown col-md-3">
         <a id="filter-meter" role="button" data-toggle="dropdown" data-target="#" href="/home/tempi" class="btn btn-info btn-block filter-button">
-            All Meters <span class=" caret"></span>
+            @(paramMeter == 1 ? "All Meters" : paramMeter.ToString() + "/4 MPM") <span class=" caret"></span>
         </a>
         <ul class="dropdown-menu" role="menu" aria-labelledby="filter-meter">
             <li><a id="filter-meter-1" href="#">All Meters</a></li>
@@ -31,25 +39,25 @@
     </div>
     <div class="dropdown col-md-3">
         <a id="filter-type" role="button" data-toggle="dropdown" data-target="#" href="/home/tempi" class="btn btn-info btn-block filter-button">
-            All Types <span class=" caret"></span>
+            @(paramType==0?"All Types":danceGroups[paramType-1].Name) <span class=" caret"></span>
         </a>
         <ul class="dropdown-menu" role="menu" aria-labelledby="filter-type">
             <li><a id="filter-type-ALL" href="#">All Types</a></li>
-            @foreach (var item in Model.AllDanceGroups)
+            @foreach (var item in danceGroups)
             {
-                string id = "filter-type-" + item.Id;
+                var id = "filter-type-" + item.Id;
                 <li><a id="@id" href="#">@item.Name</a></li>
             }
         </ul>
     </div>
     <div class="dropdown col-md-3">
         <a id="filter-org" role="button" data-toggle="dropdown" data-target="#" href="/home/tempi" class="btn btn-info btn-block filter-button">
-            All Organizations <span class=" caret"></span>
+            @Model.Organizations[paramOrg].Title <span class=" caret"></span>
         </a>
         <ul class="dropdown-menu" role="menu" aria-labelledby="filter-meter">
-            @for (int i = 0; i < Model.Organizations.Length; i++)
+            @for (var i = 0; i < Model.Organizations.Length; i++)
             {
-                string id = "filter-org-" + i.ToString();
+                var id = "filter-org-" + i.ToString();
                 <li><a id="@id" href="#">@Model.Organizations[i].Title</a></li>
             }
         </ul>
@@ -120,13 +128,7 @@
             }
         ];
     </script>
-    @{
-        var paramDetailed = (ViewData.ContainsKey("paramDetailed")) ? ViewBag.paramDetailed :false;
-        var paramStyle =  (ViewData.ContainsKey("paramStyle")) ? @ViewBag.paramStyle : 0;
-        var paramMeter = (ViewData.ContainsKey("paramMeter")) ? @ViewBag.paramMeter : 1;
-        var paramType = (ViewData.ContainsKey("paramType")) ? @ViewBag.paramType : 0;
-        var paramOrg = (ViewData.ContainsKey("paramOrg")) ? @ViewBag.paramOrg : 0;
-        
+    @{        
         <script>
             var paramDetailed = @(paramDetailed ? "true" : "false");
             var paramStyle = @paramStyle;
