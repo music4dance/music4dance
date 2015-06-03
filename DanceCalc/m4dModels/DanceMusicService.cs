@@ -1386,11 +1386,14 @@ namespace m4dModels
         }
         public ICollection<TagType> GetTagRings(TagList tags)
         {
-            Dictionary<string, TagType> map = new Dictionary<string, TagType>();
+            var map = new Dictionary<string, TagType>();
 
             foreach (var tag in tags.Tags)
             {
-                TagType tt = TagTypes.Find(tag);
+                var tt = TagTypes.Find(tag);
+                if (tt == null)
+                    continue;
+
                 while (tt.Primary != null)
                 {
                     tt = tt.Primary;

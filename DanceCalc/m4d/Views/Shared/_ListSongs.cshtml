@@ -118,9 +118,11 @@
                         <br/><span>Included:</span>
                         foreach (var tag in inc.Tags)
                         {
+                            if (!tag.Contains(':')) {continue;}
+                            
                             var rg = tag.Split(':');
                             var url = "/song/removetags?tags=" + WebUtility.UrlEncode(tag) + "&filter=" + WebUtility.UrlEncode(ViewBag.SongFilter.ToString());
-                            var img = "/Content/" + TagType.ClassToName(rg[1]) + "-50.png";
+                            var img = "/Content/" + TagType.ClassToName(rg.Length > 0 ? rg[1] : "tag") + "-50.png";
                             <span class="label label-@rg[1].ToLower()" style="margin-right: 5px"><a role="button" class="tag-text" href="@url"><img src="@img" height="12" width="12" />@rg[0] <span class="glyphicon glyphicon-remove-sign"></span></a></span>
                         }
 
