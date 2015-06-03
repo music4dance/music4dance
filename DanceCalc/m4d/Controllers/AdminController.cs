@@ -5,7 +5,6 @@ using System.Data.Entity;
 using System.Data.Entity.Infrastructure;
 using System.Data.Entity.Migrations;
 using System.Diagnostics;
-using System.Diagnostics.PerformanceData;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -282,41 +281,59 @@ namespace m4d.Controllers
         [Authorize(Roles = "dbAdmin")]
         public ActionResult UpdateTagSummaries()
         {
-            ViewBag.Name = "UpdateTagSummaries";
-
-            Context.TrackChanges(false);
-
-            var counts = Database.TagTypes.ToDictionary(tt => tt.Key, tt => tt.Count);
-
-            // Do the actual update
-            var sumChanged = Enumerable.Sum(Database.Songs, song => song.UpdateTagSummary(Database) ? 1 : 0) + 
-                Enumerable.Sum(Database.DanceRatings, dr => dr.UpdateTagSummary(Database) ? 1 : 0);
-
-            // Validate that we didn't change counts...
-            var typeChanged = 0;
-            foreach (var tt in Database.TagTypes)
+            try
             {
-                int c;
-                if (counts.TryGetValue(tt.Key, out c) && c == tt.Count) continue;
+                StartAdminTask("UpdateTagSummaries");
+                Context.TrackChanges(false);
 
-                typeChanged += 1;
-                break;
-            }
+                var counts = Database.TagTypes.ToDictionary(tt => tt.Key, tt => tt.Count);
 
-            if (typeChanged > 0)
-            {
-                ViewBag.Success = false;
-                ViewBag.Message =  string.Format("Changed underlying count unexpectedly ({0})",typeChanged);
-            }
-            else
-            {
+                // Do the actual update
+                var sumChanged = 0;
+                var i = 0;
+                // ReSharper disable once LoopCanBePartlyConvertedToQuery
+                foreach (var s in Database.Songs)
+                {
+                    AdminMonitor.UpdateTask("Update Song Tags", i++);
+                    if (!s.UpdateTagSummary(Database)) continue;
+
+                    sumChanged += 1;
+                }
+
+                i = 0;
+                // ReSharper disable once LoopCanBePartlyConvertedToQuery
+                foreach (var dr in Database.DanceRatings)
+                {
+                    AdminMonitor.UpdateTask("Update Dance Rating Tags", i++);
+                    if (!dr.UpdateTagSummary(Database)) continue;
+
+                    sumChanged += 1;
+                }
+
+                // Validate that we didn't change counts...
+                AdminMonitor.UpdateTask("Validate Counts");
+                var typeChanged = 0;
+                foreach (var tt in Database.TagTypes)
+                {
+                    int c;
+                    if (counts.TryGetValue(tt.Key, out c) && c == tt.Count) continue;
+
+                    typeChanged += 1;
+                    break;
+                }
+
+                if (typeChanged > 0)
+                {
+                    return CompleteAdminTask(false,string.Format("Changed underlying count unexpectedly ({0})", typeChanged));
+                }
+
                 Context.TrackChanges(true);
-
-                ViewBag.Success = true;
-                ViewBag.Message = string.Format(" Songs/DanceRatings were fixed as tags({0})", sumChanged);
-
+                return CompleteAdminTask(true, string.Format(" Songs/DanceRatings were fixed as tags({0})", sumChanged));
             }
-            return View("Results");
+            catch (Exception e)
+            {
+                return FailAdminTask("Tag summaries failed to rebuild", e);
+            }
         }
 
         //
@@ -761,34 +778,21 @@ namespace m4d.Controllers
         [Authorize(Roles = "dbAdmin")]
         public ActionResult RebuildDanceInfo()
         {
-            if (!AdminMonitor.StartTask("RebuildDanceInfo"))
-            {
-                ViewBag.Success = false;
-                ViewBag.Message = "There is another admin task in process";
-
-                return View("Results");                
-            }
-
             try
             {
+                StartAdminTask("RebuildDanceInfo");
+
                 InternalRebuildDances(true);
 
                 InternalRebuildDanceTags();
                 SongCounts.ClearCache();
 
-                AdminMonitor.CompleteTask(true, "Finished rebuilding Dance Info");
-                ViewBag.Success = true;
-                ViewBag.Message = "Dance info was successfully rebuilt";
-
-                return View("Results");
+                return CompleteAdminTask(true, "Finished rebuilding Dance Info");
             }
             catch (Exception e)
             {
-                AdminMonitor.CompleteTask(false, "Dance info failed to rebuild", e);
-                ViewBag.Success = false;
-                ViewBag.Message = "Dance info failed to rebuild";
-                return View("Results");
-            }            
+                return FailAdminTask("Dance info failed to rebuild", e);
+            }
         }
 
         //
@@ -796,30 +800,17 @@ namespace m4d.Controllers
         [Authorize(Roles = "dbAdmin")]
         public ActionResult RebuildDances()
         {
-            if (!AdminMonitor.StartTask("RebuildDances"))
-            {
-                ViewBag.Success = false;
-                ViewBag.Message = "There is another admin task in process";
-
-                return View("Results");
-            }
-
             try
             {
+                StartAdminTask("RebuildDances");
+
                 InternalRebuildDances(false);
-                AdminMonitor.CompleteTask(true, "Finished rebuilding Dances");
 
-                ViewBag.Success = true;
-                ViewBag.Message = "Dances were successfully updated";
-
-                return View("Results");
+                return CompleteAdminTask(true, "Finished rebuilding Dances");
             }
             catch (Exception e)
             {
-                AdminMonitor.CompleteTask(false, "Dances failed to rebuild", e);
-                ViewBag.Success = false;
-                ViewBag.Message = "Dances failed to rebuild";
-                return View("Results");
+                return FailAdminTask("Dances failed to rebuild", e);
             }
         }
 
@@ -828,30 +819,17 @@ namespace m4d.Controllers
         [Authorize(Roles = "dbAdmin")]
         public ActionResult RebuildDanceTags()
         {
-            if (!AdminMonitor.StartTask("RebuildDanceTags"))
-            {
-                ViewBag.Success = false;
-                ViewBag.Message = "There is another admin task in process";
-
-                return View("Results");
-            }
-
             try
             {
+                StartAdminTask("RebuildDanceTags");
+
                 InternalRebuildDanceTags();
-                AdminMonitor.CompleteTask(true, "Finished rebuilding Dance Tags");
 
-                ViewBag.Success = true;
-                ViewBag.Message = "Dance tags were successfully updated";
-
-                return View("Results");
+                return CompleteAdminTask(true,"Finished rebuilding Dance Tags");
             }
             catch (Exception e)
             {
-                AdminMonitor.CompleteTask(false, "Dances Tags failed to rebuild", e);
-                ViewBag.Success = false;
-                ViewBag.Message = "Dances Tags failed to rebuild";
-                return View("Results");
+                return FailAdminTask("Dances Tags failed to rebuild", e);
             }
         }
 
@@ -862,20 +840,13 @@ namespace m4d.Controllers
         [Authorize(Roles = "dbAdmin")]
         public ActionResult ReloadDatabase(string reloadDatabase, bool? batch)
         {
-            ViewBag.Name = "Restore Database";
-
-            if (!AdminMonitor.StartTask("ReloadDatabase", "UploadFile"))
-            {
-                ViewBag.Success = false;
-                ViewBag.Message = "There is another admin task in process";
-                return View("Results");
-            }
-
             try
             {
+                StartAdminTask("ReloadDatabase");
+                AdminMonitor.UpdateTask("UploadFile");
+
                 var lines = UploadFile();
 
-                Trace.WriteLineIf(TraceLevels.General.TraceInfo, "File Uploaded Successfully");
                 AdminMonitor.UpdateTask("Compute Type");
 
                 if (lines.Count > 0)
@@ -938,24 +909,15 @@ namespace m4d.Controllers
 
                     SongCounts.ClearCache();
 
-                    AdminMonitor.CompleteTask(true, "Database restored: " + reloadDatabase);
-                    ViewBag.Success = true;
-                    ViewBag.Message = "Database was successfully restored and reloaded (" + reloadDatabase + ")";
+                    return CompleteAdminTask(true, "Database restored: " + reloadDatabase);
                 }
-                else
-                {
-                    AdminMonitor.CompleteTask(false, "Empty File or Bad File Format");
-                    ViewBag.Success = false;
-                    ViewBag.Message = "Empty File or Bad File Format";
-                }
+
+                return CompleteAdminTask(false, "Empty File or Bad File Format" + reloadDatabase);
             }
             catch (Exception e)
             {
-                AdminMonitor.CompleteTask(false, string.Format("{0}: {1}",reloadDatabase,e.Message), e);
+                return FailAdminTask(string.Format("{0}: {1}", reloadDatabase, e.Message), e);
             }
-
-
-            return View("Results");
         }
 
 
@@ -1739,6 +1701,39 @@ namespace m4d.Controllers
         //  more sophisticated
         static readonly IList<IList<LocalMerger>> s_reviews = new List<IList<LocalMerger>>();
 
+        #endregion
+
+        #region AdminTaskHelpers
+        void StartAdminTask(string name)
+        {
+            ViewBag.Name = name;
+            if (!AdminMonitor.StartTask(name))
+            {
+                throw new AdminTaskException(name + "failed to start because there is already an admin task running");
+            }
+        }
+
+        private ActionResult CompleteAdminTask(bool completed, string message)
+        {
+            ViewBag.Success = completed;
+            ViewBag.Message = message;
+            AdminMonitor.CompleteTask(completed, message);
+
+            return View("Results");
+        }
+
+        private ActionResult FailAdminTask(string message, Exception e)
+        {
+            ViewBag.Success = false;
+            ViewBag.Message = message;
+
+            if (!(e is AdminTaskException))
+            {
+                AdminMonitor.CompleteTask(false, message, e);
+            }
+
+            return View("Results");
+        }
         #endregion
     }
 }
