@@ -18,26 +18,26 @@ var DanceType = function (data, parent) {
     this.SeoName = this.Name.toLowerCase().replace(' ', '-');
 
     this.tempoMPM = ko.computed(function () {
-        return self.tempoHelper(parent.styleFilter(), parent.orgFilter(), 1);
+        return self.tempoHelper(parent.styleFilter(), parent.orgFilter(), true);
     }, this);
 
     this.tempoBPM = ko.computed(function () {
-        return self.tempoHelper(parent.styleFilter(), parent.orgFilter(), this.Meter.Numerator);
+        return self.tempoHelper(parent.styleFilter(), parent.orgFilter());
     }, this);
 
     this.tempoDS = ko.computed(function () {
-        return self.tempoHelper(parent.styleFilter(), 1, 1);
+        return self.tempoHelper(parent.styleFilter(), 1);
     }, this);
 
     this.tempoNDCA = ko.computed(function () {
-        var ret = self.tempoHelper(parent.styleFilter(), 3, 1);
-        if (!ret) ret = self.tempoHelper(parent.styleFilter(), 5, 1);
+        var ret = self.tempoHelper(parent.styleFilter(), 3);
+        if (!ret) ret = self.tempoHelper(parent.styleFilter(), 5);
         return ret;
     }, this);
 
     this.tempoNDCABeginner = ko.computed(function () {
-        var ret = self.tempoHelper(parent.styleFilter(), 4, 1);
-        if (!ret) ret = self.tempoHelper(parent.styleFilter(), 6, 1);
+        var ret = self.tempoHelper(parent.styleFilter(), 4);
+        if (!ret) ret = self.tempoHelper(parent.styleFilter(), 6);
         return ret;
     }, this);
 
@@ -93,7 +93,7 @@ var DanceType = function (data, parent) {
         var oi = parent.orgFilter();
         if (oi !== 0)
         {
-            if (!this.Organizations || this.Organizations.indexOf(danceOrgs[oi].name) == -1)
+            if (!this.Organizations || this.Organizations.indexOf(window.danceOrgs[oi].name) === -1)
             {
                 o = false;
             }
@@ -102,13 +102,14 @@ var DanceType = function (data, parent) {
         return m && t && s && o;
     };
 
-    this.formatRange = function(min, max) {
-        if (min === max) {
-            return min;
+    // Formats a tempo range with a dance link
+    this.formatRange = function (min, max, asMpm, numerator, dance) {
+        var r = min * (asMpm ? 1 : numerator);
+        if (min !== max) {
+            r += '-' + max * (asMpm ? 1 : numerator);
         }
-        else {
-            return min + '-' + max;
-        }
+
+        return '<a href="/song/?&filter=Index-' + dance + '-Tempo-.-.-.-' + min*numerator + '-' + max*numerator + '">' + r + '</a>';
     }
 
     this.computeTempo = function (si,oi) {
@@ -157,21 +158,21 @@ var DanceType = function (data, parent) {
         return ret;
     };
 
-    this.tempoHelper = function (si, oi, numerator) {
+    this.tempoHelper = function (si, oi, asMpm) {
         var ret = '';
         if (parent.showDetails()) {
             var sep = '';
             var tempi = this.computeTempi(si, oi);
             for (var i = 0; i < tempi.length; i++) {
                 ret += sep;
-                ret += this.formatRange(tempi[i].Min * numerator, tempi[i].Max * numerator);
+                ret += this.formatRange(tempi[i].Min, tempi[i].Max, asMpm, self.Meter.Numerator, self.Id);
                 sep = '<br>';
             }
         }
         else {
             var tempo = this.computeTempo(si, oi);
             if (tempo) {
-                ret = this.formatRange(tempo.Min * numerator, tempo.Max * numerator);
+                ret = this.formatRange(tempo.Min, tempo.Max, asMpm, self.Meter.Numerator, self.Id);
             }
             
         }
