@@ -1,67 +1,68 @@
 ﻿// DanceHeader
-var DanceHeader = function(title,key,detail,parent)
-{
+var DanceHeader = function(title,key,detail,parent) {
+    var self = this;
     this.title = title;
     this.sortKey = key;
     this.detailed = detail;
 
     this.show = ko.computed(function () {
-        return !this.detailed || this.detailed();
+        return !self.detailed || self.detailed();
     }, this);
 }
 
 // DanceType
-var DanceType = function (data,parent) {
+var DanceType = function (data, parent) {
+    var self = this;
     $.extend(true, this, data);
 
     this.SeoName = this.Name.toLowerCase().replace(' ', '-');
 
     this.tempoMPM = ko.computed(function () {
-        return this.tempoHelper(parent.styleFilter(), parent.orgFilter(), 1);
+        return self.tempoHelper(parent.styleFilter(), parent.orgFilter(), 1);
     }, this);
 
     this.tempoBPM = ko.computed(function () {
-        return this.tempoHelper(parent.styleFilter(), parent.orgFilter(), this.Meter.Numerator);
+        return self.tempoHelper(parent.styleFilter(), parent.orgFilter(), this.Meter.Numerator);
     }, this);
 
     this.tempoDS = ko.computed(function () {
-        return this.tempoHelper(parent.styleFilter(), 1, 1);
+        return self.tempoHelper(parent.styleFilter(), 1, 1);
     }, this);
 
     this.tempoNDCA = ko.computed(function () {
-        var ret = this.tempoHelper(parent.styleFilter(), 3, 1);
-        if (!ret) ret = this.tempoHelper(parent.styleFilter(), 5, 1);
+        var ret = self.tempoHelper(parent.styleFilter(), 3, 1);
+        if (!ret) ret = self.tempoHelper(parent.styleFilter(), 5, 1);
         return ret;
     }, this);
 
     this.tempoNDCABeginner = ko.computed(function () {
-        var ret = this.tempoHelper(parent.styleFilter(), 4, 1);
-        if (!ret) ret = this.tempoHelper(parent.styleFilter(), 6, 1);
+        var ret = self.tempoHelper(parent.styleFilter(), 4, 1);
+        if (!ret) ret = self.tempoHelper(parent.styleFilter(), 6, 1);
         return ret;
     }, this);
 
     this.computedTempi = ko.computed(function () {
-        return this.computeTempi(parent.styleFilter(), 0);
+        return self.computeTempi(parent.styleFilter(), 0);
     }, this);
 
     this.styles = ko.computed(function () {
-        var ret = "";
+        var ret = '';
         if (this.Instances)
         {
-            var sep = "";
+            var sep = '';
             for (var i = 0 ; i < this.Instances.length; i++) {
                 var style = this.Instances[i].Style;
-                var ps = danceStyles[parent.styleFilter()].name;
+                var ps = window.danceStyles[parent.styleFilter()].name;
 
                 if (parent.styleFilter() === 0 || style === ps) {
                     ret += sep;
                     ret += style;
 
                     if (parent.showDetails()) {
-                        sep = "<br>";
+                        sep = '<br>';
                     }
                     else {
-                        sep = ", ";
+                        sep = ', ';
                     }
                 }
             }
@@ -72,7 +73,7 @@ var DanceType = function (data,parent) {
     this.checkFilter = function () {
         var m = parent.meterFilter() === 1 || parent.meterFilter() === this.Meter.Numerator;
         var ti = parent.typeFilter(); 
-        var t = ti === 0 || danceTypes[ti].name === this.GroupName;
+        var t = ti === 0 || window.danceTypes[ti].name === this.GroupName;
         var si = parent.styleFilter();
         var s = true;
         if (si !== 0)
@@ -80,7 +81,7 @@ var DanceType = function (data,parent) {
             s = false;
             for (var i = 0; i < this.Instances.length; i++)
             {
-                if (danceStyles[si].name === this.Instances[i].Style)
+                if (window.danceStyles[si].name === this.Instances[i].Style)
                 {
                     s = true;
                     break;
@@ -102,7 +103,7 @@ var DanceType = function (data,parent) {
     };
 
     this.formatRange = function(min, max) {
-        if (min == max) {
+        if (min === max) {
             return min;
         }
         else {
@@ -116,11 +117,11 @@ var DanceType = function (data,parent) {
         if (si || oi) {
             range = null;
             for (var i = 0; i < this.Instances.length; i++) {
-                if (!si || (danceStyles[si].name === this.Instances[i].Style)) {
+                if (!si || (window.danceStyles[si].name === this.Instances[i].Style)) {
                     var instance = this.Instances[i];
                     var match = false;
                     if (oi && instance.Exceptions && instance.Exceptions.length > 0) {
-                        var org = danceOrgs[oi];
+                        var org = window.danceOrgs[oi];
                         for (var j = 0; j < instance.Exceptions.length; j++) {
                             var ex = instance.Exceptions[j];
                             if (this.matchException(ex, org)) {
@@ -129,7 +130,7 @@ var DanceType = function (data,parent) {
                             }
                         }
                     }
-                    if (!match && (oi ==0 || this.Instances[i].Style !== 'Social')) {
+                    if (!match && (oi === 0 || this.Instances[i].Style !== 'Social')) {
                         range = this.unionRange(range, instance.TempoRange);
                     }
                 }
@@ -140,15 +141,16 @@ var DanceType = function (data,parent) {
 
     this.computeTempi = function (si, oi) {
         var ret = [];
-        if (si == 0) {
+        var tempo;
+        if (si === 0) {
             for (var i = 0 ; i < this.Instances.length; i++) {
                 var siT = this.findStyleIndex(this.Instances[i].Style);
-                var tempo = this.computeTempo(siT, oi);
+                tempo = this.computeTempo(siT, oi);
                 if (tempo) ret.push(tempo);
             }
         }
         else {
-            var tempo = this.computeTempo(si, oi);
+            tempo = this.computeTempo(si, oi);
             if (tempo) ret.push(tempo);
         }
 
@@ -156,14 +158,14 @@ var DanceType = function (data,parent) {
     };
 
     this.tempoHelper = function (si, oi, numerator) {
-        var ret = "";
+        var ret = '';
         if (parent.showDetails()) {
-            var sep = "";
-            var Tempi = this.computeTempi(si, oi);
-            for (var i = 0; i < Tempi.length; i++) {
+            var sep = '';
+            var tempi = this.computeTempi(si, oi);
+            for (var i = 0; i < tempi.length; i++) {
                 ret += sep;
-                ret += this.formatRange(Tempi[i].Min * numerator, Tempi[i].Max * numerator);
-                sep = "<br>";
+                ret += this.formatRange(tempi[i].Min * numerator, tempi[i].Max * numerator);
+                sep = '<br>';
             }
         }
         else {
@@ -177,8 +179,8 @@ var DanceType = function (data,parent) {
     }
 
     this.findStyleIndex = function (style) {
-        for (var i = 0; i < danceStyles.length; i++) {
-            if (danceStyles[i].name === style)
+        for (var i = 0; i < window.danceStyles.length; i++) {
+            if (window.danceStyles[i].name === style)
                 return i;
         }
         return -1;
@@ -188,12 +190,12 @@ var DanceType = function (data,parent) {
         if (ex.Organization !== org.name) {
             return false;
         }
-        else if (ex.Level === "All" && ex.Competitor === "All") {
+        else if (ex.Level === 'All' && ex.Competitor === "All") {
             return true;
         }
         else {
-            return (org.category === "Level" && ex.Level === org.qualifier) ||
-             (org.category === "Competitor" && ex.Competitor === org.qualifier);
+            return (org.category === 'Level' && ex.Level === org.qualifier) ||
+             (org.category === 'Competitor' && ex.Competitor === org.qualifier);
         }
     }
 
@@ -218,18 +220,15 @@ var rootMapping = {
         var self = ko.mapping.fromJS(options.data,danceMapping);
 
         self.showDanceSport = ko.computed(function () {
-            ret = self.showDetails() && (self.orgFilter() == 0);
-            return ret;
+            return self.showDetails() && (self.orgFilter() === 0);
         }, this);
 
         self.showNDCA_A = ko.computed(function () {
-            ret = self.showDetails() && (self.orgFilter() === 0 || self.orgFilter() === 2);
-            return ret;
+            return self.showDetails() && (self.orgFilter() === 0 || self.orgFilter() === 2);
         }, this);
 
         self.showNDCA_B = ko.computed(function () {
-            ret = self.showDetails() && (self.orgFilter() === 0 || self.orgFilter() === 2);
-            return ret;
+            return self.showDetails() && (self.orgFilter() === 0 || self.orgFilter() === 2);
         }, this);
 
         self.headers = ko.observableArray([
@@ -244,19 +243,19 @@ var rootMapping = {
             new DanceHeader('Style(s)', 'Style', null, self)
         ]);
 
-        self.styleFilter = ko.observable(paramStyle);
-        self.typeFilter = ko.observable(paramType);
-        self.meterFilter = ko.observable(paramMeter);
-        self.orgFilter = ko.observable(paramOrg);
+        self.styleFilter = ko.observable(window.paramStyle);
+        self.typeFilter = ko.observable(window.paramType);
+        self.meterFilter = ko.observable(window.paramMeter);
+        self.orgFilter = ko.observable(window.paramOrg);
 
-        self.showDetails = ko.observable(paramDetailed);
+        self.showDetails = ko.observable(window.paramDetailed);
 
         return self;
     }
 }
 
 function sortString(a, b) {
-    return (a < b ? -1 : a > b ? 1 : a == b ? 0 : 0);
+    return (a < b ? -1 : (a > b ? 1 : 0));
 }
 
 function setupDances(data) {
@@ -314,49 +313,47 @@ function setupDances(data) {
         var prop = header.sortKey;
     }
 
-    viewModel.filteredDances = ko.computed(function () {
-        if (viewModel.meterFilter() === 1 && viewModel.typeFilter() === 0 && viewModel.styleFilter() === 0 && viewModel.orgFilter() === 0)
-        {
+    viewModel.filteredDances = ko.computed(function() {
+        if (viewModel.meterFilter() === 1 && viewModel.typeFilter() === 0 && viewModel.styleFilter() === 0 && viewModel.orgFilter() === 0) {
             return viewModel.dances();
-        }
-        else
-        {
-            return ko.utils.arrayFilter(viewModel.dances(), function (item) {
+        } else {
+            return ko.utils.arrayFilter(viewModel.dances(), function(item) {
                 return item.checkFilter();
             });
         }
-    })
+    });
 
     viewModel.handleButton = function (evt, filter) {
         evt.preventDefault();
-        var id = evt.target.id;
-        var idx = id.lastIndexOf("-");
-        var base = id.substring(0, idx);
-        $("#" + base).html(evt.target.innerText + " <span class='caret'></span>");
+        var idT = evt.target.id;
+        var idx = idT.lastIndexOf('-');
+        var base = idT.substring(0, idx);
+        $('#' + base).html(evt.target.innerText + ' <span class=\'caret\'></span>');
         filter(evt.data);
     }
-
-    for (var i = 1; i <= 4; i++) {
-        var id = "#filter-meter-" + i;
+    var i;
+    var id;
+    for (i = 1; i <= 4; i++) {
+        id = '#filter-meter-' + i;
         $(id).click(i, function (evt) { viewModel.handleButton(evt, viewModel.meterFilter) });
     }
 
-    for (var i = 0; i < danceTypes.length; i++) {
-        var id = "#filter-type-" + danceTypes[i].id;
+    for (i = 0; i < window.danceTypes.length; i++) {
+        id = '#filter-type-' + window.danceTypes[i].id;
         $(id).click(i, function (evt) { viewModel.handleButton(evt, viewModel.typeFilter) });
     }
 
-    for (var i = 0; i < danceStyles.length; i++) {
-        var id = "#filter-style-" + danceStyles[i].id;
+    for (i = 0; i < window.danceStyles.length; i++) {
+        id = '#filter-style-' + window.danceStyles[i].id;
         $(id).click(i, function (evt) { viewModel.handleButton(evt, viewModel.styleFilter) });
     }
 
-    for (var i = 0; i < danceOrgs.length; i++) {
-        var id = "#filter-org-" + i;
+    for (i = 0; i < window.danceOrgs.length; i++) {
+        id = '#filter-org-' + i;
         $(id).click(i, function (evt) { viewModel.handleButton(evt, viewModel.orgFilter) });
     }
 
-    $("#reset").click(function (evt) {
+    $('#reset').click(function (evt) {
         evt.preventDefault();
         viewModel.styleFilter(0);
         viewModel.typeFilter(0);
