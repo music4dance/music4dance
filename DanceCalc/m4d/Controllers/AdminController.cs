@@ -888,6 +888,10 @@ namespace m4d.Controllers
                         {
                             reloadDatabase = "dances";
                         }
+                        else if (DanceMusicService.IsTagBreak(lines[0]))
+                        {
+                            reloadDatabase = "tags";
+                        }
                     }
 
                     if (string.Equals(reloadDatabase, "songs", StringComparison.InvariantCultureIgnoreCase))
@@ -901,6 +905,10 @@ namespace m4d.Controllers
                     else if (string.Equals(reloadDatabase, "dances", StringComparison.InvariantCultureIgnoreCase))
                     {
                         Database.LoadDances(lines);
+                    }
+                    else if (string.Equals(reloadDatabase, "tags", StringComparison.InvariantCultureIgnoreCase))
+                    {
+                        Database.LoadTags(lines);
                     }
                     else if (string.Equals(reloadDatabase, "loadSongs", StringComparison.InvariantCultureIgnoreCase))
                     {
