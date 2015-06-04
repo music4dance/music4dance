@@ -70,22 +70,6 @@ table.table-songs > tbody > tr > td
     font-size: 1.2em;
 }
 
-/*.calculator
-{
-    display: inline;
-    font-size: large;
-    font-weight:bold;
-    padding: 3px 6px;
-    color: #5bc0de;
-    background-color: #fff;
-    border-color: #46b8da;
-    line-height: 1.42857143;
-    text-align: center;
-    white-space: nowrap;
-    vertical-align: middle;
-    border: 4px solid;
-    border-radius: 3px;
-
 /*36.160.146*/
 .music
 {
