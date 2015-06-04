@@ -84,7 +84,7 @@ namespace m4dModels
                 if (!d.TryGetValue(p.Key, out tc))
                 {
                     tc = new TagCount(p.Key,0);
-                    d[tt.Key] = tc;
+                    d[p.Key] = tc;
                 }
                 tc.Count += tt.Count;
             }
