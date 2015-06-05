@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using Microsoft.CSharp.RuntimeBinder;
@@ -23,6 +24,31 @@ namespace m4dModels
             get { return true; }
         }
 
+        public override string BuildLookupRequest(string url)
+        {
+            if (url.Contains("/album/"))
+            {
+                var id = url.Substring(url.LastIndexOf('/'));
+
+                return string.Format("https://api.spotify.com/v1/albums/{0}", id);
+            }
+
+            if (url.Contains("/playlist/"))
+            {
+                var rg = url.Split(new[] {'/'},StringSplitOptions.RemoveEmptyEntries);
+
+                if (rg.Length != 6)
+                    return null;
+
+                var user = rg[3];
+                var id = rg[5];
+
+                return string.Format("https://api.spotify.com/v1/users/{0}/playlist/{1}", user, id);
+            }
+
+            return null;
+        }
+
         public override IList<ServiceTrack> ParseSearchResults(dynamic results)
         {
             var ret = new List<ServiceTrack>();
@@ -33,6 +59,22 @@ namespace m4dModels
             foreach (var track in items)
             {
                 ret.Add(ParseTrackResults(track));
+            }
+
+            try
+            {
+                // Only albums have an album_type field...
+                var a = results.album_type;
+
+                var name = results.name;
+                foreach (var t in ret)
+                {
+                    t.Album = name;
+                }
+            }
+            catch (Exception)
+            {
+                // Figure out the appropriate binding exception to catch.
             }
 
             return ret;

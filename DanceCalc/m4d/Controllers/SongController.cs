@@ -1078,7 +1078,7 @@ namespace m4d.Controllers
 
             return alt;
         }
-        private void UpdateMusicServicePurchase(AlbumDetails ad, MusicService service, PurchaseType pt, string trackId, string alternateId = null)
+        private static void UpdateMusicServicePurchase(AlbumDetails ad, MusicService service, PurchaseType pt, string trackId, string alternateId = null)
         {
             ad.SetPurchaseInfo(pt, service.Id, trackId);
             if (!string.IsNullOrWhiteSpace(alternateId))

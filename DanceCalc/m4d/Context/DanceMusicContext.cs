@@ -175,6 +175,16 @@ namespace m4d.Context
             return service.ParseTrackResults(results);
         }
 
+        public IList<ServiceTrack> LookupServiceTracks(MusicService service, string url)
+        {
+            dynamic results = GetMusicServiceResults(service.BuildLookupRequest(url), service);
+            IList<ServiceTrack> tracks = service.ParseSearchResults(results);
+
+            ComputeTrackPurchaseInfo(service,tracks);
+
+            return tracks;
+        }
+
         public ServiceTrack CoerceTrackRegion(string id, MusicService service, string region)
         {
             if (string.IsNullOrWhiteSpace(region)) return null;
@@ -258,13 +268,19 @@ namespace m4d.Context
                 tracks = dict.Values.ToList();
             }
 
+            ComputeTrackPurchaseInfo(service,tracks);
+
+            return tracks;
+        }
+
+        private void ComputeTrackPurchaseInfo(MusicService service, IEnumerable<ServiceTrack> tracks)
+        {
             foreach (var track in tracks)
             {
                 track.AlbumLink = service.GetPurchaseLink(PurchaseType.Album, track.CollectionId, track.TrackId);
                 track.SongLink = service.GetPurchaseLink(PurchaseType.Song, track.CollectionId, track.TrackId);
-                track.PurchaseInfo = AlbumDetails.BuildPurchaseInfo(service.Id, track.CollectionId, track.TrackId);
+                track.PurchaseInfo = AlbumDetails.BuildPurchaseInfo(service.Id, track.CollectionId, track.TrackId, track.AvailableMarkets);
             }
-            return tracks;
         }
         private IList<ServiceTrack> FindMSSongAmazon(SongDetails song, bool clean = false, string title = null, string artist = null)
         {

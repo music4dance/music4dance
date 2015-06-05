@@ -69,7 +69,11 @@ namespace m4dModels
             Name = name;
             Value = value;
         }
-        
+
+        public static SongProperty Create(string baseName, string value = null, int index = -1, string qual = null)
+        {
+            return new SongProperty(Guid.Empty,baseName,value,index,qual);
+        }
         #endregion
 
         #region Properties

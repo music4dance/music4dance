@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Data.Entity;
@@ -11,6 +12,7 @@ using System.Text;
 using System.Threading;
 using System.Web.Mvc;
 using DanceLibrary;
+using m4d.Context;
 using m4d.Scrapers;
 using m4dModels;
 using Configuration = m4d.Migrations.Configuration;
@@ -1328,6 +1330,52 @@ namespace m4d.Controllers
             return View("UploadCatalog");
         }
 
+        //
+        // Get: //ScrapeSpotify
+        [HttpGet]
+        [Authorize(Roles = "dbAdmin")]
+        public ActionResult ScrapeSpotify(string url, string user, string dances, string tags)
+        {
+            ViewBag.Name = "Scrape Spotify";
+
+            if (string.IsNullOrWhiteSpace(url) || string.IsNullOrWhiteSpace(user))
+            {
+                ViewBag.Success = false;
+                ViewBag.Message = "Must have non-empty user and url fields";
+                return View("Results");
+            }
+
+            var appuser = Database.FindOrAddUser(user, DanceMusicService.PseudoRole);
+
+            var service = MusicService.GetService(ServiceType.Spotify);
+
+            var tracks = ((DanceMusicContext)Database.Context).LookupServiceTracks(service, url);
+
+            var newSongs = SongsFromTracks(appuser,tracks);
+
+            if (!string.IsNullOrEmpty(tags))
+            {
+                foreach (var sd in newSongs)
+                {
+                    sd.AddTags(tags, appuser, Database, sd, false);
+                }
+            }
+
+            ViewBag.UserName = user;
+            ViewBag.Dances = dances;
+            ViewBag.Action = "CommitUploadCatalog";
+
+            IList<LocalMerger> results = null;
+            // ReSharper disable once InvertIf
+            if (newSongs.Count > 0)
+            {
+                results = Database.MatchSongs(newSongs, DanceMusicService.MatchMethod.Merge);
+                ViewBag.FileId = CacheReview(results);
+            }
+
+            return View("ReviewBatch", results);
+        }
+
         static string CleanSeparator(string separator)
         {
             if (string.IsNullOrWhiteSpace(separator))
@@ -1641,6 +1689,16 @@ namespace m4d.Controllers
             var lines = songText.Split(Environment.NewLine.ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
 
             return SongDetails.CreateFromRows(user, separator, headers, lines, Song.DanceRatingAutoCreate);
+        }
+
+        private IList<SongDetails> SongsFromTracks(ApplicationUser user, IEnumerable<ServiceTrack> tracks)
+        {
+            var sds = new List<SongDetails>();
+            foreach (var track in tracks)
+            {
+                sds.Add(SongDetails.CreateFromTrack(user, track));
+            }
+            return sds;
         }
 
         private static IList<SongDetails> SongsFromFile(ApplicationUser user, IList<string> lines)

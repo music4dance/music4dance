@@ -82,6 +82,11 @@ namespace m4dModels
             return BuildRequest(SearchRequest,(artist ?? string.Empty) + " " + (title ?? string.Empty));
         }
 
+        public virtual string BuildLookupRequest(string url)
+        {
+            return url;
+        }
+
         public string BuildTrackRequest(string id, string region=null)
         {
             var ret = BuildRequest(TrackRequest, id);

@@ -1,11 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data.Entity;
-using System.Data.Entity.ModelConfiguration.Configuration;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
-using System.Runtime.InteropServices;
 using System.Runtime.Serialization;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -537,6 +534,48 @@ namespace m4dModels
             {
                 UpdateDanceRating(new DanceRatingDelta(dr.DanceId,dr.Weight),true);
             }
+        }
+
+        //private static readonly List<string> s_trackFields = new List<string>(new string[] {""});
+        public static SongDetails CreateFromTrack(ApplicationUser user, ServiceTrack track)
+        {
+            var properties = new List<SongProperty>
+            {
+                SongProperty.Create(TimeField, DateTime.Now.ToString()),
+                SongProperty.Create(UserField, user.UserName),
+                SongProperty.Create(CreateCommand),
+                SongProperty.Create(TitleField, track.Name)
+            };
+
+            AddProperty(properties,ArtistField,track.Artist);
+            AddProperty(properties, LengthField, track.Duration);
+            AddProperty(properties, AlbumField, track.Album, 0);
+            AddProperty(properties, TrackField, track.TrackNumber, 0);
+            // ReSharper disable once InvertIf
+            if (!string.IsNullOrEmpty(track.PurchaseInfo))
+            {
+                PurchaseType pt;
+                ServiceType st;
+                string id;
+                if (MusicService.TryParsePurchaseInfo(track.PurchaseInfo, out pt, out st, out id))
+                {
+                    AddProperty(properties, PurchaseField, id, 0, AlbumDetails.BuildPurchaseKey(pt,st));
+                }
+            }
+            
+            return new SongDetails(Guid.Empty, properties);
+        }
+
+        public static void AddProperty(IList<SongProperty> properties, string baseName, object value = null, int index = -1, string qual = null)
+        {
+            if (value != null)
+                properties.Add(SongProperty.Create(baseName, value.ToString(), index, qual));
+        }
+
+        public static void AddProperty(IList<SongProperty> properties, string baseName, string value, int index = -1, string qual = null)
+        {
+            if (!string.IsNullOrWhiteSpace(value))
+                properties.Add(SongProperty.Create(baseName, value, index, qual));
         }
 
         public void SetupSerialization(ApplicationUser user, DanceMusicService dms)

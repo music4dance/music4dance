@@ -188,9 +188,9 @@ namespace m4dModels
             return string.Format("{0}={1}", BuildPurchaseKey(pt, ms), value);
         }
 
-        static public string BuildPurchaseInfo(ServiceType ms, string collection, string track)
+        static public string BuildPurchaseInfo(ServiceType ms, string collection, string track, string[] availableMarkets=null)
         {
-            StringBuilder sb = new StringBuilder();
+            var sb = new StringBuilder();
 
             if (collection != null)
             {
@@ -205,19 +205,13 @@ namespace m4dModels
                 }
                 sb.Append(BuildPurchaseInfo(PurchaseType.Song, ms, track));
             }
-            
-            if (sb.Length > 0)
-            {
-                return sb.ToString();
-            }
-            else 
-            {
-                return null;
-            }
-            
+
+            var ret = sb.Length > 0 ? sb.ToString() : null;
+
+            return (ret == null || availableMarkets == null) ? ret : MusicService.FormatRegionInfo(ret, availableMarkets);
         }
 
-        private static string BuildPurchaseKey(PurchaseType purchaseType, ServiceType serviceType)
+        public static string BuildPurchaseKey(PurchaseType purchaseType, ServiceType serviceType)
         {
             if (purchaseType == PurchaseType.None)
                 throw new ArgumentOutOfRangeException("purchaseType");
