@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
@@ -388,24 +389,45 @@ namespace m4d.Controllers
             {
                 return RedirectToAction("Login");
             }
+            var userT = AuthenticationManager.User;
+            Trace.WriteLine(userT.Identity.Name);
 
             // Sign in the user with this external login provider if the user already has a login
             var result = await SignInManager.ExternalSignInAsync(loginInfo, isPersistent: false);
 
             var email = loginInfo.Email;
+            string userid = null;
             if (string.IsNullOrWhiteSpace(email))
             {
                 var ext = await AuthenticationManager.GetExternalIdentityAsync(DefaultAuthenticationTypes.ExternalCookie);
-                email = ext.Claims.First(x => x.Type.Contains("emailaddress")).Value;
+                var claim = ext.Claims.FirstOrDefault(x => x.Type.Contains("emailaddress"));
+
+                if (claim != null)
+                {
+                    email = claim.Value;
+                }
+
+                if (email == null)
+                {
+                    claim =
+                        AuthenticationManager.AuthenticationResponseGrant.Identity.Claims.FirstOrDefault(
+                            x => x.Type.Contains("name"));
+                    if (claim != null)
+                    {
+                        userid = claim.Value;
+                    }
+                }
             }
 
             switch (result)
             {
                 case SignInStatus.Success:
                 {
-                    var user = await UserManager.FindByEmailAsync(email);
-                    return ProfileRedirect(returnUrl, user);   
-                }                    
+                    var user = (email != null)
+                        ? await UserManager.FindByEmailAsync(email)
+                        : await UserManager.FindByIdAsync(userid);
+                    return ProfileRedirect(returnUrl, user);
+                }
                 case SignInStatus.LockedOut:
                     return View("Lockout");
                 case SignInStatus.RequiresVerification:

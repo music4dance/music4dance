@@ -9,6 +9,7 @@ using Microsoft.Owin.Security.Facebook;
 using Microsoft.Owin.Security.Google;
 using Microsoft.Owin.Security.MicrosoftAccount;
 using Owin;
+using Owin.Security.Providers.Spotify;
 
 namespace m4d
 {
@@ -79,6 +80,14 @@ namespace m4d
                 ClientSecret = "***REMOVED***"
             };
             app.UseGoogleAuthentication(gg);
+
+            var sp = new SpotifyAuthenticationOptions
+            {
+                ClientId = "***REMOVED***",
+                ClientSecret = "***REMOVED***"
+            };
+            sp.Scope.Add("user-read-email");
+            app.UseSpotifyAuthentication(sp);
         }
     }
 }
