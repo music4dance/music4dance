@@ -650,6 +650,7 @@ var EditPage = function(data) {
     ko.mapping.fromJS(data, songMapping, this);
 
     self.canEdit = ko.observable(canEdit);
+    self.canTag = ko.observable(canTag);
 
     self.getRatings = function() {
         var source = { Tags: [{ Id: '', Tags: self.song.TagSummary.serializeUser() }] };

@@ -55,6 +55,7 @@ namespace m4dModels
         }
 
         public static readonly string EditRole = "canEdit";
+        public static readonly string TagRole = "canTag";
         public static readonly string DiagRole = "showDiagnostics";
         public static readonly string DbaRole = "dbAdmin";
         public static readonly string PseudoRole = "pseudoUser";

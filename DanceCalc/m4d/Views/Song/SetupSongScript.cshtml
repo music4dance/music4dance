@@ -11,6 +11,7 @@
     serializer.WriteObject(stream, Model);
     var songString = System.Text.Encoding.UTF8.GetString(stream.ToArray());
     var canEdit = User.IsInRole("canEdit") ? "true" : "false";
+    var canTag = User.IsInRole("canTag") ? "true" : "false";
 }
 
 <script>
@@ -18,6 +19,7 @@
     var paramShowBPM = true;
     var paramEpsVisible = 0.1;
     var canEdit = @canEdit;
+    var canTag = @canTag;
     var song = @Html.Raw(songString);
 </script>
 

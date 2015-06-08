@@ -5,7 +5,7 @@
 
 @{
     ViewBag.Title = "Log";
-    bool canEdit = User.IsInRole("canEdit");
+    var canEdit = User.IsInRole("canEdit");
 }
 
 <h2>Index</h2>

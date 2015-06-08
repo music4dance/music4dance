@@ -9,12 +9,12 @@
                 <a data-bind="attr: {href: link}, text: DanceName, css:danceTag"></a>
             </span>
             &nbsp;
-            <a role="button" class="label label-default" data-show="tooltip" data-placement="top" data-bind="attr: {'data-original-title':liketip},  visible:canEdit"><img data-bind="click:toggleVote, attr: {src:voteImage, 'alt':voteName}" /></a>
+            <a role="button" class="label label-default" data-show="tooltip" data-placement="top" data-bind="attr: {'data-original-title':liketip},  visible:canTag"><img data-bind="click:toggleVote, attr: {src:voteImage, 'alt':voteName}" /></a>
             <span data-bind="template: {name:'tag-template',foreach:TagSummary.tagTypes}"></span>
         </li>
     </ul>
 
-    <div style="margin:0 10px 10px 10px" data-bind="visible:canEdit">
+    <div style="margin:0 10px 10px 10px" data-bind="visible:canTag">
         @Html.DropDownList("addDance", ViewBag.DanceList as IEnumerable<SelectListItem>, new { @class = "chzn-select", data_placeholder = "Add a dance style..."})
     </div>
 </div>

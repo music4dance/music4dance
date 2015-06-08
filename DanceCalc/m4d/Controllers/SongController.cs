@@ -312,7 +312,7 @@ namespace m4d.Controllers
             if (ModelState.IsValid)
             {
                 var user = Database.FindUser(User.Identity.Name);
-                var jt = JTags.FromJson(userTags);                
+                var jt = JTags.FromJson(userTags);
 
                 //song.UpdateDanceRatings(addDances, SongBase.DanceRatingCreate);
                 //var tags = new TagList(editTags).Add(new TagList(SongBase.TagsFromDances(addDances)));
