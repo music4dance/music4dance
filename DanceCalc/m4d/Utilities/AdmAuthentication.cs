@@ -1,9 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Net;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Json;
+using System.Security.Claims;
+using System.Security.Principal;
 using System.Text;
 using System.Threading;
 using System.Web;
@@ -22,26 +25,12 @@ namespace m4d.Utilities
         public abstract TimeSpan ExpiresIn { get; }
     }
 
-    [DataContract]
-    [SuppressMessage("ReSharper", "InconsistentNaming")]
-    public class XboxAccessToken : AccessToken
-    {
-        [DataMember]
-        public string expires_in { get; set; }
-        [DataMember]
-        public string scope { get; set; }
-
-        public override TimeSpan ExpiresIn
-        {
-            get { return TimeSpan.FromMinutes(9); }
-        }
-    }
-
     public abstract class AdmAuthentication : IDisposable
     {
         protected abstract string ClientId { get; }
         protected abstract string ClientSecret { get; }
         protected abstract string RequestFormat { get; }
+        protected virtual string RequestExtra { get { return string.Empty; } }
         protected abstract string RequestUrl { get; }
         protected abstract Type AccessTokenType { get; } 
 
@@ -51,15 +40,14 @@ namespace m4d.Utilities
         {
             lock (this)
             {
-                if (_token == null)
-                {
-                    _token = CreateToken();
-                    if (AccessTokenRenewer == null)
-                    {
-                        AccessTokenRenewer = new Timer(OnTokenExpiredCallback, this, _token.ExpiresIn, _token.ExpiresIn);
-                    }
-                }
-                return _token;
+                if (Token != null) 
+                    return Token;
+
+                Token = CreateToken();
+                if (AccessTokenRenewer == null)
+                    AccessTokenRenewer = new Timer(OnTokenExpiredCallback, this, Token.ExpiresIn, Token.ExpiresIn);
+
+                return Token;
             }
         }
 
@@ -69,13 +57,13 @@ namespace m4d.Utilities
             return "Bearer " + token.access_token;
         }
 
-        private void OnTokenExpiredCallback(object stateInfo)
+        protected void OnTokenExpiredCallback(object stateInfo)
         {
-            _token = null;
+            Token = null;
         }
 
         private string _request;
-        private AccessToken _token;
+        protected AccessToken Token { get; set; }
 
         private AccessToken CreateToken()
         {
@@ -83,7 +71,7 @@ namespace m4d.Utilities
             var webRequest = WebRequest.Create(RequestUrl);
             webRequest.ContentType = "application/x-www-form-urlencoded";
             webRequest.Method = "POST";
-            string request = _request ?? (_request = string.Format(RequestFormat, HttpUtility.UrlEncode(ClientId), HttpUtility.UrlEncode(ClientSecret)));
+            var request = _request ?? (_request = string.Format(RequestFormat, HttpUtility.UrlEncode(ClientId), HttpUtility.UrlEncode(ClientSecret))) + RequestExtra;
             var bytes = Encoding.ASCII.GetBytes(request);
             webRequest.ContentLength = bytes.Length;
             using (var outputStream = webRequest.GetRequestStream())
@@ -111,9 +99,29 @@ namespace m4d.Utilities
             AccessTokenRenewer.Dispose();
         }
 
-        public static string GetServiceAuthorization(ServiceType serviceType)
+        public static string GetServiceAuthorization(ServiceType serviceType, IPrincipal principal = null)
         {
             AdmAuthentication auth = null;
+
+            if (principal != null)
+            {
+                var userName = principal.Identity.Name;
+                if (s_users.TryGetValue(userName, out auth))
+                {
+                    return auth.GetAccessString();
+                }
+
+                if (serviceType == ServiceType.Spotify)
+                {
+                    auth = SpotUserAuthentication.TryCreate(principal);
+                    if (auth != null)
+                    {
+                        s_users[userName] = auth;
+                        return auth.GetAccessString();
+                    }
+                }
+            }
+
             switch (serviceType)
             {
                 case ServiceType.XBox:
@@ -127,8 +135,9 @@ namespace m4d.Utilities
             return (auth == null) ? null : auth.GetAccessString();
         }
 
-        private static AdmAuthentication s_xbox = null;
-        private static AdmAuthentication s_spotify = null;
+        private static AdmAuthentication s_xbox;
+        private static AdmAuthentication s_spotify;
 
+        private static readonly Dictionary<string, AdmAuthentication> s_users = new Dictionary<string, AdmAuthentication>();
     }
 }

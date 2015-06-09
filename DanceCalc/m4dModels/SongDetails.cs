@@ -554,12 +554,18 @@ namespace m4dModels
             // ReSharper disable once InvertIf
             if (!string.IsNullOrEmpty(track.PurchaseInfo))
             {
-                PurchaseType pt;
-                ServiceType st;
-                string id;
-                if (MusicService.TryParsePurchaseInfo(track.PurchaseInfo, out pt, out st, out id))
+                var infos = track.PurchaseInfo.Split(new[] {';'}, StringSplitOptions.RemoveEmptyEntries);
+
+                foreach (var info in infos)
                 {
-                    AddProperty(properties, PurchaseField, id, 0, AlbumDetails.BuildPurchaseKey(pt,st));
+                    PurchaseType pt;
+                    ServiceType st;
+                    string id;
+
+                    if (MusicService.TryParsePurchaseInfo(info, out pt, out st, out id))
+                    {
+                        AddProperty(properties, PurchaseField, id, 0, AlbumDetails.BuildPurchaseKey(pt, st));
+                    }
                 }
             }
             

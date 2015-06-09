@@ -9,6 +9,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Security.Principal;
 using System.Web.Helpers;
 using m4d.Utilities;
 using m4dModels;
@@ -175,9 +176,9 @@ namespace m4d.Context
             return service.ParseTrackResults(results);
         }
 
-        public IList<ServiceTrack> LookupServiceTracks(MusicService service, string url)
+        public IList<ServiceTrack> LookupServiceTracks(MusicService service, string url, IPrincipal principal)
         {
-            dynamic results = GetMusicServiceResults(service.BuildLookupRequest(url), service);
+            dynamic results = GetMusicServiceResults(service.BuildLookupRequest(url), service, principal);
             IList<ServiceTrack> tracks = service.ParseSearchResults(results);
 
             ComputeTrackPurchaseInfo(service,tracks);
@@ -307,7 +308,7 @@ namespace m4d.Context
             return service.ParseSearchResults(results);
         }
 
-        private static dynamic GetMusicServiceResults(string request, MusicService service)
+        private static dynamic GetMusicServiceResults(string request, MusicService service, IPrincipal principal = null)
         {
             HttpWebResponse response;
             string responseString;
@@ -321,7 +322,8 @@ namespace m4d.Context
             req.Method = WebRequestMethods.Http.Get;
             req.Accept = "application/json";
 
-            var auth = AdmAuthentication.GetServiceAuthorization(service.Id);
+            var auth = AdmAuthentication.GetServiceAuthorization(service.Id,principal);
+
             if (auth != null)
             {
                 req.Headers.Add("Authorization", auth);

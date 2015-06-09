@@ -10,11 +10,14 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
+using System.Web;
 using System.Web.Mvc;
 using DanceLibrary;
 using m4d.Context;
 using m4d.Scrapers;
 using m4dModels;
+using Microsoft.AspNet.Identity.Owin;
+using Microsoft.Owin;
 using Configuration = m4d.Migrations.Configuration;
 
 namespace m4d.Controllers
@@ -1349,7 +1352,7 @@ namespace m4d.Controllers
 
             var service = MusicService.GetService(ServiceType.Spotify);
 
-            var tracks = ((DanceMusicContext)Database.Context).LookupServiceTracks(service, url);
+            var tracks = ((DanceMusicContext)Database.Context).LookupServiceTracks(service, url, User);
 
             var newSongs = SongsFromTracks(appuser,tracks);
 

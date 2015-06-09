@@ -1,7 +1,23 @@
 using System;
+using System.Diagnostics.CodeAnalysis;
+using System.Runtime.Serialization;
 
 namespace m4d.Utilities
 {
+    [DataContract]
+    [SuppressMessage("ReSharper", "InconsistentNaming")]
+    public class XboxAccessToken : AccessToken
+    {
+        [DataMember]
+        public string expires_in { get; set; }
+        [DataMember]
+        public string scope { get; set; }
+
+        public override TimeSpan ExpiresIn
+        {
+            get { return TimeSpan.FromMinutes(9); }
+        }
+    }
     public class XboxAuthentication : AdmAuthentication
     {
         protected override string ClientId { get { return "music4dance"; } }

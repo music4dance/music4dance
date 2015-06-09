@@ -1,4 +1,7 @@
 ﻿using System;
+using System.Globalization;
+using System.Security.Claims;
+using System.Threading.Tasks;
 using m4d.Context;
 using m4dModels;
 using Microsoft.AspNet.Identity;
@@ -10,6 +13,7 @@ using Microsoft.Owin.Security.Google;
 using Microsoft.Owin.Security.MicrosoftAccount;
 using Owin;
 using Owin.Security.Providers.Spotify;
+using Owin.Security.Providers.Spotify.Provider;
 
 namespace m4d
 {
@@ -84,7 +88,33 @@ namespace m4d
             var sp = new SpotifyAuthenticationOptions
             {
                 ClientId = "***REMOVED***",
-                ClientSecret = "***REMOVED***"
+                ClientSecret = "***REMOVED***",
+                Provider = new SpotifyAuthenticationProvider
+                {
+                    OnAuthenticated = (context) =>
+                    {
+                        const string xmlSchemaString = "http://www.w3.org/2001/XMLSchema#string";
+
+                        var accessToken = context.AccessToken;
+                        var refreshToken = context.RefreshToken;
+                        var timeout = context.ExpiresIn;
+                        context.Identity.AddClaim(new Claim("urn:spotify:access_token", accessToken,xmlSchemaString,"Spotify"));
+                        context.Identity.AddClaim(new Claim("urn:spotify:refresh_token", refreshToken,xmlSchemaString,"Spotify"));
+                        context.Identity.AddClaim(new Claim("urn:spotify:expires_in", timeout.ToString(), xmlSchemaString, "Spotify"));
+                        context.Identity.AddClaim(new Claim("urn:spotify:start_time", DateTime.Now.ToString(CultureInfo.InvariantCulture), xmlSchemaString, "Spotify"));
+
+                        foreach (var x in context.User)
+                        {
+                            var claimType = string.Format("urn:spotify:{0}", x.Key);
+                            var claimValue = x.Value.ToString();
+                            if (!context.Identity.HasClaim(claimType, claimValue))
+                                context.Identity.AddClaim(new Claim(claimType, claimValue, xmlSchemaString, "Facebook"));
+
+                        }
+
+                        return Task.FromResult(0);
+                    }
+                }
             };
             sp.Scope.Add("user-read-email");
             app.UseSpotifyAuthentication(sp);

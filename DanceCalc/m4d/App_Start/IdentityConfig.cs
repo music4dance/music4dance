@@ -126,6 +126,19 @@ namespace m4d
 
             identity.Result.AddClaim(new Claim("Region", string.IsNullOrWhiteSpace(user.Region) ? "US" : user.Region));
 
+            var ext = AuthenticationManager.GetExternalIdentity(DefaultAuthenticationTypes.ExternalCookie);
+            if (ext == null) return identity;
+
+            const string ignoreClaim = "http://schemas.xmlsoap.org/ws/2005/05/identity/claims";
+            // add external claims to identity
+            foreach (var c in ext.Claims)
+            {
+                if (c.Type.StartsWith(ignoreClaim)) continue;
+
+                if (!identity.Result.HasClaim(c.Type, c.Value))
+                    identity.Result.AddClaim(c);
+            }
+
             return identity;
         }
 

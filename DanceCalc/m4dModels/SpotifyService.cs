@@ -43,7 +43,7 @@ namespace m4dModels
                 var user = rg[3];
                 var id = rg[5];
 
-                return string.Format("https://api.spotify.com/v1/users/{0}/playlist/{1}", user, id);
+                return string.Format("https://api.spotify.com/v1/users/{0}/playlists/{1}", user, id);
             }
 
             return null;
@@ -58,7 +58,17 @@ namespace m4dModels
 
             foreach (var track in items)
             {
-                ret.Add(ParseTrackResults(track));
+                dynamic trackT = track;
+                try
+                {
+                    if (track.track != null)
+                        trackT = track.track;
+                }
+                catch (Exception)
+                {
+                    
+                }
+                ret.Add(ParseTrackResults(trackT));
             }
 
             try
@@ -66,10 +76,13 @@ namespace m4dModels
                 // Only albums have an album_type field...
                 var a = results.album_type;
 
-                var name = results.name;
-                foreach (var t in ret)
+                if (a != null)
                 {
-                    t.Album = name;
+                    var name = results.name;
+                    foreach (var t in ret)
+                    {
+                        t.Album = name;
+                    }
                 }
             }
             catch (Exception)
