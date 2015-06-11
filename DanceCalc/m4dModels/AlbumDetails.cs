@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Runtime.Serialization;
@@ -344,11 +345,11 @@ namespace m4dModels
         #region Merging
         public static IList<AlbumDetails> MergeAlbums(IList<AlbumDetails> albums, string artist, bool preserveIndices)
         {
-            Dictionary<string, List<AlbumDetails>> dict = new Dictionary<string, List<AlbumDetails>>();
+            var dict = new Dictionary<string, List<AlbumDetails>>();
 
-            bool duplicate = false;
+            var duplicate = false;
 
-            foreach (AlbumDetails a in albums)
+            foreach (var a in albums)
             {
                 var name = SongBase.CleanAlbum(a.Name,artist);
                 List<AlbumDetails> l;
@@ -371,24 +372,27 @@ namespace m4dModels
                 return albums;
             }
 
-            List<AlbumDetails> merge = new List<AlbumDetails>();
-            foreach (AlbumDetails a in albums)
+            var merge = new List<AlbumDetails>();
+            foreach (var a in albums)
             {
-                string name = SongBase.CleanAlbum(a.Name, artist);
+                var name = SongBase.CleanAlbum(a.Name, artist);
                 List<AlbumDetails> l;
-                if (dict.TryGetValue(name, out l))
-                {
-                    dict.Remove(name);
-                    merge.Add(MergeList(l));
-                }
+                if (!dict.TryGetValue(name, out l)) continue;
+
+                dict.Remove(name);
+                merge.Add(MergeList(l));
             }
 
-            if (!preserveIndices)
+            if (preserveIndices) return merge;
+
+            foreach (var album in merge.OrderBy(x => x.Name))
             {
-                for (int i = 0; i < merge.Count(); i++)
-                {
-                    merge[i].Index = i;
-                }
+                Trace.WriteLine(string.Format("{0}:{1}",album.Name,album.Track));
+            }
+
+            for (var i = 0; i < merge.Count(); i++)
+            {
+                merge[i].Index = i;
             }
 
             return merge;

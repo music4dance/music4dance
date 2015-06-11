@@ -229,6 +229,11 @@ namespace m4dModels
         {
             if (regions == null) return id;
 
+            if (id != null && id.EndsWith("]"))
+            {
+                id = id.Substring(0, id.LastIndexOf('['));
+            }
+
             var sb = new StringBuilder(id);
             sb.Append("[");
             var sep = string.Empty;

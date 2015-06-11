@@ -176,7 +176,7 @@ namespace m4dModels
             SaveChanges();
             return true;
         }
-        private List<AlbumDetails> MergeAlbums(IList<Song> songs, string def, HashSet<string> keys)
+        private IList<AlbumDetails> MergeAlbums(IList<Song> songs, string def, HashSet<string> keys, string artist)
         {
             var details = songs.Select(s => new SongDetails(s)).ToList();
             var albumsIn = new List<AlbumDetails>();
@@ -206,21 +206,20 @@ namespace m4dModels
             {
                 if (i == defIdx) continue;
 
-                string name = SongBase.AlbumListField + "_" + i.ToString();
+                var name = SongBase.AlbumListField + "_" + i;
 
-                if (defIdx == -1 || keys.Contains(name))
-                {
-                    var t = albumsIn[i];
-                    t.Index = idx;
-                    albumsOut.Add(t);
-                    idx += 1;
-                }
+                if (defIdx != -1 && !keys.Contains(name)) continue;
+
+                var t = albumsIn[i];
+                t.Index = idx;
+                albumsOut.Add(t);
+                idx += 1;
             }
 
-            return albumsOut;
+            return AlbumDetails.MergeAlbums(albumsOut,artist,false);
         }
 
-        public Song MergeSongs(ApplicationUser user, List<Song> songs, string title, string artist, decimal? tempo, int? length, List<AlbumDetails> albums)
+        public Song MergeSongs(ApplicationUser user, List<Song> songs, string title, string artist, decimal? tempo, int? length, IList<AlbumDetails> albums)
         {
             var songIds = string.Join(";", songs.Select(s => s.SongId.ToString()));
 
@@ -241,16 +240,12 @@ namespace m4dModels
             var sd = new SongDetails(title,artist,tempo,length,albums);
             song.Edit(user, sd, null, this);
 
-            SaveChanges();
-
-            SongCounts.ClearCache();
-
             return song;
         }
 
         public Song MergeSongs(ApplicationUser user, List<Song> songs, string title, string artist, decimal? tempo, int? length, string defAlbums, HashSet<string> keys)
         {
-            return MergeSongs(user,songs,title,artist,tempo,length,MergeAlbums(songs, defAlbums, keys));
+            return MergeSongs(user,songs,title,artist,tempo,length,MergeAlbums(songs,defAlbums,keys,artist));
         }
 
         public void DeleteSong(ApplicationUser user, Song song, bool createLog=true)

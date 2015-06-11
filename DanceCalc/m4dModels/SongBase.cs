@@ -509,26 +509,18 @@ namespace m4dModels
         //  Two song are equivalent if Titles are equal, artists are similar or empty and all other fields are equal
         public bool Equivalent(Song song)
         {
-            // No-similar titles != equivalent
-            if (CreateTitleHash(Title) != CreateTitleHash(song.Title))
-            {
-                return false;
-            }
-
-            if (!string.IsNullOrWhiteSpace(Artist) && !string.IsNullOrWhiteSpace(song.Artist) &&
-                (CreateTitleHash(Artist) != CreateTitleHash(song.Artist)))
-            {
-                return false;
-            }
-
-            return EqString(Album, song.Album) &&
-                EqNum(Tempo, song.Tempo) &&
-                EqNum(Length, song.Length);
+            return WeakEquivalent(song) && EqString(Album, song.Album);
         }
 
 
-        // Same as equivalent (above) except that album, Tempo and Length aren't compared.
         public bool WeakEquivalent(Song song)
+        {
+            return TitleArtistEquivalent(song) &&
+                EqNum(Tempo, song.Tempo) && EqNum(Length, song.Length);
+        }
+
+        // Same as equivalent (above) except that album, Tempo and Length aren't compared.
+        public bool TitleArtistEquivalent(Song song)
         {
             // No-similar titles != equivalent
             if (CreateTitleHash(Title) != CreateTitleHash(song.Title))
@@ -542,7 +534,7 @@ namespace m4dModels
                 return false;
             }
 
-            return EqNum(Tempo, song.Tempo) && EqNum(Length, song.Length);
+            return true;
         }
 
         #endregion
@@ -675,21 +667,27 @@ namespace m4dModels
 
         protected void ClearValues()
         {
-            foreach (PropertyInfo pi in ScalarProperties)
+            foreach (var pi in ScalarProperties)
             {
                 pi.SetValue(this, null);
             }
 
-            List<DanceRating> drs = DanceRatings.ToList();
-            foreach (DanceRating dr in drs)
+            if (DanceRatings != null)
             {
-                DanceRatings.Remove(dr);
+                var drs = DanceRatings.ToList();
+                foreach (var dr in drs)
+                {
+                    DanceRatings.Remove(dr);
+                }
             }
 
-            List<ModifiedRecord> us = ModifiedBy.ToList();
-            foreach (ModifiedRecord u in us)
+            if (ModifiedBy != null)
             {
-                ModifiedBy.Remove(u);
+                var us = ModifiedBy.ToList();
+                foreach (var u in us)
+                {
+                    ModifiedBy.Remove(u);
+                }
             }
         }
 
@@ -904,11 +902,26 @@ namespace m4dModels
             if (string.IsNullOrWhiteSpace(album)) return null;
 
             album = NormalizeAlbumString(album);
-            artist = NormalizeAlbumString(artist);
+            var artistN = NormalizeAlbumString(artist);
 
-            if (!string.IsNullOrWhiteSpace(artist))
+            if (!string.IsNullOrWhiteSpace(artistN))
             {
-                album = album.Replace(artist, "");
+                var albumT = album.Replace(artist, "");
+                if (!string.IsNullOrWhiteSpace(albumT))
+                    album = albumT;
+            }
+
+            if (string.IsNullOrWhiteSpace(artist)) return album;
+
+            var words = artist.Split(new[] {' ', ','}, StringSplitOptions.RemoveEmptyEntries);
+            foreach (var word in words)
+            {
+                var wordT = NormalizeAlbumString(word);
+                if (string.IsNullOrWhiteSpace(wordT)) continue;
+
+                var albumT = album.Replace(wordT, "");
+                if (!string.IsNullOrWhiteSpace(albumT))
+                    album = albumT;
             }
 
             return album;

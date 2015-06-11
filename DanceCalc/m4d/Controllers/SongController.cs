@@ -560,6 +560,10 @@ namespace m4d.Controllers
                 ResolveIntField(SongBase.LengthField, songList, Request.Form),
                 Request.Form[SongBase.AlbumListField], new HashSet<string>(Request.Form.AllKeys));
 
+            Database.SaveChanges();
+
+            SongCounts.ClearCache();
+
             ViewBag.BackAction = "MergeCandidates";
             ViewBag.DanceMap = SongCounts.GetDanceMap(Database);
             ViewBag.DanceList = GetDancesSingle();
@@ -1108,7 +1112,7 @@ namespace m4d.Controllers
                     {
                         cluster = new List<Song> {song};
                     }
-                    else if ((level == 0 && song.Equivalent(cluster[0])) || (level == 1 && song.WeakEquivalent(cluster[0])))
+                    else if ((level == 0 && song.Equivalent(cluster[0])) || ((level == 1 && song.WeakEquivalent(cluster[0])) || (level == 3) && song.TitleArtistEquivalent(cluster[0])))
                     {
                         cluster.Add(song);
                     }
@@ -1130,8 +1134,9 @@ namespace m4d.Controllers
             }
             finally
             {
-                Context.Configuration.AutoDetectChangesEnabled = false;
+                Context.Configuration.AutoDetectChangesEnabled = true;
                 Database.SaveChanges();
+                SongCounts.ClearCache();
             }
 
             return ret;

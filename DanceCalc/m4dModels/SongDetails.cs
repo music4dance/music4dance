@@ -104,13 +104,13 @@ namespace m4dModels
             Load(SongId, properties);
         }
 
-        public SongDetails(string title, string artist, decimal? tempo, int? length, List<AlbumDetails> albums)
+        public SongDetails(string title, string artist, decimal? tempo, int? length, IList<AlbumDetails> albums)
         {
             Title = title;
             Artist = artist;
             Tempo = tempo;
             Length = length;
-            _albums = albums;
+            _albums = (albums as List<AlbumDetails>) ?? albums.ToList();
         }
         private void Load(Guid songId, ICollection<SongProperty> properties)
         {
