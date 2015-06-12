@@ -241,7 +241,7 @@ namespace m4dModels
 
             foreach (var prop in properties.Where(prop => excluded == null || !excluded.Contains(prop.BaseName)))
             {
-                SongProperties.Add(prop);
+                SongProperties.Add(prop.CopyTo(this));
             }
             
         }

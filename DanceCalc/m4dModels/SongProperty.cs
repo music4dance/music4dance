@@ -74,6 +74,19 @@ namespace m4dModels
         {
             return new SongProperty(Guid.Empty,baseName,value,index,qual);
         }
+
+        public SongProperty CopyTo(Song song)
+        {
+            var n = new SongProperty
+            {
+                SongId = song.SongId,
+                Song = song,
+                Name = Name,
+                Value = Value
+            };
+            return n;
+        }
+
         #endregion
 
         #region Properties

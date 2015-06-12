@@ -1079,10 +1079,10 @@ namespace m4dModels
                     }
                     break;
                 case "Modified":
-                    songs = songs.OrderBy(s => s.Modified);
+                    songs = songSort.Descending ? songs.OrderByDescending(s => s.Modified) : songs.OrderBy(s => s.Modified);
                     break;
                 case "Created":
-                    songs = songs.OrderBy(s => s.Created);
+                    songs = songSort.Descending ? songs.OrderByDescending(s => s.Created) : songs.OrderBy(s => s.Created);
                     break;
             }
 
@@ -1976,7 +1976,7 @@ namespace m4dModels
 
             return tags;
         }
-        public IList<string> SerializeSongs(bool withHeader = true, bool withHistory = true, int max = -1, SongFilter filter = null)
+        public IList<string> SerializeSongs(bool withHeader = true, bool withHistory = true, int max = -1, DateTime? from = null, SongFilter filter = null)
         {
             var songs = new List<string>();
 
@@ -1992,8 +1992,13 @@ namespace m4dModels
                 songlist = songlist.Take(max) as IOrderedQueryable<Song>;
             }
 
+            if (from.HasValue)
+            {
+                songlist = songlist.Where(s => s.Modified > from.Value) as IOrderedQueryable<Song>;
+            }
+
             string[] actions = null;
-            List<string> alist = new List<string>();
+            var alist = new List<string>();
             if (!withHistory)
             {
                 alist.Add(SongBase.FailedLookup);
@@ -2007,15 +2012,14 @@ namespace m4dModels
                 actions = alist.ToArray();
             }
 
-            foreach (Song song in songlist)
+            foreach (var song in songlist)
             {
-                string line = song.Serialize(actions);
+                var line = song.Serialize(actions);
                 if (!string.IsNullOrWhiteSpace(line))
                 {
                     songs.Add(line);
                 }
             }
-            //songs.AddRange(songlist.Select(song => song.Serialize(actions)).Where(line => !string.IsNullOrWhiteSpace(line)));
 
             return songs;
         }

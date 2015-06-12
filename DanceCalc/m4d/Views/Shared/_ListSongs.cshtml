@@ -146,7 +146,11 @@
             }
             @if (showDate)
             {
-                <th class="hidden-xs">@ViewBag.SongFilter.SortOrder</th>
+                var timeName = songOrder.Id;
+                <th>
+                    @Html.ActionLink(timeName, "sort", "song", new { sortOrder = timeName, filter = ViewBag.SongFilter }, null)
+                    @Html.Raw(songOrder.GetSortGlyph(timeName));
+                </th>
             }
         </tr>
     </thead>

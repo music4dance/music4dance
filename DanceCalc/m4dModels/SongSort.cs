@@ -7,7 +7,7 @@ namespace m4dModels
 {
     public class SongSort
     {
-        private static readonly string[] s_directional = { "Title", "Artist", "Album", "Tempo" };
+        private static readonly string[] s_directional = { "Title", "Artist", "Album", "Tempo", "Modified", "Created" };
         private static readonly string[] s_numerical = { "Tempo", "Modified", "Created" };
 
         private const string SortAsc = "<span class='glyphicon glyphicon-sort-by-alphabet'></span>";
@@ -21,8 +21,8 @@ namespace m4dModels
             {
                 sort = "Title";
             }
-            List<string> list = sort.Split(new[] { '_' }, StringSplitOptions.None).ToList();
-            int count = -1;
+            var list = sort.Split('_').ToList();
+            var count = -1;
 
             Id = list[0];
             list.RemoveAt(0);

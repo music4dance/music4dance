@@ -1419,7 +1419,7 @@ namespace m4d.Controllers
         //
         // Get: //BackupDatabase
         [Authorize(Roles = "showDiagnostics")]
-        public ActionResult BackupTail(int count = 100, string filter = null)
+        public ActionResult BackupTail(int count = 100, DateTime? from = null, string filter = null)
         {
             SongFilter songFilter = null;
             if (!string.IsNullOrWhiteSpace(filter))
@@ -1427,7 +1427,7 @@ namespace m4d.Controllers
                 songFilter = new SongFilter(filter);
             }
 
-            var songs = Database.SerializeSongs(true, true, count, songFilter);
+            var songs = Database.SerializeSongs(true, true, count, from, songFilter);
 
             var s = string.Join("\r\n", songs);
             var bytes = Encoding.UTF8.GetBytes(s);
