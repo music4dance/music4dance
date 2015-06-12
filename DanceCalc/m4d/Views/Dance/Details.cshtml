@@ -1,4 +1,5 @@
-﻿@using MarkdownDeep
+﻿@using System.Globalization
+@using MarkdownDeep
 @using m4d.Utilities
 @model SongCounts
 
@@ -79,7 +80,7 @@
     </div>
 
     <div>
-        <p>@Html.ActionLink("Browse", "Search", "Song", new { dances = @Model.DanceId }, null) all <b>@Model.SongCount</b> @Model.DanceName songs in the music4dance @Html.ActionLink("catalog", "Search", "Song").</p>
+        <p>@Html.ActionLink("Browse", "search", "song", new { dances = @Model.DanceId }, null) all <b>@Model.SongCount</b> @Model.DanceName songs in the music4dance @Html.ActionLink("catalog", "index", "song").</p>
     </div>
 }
 
@@ -88,20 +89,19 @@
 {
     var info = Model.Dance.Info;
     var tempo = info.TempoRange;
+    var oneTempo = tempo.Min == tempo.Max;
+    var bpmMin = tempo.Min * info.Meter.Numerator;
+    var bpmMax = tempo.Max * info.Meter.Numerator;
+    var rangeText = (oneTempo) ? "at" : "between";
+    var bpmText = bpmMin.ToString(CultureInfo.CurrentCulture) + (oneTempo ? string.Empty : " and " + bpmMax.ToString(CultureInfo.CurrentCulture)) + " beats per mintue";
+    var mpmText = tempo.MinString + (oneTempo ? string.Empty : " and " + tempo.MaxString) + " measures per mintue";
     <hr />
     <div id="tempo-info">
         <h4>Tempo Information</h4>
         <p>
             The @Model.DanceName is generally danced to music in a @info.Meter Meter
-            @if (@tempo.Max == @tempo.Min)
-            {
-                <text>at @tempo.Max measures per minute (@(tempo.Max * info.Meter.Numerator) beats per minute)</text>
-            }
-            else
-            {
-                <text>between @tempo.Min and @tempo.Max measures per minute (@(tempo.Min * info.Meter.Numerator) and @(tempo.Max * info.Meter.Numerator) beats per minute)</text>
-            }
-            .
+            @rangeText @mpmText (@bpmText)
+            . @Html.ActionLink("Click here","advancedsearch","song", new {dances = @Model.DanceId,tempomin=@bpmMin,tempomax=@bpmMax}, null) to see a list of @Model.DanceName songs @rangeText @bpmText.
         </p>
         <p>For more information about tempi, please take a look at the @Html.ActionLink("Tempi Tool", "Tempi", "Home").</p>
     </div>
@@ -133,7 +133,7 @@
 @if (tags.Count > 0)
 {
     <h4 id="tags">Tags</h4>
-    Html.RenderPartial("_TagCloud",tags);
+    Html.RenderPartial("_TagCloud", tags);
 }
 
 <p>
