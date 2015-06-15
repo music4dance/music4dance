@@ -1689,14 +1689,14 @@ namespace m4dModels
                 _context.Songs.Add(song);
                 
                 c += 1;
-                if (c % 100 == 0)
-                {
-                    Trace.WriteLineIf(TraceLevels.General.TraceInfo, string.Format("{0} songs loaded", c));
-                }
+                //if (c % 50 == 0)
+                //{
+                //    Trace.WriteLineIf(TraceLevels.General.TraceInfo, string.Format("{0} songs loaded", c));
+                //}
 
-                if (c % 1000 == 0)
+                if (c % 25 == 0)
                 {
-                    Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Saving next 1000 songs");
+                    Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Saving next 25 songs");
                     _context.CheckpointSongs();
                 }
             }
@@ -1786,6 +1786,10 @@ namespace m4dModels
         {
             if (!AdminMonitor.StartTask("RebuildUserTags")) return;
 
+            int addedCount = 0;
+            int removedCount = 0;
+            int modifiedCount = 0;
+
             try
             {
                 _context.TrackChanges(false);
@@ -1811,17 +1815,17 @@ namespace m4dModels
 
                     song.RebuildUserTags(user, tracker);
                     c += 1;
-                    if (c%1000 == 0)
+                    if (c%100 == 0)
                     {
                         Trace.WriteLineIf(
                             TraceLevels.General.TraceInfo,
                             string.Format("{0} songs loaded", c));
-                    }
-                    _context.ClearEntities(new string[] {"SongProperty", "DanceRating"});
+
+                        _context.ClearEntities(new string[] { "SongProperty", "DanceRating", "Song", "ModifiedRecord" });
+                    }                    
                 }
-
                 _context.CheckpointSongs();
-
+                
                 AdminMonitor.UpdateTask("Computing Tags");
 
                 var newTags = new Dictionary<string, Tag>();
@@ -1862,6 +1866,7 @@ namespace m4dModels
                         if (string.Equals(ot.Tags.ToString(), nt.Tags.ToString(), StringComparison.OrdinalIgnoreCase))
                             continue;
                         Trace.WriteLine(string.Format("C\t{0}\t{1}", ot.ToString(), nt.ToString()));
+                        modifiedCount += 1;
                         if (update)
                         {
                             ot.Tags = nt.Tags;
@@ -1870,6 +1875,7 @@ namespace m4dModels
                     else
                     {
                         Trace.WriteLine(string.Format("D\t{0}\t", ot.ToString()));
+                        removedCount += 1;
                         if (update)
                         {
                             remove.Add(ot);
@@ -1877,32 +1883,38 @@ namespace m4dModels
                     }
                 }
 
-                AdminMonitor.UpdateTask("Removing Tags");
-                // Do the actual removes
-                Trace.WriteLine("Remove old tags");
-                foreach (var rt in remove)
+                if (update)
                 {
-                    Tags.Remove(rt);
+                    AdminMonitor.UpdateTask(string.Format("Removing {0} Tags", removedCount));
+                    // Do the actual removes
+                    Trace.WriteLine("Remove old tags");
+                    foreach (var rt in remove)
+                    {
+                        Tags.Remove(rt);
+                    }
+
+                    addedCount = newTags.Values.Count;
+                    AdminMonitor.UpdateTask(string.Format("Adding {0} Tags",addedCount));
+                    // Then do the adds
+                    Trace.WriteLine("Add new user tags");
+                    foreach (var nt in newTags.Values)
+                    {
+                        Trace.WriteLine(string.Format("A\t\t{0}\t", nt.ToString()));
+                        Tags.Add(nt);
+                    }
+
+                    AdminMonitor.UpdateTask("Updating Database");
+                    _context.TrackChanges(true);
                 }
 
-                AdminMonitor.UpdateTask("Adding Tags");
-                // Then do the adds
-                Trace.WriteLine("Add new user tags");
-                foreach (var nt in newTags.Values)
-                {
-                    Trace.WriteLine(string.Format("A\t\t{0}\t", nt.ToString()));
-                    Tags.Add(nt);
-                }
-
-                AdminMonitor.UpdateTask("Updating Database");
-                _context.TrackChanges(true);
+                var message = string.Format("Success: added = {0}, removed = {1}, modified ={2}",addedCount,removedCount,modifiedCount);
+                Trace.WriteLine(message);
+                AdminMonitor.CompleteTask(true,message);
             }
             catch (Exception e)
             {
                 AdminMonitor.CompleteTask(false,e.Message,e);
             }
-
-            AdminMonitor.CompleteTask(true,"Success");
         }
 
         public void SeedDances()
@@ -2051,11 +2063,20 @@ namespace m4dModels
         #region User
         public ApplicationUser FindUser(string name)
         {
-            return _userManager.FindByName(name);
+            ApplicationUser user;
+            if (_userCache.TryGetValue(name,out user))
+                return user;
+
+            user = _userManager.FindByName(name);
+            if (user != null)
+                _userCache[name] = user;
+
+            return user;
         }
         public ApplicationUser FindOrAddUser(string name, string role)
         {
-            var user = _userManager.FindByName(name);
+            
+            var user = FindUser(name);
 
             if (user == null)
             {
@@ -2063,7 +2084,7 @@ namespace m4dModels
                 var res = _userManager.Create(user, "_This_Is_@_placeh0lder_");
                 if (res.Succeeded)
                 {
-                    var user2 = _userManager.FindByName(name);
+                    var user2 = FindUser(name);
                     Trace.WriteLine(string.Format("{0}:{1}", user2.UserName, user2.Id));
                 }
 
@@ -2073,11 +2094,10 @@ namespace m4dModels
             {
                 user.LockoutEnabled = true;
             }
-            else if (!_userManager.IsInRole(user.Id, role))
+            else
             {
-                _userManager.AddToRole(user.Id, role);
+                AddRole(user.Id, role);
             }
-
             return user;
         }
 
@@ -2088,6 +2108,27 @@ namespace m4dModels
             us.SongId = songId;
             return us;
         }
+
+        private void AddRole(string id, string role)
+        {
+            if (string.IsNullOrWhiteSpace(role))
+                return;
+
+            string key = id + ":" + role;
+            if (_roleCache.Contains(key))
+                return;
+
+            if (!_userManager.IsInRole(id, role))
+            {
+                _userManager.AddToRole(id, role);
+            }
+
+            _roleCache.Add(key);
+        }
+
+        private Dictionary<string, ApplicationUser> _userCache = new Dictionary<string, ApplicationUser>();
+        private HashSet<string> _roleCache = new HashSet<string>();
+
         #endregion
         public IList<Song> FindMergeCandidates(int n, int level)
         {
