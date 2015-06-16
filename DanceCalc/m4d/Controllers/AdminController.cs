@@ -879,7 +879,7 @@ namespace m4d.Controllers
                         }
                         else if (DanceMusicService.IsSongBreak(lines[0]))
                         {
-                            reloadDatabase = "songs";
+                            reloadDatabase = "loadSongs";
                         }
                         else if (DanceMusicService.IsUserBreak(lines[0]))
                         {
