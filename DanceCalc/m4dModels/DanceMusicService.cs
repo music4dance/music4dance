@@ -1821,7 +1821,7 @@ namespace m4dModels
                             TraceLevels.General.TraceInfo,
                             string.Format("{0} songs loaded", c));
 
-                        _context.ClearEntities(new string[] { "SongProperty", "DanceRating", "Song", "ModifiedRecord" });
+                        _context.ClearEntities(new[] { "SongProperty", "DanceRating", "Song", "ModifiedRecord" });
                     }                    
                 }
                 _context.CheckpointSongs();
@@ -1988,7 +1988,7 @@ namespace m4dModels
 
             return tags;
         }
-        public IList<string> SerializeSongs(bool withHeader = true, bool withHistory = true, int max = -1, DateTime? from = null, SongFilter filter = null)
+        public IList<string> SerializeSongs(bool withHeader = true, bool withHistory = true, int max = -1, DateTime? from = null, SongFilter filter = null, HashSet<Guid> exclusions = null)
         {
             var songs = new List<string>();
 
@@ -2024,16 +2024,42 @@ namespace m4dModels
                 actions = alist.ToArray();
             }
 
-            foreach (var song in songlist)
+            _context.TrackChanges(false);
+            if (max > 0)
             {
-                var line = song.Serialize(actions);
-                if (!string.IsNullOrWhiteSpace(line))
-                {
-                    songs.Add(line);
-                }
+                SerializeChunk(songlist, actions, songs,exclusions);
             }
+            else
+            {
+                const int chunkSize = 1000;
+                var chunkIndex = 0;
+                List<Song> chunk = null;
+                do
+                {
+                    chunk = songlist.Skip(chunkIndex * chunkSize).Take(chunkSize).ToList();
+                    SerializeChunk(chunk,actions,songs,exclusions);
+                    _context.ClearEntities(new[] { "SongProperty", "DanceRating", "Song", "ModifiedRecord" });
+                    chunkIndex += 1;
+                } while (chunk.Count > 0);
+            }
+            _context.TrackChanges(true);
 
             return songs;
+        }
+
+        private void SerializeChunk(IEnumerable<Song> songs, string[] actions, List<string> lines, HashSet<Guid> exclusions)
+        {
+            foreach (var song in songs)
+            {
+                if (exclusions.Contains(song.SongId))
+                    continue;
+
+                var line = song.Serialize(actions);
+                if (string.IsNullOrWhiteSpace(line))
+                    continue;
+
+                lines.Add(line);
+            }
         }
 
         public IList<string> SerializeDances(bool withHeader = true)

@@ -134,6 +134,16 @@
         <input type="submit" name="UploadTempi" id="Submit" value="Upload" />
     }
     <hr />
+
+    <h3>Backup Delta</h3>
+    using (Html.BeginForm("BackupDelta", "Admin", FormMethod.Post, new { enctype = "multipart/form-data" }))
+    {
+        @Html.AntiForgeryToken();
+        <input type="file" name="FileUpload" />
+        <br />
+        <input type="submit" name="UploadTempi"  value="Upload" />
+    }
+    <hr/>
     
     <h3>Reload the Database</h3>
     using (Html.BeginForm("ReloadDatabase", "Admin", FormMethod.Post, new { enctype = "multipart/form-data" }))

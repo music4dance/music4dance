@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Data.Entity;
@@ -10,14 +9,11 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
-using System.Web;
 using System.Web.Mvc;
 using DanceLibrary;
 using m4d.Context;
 using m4d.Scrapers;
 using m4dModels;
-using Microsoft.AspNet.Identity.Owin;
-using Microsoft.Owin;
 using Configuration = m4d.Migrations.Configuration;
 
 namespace m4d.Controllers
@@ -1417,7 +1413,7 @@ namespace m4d.Controllers
         }
 
         //
-        // Get: //BackupDatabase
+        // Get: //BackupTail
         [Authorize(Roles = "showDiagnostics")]
         public ActionResult BackupTail(int count = 100, DateTime? from = null, string filter = null)
         {
@@ -1436,6 +1432,36 @@ namespace m4d.Controllers
             var dt = DateTime.Now;
             return File(stream, "text/plain", string.Format("tail-{0:d4}-{1:d2}-{2:d2}.txt", dt.Year, dt.Month, dt.Day));
         }
+
+        //
+        // Get: //BackupDelta
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Authorize(Roles = "showDiagnostics")]
+        public ActionResult BackupDelta()
+        {
+            var lines = UploadFile();
+
+            var exclusions = new HashSet<Guid>();
+            foreach (var line in lines)
+            {
+                Guid guid;
+                if (Guid.TryParse(line, out guid))
+                {
+                    exclusions.Add(guid);
+                }
+            }
+
+            var songs = Database.SerializeSongs(true, true, -1, null, null, exclusions);
+
+            var s = string.Join("\r\n", songs);
+            var bytes = Encoding.UTF8.GetBytes(s);
+            var stream = new MemoryStream(bytes);
+
+            var dt = DateTime.Now;
+            return File(stream, "text/plain", string.Format("tail-{0:d4}-{1:d2}-{2:d2}.txt", dt.Year, dt.Month, dt.Day));
+        }
+
 
         //
         // Get: //RestoreDatabase
