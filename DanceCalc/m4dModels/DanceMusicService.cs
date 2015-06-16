@@ -1694,9 +1694,9 @@ namespace m4dModels
                 //    Trace.WriteLineIf(TraceLevels.General.TraceInfo, string.Format("{0} songs loaded", c));
                 //}
 
-                if (c % 25 == 0)
+                if (c % 100 == 0)
                 {
-                    Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Saving next 25 songs");
+                    Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Saving next 100 songs");
                     _context.CheckpointSongs();
                 }
             }
