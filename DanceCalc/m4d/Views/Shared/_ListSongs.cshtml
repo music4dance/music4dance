@@ -305,8 +305,8 @@
                                         }
                                     }
                                     MvcHtmlString content = MvcHtmlString.Create(
-                                        Html.ActionLink(name + " dance page...", name, "dances").ToString() + bstring +
-                                        Html.ActionLink("List all " + name + " songs...", "search", "song", new { dances = ditem.DanceId }, null).ToString() +
+                                        Html.ActionLink(name + " dance page...", name, "dances") + bstring +
+                                        Html.ActionLink("List all " + name + " songs...", "search", "song", new { dances = ditem.DanceId }, null) +
                                         tags);
                                     
                                     <a href='#!' class='rating @badge label label-music' role='button'

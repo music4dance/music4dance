@@ -10,6 +10,8 @@
 
     var dances = (IList<SongCounts>)ViewBag.Dances;
     IList<DanceLibrary.DanceObject> selected = ViewBag.SelectedDances;
+
+    SongFilter filter = ViewData.ContainsKey("SongFilter") ? ViewBag.SongFilter : SongFilter.Default;
 }
 
 @using (Html.BeginForm("Search", "Song", FormMethod.Get, new { id = "search" }))
@@ -27,7 +29,7 @@
     var checkA = string.Empty;
     var checkI = string.Empty;
     var checkS = string.Empty;
-    string purchase = ViewBag.SongFilter.Purchase;
+    string purchase = filter.Purchase;
     if (!string.IsNullOrWhiteSpace(purchase))
     {
         if (purchase.Contains('X'))
@@ -75,8 +77,8 @@
                     </ul>
                 </div>
                 <input type="hidden" name="dances" id="dances" value="@danceId" />
-                <input type="hidden" name="filter" id="filter" value="@ViewBag.SongFilter.ToString()" />
-                @Html.TextBox("SearchString", ViewBag.SongFilter.SearchString as string, new { @class = "form-control search-text", placeholder = "Artist, Title, or Album" })
+                <input type="hidden" name="filter" id="filter" value="@filter.ToString()" />
+                @Html.TextBox("SearchString", filter.SearchString as string, new { @class = "form-control search-text", placeholder = "Artist, Title, or Album" })
                 <span class="input-group-btn">
                     <button id="submit-search" class="btn btn-default" type="submit"><span class="glyphicon glyphicon-search"></span></button>
                 </span>
@@ -107,8 +109,8 @@
                 </div>
 
                 <div class="input-group">
-                    Tempo between @Html.TextBox("TempoMin", ViewBag.SongFilter.TempoMin as decimal?, new { @class = "input-small" })&nbsp;and&nbsp;
-                    @Html.TextBox("TempoMax", ViewBag.SongFilter.TempoMax as decimal?, new { @class = "input-small" }) &nbsp;BPM
+                    Tempo between @Html.TextBox("TempoMin", filter.TempoMin, new { @class = "input-small" })&nbsp;and&nbsp;
+                    @Html.TextBox("TempoMax", filter.TempoMax, new { @class = "input-small" }) &nbsp;BPM
                 </div>
             </div>
         </div>
@@ -127,16 +129,16 @@
         @Html.AntiForgeryToken()
         Html.RenderPartial("_ListSongs", @Model, ViewData);
         <div class="row col-xs-12">
-            <input type="hidden" name="filter" value="@ViewBag.SongFilter"/>
+            <input type="hidden" name="filter" value="@filter"/>
             <input type="submit" name="action" value="Merge" class="btn btn-"/>
             <input type="submit" name="action" value="Delete" class="btn"/>
             @Html.ActionLink("Add New Song", "Create", null, new {@class = "btn btn-default", role = "button"})
-            @Html.ActionLink("XBox Batch", "BatchMusicService", new {filter = ViewBag.SongFilter, type = "X", count = 10}, new {@class = "btn btn-success", role = "button"})
-            @Html.ActionLink("ITunes Batch", "BatchMusicService", new {filter = ViewBag.SongFilter, type = "I", count = 10}, new {@class = "btn btn-success", role = "button"})
-            @Html.ActionLink("Spotify Batch", "BatchMusicService", new {filter = ViewBag.SongFilter, type = "S", count = 10}, new {@class = "btn btn-success", role = "button"})
-            @Html.ActionLink("Amazon Batch", "BatchMusicService", new {filter = ViewBag.SongFilter, type = "A", count = 10}, new {@class = "btn btn-success", role = "button"})
-            @Html.ActionLink("Canonical Batch", "BatchMusicService", new {filter = ViewBag.SongFilter, type = "-", count = 10, options = "M"}, new {@class = "btn btn-success", role = "button"})
-            @Html.ActionLink("Backup List", "BackupTail", "Admin", new { filter = ViewBag.SongFilter, count=-1}, new { @class = "btn btn-default", role = "button" })
+            @Html.ActionLink("XBox Batch", "BatchMusicService", new {filter, type = "X", count = 10}, new {@class = "btn btn-success", role = "button"})
+            @Html.ActionLink("ITunes Batch", "BatchMusicService", new {filter, type = "I", count = 10}, new {@class = "btn btn-success", role = "button"})
+            @Html.ActionLink("Spotify Batch", "BatchMusicService", new {filter, type = "S", count = 10}, new {@class = "btn btn-success", role = "button"})
+            @Html.ActionLink("Amazon Batch", "BatchMusicService", new {filter, type = "A", count = 10}, new {@class = "btn btn-success", role = "button"})
+            @Html.ActionLink("Canonical Batch", "BatchMusicService", new {filter, type = "-", count = 10, options = "M"}, new {@class = "btn btn-success", role = "button"})
+            @Html.ActionLink("Backup List", "BackupTail", "Admin", new { filter, count=-1}, new { @class = "btn btn-default", role = "button" })
         </div>
     }
 }
@@ -148,20 +150,24 @@ else
 
 
 <div class="row">
-    <div class="col-md-8">
-        @Html.PagedListPager(Model, page => Url.Action(ViewBag.SongFilter.Action, new { page, filter = ViewBag.SongFilter }))
+    <div class="col-md-6">
+        @Html.PagedListPager(Model, page => Url.Action(filter.Action, new { page, filter }))
     </div>
     <div class="col-md-2 pagination-align">
         Page @(Model.PageCount < Model.PageNumber ? 0 : Model.PageNumber) of @Model.PageCount
         (@Model.TotalItemCount songs found.)
     </div>
-    <div class="col-md-2 pagination-align">
+    <div class="col-md-4 pagination-align">
         @if (selected != null && selected.Count > 0 && selected[0].Id != "All")
         {
             foreach (var dance in selected)
             {
-                @Html.ActionLink(dance.Name + " Page", dance.Name, "dances", new { filter = ViewBag.SongFilter, type = "I", count = 1 }, new { @class = "btn btn-default", role = "button" })
+                @Html.ActionLink(dance.Name + " Page", dance.Name, "dances", new { filter, type = "I", count = 1 }, new { @class = "btn btn-default", role = "button" })
             }
+        }
+        @if (!filter.IsEmpty)
+        {
+            @Html.ActionLink("New Search", "index", "song", new { @class = "btn btn-default", role = "button" })
         }
     </div>
 </div>

@@ -1,17 +1,39 @@
 ﻿@using m4dModels
+@using DanceLibrary;
+
 @helper TagButton(TagCount tag, SongFilter filter, float cloudSize = 0)
 {
     var buckets = new[] {.25F,.5F,.75F,1,5,10,20,25,50,100};
     var sizes = new[] {14,16,18,20,22,24,26,28,30,32};
     var iconSize = 14;
-    
-    var filterString = string.Empty;
+
+    var urlBase = "/song/addtags?tags={0}" + WebUtility.UrlEncode(tag.TagValue) + ":" + WebUtility.UrlEncode(tag.TagClass);
+    var url = urlBase;
+    string danceName = null;
+    string urlDance = null;
+    string urlFiltered = null;
     if (filter != null)
     {
-        filterString = "&filter=" + WebUtility.UrlEncode(filter.ToString());
+        var filterNoDance = new SongFilter(filter.ToString()) { Dances = null };
+        if (!filterNoDance.IsEmpty)
+        {
+            urlFiltered = urlBase + "&filter=" + WebUtility.UrlEncode(filter.ToString());
+        }
+
+        if (!string.IsNullOrWhiteSpace(filter.Dances) && Dances.Instance.DanceDictionary.ContainsKey(filter.Dances))
+        {
+            var filterDance = new SongFilter { Dances = filter.Dances };
+            danceName = Dances.Instance.DanceDictionary[filter.Dances].Name;
+            
+            urlDance = urlBase + "&filter=" + WebUtility.UrlEncode(filterDance.ToString());
+        }
+    }
+    else
+    {
+        filter = new SongFilter();
     }
     var tc = tag.TagClass.ToLower();
-    var url = "/song/addtags?tags={0}" + WebUtility.UrlEncode(tag.TagValue) + ":" + WebUtility.UrlEncode(tag.TagClass) + filterString;
+    
     var img = "/Content/" + TagType.ClassToName(tc) + "-50.png";
 
     var size = string.Empty;
@@ -30,8 +52,18 @@
     <div class="btn-group @size">
         <a href="#!" role="button" class="dropdown-toggle label label-@tc" data-toggle="dropdown" aria-expanded="false"><img src="@img" height="@iconSize.ToString()" width="@iconSize.ToString()" /> @tag.TagValue</a>
         <ul class="dropdown-menu" role="menu">
-            <li><a href="@string.Format(url,"%2B")">Include songs tagged as @tag.TagValue</a></li>
-            <li><a href="@string.Format(url,"%2D")">Exclude songs tagged as @tag.TagValue</a></li>
+            @if (urlFiltered != null)
+            {
+                <li><a href="@string.Format(urlFiltered, "%2B")">Filter the list to include only songs tagged as @tag.TagValue</a></li>
+                <li><a href="@string.Format(urlFiltered, "%2D")">Filter the list to include only songs not tagged as @tag.TagValue</a></li>
+            }
+            @if (urlDance != null)
+            {
+                <li><a href="@string.Format(urlDance, "%2B")">List all @danceName songs tagged as @tag.TagValue</a></li>
+                <li><a href="@string.Format(urlDance, "%2D")">List all @danceName songs not tagged as @tag.TagValue</a></li>
+            }
+            <li><a href="@string.Format(url, "%2B")">List all songs tagged as @tag.TagValue</a></li>
+            <li><a href="@string.Format(url, "%2D")">List all songs not tagged as @tag.TagValue</a></li>
         </ul>
     </div>
 }
