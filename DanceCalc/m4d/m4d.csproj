@@ -501,6 +501,7 @@
     <Content Include="Content\tools.png" />
     <Content Include="Content\xbox-logo.png" />
     <Content Include="Content\xbox-charm.png" />
+    <Content Include="fonts\glyphicons-halflings-regular.svg" />
     <Content Include="Global.asax" />
     <Content Include="Content\Site.css" />
     <Content Include="Content\JohnCrossan.csv">
@@ -611,10 +612,15 @@
     <Content Include="Content\bootstrap\bootstrap.less" />
     <Content Include="Content\bootstrap\badges.less" />
     <Content Include="Content\bootstrap\alerts.less" />
+    <Content Include="App_Code\TagHelpers.cshtml" />
+    <Content Include="fonts\glyphicons-halflings-regular.woff2" />
+    <Content Include="fonts\glyphicons-halflings-regular.woff" />
+    <Content Include="fonts\glyphicons-halflings-regular.ttf" />
+    <Content Include="fonts\glyphicons-halflings-regular.eot" />
     <Content Include="Content\bootstrap-theme.css.map" />
     <Content Include="Content\bootstrap.css.map" />
-    <Content Include="App_Code\TagHelpers.cshtml" />
     <None Include="Properties\PublishProfiles\m4d.pubxml" />
+    <Content Include="Icon.png" />
     <Content Include="MvcDiagnostics.aspx" />
     <Content Include="Scripts\bootstrap.js" />
     <Content Include="Scripts\bootstrap.min.js" />
