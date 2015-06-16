@@ -481,7 +481,7 @@ namespace m4d.Context
         {
             var list = Set<T>().Local.ToList();
             foreach (var p in list) 
-                Entry(p).State = EntityState.Detached;
+                Entry(p).State = System.Data.Entity.EntityState.Detached;
         }
 
         public void TrackChanges(bool track)
