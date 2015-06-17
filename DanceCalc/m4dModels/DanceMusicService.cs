@@ -2051,7 +2051,7 @@ namespace m4dModels
         {
             foreach (var song in songs)
             {
-                if (exclusions.Contains(song.SongId))
+                if (exclusions != null && exclusions.Contains(song.SongId))
                     continue;
 
                 var line = song.Serialize(actions);
