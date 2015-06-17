@@ -619,6 +619,7 @@
     <Content Include="fonts\glyphicons-halflings-regular.eot" />
     <Content Include="Content\bootstrap-theme.css.map" />
     <Content Include="Content\bootstrap.css.map" />
+    <Content Include="App_Code\SmartLink.cshtml" />
     <None Include="Properties\PublishProfiles\m4d.pubxml" />
     <Content Include="Icon.png" />
     <Content Include="MvcDiagnostics.aspx" />
