@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Web.Mvc;
+using m4d.ViewModels;
 using m4dModels;
 
 namespace m4d.Controllers
@@ -30,6 +31,14 @@ namespace m4d.Controllers
                 return View(data);
             }
 
+            var category = DanceCategories.GetDanceCategories(Database).FromName(dance);
+
+            if (category != null)
+            {
+                HelpPage = "dance-category";
+                return View("category", category);
+            }
+
             HelpPage = "dance-details";
             ViewBag.DanceMap = SongCounts.GetDanceMap(Database);
             var sc = SongCounts.FromName(dance, Database);
@@ -48,17 +57,11 @@ namespace m4d.Controllers
         [Authorize(Roles = "canEdit")]
         public ActionResult Edit(string id)
         {
-            Dance dance = Database.Dances.Find(id);
+            var dance = Database.Dances.Find(id);
 
-            if (dance != null)
-            {
-                return View(dance);
-            }
-            else
-            {
-                return ReturnError(HttpStatusCode.NotFound,string.Format("The dance with id = {0} isn't defined.",id));
-            }
+            return dance != null ? View(dance) : ReturnError(HttpStatusCode.NotFound,string.Format("The dance with id = {0} isn't defined.",id));
         }
+
         //
         // POST: /Dances/Edit/5
         [HttpPost, ValidateInput(false)]

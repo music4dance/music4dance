@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Data.Entity;
 using System.Diagnostics;
 using System.Linq;
 using DanceLibrary;
@@ -10,7 +9,7 @@ namespace m4dModels
 {
     public class SongCounts
     {
-        [Key]
+       [Key]
         public string DanceId { get; set; }
         public string DanceName { get; set; }
         public int SongCount { get; set; }
@@ -38,6 +37,8 @@ namespace m4dModels
                 s_counts.Clear();
                 s_map.Clear();
             }
+
+            DanceCategories.ClearCache();
         }
 
         // TODO: This is awfully kludgy, I think the real

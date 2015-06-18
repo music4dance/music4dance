@@ -26,18 +26,18 @@ var DanceType = function (data, parent) {
     }, this);
 
     this.tempoDS = ko.computed(function () {
-        return self.tempoHelper(parent.styleFilter(), 1);
+        return self.tempoHelper(parent.styleFilter(), 1, true);
     }, this);
 
     this.tempoNDCA = ko.computed(function () {
-        var ret = self.tempoHelper(parent.styleFilter(), 3);
-        if (!ret) ret = self.tempoHelper(parent.styleFilter(), 5);
+        var ret = self.tempoHelper(parent.styleFilter(), 3, true);
+        if (!ret) ret = self.tempoHelper(parent.styleFilter(), 5, true);
         return ret;
     }, this);
 
     this.tempoNDCABeginner = ko.computed(function () {
-        var ret = self.tempoHelper(parent.styleFilter(), 4);
-        if (!ret) ret = self.tempoHelper(parent.styleFilter(), 6);
+        var ret = self.tempoHelper(parent.styleFilter(), 4, true);
+        if (!ret) ret = self.tempoHelper(parent.styleFilter(), 6, true);
         return ret;
     }, this);
 

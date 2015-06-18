@@ -185,6 +185,63 @@ namespace DanceLibrary
         [JsonProperty]
         override public TempoRange TempoRange { get; set; }
 
+        public TempoRange DanceSportTempo
+        {
+            get
+            {
+                if (Exceptions == null)
+                    return TempoRange;
+
+                foreach (var ex in Exceptions)
+                {
+                    if (ex.Organization == "DanceSport")
+                    {
+                        return ex.TempoRange;
+                    }
+                }
+                return TempoRange;
+            }
+        }
+
+        public TempoRange NDCATempoA
+        {
+            get
+            {
+                if (Exceptions == null)
+                    return TempoRange;
+
+                foreach (var ex in Exceptions)
+                {
+                    if (ex.Organization == "NDCA" &&
+                        ((Id[3] == 'A' && (ex.Level == "All" || ex.Level == "Silver,Gold")) ||
+                         (Id[3] == 'I' && (ex.Competitor == "All" || ex.Competitor == "Professional,Amateur"))))
+                    {
+                        return ex.TempoRange;
+                    }
+                }
+                return TempoRange;
+            }
+        }
+
+        public TempoRange NDCATempoB {
+            get
+            {
+                if (Exceptions == null)
+                    return TempoRange;
+
+                foreach (var ex in Exceptions)
+                {
+                    if (ex.Organization == "NDCA" &&
+                        ((Id[3] == 'A' && (ex.Level == "All" || ex.Level == "Bronze")) ||
+                         (Id[3] == 'I' && (ex.Competitor == "All" || ex.Competitor == "ProAm"))))
+                    {
+                        return ex.TempoRange;
+                    }
+                }
+                return TempoRange;
+            }
+         }
+
         public override string Id
         {
             get
@@ -237,7 +294,7 @@ namespace DanceLibrary
                 ReadOnlyCollection<DanceException> exceptions = GetFilteredExceptions();
 
                 // Include the general tempo iff the exceptions don't fully cover the
-                //  selected filters for the instnace in question
+                //  selected filters for the instance in question
                 TempoRange tempoRange = null;
                 if (IncludeGeneral(exceptions))
                 {

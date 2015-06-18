@@ -148,7 +148,13 @@ namespace m4dModels
             {
                 return new KeyValuePair<string, string>(dance.Name.Replace(" ", "").ToLower(), string.Format("/dances/{0}", dance.CleanName));
             }
-            
+
+            var cat = Categories.FirstOrDefault(c => string.Equals(d, c, StringComparison.OrdinalIgnoreCase));
+            if (cat != null)
+            {
+                return new KeyValuePair<string, string>(cat.Replace(" ", "").ToLower(), string.Format("/dances/{0}", DanceObject.SeoFriendly(cat)));
+            }
+
             string link;
             d = d.ToLower();
             if (!s_links.TryGetValue(d,out link))
@@ -160,14 +166,12 @@ namespace m4dModels
             return new KeyValuePair<string, string>(d.Replace(" ", ""), link);
         }
 
+        public static readonly string[] Categories = {"International Standard", "International Latin", "American Smooth", "American Rhythm"};
+
         static readonly Dictionary<string, string> s_links = new Dictionary<string, string>()
         {
             {"swing music", "http://en.wikipedia.org/wiki/Swing_music"},
             {"tango music", "http://en.wikipedia.org/wiki/Tango"},
-            {"international latin", "http://en.wikipedia.org/wiki/List_of_DanceSport_dances#Latin"},
-            {"international standard", "http://en.wikipedia.org/wiki/List_of_DanceSport_dances#Ballroom"},
-            {"american smooth", "http://en.wikipedia.org/wiki/List_of_DanceSport_dances#Smooth"},
-            {"american rhythm", "http://en.wikipedia.org/wiki/List_of_DanceSport_dances#Rhythm"},
         };
         public bool Update(IList<string> cells)
         {
