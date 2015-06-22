@@ -23,7 +23,7 @@ namespace m4d.Controllers
         {
             get
             {
-                return AdminTheme;
+                return ToolTheme;
             }
         }
 

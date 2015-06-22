@@ -235,7 +235,6 @@ namespace m4dModels
                 song.UpdateProperties(from.SongProperties, new[] { SongBase.FailedLookup, SongBase.AlbumField, SongBase.TrackField, SongBase.PublisherField, SongBase.PurchaseField });
                 RemoveSong(from, user);
             }
-            // TODONEXT: Make sure taht these end up in property ID order....
             song.UpdateFromService(this);
 
             var sd = new SongDetails(title,artist,tempo,length,albums);

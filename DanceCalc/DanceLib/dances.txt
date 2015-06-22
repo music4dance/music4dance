@@ -450,7 +450,7 @@
       {
         "Style": "International Latin",
         "TempoRange": {
-          "Min": 25.0,
+          "Min": 26.0,
           "Max": 27.0
         },
         "Exceptions": [

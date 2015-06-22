@@ -70,6 +70,8 @@ var DanceType = function (data, parent) {
         return ret;
     }, this);
 
+    // TODNOEXT: JIV & SWZ (international) aren't working right - think filter for Professional & Amateur may be getting obscured by Silver,Gold?
+
     this.checkFilter = function () {
         var m = parent.meterFilter() === 1 || parent.meterFilter() === this.Meter.Numerator;
         var ti = parent.typeFilter(); 
@@ -116,23 +118,18 @@ var DanceType = function (data, parent) {
         var range = this.TempoRange;
 
         if (si || oi) {
-            range = null;
             for (var i = 0; i < this.Instances.length; i++) {
                 if (!si || (window.danceStyles[si].name === this.Instances[i].Style)) {
                     var instance = this.Instances[i];
-                    var match = false;
+                    range = instance.TempoRange;
                     if (oi && instance.Exceptions && instance.Exceptions.length > 0) {
                         var org = window.danceOrgs[oi];
                         for (var j = 0; j < instance.Exceptions.length; j++) {
                             var ex = instance.Exceptions[j];
                             if (this.matchException(ex, org)) {
-                                range = this.unionRange(range, ex.TempoRange);
-                                match = true;
+                                range = ex.TempoRange;
                             }
                         }
-                    }
-                    if (!match && (oi === 0 || this.Instances[i].Style !== 'Social')) {
-                        range = this.unionRange(range, instance.TempoRange);
                     }
                 }
             }

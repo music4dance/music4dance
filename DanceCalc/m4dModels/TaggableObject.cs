@@ -11,7 +11,7 @@ namespace m4dModels
     // Assumption:  We'll only maintain one tag entry per user, per object (undo provided only on songs where we've got properties).
     // Do we really need a timestamp on these?
 
-    // TODONEXT: If we want users to be taggable we'll need to rethink base class vs. interface (possibly both?)
+    // TODO: If we want users to be taggable we'll need to rethink base class vs. interface (possibly both?)
     //  Test Editing a song with tags, merging a song with tags, log & restore log with tags
     //  Complete:  Saving/reloading the database
     //  Go through and make sure we're hitting TAGTEST
