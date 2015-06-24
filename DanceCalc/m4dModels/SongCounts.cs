@@ -30,6 +30,24 @@ namespace m4dModels
 
         public ICollection<ICollection<PurchaseLink>> TopSpotify { get; private set; }
 
+        public IReadOnlyList<CompetitionDance> CompetitionDances { get {return _competitionDances;} }
+
+        public void AddCompetitionDance(CompetitionDance competitionDance)
+        {
+            lock (this)
+            {
+                if (_competitionDances == null)
+                {
+                    _competitionDances = new List<CompetitionDance>();
+                }
+                _competitionDances.Add(competitionDance);
+            }
+            
+            
+        }
+        private List<CompetitionDance> _competitionDances;
+
+
         static public void ClearCache()
         {
             lock (s_counts)
@@ -274,6 +292,5 @@ namespace m4dModels
 
             return sc;
         }
-
     }
 }

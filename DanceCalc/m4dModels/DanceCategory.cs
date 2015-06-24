@@ -5,6 +5,13 @@ using DanceLibrary;
 
 namespace m4dModels
 {
+    public enum DanceCategoryType
+    {
+        Both,
+        American,
+        International
+    };
+
     // TODONEXT: Build the competition round pages, get these referenced off of the pages.  Figure out if these should be built once and cached...
     public struct CompetitionDance
     {
@@ -12,6 +19,7 @@ namespace m4dModels
         {
             SongCount = SongCounts.GetDanceMap(dms)[id.Substring(0,3)];
             SpecificDance = Dances.Instance.DanceDictionary[id] as DanceInstance;
+            SongCount.AddCompetitionDance(this);
         }
         public SongCounts SongCount { get; private set; }
         public DanceInstance SpecificDance { get; private set; }

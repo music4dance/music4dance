@@ -1,4 +1,8 @@
-﻿// DanceHeader
+﻿function BuildSeoName(name) {
+    return name.toLowerCase().replace(' ', '-');
+}
+
+// DanceHeader
 var DanceHeader = function(title,key,detail,parent) {
     var self = this;
     this.title = title;
@@ -15,7 +19,7 @@ var DanceType = function (data, parent) {
     var self = this;
     $.extend(true, this, data);
 
-    this.SeoName = this.Name.toLowerCase().replace(' ', '-');
+    this.SeoName = BuildSeoName(this.Name);
 
     this.tempoMPM = ko.computed(function () {
         return self.tempoHelper(parent.styleFilter(), parent.orgFilter(), true);
@@ -56,7 +60,12 @@ var DanceType = function (data, parent) {
 
                 if (parent.styleFilter() === 0 || style === ps) {
                     ret += sep;
-                    ret += style;
+                    if (style === 'Social') {
+                        ret += style;
+                    } else {
+                        ret += '<a href="/dances/' + BuildSeoName(style) + '">' + style + '</a>';
+                    }
+                    
 
                     if (parent.showDetails()) {
                         sep = '<br>';
@@ -191,10 +200,13 @@ var DanceType = function (data, parent) {
         else if (ex.Level === 'All' && ex.Competitor === "All") {
             return true;
         }
-        else {
-            return (org.category === 'Level' && ex.Level === org.qualifier) ||
-             (org.category === 'Competitor' && ex.Competitor === org.qualifier);
+        else if (ex.Level === 'Bronze' || ex.Competitor === 'ProAm') {
+            return org.qualifier === 'Bronze' || org.qualifier === 'ProAm';
         }
+        if (ex.Level === 'Silver,Gold' || ex.Competitor === 'Professional,Amateur') {
+            return org.qualifier === 'Silver,Gold' || org.qualifier === 'Professional,Amateur';
+        }
+        return false;
     }
 
     this.unionRange = function(a,b) {

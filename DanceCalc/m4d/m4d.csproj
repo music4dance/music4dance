@@ -439,6 +439,7 @@
     <Compile Include="ViewModels\TagTypeView.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="2516966.html" />
     <Content Include="BingSiteAuth.xml" />
     <Content Include="Content\ajax-loader.gif" />
     <Content Include="Content\amazon-charm.png" />
@@ -620,7 +621,7 @@
     <Content Include="Content\bootstrap-theme.css.map" />
     <Content Include="Content\bootstrap.css.map" />
     <Content Include="App_Code\SmartLink.cshtml" />
-    <Content Include="App_Code\CategoryHelpers.cshtml" />
+    <Content Include="App_Code\DanceHelper.cshtml" />
     <None Include="Properties\PublishProfiles\m4d.pubxml" />
     <Content Include="Icon.png" />
     <Content Include="MvcDiagnostics.aspx" />
@@ -835,9 +836,6 @@
     <Content Include="Views\Home\Home.cshtml" />
     <Content Include="Views\Admin\AdminStatus.cshtml" />
     <Content Include="Views\Shared\_TagCloud.cshtml" />
-    <Content Include="Views\Dance\InternationalLatin.cshtml" />
-    <Content Include="Views\Dance\InternationalStandard.cshtml" />
-    <Content Include="Views\Dance\AmericanRhythm.cshtml" />
     <Content Include="Views\Dance\Category.cshtml" />
     <None Include="Web.m4d.config">
       <DependentUpon>Web.config</DependentUpon>

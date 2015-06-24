@@ -93,7 +93,7 @@
     var bpmMin = tempo.Min * info.Meter.Numerator;
     var bpmMax = tempo.Max * info.Meter.Numerator;
     var rangeText = (oneTempo) ? "at" : "between";
-    var bpmText = bpmMin.ToString(CultureInfo.CurrentCulture) + (oneTempo ? string.Empty : " and " + bpmMax.ToString(CultureInfo.CurrentCulture)) + " beats per mintue";
+    var bpmText = bpmMin.ToString(CultureInfo.CurrentCulture) + (oneTempo ? string.Empty : " and " + bpmMax.ToString(CultureInfo.CurrentCulture)) + " beats per minute";
     var mpmText = tempo.MinString + (oneTempo ? string.Empty : " and " + tempo.MaxString) + " measures per mintue";
     <hr />
     <div id="tempo-info">
@@ -103,7 +103,17 @@
             @rangeText @mpmText (@bpmText)
             . @Html.ActionLink("Click here","advancedsearch","song", new {dances = @Model.DanceId,tempomin=@bpmMin,tempomax=@bpmMax}, null) to see a list of @Model.DanceName songs @rangeText @bpmText.
         </p>
-        <p>For more information about tempi, please take a look at the @Html.ActionLink("Tempi Tool", "Tempi", "Home").</p>
+        <p>
+            <img src="~/Content/tools.png" alt="tools" width="24" height="24" />Use our tempi tool to find more infromation about tempi and to explore relationships between the meter and tempi of different dance styles.
+            @SmartLink.TryIt("https://www.music4dance.net/home/tempi") @SmartLink.Docs("https://www.music4dance.net/blog/music4dance-help/dance-tempi/")
+        </p>
+    </div>
+}
+
+@if (@Model.CompetitionDances != null)
+{
+    <div id="category-info">
+        @DanceHelper.CategoryTable(Html,Model.CompetitionDances,"Competition Tempo information:",DanceCategoryType.Both)
     </div>
 }
 
@@ -120,6 +130,7 @@
 
 @if (Model.Dance.DanceLinks != null && Model.Dance.DanceLinks.Count > 0)
 {
+    <hr />
     <h4 id="references">References</h4>
     <ul>
         @foreach (var dl in Model.Dance.DanceLinks)
@@ -132,6 +143,7 @@
 
 @if (tags.Count > 0)
 {
+    <hr />
     <h4 id="tags">Tags</h4>
     Html.RenderPartial("_TagCloud", tags);
 }
