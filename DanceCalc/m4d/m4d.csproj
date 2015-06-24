@@ -444,6 +444,8 @@
     <Content Include="Content\ajax-loader.gif" />
     <Content Include="Content\amazon-charm.png" />
     <Content Include="Content\amazon-logo.png" />
+    <Content Include="Content\auth-buttons.css" />
+    <Content Include="Content\auth-icons.png" />
     <Content Include="Content\ballroom-bkg.png" />
     <Content Include="Content\ballroom.png" />
     <Content Include="Content\BlackBanner.png" />
