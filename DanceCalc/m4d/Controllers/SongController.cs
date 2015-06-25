@@ -885,7 +885,7 @@ namespace m4d.Controllers
             var dances = new List<SelectListItem>(Database.Dances.Count());
             dances.Add(new SelectListItem() { Value = string.Empty, Text = string.Empty, Selected = true });
             // ReSharper disable once LoopCanBeConvertedToQuery
-            foreach (var d in Database.Dances)
+            foreach (var d in Database.Dances.Where(d => d.Id.Length < 4))
             {
                 dances.Add(new SelectListItem() { Value = d.Id, Text = d.Info.Name, Selected=false });
             }
@@ -894,9 +894,9 @@ namespace m4d.Controllers
 
         private IEnumerable<SimpleDance> GetSimpleDances()
         {
-            var dances = new List<SimpleDance>(Database.Dances.Count());
+            var dances = new List<SimpleDance>();
             // ReSharper disable once LoopCanBeConvertedToQuery
-            foreach (var d in Database.Dances)
+            foreach (var d in Database.Dances.Where(d => d.Id.Length < 4))
             {
                 dances.Add(new SimpleDance() { Id = d.Id, Name = d.Info.Name });
             }
