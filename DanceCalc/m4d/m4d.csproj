@@ -439,7 +439,6 @@
     <Compile Include="ViewModels\TagTypeView.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="2516966.html" />
     <Content Include="BingSiteAuth.xml" />
     <Content Include="Content\ajax-loader.gif" />
     <Content Include="Content\amazon-charm.png" />
