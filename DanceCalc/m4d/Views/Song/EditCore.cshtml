@@ -124,23 +124,23 @@
                     </td>
                     <td>
                         <div class="editor-field">
-                            <input data-bind="attr: {id: computeAlbumId($index(),'Name'), name: computeAlbumName($index(),'Name')}, value: Name" type="text" />
+                            <input data-bind="attr: {id: helpers.computeAlbumId($index(),'Name'), name: helpers.computeAlbumName($index(),'Name')}, value: Name" type="text" />
                         </div>
                     </td>
                     <td>
                         <div class="editor-field">
-                            <input data-bind="attr: {id: computeAlbumId($index(),'Track'), name: computeAlbumName($index(),'Track')}, value: Track" type="text" />
+                            <input data-bind="attr: {id: helpers.computeAlbumId($index(),'Track'), name: helpers.computeAlbumName($index(),'Track')}, value: Track" type="text" />
                         </div>
                     </td>
                     <td>
                         <div class="editor-field">
-                            <input data-bind="attr:{id: computeAlbumId($index(),'Publisher'), name: computeAlbumName($index(),'Publisher')}, value: Publisher" type="text" />
+                            <input data-bind="attr:{id: helpers.computeAlbumId($index(),'Publisher'), name: helpers.computeAlbumName($index(),'Publisher')}, value: Publisher" type="text" />
                         </div>
                     </td>
                     <td>
                         <button type="button" data-bind="attr: {id: 'Delete_' + $index()}, click: $root.song.removeAlbum">X</button>
-                        <input data-bind="attr:{id: computeAlbumId($index(),'PurchaseInfo'), name: computeAlbumName($index(),'PurchaseInfo')}, value:PurchaseInfo" type="hidden" />
-                        <input data-bind="attr: {id: computeAlbumId($index(),'Index'), name: computeAlbumName($index(),'Index')}, value:Index" type="hidden" />
+                        <input data-bind="attr:{id: helpers.computeAlbumId($index(),'PurchaseInfo'), name: helpers.computeAlbumName($index(),'PurchaseInfo')}, value:PurchaseInfo" type="hidden" />
+                        <input data-bind="attr: {id: helpers.computeAlbumId($index(),'Index'), name: helpers.computeAlbumName($index(),'Index')}, value:Index" type="hidden" />
                     </td>
                     <td>
                         <div data-bind="foreach: PurchaseLinks">
