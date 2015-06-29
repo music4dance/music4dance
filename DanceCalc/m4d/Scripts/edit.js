@@ -28,7 +28,12 @@ var helpers = function () {
 }();
 
 var editor = function () {
+
+    // Forward declare model and mappings
     var viewModel = null;
+    var albumMapping = null;
+    var ratingMapping = null;
+    var songMapping = null;
 
     var ratingState = {
         UNCHANGED: 'unchanged',
@@ -41,36 +46,6 @@ var editor = function () {
         DOWN: -1,
         NEUTRAL: 0,
         UP: 1
-    };
-
-    var danceAction = function (id) {
-        var option = $('#addDance > option[value=' + id + ']');
-        var name = option.text();
-
-        var rating = null;
-        for (var i = 0; i < viewModel.song.DanceRatings().length; i++) {
-            if (viewModel.song.DanceRatings()[i].DanceId() === id) {
-                rating = viewModel.song.DanceRatings()[i];
-            }
-        }
-
-        viewModel.song.TagSummary.addTag(name, 'Dance');
-
-        if (rating) {
-            rating.state(ratingState.MODIFIED);
-        } else {
-            viewModel.song.DanceRatings.push(new Rating(
-            {
-                DanceId: id,
-                DanceName: name,
-                Weight: 1,
-                Max: 5,
-                Badge: 'rating-2',
-                TagSummary: { Summary: '', Tags: [] },
-                state: ratingState.CREATED
-            },
-            viewModel.song));
-        }
     };
 
     var logoFromEnum = function (e) {
@@ -144,12 +119,34 @@ var editor = function () {
         }
     };
 
+    var addPurchaseLink = function (link, olist) {
+        if (link != null) {
+            // TODO: Has to be a cleaner way to find existence ($.inArray isn't working
+            //  possibly because we're mapped - may be that going back and figuring
+            //  out how to get KO Mapping to mapp the PurchaseLink array but not
+            //  the objects is the way to go...
+
+            for (var i = 0; i < olist().length; i++) {
+                if (link.Link === olist()[i].Link()) {
+                    return; // Already have this link
+                }
+            }
+
+            var olink = ko.mapping.fromJS(link);
+            if ($.inArray(olink, olist()) === -1) {
+                olist.push(olink);
+            }
+        }
+    };
+
     var normalizeName = function (name) {
         name = name.toLowerCase();
         name = name.replace(/[^a-z0-9]/g, '');
         return name;
     }
+
     // Track object
+    // ReSharper disable once InconsistentNaming
     var Track = function (data) {
         var self = this;
 
@@ -188,35 +185,8 @@ var editor = function () {
         }, this);
     };
 
-    var trackMapping = {
-        'tracks': {
-            create: function (options) {
-                return new Track(options.data);
-            }
-        }
-    };
-
-    var addPurchaseLink = function (link, olist) {
-        if (link != null) {
-            // TODO: Has to be a cleaner way to find existence ($.inArray isn't working
-            //  possibly because we're mapped - may be that going back and figuring
-            //  out how to get KO Mapping to mapp the PurchaseLink array but not
-            //  the objects is the way to go...
-
-            for (var i = 0; i < olist().length; i++) {
-                if (link.Link === olist()[i].Link()) {
-                    return; // Already have this link
-                }
-            }
-
-            var olink = ko.mapping.fromJS(link);
-            if ($.inArray(olink, olist()) === -1) {
-                olist.push(olink);
-            }
-        }
-    };
-
     // Rating object
+    // ReSharper disable once InconsistentNaming
     var Rating = function (data, parent) {
         var self = this;
 
@@ -234,43 +204,43 @@ var editor = function () {
 
         self.toggleVote = function () {
             switch (self.vote()) {
-                case voteState.UP:
-                    self.song.TagSummary.addTag('-' + self.DanceName(), 'Dance');
-                    self.song.TagSummary.removeTag(self.DanceName(), 'Dance');
-                    break;
-                case voteState.DOWN:
-                    self.song.TagSummary.removeTag('-' + self.DanceName(), 'Dance');
-                    break;
-                default:
-                    self.song.TagSummary.addTag(self.DanceName(), 'Dance');
-                    break;
+            case voteState.UP:
+                self.song.TagSummary.addTag('-' + self.DanceName(), 'Dance');
+                self.song.TagSummary.removeTag(self.DanceName(), 'Dance');
+                break;
+            case voteState.DOWN:
+                self.song.TagSummary.removeTag('-' + self.DanceName(), 'Dance');
+                break;
+            default:
+                self.song.TagSummary.addTag(self.DanceName(), 'Dance');
+                break;
             }
         };
 
         self.voteImage = ko.pureComputed(function () {
             var img;
             switch (self.vote()) {
-                case voteState.UP:
-                    img = '';
-                    break;
-                case voteState.DOWN:
-                    img = 'broken-';
-                    break;
-                default:
-                    img = 'outline-';
-                    break;
+            case voteState.UP:
+                img = '';
+                break;
+            case voteState.DOWN:
+                img = 'broken-';
+                break;
+            default:
+                img = 'outline-';
+                break;
             }
             return '/content/heart-' + img + 'icon.png';
         }, this);
 
         self.voteName = ko.pureComputed(function () {
             switch (self.vote()) {
-                case voteState.UP:
-                    return 'You like to dance ' + self.DanceName() + ' to this song';
-                case voteState.DOWN:
-                    return 'You don\'t like to dance ' + self.DanceName() + ' to this song';
-                default:
-                    return 'You haven\'t voted';
+            case voteState.UP:
+                return 'You like to dance ' + self.DanceName() + ' to this song';
+            case voteState.DOWN:
+                return 'You don\'t like to dance ' + self.DanceName() + ' to this song';
+            default:
+                return 'You haven\'t voted';
             }
         }, this);
 
@@ -312,6 +282,7 @@ var editor = function () {
     };
 
     // Album object
+    // ReSharper disable once InconsistentNaming
     var Album = function (data) {
         var self = this;
 
@@ -346,6 +317,9 @@ var editor = function () {
                 self.PurchaseInfo(pi);
             }
 
+            if (track == null)
+                return;
+
             // Then add in the purchase links
             addPurchaseLink(track.SongLink, self.PurchaseLinks);
             //addPurchaseLink(track.AlbumLink, self.PurchaseLinks());
@@ -363,6 +337,7 @@ var editor = function () {
 
     var classMap = { 'style': 'dance', 'tempo': 'tempo', 'music': 'genre' };
 
+    // ReSharper disable once InconsistentNaming
     var Tag = function (value, parent) {
         var self = this;
 
@@ -424,6 +399,7 @@ var editor = function () {
         };
     };
 
+    // ReSharper disable once InconsistentNaming
     var TagType = function (summary, name, label) {
         var self = this;
 
@@ -445,6 +421,7 @@ var editor = function () {
     };
 
     // Tag Summary Object
+    // ReSharper disable once InconsistentNaming
     var TagSummary = function (data, parent, forSong) {
         var self = this;
         self.parent = parent;
@@ -575,6 +552,7 @@ var editor = function () {
     }; 
     
     // Song object
+    // ReSharper disable once InconsistentNaming
     var Song = function (data) {
         var self = this;
 
@@ -583,6 +561,7 @@ var editor = function () {
         }
         ko.mapping.fromJS(data, albumMapping, this);
 
+        // Alubm Management
         self.nextIndex = function () {
             var max = 1;
             for (var i = 0; i < self.Albums().length; i++) {
@@ -607,6 +586,7 @@ var editor = function () {
             self.Albums.unshift(temp[0]);
             event.preventDefault();
         };
+
         self.findAlbum = function (track) {
             for (var i = 0; i < viewModel.song.Albums().length; i++) {
                 var a = viewModel.song.Albums()[i];
@@ -617,6 +597,8 @@ var editor = function () {
 
             return null;
         };
+
+        // Track Management
         self.chooseTrack = function (track, event) {
             event.preventDefault();
 
@@ -648,10 +630,10 @@ var editor = function () {
                 self.TagSummary.addTag(track.Genre, 'Music');
             }
         };
-
     };
 
     // EditPage object
+    // ReSharper disable once InconsistentNaming
     var EditPage = function (data) {
         var self = this;
 
@@ -694,7 +676,7 @@ var editor = function () {
         };
     };
 
-    var albumMapping = {
+    albumMapping = {
         'Albums': {
             create: function (options) {
                 return new Album(options.data);
@@ -715,7 +697,7 @@ var editor = function () {
         }
     };
 
-    var ratingMapping = {
+    ratingMapping = {
         'TagSummary': {
             create: function (options) {
                 return new TagSummary(options.data, options.parent, false);
@@ -723,7 +705,7 @@ var editor = function () {
         }
     };
 
-    var songMapping = {
+    songMapping = {
         'song': {
             create: function (options) {
                 return new Song(options.data);
@@ -734,6 +716,14 @@ var editor = function () {
     var pageMapping = {
         create: function (options) {
             return new EditPage(options.data);
+        }
+    };
+
+    var trackMapping = {
+        'tracks': {
+            create: function (options) {
+                return new Track(options.data);
+            }
         }
     };
 
@@ -770,11 +760,13 @@ var editor = function () {
         var danceId = button.data('danceid');
 
         var obj = viewModel.song;
+        var titleExtra = '';
         if (danceId) {
             for (var i = 0; i < viewModel.song.DanceRatings().length; i++) {
                 var t = viewModel.song.DanceRatings()[i];
                 if (t.DanceId() === danceId) {
                     obj = t;
+                    titleExtra = ' for ' + t.DanceName();
                     break;
                 }
             }
@@ -782,7 +774,7 @@ var editor = function () {
 
         var tagType = obj.TagSummary.getTagType(category);
         var modal = $(event.currentTarget);; //$(this)
-        modal.find('.modal-title').text('Add ' + tagType.label + ' tags');
+        modal.find('.modal-title').text('Add ' + tagType.label + ' tags' + titleExtra);
 
         var okay = modal.find('#addTagsOkay');
         okay.unbind('click.addtags');
@@ -790,6 +782,42 @@ var editor = function () {
             viewModel.changed(true);
             obj.TagSummary.addTags(category);
         });
+        //okay.unbind();
+    };
+
+    var updateUserTags = function() {
+        var t = JSON.stringify(viewModel.getRatings());
+        $('#userTags').val(t);
+    }
+
+    var danceAction = function (id) {
+        var option = $('#addDance > option[value=' + id + ']');
+        var name = option.text();
+
+        var rating = null;
+        for (var i = 0; i < viewModel.song.DanceRatings().length; i++) {
+            if (viewModel.song.DanceRatings()[i].DanceId() === id) {
+                rating = viewModel.song.DanceRatings()[i];
+            }
+        }
+
+        viewModel.song.TagSummary.addTag(name, 'Dance');
+
+        if (rating) {
+            rating.state(ratingState.MODIFIED);
+        } else {
+            viewModel.song.DanceRatings.push(new Rating(
+            {
+                DanceId: id,
+                DanceName: name,
+                Weight: 1,
+                Max: 5,
+                Badge: 'rating-2',
+                TagSummary: { Summary: '', Tags: [] },
+                state: ratingState.CREATED
+            },
+            viewModel.song));
+        }
     };
 
     var init = function() {
@@ -801,11 +829,11 @@ var editor = function () {
 
     return {
         init: init,
-        viewModel: viewModel,
         getServiceInfo: getServiceInfo,
         clickTag: clickTag,
         replaceValue: replaceValue,
-        danceAction: danceAction
+        danceAction: danceAction,
+        updateUserTags: updateUserTags
     };
 }();
 
@@ -837,7 +865,22 @@ $(document).ready(function () {
 
     $('body').tooltip({ selector: '[data-show=tooltip]' });
 
-    $('#addTags').on('show.bs.modal', function(event) { editor.clickTag(event); });
+    var addTags = $('#addTags');
+    addTags.on('show.bs.modal', function (event) { editor.clickTag(event); });
+    addTags.on('shown.bs.modal', function() {
+        $('#new-tags').focus();
+    });
+    
+    var tags = addTags.find('#new-tags');
+    tags.keypress(function (e) {
+        if (e.keyCode === 13) {
+            e.preventDefault();
+            var okay = addTags.find('#addTagsOkay');
+            okay.trigger('click.addtags');
+            addTags.modal('hide');
+        }
+    });
+
 
     $('#load-xbox').click(function () { editor.getServiceInfo('X'); });
     $('#load-itunes').click(function () { editor.getServiceInfo('I'); });
@@ -871,8 +914,7 @@ $(document).ready(function () {
     });
 
     $('#save').click(function () {
-        var t = JSON.stringify(editor.viewModel.getRatings());
-        $('#userTags').val(t);
+        editor.updateUserTags();
     });
 
     editor.init();
