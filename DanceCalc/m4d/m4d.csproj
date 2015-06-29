@@ -313,6 +313,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="APIControllers\TagSuggestionController.cs" />
     <Compile Include="APIControllers\UpdateRatingsController.cs" />
     <Compile Include="App_Start\BundleConfig.cs" />
     <Compile Include="App_Start\FilterConfig.cs" />
