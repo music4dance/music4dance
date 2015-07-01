@@ -1,4 +1,4 @@
-﻿// TODONEXT: More cleanup of tag suggestions - color of text, size of textbox, color of hr.  Also think about what order tags should show up in editor/details page and verify that save still works
+﻿// TODO: Think about what order tags should show up in editor/details page and verify that save still works
 
 var helpers = function () {
     /// Helper functions
@@ -208,6 +208,10 @@ var editor = function () {
             case voteState.UP:
                 self.song.TagSummary.addTag('-' + self.DanceName(), 'Dance');
                 self.song.TagSummary.removeTag(self.DanceName(), 'Dance');
+                // Remove Rating if it was created in this session
+                if (self.state() === ratingState.CREATED) {
+                    self.song.DanceRatings.remove(self);
+                }
                 break;
             case voteState.DOWN:
                 self.song.TagSummary.removeTag('-' + self.DanceName(), 'Dance');
@@ -686,6 +690,10 @@ var editor = function () {
             return 'text-' + self.type().toLowerCase();
         });
 
+        self.hrClass = ko.pureComputed(function () {
+            return 'hr-' + self.type().toLowerCase();
+        });
+
         self.sortButton = function(type, order) {
             var button = (type === 'user') ? self.userSort : self.popularSort;
 
@@ -746,7 +754,7 @@ var editor = function () {
         };
 
         self.getSuggestions = function (type, user) {
-            var uri = '/api/tagsuggestion?targetType=S&tagType=' + type;
+            var uri = '/api/tagsuggestion?&tagType=' + type;
             if (user) {
                 uri += '&count=500&user=' + user;
             }
@@ -775,7 +783,7 @@ var editor = function () {
             return self[type.toLowerCase()];
         };
 
-        self.setSuggestions = function (type) {
+        self.setSuggestions = function (obj,type) {
             var sug = self.sugFromType(type);
 
             if (self.current().type() === type)
@@ -796,7 +804,7 @@ var editor = function () {
             }
 
             self.current().chosen.removeAll();
-            var chosen = viewModel.song.TagSummary.getUserTags(type);
+            var chosen = obj.TagSummary.getUserTags(type);
             for (var i = 0; i < chosen.length; i++) {
                 self.current().chosen.push(chosen[i]);
             }
@@ -1003,7 +1011,7 @@ var editor = function () {
             }
         }
 
-        viewModel.tagSuggestions().setSuggestions(category);
+        viewModel.tagSuggestions().setSuggestions(obj,category);
 
         var tagType = obj.TagSummary.getTagType(category);
         var modal = $(event.currentTarget);

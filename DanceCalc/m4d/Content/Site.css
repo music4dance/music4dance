@@ -235,6 +235,23 @@ a.text-other:hover,
     color: #995600;
 }
 
+.hr-music {
+    border-top: thin solid #18685D;
+}
+
+.hr-tempo {
+    border-top: thin solid #001671;
+}
+
+.hr-style {
+    border-top: thin solid #E25828;
+}
+
+.hr-other {
+    border-top: thin solid #995600;
+}
+
+
 .btn-music, .btn-music:focus, .btn-music:hover {
     color: #ffffff;
     background-color: #18685D;

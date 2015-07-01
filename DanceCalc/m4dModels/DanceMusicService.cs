@@ -1366,6 +1366,7 @@ namespace m4dModels
                     {
                         var tags = from t in Tags
                                    where
+                                       (userString == t.UserId) && 
                                        (trg == null || t.Id.StartsWith(trg)) &&
                                        (tagType == null || t.Tags.Summary.Contains(tagLabel))
                                    select t;
@@ -1396,7 +1397,9 @@ namespace m4dModels
                         ret = dictionary.Select(pair => new TagCount(pair.Key, pair.Value))
                             .OrderByDescending(tc => tc.Count);
                     }
-                    s_suggestions[key] = ret;
+
+                    // This effectively turns off the cache without touching much code...
+                    //s_suggestions[key] = ret;
                 }
 
                 return count < int.MaxValue ? ret.Take(count) : ret;

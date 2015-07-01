@@ -2,7 +2,7 @@
 @helper Suggestions(string type, string header)
 {
     <div id="@type-suggestions" data-bind="with: $root.tagSuggestions().current()">
-        <hr />
+        <hr data-bind="css: $root.tagSuggestions().current().hrClass" />
         <div class="row">
             <h4 class="col-md-8">@header</h4>
             <div class="btn-group col-md-4" role="radiogroup">
@@ -29,24 +29,25 @@
             </div>
             <div class="modal-body">
                 <div class="container-fluid">
-                    <div class="row">
-                        <div class="col-md-12">
-                            <!-- ko foreach: tagSuggestions().current().chosen -->
-                            <span class="label" data-bind="css:'label-' + $root.tagSuggestions().current().type().toLowerCase()" style="margin-right: 5px">
+                     <div class="row">
+                         <div class="col-md-12">
+                             <b>Tags: </b>
+                             <!-- ko foreach: tagSuggestions().current().chosen -->
+                             <span class="label" data-bind="css:'label-' + $root.tagSuggestions().current().type().toLowerCase()" style="margin-right: 5px">
                                 <a role="button" class="tag-text" data-bind="click: function() {$root.tagSuggestions().current().removeTag($data);}">
                                     <span data-bind="text:$data"></span>&nbsp;<span class="glyphicon glyphicon-remove-sign"></span>
                                 </a>
                             </span>
-                            <!-- /ko -->
-                            <hr/>
-                        </div>
+                             <!-- /ko -->
+                             <hr data-bind="css: tagSuggestions().current().hrClass" />
+                         </div>
                     </div>
                     <div class="row">
                         <div class="col-md-12">
                             <form class="form-inline">
                                 <div class="form-group">
                                     <label for="new-tags">New Tags:</label>
-                                    <input type="text" width="40" class="form-control" id="new-tags" placeholder="tag1, tag2, tag 3, another tag" data-bind="textInput:tagSuggestions().newTags" />
+                                    <input type="text" style="min-width:300px" class="form-control" id="new-tags" placeholder="tag1, tag2, tag 3, another tag" data-bind="textInput:tagSuggestions().newTags, css:tagSuggestions().current().typeClass" />
                                 </div>
                                 <button id="add-new" class="btn btn-default" data-bind="click:tagSuggestions().addNewTags">Add</button>
                             </form>
