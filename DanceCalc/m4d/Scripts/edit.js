@@ -1,4 +1,4 @@
-﻿// TODONEXT: Continue to refactor tagging system, possibly move into multiple modules, but definitely get into the state where we can add tag suggestions confidently without breaking the universe
+﻿// TODONEXT: More cleanup of tag suggestions - color of text, size of textbox, color of hr.  Also think about what order tags should show up in editor/details page and verify that save still works
 
 var helpers = function () {
     /// Helper functions
@@ -23,7 +23,8 @@ var helpers = function () {
     return {
         computeAlbumName: computeAlbumName,
         computeAlbumId: computeAlbumId,
-        formatDuration: formatDuration
+        formatDuration: formatDuration,
+        urlMusicService: '/api/musicservice/'
     };
 }();
 
@@ -414,7 +415,7 @@ var editor = function () {
         }, this);
 
         self.tooltip = ko.pureComputed(function () {
-            return 'Add ' + self.label + ' tags.';
+            return 'Add or Change ' + self.label + ' tags.';
         }, this);
 
         self.nameLower = function () { return name.toLowerCase() };
@@ -490,6 +491,7 @@ var editor = function () {
             var tagO = self.findTag(tag, cat);
             return (tagO && tagO.isUserTag()) ? tagO : null;
         };
+
         self.removeTag = function (tag, cat) {
             // Is there an existing match?
             var tagO = self.findTag(tag, cat);
@@ -535,9 +537,35 @@ var editor = function () {
                     self.addTag(tag, name);
                 }
             }
-
-            viewModel.newTags('');
         };
+
+        self.getUserTags = function(type) {
+            var ret = [];
+            var tags = self.userTags().Tags();
+            for (var i = 0; i < tags.length; i++) {
+                var tag = tags[i];
+                var info = tag.split(':');
+                if (info.length > 1 && info[1] === type) {
+                    ret.push(info[0]);
+                }
+            }
+            return ret;
+        }
+
+        self.changeTags = function (tags, category) {
+            // First remove user tags that aren't in the new list
+            var oldTags = self.getUserTags(category);
+            for (var i = 0; i < oldTags.length; i++) {
+                if (tags.indexOf(oldTags[i]) === -1) {
+                    self.removeTag(oldTags[i], category);
+                }
+            }
+
+            // Then add the new tags 
+            for (i = 0; i < tags.length; i++) {
+                self.addTag(tags[i], category);
+            }
+        }
 
         self.serializeUser = function () {
             var s = '';
@@ -550,7 +578,7 @@ var editor = function () {
             return s;
         };
     }; 
-    
+
     // Song object
     // ReSharper disable once InconsistentNaming
     var Song = function (data) {
@@ -598,7 +626,7 @@ var editor = function () {
             return null;
         };
 
-        // Track Management
+        // Track Managementget
         self.chooseTrack = function (track, event) {
             event.preventDefault();
 
@@ -632,6 +660,164 @@ var editor = function () {
         };
     };
 
+    //  TagSuggestion Object
+    // ReSharper disable once InconsistentNaming
+    var TagSuggestion = function (tag,count) {
+        var self = this;
+
+        self.value = tag.split(':',1)[0];
+        self.count = count;
+    };
+
+
+    //  CurrentSuggestions Object
+    // ReSharper disable once InconsistentNaming
+    var CurrentSuggestions = function () {
+        var self = this;
+
+        self.type = ko.observable('none');
+        self.chosen = ko.observableArray();
+        self.user = ko.observableArray();
+        self.popular = ko.observableArray();
+        self.userSort = ko.observable('weight');
+        self.popularSort = ko.observable('weight');
+
+        self.typeClass = ko.pureComputed(function () {
+            return 'text-' + self.type().toLowerCase();
+        });
+
+        self.sortButton = function(type, order) {
+            var button = (type === 'user') ? self.userSort : self.popularSort;
+
+            var ret = 'btn-' + (order === button() ? self.type().toLowerCase() : 'default');
+            return ret;
+        }
+
+        self.sortBy = function(type, order) {
+            var button = (type === 'user') ? self.userSort : self.popularSort;
+            if (button() === order) {
+                return;
+            }
+
+            var list = (type === 'user') ? self.user : self.popular;
+
+            if (order === 'alpha') {
+                list.sort(function (left, right) { return left.value === right.value ? 0 : (left.value < right.value ? -1 : 1); });
+            } else {
+                list.sort(function (left, right) { return right.count - left.count });
+            }
+            button(order);
+        }
+
+        self.addTag = function(val) {
+            if (self.chosen.indexOf(val) === -1) {
+                self.chosen.push(val);
+            }
+        }
+
+        self.addTagLink = function (link) {
+            self.addTag(link.value);
+        }
+
+        self.removeTag = function(val) {
+            self.chosen.remove(val);
+        }
+    };
+
+    //  TagSuggestions Object
+    // ReSharper disable once InconsistentNaming
+    var TagSuggestions = function () {
+        var self = this;
+
+        self.music = { user: null, popular: null };
+        self.style = { user: null, popular: null };
+        self.tempo = { user: null, popular: null };
+        self.other = { user: null, popular: null };
+
+        self.current = ko.observable(new CurrentSuggestions());
+
+        self.newTags = ko.observable('');
+
+        self.massageTags = function (data, array) {
+            array.removeAll();
+            for (var i = 0; i < data.length; i++) {
+                array.push(new TagSuggestion(data[i].Value,data[i].Count));
+            }
+        };
+
+        self.getSuggestions = function (type, user) {
+            var uri = '/api/tagsuggestion?targetType=S&tagType=' + type;
+            if (user) {
+                uri += '&count=500&user=' + user;
+            }
+            else {
+                uri += '&normalized=true&count=500';
+            }
+
+            $.getJSON(uri)
+                .done(function (data) {
+                    var sug = self.sugFromType(type);
+                    if (user) {
+                        sug.user = data;
+                        self.massageTags(data, self.current().user);
+                    } else {
+                        sug.popular = data;
+                        self.massageTags(data, self.current().popular);
+                    }
+                    //window.alert('type=' + type + 'data=' + JSON.stringify(data));
+                })
+                .fail(function (jqXhr, textStatus /*,err*/) {
+                    console.log(textStatus);
+                });
+        };
+
+        self.sugFromType = function (type) {
+            return self[type.toLowerCase()];
+        };
+
+        self.setSuggestions = function (type) {
+            var sug = self.sugFromType(type);
+
+            if (self.current().type() === type)
+                return;
+
+            self.current().type(type);
+
+            if (sug.user === null) {
+                self.getSuggestions(type, window.userId);
+            } else {
+                self.massageTags(sug.user, self.current().user);
+            }
+
+            if (sug.popular === null) {
+                self.getSuggestions(type);
+            } else {
+                self.massageTags(sug.popular, self.current().popular);
+            }
+
+            self.current().chosen.removeAll();
+            var chosen = viewModel.song.TagSummary.getUserTags(type);
+            for (var i = 0; i < chosen.length; i++) {
+                self.current().chosen.push(chosen[i]);
+            }
+        }
+
+        self.addNewTags = function() {
+            // Create usable tag list from the input
+            var tagString = self.newTags();
+            var tagsT = tagString.split(',');
+
+            for (var i = 0; i < tagsT.length; i++) {
+                var tag = tagsT[i].trim();
+                if (tag) {
+                    self.current().addTag(tag);
+                }
+            }
+
+            self.newTags('');
+        }
+    };
+
     // EditPage object
     // ReSharper disable once InconsistentNaming
     var EditPage = function (data) {
@@ -641,6 +827,8 @@ var editor = function () {
 
         self.canEdit = ko.observable(canEdit);
         self.canTag = ko.observable(canTag);
+
+        self.tagSuggestions = ko.observable(new TagSuggestions());
 
         self.getRatings = function () {
             var source = { Tags: [{ Id: '', Tags: self.song.TagSummary.serializeUser() }] };
@@ -678,20 +866,20 @@ var editor = function () {
 
     albumMapping = {
         'Albums': {
-            create: function (options) {
+            create: function(options) {
                 return new Album(options.data);
             },
-            key: function (data) {
+            key: function(data) {
                 return ko.utils.unwrapObservable(data.Index);
             }
         },
         'DanceRatings': {
-            create: function (options) {
+            create: function(options) {
                 return new Rating(options.data, options.parent);
             }
         },
         'TagSummary': {
-            create: function (options) {
+            create: function(options) {
                 return new TagSummary(options.data, options.parent, true);
             }
         }
@@ -728,7 +916,7 @@ var editor = function () {
     };
 
     var getServiceInfo = function (service) {
-        var uri = '/api/musicservice/' + viewModel.song.SongId() + '?region=US&service=' + service.toString() + '&Title=';
+        var uri = helpers.urlMusicService + viewModel.song.SongId() + '?region=US&service=' + service.toString() + '&Title=';
         var t = $('#search').val();
         if (t.length > 0) {
             uri += encodeURI(t);
@@ -754,36 +942,9 @@ var editor = function () {
             });
     };
 
-    var clickTag = function(event) {
-        var button = $(event.relatedTarget);
-        var category = button.data('category'); // Extract info from data-* attributes
-        var danceId = button.data('danceid');
-
-        var obj = viewModel.song;
-        var titleExtra = '';
-        if (danceId) {
-            for (var i = 0; i < viewModel.song.DanceRatings().length; i++) {
-                var t = viewModel.song.DanceRatings()[i];
-                if (t.DanceId() === danceId) {
-                    obj = t;
-                    titleExtra = ' for ' + t.DanceName();
-                    break;
-                }
-            }
-        }
-
-        var tagType = obj.TagSummary.getTagType(category);
-        var modal = $(event.currentTarget);; //$(this)
-        modal.find('.modal-title').text('Add ' + tagType.label + ' tags' + titleExtra);
-
-        var okay = modal.find('#addTagsOkay');
-        okay.unbind('click.addtags');
-        okay.bind('click.addtags', function () {
-            viewModel.changed(true);
-            obj.TagSummary.addTags(category);
-        });
-        //okay.unbind();
-    };
+    var cleanupTagModal = function (/*event*/) {
+        viewModel.tagSuggestions().newTags('');
+    }
 
     var updateUserTags = function() {
         var t = JSON.stringify(viewModel.getRatings());
@@ -820,8 +981,46 @@ var editor = function () {
         }
     };
 
+    var getSuggestions = function(type, user) {
+        viewModel.tagSuggestions().getSuggestions(type, user);
+    }
+
+    var showTagModal = function (event) {
+        var button = $(event.relatedTarget);
+        var category = button.data('category'); // Extract info from data-* attributes
+        var danceId = button.data('danceid');
+
+        var obj = viewModel.song;
+        var titleExtra = '';
+        if (danceId) {
+            for (var i = 0; i < viewModel.song.DanceRatings().length; i++) {
+                var t = viewModel.song.DanceRatings()[i];
+                if (t.DanceId() === danceId) {
+                    obj = t;
+                    titleExtra = ' for ' + t.DanceName();
+                    break;
+                }
+            }
+        }
+
+        viewModel.tagSuggestions().setSuggestions(category);
+
+        var tagType = obj.TagSummary.getTagType(category);
+        var modal = $(event.currentTarget);
+        modal.find('.modal-title').text('Change ' + tagType.label + ' tags' + titleExtra);
+
+        var okay = modal.find('#addTagsOkay');
+        okay.unbind('click.addtags');
+        okay.bind('click.addtags', function () {
+            viewModel.changed(true);
+            obj.TagSummary.changeTags(viewModel.tagSuggestions().current().chosen(),category);
+        });
+
+        getSuggestions(category);
+    };
+
     var init = function() {
-        var data = { tracks: [], song: song, newTags: '', changed: false };
+        var data = { tracks: [], song: song, changed: false };
         viewModel = ko.mapping.fromJS(data, pageMapping);
 
         ko.applyBindings(viewModel);
@@ -830,27 +1029,26 @@ var editor = function () {
     return {
         init: init,
         getServiceInfo: getServiceInfo,
-        clickTag: clickTag,
+        showTagModal: showTagModal,
+        cleanupTagModal: cleanupTagModal,
         replaceValue: replaceValue,
         danceAction: danceAction,
-        updateUserTags: updateUserTags
+        updateUserTags: updateUserTags,
+        getSuggestions: getSuggestions
     };
 }();
 
 var danceAction = editor.danceAction;
 
-$(document).ready(function () {
+$(document).ready(function() {
     $('#counter-control').hide();
-    $('#toggle-count').click(function () {
+    $('#toggle-count').click(function() {
         var visible = $('#counter-control').is(':visible');
-        if (visible)
-        {
+        if (visible) {
             $('#counter-control').hide();
             $('#toggle-count-display').removeClass('glyphicon-arrow-up');
             $('#toggle-count-display').addClass('glyphicon-arrow-down');
-        }
-        else
-        {
+        } else {
             $('#counter-control').show();
             $('#toggle-count-display').removeClass('glyphicon-arrow-down');
             $('#toggle-count-display').addClass('glyphicon-arrow-up');
@@ -859,28 +1057,30 @@ $(document).ready(function () {
 
     // Dances initialization
     $('#addDance').chosen({ allow_single_deselect: true, search_contains: true });
-    $('#addDance').chosen().change(function (event, data) {
+    $('#addDance').chosen().change(function(event, data) {
         editor.danceAction(data.selected);
     });
 
     $('body').tooltip({ selector: '[data-show=tooltip]' });
 
     var addTags = $('#addTags');
-    addTags.on('show.bs.modal', function (event) { editor.clickTag(event); });
+    addTags.on('show.bs.modal', function(event) { editor.showTagModal(event); });
     addTags.on('shown.bs.modal', function() {
         $('#new-tags').focus();
     });
-    
+
     var tags = addTags.find('#new-tags');
-    tags.keypress(function (e) {
+    tags.keypress(function(e) {
         if (e.keyCode === 13) {
             e.preventDefault();
-            var okay = addTags.find('#addTagsOkay');
-            okay.trigger('click.addtags');
-            addTags.modal('hide');
+            var add = addTags.find('#add-new');
+            add.click();
         }
     });
 
+    addTags.on('hidden.bs.modal', function () {
+        editor.cleanupTagModal();
+    });
 
     $('#load-xbox').click(function () { editor.getServiceInfo('X'); });
     $('#load-itunes').click(function () { editor.getServiceInfo('I'); });
@@ -905,17 +1105,25 @@ $(document).ready(function () {
         editor.replaceValue($(this));
     });
 
-    $(document).ajaxSend(function (/*event, request, settings*/) {
-        $('#loading-indicator').show();
+    $(document).ajaxSend(function (event, request, settings) {
+        if (settings.url.indexOf(helpers.urlMusicService) === 0) {
+            $('#loading-indicator').show();
+        }
     });
 
-    $(document).ajaxComplete(function (/*event, request, settings*/) {
-        $('#loading-indicator').hide();
+    $(document).ajaxComplete(function (event, request, settings) {
+        if (settings.url.indexOf(helpers.urlMusicService) === 0) {
+            $('#loading-indicator').hide();
+        }
     });
 
     $('#save').click(function () {
         editor.updateUserTags();
     });
+
+    //// TEST:
+    $('#load-genre-tags').click(function () { editor.getSuggestions('Music'); });
+    $('#load-user-genre-tags').click(function () { editor.getSuggestions('Music', window.userId); });
 
     editor.init();
 

@@ -51,7 +51,7 @@
     <div class="form-group row">
         @Html.LabelFor(model => model.Length, new { @class = "control-label col-md-2" })
         <div class="col-md-10">
-            @Html.EditorFor(model => model.Length, "SongDuration")            
+            @Html.EditorFor(model => model.Length, "SongDuration")
 
             <div class="editor-alternate" id="alt-length">
                 @if (old != null && old.Length != null)
@@ -214,6 +214,11 @@
     </div>
 
     <hr class="row col-md-12" />
+
+    <p class="row col-md-12">
+            <button type="button" id="load-genre-tags" class="btn btn-small btn-default" role="button">Genre</button>
+            <button type="button" id="load-user-genre-tags" class="btn btn-small btn-default" role="button">User</button>
+    </p>
 
     <p class="row col-md-12">
         <input type="hidden" name="filter" value="@ViewBag.SongFilter"/>

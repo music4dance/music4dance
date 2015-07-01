@@ -1,4 +1,5 @@
 ﻿@using System.Runtime.Serialization.Json
+@using Microsoft.AspNet.Identity
 @model SongDetails
 
 @{
@@ -12,6 +13,7 @@
     var songString = System.Text.Encoding.UTF8.GetString(stream.ToArray());
     var canEdit = User.IsInRole("canEdit") ? "true" : "false";
     var canTag = User.IsInRole("canTag") ? "true" : "false";
+    var userId = User.Identity.GetUserId();
 }
 
 <script>
@@ -21,5 +23,6 @@
     var canEdit = @canEdit;
     var canTag = @canTag;
     var song = @Html.Raw(songString);
+    var userId = '@userId';
 </script>
 

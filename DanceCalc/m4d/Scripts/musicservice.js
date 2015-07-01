@@ -9,7 +9,7 @@
                 if (data.Target == null) {
                     window.location(data.Link);
                 } else {
-                    window.open(data.Link, data.Target)
+                    window.open(data.Link, data.Target);
                 }
             })
             .fail(function(jqXHR, textStatus, err) {

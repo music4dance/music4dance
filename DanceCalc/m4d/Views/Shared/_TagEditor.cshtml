@@ -1,21 +1,63 @@
-﻿
+﻿@using m4d.APIControllers
+@helper Suggestions(string type, string header)
+{
+    <div id="@type-suggestions" data-bind="with: $root.tagSuggestions().current()">
+        <hr />
+        <div class="row">
+            <h4 class="col-md-8">@header</h4>
+            <div class="btn-group col-md-4" role="radiogroup">
+                <a href="#!" role="button" data-bind="click: sortBy('@type','alpha'), css: sortButton('@type','alpha')" class="btn btn-sm"><span class="glyphicon glyphicon-sort-by-alphabet"></span></a>
+                <a href="#!" role="button" data-bind="click: sortBy('@type','weight'), css: sortButton('@type','weight')" class="btn btn-sm"><span class="glyphicon glyphicon-sort-by-attributes-alt"></span></a>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <!-- ko foreach: @type -->
+                <a data-bind="text: value, click: $root.tagSuggestions().current().addTagLink, css:$root.tagSuggestions().current().typeClass"></a><span>@*(<span data-bind="text:count"></span>)*@ &nbsp; </span>
+                <!-- /ko -->
+            </div>
+        </div>
+    </div>
+}
+
 <div class="modal fade" id="addTags" tabindex="-1" role="dialog" data-backdrop="static" aria-hidden="true">
     <div class="modal-dialog">
-        <div class="modal-content">
+        <div class="modal-content" data-bind="css: tagSuggestions().current().typeClass">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                 <h4 class="modal-title"></h4>
             </div>
             <div class="modal-body">
-                <form style="margin: 10px">
-                    <div class="form-group">
-                        <label for="new-tags">Tags (separate tags with ','):</label>
-                        <input type="text" class="form-control" id="new-tags" placeholder="tag1, tag2, tag 3, another tag" data-bind="textInput:newTags"/>
+                <div class="container-fluid">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <!-- ko foreach: tagSuggestions().current().chosen -->
+                            <span class="label" data-bind="css:'label-' + $root.tagSuggestions().current().type().toLowerCase()" style="margin-right: 5px">
+                                <a role="button" class="tag-text" data-bind="click: function() {$root.tagSuggestions().current().removeTag($data);}">
+                                    <span data-bind="text:$data"></span>&nbsp;<span class="glyphicon glyphicon-remove-sign"></span>
+                                </a>
+                            </span>
+                            <!-- /ko -->
+                            <hr/>
+                        </div>
                     </div>
-                </form>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <form class="form-inline">
+                                <div class="form-group">
+                                    <label for="new-tags">New Tags:</label>
+                                    <input type="text" width="40" class="form-control" id="new-tags" placeholder="tag1, tag2, tag 3, another tag" data-bind="textInput:tagSuggestions().newTags" />
+                                </div>
+                                <button id="add-new" class="btn btn-default" data-bind="click:tagSuggestions().addNewTags">Add</button>
+                            </form>
+                        </div>
+                    </div>
+                    @Suggestions("user", "Tags that you've used:")
+                    @Suggestions("popular", "Tags that others have used:")
+                </div>
             </div>
             <div class="modal-footer">
-                <button id="addTagsOkay" type="button" class="btn btn-default" data-dismiss="modal">Add Tags</button>
+                <button id="addTagsOkay" type="button" class="btn btn-default" data-dismiss="modal">Save</button>
             </div>
         </div>
     </div>

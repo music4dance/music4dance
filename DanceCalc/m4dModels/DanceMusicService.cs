@@ -1345,42 +1345,66 @@ namespace m4dModels
         public IEnumerable<TagCount> GetTagSuggestions(Guid? user = null, char? targetType = null, string tagType = null, int count = int.MaxValue, bool normalized=false)
         {
             // from m in Modified where m.ApplicationUserId == user.Id && m.Song.TitleHash != 0 select m.Song;
-            var userString = user.HasValue ? user.ToString() : null;
-            var trg = targetType.HasValue ? new string(targetType.Value, 1) : null;
-            var tagLabel = tagType == null ?  null : ":" + tagType;
 
-            var tags = from t in Tags
-                where
-                    (userString==null || t.User.Id == userString) && (trg == null || t.Id.StartsWith(trg)) &&
-                    (tagType == null || t.Tags.Summary.Contains(tagLabel))
-                select t;
-
-            var dictionary = new Dictionary<string,int>();
-            foreach (var t in tags)
+            lock (s_suggestions)
             {
-                foreach (var ti in t.Tags.Tags.Where(ti => tagLabel == null || ti.EndsWith(tagLabel)))
+                var userString = user.HasValue ? user.ToString() : null;
+                var trg = targetType.HasValue ? new string(targetType.Value, 1) : null;
+                var tagLabel = tagType == null ? null : ":" + tagType;
+
+                var key = (userString ?? string.Empty) + ":" + (trg ?? string.Empty) + ":" + (tagType ?? String.Empty) + ":" + (normalized ? "true" : "false");
+                IOrderedEnumerable<TagCount> ret;
+                // ReSharper disable once InvertIf
+                if (!s_suggestions.TryGetValue(key, out ret))
                 {
-                    var tag = ti;
-                    if (normalized)
+                    if (userString == null)
                     {
-                        var tt = TagTypes.Find(tag);
-                        if (tt != null)
-                        {
-                            tag = tt.GetPrimary().ToString();
-                        }
+                        var tts = (tagType == null) ? TagTypes : TagTypes.ToList().Where(tt => tt.Category == tagType);
+                        ret = TagType.ToTagCounts(tts).OrderByDescending(tc => tc.Count);
                     }
-                    int c;
-                    if (!dictionary.TryGetValue(tag, out c))
-                        c = 0;
+                    else
+                    {
+                        var tags = from t in Tags
+                                   where
+                                       (trg == null || t.Id.StartsWith(trg)) &&
+                                       (tagType == null || t.Tags.Summary.Contains(tagLabel))
+                                   select t;
 
-                    dictionary[tag] = c+1;
+                        var dictionary = new Dictionary<string, int>();
+                        TagTypes.Load();
+                        foreach (var t in tags)
+                        {
+                            foreach (var ti in t.Tags.Tags.Where(ti => tagLabel == null || ti.EndsWith(tagLabel)))
+                            {
+                                var tag = ti;
+                                if (normalized)
+                                {
+                                    var tt = TagTypes.Find(tag);
+                                    if (tt != null)
+                                    {
+                                        tag = tt.GetPrimary().ToString();
+                                    }
+                                }
+                                int c;
+                                if (!dictionary.TryGetValue(tag, out c))
+                                    c = 0;
+
+                                dictionary[tag] = c + 1;
+                            }
+                        }
+
+                        ret = dictionary.Select(pair => new TagCount(pair.Key, pair.Value))
+                            .OrderByDescending(tc => tc.Count);
+                    }
+                    s_suggestions[key] = ret;
                 }
+
+                return count < int.MaxValue ? ret.Take(count) : ret;
             }
-
-            var ret = dictionary.Select(pair => new TagCount(pair.Key, pair.Value)).OrderByDescending(tc => tc.Count);
-
-            return count < int.MaxValue ? ret.Take(count) : ret;
         }
+
+        static readonly Dictionary<string, IOrderedEnumerable<TagCount>> s_suggestions = new Dictionary<string, IOrderedEnumerable<TagCount>>();
+
         public ICollection<TagType> GetTagRings(TagList tags)
         {
             var map = new Dictionary<string, TagType>();

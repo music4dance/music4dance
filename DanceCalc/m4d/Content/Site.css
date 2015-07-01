@@ -215,6 +215,51 @@ h1, h2, h3, h4, h5, h6 { font-family: "Merienda";font-weight: 700 }
     background: #995600;
 }
 
+a.text-music:hover,
+.text-music {
+    color: #18685D;
+}
+
+a.text-tempo:hover,
+.text-tempo {
+    color: #001671;
+}
+
+a.text-style:hover,
+.text-style {
+    color: #E25828;
+}
+
+a.text-other:hover,
+.text-other {
+    color: #995600;
+}
+
+.btn-music, .btn-music:focus, .btn-music:hover {
+    color: #ffffff;
+    background-color: #18685D;
+    border-color: #26a695;
+}
+
+.btn-tempo, .btn-tempo:focus, .btn-tempo:hover {
+    color: #ffffff;
+    background-color: #001671;
+    border-color: #000b39;
+}
+
+.btn-style, .btn-style:focus, .btn-style:hover {
+    color: #ffffff;
+    background-color: #E25828;
+    border-color: #9b3c1b;
+}
+
+.btn-other, .btn-other:focus, .btn-other:hover {
+    color: #ffffff;
+    background-color: #995600;
+    border-color: #714000;
+}
+
+
 .rating-voted {
     font-weight: bold;
 }
