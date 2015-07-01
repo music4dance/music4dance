@@ -1027,6 +1027,13 @@ var editor = function () {
         getSuggestions(category);
     };
 
+    var unloadWarning = function() {
+        if (viewModel.changed()) {
+            return 'You have unsaved changes on this page.';
+        }
+        return undefined;
+    };
+
     var init = function() {
         var data = { tracks: [], song: song, changed: false };
         viewModel = ko.mapping.fromJS(data, pageMapping);
@@ -1042,7 +1049,8 @@ var editor = function () {
         replaceValue: replaceValue,
         danceAction: danceAction,
         updateUserTags: updateUserTags,
-        getSuggestions: getSuggestions
+        getSuggestions: getSuggestions,
+        unloadWarning: unloadWarning
     };
 }();
 
@@ -1134,6 +1142,8 @@ $(document).ready(function() {
     $('#load-user-genre-tags').click(function () { editor.getSuggestions('Music', window.userId); });
 
     editor.init();
+
+    window.onbeforeunload = editor.unloadWarning;
 
     $('.chzn-select').chosen({ width: '500px' });
 });
