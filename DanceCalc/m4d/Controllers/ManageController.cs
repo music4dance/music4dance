@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data.Entity;
-using System.Drawing;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Web;
@@ -9,14 +7,20 @@ using System.Web.Mvc;
 using m4d.ViewModels;
 using m4dModels;
 using Microsoft.AspNet.Identity;
-using Microsoft.AspNet.Identity.Owin;
 using Microsoft.Owin.Security;
 
 namespace m4d.Controllers
 {
     [Authorize]
-    public class ManageController : Controller
+    public class ManageController : DMController
     {
+        public override string DefaultTheme
+        {
+            get
+            {
+                return ToolTheme;
+            }
+        }
         public ManageController()
         {
         }
@@ -24,19 +28,6 @@ namespace m4d.Controllers
         public ManageController(ApplicationUserManager userManager)
         {
             UserManager = userManager;
-        }
-
-        private ApplicationUserManager _userManager;
-        public ApplicationUserManager UserManager
-        {
-            get
-            {
-                return _userManager ?? HttpContext.GetOwinContext().GetUserManager<ApplicationUserManager>();
-            }
-            private set
-            {
-                _userManager = value;
-            }
         }
 
         //

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Linq;
-using System.Security.Claims;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
@@ -194,7 +193,7 @@ namespace m4d.Controllers
                     // Uncomment to debug locally 
                     //TempData["ViewBagLink"] = callbackUrl;
 
-                     ViewBag.Message = "Please check your email and confirm your account, you're email must be confirmed "
+                     ViewBag.Message = "Please check your email and confirm your account, your email must be confirmed "
                                      + "before you can log in.";
 
                      return View("Info");
@@ -461,7 +460,7 @@ namespace m4d.Controllers
                 {
                     return View("ExternalLoginFailure");
                 }
-                var user = new ApplicationUser { UserName = model.UserName, Email = model.Email };
+                var user = new ApplicationUser { UserName = model.UserName, Email = model.Email, EmailConfirmed = true};
                 var result = await UserManager.CreateAsync(user);
                 if (result.Succeeded)
                 {
