@@ -368,7 +368,7 @@ namespace m4d.Controllers
             // TODO: Error handling here
             if (r.Succeeded)
             {
-                r = await UserManager.AddToRolesAsync(user.Id, DanceMusicService.TagRole);
+                //r = await UserManager.AddToRolesAsync(user.Id, DanceMusicService.TagRole);
 
                 if (string.IsNullOrWhiteSpace(returnUrl) || !Url.IsLocalUrl(returnUrl))
                     return RedirectToAction("Index", "Manage");

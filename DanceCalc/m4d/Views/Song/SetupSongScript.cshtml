@@ -11,8 +11,8 @@
     var serializer = new DataContractJsonSerializer(typeof (SongDetails));
     serializer.WriteObject(stream, Model);
     var songString = System.Text.Encoding.UTF8.GetString(stream.ToArray());
-    var canEdit = User.IsInRole("canEdit") ? "true" : "false";
-    var canTag = User.IsInRole("canTag") ? "true" : "false";
+    var canEdit = User.IsInRole(DanceMusicService.EditRole) ? "true" : "false";
+    var canTag = User.Identity.IsAuthenticated ? "true" : "false";
     var userId = User.Identity.GetUserId();
 }
 
