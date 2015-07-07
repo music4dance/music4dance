@@ -754,7 +754,7 @@ var editor = function () {
         };
 
         self.getSuggestions = function (type, user) {
-            var uri = '/api/tagsuggestion?&tagType=' + type;
+            var uri = '/api/tagsuggestion?tagType=' + type;
             if (user) {
                 uri += '&count=500&user=' + user;
             }
@@ -786,6 +786,12 @@ var editor = function () {
         self.setSuggestions = function (obj,type) {
             var sug = self.sugFromType(type);
 
+            self.current().chosen.removeAll();
+            var chosen = obj.TagSummary.getUserTags(type);
+            for (var i = 0; i < chosen.length; i++) {
+                self.current().chosen.push(chosen[i]);
+            }
+
             if (self.current().type() === type)
                 return;
 
@@ -801,12 +807,6 @@ var editor = function () {
                 self.getSuggestions(type);
             } else {
                 self.massageTags(sug.popular, self.current().popular);
-            }
-
-            self.current().chosen.removeAll();
-            var chosen = obj.TagSummary.getUserTags(type);
-            for (var i = 0; i < chosen.length; i++) {
-                self.current().chosen.push(chosen[i]);
             }
         }
 
@@ -952,11 +952,13 @@ var editor = function () {
 
     var cleanupTagModal = function (/*event*/) {
         viewModel.tagSuggestions().newTags('');
+        viewModel.tagSuggestions().current().chosen.removeAll();
     }
 
     var updateUserTags = function() {
         var t = JSON.stringify(viewModel.getRatings());
         $('#userTags').val(t);
+        viewModel.changed(false);
     }
 
     var danceAction = function (id) {
@@ -1023,8 +1025,6 @@ var editor = function () {
             viewModel.changed(true);
             obj.TagSummary.changeTags(viewModel.tagSuggestions().current().chosen(),category);
         });
-
-        getSuggestions(category);
     };
 
     var unloadWarning = function() {
