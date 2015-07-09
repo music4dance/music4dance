@@ -44,7 +44,7 @@ namespace m4dModels.Tests
         }
 
         [TestMethod]
-        private void TestEmpty()
+        public void TestEmpty()
         {
             Assert.IsTrue(new SongFilter("Index-ALL").IsEmpty);
             Assert.IsTrue(new SongFilter("Index").IsEmpty);

@@ -1,35 +1,26 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using System.Linq;
 
 namespace m4dModels
 {
     public class LogBase
     {
-        protected const char RecordSeparator = '\x1E';
-        protected const char UnitSeparator = '\x1F';
+        public const char RecordSeparator = '\u001E';
+        public const char UnitSeparator = '\u001F';
+
+        public const string RecordString = "\u001E";
+        public const string UnitString = "\u001F";
+
         public string Data { get; set; }
 
         public void UpdateData(string name, string value, string oldValue = null)
         {
+            var rec = MakeRecord(name, value, oldValue);
             if (string.IsNullOrWhiteSpace(Data))
             {
-                Data = string.Empty;
+                Data = rec;
             }
-            else
-            {
-                Data += RecordSeparator;
-            }
-
-            if (string.IsNullOrWhiteSpace(value))
-            {
-                value = string.Empty;
-            }
-
-            Data += string.Format("{0}{1}{2}", name, UnitSeparator, value);
-            if (oldValue != null)
-            {
-                Data += string.Format("{0}{1}", UnitSeparator,oldValue);
-            }
+            Data = string.Join(RecordString, Data, rec);
         }
 
         public int? GetIntData(string name)
@@ -52,86 +43,65 @@ namespace m4dModels
 
         public string GetData(string name)
         {
-            LogValue lv = FindCell(name);
+            var lv = FindCell(name);
 
-            if (lv != null)
-            {
-                return lv.Value;
-            }
-            else
-            {
-                return null;
-            }
+            return lv != null ? lv.Value : null;
         }
+
         public string GetOld(string name)
         {
-            LogValue lv = FindCell(name);
+            var lv = FindCell(name);
 
-            if (lv != null)
-            {
-                return lv.Old;
-            }
-            else
-            {
-                return null;
-            }
+            return lv != null ? lv.Old : null;
         }
 
         public LogValue FindCell(string name)
         {
-            IList<LogValue> values = GetValues();
+            var values = GetValues();
 
-            if (values != null)
-            {
-                foreach (LogValue lv in values)
-                {
-
-                    if (lv.Name.Equals(name))
-                    {
-                        return lv;
-                    }
-                }
-            }
-
-            return null;
+            return values == null ? null : values.FirstOrDefault(lv => lv.Name.Equals(name));
         }
 
         public IList<LogValue> GetValues()
         {
-            List<LogValue> values = null;
-            if (!string.IsNullOrWhiteSpace(Data))
+            if (string.IsNullOrWhiteSpace(Data)) return null;
+
+            var values = new List<LogValue>();
+
+            var entries = Data.Split(RecordSeparator);
+            foreach (var entry in entries)
             {
-                values = new List<LogValue>();
+                string name = null;
+                string value = null;
+                string old = null;
 
-                string[] entries = Data.Split(new[] { RecordSeparator }, StringSplitOptions.RemoveEmptyEntries);
+                var cells = entry.Split(UnitSeparator);
 
-                foreach (string entry in entries)
+                if (cells.Length > 0)
                 {
-                    string name = null;
-                    string value = null;
-                    string old = null;
+                    name = cells[0];
 
-                    string[] cells = entry.Split(UnitSeparator);
-
-                    if (cells.Length > 0)
+                    if (cells.Length > 1)
                     {
-                        name = cells[0];
-
-                        if (cells.Length > 1)
+                        value = cells[1];
+                        if (cells.Length > 2)
                         {
-                            value = cells[1];
-                            if (cells.Length > 2)
-                            {
-                                old = cells[2];
-                            }
+                            old = cells[2];
                         }
                     }
-
-                    values.Add(new LogValue { Name = name, Value = value, Old = old });
                 }
+
+                values.Add(new LogValue { Name = name, Value = value, Old = old });
             }
 
             return values;
+        }
+
+        public static string MakeRecord(string name, string value, string old = null)
+        {
+            var ret = (old == null) ? string.Join(UnitString, name, value) : string.Join(UnitString, name, value, old);
+
+            return ret;
         }
     }
 }

@@ -38,10 +38,10 @@ namespace m4dModels
                 return false;
             }
 
-            string userName = cells[0];
-            string timeString = cells[1];
+            var userName = cells[0];
+            var timeString = cells[1];
             Action = cells[2];
-            string songRef = cells[3];
+            var songRef = cells[3];
             SongSignature = cells[4];
 
             User = dms.FindUser(userName);
@@ -57,10 +57,7 @@ namespace m4dModels
                 Trace.WriteLine(string.Format("Bad Timestamp: {0}", timeString));
                 return false;
             }
-            else 
-            {
-                Time = time;
-            }
+            Time = time;
 
             Guid songId;
             if (!Guid.TryParse(songRef, out songId))
@@ -68,12 +65,9 @@ namespace m4dModels
                 Trace.WriteLine(string.Format("Bad SongId: {0}", songRef));
                 return false;
             }
-            else
-            {
-                SongReference = songId;
-            }
+            SongReference = songId;
 
-            Data = string.Join(new string(RecordSeparator,1), cells, 5, cells.Length - 5);
+            Data = string.Join(RecordString, cells, 5, cells.Length - 5);
 
             return true;
         }

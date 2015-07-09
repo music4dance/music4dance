@@ -156,11 +156,12 @@ The *East Coast Swing* is generally danced as the first dance of <a href='/dance
             const string waltz = "Waltz:Dance:1";
             const string swing = "Swing:Dance:2";
             const string vocal = "Vocal Pop:Music:4";
+            const string vjazz = "Vocal Jazz:Music:0";
 
             var user = s_service.Dms.FindUser("batch");
             var userid = new Guid(user.Id);
 
-            ValidateTagSummary(s_service.Dms.GetTagSuggestions(), 44, twoStep, childrens, "All Tags");
+            ValidateTagSummary(s_service.Dms.GetTagSuggestions(), 233, twoStep, vjazz, "All Tags");
             ValidateTagSummary(s_service.Dms.GetTagSuggestions(userid),36,country, waltz, "Batch Tags");
             ValidateTagSummary(s_service.Dms.GetTagSuggestions(userid, null, null, int.MaxValue, true), 34, country, waltz,"Batch Normalized Tags");
             ValidateTagSummary(s_service.Dms.GetTagSuggestions(userid, 'S', "Music"), 31, country, childrens, "Batch Genre Tags");

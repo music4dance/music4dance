@@ -93,6 +93,7 @@
     <Compile Include="SongSortTests.cs" />
     <Compile Include="TagFormatTests.cs" />
     <Compile Include="EditTests.cs" />
+    <Compile Include="LogTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\DanceLib\DanceLib.csproj">

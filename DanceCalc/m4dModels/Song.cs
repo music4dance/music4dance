@@ -520,7 +520,7 @@ namespace m4dModels
             return prop;
         }
 
-        public void CreateEditProperties(ApplicationUser user, string command, DanceMusicService dms)
+        public void CreateEditProperties(ApplicationUser user, string command, DanceMusicService dms, DateTime? time = null)
         {
             string[] rg = command.Split(new[] {'='}, StringSplitOptions.RemoveEmptyEntries);
             // Add the command into the property log
@@ -546,9 +546,12 @@ namespace m4dModels
             }
 
             // Handle Timestamps
-            DateTime time = DateTime.Now;
-            Modified = time;
-            CreateProperty(TimeField, time.ToString(), null, dms);
+            if (!time.HasValue)
+            {
+                time = DateTime.Now;
+            }
+            Modified = time.Value;
+            CreateProperty(TimeField, time.Value.ToString(CultureInfo.InvariantCulture), null, dms);
         }
 
         private bool UpdatePurchaseInfo(SongDetails edit, bool additive = false)

@@ -328,66 +328,65 @@ namespace m4dModels
             //  provide the information for rebulding the song
             // For users, this is additive, so no need to do anything except with a new song
             // For DanceRatings and tags, we're going to update the song here since it is cummulative
-            ApplicationUser currentUser = entry.User;
-            foreach (LogValue lv in entry.GetValues())
+            var currentUser = entry.User;
+            foreach (var lv in entry.GetValues())
             {
-                if (!lv.IsAction)
+                if (lv.IsAction) continue;
+
+                var np = _context.SongProperties.Create();
+                var baseName = lv.BaseName;
+
+                np.Song = song;
+                np.Name = lv.Name;
+
+                // This works for everything but Dancerating and Tags, which will be overwritten below
+                np.Value = action == UndoAction.Undo ? lv.Old : lv.Value;
+
+                if (lv.Name.Equals(SongBase.UserField))
                 {
-                    var np = _context.SongProperties.Create();
-                    var baseName = lv.BaseName;
-
-                    np.Song = song;
-                    np.Name = lv.Name;
-
-                    // This works for everything but Dancerating and Tags, which will be overwritten below
-                    np.Value = action == UndoAction.Undo ? lv.Old : lv.Value;
-
-                    if (lv.Name.Equals(SongBase.UserField))
-                    {
-                        currentUser = FindUser(lv.Value);
-                        song.AddUser(currentUser, this);
-                    }
-                    else if (lv.Name.Equals(SongBase.DanceRatingField))
-                    {
-                        DanceRatingDelta drd = new DanceRatingDelta(lv.Value);
-                        if (action == UndoAction.Undo)
-                        {
-                            drd.Delta *= -1;
-                        }
-
-                        np.Value = drd.ToString();
-
-                        // TODO: Consider implementing a MergeDanceRating at the song level
-                        DanceRating dr = song.DanceRatings.FirstOrDefault(d => string.Equals(d.DanceId, drd.DanceId));
-                        if (dr == null)
-                        {
-                            song.AddDanceRating(new DanceRating() { DanceId = drd.DanceId, Weight = drd.Delta });
-                        }
-                        else
-                        {
-                            dr.Weight += drd.Delta;
-                            if (dr.Weight <= 0)
-                            {
-                                song.DanceRatings.Remove(dr);
-                            }
-                        }
-                    }
-                    // For tags, we leave the list of tags in place and toggle the add/remove
-                    else if (baseName.Equals(SongBase.AddedTags) || baseName.Equals(SongBase.RemovedTags))
-                    {
-                        np = null;
-                        var add = (baseName.Equals(SongBase.AddedTags) && action == UndoAction.Redo) ||
-                                   (baseName.Equals(SongBase.RemovedTags) && action == UndoAction.Undo);
-
-                        if (add)
-                            song.AddObjectTags(lv.DanceQualifier, lv.Value, currentUser, this);
-                        else
-                            song.RemoveObjectTags(lv.DanceQualifier, lv.Value, currentUser, this);
-                    }
-
-                    if (np != null)
-                        song.SongProperties.Add(np);
+                    currentUser = FindUser(lv.Value);
+                    song.AddUser(currentUser, this);
                 }
+                else if (lv.Name.Equals(SongBase.DanceRatingField))
+                {
+                    var drd = new DanceRatingDelta(lv.Value);
+                    if (action == UndoAction.Undo)
+                    {
+                        drd.Delta *= -1;
+                    }
+
+                    np.Value = drd.ToString();
+
+                    // TODO: Consider implementing a MergeDanceRating at the song level
+                    var dr = song.DanceRatings.FirstOrDefault(d => string.Equals(d.DanceId, drd.DanceId));
+                    if (dr == null)
+                    {
+                        song.AddDanceRating(new DanceRating() { DanceId = drd.DanceId, Weight = drd.Delta });
+                    }
+                    else
+                    {
+                        dr.Weight += drd.Delta;
+                        if (dr.Weight <= 0)
+                        {
+                            song.DanceRatings.Remove(dr);
+                        }
+                    }
+                }
+                // For tags, we leave the list of tags in place and toggle the add/remove
+                else if (baseName.Equals(SongBase.AddedTags) || baseName.Equals(SongBase.RemovedTags))
+                {
+                    np = null;
+                    var add = (baseName.Equals(SongBase.AddedTags) && action == UndoAction.Redo) ||
+                              (baseName.Equals(SongBase.RemovedTags) && action == UndoAction.Undo);
+
+                    if (add)
+                        song.AddObjectTags(lv.DanceQualifier, lv.Value, currentUser, this);
+                    else
+                        song.RemoveObjectTags(lv.DanceQualifier, lv.Value, currentUser, this);
+                }
+
+                if (np != null)
+                    song.SongProperties.Add(np);
             }
         }
         #endregion
@@ -414,7 +413,7 @@ namespace m4dModels
             return results;
         }
 
-        private UndoResult UndoEntry(ApplicationUser user, SongLog entry)
+        private UndoResult UndoEntry(ApplicationUser user, SongLog entry, string maskCommand = null)
         {
             string action = entry.Action;
             string error = null;
@@ -486,7 +485,7 @@ namespace m4dModels
                         error = Unmerge(entry, song);
                         break;
                     case SongBase.EditCommand:
-                        error = RestoreValuesFromLog(entry, song, UndoAction.Undo);
+                        error = RestoreValuesFromLog(entry, song, UndoAction.Undo, maskCommand);
                         break;
                     case SongBase.CreateCommand:
                         RemoveSong(song,user);
@@ -543,7 +542,7 @@ namespace m4dModels
             return ret;
         }
 
-        private void RestoreFromLog(string line)
+        public void RestoreFromLog(string line)
         {
             SongLog log = _context.Log.Create();
 
@@ -552,7 +551,11 @@ namespace m4dModels
                 Trace.WriteLine(string.Format("Unable to restore line: {0}", line));
             }
 
+            RestoreFromLog(log);
+        }
 
+        public void RestoreFromLog(SongLog log, string maskCommand=null)
+        {
             Song song = null;
 
             switch (log.Action)
@@ -575,7 +578,7 @@ namespace m4dModels
                     RemoveSong(song,log.User);
                     break;
                 case SongBase.EditCommand:
-                    RestoreValuesFromLog(log, song, UndoAction.Redo);
+                    RestoreValuesFromLog(log, song, UndoAction.Redo, maskCommand);
                     break;
                 case SongBase.MergeCommand:
                 case SongBase.CreateCommand:
@@ -642,9 +645,10 @@ namespace m4dModels
             _context.Log.Add(log);
         }
 
-        private string RestoreValuesFromLog(SongLog entry, Song song, UndoAction action)
+        private string RestoreValuesFromLog(SongLog entry, Song song, UndoAction action, string maskCommand = null)
         {
-            song.CreateEditProperties(entry.User,(action == UndoAction.Undo) ? SongBase.UndoCommand : SongBase.RedoCommand,this);
+            var command = maskCommand ?? ((action == UndoAction.Undo) ? SongBase.UndoCommand : SongBase.RedoCommand);
+            song.CreateEditProperties(entry.User,command,this,entry.Time);
             DoRestoreValues(song, entry, action);
 
             var sd = new SongDetails(song.SongId, song.SongProperties);
@@ -695,14 +699,14 @@ namespace m4dModels
 
         private void CreateSongFromLog(SongLog log)
         {
-            string initV = log.GetData(SongBase.MergeCommand);
+            var initV = log.GetData(SongBase.MergeCommand);
 
             // For merge case, first we delete the old songs
             if (initV != null)
             {
                 try
                 {
-                    foreach (Song d in SongsFromList(initV))
+                    foreach (var d in SongsFromList(initV))
                     {
                         RemoveSong(d,log.User);
                     }
