@@ -88,6 +88,10 @@ namespace m4dModels
 
             DoUpdate(null, oldTags, user, dms, data, updateTypes);
 
+            if (dms != null && ut.Tags.IsEmpty)
+            {
+                dms.Tags.Remove(ut);
+            }
             return oldTags;
         }
 

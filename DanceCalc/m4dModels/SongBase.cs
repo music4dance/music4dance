@@ -119,14 +119,16 @@ namespace m4dModels
 
         protected void LoadProperties(ICollection<SongProperty> properties) 
         {
-            bool created = SongProperties != null && SongProperties.Count > 0;
+            var created = SongProperties != null && SongProperties.Count > 0;
             ApplicationUser currentUser = null;
             ModifiedRecord currentModified = null;
-            bool deleted = false;
+            var deleted = false;
 
-            foreach (SongProperty prop in properties)
+            var drDelete = new List<DanceRating>();
+
+            foreach (var prop in properties)
             {
-                string bn = prop.BaseName;
+                var bn = prop.BaseName;
 
                 switch (bn)
                 {
@@ -137,7 +139,10 @@ namespace m4dModels
                         AddModifiedBy(currentModified);
                         break;
                     case DanceRatingField:
-                        UpdateDanceRating(prop.Value);
+                        {
+                            var del = SoftUpdateDanceRating(prop.Value);
+                            if (del != null) drDelete.Add(del);
+                        }
                         break;
                     case AddedTags:
                         AddObjectTags(prop.DanceQualifier, prop.Value, currentUser);
@@ -157,7 +162,7 @@ namespace m4dModels
                         break;
                     case TimeField:
                         {
-                            DateTime time = (DateTime)prop.ObjectValue;
+                            var time = (DateTime)prop.ObjectValue;
                             if (!created)
                             {
                                 Created = time;
@@ -176,7 +181,7 @@ namespace m4dModels
                         // All of the simple properties we can just set
                         if (!prop.IsAction)
                         {
-                            PropertyInfo pi = GetType().GetProperty(bn);
+                            var pi = GetType().GetProperty(bn);
                             if (pi != null)
                             {
                                 pi.SetValue(this, prop.ObjectValue);
@@ -184,6 +189,11 @@ namespace m4dModels
                         }
                         break;
                 }
+            }
+
+            foreach (var dr in drDelete)
+            {
+                DanceRatings.Remove(dr);
             }
 
             if (deleted)
@@ -267,19 +277,28 @@ namespace m4dModels
         #endregion
 
         #region DanceRating
+
         /// <summary>
         /// Update the dance rating table based on the encoded
         ///   property value 
         /// </summary>
         /// <param name="value"></param>
+        public DanceRating SoftUpdateDanceRating(string value)
+        {
+            var drd = new DanceRatingDelta(value);
+            return SoftUpdateDanceRating(drd);
+        }
+        
         public void UpdateDanceRating(string value)
         {
-            DanceRatingDelta drd = new DanceRatingDelta(value);
+            var drd = new DanceRatingDelta(value);
             UpdateDanceRating(drd);
         }
 
-        public void UpdateDanceRating(DanceRatingDelta drd, bool updateProperties = false)
+        public DanceRating SoftUpdateDanceRating(DanceRatingDelta drd, bool updateProperties = false)
         {
+            DanceRating ret = null;
+
             if (DanceRatings == null)
             {
                 DanceRatings = new List<DanceRating>();
@@ -297,12 +316,23 @@ namespace m4dModels
 
             if (dr.Weight <= 0)
             {
-                DanceRatings.Remove(dr);
+                ret = dr;
             }
 
-            if (!updateProperties) return;
+            if (!updateProperties) return ret;
 
             SongProperties.Add(new SongProperty { SongId = this.SongId, Name = DanceRatingField, Value = drd.ToString() });
+
+            return ret;
+        }
+
+        public void UpdateDanceRating(DanceRatingDelta drd, bool updateProperties = false)
+        {
+            var dr = SoftUpdateDanceRating(drd, updateProperties);
+            if (dr != null)
+            {
+                DanceRatings.Remove(dr);
+            }
         }
 
         public void UpdateDanceRatings(IEnumerable<string> dances, int weight)
@@ -312,9 +342,9 @@ namespace m4dModels
                 return;
             }
 
-            foreach (string d in dances)
+            foreach (var d in dances)
             {
-                DanceRatingDelta drd = new DanceRatingDelta { DanceId = d, Delta = weight };
+                var drd = new DanceRatingDelta { DanceId = d, Delta = weight };
                 UpdateDanceRating(drd, true);
             }
         }

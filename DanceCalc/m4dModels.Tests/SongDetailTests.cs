@@ -31,7 +31,7 @@ namespace m4dModels.Tests
             Assert.IsFalse(sd3.TitleArtistMatch("If the song with not", "Señor Bolero"), "SD3: No Match");
         }
 
-        //TODONEXT: Get create/Modified working correctly in reload case and make sure that doesn't re-break the loadcatalog case.
+        //TODO: Get create/Modified working correctly in reload case and make sure that doesn't re-break the loadcatalog case.
         [TestMethod]
         public void LoadingDetails()
         {

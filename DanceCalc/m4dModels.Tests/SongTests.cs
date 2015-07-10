@@ -77,7 +77,7 @@ namespace m4dModels.Tests
             song.Load(@"user=batch	Title=Test	Artist=Me	Tempo=30.0",Service);
 
             var init = song.ToString();
-            Trace.WriteLine(init);
+            //Trace.WriteLine(init);
             var sd = new SongDetails(song);
 
             sd.UpdateDanceRatings(new[] {"RMB","CHA"}, 5);
@@ -87,7 +87,7 @@ namespace m4dModels.Tests
             var user = Service.FindUser("dwgray");
             song.Update(user, sd, Service);
             var first = song.ToString();
-            Trace.WriteLine(first);
+            //Trace.WriteLine(first);
             Assert.IsTrue(song.DanceRatings.Count == 3);
 
             // Now mix it up a bit

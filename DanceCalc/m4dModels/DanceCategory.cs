@@ -12,7 +12,6 @@ namespace m4dModels
         International
     };
 
-    // TODONEXT: Build the competition round pages, get these referenced off of the pages.  Figure out if these should be built once and cached...
     public struct CompetitionDance
     {
         public CompetitionDance(string id, DanceMusicService dms) : this()

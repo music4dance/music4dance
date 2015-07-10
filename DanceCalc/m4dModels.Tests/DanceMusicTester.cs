@@ -51,5 +51,29 @@ namespace m4dModels.Tests
             }
         }
 
+        public static bool CompareStrings(string a, string b)
+        {
+            var length = Math.Min(a.Length, b.Length);
+            for (var i = 0; i < length; i++)
+            {
+                if (a[i] == b[i]) continue;
+
+                Trace.WriteLine("Failed at " + i + "[" + a.Substring(0,i) + "]" );
+                return false;
+            }
+
+            if (a.Length > b.Length)
+            {
+                Trace.WriteLine("a > b");
+                return false;
+            }
+
+            if (b.Length > a.Length)
+            {
+                Trace.WriteLine("b > a");
+                return false;
+            }
+            return true;
+        }
     }
 }

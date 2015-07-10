@@ -322,12 +322,15 @@ namespace m4dModels
             return ret;
         }
 
+
         private void DoRestoreValues(Song song, SongLog entry, UndoAction action)
         {
             // For scalar properties and albums just updating the property will
             //  provide the information for rebulding the song
             // For users, this is additive, so no need to do anything except with a new song
             // For DanceRatings and tags, we're going to update the song here since it is cummulative
+
+            var drDelete = new List<DanceRating>();
             var currentUser = entry.User;
             foreach (var lv in entry.GetValues())
             {
@@ -368,7 +371,7 @@ namespace m4dModels
                         dr.Weight += drd.Delta;
                         if (dr.Weight <= 0)
                         {
-                            song.DanceRatings.Remove(dr);
+                            drDelete.Add(dr);
                         }
                     }
                 }
@@ -388,6 +391,11 @@ namespace m4dModels
                 if (np != null)
                     song.SongProperties.Add(np);
             }
+
+            foreach (var dr in drDelete)
+            {
+                song.DanceRatings.Remove(dr);
+            }
         }
         #endregion
 
@@ -403,25 +411,18 @@ namespace m4dModels
 
         public IEnumerable<UndoResult> UndoLog(ApplicationUser user, IEnumerable<SongLog> entries)
         {
-            List<UndoResult> results = new List<UndoResult>();
-
-            foreach (SongLog entry in entries)
-            {
-                results.Add(UndoEntry(user, entry));
-            }
-
-            return results;
+            return entries.Select(entry => UndoEntry(user, entry)).ToList();
         }
 
         private UndoResult UndoEntry(ApplicationUser user, SongLog entry, string maskCommand = null)
-        {
-            string action = entry.Action;
+        {            
+            var action = entry.Action;
             string error = null;
 
             // Quick recurse on Redo
             if (action.StartsWith(SongBase.RedoCommand))
             {
-                int? idx = entry.GetIntData(SongBase.SuccessResult);
+                var idx = entry.GetIntData(SongBase.SuccessResult);
 
                 action = SongBase.RedoCommand;
 
@@ -441,9 +442,9 @@ namespace m4dModels
                 error = string.Format("Unable to redo a failed undo song id='{0}' signature='{1}'", entry.SongReference, entry.SongSignature);
             }
 
-            UndoResult result = new UndoResult { Original = entry };
+            var result = new UndoResult { Original = entry };
 
-            Song song = FindSong(entry.SongReference, entry.SongSignature);
+            var song = FindSong(entry.SongReference, entry.SongSignature);
 
             if (song == null)
             {
@@ -451,18 +452,18 @@ namespace m4dModels
             }
 
             SongLog log = null;
-            string command = SongBase.UndoCommand + entry.Action;
+            var command = SongBase.UndoCommand + entry.Action;
 
             if (error == null)
             {
                 if (action.StartsWith(SongBase.UndoCommand))
                 {
-                    int? idx = entry.GetIntData(SongBase.SuccessResult);
+                    var idx = entry.GetIntData(SongBase.SuccessResult);
                     action = SongBase.UndoCommand;
 
                     if (idx.HasValue)
                     {
-                        SongLog rentry = _context.Log.Find(idx.Value);
+                        var rentry = _context.Log.Find(idx.Value);
 
                         error = RedoEntry(rentry, song);
                         command = SongBase.RedoCommand + entry.Action.Substring(SongBase.UndoCommand.Length);
@@ -525,13 +526,11 @@ namespace m4dModels
 
         private string Unmerge(SongLog entry, Song song)
         {
-            string ret = null;
-
             // First restore the merged songs
-            string t = entry.GetData(SongBase.MergeCommand);
+            var t = entry.GetData(SongBase.MergeCommand);
 
-            IEnumerable<Song> songs = SongsFromList(t);
-            foreach (Song s in songs)
+            var songs = SongsFromList(t);
+            foreach (var s in songs)
             {
                 RestoreSong(s, entry.User);
             }
@@ -539,12 +538,12 @@ namespace m4dModels
             // Now delete the merged song
             RemoveSong(song,entry.User);
 
-            return ret;
+            return null;
         }
 
         public void RestoreFromLog(string line)
         {
-            SongLog log = _context.Log.Create();
+            var log = _context.Log.Create();
 
             if (!log.Initialize(line, this))
             {
@@ -626,7 +625,7 @@ namespace m4dModels
 
         private void LogSongCommand(string command, Song song, ApplicationUser user, bool includeSignature = true)
         {
-            SongLog log = _context.Log.Create();
+            var log = _context.Log.Create();
             log.Time = DateTime.Now;
             log.User = user;
             log.SongReference = song.SongId;
@@ -637,7 +636,7 @@ namespace m4dModels
                 log.SongSignature = song.Signature;
             }
 
-            foreach (SongProperty p in song.SongProperties)
+            foreach (var p in song.SongProperties)
             {
                 LogPropertyUpdate(p, log);
             }

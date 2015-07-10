@@ -522,9 +522,9 @@ namespace m4dModels
 
         public void CreateEditProperties(ApplicationUser user, string command, DanceMusicService dms, DateTime? time = null)
         {
-            string[] rg = command.Split(new[] {'='}, StringSplitOptions.RemoveEmptyEntries);
+            var rg = command.Split(new[] {'='}, StringSplitOptions.RemoveEmptyEntries);
             // Add the command into the property log
-            string cmd = EditCommand;
+            var cmd = EditCommand;
             string val = null;
 
             if (rg.Length > 0)
