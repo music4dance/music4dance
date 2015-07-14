@@ -202,7 +202,7 @@ namespace m4dModels
         {
             SetupCollections();
             // Verify that our heads are the same (TODO:move this to debug mode at some point?)
-            var old = SongProperties.OrderBy(p => p.Id).ToList(); // Where(p => !p.IsAction).
+            var old = OrderedProperties.ToList(); // Where(p => !p.IsAction).
             var upd = update.Properties.ToList(); // Where(p => !p.IsAction).
             var c = old.Count;
             for (var i = 0; i < c; i++)
@@ -260,7 +260,7 @@ namespace m4dModels
 
         public void RebuildUserTags(ApplicationUser user, DanceMusicService tms)
         {
-            var properties = SongProperties.OrderBy(p => p.Id).ToList();
+            var properties = OrderedProperties.ToList();
 
             TagsFromProperties(user, properties, tms, this);
             DanceTagsFromProperties(user, properties, tms, this);

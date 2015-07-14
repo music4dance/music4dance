@@ -479,6 +479,29 @@ namespace m4d.Controllers
 
 
         //
+        // POST: /Song/Delete/5
+
+        [System.Web.Mvc.HttpPost, System.Web.Mvc.ActionName("UndoUserChanges")]
+        [ValidateAntiForgeryToken]
+        [System.Web.Mvc.Authorize]
+        public ActionResult UndoUserChanges(Guid id, string userName = null, SongFilter filter = null)
+        {
+            if (userName == null)
+            {
+                userName = User.Identity.Name;
+            }
+            else if (!User.IsInRole("showDiagnostics"))
+            {
+                throw new HttpException((int)HttpStatusCode.Forbidden,"You don't have permission to modify other user's changes.");
+            }
+            
+            var user = Database.FindUser(userName);
+            Database.UndoUserChanges(user, id);
+            return RedirectToAction("Details", new { id, filter });
+        }
+
+
+        //
         // Merge: /Song/MergeCandidates
         [System.Web.Mvc.Authorize(Roles = "canEdit")]
         public ActionResult MergeCandidates(int? page, int? level, bool? autoCommit, SongFilter filter)
@@ -636,7 +659,7 @@ namespace m4d.Controllers
                     //  failLeve is the LOWEST failure code or -1 if none
 
                     var failLevel = -1;
-                    var fail = song.SongProperties.OrderBy(p => p.Value).FirstOrDefault(p => p.Name == Song.FailedLookup && p.Value.StartsWith(type));
+                    var fail = song.OrderedProperties.FirstOrDefault(p => p.Name == SongBase.FailedLookup && p.Value.StartsWith(type));
                     if (fail != null && fail.Value != null && fail.Value.Length > 2)
                     {
                         int.TryParse(fail.Value.Substring(2), out failLevel);

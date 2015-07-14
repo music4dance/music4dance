@@ -748,8 +748,10 @@ var editor = function () {
 
         self.massageTags = function (data, array) {
             array.removeAll();
-            for (var i = 0; i < data.length; i++) {
-                array.push(new TagSuggestion(data[i].Value,data[i].Count));
+            if (data != null) {
+                for (var i = 0; i < data.length; i++) {
+                    array.push(new TagSuggestion(data[i].Value, data[i].Count));
+                }
             }
         };
 
@@ -1034,6 +1036,10 @@ var editor = function () {
         return undefined;
     };
 
+    var confirmUserUndo = function () {
+        return confirm('You are about to permanently undo all of your changes to this song.');
+    };
+
     var init = function() {
         var data = { tracks: [], song: song, changed: false };
         viewModel = ko.mapping.fromJS(data, pageMapping);
@@ -1050,7 +1056,8 @@ var editor = function () {
         danceAction: danceAction,
         updateUserTags: updateUserTags,
         getSuggestions: getSuggestions,
-        unloadWarning: unloadWarning
+        unloadWarning: unloadWarning,
+        confirmUserUndo: confirmUserUndo
     };
 }();
 
@@ -1137,9 +1144,11 @@ $(document).ready(function() {
         editor.updateUserTags();
     });
 
-    //// TEST:
-    $('#load-genre-tags').click(function () { editor.getSuggestions('Music'); });
-    $('#load-user-genre-tags').click(function () { editor.getSuggestions('Music', window.userId); });
+    ////// TEST:
+    //$('#load-genre-tags').click(function () { editor.getSuggestions('Music'); });
+    //$('#load-user-genre-tags').click(function () { editor.getSuggestions('Music', window.userId); });
+
+    $('#userUndo').click(function () { return editor.confirmUserUndo(); });
 
     editor.init();
 

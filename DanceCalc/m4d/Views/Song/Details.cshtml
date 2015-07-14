@@ -2,22 +2,24 @@
 
 @{
     ViewBag.Title = Model.Title;
+    var filter = ViewData.ContainsKey("SongFilter") ? ViewBag.SongFilter : new SongFilter();
 }
 
 @Html.Partial("DetailsCore")
 
 <div class="row">
     <div id="songDetails" class="col-md-12">
+        @UserHelper.UndoUser(Html,Model,filter)
         @if (User.IsInRole("canEdit"))
         {
-            @Html.ActionLink("Edit", "Edit", new { id = Model.SongId, filter = ViewBag.SongFilter }, new { @class = "btn btn-small btn-default", role = "button" })
-            @Html.ActionLink("Delete", "Delete", new { id = Model.SongId, filter = ViewBag.SongFilter }, new { @class = "btn btn-small btn-default", role = "button" })
-            @*@Html.ActionLink("XBox", "MusicServiceSearch", new { id = Model.SongId, type = "X", filter = ViewBag.SongFilter }, new { @class = "btn btn-small btn-default", role = "button" })
-            @Html.ActionLink("ITunes", "MusicServiceSearch", new { id = Model.SongId, type = "I", filter = ViewBag.SongFilter }, new { @class = "btn btn-small btn-default", role = "button" })
-            @Html.ActionLink("Amazon", "MusicServiceSearch", new { id = Model.SongId, type = "A", filter = ViewBag.SongFilter }, new { @class = "btn btn-small btn-default", role = "button" })
-            @Html.ActionLink("Next XBox", "BatchMusicService", new { filter = ViewBag.SongFilter, type = "X", count = 1 }, new { @class = "btn btn-small btn-primary", role = "button" })
-            @Html.ActionLink("Next Itunes", "BatchMusicService", new { filter = ViewBag.SongFilter, type = "I", count = 1 }, new { @class = "btn btn-small btn-primary", role = "button" })
-            @Html.ActionLink("Next Amazon", "BatchMusicService", new { filter = ViewBag.SongFilter, type = "A", count = 1 }, new { @class = "btn btn-small btn-primary", role = "button" })*@
+            @Html.ActionLink("Edit", "Edit", new {id = Model.SongId, filter}, new {@class = "btn btn-small btn-default", role = "button"})
+            @Html.ActionLink("Delete", "Delete", new {id = Model.SongId, filter}, new {@class = "btn btn-small btn-default", role = "button"})
+            @*@Html.ActionLink("XBox", "MusicServiceSearch", new { id = Model.SongId, type = "X", filter = filter }, new { @class = "btn btn-small btn-default", role = "button" })
+            @Html.ActionLink("ITunes", "MusicServiceSearch", new { id = Model.SongId, type = "I", filter = filter }, new { @class = "btn btn-small btn-default", role = "button" })
+            @Html.ActionLink("Amazon", "MusicServiceSearch", new { id = Model.SongId, type = "A", filter = filter }, new { @class = "btn btn-small btn-default", role = "button" })
+            @Html.ActionLink("Next XBox", "BatchMusicService", new { filter = filter, type = "X", count = 1 }, new { @class = "btn btn-small btn-primary", role = "button" })
+            @Html.ActionLink("Next Itunes", "BatchMusicService", new { filter = filter, type = "I", count = 1 }, new { @class = "btn btn-small btn-primary", role = "button" })
+            @Html.ActionLink("Next Amazon", "BatchMusicService", new { filter = filter, type = "A", count = 1 }, new { @class = "btn btn-small btn-primary", role = "button" })*@
         }
     </div>
 </div>
@@ -44,8 +46,11 @@
         <div id="users" class="col-md-12">
             @if (Model.ModifiedBy != null)
             {
-                var t = string.Join(",", Model.ModifiedBy.Select(m => m.UserName));
-                <text>@t</text>
+                <b>Undo Changes for:</b>
+                foreach (var mr in Model.ModifiedBy)
+                {
+                    @UserHelper.UndoUser(Html, Model, filter, mr.UserName)
+                }
             }
         </div>
     </div>

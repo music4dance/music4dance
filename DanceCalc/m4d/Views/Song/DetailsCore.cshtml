@@ -3,6 +3,10 @@
 
 @Html.Partial("SetupSongScript")
 
+@{
+    SongFilter filter = ViewData.ContainsKey("SongFilter") ? ViewBag.SongFilter : new SongFilter();
+}
+
 <div class="page-header">
     <h1>
         @Model.Title
@@ -26,7 +30,7 @@
             @{
                 ViewBag.UseLogo = false;
                 @Html.Partial("_PurchaseLinks", Model.GetPurchaseLinks("AISX",region))
-                @Html.ActionLink("Back to List", (string)ViewBag.SongFilter.Action, new { filter = ViewBag.SongFilter }, new { @class = "btn btn-ml btn-primary", role = "button" })
+                @Html.ActionLink("Back to List", filter.Action, new { filter }, new { @class = "btn btn-ml btn-primary", role = "button" })
                 <a href="#" role="button" class="btn btn-ml btn-primary" data-bind="visible:changed, click:saveRatings">Save</a>
             }
         </div>
@@ -34,7 +38,7 @@
             @{
                 ViewBag.UseLogo = true;
                 @Html.Partial("_PurchaseLinks", Model.GetPurchaseLinks("AISX", region))
-                @Html.ActionLink("Back to List", (string) ViewBag.SongFilter.Action, new {filter = ViewBag.SongFilter}, new {@class = "btn btn-primary", role = "button"})
+                @Html.ActionLink("Back to List", filter.Action, new {filter}, new {@class = "btn btn-primary", role = "button"})
                 <a href="#" role="button" class="btn btn-ml btn-primary" data-bind="visible:changed, click:saveRatings">Save</a>
             }
         </div>
@@ -132,3 +136,4 @@
 </div>
 
 @Html.Partial("_TagEditor")
+

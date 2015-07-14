@@ -411,11 +411,66 @@ namespace m4dModels
 
         public IEnumerable<UndoResult> UndoLog(ApplicationUser user, IEnumerable<SongLog> entries)
         {
-            return entries.Select(entry => UndoEntry(user, entry)).ToList();
+            return entries.Select(entry => UndoEntry(user, entry, true)).ToList();
         }
 
-        private UndoResult UndoEntry(ApplicationUser user, SongLog entry, string maskCommand = null)
-        {            
+        // TODO: This depends on all of the user's changes being in the SongLog, which will hopefully be true of end users but isn't true
+        //  of pseudo users/admin users, so eventually need to at minimum catch this and at best deal with it smoothly...
+        public void UndoUserChanges(ApplicationUser user, Guid songId)
+        {
+            var song = Songs.Find(songId);
+
+            // First update the song
+            var logs = Context.Log.Where(l => l.User.Id == user.Id && l.SongReference == songId).OrderByDescending(l => l.Id).ToList();
+
+            foreach (var log in logs)
+            {
+                UndoEntry(user, log);
+            }
+
+            // Then delete the songprops since they should have a net null effect at this point
+            SongProperty lastCommand = null;
+            var props = new List<SongProperty>();
+            var collect = false;
+            foreach (var prop in song.OrderedProperties)
+            {
+                if (prop.Name == SongBase.UserField)
+                {
+                    collect = string.Equals(prop.Value, user.UserName, StringComparison.OrdinalIgnoreCase);
+                }
+                else if (!collect && prop.IsAction)
+                {
+                    lastCommand = prop;
+                }
+
+                if (!collect) continue;
+
+                if (lastCommand != null)
+                {
+                    props.Add(lastCommand);
+                }
+                props.Add(prop);
+                lastCommand = null;
+            }
+            foreach (var prop in props)
+            {
+                song.SongProperties.Remove(prop);
+                Context.SongProperties.Remove(prop);
+                prop.Song = null;
+                prop.SongId = Guid.Empty;
+            }
+
+            // Then remove the modified reference
+            var mr = song.ModifiedBy.FirstOrDefault(m => m.ApplicationUser == user);
+            if (mr != null) song.ModifiedBy.Remove(mr);
+
+            // And finally, get rid of the undo entires and save the changes
+            Context.Log.RemoveRange(logs);
+
+            SaveChanges();
+        }
+        private UndoResult UndoEntry(ApplicationUser user, SongLog entry, bool doLog = false, string maskCommand = null)
+        {
             var action = entry.Action;
             string error = null;
 
@@ -428,14 +483,14 @@ namespace m4dModels
 
                 if (idx.HasValue)
                 {
-                    SongLog uentry = _context.Log.Find(idx.Value);
-                    int? idx2 = uentry.GetIntData(SongBase.SuccessResult);
+                    var uentry = _context.Log.Find(idx.Value);
+                    var idx2 = uentry.GetIntData(SongBase.SuccessResult);
 
                     if (idx2.HasValue)
                     {
-                        SongLog rentry = _context.Log.Find(idx2.Value);
+                        var rentry = _context.Log.Find(idx2.Value);
 
-                        return UndoEntry(user, rentry);
+                        return UndoEntry(user, rentry, doLog, maskCommand);
                     }
                 }
 
@@ -451,9 +506,7 @@ namespace m4dModels
                 error = string.Format("Unable to find song id='{0}' signature='{1}'", entry.SongReference, entry.SongSignature);
             }
 
-            SongLog log = null;
             var command = SongBase.UndoCommand + entry.Action;
-
             if (error == null)
             {
                 if (action.StartsWith(SongBase.UndoCommand))
@@ -473,9 +526,6 @@ namespace m4dModels
                         error = string.Format("Unable to redo a failed undo song id='{0}' signature='{1}'", entry.SongReference, entry.SongSignature);
                     }
                 }
-
-                log = CreateSongLog(user, song, command);
-                result.Result = log;
 
                 switch (action)
                 {
@@ -501,14 +551,23 @@ namespace m4dModels
 
             }
 
-            log.UpdateData(error == null ? SongBase.SuccessResult : SongBase.FailResult, entry.Id.ToString());
-
-            if (error != null)
+            if (doLog)
             {
-                log.UpdateData(SongBase.MessageData, error);
+                var newEntry = CreateSongLog(user, song, command);
+
+                newEntry.UpdateData(error == null ? SongBase.SuccessResult : SongBase.FailResult, entry.Id.ToString());
+                if (error != null)
+                {
+                    newEntry.UpdateData(SongBase.MessageData, error);
+                }
+                _context.Log.Add(newEntry);
+                result.Result = newEntry;
+            }
+            else
+            {
+                result.Result = null;
             }
 
-            _context.Log.Add(log);
             // Have to save changes each time because
             // the may be cumulative (can we optimize by
             // doing a savechanges when a songId comes
@@ -1405,7 +1464,12 @@ namespace m4dModels
                     //s_suggestions[key] = ret;
                 }
 
-                return count < int.MaxValue ? ret.Take(count) : ret;
+                if (count < int.MaxValue)
+                {
+                    ret = ret.Take(count).OrderByDescending(tc => tc.Count);
+                }
+
+                return ret;
             }
         }
 

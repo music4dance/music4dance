@@ -101,7 +101,7 @@ namespace m4dModels
             }
             else
             {
-                string props = SongProperty.Serialize(SongProperties.OrderBy(sp => sp.Id), actions);
+                string props = SongProperty.Serialize(OrderedProperties, actions);
                 if (actions != null && actions.Contains(NoSongId))
                 {
                     return props;
@@ -274,6 +274,10 @@ namespace m4dModels
             }
         }
 
+        public IOrderedEnumerable<SongProperty> OrderedProperties
+        {
+            get { return SongProperties.OrderBy(sp => sp.Id); }
+        }
         #endregion
 
         #region DanceRating
@@ -508,7 +512,7 @@ namespace m4dModels
             // Build the tags from the properties
             var acc = new TagList();
             string cu = null;
-            foreach (var prop in SongProperties.OrderBy(sp => sp.Id))
+            foreach (var prop in OrderedProperties)
             {
                 switch (prop.Name)
                 {

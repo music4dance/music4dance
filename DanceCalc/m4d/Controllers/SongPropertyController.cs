@@ -40,8 +40,8 @@ namespace m4d.Controllers
 
             songProperties = songProperties.OrderBy(p => p.Id);
 
-            int pageSize = 50;
-            int pageNumber = (page ?? 1);
+            const int pageSize = 50;
+            var pageNumber = (page ?? 1);
 
             return View(songProperties.ToPagedList(pageNumber, pageSize));
         }
