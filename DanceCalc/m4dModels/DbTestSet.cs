@@ -35,6 +35,16 @@ namespace m4dModels
             return item;
         }
 
+        public override IEnumerable<TEntity> RemoveRange(IEnumerable<TEntity> entities)
+        {
+            var removeRange = entities as IList<TEntity> ?? entities.ToList();
+            foreach (var e in removeRange)
+            {
+                _data.Remove(e);
+            }
+            return removeRange;
+        }
+
         public override TEntity Attach(TEntity item)
         {
             _data.Add(item);
