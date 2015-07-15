@@ -91,6 +91,7 @@
     <Compile Include="MergeCluster.cs" />
     <Compile Include="MusicServiceStub.cs" />
     <Compile Include="PurchaseType.cs" />
+    <Compile Include="QuickTimer.cs" />
     <Compile Include="ServiceType.cs" />
     <Compile Include="SongCounts.cs" />
     <Compile Include="SongFilterConverter.cs" />

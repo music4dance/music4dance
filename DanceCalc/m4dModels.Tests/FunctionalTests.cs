@@ -32,13 +32,12 @@ namespace m4dModels.Tests
         public void SaveDatabase()
         {
             Assert.IsNotNull(s_service);
-            //var songs = 
-            s_service.Dms.SerializeSongs(false);
+            var songs = s_service.Dms.SerializeSongs(false);
             //foreach (string s in songs)
             //{
             //    Trace.WriteLine(s);
             //}
-            //Assert.IsTrue(ListEquivalent(s_songs, songs));
+            Assert.IsTrue(ListEquivalent(s_service.Songs, songs));
 
             var dances = s_service.Dms.SerializeDances(false);
             Assert.IsTrue(ListEquivalent(s_service.Dances, dances));

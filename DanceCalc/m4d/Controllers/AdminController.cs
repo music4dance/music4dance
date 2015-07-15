@@ -1397,19 +1397,75 @@ namespace m4d.Controllers
         [Authorize(Roles = "showDiagnostics")]
         public ActionResult BackupDatabase(bool users = true, bool tags = true, bool dances = true, bool songs = true, string useLookupHistory = null)
         {
-            var history = !string.IsNullOrWhiteSpace(useLookupHistory);
+            try
+            {
+                StartAdminTask("Backup");
 
-            var s = (users ? string.Join("\r\n", Database.SerializeUsers()) + "\r\n" : string.Empty) +
-                    (dances ? string.Join("\r\n", Database.SerializeDances()) + "\r\n" : string.Empty) +
-                    (tags ? string.Join("\r\n", Database.SerializeTags()) + "\r\n" : string.Empty) +
-                    (songs ? string.Join("\r\n", Database.SerializeSongs(true,history)) + "\r\n" : string.Empty);
+                var history = !string.IsNullOrWhiteSpace(useLookupHistory);
 
-            var bytes = Encoding.UTF8.GetBytes(s);
-            var stream = new MemoryStream(bytes);
+                var dt = DateTime.Now;
+                var h = history ? "-lookup" : string.Empty;
+                var fname = string.Format("backup-{0:d4}-{1:d2}-{2:d2}{3}.txt", dt.Year, dt.Month, dt.Day, h);
+                var path = Path.Combine(Server.MapPath("~/app_data"),fname);
 
-            var dt = DateTime.Now;
-            var h = history ? "+lookup" : string.Empty;
-            return File(stream, "text/plain", string.Format("backup-{0:d4}-{1:d2}-{2:d2}{3}.txt",dt.Year,dt.Month,dt.Day,h));
+                using (var file = System.IO.File.CreateText(path))
+                {
+                    if (users)
+                    {
+                        var n = 0;
+                        AdminMonitor.UpdateTask("users");
+                        foreach (var line in Database.SerializeUsers())
+                        {
+                            file.WriteLine(line);
+                            AdminMonitor.UpdateTask("users", ++n);
+                        }
+                    }
+
+                    if (dances)
+                    {
+                        var n = 0;
+                        AdminMonitor.UpdateTask("dances");
+                        foreach (var line in Database.SerializeDances())
+                        {
+                            file.WriteLine(line);
+                            AdminMonitor.UpdateTask("dances", ++n);
+                        }
+                    }
+
+                    if (tags)
+                    {
+                        var n = 0;
+                        AdminMonitor.UpdateTask("tags");
+                        foreach (var line in Database.SerializeTags())
+                        {
+                            file.WriteLine(line);
+                            AdminMonitor.UpdateTask("tags", ++n);
+                        }
+                    }
+
+                    if (songs)
+                    {
+                        Context.Configuration.LazyLoadingEnabled = false;
+                        var n = 0;
+                        AdminMonitor.UpdateTask("songs");
+                        var lines = Database.SerializeSongs(true, history);
+                        AdminMonitor.UpdateTask("writeSongs");
+                        foreach (var line in lines)
+                        {
+                            file.WriteLine(line);
+                            AdminMonitor.UpdateTask("writeSongs", ++n);
+                        }
+                        Context.Configuration.LazyLoadingEnabled = true;
+                    }
+                }
+
+                AdminMonitor.CompleteTask(true, "Backup complete to: " + path);
+                return Redirect("~/app_data/" + fname);
+            }
+            catch (Exception e)
+            {
+                return FailAdminTask("Tag summaries failed to rebuild", e);
+            }
         }
 
         //

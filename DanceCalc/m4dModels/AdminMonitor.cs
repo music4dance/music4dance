@@ -26,6 +26,16 @@ namespace m4dModels
             }
         }
 
+        public static void TryUpdateTask(string phase, int iteration = 0)
+        {
+            lock (Lock)
+            {
+                if (_name == null) return;
+
+                _phase = phase;
+                _iteration = iteration;
+            }
+        }
         public static void CompleteTask(bool completed, string message, Exception exception=null)
         {
             lock (Lock)

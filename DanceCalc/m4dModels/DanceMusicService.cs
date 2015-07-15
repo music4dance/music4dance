@@ -2081,6 +2081,7 @@ namespace m4dModels
 
             return tags;
         }
+
         public IList<string> SerializeSongs(bool withHeader = true, bool withHistory = true, int max = -1, DateTime? from = null, SongFilter filter = null, HashSet<Guid> exclusions = null)
         {
             var songs = new List<string>();
@@ -2120,24 +2121,37 @@ namespace m4dModels
             _context.TrackChanges(false);
             if (max > 0)
             {
-                SerializeChunk(songlist, actions, songs,exclusions);
+                SerializeChunk(songlist.Include("SongProperties").ToList(), actions, songs,exclusions);
             }
             else
             {
+                var timer = new QuickTimer();
                 const int chunkSize = 1000;
                 var chunkIndex = 0;
-                List<Song> chunk = null;
+                List<Song> chunk;
                 do
                 {
-                    chunk = songlist.Skip(chunkIndex * chunkSize).Take(chunkSize).ToList();
+                    var chunkQ = songlist.Skip(chunkIndex*chunkSize).Take(chunkSize).Include(s => s.SongProperties);
+                    chunk = chunkQ.ToList();
+                    timer.ReportTime("ReadDb");
                     SerializeChunk(chunk,actions,songs,exclusions);
+                    timer.ReportTime("Serialize");
+                    AdminMonitor.TryUpdateTask("songs", chunkIndex * chunkSize);
                     _context.ClearEntities(new[] { "SongProperty", "DanceRating", "Song", "ModifiedRecord" });
+                    timer.ReportTime("Clear");
                     chunkIndex += 1;
                 } while (chunk.Count > 0);
+
+                timer.ReportTotals();
             }
             _context.TrackChanges(true);
 
             return songs;
+        }
+
+        private void ReportTime()
+        {
+            
         }
 
         private void SerializeChunk(IEnumerable<Song> songs, string[] actions, List<string> lines, HashSet<Guid> exclusions)

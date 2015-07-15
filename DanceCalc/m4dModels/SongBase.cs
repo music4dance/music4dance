@@ -99,18 +99,14 @@ namespace m4dModels
             {
                 return null;
             }
-            else
+
+            var props = SongProperty.Serialize(OrderedProperties, actions);
+            if (actions != null && actions.Contains(NoSongId))
             {
-                string props = SongProperty.Serialize(OrderedProperties, actions);
-                if (actions != null && actions.Contains(NoSongId))
-                {
-                    return props;
-                }
-                else
-                {
-                    return string.Format("SongId={0}\t{1}",SongId.ToString("B"),props);
-                }
+                return props;
             }
+
+            return string.Format("SongId={0}\t{1}",SongId.ToString("B"),props);
         }
         public override string ToString()
         {
