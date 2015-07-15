@@ -2126,11 +2126,12 @@ namespace m4dModels
             else
             {
                 var timer = new QuickTimer();
-                const int chunkSize = 1000;
+                const int chunkSize = 100;
                 var chunkIndex = 0;
                 List<Song> chunk;
                 do
                 {
+                    Trace.WriteLineIf(TraceLevels.General.TraceInfo,string.Format("Chunk: {0}",chunkIndex));
                     var chunkQ = songlist.Skip(chunkIndex*chunkSize).Take(chunkSize).Include(s => s.SongProperties);
                     chunk = chunkQ.ToList();
                     timer.ReportTime("ReadDb");

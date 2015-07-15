@@ -1406,7 +1406,7 @@ namespace m4d.Controllers
                 var dt = DateTime.Now;
                 var h = history ? "-lookup" : string.Empty;
                 var fname = string.Format("backup-{0:d4}-{1:d2}-{2:d2}{3}.txt", dt.Year, dt.Month, dt.Day, h);
-                var path = Path.Combine(Server.MapPath("~/app_data"),fname);
+                var path = Path.Combine(Server.MapPath("~/content"),fname);
 
                 using (var file = System.IO.File.CreateText(path))
                 {
@@ -1459,12 +1459,22 @@ namespace m4d.Controllers
                     }
                 }
 
-                AdminMonitor.CompleteTask(true, "Backup complete to: " + path);
-                return Redirect("~/app_data/" + fname);
+                return File("~/content/" + fname, System.Net.Mime.MediaTypeNames.Text.Plain,fname);
+                //AdminMonitor.CompleteTask(true, "Backup complete to: " + path);
+                //var res = new FilePathResult("~/content/" + fname,System.Net.Mime.MediaTypeNames.Text.Plain);
+                //res.FileDownloadName = fname;
+                //return res;
             }
             catch (Exception e)
             {
-                return FailAdminTask("Tag summaries failed to rebuild", e);
+                return FailAdminTask("Failed to backup database", e);
+                //AdminMonitor.CompleteTask(false, "Failed to backup database", e);
+
+                //var bytes = Encoding.UTF8.GetBytes(e.Message);
+                //var stream = new MemoryStream(bytes);
+
+                //var dt = DateTime.Now;
+                //return File(stream, "text/plain", string.Format("backup-error-{0:d4}-{1:d2}-{2:d2}.txt", dt.Year, dt.Month, dt.Day));
             }
         }
 
