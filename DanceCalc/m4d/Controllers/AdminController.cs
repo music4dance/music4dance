@@ -14,6 +14,7 @@ using DanceLibrary;
 using m4d.Context;
 using m4d.Scrapers;
 using m4dModels;
+using Owin.Security.Providers.BattleNet;
 using Configuration = m4d.Migrations.Configuration;
 
 namespace m4d.Controllers
@@ -685,7 +686,7 @@ namespace m4d.Controllers
                     continue;
                 }
                 string[] regions = null;
-                string id = MusicService.ParseRegionInfo(prop.Value, out regions);
+                var id = PurchaseRegion.ParseIdAndRegionInfo(prop.Value, out regions);
                 if (null == regions)
                 {
                     var track = Context.GetMusicServiceTrack(prop.Value, spotify);
@@ -695,7 +696,7 @@ namespace m4d.Controllers
                     }
                     else
                     {
-                        prop.Value = MusicService.FormatRegionInfo(track.TrackId, track.AvailableMarkets);
+                        prop.Value = PurchaseRegion.FormatIdAndRegionInfo(track.TrackId, track.AvailableMarkets);
                         regions = track.AvailableMarkets;
                         changed += 1;
                     }
@@ -710,8 +711,8 @@ namespace m4d.Controllers
                     var track = Context.CoerceTrackRegion(id, spotify, region);
                     if (track != null)
                     {
-                        prop.Value = MusicService.FormatRegionInfo(track.TrackId,
-                            MusicService.MergeRegions(regions, track.AvailableMarkets));
+                        prop.Value = PurchaseRegion.FormatIdAndRegionInfo(track.TrackId,
+                            PurchaseRegion.MergeRegions(regions, track.AvailableMarkets));
                         updated += 1;
                         
                     }
@@ -734,6 +735,69 @@ namespace m4d.Controllers
 
             ViewBag.Success = true;
             ViewBag.Message = string.Format("Updated purchase info: Skipped == {0}; Changed={1}; Udpated={2}; Failed={3}", skipped, changed, updated, failed);
+
+            return View("Results");
+        }
+
+        private static bool IsSorted(string[] arr)
+        {
+            for (var i = 1; i < arr.Length; i++)
+            {
+                if (string.Compare(arr[i - 1],arr[i],StringComparison.OrdinalIgnoreCase) > 0)
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+        //
+        // Get: //SpotifyRegions
+        [Authorize(Roles = "dbAdmin")]
+        public ActionResult RegionStats(int count = int.MaxValue, int start = 0, string region = "US")
+        {
+            var counts = new Dictionary<string, int>();
+            var codes = new HashSet<string>();
+            var c = 0;
+            var unsorted = 0;
+            foreach (var prop in Database.SongProperties.Where(p => p.Name.StartsWith("Purchase:") && p.Name.EndsWith(":SS")))
+            {
+                string[] regions;
+                PurchaseRegion.ParseIdAndRegionInfo(prop.Value, out regions);
+
+                if (regions == null) continue;
+
+                if (!IsSorted(regions))
+                    unsorted += 1;
+
+                foreach (var code in regions)
+                {
+                    codes.Add(code);
+                }
+
+                var r = PurchaseRegion.FormatRegionInfo(regions);
+                int citem;
+                counts[r] = counts.TryGetValue(r, out citem) ? citem + 1 : 1;
+
+                c += 1;
+            }
+
+            var unique = 0;
+            foreach (var pair in counts)
+            {
+                Trace.WriteLine(string.Format("{0}\t{1}",pair.Value,pair.Key));
+                unique += 1;
+            }
+
+            var cc = 0;
+            foreach (var code in codes.OrderBy(x => x))
+            {
+                Trace.Write(code + ",");
+                cc += 1;
+            }
+            Trace.WriteLine("");
+
+            ViewBag.Success = true;
+            ViewBag.Message = string.Format("Region Stats: Total == {0}; Unsorted={1}; Unique={2}, Codes={3}", c, unsorted, unique,cc);
 
             return View("Results");
         }

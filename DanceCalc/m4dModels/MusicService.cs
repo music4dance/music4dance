@@ -36,7 +36,7 @@ namespace m4dModels
         {
             PurchaseLink ret = null;
             string[] regions = null;
-            string id = ParseRegionInfo(song, out regions);
+            string id = PurchaseRegion.ParseIdAndRegionInfo(song, out regions);
             string link = BuildPurchaseLink(pt, album, id);
 
             if (link != null)
@@ -209,72 +209,22 @@ namespace m4dModels
             return true;
         }
 
-        static public string ParseRegionInfo(string value, out string[] regions)
-        {
-            regions = null;
-
-            if (value == null || !value.EndsWith("]")) return value;
-
-            var fields = value.Split('[');
-
-            if (fields.Length == 2)
-            {
-                regions = fields[1].Substring(0,fields[1].Length-1).Split(',');
-            }
-
-            return fields[0];
-        }
-
-        public static string FormatRegionInfo(string id, string[] regions)
-        {
-            if (regions == null) return id;
-
-            if (id != null && id.EndsWith("]"))
-            {
-                id = id.Substring(0, id.LastIndexOf('['));
-            }
-
-            var sb = new StringBuilder(id);
-            sb.Append("[");
-            var sep = string.Empty;
-            foreach (var r in regions)
-            {
-                sb.Append(sep);
-                sb.Append(r);
-                sep = ",";
-            }
-            sb.Append("]");
-
-            return sb.ToString();
-        }
-
-        public static string[] MergeRegions(string[] a, string[] b)
-        {
-            if (b == null) return a;
-            // ReSharper disable once ConvertIfStatementToReturnStatement
-            if (a == null) return b;
-
-            return new List<string>(a).Concat(b).Distinct().OrderBy(x => x).ToArray();
-        }
 
         public static string FormatPurchaseFilter(string pf, string separator = ", ")
         {
             if (string.IsNullOrWhiteSpace(pf))
                 return null;
 
-            List<string> services = new List<string>();
+            var services = new List<string>();
             foreach (var c in pf)
             {
                 if (!s_cidMap.ContainsKey(c)) continue;
 
-                MusicService service = s_cidMap[c];
+               var service = s_cidMap[c];
                 services.Add(service.Name);
             }
 
-            if (services.Count == 0)
-                return null;
-
-            return string.Join(separator, services);
+            return services.Count == 0 ? null : string.Join(separator, services);
         }
         #endregion
 

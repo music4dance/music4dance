@@ -257,7 +257,7 @@ namespace m4d.Context
                         t = CoerceTrackRegion(track.TrackId, service, region);
                         if (t != null)
                         {
-                            t.AvailableMarkets = MusicService.MergeRegions(t.AvailableMarkets, track.AvailableMarkets);
+                            t.AvailableMarkets = PurchaseRegion.MergeRegions(t.AvailableMarkets, track.AvailableMarkets);
                         }
                     }
 

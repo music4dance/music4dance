@@ -209,7 +209,7 @@ namespace m4dModels
 
             var ret = sb.Length > 0 ? sb.ToString() : null;
 
-            return (ret == null || availableMarkets == null) ? ret : MusicService.FormatRegionInfo(ret, availableMarkets);
+            return (ret == null || availableMarkets == null) ? ret : PurchaseRegion.FormatIdAndRegionInfo(ret, availableMarkets);
         }
 
         public static string BuildPurchaseKey(PurchaseType purchaseType, ServiceType serviceType)
@@ -283,7 +283,6 @@ namespace m4dModels
 
             string value;
             return Purchase.TryGetValue(MusicService.GetService(ms).BuildPurchaseKey(pt), out value) ? value : null;
-            
         }
 
         public bool PurchaseDiff(DanceMusicService dms, Song song, AlbumDetails old, SongLog log)

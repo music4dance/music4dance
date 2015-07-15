@@ -847,22 +847,20 @@ namespace m4dModels
         }
         public ICollection<PurchaseLink> GetPurchaseLinks(string service = "AIXS", string region=null)
         {
-            List<PurchaseLink> links = new List<PurchaseLink>();
+            var links = new List<PurchaseLink>();
             service = service.ToUpper();
 
-            foreach (MusicService ms in MusicService.GetServices())
+            foreach (var ms in MusicService.GetServices())
             {
-                if (service.Contains(ms.CID))
+                if (!service.Contains(ms.CID)) continue;
+
+                foreach (var album in Albums)
                 {
-                    foreach (AlbumDetails album in Albums)
-                    {
-                        PurchaseLink l = album.GetPurchaseLink(ms.Id,region);
-                        if (l != null)
-                        {
-                            links.Add(l);
-                            break;
-                        }
-                    }
+                    var l = album.GetPurchaseLink(ms.Id,region);
+                    if (l == null) continue;
+
+                    links.Add(l);
+                    break;
                 }
             }
 
