@@ -13,7 +13,7 @@ namespace m4dModels.Tests
     [TestClass]
     public class RegionTests
     {
-        private static readonly string[] s_verbose = new string[] {
+        private static readonly string[] s_verbose = {
                 "7HbgRyO1uUqkBhYXsGHGyb",
                 null,
                 "5QbgRyO1uUqkBhYXsGHGyb[AD,AR,AT,AU,BE,BG,BO,BR,CA,CH,CL,CO,CR,CY,CZ,DE,DK,DO,EC,EE,ES,FI,FR,GB,GR,GT,HK,HN,HU,IE,IS,IT,LI,LT,LU,LV,MC,MT,MX,MY,NI,NL,NO,NZ,PA,PE,PH,PL,PT,PY,RO,SE,SG,SI,SK,SV,TR,TW,US,UY]",
@@ -23,12 +23,12 @@ namespace m4dModels.Tests
                 "0SBqz12IrQJFYLmXAWsrFt[AD,AR,AT,AU,BE,BG,BO,BR,CA,CH,CL,CO,CR,CY,CZ,DE,DK,DO,EC,EE,ES,FI,FR,GB,GR,GT,HK,HN,HU,IE,IS,IT,LI,LT,LU,LV,MC,MT,MX,MY,NI,NL,NO,NZ,PA,PE,PH,PL,PT,PY,RO,SE,SG,SI,SK,SV,TW,US,UY]"
             };
 
-        private static readonly string[] s_compact = new string[] {
+        private static readonly string[] s_compact = {
             "7HbgRyO1uUqkBhYXsGHGyb",
             null,
             "5QbgRyO1uUqkBhYXsGHGyb[0]",
             "4FjkmQ9JYaIeh1NxeLEO80[0]",
-            "3tVkq0eSCvfVAE3OVZHnrK[AD,AT,BE,BG,BR,CA,CH,CL,CO,CR,CY,CZ,DE,DK,DO,EC,EE,ES,FI,FR,GR,GT,HK,HN,HU,IS,IT,LI,LT,LU,LV,MC,MT,MX,MY,NI,NL,NO,NZ,PA,PE,PH,PL,PT,RO,SE,SG,SI,SK,SV,TR,TW,US]",
+            "3tVkq0eSCvfVAE3OVZHnrK[0-AR,AU,BO,GB,IE,PY,UY]",
             "6h8W9kvyEOhyoRYocyH7lf[3]",
             "0SBqz12IrQJFYLmXAWsrFt[11]"
         };

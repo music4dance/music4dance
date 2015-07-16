@@ -26,9 +26,7 @@ namespace m4dModels
 
         public override string ToString()
         {
-            if (_regions == null) return string.Empty;
-
-            return FormatRegionInfo(_regions);
+            return _regions == null ? string.Empty : FormatRegionInfo(_regions);
         }
 
         private readonly List<string> _regions;
@@ -57,6 +55,10 @@ namespace m4dModels
             if (Char.IsLetter(value[0]) || value[0] == ',')
                 return value.Split(',');
 
+            if (value.StartsWith("0-"))
+            {
+                return ExpandBaseDelta(value.Substring(2));
+            }
             int idx;
             if (int.TryParse(value, out idx))
             {
@@ -81,21 +83,22 @@ namespace m4dModels
 
         public static string FormatRegionInfo(IEnumerable<string> regions)
         {
-            var sb = new StringBuilder();
-            var sep = String.Empty;
-            foreach (var r in regions)
-            {
-                if (string.IsNullOrWhiteSpace(r)) continue;
-                sb.Append(sep);
-                sb.Append(r);
-                sep = ",";
-            }
+            var bare = string.Join(",", regions.Where(r => !string.IsNullOrWhiteSpace(r)));
 
-            var bare = sb.ToString();
             int idx;
-            if (s_crMap.TryGetValue(bare, out idx))
+            var mapped = s_commonRegionsMap.TryGetValue(bare, out idx);
+
+            if (mapped)
             {
                 bare = idx.ToString();
+            }
+            else
+            {
+                var delta = ComputeBaseDelta(bare);
+                if (delta.Length < bare.Length)
+                {
+                    bare = delta;
+                }
             }
 
             return string.Format("[{0}]", bare);
@@ -124,17 +127,57 @@ namespace m4dModels
             "AD,AR,AT,AU,BE,BG,BO,BR,CA,CH,CL,CO,CR,CY,CZ,DE,DK,DO,EC,EE,ES,FI,FR,GB,GR,GT,HK,HN,HU,IE,IS,IT,LI,LT,LU,LV,MC,MT,MY,NI,NL,NO,NZ,PA,PE,PH,PL,PT,PY,RO,SE,SG,SI,SK,SV,TR,TW,US,UY",
             "AD,AR,AT,AU,BE,BG,BO,BR,CA,CH,CL,CO,CR,CY,CZ,DE,DK,DO,EC,EE,ES,FI,FR,GR,GT,HK,HN,HU,IE,IS,IT,LI,LT,LU,LV,MC,MT,MX,MY,NI,NL,NO,NZ,PA,PE,PH,PL,PT,PY,RO,SE,SG,SI,SK,SV,TR,TW,US,UY",
             "AD,AR,AT,AU,BE,BG,BO,BR,CA,CH,CL,CO,CR,CY,CZ,DE,DK,DO,EC,EE,ES,FI,FR,GB,GR,GT,HK,HN,HU,IE,IS,IT,LI,LT,LU,LV,MC,MT,MX,MY,NI,NL,NO,NZ,PA,PE,PH,PL,PT,PY,RO,SE,SG,SI,SK,SV,TW,US,UY",
+            "AD,AR,AT,BE,BG,BO,BR,CA,CH,CL,CO,CR,CY,CZ,DE,DK,DO,EC,EE,ES,FI,FR,GB,GR,GT,HK,HN,HU,IE,IS,IT,LI,LT,LU,LV,MC,MT,MX,MY,NI,NL,NO,NZ,PA,PE,PH,PL,PT,PY,RO,SE,SG,SI,SK,SV,TR,TW,US,UY",
+            "AR,AU,BO,BR,CA,CL,CO,CR,DO,EC,GT,HK,HN,MX,MY,NI,NZ,PA,PE,PH,PY,SG,SV,TW,US,UY",
+            "AD,AR,AT,AU,BE,BG,BO,BR,CA,CH,CL,CO,CR,CY,CZ,DE,DK,DO,EC,EE,ES,FI,FR,GR,GT,HK,HN,HU,IS,IT,LI,LT,LU,LV,MC,MT,MX,MY,NI,NL,NO,NZ,PA,PE,PH,PL,PT,PY,RO,SE,SG,SI,SK,SV,TR,TW,US,UY",
+            "AD,AR,AT,AU,BE,BG,BO,BR,CA,CH,CL,CO,CR,CY,CZ,DK,DO,EC,EE,ES,FI,FR,GB,GR,GT,HK,HN,HU,IE,IS,IT,LI,LT,LU,LV,MC,MT,MX,MY,NI,NL,NO,NZ,PA,PE,PH,PL,PT,PY,RO,SE,SG,SI,SK,SV,TR,TW,US,UY",
+            "AD,AR,AT,AU,BE,BG,BO,BR,CA,CH,CL,CO,CR,CY,CZ,DE,DK,DO,EC,EE,ES,FI,FR,GB,GR,GT,HK,HN,HU,IE,IS,LI,LT,LU,LV,MC,MX,MY,NI,NL,NO,NZ,PA,PE,PH,PL,PT,PY,RO,SE,SG,SI,SK,SV,TR,TW,US,UY",
+            "AD,AR,AU,BE,BG,BO,BR,CA,CH,CL,CO,CR,CY,CZ,DK,DO,EC,EE,ES,FI,FR,GB,GR,GT,HK,HN,HU,IE,IS,IT,LI,LT,LU,LV,MC,MT,MX,MY,NI,NL,NO,NZ,PA,PE,PH,PL,PT,PY,RO,SE,SG,SI,SK,SV,TR,TW,US,UY",
+            "AR,BO,BR,CA,CL,CO,CR,DO,EC,GT,HK,HN,MX,MY,NI,PA,PE,PH,PY,SG,SV,TW,US,UY",
+            "AD,AR,AT,AU,BE,BG,BO,BR,CA,CH,CL,CO,CR,CY,CZ,DE,DK,DO,EC,EE,ES,FI,FR,GB,GR,GT,HN,HU,IE,IS,IT,LI,LT,LU,LV,MC,MT,MX,NI,NL,NO,NZ,PA,PE,PL,PT,PY,RO,SE,SI,SK,SV,TR,US,UY",
+            "AD,AR,AT,BE,BG,BO,BR,CH,CL,CO,CR,CY,CZ,DE,DK,DO,EC,EE,ES,FI,FR,GB,GR,GT,HK,HN,HU,IE,IS,IT,LI,LT,LU,LV,MC,MT,MX,MY,NI,NL,NO,PA,PE,PH,PL,PT,PY,RO,SE,SG,SI,SK,SV,TR,TW,US,UY"
         };
 
-        private static readonly Dictionary<string,int> s_crMap;
+        // Common Region
+        private static readonly Dictionary<string,int> s_commonRegionsMap;
+
+        private static readonly string[] s_baseRegions;
+
+        private static string ComputeBaseDelta(string value)
+        {
+            // Assume valid, non-null regions list coming in
+            var regions = value.Split(',');
+
+            var rem = s_baseRegions.Except(regions).ToList();
+            var add = regions.Except(s_baseRegions).ToList();
+
+            // TOOD: If we start getting more than our core list of contries in our regions list, revisit this
+            if (add.Count > 0 || rem.Count == 0)
+                return value;
+
+            rem.Sort();
+            return "0-" + string.Join(",",rem);
+        }
+
+        private static string[] ExpandBaseDelta(string value)
+        {
+            return s_baseRegions.Except(value.Split(',')).ToArray();
+        }
 
         static PurchaseRegion()
         {
-            s_crMap = new Dictionary<string, int>();
+            s_commonRegionsMap = new Dictionary<string, int>();
             for (var i = 0; i < s_commonRegions.Length; i++)
             {
-                s_crMap.Add(s_commonRegions[i], i);
+                s_commonRegionsMap.Add(s_commonRegions[i], i);
             }
+
+            s_baseRegions = s_commonRegions[0].Split(',');
+            //    new HashSet<string>();
+            //foreach (var r in s_commonRegions[0].Split(','))
+            //{
+            //    s_baseRegions.Add(r);
+            //}
         }
     }
 }

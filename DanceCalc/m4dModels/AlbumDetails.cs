@@ -137,42 +137,30 @@ namespace m4dModels
 
         public string SerializePurchaseInfo()
         {
-            IList<string> pi = GetPurchaseInfo(true);
-            if (pi == null)
-            {
-                return null;
-            }
-            else
-            {
-                return string.Join(";", pi);
-            }
+            var pi = GetPurchaseInfo(true);
+            return pi == null ? null : string.Join(";", pi);
         }
-        
+
         #endregion
 
         #region Purchase Manipulation
         public string GetPurchaseTags()
         {
-            StringBuilder sb = new StringBuilder();
-            HashSet<char> added = new HashSet<char>();
+            var sb = new StringBuilder();
+            var added = new HashSet<char>();
 
-            if (Purchase != null)
+            if (Purchase == null) return sb.Length == 0 ? null : sb.ToString();
+
+            foreach (var t in Purchase.Keys)
             {
-                foreach (string t in Purchase.Keys)
-                {
-                    char c = t[0];
-                    if (!added.Contains(c))
-                    {
-                        added.Add(c);
-                        sb.Append(c);
-                    }
-                }
+                var c = t[0];
+                if (added.Contains(c)) continue;
+
+                added.Add(c);
+                sb.Append(c);
             }
 
-            if (sb.Length == 0)
-                return null;
-            else
-                return sb.ToString();
+            return sb.Length == 0 ? null : sb.ToString();
         }
         public void SetPurchaseInfo(PurchaseType pt, ServiceType ms, string value)
         {

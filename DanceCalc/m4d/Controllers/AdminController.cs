@@ -662,6 +662,43 @@ namespace m4d.Controllers
         }
 
         //
+        // Get: //CompressRegions
+        [Authorize(Roles = "dbAdmin")]
+        public ActionResult CompressRegions()
+        {
+            Context.TrackChanges(false);
+            var c = 0;
+            var bytes = 0;
+            foreach (var prop in Database.SongProperties.Where(p => p.Name.StartsWith("Purchase:") && p.Name.EndsWith(":SS")))
+            {
+                string[] regions;
+                var id = PurchaseRegion.ParseIdAndRegionInfo(prop.Value, out regions);
+
+                if (regions == null) continue;
+
+                var newValue = PurchaseRegion.FormatIdAndRegionInfo(id, regions);
+
+                if (string.Equals(prop.Value, newValue, StringComparison.OrdinalIgnoreCase))
+                {
+                    continue;
+                }
+
+                bytes += prop.Value.Length - newValue.Length;
+                prop.Value = newValue;
+
+                c += 1;
+            }
+
+            Context.TrackChanges(true);
+
+            ViewBag.Success = true;
+            ViewBag.Message = string.Format("Compressed Regions: Total == {0}; Bytes={1}", c, bytes);
+
+            return View("Results");
+        }
+
+
+        //
         // Get: //SpotifyRegions
         [Authorize(Roles = "dbAdmin")]
         public ActionResult SpotifyRegions(int count=int.MaxValue, int start=0, string region="US")
@@ -753,7 +790,7 @@ namespace m4d.Controllers
         //
         // Get: //SpotifyRegions
         [Authorize(Roles = "dbAdmin")]
-        public ActionResult RegionStats(int count = int.MaxValue, int start = 0, string region = "US")
+        public ActionResult RegionStats()
         {
             var counts = new Dictionary<string, int>();
             var codes = new HashSet<string>();

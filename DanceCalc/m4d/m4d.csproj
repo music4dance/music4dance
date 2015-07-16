@@ -628,6 +628,7 @@
     <None Include="Properties\PublishProfiles\m4d.pubxml" />
     <Content Include="Icon.png" />
     <Content Include="MvcDiagnostics.aspx" />
+    <Content Include="pinterest-885c1.html" />
     <Content Include="Scripts\bootstrap.js" />
     <Content Include="Scripts\bootstrap.min.js" />
     <Content Include="Scripts\chosen.jquery.js" />
