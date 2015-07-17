@@ -8,7 +8,7 @@
 
 <p>@Model.Status</p>
 
-@if (Model.Exception != null)
+@if (!Model.IsRunning && Model.Exception != null)
 {
     <p>Execption: @Model.Exception.Message</p>
     if (Model.Exception.InnerException != null)

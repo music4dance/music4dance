@@ -1560,6 +1560,7 @@ namespace m4d.Controllers
                     }
                 }
 
+                AdminMonitor.CompleteTask(true, "Backup complete to: " + path);
                 return File("~/content/" + fname, System.Net.Mime.MediaTypeNames.Text.Plain,fname);
                 //AdminMonitor.CompleteTask(true, "Backup complete to: " + path);
                 //var res = new FilePathResult("~/content/" + fname,System.Net.Mime.MediaTypeNames.Text.Plain);

@@ -163,12 +163,18 @@ namespace m4dModels
 
         public Tag FindUserTag(ApplicationUser user, DanceMusicService dms=null)
         {
+            if (user == null)
+            {
+                Trace.WriteLine("Null User in FindUserTag?");
+                return null;
+            }
+
             // TODO: Local tag list is riding the edge of flaky...
             Tag tag = null;
             if (Tags != null)
             {
                 tag = Tags.FirstOrDefault(t => (t.UserId == user.Id) && (t.Id == TagId)) ??
-                      Tags.FirstOrDefault(t => (t.User.UserName == user.UserName) && (t.Id == TagId));
+                      Tags.FirstOrDefault(t => (t.User != null) && (t.User.UserName == user.UserName) && (t.Id == TagId));
             }
 
             if (tag != null || dms == null) return tag;
