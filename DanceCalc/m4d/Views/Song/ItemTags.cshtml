@@ -1,12 +1,12 @@
 ﻿<script type="text/html" id="tag-template">
     <span data-bind="foreach: list">
         <span class="label" data-bind="css:'label-' + $parent.nameLower()" style="margin-right: 5px">
-            <img data-bind="attr: {src: isrc}" width="14" height="14"/>
+            <img data-bind="attr: {src: imageSrc}" width="14" height="14"/>
             <a role="button" class="tag-text" data-bind="text: tag, attr: {href: url}"></a>
             <a role="button" href="#!" class="glyphicon tag-text" data-bind="css:tagClass, click:toggleUser, visible:$root.canTag" data-show="tooltip" data-original-title="Click to add or remove from your tags"></a>
         </span>
     </span>
-    <a role="button" class="label" data-bind="visible:$root.canTag, css:'label-' + nameLower(), attr:{'data-category':name,'data-danceid':summary.danceId, 'data-original-title':tooltip}" data-toggle="modal" data-show="tooltip" data-placement="top" data-target="#addTags"><span class="glyphicon glyphicon-plus-sign"></span></a>
+    <a role="button" class="label" data-bind="visible:$root.canTag, css:'label-' + nameLower(), attr:{'data-category':name,'data-danceid':summary.danceId, 'data-original-title':tooltip}" data-toggle="modal" data-show="tooltip" data-placement="top" data-target="#addTags"><img data-bind="attr: {src: imageSrc}" width="14" height="14" /> <span class="glyphicon glyphicon-asterisk"></span></a>
 </script>
 
 <div data-bind="template: {name:'tag-template',foreach:song.TagSummary.tagTypes}"></div>

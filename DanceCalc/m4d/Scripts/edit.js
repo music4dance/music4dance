@@ -146,6 +146,17 @@ var editor = function () {
         return name;
     }
 
+    var categoryToIcon = function(name) {
+        var classMap = { 'style': 'dance', 'tempo': 'tempo', 'music': 'genre' };
+
+        var cls = 'tag';
+        var key = name.toLowerCase();
+        if (classMap.hasOwnProperty(key)) {
+            cls = classMap[key];
+        }
+        return '/content/' + cls + '-50.png';
+    }
+
     // Track object
     // ReSharper disable once InconsistentNaming
     var Track = function (data) {
@@ -340,8 +351,6 @@ var editor = function () {
         }
     };
 
-    var classMap = { 'style': 'dance', 'tempo': 'tempo', 'music': 'genre' };
-
     // ReSharper disable once InconsistentNaming
     var Tag = function (value, parent) {
         var self = this;
@@ -366,13 +375,8 @@ var editor = function () {
             return '/song/tags?tags=' + encodeURIComponent(self.tag()) + ':' + encodeURIComponent(self.cat());
         }, this);
 
-        self.isrc = ko.pureComputed(function () {
-            var cls = 'tag';
-            var key = self.cat().toLowerCase();
-            if (classMap.hasOwnProperty(key)) {
-                cls = classMap[key];
-            }
-            return '/content/' + cls + '-50.png';
+        self.imageSrc = ko.pureComputed(function () {
+            return categoryToIcon(self.cat());
         }, this);
 
         self.isUserTag = ko.pureComputed(function () {
@@ -422,6 +426,9 @@ var editor = function () {
             return 'Add or Change ' + self.label + ' tags.';
         }, this);
 
+        self.imageSrc = ko.pureComputed(function() {
+            return categoryToIcon(name);
+        },this);
         self.nameLower = function () { return name.toLowerCase() };
     };
 
