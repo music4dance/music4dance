@@ -12,6 +12,7 @@
     var danceMap = (IDictionary<string, SongCounts>)ViewBag.DanceMap;
     var songOrder = new SongSort(ViewBag.SongFilter.SortOrder);
     var showDate = songOrder.Id == "Modified" || songOrder.Id == "Created";
+    SongFilter filter = ViewData.ContainsKey("SongFilter") ? ViewBag.SongFilter : new SongFilter();
 }
 
 
@@ -30,7 +31,7 @@
             <th style="min-width:75pt">
                 @if (canSort)
                 {
-                    @Html.ActionLink("Title", "Sort", "Song", new { sortOrder = "Title", filter = ViewBag.SongFilter }, null)
+                    @Html.ActionLink("Title", "Sort", "Song", new { sortOrder = "Title", filter }, null)
                     @Html.Raw(songOrder.GetSortGlyph("Title"))
                 }
                 else
@@ -43,7 +44,7 @@
                 <th style="min-width:75pt">
                     @if (canSort)
                     {
-                        @Html.ActionLink("Artist", "Sort", "Song", new { sortOrder = "Artist", filter = ViewBag.SongFilter }, null)
+                        @Html.ActionLink("Artist", "Sort", "Song", new { sortOrder = "Artist", filter }, null)
                         @Html.Raw(songOrder.GetSortGlyph("Artist"))
                     }
                     else
@@ -58,7 +59,7 @@
                     <th style="min-width:75pt" class="hidden-xs">
                     @if (canSort)
                     {
-                        @Html.ActionLink("Album", "Sort", "Song", new { sortOrder = "Album", filter = ViewBag.SongFilter }, null)
+                        @Html.ActionLink("Album", "Sort", "Song", new { sortOrder = "Album", filter }, null)
                         @Html.Raw(songOrder.GetSortGlyph("Album"))
                     }
                     else
@@ -76,7 +77,7 @@
             <th class="hidden-xs">
                 @if (canSort)
                 {
-                    @Html.ActionLink("Tempo (BPM)", "sort", "song", new {sortOrder = "Tempo", filter = ViewBag.SongFilter}, null)
+                    @Html.ActionLink("Tempo (BPM)", "sort", "song", new {sortOrder = "Tempo", filter}, null)
                     @Html.Raw(songOrder.GetSortGlyph("Tempo"))
                 }
                 else
@@ -97,7 +98,7 @@
                 <th>
                     @if (canSort)
                     {
-                        @Html.ActionLink("Dances", "sort", "song", new { sortOrder = "Dances", filter = ViewBag.SongFilter }, null)
+                        @Html.ActionLink("Dances", "sort", "song", new { sortOrder = "Dances", filter }, null)
                         @Html.Raw(songOrder.GetSortGlyph("Dances"))
                     }
                     else
@@ -108,9 +109,9 @@
             }
             <th>
                 Tags
-                @if (!string.IsNullOrWhiteSpace(ViewBag.SongFilter.Tags))
+                @if (!string.IsNullOrWhiteSpace(filter.Tags))
                 {
-                    var tags = new TagList(ViewBag.SongFilter.Tags);
+                    var tags = new TagList(filter.Tags);
                     var inc = tags.ExtractAdd();
                     var exc = tags.ExtractRemove();
                     if (!inc.IsEmpty)
@@ -121,7 +122,7 @@
                             if (!tag.Contains(':')) {continue;}
                             
                             var rg = tag.Split(':');
-                            var url = "/song/removetags?tags=" + WebUtility.UrlEncode(tag) + "&filter=" + WebUtility.UrlEncode(ViewBag.SongFilter.ToString());
+                            var url = "/song/removetags?tags=" + WebUtility.UrlEncode(tag) + "&filter=" + WebUtility.UrlEncode(filter.ToString());
                             var img = "/Content/" + TagType.ClassToName(rg.Length > 0 ? rg[1] : "tag") + "-50.png";
                             <span class="label label-@rg[1].ToLower()" style="margin-right: 5px"><a role="button" class="tag-text" href="@url"><img src="@img" height="12" width="12" />@rg[0] <span class="glyphicon glyphicon-remove-sign"></span></a></span>
                         }
@@ -133,7 +134,7 @@
                         foreach (var tag in exc.Tags)
                         {
                             var rg = tag.Split(':');
-                            var url = "/song/removetags?tags=" + WebUtility.UrlEncode(tag) + "&filter=" + WebUtility.UrlEncode(ViewBag.SongFilter.ToString());
+                            var url = "/song/removetags?tags=" + WebUtility.UrlEncode(tag) + "&filter=" + WebUtility.UrlEncode(filter.ToString());
                             <span class="label label-@rg[1].ToLower()" style="margin-right: 5px"><a role="button" class="tag-text" href="@url">@rg[0] <span class="glyphicon glyphicon-remove-sign"></span></a></span>
                         }
 
@@ -148,7 +149,7 @@
             {
                 var timeName = songOrder.Id;
                 <th>
-                    @Html.ActionLink(timeName, "sort", "song", new { sortOrder = timeName, filter = ViewBag.SongFilter }, null)
+                    @Html.ActionLink(timeName, "sort", "song", new { sortOrder = timeName, filter }, null)
                     @Html.Raw(songOrder.GetSortGlyph(timeName));
                 </th>
             }
@@ -224,11 +225,11 @@
                         {
                             <td><input name="selectedSongs" id="@id" type="checkbox" value="@item.SongId" /></td>
                         }
-                        <td><a href="/song/edit?id=@item.SongId&filter=@ViewBag.SongFilter" role="button" class="btn btn-link btn-sm"><span class="glyphicon glyphicon-pencil"></span></a></td>
+                        <td><a href="/song/edit?id=@item.SongId&filter=@filter" role="button" class="btn btn-link btn-sm"><span class="glyphicon glyphicon-pencil"></span></a></td>
                     }
 
                     <td>
-                        @Html.ActionLink(item.Title, "details", "song", new { id = item.SongId, filter = ViewBag.SongFilter }, null)
+                        @Html.ActionLink(item.Title, "details", "song", new { id = item.SongId, filter }, null)
                         @if (tempoString != null)
                         {
                             <small class="hidden-sm hidden-md hidden-lg">(@Html.Raw(tempoString) BPM)</small>
@@ -301,14 +302,16 @@
                                         tags += bstring;
                                         foreach (var dtitem in ditem.TagSummary.Tags)
                                         {
-                                            tags += TagHelpers.TagButton(dtitem, ViewBag.SongFilter); //"<span class=\"label label-" + dtitem.TagClass.ToLower() + "\">" + dtitem.TagValue + "</span> ";
+                                            tags += TagHelpers.TagButton(dtitem, filter); //"<span class=\"label label-" + dtitem.TagClass.ToLower() + "\">" + dtitem.TagValue + "</span> ";
                                         }
                                     }
-                                    MvcHtmlString content = MvcHtmlString.Create(
-                                        Html.ActionLink(name + " dance page...", name, "dances") + bstring +
-                                        Html.ActionLink("List all " + name + " songs...", "search", "song", new { dances = ditem.DanceId }, null) +
-                                        tags);
-                                    
+                                    var content = MvcHtmlString.Create(
+                                        Html.ActionLink(name + " dance page...", name, "dances") +
+                                        (!filter.IsEmpty && (string.IsNullOrWhiteSpace(filter.Dances) || filter.Dances == "ALL") ? bstring + Html.ActionLink("Filter list to songs tagged as " + name + "...", "search", "song", new { dances = ditem.DanceId }, null) : string.Empty) +
+                                        bstring + Html.ActionLink("List all " + name + " songs...", "search", "song", new { dances = ditem.DanceId }, null) +
+                                        bstring + "<a href=\"https://www.music4dance.net/blog/tag-filtering\">Help</a>" +
+                                        tags );
+
                                     <a href='#!' class='rating @badge label label-music' role='button'
                                        data-container='body' data-toggle='popover' data-placement='left' data-title='@Html.ActionLink(name, name, "dances")'
                                        data-content='@content'>@Html.Raw(label)</a>
