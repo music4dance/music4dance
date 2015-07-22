@@ -511,7 +511,13 @@ var editor = function () {
             if (!tagO) return;
 
             self.userTags().Tags.remove(tag + ':' + cat);
-            self.Tags.remove(tagO);
+            var cnt = tagO.cnt() - 1;
+            if (cnt <= 0) {
+                self.Tags.remove(tagO);
+            }
+            else {
+                tagO.cnt(cnt);
+            }
 
             viewModel.changed(true);
         };
@@ -535,19 +541,6 @@ var editor = function () {
             }
 
             viewModel.changed(true);
-        };
-
-        self.addTags = function (name) {
-            // Create usable tag list from the input
-            var tagString = viewModel.newTags();
-            var tagsT = tagString.split(',');
-
-            for (var i = 0; i < tagsT.length; i++) {
-                var tag = tagsT[i].trim();
-                if (tag) {
-                    self.addTag(tag, name);
-                }
-            }
         };
 
         self.getUserTags = function(type) {
@@ -574,7 +567,9 @@ var editor = function () {
 
             // Then add the new tags 
             for (i = 0; i < tags.length; i++) {
-                self.addTag(tags[i], category);
+                var obj = tags[i];
+
+            self.addTag(($.type(obj) === 'string') ? obj : tags[i].value, category);
             }
         }
 
@@ -724,10 +719,20 @@ var editor = function () {
             button(order);
         }
 
-        self.addTag = function(val) {
-            if (self.chosen.indexOf(val) === -1) {
-                self.chosen.push(val);
+        self.findSuggestion = function(val) {
+            var rg = self.popular();
+            for (var idx = 0; idx < rg.length; idx++) {
+                var ret = self.popular()[idx];
+                if (ret.value === val)
+                    return ret;
             }
+            return null;
+        }
+
+        self.addTag = function(val) {
+            var tag = self.findSuggestion(val);
+            self.chosen.push(tag === null ? { value: val } : tag);
+            $('#chosen').trigger('chosen:updated');
         }
 
         self.addTagLink = function (link) {
@@ -735,7 +740,11 @@ var editor = function () {
         }
 
         self.removeTag = function(val) {
-            self.chosen.remove(val);
+            var tag = findSuggestion(val);
+            if (tag !== null) {
+                self.chosen.remove(tag);
+                $('#chosen').trigger('chosen:updated');
+            }
         }
     };
 
@@ -751,8 +760,6 @@ var editor = function () {
 
         self.current = ko.observable(new CurrentSuggestions());
 
-        self.newTags = ko.observable('');
-
         self.massageTags = function (data, array) {
             array.removeAll();
             if (data != null) {
@@ -762,7 +769,7 @@ var editor = function () {
             }
         };
 
-        self.getSuggestions = function (type, user) {
+        self.getSuggestions = function (obj, type, user) {
             var uri = '/api/tagsuggestion?tagType=' + type;
             if (user) {
                 uri += '&count=500&user=' + user;
@@ -781,6 +788,7 @@ var editor = function () {
                         sug.popular = data;
                         self.massageTags(data, self.current().popular);
                     }
+                    self.updateChosen(obj,type);
                     //window.alert('type=' + type + 'data=' + JSON.stringify(data));
                 })
                 .fail(function (jqXhr, textStatus /*,err*/) {
@@ -792,46 +800,37 @@ var editor = function () {
             return self[type.toLowerCase()];
         };
 
+        self.updateChosen = function(obj,type) {
+            var chosen = obj.TagSummary.getUserTags(type);
+            for (var i = 0; i < chosen.length; i++) {
+                self.current().addTag(chosen[i]);
+            }
+        }
+
         self.setSuggestions = function (obj,type) {
             var sug = self.sugFromType(type);
 
             self.current().chosen.removeAll();
-            var chosen = obj.TagSummary.getUserTags(type);
-            for (var i = 0; i < chosen.length; i++) {
-                self.current().chosen.push(chosen[i]);
-            }
+            var deferred = false;
 
-            if (self.current().type() === type)
-                return;
+            if (self.current().type() !== type) {
+                self.current().type(type);
 
-            self.current().type(type);
+                if (sug.user === null) {
+                    deferred = true;
+                    self.getSuggestions(obj, type, window.userId);
+                } else {
+                    self.massageTags(sug.user, self.current().user);
+                }
 
-            if (sug.user === null) {
-                self.getSuggestions(type, window.userId);
-            } else {
-                self.massageTags(sug.user, self.current().user);
-            }
-
-            if (sug.popular === null) {
-                self.getSuggestions(type);
-            } else {
-                self.massageTags(sug.popular, self.current().popular);
-            }
-        }
-
-        self.addNewTags = function() {
-            // Create usable tag list from the input
-            var tagString = self.newTags();
-            var tagsT = tagString.split(',');
-
-            for (var i = 0; i < tagsT.length; i++) {
-                var tag = tagsT[i].trim();
-                if (tag) {
-                    self.current().addTag(tag);
+                if (sug.popular === null) {
+                    self.getSuggestions(obj, type);
+                } else {
+                    self.massageTags(sug.popular, self.current().popular);
                 }
             }
 
-            self.newTags('');
+            if (!deferred) self.updateChosen(obj, type);
         }
     };
 
@@ -960,7 +959,6 @@ var editor = function () {
     };
 
     var cleanupTagModal = function (/*event*/) {
-        viewModel.tagSuggestions().newTags('');
         viewModel.tagSuggestions().current().chosen.removeAll();
     }
 
@@ -1000,8 +998,8 @@ var editor = function () {
         }
     };
 
-    var getSuggestions = function(type, user) {
-        viewModel.tagSuggestions().getSuggestions(type, user);
+    var getSuggestions = function(obj, type, user) {
+        viewModel.tagSuggestions().getSuggestions(obj, type, user);
     }
 
     var showTagModal = function (event) {
@@ -1032,7 +1030,7 @@ var editor = function () {
         okay.unbind('click.addtags');
         okay.bind('click.addtags', function () {
             viewModel.changed(true);
-            obj.TagSummary.changeTags(viewModel.tagSuggestions().current().chosen(),category);
+            obj.TagSummary.changeTags(viewModel.tagSuggestions().current().chosen(), category);
         });
     };
 
@@ -1047,7 +1045,18 @@ var editor = function () {
         return confirm('You are about to permanently undo all of your changes to this song.');
     };
 
-    var init = function() {
+    var init = function () {
+        ko.bindingHandlers.chosen =
+        {
+            init: function (element) {
+                $(element).addClass('chosen-select');
+                $(element).chosen({ width: '500px', create_option: true, persistent_create_option: true, skip_no_results: true });
+            },
+            update: function (element) {
+                $(element).trigger('chosen:updated');
+            }
+        };
+
         var data = { tracks: [], song: song, changed: false };
         viewModel = ko.mapping.fromJS(data, pageMapping);
 
@@ -1095,18 +1104,15 @@ $(document).ready(function() {
 
     var addTags = $('#addTags');
     addTags.on('show.bs.modal', function(event) { editor.showTagModal(event); });
-    addTags.on('shown.bs.modal', function() {
-        $('#new-tags').focus();
-    });
 
-    var tags = addTags.find('#new-tags');
-    tags.keypress(function(e) {
-        if (e.keyCode === 13) {
-            e.preventDefault();
-            var add = addTags.find('#add-new');
-            add.click();
-        }
-    });
+    //var tags = addTags.find('#new-tags');
+    //tags.keypress(function(e) {
+    //    if (e.keyCode === 13) {
+    //        e.preventDefault();
+    //        var add = addTags.find('#add-new');
+    //        add.click();
+    //    }
+    //});
 
     addTags.on('hidden.bs.modal', function () {
         editor.cleanupTagModal();
@@ -1150,10 +1156,6 @@ $(document).ready(function() {
     $('#save').click(function () {
         editor.updateUserTags();
     });
-
-    ////// TEST:
-    //$('#load-genre-tags').click(function () { editor.getSuggestions('Music'); });
-    //$('#load-user-genre-tags').click(function () { editor.getSuggestions('Music', window.userId); });
 
     $('#userUndo').click(function () { return editor.confirmUserUndo(); });
 
