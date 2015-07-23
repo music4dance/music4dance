@@ -74,7 +74,7 @@ namespace m4dModels
                 }
                 else
                 {
-                    Trace.WriteLine(string.Format("Unknown Dance(s): {0}", dances));
+                    Trace.WriteLineIf(TraceLevels.General.TraceInfo, string.Format("Unknown Dance(s): {0}", dances));
                 }
             }
             return drds;

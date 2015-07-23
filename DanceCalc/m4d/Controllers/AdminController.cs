@@ -173,7 +173,7 @@ namespace m4d.Controllers
 
                 if (scanned % 100 == 0)
                 {
-                    Trace.WriteLine(string.Format("Scanned == {0}; Changed={1}; Merged={2}", scanned, changed, merged));
+                    Trace.WriteLineIf(TraceLevels.General.TraceInfo, string.Format("Scanned == {0}; Changed={1}; Merged={2}", scanned, changed, merged));
                 }
             }
             Context.TrackChanges(true);
@@ -230,7 +230,7 @@ namespace m4d.Controllers
 
                 if (!oldCounts.ContainsKey(key))
                 {
-                    Trace.WriteLine(string.Format("A\t{0}\t\t{1}", key, val));
+                    Trace.WriteLineIf(TraceLevels.General.TraceInfo, string.Format("A\t{0}\t\t{1}", key, val));
                     if (update)
                     {
                         var tt = Database.TagTypes.Create();
@@ -244,7 +244,7 @@ namespace m4d.Controllers
                 {
                     if (val != oldCounts[key])
                     {
-                        Trace.WriteLine(string.Format("C\t{0}\t{1}\t{2}", key, oldCounts[key], val));
+                        Trace.WriteLineIf(TraceLevels.General.TraceInfo, string.Format("C\t{0}\t{1}\t{2}", key, oldCounts[key], val));
                         if (update)
                         {
                             var tt = Database.TagTypes.Find(key);
@@ -258,7 +258,7 @@ namespace m4d.Controllers
 
             foreach (var oc in oldCounts.Where(oc => oc.Value > 0))
             {
-                Trace.WriteLine(string.Format("R\t{0}\t{1}\t", oc.Key, oc.Value));
+                Trace.WriteLineIf(TraceLevels.General.TraceInfo, string.Format("R\t{0}\t{1}\t", oc.Key, oc.Value));
                 if (update)
                 {
                     var tt = Database.TagTypes.Find(oc.Key);
@@ -603,7 +603,7 @@ namespace m4d.Controllers
 
                 if (count%1000 != 0) continue;
 
-                Trace.WriteLine(string.Format("Checkpoint at {0}", count));
+                Trace.WriteLineIf(TraceLevels.General.TraceInfo, string.Format("Checkpoint at {0}", count));
                 Context.CheckpointChanges();
             }
             Context.TrackChanges(true);
@@ -761,7 +761,7 @@ namespace m4d.Controllers
 
                 if ((changed+updated) % 100 == 99)
                 {
-                    Trace.WriteLine(string.Format("Skipped == {0}; Changed={1}; Updated={2}; Failed={3}", skipped, changed, updated, failed));
+                    Trace.WriteLineIf(TraceLevels.General.TraceInfo, string.Format("Skipped == {0}; Changed={1}; Updated={2}; Failed={3}", skipped, changed, updated, failed));
                     Thread.Sleep(5000);
                 }
 
@@ -1118,7 +1118,7 @@ namespace m4d.Controllers
 
                 if (((added + changed) % 100) == 0)
                 {
-                    Trace.WriteLine(string.Format("Tempo updated: {0}", added+changed));
+                    Trace.WriteLineIf(TraceLevels.General.TraceError, string.Format("Tempo updated: {0}", added + changed));
                 }
             }
 

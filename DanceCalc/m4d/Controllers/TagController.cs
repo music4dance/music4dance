@@ -181,7 +181,7 @@ namespace m4d.Controllers
                         }
                         else
                         {
-                            Trace.WriteLine("When did we start supporting tags on non-songs/dance references");
+                            Trace.WriteLineIf(TraceLevels.General.TraceInfo, "When did we start supporting tags on non-songs/dance references");
                         }
                     }
                     Database.SaveChanges();

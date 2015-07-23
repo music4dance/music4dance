@@ -150,7 +150,7 @@ namespace m4dModels
                 // Then handle ungrouped types
                 foreach (var dt in Dances.Instance.AllDanceTypes.Where(dt => !used.Contains(dt.Id)))
                 {
-                    Trace.WriteLine("Ungrouped Dance: {0}", dt.Id);
+                    Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Ungrouped Dance: {0}", dt.Id);
                 }
 
                 s_counts = s_counts.OrderByDescending(x => x.Children.Count).ToList();
@@ -190,7 +190,7 @@ namespace m4dModels
             float max = sc.MaxWeight;
             var ret = (int)(Math.Ceiling(weight * scale / max));
 
-            if (weight > max ||ret < 0)
+            if (TraceLevels.General.TraceInfo && (weight > max || ret < 0))
             {
                 Trace.WriteLine(string.Format("{0}: {1} ? {2}", danceId, weight, max));
             }

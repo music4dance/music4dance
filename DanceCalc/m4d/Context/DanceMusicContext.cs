@@ -359,11 +359,11 @@ namespace m4d.Context
             if (user == null)
             {
                 user = new ApplicationUser { UserName = name, Email = name + "@music4dance.net", EmailConfirmed=true, StartDate=DateTime.Now };
-                IdentityResult res = uman.Create(user, "_This_Is_@_placeh0lder_");
+                var res = uman.Create(user, "_This_Is_@_placeh0lder_");
                 if (res.Succeeded)
                 {
                     var user2 = uman.FindByName(name);
-                    Trace.WriteLine(string.Format("{0}:{1}",user2.UserName,user2.Id));
+                    Trace.WriteLineIf(TraceLevels.General.TraceInfo, string.Format("{0}:{1}", user2.UserName, user2.Id));
                 }
                 
             }
@@ -395,7 +395,7 @@ namespace m4d.Context
                 {
                     foreach (var ve in err.ValidationErrors)
                     {
-                        Trace.WriteLine(ve.ErrorMessage);
+                        Trace.WriteLineIf(TraceLevels.General.TraceError, ve.ErrorMessage);
                     }
                 }
 

@@ -18,14 +18,14 @@ namespace m4d.Controllers
         [AllowAnonymous]
         public ActionResult Index(int? page)
         {
-            Trace.WriteLine("Entering Log.Index");
+            Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Entering Log.Index");
             var lines = from l in Database.Log
                         orderby l.Id descending
                         select l;
 
             int pageSize = 25;
             int pageNumber = (page ?? 1);
-            Trace.WriteLine("Exiting Log.Index");
+            Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Exiting Log.Index");
             return View(lines.ToPagedList(pageNumber, pageSize));
         }
 

@@ -115,7 +115,7 @@ namespace m4d.Controllers
         //            var name = claimsIdentity.FindFirstValue(ClaimTypes.Name);
         //            var emailAddress = claimsIdentity.FindFirstValue(ClaimTypes.Email);
 
-        //            Trace.WriteLine(string.Format("providerKey={0};issuer={1};name={2};emailAddress={3}", providerKey, issuer, name, emailAddress));
+        //            Trace.WriteLineIf(TraceLevels.General.TraceError,string.Format("providerKey={0};issuer={1};name={2};emailAddress={3}", providerKey, issuer, name, emailAddress));
 
         //            loginInfo.Email = emailAddress;
         //        }

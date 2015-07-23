@@ -389,7 +389,7 @@ namespace m4d.Controllers
                 return RedirectToAction("Login");
             }
             var userT = AuthenticationManager.User;
-            Trace.WriteLine(userT.Identity.Name);
+            Trace.WriteLineIf(TraceLevels.General.TraceInfo, userT.Identity.Name);
 
             // Sign in the user with this external login provider if the user already has a login
             var result = await SignInManager.ExternalSignInAsync(loginInfo, isPersistent: false);

@@ -727,7 +727,7 @@ namespace m4d.Controllers
 
                     if ((tried + 1) % 25 == 0)
                     {
-                        Trace.WriteLine(string.Format("{0} songs tried.", tried));
+                        Trace.WriteLineIf(TraceLevels.General.TraceInfo, string.Format("{0} songs tried.", tried));
                         Context.CheckpointChanges();
                     }
                 }
@@ -942,16 +942,15 @@ namespace m4d.Controllers
         #region Index
         private ActionResult DoIndex(SongFilter filter)
         {
-            Trace.WriteLine(string.Format("Entering Song.Index: dances='{0}',sortOrder='{1}',searchString='{2}'", filter.Dances, filter.SortOrder, filter.SearchString));
+            Trace.WriteLineIf(TraceLevels.General.TraceInfo, string.Format("Entering Song.Index: dances='{0}',sortOrder='{1}',searchString='{2}'", filter.Dances, filter.SortOrder, filter.SearchString));
 
             var songs = Database.BuildSongList(filter, HttpContext.User.IsInRole(DanceMusicService.EditRole) ? DanceMusicService.CruftFilter.AllCruft : DanceMusicService.CruftFilter.NoCruft);
             BuildDanceList(filter);
 
-            Trace.WriteLine("Exiting Song.Index");
             var list = songs.ToPagedList(filter.Page ?? 1, 25);
-
             ViewBag.Spotify = Database.GetPurchaseInfo(ServiceType.Spotify,list.ToList(),User.Region());
-            
+
+            Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Exiting Song.Index");
             return View("Index", list);
         }
 
@@ -1148,7 +1147,7 @@ namespace m4d.Controllers
                         }
                         else if (cluster.Count == 1)
                         {
-                            Trace.WriteLine(string.Format("Bad Merge: {0}", cluster[0].Signature));
+                            Trace.WriteLineIf(TraceLevels.General.TraceInfo, string.Format("Bad Merge: {0}", cluster[0].Signature));
                         }
 
                         cluster = new List<Song> {song};
