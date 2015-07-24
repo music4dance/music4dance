@@ -802,6 +802,7 @@ var editor = function () {
 
         self.updateChosen = function(obj,type) {
             var chosen = obj.TagSummary.getUserTags(type);
+            self.current().chosen.removeAll();
             for (var i = 0; i < chosen.length; i++) {
                 self.current().addTag(chosen[i]);
             }
@@ -960,6 +961,7 @@ var editor = function () {
 
     var cleanupTagModal = function (/*event*/) {
         viewModel.tagSuggestions().current().chosen.removeAll();
+        $('#chosen').trigger('chosen:updated');
     }
 
     var updateUserTags = function() {
