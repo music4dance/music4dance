@@ -211,8 +211,8 @@
                                     }
                                     @if (!string.IsNullOrEmpty(item.Purchase) && item.Purchase.Contains('S'))
                                     {
-                                        var aid = "S" + item.SongId;
-                                        <li><a href="#" id="@aid" class="play-link"><img src='@Url.Content("~/Content/spotify-logo.png")' alt=" availiable on spotify" width="20" height="20" /> Spotify</a></li>
+                                        var sid = "S" + item.SongId;
+                                        <li><a href="#" id="@sid" class="play-link"><img src='@Url.Content("~/Content/spotify-logo.png")' alt=" availiable on spotify" width="20" height="20" /> Spotify</a></li>
                                     }
                                 </ul>
                             </div>

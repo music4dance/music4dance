@@ -948,8 +948,7 @@ namespace m4d.Controllers
             BuildDanceList(filter);
 
             var list = songs.ToPagedList(filter.Page ?? 1, 25);
-            ViewBag.Spotify = Database.GetPurchaseInfo(ServiceType.Spotify,list.ToList(),User.Region());
-
+            
             Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Exiting Song.Index");
             return View("Index", list);
         }

@@ -1291,17 +1291,39 @@ namespace m4dModels
             return links;
         }
 
+        public ICollection<ICollection<PurchaseLink>> GetPurchaseLinks(ServiceType serviceType, IEnumerable<Guid> songIds, string region = null)
+        {
+            var songs = Context.Songs.Where(s => songIds.Contains(s.SongId)).Include("DanceRatings").Include("ModifiedBy").Include("SongProperties");
+            return GetPurchaseLinks(serviceType, songs, region);
+            
+        }
+
         public string GetPurchaseInfo(ServiceType serviceType, IEnumerable<Song> songs, string region)
         {
             var songLinks = GetPurchaseLinks(serviceType, songs, region);
-            var results = (from links in songLinks select links.FirstOrDefault() into link where link != null select link.SongId).ToList();
-            return string.Join(",", results);
+            return PurchaseLinksToInfo(songLinks, region);
+        }
+
+        public string GetPurchaseInfo(ServiceType serviceType, IEnumerable<Guid> songIds, string region)
+        {
+            var songLinks = GetPurchaseLinks(serviceType, songIds, region);
+            return PurchaseLinksToInfo(songLinks, region);
+        }
+
+        public string GetPurchaseInfo(ServiceType serviceType, string ids, string region)
+        {
+            return GetPurchaseInfo(serviceType, Array.ConvertAll(ids.Split(','), s => new Guid(s)), region);
         }
 
         public static string PurchaseLinksToInfo(ICollection<ICollection<PurchaseLink>> songLinks, string region)
         {
             var results = (from links in songLinks select links.SingleOrDefault(l => l.AvailableMarkets == null || l.AvailableMarkets.Contains(region)) into link where link != null select link.SongId).ToList();
             return string.Join(",",results);
+        }
+
+        public static ICollection<PurchaseLink> ReducePurchaseLinks(ICollection<ICollection<PurchaseLink>> songLinks, string region)
+        {
+            return (from links in songLinks select links.SingleOrDefault(l => l.AvailableMarkets == null || l.AvailableMarkets.Contains(region)) into link where link != null select link).ToList();
         }
 
         // TODO: This is extremely dependent on the form of the danceIds, just

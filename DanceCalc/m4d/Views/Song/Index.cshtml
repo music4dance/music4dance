@@ -172,17 +172,10 @@ else
     </div>
 </div>
 
-@if (!string.IsNullOrWhiteSpace(ViewBag.Spotify))
-{
 <div class="row">
-    <div class="col-md-12">
-        <iframe src="https://embed.spotify.com/?uri=spotify:trackset:music4dance:@ViewBag.Spotify" frameborder="0" allowtransparency="true"></iframe>
+    <div id="spotify-player" class="col-md-12" data-trackset-name="music4dance" data-trackset-songs="@string.Join(",",Model.Select(s => s.SongId))">
     </div>
-    @*<div class="col-md-4">
-        <a href="http://open.spotify.com/tracks/@ViewBag.Spotify">Play on Spotify</a>
-    </div>*@
 </div>
-}
 
 @if (!ViewBag.SongFilter.IsEmpty)
 {

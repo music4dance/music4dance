@@ -11,38 +11,36 @@ namespace m4d.APIControllers
 {
     public class PurchaseInfoController : DMApiController
     {
-        public IHttpActionResult GetPurchaseInfo(string id)
+        // id must be a single character service type id
+        public IHttpActionResult Get(string id, string songs, bool fullLink=true)
         {
-            Guid songId = Guid.Empty;
-            string serviceType = "AIX";
-
-            if (id.Length > 0)
-            {
-                serviceType = new string(id[0], 1);
-                Guid.TryParse(id.Substring(1), out songId);
-            }
-
-            SongDetails song = Database.FindSongDetails(songId);
-            if (song == null)
-            {
-                return NotFound();
-            }
-
             var user = Database.FindUser(HttpContext.Current.User.Identity.GetUserName());
             string region = "US";
             if (user != null && !string.IsNullOrWhiteSpace(user.Region))
             {
                 region = user.Region;
             }
-            ICollection<PurchaseLink> links = song.GetPurchaseLinks(serviceType,region);
-            PurchaseLink link = links.First();
 
-            if (link == null) 
+            if (id.Length != 1) return NotFound();
+
+            MusicService type = MusicService.GetService(id);
+            if (type == null) return NotFound();
+
+            ICollection<ICollection<PurchaseLink>> links = Database.GetPurchaseLinks(type.Id, Array.ConvertAll(songs.Split(','), s => new Guid(s)), region);
+
+            if (links.Count == 0) 
             {
                 return NotFound();
             }
 
-            return Ok(link);
+            if (fullLink)
+            {
+                return Ok(DanceMusicService.ReducePurchaseLinks(links,region));
+            }
+            else
+            {
+                return Ok(DanceMusicService.PurchaseLinksToInfo(links, region));
+            }
         }
     }
 }
