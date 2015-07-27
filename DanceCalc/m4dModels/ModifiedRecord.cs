@@ -11,6 +11,10 @@ namespace m4dModels
 
         public ModifiedRecord(ModifiedRecord mod)
         {
+            // TODO: This is causing Application users to be loaded as 
+            //  inidividual TSQL queiries, should we change the top level
+            //  song query to load those records or figure out a way
+            //  to defer or batch this query?
             ApplicationUserId = mod.ApplicationUserId;
             SongId = mod.SongId;
             if (mod.ApplicationUser != null)
