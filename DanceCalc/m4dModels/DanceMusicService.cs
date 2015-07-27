@@ -1293,7 +1293,7 @@ namespace m4dModels
 
         public ICollection<ICollection<PurchaseLink>> GetPurchaseLinks(ServiceType serviceType, IEnumerable<Guid> songIds, string region = null)
         {
-            var songs = Context.Songs.Where(s => songIds.Contains(s.SongId)).Include("DanceRatings").Include("ModifiedBy").Include("SongProperties");
+            var songs = Context.Songs.Where(s => songIds.Contains(s.SongId)).Include("DanceRatings").Include("ModifiedBy.ApplicationUser").Include("SongProperties");
             return GetPurchaseLinks(serviceType, songs, region);
             
         }
