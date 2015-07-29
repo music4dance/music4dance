@@ -18,7 +18,17 @@
             });
     });
 
+    var currentDance = null;
     $('[data-toggle="popover"]').popover({ html: true, trigger: 'click' });
+    $('[data-toggle="popover"]').on('show.bs.popover', function () {
+        if (currentDance) {
+            $(currentDance).queue(function (next) {
+                $(this).popover('hide');
+                next();
+            });            
+        }
+        currentDance = this;
+    });
 
     // Handle the spotify control
     var spotify = $("#spotify-player");
