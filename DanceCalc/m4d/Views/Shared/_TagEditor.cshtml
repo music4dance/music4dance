@@ -9,8 +9,13 @@
                 <a href="#!" role="button" data-bind="click: sortBy('@type','alpha'), css: sortButton('@type','alpha')" class="btn btn-sm"><span class="glyphicon glyphicon-sort-by-alphabet"></span></a>
                 <a href="#!" role="button" data-bind="click: sortBy('@type','weight'), css: sortButton('@type','weight')" class="btn btn-sm"><span class="glyphicon glyphicon-sort-by-attributes-alt"></span></a>
             </div>
+        </div>        
+        <div id="@type-message" class="row">
+            <div class="col-md-12">
+                <p>Waiting for server...</p>
+            </div>
         </div>
-        <div class="row">
+        <div id="@type-list" class="row">
             <div class="col-md-12">
                 <!-- ko foreach: @type -->
                 <a data-bind="text: value, click: $root.tagSuggestions().current().addTagLink, css:$root.tagSuggestions().current().typeClass"></a><span>@*(<span data-bind="text:count"></span>)*@ &nbsp; </span>
@@ -32,7 +37,7 @@
                      <div class="row">
                          <div class="col-md-12">
                              <b>Tags: </b>
-                             <select id="chosen" class="chosen" multiple="true" data-bind="options: tagSuggestions().current().popular, optionsText: 'value', selectedOptions: tagSuggestions().current().chosen, chosen: true"></select>
+                             <select id="chosen" class="chosen" multiple="true" data-bind="options: tagSuggestions().current().all, optionsText: 'value', selectedOptions: tagSuggestions().current().chosen, chosen: true"></select>
                          </div>
                     </div>
                     @Suggestions("user", "Tags that you've used:")
@@ -40,7 +45,7 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <a class="btn btn-default" href="https://www.music4dance.net/blog/music4dance-help/tag-editing/"><span class="glyphicon glyphicon-question-sign"></span></a>
+                <a class="btn btn-default" href="https://www.music4dance.net/blog/music4dance-help/tag-editing/" target="_blank"><span class="glyphicon glyphicon-question-sign"></span></a>
                 <button id="addTagsOkay" type="button" class="btn btn-default" data-dismiss="modal">Save</button>
             </div>
         </div>

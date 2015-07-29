@@ -565,12 +565,24 @@ var editor = function () {
                 }
             }
 
-            // Then add the new tags 
+            // Then add the new tags: Tags that were created by the chosen addobject feature
+            //  are strings, all others are objects.  Use this fact to return an array of
+            //  new tags to be added to the suggestions list.
+            var newTags = [];
             for (i = 0; i < tags.length; i++) {
                 var obj = tags[i];
 
-            self.addTag(($.type(obj) === 'string') ? obj : tags[i].value, category);
+                if ($.type(obj) === 'string') {
+                    newTags.push(obj);
+                }
+                else {
+                    obj = obj.value;
+                }
+
+                self.addTag(obj, category);
             }
+
+            return newTags;
         }
 
         self.serializeUser = function () {
@@ -685,6 +697,7 @@ var editor = function () {
         self.chosen = ko.observableArray();
         self.user = ko.observableArray();
         self.popular = ko.observableArray();
+        self.all = ko.observableArray();
         self.userSort = ko.observable('weight');
         self.popularSort = ko.observable('weight');
 
@@ -720,9 +733,9 @@ var editor = function () {
         }
 
         self.findSuggestion = function(val) {
-            var rg = self.popular();
+            var rg = self.all();
             for (var idx = 0; idx < rg.length; idx++) {
-                var ret = self.popular()[idx];
+                var ret = rg[idx];
                 if (ret.value === val)
                     return ret;
             }
@@ -764,12 +777,17 @@ var editor = function () {
             array.removeAll();
             if (data != null) {
                 for (var i = 0; i < data.length; i++) {
-                    array.push(new TagSuggestion(data[i].Value, data[i].Count));
+                    var ts = new TagSuggestion(data[i].Value, data[i].Count);
+                    array.push(ts);
+                    self.current().all.push(ts);
                 }
             }
+            self.current().all().sort(function (left, right) { return left.value === right.value ? 0 : (left.value < right.value ? -1 : 1); });
         };
 
         self.getSuggestions = function (obj, type, user) {
+            var kind = user ? 'user' : 'popular';
+
             var uri = '/api/tagsuggestion?tagType=' + type;
             if (user) {
                 uri += '&count=500&user=' + user;
@@ -778,9 +796,17 @@ var editor = function () {
                 uri += '&normalized=true&count=500';
             }
 
+            var msg = $('#' + kind + '-message');
+            var lst = $('#' + kind + '-list');
+
+            msg.show();
+            lst.hide();
+
             $.getJSON(uri)
                 .done(function (data) {
                     var sug = self.sugFromType(type);
+                    msg.hide();
+                    lst.show();
                     if (user) {
                         sug.user = data;
                         self.massageTags(data, self.current().user);
@@ -788,11 +814,13 @@ var editor = function () {
                         sug.popular = data;
                         self.massageTags(data, self.current().popular);
                     }
-                    self.updateChosen(obj,type);
+                    self.updateChosen(obj, type);                    
                     //window.alert('type=' + type + 'data=' + JSON.stringify(data));
                 })
                 .fail(function (jqXhr, textStatus /*,err*/) {
                     console.log(textStatus);
+                    var msgt = $('#' + kind + '-message').child('div').child('p');
+                    msgt.text(textStatus);
                 });
         };
 
@@ -816,6 +844,7 @@ var editor = function () {
 
             if (self.current().type() !== type) {
                 self.current().type(type);
+                self.current().all.removeAll();
 
                 if (sug.user === null) {
                     deferred = true;
@@ -832,6 +861,17 @@ var editor = function () {
             }
 
             if (!deferred) self.updateChosen(obj, type);
+        }
+
+        self.updateSuggestions = function (newTags) {
+            var sug = self.sugFromType(self.current().type());
+            for (var i = 0; i < newTags.length; i++) {
+                var name = newTags[i];
+                sug.user.push({ Value: name, Count: 1 });
+                var t = new TagSuggestion(name, 1);
+                self.current().user.push(t);
+                self.current().all.push(t);
+            }
         }
     };
 
@@ -1032,7 +1072,8 @@ var editor = function () {
         okay.unbind('click.addtags');
         okay.bind('click.addtags', function () {
             viewModel.changed(true);
-            obj.TagSummary.changeTags(viewModel.tagSuggestions().current().chosen(), category);
+            var newTags = obj.TagSummary.changeTags(viewModel.tagSuggestions().current().chosen(), category);
+            viewModel.tagSuggestions().updateSuggestions(newTags);
         });
     };
 
