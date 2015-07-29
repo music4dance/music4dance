@@ -818,9 +818,10 @@ var editor = function () {
                     //window.alert('type=' + type + 'data=' + JSON.stringify(data));
                 })
                 .fail(function (jqXhr, textStatus /*,err*/) {
-                    console.log(textStatus);
-                    var msgt = $('#' + kind + '-message').child('div').child('p');
-                    msgt.text(textStatus);
+                    var message = "Server Error: " + jqXhr.status + " - " + jqXhr.statusText;
+                    console.log(message);
+                    var msgt = msg.find('p');
+                    msgt.text(message);
                 });
         };
 
