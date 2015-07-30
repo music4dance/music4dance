@@ -40,13 +40,14 @@
     if (!name || !ids) return;
 
     var listUrl = uri + "s?songs=" + ids + "&fulllink=false";//.substring(0,16);
+    // TODO: Consider putting a placeholder until this return + some user friendly message if there are no spotify track
     $.getJSON(listUrl)
         .done(function (data) {
             var player = '<iframe  src="https://embed.spotify.com/?uri=spotify:trackset:' + name + ':' + data + '" frameborder="0" allowtransparency="true"></iframe>';
             spotify.append(player);
         })
         .fail(function (jqXHR, textStatus, err) {
-            window.alert(err);
+            //window.alert(2err);
             //$('#product').text('Error: ' + err);
         });
 });
