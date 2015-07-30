@@ -779,7 +779,9 @@ var editor = function () {
                 for (var i = 0; i < data.length; i++) {
                     var ts = new TagSuggestion(data[i].Value, data[i].Count);
                     array.push(ts);
-                    self.current().all.push(ts);
+                    if (!self.current().findSuggestion(ts.value)) {
+                        self.current().all.push(ts);
+                    }
                 }
             }
             self.current().all().sort(function (left, right) { return left.value === right.value ? 0 : (left.value < right.value ? -1 : 1); });
@@ -835,6 +837,7 @@ var editor = function () {
             for (var i = 0; i < chosen.length; i++) {
                 self.current().addTag(chosen[i]);
             }
+            $('#chosen').trigger('chosen:updated');
         }
 
         self.setSuggestions = function (obj,type) {
