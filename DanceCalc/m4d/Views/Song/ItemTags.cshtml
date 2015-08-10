@@ -1,13 +1,17 @@
 ﻿<script type="text/html" id="tag-template">
-    <span data-bind="foreach: list">
-        <span class="label" data-bind="css:'label-' + $parent.nameLower()" style="margin-right: 5px; line-height:2.5">
-            <img data-bind="attr: {src: imageSrc}" width="14" height="14"/>
-            <a role="button" class="tag-text" data-bind="text: tag, attr: {href: url}"></a>
-            <a role="button" href="#!" class="glyphicon tag-text" data-bind="css:tagClass, click:toggleUser, visible:$root.canTag" data-show="tooltip" data-original-title="Click to add or remove from your tags"></a>
-        </span>
-    </span>
+    <!-- ko foreach: list -->
+    <div class="btn-group" style="margin-right: 5px; line-height:1.75">
+        <a role="button" href="#!" class="dropdown-toggle label tag-text" data-toggle="dropdown" aria-expanded="false" data-bind="css:'label-' + $parent.nameLower()"><img data-bind="attr: {src: imageSrc}" width="14" height="14"/> <!--ko text: tag--><!--/ko--> <span class="glyphicon tag-text" data-bind="css:tagClass, visible:$root.canTag"></span></a>
+        <ul class="dropdown-menu body-text" role="menu">
+            <li><a href="#!" data-bind="click:toggleUser, text:toggleText"></a></li>
+            <li><a data-bind="attr: {href: url}">List all songs tagged as <!-- ko text: tag--><!--/ko--></a></li>
+            <li><a data-bind="attr: {href: urlNot}">List all songs not tagged as <!-- ko text: tag--><!--/ko--></a></li>
+        </ul>
+        </div>
+    <!--/ko-->
     <a role="button" class="label" data-bind="visible:$root.canTag, css:'label-' + nameLower(), attr:{'data-category':name,'data-danceid':summary.danceId, 'data-original-title':tooltip}" data-toggle="modal" data-show="tooltip" data-placement="top" data-target="#addTags"><img data-bind="attr: {src: imageSrc}" width="14" height="14" /> <span class="glyphicon glyphicon-asterisk"></span></a>
 </script>
 
 <div data-bind="template: {name:'tag-template',foreach:song.TagSummary.tagTypes}"></div>
 
+@*TODO: Add in the logic to take the current SongFilter into account when navigating from tags*@

@@ -375,6 +375,10 @@ var editor = function () {
             return '/song/tags?tags=' + encodeURIComponent(self.tag()) + ':' + encodeURIComponent(self.cat());
         }, this);
 
+        self.urlNot = ko.pureComputed(function () {
+            return '/song/tags?tags=-' + encodeURIComponent(self.tag()) + ':' + encodeURIComponent(self.cat());
+        }, this);
+
         self.imageSrc = ko.pureComputed(function () {
             return categoryToIcon(self.cat());
         }, this);
@@ -387,6 +391,10 @@ var editor = function () {
         self.tagClass = ko.pureComputed(function () {
             var ret = self.isUserTag() ? 'glyphicon-tag' : 'glyphicon-plus-sign';
             return ret;
+        }, this);
+
+        self.toggleText = ko.pureComputed(function () {
+            return (self.isUserTag() ? 'Remove "' + self.tag() + '" from' : 'Add "' + self.tag() + '" to') + ' your list of tags';
         }, this);
 
         self.toggleUser = function () {
