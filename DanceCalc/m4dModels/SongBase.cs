@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Data.SqlTypes;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
@@ -9,6 +8,7 @@ using System.Reflection;
 using System.Runtime.Serialization;
 using System.Text;
 using DanceLibrary;
+
 // ReSharper disable ArrangeThisQualifier
 
 namespace m4dModels
@@ -106,7 +106,7 @@ namespace m4dModels
                 return props;
             }
 
-            return string.Format("SongId={0}\t{1}",SongId.ToString("B"),props);
+            return $"SongId={SongId.ToString("B")}\t{props}";
         }
         public override string ToString()
         {
@@ -239,36 +239,22 @@ namespace m4dModels
         public virtual ICollection<SongProperty> SongProperties { get; set; }
 
         // These are helper properties (they don't map to database columns)
-        public string Signature
-        {
-            get
-            {
-                // This is not a fully unambiguous signature, should we add in a checksum with some or all of the
-                //  other fields in the song?
-                return BuildSignature(Artist, Title);
-            }
-        }
+        public string Signature => BuildSignature(Artist, Title);
+
         public bool TempoConflict(SongBase s, decimal delta)
         {
             return Tempo.HasValue && s.Tempo.HasValue && Math.Abs(Tempo.Value - s.Tempo.Value) > delta;
         }
-        public bool IsNull
-        {
-            get { return string.IsNullOrWhiteSpace(Title); }
-        }
+        public bool IsNull => string.IsNullOrWhiteSpace(Title);
+
         public virtual SongLog CurrentLog
         {
             get { return null; }
+            // ReSharper disable once ValueParameterNotUsed
             set { }
         }
 
-        public string AlbumName
-        {
-            get
-            {
-                return new AlbumTrack(Album).Album;
-            }
-        }
+        public string AlbumName => new AlbumTrack(Album).Album;
 
         public IOrderedEnumerable<SongProperty> OrderedProperties
         {
@@ -355,10 +341,10 @@ namespace m4dModels
                 return null;
             }
 
-            StringBuilder tags = new StringBuilder();
-            string sep = "";
+            var tags = new StringBuilder();
+            var sep = "";
 
-            foreach (string d in dances)
+            foreach (var d in dances)
             {
                 tags.Append(sep);
                 tags.Append(Dances.Instance.DanceDictionary[d].Name);
@@ -448,14 +434,14 @@ namespace m4dModels
 
         public void ChangeDanceTags(string danceId, string tags, ApplicationUser user, DanceMusicService dms)
         {
-            DanceRating dr = FindRating(danceId);
+            var dr = FindRating(danceId);
             if (dr != null)
             {
                 dr.ChangeTags(tags, user, dms, this);
             }
             else
             {
-                Trace.WriteLineIf(TraceLevels.General.TraceError, string.Format("Undefined DanceRating {0}:{1}", SongId.ToString(), danceId));
+                Trace.WriteLineIf(TraceLevels.General.TraceError, $"Undefined DanceRating {SongId.ToString()}:{danceId}");
             }
         }
 
@@ -475,7 +461,7 @@ namespace m4dModels
             // NOTE: The user is implied by this operation because there should be an edit header record before it
             if (list != null)
             {
-                string tags = list.ToString();
+                var tags = list.ToString();
                 if (!string.IsNullOrWhiteSpace(tags))
                 {
                     CreateProperty(command, tags, CurrentLog, dms);
@@ -571,11 +557,11 @@ namespace m4dModels
 
         public IDictionary<string,IList<string>> MapProperyByUsers(string name)
         {
-            Dictionary<string, IList<string>> map = new Dictionary<string, IList<string>>();
-            List<string> current = new List<string>() {""};
+            var map = new Dictionary<string, IList<string>>();
+            var current = new List<string>() {""};
 
-            bool inUsers = false;
-            foreach (SongProperty prop in SongProperties)
+            var inUsers = false;
+            foreach (var prop in SongProperties)
             {
                 if (prop.BaseName == UserField)
                 {
@@ -591,7 +577,7 @@ namespace m4dModels
                     inUsers = false;
                     if (prop.BaseName == name)
                     {
-                        foreach (string user in current)
+                        foreach (var user in current)
                         {
                             IList<string> values;
                             if (!map.TryGetValue(user, out values))
@@ -781,7 +767,7 @@ namespace m4dModels
             artist = artist ?? string.Empty;
             title = title ?? string.Empty;
 
-            string ret = string.Format("{0} {1}", CreateNormalForm(artist), CreateNormalForm(title));
+            var ret = $"{CreateNormalForm(artist)} {CreateNormalForm(title)}";
 
             if (string.IsNullOrWhiteSpace(ret))
                 return null;
@@ -806,10 +792,10 @@ namespace m4dModels
 
             }
 
-            string baseName = SongProperty.ParseBaseName(fieldName);
-            return s_albumFields.Contains(baseName);
+            var baseName = SongProperty.ParseBaseName(fieldName);
+            return AlbumFields.Contains(baseName);
         }
-        protected static HashSet<string> s_albumFields = new HashSet<string>() { AlbumField, PublisherField, TrackField, PurchaseField, AlbumListField, AlbumPromote, AlbumOrder };
+        protected static HashSet<string> AlbumFields = new HashSet<string> { AlbumField, PublisherField, TrackField, PurchaseField, AlbumListField, AlbumPromote, AlbumOrder };
 
         protected static string MungeString(string s, bool normalize)
         {
@@ -818,24 +804,24 @@ namespace m4dModels
                 return string.Empty;
             }
 
-            StringBuilder sb = new StringBuilder(s.Length);
+            var sb = new StringBuilder(s.Length);
 
-            string norm = s + '|';
+            var norm = s + '|';
             if (normalize)
             {
                 norm = norm.Normalize(NormalizationForm.FormD);
             }
 
-            int wordBreak = 0;
+            var wordBreak = 0;
 
-            bool paren = false;
-            bool bracket = false;
-            bool space = false;
-            char lastC = ' ';
+            var paren = false;
+            var bracket = false;
+            var space = false;
+            var lastC = ' ';
 
-            for (int i = 0; i < norm.Length; i++)
+            for (var i = 0; i < norm.Length; i++)
             {
-                char c = norm[i];
+                var c = norm[i];
 
                 if (paren)
                 {
@@ -860,7 +846,7 @@ namespace m4dModels
                             sb.Append(' ');
                             space = false;
                         }
-                        char cNew = normalize ? char.ToUpper(c) : c;
+                        var cNew = normalize ? char.ToUpper(c) : c;
                         sb.Append(cNew);
                         lastC = cNew;
                     }
@@ -872,11 +858,11 @@ namespace m4dModels
                     }
                     else
                     {
-                        UnicodeCategory uc = char.GetUnicodeCategory(c);
+                        var uc = char.GetUnicodeCategory(c);
                         if (uc != UnicodeCategory.NonSpacingMark && sb.Length > wordBreak)
                         {
-                            string word = sb.ToString(wordBreak, sb.Length - wordBreak).ToUpper().Trim();
-                            if (s_ignore.Contains(word))
+                            var word = sb.ToString(wordBreak, sb.Length - wordBreak).ToUpper().Trim();
+                            if (Ignore.Contains(word))
                             {
                                 sb.Length = wordBreak;
                             }
@@ -909,13 +895,13 @@ namespace m4dModels
 
         public static string NormalizeAlbumString(string s)
         {
-            string r = s;
+            var r = s;
             if (!string.IsNullOrWhiteSpace(r))
             {
                 s = r.Normalize(NormalizationForm.FormD);
 
-                StringBuilder sb = new StringBuilder();
-                foreach (char c in s)
+                var sb = new StringBuilder();
+                foreach (var c in s)
                 {
                     if (Char.IsLetterOrDigit(c))
                     {
@@ -957,13 +943,15 @@ namespace m4dModels
             return album;
         }
 
-        protected static string[] s_ignore =
+        protected static string[] Ignore =
         {
             "A",
             "AND",
             "OR",
             "THE",
-            "THIS"
+            "THIS",
+            "IN",
+            "OF"
         };
         protected static IList<string> TagsToDanceIds(TagList tags)
         {
@@ -980,20 +968,20 @@ namespace m4dModels
         #region String Cleanup
         static public string CleanDanceName(string name)
         {
-            string up = name.ToUpper();
+            var up = name.ToUpper();
 
-            string[] parts = up.Split(new[] { ' ', '-', '\t', '/', '&', '-', '+', '(', ')' }, StringSplitOptions.RemoveEmptyEntries);
+            var parts = up.Split(new[] { ' ', '-', '\t', '/', '&', '-', '+', '(', ')' }, StringSplitOptions.RemoveEmptyEntries);
 
-            string ret = string.Join("", parts);
+            var ret = string.Join("", parts);
 
             if (ret.LastIndexOf('S') == ret.Length - 1)
             {
-                int truncate = 1;
+                var truncate = 1;
                 if (ret.LastIndexOf('E') == ret.Length - 2)
                 {
                     if (ret.Length > 2)
                     {
-                        char ch = ret[ret.Length - 3];
+                        var ch = ret[ret.Length - 3];
                         if (ch != 'A' && ch != 'E' && ch != 'I' && ch != 'O' && ch != 'U')
                         {
                             truncate = 2;
@@ -1023,30 +1011,29 @@ namespace m4dModels
 
             text = text.Trim();
 
-            if (text.Contains("  "))
-            {
-                StringBuilder sb = new StringBuilder(text.Length + 1);
+            if (!text.Contains("  ")) return text;
 
-                bool space = false;
-                foreach (char c in text)
+            var sb = new StringBuilder(text.Length + 1);
+
+            var space = false;
+            foreach (var c in text)
+            {
+                if (char.IsWhiteSpace(c))
                 {
-                    if (char.IsWhiteSpace(c))
-                    {
-                        if (!space)
-                        {
-                            sb.Append(c);
-                        }
-                        space = true;
-                    }
-                    else
+                    if (!space)
                     {
                         sb.Append(c);
-                        space = false;
                     }
+                    space = true;
                 }
-
-                text = sb.ToString();
+                else
+                {
+                    sb.Append(c);
+                    space = false;
+                }
             }
+
+            text = sb.ToString();
 
             return text;
         }
@@ -1067,65 +1054,64 @@ namespace m4dModels
 
         static public string Unsort(string name)
         {
-            string[] parts = name.Split(',');
+            var parts = name.Split(',');
             if (parts.Length == 1 || parts.Any(s => s.All(c => !char.IsLetter(c))))
             {
                 return name.Trim();
             }
             else if (parts.Length == 2)
             {
-                return string.Format("{0} {1}", parts[1].Trim(), parts[0].Trim());
+                return $"{parts[1].Trim()} {parts[0].Trim()}";
             }
             else
             {
-                Trace.WriteLine(string.Format("Unusual Sort: {0}", name));
+                Trace.WriteLine($"Unusual Sort: {name}");
                 return name;
             }
         }
 
         static public string CleanArtistString(string name)
         {
-            if (name.IndexOf(',') != -1)
+            if (name.IndexOf(',') == -1) return name;
+
+            var parts = new[] { name };
+            if (name.IndexOf('&') != -1)
+                parts = name.Split(new[] { '&' }, StringSplitOptions.RemoveEmptyEntries);
+            else if (name.IndexOf('/') != -1)
+                parts = name.Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
+
+            var separator = string.Empty;
+            var sb = new StringBuilder();
+
+            foreach (var s in parts)
             {
-                string[] parts = new string[] { name };
-                if (name.IndexOf('&') != -1)
-                    parts = name.Split(new[] { '&' }, StringSplitOptions.RemoveEmptyEntries);
-                else if (name.IndexOf('/') != -1)
-                    parts = name.Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
-
-                string separator = string.Empty;
-                StringBuilder sb = new StringBuilder();
-
-                foreach (string s in parts)
-                {
-                    string u = Unsort(s);
-                    sb.Append(separator);
-                    sb.Append(u);
-                    separator = " & ";
-                }
-
-                name = sb.ToString();
+                var u = Unsort(s);
+                sb.Append(separator);
+                sb.Append(u);
+                separator = " & ";
             }
+
+            name = sb.ToString();
 
             return name;
         }
 
         static public string CleanName(string name)
         {
-            string up = name.ToUpper();
+            var up = name.ToUpper();
 
-            string[] parts = up.Split(new[] { ' ', '-', '\t', '/', '&', '-', '+', '(', ')' }, StringSplitOptions.RemoveEmptyEntries);
+            var parts = up.Split(new[] { ' ', '-', '\t', '/', '&', '-', '+', '(', ')' }, StringSplitOptions.RemoveEmptyEntries);
 
-            string ret = string.Join("", parts);
+            var ret = string.Join("", parts);
 
             if (ret.LastIndexOf('S') == ret.Length - 1)
             {
-                int truncate = 1;
+                var truncate = 1;
                 if (ret.LastIndexOf('E') == ret.Length - 2)
                 {
                     if (ret.Length > 2)
                     {
-                        char ch = ret[ret.Length - 3];
+                        var ch = ret[ret.Length - 3];
                         if (ch != 'A' && ch != 'E' && ch != 'I' && ch != 'O' && ch != 'U')
                         {
                             truncate = 2;

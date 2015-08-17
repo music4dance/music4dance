@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
-using System.Reflection;
 
 namespace m4dModels
 {
@@ -27,10 +25,7 @@ namespace m4dModels
             var time = DateTime.Now;
             
             var log = CurrentLog;
-            if (log != null)
-            {
-                log.Initialize(user, this, command);
-            }
+            log?.Initialize(user, this, command);
 
             if (!string.IsNullOrWhiteSpace(command))
             {
@@ -102,25 +97,20 @@ namespace m4dModels
 
         private bool EditCore(ApplicationUser user, SongDetails edit, DanceMusicService dms)
         {
-            var modified = false;
-
             CreateEditProperties(user, EditCommand, dms);
 
-            foreach (string field in ScalarFields)
-            {
-                modified |= UpdateProperty(edit, field, dms);
-            }
+            var modified = ScalarFields.Aggregate(false, (current, field) => current | UpdateProperty(edit, field, dms));
 
-            List<AlbumDetails> oldAlbums = SongDetails.BuildAlbumInfo(this);
+            var oldAlbums = SongDetails.BuildAlbumInfo(this);
 
-            bool foundFirst = false;
+            var foundFirst = false;
 
             Album = null;
 
-            foreach (AlbumDetails album in edit.Albums)
+            foreach (var album in edit.Albums)
             {
                 var album1 = album;
-                AlbumDetails old = oldAlbums.FirstOrDefault(a => a.Index == album1.Index);
+                var old = oldAlbums.FirstOrDefault(a => a.Index == album1.Index);
 
                 if (!foundFirst && !string.IsNullOrEmpty(album.Name))
                 {
@@ -146,7 +136,7 @@ namespace m4dModels
             }
 
             // Handle deleted albums
-            foreach (AlbumDetails album in oldAlbums)
+            foreach (var album in oldAlbums)
             {
                 modified = true;
                 album.Remove(dms, this, CurrentLog);
@@ -154,13 +144,13 @@ namespace m4dModels
 
             // Now check order and insert a re-order record if they aren't line up...
             // TODO: Linq???
-            bool needReorder = false;
-            List<int> reorder = new List<int>();
-            int prev = -1;
+            var needReorder = false;
+            var reorder = new List<int>();
+            var prev = -1;
 
             foreach (var album in edit.Albums)
             {
-                int t = album.Index;
+                var t = album.Index;
                 if (prev > t)
                 {
                     needReorder = true;
@@ -172,7 +162,7 @@ namespace m4dModels
             if (needReorder)
             {
                 modified = true;
-                string t = string.Join(",", reorder.Select(x => x.ToString()));
+                var t = string.Join(",", reorder.Select(x => x.ToString()));
                 CreateProperty(AlbumOrder, t, null, CurrentLog, dms);
             }
 
@@ -207,11 +197,10 @@ namespace m4dModels
             var c = old.Count;
             for (var i = 0; i < c; i++)
             {
-                if (upd.Count < i || !string.Equals(old[i].Name, upd[i].Name))
-                {
-                    Trace.WriteLine(string.Format("Unexpected Update: {0}", SongId));
-                    return false;
-                }
+                if (upd.Count >= i && string.Equals(old[i].Name, upd[i].Name)) continue;
+
+                Trace.WriteLine($"Unexpected Update: {SongId}");
+                return false;
             }
 
             // Nothing has changed
@@ -271,14 +260,14 @@ namespace m4dModels
         {
             CreateEditProperties(user, EditCommand, dms);
 
-            bool modified = ScalarFields.Aggregate(false, (current, field) => current | AddProperty(edit, field, dms));
+            var modified = ScalarFields.Aggregate(false, (current, field) => current | AddProperty(edit, field, dms));
 
             var oldAlbums = SongDetails.BuildAlbumInfo(this);
 
-            foreach (AlbumDetails album in edit.Albums)
+            foreach (var album in edit.Albums)
             {
                 var album1 = album;
-                AlbumDetails old = oldAlbums.FirstOrDefault(a => a.Index == album1.Index);
+                var old = oldAlbums.FirstOrDefault(a => a.Index == album1.Index);
 
                 if (string.IsNullOrWhiteSpace(Album) && !string.IsNullOrEmpty(album.Name))
                 {
@@ -337,7 +326,6 @@ namespace m4dModels
 
         private bool InternalEditTags(ApplicationUser user, IEnumerable<UserTag> tags, DanceMusicService dms)
         {
-            var modified = false;
             var hash = new Dictionary<string, TagList>();
             foreach (var tag in tags)
             {
@@ -346,7 +334,7 @@ namespace m4dModels
 
             // First handle the top-level tags, this will incidently add any new danceratings
             //  implied by those tags
-            modified = ChangeTags(hash[""].Summary, user, dms, "Dances");
+            var modified = ChangeTags(hash[""].Summary, user, dms, "Dances");
 
             // Edit the tags for each of the dance ratings: Note that I'm stripping out blank dance ratings
             //  at the client, so need to make sure that we remove any tags from dance ratings on the server
@@ -394,10 +382,10 @@ namespace m4dModels
         public void MergeDetails(IEnumerable<Song> songs, DanceMusicService dms)
         {
             // Add in the to/from properties and create new weight table as well as creating the user associations
-            Dictionary<string, int> weights = new Dictionary<string, int>();
-            foreach (Song from in songs)
+            var weights = new Dictionary<string, int>();
+            foreach (var from in songs)
             {
-                foreach (DanceRating dr in from.DanceRatings)
+                foreach (var dr in from.DanceRatings)
                 {
                     int weight;
                     if (weights.TryGetValue(dr.DanceId, out weight))
@@ -410,7 +398,7 @@ namespace m4dModels
                     }
                 }
 
-                foreach (ModifiedRecord us in from.ModifiedBy)
+                foreach (var us in from.ModifiedBy)
                 {
                     if (AddUser(us.ApplicationUser, dms))
                     {
@@ -420,10 +408,10 @@ namespace m4dModels
 
                 // TAGTEST: Try merging two songs with tags.
                 ApplicationUser currentUser = null;
-                bool userWritten = false;
-                foreach (SongProperty prop in from.SongProperties)
+                var userWritten = false;
+                foreach (var prop in from.SongProperties)
                 {
-                    string bn = prop.BaseName;
+                    var bn = prop.BaseName;
 
                     switch (bn)
                     {
@@ -452,7 +440,7 @@ namespace m4dModels
             }
 
             // Dump the weight table
-            foreach (KeyValuePair<string, int> dance in weights)
+            foreach (var dance in weights)
             {
                 dms.CreateDanceRating(this, dance.Key, dance.Value);
 
@@ -465,10 +453,10 @@ namespace m4dModels
         private bool UpdateProperty(SongDetails edit, string name, DanceMusicService dms)
         {
             // TODO: This can be optimized
-            bool modified = false;
+            var modified = false;
 
-            object eP = edit.GetType().GetProperty(name).GetValue(edit);
-            object oP = GetType().GetProperty(name).GetValue(this);
+            var eP = edit.GetType().GetProperty(name).GetValue(edit);
+            var oP = GetType().GetProperty(name).GetValue(this);
 
             if (!Equals(eP, oP))
             {
@@ -514,7 +502,7 @@ namespace m4dModels
             }
             else
             {
-                base.CreateProperty(name, value, old, log, dms);
+                base.CreateProperty(name, value, old, log, null);
             }
 
             return prop;
@@ -577,14 +565,14 @@ namespace m4dModels
             }
             else
             {
-                us = new ModifiedRecord { ApplicationUser = user, Song = this, SongId = this.SongId };
+                us = new ModifiedRecord { ApplicationUser = user, Song = this, SongId = SongId };
             }
             return AddModifiedBy(us);
         }
 
         public bool AddUser(string name, DanceMusicService dms)
         {
-            ApplicationUser u = dms.FindUser(name);
+            var u = dms.FindUser(name);
             return AddUser(u, dms);
         }
 
@@ -662,12 +650,12 @@ namespace m4dModels
         //  TODO: Ought to be able to refactor both of these into one that calls the other
         public bool EditDanceRatings(IEnumerable<DanceRatingDelta> deltas, DanceMusicService dms)
         {
-            SongLog log = CurrentLog;
+            var log = CurrentLog;
 
             foreach (var drd in deltas)
             {
-                bool valid = true;
-                DanceRating dro = DanceRatings.FirstOrDefault(r => r.DanceId == drd.DanceId);
+                var valid = true;
+                var dro = DanceRatings.FirstOrDefault(r => r.DanceId == drd.DanceId);
                 if (drd.Delta > 0)
                 {
                     if (dro == null)
@@ -706,9 +694,9 @@ namespace m4dModels
             }
             return true;
         }
-        public bool EditDanceRatings(IList<string> add_, int addWeight, IList<string> remove_, int remWeight, DanceMusicService dms)
+        public bool EditDanceRatings(IList<string> addIn, int addWeight, IList<string> removeIn, int remWeight, DanceMusicService dms)
         {
-            if (add_ == null && remove_ == null)
+            if (addIn == null && removeIn == null)
             {
                 return false;
             }
@@ -717,25 +705,25 @@ namespace m4dModels
                 DanceRatings = new List<DanceRating>();
             }
 
-            SongLog log = CurrentLog;
+            var log = CurrentLog;
 
-            bool changed = false;
+            var changed = false;
 
             List<string> add = null;
-            if (add_ != null)
-                add = new List<string>(add_);
+            if (addIn != null)
+                add = new List<string>(addIn);
 
             List<string> remove = null;
-            if (remove_ != null)
-                remove = new List<string>(remove_);
+            if (removeIn != null)
+                remove = new List<string>(removeIn);
 
-            List<DanceRating> del = new List<DanceRating>();
+            var del = new List<DanceRating>();
 
             // Cleaner way to get old dance ratings?
-            foreach (DanceRating dr in DanceRatings)
+            foreach (var dr in DanceRatings)
             {
-                bool added = false;
-                int delta = 0;
+                var added = false;
+                var delta = 0;
 
                 // This handles the incremental weights
                 if (add != null && add.Contains(dr.DanceId))
@@ -770,7 +758,7 @@ namespace m4dModels
             }
 
             // This handles the deleted weights
-            foreach (DanceRating dr in del)
+            foreach (var dr in del)
             {
                 DanceRatings.Remove(dr);
             }
@@ -778,9 +766,9 @@ namespace m4dModels
             // This handles the new ratings
             if (add != null)
             {
-                foreach (string ndr in add)
+                foreach (var ndr in add)
                 {
-                    DanceRating dr = dms.CreateDanceRating(this, ndr, DanceRatingInitial);
+                    var dr = dms.CreateDanceRating(this, ndr, DanceRatingInitial);
 
                     if (dr != null)
                     {
@@ -794,7 +782,7 @@ namespace m4dModels
                     }
                     else
                     {
-                        Trace.WriteLine(string.Format("Invalid DanceId={0}", ndr));
+                        Trace.WriteLine($"Invalid DanceId={ndr}");
                     }
 
                 }
@@ -805,7 +793,7 @@ namespace m4dModels
 
         private bool BaseTagsFromProperties(ApplicationUser user, IEnumerable<SongProperty> properties, DanceMusicService dms, object data, bool dance)
         {
-            bool modified = false;
+            var modified = false;
             foreach (var p in properties)
             {
                 switch (p.BaseName)
@@ -897,9 +885,9 @@ namespace m4dModels
             {
                 SongId = sd.SongId;
             }
-            foreach (PropertyInfo pi in ScalarProperties)
+            foreach (var pi in ScalarProperties)
             {
-                object v = pi.GetValue(sd);
+                var v = pi.GetValue(sd);
                 pi.SetValue(this, v);
             }
             TitleHash = CreateTitleHash(Title);
@@ -923,9 +911,9 @@ namespace m4dModels
             Debug.Assert(SongProperties.Count == 0 || SongProperties.Count == sd.SongProperties.Count);
             if (SongProperties.Count == 0)
             {
-                foreach (SongProperty prop in sd.SongProperties)
+                foreach (var prop in sd.SongProperties)
                 {
-                    SongProperties.Add(new SongProperty() { Song = this, SongId = this.SongId, Name = prop.Name, Value = prop.Value });
+                    SongProperties.Add(new SongProperty() { Song = this, SongId = SongId, Name = prop.Name, Value = prop.Value });
                 }
             }
 
@@ -934,7 +922,7 @@ namespace m4dModels
                 DanceRatings = new List<DanceRating>();
             }
             Debug.Assert(DanceRatings.Count == 0);
-            foreach (DanceRating dr in sd.DanceRatings)
+            foreach (var dr in sd.DanceRatings)
             {
                 AddDanceRating(dr);
             }
@@ -944,13 +932,13 @@ namespace m4dModels
                 ModifiedBy = new List<ModifiedRecord>();
             }
             Debug.Assert(ModifiedBy.Count == 0);
-            foreach (ModifiedRecord user in sd.ModifiedBy)
+            foreach (var user in sd.ModifiedBy)
             {
                 AddUser(user.UserName, dms);
             }
 
             ApplicationUser currentUser = null;
-            ModifiedRecord mr = ModifiedBy.LastOrDefault();
+            var mr = ModifiedBy.LastOrDefault();
             if (mr != null)
             {
                 currentUser = mr.ApplicationUser;
@@ -979,7 +967,7 @@ namespace m4dModels
             foreach (var us in ModifiedBy)
             {
                 us.Song = this;
-                us.SongId = this.SongId;
+                us.SongId = SongId;
                 if (us.ApplicationUser == null && us.UserName != null)
                 {
                     us.ApplicationUser = dms.FindUser(us.UserName);
@@ -991,7 +979,8 @@ namespace m4dModels
 
                 if (users.Contains(us.ApplicationUserId))
                 {
-                    Trace.WriteLineIf(TraceLevels.General.TraceVerbose,string.Format("Duplicate Mapping: Song = {0} User = {1}", SongId, us.ApplicationUserId));
+                    Trace.WriteLineIf(TraceLevels.General.TraceVerbose,
+                        $"Duplicate Mapping: Song = {SongId} User = {us.ApplicationUserId}");
                 }
                 else
                 {
@@ -1010,8 +999,8 @@ namespace m4dModels
         }
         public bool UpdateTitleHash()
         {
-            bool ret = false;
-            int hash = string.IsNullOrWhiteSpace(Title) ? 0 : CreateTitleHash(Title);
+            var ret = false;
+            var hash = string.IsNullOrWhiteSpace(Title) ? 0 : CreateTitleHash(Title);
             if (hash != TitleHash)
             {
                 TitleHash = hash;
@@ -1024,15 +1013,15 @@ namespace m4dModels
         #region Serialization
         // ReSharper disable once ConvertToConstant.Local
         // ReSharper disable once FieldCanBeMadeReadOnly.Local
-        static string s_guidMatch = "d40817d45b68427d86e989fa21773b48";
+        static string _guidMatch = "d40817d45b68427d86e989fa21773b48";
 
         public void Load(string s, DanceMusicService dms)
         {
-            SongDetails sd = new SongDetails(s);
+            var sd = new SongDetails(s);
 
-            if (sd.SongId == new Guid(s_guidMatch))
+            if (sd.SongId == new Guid(_guidMatch))
             {
-                Trace.WriteLine("THis is the bad one?");
+                Trace.WriteLine("This is the bad one?");
             }
 
             Restore(sd, dms);

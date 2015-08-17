@@ -81,10 +81,10 @@ namespace m4dModels
             SongId = Guid.Empty;
             if (s.StartsWith("SongId"))
             {
-                int t = s.IndexOf('\t');
+                var t = s.IndexOf('\t');
                 if (t != -1)
                 {
-                    string sg = s.Substring(idField.Length, t - idField.Length);
+                    var sg = s.Substring(idField.Length, t - idField.Length);
                     s = s.Substring(t + 1);
                     Guid g;
                     if (Guid.TryParse(sg, out g))
@@ -99,7 +99,7 @@ namespace m4dModels
                 SongId = Guid.NewGuid();
             }
 
-            List<SongProperty> properties = new List<SongProperty>();
+            var properties = new List<SongProperty>();
             SongProperty.Load(SongId, s, properties);
             Load(SongId, properties);
         }
@@ -370,7 +370,7 @@ namespace m4dModels
             {
                 if (!specifiedUser)
                 {
-                    properties.Insert(0, new SongProperty(Guid.Empty, TimeField, DateTime.Now.ToString()));
+                    properties.Insert(0, new SongProperty(Guid.Empty, TimeField, DateTime.Now.ToString(CultureInfo.InvariantCulture)));
                     properties.Insert(0, new SongProperty(Guid.Empty, UserField, user.UserName));
                 }
                 if (!specifiedAction)
@@ -393,7 +393,7 @@ namespace m4dModels
                 string field;
                 // If this fails, we want to add a null to our list because
                 // that indicates a column we don't care about
-                if (parts.Length > 0 &&  s_propertyMap.TryGetValue(parts[0].ToUpper(), out field))
+                if (parts.Length > 0 &&  PropertyMap.TryGetValue(parts[0].ToUpper(), out field))
                 {
                     map.Add((parts.Length > 1) ? field + ":" + parts[1] : field);
                 }
@@ -406,7 +406,7 @@ namespace m4dModels
             return map;
         }
 
-        private static readonly Dictionary<string, string> s_propertyMap = new Dictionary<string, string>()
+        private static readonly Dictionary<string, string> PropertyMap = new Dictionary<string, string>()
         {
             {"DANCE", DanceRatingField},
             {"TITLE", TitleField},
@@ -436,19 +436,19 @@ namespace m4dModels
 
         public static IList<SongDetails> CreateFromRows(ApplicationUser user, string separator, IList<string> headers, IEnumerable<string> rows, int weight)
         {
-            Dictionary<string, SongDetails> songs = new Dictionary<string, SongDetails>();
-            bool itc = string.Equals(separator.Trim(), "ITC");
-            bool itcd = string.Equals(separator.Trim(), "ITC-");
+            var songs = new Dictionary<string, SongDetails>();
+            var itc = string.Equals(separator.Trim(), "ITC");
+            var itcd = string.Equals(separator.Trim(), "ITC-");
 
-            foreach (string line in rows)
+            foreach (var line in rows)
             {
                 List<string> cells;
                 
                 if (itc || itcd)
                 {
                     cells = new List<string>();
-                    var re = itc ? new Regex(@"\b*(?<bpm>\d+)(?<title>[^\t]*)\t(?<artist>.*)") : new Regex(@"\b*(?<bpm>\d+)(?<title>[^-]*)-(?<artist>.*)");
-                    Match m = re.Match(line.Trim());
+                    var re = itc ? new Regex(@"\w*(?<bpm>\d+)(?<title>[^\t]*)\t(?<artist>.*)") : new Regex(@"\w*(?<bpm>\d+)(?<title>[^-]*)-(?<artist>.*)");
+                    var m = re.Match(line.Trim());
                     if (m.Success)
                     {
                         cells.Add(m.Groups["bpm"].Value);
@@ -469,19 +469,19 @@ namespace m4dModels
                 // Concat back the last field (which seems a typical pattern)
                 while (cells.Count > headers.Count)
                 {
-                    cells[headers.Count - 1] = string.Format("{0}{1}{2}",cells[headers.Count - 1],separator,(cells[headers.Count]));
+                    cells[headers.Count - 1] = $"{cells[headers.Count - 1]}{separator}{(cells[headers.Count])}";
                     cells.RemoveAt(headers.Count);
                 }
 
                 if (cells.Count == headers.Count)
                 {
-                    SongDetails sd = CreateFromRow(user, headers, cells, weight);
+                    var sd = CreateFromRow(user, headers, cells, weight);
                     if (sd != null)
                     {
-                        string ta = sd.TitleArtistAlbumString;
+                        var ta = sd.TitleArtistAlbumString;
                         if (string.Equals(sd.Title,sd.Artist))
                         {
-                            Trace.WriteLine(string.Format("Title and Artist are the same ({0})",sd.Title));
+                            Trace.WriteLine($"Title and Artist are the same ({sd.Title})");
                         }
                         SongDetails old;
                         if (songs.TryGetValue(ta, out old))
@@ -497,7 +497,7 @@ namespace m4dModels
                 else
                 {
                     Trace.WriteLineIf(TraceLevels.General.TraceInfo,
-                        string.Format("Bad cell count {0} != {1}: {2}", cells.Count, headers.Count, line));
+                        $"Bad cell count {cells.Count} != {headers.Count}: {line}");
                 }
             }
 
@@ -541,7 +541,7 @@ namespace m4dModels
         {
             var properties = new List<SongProperty>
             {
-                SongProperty.Create(TimeField, DateTime.Now.ToString()),
+                SongProperty.Create(TimeField, DateTime.Now.ToString(CultureInfo.InvariantCulture)),
                 SongProperty.Create(UserField, user.UserName),
                 SongProperty.Create(CreateCommand),
                 SongProperty.Create(TitleField, track.Name)
@@ -604,10 +604,7 @@ namespace m4dModels
                 {
                     return Albums[0].AlbumTrack;
                 }
-                else
-                {
-                    return null;
-                }
+                return null;
             }
             set
             {
@@ -674,21 +671,12 @@ namespace m4dModels
         }
         private List<AlbumDetails> _albums;
 
-        public List<SongProperty> Properties
-        {
-            get { return _properties ?? (_properties = new List<SongProperty>()); }
-        }
+        public List<SongProperty> Properties => _properties ?? (_properties = new List<SongProperty>());
         private List<SongProperty> _properties;
-        public List<ModifiedRecord> ModifiedList
-        {
-            get { return _modifiedList ?? (_modifiedList = new List<ModifiedRecord>()); }
-        }
+        public List<ModifiedRecord> ModifiedList => _modifiedList ?? (_modifiedList = new List<ModifiedRecord>());
         private List<ModifiedRecord> _modifiedList;
 
-        public List<DanceRating> RatingsList 
-        {
-            get { return _ratingsList ?? (_ratingsList = new List<DanceRating>()); }
-        }
+        public List<DanceRating> RatingsList => _ratingsList ?? (_ratingsList = new List<DanceRating>());
         private List<DanceRating> _ratingsList;
 
         [DataMember]
@@ -709,13 +697,7 @@ namespace m4dModels
         }
         private TagList _currentUserTags;
 
-        public int TitleHash 
-        { 
-            get 
-            {
-                return CreateTitleHash(Title); 
-            } 
-        }
+        public int TitleHash => CreateTitleHash(Title);
 
         public void UpdateDanceRatingsAndTags(ApplicationUser user, IEnumerable<string> dances, int weight)
         {
@@ -736,10 +718,10 @@ namespace m4dModels
             {
                 if (HasAlbums)
                 {
-                    StringBuilder ret = new StringBuilder();
-                    string sep = string.Empty;
+                    var ret = new StringBuilder();
+                    var sep = string.Empty;
 
-                    foreach (AlbumDetails album in Albums)
+                    foreach (var album in Albums)
                     {
                         ret.Append(sep);
                         ret.Append(album.Name);
@@ -760,20 +742,17 @@ namespace m4dModels
             if (string.IsNullOrWhiteSpace(album)) return null;
 
             AlbumDetails ret = null;
-            List<AlbumDetails> candidates = new List<AlbumDetails>();
-            string title = CleanAlbum(album,Artist);
+            var candidates = new List<AlbumDetails>();
+            var title = CleanAlbum(album,Artist);
 
-            foreach (AlbumDetails ad in Albums)
+            foreach (var ad in Albums.Where(ad => string.Equals(CleanAlbum(ad.Name, Artist), title, StringComparison.CurrentCultureIgnoreCase)))
             {
-                if (string.Equals(CleanAlbum(ad.Name, Artist), title, StringComparison.CurrentCultureIgnoreCase))
-                {
-                    candidates.Add(ad);
-                    if (string.Equals(ad.Name, album, StringComparison.CurrentCultureIgnoreCase))
-                    {
-                        ret = ad;
-                        break;
-                    }
-                }
+                candidates.Add(ad);
+                if (!string.Equals(ad.Name, album, StringComparison.CurrentCultureIgnoreCase))
+                    continue;
+
+                ret = ad;
+                break;
             }
 
             if (ret == null && candidates.Count > 0)
@@ -784,19 +763,13 @@ namespace m4dModels
             return ret;
         }
 
-        public bool HasAlbums
-        {
-            get 
-            {
-                return Albums != null && Albums.Count > 0;
-            }
-        }
+        public bool HasAlbums => Albums != null && Albums.Count > 0;
         // "Real" albums in this case being non-ballroom compilation-type albums
         public bool HasRealAblums
         {
             get
             {
-                bool ret = false;
+                var ret = false;
                 if (HasAlbums)
                 {
                     ret = Albums.Any(a => a.IsRealAlbum);
@@ -807,11 +780,8 @@ namespace m4dModels
 
         public List<AlbumDetails> CloneAlbums()
         {
-            List<AlbumDetails> albums = new List<AlbumDetails>(Albums.Count);
-            foreach (var album in Albums)
-            {
-                albums.Add(new AlbumDetails(album));
-            }
+            var albums = new List<AlbumDetails>(Albums.Count);
+            albums.AddRange(Albums.Select(album => new AlbumDetails(album)));
 
             return albums;
         }
@@ -828,8 +798,8 @@ namespace m4dModels
 
         public string MergePurchaseTags(string pi)
         {
-            string oi = SortChars(pi);
-            string ni = GetPurchaseTags();
+            var oi = SortChars(pi);
+            var ni = GetPurchaseTags();
 
             ni = ni ?? string.Empty;
 
@@ -839,7 +809,7 @@ namespace m4dModels
 
         private static string SortChars(IEnumerable<char> chars)
         {
-            if (chars == null) return String.Empty;
+            if (chars == null) return string.Empty;
 
             var a = chars.ToArray();
             Array.Sort(a);
@@ -881,57 +851,42 @@ namespace m4dModels
 
         public static string GetPurchaseTags(ICollection<AlbumDetails> albums)
         {
-            HashSet<char> added = new HashSet<char>();
+            var added = new HashSet<char>();
 
-            foreach (AlbumDetails d in albums)
+            foreach (var d in albums)
             {
-                string tags = d.GetPurchaseTags();
-                if (tags != null)
+                var tags = d.GetPurchaseTags();
+                if (tags == null) continue;
+
+                foreach (var c in tags.Where(c => !added.Contains(c)))
                 {
-                    foreach (char c in tags)
-                    {
-                        if (!added.Contains(c))
-                        {
-                            added.Add(c);
-                        }
-                    }
+                    added.Add(c);
                 }
             }
 
-            if (added.Count == 0)
-                return null;
-            else
-            {
-                return SortChars(added);
-            }
+            return added.Count == 0 ? null : SortChars(added);
         }
         public static int GetNextAlbumIndex(ICollection<AlbumDetails> albums)
         {
-            int ret = 0;
-            foreach (AlbumDetails ad in albums)
+            int[] ret = {0};
+            foreach (var ad in albums.Where(ad => ad.Index >= ret[0]))
             {
-                if (ad.Index >= ret)
-                {
-                    ret = ad.Index + 1;
-                }
+                ret[0] = ad.Index + 1;
             }
-            return ret;
+            return ret[0];
         }
 
         public static List<AlbumDetails> BuildAlbumInfo(IList<Song> songs)
         {
-            List<AlbumDetails> results = BuildAlbumInfo(songs[0]);
+            var results = BuildAlbumInfo(songs[0]);
 
-            for (int i = 1; i < songs.Count; i++)
+            for (var i = 1; i < songs.Count; i++)
             {
-                List<AlbumDetails> next = BuildAlbumInfo(songs[i]);
+                var next = BuildAlbumInfo(songs[i]);
 
-                foreach (AlbumDetails ad in next)
+                foreach (var ad in next.Where(ad => results.All(d => d.Name != ad.Name)))
                 {
-                    if (results.All(d => d.Name != ad.Name))
-                    {
-                        results.Add(ad);
-                    }
+                    results.Add(ad);
                 }
             }
 
@@ -940,7 +895,7 @@ namespace m4dModels
 
         public static List<AlbumDetails> BuildAlbumInfo(Song song)
         {
-            IEnumerable<SongProperty> properties =
+            var properties =
                 from prop in song.SongProperties
                 //                where prop.BaseName.Equals(AlbumField)
                 select prop;
@@ -948,28 +903,28 @@ namespace m4dModels
         }
         public static List<AlbumDetails> BuildAlbumInfo(IEnumerable<SongProperty> properties)
         {
-            List<string> names = new List<string>(new[] {
+            var names = new List<string>(new[] {
                 AlbumField,PublisherField,TrackField,PurchaseField,AlbumPromote,AlbumOrder
             });
 
             // First build a hashtable of index->albuminfo, maintaining the total number and the
             // high water mark of indexed albums
 
-            int max = 0;
-            Dictionary<int, AlbumDetails> map = new Dictionary<int, AlbumDetails>();
-            Dictionary<int, AlbumDetails> removed = new Dictionary<int, AlbumDetails>();
+            var max = 0;
+            var map = new Dictionary<int, AlbumDetails>();
+            var removed = new Dictionary<int, AlbumDetails>();
 
             // Also keep a list of 'promotions' - current semantics are that if an album
             //  has a promotion it is removed and re-inserted at the head of the list
-            List<int> promotions = new List<int>();
+            var promotions = new List<int>();
             List<int> reorder = null;
 
-            foreach (SongProperty prop in properties)
+            foreach (var prop in properties)
             {
-                string name = prop.BaseName;
-                int idx = prop.Index ?? 0;
+                var name = prop.BaseName;
+                var idx = prop.Index ?? 0;
                 
-                string qual = prop.Qualifier;
+                var qual = prop.Qualifier;
 
                 if (names.Contains(name))
                 {
@@ -988,7 +943,7 @@ namespace m4dModels
                         map.Add(idx, d);
                     }
 
-                    bool remove = string.IsNullOrWhiteSpace(prop.Value);
+                    var remove = string.IsNullOrWhiteSpace(prop.Value);
 
                     switch (name)
                     {
@@ -1044,7 +999,7 @@ namespace m4dModels
                         case AlbumOrder:
                             // Forget all previous promotions and do a re-order base ond values
                             promotions.Clear();
-                            reorder = prop.Value.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries).Select(s => int.Parse(s)).ToList();
+                            reorder = prop.Value.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries).Select(int.Parse).ToList();
                             break;
                     }
                 }
@@ -1056,14 +1011,14 @@ namespace m4dModels
                 map.Remove(key);
             }
 
-            List<AlbumDetails> albums = new List<AlbumDetails>(map.Count);
+            var albums = new List<AlbumDetails>(map.Count);
 
             // Do the (single) latest full re-order
             if (reorder != null)
             {
                 albums = new List<AlbumDetails>();
 
-                foreach (int t in reorder)
+                foreach (var t in reorder)
                 {
                     AlbumDetails d;
                     if (map.TryGetValue(t, out d))
@@ -1075,7 +1030,7 @@ namespace m4dModels
             else
             // Start with everything in its 'natural' order
             {
-                for (int i = 0; i <= max; i++)
+                for (var i = 0; i <= max; i++)
                 {
                     AlbumDetails d;
                     if (map.TryGetValue(i, out d) && d.Name != null)
@@ -1086,14 +1041,13 @@ namespace m4dModels
             }
 
             // Now do individual (trivial) promotions
-            foreach (int t in promotions)
+            foreach (var t in promotions)
             {
                 AlbumDetails d;
-                if (map.TryGetValue(t, out d) && d.Name != null)
-                {
-                    albums.Remove(d);
-                    albums.Insert(0, d);
-                }
+                if (!map.TryGetValue(t, out d) || d.Name == null) continue;
+
+                albums.Remove(d);
+                albums.Insert(0, d);
             }
 
             return albums;
@@ -1101,7 +1055,7 @@ namespace m4dModels
 
         private void BuildAlbumInfo()
         {
-            IEnumerable<SongProperty> properties =
+            var properties =
                 from prop in Properties
                 select prop;
 
@@ -1117,8 +1071,8 @@ namespace m4dModels
             AlbumDetails alt = null;
 
             // We'll prefer the normalized album name, but if we can't find it we'll grab the stripped version...
-            string stripped = CreateNormalForm(title);
-            string normal = NormalizeAlbumString(title);
+            var stripped = CreateNormalForm(title);
+            var normal = NormalizeAlbumString(title);
             foreach (var album in Albums)
             {
                 if (string.Equals(normal, NormalizeAlbumString(album.Name), StringComparison.InvariantCultureIgnoreCase))
@@ -1132,21 +1086,14 @@ namespace m4dModels
                 }
             }
 
-            if (ret != null)
-            {
-                return ret;
-            }
-            else
-            {
-                return alt;
-            }
+            return ret ?? alt;
         }
         public int TrackFromAlbum(string title)
         {
-            int ret = 0;
+            var ret = 0;
 
-            AlbumDetails album = AlbumFromTitle(title);
-            if (album != null && album.Track.HasValue)
+            var album = AlbumFromTitle(title);
+            if (album?.Track != null)
             {
                 ret = album.Track.Value;
             }
@@ -1187,7 +1134,7 @@ namespace m4dModels
         {
             List<ServiceTrack> ret = null;
 
-            Dictionary<int, List<ServiceTrack>> cluster = ClusterTracks(tracks);
+            var cluster = ClusterTracks(tracks);
 
             // If we only have one cluster, we're set
             if (cluster.Count == 1)
@@ -1195,7 +1142,7 @@ namespace m4dModels
             }
             else if (cluster.Count != 0) // Try clustering off phase if we had any clustering at all
             {
-                Dictionary<int, List<ServiceTrack>> clusterT = ClusterTracks(tracks, 10, 5);
+                var clusterT = ClusterTracks(tracks, 10, 5);
                 if (clusterT.Count == 1)
                 {
                     cluster = clusterT;
@@ -1220,7 +1167,7 @@ namespace m4dModels
                 //ret = cluster.Values.Aggregate((seed, f) => f.Count > seed.Count ? f : seed);
                 foreach (var list in cluster.Values)
                 {
-                    int c = list.Count;
+                    var c = list.Count;
                     foreach (var t in list)
                     {
                         t.TrackRank = c;
@@ -1234,15 +1181,7 @@ namespace m4dModels
             {
                 album = CleanString(album);
 
-                List<ServiceTrack> amatches = new List<ServiceTrack>();
-
-                foreach (var t in ret)
-                {
-                    if (string.Equals(CleanString(t.Album),album,StringComparison.InvariantCultureIgnoreCase))
-                    {
-                        amatches.Add(t);
-                    }
-                }
+                var amatches = ret.Where(t => string.Equals(CleanString(t.Album), album, StringComparison.InvariantCultureIgnoreCase)).ToList();
 
                 foreach (var t in amatches)
                 {
@@ -1267,13 +1206,13 @@ namespace m4dModels
         
         private static Dictionary<int, List<ServiceTrack>> ClusterTracks(IList<ServiceTrack> tracks, int size = 10, int offset = 0)
         {
-            Dictionary<int, List<ServiceTrack>> ret = new Dictionary<int, List<ServiceTrack>>();
+            var ret = new Dictionary<int, List<ServiceTrack>>();
 
-            foreach (ServiceTrack track in tracks)
+            foreach (var track in tracks)
             {
                 if (track.Duration.HasValue)
                 {
-                    int cluster = (track.Duration.Value + offset) / size;
+                    var cluster = (track.Duration.Value + offset) / size;
                     List<ServiceTrack> list;
                     if (!ret.TryGetValue(cluster,out list))
                     {
@@ -1289,37 +1228,17 @@ namespace m4dModels
 
         public IList<ServiceTrack> TitleArtistFilter(IList<ServiceTrack> tracks)
         {
-            List<ServiceTrack> tracksOut = new List<ServiceTrack>();
-
-            foreach (var track in tracks)
-            {
-                if (TitleArtistMatch(track.Name, track.Artist))
-                {
-                    tracksOut.Add(track);
-                }
-            }
-
-            return tracksOut;
+            return tracks.Where(track => TitleArtistMatch(track.Name, track.Artist)).ToList();
         }
 
         public IList<ServiceTrack> DurationFilter(IList<ServiceTrack> tracks, int epsilon)
         {
-            return DurationFilter(tracks, Length.Value, epsilon);
+            return !Length.HasValue ? null : DurationFilter(tracks, Length.Value, epsilon);
         }
 
         static public IList<ServiceTrack> DurationFilter(IList<ServiceTrack> tracks, int duration, int epsilon)
         {
-            List<ServiceTrack> tracksOut = new List<ServiceTrack>();
-
-            foreach (var track in tracks)
-            {
-                if (track.Duration.HasValue && Math.Abs(track.Duration.Value - duration) < epsilon)
-                {
-                    tracksOut.Add(track);
-                }
-            }
-
-            return tracksOut;
+            return tracks.Where(track => track.Duration.HasValue && Math.Abs(track.Duration.Value - duration) < epsilon).ToList();
         }
 
         #endregion
