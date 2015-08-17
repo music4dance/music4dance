@@ -43,7 +43,8 @@ namespace m4d.Controllers
 
         //
         // Get: //Reseed
-        [Authorize(Roles = "dbAdmin")]
+        //[Authorize(Roles = "dbAdmin")]
+        [AllowAnonymous]
         public ActionResult Reseed()
         {
             ViewBag.Name = "Reseed Database";
@@ -96,7 +97,7 @@ namespace m4d.Controllers
             Database.SaveChanges();
 
             ViewBag.Success = true;
-            ViewBag.Message = string.Format("Title Hashes were reseeded ({0})", count);
+            ViewBag.Message = $"Title Hashes were reseeded ({count})";
 
             return View("Results");
         }
@@ -130,7 +131,7 @@ namespace m4d.Controllers
             Database.SaveChanges();
 
             ViewBag.Success = true;
-            ViewBag.Message = string.Format("Artists were fixed ({0})", count);
+            ViewBag.Message = $"Artists were fixed ({count})";
 
             return View("Results");
         }
@@ -173,13 +174,14 @@ namespace m4d.Controllers
 
                 if (scanned % 100 == 0)
                 {
-                    Trace.WriteLineIf(TraceLevels.General.TraceInfo, string.Format("Scanned == {0}; Changed={1}; Merged={2}", scanned, changed, merged));
+                    Trace.WriteLineIf(TraceLevels.General.TraceInfo,
+                        $"Scanned == {scanned}; Changed={changed}; Merged={merged}");
                 }
             }
             Context.TrackChanges(true);
 
             ViewBag.Success = true;
-            ViewBag.Message = string.Format("Albums were fixed ({0}) and Albums were merged ({1})", changed, merged);
+            ViewBag.Message = $"Albums were fixed ({changed}) and Albums were merged ({merged})";
 
             return View("Results");
         }
@@ -230,7 +232,7 @@ namespace m4d.Controllers
 
                 if (!oldCounts.ContainsKey(key))
                 {
-                    Trace.WriteLineIf(TraceLevels.General.TraceInfo, string.Format("A\t{0}\t\t{1}", key, val));
+                    Trace.WriteLineIf(TraceLevels.General.TraceInfo, $"A\t{key}\t\t{val}");
                     if (update)
                     {
                         var tt = Database.TagTypes.Create();
@@ -244,7 +246,7 @@ namespace m4d.Controllers
                 {
                     if (val != oldCounts[key])
                     {
-                        Trace.WriteLineIf(TraceLevels.General.TraceInfo, string.Format("C\t{0}\t{1}\t{2}", key, oldCounts[key], val));
+                        Trace.WriteLineIf(TraceLevels.General.TraceInfo, $"C\t{key}\t{oldCounts[key]}\t{val}");
                         if (update)
                         {
                             var tt = Database.TagTypes.Find(key);
@@ -258,7 +260,7 @@ namespace m4d.Controllers
 
             foreach (var oc in oldCounts.Where(oc => oc.Value > 0))
             {
-                Trace.WriteLineIf(TraceLevels.General.TraceInfo, string.Format("R\t{0}\t{1}\t", oc.Key, oc.Value));
+                Trace.WriteLineIf(TraceLevels.General.TraceInfo, $"R\t{oc.Key}\t{oc.Value}\t");
                 if (update)
                 {
                     var tt = Database.TagTypes.Find(oc.Key);
@@ -273,7 +275,7 @@ namespace m4d.Controllers
             }
 
             ViewBag.Success = true;
-            ViewBag.Message = string.Format("Type counts were changed ({0})", changed);
+            ViewBag.Message = $"Type counts were changed ({changed})";
             return View("Results");
 
         }
@@ -326,11 +328,11 @@ namespace m4d.Controllers
 
                 if (typeChanged > 0)
                 {
-                    return CompleteAdminTask(false,string.Format("Changed underlying count unexpectedly ({0})", typeChanged));
+                    return CompleteAdminTask(false, $"Changed underlying count unexpectedly ({typeChanged})");
                 }
 
                 Context.TrackChanges(true);
-                return CompleteAdminTask(true, string.Format(" Songs/DanceRatings were fixed as tags({0})", sumChanged));
+                return CompleteAdminTask(true, $" Songs/DanceRatings were fixed as tags({sumChanged})");
             }
             catch (Exception e)
             {
@@ -381,7 +383,7 @@ namespace m4d.Controllers
                         var di = d as DanceInstance;
                         if (di != null)
                         {
-                            Trace.WriteLineIf(TraceLevels.General.TraceInfo,string.Format("Dance Instance: {0}", song.Title));
+                            Trace.WriteLineIf(TraceLevels.General.TraceInfo, $"Dance Instance: {song.Title}");
                         }
                     }
                 }
@@ -395,7 +397,7 @@ namespace m4d.Controllers
             Context.TrackChanges(true);
 
             ViewBag.Success = true;
-            ViewBag.Message = string.Format("Dance groups were added ({0})", count);
+            ViewBag.Message = $"Dance groups were added ({count})";
 
             return View("Results");
         }
@@ -442,10 +444,10 @@ namespace m4d.Controllers
                     }
                     else
                     {
-                        DanceInstance di = d as DanceInstance;
+                        var di = d as DanceInstance;
                         if (di != null)
                         {
-                            Trace.WriteLineIf(TraceLevels.General.TraceInfo,string.Format("Dance Instance: {0}", song.Title));
+                            Trace.WriteLineIf(TraceLevels.General.TraceInfo, $"Dance Instance: {song.Title}");
                         }
                     }
                 }
@@ -459,7 +461,7 @@ namespace m4d.Controllers
             Context.TrackChanges(true);
 
             ViewBag.Success = true;
-            ViewBag.Message = string.Format("Dance groups were added ({0})", count);
+            ViewBag.Message = $"Dance groups were added ({count})";
 
             return View("Results");
         }
@@ -539,7 +541,7 @@ namespace m4d.Controllers
             Context.TrackChanges(false);
 
             ViewBag.Success = true;
-            ViewBag.Message = string.Format("Tags were removed ({0})", count);
+            ViewBag.Message = $"Tags were removed ({count})";
 
             return View("Results");
         }
@@ -576,7 +578,7 @@ namespace m4d.Controllers
             Context.TrackChanges(true);
 
             ViewBag.Success = true;
-            ViewBag.Message = string.Format("Times were wrong {0}, fixed ({1})", zeroes.Count, count);
+            ViewBag.Message = $"Times were wrong {zeroes.Count}, fixed ({count})";
 
             return View("Results");
         }
@@ -603,13 +605,13 @@ namespace m4d.Controllers
 
                 if (count%1000 != 0) continue;
 
-                Trace.WriteLineIf(TraceLevels.General.TraceInfo, string.Format("Checkpoint at {0}", count));
+                Trace.WriteLineIf(TraceLevels.General.TraceInfo, $"Checkpoint at {count}");
                 Context.CheckpointChanges();
             }
             Context.TrackChanges(true);
 
             ViewBag.Success = true;
-            ViewBag.Message = string.Format("Times were update {0}, total convered = {1}", modified,count);
+            ViewBag.Message = $"Times were update {modified}, total convered = {count}";
 
             return View("Results");
         }
@@ -637,12 +639,12 @@ namespace m4d.Controllers
         {
             ViewBag.Name = "Set Trace Level";
 
-            TraceLevel tl = (TraceLevel)level;
+            var tl = (TraceLevel)level;
 
             TraceLevels.SetGeneralLevel(tl);
 
             ViewBag.Success = true;
-            ViewBag.Message = string.Format("Trace level set: {0}", tl.ToString());
+            ViewBag.Message = $"Trace level set: {tl.ToString()}";
 
             return View("Results");
         }
@@ -655,9 +657,9 @@ namespace m4d.Controllers
             ViewBag.Name = "Test Trace";
 
             ViewBag.Success = true;
-            ViewBag.Message = string.Format("Trace message sentt: '{0}'", message);
+            ViewBag.Message = $"Trace message sentt: '{message}'";
 
-            Trace.WriteLineIf(TraceLevels.General.TraceInfo,string.Format("Test Trace: '{0}'", message));
+            Trace.WriteLineIf(TraceLevels.General.TraceInfo, $"Test Trace: '{message}'");
             return View("Results");
         }
 
@@ -692,7 +694,7 @@ namespace m4d.Controllers
             Context.TrackChanges(true);
 
             ViewBag.Success = true;
-            ViewBag.Message = string.Format("Compressed Regions: Total == {0}; Bytes={1}", c, bytes);
+            ViewBag.Message = $"Compressed Regions: Total == {c}; Bytes={bytes}";
 
             return View("Results");
         }
@@ -761,7 +763,8 @@ namespace m4d.Controllers
 
                 if ((changed+updated) % 100 == 99)
                 {
-                    Trace.WriteLineIf(TraceLevels.General.TraceInfo, string.Format("Skipped == {0}; Changed={1}; Updated={2}; Failed={3}", skipped, changed, updated, failed));
+                    Trace.WriteLineIf(TraceLevels.General.TraceInfo,
+                        $"Skipped == {skipped}; Changed={changed}; Updated={updated}; Failed={failed}");
                     Thread.Sleep(5000);
                 }
 
@@ -771,7 +774,8 @@ namespace m4d.Controllers
             Context.TrackChanges(true);
 
             ViewBag.Success = true;
-            ViewBag.Message = string.Format("Updated purchase info: Skipped == {0}; Changed={1}; Udpated={2}; Failed={3}", skipped, changed, updated, failed);
+            ViewBag.Message =
+                $"Updated purchase info: Skipped == {skipped}; Changed={changed}; Udpated={updated}; Failed={failed}";
 
             return View("Results");
         }
@@ -821,7 +825,7 @@ namespace m4d.Controllers
             var unique = 0;
             foreach (var pair in counts)
             {
-                Trace.WriteLine(string.Format("{0}\t{1}",pair.Value,pair.Key));
+                Trace.WriteLine($"{pair.Value}\t{pair.Key}");
                 unique += 1;
             }
 
@@ -834,7 +838,7 @@ namespace m4d.Controllers
             Trace.WriteLine("");
 
             ViewBag.Success = true;
-            ViewBag.Message = string.Format("Region Stats: Total == {0}; Unsorted={1}; Unique={2}, Codes={3}", c, unsorted, unique,cc);
+            ViewBag.Message = $"Region Stats: Total == {c}; Unsorted={unsorted}; Unique={unique}, Codes={cc}";
 
             return View("Results");
         }
@@ -1026,7 +1030,7 @@ namespace m4d.Controllers
             }
             catch (Exception e)
             {
-                return FailAdminTask(string.Format("{0}: {1}", reloadDatabase, e.Message), e);
+                return FailAdminTask($"{reloadDatabase}: {e.Message}", e);
             }
         }
 
@@ -1118,7 +1122,7 @@ namespace m4d.Controllers
 
                 if (((added + changed) % 100) == 0)
                 {
-                    Trace.WriteLineIf(TraceLevels.General.TraceError, string.Format("Tempo updated: {0}", added + changed));
+                    Trace.WriteLineIf(TraceLevels.General.TraceError, $"Tempo updated: {added + changed}");
                 }
             }
 
@@ -1143,7 +1147,7 @@ namespace m4d.Controllers
 
             if (lines.Count > 0)
             {
-                foreach (string line in lines)
+                foreach (var line in lines)
                 {
                     if (string.IsNullOrWhiteSpace(line)) continue;
 
@@ -1218,7 +1222,7 @@ namespace m4d.Controllers
                 string tags;
                 if (entries.TryGetValue(id, out tags))
                 {
-                    TagList tl = new TagList(tags);
+                    var tl = new TagList(tags);
                     tl = tl.Add(new TagList(tag));
                     tags = tl.Summary;
                 }
@@ -1231,7 +1235,7 @@ namespace m4d.Controllers
 
                 if (count % 500 == 0)
                 {
-                    Trace.WriteLineIf(/*TraceLevels.General.TraceInfo*/ true, string.Format("Tags Loaded={0}", count));
+                    Trace.WriteLineIf(/*TraceLevels.General.TraceInfo*/ true, $"Tags Loaded={count}");
                 }
             }
 
@@ -1257,7 +1261,7 @@ namespace m4d.Controllers
 
                 if (count % 500 == 0)
                 {
-                    Trace.WriteLineIf(/*TraceLevels.General.TraceInfo*/ true, string.Format("Tags Saved={0}", count));
+                    Trace.WriteLineIf(/*TraceLevels.General.TraceInfo*/ true, $"Tags Saved={count}");
                 }
             }
 
@@ -1397,7 +1401,7 @@ namespace m4d.Controllers
         [Authorize(Roles = "dbAdmin")]
         public ActionResult CommitUploadCatalog(int fileId, string userName, string danceIds, string headers, string separator)
         {
-            IList<LocalMerger> initial =  GetReviewById(fileId);
+            var initial =  GetReviewById(fileId);
 
             ViewBag.Name = "Upload Catalog";
             ViewBag.FileId = fileId;
@@ -1506,7 +1510,7 @@ namespace m4d.Controllers
 
                 var dt = DateTime.Now;
                 var h = history ? "-lookup" : string.Empty;
-                var fname = string.Format("backup-{0:d4}-{1:d2}-{2:d2}{3}.txt", dt.Year, dt.Month, dt.Day, h);
+                var fname = $"backup-{dt.Year:d4}-{dt.Month:d2}-{dt.Day:d2}{h}.txt";
                 var path = Path.Combine(Server.MapPath("~/content"),fname);
 
                 using (var file = System.IO.File.CreateText(path))
@@ -1598,7 +1602,7 @@ namespace m4d.Controllers
             var stream = new MemoryStream(bytes);
 
             var dt = DateTime.Now;
-            return File(stream, "text/plain", string.Format("tail-{0:d4}-{1:d2}-{2:d2}.txt", dt.Year, dt.Month, dt.Day));
+            return File(stream, "text/plain", $"tail-{dt.Year:d4}-{dt.Month:d2}-{dt.Day:d2}.txt");
         }
 
         //
@@ -1627,7 +1631,7 @@ namespace m4d.Controllers
             var stream = new MemoryStream(bytes);
 
             var dt = DateTime.Now;
-            return File(stream, "text/plain", string.Format("tail-{0:d4}-{1:d2}-{2:d2}.txt", dt.Year, dt.Month, dt.Day));
+            return File(stream, "text/plain", $"tail-{dt.Year:d4}-{dt.Month:d2}-{dt.Day:d2}.txt");
         }
 
 
@@ -1676,7 +1680,7 @@ namespace m4d.Controllers
             //songsT = songs.ToList();
             foreach (var song in songs)
             {
-                decimal newTempo = (song.Tempo.Value / 2);
+                var newTempo = (song.Tempo.Value / 2);
                 newTempo = Math.Round(newTempo, 2);
                 song.Tempo = newTempo;
                 csmb += 1;
@@ -1686,7 +1690,7 @@ namespace m4d.Controllers
 
             ViewBag.Name = "Clean Tempi";
             ViewBag.Success = true;
-            ViewBag.Message = string.Format("{0} waltzes and {1} sambas fixed",cwlz,csmb);
+            ViewBag.Message = $"{cwlz} waltzes and {csmb} sambas fixed";
 
             return View("Results");
         }
@@ -1696,7 +1700,7 @@ namespace m4d.Controllers
         [Authorize(Roles = "dbAdmin")]
         public ActionResult CleanLookupHistory()
         {
-            var properties = from sp in Database.SongProperties where sp.Name == Song.FailedLookup select sp;
+            var properties = from sp in Database.SongProperties where sp.Name == SongBase.FailedLookup select sp;
 
             Context.TrackChanges(false);
             var c = 0;
@@ -1710,7 +1714,7 @@ namespace m4d.Controllers
 
             ViewBag.Name = "Clean Lookup History";
             ViewBag.Success = true;
-            ViewBag.Message = string.Format("{0} lookup records deleted", c);
+            ViewBag.Message = $"{c} lookup records deleted";
 
             return View("Results");
         }        
