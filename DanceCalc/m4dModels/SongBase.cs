@@ -996,19 +996,10 @@ namespace m4dModels
 
         static public string CleanText(string text)
         {
-            text = text.Replace("&nbsp;", " ");
-            text = text.Replace("&nbsp", " ");
+            text = System.Net.WebUtility.HtmlDecode(text);
             text = text.Replace("\r", " ");
             text = text.Replace("\n", " ");
             text = text.Replace("\t", " ");
-            text = text.Replace("&quot;", "\"");
-            text = text.Replace("&quot", "\"");
-            text = text.Replace("&amp;", "&");
-
-            // TODO: is it worth doing a generic unicode replace?
-            text = text.Replace("&#39;", "'");
-            text = text.Replace("&#333;", "ō");
-
             text = text.Trim();
 
             if (!text.Contains("  ")) return text;

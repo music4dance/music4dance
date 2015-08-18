@@ -121,6 +121,8 @@ namespace m4dModels
             {"SINGLESWING","SWG"},
             {"SINGLETIMESWING","SWG"},
             {"STREETSWING","HST"},
+            {"DISCO","HST"},
+            {"DISCOFOX","HST"},
             {"HUSTLESTREETSWING","HST"},
             {"HUSTLECHACHA","HST,CHA"},
             {"CHACHAHUSTLE","HST,CHA"},

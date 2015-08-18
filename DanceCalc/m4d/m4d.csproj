@@ -27,6 +27,7 @@
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
     <RestorePackages>true</RestorePackages>
     <NuGetPackageImportStamp>6fe37739</NuGetPackageImportStamp>
+    <UseGlobalApplicationHostFile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -417,6 +418,7 @@
     <Compile Include="Scrapers\DanceForum.cs" />
     <Compile Include="Scrapers\DanceScraper.cs" />
     <Compile Include="Scrapers\DWTS.cs" />
+    <Compile Include="Scrapers\WeddingDanceWorkshop.cs" />
     <Compile Include="Service References\AWSReference\Reference.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
