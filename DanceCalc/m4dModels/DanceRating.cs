@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Runtime.Serialization;
 using DanceLibrary;
 
@@ -18,41 +19,34 @@ namespace m4dModels
         [DataMember]
         public int Weight { get; set; }
 
-        public override char IdModifier
-        {
-            get { return 'X'; }
-        }
+        public override char IdModifier => 'X';
 
-        public override string TagIdBase
-        {
-            get { return DanceId + SongId.ToString("N"); }
-        }
+        public override string TagIdBase => DanceId + SongId.ToString("N");
 
         public override void RegisterChangedTags(TagList added, TagList removed, ApplicationUser user, DanceMusicService dms, object data)
         {
             base.RegisterChangedTags(added, removed, user, dms, data);
 
-            if (data != null)
-            {
-                Song song = data as Song;
-                if (song == null)
-                {
-                    Trace.WriteLineIf(TraceLevels.General.TraceError, "Bad Song");
-                    return;
-                }
+            if (data == null) return;
 
-                song.ChangeTag(SongBase.AddedTags + ":" + DanceId, added, dms);
-                song.ChangeTag(SongBase.RemovedTags + ":" + DanceId, removed, dms);
+            var song = data as Song;
+            if (song == null)
+            {
+                Trace.WriteLineIf(TraceLevels.General.TraceError, "Bad Song");
+                return;
             }
+
+            song.ChangeTag(SongBase.AddedTags + ":" + DanceId, added, dms);
+            song.ChangeTag(SongBase.RemovedTags + ":" + DanceId, removed, dms);
         }
 
         public static IEnumerable<DanceRatingDelta> BuildDeltas(string dances, int delta)
         {
-            List<DanceRatingDelta> drds = new List<DanceRatingDelta>();
+            var drds = new List<DanceRatingDelta>();
 
-            string[] dl = dances.Split(new[] { ',','/' }, StringSplitOptions.RemoveEmptyEntries);
+            var dl = dances.Split(new[] { ',','/' }, StringSplitOptions.RemoveEmptyEntries);
 
-            foreach (string ds in dl)
+            foreach (var ds in dl)
             {
                 string list;
                 string[] ids = null;
@@ -67,14 +61,11 @@ namespace m4dModels
 
                 if (ids != null)
                 {
-                    foreach (var id in ids)
-                    {
-                        drds.Add(new DanceRatingDelta { DanceId = id, Delta = delta });
-                    }
+                    drds.AddRange(ids.Select(id => new DanceRatingDelta {DanceId = id, Delta = delta}));
                 }
                 else
                 {
-                    Trace.WriteLineIf(TraceLevels.General.TraceInfo, string.Format("Unknown Dance(s): {0}", dances));
+                    Trace.WriteLineIf(TraceLevels.General.TraceInfo, $"Unknown Dance(s): {dances}");
                 }
             }
             return drds;
@@ -84,26 +75,26 @@ namespace m4dModels
         {
             get 
             {
-                lock (s_danceMap)
+                lock (InitialDanceMap)
                 {
-                    if (!s_builtDM)
+                    if (!_builtDanceMap)
                     {
-                        foreach (DanceObject d in Dance.DanceLibrary.DanceDictionary.Values)
+                        foreach (var d in Dance.DanceLibrary.DanceDictionary.Values)
                         {
-                            string name = SongBase.CleanDanceName(d.Name);
-                            s_danceMap.Add(name, d.Id);
+                            var name = SongBase.CleanDanceName(d.Name);
+                            InitialDanceMap.Add(name, d.Id);
                         }
 
-                        s_builtDM = true;
+                        _builtDanceMap = true;
                     }
                 }
 
-                return s_danceMap;
+                return InitialDanceMap;
             }
         }
 
-        private static bool s_builtDM = false;
-        private static readonly Dictionary<string, string> s_danceMap = new Dictionary<string, string>()
+        private static bool _builtDanceMap;
+        private static readonly Dictionary<string, string> InitialDanceMap = new Dictionary<string, string>()
         {
             {"SLOWANDCROSSSTEPWALTZ","CSW,SWZ"},
             {"SOCIALTANGO","TNG"},
@@ -121,7 +112,6 @@ namespace m4dModels
             {"SINGLESWING","SWG"},
             {"SINGLETIMESWING","SWG"},
             {"STREETSWING","HST"},
-            {"DISCO","HST"},
             {"DISCOFOX","HST"},
             {"HUSTLESTREETSWING","HST"},
             {"HUSTLECHACHA","HST,CHA"},
