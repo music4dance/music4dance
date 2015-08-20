@@ -913,14 +913,25 @@ namespace m4dModels
             }
 #endif
             // Now limit it down to the ones that are marked as a particular dance or dances
-            string[] danceList = null;
+            List<string> danceList = null;
             if (!string.IsNullOrWhiteSpace(filter.Dances) && !string.Equals(filter.Dances, "ALL", StringComparison.OrdinalIgnoreCase))
             {
-                // TODO: We don't need to expand anything except MSC - should we just special case MSC
-                // and kill this code path...
-                danceList = Dance.DanceLibrary.ExpandDanceList(filter.Dances);
+                danceList = Dance.DanceLibrary.ExpandMsc(filter.Dances);
+                bool and = false;
+                if (string.Equals(danceList[0],"AND",StringComparison.OrdinalIgnoreCase))
+                {
+                    danceList.RemoveAt(0);
+                    and = true;
+                }
 
-                songs = songs.Where(s => s.DanceRatings.Any(dr => danceList.Contains(dr.DanceId)));
+                if (and)
+                {
+                    songs = songs.Where(s => danceList.All(did => s.DanceRatings.Any(dr => dr.DanceId == did)));
+                }
+                else
+                {
+                    songs = songs.Where(s => s.DanceRatings.Any(dr => danceList.Contains(dr.DanceId)));
+                }
             }
             else if ((cruft & CruftFilter.NoDances) != CruftFilter.NoDances)
             {
@@ -956,7 +967,7 @@ namespace m4dModels
 #endif
 
             // Now limit it by anything that has the search string in the title, album or artist
-            if (!String.IsNullOrEmpty(filter.SearchString))
+            if (!string.IsNullOrEmpty(filter.SearchString))
             {
                 if (userFilter)
                 {
@@ -1114,7 +1125,7 @@ namespace m4dModels
                     // TODO: Better icon for dance order
                     // TODO: Get this working for multi-dance selection
                 {
-                    var did = TrySingleId(danceList) ?? (filter.Dances == null ? null : TrySingleId(new[] {filter.Dances}));
+                    var did = TrySingleId(danceList) ?? (filter.Dances == null ? null : TrySingleId(new List<string>(new[] {filter.Dances})));
                     songs = did != null ? songs.OrderByDescending(s => s.DanceRatings.FirstOrDefault(dr => dr.DanceId.StartsWith(did)).Weight) : songs.OrderByDescending(s => s.DanceRatings.Max(dr => dr.Weight));
                 }
                     break;
@@ -1308,13 +1319,13 @@ namespace m4dModels
 
         // TODO: This is extremely dependent on the form of the danceIds, just
         //  a temporary kludge until we get multi-select working
-        private static string TrySingleId(string[] danceList)
+        private static string TrySingleId(List<string> danceList)
         {
             string ret = null;
-            if (danceList != null && danceList.Length > 0 && !string.IsNullOrWhiteSpace(danceList[0]))
+            if (danceList != null && danceList.Count > 0 && !string.IsNullOrWhiteSpace(danceList[0]))
             {
                 ret = danceList[0].Substring(0, 3).ToUpper();
-                for (var i = 1; i < danceList.Length; i++)
+                for (var i = 1; i < danceList.Count; i++)
                 {
                     if (!string.Equals(ret, danceList[i].Substring(0, 3),StringComparison.OrdinalIgnoreCase))
                     {

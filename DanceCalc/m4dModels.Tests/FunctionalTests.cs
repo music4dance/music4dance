@@ -77,6 +77,44 @@ namespace m4dModels.Tests
         }
 
         [TestMethod]
+        public void OrTest()
+        {
+            const string x = "ECS,FXT,RMB";
+            var filter = new SongFilter { Dances = x };
+            var songs = s_service.Dms.BuildSongList(filter);
+            var drs = x.Split(',');
+
+            var count = 0;
+            foreach (var song in songs)
+            {
+                //Trace.WriteLine(song);
+                Assert.IsNotNull(song.DanceRatings.Any(dr => drs.Contains(dr.DanceId)));
+                count += 1;
+            }
+            Trace.WriteLine(string.Format("Filtered Count = {0}", count));
+            Assert.AreEqual(28, count);
+        }
+
+        [TestMethod]
+        public void AndTest()
+        {
+            const string x = "SWG,FXT";
+            var filter = new SongFilter { Dances =  "AND," + x };
+            var songs = s_service.Dms.BuildSongList(filter);
+            var drs = x.Split(',');
+
+            var count = 0;
+            foreach (var song in songs)
+            {
+                //Trace.WriteLine(song);
+                Assert.IsNotNull(song.DanceRatings.All(dr => drs.Contains(dr.DanceId)));
+                count += 1;
+            }
+            Trace.WriteLine(string.Format("Filtered Count = {0}", count));
+            Assert.AreEqual(1, count);
+        }
+
+        [TestMethod]
         public void TopTest()
         {
             var filter = new SongFilter {SortOrder = "Dances_10", Dances = "SWG"};
