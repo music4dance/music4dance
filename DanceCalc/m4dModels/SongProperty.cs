@@ -5,7 +5,6 @@ using System.Globalization;
 using System.Linq;
 using System.Text;
 
-
 namespace m4dModels
 {
     public class SongProperty

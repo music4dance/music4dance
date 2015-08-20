@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
+using System.Net;
 using System.Reflection;
 using System.Runtime.Serialization;
 using System.Text;
@@ -996,7 +997,7 @@ namespace m4dModels
 
         static public string CleanText(string text)
         {
-            text = System.Net.WebUtility.HtmlDecode(text);
+            text = WebUtility.HtmlDecode(text);
             text = text.Replace("\r", " ");
             text = text.Replace("\n", " ");
             text = text.Replace("\t", " ");

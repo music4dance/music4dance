@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Text;
 using System.Text.RegularExpressions;
+
 // ReSharper disable RedundantCast.0
 // ReSharper disable RedundantCast
 
