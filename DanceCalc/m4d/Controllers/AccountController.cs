@@ -18,13 +18,7 @@ namespace m4d.Controllers
 //#endif
     public class AccountController : DMController
     {
-        public override string DefaultTheme
-        {
-            get
-            {
-                return ToolTheme;
-            }
-        }
+        public override string DefaultTheme => ToolTheme;
 
         public AccountController()
         {

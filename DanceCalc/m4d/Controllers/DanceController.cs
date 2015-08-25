@@ -4,20 +4,13 @@ using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Web.Mvc;
-using m4d.ViewModels;
 using m4dModels;
 
 namespace m4d.Controllers
 {
     public class DanceController : DMController
     {
-        public override string DefaultTheme
-        {
-            get
-            {
-                return MusicTheme;
-            }
-        }
+        public override string DefaultTheme => MusicTheme;
 
         // GET: Dances/{dance}
         [AllowAnonymous]

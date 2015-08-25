@@ -7,6 +7,7 @@ using System.Data.Entity.Migrations;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Net.Mime;
 using System.Text;
 using System.Threading;
 using System.Web.Mvc;
@@ -14,7 +15,6 @@ using DanceLibrary;
 using m4d.Context;
 using m4d.Scrapers;
 using m4dModels;
-using Owin.Security.Providers.BattleNet;
 using Configuration = m4d.Migrations.Configuration;
 
 namespace m4d.Controllers
@@ -724,7 +724,7 @@ namespace m4d.Controllers
                     skipped += 1;
                     continue;
                 }
-                string[] regions = null;
+                string[] regions;
                 var id = PurchaseRegion.ParseIdAndRegionInfo(prop.Value, out regions);
                 if (null == regions)
                 {
@@ -848,8 +848,6 @@ namespace m4d.Controllers
         [Authorize(Roles = "showDiagnostics")]
         public ActionResult ScrapeDances(string id)
         {
-            var songs = new List<SongDetails>();
-
             var scraper = DanceScraper.FromName(id);
             var lines = scraper.Scrape();
 
@@ -1051,8 +1049,6 @@ namespace m4d.Controllers
         [Authorize(Roles = "dbAdmin")]
         public ActionResult UploadTempi()
         {
-            IList<LocalMerger> results = null;
-
             var lines = UploadFile();
 
             ViewBag.Name = "Upload Tempi";
@@ -1064,7 +1060,7 @@ namespace m4d.Controllers
             if (lines.Count <= 0) return View("Error");
 
             var songs = SongsFromFile(user,lines);
-            results = Database.MatchSongs(songs,DanceMusicService.MatchMethod.Tempo);
+            var results = Database.MatchSongs(songs,DanceMusicService.MatchMethod.Tempo);
             ViewBag.FileId = CacheReview(results);
 
             return View("ReviewBatch", results);
@@ -1079,7 +1075,6 @@ namespace m4d.Controllers
         public ActionResult CommitUploadTempi(int fileId)
         {
             var initial = GetReviewById(fileId);
-            IList<LocalMerger> results = null;
 
             ViewBag.Name = "Upload Tempi";
             ViewBag.FileId = fileId;
@@ -1092,7 +1087,7 @@ namespace m4d.Controllers
 
             if (initial.Count <= 0) return View("Error");
 
-            results = new List<LocalMerger>();
+            IList<LocalMerger> results = new List<LocalMerger>();
                 
             foreach (var m in initial)
             {
@@ -1104,7 +1099,7 @@ namespace m4d.Controllers
                     var add = Database.AdditiveMerge(user, m.Right.SongId, sd, null, false);
                     if (add)
                     {
-                        m.Right = Database.FindSongDetails(m.Right.SongId,user.UserName);;
+                        m.Right = Database.FindSongDetails(m.Right.SongId,user.UserName);
                         results.Add(m);
                         changed += 1;
                     }
@@ -1565,7 +1560,7 @@ namespace m4d.Controllers
                 }
 
                 AdminMonitor.CompleteTask(true, "Backup complete to: " + path);
-                return File("~/content/" + fname, System.Net.Mime.MediaTypeNames.Text.Plain,fname);
+                return File("~/content/" + fname, MediaTypeNames.Text.Plain,fname);
                 //AdminMonitor.CompleteTask(true, "Backup complete to: " + path);
                 //var res = new FilePathResult("~/content/" + fname,System.Net.Mime.MediaTypeNames.Text.Plain);
                 //res.FileDownloadName = fname;
@@ -1666,9 +1661,12 @@ namespace m4d.Controllers
 
             foreach (var song in songs)
             {
-                var newTempo = (song.Tempo.Value / 4) * 3;
-                newTempo = Math.Round(newTempo, 2);
-                song.Tempo = newTempo;
+                if (song.Tempo != null)
+                {
+                    var newTempo = (song.Tempo.Value / 4) * 3;
+                    newTempo = Math.Round(newTempo, 2);
+                    song.Tempo = newTempo;
+                }
                 cwlz += 1;
             }
 
@@ -1680,9 +1678,12 @@ namespace m4d.Controllers
             //songsT = songs.ToList();
             foreach (var song in songs)
             {
-                var newTempo = (song.Tempo.Value / 2);
-                newTempo = Math.Round(newTempo, 2);
-                song.Tempo = newTempo;
+                if (song.Tempo != null)
+                {
+                    var newTempo = (song.Tempo.Value / 2);
+                    newTempo = Math.Round(newTempo, 2);
+                    song.Tempo = newTempo;
+                }
                 csmb += 1;
             }
 
@@ -1867,6 +1868,7 @@ namespace m4d.Controllers
         }
         private IList<string> HeaderFromList(string separator, ref string songs)
         {
+            if (separator == null) throw new ArgumentNullException(nameof(separator));
             var cidx = songs.IndexOfAny(Environment.NewLine.ToCharArray());
             if (cidx == -1)
             {
@@ -1885,11 +1887,11 @@ namespace m4d.Controllers
             return map;
         }
 
-        private IList<SongDetails> SongsFromList(ApplicationUser user, string separator, IList<string> headers, string songText)
+        private static IList<SongDetails> SongsFromList(ApplicationUser user, string separator, IList<string> headers, string songText)
         {
             var lines = songText.Split(Environment.NewLine.ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
 
-            return SongDetails.CreateFromRows(user, separator, headers, lines, Song.DanceRatingAutoCreate);
+            return SongDetails.CreateFromRows(user, separator, headers, lines, SongBase.DanceRatingAutoCreate);
         }
 
         private IList<SongDetails> SongsFromTracks(ApplicationUser user, IEnumerable<ServiceTrack> tracks)
@@ -1904,8 +1906,6 @@ namespace m4d.Controllers
 
         private static IList<SongDetails> SongsFromFile(ApplicationUser user, IList<string> lines)
         {
-            var songs = new List<SongDetails>();
-
             var map = SongDetails.BuildHeaderMap(lines[0]);
             lines.RemoveAt(0);
             return SongDetails.CreateFromRows(user, "\t", map, lines, SongBase.DanceRatingAutoCreate);
@@ -1945,19 +1945,19 @@ namespace m4d.Controllers
         static int CacheReview(IList<LocalMerger> review)
         {
             int ret;
-            lock (s_reviews)
+            lock (Reviews)
             {
-                s_reviews.Add(review);
-                ret = s_reviews.Count - 1;
+                Reviews.Add(review);
+                ret = Reviews.Count - 1;
             }
             return ret;
         }
 
         IList<LocalMerger> GetReviewById(int id)
         {
-            lock (s_reviews)
+            lock (Reviews)
             {
-                return s_reviews[id];
+                return Reviews[id];
             }
         }
 
@@ -1966,7 +1966,7 @@ namespace m4d.Controllers
         //  for now it's being using primarily on the short running
         //  dev instance, it doesn't seem worthwhile to do anything
         //  more sophisticated
-        static readonly IList<IList<LocalMerger>> s_reviews = new List<IList<LocalMerger>>();
+        static readonly IList<IList<LocalMerger>> Reviews = new List<IList<LocalMerger>>();
 
         #endregion
 

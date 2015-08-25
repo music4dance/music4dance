@@ -176,7 +176,7 @@
                 var timeName = songOrder.Id;
                 <th>
                     @Html.ActionLink(timeName, "sort", "song", new { sortOrder = timeName, filter }, null)
-                    @Html.Raw(songOrder.GetSortGlyph(timeName));
+                    @Html.Raw(songOrder.GetSortGlyph(timeName))
                 </th>
             }
         </tr>

@@ -4,7 +4,6 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Text;
-using System.Web;
 using System.Web.Mvc;
 using m4dModels;
 using PagedList;
@@ -23,8 +22,8 @@ namespace m4d.Controllers
                         orderby l.Id descending
                         select l;
 
-            int pageSize = 25;
-            int pageNumber = (page ?? 1);
+            var pageSize = 25;
+            var pageNumber = (page ?? 1);
             Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Exiting Log.Index");
             return View(lines.ToPagedList(pageNumber, pageSize));
         }
@@ -34,16 +33,16 @@ namespace m4d.Controllers
             var lines = from l in Database.Log orderby l.Id
                         select l;
 
-            StringBuilder sb = new StringBuilder();
+            var sb = new StringBuilder();
             
-            foreach (SongLog line in lines)
+            foreach (var line in lines)
             {
                 sb.AppendFormat("{0}\x1E{1}\x1E{2}\x1E{3}\x1E{4}\x1E{5}\r\n", line.User.UserName, line.Time, line.Action, line.SongReference, line.SongSignature, line.Data);
             }
 
-            string s = sb.ToString();
+            var s = sb.ToString();
             var bytes = Encoding.UTF8.GetBytes(s);
-            MemoryStream stream = new MemoryStream(bytes);
+            var stream = new MemoryStream(bytes);
 
             return File(stream, "text/plain", "log.txt");
         }
@@ -59,26 +58,32 @@ namespace m4d.Controllers
         [Authorize(Roles = "canEdit")]
         public ActionResult RestoreResults()
         {
-            HttpFileCollectionBase files = Request.Files;
+            var files = Request.Files;
             if (files.Count == 1)
             {
-                List<string> lines = new List<string>();
+                var lines = new List<string>();
 
-                string key = files.AllKeys[0];
+                var key = files.AllKeys[0];
                 ViewBag.Key = key;
-                ViewBag.Size = files[key].ContentLength;
-                ViewBag.ContentType = files[key].ContentType;
-
-
-                HttpPostedFileBase file = Request.Files.Get(0);
-                Stream stream = file.InputStream;
-
-                TextReader tr = new StreamReader(stream);
-
-                string s;
-                while ((s = tr.ReadLine()) != null)
+                var httpPostedFileBase = files[key];
+                if (httpPostedFileBase != null)
                 {
-                    lines.Add(s);
+                    ViewBag.Size = httpPostedFileBase.ContentLength;
+                    ViewBag.ContentType = httpPostedFileBase.ContentType;
+                }
+
+                var file = Request.Files.Get(0);
+                if (file != null)
+                {
+                    var stream = file.InputStream;
+
+                    TextReader tr = new StreamReader(stream);
+
+                    string s;
+                    while ((s = tr.ReadLine()) != null)
+                    {
+                        lines.Add(s);
+                    }
                 }
 
                 ViewBag.Lines = lines;
@@ -103,9 +108,9 @@ namespace m4d.Controllers
                             where undo.Contains(e.Id)
                             select e;
 
-            ApplicationUser user = Database.FindUser(User.Identity.Name);
+            var user = Database.FindUser(User.Identity.Name);
 
-            IEnumerable<UndoResult> results = Database.UndoLog(user, entries.ToList());
+            var results = Database.UndoLog(user, entries.ToList());
 
             return View(results);
         }

@@ -5,7 +5,6 @@ using System.Net;
 using System.Web.Mvc;
 using m4dModels;
 using Microsoft.AspNet.Identity;
-using Microsoft.AspNet.Identity.EntityFramework;
 
 namespace m4d.Controllers
 {
@@ -13,13 +12,7 @@ namespace m4d.Controllers
     //[RequireHttps]
     public class ApplicationUsersController : DMController
     {
-        public override string DefaultTheme
-        {
-            get
-            {
-                return AdminTheme;
-            }
-        }
+        public override string DefaultTheme => AdminTheme;
 
         //public ApplicationUsersController()
         //{

@@ -1,15 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
-using System.Data.Entity;
 using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Web;
-using System.Web.Http;
 using System.Web.Mvc;
 using DanceLibrary;
-using m4d.Utilities;
 using m4d.ViewModels;
 using m4dModels;
 using PagedList;
@@ -28,13 +25,7 @@ namespace m4d.Controllers
         {
             HelpPage = "song-list";
         }
-        public override string DefaultTheme
-        {
-            get
-            {
-                return MusicTheme;
-            }
-        }
+        public override string DefaultTheme => MusicTheme;
 
         protected override void OnActionExecuting(ActionExecutingContext filterContext)
         {
@@ -55,13 +46,13 @@ namespace m4d.Controllers
 
         #region Commands
 
-        [System.Web.Mvc.AllowAnonymous]
+        [AllowAnonymous]
         public ActionResult Sample()
         {
             return View();
         }
 
-        [System.Web.Mvc.AllowAnonymous]
+        [AllowAnonymous]
         public ActionResult Search(string searchString, string dances, SongFilter filter)
         {
             if (string.IsNullOrWhiteSpace(searchString))
@@ -96,7 +87,7 @@ namespace m4d.Controllers
             return DoIndex(filter);
         }
 
-        [System.Web.Mvc.AllowAnonymous]
+        [AllowAnonymous]
         public ActionResult AdvancedSearch(string searchString, string dances, ICollection<string> services, decimal? tempoMin, decimal? tempoMax, SongFilter filter)
         {
             if (string.IsNullOrWhiteSpace(searchString))
@@ -141,7 +132,7 @@ namespace m4d.Controllers
             return DoIndex(filter);
         }
 
-        [System.Web.Mvc.AllowAnonymous]
+        [AllowAnonymous]
         public ActionResult Sort(string sortOrder, SongFilter filter)
         {
             filter.SortOrder = SongSort.DoSort(sortOrder, filter.SortOrder);
@@ -149,14 +140,14 @@ namespace m4d.Controllers
             return DoIndex(filter);
         }
 
-        [System.Web.Mvc.AllowAnonymous]
+        [AllowAnonymous]
         public ActionResult FilterUser(string user, SongFilter filter)
         {
             filter.User = string.IsNullOrWhiteSpace(user) ? null : user;
             return DoIndex(filter);
         }
 
-        [System.Web.Mvc.AllowAnonymous]
+        [AllowAnonymous]
         public ActionResult FilterService(ICollection<string> services, SongFilter filter)
         {
             string purchase = string.Empty;
@@ -172,7 +163,7 @@ namespace m4d.Controllers
             return DoIndex(filter);
         }
 
-        [System.Web.Mvc.AllowAnonymous]
+        [AllowAnonymous]
         public ActionResult FilterTempo(decimal? tempoMin, decimal? tempoMax, SongFilter filter)
         {
             if (filter.TempoMin != tempoMin || filter.TempoMax != tempoMax)
@@ -187,7 +178,7 @@ namespace m4d.Controllers
 
         //
         // GET: /Index/
-        [System.Web.Mvc.AllowAnonymous]
+        [AllowAnonymous]
         public ActionResult Index(int? page, string purchase, SongFilter filter)
         {
             if (page.HasValue)
@@ -203,7 +194,7 @@ namespace m4d.Controllers
             return DoIndex(filter);
         }
 
-        [System.Web.Mvc.AllowAnonymous]
+        [AllowAnonymous]
         public ActionResult Tags(string tags, SongFilter filter)
         {
             filter.Tags = null;
@@ -218,7 +209,7 @@ namespace m4d.Controllers
             return DoIndex(filter);
         }
 
-        [System.Web.Mvc.AllowAnonymous]
+        [AllowAnonymous]
         public ActionResult AddTags(string tags, SongFilter filter)
         {
             var add = new TagList(tags);
@@ -233,7 +224,7 @@ namespace m4d.Controllers
             return DoIndex(filter);
         }
 
-        [System.Web.Mvc.AllowAnonymous]
+        [AllowAnonymous]
         public ActionResult RemoveTags(string tags, SongFilter filter)
         {
             var sub = new TagList(tags);
@@ -248,7 +239,7 @@ namespace m4d.Controllers
         //
         // GET: /Song/Details/5
 
-        [System.Web.Mvc.AllowAnonymous]
+        [AllowAnonymous]
         public ActionResult Details(Guid? id = null, SongFilter filter = null)
         {
             var gid = id ?? Guid.Empty;
@@ -258,7 +249,7 @@ namespace m4d.Controllers
                 song = Database.FindMergedSong(gid, User.Identity.Name);
                 return song != null ? 
                     RedirectToActionPermanent("details", new {id=song.SongId.ToString(), filter}) : 
-                    ReturnError(HttpStatusCode.NotFound, string.Format("The song with id = {0} has been deleted.", gid));
+                    ReturnError(HttpStatusCode.NotFound, $"The song with id = {gid} has been deleted.");
             }
 
             ViewBag.DanceMap = SongCounts.GetDanceMap(Database);
@@ -266,7 +257,7 @@ namespace m4d.Controllers
             return View(song);
         }
 
-        [System.Web.Mvc.AllowAnonymous]
+        [AllowAnonymous]
         public ActionResult Album(string title)
         {
             AlbumViewModel model = null;
@@ -283,14 +274,14 @@ namespace m4d.Controllers
             }
             else
             {
-                return ReturnError(HttpStatusCode.NotFound,string.Format("Album '{0}' not found.",title));
+                return ReturnError(HttpStatusCode.NotFound, $"Album '{title}' not found.");
             }
         }
 
 
         //
         // GET: /Song/CreateI
-        [System.Web.Mvc.Authorize(Roles = "canEdit")] 
+        [Authorize(Roles = "canEdit")] 
         public ActionResult Create(SongFilter filter = null)
         {
             ViewBag.ShowMPM = true;
@@ -304,9 +295,9 @@ namespace m4d.Controllers
         //
         // POST: /Song/Create
 
-        [System.Web.Mvc.HttpPost]
+        [HttpPost]
         [ValidateAntiForgeryToken]
-        [System.Web.Mvc.Authorize(Roles = "canEdit")]
+        [Authorize(Roles = "canEdit")]
         public ActionResult Create(SongDetails song, string userTags, SongFilter filter = null)
         {
             if (ModelState.IsValid)
@@ -352,13 +343,13 @@ namespace m4d.Controllers
 
         //
         // GET: /Song/Edit/5
-        [System.Web.Mvc.Authorize(Roles = "canEdit")] 
+        [Authorize(Roles = "canEdit")] 
         public ActionResult Edit(Guid? id = null, SongFilter filter = null)
         {
             var song = Database.FindSongDetails(id ?? Guid.Empty, User.Identity.Name);
             if (song == null)
             {
-                return ReturnError(HttpStatusCode.NotFound, string.Format("The song with id = {0} has been deleted.", id));
+                return ReturnError(HttpStatusCode.NotFound, $"The song with id = {id} has been deleted.");
             }
 
             SetupEditViewBag(song);
@@ -374,7 +365,11 @@ namespace m4d.Controllers
             IList<DanceRating> ratingsList = song.RatingsList;
             ViewBag.DanceList = GetDancesSingle();
 
-            if (ratingsList.Any(r => (r as DanceRatingInfo).DanceName.Contains("Waltz")))
+            if (ratingsList.Any(r =>
+            {
+                var danceRatingInfo = r as DanceRatingInfo;
+                return danceRatingInfo != null && danceRatingInfo.DanceName.Contains("Waltz");
+            }))
             {
                 ViewBag.paramNumerator = 3;
             }
@@ -383,9 +378,9 @@ namespace m4d.Controllers
         }
         //
         // POST: /Song/Edit/5
-        [System.Web.Mvc.HttpPost]
+        [HttpPost]
         [ValidateAntiForgeryToken]
-        [System.Web.Mvc.Authorize(Roles = "canEdit")] 
+        [Authorize(Roles = "canEdit")] 
         //public ActionResult Edit([ModelBinder(typeof(m4d.Utilities.SongBinder))]SongDetails song, List<string> addDances, List<string> remDances, string filter = null)
         public ActionResult Edit(SongDetails song, string userTags, SongFilter filter = null)
         {
@@ -451,13 +446,13 @@ namespace m4d.Controllers
 
         //
         // GET: /Song/Delete/5
-        [System.Web.Mvc.Authorize(Roles = "canEdit")] 
+        [Authorize(Roles = "canEdit")] 
         public ActionResult Delete(Guid id, SongFilter filter = null)
         {
             var song = Database.Songs.Find(id);
             if (song == null)
             {
-                return ReturnError(HttpStatusCode.NotFound, string.Format("The song with id = {0} has been deleted.", id));
+                return ReturnError(HttpStatusCode.NotFound, $"The song with id = {id} has been deleted.");
             }
             return View(song);
         }
@@ -465,9 +460,9 @@ namespace m4d.Controllers
         //
         // POST: /Song/Delete/5
 
-        [System.Web.Mvc.HttpPost, System.Web.Mvc.ActionName("Delete")]
+        [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        [System.Web.Mvc.Authorize(Roles = "canEdit")] 
+        [Authorize(Roles = "canEdit")] 
         public ActionResult DeleteConfirmed(Guid id, SongFilter filter = null)
         {
             var song = Database.Songs.Find(id);
@@ -481,9 +476,9 @@ namespace m4d.Controllers
         //
         // POST: /Song/Delete/5
 
-        [System.Web.Mvc.HttpPost, System.Web.Mvc.ActionName("UndoUserChanges")]
+        [HttpPost, ActionName("UndoUserChanges")]
         [ValidateAntiForgeryToken]
-        [System.Web.Mvc.Authorize]
+        [Authorize]
         public ActionResult UndoUserChanges(Guid id, string userName = null, SongFilter filter = null)
         {
             if (userName == null)
@@ -503,11 +498,10 @@ namespace m4d.Controllers
 
         //
         // Merge: /Song/MergeCandidates
-        [System.Web.Mvc.Authorize(Roles = "canEdit")]
+        [Authorize(Roles = "canEdit")]
         public ActionResult MergeCandidates(int? page, int? level, bool? autoCommit, SongFilter filter)
         {
             filter.Action = "MergeCandidates";
-            IList<Song> songs;
 
             BuildDanceList(filter);
 
@@ -521,7 +515,7 @@ namespace m4d.Controllers
                 filter.Level = level;
             }
 
-            songs = Database.FindMergeCandidates(autoCommit == true ? 10000 : 500, filter.Level ?? 1);
+            var songs = Database.FindMergeCandidates(autoCommit == true ? 10000 : 500, filter.Level ?? 1);
 
             if (autoCommit.HasValue && autoCommit.Value)
             {
@@ -537,7 +531,7 @@ namespace m4d.Controllers
         //
         // BulkEdit: /Song/BulkEdit
         [ValidateAntiForgeryToken]
-        [System.Web.Mvc.Authorize(Roles = "canEdit")]
+        [Authorize(Roles = "canEdit")]
         public ActionResult BulkEdit(Guid[] selectedSongs, string action, SongFilter filter = null)
         {
             var songs = from s in Database.Songs
@@ -559,11 +553,11 @@ namespace m4d.Controllers
         //
         // Merge: /Song/Merge
         [ValidateAntiForgeryToken]
-        [System.Web.Mvc.Authorize(Roles = "canEdit")]
+        [Authorize(Roles = "canEdit")]
         public ActionResult MergeResults(string songIds, SongFilter filter = null)
         {
             // See if we can do the actual merge and then return the song details page...
-            var ids = songIds.Split(',').Select(s=>Guid.Parse(s)).ToList();
+            var ids = songIds.Split(',').Select(Guid.Parse).ToList();
 
             var songs = from s in Database.Songs
                         where ids.Contains(s.SongId)
@@ -601,7 +595,7 @@ namespace m4d.Controllers
         /// <param name="filter">Standard filter for song list</param>
         /// <param name="count">Number of songs to try, 1 is special cased as a user verified single entry</param>
         /// <returns></returns>
-        [System.Web.Mvc.Authorize(Roles = "canEdit")]
+        [Authorize(Roles = "canEdit")]
         public ActionResult BatchMusicService(string type= "X", string options = null, SongFilter filter=null, int count = 1)
         {
             MusicService service = null;
@@ -612,7 +606,7 @@ namespace m4d.Controllers
                 filter.Purchase = "!" + type;
                 if (service == null)
                 {
-                    throw new ArgumentOutOfRangeException("type");
+                    throw new ArgumentOutOfRangeException(nameof(type));
                 }
             }
 
@@ -660,7 +654,7 @@ namespace m4d.Controllers
 
                     var failLevel = -1;
                     var fail = song.OrderedProperties.FirstOrDefault(p => p.Name == SongBase.FailedLookup && p.Value.StartsWith(type));
-                    if (fail != null && fail.Value != null && fail.Value.Length > 2)
+                    if (fail?.Value != null && fail.Value.Length > 2)
                     {
                         int.TryParse(fail.Value.Substring(2), out failLevel);
                     }
@@ -727,7 +721,7 @@ namespace m4d.Controllers
 
                     if ((tried + 1) % 25 == 0)
                     {
-                        Trace.WriteLineIf(TraceLevels.General.TraceInfo, string.Format("{0} songs tried.", tried));
+                        Trace.WriteLineIf(TraceLevels.General.TraceInfo, $"{tried} songs tried.");
                         Context.CheckpointChanges();
                     }
                 }
@@ -823,26 +817,26 @@ namespace m4d.Controllers
             if (found.Count == 0 && !sd.HasRealAblums)
             {
                 var track = SongDetails.FindDominantTrack(tracks);
-                found = SongDetails.DurationFilter(tracks, track.Duration.Value, 6);
+                if (track.Duration != null) found = SongDetails.DurationFilter(tracks, track.Duration.Value, 6);
             }
 
             return found;
         }
 
         // GET: /Song/MusicServiceSearch/5?search=name
-        [System.Web.Mvc.Authorize(Roles = "canEdit")]
+        [Authorize(Roles = "canEdit")]
         public ActionResult MusicServiceSearch(Guid? id = null, string type="X", string title = null, string artist = null, SongFilter filter=null)
         {
             var song = Database.FindSongDetails(id??Guid.Empty);
             if (song == null)
             {
-                return ReturnError(HttpStatusCode.NotFound, string.Format("The song with id = {0} has been deleted.", id));
+                return ReturnError(HttpStatusCode.NotFound, $"The song with id = {id} has been deleted.");
             }
 
             var service = MusicService.GetService(type);
             if (service == null)
             {
-                throw new ArgumentOutOfRangeException("type");
+                throw new ArgumentOutOfRangeException(nameof(type));
             }
 
             var view = new ServiceSearchResults { ServiceType = type, Song = song };
@@ -860,19 +854,19 @@ namespace m4d.Controllers
 
         // ChooseMusicService: /Song/ChooseMusicService
         [ValidateAntiForgeryToken]
-        [System.Web.Mvc.Authorize(Roles = "canEdit")]
+        [Authorize(Roles = "canEdit")]
         public ActionResult ChooseMusicService(Guid songId, string type, string name, string album, string artist, string trackId, string collectionId, string alternateId, string duration, string genre, int? trackNum, SongFilter filter)
         {
             var service = MusicService.GetService(type);
             if (service == null)
             {
-                throw new ArgumentOutOfRangeException("type");
+                throw new ArgumentOutOfRangeException(nameof(type));
             }
 
             var song = Database.FindSongDetails(songId, User.Identity.Name);
             if (song == null)
             {
-                return ReturnError(HttpStatusCode.NotFound, string.Format("The song with id = {0} has been deleted.", songId));
+                return ReturnError(HttpStatusCode.NotFound, $"The song with id = {songId} has been deleted.");
             }
 
             var user = Database.FindUser(User.Identity.Name);
@@ -887,26 +881,13 @@ namespace m4d.Controllers
         #endregion
 
         #region General Utilities
-        private MultiSelectList GetDances(IList<DanceRating> ratings = null)
-        {
-            var dances = GetSimpleDances();
-
-            string[] selarr = null;
-
-            if (ratings != null)
-            {
-                var selected = new List<string>(ratings.Count());
-                selected.AddRange(ratings.Select(dr => dr.DanceId));
-                selarr = selected.ToArray();
-            }
-
-            return new MultiSelectList(dances, "ID", "Name", selarr);
-        }
 
         private IEnumerable<SelectListItem> GetDancesSingle()
         {
-            var dances = new List<SelectListItem>(Database.Dances.Count());
-            dances.Add(new SelectListItem() { Value = string.Empty, Text = string.Empty, Selected = true });
+            var dances = new List<SelectListItem>(Database.Dances.Count())
+            {
+                new SelectListItem() {Value = string.Empty, Text = string.Empty, Selected = true}
+            };
             // ReSharper disable once LoopCanBeConvertedToQuery
             foreach (var d in Database.Dances.Where(d => d.Id.Length < 4))
             {
@@ -915,16 +896,6 @@ namespace m4d.Controllers
             return dances;            
         }
 
-        private IEnumerable<SimpleDance> GetSimpleDances()
-        {
-            var dances = new List<SimpleDance>();
-            // ReSharper disable once LoopCanBeConvertedToQuery
-            foreach (var d in Database.Dances.Where(d => d.Id.Length < 4))
-            {
-                dances.Add(new SimpleDance() { Id = d.Id, Name = d.Info.Name });
-            }
-            return dances;
-        }
         private ActionResult Delete(IQueryable<Song> songs, SongFilter filter)
         {
             var user = Database.FindUser(User.Identity.Name);
@@ -942,7 +913,8 @@ namespace m4d.Controllers
         #region Index
         private ActionResult DoIndex(SongFilter filter)
         {
-            Trace.WriteLineIf(TraceLevels.General.TraceInfo, string.Format("Entering Song.Index: dances='{0}',sortOrder='{1}',searchString='{2}'", filter.Dances, filter.SortOrder, filter.SearchString));
+            Trace.WriteLineIf(TraceLevels.General.TraceInfo,
+                $"Entering Song.Index: dances='{filter.Dances}',sortOrder='{filter.SortOrder}',searchString='{filter.SearchString}'");
 
             var songs = Database.BuildSongList(filter, HttpContext.User.IsInRole(DanceMusicService.EditRole) ? DanceMusicService.CruftFilter.AllCruft : DanceMusicService.CruftFilter.NoCruft);
             BuildDanceList(filter);
@@ -959,16 +931,6 @@ namespace m4d.Controllers
             ViewBag.Dances = SongCounts.GetSongCounts(Database);
             ViewBag.DanceMap = SongCounts.GetDanceMap(Database);
         }
-
-        private void DumpSongs(IQueryable<Song> songs, string purchase)
-        {
-            Debug.WriteLine(string.Format("------------Purchase == {0} ------------", purchase));
-            foreach (var t in songs)
-            {
-                Debug.WriteLine("{0}: {1}", t.Title, t.Purchase);
-            }
-        }
-
         #endregion
 
         #region MusicService
@@ -999,7 +961,7 @@ namespace m4d.Controllers
             {
                 ViewBag.Error = true;
                 ViewBag.Status = we.Message;
-                Trace.WriteLine(string.Format("Failed '{0}' on Song '{1}",we.Message,song));
+                Trace.WriteLine($"Failed '{we.Message}' on Song '{song}");
             }
 
             return tracks;
@@ -1146,7 +1108,7 @@ namespace m4d.Controllers
                         }
                         else if (cluster.Count == 1)
                         {
-                            Trace.WriteLineIf(TraceLevels.General.TraceInfo, string.Format("Bad Merge: {0}", cluster[0].Signature));
+                            Trace.WriteLineIf(TraceLevels.General.TraceInfo, $"Bad Merge: {cluster[0].Signature}");
                         }
 
                         cluster = new List<Song> {song};

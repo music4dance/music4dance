@@ -16,13 +16,7 @@ namespace m4d.Controllers
         {
             HelpPage = "tag-cloud";
         }
-        public override string DefaultTheme
-        {
-            get
-            {
-                return MusicTheme;
-            }
-        }
+        public override string DefaultTheme => MusicTheme;
 
         // GET: Tag
         [AllowAnonymous]
@@ -39,7 +33,7 @@ namespace m4d.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            TagType tagType = Database.TagTypes.Find(TagType.TagDecode(id));
+            var tagType = Database.TagTypes.Find(TagType.TagDecode(id));
             if (tagType == null)
             {
                 return HttpNotFound();
@@ -74,9 +68,9 @@ namespace m4d.Controllers
 
         private void SetupPrimary()
         {
-            List<TagType> tagTypes = Database.TagTypes.ToList();
-            TagType nullTT = new TagType();
-            tagTypes.Insert(0, nullTT);
+            var tagTypes = Database.TagTypes.ToList();
+            var nullT = new TagType();
+            tagTypes.Insert(0, nullT);
             ViewBag.PrimaryId = new SelectList(tagTypes, "Key", "Key", string.Empty);
         }
 
@@ -87,16 +81,13 @@ namespace m4d.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            TagType tagType = Database.TagTypes.Find(TagType.TagDecode(id));
+            var tagType = Database.TagTypes.Find(TagType.TagDecode(id));
             if (tagType == null)
             {
                 return HttpNotFound();
             }
-            string pid = tagType.PrimaryId;
-            if (pid == null)
-            {
-                pid = tagType.Key;
-            }
+            var pid = tagType.PrimaryId ?? tagType.Key;
+
             ViewBag.PrimaryId = new SelectList(Database.TagTypes, "Key", "Key", pid);
             return View(new TagTypeView(tagType));
         }
@@ -219,7 +210,7 @@ namespace m4d.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            TagType tagType = Database.TagTypes.Find(TagType.TagDecode(id));
+            var tagType = Database.TagTypes.Find(TagType.TagDecode(id));
             if (tagType == null)
             {
                 return HttpNotFound();
@@ -232,7 +223,7 @@ namespace m4d.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult DeleteConfirmed(string id)
         {
-            TagType tagType = Database.TagTypes.Find(TagType.TagDecode(id));
+            var tagType = Database.TagTypes.Find(TagType.TagDecode(id));
             Database.TagTypes.Remove(tagType);
             Database.SaveChanges();
             return RedirectToAction("Index");

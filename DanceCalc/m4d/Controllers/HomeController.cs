@@ -6,13 +6,7 @@ namespace m4d.Controllers
 {
     public class HomeController : DMController
     {
-        public override string DefaultTheme
-        {
-            get
-            {
-                return MusicTheme;
-            }
-        }
+        public override string DefaultTheme => MusicTheme;
 
         [AllowAnonymous]
         public ActionResult Index()
