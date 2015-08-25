@@ -21,7 +21,7 @@
     var currentDance = null;
     $('[data-toggle="popover"]').popover({ html: true, trigger: 'click' });
     $('[data-toggle="popover"]').on('show.bs.popover', function () {
-        if (currentDance) {
+        if (currentDance && currentDance != this) {
             $(currentDance).queue(function (next) {
                 $(this).popover('hide');
                 next();
