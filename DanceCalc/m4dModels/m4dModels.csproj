@@ -80,6 +80,7 @@
     <Compile Include="DanceCategory.cs" />
     <Compile Include="DanceMerge.cs" />
     <Compile Include="DanceMusicService.cs" />
+    <Compile Include="DanceQuery.cs" />
     <Compile Include="DanceRatingDelta.cs" />
     <Compile Include="DanceRatingInfo.cs" />
     <Compile Include="DbTestSet.cs" />

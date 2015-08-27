@@ -1,35 +1,35 @@
 ﻿@model PagedList.IPagedList<Song>
 @using PagedList.Mvc;
 
-@*<link href="/Content/PagedList.css" rel="stylesheet" type="text/css" />*@
-
+@* ReSharper disable once SuggestVarOrType_SimpleTypes *@
 @{
     ViewBag.Title = "Songs for Dancing";
     ViewBag.Description = "music4dance catalog: " + ViewBag.SongFilter.Description;
     var isAdmin = User.IsInRole("dbAdmin");
 
     var dances = (IList<SongCounts>)ViewBag.Dances;
-    IList<DanceLibrary.DanceObject> selected = ViewBag.SelectedDances;
 
     SongFilter filter = ViewData.ContainsKey("SongFilter") ? ViewBag.SongFilter : SongFilter.Default;
+    DanceQuery danceQuery = filter.DanceQuery;
 }
 
 @using (Html.BeginForm("Search", "Song", FormMethod.Get, new { id = "search" }))
 {
-    var danceId = "ALL";
     var danceName = "All Dances";
-    // TODO: Is there a reasonable way to do multi-select of dances?  If so do we do it here or at least reflect that state here?
-    if (selected != null && selected.Count > 0)
+    if (danceQuery.Advanced)
     {
-        danceId = selected[0].Id;
-        danceName = selected[0].Name;
+        danceName = "Advanced";
+    }
+    else if (!danceQuery.All)
+    {
+        danceName = danceQuery.Dances.First().Name;
     }
 
     var checkX = string.Empty;
     var checkA = string.Empty;
     var checkI = string.Empty;
     var checkS = string.Empty;
-    string purchase = filter.Purchase;
+    var purchase = filter.Purchase;
     if (!string.IsNullOrWhiteSpace(purchase))
     {
         if (purchase.Contains('X'))
@@ -59,10 +59,11 @@
                     </button>
                     <ul class="dropdown-menu" role="menu">
                         <li id="DID_ALL"><a href="#ALL"><strong>All Dances</strong></a></li>
+                        <li id="DID_ADVANCED"><a href="#ADVANCED"><strong>Advanced</strong></a></li>
                         @foreach (var sc in dances.OrderBy(x => x.DanceName))
                         {
-                            string id = "DID_" + sc.DanceId;
-                            string href = "#" + sc.DanceId;
+                            var id = "DID_" + sc.DanceId;
+                            var href = "#" + sc.DanceId;
                             <li id="@id"><a href=@href><strong>@sc.DanceName</strong></a></li>
                             foreach (var sci in sc.Children.OrderBy(x => x.DanceName))
                             {
@@ -76,7 +77,7 @@
                         }
                     </ul>
                 </div>
-                <input type="hidden" name="dances" id="dances" value="@danceId" />
+                <input type="hidden" name="dances" id="dances" value="@filter.Dances" />
                 <input type="hidden" name="filter" id="filter" value="@filter.ToString()" />
                 @Html.TextBox("SearchString", filter.SearchString as string, new { @class = "form-control search-text", placeholder = "Artist, Title, or Album" })
                 <span class="input-group-btn">
@@ -109,8 +110,31 @@
                 </div>
 
                 <div class="input-group">
-                    Tempo between @Html.TextBox("TempoMin", filter.TempoMin, new { @class = "input-small" })&nbsp;and&nbsp;
-                    @Html.TextBox("TempoMax", filter.TempoMax, new { @class = "input-small" }) &nbsp;BPM
+                    Tempo between @Html.TextBox("TempoMin", filter.TempoMin, new {@class = "input-sm"})&nbsp;and&nbsp;
+                    @Html.TextBox("TempoMax", filter.TempoMax, new {@class = "input-sm"}) &nbsp;BPM
+                </div>
+
+                <div class="input-group" style="margin-top: 3px">
+                    Dance to
+                    <div id="dance-boolean" class="btn-group">
+                        <button type="button" class="btn btn-sm btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">@(danceQuery.IsExclusive?"all":"any") <span class="caret"></span></button>
+                        <ul class="dropdown-menu">
+                            <li><a id="db-all" href="#">All</a></li>
+                            <li><a id="db-any" href="#">Any</a></li>
+                        </ul>
+                    </div> of:
+                    <select id="chosen-dances" class="chosen-select" style="width: 350px;" multiple data-placeholder="Choose some dance styles...">
+                        @foreach (var d in dances)
+                        {
+                            var set = danceQuery.HasDance(d.DanceId) ? "selected" : "";
+                            <option value="@d.DanceId" @set)>@d.DanceName</option>
+                            foreach (var ds in d.Children)
+                            {
+                                set = danceQuery.HasDance(ds.DanceId) ? "selected" : "";
+                                <option value="@ds.DanceId" @set>@ds.DanceName</option>
+                            }
+                        }
+                    </select>
                 </div>
             </div>
         </div>
@@ -147,8 +171,6 @@ else
     Html.RenderPartial("_ListSongs", @Model, ViewData);
 }
 
-
-
 <div class="row">
     <div class="col-md-6">
         @Html.PagedListPager(Model, page => Url.Action(filter.Action, new { page, filter }))
@@ -158,9 +180,9 @@ else
         (@Model.TotalItemCount songs found.)
     </div>
     <div class="col-md-4 pagination-align">
-        @if (selected != null && selected.Count > 0 && selected[0].Id != "All")
+        @if (!danceQuery.All)
         {
-            foreach (var dance in selected)
+            foreach (var dance in danceQuery.Dances)
             {
                 @Html.ActionLink(dance.Name + " Page", dance.Name, "dances", new { filter, type = "I", count = 1 }, new { @class = "btn btn-default", role = "button" })
             }
@@ -177,15 +199,15 @@ else
     </div>
 </div>
 
-@if (!ViewBag.SongFilter.IsEmpty)
+@if (!filter.IsEmpty)
 {
-    <h3>@ViewBag.SongFilter.Description</h3>
+    <h3>@filter.Description</h3>
 }
 
 @section Scripts
 {
     @{
-        if (ViewData.ContainsKey("SongFilter") && ViewBag.SongFilter.Advanced)
+        if (filter.Advanced)
         {
             <script>var showAdvanced = true</script>
         }
@@ -193,9 +215,21 @@ else
         {
             <script>var showAdvanced = false</script>
         }
+        if (danceQuery.IsExclusive)
+        {
+            <script>var danceOr = false</script>
+        }
+        else
+        {
+            <script>var danceOr = true</script>
+        }
         string pageScript = "~/Scripts/songindex.js" + Page.ScriptQualifier;
         string msScript = "~/Scripts/musicservice.js" + Page.ScriptQualifier;
     }
+    @Scripts.Render("~/bundles/jqueryval")
+    <script src="@Url.Content("~/Scripts/chosen.jquery.js")" type="text/javascript"></script>
     <script src="@Url.Content(msScript)" type="text/javascript"></script>
     <script src="@Url.Content(pageScript)" type="text/javascript"></script>
+
+    <link href="@Url.Content("~/Content/chosen.css")" rel="stylesheet" type="text/css" />
 }

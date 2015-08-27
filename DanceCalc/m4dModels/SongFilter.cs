@@ -28,7 +28,7 @@ namespace m4dModels
         static SongFilter()
         {
             var info = typeof(SongFilter).GetProperties(BindingFlags.Public | BindingFlags.Instance);
-            s_propertyInfo = info.Where(p => p.CanRead && p.CanWrite).ToList();
+            PropertyInfo = info.Where(p => p.CanRead && p.CanWrite).ToList();
         }
 
         public SongFilter()
@@ -62,7 +62,7 @@ namespace m4dModels
                     cells[i] = cells[i].Replace(SubChar, Separator);
                 }
 
-                var pi = s_propertyInfo[i];
+                var pi = PropertyInfo[i];
 
                 object v = null;
                 if (!string.IsNullOrWhiteSpace(cells[i]))
@@ -102,21 +102,18 @@ namespace m4dModels
         public string Tags { get; set; }
         public int? Level { get; set; }
 
-        public bool Advanced
-        {
-            get 
-            {
-                return !string.IsNullOrWhiteSpace(Purchase) ||
-                    TempoMin.HasValue || TempoMax.HasValue;
-            }
-        }
+        public DanceQuery DanceQuery => new DanceQuery(Dances);
+                 
+        public bool Advanced => !string.IsNullOrWhiteSpace(Purchase) ||
+                                TempoMin.HasValue || TempoMax.HasValue || DanceQuery.Advanced;
+
         public override string ToString()
         {
             var ret = new StringBuilder();
             var nullBuff = new StringBuilder();
 
             var sep = string.Empty;
-            foreach (var v in s_propertyInfo.Select(p => p.GetValue(this)))
+            foreach (var v in PropertyInfo.Select(p => p.GetValue(this)))
             {
                 if (v == null)
                 {
@@ -140,15 +137,7 @@ namespace m4dModels
         {
             get
             {
-                for (var i = 0; i < s_propertyInfo.Count; i++)
-                {
-                    object o = s_propertyInfo[i].GetValue(this);
-                    if (o != null && !IsAltDefault(o,i)) {
-                        return false;
-                    }
-                }
-
-                return true;
+                return !PropertyInfo.Select(t => t.GetValue(this)).Where((o, i) => o != null && !IsAltDefault(o, i)).Any();
             }
         }
         public string Description
@@ -159,15 +148,15 @@ namespace m4dModels
                 // TODO: Later? [Edited by User] [(Page n)]
                 // TOOD: If we pass in context, we can have user name + we can do better stuff with the tags...
 
-                string name = "All songs";
-                string separator = string.Empty;
+                var name = "All songs";
+                var separator = string.Empty;
                 var dd = DanceLibrary.Dances.Instance.DanceDictionary;
                 if (!string.IsNullOrWhiteSpace(Dances) && !string.Equals(Dances, "ALL", StringComparison.InvariantCultureIgnoreCase) && dd.ContainsKey(Dances))
                 {
-                    name = string.Format(string.Format("All {0} songs", DanceLibrary.Dances.Instance.DanceDictionary[Dances].Name));
+                    name = string.Format($"All {DanceLibrary.Dances.Instance.DanceDictionary[Dances].Name} songs");
                 }
 
-                StringBuilder sb = new StringBuilder(name);
+                var sb = new StringBuilder(name);
 
                 if (!string.IsNullOrWhiteSpace(SearchString))
                 {
@@ -219,15 +208,15 @@ namespace m4dModels
 
         private static bool IsAltDefault(object o, int index)
         {
-            if (index > s_altDefaults.Length -1) return false;
+            if (index > AltDefaults.Length -1) return false;
 
             var s = o as string;
             Debug.Assert(s != null, "Need to support non-string defaults now???"); 
 
-            return string.Equals(s, s_altDefaults[index],StringComparison.InvariantCultureIgnoreCase);
+            return string.Equals(s, AltDefaults[index],StringComparison.InvariantCultureIgnoreCase);
         }
 
-        private static readonly List<PropertyInfo> s_propertyInfo;
-        private static readonly string[] s_altDefaults = {"index","all"};
+        private static readonly List<PropertyInfo> PropertyInfo;
+        private static readonly string[] AltDefaults = {"index","all"};
     }
 }

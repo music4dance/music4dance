@@ -927,9 +927,9 @@ namespace m4d.Controllers
 
         private void BuildDanceList(SongFilter filter)
         {
-            ViewBag.SelectedDances = Dances.Instance.FromIds(filter.Dances);
             ViewBag.Dances = SongCounts.GetSongCounts(Database);
             ViewBag.DanceMap = SongCounts.GetDanceMap(Database);
+            ViewBag.DanceList = GetDancesSingle();
         }
         #endregion
 

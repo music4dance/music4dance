@@ -919,25 +919,27 @@ namespace DanceLibrary
             return set.Keys.ToList();
         }
 
-        public List<string> ExpandMsc(string dances)
+        public List<string> ExpandMsc(IEnumerable<string> dances)
         {
-            IEnumerable<string> initialList = ParseDanceList(dances.ToUpper());
+            if (dances == null) return new List<string>();
 
             // Would use hashset, but looks like not available on phone?
-            Dictionary<string, string> set = new Dictionary<string, string>();
-
-            if (initialList != null)
+            var set = new Dictionary<string, string>();
+            foreach (var dance in dances)
             {
-                foreach (string dance in initialList)
-                {
-                    if (string.Equals(dance, "MSC", StringComparison.OrdinalIgnoreCase))
-                        DoExpand(dance, set);
-                    else
-                        set[dance] = dance;
-                }
+                if (string.Equals(dance, "MSC", StringComparison.OrdinalIgnoreCase))
+                    DoExpand(dance, set);
+                else
+                    set[dance] = dance;
             }
 
             return set.Keys.ToList();
+        }
+
+        public List<string> ExpandMsc(string dances)
+        {
+            var initialList = ParseDanceList(dances.ToUpper());
+            return ExpandMsc(initialList);
         }
 
         public IList<DanceObject> FromIds(IEnumerable<string> dances)

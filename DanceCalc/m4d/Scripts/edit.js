@@ -1218,5 +1218,5 @@ $(document).ready(function() {
 
     window.onbeforeunload = editor.unloadWarning;
 
-    $('.chzn-select').chosen({ width: '500px' });
+    $('.chosen-select').chosen({ width: '500px' });
 });

@@ -914,24 +914,14 @@ namespace m4dModels
 #endif
             // Now limit it down to the ones that are marked as a particular dance or dances
             List<string> danceList = null;
-            if (!string.IsNullOrWhiteSpace(filter.Dances) && !string.Equals(filter.Dances, "ALL", StringComparison.OrdinalIgnoreCase))
+            var danceQuery = filter.DanceQuery;
+            if (!danceQuery.All)
             {
-                danceList = Dance.DanceLibrary.ExpandMsc(filter.Dances);
-                bool and = false;
-                if (string.Equals(danceList[0],"AND",StringComparison.OrdinalIgnoreCase))
-                {
-                    danceList.RemoveAt(0);
-                    and = true;
-                }
+                danceList = danceQuery.ExpandedIds.ToList();
 
-                if (and)
-                {
-                    songs = songs.Where(s => danceList.All(did => s.DanceRatings.Any(dr => dr.DanceId == did)));
-                }
-                else
-                {
-                    songs = songs.Where(s => s.DanceRatings.Any(dr => danceList.Contains(dr.DanceId)));
-                }
+                songs = danceQuery.IsExclusive ? 
+                    songs.Where(s => danceList.All(did => s.DanceRatings.Any(dr => dr.DanceId == did))) : 
+                    songs.Where(s => s.DanceRatings.Any(dr => danceList.Contains(dr.DanceId)));
             }
             else if ((cruft & CruftFilter.NoDances) != CruftFilter.NoDances)
             {
@@ -1794,7 +1784,6 @@ namespace m4dModels
             _context.TrackChanges(true);
         }
 
-        // TODONEXT: Looks like this may not be doing what I think it is:  Take a look at the use of the "up" variable
         public void UpdateSongs(IList<string> lines)
         {
             Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Entering UpdateSongs");
@@ -1835,7 +1824,6 @@ namespace m4dModels
                     // This was a merge so delete the input songs
                     if (sd.Properties.Count > 0 && sd.Properties[0].Name == SongBase.MergeCommand)
                     {
-                        up = sd.LastProperty(SongBase.UserField);
                         var list = SongsFromList(sd.Properties[0].Value);
                         foreach (var s in list)
                         {
