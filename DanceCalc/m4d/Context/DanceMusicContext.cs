@@ -135,7 +135,7 @@ namespace m4d.Context
 
         #region MusicService
         // Obviously not the clean abstraction, but Amazon is different enough that my abstraction
-        //  between itunes and xbox doesn't work.   So I'm going to shoe-horn this in to get it working
+        //  between itunes and groove doesn't work.   So I'm going to shoe-horn this in to get it working
         //  and refactor later.
 
         public IList<ServiceTrack> FindMusicServiceSong(SongDetails song, MusicService service, bool clean = false, string title = null, string artist = null, string album = null, string region = null)

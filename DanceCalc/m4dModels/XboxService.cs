@@ -10,9 +10,9 @@ namespace m4dModels
         public XboxService() :
             base(ServiceType.XBox,
                 'X',
-                "XBox",
-                "xbox_store",
-                "Play it on Xbox Music",
+                "Groove",
+                "groove_store",
+                "Play it on Groove Music",
                 "http://music.xbox.com/Track/{0}?partnerID=Music4Dance&action=play&target=app",
                 "https://music.xboxlive.com/1/content/music/search?q={0}&filters=tracks")
         {

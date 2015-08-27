@@ -144,7 +144,7 @@ namespace m4dModels
         {
             get
             {
-                // All [dance] songs [including the text "<SearchString>] [Available on [XBox|Amazon|ITunes|Spotify] [Including tags TI] [Excluding tag TX] [Tempo Range] 
+                // All [dance] songs [including the text "<SearchString>] [Available on [Groove|Amazon|ITunes|Spotify] [Including tags TI] [Excluding tag TX] [Tempo Range] 
                 // TODO: Later? [Edited by User] [(Page n)]
                 // TOOD: If we pass in context, we can have user name + we can do better stuff with the tags...
 

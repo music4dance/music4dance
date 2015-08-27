@@ -50,8 +50,8 @@ namespace m4dModels
         // AS = Amazon Song
         // SA = Spotify Album
         // SS = Spotify Song
-        // XA = Xbox Album
-        // XS = Xbox Song
+        // XA = Groove Album
+        // XS = Groove Song
         // MS = AMG Song
         [DataMember]
         public Dictionary<string, string> Purchase { get; set; }

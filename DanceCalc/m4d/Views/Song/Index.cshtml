@@ -93,7 +93,7 @@
                     Include only songs available on:
                     <label>
                         <input type="checkbox" name="services" id="serviceX" value="X" @checkX />
-                        XBox
+                        Groove
                     </label>
                     <label>
                         <input type="checkbox" name="services" id="serviceA" value="A" @checkA />
@@ -157,7 +157,7 @@
             <input type="submit" name="action" value="Merge" class="btn btn-"/>
             <input type="submit" name="action" value="Delete" class="btn"/>
             @Html.ActionLink("Add New Song", "Create", null, new {@class = "btn btn-default", role = "button"})
-            @Html.ActionLink("XBox Batch", "BatchMusicService", new {filter, type = "X", count = 10}, new {@class = "btn btn-success", role = "button"})
+            @Html.ActionLink("Groove Batch", "BatchMusicService", new {filter, type = "X", count = 10}, new {@class = "btn btn-success", role = "button"})
             @Html.ActionLink("ITunes Batch", "BatchMusicService", new {filter, type = "I", count = 10}, new {@class = "btn btn-success", role = "button"})
             @Html.ActionLink("Spotify Batch", "BatchMusicService", new {filter, type = "S", count = 10}, new {@class = "btn btn-success", role = "button"})
             @Html.ActionLink("Amazon Batch", "BatchMusicService", new {filter, type = "A", count = 10}, new {@class = "btn btn-success", role = "button"})

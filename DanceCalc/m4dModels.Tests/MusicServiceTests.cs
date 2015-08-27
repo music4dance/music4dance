@@ -45,7 +45,7 @@ namespace m4dModels.Tests
             Assert.IsNull(MusicService.FormatPurchaseFilter(""));
             Assert.IsNull(MusicService.FormatPurchaseFilter("BZY"));
             Assert.AreEqual("Amazon, Spotify",MusicService.FormatPurchaseFilter("AS"));
-            Assert.AreEqual("ITunes; XBox", MusicService.FormatPurchaseFilter("IX","; "));
+            Assert.AreEqual("ITunes; Groove", MusicService.FormatPurchaseFilter("IX","; "));
         }
     }
 }
