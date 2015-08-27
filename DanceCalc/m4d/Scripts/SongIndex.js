@@ -26,8 +26,8 @@ $(document).ready(function () {
     $('.search-panel .dropdown-menu').find('a').click(function (e) {
         e.preventDefault();
         var param = $(this).attr('href').replace('#', '');
-        var concept = $(this).text();
-        $('.search-panel span#dance_selector').text(concept);
+        var name = $(this).text();
+        $('.search-panel span#dance_selector').text(name);
 
         var dances = $('.input-group #dances');
         dances.val(param);
@@ -68,11 +68,20 @@ $(document).ready(function () {
         }
     });
 
-    $('#search').submit(function (e) {
+    $('#chosen-dances').chosen().change(function () {
         var dances = $('#chosen-dances').val();
 
-        if (dances && dances.length > 1)
-        {
+        var text = null;
+        if (!dances || dances.length === 0) {
+            text = 'All Dances';
+        }
+        else if (dances.length === 1) {
+            $('#dances').val(dances[0]);
+
+            var danceButton = $('#DID_' + dances[0]);
+            text = danceButton.text();
+        }
+        else if (dances.length > 1) {
             var ret = '';
             if (!danceOr) {
                 ret = 'AND,';
@@ -81,10 +90,37 @@ $(document).ready(function () {
             ret += dances.join(',');
 
             $('#dances').val(ret);
+
+            text = 'Advanced';
         }
+
+        var label = $('.search-panel span#dance_selector');
+        label.text(text);
 
         return true;
     });
+
+    //$('#search').submit(function (e) {
+    //    var dances = $('#chosen-dances').val();
+
+    //    if (!dances) return true;
+
+    //    if (dances.length === 1) {
+    //        $('#dances').val(dances[0]);
+    //    }
+    //    else if (dances.length > 1) {
+    //        var ret = '';
+    //        if (!danceOr) {
+    //            ret = 'AND,';
+    //        }
+
+    //        ret += dances.join(',');
+
+    //        $('#dances').val(ret);
+    //    }
+
+    //    return true;
+    //});
 });
 
 function ShowAdvanced()

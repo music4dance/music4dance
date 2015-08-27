@@ -1,7 +1,7 @@
 ﻿$(document).ready(function() {
     // Handling for purchase links
     var uri = '/api/purchaseinfo/';
-    $(".play-link").click(function() {
+    $('.play-link').click(function() {
         //window.alert("You clicked me!(" + this.id + ")");
 
         $.getJSON(uri + this.id[0] + '?songs=' + this.id.substring(1))
@@ -21,7 +21,7 @@
     var currentDance = null;
     $('[data-toggle="popover"]').popover({ html: true, trigger: 'click' });
     $('[data-toggle="popover"]').on('show.bs.popover', function () {
-        if (currentDance && currentDance != this) {
+        if (currentDance && currentDance !== this) {
             $(currentDance).queue(function (next) {
                 $(this).popover('hide');
                 next();
@@ -31,15 +31,15 @@
     });
 
     // Handle the spotify control
-    var spotify = $("#spotify-player");
+    var spotify = $('#spotify-player');
     if (!spotify) return;
 
-    var name = spotify.attr("data-trackset-name");
-    var ids = spotify.attr("data-trackset-songs");
+    var name = spotify.attr('data-trackset-name');
+    var ids = spotify.attr('data-trackset-songs');
 
     if (!name || !ids) return;
 
-    var listUrl = uri + "s?songs=" + ids + "&fulllink=false";//.substring(0,16);
+    var listUrl = uri + 's?songs=' + ids + '&fulllink=false';//.substring(0,16);
     // TODO: Consider putting a placeholder until this return + some user friendly message if there are no spotify track
     $.getJSON(listUrl)
         .done(function (data) {
