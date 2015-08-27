@@ -55,17 +55,28 @@ $(document).ready(function () {
     $('#chosen-dances').chosen({ max_selected_options: 5, width: '350px' });
 
     $('#dance-boolean').find('a').click(function (e) {
-        var but = $('#dance-boolean').find('button');
+        var dances = $('#dances').val();
+        var text = ' <span class="caret">';
+        var and = dances.indexOf('AND,') === 0;
+
         if ($(this)[0].id === 'db-any')
         {
             window.danceOr = true;
-            but.html('any <span class="caret">');
+            text = 'any' + text;
+            if (and) {
+                dances = dances.substring(4);
+            }
         }
         else
         {
             window.danceOr = false;
-            but.html('all <span class="caret">');
+            text = 'all' + text;
+            if (!and) {
+                dances = 'AND,' + dances;
+            }
         }
+        $('#dance-boolean').find('button').html(text);
+        $('#dances').val(dances);
     });
 
     $('#chosen-dances').chosen().change(function () {
@@ -83,7 +94,7 @@ $(document).ready(function () {
         }
         else if (dances.length > 1) {
             var ret = '';
-            if (!danceOr) {
+            if (!window.danceOr) {
                 ret = 'AND,';
             }
 

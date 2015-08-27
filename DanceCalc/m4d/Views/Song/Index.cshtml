@@ -79,7 +79,7 @@
                 </div>
                 <input type="hidden" name="dances" id="dances" value="@filter.Dances" />
                 <input type="hidden" name="filter" id="filter" value="@filter.ToString()" />
-                @Html.TextBox("SearchString", filter.SearchString as string, new { @class = "form-control search-text", placeholder = "Artist, Title, or Album" })
+                @Html.TextBox("SearchString", filter.SearchString, new { @class = "form-control search-text", placeholder = "Artist, Title, or Album" })
                 <span class="input-group-btn">
                     <button id="submit-search" class="btn btn-default" type="submit"><span class="glyphicon glyphicon-search"></span></button>
                 </span>
@@ -127,7 +127,7 @@
                         @foreach (var d in dances)
                         {
                             var set = danceQuery.HasDance(d.DanceId) ? "selected" : "";
-                            <option value="@d.DanceId" @set)>@d.DanceName</option>
+                            <option value="@d.DanceId" @set>@d.DanceName</option>
                             foreach (var ds in d.Children)
                             {
                                 set = danceQuery.HasDance(ds.DanceId) ? "selected" : "";

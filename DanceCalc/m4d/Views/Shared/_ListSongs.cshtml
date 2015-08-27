@@ -309,7 +309,7 @@
                         <td>
                             @if (scaledDances != null)
                             {
-                                var bstring = "<br />";
+                                const string bstring = "<br />";
                                 foreach (var ditem in scaledDances)
                                 {
                                     // TODO: Dance name pulled from the danceMap doesn't require a db lookup - is there a way
@@ -327,9 +327,14 @@
                                             tags += TagHelpers.TagButton(dtitem, filter); //"<span class=\"label label-" + dtitem.TagClass.ToLower() + "\">" + dtitem.TagValue + "</span> ";
                                         }
                                     }
+                                    var danceQuery = filter.DanceQuery;
+                                    var isExclusive = danceQuery.IsExclusive;
+                                    var hasDance = danceQuery.HasDance(ditem.DanceId);
+
                                     var content = MvcHtmlString.Create(
                                         Html.ActionLink(name + " dance page...", name, "dances") +
-                                        (!filter.IsEmpty && (string.IsNullOrWhiteSpace(filter.Dances) || filter.Dances == "ALL") ? bstring + Html.ActionLink("Filter list to songs tagged as " + name + "...", "search", "song", new { dances = ditem.DanceId }, null) : string.Empty) +
+                                        (!filter.IsEmpty && isExclusive && !hasDance ? bstring + Html.ActionLink("Filter list to songs tagged as " + name + "...", "search", "song", new { dances = danceQuery.AddDance(ditem.DanceId).Query }, null) : string.Empty) +
+                                        (!filter.IsEmpty && !isExclusive && !hasDance ? bstring + Html.ActionLink("Expand list to included songs tagged as " + name + "...", "search", "song", new { dances = danceQuery.AddDance(ditem.DanceId).Query }, null) : string.Empty) +
                                         bstring + Html.ActionLink("List all " + name + " songs...", "search", "song", new { dances = ditem.DanceId }, null) +
                                         bstring + "<a href=\"https://www.music4dance.net/blog/tag-filtering\">Help</a>" +
                                         tags );

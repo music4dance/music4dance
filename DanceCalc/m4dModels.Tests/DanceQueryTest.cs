@@ -27,5 +27,22 @@ namespace m4dModels.Tests
             Assert.IsTrue(q.HasDance("fxt"));
             Assert.IsFalse(q.HasDance("BOL"));
         }
+
+        [TestMethod]
+        public void DanceQueryMath()
+        {
+            var q = new DanceQuery();
+            q = q.AddDance("BOL");
+            Assert.AreEqual("BOL",q.Query);
+
+            q = q.AddDance("RUM");
+            Assert.AreEqual("BOL,RUM",q.Query);
+
+            q = q.MakeExclusive();
+            Assert.AreEqual("AND,BOL,RUM",q.Query);
+
+            q = q.MakeInclusive();
+            Assert.AreEqual("BOL,RUM", q.Query);
+        }
     }
 }

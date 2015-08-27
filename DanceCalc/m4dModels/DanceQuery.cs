@@ -65,5 +65,22 @@ namespace m4dModels
         {
             return DanceIds.Contains(id, StringComparer.OrdinalIgnoreCase);
         }
+
+        public DanceQuery AddDance(string dance)
+        {
+            var q = Query;
+            q = string.IsNullOrWhiteSpace(q) ? dance : q + "," + dance;
+            return new DanceQuery(q);
+        }
+
+        public DanceQuery MakeInclusive()
+        {
+            return IsExclusive ? new DanceQuery(Query.Substring(4)) : this;
+        }
+
+        public DanceQuery MakeExclusive()
+        {
+            return IsExclusive && DanceIds.Count() > 1 ? this : new DanceQuery("AND," + Query);
+        }
     }
 }
