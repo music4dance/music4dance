@@ -49,6 +49,7 @@ namespace m4dModels.Tests
             Assert.IsTrue(new SongFilter("Index-ALL").IsEmpty);
             Assert.IsTrue(new SongFilter("Index").IsEmpty);
             Assert.IsFalse(new SongFilter("Index-ALL-Title-.--.-.-150-1").IsEmpty);
+            Assert.IsTrue(new SongFilter("Index-.-Dances-.-.-.-.-.-1").IsEmpty);
         }
 
         private static void TestFilters(bool withEncoding)

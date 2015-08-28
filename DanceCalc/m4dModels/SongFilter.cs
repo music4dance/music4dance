@@ -137,7 +137,7 @@ namespace m4dModels
         {
             get
             {
-                return !PropertyInfo.Select(t => t.GetValue(this)).Where((o, i) => o != null && !IsAltDefault(o, i)).Any();
+                return !PropertyInfo.Where(pi => pi.Name != "SortOrder").Select(t => t.GetValue(this)).Where((o, i) => o != null && !IsAltDefault(o, i)).Any();
             }
         }
         public string Description
@@ -150,7 +150,22 @@ namespace m4dModels
 
                 var name = "All songs";
                 var separator = string.Empty;
+                var danceQuery = DanceQuery;
                 var dd = DanceLibrary.Dances.Instance.DanceDictionary;
+                if (!danceQuery.All)
+                {
+                    var dances = danceQuery.Dances.ToList();
+                    if (dances.Count == 1)
+                    {
+                        name = $"All {dances[0].Name} songs";
+                    }
+                    else
+                    {
+                        var x = danceQuery.IsExclusive ? "all" : "any";
+                        name += $"danceable to {x} of {string.Join(", ", dances.Select(n => n.Name))}";
+                    }
+                }
+
                 if (!string.IsNullOrWhiteSpace(Dances) && !string.Equals(Dances, "ALL", StringComparison.InvariantCultureIgnoreCase) && dd.ContainsKey(Dances))
                 {
                     name = string.Format($"All {DanceLibrary.Dances.Instance.DanceDictionary[Dances].Name} songs");
@@ -208,15 +223,13 @@ namespace m4dModels
 
         private static bool IsAltDefault(object o, int index)
         {
-            if (index > AltDefaults.Length -1) return false;
+            if (index > AltDefaults.Length -1 || AltDefaults[index] == null) return false;
 
             var s = o as string;
-            Debug.Assert(s != null, "Need to support non-string defaults now???"); 
-
-            return string.Equals(s, AltDefaults[index],StringComparison.InvariantCultureIgnoreCase);
+            return s != null ? string.Equals(s, AltDefaults[index] as string, StringComparison.InvariantCultureIgnoreCase) : Equals(o, AltDefaults[index]);
         }
 
         private static readonly List<PropertyInfo> PropertyInfo;
-        private static readonly string[] AltDefaults = {"index","all"};
+        private static readonly object[] AltDefaults = {"index","all",null,null,null,null,null,1};
     }
 }

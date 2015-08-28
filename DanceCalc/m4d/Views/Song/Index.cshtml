@@ -3,14 +3,16 @@
 
 @* ReSharper disable once SuggestVarOrType_SimpleTypes *@
 @{
+    SongFilter filter = ViewData.ContainsKey("SongFilter") ? ViewBag.SongFilter : SongFilter.Default;
+    DanceQuery danceQuery = filter.DanceQuery;
+    var description = filter.Description;
+
     ViewBag.Title = "Songs for Dancing";
-    ViewBag.Description = "music4dance catalog: " + ViewBag.SongFilter.Description;
+    ViewBag.Description = "music4dance catalog: " + description;
     var isAdmin = User.IsInRole("dbAdmin");
 
     var dances = (IList<SongCounts>)ViewBag.Dances;
 
-    SongFilter filter = ViewData.ContainsKey("SongFilter") ? ViewBag.SongFilter : SongFilter.Default;
-    DanceQuery danceQuery = filter.DanceQuery;
 }
 
 @using (Html.BeginForm("Search", "Song", FormMethod.Get, new { id = "search" }))
@@ -195,9 +197,10 @@ else
 </div>
 
 <div class="row">
-    <div id="spotify-player" class="col-md-12" data-trackset-name="music4dance" data-trackset-songs="@string.Join(",",Model.Select(s => s.SongId))">
-    </div>
+    <div id="spotify-player" class="col-md-6" data-trackset-name="music4dance" data-trackset-songs="@string.Join(",", Model.Select(s => s.SongId))"></div>
+    <div class="col-md-6"><h4>@description</h4></div>
 </div>
+
 
 @if (!filter.IsEmpty)
 {

@@ -85,6 +85,7 @@ $(document).ready(function () {
         var text = null;
         if (!dances || dances.length === 0) {
             text = 'All Dances';
+            $('#dances').val('');
         }
         else if (dances.length === 1) {
             $('#dances').val(dances[0]);
