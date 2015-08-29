@@ -944,13 +944,13 @@ namespace DanceLibrary
 
         public IList<DanceObject> FromIds(IEnumerable<string> dances)
         {
-            List<DanceObject> dos = new List<DanceObject>();
+            var dos = new List<DanceObject>();
             if (dances == null) return dos;
 
-            foreach (string s in dances)
+            foreach (var s in dances)
             {
-                DanceObject d = null;
-                if (_danceDictionary.TryGetValue(s, out d))
+                DanceObject d;
+                if (_danceDictionary.TryGetValue(s.ToUpper(), out d))
                 {
                     dos.Add(d);
                 }
@@ -1002,7 +1002,7 @@ namespace DanceLibrary
         private void DoExpand(string dance, Dictionary<string,string> set)
         {
             DanceObject dobj = null;
-            if (!set.ContainsKey(dance) && _danceDictionary.TryGetValue(dance, out dobj))
+            if (!set.ContainsKey(dance) && _danceDictionary.TryGetValue(dance.ToUpper(), out dobj))
             {
                 set.Add(dance, dance);
 

@@ -36,24 +36,7 @@ namespace m4dModels
                 return ret;
             }
         }
-        public IEnumerable<DanceObject> Dances
-        {
-            get
-            {
-                var ret = new List<DanceObject>();
-
-                foreach (var id in DanceIds)
-                {
-                    DanceObject o;
-                    if (DanceLibrary.Dances.Instance.DanceDictionary.TryGetValue(id, out o))
-                    {
-                        ret.Add(o);
-                    }
-                }
-
-                return ret;
-            }
-        }
+        public IEnumerable<DanceObject> Dances => DanceLibrary.Dances.Instance.FromIds(DanceIds);
 
         public bool Advanced => DanceIds.Count() > 1;
 
