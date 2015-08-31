@@ -50,7 +50,7 @@ namespace m4dModels
             {
                 if (ApplicationUser != null)
                 {
-                    Trace.WriteLine(string.Format("Illegal Attempt to redefine user {0} --> {1}",ApplicationUser.UserName, value));
+                    Trace.WriteLine($"Illegal Attempt to redefine user {ApplicationUser.UserName} --> {value}");
                 }
                 else
                 {

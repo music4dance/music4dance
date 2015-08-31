@@ -18,10 +18,8 @@ namespace m4dModels
         {
 
         }
-        public override bool RequiresKey
-        {
-            get { return true; }
-        }
+        public override bool RequiresKey => true;
+
         protected override string BuildPurchaseLink(PurchaseType pt, string album, string song)
         {
             album = Strip(album);
@@ -35,7 +33,7 @@ namespace m4dModels
         }
         public override IList<ServiceTrack> ParseSearchResults(dynamic results)
         {
-            List<ServiceTrack> ret = new List<ServiceTrack>();
+            var ret = new List<ServiceTrack>();
 
             var tracks = results.Tracks;
             var items = tracks.Items;
@@ -60,7 +58,7 @@ namespace m4dModels
                 {
                     try
                     {
-                        decimal dd = new SongDuration(track.Duration).Length;
+                        var dd = new SongDuration(track.Duration).Length;
                         duration = (int)Math.Round(dd);
                     }
                     catch (ArgumentOutOfRangeException)
@@ -68,7 +66,7 @@ namespace m4dModels
                     }
                 }
 
-                ServiceTrack st = new ServiceTrack
+                var st = new ServiceTrack
                 {
                     Service = ServiceType.XBox,
                     TrackId = track.Id,

@@ -151,6 +151,7 @@ namespace m4dModels
                 }
 
                 specifiedAction |= SongProperty.IsActionName(baseName);
+                // ReSharper disable once SwitchStatementMissingSomeCases
                 switch (baseName)
                 {
                     case DanceRatingField:
@@ -387,9 +388,8 @@ namespace m4dModels
             var map = new List<string>();
             var headers = line.Split(separator);
 
-            foreach (var header in headers.Select(t => t.Trim()))
+            foreach (var parts in headers.Select(t => t.Trim()).Select(header => header.Split(':')))
             {
-                var parts = header.Split(':');
                 string field;
                 // If this fails, we want to add a null to our list because
                 // that indicates a column we don't care about

@@ -77,16 +77,15 @@ namespace m4dModels
             {
                 lock (InitialDanceMap)
                 {
-                    if (!_builtDanceMap)
-                    {
-                        foreach (var d in Dance.DanceLibrary.DanceDictionary.Values)
-                        {
-                            var name = SongBase.CleanDanceName(d.Name);
-                            InitialDanceMap.Add(name, d.Id);
-                        }
+                    if (_builtDanceMap) return InitialDanceMap;
 
-                        _builtDanceMap = true;
+                    foreach (var d in Dance.DanceLibrary.DanceDictionary.Values)
+                    {
+                        var name = SongBase.CleanDanceName(d.Name);
+                        InitialDanceMap.Add(name, d.Id);
                     }
+
+                    _builtDanceMap = true;
                 }
 
                 return InitialDanceMap;

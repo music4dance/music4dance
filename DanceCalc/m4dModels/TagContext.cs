@@ -13,12 +13,9 @@ namespace m4dModels
             get { throw new NotImplementedException(); }
         }
 
-        public DbSet<SongProperty> SongProperties { get { return null; }}
+        public DbSet<SongProperty> SongProperties => null;
 
-        public DbSet<Dance> Dances
-        {
-            get { return _context.Dances; }
-        }
+        public DbSet<Dance> Dances => _context.Dances;
 
         public DbSet<DanceRating> DanceRatings
         {

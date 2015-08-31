@@ -22,10 +22,10 @@ namespace m4dModels
             {
                 throw new ArgumentNullException(@"value");
             }
-            string[] parts = value.Split('+', '-');
+            var parts = value.Split('+', '-');
 
-            int sign = value.Contains('-') ? -1 : 1;
-            int offset = 1;
+            var sign = value.Contains('-') ? -1 : 1;
+            var offset = 1;
 
             DanceId = parts[0];
             if (parts.Length > 1)
@@ -38,7 +38,7 @@ namespace m4dModels
 
         public override string ToString()
         {
-            return string.Format("{0}{1}{2}", DanceId, Delta < 0 ? "-" : "+", Math.Abs(Delta));
+            return $"{DanceId}{(Delta < 0 ? "-" : "+")}{Math.Abs(Delta)}";
         }
 
         public string DanceId { get; set; }

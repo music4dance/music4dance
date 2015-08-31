@@ -44,7 +44,7 @@ namespace m4dModels
             // Consider improving this algorithm, but for now, just take the top n songs
             var ret = new List<Song>();
 
-            foreach (MergeCluster cluster in clusters.Values.TakeWhile(cluster => ret.Count + cluster.Songs.Count <= n).Where(cluster => cluster.Songs.Count > 1))
+            foreach (var cluster in clusters.Values.TakeWhile(cluster => ret.Count + cluster.Songs.Count <= n).Where(cluster => cluster.Songs.Count > 1))
             {
                 // Level 2 is all songs with a similar title
                 if (level == 2)
@@ -54,30 +54,28 @@ namespace m4dModels
                 // Level 0 is similar title + all other fields are the same or empty
                 else if (level == 0)
                 {
-                    List<MergeCluster> lumps = new List<MergeCluster>();
+                    var lumps = new List<MergeCluster>();
 
-                    foreach (Song s in cluster.Songs)
+                    foreach (var s in cluster.Songs)
                     {
-                        bool added = false;
-                        foreach (MergeCluster lump in lumps)
+                        var added = false;
+                        foreach (var lump in lumps)
                         {
-                            if (s.Equivalent(lump.Songs[0]))
-                            {
-                                lump.Songs.Add(s);
-                                added = true;
-                                break;
-                            }
+                            if (!s.Equivalent(lump.Songs[0])) continue;
+
+                            lump.Songs.Add(s);
+                            added = true;
+                            break;
                         }
 
-                        if (!added)
-                        {
-                            MergeCluster lump = new MergeCluster(0);
-                            lump.Songs.Add(s);
-                            lumps.Add(lump);
-                        }
+                        if (added) continue;
+
+                        var mc = new MergeCluster(0);
+                        mc.Songs.Add(s);
+                        lumps.Add(mc);
                     }
 
-                    foreach (MergeCluster l in lumps)
+                    foreach (var l in lumps)
                     {
                         if (ret.Count + l.Songs.Count > n)
                         {

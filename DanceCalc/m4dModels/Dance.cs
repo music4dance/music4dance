@@ -25,14 +25,9 @@ namespace m4dModels
         public TagSummary SongTags { get; set; }
         public virtual ICollection<TopN> TopSongs { get; set; }
 
-        public override char IdModifier
-        {
-            get { return 'D'; }
-        }
-        public override string TagIdBase
-        {
-            get { return Id; }
-        }
+        public override char IdModifier => 'D';
+
+        public override string TagIdBase => Id;
 
         public string SmartLinks()
         {
@@ -45,32 +40,25 @@ namespace m4dModels
             {
                 return @"<p>We're busy doing research and pulling together a general description for @Model.DanceName dance.  Please check back later for more info.</p>";
             }
-            else if (byReference)
-            {
-                return LinkDancesReference(s);
-            }
-            else 
-            {
-                return LinkDances(s);
-            }
+            return byReference ? LinkDancesReference(s) : LinkDances(s);
         }
 
-        private static readonly Regex s_dex = new Regex(@"\[(?<dance>[^\]]*)\]", RegexOptions.Compiled);
+        private static readonly Regex Dex = new Regex(@"\[(?<dance>[^\]]*)\]", RegexOptions.Compiled);
         private static string LinkDances(string s)
         {
-            StringBuilder sb = new StringBuilder();
+            var sb = new StringBuilder();
 
             s = s.Replace("&lt;", "<");
             s = s.Replace("&gt;", ">");
-            MatchCollection matches = s_dex.Matches(s);
-            int i = 0;
+            var matches = Dex.Matches(s);
+            var i = 0;
             foreach (Match match in matches)
             {
                 sb.Append(s.Substring(i, match.Index - i));
-                string d = match.Groups["dance"].Value;
+                var d = match.Groups["dance"].Value;
                 if (!string.IsNullOrWhiteSpace(d))
                 {
-                    KeyValuePair<string,string>? l = FindLink(d);
+                    var l = FindLink(d);
                     if (l != null)
                     {
                         sb.AppendFormat("<a href='{0}'>{1}</a>", l.Value.Value, d);
@@ -89,22 +77,22 @@ namespace m4dModels
 
         private static string LinkDancesReference(string s)
         {
-            List<string> links = new List<string>();
-            StringBuilder sb = new StringBuilder();
+            var links = new List<string>();
+            var sb = new StringBuilder();
 
-            MatchCollection matches = s_dex.Matches(s);
-            int i = 0;
+            var matches = Dex.Matches(s);
+            var i = 0;
             foreach (Match match in matches)
             {
                 sb.Append(s.Substring(i, match.Index - i));
-                string d = match.Groups["dance"].Value;
+                var d = match.Groups["dance"].Value;
                 if (!string.IsNullOrWhiteSpace(d))
                 {
-                    KeyValuePair<string, string>? l = FindLink(d);
+                    var l = FindLink(d);
                     sb.AppendFormat(@"[{0}]", d);
                     if (l != null)
                     {
-                        int idx = links.IndexOf(l.Value.Value);
+                        var idx = links.IndexOf(l.Value.Value);
                         if (idx < 0)
                         {
                             idx = links.Count;
@@ -126,11 +114,11 @@ namespace m4dModels
 
         private static KeyValuePair<string,string>? FindLink(string d)
         {
-            List<string> list = d.Split(new[] { ' ', '\n', '\t', '\r', '\f', '\v' }, StringSplitOptions.RemoveEmptyEntries).ToList();
+            var list = d.Split(new[] { ' ', '\n', '\t', '\r', '\f', '\v' }, StringSplitOptions.RemoveEmptyEntries).ToList();
 
             while (list.Count > 0)
             {
-                KeyValuePair<string,string>? link = FindSpecificLink(string.Join(" ", list));
+                var link = FindSpecificLink(string.Join(" ", list));
                 if (link != null)
                 {
                     return link;
@@ -143,42 +131,41 @@ namespace m4dModels
 
         private static KeyValuePair<string,string>? FindSpecificLink(string d)
         {
-            DanceObject dance = Dances.Instance.AllDances.FirstOrDefault(dnc => string.Equals(dnc.Name, d, StringComparison.OrdinalIgnoreCase));
+            var dance = Dances.Instance.AllDances.FirstOrDefault(dnc => string.Equals(dnc.Name, d, StringComparison.OrdinalIgnoreCase));
             if (dance != null)
             {
-                return new KeyValuePair<string, string>(dance.Name.Replace(" ", "").ToLower(), string.Format("/dances/{0}", dance.CleanName));
+                return new KeyValuePair<string, string>(dance.Name.Replace(" ", "").ToLower(),
+                    $"/dances/{dance.CleanName}");
             }
 
             var cat = Categories.FirstOrDefault(c => string.Equals(d, c, StringComparison.OrdinalIgnoreCase));
             if (cat != null)
             {
-                return new KeyValuePair<string, string>(cat.Replace(" ", "").ToLower(), string.Format("/dances/{0}", DanceObject.SeoFriendly(cat)));
+                return new KeyValuePair<string, string>(cat.Replace(" ", "").ToLower(),
+                    $"/dances/{DanceObject.SeoFriendly(cat)}");
             }
 
             string link;
             d = d.ToLower();
-            if (!s_links.TryGetValue(d,out link))
-            {
-                Trace.WriteLineIf(TraceLevels.General.TraceError,String.Format("Link not found: {0}",d));
-                return null;
-            }
+            if (Links.TryGetValue(d, out link)) return new KeyValuePair<string, string>(d.Replace(" ", ""), link);
 
-            return new KeyValuePair<string, string>(d.Replace(" ", ""), link);
+            Trace.WriteLineIf(TraceLevels.General.TraceError, $"Link not found: {d}");
+            return null;
         }
 
         public static readonly string[] Categories = {"International Standard", "International Latin", "American Smooth", "American Rhythm"};
 
-        static readonly Dictionary<string, string> s_links = new Dictionary<string, string>()
+        static readonly Dictionary<string, string> Links = new Dictionary<string, string>()
         {
             {"swing music", "http://en.wikipedia.org/wiki/Swing_music"},
             {"tango music", "http://en.wikipedia.org/wiki/Tango"},
         };
         public bool Update(IList<string> cells)
         {
-            bool modified = false;
+            var modified = false;
             if (cells.Count > 0)
             {
-                string desc = cells[0];
+                var desc = cells[0];
                 cells.RemoveAt(0);
                 desc = string.IsNullOrWhiteSpace(desc) ? null : desc.Replace(@"\r", "\r").Replace(@"\n", "\n");
                 if (!string.Equals(desc,Description,StringComparison.Ordinal))
@@ -196,10 +183,10 @@ namespace m4dModels
                 }
             }
 
-            for (int i = 0; i < cells.Count; i += 3)
+            for (var i = 0; i < cells.Count; i += 3)
             {
-                Guid id = new Guid(cells[i]);
-                DanceLink dl = DanceLinks.FirstOrDefault(l => l.Id == id);
+                var id = new Guid(cells[i]);
+                var dl = DanceLinks.FirstOrDefault(l => l.Id == id);
                 if (dl != null)
                 {
                     if (!string.Equals(cells[i+1],dl.Description,StringComparison.Ordinal))
@@ -207,11 +194,11 @@ namespace m4dModels
                         dl.Description = cells[i + 1];
                         modified = true;
                     }
-                    if (!string.Equals(cells[i +2], dl.Link, StringComparison.Ordinal))
-                    {
-                        modified = true;
-                        dl.Description = cells[i + 2];
-                    }
+
+                    if (string.Equals(cells[i + 2], dl.Link, StringComparison.Ordinal)) continue;
+
+                    modified = true;
+                    dl.Description = cells[i + 2];
                 }
                 else
                 {
@@ -222,25 +209,16 @@ namespace m4dModels
             return modified;
         }
 
-        public DanceObject Info
-        {
-            get { return _info ?? (_info = DanceLibrary.DanceDictionary[Id.ToUpper()]); }
-        }
+        public DanceObject Info => _info ?? (_info = DanceLibrary.DanceDictionary[Id.ToUpper()]);
 
-        public string Name
-        {
-            get
-            {
-                return Info.Name;
-            }
-        }
+        public string Name => Info.Name;
 
         public string Serialize()
         {
-            string id = Id;
-            string desc = Description ?? "";
+            var id = Id;
+            var desc = Description ?? "";
             desc = desc.Replace("\r", @"\r").Replace("\n", @"\n").Replace('\t', ' ');
-            StringBuilder sb = new StringBuilder();
+            var sb = new StringBuilder();
 
             sb.AppendFormat("{0}\t{1}", id, desc);
             if (DanceLinks != null)
@@ -256,14 +234,6 @@ namespace m4dModels
 
         private DanceObject _info;
 
-        public static Dances DanceLibrary
-        {
-            get
-            {
-                return s_dances;
-            }
-        }
-
-        private static readonly Dances s_dances = Dances.Instance;
+        public static Dances DanceLibrary { get; } = Dances.Instance;
     }
 }

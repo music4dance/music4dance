@@ -32,7 +32,7 @@ namespace m4dModels
         {
             get
             {
-                return string.Format("{0}:{1}", IdModifier, TagIdBase);
+                return $"{IdModifier}:{TagIdBase}";
             }
             set
             {
@@ -136,7 +136,7 @@ namespace m4dModels
 
             if (added != null)
             {
-                foreach (string tag in added.Tags)
+                foreach (var tag in added.Tags)
                 {
                     // Create a transitory tag type to parse the tag string
                     var tt = dms.FindOrCreateTagType(tag);
@@ -230,7 +230,7 @@ namespace m4dModels
             var changed = ts.Summary != TagSummary.Summary;
             if (changed && TraceLevels.General.TraceVerbose)
             {
-                Trace.WriteLine(string.Format("{0}: {1} - {2}",TagId,ts.Summary,TagSummary.Summary));
+                Trace.WriteLine($"{TagId}: {ts.Summary} - {TagSummary.Summary}");
             }
 
             return changed;

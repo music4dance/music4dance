@@ -43,7 +43,7 @@ namespace m4dModels
             {
                 if (!int.TryParse(list[0], out count))
                 {
-                    Trace.WriteLineIf(TraceLevels.General.TraceError, string.Format("Bad Sort: {0}", sort));
+                    Trace.WriteLineIf(TraceLevels.General.TraceError, $"Bad Sort: {sort}");
                 }
             }
             Count = count;
@@ -53,11 +53,12 @@ namespace m4dModels
         public bool Descending { get; private set; }
         public int Count { get; private set; }
 
-        public bool Numeric { get { return s_numerical.Contains(Id); } }
-        public bool Directional { get { return s_directional.Contains(Id); } }
+        public bool Numeric => s_numerical.Contains(Id);
+        public bool Directional => s_directional.Contains(Id);
+
         public string GetSortGlyph(string column) 
         {
-            string ret = string.Empty;
+            var ret = string.Empty;
             if (column == Id)
             {
                 if (s_numerical.Contains(Id))
@@ -85,7 +86,7 @@ namespace m4dModels
         }
         public override string ToString()
         {
-            return string.Format("{0}{1}", Id, Descending ? "_desc" : string.Empty);
+            return $"{Id}{(Descending ? "_desc" : string.Empty)}";
         }
 
         public static string DoSort(string newOrder, string oldOrder)

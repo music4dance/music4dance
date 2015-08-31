@@ -26,21 +26,22 @@ namespace m4dModels
 
             // Create a merge table of basic properties
 
-            foreach (string field in _mergeFields)
+            foreach (var field in MergeFields)
             {
                 // Slightly kdlugy, but for now we're allowing alternates only for album so do a direct compare
-                bool allowAlternates = field.EndsWith("List");
+                var allowAlternates = field.EndsWith("List");
 
-                SongPropertyMerge spm = new SongPropertyMerge() { Name = field, AllowAlternates = allowAlternates, Values = new List<object>() };
+                var spm = new SongPropertyMerge() { Name = field, AllowAlternates = allowAlternates, Values = new List<object>() };
 
-                int defaultIdx = -1;
+                var defaultIdx = -1;
                 string fsCur = null;
-                int cTotal = 0;
-                int cMatch = 0;
+                var cTotal = 0;
+                var cMatch = 0;
 
-                foreach (SongDetails song in Songs)
+                // ReSharper disable once LoopCanBePartlyConvertedToQuery
+                foreach (var song in Songs)
                 {
-                    object fo = song.GetType().GetProperty(field).GetValue(song, null);                         
+                    var fo = song.GetType().GetProperty(field).GetValue(song, null);                         
 
                     spm.Values.Add(fo);
 
@@ -90,12 +91,13 @@ namespace m4dModels
             Ratings = new List<DanceMerge>();
             Tags = string.Empty;
 
-            int idx = 0;
-            foreach (Song song in songs)
+            var idx = 0;
+            foreach (var song in songs)
             {
-                foreach (DanceRating dr in song.DanceRatings)
+                // ReSharper disable once LoopCanBePartlyConvertedToQuery
+                foreach (var dr in song.DanceRatings)
                 {
-                    DanceMerge dm = new DanceMerge()
+                    var dm = new DanceMerge()
                     {
                         DanceId = dr.DanceId,
                         DanceName = dr.Dance.Info.Name,
@@ -110,7 +112,7 @@ namespace m4dModels
             }
         }
 
-        static readonly string[] _mergeFields = { 
+        static readonly string[] MergeFields = { 
             SongBase.TitleField, 
             SongBase.ArtistField, 
             SongBase.AlbumListField, 

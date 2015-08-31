@@ -4,19 +4,11 @@ namespace m4dModels
     {
         public MusicServiceStub(ServiceType id, char cid, string name, bool showInProfile=true) :base(id,cid,name,null,null,null,null)
         {
-            _showInProfile = showInProfile;
+            ShowInProfile = showInProfile;
         }
 
-        public override bool IsSearchable
-        {
-            get { return false; }
-        }
+        public override bool IsSearchable => false;
 
-        public override bool ShowInProfile
-        {
-            get { return _showInProfile; }
-        }
-
-        private readonly bool _showInProfile;
+        public override bool ShowInProfile { get; }
     }
 }

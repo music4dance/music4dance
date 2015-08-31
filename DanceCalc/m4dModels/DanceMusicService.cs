@@ -12,12 +12,11 @@ namespace m4dModels
     {
         #region Lifetime Management
         private readonly IDanceMusicContext _context;
-        private readonly UserManager<ApplicationUser> _userManager;
 
         public DanceMusicService(IDanceMusicContext context, UserManager<ApplicationUser> userManager)
         {
             _context = context;
-            _userManager = userManager;
+            UserManager = userManager;
         }
         public void Dispose()
         {
@@ -38,7 +37,7 @@ namespace m4dModels
         public DbSet<SongLog> Log => _context.Log;
         public DbSet<ModifiedRecord> Modified => _context.Modified;
 
-        public UserManager<ApplicationUser> UserManager => _userManager;
+        public UserManager<ApplicationUser> UserManager { get; }
 
         public int SaveChanges()
         {
@@ -644,7 +643,7 @@ namespace m4dModels
             SaveChanges();
         }
 
-        private void LogPropertyUpdate(SongProperty sp, SongLog log, string oldValue = null)
+        private static void LogPropertyUpdate(SongProperty sp, SongLog log, string oldValue = null)
         {
             log.UpdateData(sp.Name, sp.Value, oldValue);
         }
@@ -840,13 +839,12 @@ namespace m4dModels
             foreach (var t in dels)
             {
                 Guid idx;
-                if (Guid.TryParse(t, out idx))
+                if (!Guid.TryParse(t, out idx)) continue;
+
+                var s = _context.Songs.Find(idx);
+                if (s != null)
                 {
-                    var s = _context.Songs.Find(idx);
-                    if (s != null)
-                    {
-                        songs.Add(s);
-                    }
+                    songs.Add(s);
                 }
             }
 
@@ -2024,15 +2022,15 @@ namespace m4dModels
                 users.Add(UserHeader);
             }
             
-            foreach (var user in _userManager.Users)
+            foreach (var user in UserManager.Users)
             {
                 var userId = user.Id;
                 var username = user.UserName;
-                var roles = string.Join("|", _userManager.GetRoles(user.Id));
+                var roles = string.Join("|", UserManager.GetRoles(user.Id));
                 var hash = user.PasswordHash;
                 var stamp = user.SecurityStamp;
                 var lockout = user.LockoutEnabled.ToString();
-                var providers = string.Join("|", _userManager.GetLogins(user.Id).Select(l => l.LoginProvider + "|" + l.ProviderKey));
+                var providers = string.Join("|", UserManager.GetLogins(user.Id).Select(l => l.LoginProvider + "|" + l.ProviderKey));
                 var email = user.Email;
                 var emailConfirmed = user.EmailConfirmed;
                 var time = user.StartDate.ToString("g");
@@ -2182,7 +2180,7 @@ namespace m4dModels
             if (_userCache.TryGetValue(name,out user))
                 return user;
 
-            user = _userManager.FindByName(name);
+            user = UserManager.FindByName(name);
             if (user != null)
                 _userCache[name] = user;
 
@@ -2196,7 +2194,7 @@ namespace m4dModels
             if (user == null)
             {
                 user = new ApplicationUser { UserName = name, Email = name + "@music4dance.net", EmailConfirmed = true, StartDate = DateTime.Now };
-                var res = _userManager.Create(user, "_This_Is_@_placeh0lder_");
+                var res = UserManager.Create(user, "_This_Is_@_placeh0lder_");
                 if (res.Succeeded)
                 {
                     var user2 = FindUser(name);
@@ -2233,9 +2231,9 @@ namespace m4dModels
             if (_roleCache.Contains(key))
                 return;
 
-            if (!_userManager.IsInRole(id, role))
+            if (!UserManager.IsInRole(id, role))
             {
-                _userManager.AddToRole(id, role);
+                UserManager.AddToRole(id, role);
             }
 
             _roleCache.Add(key);

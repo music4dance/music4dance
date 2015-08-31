@@ -27,7 +27,7 @@ namespace m4dModels
 
         public static void SetGeneralLevel(TraceLevel level)
         {
-            TraceSwitch ts = General;
+            var ts = General;
             ts.Level = level;
         }
     }

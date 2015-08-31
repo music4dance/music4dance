@@ -27,13 +27,13 @@ namespace m4dModels
 
         public bool Initialize(string entry, DanceMusicService dms)
         {
-            string[] cells = entry.Split(RecordSeparator);
+            var cells = entry.Split(RecordSeparator);
 
             // user<RS>time<RS>command<RS>id<RS>sig<RS>[data]*
 
             if (cells.Length < 4)
             {
-                Trace.WriteLine(string.Format("Bad Line: {0}", entry));
+                Trace.WriteLine($"Bad Line: {entry}");
                 return false;
             }
 
@@ -46,14 +46,14 @@ namespace m4dModels
             User = dms.FindUser(userName);
             if (User == null)
             {
-                Trace.WriteLine(string.Format("Bad User Name: {0}", userName));
+                Trace.WriteLine($"Bad User Name: {userName}");
                 return false;
             }
 
             DateTime time;
             if (!DateTime.TryParse(timeString, out time))
             {
-                Trace.WriteLine(string.Format("Bad Timestamp: {0}", timeString));
+                Trace.WriteLine($"Bad Timestamp: {timeString}");
                 return false;
             }
             Time = time;
@@ -61,7 +61,7 @@ namespace m4dModels
             Guid songId;
             if (!Guid.TryParse(songRef, out songId))
             {
-                Trace.WriteLine(string.Format("Bad SongId: {0}", songRef));
+                Trace.WriteLine($"Bad SongId: {songRef}");
                 return false;
             }
             SongReference = songId;

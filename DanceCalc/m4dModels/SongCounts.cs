@@ -14,23 +14,17 @@ namespace m4dModels
         public string DanceName { get; set; }
         public int SongCount { get; set; }
         public int MaxWeight { get; set; }
-        public string DanceNameAndCount
-        {
-            get { return string.Format("{0} ({1})", DanceName, SongCount); }
-        }
+        public string DanceNameAndCount => $"{DanceName} ({SongCount})";
         public Dance Dance { get; set; }
         public SongCounts Parent { get; set; }
         public List<SongCounts> Children { get; set; }
-        public string SeoName
-        {
-            get { return DanceObject.SeoFriendly(DanceName); }
-        }
+        public string SeoName => DanceObject.SeoFriendly(DanceName);
 
         public IEnumerable<Song> TopSongs { get; private set; }
 
         public ICollection<ICollection<PurchaseLink>> TopSpotify { get; private set; }
 
-        public IReadOnlyList<CompetitionDance> CompetitionDances { get {return _competitionDances;} }
+        public IReadOnlyList<CompetitionDance> CompetitionDances => _competitionDances;
 
         public void AddCompetitionDance(CompetitionDance competitionDance)
         {
@@ -81,7 +75,8 @@ namespace m4dModels
 
         static public IList<SongCounts> GetFlatSongCounts(DanceMusicService dms)
         {
-            Trace.WriteLineIf(TraceLevels.General.TraceVerbose, string.Format("Entering GetFlatSongCounts:  dms={0}", dms == null ? "<<NULL>>" : "Valid"));
+            Trace.WriteLineIf(TraceLevels.General.TraceVerbose,
+                $"Entering GetFlatSongCounts:  dms={(dms == null ? "<<NULL>>" : "Valid")}");
             var flat = new List<SongCounts>();
 
             var tree = GetSongCounts(dms);
@@ -109,7 +104,7 @@ namespace m4dModels
             {
                 foreach (var sc in flat)
                 {
-                    Trace.WriteLine(string.Format("{0}: {1}", sc.DanceId, sc.SongCount));
+                    Trace.WriteLine($"{sc.DanceId}: {sc.SongCount}");
                 }
             }
 #endif
@@ -164,14 +159,13 @@ namespace m4dModels
         {
             lock (s_map)
             {
-                if (s_map.Count == 0)
-                {
-                    IList<SongCounts> list = GetFlatSongCounts(dms);
+                if (s_map.Count != 0) return s_map;
 
-                    foreach (SongCounts sc in list)
-                    {
-                        s_map.Add(sc.DanceId, sc);
-                    }
+                var list = GetFlatSongCounts(dms);
+
+                foreach (var sc in list)
+                {
+                    s_map.Add(sc.DanceId, sc);
                 }
             }
 
@@ -192,7 +186,7 @@ namespace m4dModels
 
             if (TraceLevels.General.TraceInfo && (weight > max || ret < 0))
             {
-                Trace.WriteLine(string.Format("{0}: {1} ? {2}", danceId, weight, max));
+                Trace.WriteLine($"{danceId}: {weight} ? {max}");
             }
             
             return Math.Max(0,Math.Min(ret,scale));
@@ -234,17 +228,16 @@ namespace m4dModels
 
             foreach (var dinst in dtyp.Instances)
             {
-                Trace.WriteLineIf(d == null, string.Format("Invalid Dance Instance: {0}",dinst.Name));
+                Trace.WriteLineIf(d == null, $"Invalid Dance Instance: {dinst.Name}");
                 var scInstance = InfoFromDance(dms, dinst);
 
-                if (scInstance.SongCount > 0)
-                {
-                    if (scType.Children == null)
-                        scType.Children = new List<SongCounts>();
+                if (scInstance.SongCount <= 0) continue;
 
-                    scType.Children.Add(scInstance);
-                    //scType.SongCount += scInstance.SongCount;
-                }
+                if (scType.Children == null)
+                    scType.Children = new List<SongCounts>();
+
+                scType.Children.Add(scInstance);
+                //scType.SongCount += scInstance.SongCount;
             }
 
             // Only add children to MSC, for other groups they're already built in
@@ -259,7 +252,7 @@ namespace m4dModels
         {
             if (d == null)
             {
-                throw new ArgumentNullException("d");
+                throw new ArgumentNullException(nameof(d));
             }
 
             var dance = dms.Dances.FirstOrDefault(t => t.Id == d.Id);

@@ -127,11 +127,10 @@ namespace m4dModels
                 else
                 {
                     // We're in new territory only do something if the name field is non-empty
-                    if (!string.IsNullOrWhiteSpace(album.Name))
-                    {
-                        album.CreateProperties(dms, this, CurrentLog);
-                        modified = true;
-                    }
+                    if (string.IsNullOrWhiteSpace(album.Name)) continue;
+
+                    album.CreateProperties(dms, this, CurrentLog);
+                    modified = true;
                 }
             }
 
@@ -148,9 +147,8 @@ namespace m4dModels
             var reorder = new List<int>();
             var prev = -1;
 
-            foreach (var album in edit.Albums)
+            foreach (var t in edit.Albums.Select(album => album.Index))
             {
-                var t = album.Index;
                 if (prev > t)
                 {
                     needReorder = true;
@@ -159,14 +157,12 @@ namespace m4dModels
                 reorder.Add(t);
             }
 
-            if (needReorder)
-            {
-                modified = true;
-                var t = string.Join(",", reorder.Select(x => x.ToString()));
-                CreateProperty(AlbumOrder, t, null, CurrentLog, dms);
-            }
+            if (!needReorder) return modified;
 
-            return modified;
+            var temp = string.Join(",", reorder.Select(x => x.ToString()));
+            CreateProperty(AlbumOrder, temp, null, CurrentLog, dms);
+
+            return true;
         }
 
         // Edit 'this' based on songdetails + extras
@@ -231,8 +227,7 @@ namespace m4dModels
             foreach (var prop in properties.Where(prop => excluded == null || !excluded.Contains(prop.BaseName)))
             {
                 SongProperties.Add(prop.CopyTo(this));
-            }
-            
+            }           
         }
 
 
@@ -282,11 +277,10 @@ namespace m4dModels
                 else
                 {
                     // We're in new territory only do something if the name field is non-empty
-                    if (!string.IsNullOrWhiteSpace(album.Name))
-                    {
-                        album.CreateProperties(dms, this, CurrentLog);
-                        modified = true;
-                    }
+                    if (string.IsNullOrWhiteSpace(album.Name)) continue;
+
+                    album.CreateProperties(dms, this, CurrentLog);
+                    modified = true;
                 }
             }
 
@@ -364,19 +358,15 @@ namespace m4dModels
 
         private bool UpdateModified(ApplicationUser user, SongDetails edit, DanceMusicService dms, bool force)
         {
-            var modified = false;
             var mr = ModifiedBy.FirstOrDefault(m => m.UserName == user.UserName);
-            if (mr != null)
-            {
-                var mrN = edit.ModifiedBy.FirstOrDefault(m => m.UserName == user.UserName);
-                if (mrN != null && (force || mrN.Owned.HasValue) && (mr.Owned != mrN.Owned))
-                {
-                    modified = true;
-                    mr.Owned = mrN.Owned;
-                    CreateProperty(OwnerHash, mr.Owned, CurrentLog, dms);
-                }
-            }
-            return modified;
+            if (mr == null) return false;
+
+            var mrN = edit.ModifiedBy.FirstOrDefault(m => m.UserName == user.UserName);
+            if (mrN == null || (!force && !mrN.Owned.HasValue) || (mr.Owned == mrN.Owned)) return false;
+
+            mr.Owned = mrN.Owned;
+            CreateProperty(OwnerHash, mr.Owned, CurrentLog, dms);
+            return true;
         }
 
         public void MergeDetails(IEnumerable<Song> songs, DanceMusicService dms)
@@ -413,6 +403,7 @@ namespace m4dModels
                 {
                     var bn = prop.BaseName;
 
+                    // ReSharper disable once SwitchStatementMissingSomeCases
                     switch (bn)
                     {
                         case UserField:
@@ -453,21 +444,16 @@ namespace m4dModels
         private bool UpdateProperty(SongDetails edit, string name, DanceMusicService dms)
         {
             // TODO: This can be optimized
-            var modified = false;
-
             var eP = edit.GetType().GetProperty(name).GetValue(edit);
             var oP = GetType().GetProperty(name).GetValue(this);
 
-            if (!Equals(eP, oP))
-            {
-                modified = true;
+            if (Equals(eP, oP)) return false;
 
-                GetType().GetProperty(name).SetValue(this, eP);
+            GetType().GetProperty(name).SetValue(this, eP);
 
-                CreateProperty(name, eP, oP, CurrentLog, dms);
-            }
+            CreateProperty(name, eP, oP, CurrentLog, dms);
 
-            return modified;
+            return true;
         }
 
         // Only update if the old song didn't have this property
@@ -544,15 +530,11 @@ namespace m4dModels
 
         private bool UpdatePurchaseInfo(SongDetails edit, bool additive = false)
         {
-            var ret = false;
             var pi = additive ? edit.MergePurchaseTags(Purchase) : edit.GetPurchaseTags();
 
-            if ((Purchase ?? string.Empty) != (pi ?? string.Empty))
-            {
-                Purchase = pi;
-                ret = true;
-            }
-            return ret;
+            if ((Purchase ?? string.Empty) == (pi ?? string.Empty)) return false;
+            Purchase = pi;
+            return true;
         }
 
         public bool AddUser(ApplicationUser user, DanceMusicService dms)
@@ -747,14 +729,13 @@ namespace m4dModels
                     }
                 }
 
-                if (delta != 0)
-                {
-                    dr.Weight += delta;
+                if (delta == 0) continue;
 
-                    CreateProperty(DanceRatingField, new DanceRatingDelta { DanceId = dr.DanceId, Delta = delta }.ToString(), log, dms);
+                dr.Weight += delta;
 
-                    changed = true;
-                }
+                CreateProperty(DanceRatingField, new DanceRatingDelta { DanceId = dr.DanceId, Delta = delta }.ToString(), log, dms);
+
+                changed = true;
             }
 
             // This handles the deleted weights
@@ -764,28 +745,27 @@ namespace m4dModels
             }
 
             // This handles the new ratings
-            if (add != null)
-            {
-                foreach (var ndr in add)
-                {
-                    var dr = dms.CreateDanceRating(this, ndr, DanceRatingInitial);
+            if (add == null) return changed;
 
-                    if (dr != null)
-                    {
-                        CreateProperty(
-                            DanceRatingField,
-                            new DanceRatingDelta { DanceId = ndr, Delta = DanceRatingInitial }.ToString(),
-                            log, dms
+            foreach (var ndr in add)
+            {
+                var dr = dms.CreateDanceRating(this, ndr, DanceRatingInitial);
+
+                if (dr != null)
+                {
+                    CreateProperty(
+                        DanceRatingField,
+                        new DanceRatingDelta { DanceId = ndr, Delta = DanceRatingInitial }.ToString(),
+                        log, dms
                         );
 
-                        changed = true;
-                    }
-                    else
-                    {
-                        Trace.WriteLine($"Invalid DanceId={ndr}");
-                    }
-
+                    changed = true;
                 }
+                else
+                {
+                    Trace.WriteLine($"Invalid DanceId={ndr}");
+                }
+
             }
 
             return changed;
@@ -796,6 +776,7 @@ namespace m4dModels
             var modified = false;
             foreach (var p in properties)
             {
+                // ReSharper disable once SwitchStatementMissingSomeCases
                 switch (p.BaseName)
                 {
                     case UserField:
@@ -858,12 +839,11 @@ namespace m4dModels
         private bool DanceTagsFromProperties(ApplicationUser user, IEnumerable<SongProperty> properties, DanceMusicService dms, object data)
         {
             // Clear out cached user tags
-            if (DanceRatings != null)
+            if (DanceRatings == null) return BaseTagsFromProperties(user, properties, dms, data, true);
+
+            foreach (var dr in DanceRatings)
             {
-                foreach (var dr in DanceRatings)
-                {
-                    dr.Tags = null;
-                }
+                dr.Tags = null;
             }
 
             return BaseTagsFromProperties(user, properties, dms, data, true);
@@ -999,14 +979,11 @@ namespace m4dModels
         }
         public bool UpdateTitleHash()
         {
-            var ret = false;
             var hash = string.IsNullOrWhiteSpace(Title) ? 0 : CreateTitleHash(Title);
-            if (hash != TitleHash)
-            {
-                TitleHash = hash;
-                ret = true;
-            }
-            return ret;
+            if (hash == TitleHash) return false;
+
+            TitleHash = hash;
+            return true;
         }
         #endregion
 

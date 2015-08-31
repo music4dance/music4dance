@@ -26,9 +26,9 @@ namespace m4dModels
     public class DanceCategory
     {
         public string Name { get; private set; }
-        public string CanonicalName { get { return BuildCanonicalName(Name);} }
-        public IReadOnlyList<CompetitionDance> Round { get { return _round; } }
-        public IReadOnlyList<CompetitionDance> Extras { get { return _extra; } }
+        public string CanonicalName => BuildCanonicalName(Name);
+        public IReadOnlyList<CompetitionDance> Round => _round;
+        public IReadOnlyList<CompetitionDance> Extras => _extra;
 
         internal DanceCategory(DanceMusicService dms, string name, IEnumerable<string> round, IEnumerable<string> extras = null)
         {
@@ -66,18 +66,18 @@ namespace m4dModels
     {
         static public DanceCategories GetDanceCategories(DanceMusicService dms)
         {
-            lock (_instance)
+            lock (Instance)
             {
-                _instance.Initialize(dms);
-                return _instance;
+                Instance.Initialize(dms);
+                return Instance;
             }
         }
 
         static public void ClearCache()
         {
-            lock (_instance)
+            lock (Instance)
             {
-                _instance._categories.Clear();
+                Instance._categories.Clear();
             }
         }
 
@@ -86,7 +86,7 @@ namespace m4dModels
             DanceCategory cat;
             return _categories.TryGetValue(DanceCategory.BuildCanonicalName(name), out cat) ? cat : null;
         }
-        private void AddCategory(DanceMusicService dms, string name, string[] round, string[] extras = null)
+        private void AddCategory(DanceMusicService dms, string name, IEnumerable<string> round, IEnumerable<string> extras = null)
         {
             var cat = new DanceCategory(dms, name, round, extras);
             _categories[DanceCategory.BuildCanonicalName(name)] = cat;
@@ -108,6 +108,6 @@ namespace m4dModels
 
         private readonly Dictionary<string, DanceCategory> _categories = new Dictionary<string, DanceCategory>();
 
-        private static DanceCategories _instance = new DanceCategories();
+        private static readonly DanceCategories Instance = new DanceCategories();
     }
 }

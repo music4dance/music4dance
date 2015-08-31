@@ -22,11 +22,11 @@ namespace m4dModels
 
         public TrackNumber(string s)
         {
-            int track = 0;
-            int volume = 0;
-            int work = 0;
+            var track = 0;
+            var volume = 0;
+            var work = 0;
 
-            string[] cells = new string[] { };
+            var cells = new string[] { };
             if (s != null)
             {
                 cells = s.Split(':');
@@ -47,9 +47,9 @@ namespace m4dModels
 
         private void Initialize(int? track, int? volume, int? work)
         {
-            int t = 0;
-            int a = 0;
-            int w = 0;
+            var t = 0;
+            var a = 0;
+            var w = 0;
 
             if (track.HasValue)
             {

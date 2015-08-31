@@ -30,7 +30,7 @@ namespace m4dModels
 
         public override IList<ServiceTrack> ParseSearchResults(dynamic results)
         {
-            List<ServiceTrack> ret = new List<ServiceTrack>();
+            var ret = new List<ServiceTrack>();
 
             var tracks = results.results;
 
@@ -44,7 +44,7 @@ namespace m4dModels
                         duration = (track.trackTimeMillis + 500) / 1000;
                     }
 
-                    ServiceTrack st = new ServiceTrack
+                    var st = new ServiceTrack
                     {
                         Service = ServiceType.ITunes,
                         TrackId = track.trackId.ToString(),

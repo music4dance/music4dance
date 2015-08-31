@@ -13,7 +13,7 @@ namespace m4dModels
 
             var next = DateTime.Now;
             var delta = next - _lastTime;
-            Trace.WriteLine(string.Format("{0}- {1}", label, delta.TotalMinutes));
+            Trace.WriteLine($"{label}- {delta.TotalMinutes}");
             _lastTime = next;
 
             TimeSpan total;
@@ -31,7 +31,7 @@ namespace m4dModels
             Trace.WriteLine("-------TOTALS------");
             foreach (var pair in _totals)
             {
-                Trace.WriteLine(string.Format("{0}- {1}", pair.Key, pair.Value.TotalMinutes));
+                Trace.WriteLine($"{pair.Key}- {pair.Value.TotalMinutes}");
             }
         }
         private DateTime _lastTime = DateTime.Now;

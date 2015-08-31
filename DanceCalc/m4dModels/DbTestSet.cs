@@ -61,25 +61,13 @@ namespace m4dModels
             return Activator.CreateInstance<TDerivedEntity>();
         }
 
-        public override ObservableCollection<TEntity> Local
-        {
-            get { return _data; }
-        }
+        public override ObservableCollection<TEntity> Local => _data;
 
-        Type IQueryable.ElementType
-        {
-            get { return _query.ElementType; }
-        }
+        Type IQueryable.ElementType => _query.ElementType;
 
-        Expression IQueryable.Expression
-        {
-            get { return _query.Expression; }
-        }
+        Expression IQueryable.Expression => _query.Expression;
 
-        IQueryProvider IQueryable.Provider
-        {
-            get { return new TestDbAsyncQueryProvider<TEntity>(_query.Provider); }
-        }
+        IQueryProvider IQueryable.Provider => new TestDbAsyncQueryProvider<TEntity>(_query.Provider);
 
         IEnumerator IEnumerable.GetEnumerator()
         {
@@ -157,10 +145,7 @@ namespace m4dModels
             return GetAsyncEnumerator();
         }
 
-        IQueryProvider IQueryable.Provider
-        {
-            get { return new TestDbAsyncQueryProvider<T>(this); }
-        }
+        IQueryProvider IQueryable.Provider => new TestDbAsyncQueryProvider<T>(this);
     }
 
     internal class TestDbAsyncEnumerator<T> : IDbAsyncEnumerator<T>
@@ -182,15 +167,9 @@ namespace m4dModels
             return Task.FromResult(_inner.MoveNext());
         }
 
-        public T Current
-        {
-            get { return _inner.Current; }
-        }
+        public T Current => _inner.Current;
 
-        object IDbAsyncEnumerator.Current
-        {
-            get { return Current; }
-        }
+        object IDbAsyncEnumerator.Current => Current;
     }
 
     public class TagTypeSet : TestDbSet<TagType>

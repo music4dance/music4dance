@@ -13,17 +13,11 @@ namespace m4dModels
     {
         private const string Empty = ".";
         private const char SubChar = '\u001a';
-        private static readonly string SSubString = new string(SubChar, 1);
+        private static readonly string SSubString = new string(SubChar1, 1);
         private const char Separator = '-';
         private static readonly string SSepString = new string(Separator, 1);
  
-        static public SongFilter Default
-        {
-            get
-            {
-                return new SongFilter();
-            }
-        }
+        static public SongFilter Default => new SongFilter();
 
         static SongFilter()
         {
@@ -59,7 +53,7 @@ namespace m4dModels
                 
                 if (fancy)
                 {
-                    cells[i] = cells[i].Replace(SubChar, Separator);
+                    cells[i] = cells[i].Replace(SubChar1, Separator);
                 }
 
                 var pi = PropertyInfo[i];
@@ -216,6 +210,11 @@ namespace m4dModels
                 return sb.ToString();
             }
         }
+
+        public static char SubChar1 => SubChar2;
+
+        public static char SubChar2 => SubChar;
+
         private static string Format(string s)
         {
             return s.Contains("-") ? s.Replace("-", @"\-") : s;

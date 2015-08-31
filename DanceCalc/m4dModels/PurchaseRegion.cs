@@ -17,10 +17,7 @@ namespace m4dModels
             _regions = new List<string>(ParseRegionInfo(regions));
         }
 
-        public string[] Regions
-        {
-            get { return _regions == null ? null : _regions.ToArray(); }
-        }
+        public string[] Regions => _regions == null ? null : _regions.ToArray();
 
         public override string ToString()
         {
@@ -99,7 +96,7 @@ namespace m4dModels
                 }
             }
 
-            return string.Format("[{0}]", bare);
+            return $"[{bare}]";
         }
 
         public static string[] MergeRegions(string[] a, string[] b)

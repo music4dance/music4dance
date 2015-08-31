@@ -25,41 +25,38 @@ namespace m4dModels
 
         public int? GetIntData(string name)
         {
-            int? ret = null;
+            var s = GetData(name);
 
-            string s = GetData(name);
+            if (s == null) return null;
 
-            if (s != null)
+            int r;
+            if (int.TryParse(s, out r))
             {
-                int r;
-                if (int.TryParse(s, out r))
-                {
-                    ret = r;
-                }
+                return r;
             }
 
-            return ret;
+            return null;
         }
 
         public string GetData(string name)
         {
             var lv = FindCell(name);
 
-            return lv != null ? lv.Value : null;
+            return lv?.Value;
         }
 
         public string GetOld(string name)
         {
             var lv = FindCell(name);
 
-            return lv != null ? lv.Old : null;
+            return lv?.Old;
         }
 
         public LogValue FindCell(string name)
         {
             var values = GetValues();
 
-            return values == null ? null : values.FirstOrDefault(lv => lv.Name.Equals(name));
+            return values?.FirstOrDefault(lv => lv.Name.Equals(name));
         }
 
         public IList<LogValue> GetValues()

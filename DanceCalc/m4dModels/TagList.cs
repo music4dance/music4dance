@@ -11,13 +11,8 @@ namespace m4dModels
     {
         #region Properties
         public String Summary { get; set; }
-        public List<string> Tags
-        {
-            get
-            {
-                return Parse(Summary);
-            }
-        }
+        public List<string> Tags => Parse(Summary);
+
         #endregion
 
         #region Constructors
@@ -39,15 +34,10 @@ namespace m4dModels
             Summary = Serialize(list);
         }
 
-        public bool IsQualified
-        {
-            get { return string.IsNullOrWhiteSpace(Summary) || Summary[0] == '+' || Summary[0] == '-'; }
-        }
+        public bool IsQualified => string.IsNullOrWhiteSpace(Summary) || Summary[0] == '+' || Summary[0] == '-';
 
-        public bool IsEmpty
-        {
-            get { return string.IsNullOrWhiteSpace(Summary); }
-        }
+        public bool IsEmpty => string.IsNullOrWhiteSpace(Summary);
+
         #endregion
 
         #region Operators

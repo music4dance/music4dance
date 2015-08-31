@@ -10,22 +10,10 @@ namespace m4dModels
         #region Properties
         public string Key { get; set; }
         // The user visible tag
-        public string Value 
-        {
-            get
-            {
-                return Key.Substring(0, Key.IndexOf(':'));
-            }
-        }
+        public string Value => Key.Substring(0, Key.IndexOf(':'));
 
         // A single tag category/namespace
-        public string Category
-        { 
-            get
-            {
-                return Key.Substring(Key.IndexOf(':')+1);
-            }
-        }
+        public string Category => Key.Substring(Key.IndexOf(':')+1);
 
         // The total number of refernces to this tag
         public int Count { get; set; }
@@ -35,15 +23,10 @@ namespace m4dModels
         public virtual TagType Primary {get; set;}
         public virtual ICollection<TagType> Ring {get; set;}
 
-        public string EncodedKey
-        {
-            get { return TagEncode(Key); }
-        }
+        public string EncodedKey => TagEncode(Key);
 
-        public bool IsNull
-        {
-            get { return string.IsNullOrWhiteSpace(Key); }
-        }
+        public bool IsNull => string.IsNullOrWhiteSpace(Key);
+
         #endregion
 
         #region Constructors
@@ -112,7 +95,7 @@ namespace m4dModels
         }
         public static string BuildKey(string value, string category)
         {
-            return string.Format("{0}:{1}", value, category);
+            return $"{value}:{category}";
         }
 
         public static string TagEncode(string tag)
@@ -146,7 +129,7 @@ namespace m4dModels
                         int i = c;
                         if (i > 256) 
                         {
-                            throw new ArgumentOutOfRangeException(string.Format("Invalid tag character: {0}",c));
+                            throw new ArgumentOutOfRangeException($"Invalid tag character: {c}");
                         }
                         else
                         {
@@ -165,26 +148,13 @@ namespace m4dModels
             {
                 return true;
             }
-            else
-            {
-                c = char.ToLower(c);
-                return c >= 'a' && c <= 'f';
-            }
-            
+            c = char.ToLower(c);
+            return c >= 'a' && c <= 'f';
         }
 
         static private int ConvertHexDigit(char c)
         {
-            int ret;
-            if (char.IsDigit(c))
-            {
-                ret = c - '0';
-            }
-            else
-            {
-                ret = (char.ToLower(c) - 'a') + 10;
-            }
-            return ret;
+            return char.IsDigit(c) ? c - '0' : (char.ToLower(c) - 'a') + 10;
         }
 
         public static string TagDecode(string tag)
@@ -200,7 +170,7 @@ namespace m4dModels
                     ich += 1;
                     if (ich == cch)
                     {
-                        throw new ArgumentOutOfRangeException(string.Format("Invalid tags: ends with escape: '{0}'", tag));
+                        throw new ArgumentOutOfRangeException($"Invalid tags: ends with escape: '{tag}'");
                     }
 
                     var c1 = tag[ich];
@@ -228,13 +198,15 @@ namespace m4dModels
                                 ich += 1;
                                 if (ich == cch)
                                 {
-                                    throw new ArgumentOutOfRangeException(string.Format("Invalid tags: ends with escape + single digit: '{0}'", tag));
+                                    throw new ArgumentOutOfRangeException(
+                                        $"Invalid tags: ends with escape + single digit: '{tag}'");
                                 }
 
                                 var c2 = tag[ich];
                                 if (!IsHexDigit(c2))
                                 {
-                                    throw new ArgumentOutOfRangeException(string.Format("Invalid tags: invalid escape at {0}: '{1}'", ich, tag));
+                                    throw new ArgumentOutOfRangeException(
+                                        $"Invalid tags: invalid escape at {ich}: '{tag}'");
                                 }
 
                                 i += ConvertHexDigit(c2);
@@ -243,7 +215,7 @@ namespace m4dModels
                             }
                             else
                             {
-                                throw new ArgumentOutOfRangeException(string.Format("Invalid tags: invalid escape at {0}: '{1}'", ich, tag));
+                                throw new ArgumentOutOfRangeException($"Invalid tags: invalid escape at {ich}: '{tag}'");
                             }
                             break;
                     }

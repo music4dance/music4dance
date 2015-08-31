@@ -13,13 +13,8 @@ namespace m4dModels
     {
         #region Properties
         public String Summary { get; set; }
-        public IList<TagCount> Tags 
-        {
-            get 
-            {
-                return Parse(Summary);
-            }
-        }
+        public IList<TagCount> Tags => Parse(Summary);
+
         public int TagCount(string name)
         {
             var tc = Tags.FirstOrDefault(t => string.Equals(t.Value, name, StringComparison.InvariantCultureIgnoreCase));
@@ -42,10 +37,7 @@ namespace m4dModels
             return tags;
         }
 
-        public bool IsEmpty
-        {
-            get { return string.IsNullOrWhiteSpace(Summary); }
-        }
+        public bool IsEmpty => string.IsNullOrWhiteSpace(Summary);
 
         #endregion
 
@@ -85,7 +77,7 @@ namespace m4dModels
 
             if (added != null)
             {
-                foreach (string s in added.Tags)
+                foreach (var s in added.Tags)
                 {
                     var tc = tags.FirstOrDefault(t => string.Equals(t.Value, s, StringComparison.InvariantCultureIgnoreCase));
                     if (tc == null)
@@ -100,7 +92,7 @@ namespace m4dModels
 
             if (removed != null)
             {
-                foreach (string s in removed.Tags)
+                foreach (var s in removed.Tags)
                 {
                     var tc = tags.FirstOrDefault(t => string.Equals(t.Value, s, StringComparison.InvariantCultureIgnoreCase));
                     if (tc == null) continue;

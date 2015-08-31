@@ -29,15 +29,9 @@ namespace m4dModels
         // Single character service Ids (add in P=Pandora, G=Google Play, E=Emusic for this purpose)
         public string ServicePreference { get; set; }
 
-        public string RegionName
-        {
-            get { return CountryCodes.TranslateCode(Region); }
-        }
+        public string RegionName => CountryCodes.TranslateCode(Region);
 
-        public string PrivacyDescription
-        {
-            get { return string.Format(PrivacyMessage, (Privacy == 0) ? "Don't" : "Do"); }
-        }
+        public string PrivacyDescription => string.Format(PrivacyMessage, (Privacy == 0) ? "Don't" : "Do");
 
         public IEnumerable<string> ContactDescription
         {
@@ -50,7 +44,7 @@ namespace m4dModels
                 {
                     if ((mask & (byte)CanContact) == mask)
                     {
-                        ret.Add(s_contactStrings[i]);
+                        ret.Add(ContactStrings[i]);
                     }
                     mask = (byte)(mask << 1);
                     i += 1;
@@ -82,7 +76,7 @@ namespace m4dModels
                 byte mask = 1;
                 while (mask != (byte)ContactStatus.Max)
                 {
-                    ret.Add(new KeyValuePair<byte, string>(mask,s_contactStrings[i]));
+                    ret.Add(new KeyValuePair<byte, string>(mask,ContactStrings[i]));
                     mask = (byte)(mask << 1);
                     i += 1;
                 }
@@ -107,17 +101,14 @@ namespace m4dModels
                 return ret;                
             }
         }
-        public static string[] ContactStrings
-        {
-            get { return s_contactStrings; }
-        }
-        private const string PrivacyMessage = "{0} allow other members to see my profile and tags.";
-
-        private static readonly string[] s_contactStrings = {
+        public static string[] ContactStrings { get; } = {
             @"I would be interested in participating in email or surveys to help improve music4dance",
             @"I am interested in occassional promotional emails from music4dance",
             @"I am interested in occassional promotional emails from music4dance partners"
         };
+
+        private const string PrivacyMessage = "{0} allow other members to see my profile and tags.";
+
         #endregion
 
         public ApplicationUser()
@@ -131,13 +122,8 @@ namespace m4dModels
             UserName = userName;
         }
 
-        public bool IsPlaceholder
-        {
-            get
-            {
-                return StartDate == DateTime.MinValue;
-            }
-        }
+        public bool IsPlaceholder => StartDate == DateTime.MinValue;
+
         public async Task<ClaimsIdentity> GenerateUserIdentityAsync(UserManager<ApplicationUser> manager)
         {
             // Note the authenticationType must match the one defined in CookieAuthenticationOptions.AuthenticationType
@@ -153,6 +139,7 @@ namespace m4dModels
 
             var sb = new StringBuilder();
             var sp = string.Empty;
+            // ReSharper disable once LoopCanBePartlyConvertedToQuery
             foreach (var idRole in Roles)
             {
                 var role = roles.Find(idRole.RoleId);
@@ -171,7 +158,7 @@ namespace m4dModels
             {
                 var name = provider.LoginProvider;
                 var key = provider.ProviderKey;
-                sb.Append(string.Format("{0}{1}|{2}",sp,name,key));
+                sb.Append($"{sp}{name}|{key}");
                 sp = "|";
             }
             return sb.ToString();
@@ -185,7 +172,7 @@ namespace m4dModels
             {
                 var name = provider.LoginProvider;
                 var key = provider.ProviderKey;
-                sb.Append(string.Format("{0}{1}|{2}", sp, name, key));
+                sb.Append($"{sp}{name}|{key}");
                 sp = "|";
             }
             return sb.ToString();            
@@ -193,7 +180,7 @@ namespace m4dModels
 
         public override string ToString()
         {
-            return string.Format("{0}{1}", UserName, IsPlaceholder ? "(P)" : string.Empty);
+            return $"{UserName}{(IsPlaceholder ? "(P)" : string.Empty)}";
         }
     }
 }

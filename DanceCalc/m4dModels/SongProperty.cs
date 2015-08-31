@@ -53,11 +53,11 @@ namespace m4dModels
         {
             SongId = songId;
 
-            string name = baseName;
+            var name = baseName;
 
             if (index >= 0)
             {
-                name = string.Format("{0}:{1:D2}", name, index);
+                name = $"{name}:{index:D2}";
             }
 
             if (qual != null)
@@ -150,14 +150,8 @@ namespace m4dModels
                 return ret;
             }
         }
-        public bool IsComplex
-        {
-            get { return IsComplexName(Name); }
-        }
-        public bool IsAction
-        {
-            get { return IsActionName(Name); }
-        }
+        public bool IsComplex => IsComplexName(Name);
+        public bool IsAction => IsActionName(Name);
 
         public static bool IsComplexName(string name)
         {
@@ -168,44 +162,20 @@ namespace m4dModels
             return name.StartsWith(".");
         }
 
-        public string BaseName
-        {
-            get
-            {
-                return ParseBaseName(Name);
-            }
-        }
+        public string BaseName => ParseBaseName(Name);
 
-        public int? Index
-        {
-            get
-            {
-                return ParseIndex(Name);
-            }
-        }
+        public int? Index => ParseIndex(Name);
 
-        public string Qualifier
-        {
-            get
-            {
-                return ParseQualifier(Name);
-            }
-        }
+        public string Qualifier => ParseQualifier(Name);
 
-        public string DanceQualifier
-        {
-            get
-            {
-                return ParsePart(Name,1);
-            }
-        }
-        
+        public string DanceQualifier => ParsePart(Name,1);
+
         #endregion
 
         #region Overrides
         public override string ToString()
         {
-            string value = Value;
+            var value = Value;
             if (string.IsNullOrWhiteSpace(value))
             {
                 value = string.Empty;
@@ -227,7 +197,7 @@ namespace m4dModels
                 }
             }
 
-            return string.Format("{0}={1}", Name, value);
+            return $"{Name}={value}";
         }
         
         #endregion
@@ -235,14 +205,14 @@ namespace m4dModels
         #region Serialization
         public static string Serialize(IEnumerable<SongProperty> properties, string[] actions)
         {
-            StringBuilder sb = new StringBuilder();
+            var sb = new StringBuilder();
 
-            string sep = string.Empty;
-            foreach (SongProperty sp in properties)
+            var sep = string.Empty;
+            foreach (var sp in properties)
             {
                 if (actions == null || !actions.Contains(sp.Name))
                 {
-                    string p = sp.ToString();
+                    var p = sp.ToString();
 
                     sb.AppendFormat("{0}{1}", sep, p);
 
@@ -255,11 +225,11 @@ namespace m4dModels
 
         public static void Load(Guid songId, string props, ICollection<SongProperty> properties)
         {
-            string[] cells = props.Split('\t');
+            var cells = props.Split('\t');
 
-            foreach (string cell in cells)
+            foreach (var cell in cells)
             {
-                string[] values = cell.Split('=');
+                var values = cell.Split('=');
 
                 if (values.Length == 2)
                 {
@@ -334,7 +304,7 @@ namespace m4dModels
 
         public static string FormatName(string baseName, int? idx = null, string qualifier = null)
         {
-            string name = baseName;
+            var name = baseName;
 
             if (idx.HasValue)
             {

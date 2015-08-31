@@ -16,8 +16,9 @@ namespace m4dModels
         [DataMember]
         public int Count { get; set; }
 
-        public string TagValue { get { return Value.Split(':')[0]; } }
-        public string TagClass { get { return (Value.Contains(':') ? Value.Substring(Value.LastIndexOf(':')+1) : null); } }
+        public string TagValue => Value.Split(':')[0];
+        public string TagClass => (Value.Contains(':') ? Value.Substring(Value.LastIndexOf(':')+1) : null);
+
         #endregion
 
         #region Constructors
@@ -77,9 +78,9 @@ namespace m4dModels
 
         public bool Parse(string s)
         {
-            bool ret = true;
-            List<string> list = s.Split(new[] { ':' }, StringSplitOptions.RemoveEmptyEntries).ToList();
-            int c = 1;
+            var ret = true;
+            var list = s.Split(new[] { ':' }, StringSplitOptions.RemoveEmptyEntries).ToList();
+            var c = 1;
 
             if (list.Count < 1 || list.Count > 3)
             {
@@ -101,7 +102,7 @@ namespace m4dModels
 
         public string Serialize()
         {
-            return string.Format("{0}:{1}", Value, Count);
+            return $"{Value}:{Count}";
         }
     }
 }

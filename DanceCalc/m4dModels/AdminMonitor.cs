@@ -51,9 +51,9 @@ namespace m4dModels
             }
         }
 
-        public static bool IsRunning { get { return _name != null; } }
+        public static bool IsRunning => _name != null;
 
-        public static bool Succeeded { get { return _name == null && _lastTaskCompleted; } }
+        public static bool Succeeded => _name == null && _lastTaskCompleted;
 
         public static AdminStatus Status
         {
@@ -61,12 +61,11 @@ namespace m4dModels
             {
                 lock (Lock)
                 {
-                    string message = null;
+                    string message;
 
                     if (_name != null)
                     {
-                        message = string.Format("AdminMonitor: Task = {0}; Phase = {1}, Iteration = {2}", _name, _phase,
-                            _iteration);
+                        message = $"AdminMonitor: Task = {_name}; Phase = {_phase}, Iteration = {_iteration}";
                     }
                     else
                     {
