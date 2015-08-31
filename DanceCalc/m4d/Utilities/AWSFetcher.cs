@@ -19,62 +19,54 @@ namespace m4d.Utilities
 {
     public class AmazonHeader : MessageHeader
     {
-
-        private readonly string name;
-        private readonly string value;
+        private readonly string _value;
 
         public AmazonHeader(string name, string value)
         {
-            this.name = name;
-            this.value = value;
+            Name = name;
+            _value = value;
         }
 
-        public override string Name
-        {
-            get { return name; }
-        }
+        public override string Name { get; }
 
-        public override string Namespace
-        {
-            get { return "http://security.amazonaws.com/doc/2007-01-01/"; }
-        }
+        public override string Namespace => "http://security.amazonaws.com/doc/2007-01-01/";
 
         protected override void OnWriteHeaderContents(XmlDictionaryWriter xmlDictionaryWriter, MessageVersion messageVersion)
         {
-            xmlDictionaryWriter.WriteString(value);
+            xmlDictionaryWriter.WriteString(_value);
         }
     }
  
 
     public class AmazonSigningMessageInspector : IClientMessageInspector
     {
-        private readonly string accessKeyId;
-        private readonly string secretKey;
+        private readonly string _accessKeyId;
+        private readonly string _secretKey;
 
         public AmazonSigningMessageInspector(string accessKeyId, string secretKey)
         {
-            this.accessKeyId = accessKeyId;
-            this.secretKey = secretKey;
+            _accessKeyId = accessKeyId;
+            _secretKey = secretKey;
         }
 
         public object BeforeSendRequest(ref Message request, IClientChannel channel)
         {
             // prepare the data to sign
-            string operation = Regex.Match(request.Headers.Action, "[^/]+$").ToString();
+            var operation = Regex.Match(request.Headers.Action, "[^/]+$").ToString();
 
-            DateTime now = DateTime.UtcNow;
-            string timestamp = now.ToString("yyyy-MM-ddTHH:mm:ssZ");
-            string signMe = operation + timestamp;
-            byte[] bytesToSign = Encoding.UTF8.GetBytes(signMe);
+            var now = DateTime.UtcNow;
+            var timestamp = now.ToString("yyyy-MM-ddTHH:mm:ssZ");
+            var signMe = operation + timestamp;
+            var bytesToSign = Encoding.UTF8.GetBytes(signMe);
 
             // sign the data
-            byte[] secretKeyBytes = Encoding.UTF8.GetBytes(secretKey);
+            var secretKeyBytes = Encoding.UTF8.GetBytes(_secretKey);
             HMAC hmacSha256 = new HMACSHA256(secretKeyBytes);
-            byte[] hashBytes = hmacSha256.ComputeHash(bytesToSign);
-            string signature = Convert.ToBase64String(hashBytes);
+            var hashBytes = hmacSha256.ComputeHash(bytesToSign);
+            var signature = Convert.ToBase64String(hashBytes);
 
             // add the signature information to the request headers
-            request.Headers.Add(new AmazonHeader("AWSAccessKeyId", accessKeyId));
+            request.Headers.Add(new AmazonHeader("AWSAccessKeyId", _accessKeyId));
             request.Headers.Add(new AmazonHeader("Timestamp", timestamp));
             request.Headers.Add(new AmazonHeader("Signature", signature));
 
@@ -90,19 +82,19 @@ namespace m4d.Utilities
 
     public class AmazonSigningEndpointBehavior : IEndpointBehavior
     {
-        private readonly string accessKeyId;
-        private readonly string secretKey;
+        private readonly string _accessKeyId;
+        private readonly string _secretKey;
 
         public AmazonSigningEndpointBehavior(string accessKeyId, string secretKey)
         {
-            this.accessKeyId = accessKeyId;
-            this.secretKey = secretKey;
+            _accessKeyId = accessKeyId;
+            _secretKey = secretKey;
         }
 
         #region IEndpointBehavior Members
         public void ApplyClientBehavior(ServiceEndpoint serviceEndpoint, ClientRuntime clientRuntime)
         {
-            clientRuntime.MessageInspectors.Add(new AmazonSigningMessageInspector(accessKeyId, secretKey));
+            clientRuntime.MessageInspectors.Add(new AmazonSigningMessageInspector(_accessKeyId, _secretKey));
         }
 
         public void ApplyDispatchBehavior(ServiceEndpoint serviceEndpoint, EndpointDispatcher endpointDispatcher)
@@ -123,23 +115,22 @@ namespace m4d.Utilities
     [SuppressMessage("Microsoft.Design", "CA1001:TypesThatOwnDisposableFieldsShouldBeDisposable")]
     public class AWSFetcher : IDisposable
     {
-        private const string accessKeyId = "***REMOVED***";
-        private const string secretKeyId = "***REMOVED***";
-        private const string associateTag = "music4dance-20";
-        private const string endPointAddress = "https://webservices.amazon.com/onca/soap?Service=AWSECommerceService";
+        private const string AccessKeyId = "***REMOVED***";
+        private const string SecretKeyId = "***REMOVED***";
+        private const string AssociateTag = "music4dance-20";
+        private const string EndPointAddress = "https://webservices.amazon.com/onca/soap?Service=AWSECommerceService";
         //"https://webservices.amazon.fr/onca/soap?Service=AWSECommerceService"
 
-        AWSECommerceServicePortTypeClient _client;
+        readonly AWSECommerceServicePortTypeClient _client;
 
         public AWSFetcher()
         {
             // create a WCF Amazon ECS client
-            var binding = new BasicHttpBinding(BasicHttpSecurityMode.Transport);
-            binding.MaxReceivedMessageSize = int.MaxValue;
-            _client = new AWSECommerceServicePortTypeClient(binding, new EndpointAddress(endPointAddress));
+            var binding = new BasicHttpBinding(BasicHttpSecurityMode.Transport) {MaxReceivedMessageSize = int.MaxValue};
+            _client = new AWSECommerceServicePortTypeClient(binding, new EndpointAddress(EndPointAddress));
 
             // add authentication to the ECS client
-            _client.ChannelFactory.Endpoint.Behaviors.Add(new AmazonSigningEndpointBehavior(accessKeyId, secretKeyId));
+            _client.ChannelFactory.Endpoint.Behaviors.Add(new AmazonSigningEndpointBehavior(AccessKeyId, SecretKeyId));
 
         }
 
@@ -155,7 +146,7 @@ namespace m4d.Utilities
 
         public ServiceTrack LookupTrack(string asin)
         {
-            ItemLookupResponse response = DoLookupTrack(asin);
+            var response = DoLookupTrack(asin);
 
             if (response == null)
             {
@@ -182,7 +173,7 @@ namespace m4d.Utilities
 
         private IList<ServiceTrack> DoFetchTracks(SongDetails song, bool clean = false, string title = null, string artist = null)
         {
-            List<ServiceTrack> tracks = new List<ServiceTrack>();
+            var tracks = new List<ServiceTrack>();
 
             try {
 
@@ -205,7 +196,7 @@ namespace m4d.Utilities
                 }
 
 
-                ItemSearchResponse response = FindTrack(title, artist);
+                var response = FindTrack(title, artist);
 
                 if (response == null)
                 {
@@ -221,14 +212,14 @@ namespace m4d.Utilities
 
                 foreach (var item in response.Items[0].Item)
                 {
-                    ServiceTrack track = BuildServiceTrack(item);
+                    var track = BuildServiceTrack(item);
 
                     if (song == null || song.TitleArtistMatch(track.Name, track.Artist))
                     {
                         tracks.Add(track);
 
                         // If we have an exact match break...
-                        if (song != null && song.FindAlbum(track.Album) != null)
+                        if (song?.FindAlbum(track.Album) != null)
                         {
                             break;
                         }
@@ -247,7 +238,7 @@ namespace m4d.Utilities
         private ServiceTrack BuildServiceTrack(Item item)
         {
             string artist = null;
-            string title = item.ItemAttributes.Title;
+            var title = item.ItemAttributes.Title;
 
             if (item.ItemAttributes.Creator != null && item.ItemAttributes.Creator.Length > 0)
             {
@@ -281,15 +272,14 @@ namespace m4d.Utilities
                 }
             }
 
-            string genre = item.ItemAttributes.Genre;
+            var genre = item.ItemAttributes.Genre;
 
-            int gidx = genre.IndexOf("-music");
+            var gidx = genre.IndexOf("-music", StringComparison.OrdinalIgnoreCase);
             if (gidx != -1)
             {
                 genre = genre.Remove(gidx);
             }
-            string trackId = item.ASIN;
-            ServiceTrack track = new ServiceTrack 
+            var track = new ServiceTrack 
             {
                 Service = ServiceType.Amazon,
                 TrackId = "D:" + item.ASIN,
@@ -308,7 +298,7 @@ namespace m4d.Utilities
 
         private ItemSearchResponse FindTrack(string title, string artist)
         {
-            string log = string.Format("FindTrack - {0} - Title: '{1}' Artist:'{2}'", DateTime.Now, title, artist);
+            var log = $"FindTrack - {DateTime.Now} - Title: '{title}' Artist:'{artist}'";
             Trace.WriteLine(log);
 
             var request = new ItemSearchRequest
@@ -322,8 +312,8 @@ namespace m4d.Utilities
 
             var itemSearch = new ItemSearch
             {
-                AssociateTag = associateTag,
-                AWSAccessKeyId = accessKeyId,
+                AssociateTag = AssociateTag,
+                AWSAccessKeyId = AccessKeyId,
                 Request = new[] {request}
             };
 
@@ -354,8 +344,8 @@ namespace m4d.Utilities
 
             var itemLookup = new ItemLookup
             {
-                AssociateTag = associateTag,
-                AWSAccessKeyId = accessKeyId,
+                AssociateTag = AssociateTag,
+                AWSAccessKeyId = AccessKeyId,
                 Request = new[] {request}
             };
 

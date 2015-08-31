@@ -16,7 +16,7 @@ namespace m4d.APIControllers
         {
             var user = Database.FindUser(HttpContext.Current.User.Identity.GetUserName());
             string region = "US";
-            if (user != null && !string.IsNullOrWhiteSpace(user.Region))
+            if (!string.IsNullOrWhiteSpace(user?.Region))
             {
                 region = user.Region;
             }
@@ -35,12 +35,9 @@ namespace m4d.APIControllers
 
             if (fullLink)
             {
-                return Ok(DanceMusicService.ReducePurchaseLinks(links,region));
+                return Ok(DanceMusicService.ReducePurchaseLinks(links, region));
             }
-            else
-            {
-                return Ok(DanceMusicService.PurchaseLinksToInfo(links, region));
-            }
+            return Ok(DanceMusicService.PurchaseLinksToInfo(links, region));
         }
     }
 }

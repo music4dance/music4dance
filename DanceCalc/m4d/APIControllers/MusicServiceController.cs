@@ -18,7 +18,7 @@ namespace m4d.APIControllers
                 title = song.Title;
             }
 
-            var key = string.Format("{0}|{1}|{2}|{3}", id, service, artist, title);
+            var key = $"{id}|{service}|{artist}|{title}";
 
             IList<ServiceTrack> tracks;
 
@@ -57,7 +57,7 @@ namespace m4d.APIControllers
             }
             catch (WebException e)
             {
-                Trace.WriteLineIf(TraceLevels.General.TraceError,string.Format("GetServiceTracks Failed: {0}",e.Message));
+                Trace.WriteLineIf(TraceLevels.General.TraceError, $"GetServiceTracks Failed: {e.Message}");
                 if (e.Message.Contains("Unauthorized"))
                 {
                     Trace.WriteLineIf(TraceLevels.General.TraceError, "!!!!!AUTHORIZATION FAILED!!!!!");

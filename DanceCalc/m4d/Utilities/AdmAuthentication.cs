@@ -5,7 +5,6 @@ using System.Diagnostics.CodeAnalysis;
 using System.Net;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Json;
-using System.Security.Claims;
 using System.Security.Principal;
 using System.Text;
 using System.Threading;
@@ -30,7 +29,7 @@ namespace m4d.Utilities
         protected abstract string ClientId { get; }
         protected abstract string ClientSecret { get; }
         protected abstract string RequestFormat { get; }
-        protected virtual string RequestExtra { get { return string.Empty; } }
+        protected virtual string RequestExtra => string.Empty;
         protected abstract string RequestUrl { get; }
         protected abstract Type AccessTokenType { get; } 
 

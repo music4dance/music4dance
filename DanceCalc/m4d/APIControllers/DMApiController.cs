@@ -10,23 +10,13 @@ namespace m4d.APIControllers
 {
     public class DMApiController : ApiController
     {
-        public DMApiController()
-            : base()
-        {
-        }
-        protected DanceMusicService Database
-        {
-            get
-            {
-                if (_database == null)
-                {
-                    _database = new DanceMusicService(HttpContext.Current.GetOwinContext().Get<DanceMusicContext>(), HttpContext.Current.GetOwinContext().GetUserManager<ApplicationUserManager>());
-                }
-                return _database;
-            }
-        }
-        private DanceMusicService _database = null;
+        protected DanceMusicService Database => _database ??
+                                                (_database =
+                                                    new DanceMusicService(HttpContext.Current.GetOwinContext().Get<DanceMusicContext>(),
+                                                        HttpContext.Current.GetOwinContext().GetUserManager<ApplicationUserManager>()));
 
-        protected DanceMusicContext Context { get { return Database.Context as DanceMusicContext; } }
+        private DanceMusicService _database;
+
+        protected DanceMusicContext Context => Database.Context as DanceMusicContext;
     }
 }

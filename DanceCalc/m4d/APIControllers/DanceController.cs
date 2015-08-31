@@ -6,7 +6,7 @@ using m4dModels;
 
 namespace m4d.APIControllers
 {
-    public class DanceJson
+    public sealed class DanceJson
     {
         [SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
         public DanceJson(DanceObject d)
@@ -22,12 +22,12 @@ namespace m4d.APIControllers
         {
             TempoDelta = d.TempoDelta;
         }
-        public virtual string Id { get; set; }
-        public virtual string Name { get; set; }
-        public virtual Meter Meter { get; set; }
-        public virtual TempoRange TempoRange { get; set; }
-        public virtual decimal TempoDelta { get; set; }
-        public virtual string SeoName { get; set; }
+        public string Id { get; set; }
+        public string Name { get; set; }
+        public Meter Meter { get; set; }
+        public TempoRange TempoRange { get; set; }
+        public decimal TempoDelta { get; set; }
+        public string SeoName { get; set; }
     }
 
     public class DanceController : DMApiController
@@ -40,12 +40,9 @@ namespace m4d.APIControllers
             {
                 return Ok(dances);
             }
-            else
-            {
-                var jdance = dances.Select(x => new DanceJson(x));
+            var jdance = dances.Select(x => new DanceJson(x));
 
-                return Ok(jdance);
-            }
+            return Ok(jdance);
         }
 
         public IHttpActionResult GetDance(string id)

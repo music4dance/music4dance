@@ -23,57 +23,56 @@ namespace m4d.ViewModels
                 where ids.Contains(s.SongId)
                 select s;
 
-            Dictionary<int,SongDetails> map = new Dictionary<int,SongDetails>();
-            int max = 0;
-            int floor = -1;
+            var map = new Dictionary<int,SongDetails>();
+            var max = 0;
+            var floor = -1;
 
             string artist = null;
-            bool uniqueArtist = true;
+            var uniqueArtist = true;
 
             string albumTitle = null;
 
             foreach (var song in songs)
             {
-                SongDetails sd = new SongDetails(song);
-                AlbumDetails album = sd.AlbumFromTitle(title);
-                if (album != null)
+                var sd = new SongDetails(song);
+                var album = sd.AlbumFromTitle(title);
+                if (album == null) continue;
+
+                int track;
+                if (!album.Track.HasValue || album.Track.Value == 0 || map.ContainsKey(album.Track.Value))
                 {
-                    int track;
-                    if (!album.Track.HasValue || album.Track.Value == 0 || map.ContainsKey(album.Track.Value))
-                    {
-                        track = floor;
-                        floor -= 1;
-                    }
-                    else
-                    {
-                        track = album.Track.Value;
-                    }
+                    track = floor;
+                    floor -= 1;
+                }
+                else
+                {
+                    track = album.Track.Value;
+                }
 
-                    map.Add(track, sd);
-                    max = Math.Max(max, track);
+                map.Add(track, sd);
+                max = Math.Max(max, track);
 
-                    if (artist == null && !string.IsNullOrWhiteSpace(sd.Artist))
+                if (artist == null && !string.IsNullOrWhiteSpace(sd.Artist))
+                {
+                    artist = SongBase.CreateNormalForm(sd.Artist);
+                }
+                else if (uniqueArtist)
+                {
+                    if (!string.Equals(SongBase.CreateNormalForm(sd.Artist), artist, StringComparison.InvariantCultureIgnoreCase))
                     {
-                        artist = SongBase.CreateNormalForm(sd.Artist);
+                        uniqueArtist = false;
                     }
-                    else if (uniqueArtist)
-                    {
-                        if (!string.Equals(SongBase.CreateNormalForm(sd.Artist), artist, StringComparison.InvariantCultureIgnoreCase))
-                        {
-                            uniqueArtist = false;
-                        }
-                    }
+                }
 
-                    if (albumTitle == null)
-                    {
-                        albumTitle = album.Name;
-                    }
+                if (albumTitle == null)
+                {
+                    albumTitle = album.Name;
                 }
             }
 
-            List<SongDetails> list = new List<SongDetails>();
+            var list = new List<SongDetails>();
             // First add in the tracks that have valid #'s in order
-            for (int i = 0; i <= max; i++)
+            for (var i = 0; i <= max; i++)
             {
                 SongDetails sd;
                 if (map.TryGetValue(i,out sd))
@@ -82,7 +81,7 @@ namespace m4d.ViewModels
                 }
             }
             // Then append the tracks that either don't have a number or are dups
-            for (int i = -1; i > floor; i--)
+            for (var i = -1; i > floor; i--)
             {
                 SongDetails sd;
                 if (map.TryGetValue(i, out sd))
@@ -93,13 +92,10 @@ namespace m4d.ViewModels
 
             if (list.Count > 0)
             {
-                AlbumViewModel viewModel = new AlbumViewModel { Title = albumTitle, Artist = uniqueArtist ? list[0].Artist : string.Empty, Songs = list };
+                var viewModel = new AlbumViewModel { Title = albumTitle, Artist = uniqueArtist ? list[0].Artist : string.Empty, Songs = list };
                 return viewModel;
             }
-            else
-            {
-                return null;
-            }
+            return null;
         }
     }
 }

@@ -503,7 +503,7 @@ namespace m4d.Controllers
         {
             filter.Action = "MergeCandidates";
 
-            BuildDanceList(filter);
+            BuildDanceList();
 
             if (page.HasValue)
             {
@@ -917,7 +917,7 @@ namespace m4d.Controllers
                 $"Entering Song.Index: dances='{filter.Dances}',sortOrder='{filter.SortOrder}',searchString='{filter.SearchString}'");
 
             var songs = Database.BuildSongList(filter, HttpContext.User.IsInRole(DanceMusicService.EditRole) ? DanceMusicService.CruftFilter.AllCruft : DanceMusicService.CruftFilter.NoCruft);
-            BuildDanceList(filter);
+            BuildDanceList();
 
             var list = songs.ToPagedList(filter.Page ?? 1, 25);
             
@@ -925,7 +925,7 @@ namespace m4d.Controllers
             return View("Index", list);
         }
 
-        private void BuildDanceList(SongFilter filter)
+        private void BuildDanceList()
         {
             ViewBag.Dances = SongCounts.GetSongCounts(Database);
             ViewBag.DanceMap = SongCounts.GetDanceMap(Database);

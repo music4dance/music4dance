@@ -16,21 +16,17 @@ namespace m4d.Utilities
         [DataMember]
         public int expires_in { get; set; }
 
-        public override TimeSpan ExpiresIn
-        {
-            get { return TimeSpan.FromSeconds(expires_in - 60); }
-        }
-
+        public override TimeSpan ExpiresIn => TimeSpan.FromSeconds(expires_in - 60);
     }
 
     public class SpotAuthentication : AdmAuthentication
     {
-        protected override string ClientId {get { return "***REMOVED***"; }}
-        protected override string ClientSecret { get { return "***REMOVED***"; } }
+        protected override string ClientId => "***REMOVED***";
+        protected override string ClientSecret => "***REMOVED***";
 
-        protected override string RequestFormat { get { return "grant_type=client_credentials&client_id={0}&client_secret={1}"; } }
-        protected override string RequestUrl { get { return "https://accounts.spotify.com/api/token"; } }
-        protected override Type AccessTokenType { get { return typeof(SpotAccessToken); } }
+        protected override string RequestFormat => "grant_type=client_credentials&client_id={0}&client_secret={1}";
+        protected override string RequestUrl => "https://accounts.spotify.com/api/token";
+        protected override Type AccessTokenType => typeof(SpotAccessToken);
     }
 
     public class SpotUserAuthentication : SpotAuthentication
@@ -47,7 +43,7 @@ namespace m4d.Utilities
             var start = DateTime.Now;
             foreach (var claim in claimsPrincipal.Claims)
             {
-                Trace.WriteLine(string.Format("{0}: {1}: {2}",claim.Issuer,claim.Type,claim.Value));
+                Trace.WriteLine($"{claim.Issuer}: {claim.Type}: {claim.Value}");
                 switch (claim.Type)
                 {
                     case "urn:spotify:access_token":
@@ -84,11 +80,8 @@ namespace m4d.Utilities
             return auth;
         }
 
-        protected override string RequestExtra
-        {
-            get { return "&refreshToken=" + HttpUtility.UrlEncode(_refreshToken); }
-        }
-        protected override string RequestFormat { get { return "grant_type=refresh_token&refresh_token={0}&client_secret={1}"; } }
+        protected override string RequestExtra => "&refreshToken=" + HttpUtility.UrlEncode(_refreshToken);
+        protected override string RequestFormat => "grant_type=refresh_token&refresh_token={0}&client_secret={1}";
 
         private string _refreshToken;
     }

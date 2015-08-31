@@ -14,11 +14,11 @@ namespace m4d.Utilities
             {
                 int? length = null;
                 
-                string s = controllerContext.HttpContext.Request.Form["Length"];
+                var s = controllerContext.HttpContext.Request.Form["Length"];
                 if (!string.IsNullOrWhiteSpace(s)) try 
                 {
-                    SongDuration d = new SongDuration(s);
-                    decimal l = d.Length;
+                    var d = new SongDuration(s);
+                    var l = d.Length;
                     length = (int)l;
                 } 
                 catch (ArgumentOutOfRangeException e)

@@ -14,13 +14,8 @@ namespace m4d.Controllers
     [Authorize]
     public class ManageController : DMController
     {
-        public override string DefaultTheme
-        {
-            get
-            {
-                return ToolTheme;
-            }
-        }
+        public override string DefaultTheme => ToolTheme;
+
         public ManageController()
         {
         }
@@ -393,13 +388,7 @@ namespace m4d.Controllers
         // Used for XSRF protection when adding external logins
         private const string XsrfKey = "XsrfId";
 
-        private IAuthenticationManager AuthenticationManager
-        {
-            get
-            {
-                return HttpContext.GetOwinContext().Authentication;
-            }
-        }
+        private IAuthenticationManager AuthenticationManager => HttpContext.GetOwinContext().Authentication;
 
         private async Task SignInAsync(ApplicationUser user, bool isPersistent)
         {

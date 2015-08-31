@@ -22,14 +22,7 @@ namespace m4d.Controllers
     [Authorize]
     public class AdminController : DMController
     {
-        public override string DefaultTheme
-        {
-            get
-            {
-                return AdminTheme;
-            }
-        }
-
+        public override string DefaultTheme => AdminTheme;
 
         #region Commands
         //

@@ -12,6 +12,7 @@ namespace m4d.Utilities
             var claimsIdentity = user.Identity as ClaimsIdentity;
             if (claimsIdentity == null || claimsIdentity.Claims == null) return DefaultRegion;
 
+            // ReSharper disable once LoopCanBePartlyConvertedToQuery
             foreach (var claim in claimsIdentity.Claims)
             {
                 if (claim.Type == "Region")
