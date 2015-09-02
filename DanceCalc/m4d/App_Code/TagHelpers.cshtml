@@ -14,19 +14,19 @@
     string urlFiltered = null;
     if (filter != null)
     {
-        var filterNoDance = new SongFilter(filter.ToString()) { Dances = null };
-        if (!filterNoDance.IsEmpty)
-        {
-            urlFiltered = urlBase + "&filter=" + WebUtility.UrlEncode(filter.ToString());
-        }
-
-        if (!string.IsNullOrWhiteSpace(filter.Dances) && Dances.Instance.DanceDictionary.ContainsKey(filter.Dances))
+        if (!string.IsNullOrWhiteSpace(filter.Dances) && Dances.Instance.DanceDictionary.ContainsKey(filter.Dances.ToUpper()))
         {
             var filterDance = new SongFilter { Dances = filter.Dances };
             danceName = Dances.Instance.DanceDictionary[filter.Dances].Name;
             
             urlDance = urlBase + "&filter=" + WebUtility.UrlEncode(filterDance.ToString());
         }
+
+        if (!filter.IsEmpty)
+        {
+            urlFiltered = urlBase + "&filter=" + WebUtility.UrlEncode(filter.ToString());
+        }
+
     }
     else
     {

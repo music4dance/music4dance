@@ -184,67 +184,67 @@
     <tbody>
         @foreach (var item in Model)
         {
-                                SongDetails sd = null;
-                                if (albumName != null)
-                                {
-                                    sd = item as SongDetails;
-                                }
-                                List<DanceRating> scaledDances = null;
-                                if (item.DanceRatings != null)
-                                {
-                                    scaledDances = item.DanceRatings.OrderByDescending(dr => SongCounts.GetScaledRating(danceMap, dr.DanceId, dr.Weight)).ToList();
-                                }
-                                string tempoString = null;
-                                if (item.Tempo.HasValue)
-                                {
-                                    var numerator = 4;
-                                    if (scaledDances != null && scaledDances.Count > 0)
-                                    {
-                                        var did = scaledDances[0].DanceId;
-                                        if (!string.IsNullOrWhiteSpace(did))
-                                        {
-                                            var d = Dances.Instance.DanceDictionary[did];
-                                            numerator = d.Meter.Numerator;
-                                        }
-                                    }
-                                    tempoString = string.Format("<a href='/home/counter?numerator={1}&tempo={0}'>{0}</a>", decimal.Round(item.Tempo.Value), numerator);
-                                }
+            SongDetails sd = null;
+            if (albumName != null)
+            {
+                sd = item as SongDetails;
+            }
+            List<DanceRating> scaledDances = null;
+            if (item.DanceRatings != null)
+            {
+                scaledDances = item.DanceRatings.OrderByDescending(dr => SongCounts.GetScaledRating(danceMap, dr.DanceId, dr.Weight)).ToList();
+            }
+            string tempoString = null;
+            if (item.Tempo.HasValue)
+            {
+                var numerator = 4;
+                if (scaledDances != null && scaledDances.Count > 0)
+                {
+                    var did = scaledDances[0].DanceId;
+                    if (!string.IsNullOrWhiteSpace(did))
+                    {
+                        var d = Dances.Instance.DanceDictionary[did];
+                        numerator = d.Meter.Numerator;
+                    }
+                }
+                tempoString = string.Format("<a href='/home/counter?numerator={1}&tempo={0}'>{0}</a>", decimal.Round(item.Tempo.Value), numerator);
+            }
 
-                                if (item.Title != null)
+            if (item.Title != null)
+            {
+            <tr>
+                <td>
+                    @if (!string.IsNullOrWhiteSpace(item.Purchase))
+                    {
+                        var id = "Play" + item.SongId;
+                        <div class="btn-group">
+                            <a href="#" id="@id" role="button" class="btn dropdown-toggle" data-toggle="dropdown" aria-expanded="false"><img src="@Url.Content("~/Content/playbutton.png")" alt="Play" width="20" height="20" /></a>
+                            <ul class="dropdown-menu" role="menu">
+                                @if (!string.IsNullOrEmpty(item.Purchase) && item.Purchase.Contains('X'))
                                 {
-                <tr>
-                    <td>
-                        @if (!string.IsNullOrWhiteSpace(item.Purchase))
-                                            {
-                                        var id = "Play" + item.SongId;
-                            <div class="btn-group">
-                                <a href="#" id="@id" role="button" class="btn dropdown-toggle" data-toggle="dropdown" aria-expanded="false"><img src="@Url.Content("~/Content/playbutton.png")" alt="Play" width="20" height="20" /></a>
-                                <ul class="dropdown-menu" role="menu">
-                                    @if (!string.IsNullOrEmpty(item.Purchase) && item.Purchase.Contains('X'))
-                                    {
-                                        var xid = "X" + item.SongId;
-                                        <li><a href="#" id="@xid" class="play-link"><img src='@Url.Content("~/Content/xbox-logo.png")' alt="Availiable on Groove Music" width="20" height="20" /> Groove</a></li>
-                                    }
-                                    @if (!string.IsNullOrEmpty(item.Purchase) && item.Purchase.Contains('I'))
-                                    {
-                                        var iid = "I" + item.SongId;
-                                        <li><a href="#" id="@iid" class="play-link"><img src='@Url.Content("~/Content/itunes-logo.png")' alt=" availiable on itunes" width="20" height="20" /> ITunes</a></li>
-                                    }
-                                    @if (!string.IsNullOrEmpty(item.Purchase) && item.Purchase.Contains('A'))
-                                    {
-                                        var aid = "A" + item.SongId;
-                                        <li><a href="#" id="@aid" class="play-link"><img src='@Url.Content("~/Content/amazon-logo.png")' alt=" availiable at amazon" width="20" height="20" /> Amazon</a></li>
-                                    }
-                                    @if (!string.IsNullOrEmpty(item.Purchase) && item.Purchase.Contains('S'))
-                                    {
-                                        var sid = "S" + item.SongId;
-                                        <li><a href="#" id="@sid" class="play-link"><img src='@Url.Content("~/Content/spotify-logo.png")' alt=" availiable on spotify" width="20" height="20" /> Spotify</a></li>
-                                    }
-                                </ul>
-                            </div>
-                        }
-                    </td>
-                    @if (isAdmin)
+                                    var xid = "X" + item.SongId;
+                                    <li><a href="#" id="@xid" class="play-link"><img src='@Url.Content("~/Content/xbox-logo.png")' alt="Availiable on Groove Music" width="20" height="20" /> Groove</a></li>
+                                }
+                                @if (!string.IsNullOrEmpty(item.Purchase) && item.Purchase.Contains('I'))
+                                {
+                                    var iid = "I" + item.SongId;
+                                    <li><a href="#" id="@iid" class="play-link"><img src='@Url.Content("~/Content/itunes-logo.png")' alt=" availiable on itunes" width="20" height="20" /> ITunes</a></li>
+                                }
+                                @if (!string.IsNullOrEmpty(item.Purchase) && item.Purchase.Contains('A'))
+                                {
+                                    var aid = "A" + item.SongId;
+                                    <li><a href="#" id="@aid" class="play-link"><img src='@Url.Content("~/Content/amazon-logo.png")' alt=" availiable at amazon" width="20" height="20" /> Amazon</a></li>
+                                }
+                                @if (!string.IsNullOrEmpty(item.Purchase) && item.Purchase.Contains('S'))
+                                {
+                                    var sid = "S" + item.SongId;
+                                    <li><a href="#" id="@sid" class="play-link"><img src='@Url.Content("~/Content/spotify-logo.png")' alt=" availiable on spotify" width="20" height="20" /> Spotify</a></li>
+                                }
+                            </ul>
+                        </div>
+                    }
+                </td>
+                @if (isAdmin)
                 {
                     var id = "Selected-" + item.SongId;
                     if (canSort)
@@ -257,35 +257,35 @@
                     <td>
                         @Html.ActionLink(item.Title, "details", "song", new { id = item.SongId, filter }, null)
                         @if (tempoString != null)
-                {
+                        {
                             <small class="hidden-sm hidden-md hidden-lg">(@Html.Raw(tempoString) BPM)</small>
                         }
                         <span class="visible-xs"> - @Artist(item)</span>
                     </td>
 
                     @if (!hideArtist)
-                {
+                    {
                         <td class="hidden-xs">@Artist(item)</td>
                     }
 
-                        @if (albumName == null)
-                {
+                    @if (albumName == null)
+                    {
                         @*<td class="hidden-xs">
-                                @if (!string.IsNullOrWhiteSpace(item.AlbumName))
-                                {
-                                    @Html.ActionLink(item.AlbumName, "album", "song", new { title = item.AlbumName }, null)
-                                }
-                            </td>*@
+                            @if (!string.IsNullOrWhiteSpace(item.AlbumName))
+                            {
+                                @Html.ActionLink(item.AlbumName, "album", "song", new { title = item.AlbumName }, null)
+                            }
+                        </td>*@
                     }
                     else
                     {
                         <td class="hidden-xs">
                             @{
-                        var track = sd.TrackFromAlbum(albumName);
-                        if (track > 0)
-                        {
-                            @track.ToString()
-                        }
+                                var track = sd.TrackFromAlbum(albumName);
+                                if (track > 0)
+                                {
+                                    @track.ToString()
+                                }
                             }
                         </td>
                     }
