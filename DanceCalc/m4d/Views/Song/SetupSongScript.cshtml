@@ -7,10 +7,22 @@
     {
         <script> var paramNumerator = @ViewBag.paramNumerator; </script>
     }
+
     var stream = new MemoryStream();
     var serializer = new DataContractJsonSerializer(typeof (SongDetails));
     serializer.WriteObject(stream, Model);
     var songString = System.Text.Encoding.UTF8.GetString(stream.ToArray());
+
+    string filterString = null;
+    if (ViewData.ContainsKey("SongFilter"))
+    {
+        stream = new MemoryStream();
+        serializer = new DataContractJsonSerializer(typeof(SongFilter));
+        serializer.WriteObject(stream, ViewBag.SongFilter);
+        filterString = System.Text.Encoding.UTF8.GetString(stream.ToArray());
+    }
+
+
     var canEdit = User.IsInRole(DanceMusicService.EditRole) ? "true" : "false";
     var canTag = User.Identity.IsAuthenticated ? "true" : "false";
     var userId = User.Identity.GetUserId();
@@ -23,6 +35,7 @@
     var canEdit = @canEdit;
     var canTag = @canTag;
     var song = @Html.Raw(songString);
+    var songFilter = @(filterString == null ? null : Html.Raw(filterString));
     var userId = '@userId';
 </script>
 
