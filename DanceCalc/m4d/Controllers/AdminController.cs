@@ -1711,7 +1711,50 @@ namespace m4d.Controllers
             ViewBag.Message = $"{c} lookup records deleted";
 
             return View("Results");
-        }        
+        }
+
+        //
+        // Get: //CleanAlbums
+        [Authorize(Roles = "dbAdmin")]
+        public ActionResult CleanAlbums()
+        {
+            var properties = from sp in Database.SongProperties where sp.Name == SongBase.AlbumOrder select sp;
+
+            Context.TrackChanges(false);
+
+            var dups = new Dictionary<Guid, SongProperty>();
+            var cBogus = 0;
+            var cRedundant = 0;
+            foreach (var property in properties)
+            {
+                var reorder = property.Value.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries).Select(int.Parse).ToList();
+                if (reorder.Count != reorder.Distinct().Count())
+                {
+                    Database.SongProperties.Remove(property);
+                    cBogus += 1;
+                }
+                else
+                {
+                    SongProperty temp;
+                    if (dups.TryGetValue(property.SongId, out temp))
+                    {
+                        Database.SongProperties.Remove(temp);
+                        cRedundant += 1;
+                    }
+                    dups[property.SongId] = property;
+                }
+            }
+
+            dups.Clear();
+            Context.TrackChanges(true);
+
+            ViewBag.Name = "Clean album reorders";
+            ViewBag.Success = true;
+            ViewBag.Message = $"{cBogus} bogus and {cRedundant} album reorders deleted";
+
+            return View("Results");
+        }
+
         #endregion
 
         #region Migration-Restore
