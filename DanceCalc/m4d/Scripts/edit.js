@@ -305,6 +305,10 @@ var editor = function () {
         //{'copy': 'PurchaseLinks' }
         ko.mapping.fromJS(data, {}, this);
 
+        if (!self.hasOwnProperty('Name')) {
+            console.Log('FAILED:' + data);
+        }
+
         self.addPurchase = function (track) {
             //var pi = self.PurchasInfo();
             //var r = /[AIX][SA]=[^;]*/g, match;

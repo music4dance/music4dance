@@ -114,7 +114,7 @@
         <table>
             <tr><td></td><td class="album-header">Album</td><td class="track-header">Track</td><td class="publisher-header">Label</td><td class="delete-header"></td></tr>
             <tbody data-bind="foreach: song.Albums">
-                <tr data-bind="attr: {id: 'Album_' + $index()}">
+                <tr data-bind="if:$data,attr: {id: 'Album_' + $index()}">
                     <td>
                         <div data-bind="ifnot: $index() == 0">
                             <a href="#" class="btn btn-sm btn-default">
@@ -181,7 +181,7 @@
             <tr>
                 <td><a data-bind="attr: {href: SongLink.Link}" class="btn" role="button"><img width="30" height="30" data-bind="attr: {src: serviceLogo}" /></a></td>
                 <td><a href="#" class="btn btn-default" role="button" data-bind="click: $root.song.chooseTrack"><img width="30" height="30" data-bind="attr: {src: ImageUrl}" /></a></td>
-                <td data-bind="text: Name"></td>
+                @*<td data-bind="text: Name"></td>*@<td>&nbsp;</td>
                 <td data-bind="text: Album"></td>
                 <td data-bind="text: Artist"></td>
                 <td data-bind="text: TrackNumber"></td>
