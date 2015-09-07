@@ -36,18 +36,18 @@ namespace m4dModels.Tests
         public void LoadingDetails()
         {
             var songs = Load();
-            Assert.AreEqual(s_sData.Length, songs.Count);
+            Assert.AreEqual(SongData.Length, songs.Count);
         }
 
         [TestMethod]
         public void SavingDetails()
         {
             var songs = Load();
-            Assert.AreEqual(songs.Count, s_sData.Length);
+            Assert.AreEqual(songs.Count, SongData.Length);
             for (var i = 0; i < songs.Count; i++)
             {
                 var s = songs[i];
-                DiffSerialized(s.ToString(), s_sData[i], s.SongId);
+                DiffSerialized(s.ToString(), SongData[i], s.SongId);
             }
         }
         private static void DiffSerialized(string org, string str, Guid id)
@@ -63,11 +63,10 @@ namespace m4dModels.Tests
                 {
                     for (var ich = 0; ich < str.Length; ich++)
                     {
-                        if (org[ich] != str[ich])
-                        {
-                            Trace.WriteLine(string.Format("Results differ starting at {0}", ich));
-                            break;
-                        }
+                        if (org[ich] == str[ich]) continue;
+
+                        Trace.WriteLine($"Results differ starting at {ich}");
+                        break;
                     }
                 }
                 else if (org.Length < str.Length)
@@ -79,32 +78,32 @@ namespace m4dModels.Tests
                     Trace.WriteLine("Result shorter than org");
                 }
             }
-            Assert.AreEqual(org,str,string.Format("{0} failed to save.",id.ToString("B")));
+            Assert.AreEqual(org,str, $"{id.ToString("B")} failed to save.");
         }
 
         [TestMethod]
         public void LoadingRowDetails()
         {
-            ValidateLoadingRowDetails(SHeader, s_sRows, s_sRowProps);
+            ValidateLoadingRowDetails(SHeader, SongRows, RowProps);
         }
 
         [TestMethod]
         public void LoadingTaggedRowDetails()
         {
-            ValidateLoadingRowDetails(NHeader, s_nRows, s_nRowProps, 1);
+            ValidateLoadingRowDetails(NHeader, TaggedRows, TaggedRowsProps, 1);
         }
 
         [TestMethod]
         public void LoadingDwtsRowDetails()
         {
-            ValidateLoadingRowDetails(WHeader, s_wRows, s_wRowProps, 0, "Season 19:Other|Episode 1:Other");
+            ValidateLoadingRowDetails(WHeader, StarsRows, StarsRowsProps, 0, "Season 19:Other|Episode 1:Other");
         }
 
         [TestMethod]
         public void CreatingSongs()
         {
             var service = MockContext.CreateService(true);
-            var guids = CreateSongs(SHeader,s_sRows,service).ToList();
+            var guids = CreateSongs(SHeader,SongRows,service).ToList();
 
             Assert.AreEqual(guids.Count(), service.Songs.Count());
             for (var i = 0; i < guids.Count(); i++)
@@ -114,7 +113,7 @@ namespace m4dModels.Tests
 
                 var txt = DanceMusicTester.ReplaceTime(s.Serialize(new[] { SongBase.NoSongId }));
                 Trace.WriteLine(txt);
-                Assert.AreEqual(s_sRowPropsC[i], txt);
+                Assert.AreEqual(RowPopsCreate[i], txt);
             }
         }
 
@@ -122,23 +121,23 @@ namespace m4dModels.Tests
         public void LoadingCatalog()
         {
             var service = MockContext.CreateService(true);
-            var guids = CreateSongs(SHeader, s_sRows, service).ToList();
+            var guids = CreateSongs(SHeader, SongRows, service).ToList();
 
             Assert.AreEqual(guids.Count(), service.Songs.Count());
 
-            var songs = LoadRows(NHeader, s_nRows, service, 1);
+            var songs = LoadRows(NHeader, TaggedRows, service, 1);
 
             var merges = service.MatchSongs(songs, DanceMusicService.MatchMethod.Merge);
 
             Assert.IsTrue(service.MergeCatalog(service.FindUser("dwgray"),merges));
 
             var i = 0;
-            foreach (var song in merges.Select(merge => service.Songs.Find(merge.Right != null ? merge.Right.SongId : merge.Left.SongId)))
+            foreach (var song in merges.Select(merge => service.Songs.Find(merge.Right?.SongId ?? merge.Left.SongId)))
             {
                 Assert.IsNotNull(song);
                 var txt = DanceMusicTester.ReplaceTime(song.Serialize(new[] { SongBase.NoSongId }));
                 Trace.WriteLine(txt);
-                Assert.AreEqual(s_nMergeProps[i++], txt);
+                Assert.AreEqual(MergeProps[i++], txt);
             }
         }
 
@@ -146,11 +145,11 @@ namespace m4dModels.Tests
         public void LoadingDanceCatalog()
         {
             var service = MockContext.CreateService(true);
-            var guids = CreateSongs(SHeader, s_sRows, service).ToList();
+            var guids = CreateSongs(SHeader, SongRows, service).ToList();
 
             Assert.AreEqual(guids.Count(), service.Songs.Count());
 
-            var songs = LoadRows(DHeader, s_dRows, service);
+            var songs = LoadRows(DHeader, DanceRows, service);
 
             var merges = service.MatchSongs(songs, DanceMusicService.MatchMethod.Merge);
 
@@ -158,12 +157,12 @@ namespace m4dModels.Tests
             Assert.IsTrue(service.MergeCatalog(service.FindUser("dwgray"), merges, new[] {"VWZ"}));
 
             var i = 0;
-            foreach (var song in merges.Select(merge => service.Songs.Find(merge.Right != null ? merge.Right.SongId : merge.Left.SongId)))
+            foreach (var song in merges.Select(merge => service.Songs.Find(merge.Right?.SongId ?? merge.Left.SongId)))
             {
                 Assert.IsNotNull(song);
                 var txt = DanceMusicTester.ReplaceTime(song.Serialize(new[] { SongBase.NoSongId }));
                 Trace.WriteLine(txt);
-                Assert.AreEqual(s_dMergeProps[i], txt,string.Format("Failed on Line {0}",i));
+                Assert.AreEqual(DanceMergeProps[i], txt, $"Failed on Line {i}");
                 i += 1;
             }
         }
@@ -194,7 +193,7 @@ namespace m4dModels.Tests
 
         static private void ValidateLoadingRowDetails(string header, string[] rows, string[] expected, int dups = 0, string tags=null)
         {
-            if (expected == null) throw new ArgumentNullException("expected");
+            if (expected == null) throw new ArgumentNullException(nameof(expected));
 
             var service = MockContext.CreateService(true);
             var user = service.FindUser("dwgray");
@@ -236,23 +235,23 @@ namespace m4dModels.Tests
 
         static IList<SongDetails> Load()
         {
-            return s_sData.Select(str => new SongDetails(str)).ToList();
+            return SongData.Select(str => new SongDetails(str)).ToList();
         }
 
-        static IList<SongDetails> LoadRows(string header, string[] rows, DanceMusicService service, int dups = 0)
+        static IList<SongDetails> LoadRows(string header, IReadOnlyCollection<string> rows, DanceMusicService service, int dups = 0)
         {
-            if (rows == null) throw new ArgumentNullException("rows");
+            if (rows == null) throw new ArgumentNullException(nameof(rows));
 
             var user = service.FindUser("dwgray");
 
             IList<string> headers = SongDetails.BuildHeaderMap(header);
             var ret = SongDetails.CreateFromRows(user,"\t",headers,rows,5);
 
-            Assert.AreEqual(rows.Length, ret.Count+dups);
+            Assert.AreEqual(rows.Count, ret.Count+dups);
             return ret;
         }
 
-        static readonly string[] s_sData =
+        static readonly string[] SongData =
         {
             @"SongId={70b993fa-f821-44c7-bf5d-6076f4fe8f17}	User=batch	Time=3/19/2014 5:03:17 PM	Title=Crazy Little Thing Called Love	Artist=Queen	Tempo=154.0	Album:0=Greatest Hits	Album:1=The Game	Album:2=Queen - Greatest Hits	User=SalsaSwingBallroom	User=SandiegoDJ	User=SteveThatDJ	DanceRating=LHP+10	DanceRating=ECS+5	DanceRating=WCS+10	User=batch	Time=5/7/2014 11:30:58 AM	Length=163	Genre=Rock	Track:1=5	Purchase:1:XS=music.F9021900-0100-11DB-89CA-0019B92A3933	User=batch	Time=5/7/2014 3:32:13 PM	Album:2=Queen: Greatest Hits	Track:2=9	Purchase:2:IS=27243763	Purchase:2:IA=27243728	User=batch	Time=5/20/2014 3:46:15 PM	Track:0=9	Purchase:0:AS=D:B00138K9CM	Purchase:0:AA=D:B00138F72E	User=breanna	Time=6/5/2014 8:46:10 PM	DanceRating=ECS+5	User=breanna	Time=6/9/2014 8:13:17 PM	DanceRating=JIV+6	User=shawntrautman	Time=6/23/2014 1:56:23 PM	DanceRating=SWG+6	User=SalsaSwingBallroom	Time=9/4/2014 8:06:37 PM	Tag=Lindy Hop	Tag=East Coast Swing	Tag=West Coast Swing	User=SandiegoDJ	Time=9/4/2014 8:06:37 PM	Tag=Lindy Hop	Tag=East Coast Swing	Tag=West Coast Swing	User=SteveThatDJ	Time=9/4/2014 8:06:37 PM	Tag=Lindy Hop	Tag=East Coast Swing	Tag=West Coast Swing	User=breanna	Time=9/4/2014 8:06:37 PM	Tag=East Coast Swing	Tag=Jive	User=shawntrautman	Time=9/4/2014 8:06:37 PM	Tag=Swing	User=batch	Time=9/4/2014 8:06:37 PM	Tag=Rock	User=SalsaSwingBallroom	Time=9/4/2014 8:11:39 PM	Tag=Lindy Hop	Tag=East Coast Swing	Tag=West Coast Swing	User=SandiegoDJ	Time=9/4/2014 8:11:39 PM	Tag=Lindy Hop	Tag=East Coast Swing	Tag=West Coast Swing	User=SteveThatDJ	Time=9/4/2014 8:11:39 PM	Tag=Lindy Hop	Tag=East Coast Swing	Tag=West Coast Swing	User=breanna	Time=9/4/2014 8:11:39 PM	Tag=East Coast Swing	Tag=Jive	User=shawntrautman	Time=9/4/2014 8:11:39 PM	Tag=Swing	User=batch	Time=9/4/2014 8:11:39 PM	Tag=Rock",
             @"SongId={ea55fcea-35f5-4d0d-81b5-a5264395945d}	Purchase:1:IA=554530	User=batch	Time=5/21/2014 9:15:26 PM	Length=155	Purchase:1:AS=D:B000W0CTAW	Purchase:1:AA=D:B000W0B00W	Purchase:1:IS=554314	Genre=Jazz	Length=156	Time=5/21/2014 7:16:49 PM	User=batch	PromoteAlbum:1=	Purchase:1:XS=music.B76B0F00-0100-11DB-89CA-0019B92A3933	Track:1=5	Album:1=Sings Great American Songwriters	Genre=Pop	Length=155	Time=5/21/2014 2:04:51 PM	User=batch	DanceRating=FXT+5	Album:0=The Ultimate Ballroom Album 12	Tempo=116.0	Artist=Carmen McRae	Title=Blue Moon	Time=3/17/2014 5:43:50 PM	User=SalsaSwingBallroom",
@@ -263,7 +262,7 @@ namespace m4dModels.Tests
 
         private const string SHeader = @"Title	Artist	BPM	Dance	Album	AMAZONTRACK";
 
-        static readonly string[] s_sRows =
+        static readonly string[] SongRows =
         {
             @"Black Sheep	Gin Wigmore	120	WCS	Gravel & Wine [+digital booklet]	B00BYKXC82",
             @"The L Train	Gabriel Yared	72	SWZ	Shall We Dance?	B001NYTZJY",
@@ -275,7 +274,7 @@ namespace m4dModels.Tests
             @"All For You	Imelda May	120	SFT	More Mayhem	B008VSKRAQ",
         };
 
-        static readonly string[] s_sRowProps =
+        static readonly string[] RowProps =
         {
             @".Create=	User=dwgray	Time=00/00/0000 0:00:00 PM	Title=Black Sheep	Artist=Gin Wigmore	Tempo=120.0	Tag+=West Coast Swing:Dance	DanceRating=WCS+5	Album:00=Gravel & Wine [+digital booklet]	Purchase:00:AS=B00BYKXC82	DanceRating=SWG+1	DanceRating=CSG+1	DanceRating=HST+1	DanceRating=WCS+1	DanceRating=LHP+1",
             @".Create=	User=dwgray	Time=00/00/0000 0:00:00 PM	Title=The L Train	Artist=Gabriel Yared	Tempo=72.0	Tag+=Slow Waltz:Dance	DanceRating=SWZ+5	Album:00=Shall We Dance?	Purchase:00:AS=B001NYTZJY	DanceRating=WLZ+1",
@@ -287,7 +286,7 @@ namespace m4dModels.Tests
             @".Create=	User=dwgray	Time=00/00/0000 0:00:00 PM	Title=All For You	Artist=Imelda May	Tempo=120.0	Tag+=Slow Foxtrot:Dance	DanceRating=SFT+5	Album:00=More Mayhem	Purchase:00:AS=B008VSKRAQ	DanceRating=FXT+1	DanceRating=SFT+1",
         };
 
-        private static readonly string[] s_sRowPropsC =
+        private static readonly string[] RowPopsCreate =
         {
             @".Create=	User=dwgray	Time=00/00/0000 0:00:00 PM	Title=Black Sheep	Artist=Gin Wigmore	Tempo=120.0	Tag+=West Coast Swing:Dance	DanceRating=WCS+6	DanceRating=SWG+1	DanceRating=CSG+1	DanceRating=HST+1	DanceRating=LHP+1	Album:00=Gravel & Wine [+digital booklet]	Purchase:00:AS=B00BYKXC82",
             @".Create=	User=dwgray	Time=00/00/0000 0:00:00 PM	Title=The L Train	Artist=Gabriel Yared	Tempo=72.0	Tag+=Slow Waltz:Dance	DanceRating=SWZ+5	DanceRating=WLZ+1	Album:00=Shall We Dance?	Purchase:00:AS=B001NYTZJY",
@@ -301,7 +300,7 @@ namespace m4dModels.Tests
 
         private const string NHeader = @"Dance	Rating	Title	BPM	Time	Artist	Comment	DanceTags:Other	SongTags:Music";
 
-        private static readonly string[] s_nRows =
+        private static readonly string[] TaggedRows =
         {
             @"Foxtrot	5	Glam	120	3:20	Dimie Cat	traditional english language foxtrot	David|Goliath	Pop|Rock",
             @"Samba	3	Drop It On Me (Ft Daddy Yankee)	100	3:54	Ricky Martin	good pop-latin spanish language samba		",
@@ -309,14 +308,14 @@ namespace m4dModels.Tests
             @"Cha Cha	3	Bailemos Otra Vez	195	5:08	Jose Alberto El Canario			"
         };
 
-        private static readonly string[] s_nRowProps =
+        private static readonly string[] TaggedRowsProps =
         {
             @".Create=	User=dwgray	Time=00/00/0000 0:00:00 PM	Tag+=English:Other|Foxtrot:Dance|Pop:Music|Rock:Music	DanceRating=FXT+5	Title=Glam	Tempo=120.0	Length=200	Artist=Dimie Cat	Tag+:FXT=David:Other|Goliath:Other|Traditional:Style	DanceRating=SFT+1",
             @".Create=	User=dwgray	Time=00/00/0000 0:00:00 PM	Tag+=Samba:Dance|Spanish:Other	DanceRating=SMB+3	Title=Drop It On Me (Ft Daddy Yankee)	Tempo=100.0	Length=234	Artist=Ricky Martin	DanceRating=LTN+1",
             @".Create=	User=dwgray	Time=00/00/0000 0:00:00 PM	Tag+=Cha Cha:Dance|Mambo:Dance|Salsa:Dance	DanceRating=MBO+4	DanceRating=SLS+4	Title=Bailemos Otra Vez	Tempo=195.0	Artist=Jose Alberto El Canario	Tag+:MBO=Traditional:Style	Tag+:SLS=Traditional:Style	Length=308	DanceRating=CHA+3	DanceRating=LTN+3"
         };
 
-        private static readonly string[] s_nMergeProps =
+        private static readonly string[] MergeProps =
         {
             @".Create=	User=dwgray	Time=00/00/0000 0:00:00 PM	Title=Glam	Artist=Dimie Cat	Tempo=200.0	Tag+=QuickStep:Dance	DanceRating=QST+6	DanceRating=FXT+1	Album:00=Glam!	Purchase:00:AS=B0042D1W6C	.Edit=	User=dwgray	Time=00/00/0000 0:00:00 PM	Length=200	Tag+=English:Other|Foxtrot:Dance|Pop:Music|Rock:Music	DanceRating=FXT+5	DanceRating=SFT+1	Tag+:FXT=David:Other|Goliath:Other|Traditional:Style",
             @".Create=	User=dwgray	Time=00/00/0000 0:00:00 PM	Title=Drop It On Me (Ft Daddy Yankee)	Artist=Ricky Martin	Tempo=100.0	Length=234	Tag+=Samba:Dance|Spanish:Other	DanceRating=SMB+3	DanceRating=LTN+1",
@@ -325,14 +324,14 @@ namespace m4dModels.Tests
 
         private const string DHeader = @"Title	Artist	Comment";
 
-        private static readonly string[] s_dRows =
+        private static readonly string[] DanceRows =
         {
             @"The L Train	Gabriel Yared	Traditional Waltz",
             @"Come Wake Me Up	Rascal Flatts	Contemporary Waltz",
             @"A very traditional Waltz	Strauss	Old English Language",
         };
 
-        private static readonly string[] s_dMergeProps =
+        private static readonly string[] DanceMergeProps =
         {
             @".Create=	User=dwgray	Time=00/00/0000 0:00:00 PM	Title=The L Train	Artist=Gabriel Yared	Tempo=72.0	Tag+=Slow Waltz:Dance	DanceRating=SWZ+5	DanceRating=WLZ+1	Album:00=Shall We Dance?	Purchase:00:AS=B001NYTZJY	.Edit=	User=dwgray	Time=00/00/0000 0:00:00 PM	Tag+=Viennese Waltz:Dance	DanceRating=VWZ+4	DanceRating=WLZ+2",
             @".Create=	User=dwgray	Time=00/00/0000 0:00:00 PM	Title=Come Wake Me Up	Artist=Rascal Flatts	Tempo=153.0	Tag+=Viennese Waltz:Dance	DanceRating=VWZ+5	DanceRating=WLZ+1	Album:00=Changed (Deluxe Version) [+Digital Booklet]	Purchase:00:AS=B007MSUAV2	.Edit=	User=dwgray	Time=00/00/0000 0:00:00 PM	DanceRating=VWZ+2	DanceRating=WLZ+1",
@@ -341,13 +340,13 @@ namespace m4dModels.Tests
 
         private const string WHeader = @"Dancers	Dance	Title+Artist";
 
-        private static readonly string[] s_wRows =
+        private static readonly string[] StarsRows =
         {
             @"Antonio & Cheryl	Cha-cha-cha	""Tonight (I'm Lovin' You)""—Enrique Iglesias feat. Ludacris & DJ Frank E",
             @"Lea & Artem	Foxtrot	""This Will Be (An Everlasting Love)""—Natalie Cole",
         };
 
-        private static readonly string[] s_wRowProps =
+        private static readonly string[] StarsRowsProps =
         {
             @".Create=	User=dwgray	Time=00/00/0000 0:00:00 PM	Tag+=Cha Cha:Dance	DanceRating=CHA+5	Tag+:CHA=Antonio:Other|Cheryl:Other	Title=Tonight (I'm Lovin' You)	Artist=Enrique Iglesias feat. Ludacris & DJ Frank E	DanceRating=LTN+1	Tag+=Episode 1:Other|Season 19:Other",
             @".Create=	User=dwgray	Time=00/00/0000 0:00:00 PM	Tag+=Foxtrot:Dance	DanceRating=FXT+5	Tag+:FXT=Artem:Other|Lea:Other	Title=This Will Be (An Everlasting Love)	Artist=Natalie Cole	Tag+=Episode 1:Other|Season 19:Other",

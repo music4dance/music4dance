@@ -44,11 +44,8 @@ namespace m4dModels.Tests
             {
                 return null;
             }
-            else
-            {
-                Regex r = new Regex("\tTime=[^\t]*");
-                return r.Replace(s, "\tTime=00/00/0000 0:00:00 PM");
-            }
+            var r = new Regex("\tTime=[^\t]*");
+            return r.Replace(s, "\tTime=00/00/0000 0:00:00 PM");
         }
 
         public static bool CompareStrings(string a, string b)
@@ -62,18 +59,9 @@ namespace m4dModels.Tests
                 return false;
             }
 
-            if (a.Length > b.Length)
-            {
-                Trace.WriteLine("a > b");
-                return false;
-            }
+            if (a.Length <= b.Length) return b.Length <= a.Length;
 
-            if (b.Length > a.Length)
-            {
-                Trace.WriteLine("b > a");
-                return false;
-            }
-            return true;
+            return false;
         }
     }
 }

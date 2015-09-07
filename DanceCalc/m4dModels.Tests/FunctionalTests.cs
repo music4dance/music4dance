@@ -9,41 +9,41 @@ namespace m4dModels.Tests
     [TestClass]
     public class FunctionalTests
     {
-        private static readonly DanceMusicTester s_service = new DanceMusicTester();
+        private static readonly DanceMusicTester Tester = new DanceMusicTester();
 
         [TestMethod]
         public void LoadDatabase()
         {
-            var users = from u in s_service.Dms.Context.Users select u;
-            Assert.AreEqual(s_service.Users.Count() - 1, users.Count(),"Count of Users");
-            var dances = from d in s_service.Dms.Context.Dances select d;
-            Assert.AreEqual(s_service.Dances.Count(), dances.Count(), "Count of Dances");
-            foreach (var s in s_service.Dms.SerializeTags())
+            var users = from u in Tester.Dms.Context.Users select u;
+            Assert.AreEqual(Tester.Users.Count() - 1, users.Count(),"Count of Users");
+            var dances = from d in Tester.Dms.Context.Dances select d;
+            Assert.AreEqual(Tester.Dances.Count(), dances.Count(), "Count of Dances");
+            foreach (var s in Tester.Dms.SerializeTags())
             {
                 Trace.WriteLine(s);
             }
-            var tts = from tt in s_service.Dms.Context.TagTypes select tt;
-            Assert.AreEqual(s_service.Tags.Count(), tts.Count(), "Count of Tag Types");
-            var songs = from s in s_service.Dms.Context.Songs where s.TitleHash != 0 select s;
-            Assert.AreEqual(s_service.Songs.Count(), songs.Count(),"Count of Songs");
+            var tts = from tt in Tester.Dms.Context.TagTypes select tt;
+            Assert.AreEqual(Tester.Tags.Count(), tts.Count(), "Count of Tag Types");
+            var songs = from s in Tester.Dms.Context.Songs where s.TitleHash != 0 select s;
+            Assert.AreEqual(Tester.Songs.Count(), songs.Count(),"Count of Songs");
         }
 
         [TestMethod]
         public void SaveDatabase()
         {
-            Assert.IsNotNull(s_service);
-            var songs = s_service.Dms.SerializeSongs(false);
+            Assert.IsNotNull(Tester);
+            var songs = Tester.Dms.SerializeSongs(false);
             //foreach (string s in songs)
             //{
             //    Trace.WriteLine(s);
             //}
-            Assert.IsTrue(ListEquivalent(s_service.Songs, songs));
+            Assert.IsTrue(ListEquivalent(Tester.Songs, songs));
 
-            var dances = s_service.Dms.SerializeDances(false);
-            Assert.IsTrue(ListEquivalent(s_service.Dances, dances));
+            var dances = Tester.Dms.SerializeDances(false);
+            Assert.IsTrue(ListEquivalent(Tester.Dances, dances));
 
-            var tags = s_service.Dms.SerializeTags(false);
-            Assert.IsTrue(ListEquivalent(s_service.Tags, tags));
+            var tags = Tester.Dms.SerializeTags(false);
+            Assert.IsTrue(ListEquivalent(Tester.Tags, tags));
 
             // TODO: To get this to work, we have to add in roles to the Mock Context.
             //IList<string> users = s_dms.SerializeUsers(true);
@@ -55,7 +55,7 @@ namespace m4dModels.Tests
         {
             var filter = new SongFilter {SortOrder = "Tempo", Dances = "SWG", Purchase = "X"};
 
-            var songs = s_service.Dms.BuildSongList(filter);
+            var songs = Tester.Dms.BuildSongList(filter);
 
             decimal tempo = 0;
             var count = 0;
@@ -72,7 +72,7 @@ namespace m4dModels.Tests
                 count += 1;
             }
 
-            Trace.WriteLine(string.Format("Filtered Count = {0}", count));
+            Trace.WriteLine($"Filtered Count = {count}");
             Assert.AreEqual(2, count);
         }
 
@@ -81,7 +81,7 @@ namespace m4dModels.Tests
         {
             const string x = "ECS,FXT,RMB";
             var filter = new SongFilter { Dances = x };
-            var songs = s_service.Dms.BuildSongList(filter);
+            var songs = Tester.Dms.BuildSongList(filter);
             var drs = x.Split(',');
 
             var count = 0;
@@ -91,7 +91,7 @@ namespace m4dModels.Tests
                 Assert.IsNotNull(song.DanceRatings.Any(dr => drs.Contains(dr.DanceId)));
                 count += 1;
             }
-            Trace.WriteLine(string.Format("Filtered Count = {0}", count));
+            Trace.WriteLine($"Filtered Count = {count}");
             Assert.AreEqual(28, count);
         }
 
@@ -100,7 +100,7 @@ namespace m4dModels.Tests
         {
             const string x = "SWG,FXT";
             var filter = new SongFilter { Dances =  "AND," + x };
-            var songs = s_service.Dms.BuildSongList(filter);
+            var songs = Tester.Dms.BuildSongList(filter);
             var drs = x.Split(',');
 
             var count = 0;
@@ -110,7 +110,7 @@ namespace m4dModels.Tests
                 Assert.IsNotNull(song.DanceRatings.All(dr => drs.Contains(dr.DanceId)));
                 count += 1;
             }
-            Trace.WriteLine(string.Format("Filtered Count = {0}", count));
+            Trace.WriteLine($"Filtered Count = {count}");
             Assert.AreEqual(1, count);
         }
 
@@ -120,7 +120,7 @@ namespace m4dModels.Tests
             var filter = new SongFilter {SortOrder = "Dances_10", Dances = "SWG"};
 
 
-            var songs = s_service.Dms.BuildSongList(filter);
+            var songs = Tester.Dms.BuildSongList(filter);
 
             var weight = int.MaxValue;
             var count = 0;
@@ -134,7 +134,7 @@ namespace m4dModels.Tests
                 count += 1;
             }
 
-            Trace.WriteLine(string.Format("Filtered Count = {0}", count));
+            Trace.WriteLine($"Filtered Count = {count}");
             Assert.AreEqual(10, count);
         }
 
@@ -144,7 +144,7 @@ namespace m4dModels.Tests
         {
             var filter = new SongFilter {SortOrder = "Title", SearchString = "The"};
 
-            var songs = s_service.Dms.BuildSongList(filter);
+            var songs = Tester.Dms.BuildSongList(filter);
 
             var title = string.Empty;
             var count = 0;
@@ -158,7 +158,7 @@ namespace m4dModels.Tests
                 count += 1;
             }
 
-            Trace.WriteLine(string.Format("Filtered Count = {0}", count));
+            Trace.WriteLine($"Filtered Count = {count}");
             Assert.AreEqual(100, count);
         }
 
@@ -195,25 +195,25 @@ The *East Coast Swing* is generally danced as the first dance of <a href='/dance
             const string vocal = "Vocal Pop:Music:4";
             const string vjazz = "Vocal Jazz:Music:0";
 
-            var user = s_service.Dms.FindUser("batch");
+            var user = Tester.Dms.FindUser("batch");
             var userid = new Guid(user.Id);
 
-            ValidateTagSummary(s_service.Dms.GetTagSuggestions(), 233, twoStep, vjazz, "All Tags");
-            ValidateTagSummary(s_service.Dms.GetTagSuggestions(null,null,"Music",500),153,country, vjazz, "Batch Music Tags");
-            ValidateTagSummary(s_service.Dms.GetTagSuggestions(userid),36,country, waltz, "Batch Tags");
-            ValidateTagSummary(s_service.Dms.GetTagSuggestions(userid, null, null, int.MaxValue, true), 34, country, waltz,"Batch Normalized Tags");
-            ValidateTagSummary(s_service.Dms.GetTagSuggestions(userid, 'S', "Music"), 31, country, childrens, "Batch Genre Tags");
-            ValidateTagSummary(s_service.Dms.GetTagSuggestions(userid, 'S', "Dance"), 3, swing, waltz, "Batch Dance Tags");
-            ValidateTagSummary(s_service.Dms.GetTagSuggestions(userid, 'S', "Music", 10, true), 10,country,vocal,"Top Batch Genere Tags");
+            ValidateTagSummary(Tester.Dms.GetTagSuggestions(), 233, twoStep, vjazz, "All Tags");
+            ValidateTagSummary(Tester.Dms.GetTagSuggestions(null,null,"Music",500),153,country, vjazz, "Batch Music Tags");
+            ValidateTagSummary(Tester.Dms.GetTagSuggestions(userid),36,country, waltz, "Batch Tags");
+            ValidateTagSummary(Tester.Dms.GetTagSuggestions(userid, null, null, int.MaxValue, true), 34, country, waltz,"Batch Normalized Tags");
+            ValidateTagSummary(Tester.Dms.GetTagSuggestions(userid, 'S', "Music"), 31, country, childrens, "Batch Genre Tags");
+            ValidateTagSummary(Tester.Dms.GetTagSuggestions(userid, 'S', "Dance"), 3, swing, waltz, "Batch Dance Tags");
+            ValidateTagSummary(Tester.Dms.GetTagSuggestions(userid, 'S', "Music", 10, true), 10,country,vocal,"Top Batch Genere Tags");
         }
 
         [TestMethod]
         public void RebuildUserTags()
         {
-            var tracker = TagContext.CreateService(s_service.Dms);
+            var tracker = TagContext.CreateService(Tester.Dms);
 
-            var user = s_service.Dms.FindUser("batch");
-            foreach (var song in s_service.Dms.Songs)
+            var user = Tester.Dms.FindUser("batch");
+            foreach (var song in Tester.Dms.Songs)
             {
                 song.RebuildUserTags(user,tracker);
             }
@@ -245,22 +245,22 @@ The *East Coast Swing* is generally danced as the first dance of <a href='/dance
             {
                 var tid = rg[0] + ':' + rg[1];
                 var uid = rg[2];
-                var tag = s_service.Dms.Tags.Find(uid,tid);
+                var tag = Tester.Dms.Tags.Find(uid,tid);
                 Assert.IsNotNull(tag);
-                s_service.Dms.Tags.Remove(tag);
-                tag = s_service.Dms.Tags.Find(uid,tid);
+                Tester.Dms.Tags.Remove(tag);
+                tag = Tester.Dms.Tags.Find(uid,tid);
                 Assert.IsNull(tag);
             }
 
             // Rebuild them
-            s_service.Dms.RebuildUserTags("batch",true);
+            Tester.Dms.RebuildUserTags("batch",true);
 
             // Verify that they exists
             foreach (var rg in _userTags.Select(ut => ut.Split(':')))
             {
                 Assert.IsTrue(rg.Length > 2);
 
-                Assert.IsNotNull(s_service.Dms.Tags.Find(rg[2], rg[0] + ':' + rg[1]));
+                Assert.IsNotNull(Tester.Dms.Tags.Find(rg[2], rg[0] + ':' + rg[1]));
             }
         }
 

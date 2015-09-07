@@ -1,7 +1,4 @@
-﻿using System;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System.Diagnostics;
-using m4dModels;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Web;
 
 namespace m4dModels.Tests

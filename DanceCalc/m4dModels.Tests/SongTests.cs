@@ -1,5 +1,4 @@
-﻿using System.Diagnostics;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace m4dModels.Tests
 {
@@ -76,7 +75,6 @@ namespace m4dModels.Tests
             var song = new Song();
             song.Load(@"user=batch	Title=Test	Artist=Me	Tempo=30.0",Service);
 
-            var init = song.ToString();
             //Trace.WriteLine(init);
             var sd = new SongDetails(song);
 
@@ -86,7 +84,7 @@ namespace m4dModels.Tests
             // Create an test an initial small list of dance ratings
             var user = Service.FindUser("dwgray");
             song.Update(user, sd, Service);
-            var first = song.ToString();
+            //var first = song.ToString();
             //Trace.WriteLine(first);
             Assert.IsTrue(song.DanceRatings.Count == 3);
 

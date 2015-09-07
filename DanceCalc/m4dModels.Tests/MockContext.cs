@@ -4,7 +4,6 @@ using System.Data.Entity;
 using System.Linq;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.EntityFramework;
-using m4dModels;
 
 namespace m4dModels.Tests
 {
@@ -24,14 +23,7 @@ namespace m4dModels.Tests
             public override Dance Find(params object[] keyValues)
             {
                 var id = keyValues.Single() as string;
-                if (id == null)
-                {
-                    return null;
-                }
-                else
-                {
-                    return this.SingleOrDefault(d => d.Id == id);
-                }
+                return id == null ? null : this.SingleOrDefault(d => d.Id == id);
             }
         }
 
@@ -49,14 +41,7 @@ namespace m4dModels.Tests
             public override ApplicationUser Find(params object[] keyValues)
             {
                 var id = keyValues.Single() as string;
-                if (id == null)
-                {
-                    return null;
-                }
-                else
-                {
-                    return this.SingleOrDefault(u => u.Id == id);
-                }
+                return id == null ? null : this.SingleOrDefault(u => u.Id == id);
             }
         }
 
@@ -73,11 +58,10 @@ namespace m4dModels.Tests
             Users = new ApplicationUserSet();
             Roles = new TestDbSet<IdentityRole>();
 
-            if (seedUsers)
-            {
-                Users.Add(new ApplicationUser() {UserName = "dwgray", Id = "05849D25-0292-44CF-A3E6-74D07D94855C"});
-                Users.Add(new ApplicationUser() {UserName = "batch", Id = "DE3752CA-42CD-46FB-BEE9-F7163CFB091B"});
-            }
+            if (!seedUsers) return;
+
+            Users.Add(new ApplicationUser() {UserName = "dwgray", Id = "05849D25-0292-44CF-A3E6-74D07D94855C"});
+            Users.Add(new ApplicationUser() {UserName = "batch", Id = "DE3752CA-42CD-46FB-BEE9-F7163CFB091B"});
         }
 
         #region Events

@@ -1,6 +1,4 @@
-﻿using System;
-using m4dModels;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace m4dModels.Tests
 {
@@ -10,32 +8,32 @@ namespace m4dModels.Tests
         [TestMethod]
         public void TrackOnly()
         {
-            TrackNumber t0 = new TrackNumber(0, null, null);
-            TrackNumber t5 = new TrackNumber(5, null, null);
-            TrackNumber tx = new TrackNumber(999, null, null);
+            var t0 = new TrackNumber(0, null, null);
+            var t5 = new TrackNumber(5, null, null);
+            var tx = new TrackNumber(999, null, null);
 
             Assert.AreEqual(0, (int)t0, "Create Null");
             Assert.AreEqual(5, (int)t5, "Create 5");
             Assert.AreEqual(999, (int)tx, "Create 999");
 
-            string t0ex = string.Empty;
-            string t5ex = "005";
-            string txex = "999";
+            var t0Ex = string.Empty;
+            const string t5Ex = "005";
+            const string txex = "999";
 
-            string t0s = t0.ToString();
-            string t5s = t5.ToString();
-            string txs = tx.ToString();
+            var t0S = t0.ToString();
+            var t5S = t5.ToString();
+            var txs = tx.ToString();
 
-            Assert.AreEqual(t0ex, t0s, "ToString 0");
-            Assert.AreEqual(t5ex, t5s, "ToString 5");
+            Assert.AreEqual(t0Ex, t0S, "ToString 0");
+            Assert.AreEqual(t5Ex, t5S, "ToString 5");
             Assert.AreEqual(txex, txs, "ToString 999");
 
-            TrackNumber t0fs = new TrackNumber(t0ex);
-            TrackNumber t5fs = new TrackNumber(t5ex);
-            TrackNumber txfs = new TrackNumber(txex);
+            var t0Fs = new TrackNumber(t0Ex);
+            var t5Fs = new TrackNumber(t5Ex);
+            var txfs = new TrackNumber(txex);
 
-            Assert.IsTrue(t0 == t0fs, "Compare 0");
-            Assert.IsTrue(t5 == t5fs, "Compare 5");
+            Assert.IsTrue(t0 == t0Fs, "Compare 0");
+            Assert.IsTrue(t5 == t5Fs, "Compare 5");
             Assert.IsTrue(tx == txfs, "Compare x");
 
             Assert.IsFalse(t0 == 1, "Compare null");
@@ -47,32 +45,32 @@ namespace m4dModels.Tests
         [TestMethod]
         public void TrackAndAlbum()
         {
-            TrackNumber t0 = new TrackNumber(0, 0, null);
-            TrackNumber t5 = new TrackNumber(5, 2, null);
-            TrackNumber tx = new TrackNumber(999, 999, null);
+            var t0 = new TrackNumber(0, 0, null);
+            var t5 = new TrackNumber(5, 2, null);
+            var tx = new TrackNumber(999, 999, null);
 
             Assert.AreEqual(0, (int)t0, "Create Null");
             Assert.AreEqual(2005, (int)t5, "Create 5");
             Assert.AreEqual(999999, (int)tx, "Create 999");
 
-            string t0ex = string.Empty;
-            string t5ex = "002:005";
-            string txex = "999:999";
+            var t0Ex = string.Empty;
+            const string t5Ex = "002:005";
+            const string txex = "999:999";
 
-            string t0s = t0.ToString();
-            string t5s = t5.ToString();
-            string txs = tx.ToString();
+            var t0S = t0.ToString();
+            var t5S = t5.ToString();
+            var txs = tx.ToString();
 
-            Assert.AreEqual(t0ex, t0s, "ToString 0");
-            Assert.AreEqual(t5ex, t5s, "ToString 5");
+            Assert.AreEqual(t0Ex, t0S, "ToString 0");
+            Assert.AreEqual(t5Ex, t5S, "ToString 5");
             Assert.AreEqual(txex, txs, "ToString 999");
 
-            TrackNumber t0fs = new TrackNumber(t0ex);
-            TrackNumber t5fs = new TrackNumber(t5ex);
-            TrackNumber txfs = new TrackNumber(txex);
+            var t0Fs = new TrackNumber(t0Ex);
+            var t5Fs = new TrackNumber(t5Ex);
+            var txfs = new TrackNumber(txex);
 
-            Assert.IsTrue(t0 == t0fs, "Compare 0");
-            Assert.IsTrue(t5 == t5fs, "Compare 5");
+            Assert.IsTrue(t0 == t0Fs, "Compare 0");
+            Assert.IsTrue(t5 == t5Fs, "Compare 5");
             Assert.IsTrue(tx == txfs, "Compare x");
 
             Assert.IsFalse(t0 == 1, "Compare null");
@@ -84,32 +82,32 @@ namespace m4dModels.Tests
         [TestMethod]
         public void TrackAlbumWork()
         {
-            TrackNumber t0 = new TrackNumber(0, 0, 0);
-            TrackNumber t5 = new TrackNumber(5, 2, 3);
-            TrackNumber tx = new TrackNumber(999, 999, 999);
+            var t0 = new TrackNumber(0, 0, 0);
+            var t5 = new TrackNumber(5, 2, 3);
+            var tx = new TrackNumber(999, 999, 999);
 
             Assert.AreEqual(0, (int)t0, "Create Null");
             Assert.AreEqual(3002005, (int)t5, "Create 5");
             Assert.AreEqual(999999999, (int)tx, "Create 999");
 
-            string t0ex = string.Empty;
-            string t5ex = "003:002:005";
-            string txex = "999:999:999";
+            var t0Ex = string.Empty;
+            const string t5Ex = "003:002:005";
+            const string txex = "999:999:999";
 
-            string t0s = t0.ToString();
-            string t5s = t5.ToString();
-            string txs = tx.ToString();
+            var t0S = t0.ToString();
+            var t5S = t5.ToString();
+            var txs = tx.ToString();
 
-            Assert.AreEqual(t0ex, t0s, "ToString 0");
-            Assert.AreEqual(t5ex, t5s, "ToString 5");
+            Assert.AreEqual(t0Ex, t0S, "ToString 0");
+            Assert.AreEqual(t5Ex, t5S, "ToString 5");
             Assert.AreEqual(txex, txs, "ToString 999");
 
-            TrackNumber t0fs = new TrackNumber(t0ex);
-            TrackNumber t5fs = new TrackNumber(t5ex);
-            TrackNumber txfs = new TrackNumber(txex);
+            var t0Fs = new TrackNumber(t0Ex);
+            var t5Fs = new TrackNumber(t5Ex);
+            var txfs = new TrackNumber(txex);
 
-            Assert.IsTrue(t0 == t0fs, "Compare 0");
-            Assert.IsTrue(t5 == t5fs, "Compare 5");
+            Assert.IsTrue(t0 == t0Fs, "Compare 0");
+            Assert.IsTrue(t5 == t5Fs, "Compare 5");
             Assert.IsTrue(tx == txfs, "Compare x");
 
             Assert.IsFalse(t0 == 1, "Compare null");

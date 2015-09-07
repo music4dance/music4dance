@@ -1,7 +1,4 @@
-﻿using System;
-using System.Text;
-using System.Collections.Generic;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -13,7 +10,7 @@ namespace m4dModels.Tests
     [TestClass]
     public class RegionTests
     {
-        private static readonly string[] s_verbose = {
+        private static readonly string[] Verbose = {
                 "7HbgRyO1uUqkBhYXsGHGyb",
                 null,
                 "5QbgRyO1uUqkBhYXsGHGyb[AD,AR,AT,AU,BE,BG,BO,BR,CA,CH,CL,CO,CR,CY,CZ,DE,DK,DO,EC,EE,ES,FI,FR,GB,GR,GT,HK,HN,HU,IE,IS,IT,LI,LT,LU,LV,MC,MT,MX,MY,NI,NL,NO,NZ,PA,PE,PH,PL,PT,PY,RO,SE,SG,SI,SK,SV,TR,TW,US,UY]",
@@ -23,7 +20,7 @@ namespace m4dModels.Tests
                 "0SBqz12IrQJFYLmXAWsrFt[AD,AR,AT,AU,BE,BG,BO,BR,CA,CH,CL,CO,CR,CY,CZ,DE,DK,DO,EC,EE,ES,FI,FR,GB,GR,GT,HK,HN,HU,IE,IS,IT,LI,LT,LU,LV,MC,MT,MX,MY,NI,NL,NO,NZ,PA,PE,PH,PL,PT,PY,RO,SE,SG,SI,SK,SV,TW,US,UY]"
             };
 
-        private static readonly string[] s_compact = {
+        private static readonly string[] Compact = {
             "7HbgRyO1uUqkBhYXsGHGyb",
             null,
             "5QbgRyO1uUqkBhYXsGHGyb[0]",
@@ -83,28 +80,28 @@ namespace m4dModels.Tests
         [TestMethod]
         public void RegionCompressionTest()
         {
-            for (var index = 0; index < s_verbose.Length; index++)
+            for (var index = 0; index < Verbose.Length; index++)
             {
-                var s = s_verbose[index];
+                var s = Verbose[index];
                 string[] rgs;
                 var id = PurchaseRegion.ParseIdAndRegionInfo(s, out rgs);
                 var act = PurchaseRegion.FormatIdAndRegionInfo(id, rgs);
 
                 //Trace.WriteLine(act);
 
-                Assert.AreEqual(s_compact[index],act,"Compression");
+                Assert.AreEqual(Compact[index],act,"Compression");
             }
         }
 
         [TestMethod]
         public void RegionDecompressionTest()
         {
-            for (var index = 0; index < s_verbose.Length; index++)
+            for (var index = 0; index < Verbose.Length; index++)
             {
                 string[] vrb;
                 string[] cmp;
-                PurchaseRegion.ParseIdAndRegionInfo(s_verbose[index], out vrb);
-                PurchaseRegion.ParseIdAndRegionInfo(s_compact[index], out cmp);
+                PurchaseRegion.ParseIdAndRegionInfo(Verbose[index], out vrb);
+                PurchaseRegion.ParseIdAndRegionInfo(Compact[index], out cmp);
 
                 if (vrb == null)
                 {

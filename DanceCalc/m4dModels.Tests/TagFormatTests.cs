@@ -9,10 +9,10 @@ namespace m4dModels.Tests
         [TestMethod]
         public void EncodeTags()
         {
-            for (int i = 0; i < Decoded.Length; i++ )
+            for (var i = 0; i < Decoded.Length; i++ )
             {
-                string d = Decoded[i];
-                string e = TagType.TagEncode(d);
+                var d = Decoded[i];
+                var e = TagType.TagEncode(d);
                 Trace.WriteLine(e);
                 Assert.AreEqual(Encoded[i], e);
             }
@@ -21,10 +21,10 @@ namespace m4dModels.Tests
         [TestMethod]
         public void DecodeTags()
         {
-            for (int i = 0; i < Encoded.Length; i++)
+            for (var i = 0; i < Encoded.Length; i++)
             {
-                string e = Encoded[i];
-                string d = TagType.TagDecode(e);
+                var e = Encoded[i];
+                var d = TagType.TagDecode(e);
                 Assert.AreEqual(Decoded[i], d);
             }
         }
