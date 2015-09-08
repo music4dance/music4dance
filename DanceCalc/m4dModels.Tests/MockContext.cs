@@ -112,6 +112,12 @@ namespace m4dModels.Tests
 
         public void ClearEntities(IEnumerable<string> entities) { }
 
+        public bool LazyLoadingEnabled
+        {
+            get { return true; }
+            set { var t = value; }
+        }
+
     public void LoadDances() { }
 
         public void Dispose()

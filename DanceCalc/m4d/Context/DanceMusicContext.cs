@@ -499,6 +499,12 @@ namespace m4d.Context
                 Configuration.AutoDetectChangesEnabled = false;
             }
         }
+
+        public bool LazyLoadingEnabled
+        {
+            get { return Configuration.LazyLoadingEnabled; }
+            set { Configuration.LazyLoadingEnabled = value; }
+        }
         #endregion
 
         AWSFetcher _awsFetcher;

@@ -2222,6 +2222,25 @@ namespace m4dModels
             return us;
         }
 
+        public void ChangeUserName(string oldUserName, string userName)
+        {
+            var user = UserManager.FindByName(oldUserName);
+            if (user == null)
+            {
+                throw new ArgumentOutOfRangeException($"User {0} doesn't exist",oldUserName);
+            }
+
+            Context.TrackChanges(false);
+            Context.LazyLoadingEnabled = false;
+
+            foreach (var prop in SongProperties.Where(p => p.Name == SongBase.UserField && p.Value == oldUserName))
+            {
+                prop.Value = userName;
+            }
+
+            Context.TrackChanges(true);
+        }
+
         private void AddRole(string id, string role)
         {
             if (string.IsNullOrWhiteSpace(role))

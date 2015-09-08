@@ -1,5 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Data.Entity;
+using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Web.Mvc;
@@ -76,15 +78,42 @@ namespace m4d.Controllers
         // POST: ApplicationUsers/Edit/5
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
+        [HttpPost, ActionName("Edit")]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit([Bind(Include = "Id,Email,EmailConfirmed,PasswordHash,SecurityStamp,PhoneNumber,PhoneNumberConfirmed,TwoFactorEnabled,LockoutEndDateUtc,LockoutEnabled,AccessFailedCount,UserName")] ApplicationUser applicationUser)
+        public ActionResult EditPost(string id)
         {
-            if (!ModelState.IsValid) return View(applicationUser);
+            if (id == null)
+            {
+                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+            }
 
-            Context.Entry(applicationUser).State = EntityState.Modified;
-            Context.SaveChanges();
-            return RedirectToAction("Index");
+            var applicationUser = Context.Users.Find(id);
+
+            var oldUserName = applicationUser.UserName;
+
+            var fields = new[]
+            {
+                "UserName", "Email", "EmailConfirmed", "PhoneNumber", "PhoneNumberConfirmed", "TwoFactorEnabled",
+                "LockoutEndDateUtc", "LockoutEnabled", "AccessFailedCount"
+            };
+            if (TryUpdateModel(applicationUser, string.Empty, fields))
+            {
+                try
+                {
+                    if (!string.Equals(oldUserName, applicationUser.UserName))
+                    {
+                        Database.ChangeUserName(oldUserName, applicationUser.UserName);
+                    }
+                    Context.SaveChanges();
+                }
+                catch (Exception ex)
+                {
+                    Trace.WriteLine(ex.Message);
+                    ModelState.AddModelError("", @"Unable to save changes. Try again, and if the problem persists, please <a href='https://www.music4dance.net/blog/feedback/'>report the issue</a>.");
+                }
+            }
+
+            return View(applicationUser);
         }
 
         // GET: Users/ChangeRoles/5

@@ -67,6 +67,11 @@ namespace m4dModels
         {
             throw new NotImplementedException();
         }
+        public bool LazyLoadingEnabled
+        {
+            get { return true; }
+            set { var t = value; }
+        }
 
         public static DanceMusicService CreateService(DanceMusicService realService)
         {

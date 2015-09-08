@@ -25,6 +25,8 @@ namespace m4dModels
         void ClearEntities(IEnumerable<string> entities);
 
         void LoadDances();
+
+        bool LazyLoadingEnabled { get; set; }
     }
 
     //public static class DanceMusicContextHelpers
