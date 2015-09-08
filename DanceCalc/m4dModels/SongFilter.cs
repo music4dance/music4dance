@@ -145,7 +145,6 @@ namespace m4dModels
                 var name = "All songs";
                 var separator = string.Empty;
                 var danceQuery = DanceQuery;
-                var dd = DanceLibrary.Dances.Instance.DanceDictionary;
                 if (!danceQuery.All)
                 {
                     var dances = danceQuery.Dances.ToList();
@@ -160,9 +159,10 @@ namespace m4dModels
                     }
                 }
 
-                if (!string.IsNullOrWhiteSpace(Dances) && !string.Equals(Dances, "ALL", StringComparison.InvariantCultureIgnoreCase) && dd.ContainsKey(Dances))
+                var dance = DanceLibrary.Dances.Instance.DanceFromId(Dances);
+                if (dance != null)
                 {
-                    name = string.Format($"All {DanceLibrary.Dances.Instance.DanceDictionary[Dances].Name} songs");
+                    name = string.Format($"All {dance.Name} songs");
                 }
 
                 var sb = new StringBuilder(name);

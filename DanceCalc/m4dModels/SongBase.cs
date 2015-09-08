@@ -340,7 +340,7 @@ namespace m4dModels
             foreach (var d in dances)
             {
                 tags.Append(sep);
-                tags.Append(Dances.Instance.DanceDictionary[d].Name);
+                tags.Append(Dances.Instance.DanceFromId(d).Name);
                 tags.Append(":Dance");
                 sep = "|";
             }
@@ -353,8 +353,6 @@ namespace m4dModels
             var tags = GetUserTags(user);
 
             // Infer dance groups != MSC
-            var dict = Dances.Instance.DanceDictionary;
-
             var dances = TagsToDances(tags);
             var ngs = new Dictionary<string, DanceRatingDelta>();
             var groups = new HashSet<string>();
@@ -407,7 +405,7 @@ namespace m4dModels
             // ReSharper disable once LoopCanBePartlyConvertedToQuery
             foreach (var gid in groups)
             {
-                var dg = dict[gid] as DanceGroup;
+                var dg = Dances.Instance.DanceFromId(gid) as DanceGroup;
                 if (dg == null) continue;
 
                 // ReSharper disable once LoopCanBePartlyConvertedToQuery

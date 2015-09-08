@@ -54,7 +54,7 @@ namespace m4dModels
                 {
                     ids = list.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
                 }
-                else if (Dances.Instance.DanceDictionary.ContainsKey(ds))
+                else if (Dances.Instance.DanceFromId(ds) != null)
                 {
                     ids = new[] {ds};
                 }
@@ -79,7 +79,7 @@ namespace m4dModels
                 {
                     if (_builtDanceMap) return InitialDanceMap;
 
-                    foreach (var d in Dance.DanceLibrary.DanceDictionary.Values)
+                    foreach (var d in Dance.DanceLibrary.AllDanceTypes)
                     {
                         var name = SongBase.CleanDanceName(d.Name);
                         InitialDanceMap.Add(name, d.Id);

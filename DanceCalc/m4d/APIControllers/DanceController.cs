@@ -47,8 +47,8 @@ namespace m4d.APIControllers
 
         public IHttpActionResult GetDance(string id)
         {
-            DanceObject o;
-            if (Dance.DanceLibrary.DanceDictionary.TryGetValue(id.ToUpper(), out o))
+            var o = Dance.DanceLibrary.DanceFromId(id);
+            if (o != null)
             {
                 return Ok(new DanceJson(o));
             }

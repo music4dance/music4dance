@@ -340,8 +340,6 @@ namespace m4d.Controllers
         {
             ViewBag.Name = "AddDanceGroups";
 
-            var dict = Dances.Instance.DanceDictionary;
-
             var count = 0;
             Context.TrackChanges(false);
 
@@ -351,7 +349,7 @@ namespace m4d.Controllers
                 var ngs = new Dictionary<string,DanceRatingDelta>();
                 foreach (var dr in song.DanceRatings)
                 {
-                    var d = dict[dr.DanceId];
+                    var d = Dances.Instance.DanceFromId(dr.DanceId);
                     var dt = d as DanceType;
                     if (dt != null)
                     {
@@ -404,8 +402,6 @@ namespace m4d.Controllers
 
             var groups = new[] {"SWG","TNG","FXT","WLZ"};
 
-            var dict = Dances.Instance.DanceDictionary;
-
             var count = 0;
             Context.TrackChanges(false);
 
@@ -418,7 +414,7 @@ namespace m4d.Controllers
                 var nts = new List<DanceRatingDelta>();
                 foreach (var dr in song.DanceRatings)
                 {
-                    var d = dict[dr.DanceId];
+                    var d = Dances.Instance.DanceFromId(dr.DanceId);
                     var dg = d as DanceGroup;
                     if (dg != null && groups.Contains(dg.Id))
                     {

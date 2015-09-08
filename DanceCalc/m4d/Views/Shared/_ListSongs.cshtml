@@ -203,8 +203,7 @@
                     var did = scaledDances[0].DanceId;
                     if (!string.IsNullOrWhiteSpace(did))
                     {
-                        var d = Dances.Instance.DanceDictionary[did];
-                        numerator = d.Meter.Numerator;
+                        numerator = Dances.Instance.DanceFromId(did).Meter.Numerator;
                     }
                 }
                 tempoString = string.Format("<a href='/home/counter?numerator={1}&tempo={0}'>{0}</a>", decimal.Round(item.Tempo.Value), numerator);

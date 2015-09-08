@@ -300,7 +300,7 @@ namespace m4dModels
                             if (ratings != null && ratings.Count > 0)
                             {
                                 var did = ratings[0].DanceId;
-                                var d = Dances.Instance.DanceDictionary[did];
+                                var d = Dances.Instance.DanceFromId(did);
                                 if (d != null)
                                 {
                                     numerator = d.Meter.Numerator;

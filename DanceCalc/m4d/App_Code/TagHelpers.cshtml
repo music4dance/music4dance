@@ -1,6 +1,7 @@
 ﻿@using m4dModels
 @using DanceLibrary;
 
+@* ReSharper disable once InvertIf *@
 @helper TagButton(TagCount tag, SongFilter filter, float cloudSize = 0)
 {
     var buckets = new[] {.25F,.5F,.75F,1,5,10,20,25,50,100};
@@ -14,11 +15,11 @@
     string urlFiltered = null;
     if (filter != null)
     {
-        if (!string.IsNullOrWhiteSpace(filter.Dances) && Dances.Instance.DanceDictionary.ContainsKey(filter.Dances.ToUpper()))
+        var dance = Dances.Instance.DanceFromId(filter.Dances);
+        if (dance != null)
         {
             var filterDance = new SongFilter { Dances = filter.Dances };
-            danceName = Dances.Instance.DanceDictionary[filter.Dances].Name;
-            
+            danceName = dance.Name;
             urlDance = urlBase + "&filter=" + WebUtility.UrlEncode(filterDance.ToString());
         }
 
