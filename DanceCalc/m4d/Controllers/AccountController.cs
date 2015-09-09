@@ -22,6 +22,7 @@ namespace m4d.Controllers
 
         public AccountController()
         {
+            HelpPage = "account-management";
         }
 
         public AccountController(ApplicationUserManager userManager, ApplicationSignInManager signInManager)
