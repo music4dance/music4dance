@@ -79,10 +79,14 @@ namespace m4dModels
                 {
                     if (_builtDanceMap) return InitialDanceMap;
 
+                    foreach (var d in Dance.DanceLibrary.AllDanceGroups)
+                    {
+                        AddDanceToMap(d);
+                    }
+
                     foreach (var d in Dance.DanceLibrary.AllDanceTypes)
                     {
-                        var name = SongBase.CleanDanceName(d.Name);
-                        InitialDanceMap.Add(name, d.Id);
+                        AddDanceToMap(d);
                     }
 
                     _builtDanceMap = true;
@@ -92,6 +96,11 @@ namespace m4dModels
             }
         }
 
+        private static void AddDanceToMap(DanceObject dance)
+        {
+            var name = SongBase.CleanDanceName(dance.Name);
+            InitialDanceMap.Add(name, dance.Id);
+        }
         private static bool _builtDanceMap;
         private static readonly Dictionary<string, string> InitialDanceMap = new Dictionary<string, string>()
         {
