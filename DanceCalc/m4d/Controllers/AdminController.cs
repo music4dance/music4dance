@@ -15,6 +15,7 @@ using DanceLibrary;
 using m4d.Context;
 using m4d.Scrapers;
 using m4dModels;
+using Microsoft.AspNet.Identity;
 using Configuration = m4d.Migrations.Configuration;
 
 namespace m4d.Controllers
@@ -25,6 +26,7 @@ namespace m4d.Controllers
         public override string DefaultTheme => AdminTheme;
 
         #region Commands
+
         //
         // GET: /Admin/
         [Authorize(Roles = "showDiagnostics")]
@@ -104,12 +106,12 @@ namespace m4d.Controllers
             var count = 0;
 
             var user = Database.FindUser(User.Identity.Name);
-            var songs = from s in Database.Songs where string.Equals(s.Title,s.Artist) select s;
+            var songs = from s in Database.Songs where string.Equals(s.Title, s.Artist) select s;
             foreach (var song in songs)
             {
                 var artists = from p in song.SongProperties where p.Name == SongBase.ArtistField select p;
                 var alist = artists.ToList();
-                    //song.SongProperties.Select(p => string.Equals(p.BaseName, Song.ArtistField)).ToList();
+                //song.SongProperties.Select(p => string.Equals(p.BaseName, Song.ArtistField)).ToList();
 
                 if (alist.Count <= 1) continue;
 
@@ -165,7 +167,7 @@ namespace m4d.Controllers
 
                 scanned += 1;
 
-                if (scanned % 100 == 0)
+                if (scanned%100 == 0)
                 {
                     Trace.WriteLineIf(TraceLevels.General.TraceInfo,
                         $"Scanned == {scanned}; Changed={changed}; Merged={merged}");
@@ -182,10 +184,10 @@ namespace m4d.Controllers
         //
         // Get: //UpdateTagTypes
         [Authorize(Roles = "dbAdmin")]
-        public ActionResult UpdateTagTypes(bool update=false)
+        public ActionResult UpdateTagTypes(bool update = false)
         {
             var oldCounts = Database.TagTypes.ToDictionary(tt => tt.Key.ToUpper(), tt => tt.Count);
-            var newCounts = new Dictionary<string, Dictionary<string,int>>();
+            var newCounts = new Dictionary<string, Dictionary<string, int>>();
 
             // Compute the tag type count based on the user tags
             // ReSharper disable once LoopCanBePartlyConvertedToQuery
@@ -235,7 +237,7 @@ namespace m4d.Controllers
                     }
                     changed += 1;
                 }
-                else 
+                else
                 {
                     if (val != oldCounts[key])
                     {
@@ -346,7 +348,7 @@ namespace m4d.Controllers
             var batch = Database.FindUser("batch");
             foreach (var song in Database.Songs)
             {
-                var ngs = new Dictionary<string,DanceRatingDelta>();
+                var ngs = new Dictionary<string, DanceRatingDelta>();
                 foreach (var dr in song.DanceRatings)
                 {
                     var d = Dances.Instance.DanceFromId(dr.DanceId);
@@ -369,7 +371,7 @@ namespace m4d.Controllers
                         }
                         count += 1;
                     }
-                    else 
+                    else
                     {
                         var di = d as DanceInstance;
                         if (di != null)
@@ -400,7 +402,7 @@ namespace m4d.Controllers
         {
             ViewBag.Name = "InferDanceTypes";
 
-            var groups = new[] {"SWG","TNG","FXT","WLZ"};
+            var groups = new[] {"SWG", "TNG", "FXT", "WLZ"};
 
             var count = 0;
             Context.TrackChanges(false);
@@ -545,17 +547,22 @@ namespace m4d.Controllers
             Context.TrackChanges(false);
             var count = 0;
 
-            var zeroes = Database.SongProperties.Where(prop => prop.Name == SongBase.TimeField && prop.Value == "01/01/0001 00:00:00").ToList();
+            var zeroes =
+                Database.SongProperties.Where(
+                    prop => prop.Name == SongBase.TimeField && prop.Value == "01/01/0001 00:00:00").ToList();
 
             foreach (var prop in zeroes)
             {
-                var times = prop.Song.SongProperties.Where(p => p.Name == SongBase.TimeField && p.Value != "01/01/0001 00:00:00").OrderBy(p => p.Id).ToList();
+                var times =
+                    prop.Song.SongProperties.Where(p => p.Name == SongBase.TimeField && p.Value != "01/01/0001 00:00:00")
+                        .OrderBy(p => p.Id)
+                        .ToList();
 
                 var np = times.FirstOrDefault();
 
                 if (np == null) continue;
 
-                var d =  np.ObjectValue as DateTime?;
+                var d = np.ObjectValue as DateTime?;
 
                 if (!d.HasValue) continue;
 
@@ -628,7 +635,7 @@ namespace m4d.Controllers
         {
             ViewBag.Name = "Set Trace Level";
 
-            var tl = (TraceLevel)level;
+            var tl = (TraceLevel) level;
 
             TraceLevels.SetGeneralLevel(tl);
 
@@ -660,7 +667,9 @@ namespace m4d.Controllers
             Context.TrackChanges(false);
             var c = 0;
             var bytes = 0;
-            foreach (var prop in Database.SongProperties.Where(p => p.Name.StartsWith("Purchase:") && p.Name.EndsWith(":SS")))
+            foreach (
+                var prop in Database.SongProperties.Where(p => p.Name.StartsWith("Purchase:") && p.Name.EndsWith(":SS"))
+                )
             {
                 string[] regions;
                 var id = PurchaseRegion.ParseIdAndRegionInfo(prop.Value, out regions);
@@ -692,7 +701,7 @@ namespace m4d.Controllers
         //
         // Get: //SpotifyRegions
         [Authorize(Roles = "dbAdmin")]
-        public ActionResult SpotifyRegions(int count=int.MaxValue, int start=0, string region="US")
+        public ActionResult SpotifyRegions(int count = int.MaxValue, int start = 0, string region = "US")
         {
             ViewBag.Name = "SpotifyRegions";
             var changed = 0;
@@ -742,7 +751,7 @@ namespace m4d.Controllers
                         prop.Value = PurchaseRegion.FormatIdAndRegionInfo(track.TrackId,
                             PurchaseRegion.MergeRegions(regions, track.AvailableMarkets));
                         updated += 1;
-                        
+
                     }
                     else
                     {
@@ -750,7 +759,7 @@ namespace m4d.Controllers
                     }
                 }
 
-                if ((changed+updated) % 100 == 99)
+                if ((changed + updated)%100 == 99)
                 {
                     Trace.WriteLineIf(TraceLevels.General.TraceInfo,
                         $"Skipped == {skipped}; Changed={changed}; Updated={updated}; Failed={failed}");
@@ -773,13 +782,14 @@ namespace m4d.Controllers
         {
             for (var i = 1; i < arr.Length; i++)
             {
-                if (string.Compare(arr[i - 1],arr[i],StringComparison.OrdinalIgnoreCase) > 0)
+                if (string.Compare(arr[i - 1], arr[i], StringComparison.OrdinalIgnoreCase) > 0)
                 {
                     return false;
                 }
             }
             return true;
         }
+
         //
         // Get: //SpotifyRegions
         [Authorize(Roles = "dbAdmin")]
@@ -789,7 +799,9 @@ namespace m4d.Controllers
             var codes = new HashSet<string>();
             var c = 0;
             var unsorted = 0;
-            foreach (var prop in Database.SongProperties.Where(p => p.Name.StartsWith("Purchase:") && p.Name.EndsWith(":SS")))
+            foreach (
+                var prop in Database.SongProperties.Where(p => p.Name.StartsWith("Purchase:") && p.Name.EndsWith(":SS"))
+                )
             {
                 string[] regions;
                 PurchaseRegion.ParseIdAndRegionInfo(prop.Value, out regions);
@@ -854,8 +866,70 @@ namespace m4d.Controllers
         }
 
         //
-        // Get: //RebuildUserTags
+        // Get: //UpdateUsernames
+        [HttpPost]
+        [ValidateAntiForgeryToken]
         [Authorize(Roles = "dbAdmin")]
+        public ActionResult UpdateUsernames(bool makePublic)
+        {
+            try
+            {
+                StartAdminTask("UpdateUsernames");
+                AdminMonitor.UpdateTask("UploadFile");
+
+                var lines = UploadFile();
+
+                if (!lines.Any()) return CompleteAdminTask(false, "Empty File or Bad File Format");
+
+                var c = 0;
+
+                // ReSharper disable once LoopCanBePartlyConvertedToQuery
+                foreach (var line in lines)
+                {
+                    var cells = line.Split(new[] {'\t',' '},StringSplitOptions.RemoveEmptyEntries);
+                    if (cells.Length != 2) continue;
+
+                    AdminMonitor.UpdateTask("Convert {cells[0]} to {cells[1]}");
+
+                    if (string.Equals(cells[0], cells[1]))
+                        continue;
+
+                    if (UserManager.FindByName(cells[1]) != null)
+                    {
+                        Trace.WriteLine($"Can't rename {cells[0]} because {cells[1]} is already in use.");
+                        continue;
+                    }
+
+                    var user = UserManager.FindByName(cells[0]);
+                    if (user == null)
+                    {
+                        Trace.WriteLine($"Can't rename {cells[0]} because it doesn't exist.");
+                        continue;
+                    }
+
+                    user.UserName = cells[1];
+                    if (makePublic)
+                    {
+                        user.Privacy = 255;
+                    }
+                    Database.ChangeUserName(cells[0],cells[1]);
+                    Database.SaveChanges();
+
+                    c += 1;
+                }
+
+                return CompleteAdminTask(true, $"updated {c} users");
+            }
+            catch (Exception e )
+            {
+                return FailAdminTask($"UpdateUsernames: {e.Message}", e);
+            }
+        }
+
+
+//
+// Get: //RebuildUserTags
+[Authorize(Roles = "dbAdmin")]
         public ActionResult RebuildUserTags(bool update=false, string songIds=null)
         {
             Database.RebuildUserTags(User.Identity.Name,update,songIds);
