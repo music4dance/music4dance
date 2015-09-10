@@ -889,7 +889,7 @@ namespace m4d.Controllers
                     var cells = line.Split(new[] {'\t',' '},StringSplitOptions.RemoveEmptyEntries);
                     if (cells.Length != 2) continue;
 
-                    AdminMonitor.UpdateTask("Convert {cells[0]} to {cells[1]}");
+                    AdminMonitor.UpdateTask($"Convert {cells[0]} to {cells[1]}");
 
                     if (string.Equals(cells[0], cells[1]))
                         continue;

@@ -53,11 +53,14 @@ namespace m4d.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create([Bind(Include = "UserName")] ApplicationUser applicationUser)
+        public ActionResult Create([Bind(Include = "UserName,Email")] ApplicationUser applicationUser)
         {
             if (!ModelState.IsValid) return View(applicationUser);
 
-            Database.FindOrAddUser(applicationUser.UserName, DanceMusicService.PseudoRole);
+            var user = Database.FindOrAddUser(applicationUser.UserName, DanceMusicService.PseudoRole);
+            user.Email = applicationUser.Email;
+            user.EmailConfirmed = true;
+            user.Privacy = 255;
             Context.SaveChanges();
             return RedirectToAction("Index");
         }
