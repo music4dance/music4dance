@@ -64,6 +64,8 @@ namespace m4d.Controllers
         {
             if (ModelState.IsValid && dance.Info != null)
             {
+                //TODO: This is a kludge - should figure out a better way to load this while preserving the case of the ID
+                dance.Id = dance.Id.ToUpper();
                 if (dance.DanceLinks != null)
                 {
                     foreach (var link in dance.DanceLinks)
