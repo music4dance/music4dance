@@ -2,21 +2,25 @@
   {
     "Name": "Swing",
     "Id" : "SWG",
+    "BlogTag" : "swing",
     "DanceIds" : ["BBA","CLS","CSG","CST","ECS","HST","JIV","JSW","WCS","LHP"]
   },
   {
     "Name": "Waltz",
+    "BlogTag" : "waltz",
     "Id" : "WLZ",
     "DanceIds" : ["CSW","SWZ","VWZ"]
   },
   {
     "Name": "Foxtrot",
     "Id" : "FXT",
+    "BlogTag" : "foxtrot",
     "DanceIds" : ["CFT","SFT","QST","PBD"]
   },
   {
     "Name": "Tango",
     "Id" : "TNG",
+    "BlogTag" : "tango",
     "DanceIds" : ["TGO","ATN", "NTN", "MGA"]
   },
   {

@@ -15,6 +15,7 @@ namespace m4dModels
         public int SongCount { get; set; }
         public int MaxWeight { get; set; }
         public string DanceNameAndCount => $"{DanceName} ({SongCount})";
+        public string BlogTag { get; set; }
         public Dance Dance { get; set; }
         public SongCounts Parent { get; set; }
         public List<SongCounts> Children { get; set; }
@@ -280,6 +281,7 @@ namespace m4dModels
                 Dance = dance,
                 TopSongs = topSongs,
                 TopSpotify = topSpotify,
+                BlogTag = d.BlogTag,
                 Children = null
             };
 

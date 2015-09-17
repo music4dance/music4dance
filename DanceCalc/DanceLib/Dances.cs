@@ -55,6 +55,8 @@ namespace DanceLibrary
         public virtual Meter Meter { get; set; }
         [JsonProperty]
         public virtual TempoRange TempoRange { get; set; }
+        [JsonProperty]
+        public virtual string BlogTag { get; set; }
 
         public string CleanName => SeoFriendly(Name);
 

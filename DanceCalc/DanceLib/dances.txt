@@ -296,6 +296,7 @@
   {
     "Name": "Cha Cha",
     "Id": "CHA",
+    "BlogTag" : "cha-cha",
     "Meter": {
       "Numerator": 4,
       "Denominator": 4
@@ -331,6 +332,7 @@
   {
     "Name": "Mambo",
     "Id": "MBO",
+    "BlogTag" : "mambo",
     "Meter": {
       "Numerator": 4,
       "Denominator": 4
@@ -408,6 +410,7 @@
   },
   {
     "Name": "Rumba",
+    "BlogTag" : "rumba",
     "Id": "RMB",
     "Meter": {
       "Numerator": 4,
@@ -476,6 +479,7 @@
   },
   {
     "Name": "East Coast Swing",
+    "BlogTag" : "east-coast-swing",
     "Id": "ECS",
     "Meter": {
       "Numerator": 4,
@@ -504,6 +508,7 @@
   },
   {
     "Name": "West Coast Swing",
+    "BlogTag" : "west-coast-swing",
     "Id": "WCS",
     "Meter": {
       "Numerator": 4,
@@ -561,6 +566,7 @@
   },
   {
     "Name": "Paso Doble",
+    "BlogTag" : "paso-doble",
     "Id": "PDL",
     "Meter": {
       "Numerator": 2,
@@ -674,6 +680,7 @@
   {
     "Name": "Salsa",
     "Id": "SLS",
+    "BlogTag" : "salsa",
     "Meter": {
       "Numerator": 4,
       "Denominator": 4
@@ -763,6 +770,7 @@
    },
    {
     "Name": "Lindy Hop",
+    "BlogTag" : "lindy-hop",
     "Id": "LHP",
     "Meter": {
       "Numerator": 4,

@@ -63,6 +63,11 @@
         {
             <a href="#tags" class="list-group-item">Tags</a>
         }
+        @if (!string.IsNullOrWhiteSpace(Model.BlogTag))
+        {
+            var blogref = string.Format("https://www.music4dance.net/blog/tag/{0}/", Model.BlogTag);
+            <a href="@blogref" class="list-group-item">Blog</a>
+        }
     </div>
 </div>
 
