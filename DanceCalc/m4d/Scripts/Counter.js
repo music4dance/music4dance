@@ -27,12 +27,14 @@ var danceIndex = null;
 
 var timeout = null;
 
-var labels = ["BPM ", "2/4 MPM ", "3/4 MPM ", "4/4 MPM "];
+var labels = ['BPM ', '2/4 MPM ', '3/4 MPM ', '4/4 MPM '];
 
-var tempoId = "#Tempo";
-var mpmId = "#MPM";
+var tempoId = '#Tempo';
+var mpmId = '#MPM';
 
 var danceAction = function (id) {
+    var name = null;
+
     for (var i = 0; i < dances.length; i++)
     {
         if (dances[i].Id === id)
@@ -46,38 +48,38 @@ var danceAction = function (id) {
 }
 
 $(document).ready(function () {
-    if (typeof paramShowBPM === 'boolean')
+    if (typeof window.paramShowBPM === 'boolean')
     {
-        showBPM = paramShowBPM;
+        showBPM = window.paramShowBPM;
     }
 
-    if (typeof paramShowMPM === 'boolean')
+    if (typeof window.paramShowMPM === 'boolean')
     {
-        showMPM = paramShowMPM;
+        showMPM = window.paramShowMPM;
     }
 
-    if (typeof paramNumerator === 'number') {
-        setNumeratorControl(paramNumerator);
+    if (typeof window.paramNumerator === 'number') {
+        setNumeratorControl(window.paramNumerator);
     }
 
-    if (typeof paramTempo == 'number') {
-        $(tempoId).val(paramTempo);
+    if (typeof window.paramTempo == 'number') {
+        $(tempoId).val(window.paramTempo);
     }
 
-    if (typeof paramEpsVisible === 'number') {
-        defvisible = epsVisible = paramEpsVisible;
-        $("#epsilon").val(epsVisible * 100);
+    if (typeof window.paramEpsVisible === 'number') {
+        defVisible = epsVisible = window.paramEpsVisible;
+        $('#epsilon').val(epsVisible * 100);
     }
 
-    $("#reset").click(function () { doReset() });
-    $("#count").click(function () { doClick() });
+    $('#reset').click(function () { doReset() });
+    $('#count').click(function () { doClick() });
 
-    $("#mt1").click(function () { setNumerator(1) });
-    $("#mt2").click(function () { setNumerator(2) });
-    $("#mt3").click(function () { setNumerator(3) });
-    $("#mt4").click(function () { setNumerator(4) });
+    $('#mt1').click(function () { setNumerator(1) });
+    $('#mt2').click(function () { setNumerator(2) });
+    $('#mt3').click(function () { setNumerator(3) });
+    $('#mt4').click(function () { setNumerator(4) });
 
-    $("#epsilon").change(function() {
+    $('#epsilon').change(function() {
         setEpsilon($(this).val());
     });
 
@@ -86,7 +88,7 @@ $(document).ready(function () {
         .done(function (data) {
             setupDances(data);
         })
-        .fail(function (jqXHR, textStatus, err) {
+        .fail(function (jqxhr, textStatus, err) {
             window.alert(err);
         });
 
@@ -95,7 +97,7 @@ $(document).ready(function () {
         $(this).data('oldVal', $(this));
 
         // Look for changes in the value
-        $(this).bind("propertychange keyup input paste", function(event){
+        $(this).bind('propertychange keyup input paste', function(){
             // If value has changed...
             if ($(this).data('oldVal') !== $(this).val()) {
                 // Updated stored value
@@ -116,9 +118,9 @@ $(document).ready(function () {
         $(this).data('oldVal', $(this));
 
         // Look for changes in the value
-        $(this).bind("propertychange keyup input paste", function(event){
+        $(this).bind('propertychange keyup input paste', function(){
             // If value has changed...
-            if ($(this).data('oldVal') != $(this).val()) {
+            if ($(this).data('oldVal') !== $(this).val()) {
                 // Updated stored value
                 $(this).data('oldVal', $(this).val());
                 
@@ -174,14 +176,14 @@ function doClick()
 
             var old = average;
             average = ms / intervals.length;
-            var delta = average - old;
-            var dp = delta / average;
+            delta = average - old;
+            //var dp = delta / average;
             //maxWait = average * 2;
 
             counter += 1;
 
             if (Math.abs(delta) >= .1) {
-                updateRate(getRate())
+                updateRate(getRate());
             }
             else {
                 display();
@@ -189,7 +191,7 @@ function doClick()
         }
     }
 
-    timeout = window.setTimeout(function () { timerReset();},maxWait)
+    timeout = window.setTimeout(function() { timerReset(); }, maxWait);
 }
 
 function timerReset(noRefresh) {
@@ -213,90 +215,90 @@ function doReset()
     timerReset();
     epsVisible = defVisible;
 
-    $("#epsilon").val(epsVisible * 100);
+    $('#epsilon').val(epsVisible * 100);
 }
 
 function formatTempo(range,meter)
 {
     if (!showMPM && !showBPM)
-        return "";
+        return '';
 
-    var ret = "<small>(";
+    var ret = '<small>(';
 
     if (showMPM)
     {
         ret += range.Min;
-        if (range.Min != range.Max) {
-            ret += "-" + range.Max;
+        if (range.Min !== range.Max) {
+            ret += '-' + range.Max;
         }
-        ret += " MPM " + meter.Numerator + "/4";
+        ret += ' MPM ' + meter.Numerator + '/4';
 
         if (showBPM)
         {
-            ret += " & ";
+            ret += ' & ';
         }
     }
 
     if (showBPM)
     {
         ret += range.Min * meter.Numerator;
-        if (range.Min != range.Max) {
-            ret += "-" + range.Max * meter.Numerator;
+        if (range.Min !== range.Max) {
+            ret += '-' + range.Max * meter.Numerator;
         }
-        ret += "BPM ";
+        ret += 'BPM ';
     }
 
-    ret += ")<small>";
+    ret += ')<small>';
     return ret;
 }
 
 function display() {
-    $("#total").text(counter);
+    $('#total').text(counter);
     var t = new Date().getTime();
     var dt = t - start;
-    $("#time").text(dt);
-    $("#avg").text(Math.round(average));
-    $("#rate").text(rate);
+    $('#time').text(dt);
+    $('#avg').text(Math.round(average));
+    $('#rate').text(rate);
 
-    if (!$(mpmId).is(":focus") || rate === 0)
+    if (!$(mpmId).is(':focus') || rate === 0)
     {
         $(mpmId).val(rate);
     }
-    if (!$(tempoId).is(":focus") || rate === 0) {
+    if (!$(tempoId).is(':focus') || rate === 0) {
         $(tempoId).val(roundTempo(rate * numerator));
     }
 
-    var bt = last == 0 ? 'Count' : 'Again';
-    $("#count").html(bt);
-    $("#dances").empty();
+    var bt = last === 0 ? 'Count' : 'Again';
+    $('#count').html(bt);
+    $('#dances').empty();
 
-    var idpfx = "add-dance-"
+    var idpfx = 'add-dance-';
     for (var i = 0; i < dances.length; i++) {
         var dance = dances[i];
-        var text = "<a id='" + idpfx + dance.Id + "' href='#' class='list-group-item ";
+        var text = '<a id=\'' + idpfx + dance.Id + '\' href=\'#\' class=\'list-group-item ';
 
-        if (dance.TempoDelta == 0)
+        if (dance.TempoDelta === 0)
         {
-            text += " list-group-item-info'>";
+            text += ' list-group-item-info\'>';
         }
         else
         {
-            var type = (dance.TempoDelta < 0) ? "list-group-item-danger" : "list-group-item-success";
-            text += type + "'>" +
-                "<span class='badge'>" + dances[i].TempoDelta + "MPM</span>";
+            var type = (dance.TempoDelta < 0) ? 'list-group-item-danger' : 'list-group-item-success';
+            text += type + '\'>' +
+                '<span class=\'badge\'>' + dances[i].TempoDelta + 'MPM</span>';
                 
         }
         var strong = numerator === 1 || numerator === dance.Meter.Numerator;
-        if (strong) text += "<strong>";
+        if (strong) text += '<strong>';
         text += dances[i].Name;
-        if (strong) text += "</strong>";
-        text += " " + formatTempo(dance.TempoRange, dance.Meter) + "</div>";
+        if (strong) text += '</strong>';
+        text += ' ' + formatTempo(dance.TempoRange, dance.Meter) + '</div>';
 
-        $("#dances").append(text);
+        $('#dances').append(text);
 
         if (typeof danceAction == 'function')
         {
-            $("#add-dance-" + dance.Id).click(function () {
+            $('#add-dance-' + dance.Id).click(function () {
                 var id = $(this).context.id;
                 id = id.substring(idpfx.length);
                 danceAction(id);
@@ -317,8 +319,8 @@ function updateDances()
         var dance = danceIndex[i];
 
         if (numerator === 1 || dance.Meter.Numerator === numerator ||
-            (numerator == 2 && dance.Meter.Numerator == 4) || (numerator == 4 && dance.Meter.Numerator == 2)) {
-            var delta = NaN;
+            (numerator === 2 && dance.Meter.Numerator === 4) || (numerator === 4 && dance.Meter.Numerator === 2)) {
+            var delta = 0;
 
             var tempRate = bpm / dance.Meter.Numerator;
 
@@ -328,12 +330,9 @@ function updateDances()
             else if (tempRate > dance.TempoRange.Max) {
                 delta = tempRate - dance.TempoRange.Max;
             }
-            else {
-                delta = 0;
-            }
 
-            avg = (dance.TempoRange.Min + dance.TempoRange.Max) / 2;
-            eps = delta / avg;
+            var avg = (dance.TempoRange.Min + dance.TempoRange.Max) / 2;
+            var eps = delta / avg;
 
             if (Math.abs(eps) < epsVisible) {
                 dance.TempoDelta = delta.toFixed(1);
@@ -353,7 +352,7 @@ function updateDances()
 
 function updateRate(newRate)
 {
-    console.log("Rate=" + newRate);
+    console.log('Rate=' + newRate);
     if (rate === newRate)
     {
         return;
@@ -410,9 +409,9 @@ function setupDances(data)
 function setNumeratorControl(num)
 {
     if (numerator !== num) {
-        $("#mt").empty();
-        $("#mt").append(labels[num - 1]);
-        $("#mt").append("<span class='caret'></span>");
+        $('#mt').empty();
+        $('#mt').append(labels[num - 1]);
+        $('#mt').append('<span class=\'caret\'></span>');
         numerator = num;
     }
 }
