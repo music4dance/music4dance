@@ -1304,6 +1304,14 @@ namespace m4dModels
         {
             return (from links in songLinks select links.SingleOrDefault(l => l.AvailableMarkets == null || l.AvailableMarkets.Contains(region)) into link where link != null select link).ToList();
         }
+        public Song GetSongFromService(MusicService service,string id)
+        {
+            if (string.IsNullOrWhiteSpace(id)) return null;
+
+            var purchase = SongProperties.FirstOrDefault(sp => sp.Value.StartsWith(id) && sp.Name.StartsWith("Purchase:") && sp.Name.EndsWith(":SS"));
+
+            return purchase?.Song;
+        }
 
         // TODO: This is extremely dependent on the form of the danceIds, just
         //  a temporary kludge until we get multi-select working

@@ -264,6 +264,24 @@ The *East Coast Swing* is generally danced as the first dance of <a href='/dance
             }
         }
 
+        [TestMethod]
+        public void FindSongByMusicService()
+        {
+            var spotify = MusicService.GetService(ServiceType.Spotify);
+
+            var song = s_tester.Dms.GetSongFromService(spotify,"0pgioXIBrw7qM8B7JhVdK1");
+            Assert.IsNotNull(song);
+            Trace.WriteLine(song.SongId);
+            Assert.AreEqual(new Guid("9bb00ef1-31d3-47fe-8e13-0009944153c7"),song.SongId);
+
+            song = s_tester.Dms.GetSongFromService(spotify, null);
+            Assert.IsNull(song);
+
+            song = s_tester.Dms.GetSongFromService(spotify,"foobar");
+            Assert.IsNull(song);
+        }
+
+
         private static string[] _userTags =
         {
             "X:WLZ4849b9656cdf497d8a9f01552748d8ed:5683e917-05da-4721-9d2d-4863ee1c14ef:\"Allison:Other|Riker:Other\"",

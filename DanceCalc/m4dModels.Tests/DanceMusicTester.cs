@@ -26,6 +26,11 @@ namespace m4dModels.Tests
            Dms.LoadDances(Dances);
            Dms.LoadTags(Tags);
            Dms.LoadSongs(Songs);
+
+            foreach (var prop in Dms.Songs.SelectMany(song => song.SongProperties))
+            {
+                Dms.SongProperties.Add(prop);
+            }
         }
 
         public List<string> Users { private set; get; }
