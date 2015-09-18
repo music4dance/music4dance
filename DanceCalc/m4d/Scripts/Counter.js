@@ -1,445 +1,411 @@
-﻿var diag = false;
+﻿var counter = function() {
+    var self = this;
 
 // These variables all have optional input variables named "param*" to set up
 //  different variations
-var showBPM = false;
-var showMPM = true;
-var numerator = 4;
-var defVisible = .05;
-var epsVisible = defVisible;
+    self.showBPM = false;
+    self.showMPM = true;
+    self.numerator = 4;
+    self.defVisible = .05;
+    self.epsVisible = defVisible;
 
-var counter = 0;
-var start = new Date().getTime();
+    self.counter = 0;
+    self.start = new Date().getTime();
 
-var defWait = 5 * 1000;
-var maxCounts = 50;
+    self.defWait = 5 * 1000;
+    self.maxCounts = 50;
 
-var intervals = [];
+    self.intervals = [];
 
-var maxWait = defWait;
-var last = 0;
-var average = 0;
-var rate = 0.0;
-var epsExact = .01;
+    self.maxWait = defWait;
+    self.last = 0;
+    self.average = 0;
+    self.rate = 0.0;
 
-var dances = [];
-var danceIndex = null;
+    self.dances = [];
+    self.danceIndex = null;
 
-var timeout = null;
+    self.timeout = null;
 
-var labels = ['BPM ', '2/4 MPM ', '3/4 MPM ', '4/4 MPM '];
+    self.labels = ['BPM ', '2/4 MPM ', '3/4 MPM ', '4/4 MPM '];
 
-var tempoId = '#Tempo';
-var mpmId = '#MPM';
+    self.tempoId = '#Tempo';
+    self.mpmId = '#MPM';
 
-var danceAction = function (id) {
-    var name = null;
+    self.danceAction = function (id) {
+        var name = null;
 
-    for (var i = 0; i < dances.length; i++)
-    {
-        if (dances[i].Id === id)
-        {
-            name = dances[i].SeoName;
+        for (var i = 0; i < dances.length; i++) {
+            if (dances[i].Id === id) {
+                name = dances[i].SeoName;
+            }
+        }
+
+        if (name)
+            window.location.href = '/dances/' + name;
+    }
+
+    self.roundTempo = function (t) {
+        if ($.isNumeric(t)) {
+            var r = Math.round(t * 10) / 10;
+            return Number(r.toFixed(1));
+        } else {
+            return 0.0;
         }
     }
 
-    if (name)
-        window.location.href = '/dances/' + name;
-}
+    self.formatTempo = function (range, meter) {
+        if (!self.showMPM && !self.showBPM)
+            return '';
 
-$(document).ready(function () {
-    if (typeof window.paramShowBPM === 'boolean')
-    {
-        showBPM = window.paramShowBPM;
+        var ret = '<small>(';
+
+        if (self.showMPM) {
+            ret += range.Min;
+            if (range.Min !== range.Max) {
+                ret += '-' + range.Max;
+            }
+            ret += ' MPM ' + meter.Numerator + '/4';
+
+            if (showBPM) {
+                ret += ' & ';
+            }
+        }
+
+        if (showBPM) {
+            ret += range.Min * meter.Numerator;
+            if (range.Min !== range.Max) {
+                ret += '-' + range.Max * meter.Numerator;
+            }
+            ret += 'BPM ';
+        }
+
+        ret += ')<small>';
+        return ret;
     }
 
-    if (typeof window.paramShowMPM === 'boolean')
-    {
-        showMPM = window.paramShowMPM;
+    self.display = function () {
+        $('#total').text(counter);
+        var t = new Date().getTime();
+        var dt = t - start;
+        $('#time').text(dt);
+        $('#avg').text(Math.round(average));
+        $('#rate').text(rate);
+
+        if (!$(self.mpmId).is(':focus') || self.rate === 0) {
+            $(self.mpmId).val(rate);
+        }
+        if (!$(self.tempoId).is(':focus') || self.rate === 0) {
+            $(self.tempoId).val(roundTempo(self.rate * self.numerator));
+        }
+
+        var bt = self.last === 0 ? 'Count' : 'Again';
+        $('#count').html(bt);
+        $('#dances').empty();
+
+        var idpfx = 'add-dance-';
+        for (var i = 0; i < self.dances.length; i++) {
+            var dance = self.dances[i];
+            var text = '<a id=\'' + idpfx + dance.Id + '\' href=\'#\' class=\'list-group-item ';
+
+            if (dance.TempoDelta === 0) {
+                text += ' list-group-item-info\'>';
+            } else {
+                var type = (dance.TempoDelta < 0) ? 'list-group-item-danger' : 'list-group-item-success';
+                text += type + '\'>' +
+                    '<span class=\'badge\'>' + dances[i].TempoDelta + 'MPM</span>';
+
+            }
+            var strong = self.numerator === 1 || numerator === dance.Meter.Numerator;
+            if (strong) text += '<strong>';
+            text += dance.Name;
+            if (strong) text += '</strong>';
+            text += ' ' + self.formatTempo(dance.TempoRange, dance.Meter) + '</div>';
+
+            $('#dances').append(text);
+
+            if (typeof window.danceAction == 'function') {
+                $('#add-dance-' + dance.Id).click(function() {
+                    var id = $(this).context.id;
+                    id = id.substring(idpfx.length);
+                    window.danceAction(id);
+                });
+            }
+        }
+
+        $('#help').toggle(dances.length === 0);
     }
 
-    if (typeof window.paramNumerator === 'number') {
-        setNumeratorControl(window.paramNumerator);
+    self.timerReset = function (noRefresh) {
+        self.start = new Date().getTime();
+        self.counter = 0;
+        self.average = 0;
+        self.intervals = [];
+        //rate = 0;
+        self.last = 0;
+        if (!noRefresh) {
+            self.display();
+        }
     }
 
-    if (typeof window.paramTempo == 'number') {
-        $(tempoId).val(window.paramTempo);
-    }
+    self.doReset = function () {
+        self.dances = [];
+        self.rate = average.toFixed(1);
+        self.maxWait = self.defWait;
+        self.timerReset();
+        self.epsVisible = self.defVisible;
 
-    if (typeof window.paramEpsVisible === 'number') {
-        defVisible = epsVisible = window.paramEpsVisible;
         $('#epsilon').val(epsVisible * 100);
     }
 
-    $('#reset').click(function () { doReset() });
-    $('#count').click(function () { doClick() });
+    self.getRate = function () {
+        var ret = 0;
+        if (self.average !== 0)
+            ret = 60 * 1000 / self.average;
 
-    $('#mt1').click(function () { setNumerator(1) });
-    $('#mt2').click(function () { setNumerator(2) });
-    $('#mt3').click(function () { setNumerator(3) });
-    $('#mt4').click(function () { setNumerator(4) });
+        return self.roundTempo(ret);
+    }
 
-    $('#epsilon').change(function() {
-        setEpsilon($(this).val());
-    });
+    self.updateDances = function() {
+        self.dances = [];
 
-    var uri = '/api/dance';
-    $.getJSON(uri)
-        .done(function (data) {
-            setupDances(data);
-        })
-        .fail(function (jqxhr, textStatus, err) {
-            window.alert(err);
-        });
+        var bpm = self.rate * self.numerator;
 
-    $(mpmId).each(function() {
-        // Save current value of element
-        $(this).data('oldVal', $(this));
+        for (var i = 0; i < self.danceIndex.length; i++) {
+            var dance = self.danceIndex[i];
 
-        // Look for changes in the value
-        $(this).bind('propertychange keyup input paste', function(){
-            // If value has changed...
-            if ($(this).data('oldVal') !== $(this).val()) {
-                // Updated stored value
-                $(this).data('oldVal', $(this).val());
-                
-                var newRate = rateFromText($(this).val());
-                if ($.isNumeric(newRate))
-                {
-                    updateRate(newRate);
+            if (numerator === 1 || dance.Meter.Numerator === numerator ||
+                (numerator === 2 && dance.Meter.Numerator === 4) || (numerator === 4 && dance.Meter.Numerator === 2)) {
+
+                var delta = 0;
+
+                var tempRate = bpm / dance.Meter.Numerator;
+
+                if (tempRate < dance.TempoRange.Min) {
+                    delta = tempRate - dance.TempoRange.Min;
+                } else if (tempRate > dance.TempoRange.Max) {
+                    delta = tempRate - dance.TempoRange.Max;
                 }
-                // Else user error here
-            }
-        });
-    });
 
-    $(tempoId).each(function() {
-        // Save current value of element
-        $(this).data('oldVal', $(this));
+                var avg = (dance.TempoRange.Min + dance.TempoRange.Max) / 2;
+                var eps = delta / avg;
 
-        // Look for changes in the value
-        $(this).bind('propertychange keyup input paste', function(){
-            // If value has changed...
-            if ($(this).data('oldVal') !== $(this).val()) {
-                // Updated stored value
-                $(this).data('oldVal', $(this).val());
-                
-                var newRate = rateFromText($(this).val());
-                if ($.isNumeric(newRate))
-                {
-                    updateRate(roundTempo(newRate/numerator));
+                if (Math.abs(eps) < epsVisible) {
+                    dance.TempoDelta = delta.toFixed(1);
+                    dance.TempoEps = eps;
+
+                    self.dances.push(dance);
                 }
-                // Else user error here
             }
+        }
+
+        dances.sort(function(a, b) {
+            return Math.abs(a.TempoEps) - Math.abs(b.TempoEps);
         });
-    });
 
-    var epsilon = $('#epsilon');
-    if (epsilon.length > 0) {
-        epsilon.noUiSlider({
-            start: [5],
-            step: 1,
-            range: { 'min': [1], 'max': [50] }
+        self.display();
+    }
+
+    self.updateRate = function (newRate) {
+        console.log('Rate=' + newRate);
+        if (self.rate === newRate) {
+            return;
+        }
+
+        self.rate = newRate;
+
+        self.updateDances();
+    }
+
+    self.doClick = function () {
+        if (timeout) {
+            window.clearTimeout(timeout);
+        }
+        var current = new Date().getTime();
+        if (self.last === 0) {
+            self.last = current;
+            self.display();
+        } else {
+            var delta = current - last;
+            self.last = current;
+
+            if (delta >= self.maxWait) {
+                self.doReset();
+            } else {
+                self.intervals.push(delta);
+                if (self.intervals.length > self.maxCounts)
+                    self.intervals.shift();
+
+                var ms = 0;
+                for (var i = 0; i < self.intervals.length; i++) {
+                    ms += self.intervals[i];
+                }
+
+                var old = self.average;
+                self.average = ms / self.intervals.length;
+                delta = self.average - old;
+                //var dp = delta / average;
+                //maxWait = average * 2;
+
+                self.counter += 1;
+
+                if (Math.abs(delta) >= .1) {
+                    self.updateRate(self.getRate());
+                } else {
+                    self.display();
+                }
+            }
+        }
+
+        self.timeout = window.setTimeout(function () { timerReset(); }, maxWait);
+    }
+
+    self.rateFromText = function(text) {
+        var r = Number(text);
+        return roundTempo(r);
+    }
+
+    self.setupDances=function(data) {
+        self.danceIndex = data;
+
+        var tempoT = rateFromText($(self.tempoId).val());
+        var mpmT = rateFromText($(self.mpmId).val());
+
+        if (mpmT !== 0) {
+            self.updateRate(mpmT);
+        } else if (tempoT !== 0) {
+            self.updateRate(roundTempo(tempoT / numerator));
+        }
+    }
+
+    self.setNumeratorControl=function(num) {
+        if (self.numerator !== num) {
+            $('#mt').empty();
+            $('#mt').append(labels[num - 1]);
+            $('#mt').append('<span class=\'caret\'></span>');
+            self.numerator = num;
+        }
+    }
+
+    self.setNumerator=function(num) {
+        if (self.numerator !== num) {
+            var old = self.numerator;
+            self.setNumeratorControl(num);
+
+            var r = (old * self.rate) / num;
+            r = self.roundTempo(r);
+
+            self.timerReset(self.rate !== 0);
+            if (self.rate !== 0) {
+                self.updateRate(r);
+            }
+        }
+    }
+
+    self.setEpsilon = function (newEpsI) {
+        var newEps = newEpsI / 100;
+        if (newEps !== self.epsVisible) {
+            self.epsVisible = newEps;
+            self.updateDances();
+        }
+    }
+
+    self.setParameter = function (name, type)
+    {
+        if (typeof window[name] === type) {
+            self[name] = window[name];
+        }
+    };
+
+    self.init = function() {
+        self.setParameter('showBMP', 'boolean');
+        self.setParameter('ShowMPM', 'boolean');
+        self.setParameter('Numerator', 'number');
+        self.setParameter('Tempo', 'number');
+        self.setParameter('EpsVisible', 'number');
+
+        $('#epsilon').val(self.epsVisible * 100);
+
+        $('#reset').click(function () { self.doReset() });
+        $('#count').click(function () { self.doClick() });
+
+        $('#mt1').click(function () { self.setNumerator(1) });
+        $('#mt2').click(function () { self.setNumerator(2) });
+        $('#mt3').click(function () { self.setNumerator(3) });
+        $('#mt4').click(function () { self.setNumerator(4) });
+
+        $('#epsilon').change(function () {
+            self.setEpsilon($(this).val());
         });
-    }
-    //$('#tempo').focus(function () { setFocus(true);});
-});
 
-function doClick()
-{
-    if (timeout)
-    {
-        window.clearTimeout(timeout);
-    }
-    var current = new Date().getTime();
-    if (last === 0) {
-        last = current;
-        display();
-    }
-    else
-    {
-        var delta = current - last;
-        last = current;
+        var uri = '/api/dance';
+        $.getJSON(uri)
+            .done(function (data) {
+                self.setupDances(data);
+            })
+            .fail(function (jqxhr, textStatus, err) {
+                window.alert(err);
+            });
 
-        if (delta >= maxWait) {
-            doReset();
-        }
-        else {
-            intervals.push(delta);
-            if (intervals.length > maxCounts)
-                intervals.shift();
+        $(self.mpmId).each(function () {
+            // Save current value of element
+            $(this).data('oldVal', $(this));
 
-            var ms = 0;
-            for (var i = 0; i < intervals.length; i++) {
-                ms += intervals[i];
-            }
+            // Look for changes in the value
+            $(this).bind('propertychange keyup input paste', function () {
+                // If value has changed...
+                if ($(this).data('oldVal') !== $(this).val()) {
+                    // Updated stored value
+                    $(this).data('oldVal', $(this).val());
 
-            var old = average;
-            average = ms / intervals.length;
-            delta = average - old;
-            //var dp = delta / average;
-            //maxWait = average * 2;
+                    var newRate = rateFromText($(this).val());
+                    if ($.isNumeric(newRate)) {
+                        self.updateRate(newRate);
+                    }
+                    // Else user error here
+                }
+            });
+        });
 
-            counter += 1;
+        $(self.tempoId).each(function () {
+            // Save current value of element
+            $(this).data('oldVal', $(this));
 
-            if (Math.abs(delta) >= .1) {
-                updateRate(getRate());
-            }
-            else {
-                display();
-            }
-        }
-    }
+            // Look for changes in the value
+            $(this).bind('propertychange keyup input paste', function () {
+                // If value has changed...
+                if ($(this).data('oldVal') !== $(this).val()) {
+                    // Updated stored value
+                    $(this).data('oldVal', $(this).val());
 
-    timeout = window.setTimeout(function() { timerReset(); }, maxWait);
-}
+                    var newRate = rateFromText($(this).val());
+                    if ($.isNumeric(newRate)) {
+                        self.updateRate(roundTempo(newRate / numerator));
+                    }
+                    // Else user error here
+                }
+            });
+        });
 
-function timerReset(noRefresh) {
-    start = new Date().getTime();
-    counter = 0;
-    average = 0;
-    intervals = [];
-    //rate = 0;
-    last = 0;
-    if (!noRefresh)
-    {
-        display();
-    }
-}
-
-function doReset()
-{
-    dances = [];
-    rate = average.toFixed(1);
-    maxWait = defWait;
-    timerReset();
-    epsVisible = defVisible;
-
-    $('#epsilon').val(epsVisible * 100);
-}
-
-function formatTempo(range,meter)
-{
-    if (!showMPM && !showBPM)
-        return '';
-
-    var ret = '<small>(';
-
-    if (showMPM)
-    {
-        ret += range.Min;
-        if (range.Min !== range.Max) {
-            ret += '-' + range.Max;
-        }
-        ret += ' MPM ' + meter.Numerator + '/4';
-
-        if (showBPM)
-        {
-            ret += ' & ';
-        }
-    }
-
-    if (showBPM)
-    {
-        ret += range.Min * meter.Numerator;
-        if (range.Min !== range.Max) {
-            ret += '-' + range.Max * meter.Numerator;
-        }
-        ret += 'BPM ';
-    }
-
-    ret += ')<small>';
-    return ret;
-}
-
-function display() {
-    $('#total').text(counter);
-    var t = new Date().getTime();
-    var dt = t - start;
-    $('#time').text(dt);
-    $('#avg').text(Math.round(average));
-    $('#rate').text(rate);
-
-    if (!$(mpmId).is(':focus') || rate === 0)
-    {
-        $(mpmId).val(rate);
-    }
-    if (!$(tempoId).is(':focus') || rate === 0) {
-        $(tempoId).val(roundTempo(rate * numerator));
-    }
-
-    var bt = last === 0 ? 'Count' : 'Again';
-    $('#count').html(bt);
-    $('#dances').empty();
-
-    var idpfx = 'add-dance-';
-    for (var i = 0; i < dances.length; i++) {
-        var dance = dances[i];
-        var text = '<a id=\'' + idpfx + dance.Id + '\' href=\'#\' class=\'list-group-item ';
-
-        if (dance.TempoDelta === 0)
-        {
-            text += ' list-group-item-info\'>';
-        }
-        else
-        {
-            var type = (dance.TempoDelta < 0) ? 'list-group-item-danger' : 'list-group-item-success';
-            text += type + '\'>' +
-                '<span class=\'badge\'>' + dances[i].TempoDelta + 'MPM</span>';
-                
-        }
-        var strong = numerator === 1 || numerator === dance.Meter.Numerator;
-        if (strong) text += '<strong>';
-        text += dances[i].Name;
-        if (strong) text += '</strong>';
-        text += ' ' + formatTempo(dance.TempoRange, dance.Meter) + '</div>';
-
-        $('#dances').append(text);
-
-        if (typeof danceAction == 'function')
-        {
-            $('#add-dance-' + dance.Id).click(function () {
-                var id = $(this).context.id;
-                id = id.substring(idpfx.length);
-                danceAction(id);
+        var epsilon = $('#epsilon');
+        if (epsilon.length > 0) {
+            epsilon.noUiSlider({
+                start: [5],
+                step: 1,
+                range: { 'min': [1], 'max': [50] }
             });
         }
+
+        window.danceAction = self.danceAction;
+        //$('#tempo').focus(function () { setFocus(true);});
     }
 
-    $('#help').toggle(dances.length === 0);
-}
-
-function updateDances()
-{
-    dances = [];
-
-    var bpm = rate * numerator;
-
-    for (var i = 0; i < danceIndex.length; i++) {
-        var dance = danceIndex[i];
-
-        if (numerator === 1 || dance.Meter.Numerator === numerator ||
-            (numerator === 2 && dance.Meter.Numerator === 4) || (numerator === 4 && dance.Meter.Numerator === 2)) {
-            var delta = 0;
-
-            var tempRate = bpm / dance.Meter.Numerator;
-
-            if (tempRate < dance.TempoRange.Min) {
-                delta = tempRate - dance.TempoRange.Min;
-            }
-            else if (tempRate > dance.TempoRange.Max) {
-                delta = tempRate - dance.TempoRange.Max;
-            }
-
-            var avg = (dance.TempoRange.Min + dance.TempoRange.Max) / 2;
-            var eps = delta / avg;
-
-            if (Math.abs(eps) < epsVisible) {
-                dance.TempoDelta = delta.toFixed(1);
-                dance.TempoEps = eps;
-
-                dances.push(dance);
-            }
-        }
+    return {
+        init: init
     }
+}();
 
-    dances.sort(function (a, b) {
-        return Math.abs(a.TempoEps) - Math.abs(b.TempoEps);
-    });
+$(document).ready(function () {
+    counter.init();
+});
 
-    display();
-}
-
-function updateRate(newRate)
-{
-    console.log('Rate=' + newRate);
-    if (rate === newRate)
-    {
-        return;
-    }
-
-    rate = newRate;
-
-    updateDances();
-}
-
-function roundTempo(t)
-{
-    if ($.isNumeric(t))
-    {
-        var r = Math.round(t * 10) / 10;
-        return Number(r.toFixed(1));
-    }
-    else
-    {
-        return 0.0;
-    }
-}
-
-function getRate()
-{
-    var ret = 0;
-    if (average !== 0)
-        ret = 60 * 1000 / average;
-
-    return roundTempo(ret);
-}
-
-function rateFromText(text)
-{
-    var r = Number(text);
-    return roundTempo(r);
-}
-
-function setupDances(data)
-{
-    danceIndex = data;
-
-    var tempoT = rateFromText($(tempoId).val());
-    var mpmT = rateFromText($(mpmId).val());
-
-    if (mpmT !== 0) {
-        updateRate(mpmT);
-    }
-    else if (tempoT !== 0) {
-        updateRate(roundTempo(tempoT / numerator));
-    }
-}
-
-function setNumeratorControl(num)
-{
-    if (numerator !== num) {
-        $('#mt').empty();
-        $('#mt').append(labels[num - 1]);
-        $('#mt').append('<span class=\'caret\'></span>');
-        numerator = num;
-    }
-}
-
-function setNumerator(num)
-{
-    if (numerator !== num)
-    {
-        var old = numerator;
-        setNumeratorControl(num);
-
-        var r = (old * rate) / num;
-        r = roundTempo(r);
-
-        timerReset(rate !== 0);
-        if (rate !== 0)
-        {
-            updateRate(r);
-        }
-    }
-}
-
-function setEpsilon(newEpsI)
-{
-    var newEps = newEpsI / 100;
-    if (newEps !== epsVisible)
-    {
-        epsVisible = newEps;
-        updateDances();
-    }
-}
