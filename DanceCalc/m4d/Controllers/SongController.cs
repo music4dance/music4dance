@@ -365,15 +365,6 @@ namespace m4d.Controllers
             IList<DanceRating> ratingsList = song.RatingsList;
             ViewBag.DanceList = GetDancesSingle();
 
-            if (ratingsList.Any(r =>
-            {
-                var danceRatingInfo = r as DanceRatingInfo;
-                return danceRatingInfo != null && danceRatingInfo.DanceName.Contains("Waltz");
-            }))
-            {
-                ViewBag.paramNumerator = 3;
-            }
-
             ViewBag.DanceMap = SongCounts.GetDanceMap(Database);
         }
         //

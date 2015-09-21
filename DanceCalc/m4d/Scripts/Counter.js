@@ -5,7 +5,7 @@
 //  different variations
     self.showBPM = false;
     self.showMPM = true;
-    self.numerator = 4;
+    self.numerator = 1;
     self.defVisible = .05;
     self.epsVisible = defVisible;
 
@@ -107,14 +107,16 @@
         for (var i = 0; i < self.dances.length; i++) {
             var dance = self.dances[i];
             var text = '<a id=\'' + idpfx + dance.Id + '\' href=\'#\' class=\'list-group-item ';
+            // This conversion is necessary to convert the single decimal precision string to a number that can be exactly compared
+            var tempoDelta = parseInt(dance.TempoDelta);
 
-            if (dance.TempoDelta === 0) {
+            if (tempoDelta === 0) {
                 text += ' list-group-item-info\'>';
             } else {
-                var type = (dance.TempoDelta < 0) ? 'list-group-item-danger' : 'list-group-item-success';
+                var type = (tempoDelta < 0) ? 'list-group-item-danger' : 'list-group-item-success';
                 text += type + '\'>' +
                     '<span class=\'badge\'>' + dances[i].TempoDelta + 'MPM</span>';
-
+                // The above version of tempoDelta is explicitly the formatted string version
             }
             var strong = self.numerator === 1 || numerator === dance.Meter.Numerator;
             if (strong) text += '<strong>';
@@ -278,8 +280,8 @@
         }
     }
 
-    self.setNumeratorControl=function(num) {
-        if (self.numerator !== num) {
+    self.setNumeratorControl=function(num,force) {
+        if (force || self.numerator !== num) {
             $('#mt').empty();
             $('#mt').append(labels[num - 1]);
             $('#mt').append('<span class=\'caret\'></span>');
@@ -310,10 +312,10 @@
         }
     }
 
-    self.setParameter = function (name, type)
-    {
-        if (typeof window[name] === type) {
-            self[name] = window[name];
+    self.setParameter = function (name, type) {
+        var id = 'param' + name;
+        if (typeof window[id] === type) {
+            self[name.toLowerCase()] = window[id];
         }
     };
 
@@ -333,6 +335,8 @@
         $('#mt2').click(function () { self.setNumerator(2) });
         $('#mt3').click(function () { self.setNumerator(3) });
         $('#mt4').click(function () { self.setNumerator(4) });
+
+        self.setNumeratorControl(self.numerator, true);
 
         $('#epsilon').change(function () {
             self.setEpsilon($(this).val());
