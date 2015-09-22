@@ -110,7 +110,7 @@ namespace m4d.Controllers
                 filter.Page = 1;
             }
 
-            string purchase = string.Empty;
+            var purchase = string.Empty;
             if (services != null)
             {
                 purchase = string.Concat(services);
@@ -150,28 +150,28 @@ namespace m4d.Controllers
         [AllowAnonymous]
         public ActionResult FilterService(ICollection<string> services, SongFilter filter)
         {
-            string purchase = string.Empty;
+            var purchase = string.Empty;
             if (services != null)
             {
                 purchase = string.Concat(services);
             }
-            if (filter.Purchase != purchase)
-            {
-                filter.Purchase = purchase;
-                filter.Page = 1;
-            }
+
+            if (filter.Purchase == purchase) return DoIndex(filter);
+
+            filter.Purchase = purchase;
+            filter.Page = 1;
             return DoIndex(filter);
         }
 
         [AllowAnonymous]
         public ActionResult FilterTempo(decimal? tempoMin, decimal? tempoMax, SongFilter filter)
         {
-            if (filter.TempoMin != tempoMin || filter.TempoMax != tempoMax)
-            {
-                filter.TempoMin = tempoMin;
-                filter.TempoMax = tempoMax;
-                filter.Page = 1;
-            }
+            if (filter.TempoMin == tempoMin && filter.TempoMax == tempoMax)
+                return DoIndex(filter);
+
+            filter.TempoMin = tempoMin;
+            filter.TempoMax = tempoMax;
+            filter.Page = 1;
 
             return DoIndex(filter);
         }
@@ -200,11 +200,11 @@ namespace m4d.Controllers
             filter.Tags = null;
             filter.Page = null;
 
-            if (!string.IsNullOrWhiteSpace(tags))
-            {
-                var list = new TagList(tags).AddMissingQualifier('+');
-                filter.Tags = list.ToString();
-            }
+            if (string.IsNullOrWhiteSpace(tags))
+                return DoIndex(filter);
+
+            var list = new TagList(tags).AddMissingQualifier('+');
+            filter.Tags = list.ToString();
 
             return DoIndex(filter);
         }
@@ -267,15 +267,11 @@ namespace m4d.Controllers
                 model = AlbumViewModel.Create(title, Database);
             }
 
-            if (model != null)
-            {
-                ViewBag.DanceMap = SongCounts.GetDanceMap(Database);
-                return View("Album", model);
-            }
-            else
-            {
+            if (model == null)
                 return ReturnError(HttpStatusCode.NotFound, $"Album '{title}' not found.");
-            }
+
+            ViewBag.DanceMap = SongCounts.GetDanceMap(Database);
+            return View("Album", model);
         }
 
 
@@ -319,26 +315,23 @@ namespace m4d.Controllers
                 ViewBag.DanceList = GetDancesSingle();
                 return View("details", newSong);
             }
-            else
+
+            ViewBag.DanceList = GetDancesSingle();
+
+            // Clean out empty albums
+            for (var i = 0; i < song.Albums.Count; )
             {
-                ViewBag.DanceList = GetDancesSingle();
-
-                // Clean out empty albums
-                for (var i = 0; i < song.Albums.Count; )
+                if (string.IsNullOrWhiteSpace(song.Albums[i].Name))
                 {
-                    if (string.IsNullOrWhiteSpace(song.Albums[i].Name))
-                    {
-                        song.Albums.RemoveAt(i);
-                    }
-                    else
-                    {
-                        i += 1;
-                    }
-
+                    song.Albums.RemoveAt(i);
                 }
-
-                return View(song);
+                else
+                {
+                    i += 1;
+                }
             }
+
+            return View(song);
         }
 
         //
@@ -352,17 +345,16 @@ namespace m4d.Controllers
                 return ReturnError(HttpStatusCode.NotFound, $"The song with id = {id} has been deleted.");
             }
 
-            SetupEditViewBag(song);
+            SetupEditViewBag();
 
             return View(song);
         }
 
-        private void SetupEditViewBag(SongDetails song)
+        private void SetupEditViewBag()
         {
             ViewBag.ShowMPM = true;
             ViewBag.ShowBPM = true;
 
-            IList<DanceRating> ratingsList = song.RatingsList;
             ViewBag.DanceList = GetDancesSingle();
 
             ViewBag.DanceMap = SongCounts.GetDanceMap(Database);
@@ -378,7 +370,7 @@ namespace m4d.Controllers
             if (ModelState.IsValid)
             {
                 var user = Database.FindUser(User.Identity.Name);
-                var jt = JTags.FromJson(userTags);                
+                var jt = JTags.FromJson(userTags);
 
                 var edit = Database.EditSong(user, song, jt.ToUserTags());
 
@@ -399,40 +391,35 @@ namespace m4d.Controllers
 
                 return RedirectToAction("Index", new {filter });
             }
-            else
+            var errors =  ModelState.SelectMany(x => x.Value.Errors.Select(z => z.Exception));
+            ViewBag.Errors = errors;
+
+            if (TraceLevels.General.TraceError)
             {
-                var errors =  ModelState.SelectMany(x => x.Value.Errors.Select(z => z.Exception));
-                ViewBag.Errors = errors;
-
-                if (TraceLevels.General.TraceError)
+                foreach (var error in errors)
                 {
-                    foreach (var error in errors)
-                    {
-                        Trace.WriteLine(error.Message);
-                    }
+                    Trace.WriteLine(error.Message);
                 }
-
-                // Add back in the danceratings
-                // TODO: This almost certainly doesn't preserve edits...
-                var songT = Database.FindSongDetails(song.SongId, User.Identity.Name);
-                SetupEditViewBag(songT);
-
-                // Clean out empty albums
-                for (int i = 0; i < song.Albums.Count;  )
-                {
-                    if (string.IsNullOrWhiteSpace(song.Albums[i].Name))
-                    {
-                        song.Albums.RemoveAt(i);
-                    }
-                    else
-                    {
-                        i += 1;
-                    }
-
-                }
-
-                return View(song);
             }
+
+            // Add back in the danceratings
+            // TODO: This almost certainly doesn't preserve edits...
+            SetupEditViewBag();
+
+            // Clean out empty albums
+            for (var i = 0; i < song.Albums.Count;)
+            {
+                if (string.IsNullOrWhiteSpace(song.Albums[i].Name))
+                {
+                    song.Albums.RemoveAt(i);
+                }
+                else
+                {
+                    i += 1;
+                }
+            }
+
+            return View(song);
         }
 
         //
@@ -441,11 +428,7 @@ namespace m4d.Controllers
         public ActionResult Delete(Guid id, SongFilter filter = null)
         {
             var song = Database.Songs.Find(id);
-            if (song == null)
-            {
-                return ReturnError(HttpStatusCode.NotFound, $"The song with id = {id} has been deleted.");
-            }
-            return View(song);
+            return song == null ? ReturnError(HttpStatusCode.NotFound, $"The song with id = {id} has been deleted.") : View(song);
         }
 
         //
@@ -710,11 +693,10 @@ namespace m4d.Controllers
                     if (tried > count)
                         break;
 
-                    if ((tried + 1) % 25 == 0)
-                    {
-                        Trace.WriteLineIf(TraceLevels.General.TraceInfo, $"{tried} songs tried.");
-                        Context.CheckpointChanges();
-                    }
+                    if ((tried + 1)%25 != 0) continue;
+
+                    Trace.WriteLineIf(TraceLevels.General.TraceInfo, $"{tried} songs tried.");
+                    Context.CheckpointChanges();
                 }
 
                 page += 1;
@@ -749,7 +731,6 @@ namespace m4d.Controllers
                 var tags = new TagList();
                 foreach (var foundTrack in found)
                 {
-                    
                     UpdateMusicService(sd, MusicService.GetService(foundTrack.Service), foundTrack.Name, foundTrack.Album, foundTrack.Artist, foundTrack.TrackId, foundTrack.CollectionId, foundTrack.AltId, foundTrack.Duration.ToString(), foundTrack.TrackNumber);
                     tags = tags.Add(new TagList(Database.NormalizeTags(foundTrack.Genre, "Music")));
                 }
@@ -789,10 +770,8 @@ namespace m4d.Controllers
             // Then check for exact album match if we don't have a tempo
             if (!sd.Length.HasValue)
             {
-                foreach (ServiceTrack track in tracks)
+                foreach (var track in tracks.Where(track => sd.FindAlbum(track.Album) != null))
                 {
-                    if (sd.FindAlbum(track.Album) == null) continue;
-
                     found.Add(track);
                     break;
                 }
@@ -884,7 +863,7 @@ namespace m4d.Controllers
             {
                 dances.Add(new SelectListItem() { Value = d.Id, Text = d.Info.Name, Selected=false });
             }
-            return dances;            
+            return dances;
         }
 
         private ActionResult Delete(IQueryable<Song> songs, SongFilter filter)
@@ -946,7 +925,7 @@ namespace m4d.Controllers
                 {
                     ViewBag.Error = true;
                     ViewBag.Status = "No Matches Found";
-                }                
+                }
             }
             catch (WebException we)
             {
@@ -1157,7 +1136,7 @@ namespace m4d.Controllers
 
             // if form is != null we disambiguate based on form otherwise it's the first non-null field
 
-            var idx = 0;            
+            var idx = 0;
             if (form != null)
             {
                 var s = form[fieldName];
@@ -1172,11 +1151,10 @@ namespace m4d.Controllers
                 {
                     var s = songs[i];
 
-                    if (s.GetType().GetProperty(fieldName).GetValue(s) != null)
-                    {
-                        idx = i;
-                        break;
-                    }
+                    if (s.GetType().GetProperty(fieldName).GetValue(s) == null) continue;
+
+                    idx = i;
+                    break;
                 }
             }
 
