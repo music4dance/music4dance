@@ -1304,13 +1304,13 @@ namespace m4dModels
         {
             return (from links in songLinks select links.SingleOrDefault(l => l.AvailableMarkets == null || l.AvailableMarkets.Contains(region)) into link where link != null select link).ToList();
         }
-        public Song GetSongFromService(MusicService service,string id)
+        public SongDetails GetSongFromService(MusicService service,string id,string userName=null)
         {
             if (string.IsNullOrWhiteSpace(id)) return null;
 
             var purchase = SongProperties.FirstOrDefault(sp => sp.Value.StartsWith(id) && sp.Name.StartsWith("Purchase:") && sp.Name.EndsWith(":SS"));
 
-            return purchase?.Song;
+            return purchase == null ? null : FindSongDetails(purchase.SongId, userName);
         }
 
         // TODO: This is extremely dependent on the form of the danceIds, just

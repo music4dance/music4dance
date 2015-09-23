@@ -456,6 +456,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="APIControllers\ServiceTrackController.cs" />
     <Compile Include="APIControllers\TagSuggestionController.cs" />
     <Compile Include="APIControllers\UpdateRatingsController.cs" />
     <Compile Include="App_Start\BundleConfig.cs" />
@@ -772,6 +773,7 @@
     <Content Include="Content\bootstrap\bootstrap.less" />
     <Content Include="Content\bootstrap\badges.less" />
     <Content Include="Content\bootstrap\alerts.less" />
+    <Content Include="App_Code\ScriptHelper.cshtml" />
     <None Include="Properties\PublishProfiles\m4d.pubxml" />
     <Content Include="MvcDiagnostics.aspx" />
     <Content Include="pinterest-885c1.html" />

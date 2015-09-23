@@ -65,11 +65,11 @@
     <div class="form-group row">
         @Html.LabelFor(model => model.Tempo, new { @class = "control-label col-md-2" })
         <div class="col-md-10">
-            @Html.EditorFor(model => model.Tempo)
-            @Html.ValidationMessageFor(model => model.Tempo)
+            <input class="text-box single-line" data-val="true" data-val-number="The field Tempo must be a number." data-val-range="The field Tempo must be between 5 and 500." data-val-range-max="500" data-val-range-min="5" id="Tempo" name="Tempo" type="text" value="@Model.Tempo" />
+            @*@Html.ValidationMessageFor(model => model.Tempo)*@
             <a href="#" id="toggle-count" class="btn btn-sm btn-default"><span id="toggle-count-display" class="glyphicon glyphicon-arrow-down"></span></a>
 
-            <div class="editor-alternate" id="alt-temp">
+            <div class="editor-alternate" id="alt-tempo">
                 @if (old != null && old.Tempo != null)
                 {
                     <a href="#" role="button" class="btn btn-link">@old.Tempo</a>

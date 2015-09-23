@@ -9,7 +9,7 @@ namespace m4d.APIControllers
 {
     public class MusicServiceController : DMApiController
     {
-        public IHttpActionResult GetServiceTracks(Guid id, string service, string title = null, string artist = null, string album = null, string region=null)
+        public IHttpActionResult Get(Guid id, string service, string title = null, string artist = null, string album = null, string region=null)
         {
             var song = Database.FindSongDetails(id);
             if (song != null && artist == null && title == null)

@@ -8,6 +8,7 @@
     self.numerator = 1;
     self.defVisible = .05;
     self.epsVisible = defVisible;
+    self.tempo = 0;
 
     self.counter = 0;
     self.start = new Date().getTime();
@@ -217,6 +218,8 @@
         self.rate = newRate;
 
         self.updateDances();
+
+        serviceLookup.setTempo(newRate);
     }
 
     self.doClick = function () {
@@ -315,12 +318,12 @@
     self.setParameter = function (name, type) {
         var id = 'param' + name;
         if (typeof window[id] === type) {
-            self[name.toLowerCase()] = window[id];
+            self[name.substring(0,1).toLowerCase() + name.substring(1)] = window[id];
         }
     };
 
-    self.init = function() {
-        self.setParameter('showBMP', 'boolean');
+    self.init = function () {
+        self.setParameter('ShowBPM', 'boolean');
         self.setParameter('ShowMPM', 'boolean');
         self.setParameter('Numerator', 'number');
         self.setParameter('Tempo', 'number');
@@ -401,15 +404,79 @@
         }
 
         window.danceAction = self.danceAction;
+        if (self.tempo !== 0) {
+            $(self.tempoId).val(self.tempo/self.numerator);
+        }
         //$('#tempo').focus(function () { setFocus(true);});
     }
 
+    self.getTempo = function() {
+        return $(self.tempoId).val();
+    }
+
     return {
-        init: init
+        init: init,
+        getTempo: getTempo
+    }
+}();
+
+var serviceLookup = function () {
+    var self = this;
+
+    self.viewModel = {
+        track: ko.observable(null),
+        song: ko.observable(null),
+        tempo: ko.observable(0)
+    };
+
+    self.init = function() {
+        var lookup = $('#lookup-by-id');
+        if (lookup.length) {
+            lookup.submit(function (event) {
+                event.preventDefault();
+
+                var idControl = $('#idString');
+                if (idControl) {
+                    var id = idControl.val();
+                    if (id) {
+                        var idx = id.lastIndexOf('/');
+                        if (idx !== -1) {
+                            id = id.substring(idx + 1);
+                        }
+                        $.getJSON('/api/servicetrack/S' + id)
+                            .done(function (data) {
+                                console.log(data);
+                                if (data.hasOwnProperty('TrackId')) {
+                                    self.viewModel.track(data);
+                                    self.viewModel.song(null);
+                                } else {
+                                    self.viewModel.track(null);
+                                    self.viewModel.song(data);
+                                }
+                            })
+                            .fail(function (jqXhr, textStatus /*,err*/) {
+                                console.log(textStatus);
+                            });
+                    }
+                }
+            });
+
+            ko.applyBindings(self.viewModel);
+        }
+    }
+
+    self.setTempo = function(tempo) {
+        self.viewModel.tempo(tempo);
+    }
+
+    return {
+        init: self.init,
+        setTempo: self.setTempo
     }
 }();
 
 $(document).ready(function () {
     counter.init();
+    serviceLookup.init();
 });
 

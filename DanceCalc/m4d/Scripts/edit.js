@@ -100,7 +100,9 @@ var editor = function () {
         var field = $('#' + altToField(id));
 
         var oldVal = field.val();
-        if (val === oldVal) {
+        // We really want this to be approximately equal so number == string of same value
+        // ReSharper disable once CoercedEqualsUsing
+        if (val == oldVal) {
             return;
         }
 
@@ -577,8 +579,8 @@ var editor = function () {
             //  are strings, all others are objects.  Use this fact to return an array of
             //  new tags to be added to the suggestions list.
             var newTags = [];
-            for (i = 0; i < tags.length; i++) {
-                var obj = tags[i];
+            for (var j = 0; j < tags.length; j++) {
+                var obj = tags[j];
 
                 if ($.type(obj) === 'string') {
                     newTags.push(obj);
@@ -827,7 +829,7 @@ var editor = function () {
                     self.updateChosen(obj, type);                    
                     //window.alert('type=' + type + 'data=' + JSON.stringify(data));
                 })
-                .fail(function (jqXhr, textStatus /*,err*/) {
+                .fail(function (jqXhr /*, textStatus ,err*/) {
                     var message = "Server Error: " + jqXhr.status + " - " + jqXhr.statusText;
                     console.log(message);
                     var msgt = msg.find('p');
@@ -1116,6 +1118,15 @@ var editor = function () {
         viewModel = ko.mapping.fromJS(data, pageMapping);
 
         ko.applyBindings(viewModel);
+
+        if (window.hasOwnProperty("paramNewTempo")) {
+            addValue('alt-tempo', window.paramNewTempo);
+            $('#toggle-count-display').removeClass('glyphicon-arrow-down');
+            $('#toggle-count-display').addClass('glyphicon-arrow-up');
+        }
+        else {
+            $('#counter-control').hide();
+        }
     }
 
     return {
@@ -1134,8 +1145,7 @@ var editor = function () {
 
 var danceAction = editor.danceAction;
 
-$(document).ready(function() {
-    $('#counter-control').hide();
+$(document).ready(function () {
     $('#toggle-count').click(function() {
         var visible = $('#counter-control').is(':visible');
         if (visible) {

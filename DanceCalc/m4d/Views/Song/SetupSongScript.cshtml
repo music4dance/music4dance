@@ -9,7 +9,7 @@
     }
 
     var stream = new MemoryStream();
-    var serializer = new DataContractJsonSerializer(typeof (SongDetails));
+    var serializer = new DataContractJsonSerializer(typeof(SongDetails));
     serializer.WriteObject(stream, Model);
     var songString = System.Text.Encoding.UTF8.GetString(stream.ToArray());
 
@@ -22,11 +22,16 @@
         filterString = System.Text.Encoding.UTF8.GetString(stream.ToArray());
     }
 
+    @ScriptHelper.Parameter(ViewData, "NewTempo")
+    @ScriptHelper.Parameter(ViewData, "ShowMPM")
+    @ScriptHelper.Parameter(ViewData, "ShowBPM")
+
 
     var canEdit = User.IsInRole(DanceMusicService.EditRole) ? "true" : "false";
     var canTag = User.Identity.IsAuthenticated ? "true" : "false";
     var userId = User.Identity.GetUserId();
 }
+
 
 <script>
     var paramShowMPM = true;

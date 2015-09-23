@@ -6,6 +6,7 @@ using System.Linq;
 using System.Net;
 using System.Web;
 using System.Web.Mvc;
+using System.Web.UI.WebControls;
 using DanceLibrary;
 using m4d.ViewModels;
 using m4dModels;
@@ -278,13 +279,26 @@ namespace m4d.Controllers
         //
         // GET: /Song/CreateI
         [Authorize(Roles = "canEdit")] 
-        public ActionResult Create(SongFilter filter = null)
+        public ActionResult Create(string title=null, string artist=null, decimal? tempo = null, int? length=null, string album=null, int? track=null, string service = null, string purchase = null, SongFilter filter = null)
         {
-            ViewBag.ShowMPM = true;
-            ViewBag.ShowBPM = true;
-            var sd = new SongDetails();
-            ViewBag.DanceList = GetDancesSingle();
-            ViewBag.BackAction = "Index";
+            IList<AlbumDetails> adl = null;
+            if (album != null)
+            {
+                var ad = new AlbumDetails
+                {
+                    Name = album,
+                    Track = track
+                };
+                if (service != null)
+                {
+                    var ms = MusicService.GetService(service[0]);
+                    ad.SetPurchaseInfo(PurchaseType.Song,ms.Id,purchase);
+                }
+                adl = new List<AlbumDetails> { ad };
+            }
+
+            var sd = new SongDetails(title,artist,tempo,length,adl);
+            SetupEditViewBag(tempo);
             return View(sd);
         }
 
@@ -337,7 +351,7 @@ namespace m4d.Controllers
         //
         // GET: /Song/Edit/5
         [Authorize(Roles = "canEdit")] 
-        public ActionResult Edit(Guid? id = null, SongFilter filter = null)
+        public ActionResult Edit(Guid? id = null, decimal? tempo = null, SongFilter filter = null)
         {
             var song = Database.FindSongDetails(id ?? Guid.Empty, User.Identity.Name);
             if (song == null)
@@ -345,15 +359,20 @@ namespace m4d.Controllers
                 return ReturnError(HttpStatusCode.NotFound, $"The song with id = {id} has been deleted.");
             }
 
-            SetupEditViewBag();
+            SetupEditViewBag(tempo);
 
             return View(song);
         }
 
-        private void SetupEditViewBag()
+        private void SetupEditViewBag(decimal? tempo = null)
         {
-            ViewBag.ShowMPM = true;
-            ViewBag.ShowBPM = true;
+            if (tempo.HasValue)
+            {
+                ViewBag.paramNewTempo = tempo.Value;
+            }
+
+            ViewBag.paramShowMPM = true;
+            ViewBag.paramShowBPM = true;
 
             ViewBag.DanceList = GetDancesSingle();
 
