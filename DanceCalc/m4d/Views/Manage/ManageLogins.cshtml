@@ -1,8 +1,15 @@
 ﻿@model m4d.ViewModels.ManageLoginsViewModel
 @using Microsoft.Owin.Security
+@using Microsoft.AspNet.Identity
 @{
     ViewBag.Title = "Manage your external logins";
 }
+<ol class="breadcrumb">
+    <li><a href="/">Music4Dance</a></li>
+    <li><a href="/manage/index">@User.Identity.GetUserName()</a></li>
+    <li><a href="/manage/Settings">Account Settings</a></li>
+    <li class="active">Manage Logins</li>
+</ol>
 
 <h2>@ViewBag.Title.</h2>
 
@@ -56,4 +63,3 @@
         </div>
     }
 }
-

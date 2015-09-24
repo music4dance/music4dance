@@ -28,7 +28,46 @@ namespace m4d.Controllers
 
         //
         // GET: /Manage/Index
-        public async Task<ActionResult> Index(ManageMessageId? message)
+        public async Task<ActionResult> Index ()
+        {
+            var id = User.Identity.GetUserId();
+            var au = UserManager.FindById(id);
+            var model = new IndexViewModel
+            {
+                Name = User.Identity.GetUserName(),
+                HasPassword = HasPassword(),
+                Logins = await UserManager.GetLoginsAsync(id),
+                //BrowserRemembered = await AuthenticationManager.TwoFactorBrowserRememberedAsync(User.Identity.GetUserId()),
+                MemberSince = GetStartDate(),
+                Region = au.RegionName,
+                Privacy = au.PrivacyDescription,
+                CanContact = au.ContactDescription,
+                ServicePreference = au.ServicePreferenceDescription
+            };
+            return View(model);
+        }
+
+        // GET: /Manage/UserProfile
+        public async Task<ActionResult> UserProfile()
+        {
+            var id = User.Identity.GetUserId();
+            var au = UserManager.FindById(id);
+            var model = new IndexViewModel
+            {
+                Name = User.Identity.GetUserName(),
+                HasPassword = HasPassword(),
+                Logins = await UserManager.GetLoginsAsync(id),
+                //BrowserRemembered = await AuthenticationManager.TwoFactorBrowserRememberedAsync(User.Identity.GetUserId()),
+                MemberSince = GetStartDate(),
+                Region = au.RegionName,
+                Privacy = au.PrivacyDescription,
+                CanContact = au.ContactDescription,
+                ServicePreference = au.ServicePreferenceDescription
+            };
+            return View(model);
+        }
+        // GET /Manage/Settings
+        public async Task<ActionResult> Settings(ManageMessageId? message)
         {
             ViewBag.StatusMessage =
                 message == ManageMessageId.ChangePasswordSuccess ? "Your password has been changed."
@@ -133,7 +172,7 @@ namespace m4d.Controllers
             {
                 await SignInAsync(user, isPersistent: false);
             }
-            return RedirectToAction("Index", "Manage");
+            return RedirectToAction("Settings", "Manage");
         }
 
         //
@@ -147,7 +186,7 @@ namespace m4d.Controllers
             {
                 await SignInAsync(user, isPersistent: false);
             }
-            return RedirectToAction("Index", "Manage");
+            return RedirectToAction("Settings", "Manage");
         }
 
         //
@@ -177,7 +216,7 @@ namespace m4d.Controllers
                 {
                     await SignInAsync(user, isPersistent: false);
                 }
-                return RedirectToAction("Index", new { Message = ManageMessageId.AddPhoneSuccess });
+                return RedirectToAction("Settings", new { Message = ManageMessageId.AddPhoneSuccess });
             }
             // If we got this far, something failed, redisplay form
             ModelState.AddModelError("", "Failed to verify phone");
@@ -191,14 +230,14 @@ namespace m4d.Controllers
             var result = await UserManager.SetPhoneNumberAsync(User.Identity.GetUserId(), null);
             if (!result.Succeeded)
             {
-                return RedirectToAction("Index", new { Message = ManageMessageId.Error });
+                return RedirectToAction("Settings", new { Message = ManageMessageId.Error });
             }
             var user = await UserManager.FindByIdAsync(User.Identity.GetUserId());
             if (user != null)
             {
                 await SignInAsync(user, isPersistent: false);
             }
-            return RedirectToAction("Index", new { Message = ManageMessageId.RemovePhoneSuccess });
+            return RedirectToAction("Settings", new { Message = ManageMessageId.RemovePhoneSuccess });
         }
 
         //
@@ -226,7 +265,7 @@ namespace m4d.Controllers
                 {
                     await SignInAsync(user, isPersistent: false);
                 }
-                return RedirectToAction("Index", new { Message = ManageMessageId.ChangePasswordSuccess });
+                return RedirectToAction("Settings", new { Message = ManageMessageId.ChangePasswordSuccess });
             }
             AddErrors(result);
             return View(model);
@@ -255,7 +294,7 @@ namespace m4d.Controllers
                     {
                         await SignInAsync(user, isPersistent: false);
                     }
-                    return RedirectToAction("Index", new { Message = ManageMessageId.SetPasswordSuccess });
+                    return RedirectToAction("Settings", new { Message = ManageMessageId.SetPasswordSuccess });
                 }
                 AddErrors(result);
             }
@@ -367,7 +406,7 @@ namespace m4d.Controllers
                 //r = await UserManager.AddToRolesAsync(user.Id, DanceMusicService.TagRole);
 
                 if (string.IsNullOrWhiteSpace(returnUrl) || !Url.IsLocalUrl(returnUrl))
-                    return RedirectToAction("Index", "Manage");
+                    return RedirectToAction("UserProfile", "Manage");
                 
                 return Redirect(returnUrl);
             }

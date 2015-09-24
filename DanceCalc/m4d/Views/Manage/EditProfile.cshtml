@@ -1,9 +1,16 @@
-﻿@model m4d.ViewModels.ProfileViewModel
+﻿@using Microsoft.AspNet.Identity
+@model m4d.ViewModels.ProfileViewModel
 
 @{
     ViewBag.Title = "EditProfile";
     //ViewBag.Region = Model.RegionItems;
 }
+<ol class="breadcrumb">
+    <li><a href="/">Music4Dance</a></li>
+    <li><a href="/manage/index">@User.Identity.GetUserName()</a></li>
+    <li><a href="/manage/UserProfile">My Profile</a></li>
+    <li class="active">Edit Profile</li>
+</ol>
 
 <h2>About You</h2>
 <p>Please take a moment to answer a few questions about your location and communication preferences.</p>
@@ -75,6 +82,6 @@
     </div>
 }
 
-<div>
-    @Html.ActionLink("Back to List", "Index")
-</div>
+@*<div>
+    @Html.ActionLink("Back to Profile", "Index")
+</div>*@

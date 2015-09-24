@@ -634,6 +634,7 @@
     <Content Include="Content\spotify-charm.png" />
     <Content Include="Content\spotify-logo.png" />
     <Content Include="Content\swing-bkg.png" />
+    <Content Include="Content\swing-ui.png" />
     <Content Include="Content\swing.png" />
     <Content Include="Content\tag-50.png" />
     <Content Include="Content\tango-bkg.png" />
@@ -989,6 +990,8 @@
     <Content Include="Views\Shared\_TagCloud.cshtml" />
     <Content Include="Views\Dance\Category.cshtml" />
     <Content Include="Views\Admin\FileResults.cshtml" />
+    <Content Include="Views\Manage\Settings.cshtml" />
+    <Content Include="Views\Manage\UserProfile.cshtml" />
     <None Include="Web.m4d.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
