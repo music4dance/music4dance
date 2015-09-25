@@ -65,6 +65,7 @@
   {
     "Name": "Castle Foxtrot",
     "Id": "CFT",
+    "BlogTag" : "castle-foxtrot",
     "Meter": {
       "Numerator": 4,
       "Denominator": 4
@@ -87,6 +88,7 @@
       "Numerator": 4,
       "Denominator": 4
     },
+    "BlogTag" : "slow-foxtrot",
     "Organizations": ["DanceSport","NDCA"],
     "Instances": [
       {
@@ -178,6 +180,7 @@
   {
     "Name": "Peabody",
     "Id": "PBD",
+    "BlogTag" : "peabody",
     "Meter": {
       "Numerator": 4,
       "Denominator": 4
@@ -245,6 +248,7 @@
       "Numerator": 4,
       "Denominator": 4
     },
+    "BlogTag" : "quickstep",
     "Organizations": ["DanceSport","NDCA"],
     "Instances": [
       {
@@ -790,6 +794,7 @@
    {
     "Name": "Charleston",
     "Id": "CST",
+    "BlogTag" : "charleston",
     "Meter": {
       "Numerator": 4,
       "Denominator": 4
