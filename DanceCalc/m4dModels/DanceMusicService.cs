@@ -1252,6 +1252,8 @@ namespace m4dModels
         }
         public ICollection<ICollection<PurchaseLink>> GetPurchaseLinks(ServiceType serviceType, IEnumerable<Song> songs, string region = null)
         {
+            if (songs == null) return null;
+
             var links = new List<ICollection<PurchaseLink>>();
             var cid = MusicService.GetService(serviceType).CID;
             var sid = cid.ToString();

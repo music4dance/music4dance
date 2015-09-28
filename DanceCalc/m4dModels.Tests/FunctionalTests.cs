@@ -165,12 +165,16 @@ namespace m4dModels.Tests
         [TestMethod]
         public void PrettyLinkTest()
         {
-            const string initial = "*East Coast Swing* is a standardized dance in [American Rhythm] style competition dancing as well as a social partner dance.  It is one of a number of different swing dances that developed concurrently with the swing style of jazz music in the mid twentieth century.  This group of dances also includes [Lindy Hop],  [Carolina Shag], [Balboa], [West Coast Swing], and [Jive].  \r\n\r\nThis dance may also be referred to as Eastern Swing, Triple Swing, Triple Step Swing, American Swing, or just Swing.\r\n\r\nThe *East Coast Swing* is generally danced as the first dance of [American Rhythm] competitions.";
-            const string expected = @"*East Coast Swing* is a standardized dance in <a href='/dances/american-rhythm'>American Rhythm</a> style competition dancing as well as a social partner dance.  It is one of a number of different swing dances that developed concurrently with the swing style of jazz music in the mid twentieth century.  This group of dances also includes <a href='/dances/lindy-hop'>Lindy Hop</a>,  <a href='/dances/carolina-shag'>Carolina Shag</a>, <a href='/dances/balboa'>Balboa</a>, <a href='/dances/west-coast-swing'>West Coast Swing</a>, and <a href='/dances/jive'>Jive</a>.  
+            const string initial = "*East Coast Swing* is a standardized dance in [American Rhythm] style competition dancing as well as a social partner dance.  It is one of a number of different swing dances that developed concurrently with the swing style of jazz music in the mid twentieth century.  This group of dances also includes [Lindy Hop],  [Carolina Shag], [Balboa], [West Coast Swing], and [Jive].  \r\n\r\nThis dance may also be referred to as Eastern Swing, Triple Swing, Triple Step Swing, American Swing, or just Swing.\r\n\r\nThe *East Coast Swing* is generally danced as the first dance of [American Rhythm] competitions.\r\n\r\nHustle is traditionally danced to [disco music](https://www.music4dance.net/song/addtags?tags=%2BDisco:Music)";
+            const string expected =
+                @"*East Coast Swing* is a standardized dance in <a href='/dances/american-rhythm'>American Rhythm</a> style competition dancing as well as a social partner dance.  It is one of a number of different swing dances that developed concurrently with the swing style of jazz music in the mid twentieth century.  This group of dances also includes <a href='/dances/lindy-hop'>Lindy Hop</a>,  <a href='/dances/carolina-shag'>Carolina Shag</a>, <a href='/dances/balboa'>Balboa</a>, <a href='/dances/west-coast-swing'>West Coast Swing</a>, and <a href='/dances/jive'>Jive</a>.  
 
 This dance may also be referred to as Eastern Swing, Triple Swing, Triple Step Swing, American Swing, or just Swing.
 
-The *East Coast Swing* is generally danced as the first dance of <a href='/dances/american-rhythm'>American Rhythm</a> competitions.";
+The *East Coast Swing* is generally danced as the first dance of <a href='/dances/american-rhythm'>American Rhythm</a> competitions.
+
+Hustle is traditionally danced to (https://www.music4dance.net/song/addtags?tags=%2BDisco:Music)";
+
             var pretty = Dance.SmartLinks(initial);
 
             Trace.WriteLine(pretty);
@@ -178,7 +182,7 @@ The *East Coast Swing* is generally danced as the first dance of <a href='/dance
             //{
             //    if (expected[i] != pretty[i])
             //    {
-            //        Trace.WriteLine(string.Format("{0}: '{1}' '{2}'",i,expected[i],pretty[i]));
+            //        Trace.WriteLine(string.Format("{ 0}: '{1}' '{2}'",i,expected[i],pretty[i]));
             //    }
             //}
             Assert.AreEqual(expected, pretty);

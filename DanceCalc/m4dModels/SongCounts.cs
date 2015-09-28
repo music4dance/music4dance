@@ -268,7 +268,7 @@ namespace m4dModels
                 count = dance.SongCount;
                 max = dance.MaxWeight;
 
-                topSongs = dance.TopSongs.OrderBy(ts => ts.Rank).Select(ts => ts.Song).ToList();
+                topSongs = dance.TopSongs?.OrderBy(ts => ts.Rank).Select(ts => ts.Song).ToList();
                 topSpotify = dms.GetPurchaseLinks(ServiceType.Spotify, topSongs);
             }
 

@@ -56,7 +56,7 @@ namespace m4dModels
             {
                 sb.Append(s.Substring(i, match.Index - i));
                 var d = match.Groups["dance"].Value;
-                if (!string.IsNullOrWhiteSpace(d))
+                if (!string.IsNullOrWhiteSpace(d)  && s[match.Index + match.Length] != '(')
                 {
                     var l = FindLink(d);
                     if (l != null)
