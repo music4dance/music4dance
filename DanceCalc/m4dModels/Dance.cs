@@ -56,7 +56,7 @@ namespace m4dModels
             {
                 sb.Append(s.Substring(i, match.Index - i));
                 var d = match.Groups["dance"].Value;
-                if (!string.IsNullOrWhiteSpace(d)  && s[match.Index + match.Length] != '(')
+                if (!string.IsNullOrWhiteSpace(d) && s[match.Index + match.Length] != '(')
                 {
                     var l = FindLink(d);
                     if (l != null)
@@ -67,6 +67,10 @@ namespace m4dModels
                     {
                         sb.Append(d);
                     }
+                }
+                else
+                {
+                    sb.AppendFormat(@"[{0}]", d);
                 }
                 i = match.Index + match.Length;
             }
@@ -86,7 +90,7 @@ namespace m4dModels
             {
                 sb.Append(s.Substring(i, match.Index - i));
                 var d = match.Groups["dance"].Value;
-                if (!string.IsNullOrWhiteSpace(d))
+                if (!string.IsNullOrWhiteSpace(d) && s[match.Index + match.Length] != '(')
                 {
                     var l = FindLink(d);
                     sb.AppendFormat(@"[{0}]", d);
@@ -100,6 +104,10 @@ namespace m4dModels
                         }
                         sb.AppendFormat(@"[{0}]", idx);
                     }
+                }
+                else
+                {
+                    sb.AppendFormat(@"[{0}]", d);
                 }
                 i = match.Index + match.Length;
             }

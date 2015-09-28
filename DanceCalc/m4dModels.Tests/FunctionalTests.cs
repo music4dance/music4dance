@@ -173,7 +173,7 @@ This dance may also be referred to as Eastern Swing, Triple Swing, Triple Step S
 
 The *East Coast Swing* is generally danced as the first dance of <a href='/dances/american-rhythm'>American Rhythm</a> competitions.
 
-Hustle is traditionally danced to (https://www.music4dance.net/song/addtags?tags=%2BDisco:Music)";
+Hustle is traditionally danced to [disco music](https://www.music4dance.net/song/addtags?tags=%2BDisco:Music)";
 
             var pretty = Dance.SmartLinks(initial);
 
