@@ -89,8 +89,13 @@ namespace m4d.Controllers
         }
 
         [AllowAnonymous]
-        public ActionResult AdvancedSearch(string searchString, string dances, ICollection<string> services, decimal? tempoMin, decimal? tempoMax, SongFilter filter)
+        public ActionResult AdvancedSearch(string searchString=null, string dances=null, string tags=null, ICollection<string> services=null, decimal? tempoMin=null, decimal? tempoMax=null, SongFilter filter=null)
         {
+            if (filter == null)
+            {
+                filter = SongFilter.Default;
+            }
+
             if (string.IsNullOrWhiteSpace(searchString))
             {
                 searchString = null;
@@ -108,6 +113,16 @@ namespace m4d.Controllers
             if (!string.Equals(dances, filter.Dances, StringComparison.OrdinalIgnoreCase))
             {
                 filter.Dances = dances;
+                filter.Page = 1;
+            }
+
+            if (string.IsNullOrWhiteSpace(tags))
+            {
+                tags = null;
+            }
+            if (!string.Equals(tags, filter.Tags, StringComparison.OrdinalIgnoreCase))
+            {
+                filter.Tags = tags;
                 filter.Page = 1;
             }
 

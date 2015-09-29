@@ -110,7 +110,7 @@ namespace m4dModels
             Artist = artist;
             Tempo = tempo;
             Length = length;
-            _albums = (albums as List<AlbumDetails>) ?? albums.ToList();
+            _albums = (albums as List<AlbumDetails>) ?? albums?.ToList();
         }
         private void Load(Guid songId, ICollection<SongProperty> properties)
         {

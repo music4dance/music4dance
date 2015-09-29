@@ -13,16 +13,16 @@ namespace m4dModels
     {
         private const string Empty = ".";
         private const char SubChar = '\u001a';
-        private static readonly string SSubString = new string(SubChar1, 1);
+        private static readonly string s_subString = new string(SubChar1, 1);
         private const char Separator = '-';
-        private static readonly string SSepString = new string(Separator, 1);
+        private static readonly string s_sepString = new string(Separator, 1);
  
         static public SongFilter Default => new SongFilter();
 
         static SongFilter()
         {
             var info = typeof(SongFilter).GetProperties(BindingFlags.Public | BindingFlags.Instance);
-            PropertyInfo = info.Where(p => p.CanRead && p.CanWrite).ToList();
+            s_propertyInfo = info.Where(p => p.CanRead && p.CanWrite).ToList();
         }
 
         public SongFilter()
@@ -39,7 +39,7 @@ namespace m4dModels
             if (value.Contains(@"\-"))
             {
                 fancy = true;
-                value = value.Replace(@"\-", SSubString);
+                value = value.Replace(@"\-", s_subString);
             }
 
             var cells = value.Split(Separator);
@@ -56,7 +56,7 @@ namespace m4dModels
                     cells[i] = cells[i].Replace(SubChar1, Separator);
                 }
 
-                var pi = PropertyInfo[i];
+                var pi = s_propertyInfo[i];
 
                 object v = null;
                 if (!string.IsNullOrWhiteSpace(cells[i]))
@@ -107,7 +107,7 @@ namespace m4dModels
             var nullBuff = new StringBuilder();
 
             var sep = string.Empty;
-            foreach (var v in PropertyInfo.Select(p => p.GetValue(this)))
+            foreach (var v in s_propertyInfo.Select(p => p.GetValue(this)))
             {
                 if (v == null)
                 {
@@ -121,7 +121,7 @@ namespace m4dModels
                     ret.Append(sep);
                     ret.Append(Format(v.ToString()));
                 }
-                sep = SSepString;
+                sep = s_sepString;
             }
 
             return ret.ToString();
@@ -131,7 +131,7 @@ namespace m4dModels
         {
             get
             {
-                return !PropertyInfo.Where(pi => pi.Name != "SortOrder").Select(t => t.GetValue(this)).Where((o, i) => o != null && !IsAltDefault(o, i)).Any();
+                return !s_propertyInfo.Where(pi => pi.Name != "SortOrder").Select(t => t.GetValue(this)).Where((o, i) => o != null && !IsAltDefault(o, i)).Any();
             }
         }
         public string Description
@@ -222,13 +222,13 @@ namespace m4dModels
 
         private static bool IsAltDefault(object o, int index)
         {
-            if (index > AltDefaults.Length -1 || AltDefaults[index] == null) return false;
+            if (index > s_altDefaults.Length -1 || s_altDefaults[index] == null) return false;
 
             var s = o as string;
-            return s != null ? string.Equals(s, AltDefaults[index] as string, StringComparison.InvariantCultureIgnoreCase) : Equals(o, AltDefaults[index]);
+            return s != null ? string.Equals(s, s_altDefaults[index] as string, StringComparison.InvariantCultureIgnoreCase) : Equals(o, s_altDefaults[index]);
         }
 
-        private static readonly List<PropertyInfo> PropertyInfo;
-        private static readonly object[] AltDefaults = {"index","all",null,null,null,null,null,1};
+        private static readonly List<PropertyInfo> s_propertyInfo;
+        private static readonly object[] s_altDefaults = {"index","all",null,null,null,null,null,1};
     }
 }
