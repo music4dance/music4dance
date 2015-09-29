@@ -23,6 +23,7 @@
         region = "US";
     }
 }
+@Html.Partial("ItemTags")
 
 <div class="row">
     <div class="col-md-12">
@@ -79,7 +80,7 @@
     <div class="row">
         <div class="col-md-12">
             <h4>
-                @Html.Partial("ItemTags")
+                <span data-bind="template: {name:'tag-template',foreach:song.TagSummary.tagTypes}"></span>
             </h4>
         </div>
     </div>

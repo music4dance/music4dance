@@ -29,7 +29,6 @@ var helpers = function () {
 }();
 
 var editor = function () {
-
     // Forward declare model and mappings
     var viewModel = null;
     var albumMapping = null;
@@ -47,6 +46,14 @@ var editor = function () {
         DOWN: -1,
         NEUTRAL: 0,
         UP: 1
+    };
+
+    var changedHandler = function(f) {
+        if (f === undefined) {
+            return viewModel.changed;
+        } else {
+            return viewModel.changed(f);
+        }
     };
 
     var logoFromEnum = function (e) {
@@ -148,17 +155,6 @@ var editor = function () {
         return name;
     }
 
-    var categoryToIcon = function(name) {
-        var classMap = { 'style': 'dance', 'tempo': 'tempo', 'music': 'genre' };
-
-        var cls = 'tag';
-        var key = name.toLowerCase();
-        if (classMap.hasOwnProperty(key)) {
-            cls = classMap[key];
-        }
-        return '/content/' + cls + '-50.png';
-    }
-
     // Track object
     // ReSharper disable once InconsistentNaming
     var Track = function (data) {
@@ -211,6 +207,8 @@ var editor = function () {
         }
 
         ko.mapping.fromJS(data, ratingMapping, this);
+
+        self.extraTagTypes = [{ name: 'Style', label: 'Style' }];
 
         self.isExplicit = ko.pureComputed(function () {
             return self.song.TagSummary.hasTag(data.DanceName, 'Dance');
@@ -297,6 +295,9 @@ var editor = function () {
         self.danceTag = ko.pureComputed(function () {
             return self.isExplicit() ? 'dance-tag' : '';
         }, this);
+
+        self.changed = changedHandler;
+        self.changeText = function() {return 'your list of tags.'}
     };
 
     // Album object
@@ -353,260 +354,6 @@ var editor = function () {
         }
     };
 
-    // ReSharper disable once InconsistentNaming
-    var Tag = function (value, parent) {
-        var self = this;
-
-        var values = value.split(':');
-
-        self.tag = ko.observable(values.length > 0 ? values[0] : null);
-        self.cat = ko.observable(values.length > 1 ? values[1] : null);
-        self.cnt = ko.observable(values.length > 2 ? values[2] : 1);
-
-        self.parent = parent;
-
-        self.userTags = ko.pureComputed(function () {
-            return self.parent.CurrentUserTags;
-        });
-
-        self.value = ko.pureComputed(function () {
-            return self.tag() + ':' + self.cat();
-        }, this);
-
-        self.url = ko.pureComputed(function () {
-            return '/song/tags?tags=' + encodeURIComponent(self.tag()) + ':' + encodeURIComponent(self.cat());
-        }, this);
-
-        self.urlNot = ko.pureComputed(function () {
-            return '/song/tags?tags=-' + encodeURIComponent(self.tag()) + ':' + encodeURIComponent(self.cat());
-        }, this);
-
-        self.imageSrc = ko.pureComputed(function () {
-            return categoryToIcon(self.cat());
-        }, this);
-
-        self.isUserTag = ko.pureComputed(function () {
-            var val = self.tag() + ':' + self.cat();
-            return self.userTags().Tags.indexOf(val) !== -1;
-        }, this);
-
-        self.tagClass = ko.pureComputed(function () {
-            var ret = self.isUserTag() ? 'glyphicon-tag' : 'glyphicon-plus-sign';
-            return ret;
-        }, this);
-
-        self.toggleText = ko.pureComputed(function () {
-            return (self.isUserTag() ? 'Remove "' + self.tag() + '" from' : 'Add "' + self.tag() + '" to') + ' your list of tags';
-        }, this);
-
-        self.toggleUser = function () {
-            var value = self.value();
-            var count = self.cnt();
-            if (self.isUserTag()) {
-                self.userTags().Tags.remove(value);
-                count -= 1;
-            } else {
-                self.userTags().Tags.push(value);
-                count += 1;
-            }
-            self.cnt(count);
-            if (count === 0) {
-                parent.TagSummary.Tags.remove(self);
-            }
-
-            viewModel.changed(true);
-        };
-    };
-
-    // ReSharper disable once InconsistentNaming
-    var TagType = function (summary, name, label) {
-        var self = this;
-
-        self.summary = summary;
-        self.name = name;
-        self.label = label;
-
-        self.list = ko.computed(function () {
-            return ko.utils.arrayFilter(self.summary.Tags(), function (tag) {
-                return tag.cat() === self.name;
-            });
-        }, this);
-
-        self.tooltip = ko.pureComputed(function () {
-            return 'Add or Change ' + self.label + ' tags.';
-        }, this);
-
-        self.imageSrc = ko.pureComputed(function() {
-            return categoryToIcon(name);
-        },this);
-        self.nameLower = function () { return name.toLowerCase() };
-    };
-
-    // Tag Summary Object
-    // ReSharper disable once InconsistentNaming
-    var TagSummary = function (data, parent, forSong) {
-        var self = this;
-        self.parent = parent;
-
-        self.tagsFromSummary = function (summary) {
-            if (!summary) return [];
-
-            var list = [];
-            var tcs = summary.split('|');
-            for (var i = 0; i < tcs.length; i++) {
-                list.push(new Tag(tcs[i].trim(), self.parent));
-            }
-            return list;
-        };
-
-        self.Summary = ko.observable(data.Summary);
-        self.Tags = ko.observableArray(self.tagsFromSummary(data.Summary));
-        self.userTags = ko.pureComputed(function () {
-            return self.parent.CurrentUserTags;
-        }, this);
-
-        // Build the tag types
-        self.tagTypes = [];
-        if (forSong) self.tagTypes.push(new TagType(self, 'Music', 'Musical Genre'));
-        if (!forSong) self.tagTypes.push(new TagType(self, 'Style', 'Style'));
-        self.tagTypes.push(new TagType(self, 'Tempo', 'Tempo'));
-        self.tagTypes.push(new TagType(self, 'Other', 'Other'));
-
-        self.danceId = ko.pureComputed(function () {
-            if (forSong) return '';
-            return self.parent.DanceId();
-        });
-
-        self.hasTag = function (value, kind) {
-            var s = value + ':' + kind;
-            for (var i = 0; i < self.Tags().length; i++) {
-                if (self.Tags()[i].value() === s) {
-                    return true;
-                }
-            }
-            return false;
-        };
-
-        self.getTagType = function (tt) {
-            for (var i = 0; i < self.tagTypes.length; i++) {
-                if (self.tagTypes[i].name === tt)
-                    return self.tagTypes[i];
-            }
-            return null;
-        };
-
-        self.findTag = function (tag, cat) {
-            var tagO = null;
-            for (var i = 0; i < self.Tags().length; i++) {
-                var tagT = self.Tags()[i];
-
-                if (tagT.tag() === tag && tagT.cat() === cat) {
-                    tagO = tagT;
-                    break;
-                }
-            }
-            return tagO;
-        };
-
-        self.findUserTag = function (tag, cat) {
-            var tagO = self.findTag(tag, cat);
-            return (tagO && tagO.isUserTag()) ? tagO : null;
-        };
-
-        self.removeTag = function (tag, cat) {
-            // Is there an existing match?
-            var tagO = self.findTag(tag, cat);
-
-            // If there isn't an existing tag, we're done
-            if (!tagO) return;
-
-            self.userTags().Tags.remove(tag + ':' + cat);
-            var cnt = tagO.cnt() - 1;
-            if (cnt <= 0) {
-                self.Tags.remove(tagO);
-            }
-            else {
-                tagO.cnt(cnt);
-            }
-
-            viewModel.changed(true);
-        };
-
-        self.addTag = function (tag, cat) {
-            // Is there an existing match?
-            var tagO = self.findTag(tag, cat);
-
-            // If there isn't an existing tag, create it
-            var value = tag + ':' + cat;
-            if (!tagO) {
-                tagO = new Tag(value, self.parent);
-                self.Tags.push(tagO);
-            } else {
-                tagO.cnt(tagO.cnt() + 1);
-            }
-
-            // Add tags to the associated userTag list if needed
-            if (!tagO.isUserTag()) {
-                self.userTags().Tags.push(value);
-            }
-
-            viewModel.changed(true);
-        };
-
-        self.getUserTags = function(type) {
-            var ret = [];
-            var tags = self.userTags().Tags();
-            for (var i = 0; i < tags.length; i++) {
-                var tag = tags[i];
-                var info = tag.split(':');
-                if (info.length > 1 && info[1] === type) {
-                    ret.push(info[0]);
-                }
-            }
-            return ret;
-        }
-
-        self.changeTags = function (tags, category) {
-            // First remove user tags that aren't in the new list
-            var oldTags = self.getUserTags(category);
-            for (var i = 0; i < oldTags.length; i++) {
-                if (tags.indexOf(oldTags[i]) === -1) {
-                    self.removeTag(oldTags[i], category);
-                }
-            }
-
-            // Then add the new tags: Tags that were created by the chosen addobject feature
-            //  are strings, all others are objects.  Use this fact to return an array of
-            //  new tags to be added to the suggestions list.
-            var newTags = [];
-            for (var j = 0; j < tags.length; j++) {
-                var obj = tags[j];
-
-                if ($.type(obj) === 'string') {
-                    newTags.push(obj);
-                }
-                else {
-                    obj = obj.value;
-                }
-
-                self.addTag(obj, category);
-            }
-
-            return newTags;
-        }
-
-        self.serializeUser = function () {
-            var s = '';
-            var sep = '';
-            for (var i = 0; i < self.userTags().Tags().length; i++) {
-                var tag = self.userTags().Tags()[i];
-                s += sep + tag;
-                sep = '|';
-            }
-            return s;
-        };
-    }; 
-
     // Song object
     // ReSharper disable once InconsistentNaming
     var Song = function (data) {
@@ -615,7 +362,10 @@ var editor = function () {
         if (data.CurrentUserTags == null) {
             data.CurrentUserTags = { Summary: '', Tags: [] };
         }
+
         ko.mapping.fromJS(data, albumMapping, this);
+
+        self.extraTagTypes = [{ name: 'Music', label: 'Musical Genre' }];
 
         // Alubm Management
         self.nextIndex = function () {
@@ -686,6 +436,9 @@ var editor = function () {
                 self.TagSummary.addTag(track.Genre, 'Music');
             }
         };
+
+        self.changed = changedHandler;
+        self.changeText = function () { return 'your list of tags.' }
     };
 
     // EditPage object
@@ -697,6 +450,7 @@ var editor = function () {
 
         self.canEdit = ko.observable(canEdit);
         self.canTag = ko.observable(canTag);
+        self.showTag = ko.observable(canTag);
 
         self.tagSuggestions = ko.observable(tagChooser.tagSuggestions('tag-editing',tagChooser.currentSuggestion('Change')));
 
@@ -750,7 +504,7 @@ var editor = function () {
         },
         'TagSummary': {
             create: function(options) {
-                return new TagSummary(options.data, options.parent, true);
+                return tagChooser.tagSummary(options.data, options.parent);
             }
         }
     };
@@ -758,7 +512,7 @@ var editor = function () {
     ratingMapping = {
         'TagSummary': {
             create: function (options) {
-                return new TagSummary(options.data, options.parent, false);
+                return tagChooser.tagSummary(options.data, options.parent);
             }
         }
     };

@@ -1,7 +1,7 @@
 ﻿<script type="text/html" id="tag-template">
     <!-- ko foreach: list -->
     <div class="btn-group" style="margin-right: 5px; line-height:1.75">
-        <a role="button" href="#!" class="dropdown-toggle label tag-text" data-toggle="dropdown" aria-expanded="false" data-bind="css:'label-' + $parent.nameLower()"><img data-bind="attr: {src: imageSrc}" width="14" height="14"/> <!--ko text: tag--><!--/ko--> <span class="glyphicon tag-text" data-bind="css:tagClass, visible:$root.canTag"></span></a>
+        <a role="button" href="#!" class="dropdown-toggle label tag-text" data-toggle="dropdown" aria-expanded="false" data-bind="css:'label-' + $parent.nameLower()"><img data-bind="attr: {src: imageSrc}" width="14" height="14"/> <!--ko text: tag--><!--/ko--> <span class="glyphicon tag-text" data-bind="css:tagClass, visible:$root.showTag"></span></a>
         <ul class="dropdown-menu body-text" role="menu">
             <li><a href="#!" data-bind="click:toggleUser, text:toggleText"></a></li>
             <li><a data-bind="attr: {href: url}">List all songs tagged as <!-- ko text: tag--><!--/ko--></a></li>
@@ -11,7 +11,5 @@
     <!--/ko-->
     <a role="button" class="label" data-bind="visible:$root.canTag, css:'label-' + nameLower(), attr:{'data-category':name,'data-danceid':summary.danceId, 'data-original-title':tooltip}" data-toggle="modal" data-show="tooltip" data-placement="top" data-target="#addTags"><img data-bind="attr: {src: imageSrc}" width="14" height="14" /> <span class="glyphicon glyphicon-asterisk"></span></a>
 </script>
-
-<div data-bind="template: {name:'tag-template',foreach:song.TagSummary.tagTypes}"></div>
 
 @*TODO: Add in the logic to take the current SongFilter into account when navigating from tags*@
