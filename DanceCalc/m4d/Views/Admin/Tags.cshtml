@@ -1,0 +1,21 @@
+﻿@{
+    ViewBag.Title = "Tags";
+}
+<ol class="breadcrumb">
+    <li><a href="/">Music4Dance</a></li>
+    <li><a href="/admin">Admin Index</a></li>
+    <li class="active">Tags</li>
+</ol>
+
+<h2>Administrator Console</h2>
+<hr />
+<h3>Tags</h3>
+<ul>
+    <li>@Html.ActionLink("Tag List", "index", "tag")</li>
+    <li>@Html.ActionLink("Check Tag Types", "UpdateTagTypes", new { update = false }, null)</li>
+    <li>@Html.ActionLink("Update Tag Types", "UpdateTagTypes", new { update = true }, null)</li>
+    <li>@Html.ActionLink("Update Tag Summaries", "UpdateTagSummaries")</li>
+    <li>@Html.ActionLink("Check User Tags", "RebuildUserTags", new { update = false }, null)</li>
+    <li>@Html.ActionLink("Update User Tags", "RebuildUserTags", new { update = true }, null)</li>
+    <li>@Html.ActionLink("Update User Tags (for specific song)", "RebuildUserTags", new { update = true, songIds = "372709cb-f116-4692-b990-f0fd80e7a84e" }, null)</li>
+</ul>

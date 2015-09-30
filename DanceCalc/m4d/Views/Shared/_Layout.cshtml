@@ -100,7 +100,24 @@
                     @*<li>@Html.ActionLink("Contact", "Contact", "Home")</li>*@
                     @if (User.IsInRole("showDiagnostics"))
                     {
-                        <li>@Html.ActionLink("Admin", "Index", "Admin")</li>
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">Admin <span class="caret"></span></a>
+                            <ul class="dropdown-menu" role="menu">
+                                <li>@Html.ActionLink("Index", "Index", "Admin")</li>
+                                <li>@Html.ActionLink("List Users", "Index", "ApplicationUsers")</li>  
+                                <li>@Html.ActionLink("Tags", "Tags", "Admin")</li>
+                                <li>@Html.ActionLink("Logging", "Logging", "Admin")</li>
+                                <li>@Html.ActionLink("Cleanup Tasks", "CleanupTasks", "Admin")</li>
+                                <li>@Html.ActionLink("Tracing", "Tracing", "Admin")</li>
+                                <li>@Html.ActionLink("Initialization Tasks", "InitializationTasks", "Admin")</li>
+                                <li>@Html.ActionLink("Song scrape and Modifier", "ScrapingModifier", "Admin")</li>
+                                    @if (User.IsInRole("dbAdmin"))
+                                    {
+                                        <li>@Html.ActionLink("Uploads and Backups", "UploadBackup", "Admin")</li>
+                                    }
+
+                            </ul>
+                        </li>
                     }
                 </ul>
                 @Html.Partial("_LoginPartial")

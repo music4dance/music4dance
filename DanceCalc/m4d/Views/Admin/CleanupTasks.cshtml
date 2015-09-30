@@ -1,0 +1,34 @@
+﻿@{
+    ViewBag.Title = "CleanupTasks";
+}
+
+<ol class="breadcrumb">
+    <li><a href="/">Music4Dance</a></li>
+    <li><a href="/admin">Admin Index</a></li>
+    <li class="active">Cleanup Tasks</li>
+</ol>
+
+<h2>Administrator Console</h2>
+<hr />
+
+<h3> Cleanup Tasks</h3>
+<ul>
+    <li>@Html.ActionLink("Merge Candidates - Similar Title", "MergeCandidates", "Song", new { level = 2 }, null)</li>
+    <li>@Html.ActionLink("Merge Candidates - Similar (Title + Artist) + All else equal", "MergeCandidates", "Song", new { level = 1 }, null)</li>
+    <li>@Html.ActionLink("Merge Candidates - Similar (Title + Artist + Length) + All else equal", "MergeCandidates", "Song", new { level = 3 }, null)</li>
+    <li>@Html.ActionLink("Merge Candidates - Similar Title + All else equal", "MergeCandidates", "Song", new { level = 0 }, null)</li>
+    <li>@Html.ActionLink("Clean up Tempi", "CleanTempi")</li>
+    <li>@Html.ActionLink("Fix up Artists", "FixArtists")</li>
+    <li>@Html.ActionLink("Update Albums", "UpdateAlbums")</li>
+    <li>@Html.ActionLink("Remove Lookup History", "CleanLookupHistory")</li>
+    <li>@Html.ActionLink("Fix up Zero Times", "FixZeroTime")</li>
+    <li>@Html.ActionLink("Times from Properties", "TimesFromProperties")</li>
+    @*<li>@Html.ActionLink("Add Dance Groups", "AddDanceGroups")</li>
+        <li>@Html.ActionLink("Clean Tags", "CleanTags")</li>*@
+    <li>@Html.ActionLink("Infer Dance Types", "InferDanceTypes")</li>
+    <li>@Html.ActionLink("Clear Song Cache", "ClearSongCache")</li>
+    <li>@Html.ActionLink("Update Spotify Regions", "SpotifyRegions", "Admin", new { count = 500 }, null)</li>
+    <li>@Html.ActionLink("Region Stats", "RegionStats", "Admin")</li>
+    <li>@Html.ActionLink("Compress Regions", "CompressRegions", "Admin")</li>
+    <li>@Html.ActionLink("Cleanup Albums", "CleanAlbums", "Admin")</li>
+</ul>

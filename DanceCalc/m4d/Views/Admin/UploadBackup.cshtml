@@ -1,0 +1,78 @@
+﻿@{
+    ViewBag.Title = "UploadBackup";
+}
+
+<ol class="breadcrumb">
+    <li><a href="/">Music4Dance</a></li>
+    <li><a href="/admin">Admin Index</a></li>
+    <li class="active">Uploads and Backups</li>
+</ol>
+
+<h2>Administrator Console</h2>
+<hr />
+
+@if (User.IsInRole("dbAdmin"))
+{
+    <h3>Upload Tag Types</h3>
+    using (Html.BeginForm("UploadTagTypes", "Admin", FormMethod.Post, new { enctype = "multipart/form-data" }))
+    {
+        @Html.AntiForgeryToken();
+        <input type="file" name="FileUpload" />
+        <br />
+        <input type="submit" name="UploadTags" id="Submit" value="Upload" />
+    }
+    <hr />
+
+    <h3>Upload Tags</h3>
+    using (Html.BeginForm("UploadTags", "Admin", FormMethod.Post, new { enctype = "multipart/form-data" }))
+    {
+        @Html.AntiForgeryToken();
+        <input type="file" name="FileUpload" />
+        <br />
+        <input type="submit" name="UploadTags" id="Submit" value="Upload" />
+    }
+    <hr />
+
+    <h3>Upload Tempi</h3>
+    using (Html.BeginForm("UploadTempi", "Admin", FormMethod.Post, new { enctype = "multipart/form-data" }))
+    {
+        @Html.AntiForgeryToken();
+        <input type="file" name="FileUpload" />
+        <br />
+        <input type="submit" name="UploadTempi" id="Submit" value="Upload" />
+    }
+    <hr />
+
+    <h3>Backup Delta</h3>
+    using (Html.BeginForm("BackupDelta", "Admin", FormMethod.Post, new { enctype = "multipart/form-data" }))
+    {
+        @Html.AntiForgeryToken();
+        <input type="file" name="FileUpload" />
+        <br />
+        <input type="submit" name="UploadTempi" value="Upload" />
+    }
+    <hr />
+
+    <h3>Update User Names</h3>
+    using (Html.BeginForm("UpdateUsernames", "Admin", FormMethod.Post, new { enctype = "multipart/form-data" }))
+    {
+        @Html.AntiForgeryToken();
+        <input type="file" name="FileUpload" />
+        <input type="checkbox" name="makepublic" id="makepublic" value="true" checked /> <text>Make Public</text>
+        <input type="submit" name="submit" id="UpdateUsernames" value="Submit" />
+    }
+
+    <h3>Reload the Database</h3>
+    using (Html.BeginForm("ReloadDatabase", "Admin", FormMethod.Post, new { enctype = "multipart/form-data" }))
+    {
+        @Html.AntiForgeryToken();
+        <input type="file" name="FileUpload" />
+        <br />
+        <input type="checkbox" name="batch" id="batch" value="true" /> <text>Batch Upload</text>
+        <input type="submit" name="reloadDatabase" id="Reload" value="Reload" />
+        @*<input type="submit" name="reloadDatabase" id="Add" value="Add" />*@
+        <input type="submit" name="reloadDatabase" id="UpdateSongs" value="Songs" />
+        <input type="submit" name="reloadDatabase" id="UpdateDances" value="Dances" />
+        <input type="submit" name="reloadDatabase" id="UpdateSongs" value="Users" />
+    }
+}

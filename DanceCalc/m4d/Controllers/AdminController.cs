@@ -32,7 +32,63 @@ namespace m4d.Controllers
         [Authorize(Roles = "showDiagnostics")]
         public ActionResult Index()
         {
+            return View();
+        }
+
+        //
+        // GET: /Admin/Tags
+        [Authorize(Roles = "showDiagnostics")]
+        public ActionResult Tags()
+        {
+            return View();
+        }
+        
+        //
+        // GET: /Admin/Logging
+        [Authorize(Roles = "showDiagnostics")]
+        public ActionResult Logging()
+        {
+            return View();
+        }
+
+        //
+        // GET: /Admin/CleanupTasks
+        [Authorize(Roles = "showDiagnostics")]
+        public ActionResult CleanupTasks()
+        {
+            return View();
+        }
+
+        //
+        // GET: /Admin/Tracing
+        [Authorize(Roles = "showDiagnostics")]
+        public ActionResult Tracing()
+        {
             ViewBag.TraceLevel = TraceLevels.General.Level.ToString();
+            return View();
+        }
+
+        //
+        // GET: /Admin/InitializaitonTasks
+        [Authorize(Roles = "showDiagnostics")]
+        public ActionResult InitializationTasks()
+        {
+            return View();
+        }
+
+        //
+        // GET: /Admin/UploadBackup
+        [Authorize(Roles = "dbAdmin")]
+        public ActionResult UploadBackup()
+        {
+            return View();
+        }
+
+        //
+        // GET: /Admin/ScrapingModifier
+        [Authorize(Roles = "showDiagnostics")]
+        public ActionResult ScrapingModifier()
+        {
             return View();
         }
 
@@ -927,9 +983,9 @@ namespace m4d.Controllers
         }
 
 
-//
-// Get: //RebuildUserTags
-[Authorize(Roles = "dbAdmin")]
+        //
+        // Get: //RebuildUserTags
+        [Authorize(Roles = "dbAdmin")]
         public ActionResult RebuildUserTags(bool update=false, string songIds=null)
         {
             Database.RebuildUserTags(User.Identity.Name,update,songIds);

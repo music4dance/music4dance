@@ -1,0 +1,17 @@
+﻿@{
+    ViewBag.Title = "Logging";
+}
+<ol class="breadcrumb">
+    <li><a href="/">Music4Dance</a></li>
+    <li><a href="/admin">Admin Index</a></li>
+    <li class="active">Logging</li>
+</ol>
+
+<h2>Administrator Console</h2>
+<hr />
+<h3>Logging</h3>
+<ul>
+    <li>@Html.ActionLink("Log", "index", "log")</li>
+    <li>@Html.ActionLink("Restore From Log", "restoreLines", "log")</li>
+    <li>@Html.ActionLink("Modified", "sort", "song", new { sortOrder = "Modified_desc" }, null)</li>
+</ul>

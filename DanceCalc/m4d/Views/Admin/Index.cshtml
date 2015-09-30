@@ -2,181 +2,51 @@
     ViewBag.Title = "Index";
 }
 
+<ol class="breadcrumb">
+    <li><a href="/">Music4Dance</a></li>
+    <li class="active">Admin Index</li>
+</ol>
+
 <h2>Administrator Console</h2>
+<hr/>
 
-<h3>Users</h3>
-<ul>
-    <li>@Html.ActionLink("List Users", "Index", "ApplicationUsers")</li>
-</ul>
+<div>
+    <h3>@Html.ActionLink("List Users", "Index", "ApplicationUsers")</h3>
+</div>
+<hr/>
 
-<h3>Tags</h3>
-<ul>
-    <li>@Html.ActionLink("Tag List", "index", "tag")</li>
-    <li>@Html.ActionLink("Check Tag Types", "UpdateTagTypes", new { update = false }, null)</li>
-    <li>@Html.ActionLink("Update Tag Types", "UpdateTagTypes", new { update = true }, null)</li>
-    <li>@Html.ActionLink("Update Tag Summaries", "UpdateTagSummaries")</li>
-    <li>@Html.ActionLink("Check User Tags", "RebuildUserTags", new { update = false }, null)</li>
-    <li>@Html.ActionLink("Update User Tags", "RebuildUserTags", new {update = true}, null)</li>
-    <li>@Html.ActionLink("Update User Tags (for specific song)", "RebuildUserTags", new { update = true, songIds = "372709cb-f116-4692-b990-f0fd80e7a84e" }, null)</li>
-</ul>
+<div>
+    <h3>@Html.ActionLink("Tags","Tags")</h3>
+</div>
+<hr/>
+<div>
+    <h3>@Html.ActionLink("Logging", "Logging")</h3>
+</div>
+<hr/>
 
-<h3>Logging</h3>
-<ul>
-    <li>@Html.ActionLink("Log", "index", "log")</li>
-    <li>@Html.ActionLink("Restore From Log", "restoreLines", "log")</li>
-    <li>@Html.ActionLink("Modified", "sort", "song", new {sortOrder="Modified_desc"}, null)</li>
-</ul>
-
-<h3> Cleanup Tasks</h3>
-<ul>
-    <li>@Html.ActionLink("Merge Candidates - Similar Title", "MergeCandidates", "Song", new { level = 2 }, null)</li>
-    <li>@Html.ActionLink("Merge Candidates - Similar (Title + Artist) + All else equal", "MergeCandidates", "Song", new { level = 1 }, null)</li>
-    <li>@Html.ActionLink("Merge Candidates - Similar (Title + Artist + Length) + All else equal", "MergeCandidates", "Song", new { level = 3 }, null)</li>
-    <li>@Html.ActionLink("Merge Candidates - Similar Title + All else equal", "MergeCandidates", "Song", new { level = 0 }, null)</li>
-    <li>@Html.ActionLink("Clean up Tempi", "CleanTempi")</li>
-    <li>@Html.ActionLink("Fix up Artists", "FixArtists")</li>
-    <li>@Html.ActionLink("Update Albums", "UpdateAlbums")</li>
-    <li>@Html.ActionLink("Remove Lookup History", "CleanLookupHistory")</li>
-    <li>@Html.ActionLink("Fix up Zero Times", "FixZeroTime")</li>
-    <li>@Html.ActionLink("Times from Properties", "TimesFromProperties")</li>
-    @*<li>@Html.ActionLink("Add Dance Groups", "AddDanceGroups")</li>
-    <li>@Html.ActionLink("Clean Tags", "CleanTags")</li>*@
-    <li>@Html.ActionLink("Infer Dance Types", "InferDanceTypes")</li>
-    <li>@Html.ActionLink("Clear Song Cache", "ClearSongCache")</li>
-    <li>@Html.ActionLink("Update Spotify Regions", "SpotifyRegions", "Admin", new { count = 500 }, null)</li>
-    <li>@Html.ActionLink("Region Stats", "RegionStats", "Admin")</li>
-    <li>@Html.ActionLink("Compress Regions", "CompressRegions", "Admin")</li>
-    <li>@Html.ActionLink("Cleanup Albums", "CleanAlbums", "Admin")</li>
-</ul>
-
-<h3>Tracing (Current Level = @ViewBag.TraceLevel)</h3>
-<ul>
-    <li>@Html.ActionLink("Turn Tracing Off", "SetTraceLevel", "Admin", new { level = 0 }, null)</li>
-    <li>@Html.ActionLink("Trace Error", "SetTraceLevel", "Admin", new { level = 1 }, null)</li>
-    <li>@Html.ActionLink("Trace Warning", "SetTraceLevel", "Admin", new { level = 2 }, null)</li>
-    <li>@Html.ActionLink("Trace Info", "SetTraceLevel", "Admin", new { level = 3 }, null)</li>
-    <li>@Html.ActionLink("Trace Verbose", "SetTraceLevel", "Admin", new { level = 4 }, null)</li>
-    <li>@Html.ActionLink("Test Trace", "TestTrace", "Admin", new {message = "Nothing Special"}, null)</li>
-    <li>@Html.ActionLink("Show Status", "AdminStatus", "Admin")</li>
-</ul>
-
+<div>
+    <h3>@Html.ActionLink("Cleanup Tasks", "CleanupTasks")</h3>
+</div>
 <hr />
-<h3> Initializiation Tasks</h3>
-<ul>
-    <li>@Html.ActionLink("RebuildDanceInfo", "RebuildDanceInfo")</li>
-    <li>@Html.ActionLink("Backup the Database", "BackupDatabase"), @Html.ActionLink("Users", "BackupDatabase", new {tags = false, dances = false, songs = false}), @Html.ActionLink("Dances", "BackupDatabase", new {tags = false, users = false, songs = false}), @Html.ActionLink("Tags", "BackupDatabase", new { tags = true, dances=false, users = false, songs = false })</li>
-    <li>@Html.ActionLink("Backup the Database (with lookup history)", "BackupDatabase", new {useLookupHistory = "true"})</li>
-    <li>@Html.ActionLink("Backup tail", "BackupTail", new {count = 150})</li>
-    <li>@Html.ActionLink("Backup tail (500)", "BackupTail", new {count = 500})</li>
-    <li>@Html.ActionLink("Backup tail (today)", "BackupTail", new { from = DateTime.Now.ToShortDateString(), count=5000 })</li>
-    <li>@Html.ActionLink("Update Purchase Info", "UpdatePurchase")</li>
-    <li>@Html.ActionLink("Update Title Hashes", "UpdateTitleHash")</li>
-    <li>@Html.ActionLink("Backup Tags", "BackupTags")</li>
-    <li>@Html.ActionLink("Recompute Dance Stats", "RebuildDances")</li>
-    <li>@Html.ActionLink("Rebuild Dance Tags", "RebuildDanceTags")</li>
-    @if (User.IsInRole("dbAdmin"))
-    {
-        <li>@Html.ActionLink("Restore the Datbase", "RestoreDatabase")</li>
-        <li>@Html.ActionLink("Rerun seed function", "Reseed")</li>
-        <li>@Html.ActionLink("Upload Catalog", "UploadCatalog")</li>
-        <li>@Html.ActionLink("Upload Catalog (Ithaca)", "UploadCatalog", new {separator = "ITC", headers = "TEMPO,TITLE,ARTIST", user = "ithaca"})</li>
-        <li>@Html.ActionLink("Upload Catalog (DWTS)", "UploadCatalog", new {separator = @"\t", headers = "DANCERS,DANCE,TITLE+ARTIST", user = "dwts", tags = "Episode 5:Other|Season 20:Other|United States:Other|DWTS:Other"})</li>
-        <li>@Html.ActionLink("Upload Catalog (Paul)", "UploadCatalog", new {separator = @"\t", headers = "Dance,Rating,Title,BPM,Length,Artist,Comment", user = "paul"})</li>
-        <li>@Html.ActionLink("Upload Album", "UploadCatalog", new {headers = "Title", separator = @"\t"})</li>
-    }
-</ul>
 
-<h3>Scrape Spotify</h3>
-@using (Html.BeginForm("ScrapeSpotify", "Admin", FormMethod.Get))
-{
-    <span>User: </span><input type="text" name="user" value="SpotCharles"/><br/>
-    <span>Url: </span><input type="text" name="url" value="https://open.spotify.com/user/113231003/playlist/1tUHw7s4bfRVbPdHo6ut7D" />
-    <span>Dances: </span><input type="text" name="dances" value="CST"/>
-    <span>TagsUrl: </span><input type="text" name="tags" />
-    <input type="submit" value="Scrape" />
-}
-
+<div>
+    <h3>@Html.ActionLink("Tracing", "Tracing")</h3>
+</div>
 <hr />
-<h3>Songs Modified By</h3>
-@using (Html.BeginForm("FilterUser", "Song", FormMethod.Get))
-    {
-        <input type="text" name="user" />
-        <input type="submit" id="Submit" value="Search" />
-    }
+
+<div>
+    <h3>@Html.ActionLink("Initialization Tasks", "InitializationTasks")</h3>
+</div>
+<hr />
+
+<div>
+    <h3>@Html.ActionLink("Song Scrape and Modifier", "ScrapingModifier")</h3>
+</div>
+<hr />
 
 @if (User.IsInRole("dbAdmin"))
 {
-    <hr />
-
-    <h3>Upload Tag Types</h3>
-    using (Html.BeginForm("UploadTagTypes", "Admin", FormMethod.Post, new { enctype = "multipart/form-data" }))
-    {
-        @Html.AntiForgeryToken();
-        <input type="file" name="FileUpload" />
-        <br />
-        <input type="submit" name="UploadTags" id="Submit" value="Upload" />
-    }
-    <hr />
-
-    <h3>Upload Tags</h3>
-    using (Html.BeginForm("UploadTags", "Admin", FormMethod.Post, new { enctype = "multipart/form-data" }))
-    {
-        @Html.AntiForgeryToken();
-        <input type="file" name="FileUpload" />
-        <br />
-        <input type="submit" name="UploadTags" id="Submit" value="Upload" />
-    }
-    <hr />
-
-    <h3>Upload Tempi</h3>
-    using (Html.BeginForm("UploadTempi", "Admin", FormMethod.Post, new { enctype = "multipart/form-data" }))
-    {
-        @Html.AntiForgeryToken();
-        <input type="file" name="FileUpload" />
-        <br />
-        <input type="submit" name="UploadTempi" id="Submit" value="Upload" />
-    }
-    <hr />
-
-    <h3>Backup Delta</h3>
-    using (Html.BeginForm("BackupDelta", "Admin", FormMethod.Post, new { enctype = "multipart/form-data" }))
-    {
-        @Html.AntiForgeryToken();
-        <input type="file" name="FileUpload" />
-        <br />
-        <input type="submit" name="UploadTempi"  value="Upload" />
-    }
-    <hr/>
-
-    <h3>Update User Names</h3>
-    using (Html.BeginForm("UpdateUsernames", "Admin", FormMethod.Post, new { enctype = "multipart/form-data" }))
-    {
-        @Html.AntiForgeryToken();
-        <input type="file" name="FileUpload"/>
-        <input type="checkbox" name="makepublic" id="makepublic" value="true" checked/> <text>Make Public</text>
-        <input type="submit" name="submit" id="UpdateUsernames" value="Submit" />
-    }
-
-    <h3>Reload the Database</h3>
-    using (Html.BeginForm("ReloadDatabase", "Admin", FormMethod.Post, new { enctype = "multipart/form-data" }))
-    {
-        @Html.AntiForgeryToken();
-        <input type="file" name="FileUpload" />
-        <br />
-        <input type="checkbox" name="batch" id="batch" value="true" /> <text>Batch Upload</text>
-        <input type="submit" name="reloadDatabase" id="Reload" value="Reload" />
-        @*<input type="submit" name="reloadDatabase" id="Add" value="Add" />*@
-        <input type="submit" name="reloadDatabase" id="UpdateSongs" value="Songs" />
-        <input type="submit" name="reloadDatabase" id="UpdateDances" value="Dances" />
-        <input type="submit" name="reloadDatabase" id="UpdateSongs" value="Users" />
-    }
+    <div>
+        <h3>@Html.ActionLink("Uploads and Backups", "UploadBackup")</h3>
+    </div>   
 }
-
-<h3>Scraping</h3>
-<ul>
-    <li>@Html.ActionLink("Century", "ScrapeDances", new { id = "Century" })</li>
-    <li>@Html.ActionLink("DanceForum", "ScrapeDances", new { id = "danceforums" })</li>
-    <li>@Html.ActionLink("DWTS", "ScrapeDances", new { id = "dwts" })</li>
-    <li>@Html.ActionLink("WDW", "ScrapeDances", new { id = "WDW" })</li>
-    <li>@Html.ActionLink("***REMOVED***", "ScrapeDances", new { id = "***REMOVED***" })</li>
-</ul>
