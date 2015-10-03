@@ -201,14 +201,15 @@ var editor = function () {
         var self = this;
 
         self.song = parent;
+        self.action = 'change';
 
         if (data.CurrentUserTags == null) {
             data.CurrentUserTags = { Summary: '', Tags: [] };
         }
 
-        ko.mapping.fromJS(data, ratingMapping, this);
-
         self.extraTagTypes = [{ name: 'Style', label: 'Style' }];
+
+        ko.mapping.fromJS(data, ratingMapping, this);
 
         self.isExplicit = ko.pureComputed(function () {
             return self.song.TagSummary.hasTag(data.DanceName, 'Dance');
@@ -359,13 +360,15 @@ var editor = function () {
     var Song = function (data) {
         var self = this;
 
+        self.action = 'change';
+
         if (data.CurrentUserTags == null) {
             data.CurrentUserTags = { Summary: '', Tags: [] };
         }
 
-        ko.mapping.fromJS(data, albumMapping, this);
-
         self.extraTagTypes = [{ name: 'Music', label: 'Musical Genre' }];
+
+        ko.mapping.fromJS(data, albumMapping, this);
 
         // Alubm Management
         self.nextIndex = function () {
@@ -486,6 +489,28 @@ var editor = function () {
                 }
             });
         };
+
+        self.showTagModal = function (event) {
+            var song = self.song;
+
+            var button = $(event.relatedTarget);
+            var danceId = button.data('danceid');
+
+            var obj = song;
+            var titleExtra = '';
+            if (danceId) {
+                for (var i = 0; i < song.DanceRatings().length; i++) {
+                    var t = song.DanceRatings()[i];
+                    if (t.DanceId() === danceId) {
+                        obj = t;
+                        titleExtra = ' for ' + t.DanceName();
+                        break;
+                    }
+                }
+            }
+
+            tagChooser.bindModal(self.tagSuggestions(), obj, button, titleExtra);
+        };
     };
 
     albumMapping = {
@@ -566,11 +591,6 @@ var editor = function () {
             });
     };
 
-    var cleanupTagModal = function (/*event*/) {
-        viewModel.tagSuggestions().current().chosen.removeAll();
-        $('#chosen').trigger('chosen:updated');
-    }
-
     var updateUserTags = function() {
         var t = JSON.stringify(viewModel.getRatings());
         $('#userTags').val(t);
@@ -619,20 +639,15 @@ var editor = function () {
         return confirm('You are about to permanently undo all of your changes to this song.');
     };
 
-    var init = function () {
-        ko.bindingHandlers.chosen =
-        {
-            init: function (element) {
-                $(element).addClass('chosen-select');
-                $(element).chosen({ width: '500px', create_option: true, persistent_create_option: true, skip_no_results: true });
-            },
-            update: function (element) {
-                $(element).trigger('chosen:updated');
-            }
-        };
+    var showTagModal = function (event) {
+        viewModel.showTagModal(event);
+    }
 
+    var init = function () {
         var data = { tracks: [], song: song, changed: false };
         viewModel = ko.mapping.fromJS(data, pageMapping);
+
+        tagChooser.setupModal(viewModel.tagSuggestions, showTagModal, { width: '500px', create_option: true, persistent_create_option: true, skip_no_results: true });
 
         ko.applyBindings(viewModel);
 
@@ -646,47 +661,11 @@ var editor = function () {
         }
     }
 
-    var showTagModal = function (event) {
-        var tagSuggestions = viewModel.tagSuggestions();
-        var song = viewModel.song;
-
-        var button = $(event.relatedTarget);
-        var category = button.data('category'); // Extract info from data-* attributes
-        var danceId = button.data('danceid');
-
-        var obj = song;
-        var titleExtra = '';
-        if (danceId) {
-            for (var i = 0; i < song.DanceRatings().length; i++) {
-                var t = song.DanceRatings()[i];
-                if (t.DanceId() === danceId) {
-                    obj = t;
-                    titleExtra = ' for ' + t.DanceName();
-                    break;
-                }
-            }
-        }
-
-        tagSuggestions.setSuggestions(obj, category);
-
-        var tagType = obj.TagSummary.getTagType(category);
-        var modal = $(event.currentTarget);
-        modal.find('.modal-title').text(tagSuggestions.current().title() + ' ' + tagType.label + ' tags' + titleExtra);
-
-        var okay = modal.find('#addTagsOkay');
-        okay.unbind('click.addtags');
-        okay.bind('click.addtags', function () {
-            viewModel.changed(true);
-            var newTags = obj.TagSummary.changeTags(tagSuggestions.current().chosen(), category);
-            tagSuggestions.updateSuggestions(newTags);
-        });
-    };
 
     return {
         init: init,
         getServiceInfo: getServiceInfo,
         showTagModal: showTagModal,
-        cleanupTagModal: cleanupTagModal,
         replaceValue: replaceValue,
         danceAction: danceAction,
         updateUserTags: updateUserTags,
@@ -718,13 +697,6 @@ $(document).ready(function () {
     });
 
     $('body').tooltip({ selector: '[data-show=tooltip]' });
-
-    var addTags = $('#addTags');
-    addTags.on('show.bs.modal', function(event) { editor.showTagModal(event); });
-
-    addTags.on('hidden.bs.modal', function () {
-        editor.cleanupTagModal();
-    });
 
     $('#load-xbox').click(function () { editor.getServiceInfo('X'); });
     $('#load-itunes').click(function () { editor.getServiceInfo('I'); });

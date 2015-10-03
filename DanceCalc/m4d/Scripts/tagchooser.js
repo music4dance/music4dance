@@ -120,7 +120,7 @@ var tagChooser = function () {
 
         self.contexts = contexts;
         if ($.isArray(self.contexts)) {
-            self.current(context[0]);
+            self.current(contexts[0]);
         } else {
             self.current(contexts);
             self.contexts = [contexts];
@@ -141,7 +141,18 @@ var tagChooser = function () {
         };
 
         self.getSuggestions = function (obj, type, user) {
+            if (user === 'ANONYMOUS') {
+                $('#user-suggestions').hide();
+                return;
+            }
+
             var kind = user ? 'user' : 'popular';
+
+            var msg = $('#' + kind + '-message');
+            var lst = $('#' + kind + '-list');
+
+            msg.show();
+            lst.hide();
 
             var uri = '/api/tagsuggestion?tagType=' + type;
             if (user) {
@@ -151,11 +162,6 @@ var tagChooser = function () {
                 uri += '&normalized=true&count=500';
             }
 
-            var msg = $('#' + kind + '-message');
-            var lst = $('#' + kind + '-list');
-
-            msg.show();
-            lst.hide();
 
             $.getJSON(uri)
                 .done(function (data) {
@@ -205,7 +211,7 @@ var tagChooser = function () {
 
                 if (sug.user === null) {
                     deferred = true;
-                    self.getSuggestions(obj, type, window.userId);
+                    self.getSuggestions(obj, type, window.userId ? window.userId : 'ANONYMOUS');
                 } else {
                     self.massageTags(sug.user, self.current().user);
                 }
@@ -217,6 +223,8 @@ var tagChooser = function () {
                 }
             }
 
+            if (sug.user !== null) $('#user-message').hide();
+            if (sug.popular !== null) $('#popular-message').hide();
             if (!deferred) self.updateChosen(obj, type);
         }
 
@@ -228,6 +236,16 @@ var tagChooser = function () {
                 var t = new TagSuggestion(name, 1);
                 self.current().user.push(t);
                 self.current().all.push(t);
+            }
+        }
+
+        self.setCurrent = function(name) {
+            for (var i = 0; i < self.contexts.length; i++) {
+                var t = self.contexts[i];
+                if (t.title().toLowerCase() === name) {
+                    self.current(t);
+                    break;
+                }
             }
         }
     };
@@ -298,12 +316,13 @@ var tagChooser = function () {
     };
 
     // ReSharper disable once InconsistentNaming
-    var TagType = function (summary, name, label) {
+    var TagType = function (summary, name, label, action) {
         var self = this;
 
         self.summary = summary;
         self.name = name;
         self.label = label;
+        self.action = action;
 
         self.list = ko.computed(function () {
             return ko.utils.arrayFilter(self.summary.Tags(), function (tag) {
@@ -318,12 +337,15 @@ var tagChooser = function () {
         self.imageSrc = ko.pureComputed(function () {
             return categoryToIcon(name);
         }, this);
+
+        self.actionName = ko.computed(function () { return self.action; }, this);
+
         self.nameLower = function () { return name.toLowerCase() };
     };
 
     // Tag Summary Object
     // ReSharper disable once InconsistentNaming
-    var TagSummary = function (data, taggedObject, forSong) {
+    var TagSummary = function (data, taggedObject) {
         var self = this;
         self.taggedObject = taggedObject;
 
@@ -345,14 +367,15 @@ var tagChooser = function () {
         }, this);
 
         // Build the tag types
+        var action = taggedObject.action;
         self.tagTypes = [];
         if (taggedObject.extraTagTypes) {
             for (var i = 0; i < taggedObject.extraTagTypes.length; i++) {
-                self.tagTypes.push(new TagType(self, taggedObject.extraTagTypes[i].name, taggedObject.extraTagTypes[i].label));
+                self.tagTypes.push(new TagType(self, taggedObject.extraTagTypes[i].name, taggedObject.extraTagTypes[i].label,action));
             }
         }
-        self.tagTypes.push(new TagType(self, 'Tempo', 'Tempo'));
-        self.tagTypes.push(new TagType(self, 'Other', 'Other'));
+        self.tagTypes.push(new TagType(self, 'Tempo', 'Tempo', action));
+        self.tagTypes.push(new TagType(self, 'Other', 'Other',action));
 
         self.danceId = ko.pureComputed(function () {
             if (self.taggedObject.DancId)
@@ -503,9 +526,77 @@ var tagChooser = function () {
         return new TagSuggestions(help, contexts);
     };
 
+    var setupModal = function (suggestions, showModal, chosenOptions) {
+        ko.bindingHandlers.chosen =
+        {
+            init: function (element) {
+                $(element).addClass('chosen-select');
+                $(element).chosen(chosenOptions);
+            },
+            update: function (element) {
+                $(element).trigger('chosen:updated');
+            }
+        };
+
+        var addTags = $('#addTags');
+        addTags.on('show.bs.modal', function (event) { showModal(event); });
+
+        addTags.on('hidden.bs.modal', function () {
+            suggestions().current().chosen.removeAll();
+            $('#chosen').trigger('chosen:updated');
+        });
+    }
+
+    var bindModal = function (ts, obj, button, titleExtra) {
+        var category = button.data('category'); // Extract info from data-* attributes
+        ts.setSuggestions(obj, category);
+
+        var tagType = obj.TagSummary.getTagType(category);
+        var modal = $(event.currentTarget);
+        modal.find('.modal-title').text(ts.current().title() + ' ' + tagType.label + ' Tags' + (titleExtra?titleExtra:''));
+
+        var okay = modal.find('#addTagsOkay');
+        okay.unbind('click.addtags');
+        okay.bind('click.addtags', function () {
+            obj.changed(true);
+            var newTags = obj.TagSummary.changeTags(ts.current().chosen(), category);
+            ts.updateSuggestions(newTags);
+        });
+    };
+
+    var buildUserTags = function(include, tags) {
+        if (!tags) {
+            return { Summary: '', Tags: [] };
+        }
+
+        var rg = tags.split('|');
+        var rgFiltered = [];
+        for (var i = 0; i < rg.length; i++) {
+            var tag = rg[i];
+            if (!tag) continue;
+
+            if (include) {
+                if (tag[0] !== '-') {
+                    if (tag[0] === '+') {
+                        tag = tag.substring(1);
+                    }
+                    rgFiltered.push(tag);
+                }
+            } else {
+                if (tag[0] === '-') {
+                    rgFiltered.push(tag.substring(1));
+                }
+            }
+        }
+        return { Summary: rgFiltered.join('|'), Tags: rgFiltered };
+    };
+
     return {
         tagSummary: tagSummary,
         currentSuggestion: currentSuggestion,
-        tagSuggestions: tagSuggestions
+        tagSuggestions: tagSuggestions,
+        buildUserTags: buildUserTags,
+        setupModal: setupModal,
+        bindModal: bindModal
     };
 }();

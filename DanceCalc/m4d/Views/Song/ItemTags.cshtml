@@ -9,7 +9,7 @@
         </ul>
         </div>
     <!--/ko-->
-    <a role="button" class="label" data-bind="visible:$root.canTag, css:'label-' + nameLower(), attr:{'data-category':name,'data-danceid':summary.danceId, 'data-original-title':tooltip}" data-toggle="modal" data-show="tooltip" data-placement="top" data-target="#addTags"><img data-bind="attr: {src: imageSrc}" width="14" height="14" /> <span class="glyphicon glyphicon-asterisk"></span></a>
+    <a role="button" class="label" data-bind="visible:$root.canTag, css:'label-' + nameLower(), attr:{'data-category':name,'data-danceid':summary.danceId, 'data-action':action, 'data-original-title':tooltip}" data-toggle="modal" data-show="tooltip" data-placement="top" data-target="#addTags"><img data-bind="attr: {src: imageSrc}" width="14" height="14" /> <span class="glyphicon glyphicon-asterisk"></span></a>
 </script>
 
 @*TODO: Add in the logic to take the current SongFilter into account when navigating from tags*@
