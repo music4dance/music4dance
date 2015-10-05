@@ -45,7 +45,8 @@
             <li><a id="filter-type-ALL" href="#">All Types</a></li>
             @foreach (var item in danceGroups)
             {
-                var id = "filter-type-" + item.Id;
+                if (item.CleanName == "performance") { continue;}
+                    var id = "filter-type-" + item.Id;
                 <li><a id="@id" href="#">@item.Name</a></li>
             }
         </ul>

@@ -758,7 +758,7 @@ namespace DanceLibrary
             return _danceDictionary.TryGetValue(id.ToUpper(), out ret) ? ret : null;
         }
 
-        public OrgSpec[] Organizations = new OrgSpec[] {
+        public OrgSpec[] Organizations = {
             new OrgSpec { Name = "All"},
             new OrgSpec { Name = "DanceSport"},
             new OrgSpec { Name = "NDCA"},
@@ -768,14 +768,14 @@ namespace DanceLibrary
             new OrgSpec { Name = "NDCA", Category="Competitor", Qualifier="ProAm"},
         };
 
-        public KeyValuePair<string, string>[] Styles = new KeyValuePair<string, string>[] {
+        public KeyValuePair<string, string>[] Styles = {
             new KeyValuePair<string,string>("all","All Styles"),
             new KeyValuePair<string,string>("is","International Standard"),
             new KeyValuePair<string,string>("il","International Latin"),
             new KeyValuePair<string,string>("as","American Smooth"),
             new KeyValuePair<string,string>("ar","American Rhythm"),
             new KeyValuePair<string,string>("s","Social"),
-            new KeyValuePair<string,string>("p","Performance"),
+            /*new KeyValuePair<string,string>("p","Performance"), Add this back in if we do the work to make performance styles 1st class citazens*/
         };
 
         public string GetJSON()
