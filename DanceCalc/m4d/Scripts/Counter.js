@@ -152,8 +152,9 @@
     }
 
     self.doReset = function () {
+        var rate = 0;
         self.dances = [];
-        self.rate = average.toFixed(1);
+        self.rate = rate.toFixed(1);
         self.maxWait = self.defWait;
         self.timerReset();
         self.epsVisible = self.defVisible;
