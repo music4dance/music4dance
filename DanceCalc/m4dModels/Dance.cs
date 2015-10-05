@@ -56,7 +56,7 @@ namespace m4dModels
             {
                 sb.Append(s.Substring(i, match.Index - i));
                 var d = match.Groups["dance"].Value;
-                if (!string.IsNullOrWhiteSpace(d) && s[match.Index + match.Length] != '(')
+                if (IsDanceMatch(match, s))
                 {
                     var l = FindLink(d);
                     if (l != null)
@@ -79,6 +79,12 @@ namespace m4dModels
             return sb.ToString();
         }
 
+        private static bool IsDanceMatch(Match match, string s)
+        {
+            return !string.IsNullOrWhiteSpace(match.Groups["dance"].Value) &&
+                   (match.Index + match.Length == s.Length || s[match.Index + match.Length] != '(');
+        }
+
         private static string LinkDancesReference(string s)
         {
             var links = new List<string>();
@@ -90,7 +96,7 @@ namespace m4dModels
             {
                 sb.Append(s.Substring(i, match.Index - i));
                 var d = match.Groups["dance"].Value;
-                if (!string.IsNullOrWhiteSpace(d) && s[match.Index + match.Length] != '(')
+                if (IsDanceMatch(match,s))
                 {
                     var l = FindLink(d);
                     sb.AppendFormat(@"[{0}]", d);

@@ -1088,6 +1088,17 @@
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
     <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
   </PropertyGroup>
+  <!-- **************************************************** -->
+  <!-- Build info -->
+  <PropertyGroup>
+     <!-- Generate the BuildInfo.config file -->
+     <GenerateBuildInfoConfigFile>True</GenerateBuildInfoConfigFile>
+     <!-- Include server name in build info --> 
+     <IncludeServerNameInBuildInfo>True</IncludeServerNameInBuildInfo> 
+     <!-- Include the symbols path so Visual Studio can find the matching deployed code when you start debugging. -->
+     <!--<BuildSymbolStorePath><path to symbols></BuildSymbolStorePath>-->
+  </PropertyGroup>
+  <!-- **************************************************** -->
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Import Project="$(VSToolsPath)\WebApplications\Microsoft.WebApplication.targets" Condition="'$(VSToolsPath)' != ''" />
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v10.0\WebApplications\Microsoft.WebApplication.targets" Condition="false" />
