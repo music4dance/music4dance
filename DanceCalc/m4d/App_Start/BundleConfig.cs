@@ -11,26 +11,32 @@ namespace m4d
         {
             // TOOD: Use the full transformer for jquery as well: http://benjii.me/2012/10/using-less-css-with-mvc4-web-optimization/
             bundles.Add(new ScriptBundle("~/bundles/jquery").Include(
-                        "~/Scripts/jquery-{version}.js"));
+                "~/Scripts/jquery-{version}.js"));
 
             bundles.Add(new ScriptBundle("~/bundles/jqueryval").Include(
-                        "~/Scripts/jquery.validate*"));
+                "~/Scripts/jquery.validate*"));
 
             // Use the development version of Modernizr to develop with and learn from. Then, when you're
             // ready for production, use the build tool at http://modernizr.com to pick only the tests you need.
             bundles.Add(new ScriptBundle("~/bundles/modernizr").Include(
-                        "~/Scripts/modernizr-*"));
+                "~/Scripts/modernizr-*"));
 
             bundles.Add(new ScriptBundle("~/bundles/bootstrap").Include(
-                      "~/Scripts/bootstrap.js",
-                      "~/Scripts/respond.js"));
+                "~/Scripts/bootstrap.js",
+                "~/Scripts/respond.js"));
 
             bundles.Add(new ScriptBundle("~/bundles/knockout").Include(
-                      "~/Scripts/knockout-3.3.0.js",
-                      "~/Scripts/knockout.mapping-latest.js"));
+                "~/Scripts/knockout-3.3.0.js",
+                "~/Scripts/knockout.mapping-latest.js"));
 
-            bundles.Add(new ScriptBundle("~/bundles/knockout").Include(
-                      "~/Scripts/chosen.jquery.js"));
+            bundles.Add(new ScriptBundle("~/bundles/tools-script").Include(
+                "~/Scripts/chosen.jquery.js",
+                "~/Scripts/jquery.nouislider.full.min.js"));
+
+            bundles.Add(new StyleBundle("~/bundles/tools-style").Include(
+                "~/Content/chosen.css",
+                "~/Content/jquery.nouislider.css",
+                "~/Content/jquery.nouislider.pips.css"));
 
             RegisterTheme(bundles, "blog");
             RegisterTheme(bundles, "music");
@@ -54,31 +60,11 @@ namespace m4d
             //          "~/Content/site.css"));
         }
 
-        private static IBundleOrderer Orderer
-        {
-            get
-            {
-                if (_orderer == null)
-               {
-                   _orderer = new NullOrderer();
-               }
-               return _orderer;
-            }
-        }
-        private static IBundleOrderer _orderer;
+        private static IBundleOrderer Orderer => s_orderer ?? (s_orderer = new NullOrderer());
+        private static IBundleOrderer s_orderer;
 
-        private static IBundleTransform CssTransformer
-        {
-            get
-            {
-                if (_cssTransformer == null)
-                {
-                    _cssTransformer = new StyleTransformer();
-                }
-                return _cssTransformer;
-            }
-        }
-        private static IBundleTransform _cssTransformer;
+        private static IBundleTransform CssTransformer => s_cssTransformer ?? (s_cssTransformer = new StyleTransformer());
+        private static IBundleTransform s_cssTransformer;
 
     }
 }

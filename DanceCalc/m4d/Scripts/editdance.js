@@ -27,12 +27,12 @@
 //}
 
 var computeLinkName = function (idx, name) {
-    var ret = "DanceLinks[" + idx + "]." + name;
+    var ret = 'DanceLinks[' + idx + '].' + name;
     return ret;
 };
 
 var computeLinkId = function (idx, name) {
-    var ret = "DanceLinks_" + idx + "__" + name;
+    var ret = 'DanceLinks_' + idx + '__' + name;
     return ret;
 };
 
@@ -50,7 +50,7 @@ var EditPage = function (data)
     self.removeLink = function (data, event) {
         event.preventDefault();
         var id = event.target.id;
-        var arr = id.split("_");
+        var arr = id.split('_');
         var idx = arr[1];
         self.links.splice(idx,1);
     };
@@ -71,8 +71,8 @@ $(document).ready(function () {
 
     ko.applyBindings(viewModel);
 
-    $("textarea.mdd_editor").MarkdownDeep({
-        help_location: "~/Scripts/mdd_help.htm",
+    $('textarea.mdd_editor').MarkdownDeep({
+        help_location: '~/Scripts/mdd_help.htm',
         disableTabHandling: true,
         resizebar: true
     });

@@ -21,15 +21,11 @@
         string counterScript = "~/Scripts/counter.js" + Page.ScriptQualifier;
     }
     @Scripts.Render("~/bundles/jqueryval")
-    <script src="@Url.Content("~/Scripts/chosen.jquery.js")" type="text/javascript"></script>
-    <script src="@Url.Content("~/Scripts/knockout-3.3.0.js")" type="text/javascript"></script>
-    <script src="@Url.Content("~/Scripts/knockout.mapping-latest.js")" type="text/javascript"></script>
-    <script src="~/Scripts/jquery.nouislider.full.min.js" type="text/javascript"></script>
+    @Scripts.Render("~/bundles/tools-script")
+    @Scripts.Render("~/bundles/knockout")
     <script src="@Url.Content(counterScript)" type="text/javascript"></script>
     <script src="@Url.Content(tagChooserScript)" type="text/javascript"></script>
     <script src="@Url.Content(pageScript)" type="text/javascript"></script>
 
-    <link href="@Url.Content("~/Content/chosen.css")" rel="stylesheet" type="text/css" />
-    <link href="~/Content/jquery.nouislider.css" rel="stylesheet" />
-    <link href="~/Content/jquery.nouislider.pips.css" rel="stylesheet" />
+    @Styles.Render("~/bundles/tools-style")
 }

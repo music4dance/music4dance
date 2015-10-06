@@ -93,8 +93,7 @@
         var links = @Html.Raw(linksString);
     </script>
     @Scripts.Render("~/bundles/jqueryval")
-    <script src="@Url.Content("~/Scripts/knockout-3.3.0.js")" type="text/javascript"></script>
-    <script src="@Url.Content("~/Scripts/knockout.mapping-latest.js")" type="text/javascript"></script>
+    @Scripts.Render("~/bundles/knockout")
     <script src="@Url.Content("~/Scripts/MarkdownDeepLib.min.js")" type="text/javascript"></script>
     <script src="@Url.Content(pageScript)" type="text/javascript"></script>
 }
