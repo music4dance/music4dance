@@ -378,7 +378,7 @@ var tagChooser = function () {
         self.tagTypes.push(new TagType(self, 'Other', 'Other',action));
 
         self.danceId = ko.pureComputed(function () {
-            if (self.taggedObject.DancId)
+            if (self.taggedObject.DanceId)
                 return self.taggedObject.DanceId();
             else
                 return '';
