@@ -6,7 +6,7 @@ using System.Linq;
 using System.Net;
 using System.Web;
 using System.Web.Mvc;
-using System.Web.UI.WebControls;
+using Microsoft.ApplicationInsights;
 using DanceLibrary;
 using m4d.ViewModels;
 using m4dModels;
@@ -919,6 +919,10 @@ namespace m4d.Controllers
         {
             Trace.WriteLineIf(TraceLevels.General.TraceInfo,
                 $"Entering Song.Index: dances='{filter.Dances}',sortOrder='{filter.SortOrder}',searchString='{filter.SearchString}'");
+
+            var properties = new Dictionary<string, string> {{"Filter", filter.ToString()}};
+            var client = TelemetryClient;
+            client.TrackEvent("SongIndex",properties);
 
             var songs = Database.BuildSongList(filter, HttpContext.User.IsInRole(DanceMusicService.EditRole) ? DanceMusicService.CruftFilter.AllCruft : DanceMusicService.CruftFilter.NoCruft);
             BuildDanceList();

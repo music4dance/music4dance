@@ -4,6 +4,7 @@ using System.Web;
 using System.Web.Mvc;
 using m4d.Context;
 using m4dModels;
+using Microsoft.ApplicationInsights;
 using Microsoft.AspNet.Identity.Owin;
 
 namespace m4d.Controllers
@@ -74,6 +75,10 @@ namespace m4d.Controllers
             }
         }
         private ApplicationUserManager _userManager;
+
+        //public TelemetryClient TelemetryClient => (TelemetryClient) Resolver.GetService(typeof (TelemetryClient));
+        public static TelemetryClient TelemetryClient => s_telemetryClient ?? (s_telemetryClient = new TelemetryClient());
+        private static TelemetryClient s_telemetryClient;
 
         //// Used for XSRF protection when adding external logins
         //protected const string XsrfKey = "XsrfId";
