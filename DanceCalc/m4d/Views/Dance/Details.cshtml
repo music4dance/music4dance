@@ -34,6 +34,8 @@
     <li class="active">@Model.DanceName</li>
 </ol>
 
+
+
 <h2>@Model.DanceName</h2>
 
 <div class="row">
@@ -69,6 +71,30 @@
             <a href="@blogref" class="list-group-item">Blog</a>
         }
     </div>
+    @if (@Model.Parent != null && Model.Dance.Info.Meter.Numerator != 1)
+    {
+        var info = Model.Dance.Info;
+        var tempo = info.TempoRange;
+        var oneTempo = tempo.Min == tempo.Max;
+        var bpmMin = tempo.Min * info.Meter.Numerator;
+        var bpmMax = tempo.Max * info.Meter.Numerator;
+        var rangeText = (oneTempo) ? "at" : "between";
+        var bpmText = bpmMin.ToString(CultureInfo.CurrentCulture) + (oneTempo ? string.Empty : " and " + bpmMax.ToString(CultureInfo.CurrentCulture)) + " beats per minute";
+        var mpmText = tempo.MinString + (oneTempo ? string.Empty : " and " + tempo.MaxString) + " measures per mintue";
+        <hr />
+        <div id="tempo-info" class="col-md-8">
+            <h4>Tempo Information</h4>
+            <p>
+                The @Model.DanceName is generally danced to music in a @info.Meter Meter
+                @rangeText @mpmText (@bpmText)
+                . @Html.ActionLink("Click here", "advancedsearch", "song", new { dances = @Model.DanceId, tempomin = @bpmMin, tempomax = @bpmMax }, null) to see a list of @Model.DanceName songs @rangeText @bpmText.
+            </p>
+            <p>
+                <img src="~/Content/tools.png" alt="tools" width="24" height="24" />Use our tempi tool to find more infromation about tempi and to explore relationships between the meter and tempi of different dance styles.
+                @SmartLink.TryIt("https://www.music4dance.net/home/tempi") @SmartLink.Docs("https://www.music4dance.net/blog/music4dance-help/dance-tempi/")
+            </p>
+        </div>
+    }
 </div>
 
 @if (Model.TopSongs.Any())
@@ -86,32 +112,6 @@
 
     <div>
         <p>@Html.ActionLink("Browse", "search", "song", new { dances = @Model.DanceId }, null) all <b>@Model.SongCount</b> @Model.DanceName songs in the music4dance @Html.ActionLink("catalog", "index", "song").</p>
-    </div>
-}
-
-
-@if (@Model.Parent != null && Model.Dance.Info.Meter.Numerator != 1)
-{
-    var info = Model.Dance.Info;
-    var tempo = info.TempoRange;
-    var oneTempo = tempo.Min == tempo.Max;
-    var bpmMin = tempo.Min * info.Meter.Numerator;
-    var bpmMax = tempo.Max * info.Meter.Numerator;
-    var rangeText = (oneTempo) ? "at" : "between";
-    var bpmText = bpmMin.ToString(CultureInfo.CurrentCulture) + (oneTempo ? string.Empty : " and " + bpmMax.ToString(CultureInfo.CurrentCulture)) + " beats per minute";
-    var mpmText = tempo.MinString + (oneTempo ? string.Empty : " and " + tempo.MaxString) + " measures per mintue";
-    <hr />
-    <div id="tempo-info">
-        <h4>Tempo Information</h4>
-        <p>
-            The @Model.DanceName is generally danced to music in a @info.Meter Meter
-            @rangeText @mpmText (@bpmText)
-            . @Html.ActionLink("Click here","advancedsearch","song", new {dances = @Model.DanceId,tempomin=@bpmMin,tempomax=@bpmMax}, null) to see a list of @Model.DanceName songs @rangeText @bpmText.
-        </p>
-        <p>
-            <img src="~/Content/tools.png" alt="tools" width="24" height="24" />Use our tempi tool to find more infromation about tempi and to explore relationships between the meter and tempi of different dance styles.
-            @SmartLink.TryIt("https://www.music4dance.net/home/tempi") @SmartLink.Docs("https://www.music4dance.net/blog/music4dance-help/dance-tempi/")
-        </p>
     </div>
 }
 
