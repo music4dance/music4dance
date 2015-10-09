@@ -21,9 +21,6 @@
 
 @section Scripts
 {
-    @{
-        string msScript = "~/Scripts/musicservice.js" + Page.ScriptQualifier;
-    }
-    <script src="@Url.Content(msScript)" type="text/javascript"></script>
+    @Scripts.Render("~/bundles/musicservice")
 }
 

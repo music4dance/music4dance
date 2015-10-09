@@ -1,12 +1,14 @@
 ﻿@{
     Layout = "~/Views/Shared/_Layout.cshtml";
-    if (HttpContext.Current.IsDebuggingEnabled)
-    {
-        Page.ScriptQualifier = "?" + Html.Raw(DateTime.Now.Ticks.ToString());
-    }
-    else
-    {
-        // TODO: Figure out how to autoincrement
-        Page.ScriptQualifier = "?3";
-    }
+    // It looks like this is handled correctly by the bunding mechanism, leaving this in so I 
+    //  have a reference it IsDebuggingEnabled
+    //if (HttpContext.Current.IsDebuggingEnabled)
+    //{
+    //    Page.ScriptQualifier = "?" + Html.Raw(DateTime.Now.Ticks.ToString());
+    //}
+    //else
+    //{
+    //    // TODO: Figure out how to autoincrement
+    //    Page.ScriptQualifier = "?3";
+    //}
 }

@@ -15,17 +15,13 @@
 </div>
 
 @section Scripts {
-    @{
-        string tagChooserScript = "~/Scripts/tagchooser.js" + Page.ScriptQualifier;
-        string pageScript = "~/Scripts/edit.js" + Page.ScriptQualifier;
-        string counterScript = "~/Scripts/counter.js" + Page.ScriptQualifier;
-    }
     @Scripts.Render("~/bundles/jqueryval")
     @Scripts.Render("~/bundles/tools-script")
     @Scripts.Render("~/bundles/knockout")
-    <script src="@Url.Content(counterScript)" type="text/javascript"></script>
-    <script src="@Url.Content(tagChooserScript)" type="text/javascript"></script>
-    <script src="@Url.Content(pageScript)" type="text/javascript"></script>
+    @Scripts.Render("~/bundles/knockout-mapping")
+    @Scripts.Render("~/bundles/counter")
+    @Scripts.Render("~/bundles/tagchooser")
+    @Scripts.Render("~/bundles/edit")
 
     @Styles.Render("~/bundles/tools-style")
 }

@@ -782,7 +782,7 @@
     <Content Include="Scripts\bootstrap.min.js" />
     <Content Include="Scripts\chosen.jquery.js" />
     <Content Include="Scripts\chosen.jquery.min.js" />
-    <Content Include="Scripts\Counter.js" />
+    <Content Include="Scripts\counter.js" />
     <Content Include="Scripts\edit.js" />
     <None Include="Properties\PublishProfiles\music4dance.pubxml" />
     <Content Include="Scripts\editdance.js" />
@@ -820,10 +820,10 @@
     <Content Include="Scripts\respond.matchmedia.addListener.min.js" />
     <Content Include="Scripts\respond.min.js" />
     <Content Include="Scripts\showdance.js" />
-    <Content Include="Scripts\SongIndex.js" />
+    <Content Include="Scripts\catalog.js" />
     <Content Include="Scripts\tagchooser.js" />
-    <Content Include="Scripts\TagCloud.js" />
-    <Content Include="Scripts\Tempi.js" />
+    <Content Include="Scripts\tagcloud.js" />
+    <Content Include="Scripts\tempi.js" />
     <Content Include="Scripts\undo.js" />
     <Content Include="Scripts\_references.js" />
     <None Include="Service References\AWSReference\configuration91.svcinfo" />

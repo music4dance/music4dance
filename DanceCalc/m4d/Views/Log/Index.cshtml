@@ -101,10 +101,6 @@
 @Html.ActionLink("Download Log", "Lines")
 
 @section Scripts {
-    @{
-        string pageScript = "~/Scripts/undo.js" + Page.ScriptQualifier;
-    }
-
     <script>
         var lineNumbers = new Array();
         @foreach (var item in Model) {
@@ -112,6 +108,5 @@
         }
     </script>
 
-
-    <script src="@Url.Content(pageScript)" type="text/javascript"></script>
+    @Scripts.Render("~/bundles/undo")
 }

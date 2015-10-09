@@ -25,7 +25,6 @@
 
 @section Scripts {
     @{
-        string pageScript = "~/Scripts/counter.js" + Page.ScriptQualifier;
         @ScriptHelper.Parameter(ViewData,"Numerator");
         @ScriptHelper.Parameter(ViewData, "Tempo");
         @ScriptHelper.Parameter(ViewData, "ShowMPM");
@@ -33,9 +32,9 @@
 
         @Scripts.Render("~/bundles/jqueryval")
         @Scripts.Render("~/bundles/knockout")
+        @Scripts.Render("~/bundles/knockout-mapping")
         @Scripts.Render("~/bundles/tools-script")
-
-        <script src="@Url.Content(pageScript)" type="text/javascript"></script>
+        @Scripts.Render("~/bundles/counter")
 
         @Styles.Render("~/bundles/tools-style")
     }

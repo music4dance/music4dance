@@ -138,8 +138,5 @@
 }
 
 @section Scripts {
-    @{
-        string pageScript = "~/Scripts/merge.js" + Page.ScriptQualifier;
-    }
-    <script src="@Url.Content(pageScript)" type="text/javascript"></script>
+    @Scripts.Render("~/bundles/merge")
 }

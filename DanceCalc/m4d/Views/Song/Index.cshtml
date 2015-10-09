@@ -239,17 +239,14 @@ else
             filterString = System.Text.Encoding.UTF8.GetString(stream.ToArray());
         }
         <script>window.songFilter = @(filterString == null ? null : Html.Raw(filterString));</script>
-
-        var tagChooserScript = "~/Scripts/tagchooser.js" + Page.ScriptQualifier;
-        var pageScript = "~/Scripts/songindex.js" + Page.ScriptQualifier;
-        var msScript = "~/Scripts/musicservice.js" + Page.ScriptQualifier;
     }
     @Scripts.Render("~/bundles/jqueryval")
     @Scripts.Render("~/bundles/knockout")
+    @Scripts.Render("~/bundles/knockout-mapping")
     @Scripts.Render("~/bundles/tools-script")
-    <script src="@Url.Content(msScript)" type="text/javascript"></script>
-    <script src="@Url.Content(tagChooserScript)" type="text/javascript"></script>
-    <script src="@Url.Content(pageScript)" type="text/javascript"></script>
+    @Scripts.Render("~/bundles/musicservice")
+    @Scripts.Render("~/bundles/tagchooser")
+    @Scripts.Render("~/bundles/catalog")
 
     @Styles.Render("~/bundles/tools-style")
 }
