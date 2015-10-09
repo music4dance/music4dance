@@ -35,25 +35,21 @@
 </ol>
 
 
-
 <h2>@Model.DanceName</h2>
 
 <div class="row">
     <div class="col-md-8 big-text">@Html.Raw(description)</div>
     <div class="col-md-2 col-md-offset-1 list-group">
-        @if (Model.TopSongs.Any())
+        @if (Model.Parent != null && Model.Dance.Info.Meter.Numerator != 1)
+        {
+           <a href="#tempo-info" class="list-group-item">Tempo Info</a>
+        }
+         @if (Model.TopSongs.Any())
         {
             <a href="#top-ten" class="list-group-item">Top Ten Songs</a>
             <a href="#spotify-player" class="list-group-item">Spotify Player</a>
         }
-        @if (Model.Parent != null)
-        {
-            if (Model.Dance.Info.Meter.Numerator != 1)
-            {
-                <a href="#tempo-info" class="list-group-item">Tempo Info</a>
-            }
-        }
-        else
+        @if (Model.Parent == null)
         {
             <a href="#dance-styles" class="list-group-item">Dance Sytles</a>
         }
@@ -95,6 +91,7 @@
             </p>
         </div>
     }
+
 </div>
 
 @if (Model.TopSongs.Any())
