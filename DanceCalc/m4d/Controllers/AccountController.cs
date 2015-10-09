@@ -396,6 +396,11 @@ namespace m4d.Controllers
                 var ext = await AuthenticationManager.GetExternalIdentityAsync(DefaultAuthenticationTypes.ExternalCookie);
                 var claim = ext.Claims.FirstOrDefault(x => x.Type.Contains("emailaddress"));
 
+                if (claim == null)
+                {
+                    claim = ext.Claims.FirstOrDefault(x => x.Type.Contains("email"));
+                }
+
                 if (claim != null)
                 {
                     email = claim.Value;
@@ -404,7 +409,7 @@ namespace m4d.Controllers
                 if (email == null)
                 {
                     claim =
-                        AuthenticationManager.AuthenticationResponseGrant.Identity.Claims.FirstOrDefault(
+                        AuthenticationManager?.AuthenticationResponseGrant?.Identity?.Claims?.FirstOrDefault(
                             x => x.Type.Contains("name"));
                     if (claim != null)
                     {
