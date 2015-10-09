@@ -1,0 +1,22 @@
+﻿@using DanceLibrary
+@model DanceCategory
+@{
+     ViewBag.Title = "Ballroom competition categories";
+}
+
+@helper LinkCategory(string name){
+     @Html.ActionLink(name, DanceObject.SeoFriendly(name), "dances")
+}
+
+
+<h1>Competitive Ballroom Dancing</h1>
+
+<p>There are different catagories of competitive ballroom dancing, which are defined by the <a href="http://www.worlddancesport.org/Rule/Athlete/Competition">World Dance Council</a> and <a href="http://ndca.org/education/dances-and-tempi/">National Dance Council of America</a>.</p>
+<h3>@LinkCategory("International Latin")</h3>
+<hr/>
+<h3>@LinkCategory("International Standard")</h3>
+<hr/>
+<h3>@LinkCategory("American Smooth")</h3>
+<hr />
+<h3>@LinkCategory("American Rhythm")</h3>
+<hr />

@@ -32,10 +32,15 @@ namespace m4d.Controllers
                 return View("category", category);
             }
 
+            if (string.Equals(dance, "ballroom-competition-categories", StringComparison.OrdinalIgnoreCase))
+            {
+                return View("BallroomCompetitionCategories");
+            }
+
             HelpPage = "dance-details";
             ViewBag.DanceMap = SongCounts.GetDanceMap(Database);
             var sc = SongCounts.FromName(dance, Database);
-            return sc != null ? View("details", sc) : ReturnError(HttpStatusCode.NotFound, string.Format("The dance with the name = {0} isn't defined.", dance));
+            return sc != null ? View("details", sc) : ReturnError(HttpStatusCode.NotFound, $"The dance with the name = {dance} isn't defined.");
         }
 
         // GET: GroupRedirect/group/dance
@@ -52,7 +57,7 @@ namespace m4d.Controllers
         {
             var dance = Database.Dances.Find(id);
 
-            return dance != null ? View(dance) : ReturnError(HttpStatusCode.NotFound,string.Format("The dance with id = {0} isn't defined.",id));
+            return dance != null ? View(dance) : ReturnError(HttpStatusCode.NotFound,$"The dance with id = {id} isn't defined.");
         }
 
         //
