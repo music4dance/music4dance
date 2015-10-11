@@ -26,7 +26,7 @@ namespace m4dModels
 
             if (user != null)
             {
-                SetCurrentUserTags(user, dms);                
+                SetCurrentUserTags(user, dms);
             }
         }
 

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using DanceLibrary;
 
@@ -37,8 +38,6 @@ namespace m4dModels
                 }
                 _competitionDances.Add(competitionDance);
             }
-            
-            
         }
         private List<CompetitionDance> _competitionDances;
 
@@ -49,9 +48,9 @@ namespace m4dModels
             {
                 s_counts.Clear();
                 s_map.Clear();
-            }
 
-            DanceCategories.ClearCache();
+                DanceCategories.ClearCache();
+            }
         }
 
         // TODO: This is awfully kludgy, I think the real
@@ -150,9 +149,9 @@ namespace m4dModels
                 }
 
                 s_counts = s_counts.OrderByDescending(x => x.Children.Count).ToList();
-            }
 
-            return s_counts;
+                return s_counts;
+            }
         }
 
 
@@ -168,9 +167,9 @@ namespace m4dModels
                 {
                     s_map.Add(sc.DanceId, sc);
                 }
-            }
 
-            return s_map;
+                return s_map;
+            }
         }
 
         static public SongCounts FromName(string name, DanceMusicService dms)
@@ -181,7 +180,9 @@ namespace m4dModels
         static public int GetScaledRating(IDictionary<string,SongCounts> map, string danceId, int weight, int scale = 5)
         {
             // TODO: Need to re-examine how we deal with international/american
-            var sc = map[danceId.Substring(0, 3)];
+            var sc = LookupSongCount(map, danceId);
+            if (sc == null) return 0;
+
             float max = sc.MaxWeight;
             var ret = (int)(Math.Ceiling(weight * scale / max));
 
@@ -202,7 +203,9 @@ namespace m4dModels
 
         static public DanceRatingInfo GetRatingInfo(IDictionary<string, SongCounts> map, string danceId, int weight)
         {
-            var sc = map[danceId];
+            var sc = LookupSongCount(map, danceId);
+            if (sc == null) return null;
+
             return new DanceRatingInfo
             {
                 DanceId = danceId,
@@ -287,5 +290,25 @@ namespace m4dModels
 
             return sc;
         }
+
+        [SuppressMessage("ReSharper", "InvertIf")]
+        private static SongCounts LookupSongCount(IDictionary<string, SongCounts> map, string danceId)
+        {
+            if (danceId.Length > 3) danceId = danceId.Substring(0, 3);
+
+            SongCounts sc;
+            if (map.TryGetValue(danceId, out sc)) return sc;
+
+            // Clear out the cache to force a reload: workaround for possible cache corruption.
+            // TODONEXT: Put in the infrastructure to send app insights events when this happens
+            if (Dances.Instance.DanceFromId(danceId) == null)
+            {
+                ClearCache();
+                Reloads += 1;
+            }
+            return null;
+        }
+
+        public static int Reloads { get; private set; }
     }
 }
