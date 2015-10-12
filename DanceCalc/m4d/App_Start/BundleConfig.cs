@@ -77,7 +77,7 @@ namespace m4d
             {
                 local[i] = "~/Scripts/" + local[i];
             }
-            var bundle = new ScriptBundle("~/bundles/" + name,"https://ajax.aspnetcdn.foo/ajax/" + cdn).Include(
+            var bundle = new ScriptBundle("~/bundles/" + name,"https://ajax.aspnetcdn.com/ajax/" + cdn).Include(
                 local);
             bundle.CdnFallbackExpression = fallback;
             return bundle;
