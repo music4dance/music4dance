@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
@@ -484,6 +485,9 @@ namespace m4d.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult LogOff()
         {
+            var name = User.Identity.GetUserName();
+            if (!string.IsNullOrEmpty(name)) s_activeUsers.Remove(name);
+
             AuthenticationManager.SignOut();
             return RedirectToAction("Index", "Home");
         }
@@ -521,6 +525,10 @@ namespace m4d.Controllers
 
         private ActionResult ProfileRedirect(string returnUrl, ApplicationUser user)
         {
+            if (user != null)
+            {
+                s_activeUsers.Add(user.UserName);
+            }
             return (user != null && string.IsNullOrWhiteSpace(user.Region))
                 ? RedirectToAction("EditProfile", "Manage", new { ReturnUrl = returnUrl })
                 : RedirectToLocal(returnUrl);
@@ -555,6 +563,19 @@ namespace m4d.Controllers
                 context.HttpContext.GetOwinContext().Authentication.Challenge(properties, LoginProvider);
             }
         }
+        #endregion
+
+        #region Users
+
+        static public bool IsUserActive(string userName)
+        {
+            return s_activeUsers.Contains(userName);
+        }
+
+        static public IEnumerable<string> ActiveUsers => s_activeUsers.ToList();
+
+        // ReSharper disable once InconsistentNaming
+        static private readonly HashSet<string> s_activeUsers = new HashSet<string>();
         #endregion
     }
 }
