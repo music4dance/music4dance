@@ -8,11 +8,19 @@
     <li class="active">Uploads and Backups</li>
 </ol>
 
-<h2>Administrator Console</h2>
+<h1>Administrator Console</h1>
 <hr />
 
 @if (User.IsInRole("dbAdmin"))
 {
+    <h2>Uploads</h2>
+
+    <li>@Html.ActionLink("Upload Catalog", "UploadCatalog")</li>
+    <li>@Html.ActionLink("Upload Catalog (Ithaca)", "UploadCatalog", new { separator = "ITC", headers = "TEMPO,TITLE,ARTIST", user = "ithaca" })</li>
+    <li>@Html.ActionLink("Upload Catalog (DWTS)", "UploadCatalog", new { separator = @"\t", headers = "DANCERS,DANCE,TITLE+ARTIST", user = "dwts", tags = "Episode 5:Other|Season 20:Other|United States:Other|DWTS:Other" })</li>
+    <li>@Html.ActionLink("Upload Catalog (Paul)", "UploadCatalog", new { separator = @"\t", headers = "Dance,Rating,Title,BPM,Length,Artist,Comment", user = "paul" })</li>
+    <li>@Html.ActionLink("Upload Album", "UploadCatalog", new { headers = "Title", separator = @"\t" })</li>
+
     <h3>Upload Tag Types</h3>
     using (Html.BeginForm("UploadTagTypes", "Admin", FormMethod.Post, new { enctype = "multipart/form-data" }))
     {
@@ -43,16 +51,6 @@
     }
     <hr />
 
-    <h3>Backup Delta</h3>
-    using (Html.BeginForm("BackupDelta", "Admin", FormMethod.Post, new { enctype = "multipart/form-data" }))
-    {
-        @Html.AntiForgeryToken();
-        <input type="file" name="FileUpload" />
-        <br />
-        <input type="submit" name="UploadTempi" value="Upload" />
-    }
-    <hr />
-
     <h3>Update User Names</h3>
     using (Html.BeginForm("UpdateUsernames", "Admin", FormMethod.Post, new { enctype = "multipart/form-data" }))
     {
@@ -75,4 +73,23 @@
         <input type="submit" name="reloadDatabase" id="UpdateDances" value="Dances" />
         <input type="submit" name="reloadDatabase" id="UpdateSongs" value="Users" />
     }
+
+    <hr />
+    <h2>Backups</h2>
+    <h2>Uploads</h2>
+
+    <h3>Backup Delta</h3>
+    using (Html.BeginForm("BackupDelta", "Admin", FormMethod.Post, new { enctype = "multipart/form-data" }))
+    {
+        @Html.AntiForgeryToken();
+        <input type="file" name="FileUpload" />
+        <br />
+        <input type="submit" name="UploadTempi" value="Upload" />
+    }
+
+    <li>@Html.ActionLink("Backup the Database", "BackupDatabase"), @Html.ActionLink("Users", "BackupDatabase", new { tags = false, dances = false, songs = false }), @Html.ActionLink("Dances", "BackupDatabase", new { tags = false, users = false, songs = false }), @Html.ActionLink("Tags", "BackupDatabase", new { tags = true, dances = false, users = false, songs = false })</li>
+    <li>@Html.ActionLink("Backup the Database (with lookup history)", "BackupDatabase", new { useLookupHistory = "true" })</li>
+    <li>@Html.ActionLink("Backup tail", "BackupTail", new { count = 150 })</li>
+    <li>@Html.ActionLink("Backup tail (500)", "BackupTail", new { count = 500 })</li>
+    <li>@Html.ActionLink("Backup tail (today)", "BackupTail", new { from = DateTime.Now.ToShortDateString(), count = 5000 })</li>
 }
