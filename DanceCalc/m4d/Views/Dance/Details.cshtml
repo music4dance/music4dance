@@ -38,35 +38,38 @@
 <h2>@Model.DanceName</h2>
 
 <div class="row">
-    <div class="col-md-8 big-text">@Html.Raw(description)</div>
-    <div class="col-md-2 col-md-offset-1 list-group">
-        @if (Model.Parent != null && Model.Dance.Info.Meter.Numerator != 1)
-        {
-           <a href="#tempo-info" class="list-group-item">Tempo Info</a>
-        }
-         @if (Model.TopSongs.Any())
-        {
-            <a href="#top-ten" class="list-group-item">Top Ten Songs</a>
+   <div class="col-sm-2 col-sm-offset-1 col-sm-push-8 list-group">
+       <div class="visible-xs-inline">
+            <a href="#dancedescription" class="list-group-item">Dance Description</a>
+       </div>
+    @if (Model.Parent != null && Model.Dance.Info.Meter.Numerator != 1)
+    {
+        <a href="#tempo-info" class="list-group-item">Tempo Info</a>
+    }
+    @if (Model.TopSongs.Any())
+    {
+        <a href="#top-ten" class="list-group-item">Top Ten Songs</a>
             <a href="#spotify-player" class="list-group-item">Spotify Player</a>
-        }
-        @if (Model.Parent == null)
-        {
-            <a href="#dance-styles" class="list-group-item">Dance Sytles</a>
-        }
-        @if (Model.Dance.DanceLinks != null && Model.Dance.DanceLinks.Count > 0)
-        {
-            <a href="#references" class="list-group-item">References</a>
-        }
-        @if (tags.Count > 0)
-        {
-            <a href="#tags" class="list-group-item">Tags</a>
-        }
-        @if (!string.IsNullOrWhiteSpace(Model.BlogTag))
-        {
-            var blogref = string.Format("https://www.music4dance.net/blog/tag/{0}/", Model.BlogTag);
-            <a href="@blogref" class="list-group-item">Blog</a>
-        }
-    </div>
+    }
+    @if (Model.Parent == null)
+    {
+        <a href="#dance-styles" class="list-group-item">Dance Sytles</a>
+    }
+    @if (Model.Dance.DanceLinks != null && Model.Dance.DanceLinks.Count > 0)
+    {
+        <a href="#references" class="list-group-item">References</a>
+    }
+    @if (tags.Count > 0)
+    {
+        <a href="#tags" class="list-group-item">Tags</a>
+    }
+    @if (!string.IsNullOrWhiteSpace(Model.BlogTag))
+    {
+        var blogref = string.Format("https://www.music4dance.net/blog/tag/{0}/", Model.BlogTag);
+        <a href="@blogref" class="list-group-item">Blog</a>
+    }
+   </div>
+    <div id="dancedescription" class="col-sm-8 big-text col-sm-pull-3">@Html.Raw(description)</div>
     @if (@Model.Parent != null && Model.Dance.Info.Meter.Numerator != 1)
     {
         var info = Model.Dance.Info;
@@ -78,7 +81,7 @@
         var bpmText = bpmMin.ToString(CultureInfo.CurrentCulture) + (oneTempo ? string.Empty : " and " + bpmMax.ToString(CultureInfo.CurrentCulture)) + " beats per minute";
         var mpmText = tempo.MinString + (oneTempo ? string.Empty : " and " + tempo.MaxString) + " measures per mintue";
         <hr />
-        <div id="tempo-info" class="col-md-8">
+        <div id="tempo-info" class="col-sm-8 col-sm-pull-3">
             <h4>Tempo Information</h4>
             <p>
                 The @Model.DanceName is generally danced to music in a @info.Meter Meter
@@ -91,7 +94,6 @@
             </p>
         </div>
     }
-
 </div>
 
 @if (Model.TopSongs.Any())
