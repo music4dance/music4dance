@@ -166,6 +166,8 @@ namespace m4dModels
             SaveChanges();
             return true;
         }
+
+
         private IList<AlbumDetails> MergeAlbums(IList<Song> songs, string def, HashSet<string> keys, string artist)
         {
             var details = songs.Select(s => new SongDetails(s)).ToList();
@@ -275,6 +277,23 @@ namespace m4dModels
             return dr;
         }
 
+        public void UpdateDanceRatingsAndTags(SongDetails sd, ApplicationUser user, IEnumerable<string> dances, string songTags, string danceTags, int weight)
+        {
+            if (!string.IsNullOrEmpty(songTags))
+            {
+                sd.AddTags(songTags, user, this, sd, false);
+            }
+            var danceList = dances as IList<string> ?? dances.ToList();
+            sd.UpdateDanceRatingsAndTags(user, danceList, SongBase.DanceRatingIncrement);
+            if (!string.IsNullOrWhiteSpace(danceTags))
+            {
+                foreach (var id in danceList)
+                {
+                    sd.ChangeDanceTags(id, danceTags, user, this);
+                }
+            }
+            sd.InferDances(user);
+        }
         #endregion
 
         #region Properties
@@ -1869,7 +1888,7 @@ namespace m4dModels
         // ReSharper disable once FieldCanBeMadeReadOnly.Local
         private static Guid _guidError = new Guid("25053e8c-5f1e-441e-bd54-afdab5b1b638");
 
-        public void RebuildUserTags(string userName, bool update, string songIds=null)
+        public void RebuildUserTags(string userName, bool update, string songIds=null, SongFilter filter=null)
         {
             if (!AdminMonitor.StartTask("RebuildUserTags")) return;
 
@@ -1885,9 +1904,13 @@ namespace m4dModels
                 var user = FindUser(userName);
                 var c = 0;
 
+                if (songIds == null && filter != null)
+                {
+                    songIds = string.Join(";", BuildSongList(filter).Select(s => s.SongId));
+                }
                 songIds = songIds?.Replace("-", string.Empty);
 
-                var songs = (songIds == null) ? Songs : SongsFromList(songIds);
+                var songs = (songIds == null) ?Songs : SongsFromList(songIds);
 
                 foreach (var song in songs)
                 {
@@ -1909,7 +1932,7 @@ namespace m4dModels
                             $"{c} songs loaded");
 
                         _context.ClearEntities(new[] { "SongProperty", "DanceRating", "Song", "ModifiedRecord" });
-                    }                    
+                    }
                 }
                 _context.CheckpointSongs();
                 
@@ -1999,6 +2022,58 @@ namespace m4dModels
             catch (Exception e)
             {
                 AdminMonitor.CompleteTask(false,e.Message,e);
+            }
+        }
+
+        public void RebuildTags(string userName, string songIds = null, SongFilter filter = null)
+        {
+            if (!AdminMonitor.StartTask("RebuildTags")) return;
+
+            try
+            {
+                _context.TrackChanges(false);
+                var tracker = TagContext.CreateService(this);
+
+                var user = FindUser(userName);
+                var c = 0;
+
+                if (songIds == null && filter != null)
+                {
+                    songIds = string.Join(";", BuildSongList(filter).Select(s => s.SongId));
+                }
+                songIds = songIds?.Replace("-", string.Empty);
+
+                var songs = (songIds == null) ? Songs : SongsFromList(songIds);
+
+                foreach (var song in songs)
+                {
+                    AdminMonitor.UpdateTask("Running Songs", c);
+
+                    if (song.SongId == _guidError)
+                    {
+                        Trace.WriteLine("This One: " + song);
+                    }
+
+                    if (song.IsNull) continue;
+
+                    song.RebuildUserTags(user, tracker);
+                    c += 1;
+                    if (c % 100 == 0)
+                    {
+                        Trace.WriteLineIf(
+                            TraceLevels.General.TraceInfo,
+                            $"{c} songs");
+                    }
+                }
+                _context.TrackChanges(true);
+
+                var message = $"Success: songcount = {c}";
+                Trace.WriteLine(message);
+                AdminMonitor.CompleteTask(true, message);
+            }
+            catch (Exception e)
+            {
+                AdminMonitor.CompleteTask(false, e.Message, e);
             }
         }
 

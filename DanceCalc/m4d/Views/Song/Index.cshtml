@@ -171,7 +171,9 @@
             @Html.ActionLink("Spotify Batch", "BatchMusicService", new {filter, type = "S", count = 10}, new {@class = "btn btn-success", role = "button"})
             @Html.ActionLink("Amazon Batch", "BatchMusicService", new {filter, type = "A", count = 10}, new {@class = "btn btn-success", role = "button"})
             @Html.ActionLink("Canonical Batch", "BatchMusicService", new {filter, type = "-", count = 10, options = "M"}, new {@class = "btn btn-success", role = "button"})
-            @Html.ActionLink("Backup List", "BackupTail", "Admin", new { filter, count=-1}, new { @class = "btn btn-default", role = "button" })
+            @Html.ActionLink("Backup List", "BackupTail", "Admin", new {filter, count=-1}, new { @class = "btn btn-default", role = "button" })
+            @Html.ActionLink("Update User Tags", "RebuildUserTags", "Admin", new {filter, update=true}, new { @class = "btn btn-default", role = "button" })
+            @Html.ActionLink("Update Tags", "RebuildTags", "Admin", new {filter}, new { @class = "btn btn-default", role = "button" })
         </div>
     }
 }

@@ -423,7 +423,6 @@ namespace m4dModels
         #endregion
 
         #region Tags
-
         public void ChangeDanceTags(string danceId, string tags, ApplicationUser user, DanceMusicService dms)
         {
             var dr = FindRating(danceId);

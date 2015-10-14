@@ -986,15 +986,41 @@ namespace m4d.Controllers
         //
         // Get: //RebuildUserTags
         [Authorize(Roles = "dbAdmin")]
-        public ActionResult RebuildUserTags(bool update=false, string songIds=null)
+        public ActionResult RebuildUserTags(bool update=false, string songIds=null, string filter=null)
         {
-            Database.RebuildUserTags(User.Identity.Name,update,songIds);
+            SongFilter songFilter = null;
+            if (!string.IsNullOrWhiteSpace(filter))
+            {
+                songFilter = new SongFilter(filter);
+            }
+
+            Database.RebuildUserTags(User.Identity.Name,update,songIds,songFilter);
 
             ViewBag.Success = true;
             ViewBag.Message = "User Tags were successfully rebuilt";
 
             return View("Results");
         }
+
+        //
+        // Get: //RebuildTags
+        [Authorize(Roles = "dbAdmin")]
+        public ActionResult RebuildTags(string songIds = null, string filter = null)
+        {
+            SongFilter songFilter = null;
+            if (!string.IsNullOrWhiteSpace(filter))
+            {
+                songFilter = new SongFilter(filter);
+            }
+
+            Database.RebuildTags(User.Identity.Name, songIds, songFilter);
+
+            ViewBag.Success = true;
+            ViewBag.Message = "Tags were successfully rebuilt";
+
+            return View("Results");
+        }
+
 
         //
         // Get: //RebuildDanceInfo
@@ -1552,7 +1578,7 @@ namespace m4d.Controllers
         // Get: //ScrapeSpotify
         [HttpGet]
         [Authorize(Roles = "dbAdmin")]
-        public ActionResult ScrapeSpotify(string url, string user, string dances, string tags)
+        public ActionResult ScrapeSpotify(string url, string user, string dances, string songTags=null, string danceTags=null)
         {
             ViewBag.Name = "Scrape Spotify";
 
@@ -1569,18 +1595,10 @@ namespace m4d.Controllers
 
             var tracks = ((DanceMusicContext)Database.Context).LookupServiceTracks(service, url, User);
 
-            var newSongs = SongsFromTracks(appuser,tracks);
+            var newSongs = SongsFromTracks(appuser,tracks,dances,songTags,danceTags);
 
-            if (!string.IsNullOrEmpty(tags))
-            {
-                foreach (var sd in newSongs)
-                {
-                    sd.AddTags(tags, appuser, Database, sd, false);
-                }
-            }
 
             ViewBag.UserName = user;
-            ViewBag.Dances = dances;
             ViewBag.Action = "CommitUploadCatalog";
 
             IList<LocalMerger> results = null;
@@ -2056,14 +2074,9 @@ namespace m4d.Controllers
             return SongDetails.CreateFromRows(user, separator, headers, lines, SongBase.DanceRatingAutoCreate);
         }
 
-        private IList<SongDetails> SongsFromTracks(ApplicationUser user, IEnumerable<ServiceTrack> tracks)
+        private IList<SongDetails> SongsFromTracks(ApplicationUser user, IEnumerable<ServiceTrack> tracks, string dances, string songTags, string danceTags)
         {
-            var sds = new List<SongDetails>();
-            foreach (var track in tracks)
-            {
-                sds.Add(SongDetails.CreateFromTrack(user, track));
-            }
-            return sds;
+            return tracks.Select(track => SongDetails.CreateFromTrack(user, track, dances, songTags, danceTags)).ToList();
         }
 
         private static IList<SongDetails> SongsFromFile(ApplicationUser user, IList<string> lines)

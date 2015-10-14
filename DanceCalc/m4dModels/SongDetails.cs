@@ -542,39 +542,77 @@ namespace m4dModels
         }
 
         //private static readonly List<string> s_trackFields = new List<string>(new string[] {""});
-        public static SongDetails CreateFromTrack(ApplicationUser user, ServiceTrack track)
+        public static SongDetails CreateFromTrack(ApplicationUser user, ServiceTrack track, string dances, string songTags, string danceTags)
         {
-            var properties = new List<SongProperty>
+            // Title;Artist;Duration;Album;Track;DanceRating;SongTags;DanceTags;PurchaseInfo;
+
+            var fields = new List<string>
             {
-                SongProperty.Create(TimeField, DateTime.Now.ToString(CultureInfo.InvariantCulture)),
-                SongProperty.Create(UserField, user.UserName),
-                SongProperty.Create(CreateCommand),
-                SongProperty.Create(TitleField, track.Name)
+                TitleField,
+                ArtistField,
+                LengthField,
+                AlbumField,
+                TrackField,
+                DanceRatingField,
+                SongTags,
+                DanceTags
             };
 
-            AddProperty(properties,ArtistField,track.Artist);
-            AddProperty(properties, LengthField, track.Duration);
-            AddProperty(properties, AlbumField, track.Album, 0);
-            AddProperty(properties, TrackField, track.TrackNumber, 0);
-            // ReSharper disable once InvertIf
-            if (!string.IsNullOrEmpty(track.PurchaseInfo))
+            var cells = new List<string>
             {
-                var infos = track.PurchaseInfo.Split(new[] {';'}, StringSplitOptions.RemoveEmptyEntries);
+                track.Name,
+                track.Artist,
+                track.Duration?.ToString(),
+                track.Album,
+                track.TrackNumber?.ToString(),
+                dances,
+                songTags,
+                danceTags
+            };
 
-                foreach (var info in infos)
-                {
-                    PurchaseType pt;
-                    ServiceType st;
-                    string id;
-
-                    if (MusicService.TryParsePurchaseInfo(info, out pt, out st, out id))
-                    {
-                        AddProperty(properties, PurchaseField, id, 0, AlbumDetails.BuildPurchaseKey(pt, st));
-                    }
-                }
+            if (track.CollectionId != null)
+            {
+                fields.Add(PurchaseField + ":00:" + AlbumDetails.BuildPurchaseKey(PurchaseType.Album, track.Service));
+                cells.Add(track.CollectionId);
             }
-            
-            return new SongDetails(Guid.Empty, properties);
+            if (track.TrackId != null)
+            {
+                fields.Add(PurchaseField + ":00:" + AlbumDetails.BuildPurchaseKey(PurchaseType.Song, track.Service));
+                cells.Add(track.TrackId);
+            }
+
+            return CreateFromRow(user, fields, cells, DanceRatingIncrement);
+            //var properties = new List<SongProperty>
+            //{
+            //    SongProperty.Create(TimeField, DateTime.Now.ToString(CultureInfo.InvariantCulture)),
+            //    SongProperty.Create(UserField, user.UserName),
+            //    SongProperty.Create(CreateCommand),
+            //    SongProperty.Create(TitleField, track.Name)
+            //};
+
+            //AddProperty(properties,ArtistField,track.Artist);
+            //AddProperty(properties, LengthField, track.Duration);
+            //AddProperty(properties, AlbumField, track.Album, 0);
+            //AddProperty(properties, TrackField, track.TrackNumber, 0);
+            //// ReSharper disable once InvertIf
+            //if (!string.IsNullOrEmpty(track.PurchaseInfo))
+            //{
+            //    var infos = track.PurchaseInfo.Split(new[] {';'}, StringSplitOptions.RemoveEmptyEntries);
+
+            //    foreach (var info in infos)
+            //    {
+            //        PurchaseType pt;
+            //        ServiceType st;
+            //        string id;
+
+            //        if (MusicService.TryParsePurchaseInfo(info, out pt, out st, out id))
+            //        {
+            //            AddProperty(properties, PurchaseField, id, 0, AlbumDetails.BuildPurchaseKey(pt, st));
+            //        }
+            //    }
+            //}
+
+            //return new SongDetails(Guid.Empty, properties);
         }
 
         public static void AddProperty(IList<SongProperty> properties, string baseName, object value = null, int index = -1, string qual = null)
