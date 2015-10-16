@@ -1100,76 +1100,38 @@ namespace m4d.Controllers
 
                 if (lines.Count > 0)
                 {
+                    var users = TryGetSection(lines,DanceMusicService.IsUserBreak);
+                    var dances = TryGetSection(lines, DanceMusicService.IsDanceBreak);
+                    var tags = TryGetSection(lines, DanceMusicService.IsTagBreak);
+                    var songs = TryGetSection(lines, DanceMusicService.IsSongBreak);
+
+                    var reload = false;
                     if (string.Equals(reloadDatabase, "reload", StringComparison.InvariantCultureIgnoreCase))
                     {
-                        if (DanceMusicService.IsCompleteBackup(lines))
+                        reload = true;
+                        if (users != null && dances != null && tags != null && songs != null)
                         {
                             AdminMonitor.UpdateTask("Wipe Database");
                             RestoreDb(null);
-
-                            var i = lines.FindIndex(DanceMusicService.IsDanceBreak);
-                            var users = lines.GetRange(0, i).ToList();
-                            lines.RemoveRange(0, i + 1);
-
-                            i = lines.FindIndex(DanceMusicService.IsTagBreak);
-                            var dances = lines.GetRange(0, i).ToList();
-                            lines.RemoveRange(0, i + 1);
-
-                            i = lines.FindIndex(DanceMusicService.IsSongBreak);
-                            var tags = lines.GetRange(0, i).ToList();
-                            lines.RemoveRange(0, i + 1);
-
-                            Database.LoadUsers(users);
-                            Database.LoadDances(dances);
-                            Database.LoadTags(tags);
-
-                            reloadDatabase = "loadSongs";
-                        }
-                        else if (DanceMusicService.IsSongBreak(lines[0]))
-                        {
-                            reloadDatabase = "loadSongs";
-                        }
-                        else if (DanceMusicService.IsUserBreak(lines[0]))
-                        {
-                            reloadDatabase = "users";
-                        }
-                        else if (DanceMusicService.IsDanceBreak(lines[0]))
-                        {
-                            reloadDatabase = "dances";
-                        }
-                        else if (DanceMusicService.IsTagBreak(lines[0]))
-                        {
-                            reloadDatabase = "tags";
                         }
                     }
 
-                    if (string.Equals(reloadDatabase, "songs", StringComparison.InvariantCultureIgnoreCase))
+                    if (users != null) Database.LoadUsers(users);
+                    if (dances != null) Database.LoadDances(dances);
+                    if (tags != null) Database.LoadTags(tags);
+                    if (songs != null)
                     {
-                        Database.UpdateSongs(lines);
-                    }
-                    else if (string.Equals(reloadDatabase, "users", StringComparison.InvariantCultureIgnoreCase))
-                    {
-                        Database.LoadUsers(lines);
-                    }
-                    else if (string.Equals(reloadDatabase, "dances", StringComparison.InvariantCultureIgnoreCase))
-                    {
-                        Database.LoadDances(lines);
-                    }
-                    else if (string.Equals(reloadDatabase, "tags", StringComparison.InvariantCultureIgnoreCase))
-                    {
-                        Database.LoadTags(lines);
-                    }
-                    else if (string.Equals(reloadDatabase, "loadSongs", StringComparison.InvariantCultureIgnoreCase))
-                    {
-                        Database.LoadSongs(lines);
+                        if (reload)
+                            Database.LoadSongs(songs);
+                        else
+                            Database.UpdateSongs(songs);
+                        SongCounts.ClearCache();
                     }
 
-                    SongCounts.ClearCache();
-
-                    return CompleteAdminTask(true, "Database restored: " + reloadDatabase);
+                    return CompleteAdminTask(true, "Database restored");
                 }
 
-                return CompleteAdminTask(false, "Empty File or Bad File Format" + reloadDatabase);
+                return CompleteAdminTask(false, "Empty File or Bad File Format");
             }
             catch (Exception e)
             {
@@ -1177,6 +1139,26 @@ namespace m4d.Controllers
             }
         }
 
+        private static List<string> TryGetSection(List<string> lines, Predicate<string> start)
+        {
+            var breaks = new Predicate<string>[] {DanceMusicService.IsDanceBreak, DanceMusicService.IsTagBreak, DanceMusicService.IsSongBreak};
+
+            if (!start(lines[0])) return null;
+
+            var i = -1;
+            foreach (var b in breaks)
+            {
+                i = lines.FindIndex(1, b);
+                if (i != -1) break;
+            }
+
+            if (i == -1) return lines;
+
+            var ret = lines.GetRange(0, i).ToList();
+            lines.RemoveRange(0, i);
+
+            return ret;
+        }
 
         //
         // Get: //RebuildDances

@@ -1533,27 +1533,6 @@ namespace m4dModels
         private const string DanceBreak = "+++++DANCES+++++";
         private const string UserHeader = "UserId\tUserName\tRoles\tPWHash\tSecStamp\tLockout\tProviders\tEmail\tEmailConfirmed\tStartDate\tRegion\tPrivacy\tCanContact\tServicePreference";
 
-        static public bool IsCompleteBackup(IList<string> lines)
-        {
-            string[] breaks = {DanceBreak, TagBreak, SongBreak};
-
-            if (lines == null || lines.Count == 0 || !IsUserBreak(lines[0])) return false;
-
-            var ibreak = 0;
-            foreach (var l in lines)
-            {
-                if (!IsBreak(l, breaks[ibreak])) continue;
-
-                ibreak += 1;
-                if (ibreak == breaks.Length)
-                {
-                    return true;
-                }
-            }
-
-            return false;
-        }
-
         static public bool IsSongBreak(string line) {
             return IsBreak(line, SongBreak);
         }
