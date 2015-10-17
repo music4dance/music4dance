@@ -146,6 +146,7 @@ namespace m4d.Utilities
 
         public ServiceTrack LookupTrack(string asin)
         {
+            if (asin.StartsWith("D:")) asin = asin.Substring(2);
             var response = DoLookupTrack(asin);
 
             if (response == null)

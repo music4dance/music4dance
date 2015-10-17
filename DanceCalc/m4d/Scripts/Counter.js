@@ -430,37 +430,59 @@ var serviceLookup = function () {
         tempo: ko.observable(0)
     };
 
+    self.getServiceTrack = function(service) {
+        var idControl = $('#idString');
+        if (idControl) {
+            var id = idControl.val();
+            if (id) {
+                // Spotify Parse
+                var idx = -1;
+
+                if (service === 'S') {
+                    idx = id.lastIndexOf('/');
+                }
+                else if (service === 'I') {
+                    idx = id.lastIndexOf('=');
+                }
+                else if (service === 'A') {
+                    var match = id.match(/\/product\/([^?]*)/i);
+                    if (match) {
+                        id = match[1];
+                    }
+                }
+                if (idx !== -1) {
+                    id = id.substring(idx + 1);
+                }
+                $.getJSON('/api/servicetrack/' + service + id)
+                    .done(function (data) {
+                        console.log(data);
+                        if (data.hasOwnProperty('TrackId')) {
+                            self.viewModel.track(data);
+                            self.viewModel.song(null);
+                        } else {
+                            self.viewModel.track(null);
+                            self.viewModel.song(data);
+                        }
+                    })
+                    .fail(function (jqXhr, textStatus /*,err*/) {
+                        console.log(textStatus);
+                    });
+            }
+        }
+    }
+
     self.init = function() {
         var lookup = $('#lookup-by-id');
         if (lookup.length) {
-            lookup.submit(function (event) {
-                event.preventDefault();
 
-                var idControl = $('#idString');
-                if (idControl) {
-                    var id = idControl.val();
-                    if (id) {
-                        var idx = id.lastIndexOf('/');
-                        if (idx !== -1) {
-                            id = id.substring(idx + 1);
-                        }
-                        $.getJSON('/api/servicetrack/S' + id)
-                            .done(function (data) {
-                                console.log(data);
-                                if (data.hasOwnProperty('TrackId')) {
-                                    self.viewModel.track(data);
-                                    self.viewModel.song(null);
-                                } else {
-                                    self.viewModel.track(null);
-                                    self.viewModel.song(data);
-                                }
-                            })
-                            .fail(function (jqXhr, textStatus /*,err*/) {
-                                console.log(textStatus);
-                            });
-                    }
-                }
+            $('.service-lookup').click(function () {
+                self.getServiceTrack($(this).attr("value"));
+                return false;
             });
+
+            //lookup.submit(function (event) {
+            //    event.preventDefault();
+            //});
 
             ko.applyBindings(self.viewModel);
         }

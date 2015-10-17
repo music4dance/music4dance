@@ -12,9 +12,11 @@ namespace m4dModels
                 "itunes_store",
                 "Buy it on ITunes",
                 "http://itunes.apple.com/album/id{1}?i={0}&uo=4&at=11lwtf",
-                "https://itunes.apple.com/search?term={0}&media=music&entity=song&limit=200")
+                "https://itunes.apple.com/search?term={0}&media=music&entity=song&limit=200",
+                "http://itunes.apple.com/lookup?id={0}&entity=song")
         {
         }
+
         protected override string BuildPurchaseLink(PurchaseType pt, string album, string song)
         {
             // TODO: itunes would need a different kind of link for album only lookup...
@@ -36,35 +38,44 @@ namespace m4dModels
 
             foreach (var track in tracks)
             {
-                if (string.Equals("song", track.kind))
-                {
-                    int? duration = null;
-                    if (track.TrackTimeMillis != null)
-                    {
-                        duration = (track.trackTimeMillis + 500) / 1000;
-                    }
-
-                    var st = new ServiceTrack
-                    {
-                        Service = ServiceType.ITunes,
-                        TrackId = track.trackId.ToString(),
-                        CollectionId = track.collectionId.ToString(),
-                        Name = track.trackName,
-                        Artist = track.artistName,
-                        Album = track.collectionName,
-                        ImageUrl = track.artworkUrl30,
-//                        Link = track.trackViewUrl,
-                        ReleaseDate = track.releaseDate,
-                        Duration = duration,
-                        Genre = track.primaryGenreName,
-                        TrackNumber = track.trackNumber,
-                    };
-
-                    ret.Add(st);
-                }
+                var st = InternalParseTrackResults(track);
+                if (st) ret.Add(st);
             }
 
             return ret;
+        }
+
+        public override ServiceTrack ParseTrackResults(dynamic results)
+        {
+            var tracks = results.results;
+            return tracks.Length > 0 ? InternalParseTrackResults(tracks[0]) : null;
+        }
+
+        private ServiceTrack InternalParseTrackResults(dynamic track)
+        {
+            if (!string.Equals("song", track.kind)) return null;
+
+            int? duration = null;
+            if (track.TrackTimeMillis != null)
+            {
+                duration = (track.trackTimeMillis + 500) / 1000;
+            }
+
+            return new ServiceTrack
+            {
+                Service = ServiceType.ITunes,
+                TrackId = track.trackId.ToString(),
+                CollectionId = track.collectionId.ToString(),
+                Name = track.trackName,
+                Artist = track.artistName,
+                Album = track.collectionName,
+                ImageUrl = track.artworkUrl30,
+                //                        Link = track.trackViewUrl,
+                ReleaseDate = track.releaseDate,
+                Duration = duration,
+                Genre = track.primaryGenreName,
+                TrackNumber = track.trackNumber,
+            };
         }
     }
 }

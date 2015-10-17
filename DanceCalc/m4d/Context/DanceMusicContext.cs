@@ -171,7 +171,10 @@ namespace m4d.Context
 
         public ServiceTrack GetMusicServiceTrack(string id, MusicService service, string region=null)
         {
-            var request = service.BuildTrackRequest(id,region);
+            if (service.Id == ServiceType.Amazon)
+                return AmazonFetcher.LookupTrack(id);
+
+            var request = service.BuildTrackRequest(id, region);
             dynamic results = GetMusicServiceResults(request, service);
             return service.ParseTrackResults(results);
         }
@@ -285,21 +288,9 @@ namespace m4d.Context
         }
         private IList<ServiceTrack> FindMSSongAmazon(SongDetails song, bool clean = false, string title = null, string artist = null)
         {
-            if (_awsFetcher == null)
-            {
-                _awsFetcher = new AWSFetcher();
-            }
+            var custom = !string.IsNullOrWhiteSpace(title) || !string.IsNullOrWhiteSpace(artist);
 
-            bool custom = !string.IsNullOrWhiteSpace(title) || !string.IsNullOrWhiteSpace(artist);
-
-            if (custom)
-            {
-                return _awsFetcher.FetchTracks(title, artist);
-            }
-            else
-            {
-                return _awsFetcher.FetchTracks(song, clean);
-            }
+            return custom ? AmazonFetcher.FetchTracks(title, artist) : AmazonFetcher.FetchTracks(song, clean);
         }
 
         private IList<ServiceTrack> FindMSSongGeneral(SongDetails song, MusicService service, bool clean = false, string title = null, string artist = null)
@@ -507,6 +498,7 @@ namespace m4d.Context
         }
         #endregion
 
-        AWSFetcher _awsFetcher;
+        private AWSFetcher AmazonFetcher => _awsFetcher ?? (_awsFetcher = new AWSFetcher());
+        private AWSFetcher _awsFetcher;
     }
 }
