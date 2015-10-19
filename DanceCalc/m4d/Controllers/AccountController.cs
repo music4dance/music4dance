@@ -14,9 +14,9 @@ using Microsoft.Owin.Security;
 namespace m4d.Controllers
 {
     [Authorize]
-//#if !DEBUG
-//    [RequireHttps]
-//#endif
+    //#if !DEBUG
+    //    [RequireHttps]
+    //#endif
     public class AccountController : DMController
     {
         public override string DefaultTheme => ToolTheme;
@@ -31,14 +31,21 @@ namespace m4d.Controllers
             UserManager = userManager;
             SignInManager = signInManager;
         }
+        //
+        // GET: /Account/SignIn
+        [AllowAnonymous]
+        public ActionResult SignIn(string returnUrl)
+        {
+            ViewBag.ReturnUrl = returnUrl;
+            return View();
+        }
 
         //
         // GET: /Account/Login
         [AllowAnonymous]
-        public ActionResult Login(string returnUrl)
+        public ActionResult Login()
         {
-            ViewBag.ReturnUrl = returnUrl;
-            return View();
+            return RedirectToActionPermanent("SignIn");
         }
 
         private ApplicationSignInManager _signInManager;
@@ -85,9 +92,9 @@ namespace m4d.Controllers
 
                 // Uncomment to debug locally  
                 // ViewBag.Link = callbackUrl;
-                ViewBag.errorMessage = "You must have a confirmed email to log on. "
+                ViewBag.errorMessage = "You must have a confirmed email to sign in. "
                                         + "The confirmation token has been resent to <b>"
-                                        + user.Email + "</b>.";
+                                        + user.Email + "</b>. Double check your junk or spam inbox to see if it's there instead.";
                 return View("Error");
             }
             var result = await SignInManager.PasswordSignInAsync(user.UserName, model.Password, model.RememberMe, shouldLockout: true);
@@ -101,7 +108,7 @@ namespace m4d.Controllers
                     // ReSharper disable once RedundantAnonymousTypePropertyName
                     return RedirectToAction("SendCode", new { ReturnUrl = returnUrl, RememberMe = model.RememberMe });
                 default:
-                    ModelState.AddModelError("", @"Invalid login attempt.");
+                    ModelState.AddModelError("", @"Invalid sign in attempt.");
                     return View(model);
             }
         }
@@ -153,11 +160,19 @@ namespace m4d.Controllers
                     return View(model);
             }
         }
-
         //
-        // GET: /Account/Register
+        //GET: /Account/Register
         [AllowAnonymous]
         public ActionResult Register()
+        {
+            return RedirectToActionPermanent("SignUp");
+        }
+
+
+        //
+        // GET: /Account/SignUp
+        [AllowAnonymous]
+        public ActionResult SignUp()
         {
             return View();
         }
@@ -190,7 +205,8 @@ namespace m4d.Controllers
                     //TempData["ViewBagLink"] = callbackUrl;
 
                      ViewBag.Message = "Please check your email and confirm your account, your email must be confirmed "
-                                     + "before you can log in.";
+                                     + "before you can sign in. "
+                                     + "If you don't see the email right away, check your junk or spam inbox to see if it ended up in there instead.";
 
                      return View("Info");
                 }

@@ -34,7 +34,7 @@ namespace Microsoft.Xbox.Music.Platform.Client
         public XasTokenResponseError Error { get; set; }
 
         /// <summary>
-        /// If this is set to true, the user should log in to http://music.xbox.com to fix issues with their account.
+        /// If this is set to true, the user should sign in to http://music.xbox.com to fix issues with their account.
         /// </summary>
         public bool UserActionRequired
         {
