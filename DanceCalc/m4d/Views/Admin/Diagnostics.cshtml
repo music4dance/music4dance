@@ -1,0 +1,46 @@
+﻿@using System.Globalization
+@using m4d.Controllers
+@{
+    ViewBag.Title = "Logging";
+}
+<ol class="breadcrumb">
+    <li><a href="/">Music4Dance</a></li>
+    <li><a href="/admin">Admin Index</a></li>
+    <li class="active">Logging</li>
+</ol>
+
+<p>Start Time = <b>@AdminController.StartTime.ToString(CultureInfo.CurrentCulture)</b></p>
+<p>Up Time = <b>@AdminController.UpTime.ToString()</b></p>
+
+<h3>Logging</h3>
+<ul>
+    <li>@Html.ActionLink("Log", "index", "log")</li>
+    <li>@Html.ActionLink("Restore From Log", "restoreLines", "log")</li>
+</ul>
+<hr />
+<h3>Tracing (Current Level = @ViewBag.TraceLevel)</h3>
+<ul>
+    <li>@Html.ActionLink("Turn Tracing Off", "SetTraceLevel", "Admin", new {level = 0}, null)</li>
+    <li>@Html.ActionLink("Trace Error", "SetTraceLevel", "Admin", new {level = 1}, null)</li>
+    <li>@Html.ActionLink("Trace Warning", "SetTraceLevel", "Admin", new {level = 2}, null)</li>
+    <li>@Html.ActionLink("Trace Info", "SetTraceLevel", "Admin", new {level = 3}, null)</li>
+    <li>@Html.ActionLink("Trace Verbose", "SetTraceLevel", "Admin", new {level = 4}, null)</li>
+    <li>@Html.ActionLink("Test Trace", "TestTrace", "Admin", new {message = "Nothing Special"}, null)</li>
+</ul>
+<hr />
+<h3>History</h3>
+<ul>
+    <li>@Html.ActionLink("Songs sorted by Modified date", "sort", "song", new {sortOrder = "Modified_desc"}, null)</li>
+</ul>
+
+<h3>Status</h3>
+<ul>
+    <li>@Html.ActionLink("Show Status", "AdminStatus", "Admin")</li>
+</ul>
+
+<h3>Songs Modified By</h3>
+@using (Html.BeginForm("FilterUser", "Song", FormMethod.Get))
+{
+    <input type="text" name="user" />
+    <input type="submit" id="Submit" value="Search" />
+}

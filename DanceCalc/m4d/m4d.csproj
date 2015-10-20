@@ -995,11 +995,9 @@
     <Content Include="Views\Manage\Settings.cshtml" />
     <Content Include="Views\Manage\UserProfile.cshtml" />
     <Content Include="Views\Admin\Tags.cshtml" />
-    <Content Include="Views\Admin\Logging.cshtml" />
-    <Content Include="Views\Admin\CleanupTasks.cshtml" />
+    <Content Include="Views\Admin\Diagnostics.cshtml" />
     <Content Include="Views\Admin\InitializationTasks.cshtml" />
-    <Content Include="Views\Admin\ScrapingModifier.cshtml" />
-    <None Include="Views\Admin\Tracing.cshtml" />
+    <Content Include="Views\Admin\Scraping.cshtml" />
     <Content Include="Views\Admin\UploadBackup.cshtml" />
     <Content Include="Views\Dance\BallroomCompetitionCategories.cshtml" />
     <None Include="Web.m4d.config">

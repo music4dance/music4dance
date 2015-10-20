@@ -122,11 +122,9 @@
                                 <li>@Html.ActionLink("Index", "Index", "Admin")</li>
                                 <li>@Html.ActionLink("Users", "Index", "ApplicationUsers")</li>  
                                 <li>@Html.ActionLink("Tags", "Tags", "Admin")</li>
-                                <li>@Html.ActionLink("Logging", "Logging", "Admin")</li>
-                                <li>@Html.ActionLink("Cleanup Tasks", "CleanupTasks", "Admin")</li>
-                                <li>@Html.ActionLink("Tracing", "Tracing", "Admin")</li>
-                                <li>@Html.ActionLink("Initialization Tasks", "InitializationTasks", "Admin")</li>
-                                <li>@Html.ActionLink("Song scrape and Modifier", "ScrapingModifier", "Admin")</li>
+                                <li>@Html.ActionLink("Diagnostics", "Diagnostics", "Admin")</li>
+                                <li>@Html.ActionLink("Initialization and Cleanup", "InitializationTasks", "Admin")</li>
+                                <li>@Html.ActionLink("Song Scrapers", "Scraping", "Admin")</li>
                                     @if (User.IsInRole("dbAdmin"))
                                     {
                                         <li>@Html.ActionLink("Uploads and Backups", "UploadBackup", "Admin")</li>

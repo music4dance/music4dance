@@ -25,6 +25,9 @@ namespace m4d.Controllers
     {
         public override string DefaultTheme => AdminTheme;
 
+        public static DateTime StartTime { get; } = DateTime.Now;
+        public static TimeSpan UpTime => DateTime.Now - StartTime;
+
         #region Commands
 
         //
@@ -44,25 +47,9 @@ namespace m4d.Controllers
         }
         
         //
-        // GET: /Admin/Logging
+        // GET: /Admin/Diagnostics
         [Authorize(Roles = "showDiagnostics")]
-        public ActionResult Logging()
-        {
-            return View();
-        }
-
-        //
-        // GET: /Admin/CleanupTasks
-        [Authorize(Roles = "showDiagnostics")]
-        public ActionResult CleanupTasks()
-        {
-            return View();
-        }
-
-        //
-        // GET: /Admin/Tracing
-        [Authorize(Roles = "showDiagnostics")]
-        public ActionResult Tracing()
+        public ActionResult Diagnostics()
         {
             ViewBag.TraceLevel = TraceLevels.General.Level.ToString();
             return View();
@@ -85,9 +72,9 @@ namespace m4d.Controllers
         }
 
         //
-        // GET: /Admin/ScrapingModifier
+        // GET: /Admin/Scraping
         [Authorize(Roles = "showDiagnostics")]
-        public ActionResult ScrapingModifier()
+        public ActionResult Scraping()
         {
             return View();
         }
@@ -109,19 +96,11 @@ namespace m4d.Controllers
         //
         // Get: //UpdatePurchase
         [Authorize(Roles = "dbAdmin")]
-        public ActionResult UpdatePurchase()
+        public ActionResult UpdatePurchase(string songIds = null)
         {
             ViewBag.Name = "Update Purchase Info";
 
-            var songs = from s in Database.Songs where s.TitleHash != 0 select s;
-
-            foreach (var song in songs)
-            {
-                var sd = new SongDetails(song);
-                song.Purchase = sd.GetPurchaseTags();
-            }
-
-            Database.SaveChanges();
+            Database.UpdatePurchaseInfo(songIds);
 
             ViewBag.Success = true;
             ViewBag.Message = "Purchase info was successully updated";

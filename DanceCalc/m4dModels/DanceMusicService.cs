@@ -2074,6 +2074,19 @@ namespace m4dModels
         {
             Context.LoadDances();
         }
+
+        public void UpdatePurchaseInfo(string songIds)
+        {
+            var songs = (songIds == null) ? Songs.Where(s => s.TitleHash != 0) : SongsFromList(songIds);
+
+            foreach (var song in songs)
+            {
+                var sd = new SongDetails(song);
+                song.Purchase = sd.GetPurchaseTags();
+            }
+
+            SaveChanges();
+        }
         #endregion
 
         #region Save
