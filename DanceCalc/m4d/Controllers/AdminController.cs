@@ -15,6 +15,7 @@ using DanceLibrary;
 using m4d.Context;
 using m4d.Scrapers;
 using m4dModels;
+using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.AspNet.Identity;
 using Configuration = m4d.Migrations.Configuration;
 
@@ -692,6 +693,15 @@ namespace m4d.Controllers
 
             Trace.WriteLineIf(TraceLevels.General.TraceInfo, $"Test Trace: '{message}'");
             return View("Results");
+        }
+
+        //
+        // Get: //DisableTelemetry
+        public ActionResult DisableTelemetry(bool disable)
+        {
+            Trace.WriteLineIf(TraceLevels.General.TraceInfo, $"Disable Telemetry: '{disable}'");
+            TelemetryConfiguration.Active.DisableTelemetry = disable;
+            return View("Diagnostics");
         }
 
         //
