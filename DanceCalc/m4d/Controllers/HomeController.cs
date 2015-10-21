@@ -15,6 +15,13 @@ namespace m4d.Controllers
         }
 
         [AllowAnonymous]
+        public ActionResult FAQ()
+        {
+            ThemeName = BlogTheme;
+            return View();
+        }
+
+        [AllowAnonymous]
         public ActionResult Home()
         {
             return View();
