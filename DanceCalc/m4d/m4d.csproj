@@ -878,6 +878,7 @@
     <Content Include="Views\Admin\Scraping.cshtml" />
     <Content Include="Views\Admin\UploadBackup.cshtml" />
     <Content Include="Views\Home\FAQ.cshtml" />
+    <Content Include="Views\Dance\BallroomCompetitionCategories.cshtml" />
     <None Include="Web.m4d.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
@@ -968,12 +969,12 @@
   <!-- **************************************************** -->
   <!-- Build info -->
   <PropertyGroup>
-     <!-- Generate the BuildInfo.config file -->
-     <GenerateBuildInfoConfigFile>True</GenerateBuildInfoConfigFile>
-     <!-- Include server name in build info --> 
-     <IncludeServerNameInBuildInfo>True</IncludeServerNameInBuildInfo> 
-     <!-- Include the symbols path so Visual Studio can find the matching deployed code when you start debugging. -->
-     <!--<BuildSymbolStorePath><path to symbols></BuildSymbolStorePath>-->
+    <!-- Generate the BuildInfo.config file -->
+    <GenerateBuildInfoConfigFile>True</GenerateBuildInfoConfigFile>
+    <!-- Include server name in build info -->
+    <IncludeServerNameInBuildInfo>True</IncludeServerNameInBuildInfo>
+    <!-- Include the symbols path so Visual Studio can find the matching deployed code when you start debugging. -->
+    <!--<BuildSymbolStorePath><path to symbols></BuildSymbolStorePath>-->
   </PropertyGroup>
   <!-- **************************************************** -->
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
