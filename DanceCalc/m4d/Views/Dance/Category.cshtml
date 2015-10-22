@@ -1,5 +1,4 @@
-﻿@using DanceLibrary
-@model DanceCategory
+﻿@model DanceCategory
 
 @{
     ViewBag.Title = @Model.Name;
@@ -8,21 +7,21 @@
     var blogName = "https://www.music4dance.net/blog/tag/" + @Model.Name.ToLowerInvariant().Replace(' ', '-') + "/";
 }
 
-@helper FullRoundName()
-{
-    @Model.Name @(Model.Round.Count == 4 ? " four " : " five " )
-}
-
-@helper LinkCategory(string name)
-{
-    @Html.ActionLink(name,DanceObject.SeoFriendly(name),"dances")
-}
+<ol class="breadcrumb">
+    <li><a href="/">Music4Dance</a></li>
+    <li><a href="/dances">Dances</a></li>
+    <li><a href="/dances/ballroom-competition-categories">Ballroom</a></li>
+    <li class="active">@Model.Name</li>
+</ol>
 
 <h1>@Model.Name</h1>
 
-<p>@Model.Name is a category of competition ballroom dancing that is defined by the <a href="http://www.worlddancesport.org/Rule/Athlete/Competition">World Dance Council</a> and <a href="http://ndca.org/education/dances-and-tempi/">National Dance Council of America</a>.</p>
+<div class="big-text">
+    <p>@Model.Name is a category of @Html.ActionLink("competition ballroom dancing","ballroom-competition-categories","dances") that is defined by the <a href="http://www.worlddancesport.org/Rule/Athlete/Competition">World Dance Council</a> and <a href="http://ndca.org/education/dances-and-tempi/">National Dance Council of America</a>.</p>
+    <p>Click on any of the tempo values above (in the MPM, DanceSport, or NDCA columns) to go to a list of songs of that tempo.</p>
+</div>
 
-@DanceHelper.CategoryTable(Html, Model.Round, "An " + @FullRoundName() + "dance round consist of the following:", catType)
+@DanceHelper.CategoryTable(Html, Model.Round, "An " + @DanceHelper.FullRoundName(Model) + "dance round consist of the following:", catType)
 
 @if (@Model.Extras != null)
 {
@@ -34,9 +33,7 @@
     cats.Remove(Model.Name);
 }
 
-<p>Click on any of the tempo values above (in the MPM, DanceSport, or NDCA columns) to go to a list of songs of that tempo.</p>
-
-<p>Other categories of competition ballroom dancing are @LinkCategory(cats[0]), @LinkCategory(cats[1]) and @LinkCategory(cats[2]).</p>
+<p>Other categories of @Html.ActionLink("competition ballroom dancing","ballroom-competition-categories","dances") are @DanceHelper.LinkCategory(Html, cats[0]), @DanceHelper.LinkCategory(Html,cats[1]) and @DanceHelper.LinkCategory(Html,cats[2]).</p>
 
 <p><img src="~/Content/tools.png" alt="tools" width="24" height="24" />Explore relationships between the meter and tempi of different dance styles and find songs that match.
 @SmartLink.TryIt("https://www.music4dance.net/home/tempi") @SmartLink.Docs("https://www.music4dance.net/blog/music4dance-help/dance-tempi/")</p>

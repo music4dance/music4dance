@@ -1,22 +1,34 @@
-﻿@using DanceLibrary
-@model DanceCategory
+﻿@model IEnumerable<DanceCategory>
 @{
      ViewBag.Title = "Ballroom competition categories";
+    ViewBag.Description = "An overview of competitive ballroom categories along with tempo ranges and song lists.";
 }
 
-@helper LinkCategory(string name){
-     @Html.ActionLink(name, DanceObject.SeoFriendly(name), "dances")
-}
-
+<ol class="breadcrumb">
+    <li><a href="/">Music4Dance</a></li>
+    <li><a href="/dances">Dances</a></li>
+    <li class="active">Ballroom</li>
+</ol>
 
 <h1>Competitive Ballroom Dancing</h1>
 
-<p>There are different catagories of competitive ballroom dancing, which are defined by the <a href="http://www.worlddancesport.org/Rule/Athlete/Competition">World Dance Council</a> and <a href="http://ndca.org/education/dances-and-tempi/">National Dance Council of America</a>.</p>
-<h3>@LinkCategory("International Latin")</h3>
-<hr/>
-<h3>@LinkCategory("International Standard")</h3>
-<hr/>
-<h3>@LinkCategory("American Smooth")</h3>
-<hr />
-<h3>@LinkCategory("American Rhythm")</h3>
-<hr />
+<div class="big-text">
+    <p>At @Html.ActionLink("music4dance","Index","Home"), we're using the definitions of competition ballroom dance established by <a href="http://www.worlddancesport.org/Rule/Athlete/Competition">World Dance Council</a> and <a href="http://ndca.org/education/dances-and-tempi/">National Dance Council of America</a>.</p>
+    <p>Click on any of the tempo in the table below (in the MPM, DanceSport, or NDCA columns) to go to a list of songs of that tempo, or the dance names to go to our description of the dance.</p>
+</div>
+
+@foreach (var category in Model)
+{
+    var catType = category.Name.StartsWith("International") ? DanceCategoryType.International : DanceCategoryType.American;
+    <h3>@DanceHelper.LinkCategory(Html, category.Name)</h3>
+    @DanceHelper.CategoryTable(Html, category.Round, "An " + @DanceHelper.FullRoundName(category) + "dance round consist of the following:", catType)
+    <p>More about @DanceHelper.LinkCategory(Html, category.Name) dances.</p>
+    <hr/>
+}
+
+<p>
+    <img src="~/Content/tools.png" alt="tools" width="24" height="24" />Explore relationships between the meter and tempi of different dance styles and find songs that match.
+    @SmartLink.TryIt("https://www.music4dance.net/home/tempi") @SmartLink.Docs("https://www.music4dance.net/blog/music4dance-help/dance-tempi/")
+</p>
+
+<p><img src="~/Content/info.png" alt="tools" width="24" height="24" />Read the <a href="https://www.music4dance.net/blog">music4dance blog</a> entries about <a href="https://www.music4dance.net/blog/tag/ballroom">Ballroom</a>.</p>

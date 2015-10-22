@@ -24,17 +24,21 @@ namespace m4d.Controllers
                 return View(data);
             }
 
-            var category = DanceCategories.GetDanceCategories(Database).FromName(dance);
-
-            if (category != null)
+            var categories = DanceCategories.GetDanceCategories(Database);
+            if (categories != null)
             {
                 HelpPage = "dance-category";
-                return View("category", category);
-            }
+                var category = categories?.FromName(dance);
 
-            if (string.Equals(dance, "ballroom-competition-categories", StringComparison.OrdinalIgnoreCase))
-            {
-                return View("BallroomCompetitionCategories");
+                if (category != null)
+                {
+                    return View("category", category);
+                }
+
+                if (string.Equals(dance, "ballroom-competition-categories", StringComparison.OrdinalIgnoreCase))
+                {
+                    return View("BallroomCompetitionCategories", categories.GetGroup(DanceCategories.Ballroom));
+                }
             }
 
             HelpPage = "dance-details";

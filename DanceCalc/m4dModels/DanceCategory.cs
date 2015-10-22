@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using DanceLibrary;
@@ -25,7 +26,7 @@ namespace m4dModels
     }
     public class DanceCategory
     {
-        public string Name { get; private set; }
+        public string Name { get; }
         public string CanonicalName => BuildCanonicalName(Name);
         public IReadOnlyList<CompetitionDance> Round => _round;
         public IReadOnlyList<CompetitionDance> Extras => _extra;
@@ -66,18 +67,18 @@ namespace m4dModels
     {
         static public DanceCategories GetDanceCategories(DanceMusicService dms)
         {
-            lock (Instance)
+            lock (s_instance)
             {
-                Instance.Initialize(dms);
-                return Instance;
+                s_instance.Initialize(dms);
+                return s_instance;
             }
         }
 
         static public void ClearCache()
         {
-            lock (Instance)
+            lock (s_instance)
             {
-                Instance._categories.Clear();
+                s_instance._categories.Clear();
             }
         }
 
@@ -85,6 +86,20 @@ namespace m4dModels
         {
             DanceCategory cat;
             return _categories.TryGetValue(DanceCategory.BuildCanonicalName(name), out cat) ? cat : null;
+        }
+
+        public IEnumerable<DanceCategory> GetGroup(string group)
+        {
+            if (!string.Equals(group, Ballroom, StringComparison.OrdinalIgnoreCase)) return null;
+
+            // For now the only group is "ballroom", but this seems a worthwhile abstraction
+            return new List<DanceCategory>
+            {
+                FromName(Standard),
+                FromName(Latin),
+                FromName(Smooth),
+                FromName(Rhythm)
+            };
         }
         private void AddCategory(DanceMusicService dms, string name, IEnumerable<string> round, IEnumerable<string> extras = null)
         {
@@ -100,14 +115,20 @@ namespace m4dModels
         {
             if (_categories.Count > 0) return;
 
-            AddCategory(dms,"International Standard", new[] { "SWZI", "TGOI", "VWZI", "SFTI", "QSTI" });
-            AddCategory(dms, "International Latin", new[] { "CHAI", "SMBI", "RMBI", "PDLI", "JIVI" });
-            AddCategory(dms, "American Smooth", new[] { "SWZA", "TGOA", "SFTA", "VWZA" }, new[] { "PBDA" });
-            AddCategory(dms, "American Rhythm", new[] { "CHAA", "RMBA", "ECSA", "BOLA", "MBOA" }, new[] { "HSTA", "MRGA", "PDLA", "PLKA", "SMBA", "WCSA" });
+            AddCategory(dms, Standard, new[] { "SWZI", "TGOI", "VWZI", "SFTI", "QSTI" });
+            AddCategory(dms, Latin, new[] { "CHAI", "SMBI", "RMBI", "PDLI", "JIVI" });
+            AddCategory(dms, Smooth, new[] { "SWZA", "TGOA", "SFTA", "VWZA" }, new[] { "PBDA" });
+            AddCategory(dms, Rhythm, new[] { "CHAA", "RMBA", "ECSA", "BOLA", "MBOA" }, new[] { "HSTA", "MRGA", "PDLA", "PLKA", "SMBA", "WCSA" });
         }
+
+        public const string Standard = "International Standard";
+        public const string Latin = "International Latin";
+        public const string Smooth = "American Smooth";
+        public const string Rhythm = "American Rhythm";
+        public const string Ballroom = "Ballroom";
 
         private readonly Dictionary<string, DanceCategory> _categories = new Dictionary<string, DanceCategory>();
 
-        private static readonly DanceCategories Instance = new DanceCategories();
+        private static readonly DanceCategories s_instance = new DanceCategories();
     }
 }

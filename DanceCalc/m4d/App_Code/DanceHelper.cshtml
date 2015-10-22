@@ -67,3 +67,14 @@
         <p>(*) A short explanation of the NDCA (National Dance Council of America) columns: For American style dances the "A" column contains Tempi for Silver and Gold levels while the "B" column contains Tempi for Bronze level. For International style dances the "A" column contains Tempi for Professional and Amateur couples while the "B" column contains Tempi for Pro/Am couples. </p>
     }
 }
+
+@helper FullRoundName(DanceCategory category)
+{
+    @category.Name @(category.Round.Count == 4 ? " four " : " five " )
+}
+
+@helper LinkCategory(System.Web.Mvc.HtmlHelper html, string name)
+{
+    @html.ActionLink(name, DanceObject.SeoFriendly(name), "dances");
+}
+
