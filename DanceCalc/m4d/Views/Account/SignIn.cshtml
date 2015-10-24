@@ -9,7 +9,7 @@
     <div class="col-md-8">
         <section id="loginForm">
             @* ReSharper disable once RedundantAnonymousTypePropertyName *@
-            @using (Html.BeginForm("Login", "Account", new { ReturnUrl = ViewBag.ReturnUrl }, FormMethod.Post, new { @class = "form-horizontal", role = "form" }))
+            @using (Html.BeginForm("SignIn", "Account", new { ReturnUrl = ViewBag.ReturnUrl }, FormMethod.Post, new { @class = "form-horizontal", role = "form" }))
             {
                 @Html.AntiForgeryToken()
                 <h4>Use a local account to sign in.</h4>

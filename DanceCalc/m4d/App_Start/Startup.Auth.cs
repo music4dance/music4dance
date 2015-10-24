@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Globalization;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using m4d.Context;
+using m4d.Controllers;
 using m4dModels;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.Owin;
@@ -22,6 +24,7 @@ namespace m4d
         // For more information on configuring authentication, please visit http://go.microsoft.com/fwlink/?LinkId=301864
         public void ConfigureAuth(IAppBuilder app)
         {
+            Trace.WriteLine($"Start Time = {AdminController.StartTime}");
             // Configure the db context, user manager and signin manager to use a single instance per request
             app.CreatePerOwinContext(DanceMusicContext.Create);
             app.CreatePerOwinContext<ApplicationUserManager>(ApplicationUserManager.Create);
@@ -33,7 +36,7 @@ namespace m4d
             app.UseCookieAuthentication(new CookieAuthenticationOptions
             {
                 AuthenticationType = DefaultAuthenticationTypes.ApplicationCookie,
-                LoginPath = new PathString("/Account/Login"),
+                LoginPath = new PathString("/account/signin"),
                 Provider = new CookieAuthenticationProvider
                 {
                     // Enables the application to validate the security stamp when the user logs in.
