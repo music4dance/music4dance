@@ -33,9 +33,10 @@
     cats.Remove(Model.Name);
 }
 
-<p>Other categories of @Html.ActionLink("competition ballroom dancing","ballroom-competition-categories","dances") are @DanceHelper.LinkCategory(Html, cats[0]), @DanceHelper.LinkCategory(Html,cats[1]) and @DanceHelper.LinkCategory(Html,cats[2]).</p>
+<p class="big-text">Other categories of @Html.ActionLink("competition ballroom dancing","ballroom-competition-categories","dances") are @DanceHelper.LinkCategory(Html, cats[0]), @DanceHelper.LinkCategory(Html,cats[1]) and @DanceHelper.LinkCategory(Html,cats[2]).</p>
 
-<p><img src="~/Content/tools.png" alt="tools" width="24" height="24" />Explore relationships between the meter and tempi of different dance styles and find songs that match.
-@SmartLink.TryIt("https://www.music4dance.net/home/tempi") @SmartLink.Docs("https://www.music4dance.net/blog/music4dance-help/dance-tempi/")</p>
+<dl class="big-text">
+    @SmartLink.TempiTool()
+</dl>
 
-<p>Read the <a href="https://www.music4dance.net/blog">music4dance blog</a> entries about <a href="https://www.music4dance.net/blog/tag/ballroom">Ballroom</a> in general and <a href="@blogName">@Model.Name</a> more specifically.</p>
+<p class="big-text">Read the <a href="https://www.music4dance.net/blog">music4dance blog</a> entries about <a href="https://www.music4dance.net/blog/tag/ballroom">Ballroom</a> in general and <a href="@blogName">@Model.Name</a> more specifically.</p>

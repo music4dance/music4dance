@@ -12,3 +12,9 @@
 {
     <a class="label label-other" href="@url"><span class="glyphicon glyphicon-pencil"></span> Blog Posts</a>
 }
+
+@helper TempiTool()
+{
+    <dt><img src="~/Content/tools.png" alt="tools" width="24" height="24" />Explore relationships between the meter and tempi of different dance styles and find songs that match.</dt>
+    <dd style="margin-left: 4em">@TryIt("https://www.music4dance.net/home/tempi") @Docs("https://www.music4dance.net/blog/music4dance-help/dance-tempi/") @Posts("https://www.music4dance.net/blog/tag/tempo/")</dd>
+}
