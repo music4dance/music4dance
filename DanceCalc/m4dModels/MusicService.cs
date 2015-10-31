@@ -66,6 +66,8 @@ namespace m4dModels
         #region Overrides
         protected virtual string BuildPurchaseLink(PurchaseType pt, string album, string song)
         {
+            if (string.IsNullOrWhiteSpace(AssociateLink)) return null;
+
             var info = (pt == PurchaseType.Song) ? song : album;
 
             return info != null ? string.Format(AssociateLink, info) : null;

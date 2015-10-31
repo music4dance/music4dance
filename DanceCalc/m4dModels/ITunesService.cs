@@ -39,7 +39,7 @@ namespace m4dModels
             foreach (var track in tracks)
             {
                 var st = InternalParseTrackResults(track);
-                if (st) ret.Add(st);
+                if (st != null) ret.Add(st);
             }
 
             return ret;
