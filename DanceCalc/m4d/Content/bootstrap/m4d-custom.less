@@ -35,9 +35,13 @@
 @table-bg-hover: @gray-lighter;
 
 @blog-color: #995600;
+@blog-light: lighten(@blog-color,40%);
 @tools-color: #001671;
+@tools-light: lighten(@tools-color,40%);
 @music-color: #18685D;
+@music-light: lighten(@music-color,40%);
 @admin-color: #862A08;
+@admin-light: lighten(@admin-color,40%);
 
 // Colored nav-bar
 @bgDefault      : @gray-dark;
@@ -74,9 +78,19 @@
     vertical-align: middle;
 }
 
+/* Cross theme styles*/
+
 .music
 {
     color: @music-color;
+}
+
+a.music:hover {
+    color: @music-color;
+}
+
+a.music {
+    color: @music-light;
 }
 
 .tools
@@ -84,9 +98,25 @@
     color: @tools-color;
 }
 
+a.tools:hover {
+    color: @tools-color;
+}
+
+a.tools {
+    color: @tools-light;
+}
+
 .blog
 {
     color: @blog-color;
+}
+
+a.blog:hover {
+    color: @blog-color;
+}
+
+a.blog {
+    color: @blog-light;
 }
 
 .admin
@@ -94,7 +124,110 @@
     color: @admin-color;
 }
 
+a.admin:hover {
+    color: @admin-color;
+}
+
+a.admin {
+    color: @admin-light;
+}
+
 .neutral
 {
     color: black;
 }
+
+/* Tag Styles*/
+
+.dance-tag
+{
+    font-weight: bold;
+}
+
+
+.tag-text {
+    color: white;
+}
+
+.tag-text:hover, .tag-text:focus {
+    color: white;
+}
+
+.label-music {
+    background: #18685D;
+}
+
+.label-tempo {
+    background: #001671;
+}
+
+.label-style {
+    background: #E25828;
+}
+
+.label-other {
+    background: #995600;
+}
+
+a.text-music:hover,
+.text-music {
+    color: #18685D;
+}
+
+a.text-tempo:hover,
+.text-tempo {
+    color: #001671;
+}
+
+a.text-style:hover,
+.text-style {
+    color: #E25828;
+}
+
+a.text-other:hover,
+.text-other {
+    color: #995600;
+}
+
+.hr-music {
+    border-top: thin solid #18685D;
+}
+
+.hr-tempo {
+    border-top: thin solid #001671;
+}
+
+.hr-style {
+    border-top: thin solid #E25828;
+}
+
+.hr-other {
+    border-top: thin solid #995600;
+}
+
+
+.btn-music, .btn-music:focus, .btn-music:hover {
+    color: #ffffff;
+    background-color: #18685D;
+    border-color: #26a695;
+}
+
+.btn-tempo, .btn-tempo:focus, .btn-tempo:hover {
+    color: #ffffff;
+    background-color: #001671;
+    border-color: #000b39;
+}
+
+.btn-style, .btn-style:focus, .btn-style:hover {
+    color: #ffffff;
+    background-color: #E25828;
+    border-color: #9b3c1b;
+}
+
+.btn-other, .btn-other:focus, .btn-other:hover {
+    color: #ffffff;
+    background-color: #995600;
+    border-color: #714000;
+}
+
+

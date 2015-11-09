@@ -7,16 +7,32 @@
 <h1>Site Map</h1>
 
 <div class="row">
-    <div class="col-md-4">
-        <h2>Tools</h2>
+    <div class="music col-sm-3" >
+        <h2>Dances</h2>
         <ul>
-            <li><a href="/home/counter">Dance Counter</a>: Count out the tempo of a song and see a list of dances that can be danced at that tempo.</li>
-            <li><a href="/home/tempi">Dance Tempi</a>: Table of ballroom and social dances organized by tempo.</li>
+            <li><a href="/dances" class="music">Dance Index</a></li>
+            <li><a href="/dances/ballroom-competition-categories" class="music">Ballroom Competition Categories</a>
+                <ul>
+                    <li><a href="/dances/international-standard" class="music">International Standard</a></li>
+                    <li><a href="/dances/international-latin" class="music">International Latin</a></li>
+                    <li><a href="/dances/american-smooth" class="music">American Smooth</a></li>
+                    <li><a href="/dances/american-rhythm" class="music">American Rhythm</a></li>
+                </ul>
+            </li>
+            @foreach (var sc in @Model)
+            {
+                if (sc.DanceId == "ALL")
+                {
+                    continue;
+                }
+                <li>@sc.DanceName: <a href="/dances/@sc.SeoName" class="music">Info</a>, <a href="/song/search?dances=@sc.DanceId" class="music">List</a></li>
+            }
         </ul>
     </div>
-    <div class="col-md-4">
+    <div class="col-sm-4">
         <h2>Info</h2>
         <ul>
+            <li><a href="https://www.music4dance.net/blog/music4dance-help/">Help</a></li>
             <li><a href="/home/about">About Us</a></li>
             <li><a href="/blog">Blog</a>
                 <ul>
@@ -32,6 +48,10 @@
                     <li><a href="https://www.music4dance.net/blog/wedding-music-part-ii-were-learning-to-rumba-help-us-find-a-good-song-for-our-first-dance/">Wedding Music Part II: We’re learning to Rumba, help us find a good song for our first dance</a></li>
                     <li><a href="https://www.music4dance.net/blog/documentation-for-the-tag-cloud/">Documentation for the Tag Cloud</a></li>
                     <li><a href="https://www.music4dance.net/blog/documentation-for-the-tempo-counter-and-tempi-tempos-tools/">Documentation for the Tempo Counter and Tempi (tempos) tools</a></li>
+                    <li><a href="https://www.music4dance.net/blog/im-a-competition-ballroom-dancer-can-i-find-practice-songs-that-are-a-specific-tempo/">I'm a competition ballroom dancer, can I find practice songs that are a specific tempo?</a></li>
+                    <li><a href="https://www.music4dance.net/blog/what-if-i-want-to-build-a-list-of-songs-that-are-tagged-as-either-bolero-or-rumba/">What if I want to build a list of songs that are tagged as either Bolero or Rumba?</a></li>
+                    <li><a href="https://www.music4dance.net/blog/lets-tag-some-songs/">Let's tag some songs!</a></li>
+                    <li><a href="https://www.music4dance.net/blog/i-am-learning-the-foxtrot-where-can-i-find-some-music/">I am learning the Foxtrot, where can I find some music?</a></li>
                     <!--<li><a href=""></a></li>-->
                 </ul>
             </li>
@@ -42,18 +62,11 @@
             <li><a href="/home/credits">Credits</a></li>
         </ul>
     </div>
-    <div class="col-md-4">
-        <h2>Dances</h2>
+    <div class="tools col-sm-4">
+        <h2>Tools</h2>
         <ul>
-            <li><a href="/dances">Dance Index</a></li>
-            @foreach (var sc in @Model)
-            {
-                if (sc.DanceId == "ALL")
-                {
-                    continue;
-                }
-                <li>@sc.DanceName: <a href="/dances/@sc.SeoName">Info</a>, <a href="/song/search?dances=@sc.DanceId">List</a></li>
-            }
+            <li><a href="/home/counter" class="tools">Dance Counter</a>: Count out the tempo of a song and see a list of dances that can be danced at that tempo.</li>
+            <li><a href="/home/tempi" class="tools">Dance Tempi</a>: Table of ballroom and social dances organized by tempo.</li>
         </ul>
     </div>
 </div>

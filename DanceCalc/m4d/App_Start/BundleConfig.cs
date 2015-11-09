@@ -89,14 +89,8 @@ namespace m4d
             bundle.Transforms.Add(CssTransformer);
             bundle.Orderer = Orderer;
             bundle.Include("~/Content/bootstrap/" + name + "-theme.less",
-//                      "~/Content/bootstrap/" + name + "-overrides.less",
                       "~/Content/site.css");
             bundles.Add(bundle);
-
-            //bundles.Add(new StyleBundle("~/bundles/" + name).Include(
-            //          "~/Content/" + color + "-bootstrap.css",
-            //          "~/Content/" + color + "-bootstrap-theme.css",
-            //          "~/Content/site.css"));
         }
 
         private static IBundleOrderer Orderer => s_orderer ?? (s_orderer = new NullOrderer());

@@ -75,25 +75,6 @@ table.table-songs > tbody > tr > td
     font-size: 1.2em;
 }
 
-/*36.160.146*/
-.music
-{
-    color: #24a092;
-}
-
-/*204.119.0*/
-.blog
-{
-    color: #cc7700;
-}
-
-/*0.22.113*/
-.tools
-{
-    color: #001671;
-}
-
-
 #mt
 {
     width:100%;
@@ -184,14 +165,12 @@ h1, h2, h3, h4, h5, h6 { font-family: "Merienda";font-weight: 700 }
 .pagination-align {
     margin: 20px 0
 }
+.play-link {
+}
 
 .dance-tag
 {
     font-weight: bold;
-}
-
-.play-link {
-    
 }
 
 .tag-text {
@@ -280,6 +259,7 @@ a.text-other:hover,
     background-color: #995600;
     border-color: #714000;
 }
+
 
 
 .rating-voted {
