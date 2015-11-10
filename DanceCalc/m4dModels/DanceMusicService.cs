@@ -1519,8 +1519,17 @@ namespace m4dModels
             var type = _context.TagTypes.Create();
             type.Key = TagType.BuildKey(value, category);
             type.PrimaryId = primary;
-            type = _context.TagTypes.Add(type);
 
+            var other = TagTypes.Find(type.Key);
+            if (other != null)
+            {
+                Trace.WriteLineIf(TraceLevels.General.TraceInfo, $"Attempt to add duplicate tag: {other} {type}");
+                type = other;
+            }
+            else
+            {
+                type = _context.TagTypes.Add(type);
+            }
             return type; 
         }
 
