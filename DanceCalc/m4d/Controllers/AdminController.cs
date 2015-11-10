@@ -892,9 +892,15 @@ namespace m4d.Controllers
         //
         // Get: //ScrapeDances
         [Authorize(Roles = "showDiagnostics")]
-        public ActionResult ScrapeDances(string id)
+        public ActionResult ScrapeDances(string id, string parameter=null)
         {
             var scraper = DanceScraper.FromName(id);
+            string extra = string.Empty;
+            if (!string.IsNullOrEmpty(parameter))
+            {
+                scraper.Parameter = parameter;
+                extra = "-" + parameter.ToLower().Replace(' ', '-');
+            }
             var lines = scraper.Scrape();
 
             var sb = new StringBuilder();
@@ -907,7 +913,7 @@ namespace m4d.Controllers
             var bytes = Encoding.UTF8.GetBytes(s);
             var stream = new MemoryStream(bytes);
 
-            return File(stream, "text/plain", scraper.Name + ".csv");
+            return File(stream, "text/plain", scraper.Name + extra + ".csv");
         }
 
         //
