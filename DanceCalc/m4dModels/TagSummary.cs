@@ -18,7 +18,7 @@ namespace m4dModels
         public int TagCount(string name)
         {
             var tc = Tags.FirstOrDefault(t => string.Equals(t.Value, name, StringComparison.InvariantCultureIgnoreCase));
-            return tc == null ? 0 : tc.Count;
+            return tc?.Count ?? 0;
         }
 
         public HashSet<string> GetTagSet(string type)

@@ -54,6 +54,10 @@ table.table-songs > tbody > tr > td
     vertical-align: middle;
 }
 
+.center-cell {
+    text-align: center;
+}
+
 /* Details pages */
 
 .label {

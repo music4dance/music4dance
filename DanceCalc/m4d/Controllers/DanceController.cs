@@ -39,6 +39,13 @@ namespace m4d.Controllers
                 {
                     return View("BallroomCompetitionCategories", categories.GetGroup(DanceCategories.Ballroom));
                 }
+
+                if (string.Equals(dance, "wedding-music", StringComparison.OrdinalIgnoreCase))
+                {
+                    // TODO: Wedding dance help page?
+                    HelpPage = "dance-styles";
+                    return View("weddingdancemusic", SongCounts.GetSongCounts(Database));
+                }
             }
 
             HelpPage = "dance-details";

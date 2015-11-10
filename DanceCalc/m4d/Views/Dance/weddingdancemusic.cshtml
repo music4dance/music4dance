@@ -1,0 +1,118 @@
+﻿@using DanceLibrary
+@model IEnumerable<SongCounts>
+
+
+@{
+    ViewBag.Title = "Wedding Dance Music";
+    ViewBag.Description = "Help finding wedding dance music: First Dance, Mother/Son, Father/Daughter - Foxtrot, Waltz, Swing and others.";
+
+    string[] boxes = { "WLZ", "FXT", "SWG", "LTN", "TNG",  "MSC" };
+    string[] columns = { "Wedding", "First Dance", "Mother Son", "Father Daughter" };
+}
+
+@helper DanceRow(SongCounts sc, string[] columns, bool isGroup)
+{
+    var counts = new int[columns.Length];
+    var show = false;
+
+    for (var i = 0; i < columns.Length; i++)
+    {
+        var column = columns[i];
+
+        var tag = column + ":Other";
+        counts[i] = sc.Dance.SongTags.TagCount(tag);
+        if (counts[i] != 0)
+        {
+            show = true;
+        }
+    }
+    if (!show && !isGroup)
+    {
+        return;
+    }
+
+    <tr>
+        <td>
+            @if (isGroup)
+            {
+                <b>@Html.ActionLink(sc.DanceName,sc.SeoName, "dances")</b>
+            }
+            else
+            {
+                <span style="margin-left: 10px">@Html.ActionLink(sc.DanceName, sc.SeoName, "dances")</span>
+            }
+        </td>
+
+        @for (var i = 0; i < columns.Length; i++)
+        {
+            <td class="center-cell">
+                @if (counts[i] != 0)
+                {
+                    <span class='label label-info'>
+                        @Html.ActionLink(counts[i].ToString(), "Index", "Song", new { filter = string.Format("Index-{0}-Dances-.-.-.-.-.-1-+{1}:Other", sc.DanceId, columns[i]) }, new {@class= "tag-text" })
+                    </span>
+                }
+                else
+                {
+                    @:&nbsp;
+                }
+            </td>
+        }
+    </tr>
+}
+
+<ol class="breadcrumb">
+    <li><a href="/">Music4Dance</a></li>
+    <li><a href="/dances">Dances</a></li>
+    <li class="active">Wedding Music</li>
+</ol>
+
+<h1>@ViewBag.Title</h1>
+
+<div class="row">
+    <div class="col-sm-12">
+        <p class="big-text">Are you getting married and trying to find the perfect song for your @Html.ActionLink("first dance", "Index", "Song", new { filter = "Index-.-Title-.-.-.-.-.-1-+First Dance:Other" }, null)? Or perhaps you're trying to find the perfect dance style for your favorite song? We can help with both of these as well as helping you find music for @Html.ActionLink("Father/Daughter", "Index", "Song", new { filter = "Index-.-Title-.-.-.-.-.-1-+Father Daughter:Other" }, null) or @Html.ActionLink("Mother/Son", "Index", "Song", new { filter = "Index-.-Title-.-.-.-.-.-1-+Mother Son:Other" }, null) dances.</p>
+        <p class="big-text">If you know the song and you would like help figuring out what dance style to dance to it, try looking it up in our @Html.ActionLink("music catalog", "Index", "Song"). More details on how to do that are available on this <a href="https://www.music4dance.net/blog/wedding-music-part-i-can-we-dance-the-foxtrot-to-our-song/">blog post</a>. If we haven't cataloged your song yet, <a href="mailto:info@music4dance.net">let us know</a> and we'll happily add it.</p>
+        <p class="big-text">If you know what dance style you would like to dance, but haven't found the perfect song yet, you can do that kind of search as well. <a href="https://www.music4dance.net/blog/wedding-music-part-ii-were-learning-to-rumba-help-us-find-a-good-song-for-our-first-dance/">Read the post</a> on how to do that, or just click on one of the quick links below. Each number links to a list of songs that have can be danced to the style specified by the row and have also been tagged with the text in the column heading.</p>
+        <p class="big-text">If you're looking for a slow dance, try browsing the @Html.ActionLink("Castle Foxtrot", "Index", "Song", new { filter = "Index-CFT-Dances-.-.-.-.-.-1-+Wedding:Other" }, null) and @Html.ActionLink("Slow Foxtrot", "Index", "Song", new { filter = "Index-SFT-Dances-.-.-.-.-.-1-+Wedding:Other" }, null) lists, they are full of songs with a good slow and steady beat to do a either a simplified Foxtrot or traditional slow dance.</p>
+        <p class="big-text">Don't forget to @Html.ActionLink("sign up", "SignUp", "Account") (it's free) so you can <a href="https://www.music4dance.net/blog/lets-tag-some-songs/">tag the songs you like</a> and have us remember your favorites while you're playing with options.</p>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-sm-10 col-sm-offset-1">
+        <hr/>
+    </div>
+</div>
+<div class="row">
+    <div class="col-sm-10 col-sm-offset-1">
+        <table class="table table-striped table-bordered">
+            <caption class="big-text">Index of Dance Styles & Wedding Tags</caption>
+            <tr>
+                <th>Dance Style</th>
+                @foreach (var tag in columns)
+                {
+                    <th class="center-cell">@(tag.Contains("Dance") ? tag : tag.Replace(' ', '/'))</th>
+                }
+            </tr>
+            @* ReSharper disable once LoopCanBePartlyConvertedToQuery *@
+            @foreach (var box in boxes)
+            {
+                var group = Model.FirstOrDefault(m => m.DanceId == box);
+                @DanceRow(group, columns, true)
+                foreach (var dance in group.Children)
+                {
+                    @DanceRow(dance, columns, false)
+                }
+            }
+        </table>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-sm-10 col-sm-offset-1">
+        <p class="big-text">
+            <img src="~/Content/info.png" alt="tools" width="24" height="24" />Read the <a href="https://www.music4dance.net/blog">music4dance blog</a> entries about <a href="https://www.music4dance.net/blog/tag/wedding">Wedding Music</a>.
+        </p>
+    </div>
+</div>

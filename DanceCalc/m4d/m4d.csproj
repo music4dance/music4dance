@@ -880,6 +880,7 @@
     <Content Include="Views\Admin\UploadBackup.cshtml" />
     <Content Include="Views\Home\FAQ.cshtml" />
     <Content Include="Views\Dance\BallroomCompetitionCategories.cshtml" />
+    <Content Include="Views\Dance\weddingdancemusic.cshtml" />
     <None Include="Web.m4d.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
