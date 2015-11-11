@@ -11,8 +11,11 @@ namespace m4d.ViewModels
             Name = name ?? DanceObject.SeoFriendly(title);
         }
 
-        public string Name;
-        public string Title;
+        public virtual string Name { get; }
+        public virtual string Title { get; }
+
+        public virtual string Controller => "dances";
+        public virtual dynamic Parameters => null;
     }
     public class DanceClass
     {
@@ -21,5 +24,29 @@ namespace m4d.ViewModels
         public string TopDance;
 
         public List<DanceMapping> Dances;
+
+        public virtual string FullTitle => "Music for " + Title + " Dancers";
+    }
+
+    public class WeddingDanceClass : DanceClass
+    {
+        public override string FullTitle => "Music for Wedding Dances";
+    }
+
+    public class WeddingDanceMapping : DanceMapping
+    {
+        public WeddingDanceMapping(string tag)
+        {
+            _tag = tag;
+        }
+
+        public override string Title => (_tag.Contains("Dance") ? _tag : _tag.Replace(' ', '/'));
+
+        public override string Name => "index";
+        public override string Controller => "song";
+
+        public override dynamic Parameters => new {filter = $"Index-.-Title-.-.-.-.-.-1-+{_tag}:Other"};
+
+        private readonly string _tag;
     }
 }

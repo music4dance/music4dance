@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2013
-VisualStudioVersion = 12.0.31101.0
+# Visual Studio 14
+VisualStudioVersion = 14.0.23107.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{69ADF94E-AE63-4954-BD58-BD56BFE93656}"
 	ProjectSection(SolutionItems) = preProject
@@ -19,8 +19,6 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{ABCFBB05-38D4-459B-B0B3-F943DAD8B680}"
 	ProjectSection(SolutionItems) = preProject
 		.nuget\NuGet.Config = .nuget\NuGet.Config
-		.nuget\NuGet.exe = .nuget\NuGet.exe
-		.nuget\NuGet.targets = .nuget\NuGet.targets
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "m4d", "m4d\m4d.csproj", "{085B7551-A8CD-4ACD-A5FD-A2008DC63770}"
@@ -48,51 +46,6 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Crawler", "Crawler\Crawler.csproj", "{559084BC-8F49-435E-AD26-6FBD96940BB2}"
 EndProject
 Global
-	GlobalSection(TeamFoundationVersionControl) = preSolution
-		SccNumberOfProjects = 14
-		SccEnterpriseProvider = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
-		SccTeamFoundationServer = https://thegray.visualstudio.com/defaultcollection
-		SccLocalPath0 = .
-		SccProjectUniqueName1 = DanceCalc\\DanceCalc.csproj
-		SccProjectName1 = DanceCalc
-		SccLocalPath1 = DanceCalc
-		SccProjectUniqueName2 = DanceLib\\DanceLib.csproj
-		SccProjectName2 = DanceLib
-		SccLocalPath2 = DanceLib
-		SccProjectUniqueName3 = DanceTests\\DanceTests.csproj
-		SccProjectName3 = DanceTests
-		SccLocalPath3 = DanceTests
-		SccProjectUniqueName4 = m4d\\m4d.csproj
-		SccProjectName4 = m4d
-		SccLocalPath4 = m4d
-		SccProjectUniqueName5 = m4d.Tests\\m4d.Tests.csproj
-		SccProjectName5 = m4d.Tests
-		SccLocalPath5 = m4d.Tests
-		SccProjectUniqueName6 = m4dModels\\m4dModels.csproj
-		SccProjectName6 = m4dModels
-		SccLocalPath6 = m4dModels
-		SccProjectUniqueName7 = m4dModels.Tests\\m4dModels.Tests.csproj
-		SccProjectName7 = m4dModels.Tests
-		SccLocalPath7 = m4dModels.Tests
-		SccProjectUniqueName8 = FileScanner\\FileScanner.csproj
-		SccProjectName8 = FileScanner
-		SccLocalPath8 = FileScanner
-		SccProjectUniqueName9 = Contract\\Contract.csproj
-		SccProjectName9 = Contract
-		SccLocalPath9 = Contract
-		SccProjectUniqueName10 = XboxMusicClient\\XboxMusicClient.csproj
-		SccProjectName10 = XboxMusicClient
-		SccLocalPath10 = XboxMusicClient
-		SccProjectUniqueName11 = m4d-redirect\\m4d-redirect.csproj
-		SccProjectName11 = m4d-redirect
-		SccLocalPath11 = m4d-redirect
-		SccProjectUniqueName12 = SoundTouch.Net\\SoundTouch.Net.csproj
-		SccProjectName12 = SoundTouch.Net
-		SccLocalPath12 = SoundTouch.Net
-		SccProjectUniqueName13 = Crawler\\Crawler.csproj
-		SccProjectName13 = Crawler
-		SccLocalPath13 = Crawler
-	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Debug|ARM = Debug|ARM
@@ -219,6 +172,51 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(TeamFoundationVersionControl) = preSolution
+		SccNumberOfProjects = 14
+		SccEnterpriseProvider = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
+		SccTeamFoundationServer = https://thegray.visualstudio.com/defaultcollection
+		SccLocalPath0 = .
+		SccProjectUniqueName1 = DanceCalc\\DanceCalc.csproj
+		SccProjectName1 = DanceCalc
+		SccLocalPath1 = DanceCalc
+		SccProjectUniqueName2 = DanceLib\\DanceLib.csproj
+		SccProjectName2 = DanceLib
+		SccLocalPath2 = DanceLib
+		SccProjectUniqueName3 = DanceTests\\DanceTests.csproj
+		SccProjectName3 = DanceTests
+		SccLocalPath3 = DanceTests
+		SccProjectUniqueName4 = m4d\\m4d.csproj
+		SccProjectName4 = m4d
+		SccLocalPath4 = m4d
+		SccProjectUniqueName5 = m4d.Tests\\m4d.Tests.csproj
+		SccProjectName5 = m4d.Tests
+		SccLocalPath5 = m4d.Tests
+		SccProjectUniqueName6 = m4dModels\\m4dModels.csproj
+		SccProjectName6 = m4dModels
+		SccLocalPath6 = m4dModels
+		SccProjectUniqueName7 = m4dModels.Tests\\m4dModels.Tests.csproj
+		SccProjectName7 = m4dModels.Tests
+		SccLocalPath7 = m4dModels.Tests
+		SccProjectUniqueName8 = FileScanner\\FileScanner.csproj
+		SccProjectName8 = FileScanner
+		SccLocalPath8 = FileScanner
+		SccProjectUniqueName9 = Contract\\Contract.csproj
+		SccProjectName9 = Contract
+		SccLocalPath9 = Contract
+		SccProjectUniqueName10 = XboxMusicClient\\XboxMusicClient.csproj
+		SccProjectName10 = XboxMusicClient
+		SccLocalPath10 = XboxMusicClient
+		SccProjectUniqueName11 = m4d-redirect\\m4d-redirect.csproj
+		SccProjectName11 = m4d-redirect
+		SccLocalPath11 = m4d-redirect
+		SccProjectUniqueName12 = SoundTouch.Net\\SoundTouch.Net.csproj
+		SccProjectName12 = SoundTouch.Net
+		SccLocalPath12 = SoundTouch.Net
+		SccProjectUniqueName13 = Crawler\\Crawler.csproj
+		SccProjectName13 = Crawler
+		SccLocalPath13 = Crawler
 	EndGlobalSection
 	GlobalSection(TestCaseManagementSettings) = postSolution
 		CategoryFile = DanceCalc.vsmdi

@@ -7,7 +7,7 @@
 
     var dances = new[]
     {
-        new DanceClass{Title="Ballroom",Image="ballroom",TopDance="Ballroom-Competition-Categories",
+        new DanceClass{Title="Ballroom",Image="ballroom",TopDance="ballroom-competition-categories",
             Dances=new List<DanceMapping>
             {
                 new DanceMapping("International Standard"),new DanceMapping("International Latin"),new DanceMapping("American Smooth"),new DanceMapping("American Rhythm")
@@ -29,6 +29,11 @@
             Dances=new List<DanceMapping>
             {
                 new DanceMapping("Argentine Tango"),new DanceMapping("Neo Tango"),new DanceMapping("Milonga"),new DanceMapping("Ballroom Tango","tango-(ballroom)"),
+            }},
+        new WeddingDanceClass{Title="Wedding",Image="wedding",TopDance="wedding-music",
+            Dances=new List<DanceMapping>
+            {
+                new WeddingDanceMapping("First Dance"),new WeddingDanceMapping("Mother Son"),new WeddingDanceMapping("Father Son"),
             }},
     };
 }
@@ -52,11 +57,11 @@
             var mainLink = dance.TopDance ?? "index";
             <div class="item @(i == 0 ? "active" : string.Empty) @(dance.Image + "-image") row">
                 <div class="col-md-4 col-md-offset-2 col-xs-8 col-xs-offset-2">
-                    <div class="dance-title">@Html.ActionLink("Music for " + @dance.Title + " Dancers", @mainLink, "dances")</div>
+                    <div class="dance-title">@Html.ActionLink(dance.FullTitle, @mainLink, "dances")</div>
                     <ul class="dance-list">
                         @foreach (var dm in dance.Dances)
                         {
-                            <li><span class="glyphicon glyphicon-music" aria-hidden="true"></span> @Html.ActionLink(@dm.Title, @dm.Name, "dances")</li>
+                            <li><span class="glyphicon glyphicon-music" aria-hidden="true"></span> @Html.ActionLink(@dm.Title, @dm.Name, @dm.Controller, (object) @dm.Parameters, null)</li>
                         }
                     </ul>
                 </div>
