@@ -1440,21 +1440,37 @@ namespace m4d.Controllers
         {
             ViewBag.Name = "Upload Catalog";
 
+            IList<string> lines = null;
+
             if (string.IsNullOrWhiteSpace(songs) || string.IsNullOrWhiteSpace(separator))
             {
-                // TODO: We should validate this on the client side - only way I know to do this is to have a full on class to
-                // represent the fields, is there a lighter way???
-                ViewBag.Success = false;
-                ViewBag.Message = "Must have non-empty songs and separator fields";
-                return View("Results");
+                lines = UploadFile();
+
+                if (lines == null || lines.Count < 2)
+                {
+                    // TODO: We should validate this on the client side - only way I know to do this is to have a full on class to
+                    // represent the fields, is there a lighter way???
+                    ViewBag.Success = false;
+                    ViewBag.Message = "Must have non-empty songs and separator fields or a valid file";
+                    return View("Results");
+                }
+
+                separator = "\t";
             }
+
             IList<LocalMerger> results = null;
 
-            var headerList = !string.IsNullOrWhiteSpace(headers) ? SongDetails.BuildHeaderMap(headers, ',') : HeaderFromList(CleanSeparator(separator), ref songs);
-
             var appuser = Database.FindUser(user);
-           
-            var newSongs = SongsFromList(appuser,CleanSeparator(separator), headerList, songs);
+
+            IList<string> headerList = null;
+            if (lines == null)
+            {
+                lines = FileToLines(songs);
+            }
+
+            headerList = !string.IsNullOrWhiteSpace(headers) ? SongDetails.BuildHeaderMap(headers, ',') : HeaderFromList(CleanSeparator(separator), lines);
+
+            var newSongs = SongDetails.CreateFromRows(appuser, separator, headerList, lines, SongBase.DanceRatingAutoCreate);
 
             var hasArtist = false;
             if (!string.IsNullOrEmpty(artist))
@@ -2023,15 +2039,11 @@ namespace m4d.Controllers
 
             Context.TrackChanges(true);
         }
-        private IList<string> HeaderFromList(string separator, ref string songs)
+        private IList<string> HeaderFromList(string separator, IList<string> songs)
         {
             if (separator == null) throw new ArgumentNullException(nameof(separator));
-            var cidx = songs.IndexOfAny(Environment.NewLine.ToCharArray());
-            if (cidx == -1)
-            {
-                return null;
-            }
-            var line = songs.Substring(0, cidx);
+            if (songs.Count < 2) throw new ArgumentOutOfRangeException(nameof(songs));
+            var line = songs[0];
 
             var map = SongDetails.BuildHeaderMap(line);
 
@@ -2040,8 +2052,13 @@ namespace m4d.Controllers
             // separated list of headers...
             if (map == null || map.All(p => p == null)) return null;
 
-            songs = songs.Substring(cidx).TrimStart(Environment.NewLine.ToCharArray());
+            songs.RemoveAt(0);
             return map;
+        }
+
+        private static IList<string> FileToLines(string file)
+        {
+            return file.Split(Environment.NewLine.ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
         }
 
         private static IList<SongDetails> SongsFromList(ApplicationUser user, string separator, IList<string> headers, string songText)

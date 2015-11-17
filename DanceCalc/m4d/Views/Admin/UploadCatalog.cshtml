@@ -45,14 +45,6 @@
     }
     
     <div class="form-group">
-        <span class="control-label">Separator:</span>
-        <input type="text" name="separator" value="@separator" />
-    </div>
-    <div class="form-group">
-        <span class="control-label">Header:</span>
-        <input type="text" name="headers" value="@header" />
-    </div>
-    <div class="form-group">
         <span class="control-label">User:</span>
         <input type="text" name="user" value="@user" />
     </div>
@@ -73,8 +65,22 @@
         <input type="text" name="tags" value="@tags" />
     </div>
     <div class="form-group">
+        <span class="control-label">Separator:</span>
+        <input type="text" name="separator" value="@separator" />
+    </div>
+    <div class="form-group">
+        <span class="control-label">Header:</span>
+        <input type="text" name="headers" value="@header" />
+    </div>
+    <div class="form-group">
         <span class="control-label">Table:</span>
         <textarea class="form-control" rows="10" name="songs"></textarea>
     </div>
+    <div class="form-group">
+        <span class="control-label">File:</span>
+        <input type="file" name="FileUpload" />
+    </div>
+
+
     <input type="submit" name="UploadCatalog" id="Submit" value="Upload" />
 }
