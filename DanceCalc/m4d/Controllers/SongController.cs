@@ -920,7 +920,7 @@ namespace m4d.Controllers
             Trace.WriteLineIf(TraceLevels.General.TraceInfo,
                 $"Entering Song.Index: dances='{filter.Dances}',sortOrder='{filter.SortOrder}',searchString='{filter.SearchString}'");
 
-            var properties = new Dictionary<string, string> {{"Filter", filter.ToString()}};
+            var properties = new Dictionary<string, string> {{"Filter", filter.ToString()}, {"User", User.Identity.Name } };
             var client = TelemetryClient;
             client.TrackEvent("SongIndex",properties);
 
