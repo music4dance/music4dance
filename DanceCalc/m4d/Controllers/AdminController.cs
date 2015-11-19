@@ -1462,13 +1462,12 @@ namespace m4d.Controllers
 
             var appuser = Database.FindUser(user);
 
-            IList<string> headerList = null;
             if (lines == null)
             {
                 lines = FileToLines(songs);
             }
 
-            headerList = !string.IsNullOrWhiteSpace(headers) ? SongDetails.BuildHeaderMap(headers, ',') : HeaderFromList(CleanSeparator(separator), lines);
+            var headerList = !string.IsNullOrWhiteSpace(headers) ? SongDetails.BuildHeaderMap(headers, ',') : HeaderFromList(CleanSeparator(separator), lines);
 
             var newSongs = SongDetails.CreateFromRows(appuser, separator, headerList, lines, SongBase.DanceRatingAutoCreate);
 
@@ -2058,14 +2057,7 @@ namespace m4d.Controllers
 
         private static IList<string> FileToLines(string file)
         {
-            return file.Split(Environment.NewLine.ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
-        }
-
-        private static IList<SongDetails> SongsFromList(ApplicationUser user, string separator, IList<string> headers, string songText)
-        {
-            var lines = songText.Split(Environment.NewLine.ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
-
-            return SongDetails.CreateFromRows(user, separator, headers, lines, SongBase.DanceRatingAutoCreate);
+            return file.Split(Environment.NewLine.ToCharArray(), StringSplitOptions.RemoveEmptyEntries).ToList();
         }
 
         private IList<SongDetails> SongsFromTracks(ApplicationUser user, IEnumerable<ServiceTrack> tracks, string dances, string songTags, string danceTags)

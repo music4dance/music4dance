@@ -105,8 +105,8 @@ namespace m4dModels.Tests
             var service = MockContext.CreateService(true);
             var guids = CreateSongs(SHeader,SongRows,service).ToList();
 
-            Assert.AreEqual(guids.Count(), service.Songs.Count());
-            for (var i = 0; i < guids.Count(); i++)
+            Assert.AreEqual(guids.Count, service.Songs.Count());
+            for (var i = 0; i < guids.Count; i++)
             {
                 var s = service.Songs.Find(guids[i]);
                 Assert.IsNotNull(s);
@@ -123,7 +123,7 @@ namespace m4dModels.Tests
             var service = MockContext.CreateService(true);
             var guids = CreateSongs(SHeader, SongRows, service).ToList();
 
-            Assert.AreEqual(guids.Count(), service.Songs.Count());
+            Assert.AreEqual(guids.Count, service.Songs.Count());
 
             var songs = LoadRows(NHeader, TaggedRows, service, 1);
 
@@ -147,7 +147,7 @@ namespace m4dModels.Tests
             var service = MockContext.CreateService(true);
             var guids = CreateSongs(SHeader, SongRows, service).ToList();
 
-            Assert.AreEqual(guids.Count(), service.Songs.Count());
+            Assert.AreEqual(guids.Count, service.Songs.Count());
 
             var songs = LoadRows(DHeader, DanceRows, service);
 
@@ -260,42 +260,42 @@ namespace m4dModels.Tests
             @"SongId={52cb6e8c-6f0f-469e-ac83-d353cbab6c96}	User=batch	Time=6/9/2014 8:54:43 PM	Title=Lady Marmalade	Artist=Christina Aguilera, Mya, Pink,  & Lil Kim	DanceRating=HST+5	User=batch	Time=7/4/2014 9:54:35 PM	Artist=Christina Aguilera	Length=264	Genre=Pop	Album:00=Moulin Rouge	Track:00=2	Purchase:00:XS=music.9F480F00-0100-11DB-89CA-0019B92A3933	PromoteAlbum:00=	User=batch	Time=7/4/2014 9:55:04 PM	Length=265	Album:00=Moulin Rouge (Soundtrack from the Motion Picture)	Purchase:00:IS=3577756	Purchase:00:IA=3579609	User=batch	Time=7/4/2014 9:55:49 PM	Album:01=Music From Nicole Kidman Movies	Track:01=3	Purchase:01:AS=D:B004XOHIH2	Purchase:01:AA=D:B004XOHHXM	PromoteAlbum:01=",
         };
 
-        private const string SHeader = @"Title	Artist	BPM	Dance	Album	AMAZONTRACK";
+        private const string SHeader = @"Title	Artist	BPM	Dance	Album	AMAZONTRACK	ITUNES";
 
         static readonly string[] SongRows =
         {
-            @"Black Sheep	Gin Wigmore	120	WCS	Gravel & Wine [+digital booklet]	B00BYKXC82",
-            @"The L Train	Gabriel Yared	72	SWZ	Shall We Dance?	B001NYTZJY",
-            @"Come Wake Me Up	Rascal Flatts	153	VWZ	Changed (Deluxe Version) [+Digital Booklet]	B007MSUAV2",
-            @"Inflitrado	Bajofondo	120	TNG	Mar Dulce	B001C3G8MS",
-            @"Des Croissants de Soleil	Emilie-Claire Barlow	96	BOL,RMBI	Des croissants de soleil	B009CW0JFS",
-            @"Private Eyes	Brazilian Love Affair	124	RMBA	Brazilian Lounge - Les Mysteres De Rio	B007UK5L52",
-            @"Glam	Dimie Cat	200	QST	Glam!	B0042D1W6C",
-            @"All For You	Imelda May	120	SFT	More Mayhem	B008VSKRAQ",
+            @"Black Sheep	Gin Wigmore	120	WCS	Gravel & Wine [+digital booklet]	B00BYKXC82	",
+            @"The L Train	Gabriel Yared	72	SWZ	Shall We Dance?	B001NYTZJY	",
+            @"Come Wake Me Up	Rascal Flatts	153	VWZ	Changed (Deluxe Version) [+Digital Booklet]	B007MSUAV2	512102578|512102570",
+            @"Inflitrado	Bajofondo	120	TNG	Mar Dulce	B001C3G8MS	",
+            @"Des Croissants de Soleil	Emilie-Claire Barlow	96	BOL,RMBI	Des croissants de soleil	B009CW0JFS	",
+            @"Private Eyes	Brazilian Love Affair	124	RMBA	Brazilian Lounge - Les Mysteres De Rio	B007UK5L52	",
+            @"Glam	Dimie Cat	200	QST	Glam!	B0042D1W6C	",
+            @"All For You	Imelda May	120	SFT	More Mayhem	B008VSKRAQ	",
         };
 
         static readonly string[] RowProps =
         {
-            @".Create=	User=dwgray	Time=00/00/0000 0:00:00 PM	Title=Black Sheep	Artist=Gin Wigmore	Tempo=120.0	Tag+=West Coast Swing:Dance	DanceRating=WCS+5	Album:00=Gravel & Wine [+digital booklet]	Purchase:00:AS=B00BYKXC82	DanceRating=SWG+1	DanceRating=CSG+1	DanceRating=HST+1	DanceRating=WCS+1	DanceRating=LHP+1",
-            @".Create=	User=dwgray	Time=00/00/0000 0:00:00 PM	Title=The L Train	Artist=Gabriel Yared	Tempo=72.0	Tag+=Slow Waltz:Dance	DanceRating=SWZ+5	Album:00=Shall We Dance?	Purchase:00:AS=B001NYTZJY	DanceRating=WLZ+1",
-            @".Create=	User=dwgray	Time=00/00/0000 0:00:00 PM	Title=Come Wake Me Up	Artist=Rascal Flatts	Tempo=153.0	Tag+=Viennese Waltz:Dance	DanceRating=VWZ+5	Album:00=Changed (Deluxe Version) [+Digital Booklet]	Purchase:00:AS=B007MSUAV2	DanceRating=WLZ+1",
-            @".Create=	User=dwgray	Time=00/00/0000 0:00:00 PM	Title=Inflitrado	Artist=Bajofondo	Tempo=120.0	Tag+=Tango:Dance	DanceRating=TNG+5	Album:00=Mar Dulce	Purchase:00:AS=B001C3G8MS	DanceRating=TGO+1	DanceRating=ATN+1",
-            @".Create=	User=dwgray	Time=00/00/0000 0:00:00 PM	Title=Des Croissants de Soleil	Artist=Emilie-Claire Barlow	Tempo=96.0	Tag+=Bolero:Dance|International Rumba:Dance	DanceRating=BOL+5	DanceRating=RMBI+5	Album:00=Des croissants de soleil	Purchase:00:AS=B009CW0JFS	DanceRating=LTN+1",
-            @".Create=	User=dwgray	Time=00/00/0000 0:00:00 PM	Title=Private Eyes	Artist=Brazilian Love Affair	Tempo=124.0	Tag+=American Rumba:Dance	DanceRating=RMBA+5	Album:00=Brazilian Lounge - Les Mysteres De Rio	Purchase:00:AS=B007UK5L52",
-            @".Create=	User=dwgray	Time=00/00/0000 0:00:00 PM	Title=Glam	Artist=Dimie Cat	Tempo=200.0	Tag+=QuickStep:Dance	DanceRating=QST+5	Album:00=Glam!	Purchase:00:AS=B0042D1W6C	DanceRating=FXT+1	DanceRating=QST+1",
-            @".Create=	User=dwgray	Time=00/00/0000 0:00:00 PM	Title=All For You	Artist=Imelda May	Tempo=120.0	Tag+=Slow Foxtrot:Dance	DanceRating=SFT+5	Album:00=More Mayhem	Purchase:00:AS=B008VSKRAQ	DanceRating=FXT+1	DanceRating=SFT+1",
+            @".Create=	User=dwgray	Time=00/00/0000 0:00:00 PM	Title=Black Sheep	Artist=Gin Wigmore	Tempo=120.0	Tag+=West Coast Swing:Dance	DanceRating=WCS+5	Album:00=Gravel & Wine [+digital booklet]	Purchase:00:AS=D:B00BYKXC82	DanceRating=SWG+1	DanceRating=CSG+1	DanceRating=HST+1	DanceRating=WCS+1	DanceRating=LHP+1",
+            @".Create=	User=dwgray	Time=00/00/0000 0:00:00 PM	Title=The L Train	Artist=Gabriel Yared	Tempo=72.0	Tag+=Slow Waltz:Dance	DanceRating=SWZ+5	Album:00=Shall We Dance?	Purchase:00:AS=D:B001NYTZJY	DanceRating=WLZ+1",
+            @".Create=	User=dwgray	Time=00/00/0000 0:00:00 PM	Title=Come Wake Me Up	Artist=Rascal Flatts	Tempo=153.0	Tag+=Viennese Waltz:Dance	DanceRating=VWZ+5	Album:00=Changed (Deluxe Version) [+Digital Booklet]	Purchase:00:AS=D:B007MSUAV2	Purchase:00:IA=512102570	Purchase:00:IS=512102578	DanceRating=WLZ+1",
+            @".Create=	User=dwgray	Time=00/00/0000 0:00:00 PM	Title=Inflitrado	Artist=Bajofondo	Tempo=120.0	Tag+=Tango:Dance	DanceRating=TNG+5	Album:00=Mar Dulce	Purchase:00:AS=D:B001C3G8MS	DanceRating=TGO+1	DanceRating=ATN+1",
+            @".Create=	User=dwgray	Time=00/00/0000 0:00:00 PM	Title=Des Croissants de Soleil	Artist=Emilie-Claire Barlow	Tempo=96.0	Tag+=Bolero:Dance|International Rumba:Dance	DanceRating=BOL+5	DanceRating=RMBI+5	Album:00=Des croissants de soleil	Purchase:00:AS=D:B009CW0JFS	DanceRating=LTN+1",
+            @".Create=	User=dwgray	Time=00/00/0000 0:00:00 PM	Title=Private Eyes	Artist=Brazilian Love Affair	Tempo=124.0	Tag+=American Rumba:Dance	DanceRating=RMBA+5	Album:00=Brazilian Lounge - Les Mysteres De Rio	Purchase:00:AS=D:B007UK5L52",
+            @".Create=	User=dwgray	Time=00/00/0000 0:00:00 PM	Title=Glam	Artist=Dimie Cat	Tempo=200.0	Tag+=QuickStep:Dance	DanceRating=QST+5	Album:00=Glam!	Purchase:00:AS=D:B0042D1W6C	DanceRating=FXT+1	DanceRating=QST+1",
+            @".Create=	User=dwgray	Time=00/00/0000 0:00:00 PM	Title=All For You	Artist=Imelda May	Tempo=120.0	Tag+=Slow Foxtrot:Dance	DanceRating=SFT+5	Album:00=More Mayhem	Purchase:00:AS=D:B008VSKRAQ	DanceRating=FXT+1	DanceRating=SFT+1",
         };
 
         private static readonly string[] RowPopsCreate =
         {
-            @".Create=	User=dwgray	Time=00/00/0000 0:00:00 PM	Title=Black Sheep	Artist=Gin Wigmore	Tempo=120.0	Tag+=West Coast Swing:Dance	DanceRating=WCS+6	DanceRating=SWG+1	DanceRating=CSG+1	DanceRating=HST+1	DanceRating=LHP+1	Album:00=Gravel & Wine [+digital booklet]	Purchase:00:AS=B00BYKXC82",
-            @".Create=	User=dwgray	Time=00/00/0000 0:00:00 PM	Title=The L Train	Artist=Gabriel Yared	Tempo=72.0	Tag+=Slow Waltz:Dance	DanceRating=SWZ+5	DanceRating=WLZ+1	Album:00=Shall We Dance?	Purchase:00:AS=B001NYTZJY",
-            @".Create=	User=dwgray	Time=00/00/0000 0:00:00 PM	Title=Come Wake Me Up	Artist=Rascal Flatts	Tempo=153.0	Tag+=Viennese Waltz:Dance	DanceRating=VWZ+5	DanceRating=WLZ+1	Album:00=Changed (Deluxe Version) [+Digital Booklet]	Purchase:00:AS=B007MSUAV2",
-            @".Create=	User=dwgray	Time=00/00/0000 0:00:00 PM	Title=Inflitrado	Artist=Bajofondo	Tempo=120.0	Tag+=Tango:Dance	DanceRating=TNG+5	DanceRating=TGO+1	DanceRating=ATN+1	Album:00=Mar Dulce	Purchase:00:AS=B001C3G8MS",
-            @".Create=	User=dwgray	Time=00/00/0000 0:00:00 PM	Title=Des Croissants de Soleil	Artist=Emilie-Claire Barlow	Tempo=96.0	Tag+=Bolero:Dance|International Rumba:Dance	DanceRating=BOL+5	DanceRating=RMBI+5	DanceRating=LTN+1	Album:00=Des croissants de soleil	Purchase:00:AS=B009CW0JFS",
-            @".Create=	User=dwgray	Time=00/00/0000 0:00:00 PM	Title=Private Eyes	Artist=Brazilian Love Affair	Tempo=124.0	Tag+=American Rumba:Dance	DanceRating=RMBA+5	Album:00=Brazilian Lounge - Les Mysteres De Rio	Purchase:00:AS=B007UK5L52",
-            @".Create=	User=dwgray	Time=00/00/0000 0:00:00 PM	Title=Glam	Artist=Dimie Cat	Tempo=200.0	Tag+=QuickStep:Dance	DanceRating=QST+6	DanceRating=FXT+1	Album:00=Glam!	Purchase:00:AS=B0042D1W6C",
-            @".Create=	User=dwgray	Time=00/00/0000 0:00:00 PM	Title=All For You	Artist=Imelda May	Tempo=120.0	Tag+=Slow Foxtrot:Dance	DanceRating=SFT+6	DanceRating=FXT+1	Album:00=More Mayhem	Purchase:00:AS=B008VSKRAQ",
+            @".Create=	User=dwgray	Time=00/00/0000 0:00:00 PM	Title=Black Sheep	Artist=Gin Wigmore	Tempo=120.0	Tag+=West Coast Swing:Dance	DanceRating=WCS+6	DanceRating=SWG+1	DanceRating=CSG+1	DanceRating=HST+1	DanceRating=LHP+1	Album:00=Gravel & Wine [+digital booklet]	Purchase:00:AS=D:B00BYKXC82",
+            @".Create=	User=dwgray	Time=00/00/0000 0:00:00 PM	Title=The L Train	Artist=Gabriel Yared	Tempo=72.0	Tag+=Slow Waltz:Dance	DanceRating=SWZ+5	DanceRating=WLZ+1	Album:00=Shall We Dance?	Purchase:00:AS=D:B001NYTZJY",
+            @".Create=	User=dwgray	Time=00/00/0000 0:00:00 PM	Title=Come Wake Me Up	Artist=Rascal Flatts	Tempo=153.0	Tag+=Viennese Waltz:Dance	DanceRating=VWZ+5	DanceRating=WLZ+1	Album:00=Changed (Deluxe Version) [+Digital Booklet]	Purchase:00:AS=D:B007MSUAV2	Purchase:00:IA=512102570	Purchase:00:IS=512102578	Purchase:00:IA=512102570	Purchase:00:IS=512102578",
+            @".Create=	User=dwgray	Time=00/00/0000 0:00:00 PM	Title=Inflitrado	Artist=Bajofondo	Tempo=120.0	Tag+=Tango:Dance	DanceRating=TNG+5	DanceRating=TGO+1	DanceRating=ATN+1	Album:00=Mar Dulce	Purchase:00:AS=D:B001C3G8MS",
+            @".Create=	User=dwgray	Time=00/00/0000 0:00:00 PM	Title=Des Croissants de Soleil	Artist=Emilie-Claire Barlow	Tempo=96.0	Tag+=Bolero:Dance|International Rumba:Dance	DanceRating=BOL+5	DanceRating=RMBI+5	DanceRating=LTN+1	Album:00=Des croissants de soleil	Purchase:00:AS=D:B009CW0JFS",
+            @".Create=	User=dwgray	Time=00/00/0000 0:00:00 PM	Title=Private Eyes	Artist=Brazilian Love Affair	Tempo=124.0	Tag+=American Rumba:Dance	DanceRating=RMBA+5	Album:00=Brazilian Lounge - Les Mysteres De Rio	Purchase:00:AS=D:B007UK5L52",
+            @".Create=	User=dwgray	Time=00/00/0000 0:00:00 PM	Title=Glam	Artist=Dimie Cat	Tempo=200.0	Tag+=QuickStep:Dance	DanceRating=QST+6	DanceRating=FXT+1	Album:00=Glam!	Purchase:00:AS=D:B0042D1W6C",
+            @".Create=	User=dwgray	Time=00/00/0000 0:00:00 PM	Title=All For You	Artist=Imelda May	Tempo=120.0	Tag+=Slow Foxtrot:Dance	DanceRating=SFT+6	DanceRating=FXT+1	Album:00=More Mayhem	Purchase:00:AS=D:B008VSKRAQ",
         };
 
         private const string NHeader = @"Dance	Rating	Title	BPM	Time	Artist	Comment	DanceTags:Other	SongTags:Music";
@@ -317,7 +317,7 @@ namespace m4dModels.Tests
 
         private static readonly string[] MergeProps =
         {
-            @".Create=	User=dwgray	Time=00/00/0000 0:00:00 PM	Title=Glam	Artist=Dimie Cat	Tempo=200.0	Tag+=QuickStep:Dance	DanceRating=QST+6	DanceRating=FXT+1	Album:00=Glam!	Purchase:00:AS=B0042D1W6C	.Edit=	User=dwgray	Time=00/00/0000 0:00:00 PM	Length=200	Tag+=English:Other|Foxtrot:Dance|Pop:Music|Rock:Music	DanceRating=FXT+5	DanceRating=SFT+1	Tag+:FXT=David:Other|Goliath:Other|Traditional:Style",
+            @".Create=	User=dwgray	Time=00/00/0000 0:00:00 PM	Title=Glam	Artist=Dimie Cat	Tempo=200.0	Tag+=QuickStep:Dance	DanceRating=QST+6	DanceRating=FXT+1	Album:00=Glam!	Purchase:00:AS=D:B0042D1W6C	.Edit=	User=dwgray	Time=00/00/0000 0:00:00 PM	Length=200	Tag+=English:Other|Foxtrot:Dance|Pop:Music|Rock:Music	DanceRating=FXT+5	DanceRating=SFT+1	Tag+:FXT=David:Other|Goliath:Other|Traditional:Style",
             @".Create=	User=dwgray	Time=00/00/0000 0:00:00 PM	Title=Drop It On Me (Ft Daddy Yankee)	Artist=Ricky Martin	Tempo=100.0	Length=234	Tag+=Samba:Dance|Spanish:Other	DanceRating=SMB+3	DanceRating=LTN+1",
             @".Create=	User=dwgray	Time=00/00/0000 0:00:00 PM	Title=Bailemos Otra Vez	Artist=Jose Alberto El Canario	Tempo=195.0	Length=308	Tag+=Cha Cha:Dance|Mambo:Dance|Salsa:Dance	DanceRating=MBO+4	DanceRating=SLS+4	DanceRating=CHA+3	DanceRating=LTN+3	Tag+:MBO=Traditional:Style	Tag+:SLS=Traditional:Style",
         };
@@ -333,8 +333,8 @@ namespace m4dModels.Tests
 
         private static readonly string[] DanceMergeProps =
         {
-            @".Create=	User=dwgray	Time=00/00/0000 0:00:00 PM	Title=The L Train	Artist=Gabriel Yared	Tempo=72.0	Tag+=Slow Waltz:Dance	DanceRating=SWZ+5	DanceRating=WLZ+1	Album:00=Shall We Dance?	Purchase:00:AS=B001NYTZJY	.Edit=	User=dwgray	Time=00/00/0000 0:00:00 PM	Tag+=Viennese Waltz:Dance	DanceRating=VWZ+4	DanceRating=WLZ+2",
-            @".Create=	User=dwgray	Time=00/00/0000 0:00:00 PM	Title=Come Wake Me Up	Artist=Rascal Flatts	Tempo=153.0	Tag+=Viennese Waltz:Dance	DanceRating=VWZ+5	DanceRating=WLZ+1	Album:00=Changed (Deluxe Version) [+Digital Booklet]	Purchase:00:AS=B007MSUAV2	.Edit=	User=dwgray	Time=00/00/0000 0:00:00 PM	DanceRating=VWZ+2	DanceRating=WLZ+1",
+            @".Create=	User=dwgray	Time=00/00/0000 0:00:00 PM	Title=The L Train	Artist=Gabriel Yared	Tempo=72.0	Tag+=Slow Waltz:Dance	DanceRating=SWZ+5	DanceRating=WLZ+1	Album:00=Shall We Dance?	Purchase:00:AS=D:B001NYTZJY	.Edit=	User=dwgray	Time=00/00/0000 0:00:00 PM	Tag+=Viennese Waltz:Dance	DanceRating=VWZ+4	DanceRating=WLZ+2",
+            @".Create=	User=dwgray	Time=00/00/0000 0:00:00 PM	Title=Come Wake Me Up	Artist=Rascal Flatts	Tempo=153.0	Tag+=Viennese Waltz:Dance	DanceRating=VWZ+5	DanceRating=WLZ+1	Album:00=Changed (Deluxe Version) [+Digital Booklet]	Purchase:00:AS=D:B007MSUAV2	Purchase:00:IA=512102570	Purchase:00:IS=512102578	.Edit=	User=dwgray	Time=00/00/0000 0:00:00 PM	DanceRating=VWZ+2	DanceRating=WLZ+1",
             @".Create=	User=dwgray	Time=00/00/0000 0:00:00 PM	Title=A very traditional Waltz	Artist=Strauss	Tag+=English:Other	Tag+=Viennese Waltz:Dance	DanceRating=VWZ+4	DanceRating=WLZ+1",
         };
 

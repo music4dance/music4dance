@@ -82,7 +82,7 @@ namespace m4dModels
         {
             get
             {
-                return !string.IsNullOrWhiteSpace(Name) && !s_wordPattern.Split(Name.ToLower()).Any(w => BallroomWords.Contains(w));
+                return !string.IsNullOrWhiteSpace(Name) && Track.HasValue && !s_wordPattern.Split(Name.ToLower()).Any(w => BallroomWords.Contains(w));
             }
         }
 

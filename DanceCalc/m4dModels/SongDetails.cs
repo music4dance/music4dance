@@ -217,6 +217,20 @@ namespace m4dModels
                         break;
                     case PurchaseField:
                         qual = SongProperty.ParseQualifier(fields[i]);
+                        if (qual == "AS" && !cell.Contains(':'))
+                        {
+                            cell = "D:" + cell;
+                        }
+                        else
+                        if (qual == "IS")
+                        {
+                            var ids = cell.Split('|');
+                            if (ids.Length == 2)
+                            {
+                                cell = ids[0];
+                                properties.Add(new SongProperty(Guid.Empty, baseName, ids[1], 0, "IA"));
+                            }
+                        }
                         break;
                     case OwnerHash:
                         cell = cell.GetHashCode().ToString("X");
@@ -428,6 +442,8 @@ namespace m4dModels
             {"#", TrackField},
             {"PUBLISHER", PublisherField},
             {"AMAZONTRACK", SongProperty.FormatName(PurchaseField,null,"AS")},
+            {"AMAZON", SongProperty.FormatName(PurchaseField,null,"AS")},
+            {"ITUNES", SongProperty.FormatName(PurchaseField,null,"IS")},
             {"PATH",OwnerHash},
             {"TIME",LengthField},
             {"COMMENT",AddedTags},

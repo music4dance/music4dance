@@ -24,9 +24,7 @@ namespace m4d.APIControllers
 
             if (song != null)
             {
-                return Ok(
-                    new {SongId = song.SongId, Title = song.Title, Artist = song.Artist}
-                );
+                return Ok(new {song.SongId, song.Title, song.Artist});
             }
 
             // Otherwise, get the track info based on the idea

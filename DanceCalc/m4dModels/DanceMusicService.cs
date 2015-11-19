@@ -1155,73 +1155,96 @@ namespace m4dModels
 
         public enum MatchMethod { None, Tempo, Merge };
 
+        private LocalMerger MergeFromTitle(SongDetails song)
+        {
+            var songT = song;
+            var songs = from s in Songs where (s.TitleHash == songT.TitleHash) select s;
+
+            var candidates = new List<SongDetails>();
+            foreach (var s in songs)
+            {
+                // Title-Artist match at minimum
+                if (string.Equals(SongBase.CreateNormalForm(s.Artist), SongBase.CreateNormalForm(song.Artist)))
+                {
+                    candidates.Add(new SongDetails(s));
+                }
+            }
+
+
+            if (candidates.Count <= 0)
+                return new LocalMerger {Left = song, Right = null, MatchType = MatchType.None, Conflict = false};
+
+            SongDetails match = null;
+            var type = MatchType.None;
+
+            // Now we have a list of existing songs that are a title-artist match to our new song - so see
+            //  if we have a title-artist-album match
+            if (song.HasAlbums)
+            {
+                var songD = song;
+                foreach (var s in candidates.Where(s => s.FindAlbum(songD.Albums[0].Name) != null))
+                {
+                    match = s;
+                    type = MatchType.Exact;
+                    break;
+                }
+            }
+
+            // If not, try for a length match
+            if (match == null && song.Length.HasValue)
+            {
+                var songD = song;
+                foreach (var s in candidates.Where(s => songD.Length != null && (s.Length.HasValue && Math.Abs(s.Length.Value - songD.Length.Value) < 5)))
+                {
+                    match = s;
+                    type = MatchType.Length;
+                    break;
+                }
+            }
+
+            // TODO: We may want to make this even weaker (especially for merge): If merge doesn't have album remove candidate.HasRealAlbums?
+
+            // Otherwise, if there is only one candidate we will choose it
+            // TODO: and it doesn't have any 'real' albums [&& (!song.HasAlbums || !candidates[0].HasRealAblums)] (I obviously wanted this extra filter at some point...)
+            if (match == null && candidates.Count == 1)
+            {
+                type = MatchType.Weak;
+                match = candidates[0];
+            }
+
+            return new LocalMerger { Left = song, Right = match, MatchType = type, Conflict = false };
+        }
+
+        private LocalMerger MergeFromPurchaseInfo(SongDetails song)
+        {
+            // ReSharper disable once LoopCanBePartlyConvertedToQuery
+            foreach (var service in MusicService.GetSearchableServices())
+            {
+                var id = song.GetPurchaseId(service.Id);
+
+                if (id == null) continue;
+
+                var match = GetSongFromService(service, id);
+                if (match != null)
+                {
+                    return new LocalMerger { Left = song, Right = match, MatchType = MatchType.Exact, Conflict = false };
+                }
+            }
+            return null;
+        }
+
         public IList<LocalMerger> MatchSongs(IList<SongDetails> newSongs, MatchMethod method)
         {
             var merge = new List<LocalMerger>();
-
             foreach (var song in newSongs)
             {
-                var songT = song;
-                var songs = from s in Songs where (s.TitleHash == songT.TitleHash) select s;
+                var m = MergeFromPurchaseInfo(song) ?? MergeFromTitle(song);
 
-                var candidates = new List<SongDetails>();
-                foreach (var s in songs)
-                {
-                    // Title-Artist match at minimum
-                    if (string.Equals(SongBase.CreateNormalForm(s.Artist), SongBase.CreateNormalForm(song.Artist)))
-                    {
-                        candidates.Add(new SongDetails(s));
-                    }
-                }
-
-                SongDetails match = null;
-                var type = MatchType.None;
-
-                if (candidates.Count > 0)
-                {
-                    // Now we have a list of existing songs that are a title-artist match to our new song - so see
-                    //  if we have a title-artist-album match
-
-                    if (song.HasAlbums)
-                    {
-                        var songD = song;
-                        foreach (var s in candidates.Where(s => s.FindAlbum(songD.Albums[0].Name) != null))
-                        {
-                            match = s;
-                            type = MatchType.Exact;
-                            break;
-                        }
-                    }
-
-                    // If not, try for a length match
-                    if (match == null && song.Length.HasValue)
-                    {
-                        var songD = song;
-                        foreach (var s in candidates.Where(s => songD.Length != null && (s.Length.HasValue && Math.Abs(s.Length.Value - songD.Length.Value) < 5)))
-                        {
-                            match = s;
-                            type = MatchType.Length;
-                            break;
-                        }
-                    }
-
-                    // TODO: We may want to make this even weaker (especially for merge): If merge doesn't have album remove candidate.HasRealAlbums?
-
-                    // Otherwise, if there is only one candidate and it doesn't have any 'real'
-                    //  albums, we will choose it
-                    if (match == null && candidates.Count == 1 && (!song.HasAlbums || !candidates[0].HasRealAblums))
-                    {
-                        type = MatchType.Weak;
-                        match = candidates[0];
-                    }
-                }
-
-                var m = new LocalMerger { Left = song, Right = match, MatchType = type, Conflict = false };
                 switch (method)
                 {
                     case MatchMethod.Tempo:
-                        if (match != null)
-                            m.Conflict = song.TempoConflict(match, 3);
+                        if (m.Right != null)
+                            m.Conflict = song.TempoConflict(m.Right, 3);
                         break;
                     case MatchMethod.Merge:
                         // Do we need to do anything special here???
@@ -1329,7 +1352,8 @@ namespace m4dModels
         {
             if (string.IsNullOrWhiteSpace(id)) return null;
 
-            var purchase = SongProperties.FirstOrDefault(sp => sp.Value.StartsWith(id) && sp.Name.StartsWith("Purchase:") && sp.Name.EndsWith(":SS"));
+            var end = $":{service.CID}S";
+            var purchase = SongProperties.FirstOrDefault(sp => sp.Value.StartsWith(id) && sp.Name.StartsWith("Purchase:") && sp.Name.EndsWith(end));
 
             return purchase == null ? null : FindSongDetails(purchase.SongId, userName);
         }
