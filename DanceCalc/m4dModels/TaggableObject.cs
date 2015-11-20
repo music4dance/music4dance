@@ -149,10 +149,13 @@ namespace m4dModels
             foreach (var tt in removed.Tags.Select(dms.FindOrCreateTagType))
             {
                 tt.Count -= 1;
-                if (tt.Count <= 0)
-                {
-                    dms.TagTypes.Remove(tt);
-                }
+                // TODO: We should consider a service that occassionally sweeps TagTypes and removes the ones that
+                //  aren't used, but we can't proactively delete them this way since when we're doing a full load
+                //  of the database this causes inconsistencies.
+                //if (tt.Count <= 0)
+                //{
+                //    dms.TagTypes.Remove(tt);
+                //}
             }
         }
         public virtual TagList UserTags(ApplicationUser user, DanceMusicService dms=null)
