@@ -384,6 +384,8 @@ namespace m4dModels
                 properties.Add(prop);
             }
 
+            const string sep = "|";
+            Trace.WriteLineIf(user == null && !specifiedUser,$"Bad User for {string.Join(sep,cells)}");
 
             // ReSharper disable once InvertIf
             if (user != null)

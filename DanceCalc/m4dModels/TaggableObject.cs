@@ -58,6 +58,11 @@ namespace m4dModels
         // the actually added tags in canonical form
         virtual public TagList AddTags(string tags, ApplicationUser user, DanceMusicService dms = null, object data = null, bool updateTypes=true)
         {
+            if (user == null)
+            {
+                return null;
+            }
+
             var added = new TagList(tags);
             var ut = FindOrCreateUserTags(user, dms);
 
@@ -194,6 +199,11 @@ namespace m4dModels
 
         private Tag FindOrCreateUserTags(ApplicationUser user, DanceMusicService dms)
         {
+            if (user == null)
+            {
+                return null;
+            }
+
             var ut = FindUserTag(user, dms);
 
             if (ut != null) return ut;
@@ -204,8 +214,7 @@ namespace m4dModels
             ut.Id = TagId;
             ut.Tags = new TagList();
 
-            if (dms != null)
-                dms.Tags.Add(ut);
+            dms?.Tags.Add(ut);
 
             if (Tags == null)
             {

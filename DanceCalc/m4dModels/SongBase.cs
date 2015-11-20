@@ -142,10 +142,24 @@ namespace m4dModels
                         }
                         break;
                     case AddedTags:
-                        AddObjectTags(prop.DanceQualifier, prop.Value, currentUser);
+                        if (currentUser == null)
+                        {
+                            Trace.WriteLineIf(TraceLevels.General.TraceError,$"Null User when attempting to ad tag {prop.Value} to song {SongId}");
+                        }
+                        else
+                        {
+                            AddObjectTags(prop.DanceQualifier, prop.Value, currentUser);
+                        }
                         break;
                     case RemovedTags:
-                        RemoveObjectTags(prop.DanceQualifier, prop.Value, currentUser);
+                        if (currentUser == null)
+                        {
+                            Trace.WriteLineIf(TraceLevels.General.TraceError, $"Null User when attempting to ad tag {prop.Value} to song {SongId}");
+                        }
+                        else
+                        {
+                            RemoveObjectTags(prop.DanceQualifier, prop.Value, currentUser);
+                        }
                         break;
                     case AlbumField:
                     case PublisherField:
@@ -459,6 +473,11 @@ namespace m4dModels
 
         public TagList AddObjectTags(string qualifier, string tags, ApplicationUser user, DanceMusicService dms=null)
         {
+            if (user == null)
+            {
+                return null;
+            }
+
             TaggableObject tobj = this;
             if (!string.IsNullOrWhiteSpace(qualifier))
                 tobj = FindRating(qualifier);
