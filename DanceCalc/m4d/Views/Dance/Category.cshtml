@@ -18,7 +18,7 @@
 
 <div class="big-text">
     <p>@Model.Name is a category of @Html.ActionLink("competition ballroom dancing","ballroom-competition-categories","dances") that is defined by the <a href="http://www.worlddancesport.org/Rule/Athlete/Competition">World Dance Council</a> and <a href="http://ndca.org/education/dances-and-tempi/">National Dance Council of America</a>.</p>
-    <p>Click on any of the tempo values above (in the MPM, DanceSport, or NDCA columns) to go to a list of songs of that tempo.</p>
+    @DanceHelper.BallroomList(Html)
 </div>
 
 @DanceHelper.CategoryTable(Html, Model.Round, "An " + @DanceHelper.FullRoundName(Model) + "dance round consist of the following:", catType)

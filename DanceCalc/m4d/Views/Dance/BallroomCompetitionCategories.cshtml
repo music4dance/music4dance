@@ -28,12 +28,7 @@
                 One of the <a href="https://www.music4dance.net/blog/question-1-im-learning-to-cha-cha-where-is-some-great-music-for-practicing/">core ideas</a> behind @Html.ActionLink("music4dance", "Index", "Home") is to find interesting music to build playlists for competitions rounds.
                 This page is a central location to start a search for songs for your own playlists based on the tempo definitions of competition ballroom dance established by <a href="http://www.worlddancesport.org/Rule/Athlete/Competition">World Dance Council</a> and <a href="http://ndca.org/education/dances-and-tempi/">National Dance Council of America</a> and our database of songs.
             </p>
-            <ul>
-                <li>Click on any of the tempos in the table below (in the MPM, DanceSport, or NDCA columns) to go to a list of songs of that tempo</li>
-                <li>Click on the dance names to go to our details information page for that dance style</li>
-                <li>Read our <a href="https://www.music4dance.net/blog/im-a-competition-ballroom-dancer-can-i-find-practice-songs-that-are-a-specific-tempo/">blog post</a> for step by step instructions on using our catalog to find music of specific style and tempo.</li>
-                <li>@Html.ActionLink("Sign up", "SignUp", "Account") (it's free) to start building your own music lists.</li>
-            </ul>
+            @DanceHelper.BallroomList(Html)
         </div>
     </section>
 </div>
