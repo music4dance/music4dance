@@ -917,7 +917,7 @@ namespace m4d.Controllers
         #region Index
         private ActionResult DoIndex(SongFilter filter)
         {
-            Trace.WriteLineIf(TraceLevels.General.TraceInfo,
+            Trace.WriteLineIf(TraceLevels.General.TraceVerbose,
                 $"Entering Song.Index: dances='{filter.Dances}',sortOrder='{filter.SortOrder}',searchString='{filter.SearchString}'");
 
             var properties = new Dictionary<string, string> {{"Filter", filter.ToString()}, {"User", User.Identity.Name } };
@@ -929,7 +929,7 @@ namespace m4d.Controllers
 
             var list = songs.ToPagedList(filter.Page ?? 1, 25);
             
-            Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Exiting Song.Index");
+            Trace.WriteLineIf(TraceLevels.General.TraceVerbose, "Exiting Song.Index");
             return View("Index", list);
         }
 

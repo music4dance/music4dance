@@ -689,9 +689,9 @@ namespace m4d.Controllers
             ViewBag.Name = "Test Trace";
 
             ViewBag.Success = true;
-            ViewBag.Message = $"Trace message sentt: '{message}'";
+            ViewBag.Message = $"Trace message sent: '{message}'";
 
-            Trace.WriteLineIf(TraceLevels.General.TraceInfo, $"Test Trace: '{message}'");
+            Trace.WriteLine($"Test Trace ({TraceLevels.General.ToString()}): '{message}'");
             return View("Results");
         }
 
