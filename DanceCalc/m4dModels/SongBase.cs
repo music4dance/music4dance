@@ -475,7 +475,7 @@ namespace m4dModels
         {
             if (user == null)
             {
-                Trace.WriteLine($"Null user when adding tags to song: {this}");
+                Trace.WriteLine($"Null user when adding tags ({tags}) with qualifer ({qualifier}) to song: {this}");
                 return null;
             }
 

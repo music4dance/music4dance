@@ -17,7 +17,7 @@ namespace m4dModels
     {
         public CompetitionDance(string id, DanceMusicService dms) : this()
         {
-            SongCount = SongCounts.GetDanceMap(dms)[id.Substring(0,3)];
+            SongCount = SongCounts.FromId(id,dms);
             SpecificDance = Dances.Instance.DanceFromId(id) as DanceInstance;
             SongCount.AddCompetitionDance(this);
         }

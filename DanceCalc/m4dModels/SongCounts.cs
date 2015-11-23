@@ -177,6 +177,17 @@ namespace m4dModels
             name = DanceObject.SeoFriendly(name);
             return  GetFlatSongCounts(dms).FirstOrDefault(sc => string.Equals(sc.SeoName,name));
         }
+
+        static public SongCounts FromId(string id, DanceMusicService dms)
+        {
+            return FromId(id, GetDanceMap(dms));
+        }
+
+        static public SongCounts FromId(string id, IDictionary<string,SongCounts> map)
+        {
+            return LookupSongCount(map, id);
+        }
+
         static public int GetScaledRating(IDictionary<string,SongCounts> map, string danceId, int weight, int scale = 5)
         {
             // TODO: Need to re-examine how we deal with international/american
@@ -299,10 +310,13 @@ namespace m4dModels
             SongCounts sc;
             if (map.TryGetValue(danceId, out sc)) return sc;
 
+            Trace.WriteLineIf(TraceLevels.General.TraceError, $"Failed to find danceId {danceId}");
             // Clear out the cache to force a reload: workaround for possible cache corruption.
             // TODONEXT: Put in the infrastructure to send app insights events when this happens
-            if (Dances.Instance.DanceFromId(danceId) == null)
+            if (Dances.Instance.DanceFromId(danceId) != null)
             {
+                Trace.WriteLineIf(TraceLevels.General.TraceError, $"Attempting to rebuild cache");
+
                 ClearCache();
                 Reloads += 1;
             }

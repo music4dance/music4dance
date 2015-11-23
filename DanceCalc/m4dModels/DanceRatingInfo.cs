@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Runtime.Serialization;
 
 namespace m4dModels
@@ -19,9 +20,14 @@ namespace m4dModels
             SongId = dr.SongId;
             Weight = dr.Weight;
             TagSummary = dr.TagSummary;
-            var sc = map[DanceId];
-            DanceName = sc.DanceName;
-            Max = sc.MaxWeight;
+            var sc = SongCounts.FromId(DanceId, dms);
+
+            if (sc != null)
+            {
+                DanceName = sc.DanceName;
+                Max = sc.MaxWeight;
+            }
+
             Badge = SongCounts.GetRatingBadge(map, DanceId, Weight);
 
             if (user != null)

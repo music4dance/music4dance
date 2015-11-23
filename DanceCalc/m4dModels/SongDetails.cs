@@ -465,6 +465,7 @@ namespace m4dModels
 
             foreach (var line in rows)
             {
+                Trace.WriteLineIf(TraceLevels.General.TraceVerbose,"Create Song From Row:" + line);
                 List<string> cells;
                 
                 if (itc || itcd)
