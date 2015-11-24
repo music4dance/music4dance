@@ -30,8 +30,8 @@ namespace m4d
                 "bootstrap.js","respond.js"));
 
             bundles.Add(AjaxBundle("knockout",
-                "knockout/knockout-3.3.0.js", "window.ko",
-                "knockout-3.3.0.js"));
+                "knockout/knockout-3.4.0.js", "window.ko",
+                "knockout-3.4.0.js"));
 
             bundles.Add(new ScriptBundle("~/bundles/knockout-mapping").Include(
                 "~/Scripts/knockout.mapping-latest.js"));
