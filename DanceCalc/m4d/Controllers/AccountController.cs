@@ -168,7 +168,6 @@ namespace m4d.Controllers
             return RedirectToActionPermanent("SignUp");
         }
 
-
         //
         // GET: /Account/SignUp
         [AllowAnonymous]
@@ -178,11 +177,11 @@ namespace m4d.Controllers
         }
 
         //
-        // POST: /Account/Register
+        // POST: /Account/SignUp
         [HttpPost]
         [AllowAnonymous]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> Register(RegisterViewModel model)
+        public async Task<ActionResult> SignUp(RegisterViewModel model)
         {
             if (ModelState.IsValid)
             {
