@@ -33,9 +33,6 @@ namespace m4dModels
         //  and a hash for the filename so that in the future hopefully
         //  we can do a quick match on the user's machine
         public int? Owned { get; set; }
-
-        public bool Like { get; set; }
-
         public string UserName 
         {
             get

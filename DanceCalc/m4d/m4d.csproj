@@ -434,10 +434,6 @@
     <Compile Include="Migrations\201504272344073_EnhancedDance.Designer.cs">
       <DependentUpon>201504272344073_EnhancedDance.cs</DependentUpon>
     </Compile>
-    <Compile Include="Migrations\201511242158474_Timestamps.cs" />
-    <Compile Include="Migrations\201511242158474_Timestamps.Designer.cs">
-      <DependentUpon>201511242158474_Timestamps.cs</DependentUpon>
-    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Context\DanceMusicConfiguration.cs" />
     <Compile Include="Context\DanceMusicContext.cs" />
@@ -962,9 +958,6 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201504272344073_EnhancedDance.resx">
       <DependentUpon>201504272344073_EnhancedDance.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201511242158474_Timestamps.resx">
-      <DependentUpon>201511242158474_Timestamps.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>

@@ -1634,9 +1634,9 @@ namespace m4dModels
                     bool.TryParse(cells[8], out emailConfirmed);
                     DateTime.TryParse(cells[9], out date);
                     region = cells[10];
-                    byte.TryParse(cells[11], out privacy);
+                    Byte.TryParse(cells[11], out privacy);
                     byte canContactT;
-                    byte.TryParse(cells[12], out canContactT);
+                    Byte.TryParse(cells[12], out canContactT);
                     canContact = (ContactStatus)canContactT;
                     servicePreference = cells[13];
                 }
