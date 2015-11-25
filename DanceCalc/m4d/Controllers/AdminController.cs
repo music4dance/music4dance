@@ -1775,6 +1775,23 @@ namespace m4d.Controllers
         }
 
         //
+        // Get: //UpdateDatabase
+        [AllowAnonymous]
+        public ActionResult UpdateDatabase(string state=null)
+        {
+            Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Updating Database");
+            var configuration = new Configuration();
+            var migrator = new DbMigrator(configuration);
+            migrator.Update(state);
+
+            ViewBag.Name = "Update Database";
+            ViewBag.Success = true;
+            ViewBag.Message = "Database was successfully updated.";
+
+            return View("Results");
+        }
+
+        //
         // Get: //CleanTempi
         [Authorize(Roles = "dbAdmin")]
         public ActionResult CleanTempi()

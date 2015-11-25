@@ -543,6 +543,8 @@ namespace m4d.Controllers
             if (user != null)
             {
                 s_activeUsers.Add(user.UserName);
+                user.LastActive = DateTime.Now;
+                UserManager?.Update(user);
             }
             return (user != null && string.IsNullOrWhiteSpace(user.Region))
                 ? RedirectToAction("EditProfile", "Manage", new { ReturnUrl = returnUrl })

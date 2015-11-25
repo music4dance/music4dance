@@ -17,6 +17,8 @@ namespace m4dModels
 
         // Date that the member signed up
         public DateTime StartDate { get; set; }
+        public DateTime LastActive { get; set; }
+
         // Two character country code based on ISO 3166-1 alpha-2 country codes.
         public string Region { get; set; }
         // Privacy level 0-255 (inital states are only 0 & 255)
@@ -28,6 +30,9 @@ namespace m4dModels
         // Or just actively use?
         // Single character service Ids (add in P=Pandora, G=Google Play, E=Emusic for this purpose)
         public string ServicePreference { get; set; }
+
+        public int? RowCountDefault { get; set; }
+        public string ColumnDefaults { get; set; }
 
         public string RegionName => CountryCodes.TranslateCode(Region);
 

@@ -12,6 +12,8 @@ namespace m4dModels
         // The user visible tag
         public string Value => Key.Substring(0, Key.IndexOf(':'));
 
+        public DateTime Modified { get; set; }
+
         // A single tag category/namespace
         public string Category => Key.Substring(Key.IndexOf(':')+1);
 

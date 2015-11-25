@@ -52,7 +52,10 @@
             Email
         </th>
         <th>
-            Date
+            Signed Up
+        </th>
+        <th>
+            Signed In
         </th>
         <th>
             Roles
@@ -68,6 +71,12 @@
         </th>
         <th>
             AFC
+        </th>
+        <th>
+            RCD
+        </th>
+        <th>
+            Columns
         </th>
         <th></th>
     </tr>
@@ -109,6 +118,17 @@
             @item.StartDate.ToString("d")
         </td>
         <td>
+            @if (item.LastActive == DateTime.Parse("1/1/1900"))
+            {
+                @:Never
+            }
+            else
+            {
+                @item.LastActive.ToString("d")
+            }
+
+        </td>
+        <td>
             @string.Join(",",Model.GetRoles(item.Id))
         </td>
         <td>
@@ -122,6 +142,12 @@
         </td>
         <td>
             @Html.DisplayFor(modelItem => item.AccessFailedCount)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.RowCountDefault)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.ColumnDefaults)
         </td>
         <td>
             @Html.ActionLink("Change Roles", "ChangeRoles", new { id = item.Id }),

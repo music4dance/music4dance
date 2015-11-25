@@ -19,7 +19,7 @@ namespace m4d.Migrations
             DoSeed(context);
         }
 
-        static public void DoSeed(DanceMusicContext context)
+        public static void DoSeed(DanceMusicContext context)
         {
             var ustore = new UserStore<ApplicationUser>(context);
             var umanager = new UserManager<ApplicationUser>(ustore);
