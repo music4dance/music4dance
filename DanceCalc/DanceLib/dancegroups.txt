@@ -36,6 +36,6 @@
   {
     "Name": "Performance",
     "Id" : "PRF",
-    "DanceIds" : ["BDW","BLT","BWD","DSC","CNT","HHP","JAZ","TAP"]
+    "DanceIds" : ["BDW","BLT","BWD","CNT","DSC","FST","HHP","JAZ","TAP"]
   },
 ]

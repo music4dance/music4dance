@@ -1134,4 +1134,22 @@
       }
     ]
   },
+    {
+    "Name": "Freestyle",
+    "Id": "FST",
+    "Meter": {
+      "Numerator": 1,
+      "Denominator": 1
+    },
+    "Instances": [
+      {
+        "Style": "Performance",
+        "TempoRange": {
+          "Min": 1.0,
+          "Max": 500.0
+        },
+        "Exceptions": []
+      }
+    ]
+  },
 ]
