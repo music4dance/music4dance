@@ -17,7 +17,10 @@
 }
 
 @Html.Partial("ItemTags")
-<h1>Advanced Song Library Search</h1>
+<div class="row">
+    <h1 class="col-sm-9">Advanced Song Search</h1>
+    <div class="col-sm-3" typeof="text" style="">@Html.ActionLink("Basic Search", "index", "song", new { filter = new SongFilter { SearchString = filter.SearchString, SortOrder = filter.SortOrder, Dances = (danceQuery.DanceIds.Count() == 1 ? filter.Dances : null)} }, null)</div>
+</div>
 <div class="row">
     <div class="col-sm-10 col-sm-offset-1 col-md-8 col-md-offset-2" style="font-size:16px; border:40px solid;">
         @using (Html.BeginForm("advancedsearch", "Song", FormMethod.Get, new { id = "search", @class="form-horizontal" }))

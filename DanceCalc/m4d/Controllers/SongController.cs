@@ -107,7 +107,7 @@ namespace m4d.Controllers
                 filter = SongFilter.Default;
             }
 
-            filter.Action = "AdvancedSearch";
+            filter.Action = "Advanced";
 
             if (string.IsNullOrWhiteSpace(searchString))
             {
@@ -173,7 +173,8 @@ namespace m4d.Controllers
                 filter.TempoMax = tempoMax;
                 filter.Page = 1;
             }
-                        
+
+            ViewBag.SongFilter = filter;            
             return DoIndex(filter);
         }
 
@@ -225,6 +226,24 @@ namespace m4d.Controllers
         // GET: /Index/
         [AllowAnonymous]
         public ActionResult Index(int? page, string purchase, SongFilter filter)
+        {
+            if (page.HasValue)
+            {
+                filter.Page = page;
+            }
+
+            if (!string.IsNullOrWhiteSpace(purchase))
+            {
+                filter.Purchase = purchase;
+            }
+
+            return DoIndex(filter);
+        }
+
+        //
+        // GET: /AdvancedIndex/
+        [AllowAnonymous]
+        public ActionResult Advanced(int? page, string purchase, SongFilter filter)
         {
             if (page.HasValue)
             {

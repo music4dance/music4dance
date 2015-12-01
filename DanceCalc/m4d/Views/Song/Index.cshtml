@@ -17,7 +17,7 @@
 
 @Html.Partial("ItemTags")
 
-@if (string.Equals(filter.Action, "advancedsearch", StringComparison.OrdinalIgnoreCase))
+@if (string.Equals(filter.Action, "advanced", StringComparison.OrdinalIgnoreCase))
 {
         // Advanced search header
         <h1>Search Results</h1>
@@ -124,7 +124,7 @@ else
                 @Html.ActionLink(dance.Name + " Page", dance.Name, "dances", new { filter, type = "I", count = 1 }, new { @class = "btn btn-default", role = "button" })
             }
         }
-        @if (!string.Equals(filter.Action, "advancedsearchform", StringComparison.OrdinalIgnoreCase))
+        @if (!string.Equals(filter.Action, "advanced", StringComparison.OrdinalIgnoreCase))
         {
             if (!filter.IsEmpty)
             {
@@ -134,7 +134,7 @@ else
     </div>
 </div>
 
-@if (string.Equals(filter.Action, "advancedsearchform", StringComparison.OrdinalIgnoreCase))
+@if (string.Equals(filter.Action, "advanced", StringComparison.OrdinalIgnoreCase))
     {
     <div class="row">
         <div id="spotify-player" class="col-md-6" data-trackset-name="music4dance" data-trackset-songs="@string.Join(",", Model.Select(s => s.SongId))"></div>
