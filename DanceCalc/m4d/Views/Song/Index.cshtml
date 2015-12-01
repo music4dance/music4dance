@@ -34,15 +34,7 @@ else
     // Basic search header
     using (Html.BeginForm("Search", "Song", FormMethod.Get, new {id = "search"}))
     {
-        var danceName = "All Dances";
-        if (danceQuery.Advanced)
-        {
-            danceName = "Advanced";
-        }
-        else if (!danceQuery.All)
-        {
-            danceName = danceQuery.Dances.First().Name;
-        }
+        var danceName = (danceQuery.All || danceQuery.Advanced)? "All Dances" : danceQuery.Dances.First().Name;
 
         <div class="row">
             <h1 class="col-sm-2" style="width: auto; font-size: 22px;">Song Library</h1>
@@ -54,7 +46,6 @@ else
                         </button>
                         <ul class="dropdown-menu" role="menu">
                             <li id="DID_ALL"><a href="#ALL"><strong>All Dances</strong></a></li>
-                            <li id="DID_ADVANCED"><a href="#ADVANCED"><strong>Advanced</strong></a></li>
                             @foreach (var sc in dances.OrderBy(x => x.DanceName))
                             {
                                 var id = "DID_" + sc.DanceId;

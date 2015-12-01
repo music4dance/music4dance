@@ -154,6 +154,18 @@
 
 
 $(document).ready(function () {
+    // Handling for Dance selector
+    $('.search-panel .dropdown-menu').find('a').click(function (e) {
+        e.preventDefault();
+        var param = $(this).attr('href').replace('#', '');
+        var name = $(this).text();
+        $('.search-panel span#dance_selector').text(name);
+
+        $('.input-group #dances').val((param === 'ALL') ? '' : param);
+
+        $('#search').submit();
+    });
+
     $('#chosen-dances').chosen({ max_selected_options: 5, width: '100%' });
 
     $("input[name='db']", $('#dance-boolean')).change(function () {
