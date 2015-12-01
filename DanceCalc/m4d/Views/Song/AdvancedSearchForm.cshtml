@@ -17,9 +17,12 @@
 }
 
 @Html.Partial("ItemTags")
+
 <div class="row">
-    <h1 class="col-sm-9">Advanced Song Search</h1>
-    <div class="col-sm-3" typeof="text" style="">@Html.ActionLink("Basic Search", "index", "song", new { filter = new SongFilter { SearchString = filter.SearchString, SortOrder = filter.SortOrder, Dances = (danceQuery.DanceIds.Count() == 1 ? filter.Dances : null)} }, null)</div>
+    <h1 class="col-xs-12" style="font-size: 22px;text-align: center">Advanced Song Search</h1>
+</div>
+<div class="row">
+    <p class="col-sm-10" style="text-align: right">@Html.ActionLink("Basic Search", "index", "song", null , new { id = "basic-search" })</p>
 </div>
 <div class="row">
     <div class="col-sm-10 col-sm-offset-1 col-md-8 col-md-offset-2" style="font-size:16px; border:40px solid;">

@@ -66,16 +66,15 @@ else
                     <input type="hidden" name="dances" id="dances" value="@filter.Dances"/>
                     <input type="hidden" name="filter" id="filter" value="@filter.ToString()"/>
                     <input type="hidden" name="tags" id="tags"/>
-                    @Html.TextBox("SearchString", filter.SearchString, new {@class = "form-control search-text", placeholder = "Artist, Title, or Album"})
+                    @Html.TextBox("SearchString", filter.SearchString, new {@class = "form-control search-text", placeholder = "Artist, Title, or Album", id="search-text" })
                     <span class="input-group-btn">
-                        @*TODO: Write the code to take into account the text in the live search box rather filter that came through *@ 
                         <button id="submit-search" class="btn btn-default" type="submit" style="margin-right: 15px"><span class="glyphicon glyphicon-search"></span></button>
                     </span>
                 </div>
             </div>
         </div>
         <div class="row" typeof="text" style="text-align: right; margin-right: 15px">
-            @Html.ActionLink("Advanced Search","advancedsearchform",new {filter}, null)
+            @Html.ActionLink("Advanced Search","advancedsearchform",new {filter}, new {id="advanced-search"})
         </div>
     }
 }

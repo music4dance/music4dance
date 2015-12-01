@@ -93,6 +93,7 @@ namespace m4d.Controllers
         [AllowAnonymous]
         public ActionResult AdvancedSearchForm(SongFilter filter = null)
         {
+            HelpPage = "advanced-search";
             BuildDanceList();
             return View();
         }
@@ -174,7 +175,6 @@ namespace m4d.Controllers
                 filter.Page = 1;
             }
 
-            ViewBag.SongFilter = filter;            
             return DoIndex(filter);
         }
 
@@ -245,17 +245,7 @@ namespace m4d.Controllers
         [AllowAnonymous]
         public ActionResult Advanced(int? page, string purchase, SongFilter filter)
         {
-            if (page.HasValue)
-            {
-                filter.Page = page;
-            }
-
-            if (!string.IsNullOrWhiteSpace(purchase))
-            {
-                filter.Purchase = purchase;
-            }
-
-            return DoIndex(filter);
+            return Index(page, purchase, filter);
         }
 
         [AllowAnonymous]
