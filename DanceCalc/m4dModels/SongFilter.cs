@@ -155,7 +155,7 @@ namespace m4dModels
                     else
                     {
                         var x = danceQuery.IsExclusive ? "all" : "any";
-                        name += $"danceable to {x} of {string.Join(", ", dances.Select(n => n.Name))}";
+                        name += $" danceable to {x} of {string.Join(", ", dances.Select(n => n.Name))}";
                     }
                 }
 
@@ -166,10 +166,11 @@ namespace m4dModels
                 }
 
                 var sb = new StringBuilder(name);
+                sb.Append(" ");
 
                 if (!string.IsNullOrWhiteSpace(SearchString))
                 {
-                    sb.AppendFormat(" containing the text \"{0}\"",SearchString);
+                    sb.AppendFormat("containing the text \"{0}\"",SearchString);
                     separator = ",";
                 }
 

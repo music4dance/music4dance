@@ -88,13 +88,26 @@ namespace m4d.Controllers
             return DoIndex(filter);
         }
 
+        //
+        // GET: /Song/AdvancedSearchForm
         [AllowAnonymous]
-        public ActionResult AdvancedSearch(string searchString=null, string dances=null, string tags=null, ICollection<string> services=null, decimal? tempoMin=null, decimal? tempoMax=null, SongFilter filter=null)
+        public ActionResult AdvancedSearchForm(SongFilter filter = null)
+        {
+            BuildDanceList();
+            return View();
+        }
+
+        //
+        // Get: /Song/AdvancedSearch
+        [AllowAnonymous]
+        public ActionResult AdvancedSearch(string searchString = null, string dances = null, string tags = null, ICollection<string> services = null, decimal? tempoMin = null, decimal? tempoMax = null, string sortOrder = null, string sortDirection = null, SongFilter filter = null)
         {
             if (filter == null)
             {
                 filter = SongFilter.Default;
             }
+
+            filter.Action = "AdvancedSearch";
 
             if (string.IsNullOrWhiteSpace(searchString))
             {
@@ -120,9 +133,25 @@ namespace m4d.Controllers
             {
                 tags = null;
             }
+
             if (!string.Equals(tags, filter.Tags, StringComparison.OrdinalIgnoreCase))
             {
                 filter.Tags = tags;
+                filter.Page = 1;
+            }
+
+            if (string.IsNullOrWhiteSpace(sortOrder))
+            {
+                sortOrder = null;
+            }
+            else if (string.Equals(sortDirection,"Descending",StringComparison.OrdinalIgnoreCase))
+            {
+                sortOrder = sortOrder + "_desc";
+            }
+
+            if (!string.Equals(sortOrder, filter.SortOrder, StringComparison.OrdinalIgnoreCase))
+            {
+                filter.SortOrder = sortOrder;
                 filter.Page = 1;
             }
 
@@ -144,7 +173,7 @@ namespace m4d.Controllers
                 filter.TempoMax = tempoMax;
                 filter.Page = 1;
             }
-
+                        
             return DoIndex(filter);
         }
 

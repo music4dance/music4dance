@@ -22,6 +22,10 @@ textarea {
     max-width: 500px;
 }
 
+.form-horizontal .search-label {
+    text-align:left;
+}
+
 /* styles for validation helpers */
 .field-validation-error {
     color: #b94a48;

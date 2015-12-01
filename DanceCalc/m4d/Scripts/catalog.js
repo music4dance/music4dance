@@ -1,26 +1,9 @@
-﻿function ShowAdvanced() {
-    var button = '<span id="left-icon" class="glyphicon glyphicon-arrow-up"></span> Less <span id="right-icon" class="glyphicon glyphicon-arrow-up"></span>';
-
-    $('#AdvancedSearch').show();
-    var search = $('#search');
-    search.attr('action', '/song/advancedsearch');
-    $('#ToggleAdvanced').html(button);
-}
-
-function ShowBasic() {
-    var button = '<span id="left-icon" class="glyphicon glyphicon-arrow-down"></span> More <span id="right-icon" class="glyphicon glyphicon-arrow-down"></span>';
-
-    $('#AdvancedSearch').hide();
-    $('#search').attr('action', '/song/search');
-    $('#ToggleAdvanced').html(button);
-}
-
-var filter = function() {
+﻿var filter = function () {
     var viewModel = null;
 
     var tagMapping = {
         'TagSummary': {
-            create: function(options) {
+            create: function (options) {
                 return tagChooser.tagSummary(options.data, options.parent);
             }
         }
@@ -28,7 +11,7 @@ var filter = function() {
 
     // This is a taggable object, se notes in tagchooser.js for details
     // ReSharper disable once InconsistentNaming
-    var TagFilter = function(data, parent, include) {
+    var TagFilter = function (data, parent, include) {
         var self = this;
 
         self.page = parent;
@@ -40,26 +23,32 @@ var filter = function() {
 
         ko.mapping.fromJS(data, tagMapping, this);
 
-        self.changed = function() {
+        self.changed = function () {
             // TODO: implement this if we need to track changed.
+        }
+
+        self.clear = function () {
+            self.CurrentUserTags.Tags.removeAll();
+            self.TagSummary.Tags.removeAll();
+            console.log(self.CurrentUserTags.Summary().Summary);
         }
     };
 
     var filterMapping = {
         'includeTags': {
-            create: function(options) {
+            create: function (options) {
                 return new TagFilter(options.data, options.parent, true);
             }
         },
         'excludeTags': {
-            create: function(options) {
+            create: function (options) {
                 return new TagFilter(options.data, options.parent, false);
             }
         }
     };
 
     // ReSharper disable once InconsistentNaming
-    var FilterPage = function(data) {
+    var FilterPage = function (data) {
         var self = this;
 
         ko.mapping.fromJS(data, filterMapping, this);
@@ -73,14 +62,14 @@ var filter = function() {
             if (!tags) return null;
 
             var decorated = [];
-            $.each(tags, function(idx, val) { decorated.push(direction + val); });
+            $.each(tags, function (idx, val) { decorated.push(direction + val); });
             return decorated.join('|');
         }
 
-        self.results = function() {
+        self.results = function () {
             var inc = self.buildList('+', self.includeTags.CurrentUserTags.Tags());
             var exc = self.buildList('-', self.excludeTags.CurrentUserTags.Tags());
-            
+
             return [inc, exc].join('|');
         };
 
@@ -94,15 +83,20 @@ var filter = function() {
 
             tagChooser.bindModal(ts, obj, button);
         }
+
+        self.clear = function () {
+            self.includeTags.clear();
+            self.excludeTags.clear();
+        }
     }
 
     var pageMapping = {
-        create: function(options) {
+        create: function (options) {
             return new FilterPage(options.data);
         }
     };
 
-    var showTagModal = function(event) {
+    var showTagModal = function (event) {
         viewModel.showTagModal(event);
     };
 
@@ -121,114 +115,73 @@ var filter = function() {
         viewModel = ko.mapping.fromJS(data, pageMapping);
         tagChooser.setupModal(viewModel.tagSuggestions, showTagModal, { width: '500px' });
         ko.applyBindings(viewModel);
-
     }
 
     var update = function () {
-        var results = viewModel.results();
-        $('#tags').val(results);
+        if (event.target.id === 'search') {
+            var results = viewModel.results();
+            $('#tags').val(results);
+        } else {
+            console.log('reset');
+        }
+    }
+
+    var reset = function (event) {
+        event.preventDefault();
+
+        // Uncheck all of the checkboxes and sets all of the hidden and text fields to empty strings
+        $('#search').find('input[type=checkbox]').attr('checked', false);
+        $('#search').find('input[type=hidden]').val('');
+        $('#search').find('input[type=text]').val('');
+
+        // Clear out all the dances and update the control
+        $('#chosen-dances').val(null);
+        $('#chosen-dances').trigger('chosen:updated');
+
+        // Set the Any/All dance button back to any
+        $('#dance-boolean').find('button').html('any <span class="caret"></span>');
+
+        // Clear all of the tags
+        viewModel.clear();
     }
 
     return {
         init: init,
-        update: update
+        update: update,
+        reset: reset
     }
 }();
 
 
 $(document).ready(function () {
-    // Handling for show/hide advanced search
-    $('#ToggleAdvanced').click(function () {
-        if (showAdvanced)
-        {
-            ShowBasic();
-        }
-        else
-        {
-            ShowAdvanced();
-        }
-        window.showAdvanced = !window.showAdvanced;
-    });
+    $('#chosen-dances').chosen({ max_selected_options: 5, width: '100%' });
 
-    if (showAdvanced)
-    {
-        ShowAdvanced();
-    }
-    else
-    {
-        ShowBasic();
-    }
-
-    // Handling for Dance selector
-    $('.search-panel .dropdown-menu').find('a').click(function (e) {
-        e.preventDefault();
-        var param = $(this).attr('href').replace('#', '');
-        var name = $(this).text();
-        $('.search-panel span#dance_selector').text(name);
-
-        var dances = $('.input-group #dances');
-        dances.val(param);
-
-        var submit = true;
-        if (param === 'ALL') {
-            $('#chosen-dances').val([]);
-            $('#dances').val('');
-        }
-        else if (param === 'ADVANCED') {
-            submit = false;
-        } else {
-            $('#chosen-dances').val([param]);
-            $('#dances').val(param);
-        }
-        
-        if (submit) {
-            $('#chosen-dances').trigger('chosen:updated');
-            $('#search').submit();
-        } else {
-            ShowAdvanced();
-        }
-    });
-
-    $('#chosen-dances').chosen({ max_selected_options: 5, width: '350px' });
-
-    $('#dance-boolean').find('a').click(function () {
+    $("input[name='db']", $('#dance-boolean')).change(function () {
         var dances = $('#dances').val();
-        var text = ' <span class="caret">';
         var and = dances.indexOf('AND,') === 0;
 
-        if ($(this)[0].id === 'db-any')
-        {
+        if ($(this).val() === 'any') {
             window.danceOr = true;
-            text = 'any' + text;
             if (and) {
                 dances = dances.substring(4);
             }
-        }
-        else
-        {
+        } else {
             window.danceOr = false;
-            text = 'all' + text;
             if (!and) {
                 dances = 'AND,' + dances;
             }
         }
-        $('#dance-boolean').find('button').html(text);
         $('#dances').val(dances);
     });
 
     $('#chosen-dances').chosen().change(function () {
         var dances = $('#chosen-dances').val();
 
-        var text = null;
         if (!dances || dances.length === 0) {
-            text = 'All Dances';
             $('#dances').val('');
         }
         else if (dances.length === 1) {
             $('#dances').val(dances[0]);
-
-            var danceButton = $('#DID_' + dances[0]);
-            text = danceButton.text();
         }
         else if (dances.length > 1) {
             var ret = '';
@@ -239,17 +192,13 @@ $(document).ready(function () {
             ret += dances.join(',');
 
             $('#dances').val(ret);
-
-            text = 'Advanced';
         }
-
-        var label = $('.search-panel span#dance_selector');
-        label.text(text);
 
         return true;
     });
 
     $('#search').submit(function () { filter.update(); });
+    $('#reset-search').click(function () { filter.reset(event); });
 
     filter.init();
 });

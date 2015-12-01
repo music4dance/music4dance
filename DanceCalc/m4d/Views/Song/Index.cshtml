@@ -13,148 +13,82 @@
     var isAdmin = User.IsInRole("dbAdmin");
 
     var dances = (IList<SongCounts>)ViewBag.Dances;
-
 }
 
 @Html.Partial("ItemTags")
 
-@using (Html.BeginForm("Search", "Song", FormMethod.Get, new { id = "search" }))
+@if (string.Equals(filter.Action, "advancedsearch", StringComparison.OrdinalIgnoreCase))
 {
-    var danceName = "All Dances";
-    if (danceQuery.Advanced)
+        // Advanced search header
+        <h1>Search Results</h1>
+        <div class="row">
+            <div class="col-sm-6"><h4>@description</h4></div>
+            <div class="col-sm-2 col-sm-offset-2">
+                @Html.ActionLink("Change Search","advancedsearchform",new {filter}, new {@class="btn btn-default"})
+            </div>
+        </div>
+        <hr/>
+}
+else
+{
+    // Basic search header
+    using (Html.BeginForm("Search", "Song", FormMethod.Get, new {id = "search"}))
     {
-        danceName = "Advanced";
-    }
-    else if (!danceQuery.All)
-    {
-        danceName = danceQuery.Dances.First().Name;
-    }
+        var danceName = "All Dances";
+        if (danceQuery.Advanced)
+        {
+            danceName = "Advanced";
+        }
+        else if (!danceQuery.All)
+        {
+            danceName = danceQuery.Dances.First().Name;
+        }
 
-    var checkX = string.Empty;
-    var checkA = string.Empty;
-    var checkI = string.Empty;
-    var checkS = string.Empty;
-    var purchase = filter.Purchase;
-    if (!string.IsNullOrWhiteSpace(purchase))
-    {
-        if (purchase.Contains('X'))
-        {
-            checkX = "checked";
-        }
-        if (purchase.Contains('A'))
-        {
-            checkA = "checked";
-        }
-        if (purchase.Contains('I'))
-        {
-            checkI = "checked";
-        }
-        if (purchase.Contains('S'))
-        {
-            checkS = "checked";
-        }
-    }
-    <div class="row">
-        <h1 class="col-sm-2" style="width: auto;font-size: 22px;">Song Library</h1>
-        <div class="col-sm-offset-2" style="margin-left:1px">
-            <div class="input-group" style="margin-top:1em">
-                <div class="input-group-btn search-panel">
-                    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" style="margin-left:15px">
-                        <span id="dance_selector">@danceName</span> <span class="caret"></span>
-                    </button>
-                    <ul class="dropdown-menu" role="menu">
-                        <li id="DID_ALL"><a href="#ALL"><strong>All Dances</strong></a></li>
-                        <li id="DID_ADVANCED"><a href="#ADVANCED"><strong>Advanced</strong></a></li>
-                        @foreach (var sc in dances.OrderBy(x => x.DanceName))
-                        {
-                            var id = "DID_" + sc.DanceId;
-                            var href = "#" + sc.DanceId;
-                            <li id="@id"><a href=@href><strong>@sc.DanceName</strong></a></li>
-                            foreach (var sci in sc.Children.OrderBy(x => x.DanceName))
+        <div class="row">
+            <h1 class="col-sm-2" style="width: auto; font-size: 22px;">Song Library</h1>
+            <div class="col-sm-offset-2" style="margin-left: 1px">
+                <div class="input-group" style="margin-top: 1em">
+                    <div class="input-group-btn search-panel">
+                        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" style="margin-left: 15px">
+                            <span id="dance_selector">@danceName</span> <span class="caret"></span>
+                        </button>
+                        <ul class="dropdown-menu" role="menu">
+                            <li id="DID_ALL"><a href="#ALL"><strong>All Dances</strong></a></li>
+                            <li id="DID_ADVANCED"><a href="#ADVANCED"><strong>Advanced</strong></a></li>
+                            @foreach (var sc in dances.OrderBy(x => x.DanceName))
                             {
-                                if (sci.SongCount > 0)
+                                var id = "DID_" + sc.DanceId;
+                                var href = "#" + sc.DanceId;
+                                <li id="@id"><a href=@href><strong>@sc.DanceName</strong></a></li>
+                                foreach (var sci in sc.Children.OrderBy(x => x.DanceName))
                                 {
-                                    id = "DID_" + sci.DanceId;
-                                    href = "#" + sci.DanceId;
-                                    <li id="@id"><a href=@href><small>&nbsp;@sci.DanceName</small></a></li>
+                                    if (sci.SongCount > 0)
+                                    {
+                                        id = "DID_" + sci.DanceId;
+                                        href = "#" + sci.DanceId;
+                                        <li id="@id"><a href=@href><small>&nbsp;@sci.DanceName</small></a></li>
+                                    }
                                 }
                             }
-                        }
-                    </ul>
-                </div>
-                <input type="hidden" name="dances" id="dances" value="@filter.Dances" />
-                <input type="hidden" name="filter" id="filter" value="@filter.ToString()"/>
-                <input type="hidden" name ="tags" id="tags" />
-                @Html.TextBox("SearchString", filter.SearchString, new { @class = "form-control search-text", placeholder = "Artist, Title, or Album" })
-                <span class="input-group-btn">
-                    <button id="submit-search" class="btn btn-default" type="submit" style="margin-right:15px"><span class="glyphicon glyphicon-search"></span></button>
-                </span>
-            </div>
-        </div> 
-    </div> 
-    <div class="row">
-        <div class="col-xs-12">
-            <div id="AdvancedSearch" class="input-group">
-                <div class="input-group">
-                    Include only songs available on:
-                    <label>
-                        <input type="checkbox" name="services" id="serviceX" value="X" @checkX />
-                        Groove
-                    </label>
-                    <label>
-                        <input type="checkbox" name="services" id="serviceA" value="A" @checkA />
-                        Amazon
-                    </label>
-                    <label>
-                        <input type="checkbox" name="services" id="serviceI" value="I" @checkI />
-                        ITunes
-                    </label>
-                    <label>
-                        <input type="checkbox" name="services" id="serviceS" value="S" @checkS />
-                        Spotify
-                    </label>
-                </div>
-
-                <div class="input-group">
-                    Tempo between @Html.TextBox("TempoMin", filter.TempoMin, new {@class = "input-sm"})&nbsp;and&nbsp;
-                    @Html.TextBox("TempoMax", filter.TempoMax, new {@class = "input-sm"}) &nbsp;BPM
-                </div>
-
-                <div class="input-group" style="margin-top: 3px">
-                    Dance to
-                    <div id="dance-boolean" class="btn-group">
-                        <button type="button" class="btn btn-sm btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">@(danceQuery.IsExclusive ? "all" : "any") <span class="caret"></span></button>
-                        <ul class="dropdown-menu">
-                            <li><a id="db-all" href="#">All</a></li>
-                            <li><a id="db-any" href="#">Any</a></li>
                         </ul>
-                    </div> of:
-                    <select id="chosen-dances" class="chosen-select" style="width: 350px;" multiple data-placeholder="Choose some dance styles...">
-                        @foreach (var d in dances)
-                        {
-                            var set = danceQuery.HasDance(d.DanceId) ? "selected" : "";
-                            <option value="@d.DanceId" @set>@d.DanceName</option>
-                            foreach (var ds in d.Children)
-                            {
-                                set = danceQuery.HasDance(ds.DanceId) ? "selected" : "";
-                                <option value="@ds.DanceId" @set>@ds.DanceName</option>
-                            }
-                        }
-                    </select>
-                </div>
-                <div class="input-group" style="margin-top: 3px">
-                    Include tags <span data-bind="template: {name:'tag-template',foreach:includeTags.TagSummary.tagTypes}"></span>
-                    Exclude tags <span data-bind="template: {name:'tag-template',foreach:excludeTags.TagSummary.tagTypes}"></span>
+                    </div>
+                    <input type="hidden" name="dances" id="dances" value="@filter.Dances"/>
+                    <input type="hidden" name="filter" id="filter" value="@filter.ToString()"/>
+                    <input type="hidden" name="tags" id="tags"/>
+                    @Html.TextBox("SearchString", filter.SearchString, new {@class = "form-control search-text", placeholder = "Artist, Title, or Album"})
+                    <span class="input-group-btn">
+                        @*TODO: Write the code to take into account the text in the live search box rather filter that came through *@ 
+                        <button id="submit-search" class="btn btn-default" type="submit" style="margin-right: 15px"><span class="glyphicon glyphicon-search"></span></button>
+                    </span>
                 </div>
             </div>
         </div>
-    </div>
+        <div class="row" typeof="text" style="text-align: right; margin-right: 15px">
+            @Html.ActionLink("Advanced Search","advancedsearchform",new {filter}, null)
+        </div>
+    }
 }
-<div class="row">
-    <div class="col-md-12">
-        <a id="ToggleAdvanced" href="#" class="btn btn-info btn-xs btn-block" style="margin-top:5px">&nbsp;</a>
-    </div>
-</div>
+
 
 @if (isAdmin)
 {
@@ -199,21 +133,33 @@ else
                 @Html.ActionLink(dance.Name + " Page", dance.Name, "dances", new { filter, type = "I", count = 1 }, new { @class = "btn btn-default", role = "button" })
             }
         }
-        @if (!filter.IsEmpty)
+        @if (!string.Equals(filter.Action, "advancedsearchform", StringComparison.OrdinalIgnoreCase))
         {
+            if (!filter.IsEmpty)
+            {
             @Html.ActionLink("New Search", "index", "song", new { @class = "btn btn-default", role = "button" })
+            }
         }
     </div>
 </div>
 
-<div class="row">
-    <div id="spotify-player" class="col-md-6" data-trackset-name="music4dance" data-trackset-songs="@string.Join(",", Model.Select(s => s.SongId))"></div>
-    <div class="col-md-6"><h4>@description</h4></div>
-</div>
+@if (string.Equals(filter.Action, "advancedsearchform", StringComparison.OrdinalIgnoreCase))
+    {
+    <div class="row">
+        <div id="spotify-player" class="col-md-6" data-trackset-name="music4dance" data-trackset-songs="@string.Join(",", Model.Select(s => s.SongId))"></div>
+    </div>
+}
+else
+{
+    <div class="row">
+        <div id="spotify-player" class="col-md-6" data-trackset-name="music4dance" data-trackset-songs="@string.Join(",", Model.Select(s => s.SongId))"></div>
+        <div class="col-md-6"><h4>@description</h4></div>
+    </div>
+}
 
 @Html.Partial("_TagEditor")
 
-@section Scripts    
+@section Scripts
 {
     @{
         if (filter.Advanced)

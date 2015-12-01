@@ -1,0 +1,224 @@
+﻿@using System.Runtime.Serialization.Json
+
+@{
+    SongFilter filter = ViewData.ContainsKey("SongFilter") ? ViewBag.SongFilter : SongFilter.Default;
+    if (filter.SortOrder == null)
+    {
+        filter.SortOrder = string.Empty;
+    }
+
+    var danceQuery = filter.DanceQuery;
+    var description = filter.Description;
+
+    ViewBag.Title = "Advanced Search";
+    ViewBag.Description = "music4dance advanced search form: " + description;
+
+    var dances = (IList<SongCounts>)ViewBag.Dances;
+}
+
+@Html.Partial("ItemTags")
+<h1>Advanced Song Library Search</h1>
+<div class="row">
+    <div class="col-sm-10 col-sm-offset-1 col-md-8 col-md-offset-2" style="font-size:16px; border:40px solid;">
+        @using (Html.BeginForm("advancedsearch", "Song", FormMethod.Get, new { id = "search", @class="form-horizontal" }))
+        {
+            var checkX = string.Empty;
+            var checkA = string.Empty;
+            var checkI = string.Empty;
+            var checkS = string.Empty;
+            var purchase = filter.Purchase;
+            if (!string.IsNullOrWhiteSpace(purchase))
+            {
+                if (purchase.Contains('X'))
+                {
+                    checkX = "checked";
+                }
+                if (purchase.Contains('A'))
+                {
+                    checkA = "checked";
+                }
+                if (purchase.Contains('I'))
+                {
+                    checkI = "checked";
+                }
+                if (purchase.Contains('S'))
+                {
+                    checkS = "checked";
+                }
+            }
+            <div class="form-group" style="margin-top:1em; margin-bottom:1em">
+                <div class="col-sm-2" >
+                    <label for="keyword" class="control-label search-label">Keywords:</label>
+                </div>
+                <div class="col-sm-9 col-md-10">
+                    @Html.TextBox("SearchString", filter.SearchString, new { id = "keyword", @class = "form-control search-text", placeholder = "Artist, Title, or Album" })
+                </div>
+                <input type="hidden" name="dances" id="dances" value="@filter.Dances"/>
+                <input type="hidden" name="filter" id="filter" value="@filter.ToString()"/>
+                <input type="hidden" name="tags" id="tags"/>
+            </div>
+
+            <div class="form-group">
+                <div class="col-sm-2">
+                    <label for="chosen-dances" class="control-label search-label">Dance styles:</label>
+                </div>
+                <div class="col-sm-5">
+                    <select id="chosen-dances" class="chosen-select" style="padding-right:15px" multiple data-placeholder="Choose some dance styles...">
+                        @foreach (var d in dances)
+                        {
+                            var set = danceQuery.HasDance(d.DanceId) ? "selected" : "";
+                            <option value="@d.DanceId" @set>@d.DanceName</option>
+                            foreach (var ds in d.Children)
+                            {
+                                set = danceQuery.HasDance(ds.DanceId) ? "selected" : "";
+                                <option value="@ds.DanceId" @set>@ds.DanceName</option>
+                            }
+                        }
+                    </select>
+                </div>
+                <div id="dance-boolean" class="col-sm-4" style="padding-left: 15px">
+                    <label class="inline" style="width:3em">
+                        <input type="radio" name="db" id="db-any" value="any" @(danceQuery.IsExclusive ? string.Empty : "checked") />Any
+                    </label>&nbsp;&nbsp;
+                    <label class="inline" style="width:3em">
+                        <input type="radio" name="db" id="db-all" value="all" @(danceQuery.IsExclusive ? "checked" : string.Empty) />All
+                    </label>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <div class="col-sm-2">
+                    <label class="control-label search-label">Tempo range (BPM):</label>
+                </div>
+                <div class="col-sm-9">
+                    @Html.TextBox("TempoMin", filter.TempoMin, new {@class = "input-sm"})&nbsp;to&nbsp;
+                    @Html.TextBox("TempoMax", filter.TempoMax, new {@class = "input-sm"})
+                </div>
+            </div>
+
+            <div class="form-group">
+                <div class="col-sm-2">
+                    <label class="control-label search-label">Include tags:</label>
+                </div>
+                <div class="col-sm-9">
+                    <span data-bind="template: {name:'tag-template',foreach:includeTags.TagSummary.tagTypes}"></span>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-sm-2">
+                    <label class="control-label search-label">Exclude tags:</label>
+                </div>
+                <div class="col-sm-9">
+                    <span data-bind="template: {name:'tag-template',foreach:excludeTags.TagSummary.tagTypes}"></span>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <div class="col-sm-2">
+                    <label for="services" class="control-label search-label">Available on:</label>
+                </div>
+                <div class="col-sm-9">
+                    <label class="checkbox-inline">
+                        <input type="checkbox" name="services" id="serviceX" value="X" @checkX />
+                        Groove<span></span> &nbsp;&nbsp;
+                    </label>
+                    <label class="checkbox-inline">
+                        <input type="checkbox" name="services" id="serviceA" value="A" @checkA />
+                        Amazon &nbsp;&nbsp;
+                    </label>
+                    <label class="checkbox-inline">
+                        <input type="checkbox" name="services" id="serviceI" value="I" @checkI />
+                        ITunes &nbsp;&nbsp;
+                    </label>
+                    <label class="checkbox-inline">
+                        <input type="checkbox" name="services" id="serviceS" value="S" @checkS />
+                        Spotify
+                    </label>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <div class="col-sm-2">
+                    <label for="sortOrder" class="control-label search-label">Sort By:</label>
+                </div>
+                <div class="col-sm-9">
+                    <label class="form-inline" style="font-weight:normal; margin-right:1.5em">
+                        <input type="radio" name="sortOrder" value="Title" @(filter.SortOrder.StartsWith("Title",StringComparison.OrdinalIgnoreCase) ? "checked" : string.Empty)> Title
+                    </label>
+                    <label class="form-inline" style="font-weight:normal; margin-right:1.5em">
+                        <input type="radio" name="sortOrder" value="Artist" @(filter.SortOrder.StartsWith("Artist",StringComparison.OrdinalIgnoreCase) ? "checked" : string.Empty)> Artist
+                    </label>
+                    <label class="form-inline" style="font-weight:normal; margin-right:1.5em">
+                        <input type="radio" name="sortOrder" value="Tempo" @(filter.SortOrder.StartsWith("Tempo",StringComparison.OrdinalIgnoreCase) ? "checked" : string.Empty)> Tempo
+                    </label>
+                    <label class="form-inline" style="font-weight:normal; margin-right:1.5em">
+                        <input type="radio" name="sortOrder" value="Dances" @(filter.SortOrder.StartsWith("Dances",StringComparison.OrdinalIgnoreCase) ? "checked" : string.Empty)> Dance Rating
+                    </label>
+                </div>
+                <div class="col-sm-offset-2 col-sm-9">
+                    <label class="form-inline" style="font-weight:normal; margin-right: 1.5em">
+                        <input type="radio" name="sortDirection" value="Ascending" @(!filter.SortOrder.EndsWith("_desc",StringComparison.OrdinalIgnoreCase) ? "checked" : string.Empty)> Ascending (A-Z)
+                    </label>
+                    <label class="form-inline" style="font-weight:normal; margin-right:1.5em">
+                        <input type="radio" name="sortDirection" value="Descending" @(filter.SortOrder.EndsWith("_desc",StringComparison.OrdinalIgnoreCase) ? "checked" : string.Empty)> Descending (Z-A)
+                    </label>
+                </div>
+
+            </div>
+
+            <div class="form-group">
+            </div>
+
+            <div class="form-group">
+                <div class="col-xs-2">
+                    <span class="input-group-btn">
+                        <button id="reset-search" class="btn btn-default" type="submit">Reset</button>
+                    </span>
+                </div>
+                <div class="col-xs-offset-9">
+                    <span class="input-group-btn">
+                        <button id="submit-search" class="btn btn-default" type="submit">Search <span class="glyphicon glyphicon-search"></span></button>
+                    </span>
+                 </div>
+            </div>
+        }
+    </div>
+</div>
+
+@Html.Partial("_TagEditor")
+
+@section Scripts
+{
+    @{
+        if (danceQuery.IsExclusive)
+        {
+            <script>var danceOr = false</script>
+        }
+        else
+        {
+            <script>var danceOr = true</script>
+        }
+
+        string filterString = null;
+        if (ViewData.ContainsKey("SongFilter"))
+        {
+            var stream = new MemoryStream();
+            var serializer = new DataContractJsonSerializer(typeof(SongFilter));
+            serializer.WriteObject(stream, ViewBag.SongFilter);
+            filterString = System.Text.Encoding.UTF8.GetString(stream.ToArray());
+        }
+        <script>window.songFilter = @(filterString == null ? null : Html.Raw(filterString));</script>
+    }
+    @*External Libraries*@
+    @Scripts.Render("~/bundles/jqueryval")
+    @Scripts.Render("~/bundles/knockout")
+    @Scripts.Render("~/bundles/knockout-mapping")
+    @Scripts.Render("~/bundles/tools-script")
+
+    @*Local Scripts*@
+    @Scripts.Render("~/bundles/tagchooser")
+    @Scripts.Render("~/bundles/catalog")
+
+    @*Style Sheets for external libraries*@
+    @Styles.Render("~/bundles/tools-style")
+}

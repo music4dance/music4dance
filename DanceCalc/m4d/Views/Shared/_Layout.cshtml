@@ -91,14 +91,18 @@
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown">Music <span class="caret"></span></a>
                         <ul class="dropdown-menu" role="menu">
                             <li>@Html.ActionLink("Dances", "index", "dances")
-                                <ul style="list-style-type:none">
+                                <ul style="list-style-type:none" role="menu">
                                     <li>@Html.ActionLink("Ballroom","ballroom-competition-categories","dances")</li>
                                     <li>@Html.ActionLink("Latin","latin","dances")</li>
                                     <li>@Html.ActionLink("Swing", "swing", "dances")</li>
                                     <li>@Html.ActionLink("Tango", "tango", "dances")</li>
                                 </ul>
                             </li>
-                            <li>@Html.ActionLink("Song Library", "index", "song")</li>
+                            <li>@Html.ActionLink("Song Library", "index", "song")
+                                <ul style="list-style-type:none" role="menu">
+                                    <li>@Html.ActionLink("Advanced Search", "advancedsearchform", "song")</li>
+                                </ul>
+                            </li>
                             <li>@Html.ActionLink("Wedding", "wedding-music", "dances")</li>
                             <li>@Html.ActionLink("Tags", "index", "tag")</li>
                         </ul>
