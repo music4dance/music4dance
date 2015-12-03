@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data.Entity;
 using System.Diagnostics;
 using System.Linq;
+using System.Web.Mvc;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.EntityFramework;
 
@@ -911,12 +912,27 @@ namespace m4dModels
             //  that is requiring some special casing further along, need
             //  to dig into how to manage that better...
             var userFilter = false;
-            if (!string.IsNullOrWhiteSpace(filter.User))
+            var userQuery = filter.UserQuery;
+
+            if (!userQuery.IsEmpty && userQuery.IsInclude)
             {
-                var user = FindUser(filter.User);
+                var user = FindUser(userQuery.UserName);
                 if (user != null)
                 {
-                    songs = from m in Modified where m.ApplicationUserId == user.Id && m.Song.TitleHash != 0 select m.Song;
+                    var mod = from m in Modified
+                        where m.ApplicationUserId == user.Id && m.Song.TitleHash != 0
+                        select m;
+
+                    if (userQuery.IsHate)
+                    {
+                        mod = mod.Where(m => m.Like == false);
+                    }
+                    else if (userQuery.IsLike)
+                    {
+                        mod = mod.Where(m => m.Like == true);
+                    }
+
+                    songs = from m in mod select m.Song;
                     userFilter = true;
                 }
             }
@@ -1003,7 +1019,6 @@ namespace m4dModels
                 lastCount = count;
             }
 #endif
-
             // Now Handle Tag Filtering
             if (!string.IsNullOrWhiteSpace(filter.Tags))
             {
@@ -1108,6 +1123,38 @@ namespace m4dModels
                 Trace.WriteLineIf(count != lastCount, $"Songs by purchase = {songs.Count()}");
             }
 #endif
+
+            if (!userQuery.IsEmpty && userQuery.IsExclude)
+            {
+                var user = FindUser(userQuery.UserName);
+                if (user != null)
+                {
+                    var mod = from m in Modified
+                              where m.ApplicationUserId == user.Id
+                              select m;
+
+                    if (userQuery.IsHate)
+                    {
+                        mod = mod.Where(m => m.Like == false);
+                    }
+                    else if (userQuery.IsLike)
+                    {
+                        mod = mod.Where(m => m.Like == true);
+                    }
+
+                    songs = songs.Where(s => !s.ModifiedBy.Contains(mod.FirstOrDefault(m => m.SongId == s.SongId)));
+                }
+            }
+
+#if TRACE
+            if (traceVerbose)
+            {
+                count = songs.Count();
+                Trace.WriteLineIf(count != lastCount, $"Songs by user like = {songs.Count()}");
+                lastCount = count;
+            }
+#endif
+
 
             var songSort = new SongSort(filter.SortOrder);
 

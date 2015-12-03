@@ -1,4 +1,5 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using System.Diagnostics;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Web;
 
 namespace m4dModels.Tests
@@ -27,16 +28,18 @@ namespace m4dModels.Tests
         public void FilterDescription()
         {
             var f1 = new SongFilter("Index-FXT-.-.-XI-.-100-120-1-+Instrumental:Music");
-            //Trace.WriteLine(f1.Description);
-            Assert.AreEqual(@"All Foxtrot songs available on Groove or ITunes, including tag Instrumental, having tempo between 100 and 120 beats per measure",f1.Description);
             var f2 = new SongFilter("Index-ALL-Dances-Funk-.-.-.-.-.-+Rock & Roll:Music|\\-Jazz:Music|\\-Pop:Music");
-            //Trace.WriteLine(f2.Description);
-            Assert.AreEqual(@"All songs containing the text ""Funk"", including tag Rock & Roll, excluding tags Jazz or Pop", f2.Description);
             var f3 = new SongFilter("Index-ALL-.-.--.-100-.-1");
-            //Trace.WriteLine(f3.Description);
-            Assert.AreEqual(@"All songs having tempo greater than 100 beats per measure", f3.Description);
             var f4 = new SongFilter("Index-ALL-Title-.--.-.-150-1");
-            //Trace.WriteLine(f4.Description);
+
+            Trace.WriteLine(f1.Description);
+            Trace.WriteLine(f2.Description);
+            Trace.WriteLine(f3.Description);
+            Trace.WriteLine(f4.Description);
+
+            Assert.AreEqual(@"All Foxtrot songs available on Groove or ITunes, including tag Instrumental, having tempo between 100 and 120 beats per measure", f1.Description);
+            Assert.AreEqual(@"All songs containing the text ""Funk"", including tag Rock & Roll, excluding tags Jazz or Pop", f2.Description);
+            Assert.AreEqual(@"All songs having tempo greater than 100 beats per measure", f3.Description);
             Assert.AreEqual(@"All songs having tempo less than 150 beats per measure", f4.Description);
         }
 

@@ -15,9 +15,9 @@ namespace m4dModels.Tests
         public void LoadDatabase()
         {
             var users = from u in s_tester.Dms.Context.Users select u;
-            Assert.AreEqual(s_tester.Users.Count() - 1, users.Count(),"Count of Users");
+            Assert.AreEqual(s_tester.Users.Count - 1, users.Count(),"Count of Users");
             var dances = from d in s_tester.Dms.Context.Dances select d;
-            Assert.AreEqual(s_tester.Dances.Count(), dances.Count(), "Count of Dances");
+            Assert.AreEqual(s_tester.Dances.Count, dances.Count(), "Count of Dances");
             foreach (var s in s_tester.Dms.SerializeTags())
             {
                 Trace.WriteLine(s);

@@ -438,6 +438,10 @@
     <Compile Include="Migrations\201511252344462_Timestamps.Designer.cs">
       <DependentUpon>201511252344462_Timestamps.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201512030037597_LikeFix.cs" />
+    <Compile Include="Migrations\201512030037597_LikeFix.Designer.cs">
+      <DependentUpon>201512030037597_LikeFix.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Context\DanceMusicConfiguration.cs" />
     <Compile Include="Context\DanceMusicContext.cs" />
@@ -966,6 +970,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201511252344462_Timestamps.resx">
       <DependentUpon>201511252344462_Timestamps.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201512030037597_LikeFix.resx">
+      <DependentUpon>201512030037597_LikeFix.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
