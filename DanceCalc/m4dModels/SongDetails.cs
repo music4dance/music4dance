@@ -39,15 +39,20 @@ namespace m4dModels
                 foreach (var prop in song.SongProperties)
                 {
                     Properties.Add(new SongProperty(prop));
-                }                
+                }
             }
 
             if (song.ModifiedBy != null)
             {
                 foreach (var mod in song.ModifiedBy)
                 {
-                    ModifiedList.Add(new ModifiedRecord(mod));
-                }            
+                    var mr = new ModifiedRecord(mod);
+                    if (mr.UserName == user)
+                    {
+                        _currentUserLike = mr.Like;
+                    }
+                    ModifiedList.Add(mr);
+                }
             }
 
             BuildAlbumInfo();
@@ -747,6 +752,14 @@ namespace m4dModels
             get { return _currentUserTags; }
             set { throw new NotImplementedException("Shouldn't hit the setter for this.");}
         }
+
+        [DataMember]
+        public bool? CurrentUserLike
+        {
+            get { return _currentUserLike; }
+            set { throw new NotImplementedException("Shouldn't hit the setter for this."); }
+        }
+
         public void SetCurrentUserTags(ApplicationUser user, DanceMusicService dms)
         {
             if (user == null) return;
@@ -757,7 +770,9 @@ namespace m4dModels
 
             _currentUserTags = GetUserTags(user);
         }
+
         private TagList _currentUserTags;
+        private bool? _currentUserLike;
 
         public int TitleHash => CreateTitleHash(Title);
 

@@ -339,9 +339,12 @@ namespace m4dModels
             //  provide the information for rebulding the song
             // For users, this is additive, so no need to do anything except with a new song
             // For DanceRatings and tags, we're going to update the song here since it is cummulative
+            // For Like/Hate we'll update the modified record here
 
             var drDelete = new List<DanceRating>();
             var currentUser = entry.User;
+            ModifiedRecord currentModified = null;
+
             foreach (var lv in entry.GetValues())
             {
                 if (lv.IsAction) continue;
@@ -359,6 +362,7 @@ namespace m4dModels
                 {
                     currentUser = FindUser(lv.Value);
                     song.AddUser(currentUser, this);
+                    currentModified = song.FindModified(currentUser.UserName);
                 }
                 else if (lv.Name.Equals(SongBase.DanceRatingField))
                 {
@@ -396,6 +400,10 @@ namespace m4dModels
                         song.AddObjectTags(lv.DanceQualifier, lv.Value, currentUser, this);
                     else
                         song.RemoveObjectTags(lv.DanceQualifier, lv.Value, currentUser, this);
+                }
+                else if (baseName.Equals(SongBase.LikeTag) && currentModified != null)
+                {
+                    currentModified.LikeString = lv.Value;
                 }
 
                 if (np != null)

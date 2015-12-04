@@ -102,9 +102,13 @@ namespace m4dModels
 
         // Change the user's set of tags for this object to reflect the tags parameter
         //  return true if tags have actually changed
-        public bool ChangeTags(string tags, ApplicationUser user, DanceMusicService dms = null, object data = null, bool updateTypes=true)
+        public bool ChangeTags(string tags, ApplicationUser user, DanceMusicService dms = null, object data = null, bool updateTypes = true)
         {
-            var newTags = new TagList(tags);
+            return ChangeTags(new TagList(tags), user, dms, data, updateTypes);
+        }
+
+        public bool ChangeTags(TagList newTags, ApplicationUser user, DanceMusicService dms = null, object data = null, bool updateTypes = true)
+        {
             var ut = FindOrCreateUserTags(user, dms);
             var userTags = ut.Tags;
 

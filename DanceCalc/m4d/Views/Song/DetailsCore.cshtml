@@ -9,11 +9,17 @@
 
 <div class="page-header">
     <h1>
+        @if (User.Identity.IsAuthenticated)
+        {
+            <a class="btn btn-sm btn-info" role="button" data-bind="click:toggleVote">
+                <img data-bind="attr: {src:song.voteImage}" />
+            </a>
+        }
         @Model.Title
         @if (!string.IsNullOrWhiteSpace(@Model.Artist))
         {
-            <small>by @Html.ActionLink(Model.Artist, "search", "song", new { searchString = Model.Artist, dances = "ALL" }, null)</small>
-        }    
+            <small>by @Html.ActionLink(Model.Artist, "search", "song", new {searchString = Model.Artist, dances = "ALL"}, null)</small>
+        }
     </h1>
 </div>
 @{

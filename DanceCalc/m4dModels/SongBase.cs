@@ -48,6 +48,7 @@ namespace m4dModels
 
         // User/Song info
         public const string OwnerHash = "OwnerHash";
+        public const string LikeTag = "Like";
 
         // Special cases for reading scraped data
         public const string TitleArtistCell = "TitleArtist";
@@ -132,7 +133,7 @@ namespace m4dModels
                     case UserField:
                         currentUser = new ApplicationUser(prop.Value);
                         // TOOD: if the placeholder user works, we should use it to simplify the ModifiedRecord
-                        currentModified = new ModifiedRecord {SongId = this.SongId, UserName = prop.Value};
+                        currentModified = new ModifiedRecord {SongId = SongId, UserName = prop.Value};
                         AddModifiedBy(currentModified);
                         break;
                     case DanceRatingField:
@@ -186,6 +187,12 @@ namespace m4dModels
                         if (currentModified != null)
                         {
                             currentModified.Owned = (int?) prop.ObjectValue;
+                        }
+                        break;
+                    case LikeTag:
+                        if (currentModified != null)
+                        {
+                            currentModified.LikeString = prop.ObjectValue.ToString();
                         }
                         break;
                     default:
@@ -607,6 +614,11 @@ namespace m4dModels
             return DanceRatings.FirstOrDefault(r => string.Equals(r.DanceId, id, StringComparison.OrdinalIgnoreCase));
         }
 
+        public ModifiedRecord FindModified(string userName)
+        {
+            return ModifiedBy.FirstOrDefault(mr => string.Equals(mr.UserName, userName, StringComparison.OrdinalIgnoreCase));
+        }
+
         protected virtual bool AddModifiedBy(ModifiedRecord mr)
         {
             mr.SongId = SongId;
@@ -637,7 +649,7 @@ namespace m4dModels
             {
                 SongProperties = new List<SongProperty>();
             }
-            var prop = new SongProperty { SongId = this.SongId, Name = name, Value = value == null ? null : value.ToString() };
+            var prop = new SongProperty { SongId = SongId, Name = name, Value = value?.ToString() };
             SongProperties.Add(prop);
 
             return prop;

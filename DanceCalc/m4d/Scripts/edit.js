@@ -379,6 +379,7 @@ var editor = function () {
             }
             return max;
         };
+
         self.newAlbum = function () {
             var idx = self.nextIndex();
             var temp = ko.mapping.fromJS({ Index: idx, Name: null, Publisher: null, Track: null, PurchaseInfo: null, PurchaseLinks: null }, albumMapping);
@@ -440,6 +441,55 @@ var editor = function () {
             }
         };
 
+        // Voting Management
+        self.voteImage = ko.pureComputed(function () {
+            var img;
+            switch (self.CurrentUserLike()) {
+                default:
+                    img = 'outline-';
+                    break;
+                case true:
+                    img = '';
+                    break;
+                case false:
+                    img = 'broken-';
+                    break;
+            }
+            return '/content/heart-' + img + 'icon.png';
+        }, this);
+
+        self.toggleVote = function() {
+            switch (self.CurrentUserLike()) {
+                default:
+                    self.CurrentUserLike(true);
+                    break;
+                case true:
+                    self.CurrentUserLike(false);
+                    break;
+                case false:
+                    self.CurrentUserLike(null);
+                    break;
+            }
+            self.changed(true);
+        }
+
+        self.voteText = function () {
+            var ret = 'null';
+            switch (self.CurrentUserLike()) {
+                case true:
+                    ret = 'true';
+                    break;
+                case false:
+                    ret = 'false';
+                    break;
+            }
+            return ret + ':Like';
+        }
+
+        self.serialize = function() {
+            return self.voteText() + '|' + self.TagSummary.serializeUser();
+        }
+
         self.changed = changedHandler;
         self.changeText = function () { return 'your list of tags.' }
     };
@@ -458,7 +508,7 @@ var editor = function () {
         self.tagSuggestions = ko.observable(tagChooser.tagSuggestions('tag-editing',tagChooser.currentSuggestion('Change')));
 
         self.getRatings = function () {
-            var source = { Tags: [{ Id: '', Tags: self.song.TagSummary.serializeUser() }] };
+            var source = { Tags: [{ Id: '', Tags: self.song.serialize() }] };
 
             for (var i = 0; i < self.song.DanceRatings().length; i++) {
                 var rating = self.song.DanceRatings()[i];
@@ -485,7 +535,7 @@ var editor = function () {
                 },
                 error: function (error) {
                     var jsonValue = jQuery.parseJSON(error.responseText);
-                    window.jError('An error has occurred while saving the new part source: ' + jsonValue, { TimeShown: 3000 });
+                    window.alert('An error has occurred while saving the new part source: ' + jsonValue);
                 }
             });
         };
@@ -511,6 +561,11 @@ var editor = function () {
 
             tagChooser.bindModal(self.tagSuggestions(), obj, button, titleExtra);
         };
+
+        self.toggleVote = function() {
+            //TODO: Take another run at figuring out why we can't do this inderection in the html
+            self.song.toggleVote();
+        }
     };
 
     albumMapping = {

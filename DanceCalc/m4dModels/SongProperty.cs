@@ -135,11 +135,15 @@ namespace m4dModels
                             {
                                 ret = hash;
                             }
-                            else
+                        }
+                        break;
+                    case SongBase.LikeTag:
+                        {
+                            bool like;
+                            if (bool.TryParse(Value, out like))
                             {
-                                ret = null;
+                                ret = like;
                             }
-
                         }
                         break;
                     default:

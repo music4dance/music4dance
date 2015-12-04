@@ -210,6 +210,8 @@ namespace m4dModels
                     sb.AppendFormat("{0}having tempo less than {1} beats per measure", separator, TempoMax.Value);
                 }
 
+                sb.Append(UserQuery);
+
                 return sb.ToString().Trim();
             }
         }

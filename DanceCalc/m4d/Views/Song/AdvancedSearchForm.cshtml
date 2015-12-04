@@ -14,6 +14,23 @@
     ViewBag.Description = "music4dance advanced search form: " + description;
 
     var dances = (IList<SongCounts>)ViewBag.Dances;
+
+    var userQuery = filter.UserQuery;
+    var userName = filter.UserQuery.IsEmpty ? User.Identity.Name : filter.UserQuery.UserName;
+    if (string.IsNullOrWhiteSpace(userName))
+    {
+        userQuery = userQuery.IsEmpty ? new UserQuery("null") : new UserQuery(userQuery,User.Identity.Name);
+        userName = userQuery.UserName;
+    }
+    else if (userQuery.IsEmpty && !userQuery.IsNull)
+    {
+        userQuery = new UserQuery("-" + User.Identity.Name + "|H");
+    }
+}
+
+@helper UserOption(string queryString, string text, UserQuery query)
+{
+    <option value="@queryString" @(string.Equals(queryString,query.Query,StringComparison.OrdinalIgnoreCase) ? "selected" : string.Empty)>@text</option>
 }
 
 @Html.Partial("ItemTags")
@@ -116,6 +133,23 @@
                 </div>
                 <div class="col-sm-9">
                     <span data-bind="template: {name:'tag-template',foreach:excludeTags.TagSummary.tagTypes}"></span>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <div class="col-sm-2">
+                    <label class="control-label search-label">My Activity:</label>
+                </div>
+                <div class="col-sm-9">
+                    <select id="user" name="user">
+                        @UserOption("null","Don't filter on my activity",userQuery)
+                        @UserOption("-" + userName + "|H","Exclude all songs that I have marked as DON'T LIKE",userQuery)
+                        @UserOption("+" + userName + "|H","Include only songs that I have marked as DON'T LIKE",userQuery)
+                        @UserOption("-" + userName + "|L","Exclude all songs that I have marked as LIKE",userQuery)
+                        @UserOption("+" + userName + "|L","Include only songs that I have marked as LIKE",userQuery)
+                        @UserOption("-" + userName + "|", "Exclude all songs that I tagged",userQuery)
+                        @UserOption("+" + userName + "|", "Include only songs that I tagged",userQuery)
+                    </select>
                 </div>
             </div>
 

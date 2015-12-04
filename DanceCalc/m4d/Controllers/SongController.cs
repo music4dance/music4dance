@@ -101,7 +101,7 @@ namespace m4d.Controllers
         //
         // Get: /Song/AdvancedSearch
         [AllowAnonymous]
-        public ActionResult AdvancedSearch(string searchString = null, string dances = null, string tags = null, ICollection<string> services = null, decimal? tempoMin = null, decimal? tempoMax = null, string sortOrder = null, string sortDirection = null, SongFilter filter = null)
+        public ActionResult AdvancedSearch(string searchString = null, string dances = null, string tags = null, ICollection<string> services = null, decimal? tempoMin = null, decimal? tempoMax = null, string user=null, string sortOrder = null, string sortDirection = null, SongFilter filter = null)
         {
             if (filter == null)
             {
@@ -141,6 +141,17 @@ namespace m4d.Controllers
                 filter.Page = 1;
             }
 
+            if (string.IsNullOrWhiteSpace(user))
+            {
+                user = null;
+            }
+
+            if (!string.Equals(user, filter.User, StringComparison.OrdinalIgnoreCase))
+            {
+                filter.User = user;
+                filter.Page = 1;
+            }
+
             if (string.IsNullOrWhiteSpace(sortOrder))
             {
                 sortOrder = null;
@@ -173,6 +184,12 @@ namespace m4d.Controllers
                 filter.TempoMin = tempoMin;
                 filter.TempoMax = tempoMax;
                 filter.Page = 1;
+            }
+
+            var uq = filter.UserQuery;
+            if (!uq.IsEmpty && string.IsNullOrEmpty(uq.UserName))
+            {
+                return RedirectToAction("SignIn", "Account", new { ReturnUrl = "/song/advancedsearchform?filter="+filter });
             }
 
             return DoIndex(filter);

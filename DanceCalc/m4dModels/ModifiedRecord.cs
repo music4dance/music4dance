@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Diagnostics;
 
 namespace m4dModels
@@ -21,6 +22,8 @@ namespace m4dModels
             {
                 _userName = mod.ApplicationUser.UserName;
             }
+            Like = mod.Like;
+            Owned = mod.Owned;
         }
 
         public string ApplicationUserId { get; set; }
@@ -38,16 +41,8 @@ namespace m4dModels
 
         public string UserName 
         {
-            get
-            {
-                if (ApplicationUser != null)
-                {
-                    return ApplicationUser.UserName;
-                }
-                else
-                {
-                    return _userName;
-                }
+            get {
+                return ApplicationUser != null ? ApplicationUser.UserName : _userName;
             }
             set
             {
@@ -62,5 +57,19 @@ namespace m4dModels
             }
         }
         private string _userName;
+
+        [NotMapped]
+        public string LikeString {
+            get {return Like?.ToString() ?? "null";}
+            set { ParseLike(value); }
+        }
+
+        public static bool? ParseLike(string likeString)
+        {
+            bool like;
+            if (bool.TryParse(likeString, out like))
+                return like;
+            return null;
+        }
     }
 }

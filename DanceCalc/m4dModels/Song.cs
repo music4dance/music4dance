@@ -326,9 +326,33 @@ namespace m4dModels
                 hash[tag.Id] = tag.Tags;
             }
 
+            // Possibly a bit of a kludge, but we're going to handle vote (Like/Hate) as a top level tag up to this point
+            // So:  null:Like, true:Like, false:Like converts to the appropriate nullable boolean on the modified record.
+            var modified = false;
+            var songTags = new TagList(hash[""].Summary);
+            var likeTags = songTags.Filter("Like");
+            if (!likeTags.IsEmpty)
+            {
+                songTags = songTags.Subtract(likeTags);
+                var lt = likeTags.StripType()[0];
+                var like = ModifiedRecord.ParseLike(lt);
+
+                // TODONEXT: See if we can easily add this into the full editor
+                //  Fix songfilter text to include user
+                //  Fix move to advanced form to include user
+                //  Make sure that login loop isn't broken
+                var mr = ModifiedBy.FirstOrDefault(m => m.ApplicationUserId == user.Id);
+                if (mr != null && mr.Like != like)
+                {
+                    CreateProperty(LikeTag, lt, mr.LikeString,CurrentLog, dms);
+                    mr.Like = like;
+                    modified = true;
+                }
+            }
+
             // First handle the top-level tags, this will incidently add any new danceratings
             //  implied by those tags
-            var modified = ChangeTags(hash[""].Summary, user, dms, "Dances");
+            modified |= ChangeTags(songTags, user, dms, "Dances");
 
             // Edit the tags for each of the dance ratings: Note that I'm stripping out blank dance ratings
             //  at the client, so need to make sure that we remove any tags from dance ratings on the server
