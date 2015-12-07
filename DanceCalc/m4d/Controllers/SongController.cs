@@ -244,6 +244,12 @@ namespace m4d.Controllers
         [AllowAnonymous]
         public ActionResult Index(int? page, string purchase, SongFilter filter)
         {
+            if (User.Identity.IsAuthenticated && filter.IsEmpty)
+            {
+                // TOOD: Build constructors for userquery so we don't have to know the syntax to create a new one...
+                filter.User = "-" + User.Identity.Name + "|H";
+            }
+
             if (page.HasValue)
             {
                 filter.Page = page;
@@ -983,7 +989,9 @@ namespace m4d.Controllers
             BuildDanceList();
 
             var list = songs.ToPagedList(filter.Page ?? 1, 25);
-            
+
+            ViewBag.SongFilter = filter;
+
             Trace.WriteLineIf(TraceLevels.General.TraceVerbose, "Exiting Song.Index");
             return View("Index", list);
         }
