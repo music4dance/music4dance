@@ -210,7 +210,10 @@ namespace m4dModels
                     sb.AppendFormat("{0}having tempo less than {1} beats per measure", separator, TempoMax.Value);
                 }
 
-                sb.Append(UserQuery);
+                var noUserFilter = new SongFilter(ToString()) {Action="Index", User = null, Page = null};
+                var trivialUser = noUserFilter.IsEmpty;
+
+                sb.Append(UserQuery.Description(trivialUser));
 
                 return sb.ToString().Trim();
             }

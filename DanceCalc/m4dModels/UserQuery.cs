@@ -68,11 +68,20 @@ namespace m4dModels
         public bool IsHate => Query.EndsWith("|h");
         public string UserName => IsEmpty ? null : Query.Substring(1, Query.IndexOf('|') - 1);
 
-        public override string ToString()
+        public string Description(bool trivial = false)
         {
             if (IsEmpty) return string.Empty;
 
-            var ret = new StringBuilder(IsInclude?" including songs":" excluding songs");
+            string start;
+            if (trivial)
+            {
+                start = IsInclude ? string.Empty : " not";
+            }
+            else
+            {
+                start = IsInclude ? " including songs" : " excluding songs";
+            }
+            var ret = new StringBuilder(start);
 
             if (IsLike)
             {
@@ -84,12 +93,17 @@ namespace m4dModels
             }
             else
             {
-                ret.Append(" touched by ");
+                ret.Append(" edited by ");
             }
 
             ret.Append(UserName);
 
             return ret.ToString();
+        }
+
+        public override string ToString()
+        {
+            return Description();
         }
     }
 }
