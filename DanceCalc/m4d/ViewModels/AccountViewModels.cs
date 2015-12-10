@@ -121,4 +121,9 @@ namespace m4d.ViewModels
         [Display(Name = @"Email")]
         public string Email { get; set; }
     }
+
+    public class WhySignUpViewModel
+    {
+        public string Form { get; set; }
+    }
 }

@@ -278,6 +278,11 @@ a.text-other:hover,
     list-style-type: none;
 }
 
+.list-clean-aligned {
+    list-style-type: none;
+    margin-left: -2em;
+}
+
 .centeredImage {
     text-align: center;
     margin-top: 0;
