@@ -559,7 +559,7 @@ var editor = function () {
                 }
             }
 
-            tagChooser.bindModal(self.tagSuggestions(), obj, button, titleExtra);
+            tagChooser.bindModal(self.tagSuggestions(), obj, button, $(event.currentTarget), titleExtra);
         };
 
         self.toggleVote = function() {

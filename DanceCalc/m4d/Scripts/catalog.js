@@ -81,7 +81,7 @@
             ts.setCurrent(direction);
             var obj = this[direction + 'Tags'];
 
-            tagChooser.bindModal(ts, obj, button);
+            tagChooser.bindModal(ts, obj, button, $(event.currentTarget));
         }
 
         self.clear = function () {

@@ -547,12 +547,11 @@ var tagChooser = function () {
         });
     }
 
-    var bindModal = function (ts, obj, button, titleExtra) {
+    var bindModal = function (ts, obj, button, modal, titleExtra) {
         var category = button.data('category'); // Extract info from data-* attributes
         ts.setSuggestions(obj, category);
 
         var tagType = obj.TagSummary.getTagType(category);
-        var modal = $(event.currentTarget);
         modal.find('.modal-title').text(ts.current().title() + ' ' + tagType.label + ' Tags' + (titleExtra?titleExtra:''));
 
         var okay = modal.find('#addTagsOkay');
