@@ -2425,6 +2425,20 @@ namespace m4dModels
         private readonly Dictionary<string, ApplicationUser> _userCache = new Dictionary<string, ApplicationUser>();
         private readonly HashSet<string> _roleCache = new HashSet<string>();
 
+        public int BatchUserLike(ApplicationUser user, bool? like)
+        {
+            var mod = Modified.Where(m => m.ApplicationUserId == user.Id).Include("Song").Include("Song.SongProperties");
+            var count = 0;
+            foreach (var m in mod)
+            {
+                m.Song.EditLike(m, like, this);
+                count += 1;
+            }
+
+            SaveChanges();
+            return count;
+        }
+
         #endregion
         public IList<Song> FindMergeCandidates(int n, int level)
         {

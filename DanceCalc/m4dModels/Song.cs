@@ -184,6 +184,18 @@ namespace m4dModels
             return modified;
         }
 
+        public bool EditLike(ModifiedRecord modrec, bool? like, DanceMusicService dms)
+        {
+            if (modrec.Like == like) return false;
+
+            CreateEditProperties(modrec.ApplicationUser,EditCommand,dms);
+            var lt = modrec.LikeString;
+            modrec.Like = like;
+            CreateProperty(LikeTag, modrec.LikeString, lt, CurrentLog, dms);
+            return true;
+        }
+
+
         public bool Update(ApplicationUser user, SongDetails update, DanceMusicService dms)
         {
             SetupCollections();

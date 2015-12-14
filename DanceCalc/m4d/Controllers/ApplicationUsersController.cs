@@ -178,6 +178,22 @@ namespace m4d.Controllers
             return View("Details", user);
         }
 
+        // GET: ApplicationUsers/Details/5
+        public ActionResult AutoLike(string id)
+        {
+            if (id == null)
+            {
+                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+            }
+
+            var user = UserManager.FindById(id);
+
+            ViewBag.Title = "AutoLike";
+            var count = Database.BatchUserLike(user, true);
+            ViewBag.Message = $"{count} songs liked.";
+
+            return View("Info");
+        }
 
         // GET: ApplicationUsers/Delete/5
         public ActionResult Delete(string id)
