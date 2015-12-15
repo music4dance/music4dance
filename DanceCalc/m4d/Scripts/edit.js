@@ -490,6 +490,14 @@ var editor = function () {
             return self.voteText() + '|' + self.TagSummary.serializeUser();
         }
 
+        self.liketip = ko.pureComputed(function () {
+            switch (self.CurrentUserLike()) {
+                case true: return 'You have liked this song, click to dislike';
+                case false: return 'You have disliked this song, click to reset';
+                default: return 'Click to like/dislike this song.';
+            }
+        }, this);
+
         self.changed = changedHandler;
         self.changeText = function () { return 'your list of tags.' }
     };

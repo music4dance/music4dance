@@ -11,6 +11,7 @@ using DanceLibrary;
 using m4d.ViewModels;
 using m4dModels;
 using PagedList;
+using WebGrease.Css.Extensions;
 
 namespace m4d.Controllers
 {
@@ -989,6 +990,13 @@ namespace m4d.Controllers
             BuildDanceList();
 
             var list = songs.ToPagedList(filter.Page ?? 1, 25);
+
+            var userName = HttpContext.User.Identity.Name;
+            var likes = Database.UserLikes(list, userName);
+            if (likes != null)
+            {
+                ViewBag.Likes = likes;
+            }
 
             ViewBag.SongFilter = filter;
 

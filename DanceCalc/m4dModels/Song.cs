@@ -184,6 +184,14 @@ namespace m4dModels
             return modified;
         }
 
+        public bool EditLike(ApplicationUser user, bool? like, DanceMusicService dms)
+        {
+            var modified = AddUser(user, dms);
+            var modrec = FindModified(user.UserName);
+            modified |= EditLike(modrec, like, dms);
+            return modified;
+        }
+
         public bool EditLike(ModifiedRecord modrec, bool? like, DanceMusicService dms)
         {
             if (modrec.Like == like) return false;
@@ -378,7 +386,7 @@ namespace m4dModels
                 modified |= dr.ChangeTags(tl.Summary, user, dms, this);
             }
 
-            return modified;            
+            return modified;
         }
 
         public override void RegisterChangedTags(TagList added, TagList removed, ApplicationUser user, DanceMusicService dms, object data)

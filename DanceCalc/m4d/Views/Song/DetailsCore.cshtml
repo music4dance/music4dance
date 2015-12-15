@@ -11,7 +11,7 @@
     <h1>
         @if (User.Identity.IsAuthenticated)
         {
-            <a class="btn btn-sm btn-info" role="button" data-bind="click:toggleVote">
+            <a class="btn btn-sm btn-info" role="button" data-show="tooltip" data-placement="right" data-bind="attr: {'data-original-title':song.liketip},click:toggleVote">
                 <img data-bind="attr: {src:song.voteImage}" />
             </a>
         }

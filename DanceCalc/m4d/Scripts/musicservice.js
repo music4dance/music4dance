@@ -12,7 +12,7 @@
                     window.open(data[0].Link, data[0].Target);
                 }
             })
-            .fail(function(jqXHR, textStatus, err) {
+            .fail(function(jqxhr, textStatus, err) {
                 window.alert(err);
                 //$('#product').text('Error: ' + err);
             });
@@ -25,9 +25,55 @@
             $(currentDance).queue(function (next) {
                 $(this).popover('hide');
                 next();
-            });            
+            });
         }
         currentDance = this;
+    });
+
+    // Handle like links
+    $('.toggle-like').click(function (event) {
+        event.preventDefault();
+        //window.alert("You clicked me!(" + this.id + ")");
+        var $this = $(this);
+        var fields = $this.attr('id').split('.');
+        var like = $this.data('like');
+        switch (like) {
+            default:
+                like = true;
+                break;
+            case true:
+                like = false;
+                break;
+            case false:
+                like = null;
+                break;
+        }
+
+        var t = '/api/updatelike/' + fields[1] + '?like=' + like;
+        $.getJSON(t)
+            .done(function () {
+                var img = $this.find('img');
+                var str = (like === null) ? 'null' : (like ? 'true' : 'false');
+                switch (like) {
+                case true:
+                    img.prop('src', '/content/heart-icon.png');
+                    break;
+                case false:
+                    img.prop('src', '/content/heart-broken-icon.png');
+                    break;
+                default:
+                    img.prop('src', '/content/heart-outline-icon.png');
+                    break;
+                }
+
+                $this.data('like', like);
+                $this.attr('title', window.HeartOptions[str].tip);
+                img.prop('src', '/content/heart' + window.HeartOptions[str].img + '-icon.png');
+            })
+            .fail(function (jqxhr, textStatus, err) {
+                window.alert(err);
+                //$('#product').text('Error: ' + err);
+            });
     });
 
     // Handle the spotify control
@@ -46,7 +92,7 @@
             var player = '<iframe  src="https://embed.spotify.com/?uri=spotify:trackset:' + name + ':' + data + '" frameborder="0" allowtransparency="true"></iframe>';
             spotify.append(player);
         })
-        .fail(function (jqXHR, textStatus, err) {
+        .fail(function (jqxhr, textStatus, err) {
             //window.alert(2err);
             //$('#product').text('Error: ' + err);
         });

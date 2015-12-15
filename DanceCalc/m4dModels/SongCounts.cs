@@ -24,6 +24,12 @@ namespace m4dModels
 
         public IEnumerable<Song> TopSongs { get; private set; }
 
+        public IEnumerable<Song> GetTopSongs(DanceMusicService dms)
+        {
+            return TopSongs.Select(s => dms.FindSong(s.SongId));
+        }
+
+
         public ICollection<ICollection<PurchaseLink>> TopSpotify { get; private set; }
 
         public IReadOnlyList<CompetitionDance> CompetitionDances => _competitionDances;

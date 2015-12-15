@@ -531,9 +531,13 @@ namespace m4d.Controllers
 
         private ActionResult RedirectToLocal(string returnUrl)
         {
-            if (Url.IsLocalUrl(returnUrl))
+            if (!string.IsNullOrWhiteSpace(returnUrl))
             {
-                return Redirect(returnUrl);
+                var returnPath = new Uri(returnUrl).AbsolutePath;
+                if (Url.IsLocalUrl(returnPath))
+                {
+                    return Redirect(returnUrl);
+                }
             }
             return RedirectToAction("Index", "Home");
         }

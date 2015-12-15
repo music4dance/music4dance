@@ -339,6 +339,7 @@
   <ItemGroup>
     <Compile Include="APIControllers\ServiceTrackController.cs" />
     <Compile Include="APIControllers\TagSuggestionController.cs" />
+    <Compile Include="APIControllers\UpdateLikeController.cs" />
     <Compile Include="APIControllers\UpdateRatingsController.cs" />
     <Compile Include="App_Start\BundleConfig.cs" />
     <Compile Include="App_Start\FilterConfig.cs" />
@@ -469,6 +470,7 @@
     <Compile Include="Utilities\XboxAuthentication.cs" />
     <Compile Include="ViewModels\AlbumViewModel.cs" />
     <Compile Include="ViewModels\DanceClass.cs" />
+    <Compile Include="ViewModels\LikeView.cs" />
     <Compile Include="ViewModels\ManageViewModels.cs" />
     <Compile Include="ViewModels\ServiceSearchResults.cs" />
     <Compile Include="ViewModels\AccountViewModels.cs" />

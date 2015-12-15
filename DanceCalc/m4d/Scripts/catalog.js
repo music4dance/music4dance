@@ -225,7 +225,6 @@ $(document).ready(function () {
         $(this).attr('href', href);
     });
 
-
     $('#chosen-dances').chosen({ max_selected_options: 5, width: '100%' });
 
     $("input[name='db']", $('#dance-boolean')).change(function () {
@@ -271,6 +270,9 @@ $(document).ready(function () {
 
     $('#search').submit(function () { filter.update(); });
     $('#reset-search').click(function () { filter.reset(event); });
+
+    // Setup tool-tips
+    $('[data-toggle="tooltip"]').tooltip();
 
     filter.init();
 });

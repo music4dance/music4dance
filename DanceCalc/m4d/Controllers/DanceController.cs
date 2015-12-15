@@ -51,7 +51,16 @@ namespace m4d.Controllers
             HelpPage = "dance-details";
             ViewBag.DanceMap = SongCounts.GetDanceMap(Database);
             var sc = SongCounts.FromName(dance, Database);
-            return sc != null ? View("details", sc) : ReturnError(HttpStatusCode.NotFound, $"The dance with the name = {dance} isn't defined.");
+
+            if (sc == null) return ReturnError(HttpStatusCode.NotFound, $"The dance with the name = {dance} isn't defined.");
+
+            var likes = Database.UserLikes(sc.GetTopSongs(Database), HttpContext.User.Identity.Name);
+            if (likes != null)
+            {
+                ViewBag.Likes = likes;
+            }
+
+            return View("details", sc);
         }
 
         // GET: GroupRedirect/group/dance

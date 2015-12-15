@@ -167,6 +167,20 @@ namespace m4dModels
             return true;
         }
 
+        public bool EditLike(ApplicationUser user, Guid songId, bool? like, bool doLog = true)
+        {
+            var song = _context.Songs.Find(songId);
+            if (doLog)
+                song.CurrentLog = CreateSongLog(user, song, SongBase.EditCommand);
+
+            if (!song.EditLike(user, like, this)) return false;
+
+            if (song.CurrentLog != null)
+                _context.Log.Add(song.CurrentLog);
+            SaveChanges();
+            return true;
+        }
+
 
         private IList<AlbumDetails> MergeAlbums(IList<Song> songs, string def, HashSet<string> keys, string artist)
         {
@@ -1205,6 +1219,22 @@ namespace m4dModels
             }
 
             return songs.Include("DanceRatings").Include("ModifiedBy").Include("SongProperties");
+        }
+
+        public Dictionary<Guid, bool?> UserLikes(IEnumerable<SongBase> songs, string userName)
+        {
+            if (string.IsNullOrWhiteSpace(userName)) return null;
+
+            var likes = new Dictionary<Guid, bool?>();
+            foreach (var s in songs)
+            {
+                var mod = s.ModifiedBy.FirstOrDefault(m => m.UserName == userName);
+                if (mod != null)
+                {
+                    likes.Add(s.SongId, mod.Like);
+                }
+            }
+            return likes;
         }
 
         public enum MatchMethod { None, Tempo, Merge };
