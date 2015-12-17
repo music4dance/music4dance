@@ -85,16 +85,17 @@ namespace m4dModels
 
             if (IsLike)
             {
-                ret.Append(" liked by ");
+                ret.Append(" liked");
             }
             else if (IsHate)
             {
-                ret.Append(" disliked by ");
+                ret.Append(" disliked");
             }
             else
             {
-                ret.Append(" edited by ");
+                ret.Append(" edited");
             }
+            ret.Append(" by ");
 
             ret.Append(UserName);
 

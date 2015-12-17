@@ -108,7 +108,7 @@ namespace m4dModels
 
         public IList<string> Strip()
         {
-            return Summary.Contains(':') 
+            return Summary != null && Summary.Contains(':') 
                 ? Tags.Select(tag => TrimQualifier(tag.Substring(0, tag.IndexOf(':')))).ToList() 
                 : new List<string>();
         }

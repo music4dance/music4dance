@@ -33,6 +33,10 @@ namespace m4dModels.Tests
             var f4 = new SongFilter(@"Index-ALL-Title-.--.-.-150-1");
             var f5 = new SongFilter(@"Advanced-.-.-.-.-+charlie|L-.-.-1");
             var f6 = new SongFilter(@"Advanced-.-.-.-.-\-charlie|");
+            var f7 = new SongFilter(@"Advanced-.-.-.-.-null-.-.-1-+R&B / Soul:Music|+Rhythm and Blues:Music|+Blues:Music|");
+            var f8 = new SongFilter(@"Advanced-SLS-.-.-S-null-.-.-1-|\-Christian / Gospel:Music|\-TV Theme Song:Music|\-Doo Wop:Music");
+            var f9 = new SongFilter(@"Advanced-MBO,RMB,SMB-.-.-.-null-.-.-1-|");
+            var f10 = new SongFilter(@"Advanced-AND,ECS,FXT,TGO-.-.-A-null-.-.-1-|");
 
             Trace.WriteLine(f1.Description);
             Trace.WriteLine(f2.Description);
@@ -40,6 +44,10 @@ namespace m4dModels.Tests
             Trace.WriteLine(f4.Description);
             Trace.WriteLine(f5.Description);
             Trace.WriteLine(f6.Description);
+            Trace.WriteLine(f7.Description);
+            Trace.WriteLine(f8.Description);
+            Trace.WriteLine(f9.Description);
+            Trace.WriteLine(f10.Description);
 
             Assert.AreEqual(@"All Foxtrot songs available on Groove or ITunes, including tag Instrumental, having tempo between 100 and 120 beats per measure", f1.Description);
             Assert.AreEqual(@"All songs containing the text ""Funk"", including tag Rock & Roll, excluding tags Jazz or Pop", f2.Description);
@@ -47,15 +55,19 @@ namespace m4dModels.Tests
             Assert.AreEqual(@"All songs having tempo less than 150 beats per measure", f4.Description);
             Assert.AreEqual(@"All songs liked by charlie", f5.Description);
             Assert.AreEqual(@"All songs not edited by charlie", f6.Description);
+            Assert.AreEqual(@"All songs including tags Blues, R&B / Soul and Rhythm and Blues", f7.Description);
+            Assert.AreEqual(@"All Salsa songs available on Spotify, excluding tags Christian / Gospel, Doo Wop or TV Theme Song", f8.Description);
+            Assert.AreEqual(@"All songs danceable to any of Mambo, Rumba or Samba", f9.Description);
+            Assert.AreEqual(@"All songs danceable to all of East Coast Swing, Foxtrot and Tango (Ballroom) available on Amazon", f10.Description);
         }
 
         [TestMethod]
         public void TestEmpty()
         {
-            Assert.IsTrue(new SongFilter("@Index-ALL").IsEmpty);
-            Assert.IsTrue(new SongFilter("@Index").IsEmpty);
-            Assert.IsFalse(new SongFilter("@Index-ALL-Title-.--.-.-150-1").IsEmpty);
-            Assert.IsTrue(new SongFilter("@Index-.-Dances-.-.-.-.-.-1").IsEmpty);
+            Assert.IsTrue(new SongFilter(@"Index-ALL").IsEmpty);
+            Assert.IsTrue(new SongFilter(@"Index").IsEmpty);
+            Assert.IsFalse(new SongFilter(@"Index-ALL-Title-.--.-.-150-1").IsEmpty);
+            Assert.IsTrue(new SongFilter(@"Index-.-Dances-.-.-.-.-.-1").IsEmpty);
         }
 
         private static void TestFilters(bool withEncoding)

@@ -139,63 +139,33 @@ namespace m4dModels
         {
             get
             {
-                // All [dance] songs [including the text "<SearchString>] [Available on [Groove|Amazon|ITunes|Spotify] [Including tags TI] [Excluding tag TX] [Tempo Range] 
-                // TODO: Later? [Edited by User] [(Page n)]
+                // All [dance] songs [including the text "<SearchString>] [Available on [Groove|Amazon|ITunes|Spotify] [Including tags TI] [Excluding tags TX] [Tempo Range] [(liked|disliked|edited) by user]
+                // TODO: Later? Sort order
                 // TOOD: If we pass in context, we can have user name + we can do better stuff with the tags...
 
-                var name = "All songs";
                 var separator = " ";
-                const string addSep = ", ";
 
                 var danceQuery = DanceQuery;
-                if (!danceQuery.All)
-                {
-                    var dances = danceQuery.Dances.ToList();
-                    if (dances.Count == 1)
-                    {
-                        name = $"All {dances[0].Name} songs";
-                    }
-                    else
-                    {
-                        var x = danceQuery.IsExclusive ? "all" : "any";
-                        name += $" danceable to {x} of {string.Join(", ", dances.Select(n => n.Name))}";
-                    }
-                }
+                var prefix = danceQuery.IsExclusive ? FormatDanceList(danceQuery, "all", "and") : FormatDanceList(danceQuery, "any", "or");
 
-                var dance = DanceLibrary.Dances.Instance.DanceFromId(Dances);
-                if (dance != null)
-                {
-                    name = string.Format($"All {dance.Name} songs");
-                }
-
-                var sb = new StringBuilder(name);
+                var sb = new StringBuilder(prefix);
 
                 if (!string.IsNullOrWhiteSpace(SearchString))
                 {
                     sb.AppendFormat(" containing the text \"{0}\"",SearchString);
-                    separator = addSep;
+                    separator = CommaSeparator;
                 }
 
                 if (!string.IsNullOrWhiteSpace(Purchase))
                 {
                     sb.AppendFormat("{0}available on {1}",separator,MusicService.FormatPurchaseFilter(Purchase, " or "));
-                    separator = addSep;
+                    separator = CommaSeparator;
                 }
 
                 var tags = new TagList(Tags);
-                var inc = tags.ExtractAdd();
-                var exc = tags.ExtractRemove();
 
-                if (inc.Tags.Count > 0)
-                {
-                    sb.AppendFormat("{0}including tag{1} {2}", separator, inc.Tags.Count > 1 ? "s" : "",string.Join(" and ",inc.Strip()));
-                    separator = addSep;
-                }
-                if (exc.Tags.Count > 0)
-                {
-                    sb.AppendFormat("{0}excluding tag{1} {2}", separator, exc.Tags.Count > 1 ? "s" : "", string.Join(" or ", exc.Strip()));
-                    separator = addSep;
-                }
+                sb.Append(DescribeTags(tags.ExtractAdd(), "including tag", "and", ref separator));
+                sb.Append(DescribeTags(tags.ExtractRemove(), "excluding tag", "or", ref separator));
 
                 if (TempoMin.HasValue && TempoMax.HasValue)
                 {
@@ -216,6 +186,58 @@ namespace m4dModels
                 sb.Append(UserQuery.Description(trivialUser));
 
                 return sb.ToString().Trim();
+            }
+        }
+
+        private const string CommaSeparator = ", ";
+
+        private static string DescribeTags(TagList tags, string prefix, string connector, ref string separator)
+        {
+            return FormatList(tags.Strip(),prefix,connector,ref separator);
+        }
+
+        private static string FormatList(IList<string> list, string prefix, string connector, ref string separator)
+        {
+            var count = list.Count;
+
+            if (count == 0)
+            {
+                return string.Empty;
+            }
+
+            var ret = new StringBuilder();
+            if (count < 3)
+            {
+                ret.AppendFormat("{0}{1}{2} {3}", separator, prefix, count > 1 ? "s" : "", string.Join($" {connector} ", list));
+                separator = CommaSeparator;
+            }
+            else
+            {
+                var last = list[count - 1];
+                list.RemoveAt(count - 1);
+                ret.AppendFormat("{0}{1}s {2} {3} {4}", separator, prefix, string.Join(", ", list), connector, last);
+                separator = CommaSeparator;
+            }
+            return ret.ToString();
+        }
+
+        private static string FormatDanceList(DanceQuery list, string prefix, string connector)
+        {
+            var dances = list.Dances.Select(n => n.Name).ToList();
+            var count = dances.Count;
+
+            switch (count)
+            {
+                case 0:
+                    return "All songs";
+                case 1:
+                    return $"All {dances[0]} songs";
+                case 2:
+                    return $"All songs dancable to {prefix} of {dances[0]} {connector} {dances[1]}";
+                default:
+                    var last = dances[count - 1];
+                    dances.RemoveAt(count - 1);
+                    return $"All songs danceable to {prefix} of {string.Join(", ", dances)} {connector} {last}";
             }
         }
 
