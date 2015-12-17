@@ -6,12 +6,10 @@ using System.Linq;
 using System.Net;
 using System.Web;
 using System.Web.Mvc;
-using Microsoft.ApplicationInsights;
 using DanceLibrary;
 using m4d.ViewModels;
 using m4dModels;
 using PagedList;
-using WebGrease.Css.Extensions;
 
 namespace m4d.Controllers
 {
@@ -320,6 +318,9 @@ namespace m4d.Controllers
         [AllowAnonymous]
         public ActionResult Details(Guid? id = null, SongFilter filter = null)
         {
+            var spider = CheckSpiders();
+            if (spider != null) return spider;
+
             var gid = id ?? Guid.Empty;
             var song = Database.FindSongDetails(gid, User.Identity.Name);
             if (song == null)
@@ -338,6 +339,9 @@ namespace m4d.Controllers
         [AllowAnonymous]
         public ActionResult Album(string title)
         {
+            var spider = CheckSpiders();
+            if (spider != null) return spider;
+
             AlbumViewModel model = null;
 
             if (!string.IsNullOrWhiteSpace(title))
@@ -982,10 +986,8 @@ namespace m4d.Controllers
             Trace.WriteLineIf(TraceLevels.General.TraceVerbose,
                 $"Entering Song.Index: dances='{filter.Dances}',sortOrder='{filter.SortOrder}',searchString='{filter.SearchString}'");
 
-            if (Request.UserAgent != null && Request.UserAgent.Contains("Baiduspider"))
-            {
-                return View("BotWarning");
-            }
+            var spider = CheckSpiders();
+            if (spider != null) return spider;
 
             var properties = new Dictionary<string, string> {{"Filter", filter.ToString()}, {"User", User.Identity.Name } };
             var client = TelemetryClient;

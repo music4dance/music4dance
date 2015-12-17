@@ -24,7 +24,7 @@ namespace m4d
         // For more information on configuring authentication, please visit http://go.microsoft.com/fwlink/?LinkId=301864
         public void ConfigureAuth(IAppBuilder app)
         {
-            Trace.WriteLine($"Start Time = {AdminController.StartTime}");
+            Trace.WriteLine($"Start Time = {DMController.StartTime}");
             // Configure the db context, user manager and signin manager to use a single instance per request
             app.CreatePerOwinContext(DanceMusicContext.Create);
             app.CreatePerOwinContext<ApplicationUserManager>(ApplicationUserManager.Create);

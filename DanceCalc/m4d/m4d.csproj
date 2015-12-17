@@ -469,6 +469,7 @@
     <Compile Include="Utilities\SongBinder.cs" />
     <Compile Include="Utilities\XboxAuthentication.cs" />
     <Compile Include="ViewModels\AlbumViewModel.cs" />
+    <Compile Include="ViewModels\BotHitModel.cs" />
     <Compile Include="ViewModels\DanceClass.cs" />
     <Compile Include="ViewModels\LikeView.cs" />
     <Compile Include="ViewModels\ManageViewModels.cs" />
@@ -895,6 +896,7 @@
     <Content Include="Views\Song\AdvancedSearchForm.cshtml" />
     <Content Include="Views\Account\_WhySignUp.cshtml" />
     <Content Include="Views\Shared\BotWarning.cshtml" />
+    <Content Include="Views\Shared\_botreport.cshtml" />
     <None Include="Web.m4d.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

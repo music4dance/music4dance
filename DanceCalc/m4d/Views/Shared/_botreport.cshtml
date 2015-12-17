@@ -1,0 +1,13 @@
+﻿@model IEnumerable<m4d.ViewModels.BotHitModel>
+
+<table class="table table-striped">
+    <tr><th>hits</th><th>rate</th><th>agent</th></tr>
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>@item.Hits</td>
+            <td>@item.Rate</td>
+            <td>@item.Agent</td>
+        </tr>
+    }
+</table>

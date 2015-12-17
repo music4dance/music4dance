@@ -14,6 +14,7 @@ using System.Web.Mvc;
 using DanceLibrary;
 using m4d.Context;
 using m4d.Scrapers;
+using m4d.ViewModels;
 using m4dModels;
 using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.AspNet.Identity;
@@ -25,9 +26,6 @@ namespace m4d.Controllers
     public class AdminController : DMController
     {
         public override string DefaultTheme => AdminTheme;
-
-        public static DateTime StartTime { get; } = DateTime.Now;
-        public static TimeSpan UpTime => DateTime.Now - StartTime;
 
         #region Commands
 
@@ -53,6 +51,7 @@ namespace m4d.Controllers
         public ActionResult Diagnostics()
         {
             ViewBag.TraceLevel = TraceLevels.General.Level.ToString();
+            ViewBag.BotReport = CreateBotReport();
             return View();
         }
 
