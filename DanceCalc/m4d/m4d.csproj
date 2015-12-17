@@ -894,6 +894,7 @@
     <Content Include="Views\Dance\weddingdancemusic.cshtml" />
     <Content Include="Views\Song\AdvancedSearchForm.cshtml" />
     <Content Include="Views\Account\_WhySignUp.cshtml" />
+    <Content Include="Views\Shared\BotWarning.cshtml" />
     <None Include="Web.m4d.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
