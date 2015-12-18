@@ -332,7 +332,7 @@ namespace m4d.Controllers
             }
 
             ViewBag.DanceMap = SongCounts.GetDanceMap(Database);
-            ViewBag.DanceList = GetDancesSingle();
+            ViewBag.DanceList = SongCounts.GetDancesSingle(Database);
             return View(song);
         }
 
@@ -407,11 +407,11 @@ namespace m4d.Controllers
                 }
 
                 ViewBag.DanceMap = SongCounts.GetDanceMap(Database);
-                ViewBag.DanceList = GetDancesSingle();
+                ViewBag.DanceList = SongCounts.GetDancesSingle(Database);
                 return View("details", newSong);
             }
 
-            ViewBag.DanceList = GetDancesSingle();
+            ViewBag.DanceList = SongCounts.GetDancesSingle(Database);
 
             // Clean out empty albums
             for (var i = 0; i < song.Albums.Count; )
@@ -455,7 +455,7 @@ namespace m4d.Controllers
             ViewBag.paramShowMPM = true;
             ViewBag.paramShowBPM = true;
 
-            ViewBag.DanceList = GetDancesSingle();
+            ViewBag.DanceList = SongCounts.GetDancesSingle(Database);
 
             ViewBag.DanceMap = SongCounts.GetDanceMap(Database);
         }
@@ -485,7 +485,7 @@ namespace m4d.Controllers
 
                     ViewBag.BackAction = "Index";
                     ViewBag.DanceMap = SongCounts.GetDanceMap(Database);
-                    ViewBag.DanceList = GetDancesSingle(); 
+                    ViewBag.DanceList = SongCounts.GetDancesSingle(Database);
                     return View("details", edit);
                 }
 
@@ -657,7 +657,7 @@ namespace m4d.Controllers
 
             ViewBag.BackAction = "MergeCandidates";
             ViewBag.DanceMap = SongCounts.GetDanceMap(Database);
-            ViewBag.DanceList = GetDancesSingle();
+            ViewBag.DanceList = SongCounts.GetDancesSingle(Database);
             return View("details",Database.FindSongDetails(song.SongId));
         }
 
@@ -952,20 +952,6 @@ namespace m4d.Controllers
 
         #region General Utilities
 
-        private IEnumerable<SelectListItem> GetDancesSingle()
-        {
-            var dances = new List<SelectListItem>(Database.Dances.Count())
-            {
-                new SelectListItem() {Value = string.Empty, Text = string.Empty, Selected = true}
-            };
-            // ReSharper disable once LoopCanBeConvertedToQuery
-            foreach (var d in Database.Dances.Where(d => d.Id.Length < 4))
-            {
-                dances.Add(new SelectListItem() { Value = d.Id, Text = d.Info.Name, Selected=false });
-            }
-            return dances;
-        }
-
         private ActionResult Delete(IQueryable<Song> songs, SongFilter filter)
         {
             var user = Database.FindUser(User.Identity.Name);
@@ -1015,7 +1001,7 @@ namespace m4d.Controllers
         {
             ViewBag.Dances = SongCounts.GetSongCounts(Database);
             ViewBag.DanceMap = SongCounts.GetDanceMap(Database);
-            ViewBag.DanceList = GetDancesSingle();
+            ViewBag.DanceList = SongCounts.GetDancesSingle(Database);
         }
         #endregion
 

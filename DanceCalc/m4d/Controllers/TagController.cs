@@ -22,8 +22,7 @@ namespace m4d.Controllers
         [AllowAnonymous]
         public ActionResult Index()
         {
-            var tagTypes = Database.TagTypes.Include(t => t.Primary).OrderBy(t => t.Key);
-            return View(tagTypes.ToList());
+            return View(Database.OrderedTagTypes());
         }
 
         // GET: Tag/Details/5

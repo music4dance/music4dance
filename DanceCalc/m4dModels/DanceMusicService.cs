@@ -1551,8 +1551,20 @@ namespace m4dModels
 
             if (userString == null)
             {
-                var tts = (tagType == null) ? TagTypes : TagTypes.ToList().Where(tt => tt.Category == tagType);
-                ret = TagType.ToTagCounts(tts).OrderByDescending(tc => tc.Count);
+                lock (s_tagCache)
+                {
+                    if (tagType == null) tagType = string.Empty;
+                    if (s_sugMap.ContainsKey(tagType))
+                    {
+                        ret = s_sugMap[tagType];
+                    }
+                    else
+                    {
+                        var tts = (tagType == string.Empty) ? TagTypes : TagTypes.ToList().Where(tt => tt.Category == tagType);
+                        ret = TagType.ToTagCounts(tts).OrderByDescending(tc => tc.Count);
+                        s_sugMap[tagType] = ret;
+                    }
+                }
             }
             else
             {
@@ -1600,46 +1612,81 @@ namespace m4dModels
 
         public ICollection<TagType> GetTagRings(TagList tags)
         {
-            var map = new Dictionary<string, TagType>();
-
-            // ReSharper disable once LoopCanBePartlyConvertedToQuery
-            foreach (var tag in tags.Tags)
+            lock (s_tagCache)
             {
-                var tt = TagTypes.Find(tag);
-                if (tt == null)
-                    continue;
+                if (!s_tagCache.Any())
+                {
+                    foreach (var tt in TagTypes)
+                    {
+                        s_tagCache.Add(tt.Key.ToLower(), tt);
+                    }
+                }
 
-                while (tt.Primary != null)
+                var map = new Dictionary<string, TagType>();
+                // ReSharper disable once LoopCanBePartlyConvertedToQuery
+                foreach (var tag in tags.Tags)
                 {
-                    tt = tt.Primary;
+                    TagType tt;
+                    if (!s_tagCache.TryGetValue(tag.ToLower(), out tt))
+                        continue;
+
+                    while (tt.Primary != null)
+                    {
+                        tt = tt.Primary;
+                    }
+                    if (!map.ContainsKey(tt.Key))
+                    {
+                        map.Add(tt.Key, tt);
+                    }
                 }
-                if (!map.ContainsKey(tt.Key))
-                {
-                    map.Add(tt.Key, tt);
-                }
+
+                return map.Values;
             }
+        }
 
-            return map.Values;
+        public IEnumerable<TagType> OrderedTagTypes()
+        {
+            lock (s_tagCache)
+            {
+                // ReSharper disable once InvertIf
+                if (_orderedTagTypes == null)
+                {
+                    var tagTypes = TagTypes.Include(t => t.Primary).OrderBy(t => t.Key);
+                    _orderedTagTypes = tagTypes.ToList();
+                }
+                return _orderedTagTypes;
+            }
         }
 
         private TagType CreateTagType(string value, string category, string primary = null) 
         {
-            var type = _context.TagTypes.Create();
-            type.Key = TagType.BuildKey(value, category);
-            type.PrimaryId = primary;
+            lock (s_tagCache)
+            {
+                s_tagCache.Clear();
+                s_sugMap.Clear();
+                _orderedTagTypes = null;
 
-            var other = TagTypes.Find(type.Key);
-            if (other != null)
-            {
-                Trace.WriteLineIf(TraceLevels.General.TraceInfo, $"Attempt to add duplicate tag: {other} {type}");
-                type = other;
+                var type = _context.TagTypes.Create();
+                type.Key = TagType.BuildKey(value, category);
+                type.PrimaryId = primary;
+
+                var other = TagTypes.Find(type.Key);
+                if (other != null)
+                {
+                    Trace.WriteLineIf(TraceLevels.General.TraceInfo, $"Attempt to add duplicate tag: {other} {type}");
+                    type = other;
+                }
+                else
+                {
+                    type = _context.TagTypes.Add(type);
+                }
+                return type;
             }
-            else
-            {
-                type = _context.TagTypes.Add(type);
-            }
-            return type; 
         }
+
+        private static readonly Dictionary<string,IOrderedEnumerable<TagCount>> s_sugMap = new Dictionary<string, IOrderedEnumerable<TagCount>>();
+        private static readonly Dictionary<string,TagType> s_tagCache = new Dictionary<string, TagType>();
+        private static List<TagType> _orderedTagTypes;
 
         #endregion
 
