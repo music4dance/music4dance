@@ -1,4 +1,5 @@
-﻿@using DanceLibrary
+﻿@using System.Data.SqlTypes
+@using DanceLibrary
 @model IEnumerable<SongBase>
 
 @{
@@ -82,6 +83,19 @@
     {
         @TagHelpers.TagButton(titem, filter)
     }
+}
+
+@helper TimeHelper(SongBase song, SongSort order)
+{
+    var created = order.Id == "Created";
+    var prefix = created ? "Created" : "Last modified";
+    var time = created ? song.Created : song.Modified;
+    var delta = created ? song.CreatedOrderVerbose : song.ModifiedOrderVerbose;
+    var timeMessage = prefix + " on " + time.ToString("g") + " (" + delta + " ago)";
+
+    <td class="hidden-xs" data-toggle="tooltip" data-placement="left" title="@timeMessage">
+        @(created ? @song.CreatedOrder : @song.ModifiedOrder)
+    </td>
 }
 
 <script>
@@ -189,8 +203,8 @@
         @if (showDate)
         {
             var timeName = songOrder.Id;
-            <th>
-                @Html.ActionLink(timeName, "sort", "song", new {sortOrder = timeName, filter}, null)
+            <th class="hidden-xs" style="min-width:50px">
+                <a href="@Url.Action("sort", "song", new {sortOrder = timeName, filter})"><span class='glyphicon @(songOrder.Id == "Created" ? "glyphicon-plus" : "glyphicon-pencil")'></span></a>
                 @Html.Raw(songOrder.GetSortGlyph(timeName))
             </th>
         }
@@ -410,16 +424,7 @@
 
                     @if (showDate)
                     {
-                        <td class="hidden-xs">
-                            @if (songOrder.Id == "Created")
-                            {
-                                <text>@item.Created.ToString("g")</text>
-                            }
-                            else
-                            {
-                                <text>@item.Modified.ToString("g")</text>
-                            }
-                        </td>
+                        @TimeHelper(item,songOrder)
                     }
 
                 </tr>

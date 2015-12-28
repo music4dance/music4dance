@@ -269,6 +269,43 @@ namespace m4dModels
 
         public string AlbumName => new AlbumTrack(Album).Album;
 
+        public int TrackNumber  => new AlbumTrack(Album).Track;
+
+        public TimeSpan ModifiedSpan => DateTime.Now - Modified;
+
+        public TimeSpan CreatedSpan => DateTime.Now - Created;
+
+        public string ModifiedOrder => TimeOrder(ModifiedSpan);
+        public string CreatedOrder => TimeOrder(CreatedSpan);
+
+        public string ModifiedOrderVerbose => TimeOrderVerbose(ModifiedSpan);
+        public string CreatedOrderVerbose => TimeOrderVerbose(CreatedSpan);
+
+        private static string TimeOrder(TimeSpan span)
+        {
+            var seconds = span.TotalSeconds;
+            if (seconds < 60) return "s";
+            if (seconds < 60 * 60) return "m";
+            if (seconds < 60 * 60 * 24) return "h";
+            if (seconds < 60 * 60 * 24 * 7) return "D";
+            if (seconds < 60*60*24*30) return "W";
+            return seconds < 60*60*24*365 ? "M" : "Y";
+        }
+
+        private static string TimeOrderVerbose(TimeSpan span)
+        {
+            switch (TimeOrder(span))
+            {
+                case "s": return "seconds";
+                case "m": return "minutes";
+                case "h": return "hours";
+                case "D": return "days";
+                case "W": return "weeks";
+                case "M": return "months";
+                default: return "years";
+            }
+        }
+
         public IOrderedEnumerable<SongProperty> OrderedProperties
         {
             get { return SongProperties.OrderBy(sp => sp.Id); }
