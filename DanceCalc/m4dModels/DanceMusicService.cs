@@ -1204,11 +1204,12 @@ namespace m4dModels
                     songs = did != null ? songs.OrderByDescending(s => s.DanceRatings.FirstOrDefault(dr => dr.DanceId.StartsWith(did)).Weight) : songs.OrderByDescending(s => s.DanceRatings.Max(dr => dr.Weight));
                 }
                     break;
+                // Note that Date sort is the counter-intuitive order since the UI shows amount of time since 
                 case "Modified":
-                    songs = songSort.Descending ? songs.OrderByDescending(s => s.Modified) : songs.OrderBy(s => s.Modified);
+                    songs = songSort.Descending ? songs.OrderBy(s => s.Modified) : songs.OrderByDescending(s => s.Modified);
                     break;
                 case "Created":
-                    songs = songSort.Descending ? songs.OrderByDescending(s => s.Created) : songs.OrderBy(s => s.Created);
+                    songs = songSort.Descending ? songs.OrderBy(s => s.Created) : songs.OrderByDescending(s => s.Created);
                     break;
             }
 

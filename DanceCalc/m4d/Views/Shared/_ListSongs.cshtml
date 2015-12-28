@@ -202,10 +202,11 @@
         }
         @if (showDate)
         {
-            var created = songOrder.Id == "Created";
+            var created = (songOrder.Id == "Created");
+            var dateId = created ? "Created" : "Modified";
             <th class="hidden-xs" style="min-width:50px">
-                <a href="@Url.Action("sort", "song", new {sortOrder = songOrder.Id, filter})"><span class='glyphicon @(created ? "glyphicon-plus" : "glyphicon-pencil")'></span></a>
-                @Html.Raw(songOrder.GetSortGlyph(created ? "Created" : "Modified"))
+                <a href="@Url.Action("sort", "song", new {sortOrder = dateId, filter})"><span class='glyphicon @(created ? "glyphicon-plus" : "glyphicon-pencil")'></span></a>
+                @Html.Raw(songOrder.GetSortGlyph(dateId))
             </th>
         }
     </tr>

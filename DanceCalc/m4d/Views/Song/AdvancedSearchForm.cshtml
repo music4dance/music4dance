@@ -49,7 +49,7 @@
         label = name;
     }
     <label class="form-inline" style="font-weight:normal; margin-right:1.5em">
-        <input type="radio" name="sortOrder" value="Title" @(string.Equals(sort.Id, name, StringComparison.OrdinalIgnoreCase) ? "checked" : string.Empty)> @label
+        <input type="radio" name="sortOrder" value="@name" @(string.Equals(sort.Id, name, StringComparison.OrdinalIgnoreCase) ? "checked" : string.Empty)> @label
     </label>
 }
 
