@@ -2374,7 +2374,7 @@ namespace m4dModels
             return songs;
         }
 
-        private void SerializeChunk(IEnumerable<Song> songs, string[] actions, List<string> lines, HashSet<Guid> exclusions)
+        private static void SerializeChunk(IEnumerable<SongBase> songs, string[] actions, ICollection<string> lines, ICollection<Guid> exclusions)
         {
             // ReSharper disable once LoopCanBeConvertedToQuery
             foreach (var song in songs)

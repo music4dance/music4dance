@@ -700,7 +700,8 @@ namespace m4d.Controllers
         {
             Trace.WriteLineIf(TraceLevels.General.TraceInfo, $"Disable Telemetry: '{disable}'");
             TelemetryConfiguration.Active.DisableTelemetry = disable;
-            return View("Diagnostics");
+
+            return RedirectToAction("Diagnostics");
         }
 
         //
