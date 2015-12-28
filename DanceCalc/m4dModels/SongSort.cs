@@ -18,7 +18,7 @@ namespace m4dModels
         {
             if (string.IsNullOrWhiteSpace(sort))
             {
-                sort = "Title";
+                sort = "Modified_desc";
             }
             var list = sort.Split('_').ToList();
             var count = -1;

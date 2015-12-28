@@ -28,10 +28,31 @@
     }
 }
 
+@helper Service(string id, string name, string purchase)
+{
+    <label class="checkbox-inline">
+        <input type="checkbox" name="services" id="@("service" + id)" value=@id @(purchase == null || !purchase.Contains(id) ? string.Empty : "checked") />
+        <span>@name</span>
+    </label>
+}
+
 @helper UserOption(string queryString, string text, UserQuery query)
 {
     <option value="@queryString" @(string.Equals(queryString,query.Query,StringComparison.OrdinalIgnoreCase) ? "selected" : string.Empty)>@text</option>
 }
+
+@helper SortOrder(string name, string order, string label=null)
+{
+    var sort = new SongSort(order);
+    if (label == null)
+    {
+        label = name;
+    }
+    <label class="form-inline" style="font-weight:normal; margin-right:1.5em">
+        <input type="radio" name="sortOrder" value="Title" @(string.Equals(sort.Id, name, StringComparison.OrdinalIgnoreCase) ? "checked" : string.Empty)> @label
+    </label>
+}
+
 
 @Html.Partial("ItemTags")
 
@@ -45,30 +66,6 @@
     <div class="col-sm-10 col-sm-offset-1 col-md-8 col-md-offset-2" style="font-size:16px; border:40px solid;">
         @using (Html.BeginForm("advancedsearch", "Song", FormMethod.Get, new { id = "search", @class="form-horizontal" }))
         {
-            var checkX = string.Empty;
-            var checkA = string.Empty;
-            var checkI = string.Empty;
-            var checkS = string.Empty;
-            var purchase = filter.Purchase;
-            if (!string.IsNullOrWhiteSpace(purchase))
-            {
-                if (purchase.Contains('X'))
-                {
-                    checkX = "checked";
-                }
-                if (purchase.Contains('A'))
-                {
-                    checkA = "checked";
-                }
-                if (purchase.Contains('I'))
-                {
-                    checkI = "checked";
-                }
-                if (purchase.Contains('S'))
-                {
-                    checkS = "checked";
-                }
-            }
             <div class="form-group" style="margin-top:1em; margin-bottom:1em">
                 <div class="col-sm-2" >
                     <label for="keyword" class="control-label search-label">Keywords:</label>
@@ -158,22 +155,10 @@
                     <label for="services" class="control-label search-label">Available on:</label>
                 </div>
                 <div class="col-sm-9">
-                    <label class="checkbox-inline">
-                        <input type="checkbox" name="services" id="serviceX" value="X" @checkX />
-                        Groove<span></span> &nbsp;&nbsp;
-                    </label>
-                    <label class="checkbox-inline">
-                        <input type="checkbox" name="services" id="serviceA" value="A" @checkA />
-                        Amazon &nbsp;&nbsp;
-                    </label>
-                    <label class="checkbox-inline">
-                        <input type="checkbox" name="services" id="serviceI" value="I" @checkI />
-                        ITunes &nbsp;&nbsp;
-                    </label>
-                    <label class="checkbox-inline">
-                        <input type="checkbox" name="services" id="serviceS" value="S" @checkS />
-                        Spotify
-                    </label>
+                    @Service("X","Groove",filter.Purchase)
+                    @Service("A","Amazon",filter.Purchase)
+                    @Service("I","Itunes",filter.Purchase)
+                    @Service("S","Spotify",filter.Purchase)
                 </div>
             </div>
 
@@ -182,18 +167,12 @@
                     <label for="sortOrder" class="control-label search-label">Sort By:</label>
                 </div>
                 <div class="col-sm-9">
-                    <label class="form-inline" style="font-weight:normal; margin-right:1.5em">
-                        <input type="radio" name="sortOrder" value="Title" @(filter.SortOrder.StartsWith("Title",StringComparison.OrdinalIgnoreCase) ? "checked" : string.Empty)> Title
-                    </label>
-                    <label class="form-inline" style="font-weight:normal; margin-right:1.5em">
-                        <input type="radio" name="sortOrder" value="Artist" @(filter.SortOrder.StartsWith("Artist",StringComparison.OrdinalIgnoreCase) ? "checked" : string.Empty)> Artist
-                    </label>
-                    <label class="form-inline" style="font-weight:normal; margin-right:1.5em">
-                        <input type="radio" name="sortOrder" value="Tempo" @(filter.SortOrder.StartsWith("Tempo",StringComparison.OrdinalIgnoreCase) ? "checked" : string.Empty)> Tempo
-                    </label>
-                    <label class="form-inline" style="font-weight:normal; margin-right:1.5em">
-                        <input type="radio" name="sortOrder" value="Dances" @(filter.SortOrder.StartsWith("Dances",StringComparison.OrdinalIgnoreCase) ? "checked" : string.Empty)> Dance Rating
-                    </label>
+                    @SortOrder("Title",filter.SortOrder)
+                    @SortOrder("Artist", filter.SortOrder)
+                    @SortOrder("Tempo", filter.SortOrder)
+                    @SortOrder("Dances", filter.SortOrder, "Dance Rating")
+                    @SortOrder("Modified", filter.SortOrder, "Last Modified")
+                    @SortOrder("Create", filter.SortOrder, "When Added")
                 </div>
                 <div class="col-sm-offset-2 col-sm-9">
                     <label class="form-inline" style="font-weight:normal; margin-right: 1.5em">

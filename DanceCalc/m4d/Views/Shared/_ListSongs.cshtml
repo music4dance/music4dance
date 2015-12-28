@@ -12,7 +12,7 @@
 
     var danceMap = (IDictionary<string, SongCounts>)ViewBag.DanceMap;
     var songOrder = new SongSort(ViewBag.SongFilter.SortOrder);
-    var showDate = songOrder.Id == "Modified" || songOrder.Id == "Created";
+    var showDate = canSort;
     SongFilter filter = ViewData.ContainsKey("SongFilter") ? ViewBag.SongFilter : new SongFilter();
     Dictionary<Guid, bool?> likes = ViewData.ContainsKey("Likes") ? ViewBag.Likes : null;
     var activeLikes = (likes == null) ? string.Empty : "toggle-like";
@@ -202,10 +202,10 @@
         }
         @if (showDate)
         {
-            var timeName = songOrder.Id;
+            var created = songOrder.Id == "Created";
             <th class="hidden-xs" style="min-width:50px">
-                <a href="@Url.Action("sort", "song", new {sortOrder = timeName, filter})"><span class='glyphicon @(songOrder.Id == "Created" ? "glyphicon-plus" : "glyphicon-pencil")'></span></a>
-                @Html.Raw(songOrder.GetSortGlyph(timeName))
+                <a href="@Url.Action("sort", "song", new {sortOrder = songOrder.Id, filter})"><span class='glyphicon @(created ? "glyphicon-plus" : "glyphicon-pencil")'></span></a>
+                @Html.Raw(songOrder.GetSortGlyph(created ? "Created" : "Modified"))
             </th>
         }
     </tr>
