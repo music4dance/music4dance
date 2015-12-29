@@ -192,7 +192,7 @@ namespace m4dModels
                     case LikeTag:
                         if (currentModified != null)
                         {
-                            currentModified.LikeString = prop.ObjectValue.ToString();
+                            currentModified.Like = prop.ObjectValue as bool?;
                         }
                         break;
                     default:
