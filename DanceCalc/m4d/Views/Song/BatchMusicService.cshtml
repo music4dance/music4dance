@@ -1,5 +1,6 @@
 ﻿
 @{
+    string batchName = ViewBag.BatchName;
     ViewBag.Title = "Batch Music Service Lookup";
 }
 
@@ -10,14 +11,14 @@
 
 <h2>Succeeded (@ViewBag.Succeeded.Count)</h2>
 <ul class="list-group">
-    @foreach (SongDetails item in ViewBag.Succeeded)
+    @foreach (var item in ViewBag.Succeeded)
     {
         <li class="list-group-item">@item.Title - @item.Artist</li>
     }
 </ul>
 <h2>Failed (@ViewBag.Failed.Count)</h2>
 <ul class="list-group">
-    @foreach (Song item in ViewBag.Failed)
+    @foreach (var item in ViewBag.Failed)
     {
         <li class="list-group-item">@item.Title - @item.Artist</li>
     }
@@ -27,9 +28,9 @@
 
 @if (!ViewBag.Completed)
 {
-    @Html.ActionLink("10", "BatchMusicService", new { filter = ViewBag.SongFilter, type=ViewBag.SearchType, options=ViewBag.Options, count = 10 }, new { @class = "btn btn-default", role = "button" });
-    @Html.ActionLink("100", "BatchMusicService", new { filter = ViewBag.SongFilter, type = ViewBag.SearchType, options = ViewBag.Options, count = 100 }, new { @class = "btn btn-default", role = "button" });
-    @Html.ActionLink("500", "BatchMusicService", new { filter = ViewBag.SongFilter, type = ViewBag.SearchType, options = ViewBag.Options, count = 500 }, new { @class = "btn btn-default", role = "button" });
-    @Html.ActionLink("2500", "BatchMusicService", new { filter = ViewBag.SongFilter, type = ViewBag.SearchType, options = ViewBag.Options, count = 2500 }, new { @class = "btn btn-default", role = "button" });
-    @Html.ActionLink("5000", "BatchMusicService", new { filter = ViewBag.SongFilter, type = ViewBag.SearchType, options = ViewBag.Options, count = 5000 }, new { @class = "btn btn-default", role = "button" });
+    @Html.ActionLink("10", batchName, new { filter = ViewBag.SongFilter, type=ViewBag.SearchType, options=ViewBag.Options, count = 10 }, new { @class = "btn btn-default", role = "button" });
+    @Html.ActionLink("100", batchName, new { filter = ViewBag.SongFilter, type = ViewBag.SearchType, options = ViewBag.Options, count = 100 }, new { @class = "btn btn-default", role = "button" });
+    @Html.ActionLink("500", batchName, new { filter = ViewBag.SongFilter, type = ViewBag.SearchType, options = ViewBag.Options, count = 500 }, new { @class = "btn btn-default", role = "button" });
+    @Html.ActionLink("2500", batchName, new { filter = ViewBag.SongFilter, type = ViewBag.SearchType, options = ViewBag.Options, count = 2500 }, new { @class = "btn btn-default", role = "button" });
+    @Html.ActionLink("5000", batchName, new { filter = ViewBag.SongFilter, type = ViewBag.SearchType, options = ViewBag.Options, count = 5000 }, new { @class = "btn btn-default", role = "button" });
 }

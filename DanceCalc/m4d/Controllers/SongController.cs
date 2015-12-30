@@ -684,6 +684,7 @@ namespace m4d.Controllers
                 }
             }
 
+            ViewBag.BatchName = "BatchMusicService";
             ViewBag.SearchType = type;
             ViewBag.Options = options;
             ViewBag.Error = false;
@@ -822,77 +823,6 @@ namespace m4d.Controllers
             return View();
         }
 
-        private SongDetails UpdateSongAndService(SongDetails sd, MusicService service, IDictionary<char, ApplicationUser> users)
-        {
-            var found = MatchSongAndService(sd, service);
-
-            if (found.Count > 0)
-            {
-                var tags = new TagList();
-                foreach (var foundTrack in found)
-                {
-                    UpdateMusicService(sd, MusicService.GetService(foundTrack.Service), foundTrack.Name, foundTrack.Album, foundTrack.Artist, foundTrack.TrackId, foundTrack.CollectionId, foundTrack.AltId, foundTrack.Duration.ToString(), foundTrack.TrackNumber);
-                    tags = tags.Add(new TagList(Database.NormalizeTags(foundTrack.Genre, "Music")));
-                }
-                ApplicationUser user;
-                // ReSharper disable once InvertIf
-                if (!users.TryGetValue(service.CID, out user))
-                {
-                    user = Database.FindUser("batch-" + service.CID.ToString().ToLower());
-                    users[service.CID] = user;
-                }
-
-                return Database.EditSong(user, sd, new[] {new UserTag {Id=string.Empty,Tags=tags}});
-            }
-
-            return null;
-        }
-        private IList<ServiceTrack> MatchSongAndService(SongDetails sd, MusicService service)
-        {
-            IList<ServiceTrack> found = new List<ServiceTrack>();
-            var tracks = FindMusicServiceSong(sd, service);
-
-            // First try the full title/artist
-            if ((tracks == null || tracks.Count == 0) && !string.Equals(DefaultServiceSearch(sd, true), DefaultServiceSearch(sd, false)))
-            {
-                // Now try cleaned up title/artist (remove punctuation and stuff in parens/brackets)
-                ViewBag.Status = null;
-                ViewBag.Error = false;
-                tracks = FindMusicServiceSong(sd, service, true);
-            }
-
-            if (tracks == null || tracks.Count <= 0) return found;
-
-            // First filter out anything that's not a title-artist match (weak)
-            tracks = sd.TitleArtistFilter(tracks);
-            if (tracks.Count <= 0) return found;
-
-            // Then check for exact album match if we don't have a tempo
-            if (!sd.Length.HasValue)
-            {
-                foreach (var track in tracks.Where(track => sd.FindAlbum(track.Album) != null))
-                {
-                    found.Add(track);
-                    break;
-                }
-            }
-            // If not exact album match and the song has a length, choose all albums with the same tempo (delta a few seconds)
-            else
-            {
-                found = sd.DurationFilter(tracks, 6);
-            }
-
-            // If no album name or length match, choose the 'dominant' version of the title/artist match by clustering lengths
-            //  Note that this degenerates to chosing a single album if that is what is available
-            if (found.Count == 0 && !sd.HasRealAblums)
-            {
-                var track = SongDetails.FindDominantTrack(tracks);
-                if (track.Duration != null) found = SongDetails.DurationFilter(tracks, track.Duration.Value, 6);
-            }
-
-            return found;
-        }
-
         // GET: /Song/MusicServiceSearch/5?search=name
         [Authorize(Roles = "canEdit")]
         public ActionResult MusicServiceSearch(Guid? id = null, string type="X", string title = null, string artist = null, SongFilter filter=null)
@@ -946,6 +876,123 @@ namespace m4d.Controllers
             ViewBag.OldSong = alt;
 
             return View("Edit", song);
+        }
+
+
+        [Authorize(Roles = "canEdit")]
+        public ActionResult BatchEchoNest(SongFilter filter = null, int count = 1)
+        {
+            // TODO: This isn't respecting count, should fix that before real batching
+            // Also, requires more testing
+            // 
+            var tried = 0;
+            var skipped = 0;
+
+            var failed = new List<SongBase>();
+            var succeeded = new List<SongBase>();
+
+            Context.TrackChanges(false);
+
+            var page = 0;
+            var done = false;
+
+            var service = MusicService.GetService(ServiceType.Spotify);
+            var user = Database.FindUser("batch-e");
+
+            while (!done)
+            {
+                var songs = Database.BuildSongList(filter, DanceMusicService.CruftFilter.AllCruft).Skip(page * 1000).Take(1000).ToList();
+                var processed = 0;
+                var modified = false;
+                foreach (var song in songs)
+                {
+                    tried += 1;
+                    processed += 1;
+
+                    if (!song.Purchase.Contains('S'))
+                    {
+                        skipped += 1;
+                        continue;
+                    }
+
+                    var sd = new SongDetails(song);
+                    var ids = sd.GetPurchaseIds(service);
+
+                    EchoTrack track = null;
+                    foreach (var id in ids)
+                    {
+                        string[] regions;
+                        var idt = PurchaseRegion.ParseIdAndRegionInfo(id, out regions);
+                        track = Context.LookupEchoTrack(idt);
+                        if (track != null)
+                            break;
+                    }
+
+                    if (track == null)
+                    {
+                        failed.Add(song);
+                    }
+
+                    if (track?.BeatsPerMinute == null || (track.BeatsPerMinute == song.Tempo) ||
+                        (sd.Tempo.HasValue && Math.Abs(track.BeatsPerMinute.Value - sd.Tempo.Value) > 5))
+                    {
+                        skipped += 1;
+                        continue;
+                    }
+
+                    sd.Tempo = track.BeatsPerMinute;
+                    UserTag[] tags = null;
+                    var meter = track.Meter;
+                    if (meter != null)
+                    {
+                        tags = new[]
+                        {
+                            new UserTag
+                            {
+                                Id = string.Empty,
+                                Tags = new TagList($"{meter}:Tempo")
+                            }
+                        }
+                        ;
+                    }
+                    
+                    if (Database.EditSong(user,sd,tags,false) != null)
+                    {
+                        modified = true;
+                        succeeded.Add(song);
+                    }
+
+
+                    if ((tried + 1) % 100 != 0) continue;
+
+                    Trace.WriteLineIf(TraceLevels.General.TraceInfo, $"{tried} songs tried.");
+                    Context.CheckpointChanges();
+                }
+
+                page += 1;
+                if (processed < 1000)
+                {
+                    done = true;
+                }
+                if (!modified)
+                {
+                    ResetContext();
+                }
+            }
+
+            if (failed.Count + succeeded.Count > 0)
+            {
+                Context.TrackChanges(true);
+            }
+
+            ViewBag.BatchName = "BatchEchoNest";
+            ViewBag.SearchType = null;
+            ViewBag.Options = null;
+            ViewBag.Completed = tried <= count;
+            ViewBag.Failed = failed;
+            ViewBag.Succeeded = succeeded;
+            ViewBag.Skipped = skipped;
+            return View("BatchMusicService");
         }
 
         #endregion
@@ -1051,7 +1098,7 @@ namespace m4d.Controllers
             ViewBag.SongTitle = title;
         }
 
-        SongDetails UpdateMusicService(SongDetails song, MusicService service, string name, string album, string artist, string trackId, string collectionId, string alternateId, string duration, int? trackNum)
+        private SongDetails UpdateMusicService(SongDetails song, MusicService service, string name, string album, string artist, string trackId, string collectionId, string alternateId, string duration, int? trackNum)
         {
             // This is a very transitory object to hold the old values for a semi-automated edit
             var alt = new SongDetails();
@@ -1144,6 +1191,77 @@ namespace m4d.Controllers
             {
                 ad.SetPurchaseInfo(pt, ServiceType.AMG, alternateId);
             }
+        }
+
+        private SongDetails UpdateSongAndService(SongDetails sd, MusicService service, IDictionary<char, ApplicationUser> users)
+        {
+            var found = MatchSongAndService(sd, service);
+
+            if (found.Count > 0)
+            {
+                var tags = new TagList();
+                foreach (var foundTrack in found)
+                {
+                    UpdateMusicService(sd, MusicService.GetService(foundTrack.Service), foundTrack.Name, foundTrack.Album, foundTrack.Artist, foundTrack.TrackId, foundTrack.CollectionId, foundTrack.AltId, foundTrack.Duration.ToString(), foundTrack.TrackNumber);
+                    tags = tags.Add(new TagList(Database.NormalizeTags(foundTrack.Genre, "Music")));
+                }
+                ApplicationUser user;
+                // ReSharper disable once InvertIf
+                if (!users.TryGetValue(service.CID, out user))
+                {
+                    user = Database.FindUser("batch-" + service.CID.ToString().ToLower());
+                    users[service.CID] = user;
+                }
+
+                return Database.EditSong(user, sd, new[] { new UserTag { Id = string.Empty, Tags = tags } });
+            }
+
+            return null;
+        }
+        private IList<ServiceTrack> MatchSongAndService(SongDetails sd, MusicService service)
+        {
+            IList<ServiceTrack> found = new List<ServiceTrack>();
+            var tracks = FindMusicServiceSong(sd, service);
+
+            // First try the full title/artist
+            if ((tracks == null || tracks.Count == 0) && !string.Equals(DefaultServiceSearch(sd, true), DefaultServiceSearch(sd, false)))
+            {
+                // Now try cleaned up title/artist (remove punctuation and stuff in parens/brackets)
+                ViewBag.Status = null;
+                ViewBag.Error = false;
+                tracks = FindMusicServiceSong(sd, service, true);
+            }
+
+            if (tracks == null || tracks.Count <= 0) return found;
+
+            // First filter out anything that's not a title-artist match (weak)
+            tracks = sd.TitleArtistFilter(tracks);
+            if (tracks.Count <= 0) return found;
+
+            // Then check for exact album match if we don't have a tempo
+            if (!sd.Length.HasValue)
+            {
+                foreach (var track in tracks.Where(track => sd.FindAlbum(track.Album) != null))
+                {
+                    found.Add(track);
+                    break;
+                }
+            }
+            // If not exact album match and the song has a length, choose all albums with the same tempo (delta a few seconds)
+            else
+            {
+                found = sd.DurationFilter(tracks, 6);
+            }
+
+            // If no album name or length match, choose the 'dominant' version of the title/artist match by clustering lengths
+            //  Note that this degenerates to chosing a single album if that is what is available
+            if (found.Count == 0 && !sd.HasRealAblums)
+            {
+                var track = SongDetails.FindDominantTrack(tracks);
+                if (track.Duration != null) found = SongDetails.DurationFilter(tracks, track.Duration.Value, 6);
+            }
+
+            return found;
         }
         #endregion
 

@@ -914,6 +914,11 @@ namespace m4dModels
             return links;
         }
 
+        public ICollection<string> GetPurchaseIds(MusicService service)
+        {
+            return Albums.Select(album => album.GetPurchaseIdentifier(service.Id, PurchaseType.Song)).Where(id => id != null).ToList();
+        }
+
         public string GetPurchaseId(ServiceType service)
         {
             string ret = null;

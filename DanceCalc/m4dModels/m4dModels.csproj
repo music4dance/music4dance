@@ -84,6 +84,7 @@
     <Compile Include="DanceRatingInfo.cs" />
     <Compile Include="DbTestSet.cs" />
     <Compile Include="DictionaryExtensions.cs" />
+    <Compile Include="EchoTrack.cs" />
     <Compile Include="ErrorModel.cs" />
     <Compile Include="IDanceMusicContext.cs" />
     <Compile Include="DanceLink.cs" />

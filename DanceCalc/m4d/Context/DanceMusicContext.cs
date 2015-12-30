@@ -199,6 +199,14 @@ namespace m4d.Context
 
             return track.IsPlayable == false ? null : GetMusicServiceTrack(track.TrackId, service);
         }
+
+        public EchoTrack LookupEchoTrack(string id)
+        {
+            string request = $"http://developer.echonest.com/api/v4/track/profile?api_key=B0SEV0FNKNEOHGFB0&format=json&id=spotify:track:{id}&bucket=audio_summary";
+            dynamic results = GetMusicServiceResults(request);
+            return EchoTrack.BuildEchoTrack(results);
+        }
+
         private static IList<ServiceTrack> FilterKaraoke(IList<ServiceTrack> list)
         {
             List<ServiceTrack> tracks = new List<ServiceTrack>();
@@ -299,10 +307,10 @@ namespace m4d.Context
             return service.ParseSearchResults(results);
         }
 
-        private static dynamic GetMusicServiceResults(string request, MusicService service, IPrincipal principal = null)
+        private static dynamic GetMusicServiceResults(string request, MusicService service = null, IPrincipal principal = null)
         {
             HttpWebResponse response;
-            string responseString;
+            string responseString = null;
 
             if (request == null)
             {
@@ -313,7 +321,11 @@ namespace m4d.Context
             req.Method = WebRequestMethods.Http.Get;
             req.Accept = "application/json";
 
-            var auth = AdmAuthentication.GetServiceAuthorization(service.Id,principal);
+            string auth = null;
+            if (service != null)
+            {
+                auth = AdmAuthentication.GetServiceAuthorization(service.Id,principal);
+            }
 
             if (auth != null)
             {
@@ -324,18 +336,39 @@ namespace m4d.Context
             {
                 if (response.StatusCode == HttpStatusCode.OK)
                 {
-                    using (var sr = new StreamReader(response.GetResponseStream()))
+                    var stream = response.GetResponseStream();
+                    if (stream != null)
                     {
-                        responseString = sr.ReadToEnd();
+                        using (var sr = new StreamReader(stream))
+                        {
+                            responseString = sr.ReadToEnd();
+                        }
+
+                        var remaining = response.Headers.Get("X-RateLimit-Remaining");
+                        Trace.WriteLineIf(TraceLevels.General.TraceInfo, $"EchoNest Remaining: {remaining}");
+                        int r;
+
+                        if (remaining != null && int.TryParse(remaining, out r) && r == 0)
+                        {
+                            // TODO: Figure out a better way to sleep here (maybe keep track of the last time that RateLimit-Used == 0)
+                            // This may depend on what their algorithm is for trailing - if it's trailing minutewe would need to keep 
+                            // a queue of the last n and wait for (end of queue time + 1 minute - current time + some fudge factor).
+                            Trace.WriteLineIf(TraceLevels.General.TraceInfo,"Excedeed EchoNest Limits");
+                            System.Threading.Thread.Sleep(60*1000);
+                        }
                     }
                 }
-                else
+                if (responseString == null)
                 {
                     throw new WebException(response.StatusDescription);
                 }
             }
 
-            responseString = service.PreprocessResponse(responseString);
+            if (service != null)
+            {
+                responseString = service.PreprocessResponse(responseString);
+            }
+
             return Json.Decode(responseString);
         }
 
