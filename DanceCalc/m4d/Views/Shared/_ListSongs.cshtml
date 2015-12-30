@@ -397,13 +397,13 @@
                                         }
                                     }
                                     var danceQuery = filter.DanceQuery;
-                                    var isExclusive = danceQuery.IsExclusive;
+                                    var isExclusive = danceQuery.IsExclusive || !danceQuery.Dances.Any();
                                     var hasDance = danceQuery.HasDance(ditem.DanceId);
 
                                     var content = MvcHtmlString.Create(
                                         Html.ActionLink(name + " dance page...", name, "dances") +
-                                        (!filter.IsEmpty && isExclusive && !hasDance ? bstring + Html.ActionLink("Filter list to songs tagged as " + name + "...", "search", "song", new { dances = danceQuery.AddDance(ditem.DanceId).Query }, null) : string.Empty) +
-                                        (!filter.IsEmpty && !isExclusive && !hasDance ? bstring + Html.ActionLink("Expand list to included songs tagged as " + name + "...", "search", "song", new { dances = danceQuery.AddDance(ditem.DanceId).Query }, null) : string.Empty) +
+                                        (!filter.IsEmpty && isExclusive && !hasDance ? bstring + Html.ActionLink("Filter list to songs tagged as " + name + "...", "search", "song", new { dances = danceQuery.AddDance(ditem.DanceId).Query, filter }, null) : string.Empty) +
+                                        (!filter.IsEmpty && !isExclusive && !hasDance ? bstring + Html.ActionLink("Expand list to included songs tagged as " + name + "...", "search", "song", new { dances = danceQuery.AddDance(ditem.DanceId).Query, filter }, null) : string.Empty) +
                                         bstring + Html.ActionLink("List all " + name + " songs...", "search", "song", new { dances = ditem.DanceId }, null) +
                                         bstring + "<a href=\"https://www.music4dance.net/blog/tag-filtering\">Help</a>" +
                                         tags );
