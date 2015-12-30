@@ -75,6 +75,7 @@
     <li>@Html.ActionLink("Backup tail", "BackupTail", new { count = 150 })</li>
     <li>@Html.ActionLink("Backup tail (500)", "BackupTail", new { count = 500 })</li>
     <li>@Html.ActionLink("Backup tail (today)", "BackupTail", new {from = DateTime.Now.ToShortDateString(), count = 5000})</li>
+    <li>@Html.ActionLink("Backup tail (yesterday & today)", "BackupTail", new { from = (DateTime.Now - new TimeSpan(1,0,0,0)).ToShortDateString(), count = 5000 })</li>
 
     <h3>Backup Delta</h3>
     using (Html.BeginForm("BackupDelta", "Admin", FormMethod.Post, new { enctype = "multipart/form-data" }))

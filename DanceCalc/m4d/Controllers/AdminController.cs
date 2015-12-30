@@ -1713,6 +1713,9 @@ namespace m4d.Controllers
         [Authorize(Roles = "showDiagnostics")]
         public ActionResult BackupTail(int count = 100, DateTime? from = null, string filter = null)
         {
+            var users = Database.SerializeUsers(true,from);
+            var dances = Database.SerializeDances(true, from);
+
             SongFilter songFilter = null;
             if (!string.IsNullOrWhiteSpace(filter))
             {
@@ -1721,7 +1724,17 @@ namespace m4d.Controllers
 
             var songs = Database.SerializeSongs(true, true, count, from, songFilter);
 
-            var s = string.Join("\r\n", songs);
+            var s = string.Empty;
+            if (users.Count > 0)
+            {
+                s += string.Join("\r\n", users) + "\r\n"; 
+            }
+            if (dances.Count > 0)
+            {
+                s += string.Join("\r\n", dances) + "\r\n";
+            }
+            s += string.Join("\r\n", songs);
+
             var bytes = Encoding.UTF8.GetBytes(s);
             var stream = new MemoryStream(bytes);
 

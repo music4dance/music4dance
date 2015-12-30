@@ -2255,16 +2255,13 @@ namespace m4dModels
         #endregion
 
         #region Save
-        public IList<string> SerializeUsers(bool withHeader=true)
+        public IList<string> SerializeUsers(bool withHeader=true, DateTime? from = null)
         {
             var users = new List<string>();
 
-            if (withHeader)
-            {
-                users.Add(UserHeader);
-            }
-            
-            foreach (var user in UserManager.Users)
+            if (!from.HasValue) from = new DateTime(1,1,1);
+
+            foreach (var user in UserManager.Users.Where(u => u.StartDate >= from.Value))
             {
                 var userId = user.Id;
                 var username = user.UserName;
@@ -2283,6 +2280,11 @@ namespace m4dModels
 
                 users.Add(
                     $"{userId}\t{username}\t{roles}\t{hash}\t{stamp}\t{lockout}\t{providers}\t{email}\t{emailConfirmed}\t{time}\t{region}\t{privacy}\t{canContact}\t{servicePreference}");
+            }
+
+            if (withHeader && users.Count > 0)
+            {
+                users.Insert(0,UserHeader);
             }
 
             return users;
@@ -2390,27 +2392,29 @@ namespace m4dModels
             }
         }
 
-        public IList<string> SerializeDances(bool withHeader = true)
+        public IList<string> SerializeDances(bool withHeader = true, DateTime? from = null)
         {
-            var songs = new List<string>();
+            var dances = new List<string>();
 
-            if (withHeader)
-            {
-                songs.Add(DanceBreak);
-            }
+            if (!from.HasValue) from = new DateTime(1, 1, 1);
 
-            var dancelist = Dances.OrderBy(d => d.Id);
+            var dancelist = Dances.Where(d => d.Modified >= from.Value).OrderBy(d => d.Id);
             // ReSharper disable once LoopCanBeConvertedToQuery
             foreach (var dance in dancelist)
             {
                 var line = dance.Serialize();
                 if (!string.IsNullOrWhiteSpace(line))
                 {
-                    songs.Add(line);
+                    dances.Add(line);
                 }
             }
 
-            return songs;
+            if (withHeader && dances.Count > 0)
+            {
+                dances.Add(DanceBreak);
+            }
+
+            return dances;
         }
 
         #endregion
