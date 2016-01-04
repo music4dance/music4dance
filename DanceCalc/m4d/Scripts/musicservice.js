@@ -84,16 +84,21 @@
     var ids = spotify.attr('data-trackset-songs');
 
     if (!name || !ids) return;
+    var button = spotify.children('button');
 
-    var listUrl = uri + 's?songs=' + ids + '&fulllink=false';//.substring(0,16);
-    // TODO: Consider putting a placeholder until this return + some user friendly message if there are no spotify track
-    $.getJSON(listUrl)
-        .done(function (data) {
-            var player = '<iframe  src="https://embed.spotify.com/?uri=spotify:trackset:' + name + ':' + data + '" frameborder="0" allowtransparency="true"></iframe>';
-            spotify.append(player);
-        })
-        .fail(function (jqxhr, textStatus, err) {
-            //window.alert(2err);
-            //$('#product').text('Error: ' + err);
-        });
+    button.click(function () {
+        button.replaceWith('<span>Loading Spotify</span>');
+        button = spotify.children('span');
+        var listUrl = uri + 's?songs=' + ids + '&fulllink=false'; //.substring(0,16);
+        $.getJSON(listUrl)
+            .done(function(data) {
+                var player = '<iframe  src="https://embed.spotify.com/?uri=spotify:trackset:' + name + ':' + data + '" frameborder="0" allowtransparency="true"></iframe>';
+                button.replaceWith(player);
+            })
+            .fail(function (jqxhr, textStatus, err) {
+                button.replaceWith('<span>No Spotify Tracks on this page.</span>');
+                //window.alert(2err);
+                //$('#product').text('Error: ' + err);
+            });
+    });
 });
