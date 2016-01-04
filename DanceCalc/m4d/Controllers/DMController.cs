@@ -1,12 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
 using System.Net;
 using System.Web;
 using System.Web.Mvc;
-using m4d.Context; 
-using m4d.ViewModels;
+using m4d.Context;
+using m4d.Utilities;
 using m4dModels;
 using Microsoft.ApplicationInsights;
 using Microsoft.AspNet.Identity.Owin;
@@ -151,49 +148,11 @@ namespace m4d.Controllers
         //    return RedirectToAction("Index", "Home");
         //}
 
-        public static DateTime StartTime { get; } = DateTime.Now;
-        public static TimeSpan UpTime => DateTime.Now - StartTime;
-
         public ActionResult CheckSpiders()
         {
-            if (string.IsNullOrWhiteSpace(Request.UserAgent) || Request.UserAgent == null)
-            {
-                EmptyAgents += 1;
-            }
-
-            Debug.Assert(Request.UserAgent != null, "Request.UserAgent != null");
-            var agent = Request.UserAgent.ToLower();
-
-            if (!agent.Contains("spider") && !agent.Contains("bot")) return null;
-
-            var bad = s_badBots.Any(s => agent.Contains(s));
-
-            lock (s_botHits)
-            {
-                long count;
-                if (!s_botHits.TryGetValue(agent, out count))
-                {
-                    count = 0;
-                }
-                s_botHits[agent] = count + 1;
-            }
-
-            return bad ? View("BotWarning") : null;
+            return SpiderManager.CheckBadSpiders(Request.UserAgent) ? View("BotWarning") : null;
         }
 
-        public IEnumerable<BotHitModel> CreateBotReport()
-        {
-            lock (s_botHits)
-            {
-                return BotHitModel.Create(UpTime, EmptyAgents, s_botHits);
-            }
-        } 
-
-        private static readonly Dictionary<string, long> s_botHits = new Dictionary<string, long>();
-
-        public static int EmptyAgents { get; set; }
-
-        private static readonly HashSet<string> s_badBots = new HashSet<string> {"baiduspider"};
 
         protected override void Dispose(bool disposing)
         {

@@ -460,6 +460,7 @@
     </Compile>
     <Compile Include="Startup.cs" />
     <Compile Include="Utilities\GenericPrincipalExtensions.cs" />
+    <Compile Include="Utilities\SpiderManager.cs" />
     <Compile Include="Utilities\SpotAuthentication.cs" />
     <Compile Include="Utilities\AdmAuthentication.cs" />
     <Compile Include="Utilities\AWSFetcher.cs" />

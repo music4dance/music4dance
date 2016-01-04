@@ -1,5 +1,6 @@
 ﻿@using System.Globalization
 @using m4d.Controllers
+@using m4d.Utilities
 @using Microsoft.ApplicationInsights.Extensibility
 @{
     ViewBag.Title = "Logging";
@@ -10,8 +11,8 @@
     <li class="active">Logging</li>
 </ol>
 
-<p>Start Time = <b>@DMController.StartTime.ToString(CultureInfo.CurrentCulture)</b></p>
-<p>Up Time = <b>@DMController.UpTime.ToString()</b></p>
+<p>Start Time = <b>@SpiderManager.StartTime.ToString(CultureInfo.CurrentCulture)</b></p>
+<p>Up Time = <b>@SpiderManager.UpTime.ToString()</b></p>
 
 <hr />
 <h3>Tracing (Current Level = @TraceLevels.General.Level.ToString())</h3>

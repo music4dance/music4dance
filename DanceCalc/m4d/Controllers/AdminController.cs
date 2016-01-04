@@ -14,6 +14,7 @@ using System.Web.Mvc;
 using DanceLibrary;
 using m4d.Context;
 using m4d.Scrapers;
+using m4d.Utilities;
 using m4d.ViewModels;
 using m4dModels;
 using Microsoft.ApplicationInsights.Extensibility;
@@ -51,7 +52,7 @@ namespace m4d.Controllers
         public ActionResult Diagnostics()
         {
             ViewBag.TraceLevel = TraceLevels.General.Level.ToString();
-            ViewBag.BotReport = CreateBotReport();
+            ViewBag.BotReport = SpiderManager.CreateBotReport();
             return View();
         }
 
