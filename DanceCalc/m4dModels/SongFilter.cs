@@ -98,6 +98,7 @@ namespace m4dModels
 
         public DanceQuery DanceQuery => new DanceQuery(Dances);
         public UserQuery UserQuery => new UserQuery(User);
+        public SongSort SongSort => new SongSort(SortOrder);
 
         public bool Advanced => !string.IsNullOrWhiteSpace(Purchase) ||
                                 TempoMin.HasValue || TempoMax.HasValue || DanceQuery.Advanced;
@@ -139,8 +140,7 @@ namespace m4dModels
         {
             get
             {
-                // All [dance] songs [including the text "<SearchString>] [Available on [Groove|Amazon|ITunes|Spotify] [Including tags TI] [Excluding tags TX] [Tempo Range] [(liked|disliked|edited) by user]
-                // TODO: Later? Sort order
+                // All [dance] songs [including the text "<SearchString>] [Available on [Groove|Amazon|ITunes|Spotify] [Including tags TI] [Excluding tags TX] [Tempo Range] [(liked|disliked|edited) by user] sorted by [Sort Order] from [High|low] to [low|high]
                 // TOOD: If we pass in context, we can have user name + we can do better stuff with the tags...
 
                 var separator = " ";
@@ -184,6 +184,9 @@ namespace m4dModels
                 var trivialUser = noUserFilter.IsEmpty;
 
                 sb.Append(UserQuery.Description(trivialUser));
+                sb.Append(".");
+
+                sb.Append(SongSort.Description);
 
                 return sb.ToString().Trim();
             }

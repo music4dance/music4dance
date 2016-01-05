@@ -37,6 +37,8 @@ namespace m4dModels.Tests
             var f8 = new SongFilter(@"Advanced-SLS-.-.-S-null-.-.-1-|\-Christian / Gospel:Music|\-TV Theme Song:Music|\-Doo Wop:Music");
             var f9 = new SongFilter(@"Advanced-MBO,RMB,SMB-.-.-.-null-.-.-1-|");
             var f10 = new SongFilter(@"Advanced-AND,ECS,FXT,TGO-.-.-A-null-.-.-1-|");
+            var f11 = new SongFilter(@"Advanced-RMB-Tempo-.-A-null-.-.-1-|");
+            var f12 = new SongFilter(@"Advanced-AND,RMB,BCH-Created_desc-.-.-null-.-180-1-|");
 
             Trace.WriteLine(f1.Description);
             Trace.WriteLine(f2.Description);
@@ -48,17 +50,21 @@ namespace m4dModels.Tests
             Trace.WriteLine(f8.Description);
             Trace.WriteLine(f9.Description);
             Trace.WriteLine(f10.Description);
+            Trace.WriteLine(f11.Description);
+            Trace.WriteLine(f12.Description);
 
-            Assert.AreEqual(@"All Foxtrot songs available on Groove or ITunes, including tag Instrumental, having tempo between 100 and 120 beats per measure", f1.Description);
-            Assert.AreEqual(@"All songs containing the text ""Funk"", including tag Rock & Roll, excluding tags Jazz or Pop", f2.Description);
-            Assert.AreEqual(@"All songs having tempo greater than 100 beats per measure", f3.Description);
-            Assert.AreEqual(@"All songs having tempo less than 150 beats per measure", f4.Description);
-            Assert.AreEqual(@"All songs liked by charlie", f5.Description);
-            Assert.AreEqual(@"All songs not edited by charlie", f6.Description);
-            Assert.AreEqual(@"All songs including tags Blues, R&B / Soul and Rhythm and Blues", f7.Description);
-            Assert.AreEqual(@"All Salsa songs available on Spotify, excluding tags Christian / Gospel, Doo Wop or TV Theme Song", f8.Description);
-            Assert.AreEqual(@"All songs danceable to any of Mambo, Rumba or Samba", f9.Description);
-            Assert.AreEqual(@"All songs danceable to all of East Coast Swing, Foxtrot and Tango (Ballroom) available on Amazon", f10.Description);
+            Assert.AreEqual(@"All Foxtrot songs available on Groove or ITunes, including tag Instrumental, having tempo between 100 and 120 beats per measure. Sorted by Last Modified from newest to oldest.", f1.Description);
+            Assert.AreEqual(@"All songs containing the text ""Funk"", including tag Rock & Roll, excluding tags Jazz or Pop. Sorted by Dance Rating from most popular to least popular.", f2.Description);
+            Assert.AreEqual(@"All songs having tempo greater than 100 beats per measure. Sorted by Last Modified from newest to oldest.", f3.Description);
+            Assert.AreEqual(@"All songs having tempo less than 150 beats per measure. Sorted by Title from A to Z.", f4.Description);
+            Assert.AreEqual(@"All songs liked by charlie. Sorted by Last Modified from newest to oldest.", f5.Description);
+            Assert.AreEqual(@"All songs not edited by charlie. Sorted by Last Modified from newest to oldest.", f6.Description);
+            Assert.AreEqual(@"All songs including tags Blues, R&B / Soul and Rhythm and Blues. Sorted by Last Modified from newest to oldest.", f7.Description);
+            Assert.AreEqual(@"All Salsa songs available on Spotify, excluding tags Christian / Gospel, Doo Wop or TV Theme Song. Sorted by Last Modified from newest to oldest.", f8.Description);
+            Assert.AreEqual(@"All songs danceable to any of Mambo, Rumba or Samba. Sorted by Last Modified from newest to oldest.", f9.Description);
+            Assert.AreEqual(@"All songs danceable to all of East Coast Swing, Foxtrot and Tango (Ballroom) available on Amazon. Sorted by Last Modified from newest to oldest.", f10.Description);
+            Assert.AreEqual(@"All Rumba songs available on Amazon. Sorted by Tempo from slowest to fastest.", f11.Description);
+            Assert.AreEqual(@"All songs dancable to all of Rumba and Bachata having tempo less than 180 beats per measure. Sorted by When Added from oldest to newest.",f12.Description);
         }
 
         [TestMethod]

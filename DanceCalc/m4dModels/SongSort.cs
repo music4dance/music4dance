@@ -48,6 +48,7 @@ namespace m4dModels
             }
             Count = count;
         }
+            
 
         public string Id { get; private set; }
         public bool Descending { get; private set; }
@@ -55,6 +56,70 @@ namespace m4dModels
 
         public bool Numeric => s_numerical.Contains(Id);
         public bool Directional => s_directional.Contains(Id);
+
+        public string FriendlyName
+        {
+            get
+            {
+                switch (Id) {
+                    case "Dances":
+                        return "Dance Rating";
+                    case "Modified":
+                        return "Last Modified";
+                    case "Created":
+                        return "When Added";
+                    default:
+                        return Id;
+                }
+            }
+        }
+
+        public string Description
+        {
+            get
+            {
+                var ret = new System.Text.StringBuilder();
+                ret.AppendFormat(" Sorted by {0} from ", FriendlyName);
+            
+                if (!Descending)
+                {
+                    if (Id == "Tempo")
+                    {
+                        ret.Append("slowest to fastest");
+                    }
+                    else if (Id == "Modified" || Id == "Created")
+                    {
+                        ret.Append("newest to oldest");
+                    }
+                    else if (Id == "Dances")
+                    {
+                        ret.Append("most popular to least popular");
+                    }
+                    else {
+                        ret.Append("A to Z");
+                    }
+                }
+                else {
+                    if (Id == "Tempo")
+                    {
+                        ret.Append("fastest to slowest");
+                    }
+                    else if (Id == "Modified" || Id == "Created")
+                    {
+                        ret.Append("oldest to newest");
+                    }
+                    else if (Id == "Dances")
+                    {
+                        ret.Append("most popular to least popular");
+                    }
+                    else{
+                        ret.Append("Z to A");
+                    }
+                }
+                ret.Append(".");
+                return ret.ToString();
+            }
+        }
 
         public string GetSortGlyph(string column) 
         {
