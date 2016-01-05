@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Data.Entity;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
-using System.Web.Mvc;
 using DanceLibrary;
 
 namespace m4dModels
@@ -180,22 +178,6 @@ namespace m4dModels
             }
         }
 
-        static public IEnumerable<SelectListItem> GetDancesSingle(DanceMusicService dms)
-        {
-            var counts = GetFlatSongCounts(dms);
-
-            var dances = new List<SelectListItem>(counts.Count)
-            {
-                new SelectListItem {Value = string.Empty, Text = string.Empty, Selected = true}
-            };
-
-            // ReSharper disable once LoopCanBeConvertedToQuery
-            foreach (var cnt in counts.Where(c => c.SongCount > 0))
-            {
-                dances.Add(new SelectListItem() { Value = cnt.DanceId, Text = cnt.DanceName, Selected = false });
-            }
-            return dances;
-        }
         static public SongCounts FromName(string name, DanceMusicService dms)
         {
             name = DanceObject.SeoFriendly(name);
