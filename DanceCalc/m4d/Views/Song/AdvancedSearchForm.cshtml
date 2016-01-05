@@ -176,10 +176,10 @@
                 </div>
                 <div class="col-sm-offset-2 col-sm-9">
                     <label class="form-inline" style="font-weight:normal; margin-right: 1.5em">
-                        <input type="radio" name="sortDirection" value="Ascending" @(!filter.SortOrder.EndsWith("_desc",StringComparison.OrdinalIgnoreCase) ? "checked" : string.Empty)> Ascending (A-Z)
+                        <input type="radio" name="sortDirection" value="Ascending" @(!filter.SortOrder.EndsWith("_desc",StringComparison.OrdinalIgnoreCase) ? "checked" : string.Empty)> Ascending (A-Z, Slow-Fast, Newest-Oldest)
                     </label>
                     <label class="form-inline" style="font-weight:normal; margin-right:1.5em">
-                        <input type="radio" name="sortDirection" value="Descending" @(filter.SortOrder.EndsWith("_desc",StringComparison.OrdinalIgnoreCase) ? "checked" : string.Empty)> Descending (Z-A)
+                        <input type="radio" name="sortDirection" value="Descending" @(filter.SortOrder.EndsWith("_desc",StringComparison.OrdinalIgnoreCase) ? "checked" : string.Empty)> Descending (Z-A, Fast-Slow, Oldest-Newest)
                     </label>
                 </div>
 
