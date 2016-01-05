@@ -8,7 +8,7 @@ namespace m4dModels.Tests
         [TestMethod]
         public void Unsorted()
         {
-            Assert.AreEqual("Title", SongSort.DoSort(null, null));
+            Assert.AreEqual("Modified", SongSort.DoSort(null, null));
             Assert.AreEqual("Title", SongSort.DoSort("Title", null));
         }
 
