@@ -98,6 +98,18 @@
     </td>
 }
 
+@helper Purchase(SongBase song, char id, string logo, string title, string help)
+{
+    if (string.IsNullOrEmpty(song.Purchase) || !song.Purchase.Contains(id))
+    {
+        return;
+    }
+
+    var buttonId = string.Format("{0}{1}",id,song.SongId);
+    var link = string.Format("~/Content/{0}-logo.png",logo);
+    <li><a href="#" id="@buttonId" class="play-link"><img src="@Url.Content(link)" alt="@help" width="20" height="20" /> @title</a></li>
+}
+
 <script>
     window.HeartOptions = {
         'true': { tip: '@heartTipTrue', img: '' },
@@ -288,26 +300,11 @@
                             <div class="btn-group">
                                 <a href="#" id="@id" role="button" class="btn dropdown-toggle"  style="padding:0" data-toggle="dropdown" aria-expanded="false"><img src="@Url.Content("~/Content/playbutton.png")" alt="Play" width="20" height="20"/></a>
                                 <ul class="dropdown-menu" role="menu">
-                                    @if (!string.IsNullOrEmpty(item.Purchase) && item.Purchase.Contains('X'))
-                                    {
-                                        var xid = "X" + item.SongId;
-                                        <li><a href="#" id="@xid" class="play-link"><img src='@Url.Content("~/Content/xbox-logo.png")' alt="Availiable on Groove Music" width="20" height="20"/> Groove</a></li>
-                                    }
-                                    @if (!string.IsNullOrEmpty(item.Purchase) && item.Purchase.Contains('I'))
-                                    {
-                                        var iid = "I" + item.SongId;
-                                        <li><a href="#" id="@iid" class="play-link"><img src='@Url.Content("~/Content/itunes-logo.png")' alt=" availiable on itunes" width="20" height="20"/> ITunes</a></li>
-                                    }
-                                    @if (!string.IsNullOrEmpty(item.Purchase) && item.Purchase.Contains('A'))
-                                    {
-                                        var aid = "A" + item.SongId;
-                                        <li><a href="#" id="@aid" class="play-link"><img src='@Url.Content("~/Content/amazon-logo.png")' alt=" availiable at amazon" width="20" height="20"/> Amazon</a></li>
-                                    }
-                                    @if (!string.IsNullOrEmpty(item.Purchase) && item.Purchase.Contains('S'))
-                                    {
-                                        var sid = "S" + item.SongId;
-                                        <li><a href="#" id="@sid" class="play-link"><img src='@Url.Content("~/Content/spotify-logo.png")' alt=" availiable on spotify" width="20" height="20"/> Spotify</a></li>
-                                    }
+                                    @Purchase(item,'X',"xbox", "Groove", "Availiable on Groove Music")
+                                    @Purchase(item, 'I', "itunes", "ITunes", "Availiable on ITunes")
+                                    @Purchase(item, 'A', "amazon", "Amazon", "Availiable at Amazon")
+                                    @Purchase(item, 'S', "spotify", "Spotify", "Availiable on Spotify")
+                                    <li><a href="https://www.music4dance.net/blog/music4dance-help/playing-or-purchasing-songs/"><span class="glyphicon glyphicon-question-sign" style="margin-left: .25em;margin-right: .25em"></span> Help</a></li>
                                 </ul>
                             </div>
                         }

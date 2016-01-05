@@ -498,6 +498,8 @@
     <Content Include="Content\chosen.css" />
     <Content Include="Content\dance-50.png" />
     <Content Include="Content\dance-tempo-50.png" />
+    <Content Include="Content\echonest-lg.gif" />
+    <Content Include="Content\echonest.png" />
     <Content Include="Content\favicon.png" />
     <Content Include="Content\fonts\glyphicons-halflings-regular.svg" />
     <Content Include="Content\genre-50.png" />

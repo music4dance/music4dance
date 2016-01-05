@@ -7,6 +7,13 @@
     SongFilter filter = ViewData.ContainsKey("SongFilter") ? ViewBag.SongFilter : new SongFilter();
 }
 
+@helper Actions(SongFilter filter)
+{
+    <a class="btn btn-ml btn-help" href="https://www.music4dance.net/blog/music4dance-help/playing-or-purchasing-songs/" role="button"><span class="glyphicon glyphicon-question-sign"></span></a>
+    @Html.ActionLink("Back to List", filter.Action, new { filter }, new { @class = "btn btn-ml btn-primary", role = "button" })
+    <a href="#" role="button" class="btn btn-ml btn-primary" data-bind="visible:changed, click:saveRatings">Save</a>
+}
+
 <div class="page-header">
     <h1>
         @if (User.Identity.IsAuthenticated)
@@ -33,22 +40,19 @@
 
 <div class="row">
     <div class="col-md-12">
-        <div class="hidden-xs">
+        <span class="hidden-xs">
             @{
                 ViewBag.UseLogo = false;
                 @Html.Partial("_PurchaseLinks", Model.GetPurchaseLinks("AISX",region))
-                @Html.ActionLink("Back to List", filter.Action, new { filter }, new { @class = "btn btn-ml btn-primary", role = "button" })
-                <a href="#" role="button" class="btn btn-ml btn-primary" data-bind="visible:changed, click:saveRatings">Save</a>
             }
-        </div>
-        <div class="visible-xs">
+        </span>
+        <span class="visible-xs">
             @{
                 ViewBag.UseLogo = true;
                 @Html.Partial("_PurchaseLinks", Model.GetPurchaseLinks("AISX", region))
-                @Html.ActionLink("Back to List", filter.Action, new {filter}, new {@class = "btn btn-primary", role = "button"})
-                <a href="#" role="button" class="btn btn-ml btn-primary" data-bind="visible:changed, click:saveRatings">Save</a>
             }
-        </div>
+        </span>
+        @Actions(filter)
     </div>
 </div>
 
@@ -139,6 +143,12 @@
                 @Html.DisplayFor(model => model.Modified)
             </div>
         </div>
+        @if (Model.Tempo.HasValue)
+        {
+            <div class="col-sm-3">
+                <a href="http://the.echonest.com"><img src="~/Content/echonest.png" alt="EchoNest" title="Some information on this page provided by EchoNest" /></a>
+            </div>
+        }
     </fieldset>
 </div>
 

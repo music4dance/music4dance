@@ -1,17 +1,18 @@
 ﻿@model IEnumerable<m4dModels.PurchaseLink>
 
+@{
+    var useLogo = ViewData.ContainsKey("UseLogo") && ViewBag.UseLogo;
+}
+
 @foreach (var link in Model)
 {
-    var target = string.Empty;
-    if (link.Target != null)
-    {
-        target = "target='" + link.Target + "'";
-    }
-    var image = link.Charm;
-    if (ViewData.ContainsKey("UseLogo") && ViewBag.UseLogo)
-    { 
-        image = link.Logo;
-    }
+    //var target = string.Empty;
+    //if (link.Target != null)
+    //{
+    //    target = "target='" + link.Target + "'";
+    //} @Html.Raw(target)
+    var image = useLogo ? link.Logo : link.Charm;
 
-    <a href='@link.Link' @Html.Raw(target)><img src='@Url.Content("~/Content/" + image)' alt='@link.AltText' /></a>
+    <a href='@link.Link'><img src='@Url.Content("~/Content/" + image)' alt='@link.AltText' /></a>
 }
+

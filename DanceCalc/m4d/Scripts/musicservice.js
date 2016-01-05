@@ -6,14 +6,14 @@
 
         $.getJSON(uri + this.id[0] + '?songs=' + this.id.substring(1))
             .done(function(data) {
-                if (data[0].Target == null) {
+                //if (data[0].Target == null) {
                     window.location(data[0].Link);
-                } else {
-                    window.open(data[0].Link, data[0].Target);
-                }
+                //} else {
+                //    window.open(data[0].Link, data[0].Target);
+                //}
             })
-            .fail(function(jqxhr, textStatus, err) {
-                window.alert(err);
+            .fail(function() {
+                window.alert('Unable to fetch data from ' + this.id + 'please try again later.  If this issue persists, please report it to us at info@music4dance.net');
                 //$('#product').text('Error: ' + err);
             });
     });
@@ -95,7 +95,7 @@
                 var player = '<iframe  src="https://embed.spotify.com/?uri=spotify:trackset:' + name + ':' + data + '" frameborder="0" allowtransparency="true"></iframe>';
                 button.replaceWith(player);
             })
-            .fail(function (jqxhr, textStatus, err) {
+            .fail(function () {
                 button.replaceWith('<span>No Spotify Tracks on this page.</span>');
                 //window.alert(2err);
                 //$('#product').text('Error: ' + err);

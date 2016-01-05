@@ -331,6 +331,7 @@ namespace m4d.Controllers
                     ReturnError(HttpStatusCode.NotFound, $"The song with id = {gid} has been deleted.");
             }
 
+            HelpPage = "song-details";
             ViewBag.DanceMap = SongCounts.GetDanceMap(Database);
             ViewBag.DanceList = GetDancesSingle(Database);
             return View(song);
