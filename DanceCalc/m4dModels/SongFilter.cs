@@ -136,6 +136,15 @@ namespace m4dModels
                 return !s_propertyInfo.Where(pi => pi.Name != "SortOrder").Select(t => t.GetValue(this)).Where((o, i) => o != null && !IsAltDefault(o, i)).Any();
             }
         }
+
+        public bool IsEmptyPaged
+        {
+            get
+            {
+                return !s_propertyInfo.Where(pi => pi.Name != "Page").Select(t => t.GetValue(this)).Where((o, i) => o != null && !IsAltDefault(o, i)).Any();
+            }
+        }
+
         public string Description
         {
             get
@@ -258,6 +267,6 @@ namespace m4dModels
         }
 
         private static readonly List<PropertyInfo> s_propertyInfo;
-        private static readonly object[] s_altDefaults = {"index","all",null,null,null,null,null,1};
+        private static readonly object[] s_altDefaults = {"index","all","modified",null,null,null,null,1};
     }
 }

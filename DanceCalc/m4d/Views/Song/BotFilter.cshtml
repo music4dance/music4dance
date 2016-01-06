@@ -1,0 +1,18 @@
+﻿@model SongFilter
+@{
+    var description = @Model.Description;
+
+    ViewBag.Title = "Search Results";
+    ViewBag.Description = "music4dance catalog: " + description;
+}
+
+<h1>Search Results</h1>
+
+<h2>@description</h2>
+
+<p>Hi, you appear to be a spider or search robot. This page is a variation on a database query (described above).</p>
+<p>All of the songs cataloged on the site can be found via the basic <a href="https://www.music4dance.net/song">Song Catalog Query</a> and paging through the results.</p>
+<p>We providing this stub page rather than using a parameter filter since we believe that the description field provided above is useful information.</p>
+<p>If you are a real person, then our developer messed up this filter and we'd realy like to know. Please email us at info@music4dance.net and let us know how you found this page.</p>
+<p>Thanks - the music4dance team.</p>
+

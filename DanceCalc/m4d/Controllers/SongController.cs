@@ -7,6 +7,7 @@ using System.Net;
 using System.Web;
 using System.Web.Mvc;
 using DanceLibrary;
+using m4d.Utilities;
 using m4d.ViewModels;
 using m4dModels;
 using PagedList;
@@ -1038,6 +1039,11 @@ namespace m4d.Controllers
 
             var spider = CheckSpiders();
             if (spider != null) return spider;
+
+            if (!filter.IsEmptyPaged && SpiderManager.CheckAnySpiders(Request.UserAgent))
+            {
+                return View("BotFilter", filter);
+            }
 
             var properties = new Dictionary<string, string> {{"Filter", filter.ToString()}, {"User", User.Identity.Name } };
             var client = TelemetryClient;

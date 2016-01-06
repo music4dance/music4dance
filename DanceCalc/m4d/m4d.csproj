@@ -900,6 +900,7 @@
     <Content Include="Views\Account\_WhySignUp.cshtml" />
     <Content Include="Views\Shared\BotWarning.cshtml" />
     <Content Include="Views\Shared\_botreport.cshtml" />
+    <Content Include="Views\Song\BotFilter.cshtml" />
     <None Include="Web.m4d.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
