@@ -71,6 +71,8 @@ namespace m4d.Controllers
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> SignIn(LoginViewModel model, string returnUrl)
         {
+            ViewBag.ReturnUrl = returnUrl;
+
             if (!ModelState.IsValid)
             {
                 return View(model);
@@ -533,7 +535,7 @@ namespace m4d.Controllers
         {
             if (!string.IsNullOrWhiteSpace(returnUrl))
             {
-                var returnPath = new Uri(returnUrl).AbsolutePath;
+                var returnPath = returnUrl.StartsWith("/") ? returnUrl : new Uri(returnUrl).AbsolutePath;
                 if (Url.IsLocalUrl(returnPath))
                 {
                     return Redirect(returnUrl);
