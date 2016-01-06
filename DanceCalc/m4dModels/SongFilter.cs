@@ -178,15 +178,15 @@ namespace m4dModels
 
                 if (TempoMin.HasValue && TempoMax.HasValue)
                 {
-                    sb.AppendFormat("{0}having tempo between {1} and {2} beats per measure", separator, TempoMin.Value, TempoMax.Value);
+                    sb.AppendFormat("{0}having tempo between {1} and {2} beats per minute", separator, TempoMin.Value, TempoMax.Value);
                 }
                 else if (TempoMin.HasValue)
                 {
-                    sb.AppendFormat("{0}having tempo greater than {1} beats per measure", separator, TempoMin.Value);
+                    sb.AppendFormat("{0}having tempo greater than {1} beats per minute", separator, TempoMin.Value);
                 }
                 else if (TempoMax.HasValue)
                 {
-                    sb.AppendFormat("{0}having tempo less than {1} beats per measure", separator, TempoMax.Value);
+                    sb.AppendFormat("{0}having tempo less than {1} beats per minute", separator, TempoMax.Value);
                 }
 
                 var noUserFilter = new SongFilter(ToString()) {Action="Index", User = null, Page = null};
