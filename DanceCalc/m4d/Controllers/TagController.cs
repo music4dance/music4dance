@@ -56,6 +56,8 @@ namespace m4d.Controllers
         {
             if (ModelState.IsValid)
             {
+                DanceMusicService.BlowTagCache();
+
                 Database.TagTypes.Add(tagType);
                 Database.SaveChanges();
                 return RedirectToAction("Index");
@@ -80,6 +82,7 @@ namespace m4d.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
+
             var tagType = Database.TagTypes.Find(TagType.TagDecode(id));
             if (tagType == null)
             {
@@ -100,6 +103,8 @@ namespace m4d.Controllers
         {
             if (ModelState.IsValid)
             {
+                DanceMusicService.BlowTagCache();
+
                 if (string.Equals(tagType.Key,newKey))
                 {
                     if (string.Equals(tagType.Key,tagType.PrimaryId))
@@ -222,6 +227,8 @@ namespace m4d.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult DeleteConfirmed(string id)
         {
+            DanceMusicService.BlowTagCache();
+
             var tagType = Database.TagTypes.Find(TagType.TagDecode(id));
             Database.TagTypes.Remove(tagType);
             Database.SaveChanges();

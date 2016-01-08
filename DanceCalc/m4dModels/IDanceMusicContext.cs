@@ -27,6 +27,7 @@ namespace m4dModels
         void LoadDances();
 
         bool LazyLoadingEnabled { get; set; }
+        bool ProxyCreationEnabled { get; set; }
     }
 
     //public static class DanceMusicContextHelpers
@@ -46,7 +47,7 @@ namespace m4dModels
     //        modelBuilder.Entity<TagType>().Ignore(tt => tt.Value);
     //        modelBuilder.Entity<TagType>().Ignore(tt => tt.Category);
 
-            
+
     //        modelBuilder.Entity<ModifiedRecord>().HasKey(t => new { t.ApplicationUserId, t.SongId });
     //        modelBuilder.Entity<ModifiedRecord>().Ignore(mr => mr.UserName);
     //        modelBuilder.Entity<DanceLink>().HasKey(dl => dl.Id);

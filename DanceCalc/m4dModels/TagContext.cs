@@ -73,6 +73,12 @@ namespace m4dModels
             set { var t = value; }
         }
 
+        public bool ProxyCreationEnabled
+        {
+            get { return true; }
+            set { var t = value; }
+        }
+
         public static DanceMusicService CreateService(DanceMusicService realService)
         {
             var context = new TagContext(realService.Context);

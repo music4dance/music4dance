@@ -1638,10 +1638,12 @@ namespace m4dModels
             {
                 if (!s_tagCache.Any())
                 {
+                    _context.ProxyCreationEnabled = false;
                     foreach (var tt in TagTypes)
                     {
                         s_tagCache.Add(tt.Key.ToLower(), tt);
                     }
+                    _context.ProxyCreationEnabled = true;
                 }
 
                 var map = new Dictionary<string, TagType>();
@@ -1671,12 +1673,14 @@ namespace m4dModels
             lock (s_tagCache)
             {
                 // ReSharper disable once InvertIf
-                if (_orderedTagTypes == null)
+                if (s_orderedTagTypes == null)
                 {
+                    _context.ProxyCreationEnabled = false;
                     var tagTypes = TagTypes.Include(t => t.Primary).OrderBy(t => t.Key);
-                    _orderedTagTypes = tagTypes.ToList();
+                    s_orderedTagTypes = tagTypes.ToList();
+                    _context.ProxyCreationEnabled = true;
                 }
-                return _orderedTagTypes;
+                return s_orderedTagTypes;
             }
         }
 
@@ -1684,9 +1688,7 @@ namespace m4dModels
         {
             lock (s_tagCache)
             {
-                s_tagCache.Clear();
-                s_sugMap.Clear();
-                _orderedTagTypes = null;
+                BlowTagCache();
 
                 var type = _context.TagTypes.Create();
                 type.Key = TagType.BuildKey(value, category);
@@ -1706,9 +1708,19 @@ namespace m4dModels
             }
         }
 
+        public static void BlowTagCache()
+        {
+            lock (s_tagCache)
+            {
+                s_tagCache.Clear();
+                s_sugMap.Clear();
+                s_orderedTagTypes = null;
+            }
+        }
+
         private static readonly Dictionary<string,IOrderedEnumerable<TagCount>> s_sugMap = new Dictionary<string, IOrderedEnumerable<TagCount>>();
         private static readonly Dictionary<string,TagType> s_tagCache = new Dictionary<string, TagType>();
-        private static List<TagType> _orderedTagTypes;
+        private static List<TagType> s_orderedTagTypes;
 
         #endregion
 

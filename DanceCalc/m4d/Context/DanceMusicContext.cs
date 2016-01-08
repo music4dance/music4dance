@@ -527,6 +527,13 @@ namespace m4d.Context
             get { return Configuration.LazyLoadingEnabled; }
             set { Configuration.LazyLoadingEnabled = value; }
         }
+
+        public bool ProxyCreationEnabled
+        {
+            get { return Configuration.ProxyCreationEnabled; }
+            set { Configuration.ProxyCreationEnabled = value; }
+        }
+
         #endregion
 
         private AWSFetcher AmazonFetcher => _awsFetcher ?? (_awsFetcher = new AWSFetcher());

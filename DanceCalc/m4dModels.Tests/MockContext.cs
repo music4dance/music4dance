@@ -123,7 +123,13 @@ namespace m4dModels.Tests
             set { var t = value; }
         }
 
-    public void LoadDances() { }
+        public bool ProxyCreationEnabled
+        {
+            get { return true; }
+            set { var t = value; }
+        }
+
+        public void LoadDances() { }
 
         public void Dispose()
         {
