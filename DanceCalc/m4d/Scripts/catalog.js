@@ -141,6 +141,13 @@
         // Set the Any/All dance button back to any
         $('#dance-boolean').find('button').html('any <span class="caret"></span>');
 
+        // Handle the My Activity Button
+        if (window.userName === '') {
+            $('#user').val('null');
+        } else {
+            $('#user').val('-' + window.userName + '|H');
+        }
+
         // Set the SortBy radio buttons to Last Modified/Ascending
         $('input:radio[name=sortOrder]').val(['Modified']);
         $('input:radio[name=sortDirection]').val(['Ascending']);

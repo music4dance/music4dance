@@ -140,12 +140,12 @@
                 <div class="col-sm-9">
                     <select id="user" name="user">
                         @UserOption("null","Don't filter on my activity",userQuery)
-                        @UserOption("-" + userName + "|H","Exclude all songs that I have marked as DON'T LIKE",userQuery)
-                        @UserOption("+" + userName + "|H","Include only songs that I have marked as DON'T LIKE",userQuery)
-                        @UserOption("-" + userName + "|L","Exclude all songs that I have marked as LIKE",userQuery)
-                        @UserOption("+" + userName + "|L","Include only songs that I have marked as LIKE",userQuery)
-                        @UserOption("-" + userName + "|", "Exclude all songs that I tagged",userQuery)
-                        @UserOption("+" + userName + "|", "Include only songs that I tagged",userQuery)
+                        @UserOption("-" + userName + "|H","Exclude all songs I marked DON'T LIKE",userQuery)
+                        @UserOption("+" + userName + "|H","Include only songs I marked DON'T LIKE",userQuery)
+                        @UserOption("-" + userName + "|L","Exclude all songs I marked LIKE",userQuery)
+                        @UserOption("+" + userName + "|L","Include only songs I marked LIKE",userQuery)
+                        @UserOption("-" + userName + "|", "Exclude all songs I tagged",userQuery)
+                        @UserOption("+" + userName + "|", "Include only songs I tagged",userQuery)
                     </select>
                 </div>
             </div>
@@ -209,6 +209,7 @@
 @section Scripts
 {
     @{
+        <script>var userName = '@userName'</script>
         if (danceQuery.IsExclusive)
         {
             <script>var danceOr = false</script>
