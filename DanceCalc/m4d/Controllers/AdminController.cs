@@ -1755,6 +1755,29 @@ namespace m4d.Controllers
             return File(stream, "text/plain", $"tail-{dt.Year:d4}-{dt.Month:d2}-{dt.Day:d2}.txt");
         }
 
+
+        //
+        // Get: //BackupTail
+        [Authorize(Roles = "showDiagnostics")]
+        public ActionResult BackupJson(SongFilter filter)
+        {
+            var songs = Database.BuildSongList(filter, DanceMusicService.CruftFilter.AllCruft);
+
+            var lines = new List<string>();
+            foreach (var song in songs)
+            {
+                lines.Add(new SongDetails(song,null,Database).ToJson());
+            }
+
+            var s = "[\r\n" + string.Join(",\r\n", lines) + "\r\n]";
+
+            var bytes = Encoding.UTF8.GetBytes(s);
+            var stream = new MemoryStream(bytes);
+
+            var dt = DateTime.Now;
+            return File(stream, "text/json", $"json-{dt.Year:d4}-{dt.Month:d2}-{dt.Day:d2}.txt");
+        }
+
         //
         // Get: //BackupDelta
         [HttpPost]

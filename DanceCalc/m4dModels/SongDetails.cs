@@ -2,8 +2,10 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Runtime.Serialization;
+using System.Runtime.Serialization.Json;
 using System.Text;
 using System.Text.RegularExpressions;
 using DanceLibrary;
@@ -639,6 +641,14 @@ namespace m4dModels
             //return new SongDetails(Guid.Empty, properties);
         }
 
+        public string ToJson()
+        {
+            var stream = new MemoryStream();
+            var serializer = new DataContractJsonSerializer(typeof(SongDetails));
+            serializer.WriteObject(stream, this);
+            return Encoding.UTF8.GetString(stream.ToArray());
+        }
+
         public static void AddProperty(IList<SongProperty> properties, string baseName, object value = null, int index = -1, string qual = null)
         {
             if (value != null)
@@ -793,24 +803,19 @@ namespace m4dModels
         {
             get
             {
-                if (HasAlbums)
-                {
-                    var ret = new StringBuilder();
-                    var sep = string.Empty;
+                if (!HasAlbums) return null;
 
-                    foreach (var album in Albums)
-                    {
-                        ret.Append(sep);
-                        ret.Append(album.Name);
-                        sep = "|";
-                    }
+                var ret = new StringBuilder();
+                var sep = string.Empty;
 
-                    return ret.ToString();
-                }
-                else
+                foreach (var album in Albums)
                 {
-                    return null;
+                    ret.Append(sep);
+                    ret.Append(album.Name);
+                    sep = "|";
                 }
+
+                return ret.ToString();
             }
         }
 

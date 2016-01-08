@@ -2,8 +2,10 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.Serialization.Json;
 using System.Text;
 
 namespace m4dModels
@@ -129,6 +131,13 @@ namespace m4dModels
             return ret.ToString();
         }
 
+        public string ToJson()
+        {
+            var stream = new MemoryStream();
+            var serializer = new DataContractJsonSerializer(typeof(SongFilter));
+            serializer.WriteObject(stream, this);
+             return Encoding.UTF8.GetString(stream.ToArray());
+        }
         public bool IsEmpty
         {
             get
