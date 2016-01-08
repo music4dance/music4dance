@@ -181,8 +181,29 @@ namespace m4dModels
             return true;
         }
 
+        public int CleanupAlbums(ApplicationUser user, Song song)
+        {
+            var changed = 0;
+            var sd = new SongDetails(song);
 
-        private IList<AlbumDetails> MergeAlbums(IList<Song> songs, string def, HashSet<string> keys, string artist)
+            var albums = AlbumDetails.MergeAlbums(sd.Albums, sd.Artist, true);
+            if (albums.Count != sd.Albums.Count)
+            {
+                var delta = sd.Albums.Count - albums.Count;
+                Trace.WriteLineIf(TraceLevels.General.TraceVerbose, $"{delta}: {song.Title} {song.Artist} {song.Album}");
+                changed += delta;
+                sd.Albums = albums.ToList();
+                sd = EditSong(user, sd, null, false);
+            }
+
+            var album = sd.Album;
+            if (song.Album == album) return changed;
+
+            song.Album = album;
+            return changed;
+        }
+
+        private static IList<AlbumDetails> MergeAlbums(IEnumerable<Song> songs, string def, ICollection<string> keys, string artist)
         {
             var details = songs.Select(s => new SongDetails(s)).ToList();
             var albumsIn = new List<AlbumDetails>();

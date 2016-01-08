@@ -86,9 +86,10 @@ namespace m4dModels
             }
         }
 
-        public AlbumTrack AlbumTrack => new AlbumTrack(Name, new TrackNumber(Track??0));
+        public TrackNumber TrackNumber => new TrackNumber(Track??0);
+        public AlbumTrack AlbumTrack => new AlbumTrack(Name, TrackNumber);
 
-        public string FormattedTrack => Track.HasValue ? new TrackNumber(Track.Value).Format("F") : string.Empty;
+        public string FormattedTrack => Track.HasValue ? TrackNumber.Format("F") : string.Empty;
 
         #endregion
 
@@ -351,17 +352,17 @@ namespace m4dModels
                 if (!dict.TryGetValue(name, out l)) continue;
 
                 dict.Remove(name);
-                merge.Add(MergeList(l));
+                merge.AddRange(MergeList(l));
             }
 
             if (preserveIndices) return merge;
 
             foreach (var album in merge.OrderBy(x => x.Name))
             {
-                Trace.WriteLine($"{album.Name}:{album.Track}");
+                Trace.WriteLineIf(TraceLevels.General.TraceVerbose,$"{album.Name}:{album.Track}");
             }
 
-            for (var i = 0; i < merge.Count(); i++)
+            for (var i = 0; i < merge.Count; i++)
             {
                 merge[i].Index = i;
             }
@@ -369,18 +370,63 @@ namespace m4dModels
             return merge;
         }
 
-        private static AlbumDetails MergeList(IList<AlbumDetails> l)
+        private static AlbumDetails MergeTrackList(IList<AlbumDetails> l)
         {
+            if (l.Count == 1) return l[0];
+
+            var max = l.Max(t => t.Track);
+
+            Trace.WriteLineIf(TraceLevels.General.TraceVerbose,string.Join(" / ",l.Select(t => t.Name)));
             var m = l[0];
             for (var i = 1; i < l.Count; i++)
             {
                 m.Merge(l[i]);
             }
 
+            m.Track = max;
+
             return m;
         }
+
+        private static IEnumerable<AlbumDetails> MergeList(IList<AlbumDetails> albums)
+        {
+            var dict = new Dictionary<int, List<AlbumDetails>>();
+
+            foreach (var a in albums)
+            {
+                List<AlbumDetails> l;
+                var t = a.TrackNumber.Track ?? 0;
+                if (!dict.TryGetValue(t, out l))
+                {
+                    l = new List<AlbumDetails>();
+                    dict.Add(t, l);
+                }
+
+                l.Add(a);
+            }
+
+            // If we have tracks that don't have a number + tracks that do,
+            //  add the numberless tracks to the batch that already has the
+            //  most members
+            if (dict.ContainsKey(0) && dict.Count > 1)
+            {
+                var temp = dict[0];
+                dict.Remove(0);
+                var max = dict.Values.Max(t => t.Count);
+                var l = dict.Values.First(t => t.Count == max);
+                l.AddRange(temp);
+            }
+
+            return dict.Values.Select(MergeTrackList).ToList();
+        }
+
         private void Merge(AlbumDetails album)
         {
+            if (!string.IsNullOrWhiteSpace(album.Name) && album.Name.Length < Name.Length)
+            {
+                Name = album.Name;
+            }
+
             if (string.IsNullOrWhiteSpace(Publisher))
             {
                 Publisher = album.Publisher;

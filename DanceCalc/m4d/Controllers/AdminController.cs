@@ -172,49 +172,43 @@ namespace m4d.Controllers
         [Authorize(Roles = "dbAdmin")]
         public ActionResult UpdateAlbums()
         {
-            ViewBag.Name = "UpdateAlbums";
-            var changed = 0;
-            var merged = 0;
-            var scanned = 0;
-
-            Context.TrackChanges(false);
-            var user = Database.FindUser(User.Identity.Name);
-            var songs = from s in Database.Songs where s.Title != null select s;
-            foreach (var song in songs)
+            try
             {
-                var sd = new SongDetails(song);
+                StartAdminTask("UpdateAlbums");
+                AdminMonitor.UpdateTask("UpdateAblums");
 
-                var albums = AlbumDetails.MergeAlbums(sd.Albums, sd.Artist, true);
-                if (albums.Count != sd.Albums.Count)
+                ViewBag.Name = "UpdateAlbums";
+                var changed = 0;
+                var scanned = 0;
+
+                Context.TrackChanges(false);
+                var user = Database.FindUser(User.Identity.Name);
+                var songs = from s in Database.Songs where s.Title != null select s;
+                foreach (var song in songs)
                 {
-                    sd.Albums = albums.ToList();
-                    Database.EditSong(user, sd, null, false);
-                    merged += 1;
-                }
-                else
-                {
-                    var album = sd.Album;
-                    if (song.Album != album)
+                    changed += Database.CleanupAlbums(user, song);
+                    scanned += 1;
+
+                    if (scanned%100 == 0)
                     {
-                        song.Album = album;
-                        changed += 1;
+                        AdminMonitor.UpdateTask("UpdateAlbums", scanned);
+                        Trace.WriteLineIf(TraceLevels.General.TraceInfo,
+                            $"Scanned == {scanned}; Changed={changed}");
+                    }
+
+                    if (scanned%1000 == 0)
+                    {
+                        Context.CheckpointSongs();
                     }
                 }
+                Context.TrackChanges(true);
 
-                scanned += 1;
-
-                if (scanned%100 == 0)
-                {
-                    Trace.WriteLineIf(TraceLevels.General.TraceInfo,
-                        $"Scanned == {scanned}; Changed={changed}; Merged={merged}");
-                }
+                return CompleteAdminTask(true, $"{scanned} songs scanned, {changed} almubs were merged.");
             }
-            Context.TrackChanges(true);
-
-            ViewBag.Success = true;
-            ViewBag.Message = $"Albums were fixed ({changed}) and Albums were merged ({merged})";
-
-            return View("Results");
+            catch (Exception e)
+            {
+                return FailAdminTask($"UpdateAlbums: {e.Message}", e);
+            }
         }
 
         //
@@ -2091,7 +2085,7 @@ namespace m4d.Controllers
             return file.Split(Environment.NewLine.ToCharArray(), StringSplitOptions.RemoveEmptyEntries).ToList();
         }
 
-        private IList<SongDetails> SongsFromTracks(ApplicationUser user, IEnumerable<ServiceTrack> tracks, string dances, string songTags, string danceTags)
+        private static IList<SongDetails> SongsFromTracks(ApplicationUser user, IEnumerable<ServiceTrack> tracks, string dances, string songTags, string danceTags)
         {
             return tracks.Select(track => SongDetails.CreateFromTrack(user, track, dances, songTags, danceTags)).ToList();
         }

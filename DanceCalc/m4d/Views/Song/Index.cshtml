@@ -97,6 +97,7 @@ else
             <input type="hidden" name="filter" value="@filter"/>
             <input type="submit" name="action" value="Merge" class="btn btn-"/>
             <input type="submit" name="action" value="Delete" class="btn"/>
+            <input type="submit" name="action" value="CleanupAlbums" class="btn" />
             @Html.ActionLink("Add New Song", "Create", null, new {@class = "btn btn-default", role = "button"})
             @Html.ActionLink("Groove Batch", "BatchMusicService", new {filter, type = "X", count = 10}, new {@class = "btn btn-success", role = "button"})
             @Html.ActionLink("ITunes Batch", "BatchMusicService", new {filter, type = "I", count = 10}, new {@class = "btn btn-success", role = "button"})

@@ -827,7 +827,8 @@ namespace m4dModels
 
         protected static HashSet<string> AlbumFields = new HashSet<string> { AlbumField, PublisherField, TrackField, PurchaseField, AlbumListField, AlbumPromote, AlbumOrder };
 
-        protected static string MungeString(string s, bool normalize)
+        // TOOD: This should really end up in a utility class as some point
+        public static string MungeString(string s, bool normalize, IEnumerable<string> extraIgnore = null)
         {
             if (string.IsNullOrWhiteSpace(s))
             {
@@ -848,6 +849,15 @@ namespace m4dModels
             var bracket = false;
             var space = false;
             var lastC = ' ';
+
+            var ignore = new HashSet<string>(Ignore);
+            if (extraIgnore != null)
+            {
+                foreach (var i in extraIgnore)
+                {
+                    ignore.Add(i);
+                }
+            }
 
             for (var i = 0; i < norm.Length; i++)
             {
@@ -892,7 +902,7 @@ namespace m4dModels
                         if (uc != UnicodeCategory.NonSpacingMark && sb.Length > wordBreak)
                         {
                             var word = sb.ToString(wordBreak, sb.Length - wordBreak).ToUpper().Trim();
-                            if (Ignore.Contains(word))
+                            if (ignore.Contains(word))
                             {
                                 sb.Length = wordBreak;
                             }
@@ -941,40 +951,57 @@ namespace m4dModels
 
             return r;
         }
+
+        private static readonly char[] Digits = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '.'};
+
+        private static string TruncateAlbum(string album, char delimiter)
+        {
+            var idx = album.LastIndexOf(delimiter);
+            return (idx == -1 || idx < 10 || idx < album.Length/4) ? album : album.Substring(0, idx);
+        }
+
         public static string CleanAlbum(string album, string artist)
         {
             if (string.IsNullOrWhiteSpace(album)) return null;
 
-            album = NormalizeAlbumString(album);
-            var artistN = NormalizeAlbumString(artist);
+            var ignore = new List<string> { "VOL", "VOLS", "VOLUME", "VOLUMES" };
 
-            if (!string.IsNullOrWhiteSpace(artistN))
+            if (!string.IsNullOrWhiteSpace(artist))
             {
-                var albumT = album.Replace(artist, "");
-                if (!string.IsNullOrWhiteSpace(albumT))
-                    album = albumT;
+                var words = artist.ToUpper().Split(new[] { ' ', ',', ';' }, StringSplitOptions.RemoveEmptyEntries);
+                if (words.Length > 0)
+                {
+                    ignore.AddRange(words.Select(NormalizeAlbumString).ToList());
+                }
             }
 
-            if (string.IsNullOrWhiteSpace(artist)) return album;
+            album = album.Trim();
 
-            var words = artist.Split(new[] {' ', ','}, StringSplitOptions.RemoveEmptyEntries);
-            foreach (var albumT in words.Select(NormalizeAlbumString).Where(wordT => !string.IsNullOrWhiteSpace(wordT)).Select(wordT => album.Replace(wordT, "")).Where(albumT => !string.IsNullOrWhiteSpace(albumT)))
+            var albumBase = album;
+            album = album.TrimEnd(Digits);
+            album = TruncateAlbum(album, '-');
+            album = TruncateAlbum(album, ':');
+
+            var ret = MungeString(album,true,ignore);
+            if (string.IsNullOrWhiteSpace(ret))
             {
-                album = albumT;
+                ret = MungeString(albumBase, true, ignore);
             }
-
-            return album;
+            return ret;
         }
 
         protected static string[] Ignore =
         {
             "A",
+            "AT",
             "AND",
+            "FROM",
+            "IN",
+            "OF",
             "OR",
             "THE",
-            "THIS",
-            "IN",
-            "OF"
+            "THAT",
+            "THIS"
         };
         protected static IList<string> TagsToDanceIds(TagList tags)
         {

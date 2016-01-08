@@ -548,6 +548,18 @@ namespace m4d.Controllers
             return RedirectToAction("Index", new {filter });
         }
 
+        public ActionResult CleanupAlbums(Guid id, SongFilter filter = null)
+        {
+            var user = Database.FindUser(User.Identity.Name);
+
+            if (Database.CleanupAlbums(user, Database.FindSong(id)) != 0)
+            {
+                Database.SaveChanges();
+            }
+
+            return RedirectToAction("Details", new { id, filter });
+        }
+
 
         //
         // POST: /Song/Delete/5
@@ -570,7 +582,6 @@ namespace m4d.Controllers
             Database.UndoUserChanges(user, id);
             return RedirectToAction("Details", new { id, filter });
         }
-
 
         //
         // Merge: /Song/MergeCandidates
@@ -620,6 +631,8 @@ namespace m4d.Controllers
                     return Merge(songs);
                 case "Delete":
                     return Delete(songs,filter);
+                case "CleanupAlbums":
+                    return CleanupAlbums(songs);
                 default:
                     return View("Index");
             }
@@ -1017,7 +1030,7 @@ namespace m4d.Controllers
             return dances;
         }
 
-        private ActionResult Delete(IQueryable<Song> songs, SongFilter filter)
+        private ActionResult Delete(IEnumerable<Song> songs, SongFilter filter)
         {
             var user = Database.FindUser(User.Identity.Name);
 
@@ -1350,12 +1363,36 @@ namespace m4d.Controllers
 
             return song;
         }
-        private ActionResult Merge(IQueryable<Song> songs)
+        private ActionResult Merge(IEnumerable<Song> songs)
         {
             var sm = new SongMerge(songs.ToList());
 
             return View("Merge", sm);
         }
+
+        private ActionResult CleanupAlbums(IEnumerable<Song> songs)
+        {
+            var user = Database.FindUser(User.Identity.Name);
+            var scanned = 0;
+            var changed = 0;
+            var albums = 0;
+            foreach (var song in songs)
+            {
+                var delta = Database.CleanupAlbums(user, song);
+                if (delta > 0)
+                {
+                    changed += 1;
+                    albums += delta;
+                }
+                scanned += 1;
+            }
+
+            ViewBag.Title = "Cleanup Albums";
+            ViewBag.Message = $"Of {scanned} songs scanned, {changed} where changed.  {albums} were removed.";
+
+            return View("Info");
+        }
+
         private string ResolveStringField(string fieldName, IList<Song> songs, NameValueCollection form = null)
         {
             return ResolveMergeField(fieldName, songs, form) as string;

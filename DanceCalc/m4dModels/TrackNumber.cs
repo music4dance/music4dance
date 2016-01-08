@@ -72,7 +72,7 @@ namespace m4dModels
         #endregion
 
         #region Properties
-        int? Track
+        public int? Track
         {
             get
             {
@@ -89,7 +89,7 @@ namespace m4dModels
             }
         }
 
-        int? Volume
+        public int? Volume
         {
             get
             {
@@ -106,7 +106,7 @@ namespace m4dModels
             }
         }
 
-        int? Work
+        public int? Work
         {
             get
             {
