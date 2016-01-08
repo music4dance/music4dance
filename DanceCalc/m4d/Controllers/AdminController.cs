@@ -612,34 +612,52 @@ namespace m4d.Controllers
         //
         // Get: // TimesFromProperties
         [Authorize(Roles = "dbAdmin")]
-        public ActionResult TimesFromProperties()
+        public ActionResult TimesFromProperties(DateTime? from = null, string exclude=null)
         {
-            ViewBag.Name = "TimesFromProperties";
-
-            Context.TrackChanges(false);
-            var modified = 0;
-            var count = 0;
-
-            foreach (var song in Database.Songs.Where(s => s.TitleHash != 0))
+            try
             {
-                if (song.SetTimesFromProperties())
+                StartAdminTask("TimesFromProperties");
+                AdminMonitor.UpdateTask("TimesFromProperties");
+
+                Context.TrackChanges(false);
+                var modified = 0;
+                var count = 0;
+                var songs = Database.Songs.Where(s => s.TitleHash != 0);
+                if (from.HasValue)
                 {
-                    modified += 1;
+                    songs = songs.Where(s => s.Modified > from.Value);
                 }
 
-                count += 1;
+                HashSet<string> excludeUsers = null;
+                if (!string.IsNullOrWhiteSpace(exclude))
+                {
+                    excludeUsers = new HashSet<string>(exclude.Split('|'));
+                }
 
-                if (count%1000 != 0) continue;
+                foreach (var song in songs)
+                {
+                    if (song.SetTimesFromProperties(excludeUsers))
+                    {
+                        modified += 1;
+                    }
 
-                Trace.WriteLineIf(TraceLevels.General.TraceInfo, $"Checkpoint at {count}");
-                Context.CheckpointChanges();
+                    count += 1;
+
+                    if (count%1000 != 0) continue;
+
+                    AdminMonitor.UpdateTask("TimesFromProperties", count);
+                    Trace.WriteLineIf(TraceLevels.General.TraceInfo, $"Checkpoint at {count}");
+
+                    Context.CheckpointSongs();
+                }
+                Context.TrackChanges(true);
+
+                return CompleteAdminTask(true, $"Times were update {modified}, total covered = {count}");
             }
-            Context.TrackChanges(true);
-
-            ViewBag.Success = true;
-            ViewBag.Message = $"Times were update {modified}, total convered = {count}";
-
-            return View("Results");
+            catch (Exception e)
+            {
+                return FailAdminTask($"UpdateAlbums: {e.Message}", e);
+            }
         }
 
 

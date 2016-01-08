@@ -176,12 +176,11 @@ namespace m4dModels
             if (tags == null) return modified;
 
             modified |= InternalEditTags(user, tags, dms);
-            if (modified)
-            {
-                InferDances(user);
-            }
+            if (!modified) return false;
 
-            return modified;
+            InferDances(user);
+            Modified = DateTime.Now;
+            return true;
         }
 
         public bool EditLike(ApplicationUser user, bool? like, DanceMusicService dms)

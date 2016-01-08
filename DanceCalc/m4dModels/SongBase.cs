@@ -692,43 +692,56 @@ namespace m4dModels
             return prop;
         }
 
-        public bool SetTimesFromProperties()
+        public bool SetTimesFromProperties(IEnumerable<string> excludedUsers = null)
         {
-            var first = FirstProperty(TimeField);
-            if (first == null) return false;
-
-            var last = LastProperty(TimeField);
-
-            var firstTime = first.ObjectValue as DateTime?;
-            var lastTime = last.ObjectValue as DateTime?;
-
-            if (firstTime == null || lastTime == null) return false;
-
             var modified = false;
+            var first = FirstProperty(TimeField);
+            var firstTime = first?.ObjectValue as DateTime?;
+            if (firstTime == null) return false;
             if (Created != firstTime)
             {
                 Created = firstTime.Value;
                 modified = true;
             }
 
-            // ReSharper disable once InvertIf
-            if (Modified != lastTime)
-            {
-                Modified = lastTime.Value;
-                modified = true;
-            }
+            var last = LastProperty(TimeField,excludedUsers);
+            var lastTime = last?.ObjectValue as DateTime?;
 
-            return modified;
+            if (lastTime == null || Modified == lastTime) return modified;
+
+            Modified = lastTime.Value;
+            return true;
         }
 
         public SongProperty FirstProperty(string name)
         {
-            return SongProperties.FirstOrDefault(p => p.Name == name);
+            return OrderedProperties.FirstOrDefault(p => p.Name == name);
         }
 
-        public SongProperty LastProperty(string name)
+        public SongProperty LastProperty(string name, IEnumerable<string> excludeUsers = null)
         {
-            return SongProperties.LastOrDefault(p => p.Name == name);
+            return FilteredProperties(excludeUsers).LastOrDefault(p => p.Name == name);
+        }
+
+        public IOrderedEnumerable<SongProperty> FilteredProperties(IEnumerable<string> excludeUsers = null)
+        {
+            if (excludeUsers == null) return OrderedProperties;
+
+            var eu = excludeUsers as HashSet<string> ?? new HashSet<string>(excludeUsers);
+
+            var ret = new List<SongProperty>();
+
+            var inFilter = false;
+            foreach (var prop in OrderedProperties)
+            {
+                if (prop.BaseName == UserField)
+                    inFilter = eu.Contains(prop.Value);
+
+                if (!inFilter)
+                    ret.Add(prop);
+            }
+
+            return ret.OrderBy(sp => sp.Id);
         }
 
         protected void ClearValues()
