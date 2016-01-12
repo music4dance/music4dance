@@ -47,7 +47,7 @@ namespace m4dModels
             if (string.IsNullOrWhiteSpace(value))
                 return null;
 
-            if (Char.IsLetter(value[0]) || value[0] == ',')
+            if (char.IsLetter(value[0]) || value[0] == ',')
                 return value.Split(',');
 
             if (value.StartsWith("0-"))

@@ -2444,7 +2444,7 @@ namespace m4dModels
 
             if (withHeader && dances.Count > 0)
             {
-                dances.Add(DanceBreak);
+                dances.Insert(0,DanceBreak);
             }
 
             return dances;
