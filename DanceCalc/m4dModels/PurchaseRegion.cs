@@ -17,7 +17,7 @@ namespace m4dModels
             _regions = new List<string>(ParseRegionInfo(regions));
         }
 
-        public string[] Regions => _regions == null ? null : _regions.ToArray();
+        public string[] Regions => _regions?.ToArray();
 
         public override string ToString()
         {
@@ -40,6 +40,11 @@ namespace m4dModels
             }
 
             return fields[0];
+        }
+
+        public static string FixRegionInfo(string value)
+        {
+            return value.Contains('[')?value.Substring(0, value.LastIndexOf('[')) : null;
         }
 
         private static string[] ParseRegionInfo(string value)

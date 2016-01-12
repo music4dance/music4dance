@@ -709,7 +709,7 @@ namespace m4d.Controllers
 
             var retryLevel = -1;
             var cruftFilter = DanceMusicService.CruftFilter.AllCruft;
-            var skipExisting = false;
+            var skipExisting = true;
 
             // May do more options in future
             while (!string.IsNullOrWhiteSpace(options) && options.Length > 0)
@@ -726,7 +726,7 @@ namespace m4d.Controllers
                         cruftFilter = DanceMusicService.CruftFilter.NoPublishers;
                         break;
                     case 'E':
-                        skipExisting = true;
+                        skipExisting = false;
                         break;
                 }
                 

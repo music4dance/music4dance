@@ -725,14 +725,25 @@ namespace m4d.Controllers
             Context.TrackChanges(false);
             var c = 0;
             var bytes = 0;
-            foreach (
-                var prop in Database.SongProperties.Where(p => p.Name.StartsWith("Purchase:") && p.Name.EndsWith(":SS"))
-                )
+            var fxd = 0;
+
+            foreach (var prop in Database.SongProperties.Where(p => p.Name.StartsWith("Purchase:") && p.Name.EndsWith(":SS")))
             {
                 string[] regions;
                 var id = PurchaseRegion.ParseIdAndRegionInfo(prop.Value, out regions);
 
-                if (regions == null) continue;
+                if (regions == null)
+                {
+                    var cch = prop.Value.Length;
+                    var fix = PurchaseRegion.FixRegionInfo(prop.Value);
+                    if (fix != null)
+                    {
+                        bytes += prop.Value.Length - fix.Length;
+                        prop.Value = fix;
+                        fxd += 1;
+                    }
+                    continue;
+                }
 
                 var newValue = PurchaseRegion.FormatIdAndRegionInfo(id, regions);
 
@@ -750,7 +761,7 @@ namespace m4d.Controllers
             Context.TrackChanges(true);
 
             ViewBag.Success = true;
-            ViewBag.Message = $"Compressed Regions: Total == {c}; Bytes={bytes}";
+            ViewBag.Message = $"Regions: Compressed == {c}; Fixed == {fxd}; Bytes={bytes}";
 
             return View("Results");
         }
@@ -782,18 +793,29 @@ namespace m4d.Controllers
                 }
                 string[] regions;
                 var id = PurchaseRegion.ParseIdAndRegionInfo(prop.Value, out regions);
+
                 if (null == regions)
                 {
-                    var track = Context.GetMusicServiceTrack(prop.Value, spotify);
-                    if (track.AvailableMarkets == null)
+                    // Not sure how we are getting duplicate region info, but this will fix it
+                    var fix = PurchaseRegion.FixRegionInfo(prop.Value);
+                    if (fix != null)
                     {
-                        failed += 1;
+                        prop.Value = fix;
+                        changed += 1;
                     }
                     else
                     {
-                        prop.Value = PurchaseRegion.FormatIdAndRegionInfo(track.TrackId, track.AvailableMarkets);
-                        regions = track.AvailableMarkets;
-                        changed += 1;
+                        var track = Context.GetMusicServiceTrack(prop.Value, spotify);
+                        if (track.AvailableMarkets == null)
+                        {
+                            failed += 1;
+                        }
+                        else
+                        {
+                            prop.Value = PurchaseRegion.FormatIdAndRegionInfo(track.TrackId, track.AvailableMarkets);
+                            regions = track.AvailableMarkets;
+                            changed += 1;
+                        }
                     }
                 }
 

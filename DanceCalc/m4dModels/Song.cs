@@ -160,6 +160,11 @@ namespace m4dModels
             if (!needReorder) return modified;
 
             var temp = string.Join(",", reorder.Select(x => x.ToString()));
+            var order = LastProperty(AlbumOrder);
+            if (order?.Value == temp)
+            {
+                return modified;
+            }
             CreateProperty(AlbumOrder, temp, null, CurrentLog, dms);
 
             return true;

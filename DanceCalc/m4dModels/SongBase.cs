@@ -993,7 +993,7 @@ namespace m4dModels
             return r;
         }
 
-        private static readonly char[] Digits = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '.'};
+        private static readonly char[] Digits = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '.', '-'};
 
         private static string TruncateAlbum(string album, char delimiter)
         {
