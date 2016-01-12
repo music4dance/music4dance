@@ -819,7 +819,7 @@ namespace m4dModels
             }
         }
 
-        public AlbumDetails FindAlbum(string album)
+        public AlbumDetails FindAlbum(string album, int? track = null)
         {
             if (string.IsNullOrWhiteSpace(album)) return null;
 
@@ -839,7 +839,20 @@ namespace m4dModels
 
             if (ret == null && candidates.Count > 0)
             {
-                ret = candidates[0];
+                if (track.HasValue)
+                {
+                    foreach (var ad in candidates)
+                    {
+                        if (ad.Track == track)
+                        {
+                            ret = ad;
+                        }
+                    }
+                }
+                else
+                {
+                    ret = candidates[0];
+                }
             }
 
             return ret;

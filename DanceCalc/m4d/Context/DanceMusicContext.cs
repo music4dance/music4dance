@@ -345,7 +345,10 @@ namespace m4d.Context
                         }
 
                         var remaining = response.Headers.Get("X-RateLimit-Remaining");
-                        Trace.WriteLineIf(TraceLevels.General.TraceInfo, $"EchoNest Remaining: {remaining}");
+                        if (remaining != null)
+                        {
+                            Trace.WriteLineIf(TraceLevels.General.TraceInfo, $"EchoNest Remaining: {remaining}");
+                        }
                         int r;
 
                         if (remaining != null && int.TryParse(remaining, out r) && r == 0)

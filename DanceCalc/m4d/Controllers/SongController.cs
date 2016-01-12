@@ -708,14 +708,25 @@ namespace m4d.Controllers
             var skipped = 0;
 
             var retryLevel = -1;
+            var cruftFilter = DanceMusicService.CruftFilter.AllCruft;
+            var skipExisting = false;
 
             // May do more options in future
-            if (!string.IsNullOrWhiteSpace(options) && options.Length > 0)
+            while (!string.IsNullOrWhiteSpace(options) && options.Length > 0)
             {
-                switch (options[0])
+                var o = options[0];
+                options = options.Substring(1);
+                switch (o)
                 {
                     case 'R':
-                        int.TryParse(options.Substring(1), out retryLevel);
+                        if (int.TryParse(options.Substring(1), out retryLevel))
+                            options = options.Substring(retryLevel.ToString().Length);
+                        break;
+                    case 'C':
+                        cruftFilter = DanceMusicService.CruftFilter.NoPublishers;
+                        break;
+                    case 'E':
+                        skipExisting = true;
                         break;
                 }
                 
@@ -733,7 +744,7 @@ namespace m4d.Controllers
 
             while (!done)
             {
-                var songs = Database.BuildSongList(filter, DanceMusicService.CruftFilter.AllCruft).Skip(page * 1000).Take(1000).ToList();
+                var songs = Database.BuildSongList(filter, cruftFilter).Skip(page * 1000).Take(1000).ToList();
                 var processed = 0;
                 var modified = false;
                 foreach (var song in songs)
@@ -760,7 +771,7 @@ namespace m4d.Controllers
                         SongDetails add = null;
                         if (service == null)
                         {
-                            foreach (var addT in MusicService.GetSearchableServices().Select(serviceT => UpdateSongAndService(sd, serviceT, users)).Where(addT => addT != null))
+                            foreach (var addT in MusicService.GetSearchableServices().Where(st => !skipExisting || !(song.Purchase??"").Contains(st.CID)).Select(serviceT => UpdateSongAndService(sd, serviceT, users)).Where(addT => addT != null))
                             {
                                 add = addT;
                             }
@@ -1139,19 +1150,19 @@ namespace m4d.Controllers
             // This is a very transitory object to hold the old values for a semi-automated edit
             var alt = new SongDetails();
 
-            if (!string.IsNullOrWhiteSpace(name) && !string.Equals(name, song.Title))
+            if (!string.IsNullOrWhiteSpace(name) && string.IsNullOrWhiteSpace(song.Title))
             {
                 alt.Title = song.Title;
                 song.Title = name;
             }
 
-            if (!string.IsNullOrWhiteSpace(artist) && !string.Equals(artist, song.Artist))
+            if (!string.IsNullOrWhiteSpace(artist) && string.IsNullOrWhiteSpace(song.Artist))
             {
                 alt.Artist = song.Artist;
                 song.Artist = artist;
             }
 
-            var ad = song.FindAlbum(album);
+            var ad = song.FindAlbum(album, trackNum);
             if (ad != null)
             {
                 // If there is a match set up the new info next to the album
@@ -1162,13 +1173,13 @@ namespace m4d.Controllers
                     if (aidx == aidxM)
                     {
                         var adA = new AlbumDetails(ad);
-                        if (!string.Equals(album, ad.Name))
+                        if (string.IsNullOrWhiteSpace(ad.Name))
                         {
                             adA.Name = ad.Name;
                             ad.Name = album;
                         }
 
-                        if (trackNum != ad.Track)
+                        if (!ad.Track.HasValue || ad.Track.Value == 0)
                         {
                             adA.Track = ad.Track;
                             ad.Track = trackNum;
@@ -1194,7 +1205,7 @@ namespace m4d.Controllers
                 UpdateMusicServicePurchase(ad, service, PurchaseType.Album, collectionId);
             }
 
-            if (!string.IsNullOrWhiteSpace(duration))
+            if ((!song.Length.HasValue || song.Length == 0) && !string.IsNullOrWhiteSpace(duration))
             {
                 try
                 {
@@ -1222,6 +1233,13 @@ namespace m4d.Controllers
         }
         private static void UpdateMusicServicePurchase(AlbumDetails ad, MusicService service, PurchaseType pt, string trackId, string alternateId = null)
         {
+            // Don't update if there is alread a trackId
+            var old = ad.GetPurchaseIdentifier(service.Id, pt);
+            if (old != null && old.StartsWith(trackId))
+            {
+                return;
+            }
+
             ad.SetPurchaseInfo(pt, service.Id, trackId);
             if (!string.IsNullOrWhiteSpace(alternateId))
             {
@@ -1277,7 +1295,7 @@ namespace m4d.Controllers
             // Then check for exact album match if we don't have a tempo
             if (!sd.Length.HasValue)
             {
-                foreach (var track in tracks.Where(track => sd.FindAlbum(track.Album) != null))
+                foreach (var track in tracks.Where(track => sd.FindAlbum(track.Album,track.TrackNumber) != null))
                 {
                     found.Add(track);
                     break;

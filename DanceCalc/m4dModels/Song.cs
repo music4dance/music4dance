@@ -173,14 +173,21 @@ namespace m4dModels
             modified |= UpdatePurchaseInfo(edit);
             modified |= UpdateModified(user, edit, dms, true);
 
-            if (tags == null) return modified;
+            if (tags != null)
+            {
+                modified |= InternalEditTags(user, tags, dms);
+            }
 
-            modified |= InternalEditTags(user, tags, dms);
-            if (!modified) return false;
+            if (modified)
+            {
+                InferDances(user);
+                Modified = DateTime.Now;
+                return true;
+            }
 
-            InferDances(user);
-            Modified = DateTime.Now;
-            return true;
+            RemoveEditProperties(user,EditCommand,dms);
+
+            return false;
         }
 
         public bool EditLike(ApplicationUser user, bool? like, DanceMusicService dms)
@@ -569,6 +576,22 @@ namespace m4dModels
             }
             Modified = time.Value;
             CreateProperty(TimeField, time.Value.ToString(CultureInfo.InvariantCulture), null, dms);
+        }
+
+        public void RemoveEditProperties(ApplicationUser user, string command, DanceMusicService dms)
+        {
+            TruncateProperty(dms,TimeField);
+            TruncateProperty(dms, UserField, user.UserName);
+            TruncateProperty(dms, EditCommand);
+        }
+
+        private void TruncateProperty(DanceMusicService dms, string name, string value = null)
+        {
+            var prop = SongProperties.Last();
+            if (prop.Name != name || (value != null && prop.Value != value)) return;
+
+            SongProperties.Remove(prop);
+            dms.Context.SongProperties.Remove(prop);
         }
 
         private bool UpdatePurchaseInfo(SongDetails edit, bool additive = false)

@@ -771,13 +771,41 @@ namespace m4dModels
         }
 
         #region TitleArtist
+
         public bool TitleArtistMatch(string title, string artist)
         {
-            return
-                string.Equals(CreateNormalForm(title), CreateNormalForm(Title)) &&
-                string.Equals(CreateNormalForm(artist), CreateNormalForm(Artist));
+            // Artist Soft Match
+            var a1 = BreakDownArtist(artist);
+            var a2 = BreakDownArtist(Artist);
+
+            // Start with the easy case where we've got a single name artist on one side or the other
+            // If not, we require an overlap of two
+            if (!((a1.Count == 1 && a2.Contains(a1.First()) || a2.Count == 1 && a1.Contains(a2.First())) ||
+                  a1.Count(s => a2.Contains(s)) > 1))
+            {
+                Trace.WriteLine($"AFAIL '{string.Join(",",a1)}' - '{string.Join(",", a2)}'");
+                return false;
+            }
+            Trace.WriteLine($"ASUCC '{string.Join(",", a1)}' - '{string.Join(",", a2)}'");
+
+            return DoMatch(CreateNormalForm(title), CreateNormalForm(Title)) |
+                   DoMatch(NormalizeAlbumString(title), NormalizeAlbumString(Title)) |
+                   DoMatch(CleanAlbum(title, artist), CleanAlbum(Title, Artist));
         }
 
+        private static HashSet<string> BreakDownArtist(string artist)
+        {
+            var init = new HashSet<string>(NormalizeAlbumString(artist,true).ToUpper().Split(new [] { ' ' },StringSplitOptions.RemoveEmptyEntries));
+            init.RemoveWhere(s => ArtistIgnore.Contains(s));
+            return init;
+        }
+        private static bool DoMatch(string s1, string s2)
+        {
+            var ret = string.Equals(s1, s2, StringComparison.OrdinalIgnoreCase);
+            var rv = ret ? "==" : "!=";
+            Trace.WriteLineIf(TraceLevels.General.TraceVerbose,$"{rv}{s1}{s2}");
+            return ret;
+        }
         public string TitleArtistString => CreateNormalForm(Title) + "+" + CreateNormalForm(Artist);
 
         public string TitleArtistAlbumString
@@ -948,7 +976,7 @@ namespace m4dModels
             return MungeString(s, false);
         }
 
-        public static string NormalizeAlbumString(string s)
+        public static string NormalizeAlbumString(string s, bool keepWhitespace=false)
         {
             var r = s;
             if (string.IsNullOrWhiteSpace(r)) return r;
@@ -956,7 +984,7 @@ namespace m4dModels
             s = r.Normalize(NormalizationForm.FormD);
 
             var sb = new StringBuilder();
-            foreach (var c in s.Where(IsLetterOrDigit))
+            foreach (var c in s.Where(t => IsLetterOrDigit(t) || (keepWhitespace && IsWhiteSpace(t))))
             {
                 sb.Append(c);
             }
@@ -984,7 +1012,7 @@ namespace m4dModels
                 var words = artist.ToUpper().Split(new[] { ' ', ',', ';' }, StringSplitOptions.RemoveEmptyEntries);
                 if (words.Length > 0)
                 {
-                    ignore.AddRange(words.Select(NormalizeAlbumString).ToList());
+                    ignore.AddRange(words.Select(s => NormalizeAlbumString(s)).ToList());
                 }
             }
 
@@ -1016,6 +1044,10 @@ namespace m4dModels
             "THAT",
             "THIS"
         };
+
+        private static readonly string[] ArtIgnore = { "BAND", "FEAT", "FEATURING", "HIS", "HER", "ORCHESTRA", "WITH"};
+
+        private static readonly HashSet<string> ArtistIgnore = new HashSet<string>(Ignore.Concat(ArtIgnore));
         protected static IList<string> TagsToDanceIds(TagList tags)
         {
             return TagsToDances(tags).Select(d => d.Id).ToList();
