@@ -937,75 +937,93 @@ namespace m4d.Controllers
                 return ReturnError(HttpStatusCode.NotFound, $"The song with id = {id} has been deleted.");
             }
 
-            var del = new List<SongProperty>();
-
-            SongProperty last = null;
-            var lastPt = PurchaseType.None;
-            var lastMs = ServiceType.None;
-            var lastDel = false;
-
-            foreach (var prop in song.OrderedProperties.Where(p => p.BaseName == SongBase.PurchaseField))
+            if (CleanMusicServiceSong(song))
             {
-                PurchaseType pt;
-                ServiceType ms;
-
-                if (!MusicService.TryParsePurchaseType(prop.Qualifier, out pt, out ms))
-                    continue;
-
-                if (pt != PurchaseType.Song)
-                {
-                    if (lastDel && pt == PurchaseType.Album && lastMs == ms)
-                    {
-                        del.Add(prop);
-                        lastPt = PurchaseType.None;
-                    }
-                    else
-                    {
-                        last = prop;
-                        lastPt = pt;
-                        lastMs = ms;
-                    }
-                    lastDel = false;
-                    continue;
-                }
-
-                lastDel = false;
-                string[] regions;
-                var purchase = PurchaseRegion.ParseIdAndRegionInfo(prop.Value, out regions);
-                if (Context.GetMusicServiceTrack(purchase,MusicService.GetService(ms)) == null)
-                {
-                    del.Add(prop);
-                    if (lastMs == ms && lastPt == PurchaseType.Album)
-                    {
-                        del.Add(last);
-                    }
-
-                    last = prop;
-                    lastPt = pt;
-                    lastMs = ms;
-                    lastDel = true;
-                    continue;
-                }
-
-                lastPt = PurchaseType.None;
-            }
-
-            // ReSharper disable once InvertIf
-            if (del.Any())
-            {
-                foreach (var prop in del)
-                {
-                    song.SongProperties.Remove(prop);
-                    Database.SongProperties.Remove(prop);
-                }
-                Database.UpdatePurchaseInfo(song.SongId.ToString());
+                Database.SaveChanges();
             }
 
             HelpPage = "song-details";
             ViewBag.DanceMap = SongCounts.GetDanceMap(Database);
             ViewBag.DanceList = GetDancesSingle(Database);
-
             return View("Details", Database.FindSongDetails(id));
+        }
+
+        [Authorize(Roles = "canEdit")]
+        public ActionResult BatchCleanService(SongFilter filter = null, int count = 1)
+        {
+            try
+            {
+                StartAdminTask("BatchCleanService");
+                AdminMonitor.UpdateTask("BatchCleanService");
+
+                var failed = new List<SongBase>();
+                var succeeded = new List<SongBase>();
+
+                Context.TrackChanges(false);
+
+                var page = 0;
+                var tried = 0;
+                var done = false;
+
+                while (!done)
+                {
+                    AdminMonitor.UpdateTask("BuildSongList", page);
+                    var songs = Database.BuildSongList(filter).Skip(page * 1000).Take(1000).ToList();
+                    var processed = 0;
+                    var modified = false;
+                    foreach (var song in songs)
+                    {
+                        AdminMonitor.UpdateTask("Processing", processed);
+
+                        processed += 1;
+                        tried += 1;
+                        if (CleanMusicServiceSong(song))
+                        {
+                            succeeded.Add(Database.FindSongDetails(song.SongId));
+                            modified = true;
+                        }
+                        else
+                        {
+                            failed.Add(song);
+                        }
+
+                        if (tried > count)
+                            break;
+
+                        if ((tried + 1) % 25 != 0) continue;
+
+                        Trace.WriteLineIf(TraceLevels.General.TraceInfo, $"{tried} songs tried.");
+                        Context.CheckpointChanges();
+                    }
+
+                    page += 1;
+                    if (processed < 1000)
+                    {
+                        done = true;
+                    }
+                    if (!modified)
+                    {
+                        ResetContext();
+                    }
+                }
+
+                if (failed.Count + succeeded.Count > 0)
+                {
+                    Context.TrackChanges(true);
+                }
+
+                ViewBag.Completed = tried <= count;
+                ViewBag.Failed = failed;
+                ViewBag.Succeeded = succeeded;
+
+                AdminMonitor.CompleteTask(true, $"BatchMusicService: Completed={tried <= count}, Succeeded={succeeded.Count} - ({string.Join(",", succeeded.Select(s => s.SongId))}), Failed={failed.Count} - ({string.Join(",", failed.Select(s => s.SongId))})");
+
+                return View("BatchMusicService");
+            }
+            catch (Exception e)
+            {
+                return FailAdminTask($"BatchMusicService: {e.Message}", e);
+            }
         }
 
         [Authorize(Roles = "canEdit")]
@@ -1420,6 +1438,78 @@ namespace m4d.Controllers
 
             return found;
         }
+
+        private bool CleanMusicServiceSong(SongBase song)
+        {
+            var del = new List<SongProperty>();
+
+            SongProperty last = null;
+            var lastPt = PurchaseType.None;
+            var lastMs = ServiceType.None;
+            var lastDel = false;
+
+            foreach (var prop in song.OrderedProperties.Where(p => p.BaseName == SongBase.PurchaseField))
+            {
+                PurchaseType pt;
+                ServiceType ms;
+
+                if (!MusicService.TryParsePurchaseType(prop.Qualifier, out pt, out ms))
+                    continue;
+
+                if (pt != PurchaseType.Song)
+                {
+                    if (lastDel && pt == PurchaseType.Album && lastMs == ms)
+                    {
+                        del.Add(prop);
+                        lastPt = PurchaseType.None;
+                    }
+                    else
+                    {
+                        last = prop;
+                        lastPt = pt;
+                        lastMs = ms;
+                    }
+                    lastDel = false;
+                    continue;
+                }
+
+                lastDel = false;
+                string[] regions;
+                var purchase = PurchaseRegion.ParseIdAndRegionInfo(prop.Value, out regions);
+                if (Context.GetMusicServiceTrack(purchase, MusicService.GetService(ms)) == null)
+                {
+                    del.Add(prop);
+                    if (lastMs == ms && lastPt == PurchaseType.Album)
+                    {
+                        del.Add(last);
+                    }
+
+                    last = prop;
+                    lastPt = pt;
+                    lastMs = ms;
+                    lastDel = true;
+                    continue;
+                }
+
+                lastPt = PurchaseType.None;
+            }
+
+            // ReSharper disable once InvertIf
+            if (del.Any())
+            {
+                del.AddRange(song.SongProperties.Where(p => p.Name == SongBase.FailedLookup));
+                foreach (var prop in del)
+                {
+                    song.SongProperties.Remove(prop);
+                    Database.SongProperties.Remove(prop);
+                }
+                Database.UpdatePurchaseInfo(song.SongId.ToString());
+                return true;
+            }
+
+            return false;
+        }
+
         #endregion
 
         #region Merge

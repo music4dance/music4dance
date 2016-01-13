@@ -2281,8 +2281,6 @@ namespace m4dModels
                 var sd = new SongDetails(song);
                 song.Purchase = sd.GetPurchaseTags();
             }
-
-            SaveChanges();
         }
         #endregion
 

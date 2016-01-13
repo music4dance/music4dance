@@ -102,6 +102,7 @@ namespace m4d.Controllers
             ViewBag.Name = "Update Purchase Info";
 
             Database.UpdatePurchaseInfo(songIds);
+            Database.SaveChanges();
 
             ViewBag.Success = true;
             ViewBag.Message = "Purchase info was successully updated";
