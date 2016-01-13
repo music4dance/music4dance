@@ -153,6 +153,39 @@ namespace m4d.Controllers
             return SpiderManager.CheckBadSpiders(Request.UserAgent) ? View("BotWarning") : null;
         }
 
+        #region AdminTaskHelpers
+        protected void StartAdminTask(string name)
+        {
+            ViewBag.Name = name;
+            if (!AdminMonitor.StartTask(name))
+            {
+                throw new AdminTaskException(name + "failed to start because there is already an admin task running");
+            }
+        }
+
+        protected ActionResult CompleteAdminTask(bool completed, string message)
+        {
+            ViewBag.Success = completed;
+            ViewBag.Message = message;
+            AdminMonitor.CompleteTask(completed, message);
+
+            return View("Results");
+        }
+
+        protected ActionResult FailAdminTask(string message, Exception e)
+        {
+            ViewBag.Success = false;
+            ViewBag.Message = message;
+
+            if (!(e is AdminTaskException))
+            {
+                AdminMonitor.CompleteTask(false, message, e);
+            }
+
+            return View("Results");
+        }
+        #endregion
+
 
         protected override void Dispose(bool disposing)
         {

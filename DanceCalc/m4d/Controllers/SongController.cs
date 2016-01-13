@@ -687,166 +687,189 @@ namespace m4d.Controllers
         [Authorize(Roles = "canEdit")]
         public ActionResult BatchMusicService(string type= "X", string options = null, SongFilter filter=null, int count = 1)
         {
-            MusicService service = null;
-            if (type != "-")
+            try
             {
-                service = MusicService.GetService(type);
-                // ReSharper disable once PossibleNullReferenceException
-                filter.Purchase = "!" + type;
-                if (service == null)
+                StartAdminTask("BatchMusicService");
+                AdminMonitor.UpdateTask("BatchMusicService");
+
+                MusicService service = null;
+                if (type != "-")
                 {
-                    throw new ArgumentOutOfRangeException(nameof(type));
-                }
-            }
-
-            ViewBag.BatchName = "BatchMusicService";
-            ViewBag.SearchType = type;
-            ViewBag.Options = options;
-            ViewBag.Error = false;
-
-            var tried = 0;
-            var skipped = 0;
-
-            var retryLevel = -1;
-            var cruftFilter = DanceMusicService.CruftFilter.AllCruft;
-            var skipExisting = true;
-
-            // May do more options in future
-            while (!string.IsNullOrWhiteSpace(options) && options.Length > 0)
-            {
-                var o = options[0];
-                options = options.Substring(1);
-                switch (o)
-                {
-                    case 'R':
-                        if (int.TryParse(options.Substring(1), out retryLevel))
-                            options = options.Substring(retryLevel.ToString().Length);
-                        break;
-                    case 'C':
-                        cruftFilter = DanceMusicService.CruftFilter.NoPublishers;
-                        break;
-                    case 'E':
-                        skipExisting = false;
-                        break;
-                }
-                
-            }
-
-            var users = new Dictionary<char, ApplicationUser>();
-
-            var failed = new List<Song>();
-            var succeeded = new List<SongDetails>();
-
-            Context.TrackChanges(false);
-
-            var page = 0;
-            var done = false;
-
-            while (!done)
-            {
-                var songs = Database.BuildSongList(filter, cruftFilter).Skip(page * 1000).Take(1000).ToList();
-                var processed = 0;
-                var modified = false;
-                foreach (var song in songs)
-                {
-                    processed += 1;
-                    // First check to see if we've already failed a search and at what level
-                    //  failLeve is the LOWEST failure code or -1 if none
-
-                    var failLevel = -1;
-                    var fail = song.OrderedProperties.FirstOrDefault(p => p.Name == SongBase.FailedLookup && p.Value.StartsWith(type));
-                    if (fail?.Value != null && fail.Value.Length > 2)
+                    service = MusicService.GetService(type);
+                    // ReSharper disable once PossibleNullReferenceException
+                    filter.Purchase = "!" + type;
+                    if (service == null)
                     {
-                        int.TryParse(fail.Value.Substring(2), out failLevel);
+                        throw new ArgumentOutOfRangeException(nameof(type));
+                    }
+                }
+
+                ViewBag.BatchName = "BatchMusicService";
+                ViewBag.SearchType = type;
+                ViewBag.Options = options;
+                ViewBag.Error = false;
+
+                var tried = 0;
+                var skipped = 0;
+
+                var retryLevel = -1;
+                var cruftFilter = DanceMusicService.CruftFilter.AllCruft;
+                var skipExisting = true;
+
+                // May do more options in future
+                while (!string.IsNullOrWhiteSpace(options) && options.Length > 0)
+                {
+                    var o = options[0];
+                    options = options.Substring(1);
+                    switch (o)
+                    {
+                        case 'R':
+                            if (int.TryParse(options.Substring(1), out retryLevel))
+                                options = options.Substring(retryLevel.ToString().Length);
+                            break;
+                        case 'C':
+                            cruftFilter = DanceMusicService.CruftFilter.NoPublishers;
+                            break;
+                        case 'E':
+                            skipExisting = false;
+                            break;
                     }
 
-                    if (failLevel == retryLevel || count == 1)
+                }
+
+                var users = new Dictionary<char, ApplicationUser>();
+
+                var failed = new List<Song>();
+                var succeeded = new List<SongDetails>();
+
+                Context.TrackChanges(false);
+
+                var page = 0;
+                var done = false;
+
+                while (!done)
+                {
+                    AdminMonitor.UpdateTask("BuildSongList", page);
+                    var songs = Database.BuildSongList(filter, cruftFilter).Skip(page*1000).Take(1000).ToList();
+                    var processed = 0;
+                    var modified = false;
+                    foreach (var song in songs)
                     {
-                        var sd = new SongDetails(song);
+                        AdminMonitor.UpdateTask("Processing", processed);
 
-                        // Something of a kludge - we're goint to make type ='-' && failcode == 0 mean that we've tried 
-                        //  the multi-service lookup...
-                        var failcode = service == null ? 0 : -1;
+                        processed += 1;
+                        // First check to see if we've already failed a search and at what level
+                        //  failLeve is the LOWEST failure code or -1 if none
 
-                        SongDetails add = null;
-                        if (service == null)
+                        var failLevel = -1;
+                        var fail =
+                            song.OrderedProperties.FirstOrDefault(
+                                p => p.Name == SongBase.FailedLookup && p.Value.StartsWith(type));
+                        if (fail?.Value != null && fail.Value.Length > 2)
                         {
-                            foreach (var addT in MusicService.GetSearchableServices().Where(st => !skipExisting || !(song.Purchase??"").Contains(st.CID)).Select(serviceT => UpdateSongAndService(sd, serviceT, users)).Where(addT => addT != null))
+                            int.TryParse(fail.Value.Substring(2), out failLevel);
+                        }
+
+                        if (failLevel == retryLevel || count == 1)
+                        {
+                            var sd = new SongDetails(song);
+
+                            // Something of a kludge - we're goint to make type ='-' && failcode == 0 mean that we've tried 
+                            //  the multi-service lookup...
+                            var failcode = service == null ? 0 : -1;
+
+                            SongDetails add = null;
+                            if (service == null)
                             {
-                                add = addT;
+                                foreach (
+                                    var addT in
+                                        MusicService.GetSearchableServices()
+                                            .Where(st => !skipExisting || !(song.Purchase ?? "").Contains(st.CID))
+                                            .Select(serviceT => UpdateSongAndService(sd, serviceT, users))
+                                            .Where(addT => addT != null))
+                                {
+                                    add = addT;
+                                }
                             }
+                            else
+                            {
+                                add = UpdateSongAndService(sd, service, users);
+                            }
+
+                            if (add != null)
+                            {
+                                succeeded.Add(add);
+                                tried += 1;
+                            }
+                            else if (failcode == -1)
+                            {
+                                failcode = 0;
+                            }
+
+                            //  Add all failures to the list and increment tried
+                            if (failcode >= 0)
+                            {
+                                // Only add in a new failed code to the DB if the code
+                                // is higher than the previous code
+                                if (failcode > failLevel)
+                                {
+                                    var sp = Database.SongProperties.Create();
+                                    sp.Name = SongBase.FailedLookup;
+                                    sp.Value = type + ":" + failcode.ToString();
+                                    song.SongProperties.Add(sp);
+                                }
+                                if (service != null)
+                                {
+                                    failed.Add(song);
+                                    tried += 1;
+                                }
+                            }
+
+                            modified = true;
                         }
                         else
                         {
-                            add = UpdateSongAndService(sd, service, users);
+                            skipped += 1;
                         }
 
-                        if (add != null)
-                        {
-                            succeeded.Add(add);
-                            tried += 1;
-                        }
-                        else if (failcode == -1)
-                        {
-                            failcode = 0;
-                        }
+                        if (tried > count)
+                            break;
 
-                        //  Add all failures to the list and increment tried
-                        if (failcode >= 0)
-                        {
-                            // Only add in a new failed code to the DB if the code
-                            // is higher than the previous code
-                            if (failcode > failLevel)
-                            {
-                                var sp = Database.SongProperties.Create();
-                                sp.Name = SongBase.FailedLookup;
-                                sp.Value = type + ":" + failcode.ToString();
-                                song.SongProperties.Add(sp);
-                            }
-                            if (service != null)
-                            {
-                                failed.Add(song);
-                                tried += 1;
-                            }
-                        }
+                        if ((tried + 1)%25 != 0) continue;
 
-                        modified = true;
+                        Trace.WriteLineIf(TraceLevels.General.TraceInfo, $"{tried} songs tried.");
+                        Context.CheckpointChanges();
                     }
-                    else
+
+                    page += 1;
+                    if (processed < 1000)
                     {
-                        skipped += 1;
+                        done = true;
                     }
-
-                    if (tried > count)
-                        break;
-
-                    if ((tried + 1)%25 != 0) continue;
-
-                    Trace.WriteLineIf(TraceLevels.General.TraceInfo, $"{tried} songs tried.");
-                    Context.CheckpointChanges();
+                    if (!modified)
+                    {
+                        ResetContext();
+                    }
                 }
 
-                page += 1;
-                if (processed < 1000)
+                if (failed.Count + succeeded.Count > 0)
                 {
-                    done = true;
+                    Context.TrackChanges(true);
                 }
-                if (!modified)
-                {
-                    ResetContext();
-                }
+
+                ViewBag.Completed = tried <= count;
+                ViewBag.Failed = failed;
+                ViewBag.Succeeded = succeeded;
+                ViewBag.Skipped = skipped;
+
+                AdminMonitor.CompleteTask(true, $"BatchMusicService: Completed={tried<=count}, Succeeded={succeeded.Count} - ({string.Join(",",succeeded.Select(s => s.SongId))}), Failed={failed.Count} - ({string.Join(",", failed.Select(s => s.SongId))}), Skipped={skipped}");
+
+                return View();
             }
-
-            if (failed.Count + succeeded.Count > 0)
+            catch (Exception e)
             {
-                Context.TrackChanges(true);
+                return FailAdminTask($"BatchMusicService: {e.Message}", e);
             }
-
-            ViewBag.Completed = tried <= count;
-            ViewBag.Failed = failed;
-            ViewBag.Succeeded = succeeded;
-            ViewBag.Skipped = skipped;
-            return View();
         }
 
         // GET: /Song/MusicServiceSearch/5?search=name
@@ -904,6 +927,86 @@ namespace m4d.Controllers
             return View("Edit", song);
         }
 
+        // CleanMusicServices: /Song/CleanMusicServices
+        [Authorize(Roles = "canEdit")]
+        public ActionResult CleanMusicServices(Guid id, SongFilter filter = null)
+        {
+            var song = Database.FindSong(id, User.Identity.Name);
+            if (song == null)
+            {
+                return ReturnError(HttpStatusCode.NotFound, $"The song with id = {id} has been deleted.");
+            }
+
+            var del = new List<SongProperty>();
+
+            SongProperty last = null;
+            var lastPt = PurchaseType.None;
+            var lastMs = ServiceType.None;
+            var lastDel = false;
+
+            foreach (var prop in song.OrderedProperties.Where(p => p.BaseName == SongBase.PurchaseField))
+            {
+                PurchaseType pt;
+                ServiceType ms;
+
+                if (!MusicService.TryParsePurchaseType(prop.Qualifier, out pt, out ms))
+                    continue;
+
+                if (pt != PurchaseType.Song)
+                {
+                    if (lastDel && pt == PurchaseType.Album && lastMs == ms)
+                    {
+                        del.Add(prop);
+                        lastPt = PurchaseType.None;
+                    }
+                    else
+                    {
+                        last = prop;
+                        lastPt = pt;
+                        lastMs = ms;
+                    }
+                    lastDel = false;
+                    continue;
+                }
+
+                lastDel = false;
+                string[] regions;
+                var purchase = PurchaseRegion.ParseIdAndRegionInfo(prop.Value, out regions);
+                if (Context.GetMusicServiceTrack(purchase,MusicService.GetService(ms)) == null)
+                {
+                    del.Add(prop);
+                    if (lastMs == ms && lastPt == PurchaseType.Album)
+                    {
+                        del.Add(last);
+                    }
+
+                    last = prop;
+                    lastPt = pt;
+                    lastMs = ms;
+                    lastDel = true;
+                    continue;
+                }
+
+                lastPt = PurchaseType.None;
+            }
+
+            // ReSharper disable once InvertIf
+            if (del.Any())
+            {
+                foreach (var prop in del)
+                {
+                    song.SongProperties.Remove(prop);
+                    Database.SongProperties.Remove(prop);
+                }
+                Database.UpdatePurchaseInfo(song.SongId.ToString());
+            }
+
+            HelpPage = "song-details";
+            ViewBag.DanceMap = SongCounts.GetDanceMap(Database);
+            ViewBag.DanceList = GetDancesSingle(Database);
+
+            return View("Details", Database.FindSongDetails(id));
+        }
 
         [Authorize(Roles = "canEdit")]
         public ActionResult BatchEchoNest(SongFilter filter = null, int count = 1)
