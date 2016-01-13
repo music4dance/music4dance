@@ -803,7 +803,8 @@ namespace m4dModels
 
         private static HashSet<string> BreakDownArtist(string artist)
         {
-            var init = new HashSet<string>(NormalizeAlbumString(artist,true).ToUpper().Split(new [] { ' ' },StringSplitOptions.RemoveEmptyEntries));
+            var bits = NormalizeAlbumString(artist??"", true).ToUpper().Split(new[] {' '}, StringSplitOptions.RemoveEmptyEntries);
+            var init = new HashSet<string>(bits);
             init.RemoveWhere(s => ArtistIgnore.Contains(s));
             return init;
         }
