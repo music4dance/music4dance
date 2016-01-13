@@ -848,7 +848,7 @@ namespace m4d.Controllers
                     }
                     if (!modified)
                     {
-                        ResetContext();
+                        Context.CheckpointSongs();
                     }
                 }
 
@@ -1003,7 +1003,7 @@ namespace m4d.Controllers
                     }
                     if (!modified)
                     {
-                        ResetContext();
+                        Context.CheckpointSongs();
                     }
                 }
 
@@ -1123,7 +1123,7 @@ namespace m4d.Controllers
                 }
                 if (!modified)
                 {
-                    ResetContext();
+                    Context.CheckpointSongs();
                 }
             }
 
