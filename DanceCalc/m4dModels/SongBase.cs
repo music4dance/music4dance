@@ -774,23 +774,31 @@ namespace m4dModels
 
         public bool TitleArtistMatch(string title, string artist)
         {
+            if (!SoftArtistMatch(artist, Artist))
+                return false;
+
+            return DoMatch(CreateNormalForm(title), CreateNormalForm(Title)) |
+                   DoMatch(NormalizeAlbumString(title), NormalizeAlbumString(Title)) |
+                   DoMatch(CleanAlbum(title, artist), CleanAlbum(Title, Artist));
+        }
+
+        public static bool SoftArtistMatch(string artist1, string artist2)
+        {
             // Artist Soft Match
-            var a1 = BreakDownArtist(artist);
-            var a2 = BreakDownArtist(Artist);
+            var a1 = BreakDownArtist(artist1);
+            var a2 = BreakDownArtist(artist2);
 
             // Start with the easy case where we've got a single name artist on one side or the other
             // If not, we require an overlap of two
             if (!((a1.Count == 1 && a2.Contains(a1.First()) || a2.Count == 1 && a1.Contains(a2.First())) ||
                   a1.Count(s => a2.Contains(s)) > 1))
             {
-                Trace.WriteLine($"AFAIL '{string.Join(",",a1)}' - '{string.Join(",", a2)}'");
+                Trace.WriteLineIf(TraceLevels.General.TraceVerbose, $"AFAIL '{string.Join(",", a1)}' - '{string.Join(",", a2)}'");
                 return false;
             }
-            Trace.WriteLine($"ASUCC '{string.Join(",", a1)}' - '{string.Join(",", a2)}'");
 
-            return DoMatch(CreateNormalForm(title), CreateNormalForm(Title)) |
-                   DoMatch(NormalizeAlbumString(title), NormalizeAlbumString(Title)) |
-                   DoMatch(CleanAlbum(title, artist), CleanAlbum(Title, Artist));
+            Trace.WriteLineIf(TraceLevels.General.TraceVerbose, $"ASUCC '{string.Join(",", a1)}' - '{string.Join(",", a2)}'");
+            return true;
         }
 
         private static HashSet<string> BreakDownArtist(string artist)

@@ -1270,12 +1270,11 @@ namespace m4dModels
             foreach (var s in songs)
             {
                 // Title-Artist match at minimum
-                if (string.Equals(SongBase.CreateNormalForm(s.Artist), SongBase.CreateNormalForm(song.Artist)))
+                if (SongBase.SoftArtistMatch(s.Artist,song.Artist))
                 {
                     candidates.Add(new SongDetails(s));
                 }
             }
-
 
             if (candidates.Count <= 0)
                 return new LocalMerger {Left = song, Right = null, MatchType = MatchType.None, Conflict = false};
