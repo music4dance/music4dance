@@ -11,6 +11,7 @@ using System.Linq;
 using System.Net;
 using System.Security.Principal;
 using System.Web.Helpers;
+using m4d.Controllers;
 using m4d.Utilities;
 using m4dModels;
 using Microsoft.AspNet.Identity;
@@ -41,11 +42,15 @@ namespace m4d.Context
             : base("DefaultConnection", throwIfV1Schema: false)
         {
             Database.CommandTimeout = 360;
+            if (!DMController.VerboseTelemetry) return;
+
+            var properties = new Dictionary<string, string> { { "id", _id.ToString() } };
+            DMController.TelemetryClient.TrackEvent("CreateDbContext", properties);
         }
 
         private static DbConnection CreateConnection(string nameOrConnectionString)
         {
-            ConnectionStringSettings connectionStringSetting =
+            var connectionStringSetting =
                 ConfigurationManager.ConnectionStrings[nameOrConnectionString];
             string connectionString;
             string providerName;
@@ -64,13 +69,28 @@ namespace m4d.Context
             return CreateConnection(connectionString, providerName);
         }
 
+        private Guid _id = Guid.NewGuid();
+
         private static DbConnection CreateConnection(string connectionString, string providerInvariantName)
         {
-            DbConnection connection;
-            DbProviderFactory factory = DbProviderFactories.GetFactory(providerInvariantName);
-            connection = factory.CreateConnection();
-            connection.ConnectionString = connectionString;
-            return connection;
+            var factory = DbProviderFactories.GetFactory(providerInvariantName);
+            var connection = factory.CreateConnection();
+            if (connection != null)
+            {
+                connection.ConnectionString = connectionString;
+                return connection;
+            }
+            return null;
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            if (DMController.VerboseTelemetry)
+            {
+                var properties = new Dictionary<string, string> { { "disposing", disposing.ToString() }, { "id", _id.ToString() } };
+                DMController.TelemetryClient.TrackEvent("DisposeDbContext", properties);
+            }
+            base.Dispose(disposing);
         }
 
         #endregion
@@ -380,7 +400,7 @@ namespace m4d.Context
         #region IDanceMusicContext
         public ApplicationUser FindOrAddUser(string name, string role, object umanager)
         {
-            ApplicationUserManager uman = umanager as ApplicationUserManager;
+            var uman = umanager as ApplicationUserManager;
 
             var user = uman.FindByName(name);
             if (user == null)

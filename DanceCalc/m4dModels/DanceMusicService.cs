@@ -11,7 +11,7 @@ namespace m4dModels
     public class DanceMusicService : IDisposable
     {
         #region Lifetime Management
-        private readonly IDanceMusicContext _context;
+        private IDanceMusicContext _context;
 
         public DanceMusicService(IDanceMusicContext context, UserManager<ApplicationUser> userManager)
         {
@@ -20,8 +20,12 @@ namespace m4dModels
         }
         public void Dispose()
         {
-            _context.Dispose();
+            var temp = _context;
+            _context = null;
+            temp.Dispose();
         }
+
+        public bool IsDisposed => _context == null;
 
         #endregion
 

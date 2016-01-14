@@ -79,9 +79,10 @@ namespace m4d.Controllers
         }
         private ApplicationUserManager _userManager;
 
-        //public TelemetryClient TelemetryClient => (TelemetryClient) Resolver.GetService(typeof (TelemetryClient));
         public static TelemetryClient TelemetryClient => s_telemetryClient ?? (s_telemetryClient = new TelemetryClient());
         private static TelemetryClient s_telemetryClient;
+
+        public static bool VerboseTelemetry { get; set; } = false;
 
         //// Used for XSRF protection when adding external logins
         //protected const string XsrfKey = "XsrfId";

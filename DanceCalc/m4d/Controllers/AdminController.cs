@@ -718,6 +718,17 @@ namespace m4d.Controllers
             return RedirectToAction("Diagnostics");
         }
 
+        public ActionResult EnableVerboseTelemetry(bool enable)
+        {
+            Trace.WriteLineIf(TraceLevels.General.TraceInfo, $"Enable Verbose Telemetry: '{enable}'");
+            VerboseTelemetry = enable;
+            if (enable)
+            {
+                TelemetryConfiguration.Active.DisableTelemetry = false;
+            }
+
+            return RedirectToAction("Diagnostics");
+        }
         //
         // Get: //CompressRegions
         [Authorize(Roles = "dbAdmin")]

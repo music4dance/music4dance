@@ -683,9 +683,10 @@ namespace m4d.Controllers
         /// <param name="options">May be more complex in future - currently Rn where n is retyr level</param>
         /// <param name="filter">Standard filter for song list</param>
         /// <param name="count">Number of songs to try, 1 is special cased as a user verified single entry</param>
+        /// <param name="pageSize">Number of song to process per query</param>
         /// <returns></returns>
         [Authorize(Roles = "canEdit")]
-        public ActionResult BatchMusicService(string type= "X", string options = null, SongFilter filter=null, int count = 1)
+        public ActionResult BatchMusicService(string type= "X", string options = null, SongFilter filter=null, int count = 1, int pageSize = 1000)
         {
             try
             {
@@ -750,12 +751,11 @@ namespace m4d.Controllers
                 while (!done)
                 {
                     AdminMonitor.UpdateTask("BuildSongList", page);
-                    var songs = Database.BuildSongList(filter, cruftFilter).Skip(page*1000).Take(1000).ToList();
+                    var songs = Database.BuildSongList(filter, cruftFilter).Skip(page*pageSize).Take(pageSize).ToList();
                     var processed = 0;
-                    var modified = false;
                     foreach (var song in songs)
                     {
-                        AdminMonitor.UpdateTask("Processing", processed);
+                        AdminMonitor.UpdateTask($"Processing ({succeeded.Count})", processed);
 
                         processed += 1;
                         // First check to see if we've already failed a search and at what level
@@ -824,8 +824,6 @@ namespace m4d.Controllers
                                     tried += 1;
                                 }
                             }
-
-                            modified = true;
                         }
                         else
                         {
@@ -842,14 +840,11 @@ namespace m4d.Controllers
                     }
 
                     page += 1;
-                    if (processed < 1000)
+                    if (processed < pageSize)
                     {
                         done = true;
                     }
-                    if (!modified)
-                    {
-                        Context.CheckpointSongs();
-                    }
+                    Context.CheckpointSongs();
                 }
 
                 if (failed.Count + succeeded.Count > 0)
