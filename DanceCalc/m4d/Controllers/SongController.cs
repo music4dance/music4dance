@@ -716,6 +716,7 @@ namespace m4d.Controllers
                 var retryLevel = -1;
                 var cruftFilter = DanceMusicService.CruftFilter.AllCruft;
                 var skipExisting = true;
+                var skipVisited = false;
 
                 // May do more options in future
                 while (!string.IsNullOrWhiteSpace(options) && options.Length > 0)
@@ -734,6 +735,9 @@ namespace m4d.Controllers
                         case 'E':
                             skipExisting = false;
                             break;
+                        case 'V':
+                            skipVisited = true;
+                            break;
                     }
 
                 }
@@ -751,7 +755,12 @@ namespace m4d.Controllers
                 while (!done)
                 {
                     AdminMonitor.UpdateTask("BuildSongList", page);
-                    var songs = Database.BuildSongList(filter, cruftFilter).Skip(page*pageSize).Take(pageSize).ToList();
+                    var songsQ = Database.BuildSongList(filter, cruftFilter);
+                    if (skipVisited)
+                    {
+                        songsQ = songsQ.Where(s => s.SongProperties.All(p => p.Name != SongBase.FailedLookup));
+                    }
+                    var songs = songsQ.Skip(page * pageSize).Take(pageSize).ToList();
                     var processed = 0;
                     foreach (var song in songs)
                     {
