@@ -117,7 +117,7 @@
         ko.applyBindings(viewModel);
     }
 
-    var update = function () {
+    var update = function (event) {
         if (event.target.id === 'search') {
             var results = viewModel.results();
             $('#tags').val(results);
@@ -279,7 +279,7 @@ $(document).ready(function () {
         return true;
     });
 
-    $('#search').submit(function () { filter.update(); });
+    $('#search').submit(function (event) { filter.update(event); });
     $('#reset-search').click(function () { filter.reset(event); });
 
     // Setup tool-tips
