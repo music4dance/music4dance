@@ -350,7 +350,7 @@ namespace m4dModels
 
             dr.Weight += drd.Delta;
 
-            if (dr.Weight <= 0)
+            if (dr.Weight == 0)
             {
                 ret = dr;
             }
@@ -476,6 +476,22 @@ namespace m4dModels
                     UpdateDanceRating(drd, true);
                 }
             }
+        }
+
+        public int UserDanceRating(string user, string danceId)
+        {
+            var level = 0;
+            var ratings = FilteredProperties(DanceRatingField, null, new HashSet<string>(new[] {user}));
+            foreach (var rating in ratings.Where(p => p.Value.StartsWith(danceId)))
+            {
+                int t;
+                var v = rating.Value;
+                var i = v.IndexOfAny(new[] { '+', '-' });
+                if (i == -1 || !int.TryParse(v.Substring(i), out t)) continue;
+
+                level += t;
+            }
+            return level;
         }
 
         #endregion
@@ -718,24 +734,39 @@ namespace m4dModels
             return OrderedProperties.FirstOrDefault(p => p.Name == name);
         }
 
-        public SongProperty LastProperty(string name, IEnumerable<string> excludeUsers = null)
+        public SongProperty LastProperty(string name, IEnumerable<string> excludeUsers = null, IEnumerable<string> includeUsers = null)
         {
-            return FilteredProperties(excludeUsers).LastOrDefault(p => p.Name == name);
+            return FilteredProperties(excludeUsers,includeUsers).LastOrDefault(p => p.Name == name);
         }
 
-        public IOrderedEnumerable<SongProperty> FilteredProperties(IEnumerable<string> excludeUsers = null)
+        public IOrderedEnumerable<SongProperty> FilteredProperties(string baseName, IEnumerable<string> excludeUsers = null, IEnumerable<string> includeUsers = null)
         {
-            if (excludeUsers == null) return OrderedProperties;
+            return FilteredProperties(excludeUsers, includeUsers).Where(p => p.BaseName == baseName).OrderBy(p => p.Id);
+        }
 
-            var eu = excludeUsers as HashSet<string> ?? new HashSet<string>(excludeUsers);
+        public IOrderedEnumerable<SongProperty> FilteredProperties(IEnumerable<string> excludeUsers = null, IEnumerable<string> includeUsers = null)
+        {
+            if (excludeUsers == null && includeUsers == null) return OrderedProperties;
+
+            var eu = (excludeUsers == null) ? null : (excludeUsers as HashSet<string> ?? new HashSet<string>(excludeUsers));
+            var iu = (includeUsers == null) ? null : (includeUsers as HashSet<string> ?? new HashSet<string>(includeUsers));
 
             var ret = new List<SongProperty>();
 
-            var inFilter = false;
+            var inFilter = includeUsers != null;
             foreach (var prop in OrderedProperties)
             {
                 if (prop.BaseName == UserField)
-                    inFilter = eu.Contains(prop.Value);
+                {
+                    if (eu != null)
+                    {
+                        inFilter =  eu.Contains(prop.Value);
+                    }
+                    else // (ie != null)
+                    {
+                        inFilter = !iu.Contains(prop.Value);
+                    }
+                }
 
                 if (!inFilter)
                     ret.Add(prop);

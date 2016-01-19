@@ -49,26 +49,24 @@
                 break;
         }
 
-        var t = '/api/updatelike/' + fields[1] + '?like=' + like;
+        var dance = '';
+        var type = 'heart';
+        var tipText = 'this song';
+        if (fields[0] !== 'like') {
+            dance = fields[0];
+            type = 'dance';
+            tipText = 'dancing to this song';
+        }
+        var t = '/api/updatelike/' + fields[1] + '?dance=' + dance + '&like=' + like;
         $.getJSON(t)
             .done(function () {
                 var img = $this.find('img');
                 var str = (like === null) ? 'null' : (like ? 'true' : 'false');
-                switch (like) {
-                case true:
-                    img.prop('src', '/content/heart-icon.png');
-                    break;
-                case false:
-                    img.prop('src', '/content/heart-broken-icon.png');
-                    break;
-                default:
-                    img.prop('src', '/content/heart-outline-icon.png');
-                    break;
-                }
+                var voteOpts = window.VoteOptions[str];
 
                 $this.data('like', like);
-                $this.attr('title', window.HeartOptions[str].tip);
-                img.prop('src', '/content/heart' + window.HeartOptions[str].img + '-icon.png');
+                $this.attr('title', voteOpts.tip.replace('{0}',tipText));
+                img.prop('src', '/content/' + type + voteOpts.img + '-icon.png');
             })
             .fail(function (jqxhr, textStatus, err) {
                 window.alert(err);

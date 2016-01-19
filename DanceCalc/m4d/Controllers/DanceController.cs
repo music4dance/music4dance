@@ -8,7 +8,7 @@ using m4dModels;
 
 namespace m4d.Controllers
 {
-    public class DanceController : DMController
+    public class DanceController : ContentController
     {
         public override string DefaultTheme => MusicTheme;
 
@@ -54,11 +54,7 @@ namespace m4d.Controllers
 
             if (sc == null) return ReturnError(HttpStatusCode.NotFound, $"The dance with the name = {dance} isn't defined.");
 
-            var likes = Database.UserLikes(sc.GetTopSongs(Database), HttpContext.User.Identity.Name);
-            if (likes != null)
-            {
-                ViewBag.Likes = likes;
-            }
+            SetupLikes(sc.GetTopSongs(Database),sc.DanceId);
 
             return View("details", sc);
         }

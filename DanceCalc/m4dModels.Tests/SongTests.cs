@@ -76,7 +76,7 @@ namespace m4dModels.Tests
         public void Ratings()
         {
             var song = new Song();
-            song.Load(@"user=batch	Title=Test	Artist=Me	Tempo=30.0",Service);
+            song.Load(@"User=batch	Title=Test	Artist=Me	Tempo=30.0",Service);
 
             //Trace.WriteLine(init);
             var sd = new SongDetails(song);
@@ -104,6 +104,46 @@ namespace m4dModels.Tests
             Assert.IsTrue(song.DanceRatings.Count == 2);
             drT = song.FindRating("FXT");
             Assert.IsTrue(drT.Weight == 5);
+        }
+
+        [TestMethod]
+        public void UpdateRatings()
+        {
+            var user1 = Service.FindUser("batch");
+            var user2 = Service.FindUser("dwgray");
+
+            var song = new Song();
+            song.Load(@"User=batch	Title=Test	Artist=Me	Tempo=30.0	Tag+=Slow Foxtrot:Dance	DanceRating=SFT+5", Service);
+
+            var drT = song.FindRating("SFT");
+            Assert.AreEqual(5, drT.Weight);
+
+            Assert.AreEqual(5,song.UserDanceRating(user1.UserName,"SFT"));
+            Assert.AreEqual(0, song.UserDanceRating(user1.UserName, "SWG"));
+            Assert.AreEqual(0,song.UserDanceRating(user2.UserName,"SFT"));
+
+            song.EditDanceLike(user1, true, "SFT", Service);
+            Assert.AreEqual(5, song.UserDanceRating(user1.UserName, "SFT"));
+
+            song.EditDanceLike(user2, true, "SFT", Service);
+            Assert.AreEqual(5, song.UserDanceRating(user1.UserName, "SFT"));
+            Assert.AreEqual(SongBase.DanceRatingIncrement, song.UserDanceRating(user2.UserName, "SFT"));
+            drT = song.FindRating("SFT");
+            Assert.AreEqual(SongBase.DanceRatingIncrement + 5, drT.Weight);
+
+            song.EditDanceLike(user1, null, "SFT", Service);
+            Assert.AreEqual(0, song.UserDanceRating(user1.UserName, "SFT"));
+            Assert.AreEqual(SongBase.DanceRatingIncrement, song.UserDanceRating(user2.UserName, "SFT"));
+
+            song.EditDanceLike(user2, null, "SFT", Service);
+            Assert.AreEqual(0, song.UserDanceRating(user2.UserName, "SFT"));
+            drT = song.FindRating("SFT");
+            Assert.IsNull(drT);
+
+            song.EditDanceLike(user2, false, "SWG", Service);
+            Assert.AreEqual(SongBase.DanceRatingDecrement, song.UserDanceRating(user2.UserName, "SWG"));
+            drT = song.FindRating("SWG");
+            Assert.AreEqual(SongBase.DanceRatingDecrement, drT.Weight);
         }
 
         private const string MergeSong =

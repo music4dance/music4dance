@@ -187,7 +187,7 @@ $(document).ready(function () {
         var filterName = 'filter=';
         var ich = href.indexOf(filterName);
         if (ich === -1) {
-            href += "?filter=advanced-.-.-" + txt;
+            href += '?filter=advanced-.-.-' + txt;
         } else {
             var filter = href.substring(ich + filterName.length);
             var params = filter.split('-');
@@ -221,7 +221,7 @@ $(document).ready(function () {
         var filterName = 'filter=';
         var ich = href.indexOf(filterName);
         if (ich === -1) {
-            href += "?filter=advancedsearch-.-.-" + txt;
+            href += '?filter=advancedsearch-.-.-' + txt;
         } else {
             var filter = href.substring(ich + filterName.length);
             var params = filter.split('-');
@@ -238,7 +238,7 @@ $(document).ready(function () {
 
     $('#chosen-dances').chosen({ max_selected_options: 5, width: '100%' });
 
-    $("input[name='db']", $('#dance-boolean')).change(function () {
+    $('input[name=\'db\']', $('#dance-boolean')).change(function () {
         var dances = $('#dances').val();
         var and = dances.indexOf('AND,') === 0;
 

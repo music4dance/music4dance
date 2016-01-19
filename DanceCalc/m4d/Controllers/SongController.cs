@@ -4,6 +4,7 @@ using System.Collections.Specialized;
 using System.Diagnostics;
 using System.Linq;
 using System.Net;
+using System.ServiceModel.Security;
 using System.Web;
 using System.Web.Mvc;
 using DanceLibrary;
@@ -20,7 +21,7 @@ namespace m4d.Controllers
         public string Name { get; set; }
     };
 
-    public class SongController : DMController
+    public class SongController : ContentController
     {
         public SongController()
         {
@@ -1203,12 +1204,8 @@ namespace m4d.Controllers
 
             var list = songs.ToPagedList(filter.Page ?? 1, 25);
 
-            var userName = HttpContext.User.Identity.Name;
-            var likes = Database.UserLikes(list, userName);
-            if (likes != null)
-            {
-                ViewBag.Likes = likes;
-            }
+            var dances = filter.DanceQuery.DanceIds.ToList();
+            SetupLikes(list, dances.Count == 1 ? dances[0] : null);
 
             ViewBag.SongFilter = filter;
 

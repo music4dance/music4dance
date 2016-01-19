@@ -214,6 +214,28 @@ namespace m4dModels
             return true;
         }
 
+        public bool EditDanceLike(ApplicationUser user, bool? like, string danceId, DanceMusicService dms)
+        {
+            var r = UserDanceRating(user.UserName, danceId);
+
+            // If the existing like value is in line with the current rating, do nothing
+            if ((like.HasValue && (like.Value && r > 0 || !like.Value && r < 0)) || (!like.HasValue && r == 0))
+            {
+                return false;
+            }
+
+            // First, neutralize existing rating
+            var delta = -r;
+            if (like.HasValue)
+            {
+                // Then, update the value for our current nudge factor in the appropriate direction
+                delta += like.Value ? DanceRatingIncrement : DanceRatingDecrement;
+            }
+
+            CreateEditProperties(user, EditCommand, dms);
+            UpdateDanceRating(new DanceRatingDelta {DanceId = danceId, Delta = delta}, true);
+            return true;
+        }
 
         public bool Update(ApplicationUser user, SongDetails update, DanceMusicService dms)
         {

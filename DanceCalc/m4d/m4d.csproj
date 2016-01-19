@@ -352,6 +352,7 @@
     <Compile Include="Controllers\ApplicationUsersController.cs" />
     <Compile Include="APIControllers\DanceController.cs" />
     <Compile Include="APIControllers\DMApiController.cs" />
+    <Compile Include="Controllers\ContentController.cs" />
     <Compile Include="Controllers\DanceController.cs" />
     <Compile Include="Controllers\DMController.cs" />
     <Compile Include="Controllers\ErrorController.cs" />
@@ -497,6 +498,9 @@
     <Content Include="Content\chosen-sprite.png" />
     <Content Include="Content\chosen.css" />
     <Content Include="Content\dance-50.png" />
+    <Content Include="Content\dance-broken-icon.png" />
+    <Content Include="Content\dance-outline-icon.png" />
+    <Content Include="Content\dance-icon.png" />
     <Content Include="Content\dance-tempo-50.png" />
     <Content Include="Content\echonest-lg.gif" />
     <Content Include="Content\echonest.png" />

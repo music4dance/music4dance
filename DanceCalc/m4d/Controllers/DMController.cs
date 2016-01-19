@@ -8,8 +8,6 @@ using m4dModels;
 using Microsoft.ApplicationInsights;
 using Microsoft.AspNet.Identity.Owin;
 
-// TODONEXT: Go trhough SongController and make sure we're guarding correctly
-//  Verify that bothits diagnostics partial view does what we want...
 namespace m4d.Controllers
 {
     /// <summary>

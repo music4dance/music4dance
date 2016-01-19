@@ -171,13 +171,21 @@ namespace m4dModels
             return true;
         }
 
-        public bool EditLike(ApplicationUser user, Guid songId, bool? like, bool doLog = true)
+        public bool EditLike(ApplicationUser user, Guid songId, bool? like, string danceId=null, bool doLog = true)
         {
             var song = _context.Songs.Find(songId);
             if (doLog)
                 song.CurrentLog = CreateSongLog(user, song, SongBase.EditCommand);
 
-            if (!song.EditLike(user, like, this)) return false;
+            if (danceId == null)
+            {
+                if (!song.EditLike(user, like, this)) return false;
+            }
+            else
+            {
+                if (!song.EditDanceLike(user, like, danceId, this)) return false;
+            }
+            
 
             if (song.CurrentLog != null)
                 _context.Log.Add(song.CurrentLog);
@@ -1247,11 +1255,11 @@ namespace m4dModels
             return songs.Include("DanceRatings").Include("ModifiedBy").Include("SongProperties");
         }
 
-        public Dictionary<Guid, bool?> UserLikes(IEnumerable<SongBase> songs, string userName)
+        public LikeDictionary UserLikes(IEnumerable<SongBase> songs, string userName)
         {
             if (string.IsNullOrWhiteSpace(userName)) return null;
 
-            var likes = new Dictionary<Guid, bool?>();
+            var likes = new LikeDictionary();
             foreach (var s in songs)
             {
                 var mod = s.ModifiedBy.FirstOrDefault(m => m.UserName == userName);
@@ -1259,6 +1267,21 @@ namespace m4dModels
                 {
                     likes.Add(s.SongId, mod.Like);
                 }
+            }
+            return likes;
+        }
+
+        public LikeDictionary UserDanceLikes(IEnumerable<SongBase> songs, string danceId, string userName)
+        {
+            if (string.IsNullOrWhiteSpace(userName)) return null;
+
+            var likes = new LikeDictionary();
+            foreach (var s in songs)
+            {
+                var level = s.UserDanceRating(userName, danceId);
+
+                if (level > 0) likes.Add(s.SongId, true);
+                else if (level < 0) likes.Add(s.SongId, false);
             }
             return likes;
         }

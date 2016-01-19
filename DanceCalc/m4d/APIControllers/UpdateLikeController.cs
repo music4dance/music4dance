@@ -9,20 +9,13 @@ namespace m4d.APIControllers
     public class UpdateLikeController : DMApiController
     {
         [HttpGet]
-        public IHttpActionResult Update(Guid id, bool? like)
+        public IHttpActionResult Update(Guid id, bool? like, string dance=null)
         {
             var user = Database.FindUser(HttpContext.Current.User.Identity.GetUserName());
-            Database.EditLike(user, id, like);
+
+            Database.EditLike(user, id, like, string.IsNullOrWhiteSpace(dance)||dance=="null"?null:dance);
 
             return Ok(new { changed = 1 });
         }
-
-        //public IHttpActionResult Update(Guid id, [FromBody] bool? like)
-        //{
-        //    var user = Database.FindUser(HttpContext.Current.User.Identity.GetUserName());
-        //    Database.EditLike(user, id, like);
-
-        //    return Ok(new { changed = 1 });
-        //}
     }
 }
