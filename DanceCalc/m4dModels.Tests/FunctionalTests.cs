@@ -150,16 +150,16 @@ namespace m4dModels.Tests
             var count = 0;
             foreach (var song in songs)
             {
-                string t = song.Title.ToLower();
+                var t = song.Title.ToLower();
                 Assert.IsTrue(t.Contains("the") || song.Artist.ToLower().Contains("the") || song.Album.ToLower().Contains("the") );
-                Assert.IsTrue(String.CompareOrdinal(t, title) >=0);
+                Assert.IsTrue(string.CompareOrdinal(t, title) >=0);
                 title = t;
 
                 count += 1;
             }
 
             Trace.WriteLine($"Filtered Count = {count}");
-            Assert.AreEqual(100, count);
+            Assert.AreEqual(101, count);
         }
 
         [TestMethod]

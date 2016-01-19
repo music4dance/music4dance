@@ -224,15 +224,30 @@ namespace m4dModels
                 return false;
             }
 
+            CreateEditProperties(user, EditCommand, dms);
+
             // First, neutralize existing rating
             var delta = -r;
+            var tagDelta = TagsFromDances(new[] { danceId });
             if (like.HasValue)
             {
                 // Then, update the value for our current nudge factor in the appropriate direction
-                delta += like.Value ? DanceRatingIncrement : DanceRatingDecrement;
+                if (like.Value)
+                {
+                    delta += DanceRatingIncrement;
+                    AddTags(tagDelta, user, dms, this);
+                }
+                else
+                {
+                    delta += DanceRatingDecrement;
+                    RemoveTags(tagDelta, user, dms, this);
+                }
+            }
+            else
+            {
+                RemoveTags(tagDelta, user, dms, this);
             }
 
-            CreateEditProperties(user, EditCommand, dms);
             UpdateDanceRating(new DanceRatingDelta {DanceId = danceId, Delta = delta}, true);
             return true;
         }

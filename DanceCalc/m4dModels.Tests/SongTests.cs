@@ -130,10 +130,15 @@ namespace m4dModels.Tests
             Assert.AreEqual(SongBase.DanceRatingIncrement, song.UserDanceRating(user2.UserName, "SFT"));
             drT = song.FindRating("SFT");
             Assert.AreEqual(SongBase.DanceRatingIncrement + 5, drT.Weight);
+            var ut = song.UserTags(user2, Service);
+            Assert.AreEqual("Slow Foxtrot:Dance", ut.ToString());
+
 
             song.EditDanceLike(user1, null, "SFT", Service);
             Assert.AreEqual(0, song.UserDanceRating(user1.UserName, "SFT"));
             Assert.AreEqual(SongBase.DanceRatingIncrement, song.UserDanceRating(user2.UserName, "SFT"));
+            ut = song.UserTags(user1, Service);
+            Assert.IsTrue(ut.IsEmpty);
 
             song.EditDanceLike(user2, null, "SFT", Service);
             Assert.AreEqual(0, song.UserDanceRating(user2.UserName, "SFT"));
