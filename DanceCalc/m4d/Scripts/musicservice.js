@@ -7,7 +7,7 @@
         $.getJSON(uri + this.id[0] + '?songs=' + this.id.substring(1))
             .done(function(data) {
                 //if (data[0].Target == null) {
-                    window.location(data[0].Link);
+                    window.location = data[0].Link;
                 //} else {
                 //    window.open(data[0].Link, data[0].Target);
                 //}
