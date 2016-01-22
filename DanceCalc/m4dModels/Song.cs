@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
+using System.Text;
 
 namespace m4dModels
 {
@@ -229,6 +230,7 @@ namespace m4dModels
             // First, neutralize existing rating
             var delta = -r;
             var tagDelta = TagsFromDances(new[] { danceId });
+            var tagNeg = "!" + tagDelta;
             if (like.HasValue)
             {
                 // Then, update the value for our current nudge factor in the appropriate direction
@@ -236,16 +238,18 @@ namespace m4dModels
                 {
                     delta += DanceRatingIncrement;
                     AddTags(tagDelta, user, dms, this);
+                    RemoveTags(tagNeg, user, dms, this);
                 }
                 else
                 {
                     delta += DanceRatingDecrement;
+                    AddTags(tagNeg, user, dms, this);
                     RemoveTags(tagDelta, user, dms, this);
                 }
             }
             else
             {
-                RemoveTags(tagDelta, user, dms, this);
+                RemoveTags(tagDelta + "|" + tagNeg, user, dms, this);
             }
 
             UpdateDanceRating(new DanceRatingDelta {DanceId = danceId, Delta = delta}, true);
@@ -439,13 +443,46 @@ namespace m4dModels
 
         public override void RegisterChangedTags(TagList added, TagList removed, ApplicationUser user, DanceMusicService dms, object data)
         {
-            base.RegisterChangedTags(added, removed, user, dms, data);
-
             var test = data as string;
             if (string.Equals("Dances", test, StringComparison.OrdinalIgnoreCase))
             {
-                EditDanceRatings(TagsToDanceIds(added), 3, TagsToDanceIds(removed), -1, dms);
-            }                
+                var dts = added?.Filter("Dance")??new TagList();
+                var dtr = new TagList();
+                // Remove anything from dtr that is in dts || that !/!! is in dts
+                foreach (var tg in from tg in (removed?.Filter("Dance") ?? new TagList()).Tags let a = tg.TrimStart('!') where dts.Tags.All(g => g.TrimStart('!') != a) select tg)
+                {
+                    dtr.Add(tg);
+                }
+
+                if (!dts.IsEmpty || !dtr.IsEmpty)
+                {
+                    UpdateUserDanceRatings(user.UserName, DancesFromTags(dts.ExtractNotPrefixed('!')), DanceRatingIncrement);
+                    UpdateUserDanceRatings(user.UserName, DancesFromTags(dts.ExtractPrefixed('!')), DanceRatingDecrement);
+                    UpdateUserDanceRatings(user.UserName, DancesFromTags(dtr.ExtractPrefixed('!').Add(dtr.ExtractNotPrefixed('!'))), 0);
+
+                    // TODO:Dance tags have a property where there may be a "!" version (hate), we need
+                    //  to explicity disallow having both the like and hate, but if we do it here we'll remove
+                    //  things that don't need to be removed.
+                    //removed = removed ?? new TagList();
+                    //removed = dts.Tags.Aggregate(removed, 
+                    //    (current, tag) => current.Add(tag.StartsWith("!") ? tag.Substring(1) : "!" + tag));
+                }
+            }
+
+            base.RegisterChangedTags(added, removed, user, dms, data);
+
+            // TODONEXT: We're still removing negative tags need to figure out how to easily
+            // refilter removed for no-op tags...
+
+        }
+
+        private void UpdateUserDanceRatings(string userName, IEnumerable<string> danceIds, int rating)
+        {
+            foreach (var did in danceIds)
+            {
+                var delta = -UserDanceRating(userName, did) + rating;
+                UpdateDanceRating(new DanceRatingDelta { DanceId = did, Delta = delta }, true);
+            }
         }
 
         private bool UpdateModified(ApplicationUser user, SongDetails edit, DanceMusicService dms, bool force)

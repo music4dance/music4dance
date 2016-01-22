@@ -218,7 +218,7 @@ var editor = function () {
         self.toggleVote = function () {
             switch (self.vote()) {
             case voteState.UP:
-                self.song.TagSummary.addTag('-' + self.DanceName(), 'Dance');
+                self.song.TagSummary.addTag('!' + self.DanceName(), 'Dance');
                 self.song.TagSummary.removeTag(self.DanceName(), 'Dance');
                 // Remove Rating if it was created in this session
                 if (self.state() === ratingState.CREATED) {
@@ -226,7 +226,7 @@ var editor = function () {
                 }
                 break;
             case voteState.DOWN:
-                self.song.TagSummary.removeTag('-' + self.DanceName(), 'Dance');
+                self.song.TagSummary.removeTag('!' + self.DanceName(), 'Dance');
                 break;
             default:
                 self.song.TagSummary.addTag(self.DanceName(), 'Dance');
@@ -265,7 +265,7 @@ var editor = function () {
             if (self.song.TagSummary.findUserTag(self.DanceName(), 'Dance')) {
                 return voteState.UP;
             }
-            else if (self.song.TagSummary.findUserTag('-' + self.DanceName(), 'Dance')) {
+            else if (self.song.TagSummary.findUserTag('!' + self.DanceName(), 'Dance')) {
                 return voteState.DOWN;
             } else {
                 return voteState.NEUTRAL;

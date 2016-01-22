@@ -10,7 +10,7 @@ namespace m4dModels
     public class TagList
     {
         #region Properties
-        public String Summary { get; set; }
+        public string Summary { get; set; }
         public List<string> Tags => Parse(Summary);
 
         #endregion
@@ -70,6 +70,12 @@ namespace m4dModels
             return new TagList(ret);
         }
 
+        public TagList Add(string tag)
+        {
+            var n = new TagList(tag);
+            return !n.IsEmpty ? Add(n) : this;
+        }
+
         public TagList Filter(string tagType)
         {
             var filtered = Tags.Where(tag => tag.EndsWith(":" + tagType)).ToList();
@@ -86,14 +92,27 @@ namespace m4dModels
             return IsQualified ? Extract('-') : new TagList();
         }
 
+        public TagList ExtractPrefixed(char c)
+        {
+            return string.IsNullOrWhiteSpace(Summary) ?
+                new TagList() :
+                new TagList(Tags.Where(tag => tag[0] == c).Select(tag => tag.Substring(1)).ToList());
+        }
+
+        public TagList ExtractNotPrefixed(char c)
+        {
+            return string.IsNullOrWhiteSpace(Summary) ?
+                new TagList() :
+                new TagList(Tags.Where(tag => tag[0] != c).ToList());
+        }
+
         private TagList Extract(char c)
         {
             if (!IsQualified) throw new InvalidConstraintException();
 
-            return string.IsNullOrWhiteSpace(Summary) ? 
-                new TagList() : 
-                new TagList(Tags.Where(tag => tag[0] == c).Select(tag => tag.Substring(1)).ToList());
+            return ExtractPrefixed(c);
         }
+
         public IList<string> StripType()
         {
             return Summary.Contains(':')

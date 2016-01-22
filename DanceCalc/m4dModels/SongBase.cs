@@ -405,6 +405,16 @@ namespace m4dModels
             return tags.ToString();
         }
 
+        public static IEnumerable<string> DancesFromTags(TagList tags)
+        {
+            if (tags == null || tags.IsEmpty)
+            {
+                return new List<string>();
+            }
+
+            return Dances.Instance.FromNames(tags.Strip()).Select(d => d.Id);
+        }
+
         public void InferDances(ApplicationUser user)
         {
             // Get the dances from the current user's tags

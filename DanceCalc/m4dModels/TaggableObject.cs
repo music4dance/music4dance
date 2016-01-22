@@ -79,10 +79,17 @@ namespace m4dModels
 
         // Remove any tags from tags that have previously been added by the user and return a list
         //  of the actually removed tags in canonical form
+        // TODO: Currently if removeTags gets rid of everything, an add tags in the same session with be a no-op,
+        //  working around this by always doing an add before a remove, but that sucks long term
         public TagList RemoveTags(string tags, ApplicationUser user, DanceMusicService dms = null, object data = null, bool updateTypes=true)
         {
+            // If there were no pre-existing user tags, removal is a no-op
+            var ut = FindUserTag(user, dms);
+            if (ut == null)
+                return new TagList();
+
             var removed = new TagList(tags);
-            var ut = FindOrCreateUserTags(user, dms);
+            ut = ut??FindOrCreateUserTags(user, dms);
 
             var badTags = removed.Subtract(ut.Tags);
             var oldTags = removed.Subtract(badTags);
@@ -90,6 +97,9 @@ namespace m4dModels
 
             ut.Modified = DateTime.Now;
             ut.Tags = newTags;
+
+            if (oldTags.IsEmpty)
+                return oldTags;
 
             DoUpdate(null, oldTags, user, dms, data, updateTypes);
 
@@ -109,7 +119,13 @@ namespace m4dModels
 
         public bool ChangeTags(TagList newTags, ApplicationUser user, DanceMusicService dms = null, object data = null, bool updateTypes = true)
         {
-            var ut = FindOrCreateUserTags(user, dms);
+            // Short-circuit if both old and new are empty
+            var ut = FindUserTag(user, dms);
+            if (newTags.IsEmpty && ut == null)
+                return false;
+
+            ut = ut??FindOrCreateUserTags(user, dms);
+
             var userTags = ut.Tags;
 
             var added = newTags.Subtract(userTags);
