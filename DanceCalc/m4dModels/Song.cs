@@ -447,18 +447,18 @@ namespace m4dModels
             if (string.Equals("Dances", test, StringComparison.OrdinalIgnoreCase))
             {
                 var dts = added?.Filter("Dance")??new TagList();
-                var dtr = new TagList();
-                // Remove anything from dtr that is in dts || that !/!! is in dts
-                foreach (var tg in from tg in (removed?.Filter("Dance") ?? new TagList()).Tags let a = tg.TrimStart('!') where dts.Tags.All(g => g.TrimStart('!') != a) select tg)
-                {
-                    dtr.Add(tg);
-                }
+                var dtr = removed?.Filter("Dance") ?? new TagList();
 
                 if (!dts.IsEmpty || !dtr.IsEmpty)
                 {
-                    UpdateUserDanceRatings(user.UserName, DancesFromTags(dts.ExtractNotPrefixed('!')), DanceRatingIncrement);
-                    UpdateUserDanceRatings(user.UserName, DancesFromTags(dts.ExtractPrefixed('!')), DanceRatingDecrement);
-                    UpdateUserDanceRatings(user.UserName, DancesFromTags(dtr.ExtractPrefixed('!').Add(dtr.ExtractNotPrefixed('!'))), 0);
+                    var likes = DancesFromTags(dts.ExtractNotPrefixed('!'));
+                    var hates = DancesFromTags(dts.ExtractPrefixed('!'));
+                    var nulls =
+                        DancesFromTags(dtr.ExtractPrefixed('!').Add(dtr.ExtractNotPrefixed('!')))
+                            .Where(x => !likes.Contains(x) && !hates.Contains(x));
+                    UpdateUserDanceRatings(user.UserName, likes, DanceRatingIncrement);
+                    UpdateUserDanceRatings(user.UserName, hates, DanceRatingDecrement);
+                    UpdateUserDanceRatings(user.UserName, nulls, 0);
 
                     // TODO:Dance tags have a property where there may be a "!" version (hate), we need
                     //  to explicity disallow having both the like and hate, but if we do it here we'll remove
