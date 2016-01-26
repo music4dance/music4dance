@@ -193,6 +193,17 @@ namespace m4dModels
 
             if (cells.Count > 0)
             {
+                DateTime modTime;
+                if (!string.IsNullOrWhiteSpace(cells[0]) &&
+                    DateTime.TryParse(cells[0], out modTime))
+                {
+                    Modified = modTime;
+                }
+                cells.RemoveAt(0);
+            }
+
+            if (cells.Count > 0)
+            {
                 if (DanceLinks == null)
                 {
                     DanceLinks = new List<DanceLink>();
@@ -236,12 +247,12 @@ namespace m4dModels
             desc = desc.Replace("\r", @"\r").Replace("\n", @"\n").Replace('\t', ' ');
             var sb = new StringBuilder();
 
-            sb.AppendFormat("{0}\t{1}", id, desc);
+            sb.AppendFormat("{0}\t{1}\t{2}", id, desc, Modified.ToString("g"));
             if (DanceLinks != null)
             {
                 foreach (var dl in DanceLinks)
                 {
-                    sb.AppendFormat("\t{0}\t{1}\t{2}", dl.Id, dl.Description, dl.Link);
+                    sb.AppendFormat("\t{0}\t{1}\t{2}", dl.Id, dl.Description, dl.Link );
                 }
             }
 

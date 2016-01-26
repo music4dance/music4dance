@@ -1144,6 +1144,7 @@ namespace m4d.Controllers
                     var users = TryGetSection(lines,DanceMusicService.IsUserBreak);
                     var dances = TryGetSection(lines, DanceMusicService.IsDanceBreak);
                     var tags = TryGetSection(lines, DanceMusicService.IsTagBreak);
+                    var searches = TryGetSection(lines, DanceMusicService.IsSearchBreak);
                     var songs = TryGetSection(lines, DanceMusicService.IsSongBreak);
 
                     var reload = false;
@@ -1160,6 +1161,7 @@ namespace m4d.Controllers
                     if (users != null) Database.LoadUsers(users);
                     if (dances != null) Database.LoadDances(dances);
                     if (tags != null) Database.LoadTags(tags);
+                    if (searches != null) Database.LoadSearches(searches);
                     if (songs != null)
                     {
                         if (reload)
@@ -1182,7 +1184,7 @@ namespace m4d.Controllers
 
         private static List<string> TryGetSection(List<string> lines, Predicate<string> start)
         {
-            var breaks = new Predicate<string>[] {DanceMusicService.IsDanceBreak, DanceMusicService.IsTagBreak, DanceMusicService.IsSongBreak};
+            var breaks = new Predicate<string>[] {DanceMusicService.IsDanceBreak, DanceMusicService.IsTagBreak, DanceMusicService.IsSearchBreak, DanceMusicService.IsSongBreak};
 
             if (!start(lines[0])) return null;
 
@@ -1670,7 +1672,7 @@ namespace m4d.Controllers
         //
         // Get: //BackupDatabase
         [Authorize(Roles = "showDiagnostics")]
-        public ActionResult BackupDatabase(bool users = true, bool tags = true, bool dances = true, bool songs = true, string useLookupHistory = null)
+        public ActionResult BackupDatabase(bool users = true, bool tags = true, bool dances = true, bool searches=true, bool songs = true, string useLookupHistory = null)
         {
             try
             {
@@ -1715,6 +1717,17 @@ namespace m4d.Controllers
                         {
                             file.WriteLine(line);
                             AdminMonitor.UpdateTask("tags", ++n);
+                        }
+                    }
+
+                    if (searches)
+                    {
+                        var n = 0;
+                        AdminMonitor.UpdateTask("searches");
+                        foreach (var line in Database.SerializeSearches())
+                        {
+                            file.WriteLine(line);
+                            AdminMonitor.UpdateTask("searches", ++n);
                         }
                     }
 

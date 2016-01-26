@@ -1782,8 +1782,9 @@ namespace m4dModels
 
         private const string SongBreak = "+++++SONGS+++++";
         private const string TagBreak = "+++++TAGSS+++++";
+        private const string SearchBreak = "+++++SEARCHES+++++";
         private const string DanceBreak = "+++++DANCES+++++";
-        private const string UserHeader = "UserId\tUserName\tRoles\tPWHash\tSecStamp\tLockout\tProviders\tEmail\tEmailConfirmed\tStartDate\tRegion\tPrivacy\tCanContact\tServicePreference";
+        private const string UserHeader = "UserId\tUserName\tRoles\tPWHash\tSecStamp\tLockout\tProviders\tEmail\tEmailConfirmed\tStartDate\tRegion\tPrivacy\tCanContact\tServicePreference\tLastActive\tRowCount\tColumns";
 
         static public bool IsSongBreak(string line) {
             return IsBreak(line, SongBreak);
@@ -1799,6 +1800,10 @@ namespace m4dModels
         static public bool IsDanceBreak(string line)
         {
             return IsBreak(line, DanceBreak);
+        }
+        static public bool IsSearchBreak(string line)
+        {
+            return IsBreak(line, SearchBreak);
         }
 
         static private bool IsBreak(string line, string brk)
@@ -1845,6 +1850,9 @@ namespace m4dModels
                 byte privacy = 0;
                 var canContact = ContactStatus.None;
                 string servicePreference = null;
+                var active = new DateTime();
+                int? rc = null;
+                string col = null;
 
                 var extended = cells.Length >= 13;
                 if (extended)
@@ -1858,10 +1866,20 @@ namespace m4dModels
                     byte.TryParse(cells[12], out canContactT);
                     canContact = (ContactStatus)canContactT;
                     servicePreference = cells[13];
+                    DateTime.TryParse(cells[14], out active);
+                    int rcT;
+                    if (!string.IsNullOrWhiteSpace(cells[15]) && int.TryParse(cells[15], out rcT))
+                    {
+                        rc = rcT;
+                    }
+                    if (!string.IsNullOrWhiteSpace(cells[16]))
+                    {
+                        col = cells[16];
+                    }
                 }
 
                 var user = FindUser(userName);
-                var create = user == null;                    
+                var create = user == null;
 
                 if (create)
                 {
@@ -1904,6 +1922,9 @@ namespace m4dModels
                         user.Privacy = privacy;
                         user.CanContact = canContact;
                         user.ServicePreference = servicePreference;
+                        user.LastActive = active;
+                        user.RowCountDefault = rc;
+                        user.ColumnDefaults = col;
                     }
 
                     Context.Users.Add(user);
@@ -1920,14 +1941,78 @@ namespace m4dModels
                         user.Region = region;
                         user.Privacy = privacy;
                         user.CanContact = canContact;
-                        user.ServicePreference = servicePreference;                        
+                        user.ServicePreference = servicePreference;
                     }
+
+                    user.LastActive = active;
+                    user.RowCountDefault = rc;
+                    user.ColumnDefaults = col;
                 }
             }
 
             Trace.WriteLineIf(TraceLevels.General.TraceInfo,"Saving Changes");
             SaveChanges();
             Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Exiting LoadUsers");
+        }
+
+        public void LoadSearches(IList<string> lines)
+        {
+            Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Entering LoadSearches");
+
+            if (lines == null || lines.Count < 1 || !IsSearchBreak(lines[0]))
+            {
+                throw new ArgumentOutOfRangeException();
+            }
+
+            var fieldCount = lines[0].Split('\t').Length;
+            var i = 1;
+            while (i < lines.Count)
+            {
+                AdminMonitor.UpdateTask("LoadSearches", i - 1);
+                var s = lines[i];
+                i += 1;
+
+                if (string.Equals(s, TagBreak, StringComparison.InvariantCultureIgnoreCase))
+                {
+                    break;
+                }
+
+                var cells = s.Split('\t');
+                if (cells.Length != fieldCount) continue;
+
+                var userName = cells[0];
+                var name = cells[1];
+                var query = cells[2];
+                var favorite = string.Equals(cells[3], "true", StringComparison.OrdinalIgnoreCase);
+                int count;
+                int.TryParse(cells[4], out count);
+                var created = DateTime.Now;
+                DateTime.TryParse(cells[5], out created);
+                var modified = DateTime.Now;
+                DateTime.TryParse(cells[6], out modified);
+
+                var user = string.IsNullOrWhiteSpace(userName) ? null : FindUser(userName);
+
+                var search = Searches.FirstOrDefault(x => x.ApplicationUser == user && x.Query == query);
+
+                if (search == null)
+                {
+                    search = Searches.Create();
+                    search.ApplicationUser = user;
+                    search.Query = query;
+                    Searches.Add(search);
+                }
+
+                search.Name = name;
+                search.Favorite = favorite;
+                search.Count = count;
+                search.Created = created;
+                search.Modified = modified;
+            }
+
+            Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Saving Changes");
+            SaveChanges();
+            Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Exiting LoadSearches");
         }
 
         public void LoadDances(IList<string> lines)
@@ -1994,6 +2079,14 @@ namespace m4dModels
                 if (tt != null && cells.Length >= 3 && !string.IsNullOrWhiteSpace(cells[2]))
                 {
                     tt.PrimaryId = cells[2];
+                }
+
+                DateTime modified;
+                if (tt != null && cells.Length >= 4 && 
+                    !string.IsNullOrWhiteSpace(cells[3]) && 
+                    DateTime.TryParse(cells[3], out modified))
+                {
+                    tt.Modified = modified;
                 }
             }
 
@@ -2362,9 +2455,12 @@ namespace m4dModels
                 var privacy = user.Privacy.ToString();
                 var canContact = ((byte) user.CanContact).ToString();
                 var servicePreference = user.ServicePreference;
+                var lastActive = user.LastActive.ToString("g");
+                var rc = user.RowCountDefault;
+                var col = user.ColumnDefaults;
 
                 users.Add(
-                    $"{userId}\t{username}\t{roles}\t{hash}\t{stamp}\t{lockout}\t{providers}\t{email}\t{emailConfirmed}\t{time}\t{region}\t{privacy}\t{canContact}\t{servicePreference}");
+                    $"{userId}\t{username}\t{roles}\t{hash}\t{stamp}\t{lockout}\t{providers}\t{email}\t{emailConfirmed}\t{time}\t{region}\t{privacy}\t{canContact}\t{servicePreference}\t{lastActive}\t{rc}\t{col}");
             }
 
             if (withHeader && users.Count > 0)
@@ -2387,10 +2483,29 @@ namespace m4dModels
             // ReSharper disable once LoopCanBeConvertedToQuery
             foreach (var tt in TagTypes)
             {
-                tags.Add($"{tt.Category}\t{tt.Value}\t{tt.PrimaryId}");
+                tags.Add($"{tt.Category}\t{tt.Value}\t{tt.PrimaryId}\t{tt.Modified.ToString("g")}");
             }
 
             return tags;
+        }
+
+        public IList<string> SerializeSearches(bool withHeader = true)
+        {
+            var searches = new List<string>();
+
+            if (withHeader)
+            {
+                searches.Add(SearchBreak);
+            }
+
+            // ReSharper disable once LoopCanBeConvertedToQuery
+            foreach (var search in Searches.Include(s => s.ApplicationUser))
+            {
+                var userName = (search.ApplicationUser != null) ? search.ApplicationUser.UserName : string.Empty;
+                searches.Add($"{userName}\t{search.Name}\t{search.Query}\t{search.Favorite}\t{search.Count}\t{search.Created.ToString("g")}\t{search.Modified.ToString("g")}");
+            }
+
+            return searches;
         }
 
         public IList<string> SerializeSongs(bool withHeader = true, bool withHistory = true, int max = -1, DateTime? from = null, SongFilter filter = null, HashSet<Guid> exclusions = null)
