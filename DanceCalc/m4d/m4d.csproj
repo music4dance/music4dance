@@ -56,8 +56,8 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\Antlr.3.5.0.2\lib\Antlr3.Runtime.dll</HintPath>
     </Reference>
-    <Reference Include="BundleTransformer.Core, Version=1.9.81.0, Culture=neutral, PublicKeyToken=973c344c93aac60d, processorArchitecture=MSIL">
-      <HintPath>..\packages\BundleTransformer.Core.1.9.81\lib\net40\BundleTransformer.Core.dll</HintPath>
+    <Reference Include="BundleTransformer.Core, Version=1.9.89.0, Culture=neutral, PublicKeyToken=973c344c93aac60d, processorArchitecture=MSIL">
+      <HintPath>..\packages\BundleTransformer.Core.1.9.89\lib\net40\BundleTransformer.Core.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="BundleTransformer.Less, Version=1.9.76.0, Culture=neutral, PublicKeyToken=973c344c93aac60d, processorArchitecture=MSIL">
@@ -107,15 +107,15 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\JavaScriptEngineSwitcher.Core.1.2.4\lib\net40\JavaScriptEngineSwitcher.Core.dll</HintPath>
     </Reference>
-    <Reference Include="JavaScriptEngineSwitcher.Msie, Version=1.2.11.0, Culture=neutral, PublicKeyToken=c608b2a8cc9e4472, processorArchitecture=MSIL">
-      <HintPath>..\packages\JavaScriptEngineSwitcher.Msie.1.2.11\lib\net40\JavaScriptEngineSwitcher.Msie.dll</HintPath>
+    <Reference Include="JavaScriptEngineSwitcher.Msie, Version=1.4.0.0, Culture=neutral, PublicKeyToken=c608b2a8cc9e4472, processorArchitecture=MSIL">
+      <HintPath>..\packages\JavaScriptEngineSwitcher.Msie.1.4.0\lib\net40\JavaScriptEngineSwitcher.Msie.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="MarkdownDeep">
       <HintPath>..\packages\MarkdownDeep.Full.1.5\lib\.NetFramework 3.5\MarkdownDeep.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.AI.Agent.Intercept, Version=1.2.0.1011, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.ApplicationInsights.Agent.Intercept.1.2.0\lib\net45\Microsoft.AI.Agent.Intercept.dll</HintPath>
+    <Reference Include="Microsoft.AI.Agent.Intercept, Version=1.2.1.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.ApplicationInsights.Agent.Intercept.1.2.1\lib\net45\Microsoft.AI.Agent.Intercept.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Microsoft.AI.DependencyCollector, Version=1.2.3.246, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
@@ -161,8 +161,8 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="Microsoft.CSharp" />
-    <Reference Include="Microsoft.Diagnostics.Tracing.EventSource, Version=1.1.26.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.Diagnostics.Tracing.EventSource.Redist.1.1.26\lib\net40\Microsoft.Diagnostics.Tracing.EventSource.dll</HintPath>
+    <Reference Include="Microsoft.Diagnostics.Tracing.EventSource, Version=1.1.28.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Diagnostics.Tracing.EventSource.Redist.1.1.28\lib\net40\Microsoft.Diagnostics.Tracing.EventSource.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Microsoft.Owin, Version=3.0.1.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
@@ -210,16 +210,16 @@
     <Reference Include="Microsoft.Threading.Tasks.Extensions.Desktop">
       <HintPath>..\packages\Microsoft.Bcl.Async.1.0.168\lib\net40\Microsoft.Threading.Tasks.Extensions.Desktop.dll</HintPath>
     </Reference>
-    <Reference Include="MsieJavaScriptEngine, Version=1.5.6.0, Culture=neutral, PublicKeyToken=a3a2846a37ac0d3e, processorArchitecture=MSIL">
-      <HintPath>..\packages\MsieJavaScriptEngine.1.5.6\lib\net40\MsieJavaScriptEngine.dll</HintPath>
+    <Reference Include="MsieJavaScriptEngine, Version=1.6.0.0, Culture=neutral, PublicKeyToken=a3a2846a37ac0d3e, processorArchitecture=MSIL">
+      <HintPath>..\packages\MsieJavaScriptEngine.1.6.0\lib\net40\MsieJavaScriptEngine.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Newtonsoft.Json, Version=7.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\packages\Newtonsoft.Json.7.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
+    <Reference Include="Newtonsoft.Json, Version=8.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.8.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Owin.Security.Providers, Version=1.25.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Owin.Security.Providers.1.25\lib\net45\Owin.Security.Providers.dll</HintPath>
+      <HintPath>..\packages\Owin.Security.Providers.1.26\lib\net45\Owin.Security.Providers.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="PagedList">
@@ -228,16 +228,16 @@
     <Reference Include="PagedList.Mvc">
       <HintPath>..\packages\PagedList.Mvc.4.5.0.0\lib\net40\PagedList.Mvc.dll</HintPath>
     </Reference>
-    <Reference Include="SendGrid, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Sendgrid.6.2.0\lib\SendGrid.dll</HintPath>
+    <Reference Include="SendGrid, Version=6.3.4.0, Culture=neutral, PublicKeyToken=4f047e93159395ca, processorArchitecture=MSIL">
+      <HintPath>..\packages\Sendgrid.6.3.4\lib\SendGrid.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="SendGrid.SmtpApi, Version=1.3.1.0, Culture=neutral, PublicKeyToken=2ae73662c35d80e4, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\SendGrid.SmtpApi.1.3.1\lib\net40\SendGrid.SmtpApi.dll</HintPath>
     </Reference>
-    <Reference Include="SendGridMail, Version=6.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Sendgrid.6.2.0\lib\SendGridMail.dll</HintPath>
+    <Reference Include="SendGridMail, Version=6.3.4.0, Culture=neutral, PublicKeyToken=4f047e93159395ca, processorArchitecture=MSIL">
+      <HintPath>..\packages\Sendgrid.6.3.4\lib\SendGridMail.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="SpotifyWebAPI, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
@@ -593,12 +593,6 @@
     <Content Include="App_Code\SmartLink.cshtml" />
     <Content Include="App_Code\DanceHelper.cshtml" />
     <Content Include="App_Code\UserHelper.cshtml" />
-    <Content Include="fonts\glyphicons-halflings-regular.woff2" />
-    <Content Include="fonts\glyphicons-halflings-regular.woff" />
-    <Content Include="fonts\glyphicons-halflings-regular.ttf" />
-    <Content Include="fonts\glyphicons-halflings-regular.eot" />
-    <Content Include="Content\bootstrap.css.map" />
-    <Content Include="Content\bootstrap-theme.css.map" />
     <Content Include="Content\fonts\glyphicons-halflings-regular.woff2" />
     <Content Include="Content\fonts\glyphicons-halflings-regular.woff" />
     <Content Include="Content\fonts\glyphicons-halflings-regular.ttf" />
@@ -675,6 +669,14 @@
     <Content Include="Content\bootstrap\badges.less" />
     <Content Include="Content\bootstrap\alerts.less" />
     <Content Include="App_Code\ScriptHelper.cshtml" />
+    <Content Include="fonts\glyphicons-halflings-regular.woff2" />
+    <Content Include="fonts\glyphicons-halflings-regular.woff" />
+    <Content Include="fonts\glyphicons-halflings-regular.ttf" />
+    <Content Include="fonts\glyphicons-halflings-regular.eot" />
+    <Content Include="Content\bootstrap.min.css.map" />
+    <Content Include="Content\bootstrap.css.map" />
+    <Content Include="Content\bootstrap-theme.min.css.map" />
+    <Content Include="Content\bootstrap-theme.css.map" />
     <None Include="Properties\PublishProfiles\m4d.pubxml" />
     <Content Include="MvcDiagnostics.aspx" />
     <Content Include="pinterest-885c1.html" />
@@ -686,13 +688,13 @@
     <None Include="Properties\PublishProfiles\music4dance.pubxml" />
     <Content Include="Scripts\editdance.js" />
     <!--<Content Include="Scripts\glimpse-knockout.js" />-->
-    <None Include="Scripts\jquery-2.1.4.intellisense.js" />
-    <Content Include="Scripts\jquery-2.1.4.js" />
-    <Content Include="Scripts\jquery-2.1.4.min.js" />
+    <None Include="Scripts\jquery-2.2.0.intellisense.js" />
+    <Content Include="Scripts\jquery-2.2.0.js" />
+    <Content Include="Scripts\jquery-2.2.0.min.js" />
     <Content Include="Scripts\jquery.hotkeys.js" />
     <Content Include="Scripts\jquery.nouislider.full.min.js" />
     <Content Include="Scripts\jquery.nouislider.min.js" />
-    <Content Include="Scripts\jquery-2.1.4.min.map" />
+    <Content Include="Scripts\jquery-2.2.0.min.map" />
     <None Include="Scripts\jquery.validate-vsdoc.js" />
     <Content Include="Scripts\jquery.validate.js" />
     <Content Include="Scripts\jquery.validate.min.js" />
