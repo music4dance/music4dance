@@ -110,7 +110,7 @@ namespace m4dModels.Tests
         }
 
         private const string UpdateResult =
-            @".Create=	User=SalsaSwingBallroom	Time=00/00/0000 0:00:00 PM	Title=You Should Be Dancing	Artist=The Bee Gees	Tempo=124.0	Album:0=The Bee Gees - Their Greatest Hits	DanceRating=HST+5	Tag+=Hustle:Dance	User=batch	Time=00/00/0000 0:00:00 PM	DanceRating=SWG+1	User=batch	Time=00/00/0000 0:00:00 PM	DanceRating=CSG+2	DanceRating=WCS+2	DanceRating=LHP+2	DanceRating=HST+2	.Edit=	User=SalsaSwingBallroom	Time=00/00/0000 0:00:00 PM	Tag+=Even:Tempo|Funk:Music|Jump Swing:Dance|Swing:Dance	Tag-=Hustle:Dance	DanceRating=HST-1	DanceRating=SWG+3	DanceRating=JSW+4	.Edit=	User=dwgray	Time=00/00/0000 0:00:00 PM	Tag+=Even:Tempo|Jump Swing:Dance	DanceRating=JSW+3	Tag+:HST=Crazy:Other|Slow:Tempo|Traditional:Tempo";
+            @".Create=	User=SalsaSwingBallroom	Time=00/00/0000 0:00:00 PM	Title=You Should Be Dancing	Artist=The Bee Gees	Tempo=124.0	Album:0=The Bee Gees - Their Greatest Hits	DanceRating=HST+5	Tag+=Hustle:Dance	User=batch	Time=00/00/0000 0:00:00 PM	DanceRating=SWG+1	User=batch	Time=00/00/0000 0:00:00 PM	DanceRating=CSG+2	DanceRating=WCS+2	DanceRating=LHP+2	DanceRating=HST+2	.Edit=	User=SalsaSwingBallroom	Time=00/00/0000 0:00:00 PM	DanceRating=JSW+2	DanceRating=SWG+2	DanceRating=HST-5	Tag+=Even:Tempo|Funk:Music|Jump Swing:Dance|Swing:Dance	Tag-=Hustle:Dance	.Edit=	User=dwgray	Time=00/00/0000 0:00:00 PM	DanceRating=JSW+2	Tag+=Even:Tempo|Jump Swing:Dance	Tag+:HST=Crazy:Other|Slow:Tempo|Traditional:Tempo";
 
         [TestMethod]
         public void TagsIncrementalUpdate()
