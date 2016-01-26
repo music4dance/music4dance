@@ -94,6 +94,8 @@ namespace m4dModels.Tests
 
         public DbSet<ModifiedRecord> Modified { get; set; }
 
+        public DbSet<Search> Searches { get; set; }
+
         public IDbSet<ApplicationUser> Users { get; set; }
 
         public IDbSet<IdentityRole> Roles { get; set; }

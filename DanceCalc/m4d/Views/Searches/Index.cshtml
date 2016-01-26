@@ -1,0 +1,85 @@
+﻿@using Microsoft.AspNet.Identity
+@model IEnumerable<Search>
+
+@{
+    ViewBag.Title = "My Searches";
+    var admin = User.IsInRole("showDiagnostics");
+    var showDetails = ViewData.ContainsKey("ShowDetails") ? ViewBag.ShowDetails : false;
+    var sort = ViewData.ContainsKey("Sort") ? ViewBag.Sort : "";
+    var recentActive = "disabled btn-primary";
+    var popularActive = string.Empty;
+    if (string.Equals(sort, "recent"))
+    {
+        recentActive = string.Empty;
+        popularActive = "disabled btn-primary";
+    }
+}
+
+<h1>@ViewBag.Title</h1>
+
+<div class="btn-group btn-group-justified" role="group" aria-label="...">
+    @Html.ActionLink("Most Popular", "Index", "Searches", new { showDetails, user = @User.Identity.GetUserName() }, new {role="button", @class= "btn btn-default " + recentActive})
+    @Html.ActionLink("Most Recent", "Index", "Searches", new { showDetails, user = @User.Identity.GetUserName(), sort="recent" }, new { role = "button", @class = "btn btn-default " + popularActive})
+</div>
+
+<div style="height: 10px"></div>
+
+<table class="table table-striped table-songs">
+@if (showDetails)
+{
+    <tr>
+        <th>
+            Search
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Query)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Name)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Count)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Created)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Modified)
+        </th>
+    </tr>
+}
+
+@foreach (var item in Model)
+{
+    var filter = @item.Filter;
+    filter.Action = "Advanced";
+    <tr>
+        <td>
+            @Html.ActionLink(@item.Filter.Description, "Index", "Song", new { filter }, null)
+        </td>
+        @if (showDetails)
+        {
+            <td>
+                @Html.DisplayFor(modelItem => item.Query)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Name)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Count)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Created)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Modified)
+            </td>
+        }
+    </tr>
+}
+</table>
+
+@if (admin)
+{
+    @Html.ActionLink("Toggle Details","Index","Searches",new {showDetails = !showDetails, user=@User.Identity.GetUserName(),sort=sort}, null)
+}

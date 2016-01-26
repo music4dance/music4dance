@@ -40,6 +40,7 @@ namespace m4dModels
         public DbSet<TagType> TagTypes => _context.TagTypes;
         public DbSet<SongLog> Log => _context.Log;
         public DbSet<ModifiedRecord> Modified => _context.Modified;
+        public DbSet<Search> Searches => _context.Searches;
 
         public UserManager<ApplicationUser> UserManager { get; }
 
@@ -1284,6 +1285,33 @@ namespace m4dModels
                 else if (level < 0) likes.Add(s.SongId, false);
             }
             return likes;
+        }
+
+        // TODO: Think about aggregating annonymous & users to show most searched, most recent, etc.
+        public void UpdateSearches(ApplicationUser user, SongFilter filter)
+        {
+            var f = new SongFilter(filter.ToString()) {Page = null};
+            if (user != null)
+                f.Anonymize(user.UserName);
+            f.Action = null;
+            var userId = user?.Id;
+            var q = f.ToString();
+            var search = Searches.FirstOrDefault(s => s.ApplicationUserId == userId && s.Query == q);
+            var now = DateTime.Now;
+            if (search == null)
+            {
+                search = Searches.Create();
+                search.ApplicationUserId = userId;
+                search.Created = now;
+                search.Query = q;
+                search.Count = 0;
+                search.Name = null;
+                Searches.Add(search);
+            }
+            search.Modified = now;
+            search.Count += 1;
+
+            SaveChanges();
         }
 
         public enum MatchMethod { None, Tempo, Merge };

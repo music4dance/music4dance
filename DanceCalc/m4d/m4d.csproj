@@ -361,6 +361,7 @@
     <Compile Include="Controllers\ManageController.cs" />
     <Compile Include="APIControllers\MusicServiceController.cs" />
     <Compile Include="APIControllers\PurchaseInfoController.cs" />
+    <Compile Include="Controllers\SearchesController.cs" />
     <Compile Include="Controllers\SongController.cs" />
     <Compile Include="Controllers\SongPropertyController.cs" />
     <Compile Include="Controllers\TagController.cs" />
@@ -443,6 +444,10 @@
     <Compile Include="Migrations\201512030037597_LikeFix.cs" />
     <Compile Include="Migrations\201512030037597_LikeFix.Designer.cs">
       <DependentUpon>201512030037597_LikeFix.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201601252221431_Search.cs" />
+    <Compile Include="Migrations\201601252221431_Search.Designer.cs">
+      <DependentUpon>201601252221431_Search.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Context\DanceMusicConfiguration.cs" />
@@ -907,6 +912,8 @@
     <Content Include="Views\Shared\BotWarning.cshtml" />
     <Content Include="Views\Shared\_botreport.cshtml" />
     <Content Include="Views\Song\BotFilter.cshtml" />
+    <Content Include="Views\Searches\Details.cshtml" />
+    <Content Include="Views\Searches\Index.cshtml" />
     <None Include="Web.m4d.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
@@ -988,6 +995,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201512030037597_LikeFix.resx">
       <DependentUpon>201512030037597_LikeFix.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201601252221431_Search.resx">
+      <DependentUpon>201601252221431_Search.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>

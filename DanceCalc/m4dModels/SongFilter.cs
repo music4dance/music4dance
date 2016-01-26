@@ -86,7 +86,9 @@ namespace m4dModels
                 pi.SetValue(this,v);
             }
         }
-        public string Action { get; set; }
+        public string Action { get { return _action ?? "index"; } set { _action = value; } }
+        private string _action;
+
         public string Dances { get; set; }
         public string SortOrder { get; set; }
         public string SearchString { get; set; }
@@ -105,15 +107,27 @@ namespace m4dModels
         public bool Advanced => !string.IsNullOrWhiteSpace(Purchase) ||
                                 TempoMin.HasValue || TempoMax.HasValue || DanceQuery.Advanced;
 
+        public bool Anonymize(string user)
+        {
+            return SwapUser("me", user);
+        }
+
+        public bool Deanonymize(string user)
+        {
+            return SwapUser(user, "me");
+        }
+
+
         public override string ToString()
         {
             var ret = new StringBuilder();
             var nullBuff = new StringBuilder();
 
             var sep = string.Empty;
+            var i = 0;
             foreach (var v in s_propertyInfo.Select(p => p.GetValue(this)))
             {
-                if (v == null)
+                if (v == null || IsAltDefault(v,i))
                 {
                     nullBuff.Append(sep);
                     nullBuff.Append(Empty);
@@ -126,6 +140,7 @@ namespace m4dModels
                     ret.Append(Format(v.ToString()));
                 }
                 sep = _sepStr;
+                i += 1;
             }
 
             return ret.ToString();
@@ -267,6 +282,13 @@ namespace m4dModels
             return s.Contains("-") ? s.Replace("-", @"\-") : s;
         }
 
+        private bool SwapUser(string newUser, string oldUser)
+        {
+            if (string.IsNullOrWhiteSpace(User) || !User.Contains(oldUser)) return false;
+
+            User = User.Replace(oldUser, newUser);
+            return true;
+        }
         private static bool IsAltDefault(object o, int index)
         {
             if (index > s_altDefaults.Length -1 || s_altDefaults[index] == null) return false;

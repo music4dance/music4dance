@@ -15,6 +15,7 @@ namespace m4dModels
         DbSet<TagType> TagTypes { get; }
         DbSet<SongLog> Log { get; }
         DbSet<ModifiedRecord> Modified { get; }
+        DbSet<Search> Searches { get; }
         IDbSet<ApplicationUser> Users { get; }
         IDbSet<IdentityRole> Roles { get; }
 

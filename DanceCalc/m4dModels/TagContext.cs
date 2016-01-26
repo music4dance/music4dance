@@ -35,6 +35,7 @@ namespace m4dModels
         {
             get { throw new NotImplementedException(); }
         }
+        public DbSet<Search> Searches { get {throw new NotImplementedException();} }
 
         public IDbSet<ApplicationUser> Users
         {

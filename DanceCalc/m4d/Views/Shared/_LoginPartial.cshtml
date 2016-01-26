@@ -14,6 +14,7 @@
                     <li>@Html.ActionLink("My Profile", "UserProfile", "Manage")</li>
                     <li>@Html.ActionLink("Account Settings", "Settings", "Manage")</li>
                     <li>@Html.ActionLink("My Songs", "FilterUser", "Song", new { user = @User.Identity.GetUserName() }, null)</li>
+                    <li>@Html.ActionLink("My Searches", "Index", "Searches", new { user = @User.Identity.GetUserName() }, null)</li>
                     <li><a href="javascript:document.getElementById('logoutForm').submit()">Sign off</a></li>
                 </ul>
             </li>

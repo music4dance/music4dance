@@ -15,7 +15,6 @@ using DanceLibrary;
 using m4d.Context;
 using m4d.Scrapers;
 using m4d.Utilities;
-using m4d.ViewModels;
 using m4dModels;
 using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.AspNet.Identity;

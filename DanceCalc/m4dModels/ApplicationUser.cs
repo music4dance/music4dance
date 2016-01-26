@@ -85,7 +85,7 @@ namespace m4dModels
                     mask = (byte)(mask << 1);
                     i += 1;
                 }
-                return ret;                
+                return ret;
             }
         }
 

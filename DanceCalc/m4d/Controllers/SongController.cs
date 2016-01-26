@@ -4,13 +4,13 @@ using System.Collections.Specialized;
 using System.Diagnostics;
 using System.Linq;
 using System.Net;
-using System.ServiceModel.Security;
 using System.Web;
 using System.Web.Mvc;
 using DanceLibrary;
 using m4d.Utilities;
 using m4d.ViewModels;
 using m4dModels;
+using Microsoft.AspNet.Identity;
 using PagedList;
 
 namespace m4d.Controllers
@@ -1208,6 +1208,8 @@ namespace m4d.Controllers
             SetupLikes(list, dances.Count == 1 ? dances[0] : null);
 
             ViewBag.SongFilter = filter;
+
+            Database.UpdateSearches(User.Identity.IsAuthenticated?Database.FindUser(User.Identity.Name):null,filter);
 
             Trace.WriteLineIf(TraceLevels.General.TraceVerbose, "Exiting Song.Index");
             return View("Index", list);

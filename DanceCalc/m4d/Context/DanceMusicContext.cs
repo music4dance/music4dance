@@ -106,6 +106,7 @@ namespace m4d.Context
         public DbSet<TagType> TagTypes { get; set; }
         public DbSet<SongLog> Log { get; set; }
         public DbSet<ModifiedRecord> Modified { get; set; }
+        public DbSet<Search> Searches { get; set; }
         #endregion
 
         #region Events
@@ -147,6 +148,9 @@ namespace m4d.Context
 
             modelBuilder.Entity<ApplicationUser>().Property(u => u.Region).HasMaxLength(2);
             modelBuilder.Entity<ApplicationUser>().Property(u => u.ServicePreference).HasMaxLength(10);
+
+            modelBuilder.Entity<Search>().Property(u => u.Query).IsRequired();
+            modelBuilder.Entity<Search>().Ignore(u => u.Filter);
 
             base.OnModelCreating(modelBuilder);
         }
@@ -229,33 +233,15 @@ namespace m4d.Context
 
         private static IList<ServiceTrack> FilterKaraoke(IList<ServiceTrack> list)
         {
-            List<ServiceTrack> tracks = new List<ServiceTrack>();
-
-            foreach (var track in list)
-            {
-                if (!ContainsKaraoke(track.Name) && !ContainsKaraoke(track.Album))
-                {
-                    tracks.Add(track);
-                }
-            }
-
-            return tracks;
+            return list.Where(track => !ContainsKaraoke(track.Name) && !ContainsKaraoke(track.Album)).ToList();
         }
 
         private static bool ContainsKaraoke(string name)
         {
             if (string.IsNullOrWhiteSpace(name)) return false;
 
-            var exclude = new string[] { "karaoke", "in the style of", "a tribute to" };
-            foreach (var s in exclude)
-            {
-                if (name.IndexOf(s, StringComparison.InvariantCultureIgnoreCase) != -1)
-                {
-                    return true;
-                }
-            }
-
-            return false;
+            var exclude = new[] { "karaoke", "in the style of", "a tribute to" };
+            return exclude.Any(s => name.IndexOf(s, StringComparison.InvariantCultureIgnoreCase) != -1);
         }
 
         private IList<ServiceTrack> DoFindMusicServiceSong(SongDetails song, MusicService service, bool clean = false, string title = null, string artist = null, string region=null)

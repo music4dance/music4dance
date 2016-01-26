@@ -103,11 +103,11 @@ namespace m4dModels.Tests
                 var enc = HttpUtility.HtmlEncode(s);
                 s = HttpUtility.HtmlDecode(enc);
             }
-            Assert.AreEqual(s, f0, string.Format(message,withEncoding?"Encoded ":string.Empty,n));
+            Assert.AreEqual(f0, s, string.Format(message,withEncoding?"Encoded ":string.Empty,n));
             return s;
         }
 
-        const string F1 = @"Index-SWG-Album-Goodman-X-.-50-150-1-%2BPop%3AMusic";
-        const string F2 = @"Index-SWG-\\--\\-\\--X";
+        const string F1 = @".-SWG-Album-Goodman-X-.-50-150-1-%2BPop%3AMusic";
+        const string F2 = @".-SWG-\\--\\-\\--X";
     }
 }
