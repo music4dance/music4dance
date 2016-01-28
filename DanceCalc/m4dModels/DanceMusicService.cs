@@ -1552,7 +1552,7 @@ namespace m4dModels
         }
 
         public TagType FindOrCreateTagType(string value, string category, string primary = null)
-        {            
+        {
             return _context.TagTypes.Find(TagType.BuildKey(value, category)) ?? CreateTagType(value, category);
         }
 

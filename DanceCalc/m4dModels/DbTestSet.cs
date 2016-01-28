@@ -177,14 +177,7 @@ namespace m4dModels
         public override TagType Find(params object[] keyValues)
         {
             var id = keyValues.Single() as string;
-            if (id == null)
-            {
-                return null;
-            }
-            else
-            {
-                return this.SingleOrDefault(tt => tt.Key == id);
-            }
+            return id == null ? null : this.SingleOrDefault(tt => string.Equals(tt.Key,id,StringComparison.OrdinalIgnoreCase));
         }
     }
 
