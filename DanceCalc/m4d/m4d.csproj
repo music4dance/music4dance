@@ -892,7 +892,6 @@
     <Content Include="Views\Song\SetupSongScript.cshtml" />
     <Content Include="Views\Shared\HttpError.cshtml" />
     <Content Include="Views\Home\Credits.cshtml" />
-    <Content Include="Views\Home\Home.cshtml" />
     <Content Include="Views\Admin\AdminStatus.cshtml" />
     <Content Include="Views\Shared\_TagCloud.cshtml" />
     <Content Include="Views\Dance\Category.cshtml" />
