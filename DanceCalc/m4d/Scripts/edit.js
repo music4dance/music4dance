@@ -247,7 +247,7 @@ var editor = function () {
                 img = 'outline-';
                 break;
             }
-            return '/content/heart-' + img + 'icon.png';
+            return '/content/dance-' + img + 'icon.png';
         }, this);
 
         self.voteName = ko.pureComputed(function () {
