@@ -1996,7 +1996,7 @@ namespace m4dModels
 
                 var user = string.IsNullOrWhiteSpace(userName) ? null : FindUser(userName);
 
-                var search = Searches.FirstOrDefault(x => x.ApplicationUser == user && x.Query == query);
+                var search = user == null ? Searches.FirstOrDefault(x => x.ApplicationUser == null && x.Query == query) : Searches.FirstOrDefault(x => x.ApplicationUser.Id == user.Id && x.Query == query);
 
                 if (search == null)
                 {

@@ -85,11 +85,10 @@ namespace m4dModels
         {
             // If there were no pre-existing user tags, removal is a no-op
             var ut = FindUserTag(user, dms);
-            if (ut == null)
+            if (ut == null || ut.Tags.IsEmpty)
                 return new TagList();
 
             var removed = new TagList(tags);
-            ut = ut??FindOrCreateUserTags(user, dms);
 
             var badTags = removed.Subtract(ut.Tags);
             var oldTags = removed.Subtract(badTags);
@@ -103,9 +102,16 @@ namespace m4dModels
 
             DoUpdate(null, oldTags, user, dms, data, updateTypes);
 
-            if (dms != null && ut.Tags.IsEmpty)
+            if (dms != null && ut.Tags.IsEmpty && FindUserTag(user, dms) != null)
             {
-                dms.Tags.Remove(ut);
+                try
+                {
+                    dms.Tags.Remove(ut);
+                }
+                catch (InvalidOperationException)
+                {
+                    Trace.WriteLineIf(TraceLevels.General.TraceInfo,$"Bad Remove Tag: {ut}");
+                }
             }
             return oldTags;
         }
