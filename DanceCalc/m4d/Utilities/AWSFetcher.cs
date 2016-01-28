@@ -117,7 +117,7 @@ namespace m4d.Utilities
     {
         private const string AccessKeyId = "***REMOVED***";
         private const string SecretKeyId = "***REMOVED***";
-        private const string AssociateTag = "music4dance00-20";
+        private const string AssociateTag = "ms4dc-20";
         private const string EndPointAddress = "https://webservices.amazon.com/onca/soap?Service=AWSECommerceService";
         //"https://webservices.amazon.fr/onca/soap?Service=AWSECommerceService"
 

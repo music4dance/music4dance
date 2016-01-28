@@ -8,7 +8,7 @@ namespace m4dModels.Tests
         [TestMethod]
         public void GetPurchaseLink()
         {
-            CheckLink('A', "D:B003CJ88U0", "D:B003CJ0MXQ",@"http://www.amazon.com/gp/product/B003CJ0MXQ/ref=as_li_ss_tl?ie=UTF8&camp=1789&creative=390957&creativeASIN=B003CJ0MXQ&linkCode=as2&tag=music4dance00-20");
+            CheckLink('A', "D:B003CJ88U0", "D:B003CJ0MXQ",@"http://www.amazon.com/gp/product/B003CJ0MXQ/ref=as_li_ss_tl?ie=UTF8&camp=1789&creative=390957&creativeASIN=B003CJ0MXQ&linkCode=as2&tag=ms4dc-20");
             CheckLink('I', "201509007", "201509785",@"http://itunes.apple.com/album/id201509007?i=201509785&uo=4&at=11lwtf");
             CheckLink('S', "7kIi4z3UO8ZqH3GVX18p7h", "5gfPJ45gpn3ThswDyeW0Qc[EN,CA]", @"http://open.spotify.com/track/5gfPJ45gpn3ThswDyeW0Qc",new []{"EN","CA"});
             CheckLink('X', null, "music.5F058400-0100-11DB-89CA-0019B92A3933", @"http://music.xbox.com/Track/5F058400-0100-11DB-89CA-0019B92A3933?partnerID=Music4Dance&action=play&target=app");
