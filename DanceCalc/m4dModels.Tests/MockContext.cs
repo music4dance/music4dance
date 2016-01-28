@@ -53,6 +53,7 @@ namespace m4dModels.Tests
             DanceRatings = new TestDbSet<DanceRating>();
             Tags = new TagSet();
             TagTypes = new TagTypeSet();
+            Searches = new SearchSet();
             Log = new TestDbSet<SongLog>();
             Modified = new TestDbSet<ModifiedRecord>();
             Users = new ApplicationUserSet();

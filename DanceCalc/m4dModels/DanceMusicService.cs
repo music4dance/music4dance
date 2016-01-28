@@ -1959,18 +1959,21 @@ namespace m4dModels
         {
             Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Entering LoadSearches");
 
-            if (lines == null || lines.Count < 1 || !IsSearchBreak(lines[0]))
+            if (lines == null || lines.Count < 1)
             {
                 throw new ArgumentOutOfRangeException();
             }
 
-            var fieldCount = lines[0].Split('\t').Length;
-            var i = 1;
-            while (i < lines.Count)
+            if (lines.Count > 1 && IsSearchBreak(lines[0]))
             {
-                AdminMonitor.UpdateTask("LoadSearches", i - 1);
+                lines.RemoveAt(0);
+            }
+
+            var fieldCount = lines[0].Split('\t').Length;
+            for (var i = 0; i < lines.Count; i++)
+            {
+                AdminMonitor.UpdateTask("LoadSearches", i);
                 var s = lines[i];
-                i += 1;
 
                 if (string.Equals(s, TagBreak, StringComparison.InvariantCultureIgnoreCase))
                 {

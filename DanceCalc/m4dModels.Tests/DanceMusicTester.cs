@@ -20,12 +20,14 @@ namespace m4dModels.Tests
             Users = File.ReadAllLines(@".\TestData\test-users.txt").ToList();
             Dances = File.ReadAllLines(@".\TestData\test-dances.txt").ToList();
             Tags = File.ReadAllLines(@".\TestData\test-tags.txt").ToList();
+            Searches = File.ReadAllLines(@".\TestData\test-searches.txt").ToList();
             Songs = songs ?? File.ReadAllLines(@".\TestData\test-songs.txt").ToList();
 
-           Dms.LoadUsers(Users);
-           Dms.LoadDances(Dances);
-           Dms.LoadTags(Tags);
-           Dms.LoadSongs(Songs);
+            Dms.LoadUsers(Users);
+            Dms.LoadDances(Dances);
+            Dms.LoadTags(Tags);
+            Dms.LoadSearches(Searches);
+            Dms.LoadSongs(Songs);
 
             foreach (var prop in Dms.Songs.SelectMany(song => song.SongProperties))
             {
@@ -38,6 +40,8 @@ namespace m4dModels.Tests
         public List<string> Dances { private set; get; }
 
         public List<string> Tags { private set; get; }
+
+        public List<string> Searches { private set; get; }
 
         public List<string> Songs { private set; get; }
 

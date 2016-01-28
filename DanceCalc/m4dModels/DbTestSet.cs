@@ -198,4 +198,15 @@ namespace m4dModels
         }
     }
 
+    public class SearchSet : TestDbSet<Search>
+    {
+        public override Search Find(params object[] keyValues)
+        {
+            var id = keyValues.Single();
+            if (!(id is long))
+                return null;
+            return this.SingleOrDefault(s => s.Id == (long)id);
+        }
+    }
+
 }
