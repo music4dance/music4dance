@@ -607,7 +607,9 @@ namespace m4dModels
                 cells.Add(track.TrackId);
             }
 
-            return CreateFromRow(user, fields, cells, DanceRatingIncrement);
+            var sd = CreateFromRow(user, fields, cells, DanceRatingIncrement);
+            sd.InferDances(user);
+            return sd;
             //var properties = new List<SongProperty>
             //{
             //    SongProperty.Create(TimeField, DateTime.Now.ToString(CultureInfo.InvariantCulture)),

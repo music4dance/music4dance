@@ -207,6 +207,14 @@ namespace m4d.Context
         {
             dynamic results = GetMusicServiceResults(service.BuildLookupRequest(url), service, principal);
             IList<ServiceTrack> tracks = service.ParseSearchResults(results);
+            while ((results = NextMusicServiceResults(results, service, principal)) != null) 
+            {
+                var t = (tracks as List<ServiceTrack>) ?? tracks.ToList();
+                t.AddRange(service.ParseSearchResults(results));
+                tracks = t;
+            }
+
+            if (tracks == null) return null;
 
             ComputeTrackPurchaseInfo(service,tracks);
 
@@ -313,77 +321,117 @@ namespace m4d.Context
             return service.ParseSearchResults(results);
         }
 
+        private static int GetRateInfo(WebHeaderCollection headers, string type)
+        {
+            var s = headers.Get(type);
+            if (s == null)
+                return -1;
+
+            Trace.WriteLineIf(TraceLevels.General.TraceVerbose, $"{type}: {s}");
+            int info;
+            return int.TryParse(s, out info) ? info : -1;
+        }
+
         private static dynamic GetMusicServiceResults(string request, MusicService service = null, IPrincipal principal = null)
         {
-            HttpWebResponse response;
-            string responseString = null;
-
-            if (request == null)
+            while (true)
             {
-                return null;
-            }
+                string responseString = null;
 
-            var req = (HttpWebRequest)WebRequest.Create(request);
-            req.Method = WebRequestMethods.Http.Get;
-            req.Accept = "application/json";
-
-            string auth = null;
-            if (service != null)
-            {
-                auth = AdmAuthentication.GetServiceAuthorization(service.Id,principal);
-            }
-
-            if (auth != null)
-            {
-                req.Headers.Add("Authorization", auth);
-            }
-
-            using (response = (HttpWebResponse)req.GetResponse())
-            {
-                if (response.StatusCode == HttpStatusCode.OK)
+                if (request == null)
                 {
-                    var stream = response.GetResponseStream();
-                    if (stream != null)
+                    return null;
+                }
+
+                var req = (HttpWebRequest)WebRequest.Create(request);
+                req.Method = WebRequestMethods.Http.Get;
+                req.Accept = "application/json";
+
+                string auth = null;
+                if (service != null)
+                {
+                    auth = AdmAuthentication.GetServiceAuthorization(service.Id,principal);
+                }
+
+                if (auth != null)
+                {
+                    req.Headers.Add("Authorization", auth);
+                }
+
+                try
+                {
+                    using (var response = (HttpWebResponse) req.GetResponse())
                     {
-                        using (var sr = new StreamReader(stream))
+                        if (response.StatusCode == HttpStatusCode.OK)
                         {
-                            responseString = sr.ReadToEnd();
-                        }
+                            var stream = response.GetResponseStream();
+                            if (stream != null)
+                            {
+                                using (var sr = new StreamReader(stream))
+                                {
+                                    responseString = sr.ReadToEnd();
+                                }
 
-                        var remaining = response.Headers.Get("X-RateLimit-Remaining");
-                        if (remaining != null)
-                        {
-                            Trace.WriteLineIf(TraceLevels.General.TraceInfo, $"EchoNest Remaining: {remaining}");
-                        }
-                        int r;
+                                var remaining = GetRateInfo(response.Headers, "X-RateLimit-Remaining");
 
-                        if (remaining != null && int.TryParse(remaining, out r) && r == 0)
+                                if (remaining > 0 && remaining < 20)
+                                {
+                                    // TODO: Figure out a better way to sleep here (maybe keep track of the last time that RateLimit-Used == 0)
+                                    // This may depend on what their algorithm is for trailing - if it's trailing minutewe would need to keep 
+                                    // a queue of the last n and wait for (end of queue time + 1 minute - current time + some fudge factor).
+
+                                    //var used = GetRateInfo(response.Headers, "X-RateLimit-Used");
+                                    //var limit = GetRateInfo(response.Headers, "X-RateLimit-Limit");
+                                    //if (used == -1 || limit == -1)
+                                    //{
+                                    Trace.WriteLineIf(TraceLevels.General.TraceInfo,
+                                        $"Excedeed EchoNest Limits: Pre-emptive {remaining} - used = {GetRateInfo(response.Headers, "X-RateLimit-Used")} - limit = {GetRateInfo(response.Headers, "X-RateLimit-Limit")}");
+                                    System.Threading.Thread.Sleep(3*1000);
+                                    //}
+                                }
+                            }
+                        }
+                        else if ((int) response.StatusCode == 429 /*HttpStatusCode.TooManyRequests*/)
                         {
-                            // TODO: Figure out a better way to sleep here (maybe keep track of the last time that RateLimit-Used == 0)
-                            // This may depend on what their algorithm is for trailing - if it's trailing minutewe would need to keep 
-                            // a queue of the last n and wait for (end of queue time + 1 minute - current time + some fudge factor).
-                            Trace.WriteLineIf(TraceLevels.General.TraceInfo,"Excedeed EchoNest Limits");
-                            System.Threading.Thread.Sleep(60*1000);
+                            // Wait algorithm failed, paus for 15 seconds
+                            Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Excedeed EchoNest Limits: Caught");
+                            System.Threading.Thread.Sleep(15*1000);
+                            continue;
+                        }
+                        if (responseString == null)
+                        {
+                            throw new WebException(response.StatusDescription);
                         }
                     }
                 }
-                if (responseString == null)
+                catch (WebException we)
                 {
-                    throw new WebException(response.StatusDescription);
+                    var r = we.Response as HttpWebResponse;
+                    if (r == null || (int) r.StatusCode != 429) throw;
+
+                    Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Excedeed EchoNest Limits: Caught");
+                    System.Threading.Thread.Sleep(15 * 1000);
+                    continue;
                 }
-            }
 
-            if (service != null)
-            {
-                responseString = service.PreprocessResponse(responseString);
-            }
+                if (service != null)
+                {
+                    responseString = service.PreprocessResponse(responseString);
+                }
 
-            return Json.Decode(responseString);
+                return Json.Decode(responseString);
+            }
+        }
+
+        private static dynamic NextMusicServiceResults(dynamic last, MusicService service, IPrincipal principal = null)
+        {
+            var request = service.GetNextRequest(last);
+            return request == null ? null : GetMusicServiceResults(request, service, principal);
         }
 
         #endregion
 
-        #region IDanceMusicContext
+            #region IDanceMusicContext
         public ApplicationUser FindOrAddUser(string name, string role, object umanager)
         {
             var uman = umanager as ApplicationUserManager;

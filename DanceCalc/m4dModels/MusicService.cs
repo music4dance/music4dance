@@ -83,6 +83,11 @@ namespace m4dModels
             return url;
         }
 
+        public virtual string GetNextRequest(dynamic last)
+        {
+            return null;
+        }
+
         public string BuildTrackRequest(string id, string region=null)
         {
             var ret = BuildRequest(TrackRequest, id);

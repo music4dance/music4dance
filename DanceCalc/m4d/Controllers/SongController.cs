@@ -1032,7 +1032,7 @@ namespace m4d.Controllers
         }
 
         [Authorize(Roles = "canEdit")]
-        public ActionResult BatchEchoNest(SongFilter filter = null, int count = 1)
+        public ActionResult BatchEchoNest(SongFilter filter = null, string options = "T", int count = 1, int pageSize = 1000)
         {
             // TODO: This isn't respecting count, should fix that before real batching
             // Also, requires more testing
@@ -1051,16 +1051,29 @@ namespace m4d.Controllers
             var service = MusicService.GetService(ServiceType.Spotify);
             var user = Database.FindUser("batch-e");
 
+            bool skipTempo = options.Contains("T");
+
             while (!done)
             {
-                var songs = Database.BuildSongList(filter, DanceMusicService.CruftFilter.AllCruft).Skip(page * 1000).Take(1000).ToList();
+                var sq = Database.BuildSongList(filter, DanceMusicService.CruftFilter.AllCruft);
+                if (skipTempo)
+                {
+                    sq = sq.Where(s => s.Tempo == null);
+                }
+
+                var songs = sq.Skip(page * pageSize).Take(pageSize).ToList();
                 var processed = 0;
-                var modified = false;
                 foreach (var song in songs)
                 {
                     tried += 1;
                     processed += 1;
 
+                    if (song.Purchase == null)
+                    {
+                        Trace.WriteLineIf(TraceLevels.General.TraceInfo,$"Bad Purchase: {song}");
+                        skipped += 1;
+                        continue;
+                    }
                     if (!song.Purchase.Contains('S'))
                     {
                         skipped += 1;
@@ -1085,9 +1098,21 @@ namespace m4d.Controllers
                         failed.Add(song);
                     }
 
-                    if (track?.BeatsPerMinute == null || (track.BeatsPerMinute == song.Tempo) ||
-                        (sd.Tempo.HasValue && Math.Abs(track.BeatsPerMinute.Value - sd.Tempo.Value) > 5))
+                    if (track?.BeatsPerMinute == null)
                     {
+                        Trace.WriteLineIf(TraceLevels.General.TraceInfo, $"EchoNest No Tempo: {sd}");
+                        skipped += 1;
+                        continue;
+                    }
+                    if (track.BeatsPerMinute == song.Tempo)
+                    {
+                        Trace.WriteLineIf(TraceLevels.General.TraceInfo, $"EchoNest Redundant Tempo: {sd}");
+                        skipped += 1;
+                        continue;
+                    }
+                    if (sd.Tempo.HasValue && Math.Abs(track.BeatsPerMinute.Value - sd.Tempo.Value) > 5)
+                    {
+                        Trace.WriteLineIf(TraceLevels.General.TraceInfo, $"EchoNest Tempo {track.BeatsPerMinute} != song temp {sd.Tempo}: {sd}");
                         skipped += 1;
                         continue;
                     }
@@ -1104,13 +1129,11 @@ namespace m4d.Controllers
                                 Id = string.Empty,
                                 Tags = new TagList($"{meter}:Tempo")
                             }
-                        }
-                        ;
+                        };
                     }
                     
                     if (Database.EditSong(user,sd,tags,false) != null)
                     {
-                        modified = true;
                         succeeded.Add(song);
                     }
 
@@ -1122,14 +1145,11 @@ namespace m4d.Controllers
                 }
 
                 page += 1;
-                if (processed < 1000)
+                if (processed < pageSize)
                 {
                     done = true;
                 }
-                if (!modified)
-                {
-                    Context.CheckpointSongs();
-                }
+                Context.CheckpointSongs();
             }
 
             if (failed.Count + succeeded.Count > 0)

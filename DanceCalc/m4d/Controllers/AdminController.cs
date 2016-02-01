@@ -2174,7 +2174,7 @@ namespace m4d.Controllers
 
         private static IList<SongDetails> SongsFromTracks(ApplicationUser user, IEnumerable<ServiceTrack> tracks, string dances, string songTags, string danceTags)
         {
-            return tracks.Select(track => SongDetails.CreateFromTrack(user, track, dances, songTags, danceTags)).ToList();
+            return tracks.Where(track => !string.IsNullOrEmpty(track.Artist)).Select(track => SongDetails.CreateFromTrack(user, track, dances, songTags, danceTags)).ToList();
         }
 
         private static IList<SongDetails> SongsFromFile(ApplicationUser user, IList<string> lines)

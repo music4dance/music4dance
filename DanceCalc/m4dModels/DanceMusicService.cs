@@ -1395,6 +1395,7 @@ namespace m4dModels
 
         public IList<LocalMerger> MatchSongs(IList<SongDetails> newSongs, MatchMethod method)
         {
+            newSongs = RemoveDuplicateSongs(newSongs);
             var merge = new List<LocalMerger>();
             foreach (var song in newSongs)
             {
@@ -1415,6 +1416,22 @@ namespace m4dModels
             }
 
             return merge;
+        }
+
+        public IList<SongDetails> RemoveDuplicateSongs(IList<SongDetails> songs)
+        {
+            var hash = new HashSet<string>();
+            var ret = new List<SongDetails>();
+            foreach (var song in songs)
+            {
+                var key = song.TitleArtistString;
+                if (hash.Contains(key))
+                    continue;
+                hash.Add(key);
+                ret.Add(song);
+            }
+
+            return ret;
         }
 
         public bool MergeCatalog(ApplicationUser user, IList<LocalMerger> merges, IEnumerable<string> dances = null)

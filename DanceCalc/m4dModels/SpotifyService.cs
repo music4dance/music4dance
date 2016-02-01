@@ -46,12 +46,31 @@ namespace m4dModels
             return null;
         }
 
+        public override string GetNextRequest(dynamic last)
+        {
+            return FoldTracks(last)?.next;
+        }
+
+        private static dynamic FoldTracks(dynamic results)
+        {
+            try
+            {
+                return results.tracks??results;
+            }
+            catch (RuntimeBinderException)
+            {
+                return results;
+            }
+        }
+
+
         public override IList<ServiceTrack> ParseSearchResults(dynamic results)
         {
+            if (results == null) return null;
+
             var ret = new List<ServiceTrack>();
 
-            var tracks = results.tracks;
-            var items = tracks.items;
+            var items = FoldTracks(results).items;
 
             foreach (var track in items)
             {
