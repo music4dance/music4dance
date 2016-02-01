@@ -60,7 +60,8 @@
     <h1 class="col-xs-12" style="font-size: 22px;text-align: center">Advanced Song Search</h1>
 </div>
 <div class="row">
-    <p class="col-sm-10" style="text-align: right">@Html.ActionLink("Basic Search", "index", "song", null , new { id = "basic-search" })</p>
+    <p class="col-xs-4 col-xs-offset-2">@Html.ActionLink("Saved Searches", "index", "searches", new {user=@userName,filter} , new { id = "saved-search" })</p>
+    <p class="col-xs-4" style="text-align: right">@Html.ActionLink("Basic Search", "index", "song", null , new { id = "basic-search" })</p>
 </div>
 <div class="row">
     <div class="col-sm-10 col-sm-offset-1 col-md-8 col-md-offset-2" style="font-size:16px; border:40px solid;">

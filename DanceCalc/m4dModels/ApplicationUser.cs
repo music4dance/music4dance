@@ -108,8 +108,8 @@ namespace m4dModels
         }
         public static string[] ContactStrings { get; } = {
             @"I would be interested in participating in email or surveys to help improve music4dance",
-            @"I am interested in occassional promotional emails from music4dance",
-            @"I am interested in occassional promotional emails from music4dance partners"
+            @"I am interested in occassional promotional emails from music4dance partners",
+            @"I am interested in occassional promotional emails from music4dance"
         };
 
         private const string PrivacyMessage = "{0} allow other members to see my profile and tags.";

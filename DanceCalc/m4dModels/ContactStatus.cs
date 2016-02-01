@@ -9,6 +9,8 @@ namespace m4dModels
         DirectPromotion = 0x01,
         PartnerPromotion = 0x02,
         SurveyFriendly = 0x04,
+        Default = DirectPromotion | SurveyFriendly,
+        All = Default | PartnerPromotion,
         Max = 0x08
     };
 }

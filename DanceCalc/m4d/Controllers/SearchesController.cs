@@ -1,8 +1,10 @@
-﻿using System.Data.Entity;
+﻿using System;
+using System.Data.Entity;
 using System.Linq;
 using System.Net;
 using System.Web.Mvc;
 using m4d.AWSReference;
+using m4dModels;
 
 namespace m4d.Controllers
 {
@@ -15,13 +17,15 @@ namespace m4d.Controllers
 
         public override string DefaultTheme => MusicTheme;
 
-        // TODONEXT: Add in sort direction to view, add link to replay the search
-        // Serialize stored searches (probably in their own section).
-        // Don't forget to update user serialization to enable new fields (date, etc.)
         // GET: Searches
-        public ActionResult Index(string user, string sort=null, bool showDetails=false)
+        public ActionResult Index(string user, string sort=null, SongFilter filter=null, bool showDetails=false)
         {
-            var appUser = Database.FindUser(user);
+            if (string.IsNullOrWhiteSpace(user) || user.Equals("me", StringComparison.OrdinalIgnoreCase))
+            {
+                user = null;
+            }
+
+            var appUser = Database.FindUser(user??User.Identity.Name);
             var searches = Database.Searches.Include(s => s.ApplicationUser);
             if (appUser != null)
                 searches = searches.Where(s => s.ApplicationUserId == appUser.Id);
@@ -29,6 +33,7 @@ namespace m4d.Controllers
             searches = (string.Equals(sort, "recent") ? searches.OrderByDescending(s => s.Modified) : searches.OrderByDescending(s => s.Count)).Take(100);
             ViewBag.Sort = sort;
             ViewBag.ShowDetails = showDetails;
+            ViewBag.SongFilter = filter;
             return View(searches.ToList());
         }
 

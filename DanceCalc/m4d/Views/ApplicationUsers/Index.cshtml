@@ -58,6 +58,9 @@
             Signed In
         </th>
         <th>
+            CNT
+        </th>
+        <th>
             Roles
         </th>
         <th>
@@ -127,6 +130,9 @@
                 @item.LastActive.ToString("d")
             }
 
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.CanContact)
         </td>
         <td>
             @string.Join(",",Model.GetRoles(item.Id))

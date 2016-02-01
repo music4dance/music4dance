@@ -13,6 +13,8 @@
     var isAdmin = User.IsInRole("dbAdmin");
 
     var dances = (IList<SongCounts>)ViewBag.Dances;
+        
+    var userName = filter.UserQuery.IsEmpty ? User.Identity.Name : filter.UserQuery.UserName;        
 }
 
 @helper Spotify()
@@ -80,9 +82,10 @@ else
                 </div>
             </div>
         </div>
-        <div class="row" typeof="text" style="text-align: right; margin-right: 15px">
-            @Html.ActionLink("Advanced Search","advancedsearchform",new {filter}, new {id="advanced-search"})
-        </div>
+        <div class="row">
+            <p class="col-xs-6">  @Html.ActionLink("Saved Searches", "index", "searches", new {user=@userName,filter} , new { id = "saved-search" })</p>
+            <p class="col-xs-6" style="text-align: right; padding-right:20px">@Html.ActionLink("Advanced Search", "index", "song", new {filter} , new { id = "advanced-search" })</p>
+        </div>        
     }
 }
 
