@@ -41,7 +41,7 @@ namespace m4dModels
                 // ReSharper disable once LoopCanBePartlyConvertedToQuery
                 foreach (var song in Songs)
                 {
-                    var fo = song.GetType().GetProperty(field).GetValue(song, null);                         
+                    var fo = song.GetType().GetProperty(field).GetValue(song, null);
 
                     spm.Values.Add(fo);
 

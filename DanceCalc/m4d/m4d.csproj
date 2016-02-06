@@ -449,6 +449,10 @@
     <Compile Include="Migrations\201601252221431_Search.Designer.cs">
       <DependentUpon>201601252221431_Search.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201602042224182_EchoNest.cs" />
+    <Compile Include="Migrations\201602042224182_EchoNest.Designer.cs">
+      <DependentUpon>201602042224182_EchoNest.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Context\DanceMusicConfiguration.cs" />
     <Compile Include="Context\DanceMusicContext.cs" />
@@ -997,6 +1001,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201601252221431_Search.resx">
       <DependentUpon>201601252221431_Search.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201602042224182_EchoNest.resx">
+      <DependentUpon>201602042224182_EchoNest.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>

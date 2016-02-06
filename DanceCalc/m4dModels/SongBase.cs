@@ -29,6 +29,10 @@ namespace m4dModels
         public const string ArtistField = "Artist";
         public const string TempoField = "Tempo";
         public const string LengthField = "Length";
+        public const string SampleField = "Sample";
+        public const string DanceabilityField = "Danceability";
+        public const string EnergyField = "Energy";
+        public const string ValenceFiled = "Valence";
 
         // Album Fields
         public const string AlbumField = "Album";
@@ -72,19 +76,23 @@ namespace m4dModels
         public const string FailResult = ".Fail";
         public const string MessageData = ".Message";
 
-        public static readonly string[] ScalarFields = {TitleField, ArtistField, TempoField, LengthField};
+        public static readonly string[] ScalarFields = {TitleField, ArtistField, TempoField, LengthField, SampleField, DanceabilityField,EnergyField,ValenceFiled};
 
         public static readonly PropertyInfo[] ScalarProperties = {
             typeof(SongBase).GetProperty(TitleField),
             typeof(SongBase).GetProperty(ArtistField),
             typeof(SongBase).GetProperty(TempoField),
             typeof(SongBase).GetProperty(LengthField),
+            typeof(SongBase).GetProperty(SampleField),
+            typeof(SongBase).GetProperty(DanceabilityField),
+            typeof(SongBase).GetProperty(EnergyField),
+            typeof(SongBase).GetProperty(ValenceFiled),
         };
 
-        public static readonly int DanceRatingCreate = 7;  // TODO: when we allow a user to manually add a song, give lots of credit
-        public static readonly int DanceRatingInitial = 4;
+        public static readonly int DanceRatingCreate = 3;  // TODO: when we allow a user to manually add a song, give lots of credit
+        public static readonly int DanceRatingInitial = 2;
         public static readonly int DanceRatingIncrement = 2;
-        public static readonly int DanceRatingAutoCreate = 3;
+        public static readonly int DanceRatingAutoCreate = 1;
         public static readonly int DanceRatingDecrement = -1;
 
         #endregion
@@ -238,6 +246,15 @@ namespace m4dModels
         public int? Length { get; set; }
         [DataMember]
         public virtual string Purchase { get; set; }
+        [DataMember]
+        public string Sample { get; set; }
+        [DataMember]
+        public float? Danceability { get; set; }
+        [DataMember]
+        public float? Energy { get; set; }
+        [DataMember]
+        public float? Valence { get; set; }
+
         [DataMember]
         public DateTime Created { get; set; }
         [DataMember]

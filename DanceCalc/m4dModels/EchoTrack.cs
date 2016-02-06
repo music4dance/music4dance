@@ -7,20 +7,22 @@ namespace m4dModels
     [DataContract]
     public class EchoTrack
     {
+        // TODONEXT: Verify that this works (
         static public EchoTrack BuildEchoTrack(dynamic response)
         {
             try
             {
-                int? bpMeas = null;
-                decimal? bpMin = null;
-
                 if (response.response.status.code != 0)
                     return null;
 
-                bpMeas = response.response.track.audio_summary.time_signature;
-                bpMin = response.response.track.audio_summary.tempo;
+                dynamic audioSummary = response.response.track.audio_summary;
+                int? bpMeas = audioSummary.time_signature;
+                decimal? bpMin = audioSummary.tempo;
+                float? danceability = (float)audioSummary.danceability;
+                float? energy = (float)audioSummary.energy;
+                float? valence = (float)audioSummary.valence;
 
-                return new EchoTrack {BeatsPerMeasure = bpMeas, BeatsPerMinute = bpMin};
+                return new EchoTrack {BeatsPerMeasure = bpMeas, BeatsPerMinute = bpMin, Danceability = danceability, Energy = energy, Valence = valence};
             }
             catch (Exception)
             {
@@ -30,6 +32,9 @@ namespace m4dModels
 
         [DataMember] public int? BeatsPerMeasure;
         [DataMember] public decimal? BeatsPerMinute;
+        [DataMember] public float? Danceability;
+        [DataMember] public float? Energy;
+        [DataMember] public float? Valence;
 
         public string Meter
         {

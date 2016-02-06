@@ -41,5 +41,6 @@ namespace m4dModels
         public bool? IsPlayable { get; set; }
         [DataMember]
         public string[] AvailableMarkets { get; set; }
+        public string SampleUrl { get; set; }
     }
 }

@@ -1031,8 +1031,128 @@ namespace m4d.Controllers
             }
         }
 
+
         [Authorize(Roles = "canEdit")]
-        public ActionResult BatchEchoNest(SongFilter filter = null, string options = "T", int count = 1, int pageSize = 1000)
+        public ActionResult BatchSamples(string options = null, SongFilter filter = null, int count = 1, int pageSize = 1000)
+        {
+            try
+            {
+                StartAdminTask("BatchSamples");
+                AdminMonitor.UpdateTask("BatchSamples");
+
+                ViewBag.BatchName = "BatchSamples";
+                ViewBag.Options = options;
+                ViewBag.Error = false;
+
+                var tried = 0;
+                var skipped = 0;
+
+                if (filter == null)
+                {
+                    filter = new SongFilter();
+                }
+                filter.Purchase = "S";
+
+                //var skipExisting = true;
+
+                var failed = new List<Song>();
+                var succeeded = new List<SongDetails>();
+
+                Context.TrackChanges(false);
+
+                var page = 0;
+                var done = false;
+
+                var service = MusicService.GetService(ServiceType.Spotify);
+                var user = Database.FindUser("batch-s");
+                Debug.Assert(user != null);
+
+                while (!done)
+                {
+                    AdminMonitor.UpdateTask("BatchSamples", page);
+                    var songsQ = Database.BuildSongList(filter);
+                    //if (skipExisting)
+                    //{
+                        songsQ = songsQ.Where(s => s.Sample == null);
+                    //}
+                    var songs = songsQ.Skip(page * pageSize).Take(pageSize).ToList();
+                    var processed = 0;
+                    foreach (var song in songs)
+                    {
+                        AdminMonitor.UpdateTask($"Processing ({succeeded.Count})", processed);
+
+                        processed += 1;
+
+                        var sd = new SongDetails(song);
+                        var ids = sd.GetPurchaseIds(service);
+
+                        ServiceTrack track = null;
+                        foreach (var id in ids)
+                        {
+                            string[] regions;
+                            var idt = PurchaseRegion.ParseIdAndRegionInfo(id, out regions);
+                            track = Context.GetMusicServiceTrack(idt, service);
+                            if (track?.SampleUrl != null)
+                                break;
+                        }
+
+                        tried += 1;
+                        if (track?.SampleUrl == null)
+                        {
+                            failed.Add(song);
+                        }
+                        else
+                        {
+                            sd.Sample = track.SampleUrl;
+                            sd = Database.EditSong(user, sd);
+                            if (sd == null)
+                            {
+                                skipped += 1;
+                            }
+                            else
+                            {
+                                succeeded.Add(sd);
+                            }
+                        }
+                        if (tried > count)
+                            break;
+
+                        if ((tried + 1) % 100 != 0) continue;
+
+                        Trace.WriteLineIf(TraceLevels.General.TraceInfo, $"{tried} songs tried.");
+                        Context.CheckpointChanges();
+                    }
+
+                    page += 1;
+                    if (processed < pageSize)
+                    {
+                        done = true;
+                    }
+                    Context.CheckpointSongs();
+                }
+
+                if (failed.Count + succeeded.Count > 0)
+                {
+                    Context.TrackChanges(true);
+                }
+
+                ViewBag.Completed = tried <= count;
+                ViewBag.Failed = failed;
+                ViewBag.Succeeded = succeeded;
+                ViewBag.Skipped = skipped;
+
+                AdminMonitor.CompleteTask(true, $"BatchSample: Completed={tried <= count}, Succeeded={succeeded.Count} - ({string.Join(",", succeeded.Select(s => s.SongId))}), Failed={failed.Count} - ({string.Join(",", failed.Select(s => s.SongId))}), Skipped={skipped}");
+
+                return View("BatchMusicService");
+            }
+            catch (Exception e)
+            {
+                return FailAdminTask($"BatchSample: {e.Message}", e);
+            }
+        }
+
+        [Authorize(Roles = "canEdit")]
+        public ActionResult BatchEchoNest(SongFilter filter = null, string options = null, int count = 1, int pageSize = 1000)
         {
             // TODO: This isn't respecting count, should fix that before real batching
             // Also, requires more testing
@@ -1048,6 +1168,12 @@ namespace m4d.Controllers
             var page = 0;
             var done = false;
 
+            if (filter == null)
+            {
+                filter = new SongFilter();
+            }
+            filter.Purchase = "S";
+
             var service = MusicService.GetService(ServiceType.Spotify);
             var user = Database.FindUser("batch-e");
 
@@ -1055,7 +1181,7 @@ namespace m4d.Controllers
 
             while (!done)
             {
-                var sq = Database.BuildSongList(filter, DanceMusicService.CruftFilter.AllCruft);
+                var sq = Database.BuildSongList(filter, DanceMusicService.CruftFilter.AllCruft).Where(s => s.Danceability == null);
                 if (skipTempo)
                 {
                     sq = sq.Where(s => s.Tempo == null);
@@ -1074,7 +1200,7 @@ namespace m4d.Controllers
                         skipped += 1;
                         continue;
                     }
-                    if (!song.Purchase.Contains('S'))
+                    if (song.Purchase == null || !song.Purchase.Contains('S'))
                     {
                         skipped += 1;
                         continue;
@@ -1097,27 +1223,25 @@ namespace m4d.Controllers
                     {
                         failed.Add(song);
                     }
-
-                    if (track?.BeatsPerMinute == null)
+                    else
                     {
-                        Trace.WriteLineIf(TraceLevels.General.TraceInfo, $"EchoNest No Tempo: {sd}");
-                        skipped += 1;
-                        continue;
-                    }
-                    if (track.BeatsPerMinute == song.Tempo)
+                        // TODONEXT: Verify that this works end to end
+                        if (track.BeatsPerMinute != null)
+                        {
+                            sd.Tempo = track.BeatsPerMinute;
+                        }
+                        if (track.Danceability != null)
+                        {
+                            sd.Danceability = track.Danceability;
+                        }
+                        if (track.Energy != null)
+                        {
+                            sd.Energy = track.Energy;
+                        }
+                        if (track.Valence != null)
                     {
-                        Trace.WriteLineIf(TraceLevels.General.TraceInfo, $"EchoNest Redundant Tempo: {sd}");
-                        skipped += 1;
-                        continue;
+                            sd.Valence = track.Valence;
                     }
-                    if (sd.Tempo.HasValue && Math.Abs(track.BeatsPerMinute.Value - sd.Tempo.Value) > 5)
-                    {
-                        Trace.WriteLineIf(TraceLevels.General.TraceInfo, $"EchoNest Tempo {track.BeatsPerMinute} != song temp {sd.Tempo}: {sd}");
-                        skipped += 1;
-                        continue;
-                    }
-
-                    sd.Tempo = track.BeatsPerMinute;
                     UserTag[] tags = null;
                     var meter = track.Meter;
                     if (meter != null)
@@ -1132,11 +1256,23 @@ namespace m4d.Controllers
                         };
                     }
                     
-                    if (Database.EditSong(user,sd,tags,false) != null)
+                        if (Database.EditSong(user, sd, tags, false) != null)
                     {
                         succeeded.Add(song);
                     }
+                    }
 
+                    // TODO: Decide if we want to tromp other tempi
+                    //if (track?.BeatsPerMinute == null || (track.BeatsPerMinute == song.Tempo) ||
+                    //    (sd.Tempo.HasValue && Math.Abs(track.BeatsPerMinute.Value - sd.Tempo.Value) > 5))
+                    //{
+                    //    skipped += 1;
+                    //    continue;
+                    //}
+
+
+                    if (tried > count)
+                        break;
 
                     if ((tried + 1) % 100 != 0) continue;
 
@@ -1149,8 +1285,8 @@ namespace m4d.Controllers
                 {
                     done = true;
                 }
-                Context.CheckpointSongs();
-            }
+                    Context.CheckpointSongs();
+                }
 
             if (failed.Count + succeeded.Count > 0)
             {

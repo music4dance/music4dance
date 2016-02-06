@@ -174,6 +174,14 @@ namespace m4dModels
             catch (RuntimeBinderException)
             {
             }
+            string sample = null;
+            try
+            {
+                sample = track.preview_url;
+            }
+            catch (RuntimeBinderException)
+            {
+            }
 
             var st = new ServiceTrack
             {
@@ -190,7 +198,8 @@ namespace m4dModels
                 Duration = (track.duration_ms + 500) / 1000,
                 TrackNumber = trackNum,
                 IsPlayable = isPlayable,
-                AvailableMarkets = availableMarkets
+                AvailableMarkets = availableMarkets,
+                SampleUrl = sample
             };
 
             return st;
