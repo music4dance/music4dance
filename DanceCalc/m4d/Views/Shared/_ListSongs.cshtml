@@ -103,7 +103,7 @@
 {
     if (string.IsNullOrEmpty(song.Purchase) || !song.Purchase.Contains(id))
     {
-    return;
+        return;
     }
 
     var buttonId = string.Format("{0}{1}", id, song.SongId);
@@ -428,7 +428,9 @@
 
                     @if (isAdmin)
                     {
-                        <td>@item.Purchase</td>
+                        var play = item.Sample != null ? (item.Sample != "." ? "P" : "p") : string.Empty;
+                        var echo = item.Danceability != null ? (item.Danceability != float.NaN ? "E" : "e") : string.Empty;
+                        <td>@(item.Purchase + play + echo)</td>
                     }
 
                     @if (showDate)
