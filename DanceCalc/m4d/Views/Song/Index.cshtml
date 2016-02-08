@@ -84,7 +84,7 @@ else
         </div>
         <div class="row">
             <p class="col-xs-6">  @Html.ActionLink("Saved Searches", "index", "searches", new {user=@userName,filter} , new { id = "saved-search" })</p>
-            <p class="col-xs-6" style="text-align: right; padding-right:20px">@Html.ActionLink("Advanced Search", "index", "song", new {filter} , new { id = "advanced-search" })</p>
+            <p class="col-xs-6" style="text-align: right; padding-right:20px">@Html.ActionLink("Advanced Search", "advancedsearchform", "song", new {filter} , new { id = "advanced-search" })</p>
         </div>        
     }
 }
