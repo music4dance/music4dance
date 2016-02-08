@@ -45,7 +45,7 @@
 
     <hr />
     <div class="row">
-        <div id="users" class="col-md-12">
+        <div id="users" class="col-md-6">
             @if (Model.ModifiedBy != null)
             {
                 <b>Undo Changes for:</b>
@@ -53,6 +53,12 @@
                 {
                     @UserHelper.UndoUser(Html, Model, filter, mr.UserName)
                 }
+            }
+        </div>
+        <div id="sample" class="col-md-6">
+            @if (Model.Sample != null)
+            {
+                <b>Sample:</b> @Model.Sample
             }
         </div>
     </div>

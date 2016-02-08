@@ -27,13 +27,15 @@ namespace m4dModels
         public SongDetails(Song song, string user=null, DanceMusicService dms=null, bool forSerialization=true)
         {
             SongId = song.SongId;
-            Tempo = song.Tempo;
-            Title = song.Title;
-            Artist = song.Artist;
-            Length = song.Length;
             Created = song.Created;
             Modified = song.Modified;
             TagSummary = song.TagSummary;
+
+            foreach (var pi in ScalarProperties)
+            {
+                var v = pi.GetValue(song);
+                pi.SetValue(this, v);
+            }
 
             RatingsList.AddRange(song.DanceRatings);
             if (song.SongProperties != null)

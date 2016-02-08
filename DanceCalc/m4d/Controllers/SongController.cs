@@ -1074,6 +1074,12 @@ namespace m4d.Controllers
                     //{
                         songsQ = songsQ.Where(s => s.Sample == null);
                     //}
+
+                    if (TraceLevels.General.TraceVerbose)
+                    {
+                        var c = songsQ.Count();
+                        Trace.WriteLine($"Candidates for Sample lookup = {c}");
+                    }
                     var songs = songsQ.Skip(page * pageSize).Take(pageSize).ToList();
                     var processed = 0;
                     foreach (var song in songs)
