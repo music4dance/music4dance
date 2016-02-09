@@ -58,7 +58,7 @@
 
 <div class="row">
     <fieldset>
-        <div class="col-sm-2">
+        <div class="col-sm-3">
             @if (Model.Length != null)
             {
                 <div class="display-label">
@@ -70,7 +70,7 @@
                 <br />
             }
         </div>
-        <div class="col-sm-2">
+        <div class="col-sm-3">
             @if (Model.Tempo != null)
             {
                 <div class="display-label">
@@ -102,6 +102,17 @@
         <div class="col-md-12" style="padding-top: 5px">
             @Html.Partial("Dances")
         </div>
+    </div>
+}
+
+@if (Model.Sample != null && Model.Sample != ".")
+{
+    <div class="row" style="padding-bottom: 10px">
+        <h2 class="col-sm-2">Preview:</h2>
+        <audio controls class="col-sm-8">
+            <source src="@Model.Sample" type="audio/mpeg" />
+            Your browser does not support audio.
+        </audio>
     </div>
 }
 
