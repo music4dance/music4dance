@@ -376,18 +376,9 @@ namespace m4d.Context
 
                                 if (remaining > 0 && remaining < 20)
                                 {
-                                    // TODO: Figure out a better way to sleep here (maybe keep track of the last time that RateLimit-Used == 0)
-                                    // This may depend on what their algorithm is for trailing - if it's trailing minutewe would need to keep 
-                                    // a queue of the last n and wait for (end of queue time + 1 minute - current time + some fudge factor).
-
-                                    //var used = GetRateInfo(response.Headers, "X-RateLimit-Used");
-                                    //var limit = GetRateInfo(response.Headers, "X-RateLimit-Limit");
-                                    //if (used == -1 || limit == -1)
-                                    //{
                                     Trace.WriteLineIf(TraceLevels.General.TraceInfo,
                                         $"Excedeed EchoNest Limits: Pre-emptive {remaining} - used = {GetRateInfo(response.Headers, "X-RateLimit-Used")} - limit = {GetRateInfo(response.Headers, "X-RateLimit-Limit")}");
                                     System.Threading.Thread.Sleep(3*1000);
-                                    //}
                                 }
                             }
                         }

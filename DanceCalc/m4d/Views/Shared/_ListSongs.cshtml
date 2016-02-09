@@ -308,15 +308,22 @@
                         if (!string.IsNullOrWhiteSpace(item.Purchase))
                         {
                             var id = "Play" + item.SongId;
-                            <div class="btn-group">
-                                <a href="#" id="@id" role="button" class="btn dropdown-toggle"  style="padding:0" data-toggle="dropdown" aria-expanded="false"><img src="@Url.Content("~/Content/playbutton.png")" alt="Play" width="20" height="20"/></a>
+                            <div id="@id" class="btn-group play-button">
+                                <a href="#" role="button" class="btn dropdown-toggle" style="padding:0" data-toggle="dropdown" aria-expanded="false"><img src="@Url.Content("~/Content/playbutton.png")" alt="Play" width="20" height="20"/></a>
                                 <ul class="dropdown-menu" role="menu">
-                                    @Purchase(item,'X',"xbox", "Groove", "Availiable on Groove Music")
+                                    @Purchase(item, 'X', "xbox", "Groove", "Availiable on Groove Music")
                                     @Purchase(item, 'I', "itunes", "ITunes", "Availiable on ITunes")
                                     @Purchase(item, 'A', "amazon", "Amazon", "Availiable at Amazon")
                                     @Purchase(item, 'S', "spotify", "Spotify", "Availiable on Spotify")
-                                    <li><a href="https://www.music4dance.net/blog/music4dance-help/playing-or-purchasing-songs/"><span class="glyphicon glyphicon-question-sign" style="margin-left: .25em;margin-right: .25em"></span> Help</a></li>
+                                    <li><a href="https://www.music4dance.net/blog/music4dance-help/playing-or-purchasing-songs/"><span class="glyphicon glyphicon-question-sign" style="margin-left: .25em; margin-right: .25em"></span> Help</a></li>
                                 </ul>
+                                @if (!string.IsNullOrWhiteSpace(item.Sample) && item.Sample != ".")
+                                {
+                                    var aid = "Audio" + item.SongId;
+                                    <audio id="@aid" style="visibility: hidden">
+                                        <source src="@item.Sample" type="audio/mpeg">
+                                    </audio>
+                                }
                             </div>
                         }
                     }

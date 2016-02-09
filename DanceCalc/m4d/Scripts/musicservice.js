@@ -2,8 +2,6 @@
     // Handling for purchase links
     var uri = '/api/purchaseinfo/';
     $('.play-link').click(function() {
-        //window.alert("You clicked me!(" + this.id + ")");
-
         $.getJSON(uri + this.id[0] + '?songs=' + this.id.substring(1))
             .done(function(data) {
                 //if (data[0].Target == null) {
@@ -16,6 +14,25 @@
                 window.alert('Unable to fetch data from ' + this.id + 'please try again later.  If this issue persists, please report it to us at info@music4dance.net');
                 //$('#product').text('Error: ' + err);
             });
+    });
+
+    // Handing for the player
+    $('.play-button').on('show.bs.dropdown', function () {
+        var t = $(this)[0];
+        var id = 'Audio' + t.id.substring(4);
+        var audio = $('#' + id)[0];
+        if (audio && audio.canPlayType && audio.canPlayType('audio/mpeg')) {
+            audio.play();
+        }
+    });
+
+    $('.play-button').on('hide.bs.dropdown', function () {
+        var t = $(this)[0];
+        var id = 'Audio' + t.id.substring(4);
+        var audio = $('#' + id)[0];
+        if (audio && audio.canPlayType && audio.canPlayType('audio/mpeg')) {
+            audio.pause();
+        }
     });
 
     var currentDance = null;
