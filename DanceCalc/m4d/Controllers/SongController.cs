@@ -1199,7 +1199,7 @@ namespace m4d.Controllers
                 {
                     AdminMonitor.UpdateTask("BuildPage", page);
 
-                    var sq = Database.BuildSongList(filter, DanceMusicService.CruftFilter.AllCruft).Where(s => s.Danceability == null);
+                    var sq = Database.BuildSongList(filter).Where(s => s.Danceability == null);
                     if (skipTempo)
                     {
                         sq = sq.Where(s => s.Tempo == null);
