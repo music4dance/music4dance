@@ -110,6 +110,17 @@ namespace m4dModels
                             ret = v;
                         }
                         break;
+                    case SongBase.DanceabilityField:
+                    case SongBase.ValenceFiled:
+                    case SongBase.EnergyField:
+                        // float
+                        if (Value != null)
+                        {
+                            float v;
+                            float.TryParse(Value, out v);
+                            ret = v;
+                        }
+                        break;
                     case SongBase.LengthField:
                     case SongBase.TrackField:
                     case SongBase.DanceRatingField:
