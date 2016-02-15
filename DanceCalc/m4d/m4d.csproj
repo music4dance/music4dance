@@ -508,6 +508,8 @@
     <Content Include="Content\beat-7.png" />
     <Content Include="Content\beat-8.png" />
     <Content Include="Content\beat-9.png" />
+    <Content Include="Content\beat-asc.png" />
+    <Content Include="Content\beat-desc.png" />
     <Content Include="Content\BlackBanner.png" />
     <Content Include="Content\blue-help.png" />
     <Content Include="Content\bootstrap-theme.css" />
@@ -535,6 +537,8 @@
     <Content Include="Content\Energy-7.png" />
     <Content Include="Content\Energy-8.png" />
     <Content Include="Content\Energy-9.png" />
+    <Content Include="Content\Energy-asc.png" />
+    <Content Include="Content\Energy-desc.png" />
     <Content Include="Content\favicon.png" />
     <Content Include="Content\fonts\glyphicons-halflings-regular.svg" />
     <Content Include="Content\genre-50.png" />
@@ -561,6 +565,8 @@
     <Content Include="Content\mood-7.png" />
     <Content Include="Content\mood-8.png" />
     <Content Include="Content\mood-9.png" />
+    <Content Include="Content\mood-asc.png" />
+    <Content Include="Content\mood-desc.png" />
     <Content Include="Content\music.png" />
     <Content Include="Content\Music4DanceBannerColor.png" />
     <Content Include="Content\orange-bootstrap-min.css" />
