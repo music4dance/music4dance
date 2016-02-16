@@ -1230,13 +1230,25 @@ namespace m4dModels
                     songs = songs.Where(s => s.Tempo != null);
                     songs = songSort.Descending ? songs.OrderByDescending(s => s.Tempo) : songs.OrderBy(s => s.Tempo);
                     break;
+                case "Mood":
+                    songs = songs.Where(s => s.Valence != null);
+                    songs = songSort.Descending ? songs.OrderByDescending(s => s.Valence) : songs.OrderBy(s => s.Valence);
+                    break;
+                case "Energy":
+                    songs = songs.Where(s => s.Energy != null);
+                    songs = songSort.Descending ? songs.OrderByDescending(s => s.Energy) : songs.OrderBy(s => s.Energy);
+                    break;
+                case "Beat":
+                    songs = songs.Where(s => s.Danceability != null);
+                    songs = songSort.Descending ? songs.OrderByDescending(s => s.Danceability) : songs.OrderBy(s => s.Danceability);
+                    break;
                 case "Dances":
                     // TODO: Better icon for dance order
                     // TODO: Get this working for multi-dance selection
-                {
-                    var did = TrySingleId(danceList) ?? (filter.Dances == null ? null : TrySingleId(new List<string>(new[] {filter.Dances})));
-                    songs = did != null ? songs.OrderByDescending(s => s.DanceRatings.FirstOrDefault(dr => dr.DanceId.StartsWith(did)).Weight) : songs.OrderByDescending(s => s.DanceRatings.Max(dr => dr.Weight));
-                }
+                    {
+                        var did = TrySingleId(danceList) ?? (filter.Dances == null ? null : TrySingleId(new List<string>(new[] {filter.Dances})));
+                        songs = did != null ? songs.OrderByDescending(s => s.DanceRatings.FirstOrDefault(dr => dr.DanceId.StartsWith(did)).Weight) : songs.OrderByDescending(s => s.DanceRatings.Max(dr => dr.Weight));
+                    }
                     break;
                 // Note that Date sort is the counter-intuitive order since the UI shows amount of time since 
                 case "Modified":

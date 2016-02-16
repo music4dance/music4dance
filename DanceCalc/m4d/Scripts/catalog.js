@@ -282,9 +282,6 @@ $(document).ready(function () {
     $('#search').submit(function (event) { filter.update(event); });
     $('#reset-search').click(function () { filter.reset(event); });
 
-    // Setup tool-tips
-    $('[data-toggle="tooltip"]').tooltip();
-
     filter.init();
 });
 

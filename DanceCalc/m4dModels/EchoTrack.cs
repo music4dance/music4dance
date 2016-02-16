@@ -1,13 +1,11 @@
 ﻿using System;
 using System.Runtime.Serialization;
-using DanceLibrary;
 
 namespace m4dModels
 {
     [DataContract]
     public class EchoTrack
     {
-        // TODONEXT: Verify that this works (
         static public EchoTrack BuildEchoTrack(dynamic response)
         {
             try

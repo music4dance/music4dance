@@ -1,4 +1,7 @@
-﻿$(document).ready(function() {
+﻿$(document).ready(function () {
+    // Setup tool-tips
+    $('[data-toggle="tooltip"]').tooltip();
+
     // Handling for purchase links
     var uri = '/api/purchaseinfo/';
     $('.play-link').click(function() {

@@ -14,6 +14,19 @@
     <a href="#" role="button" class="btn btn-ml btn-primary" data-bind="visible:changed, click:saveRatings">Save</a>
 }
 
+@helper EchoValue(string type, float? value)
+{
+    if (!value.HasValue)
+    {
+        return;
+    }
+    var dec = (int)Math.Floor(value.Value * 10) + 1;
+    var img = "/content/" + @type + "-" + dec + ".png";
+    <img src="@img" width="35" height="35"/>
+    <span>@type = @value.Value.ToString("F3")</span>
+}
+
+
 <div class="page-header">
     <h1>
         @if (User.Identity.IsAuthenticated)
@@ -92,6 +105,15 @@
             <h4>
                 <span data-bind="template: {name:'tag-template',foreach:song.TagSummary.tagTypes}"></span>
             </h4>
+        </div>
+    </div>
+}
+
+@if (Model.Danceability.HasValue)
+{
+    <div class="row">
+        <div class="col-md-12">
+            @EchoHelper.EchoValues(Model, 35, true)
         </div>
     </div>
 }

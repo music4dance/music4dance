@@ -175,7 +175,7 @@
                 <th>&nbsp;</th>
             }
         }
-        <th style="min-width:75px">
+        <th style="min-width:75px" data-toggle="tooltip" data-placement="bottom" data-container="body" title="@("Song Title" + (canSort ? ": Click to sort alphabetically by Title" : string.Empty))">
             @if (canSort)
             {
                 @Html.ActionLink("Title", "Sort", "Song", new {sortOrder = "Title", filter}, null)
@@ -192,7 +192,7 @@
         </th>
         @if (!hideArtist)
         {
-            <th class="hidden-xs" style="min-width:75px">
+            <th class="hidden-xs" style="min-width:75px" data-toggle="tooltip" data-placement="bottom" data-container="body" title="@("Artist" + (canSort ? ": Click to sort alphabetically by Artist" : string.Empty))">
                 @ArtistHeader(canSort, songOrder, filter)
             </th>
         }
@@ -217,7 +217,7 @@
                 Track
             </th>
         }
-        <th class="hidden-xs">
+        <th class="hidden-xs" data-toggle="tooltip" data-placement="bottom" data-container="body" title="@("Tempo (in Beats Per Minute)" + (canSort ? ": Click to sort numerically by tempo" : string.Empty))">
             @if (canSort)
             {
                 @Html.ActionLink("Tempo (BPM)", "sort", "song", new {sortOrder = "Tempo", filter}, null)
@@ -235,10 +235,14 @@
             </th>
         }
 
-
+        <th style="min-width: 100px" class="hidden-xs">
+            @EchoHelper.EchoHeader("Beat",canSort,filter.SongSort,filter)
+            @EchoHelper.EchoHeader("Energy", canSort, filter.SongSort, filter)
+            @EchoHelper.EchoHeader("Mood", canSort, filter.SongSort, filter)
+        </th>
         @if (!hideDances)
         {
-            <th style="max-width:200px">
+            <th style="max-width:200px" data-toggle="tooltip" data-placement="bottom" data-container="body" title="@("Dance Style Tags" + (canSort ? ": Click to sort by most voted on dance style." : string.Empty))">
                 @if (canSort)
                 {
                     @Html.ActionLink("Dances", "sort", "song", new {sortOrder = "Dances", filter}, null)
@@ -260,7 +264,7 @@
         {
             var created = (songOrder.Id == "Created");
             var dateId = created ? "Created" : "Modified";
-            <th class="hidden-xs" style="min-width:50px">
+            <th class="hidden-xs" style="min-width:50px" data-toggle="tooltip" data-placement="bottom" data-container="body" title="@(dateId + (canSort ? ": Click to sort by date " + dateId : string.Empty))">
                 <a href="@Url.Action("sort", "song", new {sortOrder = dateId, filter})"><span class='glyphicon @(created ? "glyphicon-plus" : "glyphicon-pencil")'></span></a>
                 @Html.Raw(songOrder.GetSortGlyph(dateId))
             </th>
@@ -388,9 +392,15 @@
                             }
                         </td>
                     }
+                    <td class="hidden-xs">
+                        @EchoHelper.EchoValues(item)
+                    </td>
                     @if (!hideDances)
                     {
                         <td>
+                            <span class="visible-xs">
+                                @EchoHelper.EchoValues(item)
+                            </span>
                             @if (scaledDances != null)
                             {
                                 const string bstring = "<br />";
@@ -417,11 +427,11 @@
 
                                     var content = MvcHtmlString.Create(
                                         Html.ActionLink(name + " dance page...", name, "dances") +
-                                        (!filter.IsEmpty && isExclusive && !hasDance ? bstring + Html.ActionLink("Filter list to songs tagged as " + name + "...", "search", "song", new { dances = danceQuery.AddDance(ditem.DanceId).Query, filter }, null) : string.Empty) +
-                                        (!filter.IsEmpty && !isExclusive && !hasDance ? bstring + Html.ActionLink("Expand list to included songs tagged as " + name + "...", "search", "song", new { dances = danceQuery.AddDance(ditem.DanceId).Query, filter }, null) : string.Empty) +
-                                        bstring + Html.ActionLink("List all " + name + " songs...", "search", "song", new { dances = ditem.DanceId }, null) +
+                                        (!filter.IsEmpty && isExclusive && !hasDance ? bstring + Html.ActionLink("Filter list to songs tagged as " + name + "...", "search", "song", new {dances = danceQuery.AddDance(ditem.DanceId).Query, filter}, null) : string.Empty) +
+                                        (!filter.IsEmpty && !isExclusive && !hasDance ? bstring + Html.ActionLink("Expand list to included songs tagged as " + name + "...", "search", "song", new {dances = danceQuery.AddDance(ditem.DanceId).Query, filter}, null) : string.Empty) +
+                                        bstring + Html.ActionLink("List all " + name + " songs...", "search", "song", new {dances = ditem.DanceId}, null) +
                                         bstring + "<a href=\"https://www.music4dance.net/blog/tag-filtering\">Help</a>" +
-                                        tags );
+                                        tags);
 
                                     <a href='#!' class='rating @badge label label-music' role='button'
                                        data-container='body' data-toggle='popover' data-placement='left' data-title='@Html.ActionLink(name, name, "dances")'
@@ -431,7 +441,14 @@
                             <span class="visible-xs">@Tags(item, filter)</span>
                         </td>
                     }
-                    <td class="@(hideDances ? string.Empty : "hidden-xs")">@Tags(item,filter)</td>
+                    <td class="hidden-xs">@Tags(item, filter)</td>
+                    @if (hideDances)
+                    {
+                        <td class="visible-xs">
+                            @EchoHelper.EchoValues(item)
+                            @Tags(item, filter)
+                        </td>
+                    }
 
                     @if (isAdmin)
                     {

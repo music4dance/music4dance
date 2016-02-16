@@ -1,0 +1,59 @@
+﻿@using m4dModels
+
+@helper EchoHeader(string type, bool canSort, SongSort songOrder, SongFilter filter)
+{
+    var tips = new Dictionary<string, string>
+    {
+        {"Beat", "Strength of the beat (fuller icons represent a stronger beat). Click to sort by strength of the beat."},
+        {"Mood", "Mood of the song (fuller icons represent a happier mood). Click to sort by mood."},
+        {"Energy", "Energy of the song (fuller icons represent a higher energy). Click to sort by energy."},
+    };
+
+    var title = tips[type];
+    if (canSort)
+    {
+        var img = "/content/" + @type + "-" + songOrder.GetDirectionString(type) + ".png";
+        var href = "/song/sort?sortOrder=" + type + "&filter=" + filter;
+        <a href="@href"  data-toggle="tooltip" data-placement="bottom" data-container="body" title="@title"><img src="@img" width="25" height="25" /></a>
+    }
+    else
+    {
+        title = title.Substring(title.IndexOf('.'));
+        var img = "/content/" + @type + "-10.png";
+        <img src="@img" width="25" height="25" alt="@type" data-toggle="tooltip" data-placement="bottom" data-container="body" title="@title"/>
+    }
+}
+
+@helper EchoValue(string type, float? value, int size=25, bool description=false)
+{
+    var tips = new Dictionary<string, string>
+    {
+        {"Beat", "This song has a beat strength of {0:0.00} on a scale of 0.00 to 1.00 where 1.00 is the strongest beat."},
+        {"Mood", "This song has a mood level of {0:0.00} on a scale of 0.00 to 1.00 where 1.00 is the happiest and 0.00 is the saddest."},
+        {"Energy", "This song has an energy level of {0:0.00} on a scale of 0.00 to 1.00 where 0.00 is the lowest energy and 1.00 is the highest energy."},
+    };
+
+    if (!value.HasValue)
+    {
+        return;
+    }
+    var dec = (int)Math.Floor(value.Value * 10) + 1;
+    var img = "/content/" + @type + "-" + dec + ".png";
+    var alt = type;
+    var href = "https://www.music4dance.net/blog/music4dance-help/playing-or-purchasing-songs/echonest/#" + type.ToLower();
+    <a href="@href">
+        <img src="@img" width="@(size.ToString())" height="@(size.ToString())" alt="@alt" title="@string.Format(tips[type], value)"/>
+    </a>
+    if (!description)
+    {
+        return;
+    }
+    <span>@type = @value.Value.ToString("0.00")</span>
+}
+
+@helper EchoValues(SongBase song, int size = 25, bool description = false)
+{
+    @EchoValue("Beat", song.Danceability, size, description)
+    @EchoValue("Energy", song.Energy, size, description)
+    @EchoValue("Mood", song.Valence, size, description)
+}

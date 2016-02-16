@@ -6,8 +6,9 @@ namespace m4dModels
 {
     public class SongSort
     {
-        private static readonly string[] s_directional = { "Title", "Artist", "Album", "Tempo", "Modified", "Created" };
+        private static readonly string[] s_directional = { "Title", "Artist", "Album", "Tempo", "Modified", "Created","Energy","Mood","Beat" };
         private static readonly string[] s_numerical = { "Tempo", "Modified", "Created" };
+        private static readonly string[] s_intrinsic = {"Energy", "Mood", "Beat"};
 
         private const string SortAsc = "<span class='glyphicon glyphicon-sort-by-alphabet'></span>";
         private const string SortDsc = "<span class='glyphicon glyphicon-sort-by-alphabet-alt'></span>";
@@ -83,37 +84,57 @@ namespace m4dModels
             
                 if (!Descending)
                 {
-                    if (Id == "Tempo")
+                    switch (Id)
                     {
-                        ret.Append("slowest to fastest");
-                    }
-                    else if (Id == "Modified" || Id == "Created")
-                    {
-                        ret.Append("newest to oldest");
-                    }
-                    else if (Id == "Dances")
-                    {
-                        ret.Append("most popular to least popular");
-                    }
-                    else {
-                        ret.Append("A to Z");
+                        case "Tempo":
+                            ret.Append("slowest to fastest");
+                            break;
+                        case "Modified":
+                        case "Created":
+                            ret.Append("newest to oldest");
+                            break;
+                        case "Dances":
+                            ret.Append("most popular to least popular");
+                            break;
+                        case "Beat":
+                            ret.Append("weakest to strongest");
+                            break;
+                        case "Mood":
+                            ret.Append("saddest to happiest");
+                            break;
+                        case "Energy":
+                            ret.Append("lowest to highest");
+                            break;
+                        default:
+                            ret.Append("A to Z");
+                            break;
                     }
                 }
                 else {
-                    if (Id == "Tempo")
+                    switch (Id)
                     {
-                        ret.Append("fastest to slowest");
-                    }
-                    else if (Id == "Modified" || Id == "Created")
-                    {
-                        ret.Append("oldest to newest");
-                    }
-                    else if (Id == "Dances")
-                    {
-                        ret.Append("most popular to least popular");
-                    }
-                    else{
-                        ret.Append("Z to A");
+                        case "Tempo":
+                            ret.Append("fastest to slowest");
+                            break;
+                        case "Modified":
+                        case "Created":
+                            ret.Append("oldest to newest");
+                            break;
+                        case "Dances":
+                            ret.Append("most popular to least popular");
+                            break;
+                        case "Beat":
+                            ret.Append("strongest to weakest");
+                            break;
+                        case "Mood":
+                            ret.Append("happiest to saddest");
+                            break;
+                        case "Energy":
+                            ret.Append("highest to lowest");
+                            break;
+                        default:
+                            ret.Append("Z to A");
+                            break;
                     }
                 }
                 ret.Append(".");
@@ -124,7 +145,7 @@ namespace m4dModels
         public string GetSortGlyph(string column) 
         {
             var ret = string.Empty;
-            if (column == Id)
+            if (column == Id && !s_intrinsic.Contains(Id))
             {
                 if (s_numerical.Contains(Id))
                 {
@@ -137,6 +158,12 @@ namespace m4dModels
             }
             return ret;
         }
+
+        public string GetDirectionString(string column)
+        {
+            return (column == Id) ? (Descending ? "desc" : "asc") : "10";
+        }
+
         public void Resort(string newOrder)
         {
             if (newOrder == Id && s_directional.Contains(newOrder))
