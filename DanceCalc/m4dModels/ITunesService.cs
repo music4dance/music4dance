@@ -24,10 +24,7 @@ namespace m4dModels
             {
                 return string.Format(AssociateLink, song, album);
             }
-            else
-            {
-                return null;
-            }
+            return null;
         }
 
         public override IList<ServiceTrack> ParseSearchResults(dynamic results)
@@ -75,6 +72,7 @@ namespace m4dModels
                 Duration = duration,
                 Genre = track.primaryGenreName,
                 TrackNumber = track.trackNumber,
+                SampleUrl = track.PreviewUrl,
             };
         }
     }

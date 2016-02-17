@@ -1050,7 +1050,7 @@ namespace m4d.Controllers
                 {
                     filter = new SongFilter();
                 }
-                filter.Purchase = "S";
+                filter.Purchase = "IS";
 
                 //var skipExisting = true;
 
@@ -1062,7 +1062,8 @@ namespace m4d.Controllers
                 var page = 0;
                 var done = false;
 
-                var service = MusicService.GetService(ServiceType.Spotify);
+                var spotify = MusicService.GetService(ServiceType.Spotify);
+                var itunes = MusicService.GetService(ServiceType.ITunes);
                 var user = Database.FindUser("batch-s");
                 Debug.Assert(user != null);
 
@@ -1089,18 +1090,30 @@ namespace m4d.Controllers
                         processed += 1;
 
                         var sd = new SongDetails(song);
-                        var ids = sd.GetPurchaseIds(service);
 
                         ServiceTrack track = null;
+                        // First try Spotify
+                        var ids = sd.GetPurchaseIds(spotify);
                         foreach (var id in ids)
                         {
                             string[] regions;
                             var idt = PurchaseRegion.ParseIdAndRegionInfo(id, out regions);
-                            track = Context.GetMusicServiceTrack(idt, service);
+                            track = Context.GetMusicServiceTrack(idt, spotify);
                             if (track?.SampleUrl != null)
                                 break;
                         }
 
+                        if (track == null)
+                        {
+                            // If spotify failed, try itunes
+                            ids = sd.GetPurchaseIds(itunes);
+                            foreach (var id in ids)
+                            {
+                                track = Context.GetMusicServiceTrack(id, itunes);
+                                if (track?.SampleUrl != null)
+                                    break;
+                            }
+                        }
                         tried += 1;
                         if (track?.SampleUrl == null)
                         {
