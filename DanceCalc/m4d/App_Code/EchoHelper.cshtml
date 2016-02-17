@@ -14,11 +14,11 @@
     {
         var img = "/content/" + @type + "-" + songOrder.GetDirectionString(type) + ".png";
         var href = "/song/sort?sortOrder=" + type + "&filter=" + filter;
-        <a href="@href"  data-toggle="tooltip" data-placement="bottom" data-container="body" title="@title"><img src="@img" width="25" height="25" /></a>
+        <a href="@href"><img src="@img" width="25" height="25" data-toggle="tooltip" data-placement="bottom" data-container="body" title="@title"/></a>
     }
     else
     {
-        title = title.Substring(title.IndexOf('.'));
+        title = title.Substring(0, title.IndexOf('.')+1);
         var img = "/content/" + @type + "-10.png";
         <img src="@img" width="25" height="25" alt="@type" data-toggle="tooltip" data-placement="bottom" data-container="body" title="@title"/>
     }
