@@ -153,7 +153,6 @@ namespace m4dModels.Tests
 
             var merges = service.MatchSongs(songs, DanceMusicService.MatchMethod.Merge);
 
-            
             Assert.IsTrue(service.MergeCatalog(service.FindUser("dwgray"), merges, new[] {"VWZ"}));
 
             var i = 0;
@@ -161,8 +160,23 @@ namespace m4dModels.Tests
             {
                 Assert.IsNotNull(song);
                 var txt = DanceMusicTester.ReplaceTime(song.Serialize(new[] { SongBase.NoSongId }));
+                var ex = DanceMergeProps[i];
+                Trace.WriteLine(ex);
                 Trace.WriteLine(txt);
-                Assert.AreEqual(DanceMergeProps[i], txt, $"Failed on Line {i}");
+                if (!string.Equals(ex, txt))
+                {
+                    if (ex.Length != txt.Length)
+                    {
+                        Assert.Fail($"Failed on Line {i}, lengths differ");
+                    }
+                    for (var j =  0; j < ex.Length; j++)
+                    {
+                        if (ex[j] != txt[j])
+                        {
+                            Assert.Fail($"Failed on Line {i}, character {j}");
+                        }
+                    }
+                }
                 i += 1;
             }
         }
@@ -333,9 +347,9 @@ namespace m4dModels.Tests
 
         private static readonly string[] DanceMergeProps =
         {
-            @".Create=	User=dwgray	Time=00/00/0000 0:00:00 PM	Title=The L Train	Artist=Gabriel Yared	Tempo=72.0	Tag+=Slow Waltz:Dance	DanceRating=SWZ+5	DanceRating=WLZ+1	Album:00=Shall We Dance?	Purchase:00:AS=D:B001NYTZJY	.Edit=	User=dwgray	Time=00/00/0000 0:00:00 PM	Tag+=Viennese Waltz:Dance	DanceRating=VWZ+4	DanceRating=WLZ+2",
+            @".Create=	User=dwgray	Time=00/00/0000 0:00:00 PM	Title=The L Train	Artist=Gabriel Yared	Tempo=72.0	Tag+=Slow Waltz:Dance	DanceRating=SWZ+5	DanceRating=WLZ+1	Album:00=Shall We Dance?	Purchase:00:AS=D:B001NYTZJY	.Edit=	User=dwgray	Time=00/00/0000 0:00:00 PM	Tag+=Viennese Waltz:Dance	DanceRating=VWZ+2	DanceRating=WLZ+2",
             @".Create=	User=dwgray	Time=00/00/0000 0:00:00 PM	Title=Come Wake Me Up	Artist=Rascal Flatts	Tempo=153.0	Tag+=Viennese Waltz:Dance	DanceRating=VWZ+5	DanceRating=WLZ+1	Album:00=Changed (Deluxe Version) [+Digital Booklet]	Purchase:00:AS=D:B007MSUAV2	Purchase:00:IA=512102570	Purchase:00:IS=512102578	.Edit=	User=dwgray	Time=00/00/0000 0:00:00 PM	DanceRating=VWZ+2	DanceRating=WLZ+1",
-            @".Create=	User=dwgray	Time=00/00/0000 0:00:00 PM	Title=A very traditional Waltz	Artist=Strauss	Tag+=English:Other	Tag+=Viennese Waltz:Dance	DanceRating=VWZ+4	DanceRating=WLZ+1",
+            @".Create=	User=dwgray	Time=00/00/0000 0:00:00 PM	Title=A very traditional Waltz	Artist=Strauss	Tag+=English:Other	Tag+=Viennese Waltz:Dance	DanceRating=VWZ+2	DanceRating=WLZ+1",
         };
 
         private const string WHeader = @"Dancers	Dance	Title+Artist";
