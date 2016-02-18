@@ -48,7 +48,7 @@ namespace m4dModels
         private List<CompetitionDance> _competitionDances;
 
 
-        static public void ClearCache()
+        public static void ClearCache()
         {
             lock (s_counts)
             {
@@ -64,7 +64,7 @@ namespace m4dModels
         // solution here is probably to bulk out Dance
         // a bit more (like with count and possible parent) and 
         // then not cache as much
-        static public void ReloadDances(DanceMusicService dms)
+        public static void ReloadDances(DanceMusicService dms)
         {
             lock (s_map)
             {
@@ -80,7 +80,7 @@ namespace m4dModels
             }
         }
 
-        static public IList<SongCounts> GetFlatSongCounts(DanceMusicService dms)
+        public static IList<SongCounts> GetFlatSongCounts(DanceMusicService dms)
         {
             Trace.WriteLineIf(TraceLevels.General.TraceVerbose,
                 $"Entering GetFlatSongCounts:  dms={(dms == null ? "<<NULL>>" : "Valid")}");
@@ -118,10 +118,10 @@ namespace m4dModels
             return flat;
         }
 
-        static private List<SongCounts> s_counts = new List<SongCounts>();
-        static private readonly Dictionary<string, SongCounts> s_map = new Dictionary<string, SongCounts>();
+        private static List<SongCounts> s_counts = new List<SongCounts>();
+        private static readonly Dictionary<string, SongCounts> s_map = new Dictionary<string, SongCounts>();
 
-        static public IList<SongCounts> GetSongCounts(DanceMusicService dms)
+        public static IList<SongCounts> GetSongCounts(DanceMusicService dms)
         {
             lock (s_counts)
             {
@@ -162,7 +162,7 @@ namespace m4dModels
         }
 
 
-        static public IDictionary<string,SongCounts> GetDanceMap(DanceMusicService dms)
+        public static IDictionary<string,SongCounts> GetDanceMap(DanceMusicService dms)
         {
             lock (s_map)
             {
@@ -179,23 +179,23 @@ namespace m4dModels
             }
         }
 
-        static public SongCounts FromName(string name, DanceMusicService dms)
+        public static SongCounts FromName(string name, DanceMusicService dms)
         {
             name = DanceObject.SeoFriendly(name);
             return  GetFlatSongCounts(dms).FirstOrDefault(sc => string.Equals(sc.SeoName,name));
         }
 
-        static public SongCounts FromId(string id, DanceMusicService dms)
+        public static SongCounts FromId(string id, DanceMusicService dms)
         {
             return FromId(id, GetDanceMap(dms));
         }
 
-        static public SongCounts FromId(string id, IDictionary<string,SongCounts> map)
+        public static SongCounts FromId(string id, IDictionary<string,SongCounts> map)
         {
             return LookupSongCount(map, id);
         }
 
-        static public int GetScaledRating(IDictionary<string,SongCounts> map, string danceId, int weight, int scale = 5)
+        public static int GetScaledRating(IDictionary<string,SongCounts> map, string danceId, int weight, int scale = 5)
         {
             // TODO: Need to re-examine how we deal with international/american
             var sc = LookupSongCount(map, danceId);
@@ -211,7 +211,7 @@ namespace m4dModels
             
             return Math.Max(0,Math.Min(ret,scale));
         }
-        static public string GetRatingBadge(IDictionary<string, SongCounts> map, string danceId, int weight)
+        public static string GetRatingBadge(IDictionary<string, SongCounts> map, string danceId, int weight)
         {
             var scaled = GetScaledRating(map, danceId, weight);
 
@@ -219,7 +219,7 @@ namespace m4dModels
             return "rating-" + scaled;
         }
 
-        static public DanceRatingInfo GetRatingInfo(IDictionary<string, SongCounts> map, string danceId, int weight)
+        public static DanceRatingInfo GetRatingInfo(IDictionary<string, SongCounts> map, string danceId, int weight)
         {
             var sc = LookupSongCount(map, danceId);
             if (sc == null) return null;
@@ -234,12 +234,12 @@ namespace m4dModels
             };
         }
 
-        static public IEnumerable<DanceRatingInfo> GetRatingInfo(IDictionary<string, SongCounts> map, SongBase song)
+        public static IEnumerable<DanceRatingInfo> GetRatingInfo(IDictionary<string, SongCounts> map, SongBase song)
         {
             return song.DanceRatings.Select(dr => GetRatingInfo(map, dr.DanceId, dr.Weight)).ToList();
         }
 
-        static private void HandleType(DanceType dtyp, SongCounts scGroup, DanceMusicService dms)
+        private static void HandleType(DanceType dtyp, SongCounts scGroup, DanceMusicService dms)
         {
             var d = dms.Dances.FirstOrDefault(t => t.Id == dtyp.Id);
 
@@ -270,7 +270,7 @@ namespace m4dModels
             }
         }
 
-        static private SongCounts InfoFromDance(DanceMusicService dms, DanceObject d)
+        private static SongCounts InfoFromDance(DanceMusicService dms, DanceObject d)
         {
             if (d == null)
             {

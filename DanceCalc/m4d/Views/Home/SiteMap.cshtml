@@ -1,92 +1,42 @@
-﻿@model IEnumerable<SongCounts>
-
-@{
-    ViewBag.Title = "Site Map";
-}
-
+﻿@using m4d.ViewModels
 <h1>Site Map</h1>
 
 <div class="row">
-    <div class="music col-sm-3" >
-        <h2>Music & Dances</h2>
-        <ul>
-            <li><a href="/song" class="music">Song Library</a></li>
-            <ul>
-                <li><a href="/song/advancedsearchform" class="music">Advanced Search</a></li>
-                <li><a href="/searches/index" class="music">Saved Searches</a></li>
-            </ul>
-            <li><a href="/dances" class="music">Dance Index</a></li>
-            <li><a href="/dances" class="music">Dance Index</a></li>
-            <li><a href="/dances/ballroom-competition-categories" class="music">Ballroom Competition Categories</a>
-                <ul>
-                    <li><a href="/dances/international-standard" class="music">International Standard</a></li>
-                    <li><a href="/dances/international-latin" class="music">International Latin</a></li>
-                    <li><a href="/dances/american-smooth" class="music">American Smooth</a></li>
-                    <li><a href="/dances/american-rhythm" class="music">American Rhythm</a></li>
-                </ul>
-            </li>
-            <li><a href="/dances/wedding-music" class="music">Wedding Music</a></li>
-            @foreach (var sc in @Model)
+    @foreach (var type in new string[] {"music", "info", "tools"})
+    {
+        <div class="@type col-sm-4">
+            @foreach (var category in SiteMapInfo.Categories.Where(c => c.Type == type))
             {
-                if (sc.DanceId == "ALL")
-                {
-                    continue;
-                }
-                <li>@sc.DanceName: <a href="/dances/@sc.SeoName" class="music">Info</a>, <a href="/song/search?dances=@sc.DanceId" class="music">List</a></li>
-            }
-        </ul>
-    </div>
-    <div class="col-sm-4">
-        <h2>Info</h2>
-        <ul>
-            <li><a href="https://www.music4dance.net/blog/music4dance-help/">Help</a></li>
-            <li><a href="/home/about">About Us</a></li>
-            <li><a href="/home/faq">FAQ</a></li>
-            <li><a href="/blog">Blog</a>
+                <h2>@category.Name</h2>
                 <ul>
-                    <li><a href="https://www.music4dance.net/blog/hello-world/">Introducing Music4Dance.Net/Blog</a></li>
-                    <li><a href="https://www.music4dance.net/blog/the-two-questions-that-inspired-music4dance/">The Two Questions that Inspired Music4Dance</a></li>
-                    <li><a href="https://www.music4dance.net/blog/question-1-im-learning-to-cha-cha-where-is-some-great-music-for-practicing/">Question 1: I’m learning to Cha Cha, where is some great music for practicing?</a></li>
-                    <li><a href="https://www.music4dance.net/blog/question-2-what-dance-styles-can-i-dance-to-my-favorite-songs/">Question 2: What dance styles can I dance to my favorite song(s)?</a></li>
-                    <li><a href="https://www.music4dance.net/blog/the-pink-martini-solution/">The Pink Martini Solution</a></li>
-                    <li><a href="https://www.music4dance.net/blog/help-how-would-you-group-this-dance-style/">Help: How would you group this dance style?</a></li>
-                    <li><a href="https://www.music4dance.net/blog/the-dancing-with-the-stars-solution/">The “Dancing with the Stars” Solution</a></li>
-                    <li><a href="https://www.music4dance.net/blog/documentation-for-the-song-list/">Documentation for the song list</a></li>
-                    <li><a href="https://www.music4dance.net/blog/wedding-music-part-i-can-we-dance-the-foxtrot-to-our-song/">Wedding Music Part I: Can we dance the Foxtrot to our song?</a></li>
-                    <li><a href="https://www.music4dance.net/blog/wedding-music-part-ii-were-learning-to-rumba-help-us-find-a-good-song-for-our-first-dance/">Wedding Music Part II: We’re learning to Rumba, help us find a good song for our first dance</a></li>
-                    <li><a href="https://www.music4dance.net/blog/documentation-for-the-tag-cloud/">Documentation for the Tag Cloud</a></li>
-                    <li><a href="https://www.music4dance.net/blog/documentation-for-the-tempo-counter-and-tempi-tempos-tools/">Documentation for the Tempo Counter and Tempi (tempos) tools</a></li>
-                    <li><a href="https://www.music4dance.net/blog/im-a-competition-ballroom-dancer-can-i-find-practice-songs-that-are-a-specific-tempo/">I'm a competition ballroom dancer, can I find practice songs that are a specific tempo?</a></li>
-                    <li><a href="https://www.music4dance.net/blog/what-if-i-want-to-build-a-list-of-songs-that-are-tagged-as-either-bolero-or-rumba/">What if I want to build a list of songs that are tagged as either Bolero or Rumba?</a></li>
-                    <li><a href="https://www.music4dance.net/blog/lets-tag-some-songs/">Let's tag some songs!</a></li>
-                    <li><a href="https://www.music4dance.net/blog/i-am-learning-the-foxtrot-where-can-i-find-some-music/">I am learning the Foxtrot, where can I find some music?</a></li>
-                    <li><a href="https://www.music4dance.net/blog/searching-for-music-to-dance-to-just-got-a-whole-lot-easier/">Searching for mucis to dance to just got a whole lot easier</a></li>
-                    <li><a href="https://www.music4dance.net/blog/are-there-songs-that-you-never-want-to-dance-to-again/"></a>Are there songs that you never want to dance to again?</li>
-                    <li><a href="https://www.music4dance.net/blog/top-songs-of-2015-and-what-to-dance-to-them/"></a>Top Songs of 2015 --  And what to dance to them.</li>
-                    <li><a href="https://www.music4dance.net/blog/if-you-like-to-dance-cha-cha-to-a-song-does-that-mean-you-like-that-song/"></a>If you like to dance Cha-Cha to a song does that mean you “like” that song?</li>
-                    <!--<li><a href=""></a></li>-->
-                    @*Last updated 12/30/15*@
+                    @foreach (var entry in category.Entries)
+                    {
+                        <li>
+                            @if (entry is SiteMapDance)
+                            {
+                                <span>@entry.Title: <a href="@entry.FullPath" class="@type">Info</a>, <a href="@((entry as SiteMapDance).CatalogFullPath)" class="@type">List</a></span>
+                            }
+                            else
+                            {
+                                <a href="@entry.FullPath" class="@type">@entry.Title</a>
+                                if (category.Type == "tools" && entry.Description != null)
+                                {
+                                    <span>: @entry.Description</span>
+                                }
+                                if (@entry.Children != null)
+                                {
+                                    <ul>
+                                        @foreach (var child in entry.Children)
+                                        {
+                                            <li><a href="@child.FullPath" class="@type">@child.Title</a></li>
+                                        }
+                                    </ul>
+                                }
+                            }
+                        </li>
+                    }
                 </ul>
-            </li>
-            <li><a href="/home/contact">Contact</a></li>
-            <li><a href="/home">Home Page</a></li>
-            <li><a href="/home/privacypolicy">Privacy Policy</a></li>
-            <li><a href="/home/termsofservice">Terms of Service</a></li>
-            <li><a href="/home/credits">Credits</a></li>
-        </ul>
-    </div>
-    <div class="tools col-sm-4">
-        <h2>Tools</h2>
-        <ul>
-            <li><a href="/home/counter" class="tools">Dance Counter</a>: Count out the tempo of a song and see a list of dances that can be danced at that tempo.</li>
-            <li><a href="/home/tempi" class="tools">Dance Tempi</a>: Table of ballroom and social dances organized by tempo.</li>
-        </ul>
-        <h2>Account</h2>
-        <ul>
-            <li><a href="/manage/userprofile" class="tools">Profile</a></li>
-            <li><a href="/manage/settings" class="tools">Settings</a></li>
-            <li><a href="/account/signin" class="tools">Sign In</a></li>
-            <li><a href="/account/signup" class="tools">Sign Up</a></li>
-        </ul>
-    </div>
+            }
+        </div>
+    }
 </div>

@@ -1,6 +1,4 @@
-﻿using System;
-
-//namespace m4d.ViewModels
+﻿//namespace m4d.ViewModels
 //{
 //    class LikeView
 //    {
