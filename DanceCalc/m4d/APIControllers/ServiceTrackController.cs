@@ -2,7 +2,6 @@
 using System.Web.Http;
 using m4dModels;
 using Microsoft.AspNet.Identity;
-using SpotifyWebAPI;
 
 namespace m4d.APIControllers
 {
@@ -28,7 +27,7 @@ namespace m4d.APIControllers
             }
 
             // Otherwise, get the track info based on the idea
-            var track = Context.GetMusicServiceTrack(id, service);
+            var track = MusicServiceManager.GetMusicServiceTrack(id, service);
             if (track != null) return Ok(track);
 
             // If that failes, the ID is bad.

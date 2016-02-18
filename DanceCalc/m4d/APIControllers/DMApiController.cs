@@ -5,6 +5,7 @@ using System.Web.Http;
 
 using m4dModels;
 using m4d.Context;
+using m4d.Utilities;
 
 namespace m4d.APIControllers
 {
@@ -16,6 +17,9 @@ namespace m4d.APIControllers
                                                         HttpContext.Current.GetOwinContext().GetUserManager<ApplicationUserManager>()));
 
         private DanceMusicService _database;
+        protected MusicServiceManager MusicServiceManager => _musicServiceManager ?? (_musicServiceManager = new MusicServiceManager());
+
+        private MusicServiceManager _musicServiceManager;
 
         protected DanceMusicContext Context => Database.Context as DanceMusicContext;
     }

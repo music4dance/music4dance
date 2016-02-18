@@ -53,7 +53,7 @@ namespace m4d.APIControllers
 
             try
             {
-                tracks = Context.FindMusicServiceSong(song, service, clean, title, artist, album, region);
+                tracks = MusicServiceManager.FindMusicServiceSong(song, service, clean, title, artist, album, region);
             }
             catch (WebException e)
             {
@@ -67,6 +67,7 @@ namespace m4d.APIControllers
             return tracks;
         }
 
+        // ReSharper disable once InconsistentNaming
         private static readonly Dictionary<string,IList<ServiceTrack>> s_cache = new Dictionary<string,IList<ServiceTrack>>();
     }
 }

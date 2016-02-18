@@ -1098,7 +1098,7 @@ namespace m4d.Controllers
                         {
                             string[] regions;
                             var idt = PurchaseRegion.ParseIdAndRegionInfo(id, out regions);
-                            track = Context.GetMusicServiceTrack(idt, spotify);
+                            track = MusicServiceManager.GetMusicServiceTrack(idt, spotify);
                             if (track?.SampleUrl != null)
                                 break;
                         }
@@ -1109,7 +1109,7 @@ namespace m4d.Controllers
                             ids = sd.GetPurchaseIds(itunes);
                             foreach (var id in ids)
                             {
-                                track = Context.GetMusicServiceTrack(id, itunes);
+                                track = MusicServiceManager.GetMusicServiceTrack(id, itunes);
                                 if (track?.SampleUrl != null)
                                     break;
                             }
@@ -1247,7 +1247,7 @@ namespace m4d.Controllers
                         {
                             string[] regions;
                             var idt = PurchaseRegion.ParseIdAndRegionInfo(id, out regions);
-                            track = Context.LookupEchoTrack(idt);
+                            track = MusicServiceManager.LookupEchoTrack(idt);
                             if (track != null)
                                 break;
                         }
@@ -1440,7 +1440,7 @@ namespace m4d.Controllers
             try
             {
                 FixupTitleArtist(song, clean, ref title, ref artist);
-                tracks = Context.FindMusicServiceSong(song, service, clean, title, artist);
+                tracks = MusicServiceManager.FindMusicServiceSong(song, service, clean, title, artist);
 
                 if (tracks == null || tracks.Count == 0)
                 {
@@ -1680,7 +1680,7 @@ namespace m4d.Controllers
                 lastDel = false;
                 string[] regions;
                 var purchase = PurchaseRegion.ParseIdAndRegionInfo(prop.Value, out regions);
-                if (Context.GetMusicServiceTrack(purchase, MusicService.GetService(ms)) == null)
+                if (MusicServiceManager.GetMusicServiceTrack(purchase, MusicService.GetService(ms)) == null)
                 {
                     del.Add(prop);
                     if (lastMs == ms && lastPt == PurchaseType.Album)

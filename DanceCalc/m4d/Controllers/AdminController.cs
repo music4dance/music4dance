@@ -12,7 +12,6 @@ using System.Text;
 using System.Threading;
 using System.Web.Mvc;
 using DanceLibrary;
-using m4d.Context;
 using m4d.Scrapers;
 using m4d.Utilities;
 using m4dModels;
@@ -703,7 +702,7 @@ namespace m4d.Controllers
             ViewBag.Success = true;
             ViewBag.Message = $"Trace message sent: '{message}'";
 
-            Trace.WriteLine($"Test Trace ({TraceLevels.General.ToString()}): '{message}'");
+            Trace.WriteLine($"Test Trace ({TraceLevels.General}): '{message}'");
             return View("Results");
         }
 
@@ -745,7 +744,6 @@ namespace m4d.Controllers
 
                 if (regions == null)
                 {
-                    var cch = prop.Value.Length;
                     var fix = PurchaseRegion.FixRegionInfo(prop.Value);
                     if (fix != null)
                     {
@@ -816,7 +814,7 @@ namespace m4d.Controllers
                     }
                     else
                     {
-                        var track = Context.GetMusicServiceTrack(prop.Value, spotify);
+                        var track = MusicServiceManager.GetMusicServiceTrack(prop.Value, spotify);
                         if (track.AvailableMarkets == null)
                         {
                             failed += 1;
@@ -836,7 +834,7 @@ namespace m4d.Controllers
                 }
                 else if (!string.IsNullOrWhiteSpace(region))
                 {
-                    var track = Context.CoerceTrackRegion(id, spotify, region);
+                    var track = MusicServiceManager.CoerceTrackRegion(id, spotify, region);
                     if (track != null)
                     {
                         prop.Value = PurchaseRegion.FormatIdAndRegionInfo(track.TrackId,
@@ -1633,7 +1631,7 @@ namespace m4d.Controllers
 
             var service = MusicService.GetService(ServiceType.Spotify);
 
-            var tracks = ((DanceMusicContext)Database.Context).LookupServiceTracks(service, url, User);
+            var tracks = MusicServiceManager.LookupServiceTracks(service, url, User);
 
             var newSongs = SongsFromTracks(appuser,tracks,dances,songTags,danceTags);
 
