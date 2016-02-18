@@ -122,6 +122,8 @@ namespace m4d.ViewModels
                             new SiteMapEntry {Title = "Are there songs that you never want to dance to again?", Reference = "blog/are-there-songs-that-you-never-want-to-dance-to-again", Description="I have been adding capabilities to the music4dance advanced search control as they are suggested and as time permits.  And it got a bit out of control, so to speak..."},
                             new SiteMapEntry {Title = "Top Songs of 2015 --  And what to dance to them.", Reference = "blog/top-songs-of-2015-and-what-to-dance-to-them", Description="hat better than a top 100 list to end the year? I've taken the <a href='https://open.spotify.com/user/spotifyyearinmusic/playlist/55tXTZZg4Xtk0BA3kPoJ1s'>Spotify top 100 songs of 2015 (for the USA)</a> and ..."},
                             new SiteMapEntry {Title = "If you like to dance Cha-Cha to a song does that mean you “like” that song?", Reference = "blog/if-you-like-to-dance-cha-cha-to-a-song-does-that-mean-you-like-that-song", Description="I wanted to build a system where dancers could vote on... But then Amanda (the music4dance intern) pointed out..."},
+                            new SiteMapEntry {Title = "What are Your Favorite Song to Dance Bachata?", Reference = "blog/what-are-your-favorite-song-to-dance-bachata", Description="Since I’m going to be taking <a href='https://www.music4dance.net/dances/bachata'>Bachata</a> lessons for the first time starting next week..."},
+                            //new SiteMapEntry {Title = "", Reference = "", Description=""},
                         }
                     },
                     new SiteMapEntry
