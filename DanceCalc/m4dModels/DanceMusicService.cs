@@ -186,7 +186,6 @@ namespace m4dModels
             {
                 if (!song.EditDanceLike(user, like, danceId, this)) return false;
             }
-            
 
             if (song.CurrentLog != null)
                 _context.Log.Add(song.CurrentLog);
@@ -405,52 +404,55 @@ namespace m4dModels
                 // This works for everything but Dancerating and Tags, which will be overwritten below
                 np.Value = action == UndoAction.Undo ? lv.Old : lv.Value;
 
-                if (lv.Name.Equals(SongBase.UserField))
+                switch (baseName)
                 {
-                    currentUser = FindUser(lv.Value);
-                    song.AddUser(currentUser, this);
-                    currentModified = song.FindModified(currentUser.UserName);
-                }
-                else if (lv.Name.Equals(SongBase.DanceRatingField))
-                {
-                    var drd = new DanceRatingDelta(lv.Value);
-                    if (action == UndoAction.Undo)
-                    {
-                        drd.Delta *= -1;
-                    }
-
-                    np.Value = drd.ToString();
-
-                    // TODO: Consider implementing a MergeDanceRating at the song level
-                    var dr = song.DanceRatings.FirstOrDefault(d => string.Equals(d.DanceId, drd.DanceId));
-                    if (dr == null)
-                    {
-                        song.AddDanceRating(new DanceRating() { DanceId = drd.DanceId, Weight = drd.Delta });
-                    }
-                    else
-                    {
-                        dr.Weight += drd.Delta;
-                        if (dr.Weight <= 0)
+                    case SongBase.UserField:
+                    case SongBase.UserProxy:
+                        currentUser = FindUser(lv.Value);
+                        song.AddUser(currentUser, this);
+                        currentModified = song.FindModified(currentUser.UserName);
+                        break;
+                    case SongBase.DanceRatingField:
+                        var drd = new DanceRatingDelta(lv.Value);
+                        if (action == UndoAction.Undo)
                         {
-                            drDelete.Add(dr);
+                            drd.Delta *= -1;
                         }
-                    }
-                }
-                // For tags, we leave the list of tags in place and toggle the add/remove
-                else if (baseName.Equals(SongBase.AddedTags) || baseName.Equals(SongBase.RemovedTags))
-                {
-                    np = null;
-                    var add = (baseName.Equals(SongBase.AddedTags) && action == UndoAction.Redo) ||
-                              (baseName.Equals(SongBase.RemovedTags) && action == UndoAction.Undo);
 
-                    if (add)
-                        song.AddObjectTags(lv.DanceQualifier, lv.Value, currentUser, this);
-                    else
-                        song.RemoveObjectTags(lv.DanceQualifier, lv.Value, currentUser, this);
-                }
-                else if (baseName.Equals(SongBase.LikeTag) && currentModified != null)
-                {
-                    currentModified.LikeString = lv.Value;
+                        np.Value = drd.ToString();
+
+                        // TODO: Consider implementing a MergeDanceRating at the song level
+                        var dr = song.DanceRatings.FirstOrDefault(d => string.Equals(d.DanceId, drd.DanceId));
+                        if (dr == null)
+                        {
+                            song.AddDanceRating(new DanceRating() { DanceId = drd.DanceId, Weight = drd.Delta });
+                        }
+                        else
+                        {
+                            dr.Weight += drd.Delta;
+                            if (dr.Weight <= 0)
+                            {
+                                drDelete.Add(dr);
+                            }
+                        }
+                        break;
+                    case SongBase.AddedTags:
+                    case SongBase.RemovedTags:
+                        np = null;
+                        var add = (baseName.Equals(SongBase.AddedTags) && action == UndoAction.Redo) ||
+                                  (baseName.Equals(SongBase.RemovedTags) && action == UndoAction.Undo);
+
+                        if (add)
+                            song.AddObjectTags(lv.DanceQualifier, lv.Value, currentUser, this);
+                        else
+                            song.RemoveObjectTags(lv.DanceQualifier, lv.Value, currentUser, this);
+                        break;
+                    case SongBase.LikeTag:
+                        if (currentModified != null)
+                        {
+                            currentModified.LikeString = lv.Value;
+                        }
+                        break;
                 }
 
                 if (np != null)
@@ -481,6 +483,10 @@ namespace m4dModels
 
         // TODO: This depends on all of the user's changes being in the SongLog, which will hopefully be true of end users but isn't true
         //  of pseudo users/admin users, so eventually need to at minimum catch this and at best deal with it smoothly...
+        //  and preferably handle that case - I think this is probably a case of figuring out how to rebuild the song
+        //  locally (not hitting global tagtypes and other values) and cache the 'old' values for everything we would want to undo
+        //  Actually, we may need to do this to get this feature to work in the general case - I think right now we may be
+        //  tromping values that other users have changed between the current user's actions and the undo
         public void UndoUserChanges(ApplicationUser user, Guid songId)
         {
             var song = Songs.Find(songId);
@@ -2712,7 +2718,7 @@ namespace m4dModels
             Context.TrackChanges(false);
             Context.LazyLoadingEnabled = false;
 
-            foreach (var prop in SongProperties.Where(p => p.Name == SongBase.UserField && p.Value == oldUserName))
+            foreach (var prop in SongProperties.Where(p => (p.Name == SongBase.UserField || p.Name == SongBase.UserProxy) && p.Value == oldUserName))
             {
                 prop.Value = userName;
             }

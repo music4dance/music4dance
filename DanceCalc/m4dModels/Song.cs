@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Text;
+using DanceLibrary;
 
 namespace m4dModels
 {
@@ -409,7 +410,7 @@ namespace m4dModels
                 var lt = likeTags.StripType()[0];
                 var like = ModifiedRecord.ParseLike(lt);
 
-                // TODONEXT: See if we can easily add this into the full editor
+                // TODO: See if we can easily add this into the full editor
                 //  Fix songfilter text to include user
                 //  Fix move to advanced form to include user
                 //  Make sure that login loop isn't broken
@@ -422,7 +423,11 @@ namespace m4dModels
                 }
             }
 
-            // First handle the top-level tags, this will incidently add any new danceratings
+            // First strip out all of the deleted dances and save them for later
+            var deleted = songTags.ExtractPrefixed('^');
+            songTags = songTags.ExtractNotPrefixed('^');
+
+            // Next handle the top-level tags, this will incidently add any new danceratings
             //  implied by those tags
             modified |= ChangeTags(songTags, user, dms, "Dances");
 
@@ -438,7 +443,81 @@ namespace m4dModels
                 modified |= dr.ChangeTags(tl.Summary, user, dms, this);
             }
 
+            // Finally do the full removal of all danceratings/tags associated with the removed tags
+            modified |= DeleteDanceRatings(user,deleted,dms);
+
             return modified;
+        }
+
+        private bool DeleteDanceRatings(ApplicationUser user, TagList deleted, DanceMusicService dms)
+        {
+            var ratings = new List<DanceRating>();
+
+            // For each entry find the actual dance rating
+            // ReSharper disable once LoopCanBeConvertedToQuery
+            foreach (var dance in deleted.StripType())
+            {
+                var d = Dances.Instance.DanceFromName(dance);
+                if (d == null) continue;
+
+                var did = d.Id;
+                var rating = DanceRatings.FirstOrDefault(dr => dr.DanceId == did);
+                if (rating == null) continue;
+
+                ratings.Add(rating);
+            }
+            if (!ratings.Any())
+                return false;
+
+            // For each user that has modified the song, back out anything having to do with the deleted dances
+            var lastUser = user;
+            var remove = deleted.Add(deleted.AddQualifier('!'));
+            foreach (var mr in ModifiedBy)
+            {
+                var userModified = false;
+                var u = mr.ApplicationUser;
+
+                // Add the user property into the SongProperties
+                var userProp = CreateProperty(UserProxy, u.UserName, CurrentLog, dms);
+
+                // Back out any top-level tags related to the dance styles
+                var songTags = FindUserTag(u, dms);
+                if (songTags != null)
+                {
+                    var newSongTags = songTags.Tags.Subtract(remove);
+                    if (newSongTags.Summary != songTags.Tags.Summary)
+                    {
+                        userModified = true;
+                        userModified |= ChangeTags(newSongTags, u, dms, this);
+                    }
+                }
+
+                // Back out the tags directly associated with the dance style
+                userModified = ratings.Aggregate(userModified, (current, rating) => current | rating.ChangeTags(string.Empty, user, dms, this));
+
+                // If this user didn't touch anything, back out the user property
+                if (userModified)
+                    lastUser = u;
+                else
+                    TruncateProperty(dms,userProp.Name,userProp.Value);
+            }
+
+            // If any other user 
+            if (lastUser.UserName != user.UserName)
+            {
+                CreateProperty(UserProxy, user.UserName, CurrentLog, dms);
+            }
+
+            foreach (var rating in ratings)
+            {
+                var r = new DanceRatingDelta {DanceId = rating.DanceId, Delta = -rating.Weight};
+                UpdateDanceRating(r, true);
+
+                // TODO: Should we push the log update further down?
+                CurrentLog?.UpdateData(DanceRatingField,r.ToString());
+            }
+
+            return true;
         }
 
         public override void RegisterChangedTags(TagList added, TagList removed, ApplicationUser user, DanceMusicService dms, object data)
@@ -536,6 +615,7 @@ namespace m4dModels
                     switch (bn)
                     {
                         case UserField:
+                        case UserProxy:
                             currentUser = dms.FindUser(prop.Value);
                             userWritten = false;
                             break;
@@ -925,6 +1005,7 @@ namespace m4dModels
                 switch (p.BaseName)
                 {
                     case UserField:
+                    case UserProxy:
                         user = dms.FindUser(p.Value);
                         break;
                     case AddedTags:
@@ -941,10 +1022,8 @@ namespace m4dModels
                             {
                                 modified = !rating.AddTags(p.Value,user,dms,data).IsEmpty;
                             }
-                            else
-                            {
-                                Debug.Assert(false);
-                            }
+                            // Else case is where the dancerating has been fully removed, we
+                            //  can safely drop this on the floor
                         }
                         break;
                     case RemovedTags:
@@ -961,10 +1040,8 @@ namespace m4dModels
                             {
                                 modified |= !rating.RemoveTags(p.Value,user,dms,data).IsEmpty;
                             }
-                            else
-                            {
-                                Debug.Assert(false);
-                            }
+                            // Else case is where the dancerating has been fully removed, we
+                            //  can safely drop this on the floor
                         }
                         break;
                 }
@@ -1147,8 +1224,8 @@ namespace m4dModels
             }
 
             Restore(sd, dms);
-            UpdateUsers(dms);            
-        }        
+            UpdateUsers(dms);
+        }
         #endregion
 
         private void SetupCollections()

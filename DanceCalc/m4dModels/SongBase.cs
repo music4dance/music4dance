@@ -54,6 +54,9 @@ namespace m4dModels
         public const string OwnerHash = "OwnerHash";
         public const string LikeTag = "Like";
 
+        // Proxy Fields
+        public const string UserProxy = "UserProxy";
+
         // Special cases for reading scraped data
         public const string TitleArtistCell = "TitleArtist";
         public const string DancersCell = "Dancers";
@@ -139,6 +142,7 @@ namespace m4dModels
                 switch (bn)
                 {
                     case UserField:
+                    case UserProxy:
                         currentUser = new ApplicationUser(prop.Value);
                         // TOOD: if the placeholder user works, we should use it to simplify the ModifiedRecord
                         currentModified = new ModifiedRecord {SongId = SongId, UserName = prop.Value};
@@ -374,7 +378,7 @@ namespace m4dModels
 
             if (!updateProperties) return ret;
 
-            SongProperties.Add(new SongProperty { SongId = this.SongId, Name = DanceRatingField, Value = drd.ToString() });
+            SongProperties.Add(new SongProperty { SongId = SongId, Name = DanceRatingField, Value = drd.ToString() });
 
             return ret;
         }
@@ -595,6 +599,7 @@ namespace m4dModels
                 switch (prop.Name)
                 {
                     case UserField:
+                    case UserProxy:
                         cu = prop.Value;
                         break;
                     case AddedTags:
@@ -659,7 +664,7 @@ namespace m4dModels
             var inUsers = false;
             foreach (var prop in SongProperties)
             {
-                if (prop.BaseName == UserField)
+                if (prop.BaseName == UserField || prop.BaseName == UserProxy)
                 {
                     if (!inUsers)
                     {
@@ -783,7 +788,7 @@ namespace m4dModels
             var inFilter = includeUsers != null;
             foreach (var prop in OrderedProperties)
             {
-                if (prop.BaseName == UserField)
+                if (prop.BaseName == UserField || prop.BaseName == UserProxy)
                 {
                     if (eu != null)
                     {

@@ -258,7 +258,7 @@ var tagChooser = function () {
 
         self.tag = ko.observable(values.length > 0 ? values[0] : null);
         self.cat = ko.observable(values.length > 1 ? values[1] : null);
-        self.cnt = ko.observable(values.length > 2 ? values[2] : 1);
+        self.cnt = ko.observable(values.length > 2 && values[2] ? parseInt(values[2]) : 1);
 
         self.taggedObject = taggedObject;
 

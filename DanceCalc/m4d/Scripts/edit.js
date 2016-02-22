@@ -215,6 +215,14 @@ var editor = function () {
             return self.song.TagSummary.hasTag(data.DanceName, 'Dance');
         }, this);
 
+        self.removeDance = function() {
+            if (self.state() !== ratingState.CREATED) {
+                self.song.TagSummary.addTag('^' + self.DanceName(), 'Dance');
+            }
+            self.song.TagSummary.removeTag(self.DanceName(), 'Dance');
+            self.song.DanceRatings.remove(self);
+        };
+
         self.toggleVote = function () {
             switch (self.vote()) {
             case voteState.UP:

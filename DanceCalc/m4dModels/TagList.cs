@@ -27,7 +27,7 @@ namespace m4dModels
             Summary = Serialize(Parse(serialized));
         }
 
-        public TagList(IList<string> tags)
+        public TagList(IEnumerable<string> tags)
         {
             var list = tags.ToList();
             list.Sort();

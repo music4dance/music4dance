@@ -511,6 +511,7 @@ namespace m4d.Controllers
                         time = null;
                         break;
                     case SongBase.UserField:
+                    case SongBase.UserProxy:
                         user = prop;
                         break;
                     case SongBase.TimeField:

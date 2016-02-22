@@ -223,6 +223,11 @@ namespace m4dModels
             return tag;
         }
 
+        public IEnumerable<Tag> FindUserTags(DanceMusicService dms)
+        {
+            return dms.Tags.Where(t => t.Id == TagId).ToList();
+        }
+
         private Tag FindOrCreateUserTags(ApplicationUser user, DanceMusicService dms)
         {
             if (user == null)

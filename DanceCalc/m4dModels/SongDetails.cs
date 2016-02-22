@@ -245,6 +245,7 @@ namespace m4dModels
                         cell = cell.GetHashCode().ToString("X");
                         break;
                     case UserField:
+                    case UserProxy:
                         specifiedUser = true;
                         break;
                     case AddedTags:

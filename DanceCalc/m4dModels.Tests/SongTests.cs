@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using Microsoft.AspNet.Identity;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -149,6 +150,91 @@ namespace m4dModels.Tests
             Assert.AreEqual(SongBase.DanceRatingDecrement, song.UserDanceRating(user2.UserName, "SWG"));
             drT = song.FindRating("SWG");
             Assert.AreEqual(SongBase.DanceRatingDecrement, drT.Weight);
+        }
+
+        private const string ModeratorOriginal = @".Create=	User=DWTS	Time=6/23/2014 2:03:23 PM	Title=Temperature	Artist=Sean Paul	Tempo=126.0	DanceRating=PLK+5	User=DWTS	Time=6/23/2014 2:05:17 PM	DanceRating=PDL+6	User=batch	Time=6/24/2014 8:33:08 AM	Length=217	Album:00=The Trinity	Track:00=11	Purchase:00:XS=music.919F5000-0100-11DB-89CA-0019B92A3933	PromoteAlbum:00=	User=batch	Time=6/24/2014 9:34:32 AM	Length=219	Purchase:00:IS=80429794	Purchase:00:IA=80429921	User=batch	Time=6/24/2014 10:02:21 AM	Length=218	Album:00=The Trinity (Domestic Album Version)	Purchase:00:AS=D:B0011Z95J0	Purchase:00:AA=D:B0011Z1BLK	User=batch	Time=10/9/2014 11:00:39 AM	DanceRating=LTN+3	User=DWTS	Time=11/20/2014 11:30:37 AM	Tag+=Paso Doble:Dance|Polka:Dance	User=batch	Time=11/20/2014 11:30:37 AM	Tag+=Pop:Music	.Edit=	User=batch-a	Time=12/10/2014 8:38:46 PM	Length=219	Album:01=Riddim Driven - Applause	Track:01=2	Purchase:01:AS=D:B0019C3ZB4	Purchase:01:AA=D:B0019C27VI	Tag+=International:Music|pop:Music	.Edit=	User=batch-i	Time=12/10/2014 8:38:49 PM	Length=216	Album:01=Riddim Driven: Applause	Purchase:01:IS=73599408	Purchase:01:IA=73599818	Album:02=The Trinity	Track:02=11	Purchase:02:IS=80429794	Purchase:02:IA=80429921	Album:03=Reggae Gold 2012	Track:03=3	Purchase:03:IS=534566940	Purchase:03:IA=534566816	Album:04=Reggae Gold 2006	Track:04=1	Purchase:04:IS=151476210	Purchase:04:IA=151476209	Album:05=Temperature Rising	Track:05=11	Purchase:05:IS=937317776	Purchase:05:IA=937317713	Tag+=Pop:Music|Reggae:Music|World:Music	.Edit=	User=batch-x	Time=12/10/2014 8:38:51 PM	Length=219	Album:01=Riddim Driven - Applause	Purchase:01:XS=music.A1F9FA00-0100-11DB-89CA-0019B92A3933	Purchase:02:XS=music.919F5000-0100-11DB-89CA-0019B92A3933	Track:03=20	Purchase:03:XS=music.54BD3E07-0100-11DB-89CA-0019B92A3933	Purchase:04:XS=music.7BDF9407-0100-11DB-89CA-0019B92A3933	Tag+=Pop:Music|Reggae / Dancehall:Music	.Edit=	User=batch-s	Time=1/6/2015 5:00:16 PM	Length=216	Album:01=Riddim Driven: Applause	Purchase:01:SS=0k2GOhqsrxDTAbFFSdNJjT[0-DO]	Purchase:01:SA=0Oy4Q9QsoRFxdzcMVwF0Rm	Purchase:02:SS=0k2GOhqsrxDTAbFFSdNJjT[0-DO]	Purchase:02:SA=5dllg7LmHBB2pOSzr9aOg0	Track:03=2003	Purchase:03:SS=60QKgPDQYq8pDtqM8ON1PZ[CA,US]	Purchase:03:SA=6TSAZ7AD18RpnDCHweTmrX	Purchase:04:SS=7e4QLZDINRr1CkZWm86C7C[US]	Purchase:04:SA=0AvG4u0F78RSUByBljNuX3	Album:06=Temperature	Track:06=1	Purchase:06:SS=0k2GOhqsrxDTAbFFSdNJjT[0-DO,FR]	Purchase:06:SA=5KtEDltVhZyUxVqi81J84n	Album:07=NOW!11	Track:07=3	Purchase:07:SS=0k2GOhqsrxDTAbFFSdNJjT[0-DO,FR]	Purchase:07:SA=0OEBaT8sRiHUbUWHMHe2Qi	.Edit=	User=batch	Time=01/11/2016 18:42:01	Album:00=The Trinity	Purchase:00:SS=0k2GOhqsrxDTAbFFSdNJjT[0-DO]	Purchase:00:SA=5dllg7LmHBB2pOSzr9aOg0	Album:02=	Track:02=	.FailedLookup=-:0	.Edit=	User=ohdwg	Time=02/06/2016 01:39:06	Tag+=Polka:Dance	DanceRating=PLK+2	.Edit=	User=ohdwg	Time=02/06/2016 01:39:08	Tag+=!Polka:Dance	Tag-=Polka:Dance	DanceRating=PLK-3	.Edit=	User=batch-s	Time=02/08/2016 19:25:07	Sample=https://p.scdn.co/mp3-preview/4fb6d452f24697ba91658d1c0d892e55a27767b0	.Edit=	User=batch-e	Time=02/09/2016 18:04:53	Tempo=125.0	Danceability=0.9511878	Energy=0.5966625	Valence=0.829769	Tag+=4/4:Tempo	.Edit=	User=dwgray	Time=02/19/2016 10:22:39	DanceRating=PBD+2	DanceRating=PLK+2	DanceRating=LTN-1	Tag+=!Latin:Dance|Peabody:Dance|Polka:Dance	Tag+:PLK=Contemporary:Style|First Dance:Other|Wedding:Other	Tag+:PBD=Unconditional:Other|Unconventional:Style";
+        private const string ModeratorExpected = @".Create=	User=DWTS	Time=00/00/0000 0:00:00 PM	Title=Temperature	Artist=Sean Paul	Tempo=126.0	DanceRating=PLK+5	User=DWTS	Time=00/00/0000 0:00:00 PM	DanceRating=PDL+6	User=batch	Time=00/00/0000 0:00:00 PM	Length=217	Album:00=The Trinity	Track:00=11	Purchase:00:XS=music.919F5000-0100-11DB-89CA-0019B92A3933	PromoteAlbum:00=	User=batch	Time=00/00/0000 0:00:00 PM	Length=219	Purchase:00:IS=80429794	Purchase:00:IA=80429921	User=batch	Time=00/00/0000 0:00:00 PM	Length=218	Album:00=The Trinity (Domestic Album Version)	Purchase:00:AS=D:B0011Z95J0	Purchase:00:AA=D:B0011Z1BLK	User=batch	Time=00/00/0000 0:00:00 PM	DanceRating=LTN+3	User=DWTS	Time=00/00/0000 0:00:00 PM	Tag+=Paso Doble:Dance|Polka:Dance	User=batch	Time=00/00/0000 0:00:00 PM	Tag+=Pop:Music	.Edit=	User=batch-a	Time=00/00/0000 0:00:00 PM	Length=219	Album:01=Riddim Driven - Applause	Track:01=2	Purchase:01:AS=D:B0019C3ZB4	Purchase:01:AA=D:B0019C27VI	Tag+=International:Music|pop:Music	.Edit=	User=batch-i	Time=00/00/0000 0:00:00 PM	Length=216	Album:01=Riddim Driven: Applause	Purchase:01:IS=73599408	Purchase:01:IA=73599818	Album:02=The Trinity	Track:02=11	Purchase:02:IS=80429794	Purchase:02:IA=80429921	Album:03=Reggae Gold 2012	Track:03=3	Purchase:03:IS=534566940	Purchase:03:IA=534566816	Album:04=Reggae Gold 2006	Track:04=1	Purchase:04:IS=151476210	Purchase:04:IA=151476209	Album:05=Temperature Rising	Track:05=11	Purchase:05:IS=937317776	Purchase:05:IA=937317713	Tag+=Pop:Music|Reggae:Music|World:Music	.Edit=	User=batch-x	Time=00/00/0000 0:00:00 PM	Length=219	Album:01=Riddim Driven - Applause	Purchase:01:XS=music.A1F9FA00-0100-11DB-89CA-0019B92A3933	Purchase:02:XS=music.919F5000-0100-11DB-89CA-0019B92A3933	Track:03=20	Purchase:03:XS=music.54BD3E07-0100-11DB-89CA-0019B92A3933	Purchase:04:XS=music.7BDF9407-0100-11DB-89CA-0019B92A3933	Tag+=Pop:Music|Reggae / Dancehall:Music	.Edit=	User=batch-s	Time=00/00/0000 0:00:00 PM	Length=216	Album:01=Riddim Driven: Applause	Purchase:01:SS=0k2GOhqsrxDTAbFFSdNJjT[0-DO]	Purchase:01:SA=0Oy4Q9QsoRFxdzcMVwF0Rm	Purchase:02:SS=0k2GOhqsrxDTAbFFSdNJjT[0-DO]	Purchase:02:SA=5dllg7LmHBB2pOSzr9aOg0	Track:03=2003	Purchase:03:SS=60QKgPDQYq8pDtqM8ON1PZ[CA,US]	Purchase:03:SA=6TSAZ7AD18RpnDCHweTmrX	Purchase:04:SS=7e4QLZDINRr1CkZWm86C7C[US]	Purchase:04:SA=0AvG4u0F78RSUByBljNuX3	Album:06=Temperature	Track:06=1	Purchase:06:SS=0k2GOhqsrxDTAbFFSdNJjT[0-DO,FR]	Purchase:06:SA=5KtEDltVhZyUxVqi81J84n	Album:07=NOW!11	Track:07=3	Purchase:07:SS=0k2GOhqsrxDTAbFFSdNJjT[0-DO,FR]	Purchase:07:SA=0OEBaT8sRiHUbUWHMHe2Qi	.Edit=	User=batch	Time=00/00/0000 0:00:00 PM	Album:00=The Trinity	Purchase:00:SS=0k2GOhqsrxDTAbFFSdNJjT[0-DO]	Purchase:00:SA=5dllg7LmHBB2pOSzr9aOg0	Album:02=	Track:02=	.FailedLookup=-:0	.Edit=	User=ohdwg	Time=00/00/0000 0:00:00 PM	Tag+=Polka:Dance	DanceRating=PLK+2	.Edit=	User=ohdwg	Time=00/00/0000 0:00:00 PM	Tag+=!Polka:Dance	Tag-=Polka:Dance	DanceRating=PLK-3	.Edit=	User=batch-s	Time=00/00/0000 0:00:00 PM	Sample=https://p.scdn.co/mp3-preview/4fb6d452f24697ba91658d1c0d892e55a27767b0	.Edit=	User=batch-e	Time=00/00/0000 0:00:00 PM	Tempo=125.0	Danceability=0.9511878	Energy=0.5966625	Valence=0.829769	Tag+=4/4:Tempo	.Edit=	User=dwgray	Time=00/00/0000 0:00:00 PM	DanceRating=PBD+2	DanceRating=PLK+2	DanceRating=LTN-1	Tag+=!Latin:Dance|Peabody:Dance|Polka:Dance	Tag+:PLK=Contemporary:Style|First Dance:Other|Wedding:Other	Tag+:PBD=Unconditional:Other|Unconventional:Style	.Edit=	User=Charlie	Time=00/00/0000 0:00:00 PM	DanceRating=PBD+2	DanceRating=LTN-1	Tag+=!Latin:Dance|Peabody:Dance	Tag+:PBD=Unconditional:Other|Unconventional:Style	UserProxy=DWTS	Tag-=Paso Doble:Dance|Polka:Dance	UserProxy=ohdwg	Tag-=!Polka:Dance	UserProxy=dwgray	Tag-=Polka:Dance	UserProxy=Charlie	DanceRating=PDL-6	DanceRating=PLK-6";
+        private void ModeratorVerifyOriginal(Song song)
+        {
+            var actual = DanceMusicTester.ReplaceTime(song.Serialize(new[] { SongBase.NoSongId }));
+            Trace.WriteLine(actual);
+            Assert.AreEqual(DanceMusicTester.ReplaceTime(ModeratorOriginal), actual);
+
+            Assert.AreEqual(1, Service.TagTypes.Find("!Latin:Dance").Count);
+            Assert.AreEqual(2, Service.TagTypes.Find("Polka:Dance").Count);
+            Assert.AreEqual(1, Service.TagTypes.Find("!Polka:Dance").Count);
+            Assert.AreEqual(1, Service.TagTypes.Find("Unconventional:Style").Count);
+
+            Assert.IsNotNull(song.DanceRatings.FirstOrDefault(dr => dr.DanceId == "PLK"));
+            Assert.IsNotNull(song.DanceRatings.FirstOrDefault(dr => dr.DanceId == "PDL"));
+        }
+
+        private void ModeratorVerifyDeleted(Song song)
+        {
+            var actual = DanceMusicTester.ReplaceTime(song.Serialize(new[] { SongBase.NoSongId }));
+            Trace.WriteLine(actual);
+            Assert.AreEqual(ModeratorExpected, actual);
+
+            Trace.WriteLine(Service.TagTypes.Find("!Latin:Dance").Count);
+            Trace.WriteLine(Service.TagTypes.Find("Polka:Dance").Count);
+            Trace.WriteLine(Service.TagTypes.Find("!Polka:Dance").Count);
+            Trace.WriteLine(Service.TagTypes.Find("Unconventional:Style").Count);
+
+            Assert.AreEqual(2, Service.TagTypes.Find("!Latin:Dance").Count);
+            Assert.AreEqual(0, Service.TagTypes.Find("Polka:Dance").Count);
+            Assert.AreEqual(0, Service.TagTypes.Find("!Polka:Dance").Count);
+            Assert.AreEqual(2, Service.TagTypes.Find("Unconventional:Style").Count);
+
+            Assert.IsNull(song.DanceRatings.FirstOrDefault(dr => dr.DanceId == "PLK"));
+            Assert.IsNull(song.DanceRatings.FirstOrDefault(dr => dr.DanceId == "PDL"));
+        }
+
+        private void CleanTagTypes()
+        {
+            var old = Service.TagTypes.ToList();
+            foreach (var tt in old)
+            {
+                Service.TagTypes.Remove(tt);
+            }
+        }
+
+        [TestMethod]
+        public void ModeratorRatings()
+        {
+            CleanTagTypes();
+
+            var song = new Song();
+
+            song.Load(ModeratorOriginal, Service);
+            Service.Songs.Add(song);
+
+            ModeratorVerifyOriginal(song);
+
+            var user = Service.FindUser("Charlie");
+            var tags = new List<UserTag>
+            {
+                new UserTag { Id="", Tags=new TagList("null:Like|!Latin:Dance|Peabody:Dance|^Polka:Dance|^Paso Doble:Dance") },
+                new UserTag { Id="PBD", Tags=new TagList("Unconditional:Other|Unconventional:Style") },
+            };
+
+            Service.EditTags(user, song.SongId, tags);
+
+            ModeratorVerifyDeleted(song);
+
+            // Test userUndo
+            Service.UndoUserChanges(user,song.SongId);
+            ModeratorVerifyOriginal(song);
+        }
+
+        [TestMethod]
+        public void ModeratorRatingLoad()
+        {
+            CleanTagTypes();
+            // Test reload based on moderator settings
+            // TODONEXT: Do we have a general bug where if a dance ratign has been fully deleted, BaseTagsFrom Properties fails?
+            var song = new Song();
+            song.Load(ModeratorExpected, Service);
+            ModeratorVerifyDeleted(song);
         }
 
         private const string MergeSong =
