@@ -9,6 +9,7 @@ namespace m4d.ViewModels
         public virtual string Title { get; set; }
         public virtual string Reference { get; set; }
         public virtual string Description { get; set; }
+        public virtual bool OneTime { get; set; }
         public virtual IEnumerable<SiteMapEntry> Children { get; set; }
 
         public string FullPath => MakeFullPath(Reference);
@@ -105,12 +106,12 @@ namespace m4d.ViewModels
                         Title =  "Blog", Reference="blog",
                         Children = new List<SiteMapEntry>
                         {
-                            new SiteMapEntry {Title = "Introducing Music4Dance.Net/Blog", Reference = "blog/hello-world/", Description="I’m an amateur dancer and with some training in music who also happens to be a professional software engineer. I love dancing..."},
+                            new SiteMapEntry {Title = "Introducing Music4Dance.Net/Blog", OneTime=true, Reference = "blog/hello-world/", Description="I’m an amateur dancer and with some training in music who also happens to be a professional software engineer. I love dancing..."},
                             new SiteMapEntry {Title = "The Two Questions that Inspired Music4Dance", Reference = "blog/the-two-questions-that-inspired-music4dance", Description="As a beginning ballroom dancer there were two questions that kept coming up..."},
                             new SiteMapEntry {Title = "Question 1: I’m learning to Cha Cha, where is some great music for practicing?", Reference = "blog/question-1-im-learning-to-cha-cha-where-is-some-great-music-for-practicing", Description="So how do I do that?  Dance generally co-evolves with music, so to get a very traditional song..."},
                             new SiteMapEntry {Title = "Question 2: What dance styles can I dance to my favorite song(s)?", Reference = "blog/question-2-what-dance-styles-can-i-dance-to-my-favorite-songs", Description="One of the things that amazes me about the best dance teachers..."},
                             new SiteMapEntry {Title = "The Pink Martini Solution", Reference = "blog/the-pink-martini-solution", Description="Not all artists are created equal when it comes to creating dance-able music. For instance..."},
-                            new SiteMapEntry {Title = "Help: How would you group this dance style?", Reference = "blog/help-how-would-you-group-this-dance-style", Description="One of the fun things about learning more about different dance styles is..."},
+                            new SiteMapEntry {Title = "Help: How would you group this dance style?", OneTime=true, Reference = "blog/help-how-would-you-group-this-dance-style", Description="One of the fun things about learning more about different dance styles is..."},
                             new SiteMapEntry {Title = "The “Dancing with the Stars” Solution", Reference = "blog/the-dancing-with-the-stars-solution", Description="I learned to dance in part because <a href='http://www.imdb.com/title/tt0092890/?ref_=nv_sr_1'><i>Dirty Dancing</i></a> made me want to be Johnny Castle..."},
                             new SiteMapEntry {Title = "Wedding Music Part I: Can we dance the Foxtrot to our song?", Reference = "blog/wedding-music-part-i-can-we-dance-the-foxtrot-to-our-song", Description="When did you first learn to dance? For many people it was so that they could dance at their wedding..."},
                             new SiteMapEntry {Title = "Wedding Music Part II: We’re learning to Rumba, help us find a good song for our first dance", Reference = "blog/wedding-music-part-ii-were-learning-to-rumba-help-us-find-a-good-song-for-our-first-dance", Description="What if you are particularly in love with one dance style or are just learning to dance one particular style and are looking for an inspiring first dance song in that style?"},

@@ -379,6 +379,16 @@ a.text-other:hover,
     }
 }
 
+@media (max-width: 992px) {
+    .fun-image {
+        background-image: url(fun-bkg.png);
+        background-size: 400px 400px;
+        background-repeat: no-repeat;
+        background-position: center;
+        min-height:550px;
+    }
+}
+
 @media (max-height: 800px) {
     #banner { display: none;}
 }

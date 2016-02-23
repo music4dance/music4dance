@@ -543,6 +543,8 @@
     <Content Include="Content\Energy-desc.png" />
     <Content Include="Content\favicon.png" />
     <Content Include="Content\fonts\glyphicons-halflings-regular.svg" />
+    <Content Include="Content\fun-bkg.png" />
+    <Content Include="Content\fun.png" />
     <Content Include="Content\genre-50.png" />
     <Content Include="Content\gray-bootstrap-min.css" />
     <Content Include="Content\gray-bootstrap-theme.css" />

@@ -1,6 +1,20 @@
 ﻿@using m4d.ViewModels;
 
 @{
+    var blogEntries = SiteMapInfo.Categories.First(c => c.Name == "Info").Entries.First(e => e.Title == "Blog").Children.ToList();
+
+    var headEntries = new List<SiteMapEntry> {blogEntries[blogEntries.Count - 1]};
+    var rnd = new Random();
+    while (headEntries.Count < 3)
+    {
+        var r = rnd.Next(0,blogEntries.Count-1);
+        var t = blogEntries[r];
+        if (!t.OneTime && headEntries.All(e => e.Reference != t.Reference))
+        {
+            headEntries.Add(t);
+        }
+    }
+
     ViewBag.Title = "Home Page";
     ViewBag.Canonical = "https://www.music4dance.net";
     ViewBag.Description = "music4dance.net is an online music catalog, tool and educational resource to help Ballroom, Salsa, Swing, Tango and other dancers find fun and exiting music.";
@@ -11,7 +25,7 @@
             Dances=new List<DanceMapping>
             {
                 new DanceMapping("International Standard"),new DanceMapping("International Latin"),new DanceMapping("American Smooth"),new DanceMapping("American Rhythm")
-            
+
             }},
         new DanceClass{Title="Swing",Image="swing",TopDance="swing",
             Dances=new List<DanceMapping>
@@ -73,6 +87,33 @@
                 </div>
             </div>
         }
+        <div class="item fun-image row">
+            <div class="col-md-4 col-md-offset-2 col-xs-8 col-xs-offset-2">
+                <div class="dance-title"><a href="https://www.music4dance.net/blog/">Fun with Music for All Kinds of Dancers</a></div>
+                <ul class="dance-list">
+                    @foreach (var entry in headEntries)
+                    {
+                        <li><span class="glyphicon glyphicon-music" aria-hidden="true"></span><a href="@entry.FullPath">@entry.Title</a></li>
+                    }
+                    @if (rnd.Next(0, 2) == 1)
+                    {
+                        <li><span class="glyphicon glyphicon-music" aria-hidden="true"></span><a href="https://www.music4dance.net/home/counter">Check out our Tempo Counter Tool</a></li>
+                    }
+                    else
+                    {
+                        <li><span class="glyphicon glyphicon-music" aria-hidden="true"></span><a href="https://www.music4dance.net/home/tempi">Check out our Tempo Matrix Tool</a></li>
+                    }
+                </ul>
+            </div>
+            <div class="col-md-4 hidden-xs hidden-sm hidden-md">
+                <img src="~/Content/fun.png" alt="Fun Dancing" width="600" height="600" />
+            </div>
+            <div class="col-md-4 hidden-xs hidden-sm hidden-lg">
+                <img src="~/Content/fun.png" alt="Fun Dancing" width="400" height="400" />
+            </div>
+        </div>
+
+
     </div>
     <!-- Carousel nav -->
     <a class="small left carousel-control" href="#danceCarousel" role="button" data-slide="prev">
@@ -119,14 +160,13 @@
         <dt><img src="~/Content/music.png" alt="music" width="24" height="24" />Start with a musical genre (or other tags) and find songs to dance a particular style.</dt>
         <dd style="margin-left: 4em">@SmartLink.TryIt("https://www.music4dance.net/tag") @SmartLink.Docs("https://www.music4dance.net/blog/music4dance-help/tag-cloud/")</dd>
         <dt><img src="~/Content/music.png" alt="music" width="24" height="24" />Find wedding songs and match them with dance styles.</dt>
-        <dd style="margin-left: 4em">@SmartLink.TryIt("https://www.music4dance.net/song/addtags?tags=%2BWedding:Other") @SmartLink.Docs("https://www.music4dance.net/blog/music4dance-help/tag-cloud/") @SmartLink.Posts("https://www.music4dance.net/blog/tag/wedding/")</dd>
+        <dd style="margin-left: 4em">@SmartLink.TryIt("https://www.music4dance.net/dances/wedding-music") @SmartLink.Docs("https://www.music4dance.net/blog/music4dance-help/tag-cloud/") @SmartLink.Posts("https://www.music4dance.net/blog/tag/wedding/")</dd>
         <dt><img src="~/Content/music.png" alt="music" width="24" height="24" />Find songs that match competion tempo ranges.</dt>
-        <dd style="margin-left: 4em">@SmartLink.TryIt("https://www.music4dance.net/dances/american-rhythm") @SmartLink.Docs("https://www.music4dance.net/blog/music4dance-help/dance-category/") @SmartLink.Posts("https://www.music4dance.net/blog/im-a-competition-ballroom-dancer-can-i-find-practice-songs-that-are-a-specific-tempo/")</dd>
+        <dd style="margin-left: 4em">@SmartLink.TryIt("https://www.music4dance.net/dances/ballroom-competition-categories") @SmartLink.Docs("https://www.music4dance.net/blog/music4dance-help/dance-category/") @SmartLink.Posts("https://www.music4dance.net/blog/im-a-competition-ballroom-dancer-can-i-find-practice-songs-that-are-a-specific-tempo/")</dd>
         <dt><img src="~/Content/music.png" alt="music" width="24" height="24" />Tag songs to create your own ways of making song lists</dt>
-        <dd style="margin-left: 4em">@SmartLink.TryIt("https://www.music4dance.net/account/register") @SmartLink.Docs("https://www.music4dance.net/blog/music4dance-help/tag-editing/") @SmartLink.Posts("https://www.music4dance.net/blog/lets-tag-some-songs/")</dd>
+        <dd style="margin-left: 4em">@SmartLink.TryIt("https://www.music4dance.net/account/signup") @SmartLink.Docs("https://www.music4dance.net/blog/music4dance-help/tag-editing/") @SmartLink.Posts("https://www.music4dance.net/blog/lets-tag-some-songs/")</dd>
     </dl>
     <p>Don't see your style of dance here? <a href="https://www.music4dance.net/blog/feedback/">Let us know</a> and we'll be happy to expand our catalog.</p>
-    <p>Don't agree with how we've organized dance styles? Well, we're not convinced there is a "right way" but we're doing some research to see if we can find a better way (or maybe multiple ways).  Please help us out by <a href="https://www.music4dance.net/blog/help-how-would-you-group-this-dance-style/">leaving feedback</a> so that we can include your ideas about how to organize dance styles in the future.</p>
     <p>Do you use a different streaming provider or purchase your music from a different source? <a href="https://www.music4dance.net/blog/feedback/">Tell us about it</a> and we'll take a look into expanding our support.</p>
 </div>
 
@@ -149,7 +189,7 @@
 <div id="info" class="row col-md-12">
     <h2 class="blog"><img src="~/Content/info.png" alt="music" width="48" height="48" />Info</h2>
     <p class="neutral">Are you looking for more information on how music relates to dance? Then please follow our <a href="https://www.music4dance.net/blog">blog</a>.</p>
-    @foreach (var blog in SiteMapInfo.Categories.First(c => c.Name == "Info").Entries.First(e => e.Title == "Blog").Children)
+    @foreach (var blog in blogEntries)
     {
         <h4 class="blog">@blog.Title</h4>
         <p class ="neutral">@Html.Raw(blog.Description) <a href="@blog.FullPath">[Read more]</a></p>
