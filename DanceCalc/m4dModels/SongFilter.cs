@@ -179,7 +179,7 @@ namespace m4dModels
                 var separator = " ";
 
                 var danceQuery = DanceQuery;
-                var prefix = danceQuery.IsExclusive ? FormatDanceList(danceQuery, "all", "and") : FormatDanceList(danceQuery, "any", "or");
+                var prefix = danceQuery.ToString();
 
                 var sb = new StringBuilder(prefix);
 
@@ -255,26 +255,6 @@ namespace m4dModels
                 separator = CommaSeparator;
             }
             return ret.ToString();
-        }
-
-        private static string FormatDanceList(DanceQuery list, string prefix, string connector)
-        {
-            var dances = list.Dances.Select(n => n.Name).ToList();
-            var count = dances.Count;
-
-            switch (count)
-            {
-                case 0:
-                    return "All songs";
-                case 1:
-                    return $"All {dances[0]} songs";
-                case 2:
-                    return $"All songs dancable to {prefix} of {dances[0]} {connector} {dances[1]}";
-                default:
-                    var last = dances[count - 1];
-                    dances.RemoveAt(count - 1);
-                    return $"All songs danceable to {prefix} of {string.Join(", ", dances)} {connector} {last}";
-            }
         }
 
         private static string Format(string s)

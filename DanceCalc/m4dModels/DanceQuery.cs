@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.Entity.ModelConfiguration.Conventions;
 using System.Linq;
 using DanceLibrary;
 
@@ -7,10 +8,17 @@ namespace m4dModels
 {
     public class DanceQuery
     {
+        private const string AllRef = "ALL";
+        private const string And = "AND";
+        private const string AndX = "ADX";
+        private const string OneOfX = "OOX";
+
+        private readonly string[] _modifiers = {And,AndX,OneOfX};
+
         public DanceQuery(string query=null)
         {
             Query = query ?? string.Empty;
-            if (string.Equals("ALL", Query, StringComparison.InvariantCultureIgnoreCase))
+            if (string.Equals(AllRef, Query, StringComparison.InvariantCultureIgnoreCase))
             {
                 Query = string.Empty;
             }
@@ -25,7 +33,7 @@ namespace m4dModels
             get
             {
                 var ret = Query.Split(new[] {','},StringSplitOptions.RemoveEmptyEntries);
-                if (ret.Length == 0 || !string.Equals("AND", ret[0], StringComparison.InvariantCultureIgnoreCase))
+                if (ret.Length == 0 || !_modifiers.Contains(ret[0].ToUpper()))
                     return ret;
 
                 var list = ret.ToList();
@@ -40,7 +48,8 @@ namespace m4dModels
 
         public IEnumerable<string> ExpandedIds => DanceLibrary.Dances.Instance.ExpandMsc(DanceIds);
 
-        public bool IsExclusive => Query.StartsWith("AND,",StringComparison.InvariantCultureIgnoreCase) && Query.IndexOf(",",4, StringComparison.Ordinal) != -1;
+        public bool IsExclusive => (StartsWith(And) || StartsWith(AndX)) && Query.IndexOf(",", 4, StringComparison.Ordinal) != -1;
+        public bool IncludeInferred => StartsWith(AndX) || StartsWith(OneOfX);
 
         public bool HasDance(string id)
         {
@@ -63,5 +72,42 @@ namespace m4dModels
         {
             return IsExclusive && DanceIds.Count() > 1 ? this : new DanceQuery("AND," + Query);
         }
+
+        public override string ToString()
+        {
+            var dances = Dances.Select(n => n.Name).ToList();
+            var count = dances.Count;
+            var prefix = "any";
+            var connector = "or";
+            if (IsExclusive)
+            {
+                prefix = "all";
+                connector = "and";
+            }
+            var suffix = string.Empty;
+            if (IncludeInferred)
+            {
+                suffix = " (including inferred by tempo)";
+            }
+            switch (count)
+            {
+                case 0:
+                    return "All songs" + suffix;
+                case 1:
+                    return $"All {dances[0]} songs{suffix}";
+                case 2:
+                    return $"All songs dancable to {prefix} of {dances[0]} {connector} {dances[1]}{suffix}";
+                default:
+                    var last = dances[count - 1];
+                    dances.RemoveAt(count - 1);
+                    return $"All songs danceable to {prefix} of {string.Join(", ", dances)} {connector} {last}{suffix}";
+            }
+        }
+
+        private bool StartsWith(string qualifier)
+        {
+            return Query.StartsWith(qualifier + ",", StringComparison.InvariantCultureIgnoreCase);
+        }
+
     }
 }

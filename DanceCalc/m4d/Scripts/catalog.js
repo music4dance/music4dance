@@ -126,6 +126,28 @@
         }
     }
 
+    var updateDances = function() {
+        var dances = $('#dances').val();
+
+        if (/(AND|ADX|OOX),/gi.test(dances)) {
+            dances = dances.substring(4);
+        }
+
+        var or = $('#db-any').prop('checked');
+        var inf = $('#inferred').prop('checked');
+
+        if (inf) {
+            dances = (or ? 'OOX' : 'ADX') + ',' + dances;
+        }
+        else if (!or) {
+            dances = 'AND,' + dances;
+        }
+        $('#dances').val(dances);
+
+        window.danceOr = or;
+        window.danceInferred = inf;
+    }
+
     var reset = function (event) {
         event.preventDefault();
 
@@ -139,7 +161,7 @@
         $('#chosen-dances').trigger('chosen:updated');
 
         // Set the Any/All dance button back to any
-        $('#dance-boolean').find('button').html('any <span class="caret"></span>');
+        $('#db-any').prop('checked',true);
 
         // Handle the My Activity Button
         if (window.userName === '') {
@@ -159,6 +181,7 @@
     return {
         init: init,
         update: update,
+        updateDances: updateDances,
         reset: reset
     }
 }();
@@ -239,42 +262,26 @@ $(document).ready(function () {
     $('#chosen-dances').chosen({ max_selected_options: 5, width: '100%' });
 
     $('input[name=\'db\']', $('#dance-boolean')).change(function () {
-        var dances = $('#dances').val();
-        var and = dances.indexOf('AND,') === 0;
+        filter.updateDances();
+    });
 
-        if ($(this).val() === 'any') {
-            window.danceOr = true;
-            if (and) {
-                dances = dances.substring(4);
-            }
-        } else {
-            window.danceOr = false;
-            if (!and) {
-                dances = 'AND,' + dances;
-            }
-        }
-        $('#dances').val(dances);
+    $('#inferred').change(function() {
+        filter.updateDances();
     });
 
     $('#chosen-dances').chosen().change(function () {
         var dances = $('#chosen-dances').val();
 
-        if (!dances || dances.length === 0) {
-            $('#dances').val('');
+        var ret = '';
+        //if (dances.length === 1) {
+        //    ret = dances[0];
+        //}
+        //else 
+        if (dances &&  dances.length > 0) {
+            ret = dances.join(',');
         }
-        else if (dances.length === 1) {
-            $('#dances').val(dances[0]);
-        }
-        else if (dances.length > 1) {
-            var ret = '';
-            if (!window.danceOr) {
-                ret = 'AND,';
-            }
-
-            ret += dances.join(',');
-
-            $('#dances').val(ret);
-        }
+        $('#dances').val(ret);
+        filter.updateDances();
 
         return true;
     });

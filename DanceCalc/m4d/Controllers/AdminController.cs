@@ -2089,7 +2089,7 @@ namespace m4d.Controllers
                 var filter = new SongFilter
                 {
                     SortOrder = "Dances_10",
-                    Dances = dance.Id,
+                    Dances = ((dance.Info is DanceGroup) ? "ADX," : string.Empty) + dance.Id,
                     TempoMax = 500,
                     TempoMin = 1
                 };

@@ -97,12 +97,17 @@
                         }
                     </select>
                 </div>
-                <div id="dance-boolean" class="col-sm-4" style="padding-left: 15px">
-                    <label class="inline" style="width:3em">
+                <div id="dance-boolean" class="col-sm-2" style="padding-left: 15px">
+                    <label class="inline">
                         <input type="radio" name="db" id="db-any" value="any" @(danceQuery.IsExclusive ? string.Empty : "checked") />Any
                     </label>&nbsp;&nbsp;
-                    <label class="inline" style="width:3em">
+                    <label class="inline">
                         <input type="radio" name="db" id="db-all" value="all" @(danceQuery.IsExclusive ? "checked" : string.Empty) />All
+                    </label>
+                </div>
+                <div id="dance-inferred" class="col-sm-3" style="padding-left: 15px">
+                    <label class="inline">
+                        <input type="checkbox" name="dx" id="inferred" @(danceQuery.IncludeInferred ? "checked" : string.Empty) />Include Inferred
                     </label>
                 </div>
             </div>
@@ -221,6 +226,15 @@
         else
         {
             <script>var danceOr = true</script>
+        }
+
+        if (danceQuery.IncludeInferred)
+        {
+            <script>var danceInferred = true</script>
+        }
+        else
+        {
+            <script>var danceInferred = false</script>
         }
 
         string filterString = null;

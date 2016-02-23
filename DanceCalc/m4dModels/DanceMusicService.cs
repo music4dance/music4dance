@@ -1013,9 +1013,19 @@ namespace m4dModels
             {
                 danceList = danceQuery.ExpandedIds.ToList();
 
-                songs = danceQuery.IsExclusive ? 
-                    songs.Where(s => danceList.All(did => s.DanceRatings.Any(dr => dr.DanceId == did))) : 
-                    songs.Where(s => s.DanceRatings.Any(dr => danceList.Contains(dr.DanceId)));
+                if (danceQuery.IncludeInferred)
+                {
+                    songs = danceQuery.IsExclusive
+                        ? songs.Where(s => danceList.All(did => s.DanceRatings.Any(dr => dr.DanceId == did)))
+                        : songs.Where(s => s.DanceRatings.Any(dr => danceList.Contains(dr.DanceId)));
+                }
+                else
+                {
+                    var dtList = danceQuery.Dances.Select(d => d.Name + ":Dance");
+                    songs = danceQuery.IsExclusive
+                        ? songs.Where(s => dtList.All(dt => s.TagSummary.Summary.Contains(dt) && !s.TagSummary.Summary.Contains("!" + dt)))
+                        : songs.Where(s => dtList.Any(dt => s.TagSummary.Summary.Contains(dt) && !s.TagSummary.Summary.Contains("!" + dt)));
+                }
             }
             else if ((cruft & CruftFilter.NoDances) != CruftFilter.NoDances)
             {
@@ -1268,7 +1278,7 @@ namespace m4dModels
             // Then take the top n songs if
             if (songSort.Count != -1)
             {
-                songs = songs.Take(10);
+                songs = songs.Take(songSort.Count);
             }
 
             return songs.Include("DanceRatings").Include("ModifiedBy").Include("SongProperties");
