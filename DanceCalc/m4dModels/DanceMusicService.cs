@@ -1023,8 +1023,12 @@ namespace m4dModels
                 {
                     var dtList = danceQuery.Dances.Select(d => d.Name + ":Dance");
                     songs = danceQuery.IsExclusive
-                        ? songs.Where(s => dtList.All(dt => s.TagSummary.Summary.Contains(dt) && !s.TagSummary.Summary.Contains("!" + dt)))
-                        : songs.Where(s => dtList.Any(dt => s.TagSummary.Summary.Contains(dt) && !s.TagSummary.Summary.Contains("!" + dt)));
+                        ? songs.Where(s => dtList.All(dt => s.TagSummary.Summary.Contains(dt)))
+                        : songs.Where(s => dtList.Any(dt => s.TagSummary.Summary.Contains(dt)));
+                    //This turns out to be overly strong - anyboday 'not liking' a song for a dance excludes it from the list
+                    //songs = danceQuery.IsExclusive
+                    //    ? songs.Where(s => dtList.All(dt => s.TagSummary.Summary.Contains(dt) && !s.TagSummary.Summary.Contains("!" + dt)))
+                    //    : songs.Where(s => dtList.Any(dt => s.TagSummary.Summary.Contains(dt) && !s.TagSummary.Summary.Contains("!" + dt)));
                 }
             }
             else if ((cruft & CruftFilter.NoDances) != CruftFilter.NoDances)
