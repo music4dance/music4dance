@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.Serialization;
 
 namespace m4dModels
 {
@@ -43,7 +44,7 @@ namespace m4dModels
                 _lastTaskCompleted = completed;
                 _lastTaskName = _name;
                 _lastTaskMessage = message;
-                _lastException = exception;
+                LastException = exception;
 
                 _name = null;
                 _phase = null;
@@ -80,11 +81,13 @@ namespace m4dModels
                         IsRunning = IsRunning,
                         Succeeded = Succeeded,
                         Status = message,
-                        Exception = _lastException
+                        Exception = LastException
                     };
                 }
             }
         }
+
+        public static Exception LastException { get; private set; }
 
         private static string _name;
         private static string _phase;
@@ -93,7 +96,6 @@ namespace m4dModels
         private static string _lastTaskName;
         private static bool _lastTaskCompleted;
         private static string _lastTaskMessage;
-        private static Exception _lastException;
 
         private static readonly object Lock = new object();
     }

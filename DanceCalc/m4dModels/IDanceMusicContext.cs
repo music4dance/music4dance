@@ -11,6 +11,7 @@ namespace m4dModels
         DbSet<SongProperty> SongProperties { get;  }
         DbSet<Dance> Dances { get; }
         DbSet<DanceRating> DanceRatings { get; }
+        DbSet<TopN> TopNs { get; set; }
         DbSet<Tag> Tags { get; }
         DbSet<TagType> TagTypes { get; }
         DbSet<SongLog> Log { get; }
@@ -18,7 +19,7 @@ namespace m4dModels
         DbSet<Search> Searches { get; }
         IDbSet<ApplicationUser> Users { get; }
         IDbSet<IdentityRole> Roles { get; }
-
+        Database Database { get; }
         int SaveChanges();
         void TrackChanges(bool track);
         void CheckpointSongs();

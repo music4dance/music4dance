@@ -90,6 +90,8 @@ namespace m4dModels.Tests
 
         public DbSet<DanceRating> DanceRatings { get; set; }
 
+        public DbSet<TopN> TopNs { get; set; }
+
         public DbSet<Tag> Tags { get; set; }
 
         public DbSet<TagType> TagTypes { get; set; }
@@ -103,6 +105,7 @@ namespace m4dModels.Tests
         public IDbSet<ApplicationUser> Users { get; set; }
 
         public IDbSet<IdentityRole> Roles { get; set; }
+        public Database Database { get { throw new NotImplementedException(); } }
 
         public int SaveChangesCount { get; private set; }
 

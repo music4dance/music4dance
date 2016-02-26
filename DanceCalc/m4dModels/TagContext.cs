@@ -22,6 +22,8 @@ namespace m4dModels
             get { throw new NotImplementedException(); }
         }
 
+        public DbSet<TopN> TopNs { get; set; }
+
         public DbSet<Tag> Tags { get; set; }
 
         public DbSet<TagType> TagTypes { get; set; }
@@ -46,6 +48,8 @@ namespace m4dModels
         {
             get { throw new NotImplementedException(); }
         }
+
+        public Database Database { get { throw new NotImplementedException(); } }
 
         public int SaveChanges()
         {

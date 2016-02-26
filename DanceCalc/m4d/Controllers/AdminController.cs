@@ -1071,10 +1071,8 @@ namespace m4d.Controllers
             {
                 StartAdminTask("RebuildDanceInfo");
 
-                InternalRebuildDances(true);
-
-                InternalRebuildDanceTags();
-                SongCounts.ClearCache();
+                Database.RebuildDanceInfo();
+                RecomputeMarker.SetMarker("danceinfo");
 
                 return CompleteAdminTask(true, "Finished rebuilding Dance Info");
             }
@@ -1093,7 +1091,7 @@ namespace m4d.Controllers
             {
                 StartAdminTask("RebuildDances");
 
-                InternalRebuildDances(false);
+                Database.RebuildDances();
 
                 return CompleteAdminTask(true, "Finished rebuilding Dances");
             }
@@ -1112,7 +1110,7 @@ namespace m4d.Controllers
             {
                 StartAdminTask("RebuildDanceTags");
 
-                InternalRebuildDanceTags();
+                Database.RebuildDanceTags();
 
                 return CompleteAdminTask(true,"Finished rebuilding Dance Tags");
             }
@@ -1203,7 +1201,7 @@ namespace m4d.Controllers
         }
 
         //
-        // Get: //RebuildDances
+        // Get: //AdminStatus
         [Authorize(Roles = "dbAdmin")]
         public ActionResult AdminStatus()
         {
@@ -2064,91 +2062,6 @@ namespace m4d.Controllers
 
         #region Utilities
 
-        private void InternalRebuildDances(bool checkpoint)
-        {
-            // Clear out the Top10s
-            Context.Database.ExecuteSqlCommand("TRUNCATE TABLE dbo.TopNs");
-
-            Context.TrackChanges(false);
-
-            // TODO: Add include/exclude as permanent fixtures in the header and link them to appropriate cloud
-            //  Think about how we might fix the multi-categorization problem (LTN vs. International Latin)
-            //  Actually replace SongCounts
-
-            // Get the Max Weight and Count of songs for each dance
-
-            var index = 0;
-            foreach (var dance in Database.Dances.Include("TopSongs.Song.DanceRatings"))
-            {
-                AdminMonitor.UpdateTask("UpdateDance = " + dance.Name,index++);
-
-                Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Computing info for " + dance.Name);
-                dance.SongCount = dance.DanceRatings.Select(dr => dr.Song.Purchase).Count(p => p != null);
-                dance.MaxWeight = (dance.SongCount == 0) ? 0 : dance.DanceRatings.Max(dr => dr.Weight);
-
-                var filter = new SongFilter
-                {
-                    SortOrder = "Dances_10",
-                    Dances = ((dance.Info is DanceGroup) ? "ADX," : string.Empty) + dance.Id,
-                    TempoMax = 500,
-                    TempoMin = 1
-                };
-                var songs = Database.BuildSongList(filter).ToList();
-
-                if (songs.Count < 10)
-                {
-                    filter.TempoMax = null;
-                    filter.TempoMin = null;
-                    songs = Database.BuildSongList(filter).ToList();
-                }
-
-                if (songs.Count == 0) continue;
-
-                var rank = 1;
-                foreach (var s in songs)
-                {
-                    var tn = Context.TopNs.Create();
-                    tn.Dance = dance;
-                    tn.Song = s;
-                    tn.Rank = rank;
-
-                    Context.TopNs.Add(tn);
-                    rank += 1;
-                }
-            }
-
-            if (checkpoint)
-            {
-                Context.CheckpointChanges();
-            }
-
-            Context.TrackChanges(true);
-        }
-
-        private void InternalRebuildDanceTags()
-        {
-            Context.TrackChanges(false);
-
-            var index = 0;
-            foreach (var dance in Database.Dances)
-            {
-                AdminMonitor.UpdateTask("UpdateTags: Dance = " + dance.Name, index++);
-
-                var dT = dance;
-                var acc = new TagAccumulator();
-
-                foreach (var rating in Database.DanceRatings.Where(dr => dr.DanceId == dT.Id).Include("Song"))
-                {
-                    acc.AddTags(rating.TagSummary);
-                    acc.AddTags(rating.Song.TagSummary);
-                }
-                dance.SongTags = acc.TagSummary();
-
-                Context.CheckpointSongs();
-            }
-
-            Context.TrackChanges(true);
-        }
         private IList<string> HeaderFromList(string separator, IList<string> songs)
         {
             if (separator == null) throw new ArgumentNullException(nameof(separator));

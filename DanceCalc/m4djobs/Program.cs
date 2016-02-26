@@ -14,8 +14,16 @@ namespace m4djobs
         // AzureWebJobsDashboard and AzureWebJobsStorage
         static void Main()
         {
-            var host = new JobHost();
-            // The following code ensures that the WebJob will be running continuously
+            var config = new JobHostConfiguration();
+
+            if (config.IsDevelopment)
+            {
+                config.UseDevelopmentSettings();
+            }
+
+            config.UseTimers();
+
+            var host = new JobHost(config);
             host.RunAndBlock();
         }
     }

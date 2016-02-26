@@ -5,7 +5,9 @@ using System.Web.Http;
 
 using m4dModels;
 using m4d.Context;
+using m4d.Controllers;
 using m4d.Utilities;
+using Microsoft.ApplicationInsights;
 
 namespace m4d.APIControllers
 {
@@ -22,5 +24,8 @@ namespace m4d.APIControllers
         private MusicServiceManager _musicServiceManager;
 
         protected DanceMusicContext Context => Database.Context as DanceMusicContext;
+
+        // TODO: This is pretty kludgy, should put the static telemetry client somwhere accessible to both controller types
+        protected static TelemetryClient TelemetryClient => DMController.TelemetryClient;
     }
 }

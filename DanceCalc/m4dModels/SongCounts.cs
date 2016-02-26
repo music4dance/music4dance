@@ -10,8 +10,9 @@ namespace m4dModels
 {
     public class SongCounts
     {
-       [Key]
+        [Key]
         public string DanceId { get; set; }
+
         public string DanceName { get; set; }
         public int SongCount { get; set; }
         public int MaxWeight { get; set; }
@@ -45,12 +46,13 @@ namespace m4dModels
                 _competitionDances.Add(competitionDance);
             }
         }
+
         private List<CompetitionDance> _competitionDances;
 
 
         public static void ClearCache()
         {
-            lock (s_counts)
+            lock (s_map)
             {
                 s_counts.Clear();
                 s_map.Clear();
@@ -121,46 +123,26 @@ namespace m4dModels
         private static List<SongCounts> s_counts = new List<SongCounts>();
         private static readonly Dictionary<string, SongCounts> s_map = new Dictionary<string, SongCounts>();
 
+        public static void RebuildSongCounts(DanceMusicService dms)
+        {
+            lock (s_map)
+            {
+                ClearCache();
+                BuildSongCounts(dms);
+            }
+        }
+
         public static IList<SongCounts> GetSongCounts(DanceMusicService dms)
         {
-            lock (s_counts)
+            lock (s_map)
             {
                 if (s_counts.Count != 0) return s_counts;
 
-                dms.Context.LoadDances();
-
-                var used = new HashSet<string>();
-
-                // First handle dancegroups and types under dancegroups
-                foreach (var dg in Dances.Instance.AllDanceGroups)
-                {
-                    // All groups except other have a valid 'root' node...
-                    var scGroup = InfoFromDance(dms,dg);
-                    scGroup.Children = new List<SongCounts>();
-
-                    s_counts.Add(scGroup);
-
-                    foreach (var dtyp in dg.Members.Select(dtypT => dtypT as DanceType))
-                    {
-                        Debug.Assert(dtyp != null);
-
-                        HandleType(dtyp, scGroup, dms);
-                        used.Add(dtyp.Id);
-                    }
-                }
-
-                // Then handle ungrouped types
-                foreach (var dt in Dances.Instance.AllDanceTypes.Where(dt => !used.Contains(dt.Id)))
-                {
-                    Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Ungrouped Dance: {0}", dt.Id);
-                }
-
-                s_counts = s_counts.OrderByDescending(x => x.Children.Count).ToList();
+                RebuildSongCounts(dms);
 
                 return s_counts;
             }
         }
-
 
         public static IDictionary<string,SongCounts> GetDanceMap(DanceMusicService dms)
         {
@@ -237,6 +219,39 @@ namespace m4dModels
         public static IEnumerable<DanceRatingInfo> GetRatingInfo(IDictionary<string, SongCounts> map, SongBase song)
         {
             return song.DanceRatings.Select(dr => GetRatingInfo(map, dr.DanceId, dr.Weight)).ToList();
+        }
+
+        private static void BuildSongCounts(DanceMusicService dms)
+        {
+            dms.Context.LoadDances();
+
+            var used = new HashSet<string>();
+
+            // First handle dancegroups and types under dancegroups
+            foreach (var dg in Dances.Instance.AllDanceGroups)
+            {
+                // All groups except other have a valid 'root' node...
+                var scGroup = InfoFromDance(dms, dg);
+                scGroup.Children = new List<SongCounts>();
+
+                s_counts.Add(scGroup);
+
+                foreach (var dtyp in dg.Members.Select(dtypT => dtypT as DanceType))
+                {
+                    Debug.Assert(dtyp != null);
+
+                    HandleType(dtyp, scGroup, dms);
+                    used.Add(dtyp.Id);
+                }
+            }
+
+            // Then handle ungrouped types
+            foreach (var dt in Dances.Instance.AllDanceTypes.Where(dt => !used.Contains(dt.Id)))
+            {
+                Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Ungrouped Dance: {0}", dt.Id);
+            }
+
+            s_counts = s_counts.OrderByDescending(x => x.Children.Count).ToList();
         }
 
         private static void HandleType(DanceType dtyp, SongCounts scGroup, DanceMusicService dms)

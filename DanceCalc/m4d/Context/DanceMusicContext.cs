@@ -102,6 +102,7 @@ namespace m4d.Context
         public DbSet<SongLog> Log { get; set; }
         public DbSet<ModifiedRecord> Modified { get; set; }
         public DbSet<Search> Searches { get; set; }
+
         #endregion
 
         #region Events
@@ -151,7 +152,6 @@ namespace m4d.Context
         }
 
         #endregion
-
 
         #region IDanceMusicContext
         public ApplicationUser FindOrAddUser(string name, string role, object umanager)
@@ -314,6 +314,5 @@ namespace m4d.Context
         }
 
         #endregion
-
     }
 }

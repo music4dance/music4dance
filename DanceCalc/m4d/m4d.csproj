@@ -337,6 +337,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="APIControllers\RecomputeController.cs" />
     <Compile Include="APIControllers\ServiceTrackController.cs" />
     <Compile Include="APIControllers\TagSuggestionController.cs" />
     <Compile Include="APIControllers\UpdateLikeController.cs" />
@@ -471,6 +472,7 @@
     <Compile Include="Startup.cs" />
     <Compile Include="Utilities\GenericPrincipalExtensions.cs" />
     <Compile Include="Utilities\MusicServiceManager.cs" />
+    <Compile Include="Utilities\RecomputeMarker.cs" />
     <Compile Include="Utilities\SpiderManager.cs" />
     <Compile Include="Utilities\SpotAuthentication.cs" />
     <Compile Include="Utilities\AdmAuthentication.cs" />
