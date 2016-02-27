@@ -27,5 +27,10 @@ namespace m4d.APIControllers
 
         // TODO: This is pretty kludgy, should put the static telemetry client somwhere accessible to both controller types
         protected static TelemetryClient TelemetryClient => DMController.TelemetryClient;
+
+        protected void DetachDatabase()
+        {
+            _database = null;
+        }
     }
 }

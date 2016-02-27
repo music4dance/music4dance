@@ -4,8 +4,10 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Text;
+using System.Threading.Tasks;
 using System.Web;
 using System.Web.Http;
+using m4d.Context;
 using m4d.Utilities;
 using m4dModels;
 using Microsoft.ApplicationInsights;
@@ -62,8 +64,6 @@ namespace m4d.APIControllers
 
             if (!success) return InternalServerError(AdminMonitor.LastException);
 
-            Completed(id);
-            AdminMonitor.CompleteTask(true, message);
             return Ok(new {changed = true, message});
         }
 
@@ -80,16 +80,17 @@ namespace m4d.APIControllers
 
         private bool HandleSongStats()
         {
-            SongCounts.RebuildSongCounts(Database);
-            AdminMonitor.CompleteTask(true, "Song Counts Successfully Rebuilt!");
+            Task.Run(() => DoHandleSongStats(CreateDisconnectedService()));
             return true;
         }
 
-        private bool HandleDanceInfo()
+        private static bool DoHandleSongStats(DanceMusicService dms)
         {
             try
             {
-                Database.RebuildDanceInfo();
+                SongCounts.RebuildSongCounts(dms);
+                Completed("songstats");
+                AdminMonitor.CompleteTask(true, "Song Counts Successfully Rebuilt!");
                 return true;
             }
             catch (Exception e)
@@ -97,6 +98,34 @@ namespace m4d.APIControllers
                 AdminMonitor.CompleteTask(false, e.Message, e);
                 return false;
             }
+        }
+
+        private bool HandleDanceInfo()
+        {
+            Task.Run(() => DoHandleDanceInfo(CreateDisconnectedService()));
+            return true;
+        }
+
+        private static bool DoHandleDanceInfo(DanceMusicService dms)
+        {
+            try
+            {
+                dms.RebuildDanceInfo();
+                Completed("danceinfo");
+                AdminMonitor.CompleteTask(true, "Rebuilt Dance Info");
+                return true;
+            }
+            catch (Exception e)
+            {
+                AdminMonitor.CompleteTask(false, e.Message, e);
+                return false;
+            }
+        }
+
+        private DanceMusicService CreateDisconnectedService()
+        {
+            var context = DanceMusicContext.Create();
+            return new DanceMusicService(context,ApplicationUserManager.Create(null,context));
         }
 
         private string SecurityToken => _securityToken ?? (_securityToken = Environment.GetEnvironmentVariable("RECOMPUTEJOB_KEY"));
