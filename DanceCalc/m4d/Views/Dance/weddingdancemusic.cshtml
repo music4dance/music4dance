@@ -1,5 +1,4 @@
-﻿@using DanceLibrary
-@model IEnumerable<SongCounts>
+﻿@model IEnumerable<SongCounts>
 
 
 @{
@@ -7,6 +6,7 @@
     ViewBag.Description = "Help finding wedding dance music: First Dance, Mother/Son, Father/Daughter - Foxtrot, Waltz, Swing and others.";
 
     string[] boxes = { "WLZ", "FXT", "SWG", "LTN", "TNG",  "MSC" };
+    string[] showHeader = { "SWG", "LTN", "TNG" };
     string[] columns = { "Wedding", "First Dance", "Mother Son", "Father Daughter" };
 }
 
@@ -61,6 +61,17 @@
     </tr>
 }
 
+@helper DanceHeader(string[] columns, bool showStyle = false)
+{
+    <tr>
+        <th>@(showStyle ? "Dance Style" : string.Empty)</th>
+        @foreach (var tag in columns)
+        {
+            <th class="center-cell">@Html.ActionLink(tag.Contains("Dance") ? tag : tag.Replace(' ', '/'),"addtags","song", new {tags = tag + ":Other"}, null)</th>
+        }
+    </tr>
+}
+
 <ol class="breadcrumb">
     <li><a href="/">Music4Dance</a></li>
     <li><a href="/dances">Dances</a></li>
@@ -84,21 +95,25 @@
         <hr/>
     </div>
 </div>
+
 <div class="row">
     <div class="col-sm-10 col-sm-offset-1">
         <table class="table table-striped table-bordered">
             <caption class="big-text">Index of Dance Styles & Wedding Tags</caption>
-            <tr>
-                <th>Dance Style</th>
-                @foreach (var tag in columns)
-                {
-                    <th class="center-cell">@(tag.Contains("Dance") ? tag : tag.Replace(' ', '/'))</th>
-                }
-            </tr>
+            @DanceHeader(columns,true)
             @* ReSharper disable once LoopCanBePartlyConvertedToQuery *@
             @foreach (var box in boxes)
             {
                 var group = Model.FirstOrDefault(m => m.DanceId == box);
+                if (group == null)
+                {
+                    continue;
+                }
+                if (showHeader.Contains(box))
+                {
+                    @DanceHeader(columns)
+                }
+
                 @DanceRow(group, columns, true)
                 foreach (var dance in group.Children)
                 {
