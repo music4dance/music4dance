@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Runtime.Serialization;
 
 namespace m4dModels
@@ -9,9 +10,11 @@ namespace m4dModels
         {
             lock (Lock)
             {
-                if (_name != null) return false;
+                if (Name != null) return false;
 
-                _name = name;
+                _stopwatch = Stopwatch.StartNew();
+
+                Name = name;
                 _phase = phase;
                 _iteration = 0;
                 return true;
@@ -31,7 +34,7 @@ namespace m4dModels
         {
             lock (Lock)
             {
-                if (_name == null) return;
+                if (Name == null) return;
 
                 _phase = phase;
                 _iteration = iteration;
@@ -41,20 +44,26 @@ namespace m4dModels
         {
             lock (Lock)
             {
+                _stopwatch.Stop();
+
                 _lastTaskCompleted = completed;
-                _lastTaskName = _name;
+                _lastTaskName = Name;
                 _lastTaskMessage = message;
                 LastException = exception;
 
-                _name = null;
+                Name = null;
                 _phase = null;
                 _iteration = 0;
             }
         }
 
-        public static bool IsRunning => _name != null;
+        public static bool IsRunning => Name != null;
 
-        public static bool Succeeded => _name == null && _lastTaskCompleted;
+        public static bool Succeeded => Name == null && _lastTaskCompleted;
+
+        public static string Name { get; private set; }
+
+        public static long Duration => _stopwatch.ElapsedMilliseconds;
 
         public static AdminStatus Status
         {
@@ -64,9 +73,10 @@ namespace m4dModels
                 {
                     string message;
 
-                    if (_name != null)
+                    if (Name != null)
                     {
-                        message = $"AdminMonitor: Task = {_name}; Phase = {_phase}, Iteration = {_iteration}";
+                        var e = _stopwatch.ElapsedMilliseconds;
+                        message = $"AdminMonitor: Task = {Name}; Phase = {_phase}, Iteration = {_iteration}, Duration = {e/1000}.{e%1000}";
                     }
                     else
                     {
@@ -89,13 +99,14 @@ namespace m4dModels
 
         public static Exception LastException { get; private set; }
 
-        private static string _name;
         private static string _phase;
         private static int _iteration;
 
         private static string _lastTaskName;
         private static bool _lastTaskCompleted;
         private static string _lastTaskMessage;
+
+        private static Stopwatch _stopwatch;
 
         private static readonly object Lock = new object();
     }

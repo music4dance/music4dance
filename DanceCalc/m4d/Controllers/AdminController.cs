@@ -1203,6 +1203,21 @@ namespace m4d.Controllers
         //
         // Get: //AdminStatus
         [Authorize(Roles = "dbAdmin")]
+        public ActionResult FlushTelemetry()
+        {
+            ViewBag.Name = "Flush Telemetry";
+
+            TelemetryClient.Flush();
+
+            ViewBag.Success = true;
+            ViewBag.Message = "Telemetry has been flushed";
+
+            return View("Results");
+        }
+
+        //
+        // Get: //AdminStatus
+        [Authorize(Roles = "dbAdmin")]
         public ActionResult AdminStatus()
         {
             return View(AdminMonitor.Status);

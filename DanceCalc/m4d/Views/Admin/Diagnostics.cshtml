@@ -36,6 +36,7 @@
     <li>@Html.ActionLink("Show Status", "AdminStatus", "Admin")</li>
     <li>Application Insights Telemetry Disabled = @Html.ActionLink(TelemetryConfiguration.Active.DisableTelemetry.ToString(), "DisableTelemetry", "Admin", new {disable = !TelemetryConfiguration.Active.DisableTelemetry}, null)</li>
     <li>Verbose Telemetry Enabled = @Html.ActionLink(DMController.VerboseTelemetry.ToString(), "EnableVerboseTelemetry", "Admin", new { enable = !DMController.VerboseTelemetry }, null)</li>
+    <li>@Html.ActionLink("Flush Telemetry", "FlushTelemetry", "Admin")</li>
 </ul>
 
 <hr />

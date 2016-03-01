@@ -1,17 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net;
-using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
-using System.Web;
 using System.Web.Http;
 using m4d.Context;
 using m4d.Utilities;
 using m4dModels;
-using Microsoft.ApplicationInsights;
-using Microsoft.AspNet.Identity;
 
 namespace m4d.APIControllers
 {
@@ -29,40 +24,48 @@ namespace m4d.APIControllers
         {
             var authenticationHeader = Request.Headers.Authorization;
             var token = Encoding.UTF8.GetString(Convert.FromBase64String(authenticationHeader.Parameter));
+            var client = TelemetryClient;
             if (authenticationHeader.Scheme != "Token" || token != SecurityToken)
             {
-                var properties = new Dictionary<string, string> { { "AuthScheme", authenticationHeader.Scheme }, { "ClientToken", token }, {"ServerToken", SecurityToken} };
-                var client = TelemetryClient;
-                client.TrackEvent("RecomputeAuthentication", properties);
+                client.TrackEvent("Recompute",
+                    new Dictionary<string, string> { { "Id", id }, { "Phase","Auth"}, {"Code","Fail"}, { "AuthScheme", authenticationHeader.Scheme }, { "ClientToken", token }, { "ServerToken", SecurityToken } });
 
                 return Unauthorized();
             }
 
             if (!force && !HasChanged(id))
+            {
+                client.TrackEvent("Recompute",
+                    new Dictionary<string, string> { { "Id", id }, { "Phase", "Start" }, { "Code", "NoChange" } });
                 return Ok(new {changed = false, message = "No updates."});
+            }
 
             if (!AdminMonitor.StartTask(id))
             {
+                client.TrackEvent("Recompute",
+                    new Dictionary<string, string> { { "Id", id }, { "Phase", "Start" }, { "Code", "Conflict" }, { "Task", AdminMonitor.Name } });
                 return Conflict();
             }
 
             string message;
-            bool success;
             switch (id)
             {
                 case "songstats":
-                    success = HandleSongStats();
+                    HandleRecompute(DoHandleSongStats);
                     message = "Updated song stats.";
                     break;
                 case "danceinfo":
-                    success = HandleDanceInfo();
+                    HandleRecompute(DoHandleDanceInfo);
                     message = "Rebuilt Dances, Dance Tags, and updated Song Counts.";
                     break;
                 default:
+                    client.TrackEvent("Recompute",
+                        new Dictionary<string, string> { { "Id", id }, { "Phase", "Start" }, { "Code", "Unknown" } });
                     return BadRequest();
             }
 
-            if (!success) return InternalServerError(AdminMonitor.LastException);
+            client.TrackEvent("Recompute",
+                new Dictionary<string, string> { { "Id", id }, { "Phase", "Start" }, { "Code", "Okay" } });
 
             return Ok(new {changed = true, message});
         }
@@ -73,56 +76,58 @@ namespace m4d.APIControllers
             return Database.Songs.Any(s => s.Modified > updated);
         }
 
-        private static void Completed(string id)
+        private delegate void DoHandleRecompute(DanceMusicService dms);
+
+        // TODONEXT: Should Do*** functions take name of task and message so that we can clean up duplicate code?
+        //  Definitely want to send an AppInsights event and seem to have similar invoce patterns.
+        private static void HandleRecompute(DoHandleRecompute recompute)
         {
-            RecomputeMarker.SetMarker(id);
+            Task.Run(() => recompute.Invoke(CreateDisconnectedService()));
         }
 
-        private bool HandleSongStats()
-        {
-            Task.Run(() => DoHandleSongStats(CreateDisconnectedService()));
-            return true;
-        }
-
-        private static bool DoHandleSongStats(DanceMusicService dms)
+        private static void DoHandleSongStats(DanceMusicService dms)
         {
             try
             {
                 SongCounts.RebuildSongCounts(dms);
-                Completed("songstats");
-                AdminMonitor.CompleteTask(true, "Song Counts Successfully Rebuilt!");
-                return true;
+                Complete("songstats", "Song Counts Successfully Rebuilt!");
             }
             catch (Exception e)
             {
-                AdminMonitor.CompleteTask(false, e.Message, e);
-                return false;
+                Fail(e);
             }
         }
 
-        private bool HandleDanceInfo()
-        {
-            Task.Run(() => DoHandleDanceInfo(CreateDisconnectedService()));
-            return true;
-        }
-
-        private static bool DoHandleDanceInfo(DanceMusicService dms)
+        private static void DoHandleDanceInfo(DanceMusicService dms)
         {
             try
             {
                 dms.RebuildDanceInfo();
-                Completed("danceinfo");
-                AdminMonitor.CompleteTask(true, "Rebuilt Dance Info");
-                return true;
+                Complete("danceinfo", "Rebuilt Dance Info");
             }
             catch (Exception e)
             {
-                AdminMonitor.CompleteTask(false, e.Message, e);
-                return false;
+                Fail(e);
             }
         }
 
-        private DanceMusicService CreateDisconnectedService()
+        private static void Complete(string id, string message)
+        {
+            RecomputeMarker.SetMarker(id);
+            AdminMonitor.CompleteTask(true, message);
+            TelemetryClient.TrackEvent("Recompute",
+                new Dictionary<string, string> { { "Id", id }, {"Phase","End"}, { "Code", "Success" }, { "Message", AdminMonitor.Status.ToString() }, { "Time", AdminMonitor.Duration.ToString() } });
+
+        }
+
+        private static void Fail(Exception e)
+        {
+            TelemetryClient.TrackEvent("Recompute",
+                new Dictionary<string, string> { { "Id", AdminMonitor.Name }, { "Phase", "End" }, { "Code", "Exception" }, { "Message", e.Message }, {"Time", AdminMonitor.Duration.ToString()} });
+            AdminMonitor.CompleteTask(false, e.Message, e);
+        }
+
+        private static DanceMusicService CreateDisconnectedService()
         {
             var context = DanceMusicContext.Create();
             return new DanceMusicService(context,ApplicationUserManager.Create(null,context));
