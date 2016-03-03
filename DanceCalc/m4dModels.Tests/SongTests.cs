@@ -231,7 +231,7 @@ namespace m4dModels.Tests
         {
             CleanTagTypes();
             // Test reload based on moderator settings
-            // TODONEXT: Do we have a general bug where if a dance ratign has been fully deleted, BaseTagsFrom Properties fails?
+            // TODO: Do we have a general bug where if a dance ratign has been fully deleted, BaseTagsFrom Properties fails?
             var song = new Song();
             song.Load(ModeratorExpected, Service);
             ModeratorVerifyDeleted(song);
