@@ -78,8 +78,7 @@ namespace m4d.APIControllers
 
         private delegate void DoHandleRecompute(DanceMusicService dms);
 
-        // TODONEXT: Should Do*** functions take name of task and message so that we can clean up duplicate code?
-        //  Definitely want to send an AppInsights event and seem to have similar invoce patterns.
+        // TODO: Should Do*** functions take name of task and message so that we can clean up duplicate code?
         private static void HandleRecompute(DoHandleRecompute recompute)
         {
             Task.Run(() => recompute.Invoke(CreateDisconnectedService()));
