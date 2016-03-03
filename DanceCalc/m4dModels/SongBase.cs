@@ -281,6 +281,9 @@ namespace m4dModels
         }
         public bool IsNull => string.IsNullOrWhiteSpace(Title);
 
+        public bool HasSample => Sample != null && Sample != ".";
+        public bool HasEchoNest => Danceability != null && !float.IsNaN(Danceability.Value);
+
         public virtual SongLog CurrentLog
         {
             get { return null; }

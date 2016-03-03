@@ -83,6 +83,7 @@
     <Compile Include="MockUserStore.cs" />
     <Compile Include="MusicServiceTests.cs" />
     <Compile Include="RegionTests.cs" />
+    <Compile Include="SearchTests.cs" />
     <Compile Include="SongDetailTests.cs" />
     <Compile Include="SongTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

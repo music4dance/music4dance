@@ -12,7 +12,7 @@ namespace m4dModels
     public class TagSummary 
     {
         #region Properties
-        public String Summary { get; set; }
+        public string Summary { get; set; }
         public IList<TagCount> Tags => Parse(Summary);
 
         public int TagCount(string name)
@@ -68,7 +68,7 @@ namespace m4dModels
 
         public void Clean()
         {
-            Summary = String.Empty;
+            Summary = string.Empty;
         }
 
         public void ChangeTags(TagList added, TagList removed)

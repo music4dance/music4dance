@@ -453,7 +453,7 @@
                     @if (isAdmin)
                     {
                         var play = item.Sample != null ? (item.Sample != "." ? "P" : "p") : string.Empty;
-                        var echo = item.Danceability != null ? (item.Danceability != float.NaN ? "E" : "e") : string.Empty;
+                        var echo = item.Danceability != null ? (float.IsNaN(item.Danceability.Value) ? "e" : "E") : string.Empty;
                         <td>@(item.Purchase + play + echo)</td>
                     }
 
