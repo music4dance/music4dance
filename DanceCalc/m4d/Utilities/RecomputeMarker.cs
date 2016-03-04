@@ -26,12 +26,19 @@ namespace m4d.Utilities
 
         private DateTime GetTime()
         {
-            return System.IO.File.GetLastWriteTime(Path);
+            var s = System.IO.File.ReadAllText(Path);
+            DateTime time;
+            return DateTime.TryParse(s, out time) ? time : System.IO.File.GetLastWriteTime(Path);
         }
 
         private void SetTime()
         {
             System.IO.File.WriteAllText(Path,@"Semaphore");
+        }
+
+        private void SetTime(DateTime time)
+        {
+            System.IO.File.WriteAllText(Path, time.ToString("u"));
         }
 
         private static RecomputeMarker CreateMarker(string name)

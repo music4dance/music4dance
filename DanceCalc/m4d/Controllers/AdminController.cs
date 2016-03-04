@@ -1815,7 +1815,7 @@ namespace m4d.Controllers
 
 
         //
-        // Get: //BackupTail
+        // Get: //BackupJson
         [Authorize(Roles = "showDiagnostics")]
         public ActionResult BackupJson(SongFilter filter)
         {
@@ -2014,12 +2014,65 @@ namespace m4d.Controllers
 
             return View("Results");
         }
-
         #endregion
 
-        #region Migration-Restore
+        #region Search
+        //
+        // Get: //ResetSearchIdx
+        [Authorize(Roles = "showDiagnostics")]
+        public ActionResult ResetSearchIdx()
+        {
+            try
+            {
+                StartAdminTask("ResetIndex");
 
-        private void RestoreDb(string state = "InitialCreate")
+                var success = Database.ResetIndex();
+
+                ViewBag.Name = "Reset Index";
+                ViewBag.Success = success;
+                ViewBag.Message = @"Index Reset";
+
+                return CompleteAdminTask(success, @"Index Reset");
+            }
+            catch (Exception e)
+            {
+                return FailAdminTask($"Reset: {e.Message}", e);
+            }
+        }
+
+        //
+        // Get: //BuildSearchIdx
+        [Authorize(Roles = "showDiagnostics")]
+        public ActionResult BuildSearchIdx(int count = 100, DateTime? from = null, string filter = null)
+        {
+            try
+            {
+                StartAdminTask("BuildIndex");
+
+                SongFilter songFilter = null;
+                if (!string.IsNullOrWhiteSpace(filter))
+                {
+                    songFilter = new SongFilter(filter);
+                }
+
+                var c = Database.IndexSongs(count, from, songFilter);
+
+                ViewBag.Name = "Indexed Songs";
+                ViewBag.Success = true;
+                ViewBag.Message = $"{c} songs indexed";
+
+                return CompleteAdminTask(true, $"{c} songs indexed.");
+            }
+            catch (Exception e)
+            {
+                return FailAdminTask($"BuildIndex: {e.Message}", e);
+            }
+        }
+#endregion
+
+#region Migration-Restore
+
+    private void RestoreDb(string state = "InitialCreate")
         {
             DbMigrator migrator;
 

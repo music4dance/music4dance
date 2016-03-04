@@ -6,6 +6,8 @@ using System.Linq;
 using DanceLibrary;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.EntityFramework;
+using Microsoft.Azure.Search;
+using Microsoft.Azure.Search.Models;
 
 namespace m4dModels
 {
@@ -2761,6 +2763,79 @@ namespace m4dModels
 
         #endregion
 
+        #region Search
+
+        private const string SearchServiceName = "m4d";
+        private const string SearchAdminKey = "***REMOVED***";
+        private const string SongIndex = "songs";
+        public bool ResetIndex()
+        {
+            using (var serviceClient = new SearchServiceClient(SearchServiceName, new SearchCredentials(SearchAdminKey)))
+            {
+                if (serviceClient.Indexes.Exists(SongIndex))
+                {
+                    serviceClient.Indexes.Delete(SongIndex);
+                }
+
+                var index = SongIndexed.Index;
+
+                serviceClient.Indexes.Create(index);
+            }
+
+            return true;
+        }
+
+        public int IndexSongs(int max = -1, DateTime? from = null, SongFilter filter = null)
+        {
+            var songlist = (filter == null ? Songs : BuildSongList(filter)).OrderBy(t => t.Modified).ThenBy(t => t.SongId);
+
+            if (from.HasValue)
+            {
+                songlist = songlist.Where(s => s.Modified > from.Value) as IOrderedQueryable<Song>;
+            }
+
+            if (max != -1)
+            {
+                songlist = songlist?.Take(max) as IOrderedQueryable<Song>;
+            }
+
+            if (songlist == null) return -1;
+
+            var songs = new List<SongIndexed>();
+
+            foreach (var song in songlist)
+            {
+                AdminMonitor.UpdateTask("BuildBatch", songs.Count);
+
+                songs.Add(new SongIndexed(new SongDetails(song)));
+            }
+
+            try
+            {
+                AdminMonitor.UpdateTask("IndexBatch");
+                var batch = IndexBatch.Upload(songs);
+                using (var serviceClient = new SearchServiceClient(SearchServiceName, new SearchCredentials(SearchAdminKey)))
+                    using (var indexClient = serviceClient.Indexes.GetClient(SongIndex))
+                {
+                    indexClient.Documents.Index(batch);
+                }
+            }
+            catch (IndexBatchException e)
+            {
+                // Sometimes when your Search service is under load, indexing will fail for some of the documents in
+                // the batch. Depending on your application, you can take compensating actions like delaying and
+                // retrying. For this simple demo, we just log the failed document keys and continue.
+                var keys = e.IndexingResults.Where(r => !r.Succeeded).Select(r => r.Key).ToList();
+                var error = $"Failed to index {keys.Count} of the documents: {string.Join(",", keys)}";
+                Trace.WriteLine(error);
+                // TODO: Throw this at AppInisights
+                return e.IndexingResults.Count(r => r.Succeeded);
+            }
+
+            return songs.Count;
+        }
+
+        #endregion
         #region User
         public ApplicationUser FindUser(string name)
         {

@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using DanceLibrary;
+using Microsoft.Azure.Search.Models;
 
 namespace m4dModels
 {
@@ -10,17 +10,15 @@ namespace m4dModels
     {
         public SongIndexed(SongDetails song)
         {
-            SongId = song.SongId;
             // First copy the scalar properties
-            for (var i = 0; i < ScalarProperties.Length; i++)
-            {
-                var piDst = ScalarProperties[i];
-                if (piDst == null) continue;
 
-                var piSrc = SongBase.ScalarProperties[i];
-                var v = piSrc.GetValue(song);
-                piDst.SetValue(this, v);
-            }
+            SongId = song.SongId;
+            Title = song.Title;
+            Artist = song.Artist;
+            Length = song.Length;
+            Beat = song.Danceability;
+            Energy = song.Energy;
+            Mood = song.Valence;
 
             Created = song.Created;
             Modified = song.Modified;
@@ -66,14 +64,14 @@ namespace m4dModels
         }
 
         public Guid SongId { get; set; }
-        public decimal? Tempo { get; set; }
+        public double? Tempo { get; set; }
         public string Title { get; set; }
         public string Artist { get; set; }
         public int? Length { get; set; }
         public string[] Purchase { get; set; }
-        public float? Danceability { get; set; }
-        public float? Energy { get; set; }
-        public float? Valence { get; set; }
+        public double? Beat { get; set; }
+        public double? Energy { get; set; }
+        public double? Mood { get; set; }
         public DateTime Created { get; set; }
         public DateTime Modified { get; set; }
         public string[] Albums { get; set; }
@@ -86,17 +84,31 @@ namespace m4dModels
         public string [] TempoTags { get; set; }
         public string [] OtherTags { get; set; }
 
-        // TODO: We should seriously consider if we can abastract the taggable object stuff into
-        // and interface + helper class so that we can share a base class between SongBase & SongIndexed
-        public static readonly PropertyInfo[] ScalarProperties = {
-            typeof(SongIndexed).GetProperty(SongBase.TitleField),
-            typeof(SongIndexed).GetProperty(SongBase.ArtistField),
-            typeof(SongIndexed).GetProperty(SongBase.TempoField),
-            typeof(SongIndexed).GetProperty(SongBase.LengthField),
-            null,
-            typeof(SongIndexed).GetProperty(SongBase.DanceabilityField),
-            typeof(SongIndexed).GetProperty(SongBase.EnergyField),
-            typeof(SongIndexed).GetProperty(SongBase.ValenceFiled),
+        public static Index Index => new Index()
+        {
+            Name = "songs",
+            Fields = new []
+            {
+                new Field("SongId", DataType.String) {IsKey = true},
+                new Field("Title", DataType.String) {IsSearchable = true, IsSortable = true, IsFilterable = true, IsFacetable = true},
+                new Field("Artist", DataType.String) {IsSearchable = true, IsSortable = true, IsFilterable = false, IsFacetable = false},
+                new Field("Albums", DataType.Collection(DataType.String)) {IsSearchable = true, IsSortable = false, IsFilterable = true, IsFacetable = true},
+                new Field("Users", DataType.Collection(DataType.String)) {IsSearchable = true, IsSortable = false, IsFilterable = true, IsFacetable = true},
+                new Field("Created", DataType.DateTimeOffset) {IsSearchable = false, IsSortable = true, IsFilterable = true, IsFacetable = true},
+                new Field("Modified", DataType.DateTimeOffset) {IsSearchable = false, IsSortable = true, IsFilterable = true, IsFacetable = true},
+                new Field("Tempo", DataType.Double) {IsSearchable = false, IsSortable = true, IsFilterable = true, IsFacetable = true},
+                new Field("Length", DataType.Int32) {IsSearchable = false, IsSortable = true, IsFilterable = true, IsFacetable = true},
+                new Field("Beat", DataType.Double) {IsSearchable = false, IsSortable = true, IsFilterable = true, IsFacetable = true},
+                new Field("Energy", DataType.Double) {IsSearchable = false, IsSortable = true, IsFilterable = true, IsFacetable = true},
+                new Field("Mood", DataType.Double) {IsSearchable = false, IsSortable = true, IsFilterable = true, IsFacetable = true},
+                new Field("Purchase", DataType.Collection(DataType.String)) {IsSearchable = true, IsSortable = false, IsFilterable = true, IsFacetable = true},
+                new Field("DanceTags", DataType.Collection(DataType.String)) {IsSearchable = true, IsSortable = false, IsFilterable = true, IsFacetable = true},
+                new Field("DanceTagsInferred", DataType.Collection(DataType.String)) {IsSearchable = true, IsSortable = false, IsFilterable = true, IsFacetable = true},
+                new Field("GenreTags", DataType.Collection(DataType.String)) {IsSearchable = true, IsSortable = false, IsFilterable = true, IsFacetable = true},
+                new Field("StyleTags", DataType.Collection(DataType.String)) {IsSearchable = true, IsSortable = false, IsFilterable = true, IsFacetable = true},
+                new Field("TempoTags", DataType.Collection(DataType.String)) {IsSearchable = true, IsSortable = false, IsFilterable = true, IsFacetable = true},
+                new Field("OtherTags", DataType.Collection(DataType.String)) {IsSearchable = true, IsSortable = false, IsFilterable = true, IsFacetable = true},
+            }
         };
     }
 }

@@ -7,6 +7,12 @@
     <li class="active">Initialization Tasks</li>
 </ol>
 
+<h3>Search Indexing</h3>
+<ul>
+    <li>@Html.ActionLink("Reset Index", "ResetSearchIdx")</li>
+    <li>@Html.ActionLink("Load Index", "BuildSearchIdx", new {count=10}, null)</li>
+</ul>
+
 <h3> Initializiation Tasks</h3>
 <ul>
     <li>@Html.ActionLink("Clear Song Cache", "ClearSongCache") (@SongCounts.Reloads - autoreloads)</li>
