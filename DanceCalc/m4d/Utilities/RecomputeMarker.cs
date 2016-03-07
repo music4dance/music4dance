@@ -11,10 +11,29 @@ namespace m4d.Utilities
             return marker.GetTime();
         }
 
-        public static void SetMarker(string name)
+        public static Guid GetGuid(string name)
         {
             var marker = CreateMarker(name);
-            marker.SetTime();
+            return marker.GetGuid();
+        }
+
+        public static void SetMarker(string name, DateTime? time = null)
+        {
+            var marker = CreateMarker(name);
+            if (time.HasValue)
+            {
+                marker.SetTime(time.Value);
+            }
+            else
+            {
+                marker.SetTime();
+            }
+        }
+
+        public static void SetMarker(string name, Guid guid)
+        {
+            var marker = CreateMarker(name);
+            marker.SetGuid(guid);
         }
 
         private RecomputeMarker(string name)
@@ -26,9 +45,18 @@ namespace m4d.Utilities
 
         private DateTime GetTime()
         {
+            if (!System.IO.File.Exists(Path)) return DateTime.MinValue;
+
             var s = System.IO.File.ReadAllText(Path);
             DateTime time;
             return DateTime.TryParse(s, out time) ? time : System.IO.File.GetLastWriteTime(Path);
+        }
+
+        private Guid GetGuid()
+        {
+            var s = System.IO.File.ReadAllText(Path);
+            Guid guid;
+            return Guid.TryParse(s, out guid) ? guid : Guid.Empty;
         }
 
         private void SetTime()
@@ -38,7 +66,12 @@ namespace m4d.Utilities
 
         private void SetTime(DateTime time)
         {
-            System.IO.File.WriteAllText(Path, time.ToString("u"));
+            System.IO.File.WriteAllText(Path, time.ToString("G"));
+        }
+
+        public void SetGuid(Guid guid)
+        {
+            System.IO.File.WriteAllText(Path, guid.ToString());
         }
 
         private static RecomputeMarker CreateMarker(string name)

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using DanceLibrary;
 using Microsoft.Azure.Search.Models;
 
@@ -8,6 +9,11 @@ namespace m4dModels
 {
     public class SongIndexed
     {
+        public SongIndexed()
+        {
+            
+        }
+
         public SongIndexed(SongDetails song)
         {
             // First copy the scalar properties
@@ -84,7 +90,7 @@ namespace m4dModels
         public string [] TempoTags { get; set; }
         public string [] OtherTags { get; set; }
 
-        public static Index Index => new Index()
+        public static Index Index => new Index
         {
             Name = "songs",
             Fields = new []
@@ -108,6 +114,10 @@ namespace m4dModels
                 new Field("StyleTags", DataType.Collection(DataType.String)) {IsSearchable = true, IsSortable = false, IsFilterable = true, IsFacetable = true},
                 new Field("TempoTags", DataType.Collection(DataType.String)) {IsSearchable = true, IsSortable = false, IsFilterable = true, IsFacetable = true},
                 new Field("OtherTags", DataType.Collection(DataType.String)) {IsSearchable = true, IsSortable = false, IsFilterable = true, IsFacetable = true},
+            },
+            Suggesters = new[]
+            {
+                new Suggester("songs",SuggesterSearchMode.AnalyzingInfixMatching, "Title", "Artist", "Albums", "DanceTags", "Purchase", "GenreTags", "TempoTags", "StyleTags", "OtherTags")
             }
         };
     }

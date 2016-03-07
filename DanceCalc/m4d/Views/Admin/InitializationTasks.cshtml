@@ -10,7 +10,8 @@
 <h3>Search Indexing</h3>
 <ul>
     <li>@Html.ActionLink("Reset Index", "ResetSearchIdx")</li>
-    <li>@Html.ActionLink("Load Index", "BuildSearchIdx", new {count=10}, null)</li>
+    <li>@Html.ActionLink("Load Index (rebuild)", "BuildSearchIdx", new {count=500,rebuild=true}, null)</li>
+    <li>@Html.ActionLink("Load Index (incremental)", "BuildSearchIdx", new { count = 100 }, null)</li>
 </ul>
 
 <h3> Initializiation Tasks</h3>

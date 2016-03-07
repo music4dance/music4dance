@@ -2785,54 +2785,111 @@ namespace m4dModels
             return true;
         }
 
-        public int IndexSongs(int max = -1, DateTime? from = null, SongFilter filter = null)
+        public IndexInfo IndexSongs(int max = -1, DateTime? from = null, bool rebuild = false, SongFilter filter = null)
         {
-            var songlist = (filter == null ? Songs : BuildSongList(filter)).OrderBy(t => t.Modified).ThenBy(t => t.SongId);
+            if (max == -1) max = 100;
+
+            var ret = new IndexInfo();
+
+            // Get songlist with NoCruft filter (which still totals less that 10,000)
+            if (filter == null) filter = new SongFilter();
+            var songlist = BuildSongList(filter);
+
+            if (from != null)
+            {
+                songlist = songlist.Where(s => s.Modified >= from);
+            }
+
+            songlist = songlist.OrderBy(t => t.Modified).ThenBy(t => t.SongId);
 
             if (from.HasValue)
             {
-                songlist = songlist.Where(s => s.Modified > from.Value) as IOrderedQueryable<Song>;
+                songlist = songlist.Where(s => s.Modified > from.Value);
             }
 
-            if (max != -1)
-            {
-                songlist = songlist?.Take(max) as IOrderedQueryable<Song>;
-            }
-
-            if (songlist == null) return -1;
+            songlist = songlist.Take(max + 100);
 
             var songs = new List<SongIndexed>();
 
-            foreach (var song in songlist)
-            {
-                AdminMonitor.UpdateTask("BuildBatch", songs.Count);
+            var lastTouched = DateTime.MinValue;
 
-                songs.Add(new SongIndexed(new SongDetails(song)));
-            }
-
-            try
+            using (var serviceClient = new SearchServiceClient(SearchServiceName, new SearchCredentials(SearchAdminKey)))
+            using (var indexClient = serviceClient.Indexes.GetClient(SongIndex))
             {
-                AdminMonitor.UpdateTask("IndexBatch");
-                var batch = IndexBatch.Upload(songs);
-                using (var serviceClient = new SearchServiceClient(SearchServiceName, new SearchCredentials(SearchAdminKey)))
-                    using (var indexClient = serviceClient.Indexes.GetClient(SongIndex))
+                var tried = 0;
+                var exists = true;
+                foreach (var song in songlist)
                 {
+                    SongIndexed doc = null;
+                    lastTouched = song.Modified;
+
+                    if (rebuild && exists)
+                    {
+                        try
+                        {
+                            doc = indexClient.Documents.Get<SongIndexed>(song.SongId.ToString());
+                        }
+                        catch (Microsoft.Rest.Azure.CloudException e)
+                        {
+                            Trace.WriteLine(e.Message);
+                            // Not found.
+                        }
+                    }
+
+                    if (doc != null)
+                    {
+                        AdminMonitor.UpdateTask("ScanBatch", tried);
+                        tried += 1;
+                    }
+                    else  {
+                        AdminMonitor.UpdateTask("BuildBatch", songs.Count);
+                        songs.Add(new SongIndexed(new SongDetails(song)));
+                        exists = false;
+
+                        if (songs.Count >= max)
+                            break;
+                    }
+                }
+
+                if (songs.Count == 0)
+                {
+                    if (tried < max + 100)
+                    {
+                        ret.Complete = true;
+                        ret.Message = "No more songs to index";
+                    }
+                    else
+                    {
+                        ret.Message = "Correct for semaphore burp.";
+                        ret.LastTime = lastTouched;
+                    }
+                    return ret;
+                }
+
+                try
+                {
+                    AdminMonitor.UpdateTask("IndexBatch");
+                    var batch = IndexBatch.Upload(songs);
                     indexClient.Documents.Index(batch);
+                    ret.Succeeded = songs.Count;
+                    ret.LastTime = songs[songs.Count - 1].Modified;
+                }
+                catch (IndexBatchException e)
+                {
+                    // Sometimes when your Search service is under load, indexing will fail for some of the documents in
+                    // the batch. Depending on your application, you can take compensating actions like delaying and
+                    // retrying. For this simple demo, we just log the failed document keys and continue.
+                    var keys = e.IndexingResults.Where(r => !r.Succeeded).Select(r => r.Key).ToList();
+                    var error = $"Failed to index {keys.Count} of the documents: {string.Join(",", keys)}";
+                    Trace.WriteLine(error);
+
+                    ret.Message = error;
+                    ret.Failed = keys.Count;
+                    ret.Succeeded = e.IndexingResults.Count(r => r.Succeeded);
                 }
             }
-            catch (IndexBatchException e)
-            {
-                // Sometimes when your Search service is under load, indexing will fail for some of the documents in
-                // the batch. Depending on your application, you can take compensating actions like delaying and
-                // retrying. For this simple demo, we just log the failed document keys and continue.
-                var keys = e.IndexingResults.Where(r => !r.Succeeded).Select(r => r.Key).ToList();
-                var error = $"Failed to index {keys.Count} of the documents: {string.Join(",", keys)}";
-                Trace.WriteLine(error);
-                // TODO: Throw this at AppInisights
-                return e.IndexingResults.Count(r => r.Succeeded);
-            }
 
-            return songs.Count;
+            return ret;
         }
 
         #endregion

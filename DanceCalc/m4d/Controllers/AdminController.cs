@@ -2043,7 +2043,7 @@ namespace m4d.Controllers
         //
         // Get: //BuildSearchIdx
         [Authorize(Roles = "showDiagnostics")]
-        public ActionResult BuildSearchIdx(int count = 100, DateTime? from = null, string filter = null)
+        public ActionResult BuildSearchIdx(int count = 100, DateTime? from = null, bool rebuild = false, string filter = null)
         {
             try
             {
@@ -2055,13 +2055,24 @@ namespace m4d.Controllers
                     songFilter = new SongFilter(filter);
                 }
 
-                var c = Database.IndexSongs(count, from, songFilter);
+                if (!from.HasValue)
+                {
+                    from = RecomputeMarker.GetMarker("songindex");
+                }
+
+                var info = Database.IndexSongs(count, from, rebuild, songFilter);
+
+                if (info.Succeeded > 0)
+                {
+                    RecomputeMarker.SetMarker("songindex", info.LastTime);
+                }
 
                 ViewBag.Name = "Indexed Songs";
                 ViewBag.Success = true;
-                ViewBag.Message = $"{c} songs indexed";
 
-                return CompleteAdminTask(true, $"{c} songs indexed.");
+                ViewBag.Message = $"{info.Succeeded} songs indexed, {info.Failed} failed. {(info.Message ?? string.Empty)}";
+
+                return CompleteAdminTask(true, $"{info.Succeeded} songs indexed.");
             }
             catch (Exception e)
             {
