@@ -8,7 +8,7 @@
                 "Amazon",
                 "amazon_store",
                 "Available on Amazon",
-                "http://www.amazon.com/gp/product/{0}/ref=as_li_ss_tl?ie=UTF8&camp=1789&creative=390957&creativeASIN={0}&linkCode=as2&tag=ms4dnc-20",
+                "http://www.amazon.com/gp/product/{0}/ref=as_li_ss_tl?ie=UTF8&camp=1789&creative=390957&creativeASIN={0}&linkCode=as2&tag=msc4dnc-20",
                 null)
         {
         }
