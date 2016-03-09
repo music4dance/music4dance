@@ -24,7 +24,7 @@ namespace m4dModels
         static SongFilter()
         {
             var info = typeof(SongFilter).GetProperties(BindingFlags.Public | BindingFlags.Instance);
-            s_propertyInfo = info.Where(p => p.CanRead && p.CanWrite).ToList();
+            PropertyInfo = info.Where(p => p.CanRead && p.CanWrite).ToList();
         }
 
         public SongFilter()
@@ -58,7 +58,7 @@ namespace m4dModels
                     cells[i] = cells[i].Replace(SubChar, Separator);
                 }
 
-                var pi = s_propertyInfo[i];
+                var pi = PropertyInfo[i];
 
                 object v = null;
                 if (!string.IsNullOrWhiteSpace(cells[i]))
@@ -125,7 +125,7 @@ namespace m4dModels
 
             var sep = string.Empty;
             var i = 0;
-            foreach (var v in s_propertyInfo.Select(p => p.GetValue(this)))
+            foreach (var v in PropertyInfo.Select(p => p.GetValue(this)))
             {
                 if (v == null || IsAltDefault(v,i))
                 {
@@ -157,7 +157,7 @@ namespace m4dModels
         {
             get
             {
-                return !s_propertyInfo.Where(pi => pi.Name != "SortOrder").Select(t => t.GetValue(this)).Where((o, i) => o != null && !IsAltDefault(o, i)).Any();
+                return !PropertyInfo.Where(pi => pi.Name != "SortOrder").Select(t => t.GetValue(this)).Where((o, i) => o != null && !IsAltDefault(o, i)).Any();
             }
         }
 
@@ -165,7 +165,7 @@ namespace m4dModels
         {
             get
             {
-                return !s_propertyInfo.Where(pi => pi.Name != "Page").Select(t => t.GetValue(this)).Where((o, i) => o != null && !IsAltDefault(o, i)).Any();
+                return !PropertyInfo.Where(pi => pi.Name != "Page").Select(t => t.GetValue(this)).Where((o, i) => o != null && !IsAltDefault(o, i)).Any();
             }
         }
 
@@ -271,13 +271,13 @@ namespace m4dModels
         }
         private static bool IsAltDefault(object o, int index)
         {
-            if (index > s_altDefaults.Length -1 || s_altDefaults[index] == null) return false;
+            if (index > AltDefaults.Length -1 || AltDefaults[index] == null) return false;
 
             var s = o as string;
-            return s != null ? string.Equals(s, s_altDefaults[index] as string, StringComparison.InvariantCultureIgnoreCase) : Equals(o, s_altDefaults[index]);
+            return s != null ? string.Equals(s, AltDefaults[index] as string, StringComparison.InvariantCultureIgnoreCase) : Equals(o, AltDefaults[index]);
         }
 
-        private static readonly List<PropertyInfo> s_propertyInfo;
-        private static readonly object[] s_altDefaults = {"index","all","modified",null,null,null,null,1};
+        private static readonly List<PropertyInfo> PropertyInfo;
+        private static readonly object[] AltDefaults = {"index","all","modified",null,null,null,null,1};
     }
 }
