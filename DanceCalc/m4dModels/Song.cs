@@ -1326,6 +1326,80 @@ namespace m4dModels
             return true;
         }
 
+        public bool CleanupAlbums(Song song, DanceMusicService dms)
+        {
+            // Remove the properties for album info that has been 'deleted'
+            // and if any have been removed, also get rid of promote and order
+
+            var albums = new Dictionary<int, List<SongProperty>>();
+            var remove = new List<SongProperty>();
+            var deleted = new HashSet<int>();
+
+            var changed = false;
+            foreach (var prop in OrderedProperties)
+            {
+                var bn = prop.BaseName;
+                var index = prop.Index ?? -1;
+
+                switch (bn)
+                {
+                    case AlbumOrder:
+                    case AlbumPromote:
+                        remove.Add(prop);
+                        break;
+                    case AlbumField:
+                    case TrackField:
+                    case PublisherField:
+                    case PurchaseField:
+                        if (prop.IsNull)
+                        {
+                            if (bn == AlbumField)
+                            {
+                                deleted.Add(index);
+                                // pull the previous properties and add this to removed
+                                List<SongProperty> old;
+                                if (albums.TryGetValue(index, out old))
+                                {
+                                    remove.AddRange(old);
+                                    albums.Remove(index);
+                                }
+                                remove.Add(prop);
+                                changed = true;
+                            }
+                            else if (deleted.Contains(index))
+                            {
+                                remove.Add(prop);
+                                changed = true;
+                            }
+                        }
+                        else
+                        {
+                            List<SongProperty> old;
+                            if (!albums.TryGetValue(index, out old))
+                            {
+                                old = new List<SongProperty>();
+                                albums[index] = old;
+                            }
+                            old.Add(prop);
+                            if (deleted.Contains(index))
+                            {
+                                deleted.Remove(index);
+                            }
+                        }
+                        break;
+                }
+            }
+
+            if (remove.Count == 0 || !changed) return false;
+
+            foreach (var prop in remove)
+            {
+                SongProperties.Remove(prop);
+                dms.Context.SongProperties.Remove(prop);
+            }
+
+            return true;
+        }
 
         private class TagTracker
         {

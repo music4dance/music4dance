@@ -168,6 +168,8 @@ namespace m4dModels
         public bool IsComplex => IsComplexName(Name);
         public bool IsAction => IsActionName(Name);
 
+        public bool IsNull => string.IsNullOrWhiteSpace(Value);
+
         public static bool IsComplexName(string name)
         {
             return name.Contains(":");
