@@ -1276,6 +1276,57 @@ namespace m4dModels
             return true;
         }
 
+        public bool RemoveDuplicateDurations(Song song, DanceMusicService dms)
+        {
+            // Cleanup durations that are within 20 seconds of an average
+
+            var count = 0;
+            var outliers = 0;
+            var avg = 0;
+            SongProperty first = null;
+            var remove = new List<SongProperty>();
+
+            foreach (var prop in OrderedProperties)
+            {
+                if (prop.Name != LengthField) continue;
+
+                var val = prop.ObjectValue;
+                if (!(val is int)) continue;
+
+                var current = (int)val;
+
+                if (count == 0)
+                {
+                    avg = current;
+                    first = prop;
+                    count = 1;
+                }
+                else if (Math.Abs(avg - current) > 20)
+                {
+                    outliers += 1;
+                }
+                else
+                {
+                    avg = ((avg*count) + current)/(count + 1);
+                    count += 1;
+                    remove.Add(prop);
+                }
+            }
+
+            if (remove.Count == 0 || first == null || outliers > count / 2) return false;
+
+            first.Value = avg.ToString();
+
+            foreach (var prop in remove)
+            {
+                SongProperties.Remove(prop);
+                dms.Context.SongProperties.Remove(prop);
+            }
+
+            return true;
+        }
+
+
         private class TagTracker
         {
             public TagTracker()

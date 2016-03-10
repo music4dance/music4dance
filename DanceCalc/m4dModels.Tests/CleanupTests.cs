@@ -40,9 +40,6 @@ namespace m4dModels.Tests
         [TestMethod]
         public void CleanRatings()
         {
-            //TODONEXT: Clean up the case where a user has added tags and dances redundantly
-            // First pass on this is when they are adjacent...
-
             var service = new DanceMusicTester(new List<string>{SongB,SongC});
 
             var songs = new List<Song>
@@ -66,5 +63,33 @@ namespace m4dModels.Tests
                 //DanceMusicTester.DumpSongProperties(song);
             }
         }
+
+        [TestMethod]
+        public void CleanDurations()
+        {
+            var service = new DanceMusicTester(new List<string> { SongB, SongC });
+
+            var songs = new List<Song>
+            {
+                service.Dms.FindSong(GuidB),
+                service.Dms.FindSong(GuidC)
+            };
+
+            var deltas = new List<int> { 12, 2 };
+
+            for (var index = 0; index < songs.Count; index++)
+            {
+                var song = songs[index];
+                //Trace.WriteLine($"---------------Predump for Song {song.SongId}");
+                //DanceMusicTester.DumpSongProperties(song);
+                var c = song.SongProperties.Count;
+                Assert.IsTrue(song.RemoveDuplicateDurations(song, service.Dms));
+                Trace.WriteLine($"{song.SongId}:{song.SongProperties.Count - c}");
+                Assert.AreEqual(c - deltas[index], song.SongProperties.Count);
+                //Trace.WriteLine($"---------------Postdump for Song {song.SongId}");
+                //DanceMusicTester.DumpSongProperties(song);
+            }
+        }
+
     }
 }
