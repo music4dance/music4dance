@@ -598,6 +598,8 @@ namespace m4dModels
             string cu = null;
             foreach (var prop in OrderedProperties)
             {
+                // NOTE: This works because we're switching on the full name, not the
+                //  basename, so this gets the user tags for the song, not the dances
                 // ReSharper disable once SwitchStatementMissingSomeCases
                 switch (prop.Name)
                 {

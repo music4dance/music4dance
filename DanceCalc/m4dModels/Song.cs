@@ -1212,7 +1212,6 @@ namespace m4dModels
         public bool RemoveEmptyEdits(Song song, DanceMusicService dms)
         {
             // Cleanup null edits
-
             var remove = new List<SongProperty>();
             var buffer = new List<SongProperty>();
 
@@ -1275,6 +1274,135 @@ namespace m4dModels
             }
 
             return true;
+        }
+
+        private class TagTracker
+        {
+            public TagTracker()
+            {
+                Tags = new TagList();
+            }
+            public TagList Tags { get; set; }
+            public SongProperty Property { get; set; }
+        }
+
+        private class RatingTracker
+        {
+            public int Rating { get; set; }
+            public SongProperty Property { get; set; }
+        }
+
+        private class UserEdits
+        {
+            public UserEdits()
+            {
+                UserTags = new Dictionary<string, TagTracker>();
+                Ratings = new Dictionary<string, RatingTracker>();
+            }
+            public  Dictionary<string,TagTracker> UserTags { get; }
+
+            public Dictionary<string, RatingTracker> Ratings { get; } 
+        }
+
+        public bool RemoveDuplicateRatings(Song song, DanceMusicService dms)
+        {
+            // This function should not semantically change the tags, but it will potentially
+            //  reduce the danceratings where there were redundant entries previously
+
+            // For each user, keep a list of the tags and danceratings that they have applied
+            var users = new Dictionary<string,UserEdits>();
+            var remove = new List<SongProperty>();
+
+            string currentUser = null;
+            UserEdits currentEdits = null;
+            
+            foreach (var prop in OrderedProperties)
+            {
+                var bn = prop.BaseName;
+                switch (prop.BaseName)
+                {
+                    case UserField:
+                    case UserProxy:
+                        if (!string.Equals(currentUser, prop.Value, StringComparison.OrdinalIgnoreCase))
+                        {
+                            currentUser = prop.Value;
+                            if (!users.TryGetValue(currentUser, out currentEdits))
+                            {
+                                currentEdits = new UserEdits();
+                                users[currentUser] = currentEdits;
+                            }
+                        }
+                        break;
+                    case AddedTags:
+                    case RemovedTags:
+                        var qual = prop.DanceQualifier ?? string.Empty;
+                        if (currentEdits == null)
+                        {
+                            Trace.WriteLine($"Tag property {prop} comes before user.");
+                            break;
+                        }
+                        TagTracker acc;
+                        if (!currentEdits.UserTags.TryGetValue(qual, out acc))
+                        {
+                            acc = new TagTracker {Property = prop};
+                            currentEdits.UserTags[qual] = acc;
+                        }
+                        else
+                        {
+                            remove.Add(prop);
+                        }
+                        acc.Tags = (bn == AddedTags) ? 
+                            acc.Tags.Add(new TagList(prop.Value)) : 
+                            acc.Tags.Subtract(new TagList(prop.Value));
+                        break;
+                    case DanceRatingField:
+                        if (currentEdits == null)
+                        {
+                            Trace.WriteLine($"DanceRating property {prop} comes before user.");
+                            break;
+                        }
+                        var drd = new DanceRatingDelta(prop.Value);
+                        RatingTracker rating;
+                        if (!currentEdits.Ratings.TryGetValue(drd.DanceId, out rating))
+                        {
+                            currentEdits.Ratings[drd.DanceId] = new RatingTracker {Rating = drd.Delta, Property = prop};
+                        }
+                        else 
+                        {
+                            // Keep the biggest vote from this user
+                            if (Math.Abs(rating.Rating) <= Math.Abs(drd.Delta))
+                            {
+                                rating.Rating = drd.Delta;
+                                rating.Property.Value = drd.ToString();
+                            }
+                            remove.Add(prop);
+                        }
+                        break;
+                }
+            }
+
+            var changed = false;
+
+            foreach (var prop in remove)
+            {
+                SongProperties.Remove(prop);
+                dms.Context.SongProperties.Remove(prop);
+                changed = true;
+            }
+
+            foreach (var edit in users.Values)
+            {
+                foreach (var tracker in edit.UserTags.Values)
+                {
+                    var tags = tracker.Tags.ToString();
+                    if (string.Equals(tags, tracker.Property.Value))
+                        continue;
+                    tracker.Property.Value = tags;
+                    changed = true;
+                }
+            }
+
+            return changed;
         }
 
         #endregion
