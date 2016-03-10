@@ -72,5 +72,13 @@ namespace m4dModels.Tests
 
             return false;
         }
+
+        public static void DumpSongProperties(SongBase song)
+        {
+            foreach (var prop in song.OrderedProperties)
+            {
+                Trace.WriteLine(prop.ToString());
+            }
+        }
     }
 }

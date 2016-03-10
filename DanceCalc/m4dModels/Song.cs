@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
+using System.Net;
 using System.Text;
 using DanceLibrary;
 
@@ -1207,6 +1208,75 @@ namespace m4dModels
             TitleHash = hash;
             return true;
         }
+
+        public bool RemoveEmptyEdits(Song song, DanceMusicService dms)
+        {
+            // Cleanup null edits
+
+            var remove = new List<SongProperty>();
+            var buffer = new List<SongProperty>();
+
+            var users = new HashSet<string>();
+            var inEmpty = false;
+            foreach (var prop in OrderedProperties)
+            {
+                // Run through the properties and add all clusters of 
+                if (prop.IsAction)
+                {
+                    if (inEmpty)
+                    {
+                        remove.AddRange(buffer);
+                        buffer.Clear();
+                    }
+                    if (prop.Name != EditCommand) continue;
+
+                    inEmpty = true;
+                    buffer.Add(prop);
+                }
+                else if (prop.Name == UserField || prop.Name == TimeField)
+                {
+                    if (prop.Name == UserField)
+                    {
+                        // Count == 1 case is where the .Edit command is the only thing there
+                        if (inEmpty && buffer.Count > 1)
+                        {
+                            remove.AddRange(buffer);
+                            buffer.Clear();
+                        }
+
+                        if (users.Contains(prop.Value))
+                        {
+                            inEmpty = true;
+                        }
+                        else
+                        {
+                            users.Add(prop.Value);
+                        }
+                    }
+
+                    if (inEmpty)
+                    {
+                        buffer.Add(prop);
+                    }
+                }
+                else
+                {
+                    inEmpty = false;
+                    buffer.Clear();
+                }
+            }
+
+            if (remove.Count == 0) return false;
+
+            foreach (var prop in remove)
+            {
+                SongProperties.Remove(prop);
+                dms.Context.SongProperties.Remove(prop);
+            }
+
+            return true;
+        }
+
         #endregion
 
         #region Serialization

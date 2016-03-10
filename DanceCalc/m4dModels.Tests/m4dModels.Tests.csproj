@@ -78,6 +78,7 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
+    <Compile Include="CleanupTests.cs" />
     <Compile Include="DanceMusicTester.cs" />
     <Compile Include="MockContext.cs" />
     <Compile Include="MockUserStore.cs" />
