@@ -979,6 +979,7 @@
     <Content Include="Views\Song\BotFilter.cshtml" />
     <Content Include="Views\Searches\Details.cshtml" />
     <Content Include="Views\Searches\Index.cshtml" />
+    <Content Include="Views\Song\LuceneSearch.cshtml" />
     <None Include="Web.m4d.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

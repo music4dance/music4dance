@@ -2767,6 +2767,8 @@ namespace m4dModels
 
         private const string SearchServiceName = "m4d";
         private const string SearchAdminKey = "***REMOVED***";
+        private const string SearchQueryKey = "5B2BAFC30F0CD25405A10B08582B5451";
+
         private const string SongIndex = "songs";
         public bool ResetIndex()
         {
@@ -2890,6 +2892,22 @@ namespace m4dModels
             }
 
             return ret;
+        }
+
+        public SearchResults LuceneSearch(string query, int page)
+        {
+            using (var serviceClient = new SearchServiceClient(SearchServiceName, new SearchCredentials(SearchQueryKey)))
+            using (var indexClient = serviceClient.Indexes.GetClient(SongIndex))
+            {
+                var sp = new SearchParameters {IncludeTotalResultCount = true, Top=25, Skip=page*25};
+
+                var response = indexClient.Documents.Search<SongIndexed>(query, sp);
+                var songs = response.Results.Select(si => Songs.Find(si.Document.SongId)).Cast<SongBase>().ToList();
+                // TODONEXT: Short circuit anything we are doing to filter on the results page, then get paging working
+                //  and make sure we can pass through full search/filter syntax, at that point we should be able
+                //  to throw this to beta.  Then we start lighting up filtering/faceting features.
+                return new SearchResults(query,songs.Count,response.Count ?? -1,page,songs);
+            }
         }
 
         #endregion

@@ -1,0 +1,42 @@
+﻿@model IEnumerable<SongBase>
+@*@using System.Runtime.Serialization.Json
+@using PagedList.Mvc;*@
+
+@{
+    ViewBag.SongFilter = new SongFilter("lucene");
+    ViewBag.NoSort = true;
+    string search = ViewData.ContainsKey("Search") ? ViewBag.Search : string.Empty;
+}
+
+<div class="row">
+    <h1 class="col-sm-offset-1 col-sm-10" style="width: auto; font-size: 22px;">Search Songs (BETA)</h1>
+</div>
+
+@Html.Partial("ItemTags")
+
+@using (Html.BeginForm("LuceneSearch", "Song", FormMethod.Get, new {id = "search"}))
+{
+    <div class="row">
+        <div class="input-group col-sm-offset-1 col-sm-10"style="margin-top: 1em">
+            @Html.TextBox("SearchString", search, new { @class = "form-control search-text", placeholder = "search string", id = "search-text" })
+            <span class="input-group-btn">
+                <button id="submit-search" class="btn btn-default" type="submit" style="margin-right: 15px"><span class="glyphicon glyphicon-search"></span></button>
+            </span>
+        </div>
+    </div>
+}
+
+@{ Html.RenderPartial("_ListSongs", @Model, ViewData);}
+
+@section Scripts
+{
+    @Scripts.Render("~/bundles/jqueryval")
+    @Scripts.Render("~/bundles/knockout")
+    @Scripts.Render("~/bundles/knockout-mapping")
+    @Scripts.Render("~/bundles/tools-script")
+    @Scripts.Render("~/bundles/musicservice")
+    @Scripts.Render("~/bundles/tagchooser")
+    @Scripts.Render("~/bundles/catalog")
+
+    @Styles.Render("~/bundles/tools-style")
+}

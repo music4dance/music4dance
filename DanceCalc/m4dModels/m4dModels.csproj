@@ -116,6 +116,7 @@
     <Compile Include="PurchaseType.cs" />
     <Compile Include="QuickTimer.cs" />
     <Compile Include="Search.cs" />
+    <Compile Include="SearchResults.cs" />
     <Compile Include="ServiceType.cs" />
     <Compile Include="SongCounts.cs" />
     <Compile Include="SongFilterConverter.cs" />

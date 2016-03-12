@@ -10,9 +10,9 @@
     var showLength = ViewData.ContainsKey("ShowLength") ? ViewBag.ShowLength : false;
 
     var danceMap = (IDictionary<string, SongCounts>)ViewBag.DanceMap;
-    var songOrder = new SongSort(ViewBag.SongFilter.SortOrder);
     var showDate = canSort;
     SongFilter filter = ViewData.ContainsKey("SongFilter") ? ViewBag.SongFilter : new SongFilter();
+    var songOrder = new SongSort(filter.SortOrder);
     var danceId = ViewData.ContainsKey("DanceId") ? ViewBag.DanceId : null;
     var danceName = (danceId == null) ? null : danceMap[danceId].DanceName;
     LikeDictionary likes = ViewData.ContainsKey("Likes") ? ViewBag.Likes : null;

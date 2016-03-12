@@ -10,6 +10,7 @@ using DanceLibrary;
 using m4d.Utilities;
 using m4d.ViewModels;
 using m4dModels;
+using Microsoft.Azure.Search;
 using PagedList;
 
 namespace m4d.Controllers
@@ -86,6 +87,17 @@ namespace m4d.Controllers
             filter.TempoMax = null;
 
             return DoIndex(filter);
+        }
+
+        [AllowAnonymous]
+        public ActionResult LuceneSearch(string searchString)
+        {
+            ViewBag.Search = searchString;
+
+            var results = Database.LuceneSearch(searchString, 0);
+
+            BuildDanceList();
+            return View(results.Songs);
         }
 
         //
