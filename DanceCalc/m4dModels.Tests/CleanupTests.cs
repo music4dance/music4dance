@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace m4dModels.Tests
@@ -111,5 +110,54 @@ namespace m4dModels.Tests
             //Trace.WriteLine($"---------------Postdump for Song {song.SongId}");
             //DanceMusicTester.DumpSongProperties(song);
         }
+
+        [TestMethod]
+        public void CleanAll()
+        {
+            var service = new DanceMusicTester(new List<string> { SongA, SongB, SongC });
+
+            var songs = new List<Song>
+            {
+                service.Dms.FindSong(GuidA),
+                service.Dms.FindSong(GuidB),
+                service.Dms.FindSong(GuidC)
+            };
+
+            var deltas = new List<List<int>>
+            {
+                new List<int> {1,1,2,16},
+                new List<int> {12,130,147,178},
+                new List<int> {2,2,13,16}
+            };
+
+            for (var index = 0; index < songs.Count; index++)
+            {
+                var song = songs[index];
+                var delta = deltas[index];
+                //Trace.WriteLine($"---------------Predump for Song {song.SongId}");
+                //DanceMusicTester.DumpSongProperties(song);
+                var c = song.SongProperties.Count;
+                song.RemoveDuplicateDurations(song, service.Dms);
+                Trace.WriteLine($"++++After Durations: {song.SongId}:{song.SongProperties.Count - c}");
+                Assert.AreEqual(delta[0],c - song.SongProperties.Count);
+                song.CleanupAlbums(song, service.Dms);
+                Trace.WriteLine($"++++After Albums: {song.SongId}:{song.SongProperties.Count - c}");
+                Assert.AreEqual(delta[1], c - song.SongProperties.Count);
+                song.RemoveDuplicateRatings(song, service.Dms);
+                Trace.WriteLine($"++++After Ratings: {song.SongId}:{song.SongProperties.Count - c}");
+                Assert.AreEqual(delta[2], c - song.SongProperties.Count);
+                song.RemoveEmptyEdits(song, service.Dms);
+                Trace.WriteLine($"++++After Empty: {song.SongId}:{song.SongProperties.Count - c}");
+                Assert.AreEqual(delta[3], c - song.SongProperties.Count);
+                //                Assert.AreEqual(c - deltas[index], song.SongProperties.Count);
+                //Trace.WriteLine($"---------------Postdump for Song {song.SongId}");
+                //DanceMusicTester.DumpSongProperties(song);
+
+                // May be worth doing some verification on this, but for now just want to make sure it loads...
+                var sd = new SongDetails(song.SongId, song.SongProperties);
+                Assert.IsNotNull(sd);
+            }
+        }
+
     }
 }
