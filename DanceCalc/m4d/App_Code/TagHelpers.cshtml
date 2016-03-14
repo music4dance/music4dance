@@ -4,6 +4,7 @@
 @* ReSharper disable once InvertIf *@
 @helper TagButton(TagCount tag, SongFilter filter, float cloudSize = 0)
 {
+    var luceneSearch = filter.Action == "lucene";
     var buckets = new[] {.25F,.5F,.75F,1,5,10,20,25,50,100};
     var sizes = new[] {14,16,18,20,22,24,26,28,30,32};
     var iconSize = 14;
@@ -53,15 +54,18 @@
     <div class="btn-group @size">
         <a href="#!" role="button" class="dropdown-toggle label label-@tc" data-toggle="dropdown" aria-expanded="false"><img src="@img" height="@iconSize.ToString()" width="@iconSize.ToString()" /> @tag.TagValue</a>
         <ul class="dropdown-menu" role="menu">
-            @if (urlFiltered != null)
+            @if (!luceneSearch)
             {
-                <li><a href="@string.Format(urlFiltered, "%2B")">Filter the list to include only songs tagged as @tag.TagValue</a></li>
-                <li><a href="@string.Format(urlFiltered, "%2D")">Filter the list to include only songs not tagged as @tag.TagValue</a></li>
-            }
-            @if (urlDance != null)
-            {
-                <li><a href="@string.Format(urlDance, "%2B")">List all @danceName songs tagged as @tag.TagValue</a></li>
-                <li><a href="@string.Format(urlDance, "%2D")">List all @danceName songs not tagged as @tag.TagValue</a></li>
+                if (urlFiltered != null)
+                {
+                    <li><a href="@string.Format(urlFiltered, "%2B")">Filter the list to include only songs tagged as @tag.TagValue</a></li>
+                    <li><a href="@string.Format(urlFiltered, "%2D")">Filter the list to include only songs not tagged as @tag.TagValue</a></li>
+                }
+                if (urlDance != null)
+                {
+                    <li><a href="@string.Format(urlDance, "%2B")">List all @danceName songs tagged as @tag.TagValue</a></li>
+                    <li><a href="@string.Format(urlDance, "%2D")">List all @danceName songs not tagged as @tag.TagValue</a></li>
+                }
             }
             <li><a href="@string.Format(url, "%2B")">List all songs tagged as @tag.TagValue</a></li>
             <li><a href="@string.Format(url, "%2D")">List all songs not tagged as @tag.TagValue</a></li>

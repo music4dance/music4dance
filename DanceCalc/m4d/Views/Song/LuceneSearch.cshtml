@@ -1,6 +1,6 @@
-﻿@model IEnumerable<SongBase>
-@*@using System.Runtime.Serialization.Json
-@using PagedList.Mvc;*@
+﻿@model PagedList.IPagedList<SongBase>
+@*@using System.Runtime.Serialization.Json*@
+@using PagedList.Mvc;
 
 @{
     ViewBag.SongFilter = new SongFilter("lucene");
@@ -9,7 +9,7 @@
 }
 
 <div class="row">
-    <h1 class="col-sm-offset-1 col-sm-10" style="width: auto; font-size: 22px;">Search Songs (BETA)</h1>
+    <h1 class="col-sm-12" style="width: auto; font-size: 22px;">Search Songs (BETA)</h1>
 </div>
 
 @Html.Partial("ItemTags")
@@ -17,16 +17,26 @@
 @using (Html.BeginForm("LuceneSearch", "Song", FormMethod.Get, new {id = "search"}))
 {
     <div class="row">
-        <div class="input-group col-sm-offset-1 col-sm-10"style="margin-top: 1em">
+        <div class="input-group col-sm-12" style="padding-left: 15px">
             @Html.TextBox("SearchString", search, new { @class = "form-control search-text", placeholder = "search string", id = "search-text" })
             <span class="input-group-btn">
                 <button id="submit-search" class="btn btn-default" type="submit" style="margin-right: 15px"><span class="glyphicon glyphicon-search"></span></button>
             </span>
         </div>
-    </div>
+   </div>
 }
 
 @{ Html.RenderPartial("_ListSongs", @Model, ViewData);}
+
+<div class="row">
+    <div class="col-sm-6">
+        @Html.PagedListPager(Model, page => Url.Action("lucenesearch", new {searchString=search,page}))
+    </div>
+    <div class="col-sm-6 pagination-align">
+        Page @(Model.PageCount < Model.PageNumber ? 0 : Model.PageNumber) of @Model.PageCount
+        (@Model.TotalItemCount songs found.)
+    </div>
+</div>
 
 @section Scripts
 {

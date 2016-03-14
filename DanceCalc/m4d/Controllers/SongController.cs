@@ -90,14 +90,15 @@ namespace m4d.Controllers
         }
 
         [AllowAnonymous]
-        public ActionResult LuceneSearch(string searchString)
+        public ActionResult LuceneSearch(string searchString, int page=1)
         {
             ViewBag.Search = searchString;
 
-            var results = Database.LuceneSearch(searchString, 0);
-
+            var results = Database.LuceneSearch(searchString, page, 25);
             BuildDanceList();
-            return View(results.Songs);
+
+            var songs = new StaticPagedList<SongBase>(results.Songs,results.CurrentPage,results.PageSize,(int)results.TotalCount);
+            return View(songs);
         }
 
         //

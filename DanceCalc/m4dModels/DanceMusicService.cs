@@ -2894,19 +2894,16 @@ namespace m4dModels
             return ret;
         }
 
-        public SearchResults LuceneSearch(string query, int page)
+        public SearchResults LuceneSearch(string query, int page, int pageSize)
         {
             using (var serviceClient = new SearchServiceClient(SearchServiceName, new SearchCredentials(SearchQueryKey)))
             using (var indexClient = serviceClient.Indexes.GetClient(SongIndex))
             {
-                var sp = new SearchParameters {IncludeTotalResultCount = true, Top=25, Skip=page*25};
+                var sp = new SearchParameters {IncludeTotalResultCount = true, Top=pageSize, Skip=(page-1)*pageSize};
 
                 var response = indexClient.Documents.Search<SongIndexed>(query, sp);
                 var songs = response.Results.Select(si => Songs.Find(si.Document.SongId)).Cast<SongBase>().ToList();
-                // TODONEXT: Short circuit anything we are doing to filter on the results page, then get paging working
-                //  and make sure we can pass through full search/filter syntax, at that point we should be able
-                //  to throw this to beta.  Then we start lighting up filtering/faceting features.
-                return new SearchResults(query,songs.Count,response.Count ?? -1,page,songs);
+                return new SearchResults(query,songs.Count,response.Count ?? -1,page,pageSize,songs);
             }
         }
 

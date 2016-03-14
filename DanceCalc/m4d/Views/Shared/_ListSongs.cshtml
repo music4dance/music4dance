@@ -15,6 +15,7 @@
     var songOrder = new SongSort(filter.SortOrder);
     var danceId = ViewData.ContainsKey("DanceId") ? ViewBag.DanceId : null;
     var danceName = (danceId == null) ? null : danceMap[danceId].DanceName;
+    var luceneSearch = filter.Action == "lucene";
     LikeDictionary likes = ViewData.ContainsKey("Likes") ? ViewBag.Likes : null;
     LikeDictionary danceLikes = ViewData.ContainsKey("DanceLikes") ? ViewBag.DanceLikes : null;
 
@@ -427,8 +428,9 @@
 
                                     var content = MvcHtmlString.Create(
                                         Html.ActionLink(name + " dance page...", name, "dances") +
-                                        (!filter.IsEmpty && isExclusive && !hasDance ? bstring + Html.ActionLink("Filter list to songs tagged as " + name + "...", "search", "song", new {dances = danceQuery.AddDance(ditem.DanceId).Query, filter}, null) : string.Empty) +
-                                        (!filter.IsEmpty && !isExclusive && !hasDance ? bstring + Html.ActionLink("Expand list to included songs tagged as " + name + "...", "search", "song", new {dances = danceQuery.AddDance(ditem.DanceId).Query, filter}, null) : string.Empty) +
+                                        (luceneSearch ? string.Empty : 
+                                            ((!filter.IsEmpty && isExclusive && !hasDance ? bstring + Html.ActionLink("Filter list to songs tagged as " + name + "...", "search", "song", new {dances = danceQuery.AddDance(ditem.DanceId).Query, filter}, null) : string.Empty) +
+                                             (!filter.IsEmpty && !isExclusive && !hasDance ? bstring + Html.ActionLink("Expand list to included songs tagged as " + name + "...", "search", "song", new {dances = danceQuery.AddDance(ditem.DanceId).Query, filter}, null) : string.Empty))) +
                                         bstring + Html.ActionLink("List all " + name + " songs...", "search", "song", new {dances = ditem.DanceId}, null) +
                                         bstring + "<a href=\"https://www.music4dance.net/blog/tag-filtering\">Help</a>" +
                                         tags);
