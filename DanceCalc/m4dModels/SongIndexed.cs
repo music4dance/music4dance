@@ -29,6 +29,8 @@ namespace m4dModels
             Created = song.Created;
             Modified = song.Modified;
 
+            Sample = song.Sample;
+
             // Then set up the purchase flags
             var purchase = string.IsNullOrWhiteSpace(song.Purchase) ? new List<string>() : song.Purchase.ToCharArray().Select(c => MusicService.GetService(c).Name).ToList();
             if (song.HasSample) purchase.Add("Sample");
@@ -67,6 +69,7 @@ namespace m4dModels
             GenreTags = genre.ToArray();
             TempoTags = tempo.ToArray();
             StyleTags = style.ToArray();
+            OtherTags = other.ToArray();
         }
 
         public Guid SongId { get; set; }
@@ -89,6 +92,7 @@ namespace m4dModels
         public string [] StyleTags { get; set; }
         public string [] TempoTags { get; set; }
         public string [] OtherTags { get; set; }
+        public string Sample { get; set; }
 
         public static Index Index => new Index
         {
@@ -114,6 +118,7 @@ namespace m4dModels
                 new Field("StyleTags", DataType.Collection(DataType.String)) {IsSearchable = true, IsSortable = false, IsFilterable = true, IsFacetable = true},
                 new Field("TempoTags", DataType.Collection(DataType.String)) {IsSearchable = true, IsSortable = false, IsFilterable = true, IsFacetable = true},
                 new Field("OtherTags", DataType.Collection(DataType.String)) {IsSearchable = true, IsSortable = false, IsFilterable = true, IsFacetable = true},
+                new Field("Sample", DataType.Collection(DataType.String)) {IsSearchable = false, IsSortable = false, IsFilterable = false, IsFacetable = false},
             },
             Suggesters = new[]
             {
