@@ -355,6 +355,7 @@
   <ItemGroup>
     <Compile Include="APIControllers\RecomputeController.cs" />
     <Compile Include="APIControllers\ServiceTrackController.cs" />
+    <Compile Include="APIControllers\SuggestionController.cs" />
     <Compile Include="APIControllers\TagSuggestionController.cs" />
     <Compile Include="APIControllers\UpdateLikeController.cs" />
     <Compile Include="APIControllers\UpdateRatingsController.cs" />
@@ -762,6 +763,7 @@
     <Content Include="Properties\webjobs-list.json" />
     <Content Include="Scripts\jquery-2.2.1.js" />
     <Content Include="Scripts\jquery-2.2.1.min.js" />
+    <Content Include="Scripts\jquery.autocomplete.js" />
     <Content Include="Scripts\jquery.hotkeys.js" />
     <Content Include="Scripts\jquery.nouislider.full.min.js" />
     <Content Include="Scripts\jquery.nouislider.min.js" />
@@ -775,6 +777,7 @@
     <Content Include="Scripts\knockout-3.4.0.js" />
     <Content Include="Scripts\knockout.mapping-latest.debug.js" />
     <Content Include="Scripts\knockout.mapping-latest.js" />
+    <Content Include="Scripts\azuresearch.js" />
     <Content Include="Scripts\MarkdownDeep License.txt" />
     <Content Include="Scripts\MarkdownDeep Quick Reference.txt" />
     <Content Include="Scripts\MarkdownDeepLib.min.js" />
@@ -979,7 +982,7 @@
     <Content Include="Views\Song\BotFilter.cshtml" />
     <Content Include="Views\Searches\Details.cshtml" />
     <Content Include="Views\Searches\Index.cshtml" />
-    <Content Include="Views\Song\LuceneSearch.cshtml" />
+    <Content Include="Views\Song\AzureSearch.cshtml" />
     <None Include="Web.m4d.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

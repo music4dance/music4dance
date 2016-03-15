@@ -90,12 +90,22 @@ namespace m4d.Controllers
         }
 
         [AllowAnonymous]
-        public ActionResult LuceneSearch(string searchString, int page=1)
+        public ActionResult AzureSearch(string searchString, int page=1, SongFilter filter=null)
         {
-            ViewBag.Search = searchString;
+            if (filter == null || filter.IsEmpty)
+            {
+                filter = SongFilter.AzureSimple;
+            }
 
-            var results = Database.LuceneSearch(searchString, page, 25);
+            HelpPage = filter.IsSimple ? "simple-search" : "full-search";
+
+            filter.SearchString = searchString;
+            if (page != 0)
+                filter.Page = page;
+
+            var results = Database.AzureSearch(filter, 25);
             BuildDanceList();
+            ViewBag.SongFilter = filter;
 
             var songs = new StaticPagedList<SongBase>(results.Songs,results.CurrentPage,results.PageSize,(int)results.TotalCount);
             return View(songs);

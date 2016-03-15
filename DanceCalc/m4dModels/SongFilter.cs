@@ -20,6 +20,8 @@ namespace m4dModels
         private readonly string _sepStr = new string(Separator, 1);
  
         static public SongFilter Default => new SongFilter();
+        static public SongFilter AzureSimple => new SongFilter("azure+simple");
+        static public SongFilter AzureLucene => new SongFilter("azure+lucene");
 
         static SongFilter()
         {
@@ -104,6 +106,10 @@ namespace m4dModels
         public UserQuery UserQuery => new UserQuery(User);
         public SongSort SongSort => new SongSort(SortOrder);
 
+        public bool IsLucene => string.Equals(Action.ToLower(), "azure+lucene", StringComparison.OrdinalIgnoreCase);
+        public bool IsSimple => string.Equals(Action.ToLower(), "azure+simple", StringComparison.OrdinalIgnoreCase);
+        public bool IsAzure => Action.ToLower().StartsWith("azure",StringComparison.OrdinalIgnoreCase);
+
         public bool Advanced => !string.IsNullOrWhiteSpace(Purchase) ||
                                 TempoMin.HasValue || TempoMax.HasValue || DanceQuery.Advanced;
 
@@ -173,6 +179,12 @@ namespace m4dModels
         {
             get
             {
+                // First pull out Azure Search (we'll figure out how to integrate this better)
+                if (IsAzure)
+                {
+                    return $"All songs matching \"{SearchString}\" + (using Azure Search {(IsSimple?"Simple" : "Lucene")} Query)";
+                }
+
                 // All [dance] songs [including the text "<SearchString>] [Available on [Groove|Amazon|ITunes|Spotify] [Including tags TI] [Excluding tags TX] [Tempo Range] [(liked|disliked|edited) by user] sorted by [Sort Order] from [High|low] to [low|high]
                 // TOOD: If we pass in context, we can have user name + we can do better stuff with the tags...
 
@@ -223,6 +235,15 @@ namespace m4dModels
 
                 return sb.ToString().Trim();
             }
+        }
+
+        public SongFilter ToggleMode()
+        {
+            var ret= new SongFilter(ToString());
+            if (ret.IsSimple) ret.Action = "azure-lucene";
+            else if (ret.IsLucene) ret.Action = "azure-simple";
+
+            return ret;
         }
 
         private const string CommaSeparator = ", ";

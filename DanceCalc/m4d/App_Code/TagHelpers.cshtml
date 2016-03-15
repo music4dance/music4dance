@@ -4,7 +4,7 @@
 @* ReSharper disable once InvertIf *@
 @helper TagButton(TagCount tag, SongFilter filter, float cloudSize = 0)
 {
-    var luceneSearch = filter.Action == "lucene";
+    var azureSearch = filter.IsAzure;
     var buckets = new[] {.25F,.5F,.75F,1,5,10,20,25,50,100};
     var sizes = new[] {14,16,18,20,22,24,26,28,30,32};
     var iconSize = 14;
@@ -54,7 +54,7 @@
     <div class="btn-group @size">
         <a href="#!" role="button" class="dropdown-toggle label label-@tc" data-toggle="dropdown" aria-expanded="false"><img src="@img" height="@iconSize.ToString()" width="@iconSize.ToString()" /> @tag.TagValue</a>
         <ul class="dropdown-menu" role="menu">
-            @if (!luceneSearch)
+            @if (!azureSearch)
             {
                 if (urlFiltered != null)
                 {

@@ -19,6 +19,9 @@ namespace m4d
                 "jquery.validate/1.14.0/jquery.validate.min.js", "window.jQuery().validate",
                 "jquery.validate*"));
 
+            bundles.Add(new ScriptBundle("~/bundles/jqueryautocomplete").Include(
+                "~/Scripts/jquery.autocomplete.js"));
+
             // Use the development version of Modernizr to develop with and learn from. Then, when you're
             // ready for production, use the build tool at http://modernizr.com to pick only the tests you need.
             bundles.Add(AjaxBundle("modernizr",
@@ -53,6 +56,7 @@ namespace m4d
             bundles.Add(PageBundle("tagchooser"));
             bundles.Add(PageBundle("edit"));
             bundles.Add(PageBundle("merge"));
+            bundles.Add(PageBundle("azuresearch"));
 
             bundles.Add(new StyleBundle("~/bundles/tools-style").Include(
                 "~/Content/chosen.css",

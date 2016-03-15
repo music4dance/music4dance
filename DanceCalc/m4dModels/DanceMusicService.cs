@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data.Entity;
 using System.Diagnostics;
 using System.Linq;
+using System.Net;
 using DanceLibrary;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.EntityFramework;
@@ -2894,16 +2895,44 @@ namespace m4dModels
             return ret;
         }
 
-        public SearchResults LuceneSearch(string query, int page, int pageSize)
+        public SearchResults AzureSearch(SongFilter filter, int pageSize)
         {
             using (var serviceClient = new SearchServiceClient(SearchServiceName, new SearchCredentials(SearchQueryKey)))
             using (var indexClient = serviceClient.Indexes.GetClient(SongIndex))
             {
-                var sp = new SearchParameters {IncludeTotalResultCount = true, Top=pageSize, Skip=(page-1)*pageSize};
+                var sp = new SearchParameters
+                {
+                    QueryType = filter.IsSimple ? QueryType.Simple : QueryType.Full,
+                    IncludeTotalResultCount = true,
+                    Top =pageSize,
+                    Skip =(filter.Page-1)*pageSize
+                };
 
-                var response = indexClient.Documents.Search<SongIndexed>(query, sp);
+                var response = indexClient.Documents.Search<SongIndexed>(filter.SearchString, sp);
                 var songs = response.Results.Select(si => Songs.Find(si.Document.SongId)).Cast<SongBase>().ToList();
-                return new SearchResults(query,songs.Count,response.Count ?? -1,page,pageSize,songs);
+                return new SearchResults(filter.SearchString, songs.Count,response.Count ?? -1,filter.Page??1,pageSize,songs);
+            }
+        }
+
+        public SuggestionList AzureSuggestions(string query)
+        {
+            using (var serviceClient = new SearchServiceClient(SearchServiceName, new SearchCredentials(SearchQueryKey)))
+            using (var indexClient = serviceClient.Indexes.GetClient(SongIndex))
+            {
+                var sp = new SuggestParameters {Top=10};
+
+                var response = indexClient.Documents.Suggest<SongIndexed>(query, "songs", sp);
+
+                //var ret = new SuggestionList {Query = "query", Suggestions = new List<Suggestion>()};
+                return new SuggestionList
+                {
+                    Query = query,
+                    Suggestions = response.Results.Select(result => new Suggestion
+                    {
+                        Value = result.Text,
+                        Data = result.Document.SongId.ToString()
+                    }).ToList()
+                };
             }
         }
 

@@ -3,9 +3,16 @@
 @using PagedList.Mvc;
 
 @{
-    ViewBag.SongFilter = new SongFilter("lucene");
     ViewBag.NoSort = true;
-    string search = ViewData.ContainsKey("Search") ? ViewBag.Search : string.Empty;
+    SongFilter filter = ViewData.ContainsKey("SongFilter") ? ViewBag.SongFilter : SongFilter.AzureSimple;
+
+    var description = filter.Description;
+    var isSimple = filter.IsSimple;
+
+    ViewBag.Title = "Songs for Dancing";
+    ViewBag.Description = "music4dance catalog: " + description;
+
+    var userName = filter.UserQuery.IsEmpty ? User.Identity.Name : filter.UserQuery.UserName;
 }
 
 <div class="row">
@@ -14,23 +21,27 @@
 
 @Html.Partial("ItemTags")
 
-@using (Html.BeginForm("LuceneSearch", "Song", FormMethod.Get, new {id = "search"}))
+@using (Html.BeginForm("AzureSearch", "Song", FormMethod.Get, new {id = "search"}))
 {
     <div class="row">
         <div class="input-group col-sm-12" style="padding-left: 15px">
-            @Html.TextBox("SearchString", search, new { @class = "form-control search-text", placeholder = "search string", id = "search-text" })
+            @Html.TextBox("SearchString", filter.SearchString, new { @class = "form-control search-text", placeholder = "search string", id = "search-text" })
             <span class="input-group-btn">
                 <button id="submit-search" class="btn btn-default" type="submit" style="margin-right: 15px"><span class="glyphicon glyphicon-search"></span></button>
             </span>
         </div>
    </div>
 }
+<div class="row">
+    <p class="col-xs-6">  @Html.ActionLink("Saved Searches", "index", "searches", new { user = @userName, filter }, new { id = "saved-search" })</p>
+    <p class="col-xs-6" style="text-align: right; padding-right:20px">@Html.ActionLink(isSimple ? "Switch to Advanced" : "Switch to Simple", "AzureSearch", "song", new { filter=filter.ToggleMode() }, new { id = "search-mode" })</p>
+</div>
 
 @{ Html.RenderPartial("_ListSongs", @Model, ViewData);}
 
 <div class="row">
     <div class="col-sm-6">
-        @Html.PagedListPager(Model, page => Url.Action("lucenesearch", new {searchString=search,page}))
+        @Html.PagedListPager(Model, page => Url.Action("AzureSearch", new {filter,page}))
     </div>
     <div class="col-sm-6 pagination-align">
         Page @(Model.PageCount < Model.PageNumber ? 0 : Model.PageNumber) of @Model.PageCount
@@ -41,12 +52,15 @@
 @section Scripts
 {
     @Scripts.Render("~/bundles/jqueryval")
+    @Scripts.Render("~/bundles/jqueryautocomplete")
     @Scripts.Render("~/bundles/knockout")
     @Scripts.Render("~/bundles/knockout-mapping")
     @Scripts.Render("~/bundles/tools-script")
     @Scripts.Render("~/bundles/musicservice")
     @Scripts.Render("~/bundles/tagchooser")
     @Scripts.Render("~/bundles/catalog")
+    @Scripts.Render("~/bundles/azuresearch")
+
 
     @Styles.Render("~/bundles/tools-style")
 }
