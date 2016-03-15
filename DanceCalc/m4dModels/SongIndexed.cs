@@ -118,7 +118,7 @@ namespace m4dModels
                 new Field("StyleTags", DataType.Collection(DataType.String)) {IsSearchable = true, IsSortable = false, IsFilterable = true, IsFacetable = true},
                 new Field("TempoTags", DataType.Collection(DataType.String)) {IsSearchable = true, IsSortable = false, IsFilterable = true, IsFacetable = true},
                 new Field("OtherTags", DataType.Collection(DataType.String)) {IsSearchable = true, IsSortable = false, IsFilterable = true, IsFacetable = true},
-                new Field("Sample", DataType.Collection(DataType.String)) {IsSearchable = false, IsSortable = false, IsFilterable = false, IsFacetable = false},
+                new Field("Sample", DataType.String) {IsSearchable = false, IsSortable = false, IsFilterable = false, IsFacetable = false},
             },
             Suggesters = new[]
             {
