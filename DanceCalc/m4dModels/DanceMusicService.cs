@@ -1417,7 +1417,8 @@ namespace m4dModels
             var f = new SongFilter(filter.ToString()) {Page = null};
             if (user != null)
                 f.Anonymize(user.UserName);
-            f.Action = null;
+            if (!f.IsAzure)
+                f.Action = null;
             var userId = user?.Id;
             var q = f.ToString();
             var search = Searches.FirstOrDefault(s => s.ApplicationUserId == userId && s.Query == q);

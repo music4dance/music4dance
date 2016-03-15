@@ -59,8 +59,12 @@
 
     @foreach (var item in Model)
     {
-        var t = @item.Filter;
-        t.Action = "Advanced";
+        var t = item.Filter;
+        if (t.IsAzure == false)
+        {
+            t.Action = "Advanced";
+        }
+
         <tr>
             <td>
                 @Html.ActionLink(@t.Description, "Index", "Song", new { filter=t }, null)
@@ -90,5 +94,5 @@
 
 @if (admin)
 {
-    @Html.ActionLink("Toggle Details","Index","Searches",new {showDetails = !showDetails, user=@User.Identity.GetUserName(),sort=sort}, null)
+    @Html.ActionLink("Toggle Details","Index","Searches",new {showDetails = !showDetails, user=@User.Identity.GetUserName(),sort}, null)
 }

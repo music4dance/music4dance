@@ -10,7 +10,6 @@ using DanceLibrary;
 using m4d.Utilities;
 using m4d.ViewModels;
 using m4dModels;
-using Microsoft.Azure.Search;
 using PagedList;
 
 namespace m4d.Controllers
@@ -106,6 +105,8 @@ namespace m4d.Controllers
             var results = Database.AzureSearch(filter, 25);
             BuildDanceList();
             ViewBag.SongFilter = filter;
+
+            ReportSearch(filter);
 
             var songs = new StaticPagedList<SongBase>(results.Songs,results.CurrentPage,results.PageSize,(int)results.TotalCount);
             return View(songs);
@@ -1419,9 +1420,6 @@ namespace m4d.Controllers
                 return View("BotFilter", filter);
             }
 
-            var properties = new Dictionary<string, string> {{"Filter", filter.ToString()}, {"User", User.Identity.Name } };
-            var client = TelemetryClient;
-            client.TrackEvent("SongIndex",properties);
 
             var songs = Database.BuildSongList(filter, HttpContext.User.IsInRole(DanceMusicService.EditRole) ? DanceMusicService.CruftFilter.AllCruft : DanceMusicService.CruftFilter.NoCruft);
             BuildDanceList();
@@ -1433,10 +1431,23 @@ namespace m4d.Controllers
 
             ViewBag.SongFilter = filter;
 
-            Database.UpdateSearches(User.Identity.IsAuthenticated?Database.FindUser(User.Identity.Name):null,filter);
+            ReportSearch(filter);
 
             Trace.WriteLineIf(TraceLevels.General.TraceVerbose, "Exiting Song.Index");
             return View("Index", list);
+        }
+
+        private void ReportSearch(SongFilter filter)
+        {
+            var properties = new Dictionary<string, string>
+            {
+                {"Filter", filter.ToString()},
+                {"User", User.Identity.Name}
+            };
+            var client = TelemetryClient;
+            client.TrackEvent("SongIndex", properties);
+
+            Database.UpdateSearches(User.Identity.IsAuthenticated ? Database.FindUser(User.Identity.Name) : null, filter);
         }
 
         private void BuildDanceList()
