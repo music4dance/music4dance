@@ -4,7 +4,7 @@
 @* ReSharper disable once InvertIf *@
 @helper TagButton(TagCount tag, SongFilter filter, float cloudSize = 0)
 {
-    var azureSearch = filter.IsAzure;
+    var azureSearch = false;
     var buckets = new[] {.25F,.5F,.75F,1,5,10,20,25,50,100};
     var sizes = new[] {14,16,18,20,22,24,26,28,30,32};
     var iconSize = 14;
@@ -16,6 +16,7 @@
     string urlFiltered = null;
     if (filter != null)
     {
+        azureSearch = filter.IsAzure;
         var dance = Dances.Instance.DanceFromId(filter.Dances);
         if (dance != null)
         {
