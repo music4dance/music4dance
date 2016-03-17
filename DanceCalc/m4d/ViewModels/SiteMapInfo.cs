@@ -124,6 +124,9 @@ namespace m4d.ViewModels
                             new SiteMapEntry {Title = "Top Songs of 2015 --  And what to dance to them.", Reference = "blog/top-songs-of-2015-and-what-to-dance-to-them", Description="hat better than a top 100 list to end the year? I've taken the <a href='https://open.spotify.com/user/spotifyyearinmusic/playlist/55tXTZZg4Xtk0BA3kPoJ1s'>Spotify top 100 songs of 2015 (for the USA)</a> and ..."},
                             new SiteMapEntry {Title = "If you like to dance Cha-Cha to a song does that mean you “like” that song?", Reference = "blog/if-you-like-to-dance-cha-cha-to-a-song-does-that-mean-you-like-that-song", Description="I wanted to build a system where dancers could vote on... But then Amanda (the music4dance intern) pointed out..."},
                             new SiteMapEntry {Title = "What are Your Favorite Song to Dance Bachata?", Reference = "blog/what-are-your-favorite-song-to-dance-bachata", Description="Since I’m going to be taking <a href='https://www.music4dance.net/dances/bachata'>Bachata</a> lessons for the first time starting next week..."},
+                            new SiteMapEntry {Title = "Quality over Quantity?", Reference = "blog/quality-over-quantity/", Description="One of the things that I’m struggling with ... is the pull between finding lots of recommendations for songs to dance to against the desire that those recommendations being in some sense ‘good.’"},
+                            new SiteMapEntry {Title = "EchoNest Integration - Loads of new tempo, meter and other information to help you find music to dance  to", Reference = "blog/echonest-integration-loads-of-new-tempo-meter-and-other-information-to-help-you-find-music-to-dance-to/", Description="I’ve cross indexed the <a href='https://www.music4dance.net/song'>music4dance catalog</a> with the <a href='http://the.echonest.com/'>EchoNest database</a> and exposed some new features..."},
+
                             //new SiteMapEntry {Title = "", Reference = "", Description=""},
                         }
                     },
@@ -133,8 +136,16 @@ namespace m4d.ViewModels
                         Children = new List<SiteMapEntry>
                         {
                             new SiteMapEntry {Title = "Song List", Reference = "blog/music4dance-help/song-list"},
-                            new SiteMapEntry {Title = "Song Details", Reference = "blog/music4dance-help/song-details"},
-                            new SiteMapEntry {Title = "Advanced Search", Reference = "blog/music4dance-help/advanced-search"},
+                            new SiteMapEntry
+                            {
+                                Title = "Song Details", Reference = "blog/music4dance-help/song-details",
+                                Children = new List<SiteMapEntry>
+                                {
+                                    new SiteMapEntry {Title = "Advanced Search", Reference = "blog/music4dance-help/advanced-search"},
+                                    new SiteMapEntry {Title = "Simple Search (BETA)", Reference = "blog/music4dance-help/simple-search"},
+                                    new SiteMapEntry {Title = "Full Search (BETA)", Reference = "blog/music4dance-help/full-search"},
+                                }
+                            },
                             new SiteMapEntry {Title = "Dance Styles", Reference = "blog/music4dance-help/dance-styles-help"},
                             new SiteMapEntry {Title = "Dance Categories", Reference = "blog/music4dance-help/dance-category"},
                             new SiteMapEntry {Title = "Dance Details", Reference = "blog/music4dance-help/dance-details"},

@@ -1,8 +1,24 @@
 ﻿@using m4d.ViewModels
+
+@helper MapEntry(SiteMapEntry entry, string type)
+{
+    <a href="@entry.FullPath" class="@type">@entry.Title</a>
+    if (@entry.Children != null)
+    {
+            <ul>
+                @foreach (var child in entry.Children)
+                {
+                    <li>@MapEntry(child,type)</li>
+                }
+            </ul>
+        }
+    }
+}
+
 <h1>Site Map</h1>
 
 <div class="row">
-    @foreach (var type in new string[] {"music", "info", "tools"})
+    @foreach (var type in new [] {"music", "info", "tools"})
     {
         <div class="@type col-sm-4">
             @foreach (var category in SiteMapInfo.Categories.Where(c => c.Type == type))
@@ -18,19 +34,10 @@
                             }
                             else
                             {
-                                <a href="@entry.FullPath" class="@type">@entry.Title</a>
+                                @MapEntry(entry,type)
                                 if (category.Type == "tools" && entry.Description != null)
                                 {
                                     <span>: @entry.Description</span>
-                                }
-                                if (@entry.Children != null)
-                                {
-                                    <ul>
-                                        @foreach (var child in entry.Children)
-                                        {
-                                            <li><a href="@child.FullPath" class="@type">@child.Title</a></li>
-                                        }
-                                    </ul>
                                 }
                             }
                         </li>
