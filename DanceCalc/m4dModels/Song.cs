@@ -1134,8 +1134,7 @@ namespace m4dModels
             {
                 ModifiedBy = new List<ModifiedRecord>();
             }
-            Debug.Assert(ModifiedBy.Count == 0);
-            foreach (var user in sd.ModifiedBy)
+            foreach (var user in sd.ModifiedBy.Where(user => ModifiedBy.All(u => u.UserName != user.UserName)))
             {
                 AddUser(user.UserName, dms);
             }

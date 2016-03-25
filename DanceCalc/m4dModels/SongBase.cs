@@ -819,6 +819,9 @@ namespace m4dModels
                 pi.SetValue(this, null);
             }
 
+            Purchase = null;
+            TagSummary.Clean();
+
             if (DanceRatings != null)
             {
                 var drs = DanceRatings.ToList();
