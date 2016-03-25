@@ -1055,7 +1055,7 @@ namespace m4dModels
 
             // Now if the current user is anonymous, filter out anything that we
             //  don't have purchase info for
-            if ((cruft & CruftFilter.NoPublishers) != CruftFilter.NoPublishers)
+            if ((cruft & CruftFilter.NoPublishers) != CruftFilter.NoPublishers )
             {
                 songs = songs.Where(s => s.Purchase != null);
             }
@@ -2789,6 +2789,18 @@ namespace m4dModels
             return true;
         }
 
+        private IQueryable<Song> TakeTail(IQueryable<Song> songs, DateTime? from, int max)
+        {
+            if (from != null)
+            {
+                songs = songs.Where(s => s.Modified >= from);
+            }
+
+            songs = songs.OrderBy(t => t.Modified).ThenBy(t => t.SongId);
+
+            return songs.Take(max + 100);
+        }
+
         public IndexInfo IndexSongs(int max = -1, DateTime? from = null, bool rebuild = false, SongFilter filter = null)
         {
             if (max == -1) max = 100;
@@ -2797,23 +2809,10 @@ namespace m4dModels
 
             // Get songlist with NoCruft filter (which still totals less that 10,000)
             if (filter == null) filter = new SongFilter();
-            var songlist = BuildSongList(filter);
-
-            if (from != null)
-            {
-                songlist = songlist.Where(s => s.Modified >= from);
-            }
-
-            songlist = songlist.OrderBy(t => t.Modified).ThenBy(t => t.SongId);
-
-            if (from.HasValue)
-            {
-                songlist = songlist.Where(s => s.Modified > from.Value);
-            }
-
-            songlist = songlist.Take(max + 100);
+            var songlist = TakeTail(BuildSongList(filter), from, max);
 
             var songs = new List<SongIndexed>();
+            var deleted = new List<SongIndexed>();
 
             var lastTouched = DateTime.MinValue;
 
@@ -2827,7 +2826,7 @@ namespace m4dModels
                     SongIndexed doc = null;
                     lastTouched = song.Modified;
 
-                    if (rebuild && exists)
+                    if (!rebuild || exists)
                     {
                         try
                         {
@@ -2840,14 +2839,25 @@ namespace m4dModels
                         }
                     }
 
+                    var si = new SongIndexed(new SongDetails(song));
                     if (doc != null)
                     {
-                        AdminMonitor.UpdateTask("ScanBatch", tried);
-                        tried += 1;
+                        if (rebuild)
+                        {
+                            AdminMonitor.UpdateTask("ScanBatch", tried);
+                            tried += 1;
+                        }
+                        else
+                        {
+                            deleted.Add(si);
+                            songs.Add(si);
+                        }
                     }
-                    else  {
+
+                    if (doc == null || rebuild)
+                    {
                         AdminMonitor.UpdateTask("BuildBatch", songs.Count);
-                        songs.Add(new SongIndexed(new SongDetails(song)));
+                        songs.Add(si);
                         exists = false;
 
                         if (songs.Count >= max)
@@ -2855,7 +2865,24 @@ namespace m4dModels
                     }
                 }
 
-                if (songs.Count == 0)
+                var deletes = 0;
+                if (!rebuild)
+                {
+                    songlist = TakeTail(Songs.Where(s => s.TitleHash == 0), from, max);
+
+                    foreach (var song in songlist)
+                    {
+                        deleted.Add(new SongIndexed(new SongDetails(song)));
+                        if (lastTouched < song.Modified)
+                        {
+                            lastTouched = song.Modified;
+                        }
+                        deletes += 1;
+                    }
+                }
+
+                ret.LastTime = lastTouched;
+                if (songs.Count == 0 && deleted.Count == 0)
                 {
                     if (tried < max + 100)
                     {
@@ -2865,18 +2892,26 @@ namespace m4dModels
                     else
                     {
                         ret.Message = "Correct for semaphore burp.";
-                        ret.LastTime = lastTouched;
                     }
                     return ret;
                 }
 
                 try
                 {
-                    AdminMonitor.UpdateTask("IndexBatch");
-                    var batch = IndexBatch.Upload(songs);
-                    indexClient.Documents.Index(batch);
-                    ret.Succeeded = songs.Count;
-                    ret.LastTime = songs[songs.Count - 1].Modified;
+                    if (deleted.Count > 0)
+                    {
+                        AdminMonitor.UpdateTask("DeleteBatch");
+                        var delete = IndexBatch.Delete(deleted);
+                        indexClient.Documents.Index(delete);
+                    }
+
+                    if (songs.Count > 0)
+                    {
+                        AdminMonitor.UpdateTask("UpdateBatch");
+                        var batch = IndexBatch.Upload(songs);
+                        indexClient.Documents.Index(batch);
+                    }
+                    ret.Succeeded = songs.Count + deletes;
                 }
                 catch (IndexBatchException e)
                 {
