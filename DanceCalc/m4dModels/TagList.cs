@@ -115,6 +115,8 @@ namespace m4dModels
 
         public IList<string> StripType()
         {
+            if (Summary == null)
+                return new List<string>();
             return Summary.Contains(':')
                 ? Tags.Select(tag => tag.Substring(0, tag.IndexOf(':'))).ToList()
                 : new List<string>();
