@@ -73,8 +73,10 @@ namespace m4dModels.Tests
             return false;
         }
 
-        public static void DumpSongProperties(SongBase song)
+        public static void DumpSongProperties(SongBase song, bool verbose = true)
         {
+            if (!verbose) return;
+
             foreach (var prop in song.OrderedProperties)
             {
                 Trace.WriteLine(prop.ToString());
