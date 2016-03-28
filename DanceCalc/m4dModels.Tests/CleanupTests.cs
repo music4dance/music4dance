@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace m4dModels.Tests
@@ -63,9 +64,18 @@ namespace m4dModels.Tests
                 Trace.WriteLineIf(General.TraceInfo, $"---------------Predump for Song {song.SongId}");
                 DanceMusicTester.DumpSongProperties(song, General.TraceInfo);
                 var c = song.SongProperties.Count;
-                Assert.IsTrue(song.RemoveDuplicateRatings(song, service.Dms));
+                Assert.IsTrue(song.NormalizeRatingsRatings(song, service.Dms));
                 Trace.WriteLineIf(General.TraceInfo, $"{song.SongId}:{song.SongProperties.Count - c}");
                 Assert.AreEqual(c - deltas[index], song.SongProperties.Count);
+
+                var sd = new SongDetails(song.SongId, song.SongProperties);
+                Assert.AreEqual(song.DanceRatings.Count,sd.DanceRatings.Count);
+                foreach (var dr in song.DanceRatings)
+                {
+                    var drT = sd.DanceRatings.FirstOrDefault(r => r.DanceId == dr.DanceId);
+                    Assert.IsNotNull(drT);
+                    Assert.AreEqual(dr.Weight, drT.Weight);
+                }
 
                 Trace.WriteLineIf(General.TraceInfo, $"---------------Postdump for Song {song.SongId}");
                 DanceMusicTester.DumpSongProperties(song, General.TraceInfo);
@@ -83,7 +93,7 @@ namespace m4dModels.Tests
                 service.Dms.FindSong(GuidC)
             };
 
-            var deltas = new List<int> {12, 2};
+            var deltas = new List<int> {17, 2};
 
             for (var index = 0; index < songs.Count; index++)
             {
@@ -135,7 +145,7 @@ namespace m4dModels.Tests
             var deltas = new List<List<int>>
             {
                 new List<int> {1,1,2,16},
-                new List<int> {12,130,147,178},
+                new List<int> {17,135,152,197},
                 new List<int> {2,2,13,16}
             };
 
@@ -154,7 +164,7 @@ namespace m4dModels.Tests
                 Trace.WriteLineIf(General.TraceVerbose, $"++++After Albums: {song.SongId}:{song.SongProperties.Count - c}");
                 DanceMusicTester.DumpSongProperties(song, General.TraceVerbose);
                 Assert.AreEqual(delta[1], c - song.SongProperties.Count);
-                song.RemoveDuplicateRatings(song, service.Dms);
+                song.NormalizeRatingsRatings(song, service.Dms);
                 Trace.WriteLineIf(General.TraceVerbose, $"++++After Ratings: {song.SongId}:{song.SongProperties.Count - c}");
                 DanceMusicTester.DumpSongProperties(song, General.TraceVerbose);
                 Assert.AreEqual(delta[2], c - song.SongProperties.Count);

@@ -368,7 +368,7 @@ namespace m4dModels
 
             if (dr == null)
             {
-                dr = new DanceRating { SongId = this.SongId, DanceId = drd.DanceId, Weight = 0 };
+                dr = new DanceRating { SongId = SongId, DanceId = drd.DanceId, Weight = 0 };
                 DanceRatings.Add(dr);
             }
 
@@ -409,6 +409,21 @@ namespace m4dModels
                 UpdateDanceRating(drd, true);
             }
         }
+
+        public void SetRatingsFromProperties()
+        {
+            // First zero out all of the ratings
+            foreach (var dr in DanceRatings)
+            {
+                dr.Weight = 0;
+            }
+
+            foreach (var prop in SongProperties.Where(p => p.Name == DanceRatingField))
+            {
+                SoftUpdateDanceRating(prop.Value);
+            }
+        }
+
         public static string TagsFromDances(IEnumerable<string> dances)
         {
             if (dances == null)

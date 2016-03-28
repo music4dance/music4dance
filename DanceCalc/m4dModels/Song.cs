@@ -1303,6 +1303,7 @@ namespace m4dModels
                 else if (Math.Abs(avg - current) > 20)
                 {
                     outliers += 1;
+                    remove.Add(prop);
                 }
                 else
                 {
@@ -1428,10 +1429,11 @@ namespace m4dModels
             public Dictionary<string, RatingTracker> Ratings { get; } 
         }
 
-        public bool RemoveDuplicateRatings(Song song, DanceMusicService dms)
+        public bool NormalizeRatingsRatings(Song song, DanceMusicService dms, int max = 2, int min =-1)
         {
             // This function should not semantically change the tags, but it will potentially
-            //  reduce the danceratings where there were redundant entries previously
+            //  reduce the danceratings where there were redundant entries previously and normalize based
+            // on max/min
 
             // For each user, keep a list of the tags and danceratings that they have applied
             var users = new Dictionary<string,UserEdits>();
@@ -1439,7 +1441,7 @@ namespace m4dModels
 
             string currentUser = null;
             UserEdits currentEdits = null;
-            
+
             foreach (var prop in OrderedProperties)
             {
                 var bn = prop.BaseName;
@@ -1487,16 +1489,28 @@ namespace m4dModels
                         }
                         var drd = new DanceRatingDelta(prop.Value);
                         RatingTracker rating;
+                        var delta = drd.Delta;
+
+                        // Enforce normalization of max/min values
+                        if (delta > max) delta = max;
+                        else if (delta < min) delta = min;
+
+                        if (drd.Delta != delta)
+                        {
+                            drd.Delta = delta;
+                            prop.Value = drd.ToString();
+                        }
+
                         if (!currentEdits.Ratings.TryGetValue(drd.DanceId, out rating))
                         {
-                            currentEdits.Ratings[drd.DanceId] = new RatingTracker {Rating = drd.Delta, Property = prop};
+                            currentEdits.Ratings[drd.DanceId] = new RatingTracker {Rating = delta, Property = prop};
                         }
                         else 
                         {
                             // Keep the biggest vote from this user
-                            if (Math.Abs(rating.Rating) <= Math.Abs(drd.Delta))
+                            if (Math.Abs(rating.Rating) <= Math.Abs(delta))
                             {
-                                rating.Rating = drd.Delta;
+                                rating.Rating = delta;
                                 rating.Property.Value = drd.ToString();
                             }
                             remove.Add(prop);
@@ -1525,6 +1539,8 @@ namespace m4dModels
                     changed = true;
                 }
             }
+
+            if (changed) SetRatingsFromProperties();
 
             return changed;
         }
