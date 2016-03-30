@@ -638,6 +638,26 @@ namespace m4d.Controllers
             return View("Index", songs.ToPagedList(filter.Page ?? 1, 25));
         }
 
+        //
+        // GET: /Song/UpdateRatings/5
+        [Authorize(Roles = "canEdit")]
+        public ActionResult UpdateRatings(Guid id, SongFilter filter = null)
+        {
+            var song = Database.Songs.Find(id);
+            if (song == null)
+            {
+                return ReturnError(HttpStatusCode.NotFound, $"The song with id = {id} has been deleted.");
+            }
+            song.SetRatingsFromProperties();
+            Database.SaveChanges();
+
+            HelpPage = "song-details";
+            ViewBag.DanceMap = SongCounts.GetDanceMap(Database);
+            ViewBag.DanceList = GetDancesSingle(Database);
+
+            return View("Details", Database.FindSongDetails(song.SongId));
+        }
+
 
         //
         // BulkEdit: /Song/BulkEdit

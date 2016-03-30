@@ -1478,6 +1478,7 @@ namespace m4dModels
 
             string currentUser = null;
             UserEdits currentEdits = null;
+            var changed = false;
 
             foreach (var prop in OrderedProperties)
             {
@@ -1534,6 +1535,7 @@ namespace m4dModels
 
                         if (drd.Delta != delta)
                         {
+                            changed = true;
                             drd.Delta = delta;
                             prop.Value = drd.ToString();
                         }
@@ -1547,6 +1549,7 @@ namespace m4dModels
                             // Keep the vote that is in the direction that is most recent for this user, then the largest value
                             if ((Math.Sign(rating.Rating) != Math.Sign(delta)) || (Math.Abs(rating.Rating) <= Math.Abs(delta)))
                             {
+                                changed = true;
                                 rating.Rating = delta;
                                 rating.Property.Value = drd.ToString();
                             }
@@ -1555,8 +1558,6 @@ namespace m4dModels
                         break;
                 }
             }
-
-            var changed = false;
 
             foreach (var prop in remove)
             {
