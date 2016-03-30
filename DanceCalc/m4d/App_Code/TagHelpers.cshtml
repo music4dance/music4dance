@@ -35,8 +35,17 @@
     {
         filter = new SongFilter();
     }
-    var tc = tag.TagClass.ToLower();
-    
+
+    var tc = tag.TagClass;
+    if (tc == null)
+    {
+        tc = "other";
+    }
+    else
+    {
+        tc = tc.ToLower();
+    }
+
     var img = "/Content/" + TagType.ClassToName(tc) + "-50.png";
 
     var size = string.Empty;

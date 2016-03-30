@@ -20,7 +20,7 @@ namespace m4d.APIControllers
         // id should be the type to update - currently danceinfo, songstats
         //   future tags, purchase, spotify, albums, tagtypes, tagsummaries, 
         //   timesfromproperties, compressregions, spotifyregions, rebuildusertags, rebuildtags
-        public IHttpActionResult Get(string id, bool force = false)
+        public IHttpActionResult Get(string id, bool force = false, bool sync = false)
         {
             var authenticationHeader = Request.Headers.Authorization;
             var token = Encoding.UTF8.GetString(Convert.FromBase64String(authenticationHeader.Parameter));
@@ -48,15 +48,21 @@ namespace m4d.APIControllers
             }
 
             string message;
+            DoHandleRecompute recompute;
+
             switch (id)
             {
                 case "songstats":
-                    HandleRecompute(DoHandleSongStats);
+                    recompute= DoHandleSongStats;
                     message = "Updated song stats.";
                     break;
                 case "danceinfo":
-                    HandleRecompute(DoHandleDanceInfo);
+                    recompute = DoHandleDanceInfo;
                     message = "Rebuilt Dances, Dance Tags, and updated Song Counts.";
+                    break;
+                case "propertycleanup":
+                    recompute = DoHandlePropertyCleanup;
+                    message = "Cleand up properties";
                     break;
                 default:
                     client.TrackEvent("Recompute",
@@ -67,6 +73,15 @@ namespace m4d.APIControllers
             client.TrackEvent("Recompute",
                 new Dictionary<string, string> { { "Id", id }, { "Phase", "Start" }, { "Code", "Okay" } });
 
+            if (sync)
+            {
+                HandleSyncRecompute(recompute, id,message);
+            }
+            else
+            {
+                HandleRecompute(recompute, id, message);
+            }
+
             return Ok(new {changed = true, message});
         }
 
@@ -76,37 +91,82 @@ namespace m4d.APIControllers
             return Database.Songs.Any(s => s.Modified > updated);
         }
 
-        private delegate void DoHandleRecompute(DanceMusicService dms);
+        private delegate bool DoHandleRecompute(DanceMusicService dms, string id, string message);
 
         // TODO: Should Do*** functions take name of task and message so that we can clean up duplicate code?
-        private static void HandleRecompute(DoHandleRecompute recompute)
+        private static void HandleRecompute(DoHandleRecompute recompute, string id, string message)
         {
-            Task.Run(() => recompute.Invoke(CreateDisconnectedService()));
+            Task.Run(() => recompute.Invoke(CreateDisconnectedService(),id,message));
         }
 
-        private static void DoHandleSongStats(DanceMusicService dms)
+        private static void HandleSyncRecompute(DoHandleRecompute recompute, string id, string message)
+        {
+            var i = 0;
+            while (!Task.Run(() => recompute.Invoke(CreateDisconnectedService(),id,message)).Result)
+            {
+                TelemetryClient.TrackEvent("Recompute",
+                    new Dictionary<string, string> { { "Id", id }, { "Phase", "Iteration" }, { "Code", "Pending" }, { "Task", AdminMonitor.Name }, { "Iteration", i.ToString() } });
+                i += 1;
+            }
+        }
+
+        private static bool DoHandleSongStats(DanceMusicService dms, string id, string message)
         {
             try
             {
                 SongCounts.RebuildSongCounts(dms);
-                Complete("songstats", "Song Counts Successfully Rebuilt!");
+                Complete(id,message);
             }
             catch (Exception e)
             {
                 Fail(e);
             }
+            return true;
         }
 
-        private static void DoHandleDanceInfo(DanceMusicService dms)
+        private static bool DoHandleDanceInfo(DanceMusicService dms, string id, string message)
         {
             try
             {
                 dms.RebuildDanceInfo();
-                Complete("danceinfo", "Rebuilt Dance Info");
+                Complete(id, message);
             }
             catch (Exception e)
             {
                 Fail(e);
+            }
+            return true;
+        }
+
+        private static bool DoHandlePropertyCleanup(DanceMusicService dms, string id, string message)
+        {
+            try
+            {
+                var from = RecomputeMarker.GetMarker(id);
+
+                var info = dms.CleanupProperties(250, from, new SongFilter());
+
+                if (info.Succeeded > 0 || info.Failed > 0)
+                {
+                    RecomputeMarker.SetMarker(id, info.LastTime);
+                }
+
+                if (info.Complete)
+                {
+                    Complete(id, message);
+                }
+                else
+                {
+                    AdminMonitor.CompleteTask(true, message);
+                    TelemetryClient.TrackEvent("Recompute",
+                        new Dictionary<string, string> { { "Id", id }, { "Phase", "Intermediate" }, { "Code", "Success" }, { "Message", AdminMonitor.Status.ToString() }, { "Time", AdminMonitor.Duration.ToString() } });
+                }
+                return info.Complete;
+            }
+            catch (Exception e)
+            {
+                Fail(e);
+                return true;
             }
         }
 

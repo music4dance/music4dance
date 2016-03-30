@@ -303,6 +303,71 @@ namespace m4dModels
         {
             song.Delete(user, this);
         }
+
+        public BatchInfo CleanupProperties(int max, DateTime from, SongFilter filter)
+        {
+            var ret = new BatchInfo();
+
+            // Get songlist with NoCruft filter (which still totals less that 10,000)
+            if (filter == null) filter = new SongFilter();
+            var songlist = TakeTail(BuildSongList(filter), from, max);
+
+            var lastTouched = DateTime.MinValue;
+            var succeeded = new List<Song>();
+            var failed = new List<Song>();
+            var cummulative = 0;
+
+            foreach (var song in songlist)
+            {
+                lastTouched = song.Modified;
+
+                var init = song.SongProperties.Count;
+
+                var changed = song.CleanupProperties(this);
+
+                var final = song.SongProperties.Count;
+
+                if (changed)
+                {
+                    Trace.WriteLine($"Succeeded ({init-final})): {song}");
+                    succeeded.Add(song);
+                    cummulative += init - final;
+                }
+                else
+                {
+                    if (init - final != 0)
+                    {
+                        Trace.WriteLine($"Failed ({init - final}): {song}");
+                    }
+                    Trace.WriteLine($"Skipped: {song}");
+                    failed.Add(song);
+                }
+
+                AdminMonitor.UpdateTask("CleanProperty", succeeded.Count + failed.Count);
+
+                if (succeeded.Count + failed.Count >= max)
+                {
+                    break;
+                }
+            }
+
+            ret.LastTime = lastTouched;
+            ret.Succeeded = succeeded.Count;
+            ret.Failed = failed.Count;
+
+            ret.Message = $"Cleaned up {cummulative} properties.";
+            if (ret.Succeeded > 0)
+            {
+                SaveChanges();
+            }
+
+            if (ret.Succeeded + ret.Failed >= max) return ret;
+
+            ret.Complete = true;
+            ret.Message += "No more songs to clean up";
+
+            return ret;
+        }
         #endregion
 
         #region Dance Ratings
@@ -2801,11 +2866,11 @@ namespace m4dModels
             return songs.Take(max + 100);
         }
 
-        public IndexInfo IndexSongs(int max = -1, DateTime? from = null, bool rebuild = false, SongFilter filter = null)
+        public BatchInfo IndexSongs(int max = -1, DateTime? from = null, bool rebuild = false, SongFilter filter = null)
         {
             if (max == -1) max = 100;
 
-            var ret = new IndexInfo();
+            var ret = new BatchInfo();
 
             // Get songlist with NoCruft filter (which still totals less that 10,000)
             if (filter == null) filter = new SongFilter();
@@ -2973,6 +3038,7 @@ namespace m4dModels
         }
 
         #endregion
+
         #region User
         public ApplicationUser FindUser(string name)
         {

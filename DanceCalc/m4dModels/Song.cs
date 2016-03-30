@@ -1208,22 +1208,34 @@ namespace m4dModels
             return true;
         }
 
-        public bool RemoveEmptyEdits(Song song, DanceMusicService dms)
+        public bool RemoveEmptyEdits(DanceMusicService dms)
         {
             // Cleanup null edits
-            var remove = new List<SongProperty>();
             var buffer = new List<SongProperty>();
 
-            var users = new HashSet<string>();
+            var users = new Dictionary<string,List<SongProperty>>();
+            var activeUsers = new HashSet<string>();
+
             var inEmpty = false;
+            string currentUser = null;
+
             foreach (var prop in OrderedProperties)
             {
-                // Run through the properties and add all clusters of 
+                // Run through the properties and add all clusters of empties
                 if (prop.IsAction)
                 {
                     if (inEmpty)
                     {
-                        remove.AddRange(buffer);
+                        if (currentUser != null)
+                        {
+                            List<SongProperty> r;
+                            if (!users.TryGetValue(currentUser, out r))
+                            {
+                                r = new List<SongProperty>();
+                                users[currentUser] = r;
+                            }
+                            r.AddRange(buffer);
+                        }
                         buffer.Clear();
                     }
                     if (prop.Name != EditCommand) continue;
@@ -1238,18 +1250,25 @@ namespace m4dModels
                         // Count == 1 case is where the .Edit command is the only thing there
                         if (inEmpty && buffer.Count > 1)
                         {
-                            remove.AddRange(buffer);
+                            if (currentUser != null)
+                            {
+                                List<SongProperty> r;
+                                if (!users.TryGetValue(currentUser, out r))
+                                {
+                                    r = new List<SongProperty>();
+                                    users[currentUser] = r;
+                                }
+                                r.AddRange(buffer);
+                            }
                             buffer.Clear();
                         }
+                        else if (currentUser != null)
+                        {
+                            activeUsers.Add(currentUser);
+                        }
 
-                        if (users.Contains(prop.Value))
-                        {
-                            inEmpty = true;
-                        }
-                        else
-                        {
-                            users.Add(prop.Value);
-                        }
+                        currentUser = prop.Value;
+                        inEmpty = true;
                     }
 
                     if (inEmpty)
@@ -1264,6 +1283,24 @@ namespace m4dModels
                 }
             }
 
+            var remove = new List<SongProperty>();
+            foreach (var user in users)
+            {
+                if (activeUsers.Contains(user.Key))
+                {
+                    remove.AddRange(user.Value);
+                }
+                else
+                {
+                    var props = user.Value;
+                    var u = props.FirstOrDefault(p => p.Name == UserField);
+                    if (u == null) continue;
+
+                    props.Remove(u);
+                    remove.AddRange(props);
+                }
+            }
+
             if (remove.Count == 0) return false;
 
             foreach (var prop in remove)
@@ -1275,7 +1312,7 @@ namespace m4dModels
             return true;
         }
 
-        public bool RemoveDuplicateDurations(Song song, DanceMusicService dms)
+        public bool RemoveDuplicateDurations(DanceMusicService dms)
         {
             // Cleanup durations that are within 20 seconds of an average
 
@@ -1326,7 +1363,7 @@ namespace m4dModels
             return true;
         }
 
-        public bool CleanupAlbums(Song song, DanceMusicService dms)
+        public bool CleanupAlbums(DanceMusicService dms)
         {
             // Remove the properties for album info that has been 'deleted'
             // and if any have been removed, also get rid of promote and order
@@ -1429,7 +1466,7 @@ namespace m4dModels
             public Dictionary<string, RatingTracker> Ratings { get; } 
         }
 
-        public bool NormalizeRatingsRatings(Song song, DanceMusicService dms, int max = 2, int min =-1)
+        public bool NormalizeRatings(DanceMusicService dms, int max = 2, int min =-1)
         {
             // This function should not semantically change the tags, but it will potentially
             //  reduce the danceratings where there were redundant entries previously and normalize based
@@ -1507,8 +1544,8 @@ namespace m4dModels
                         }
                         else 
                         {
-                            // Keep the biggest vote from this user
-                            if (Math.Abs(rating.Rating) <= Math.Abs(delta))
+                            // Keep the vote that is in the direction that is most recent for this user, then the largest value
+                            if ((Math.Sign(rating.Rating) != Math.Sign(delta)) || (Math.Abs(rating.Rating) <= Math.Abs(delta)))
                             {
                                 rating.Rating = delta;
                                 rating.Property.Value = drd.ToString();
@@ -1545,6 +1582,15 @@ namespace m4dModels
             return changed;
         }
 
+        public bool CleanupProperties(DanceMusicService dms)
+        {
+            var changed = RemoveDuplicateDurations(dms);
+            changed |= CleanupAlbums(dms);
+            changed |= NormalizeRatings(dms);
+            changed |= RemoveEmptyEdits(dms);
+
+            return changed;
+        }
         #endregion
 
         #region Serialization

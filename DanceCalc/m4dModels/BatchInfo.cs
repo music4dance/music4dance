@@ -2,7 +2,7 @@
 
 namespace m4dModels
 {
-    public class IndexInfo
+    public class BatchInfo
     {
         public DateTime LastTime { get; set; }
         public int Succeeded { get; set; }

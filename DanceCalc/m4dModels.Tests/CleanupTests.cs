@@ -18,9 +18,17 @@ namespace m4dModels.Tests
         private const string SongC =
             @"SongId={05178359-eaae-4463-8de1-4c79c403adb4}	.Merge=467220be-feac-4184-af47-1b15213bbc9b;0e288e64-6158-43fa-95b2-43dad1d085bf	User=batch	Time=06/12/2015 11:36:15	.Edit=	User=batch	Time=6/12/2015 11:36:15 AM	Title=I Get a Kick out of You	Tempo=102.5	Album:00=The Very Good Years	Track:00=3	Album:01=Sinatra and Swingin' Brass	Track:01=6	Purchase:01:AS=D:B00FAXDMWU	Purchase:01:AA=D:B00FAXDD7Y	Purchase:01:IS=923098168	Purchase:01:IA=923094701	Album:02=X-Mas, Vol. 5 (Let It Snow! Let It Snow! Let It Snow!)	Track:02=10	Purchase:02:IS=487823078	Purchase:02:IA=487822808	Album:03=In French or English - 3	Track:03=9	Purchase:03:IS=656991553	Purchase:03:IA=656991512	Album:04=In French or English ? 2	Track:04=17	Purchase:04:IS=656625882	Purchase:04:IA=656625397	Album:05=Jukebox Favourites - Best of Swing	Track:05=59	Purchase:05:IS=814204173	Purchase:05:IA=814204056	Album:06=Song Shop - Song Doubles	Track:06=6	Purchase:06:IS=663133012	Purchase:06:IA=663132879	Album:07=Song Doubles Volume One	Track:07=18	Purchase:07:IS=943867362	Purchase:07:IA=943867288	Album:08=Your Birthday Present - Song Doubles	Track:08=18	Purchase:08:IS=660024227	Purchase:08:IA=660024148	Album:09=Frank Sinatra & Sextet: In Paris - Live	Track:09=15	Purchase:09:SS=3tMZgBzebiTyQTP788GQM9	Purchase:09:SA=0U0dbAPfsrCn3P1ewtyJj0	.Create=	User=dwgray	OwnerHash=-984185430	Time=1/12/2015 12:58:27 PM	Title=I Get A Kick Out Of You	Artist=Frank Sinatra	Tempo=102.5	Length=194	.Edit=	User=AdamT	Time=4/16/2015 8:26:04 AM	Tag+=QuickStep:Dance	DanceRating=QST+4	DanceRating=FXT+1	Tag+:QST=Traditional:Style	.Edit=	User=batch-a	Time=4/16/2015 8:29:28 AM	Tag+=big-band-swing:Music	.Edit=	User=batch-i	Time=4/16/2015 8:29:29 AM	Title=I Get a Kick Out of You	Length=189	Tag+=Jazz:Music|Pop:Music|Swing:Music|Vocal Jazz:Music	.Edit=	User=batch-s	Time=4/16/2015 8:29:29 AM	Title=I Get a Kick out of You	Length=186	.Create=	User=TaylorZ	Time=05/07/2015 15:36:09	Title=I Get A Kick Out of You	Artist=Frank Sinatra	Tempo=144.0	Tag+=East Coast Swing:Dance|First Dance:Other|Foxtrot:Dance|Wedding:Other	DanceRating=FXT+3	DanceRating=ECS+4	DanceRating=SWG+1	DanceRating=LHP+1	.Edit=	User=TaylorZ	Time=5/7/2015 3:45:21 PM	Tag+=Father Daughter:Other|Slow Foxtrot:Dance	DanceRating=SFT+3	DanceRating=ECS+4	DanceRating=SWG+1	DanceRating=FXT+1	DanceRating=LHP+1	.Edit=	User=TaylorZ	Time=5/7/2015 3:46:18 PM	Tag+=Mother Son:Other	DanceRating=SFT+3	DanceRating=ECS+4	DanceRating=SWG+1	DanceRating=FXT+1	DanceRating=LHP+1	.Edit=	User=batch-x	Time=01/13/2016 21:54:27	Purchase:07:XS=music.0A82AA08-0100-11DB-89CA-0019B92A3933	Tag+=Pop:Music	.FailedLookup=-:0	.Edit=	User=batch-s	Time=02/08/2016 22:22:14	Sample=.	.Edit=	User=batch-e	Time=02/09/2016 19:31:22	Tempo=140.1	Danceability=0.5725134	Energy=0.3595052	Valence=0.4253719	Tag+=4/4:Tempo	.Edit=	User=batch-s	Time=02/17/2016 16:27:27	Sample=.";
 
+        private const string SongD = 
+            @"SongId={9e8317e8-a965-4cd5-8091-b1d08b1cdef2}	.Create=	User=HunterZ	Time=3/17/2014 5:43:50 PM	Title=Bye Bye Blackbird	Artist=Sammy Davis Jr	Tempo=116.0	Time=9/4/2014 8:12:02 PM	User=batch	Time=9/4/2014 8:12:02 PM	User=batch	Time=10/9/2014 12:09:30 PM	DanceRating=SFT+4	User=HunterZ	Time=11/20/2014 11:32:39 AM	Tag+=Foxtrot:Dance	User=batch	Time=11/20/2014 11:32:39 AM	Tag+=Jazz:Music	User=HunterZ	Time=9/4/2014 8:06:58 PM	User=batch	OrderAlbums=1,0	Time=9/4/2014 8:06:58 PM	User=HunterZ	Artist=Sammy Davis Jr	Time=6/16/2014 12:41:48 PM	User=batch	PromoteAlbum:1=	Purchase:1:XS=music.086DC007-0100-11DB-89CA-0019B92A3933	Track:1=36	Album:1=The Great American Song Book	Length=171	Artist=Bye Bye Blackbird	Time=5/21/2014 2:05:46 PM	User=batch	DanceRating=FXT+5	Album:0=The Ultimate Ballroom Album 10	.FailedLookup=-:0";
+
+        private const string SongE =
+            @"SongId={a8cace40-03bc-47bf-b781-47a817a7602c}	.Create=	User=HunterZ	Time=3/17/2014 5:46:07 PM	Title=Harmonica Man (rekmix)	Artist=Paul Lamb & the King Snakes	Album:0=Harmonica Man	DanceRating=PLK+5	User=batch	Time=6/11/2014 9:02:15 PM	Title=Harmonica Man	Artist=Paul Lamb & The King Snakes	Length=243	Album:01=Harmonica Man - The Paul Lamb Anthology 1986-2002	Track:01=17	Purchase:01:XS=music.EB85DB07-0100-11DB-89CA-0019B92A3933	PromoteAlbum:01=	User=HunterZ	Time=9/4/2014 8:06:30 PM	User=batch	Time=9/4/2014 8:06:30 PM	User=HunterZ	Time=9/4/2014 8:11:32 PM	User=batch	Time=9/4/2014 8:11:32 PM	User=HunterZ	Time=11/20/2014 11:29:06 AM	Tag+=Polka:Dance	User=batch	Time=11/20/2014 11:29:06 AM	Tag+=Blues / Folk:Music	.Edit=	User=batch-a	Time=12/10/2014 6:22:32 PM	Artist=Paul Lamb And The King Snakes	Length=246	Track:01=1	Purchase:01:AS=D:B00E74SKH0	Purchase:01:AA=D:B00E74RS46	Album:02=Harmonica Man: The Anthology 1986-2002	Track:02=1	Purchase:02:AS=D:B000SHB22K	Purchase:02:AA=D:B000S59N3M	Tag+=alternative:Music|blues:Music	.Edit=	User=batch-i	Time=12/10/2014 6:22:33 PM	Artist=Paul Lamb & The King Snakes	Length=244	Purchase:01:IS=682496811	Purchase:01:IA=682496394	Tag+=Blues:Music	.Edit=	User=batch-x	Time=12/10/2014 6:22:33 PM	Length=243	Track:01=17	Tag+=Blues / Folk:Music	.Edit=	User=batch-s	Time=1/6/2015 4:52:58 PM	Length=244	Track:01=2001	Purchase:01:SS=5PEcFNy8EO8TseIRWE1f1H[0]	Purchase:01:SA=1RNDiDdVEPepXslQPh1lBm	OrderAlbums=1,0,2	.Edit=	User=batch	Time=01/11/2016 18:29:57	Album:02=Harmonica Man	Album:00=	.FailedLookup=-:0	.Edit=	User=dwgray	Time=02/06/2016 01:42:39	Tag+=Polka:Dance	DanceRating=PLK+2	.Edit=	User=dwgray	Time=02/06/2016 01:42:45	Tag+=!Polka:Dance	Tag-=Polka:Dance	DanceRating=PLK-3	.Edit=	User=batch-s	Time=02/08/2016 19:25:07	Sample=https://p.scdn.co/mp3-preview/53916c89ece0d94242dac076fe91f8f86d8a3713	.Edit=	User=batch-e	Time=02/09/2016 18:04:50	Tempo=122.1	Danceability=0.5333328	Energy=0.9064238	Valence=0.7872825	Tag+=4/4:Tempo";
+
         private static readonly Guid GuidA = new Guid("{defd92b3-0a2a-4d49-b8ec-cc57fcb6fa80}");
         private static readonly Guid GuidB = new Guid("{250b462b-5f8f-420c-81cc-74cdcc03a48f}");
         private static readonly Guid GuidC = new Guid("{05178359-eaae-4463-8de1-4c79c403adb4}");
+        private static readonly Guid GuidD = new Guid("{9e8317e8-a965-4cd5-8091-b1d08b1cdef2}");
+        private static readonly Guid GuidE = new Guid("{a8cace40-03bc-47bf-b781-47a817a7602c}");
 
         private TraceSwitch General { get;  }
 
@@ -32,31 +40,16 @@ namespace m4dModels.Tests
         [TestMethod]
         public void CleanEmpties()
         {
-            var service = new DanceMusicTester(new List<string> {SongA});
-
-            var song = service.Dms.FindSong(GuidA);
-
-            DanceMusicTester.DumpSongProperties(song, General.TraceInfo);
-            var c = song.SongProperties.Count;
-
-            Assert.IsTrue(song.RemoveEmptyEdits(song, service.Dms));
-
-            Assert.AreEqual(c - 11, song.SongProperties.Count);
-            DanceMusicTester.DumpSongProperties(song, General.TraceInfo);
-        }
-
-        [TestMethod]
-        public void CleanRatings()
-        {
-            var service = new DanceMusicTester(new List<string> {SongB, SongC});
+            // TODONEXT: why isn't this counting as changed at all when run with from the admin task
+            var service = new DanceMusicTester(new List<string> {SongA,SongD});
 
             var songs = new List<Song>
             {
-                service.Dms.FindSong(GuidB),
-                service.Dms.FindSong(GuidC)
+                service.Dms.FindSong(GuidA),
+                service.Dms.FindSong(GuidD)
             };
 
-            var deltas = new List<int> {17, 11};
+            var deltas = new List<int> { 13, 4 };
 
             for (var index = 0; index < songs.Count; index++)
             {
@@ -64,7 +57,36 @@ namespace m4dModels.Tests
                 Trace.WriteLineIf(General.TraceInfo, $"---------------Predump for Song {song.SongId}");
                 DanceMusicTester.DumpSongProperties(song, General.TraceInfo);
                 var c = song.SongProperties.Count;
-                Assert.IsTrue(song.NormalizeRatingsRatings(song, service.Dms));
+                Assert.IsTrue(song.RemoveEmptyEdits(service.Dms));
+                Trace.WriteLineIf(General.TraceInfo, $"{song.SongId}:{song.SongProperties.Count - c}");
+                Assert.AreEqual(c - deltas[index], song.SongProperties.Count);
+
+                Trace.WriteLineIf(General.TraceInfo, $"---------------Postdump for Song {song.SongId}");
+                DanceMusicTester.DumpSongProperties(song, General.TraceInfo);
+            }
+        }
+
+        [TestMethod]
+        public void CleanRatings()
+        {
+            var service = new DanceMusicTester(new List<string> {SongB, SongC, SongE});
+
+            var songs = new List<Song>
+            {
+                service.Dms.FindSong(GuidB),
+                service.Dms.FindSong(GuidC),
+                service.Dms.FindSong(GuidE),
+            };
+
+            var deltas = new List<int> {17, 11, 3};
+
+            for (var index = 0; index < songs.Count; index++)
+            {
+                var song = songs[index];
+                Trace.WriteLineIf(General.TraceInfo, $"---------------Predump for Song {song.SongId}");
+                DanceMusicTester.DumpSongProperties(song, General.TraceInfo);
+                var c = song.SongProperties.Count;
+                Assert.IsTrue(song.NormalizeRatings(service.Dms));
                 Trace.WriteLineIf(General.TraceInfo, $"{song.SongId}:{song.SongProperties.Count - c}");
                 Assert.AreEqual(c - deltas[index], song.SongProperties.Count);
 
@@ -101,7 +123,7 @@ namespace m4dModels.Tests
                 Trace.WriteLineIf(General.TraceInfo, $"---------------Predump for Song {song.SongId}");
                 DanceMusicTester.DumpSongProperties(song, General.TraceInfo);
                 var c = song.SongProperties.Count;
-                Assert.IsTrue(song.RemoveDuplicateDurations(song, service.Dms));
+                Assert.IsTrue(song.RemoveDuplicateDurations(service.Dms));
                 Trace.WriteLineIf(General.TraceInfo,$"{song.SongId}:{song.SongProperties.Count - c}");
                 Assert.AreEqual(c - deltas[index], song.SongProperties.Count);
 
@@ -121,7 +143,7 @@ namespace m4dModels.Tests
             DanceMusicTester.DumpSongProperties(song);
             var c = song.SongProperties.Count;
 
-            Assert.IsTrue(song.CleanupAlbums(song, service.Dms));
+            Assert.IsTrue(song.CleanupAlbums(service.Dms));
             Trace.WriteLineIf(General.TraceInfo, $"{song.SongId}:{song.SongProperties.Count - c}");
 
             Assert.AreEqual(c - 118, song.SongProperties.Count);
@@ -133,20 +155,24 @@ namespace m4dModels.Tests
         [TestMethod]
         public void CleanAll()
         {
-            var service = new DanceMusicTester(new List<string> { SongA, SongB, SongC });
+            var service = new DanceMusicTester(new List<string> { SongA, SongB, SongC, SongD, SongE });
 
             var songs = new List<Song>
             {
                 service.Dms.FindSong(GuidA),
                 service.Dms.FindSong(GuidB),
-                service.Dms.FindSong(GuidC)
+                service.Dms.FindSong(GuidC),
+                service.Dms.FindSong(GuidD),
+                service.Dms.FindSong(GuidE),
             };
 
             var deltas = new List<List<int>>
             {
-                new List<int> {1,1,2,16},
+                new List<int> {1,1,2,18},
                 new List<int> {17,135,152,197},
-                new List<int> {2,2,13,16}
+                new List<int> {2,2,13,18},
+                new List<int> {0,0,0,4},
+                new List<int> {4,8,11,22},
             };
 
             for (var index = 0; index < songs.Count; index++)
@@ -156,19 +182,19 @@ namespace m4dModels.Tests
                 Trace.WriteLineIf(General.TraceInfo, $"---------------Predump for Song {song.SongId}");
                 DanceMusicTester.DumpSongProperties(song, General.TraceInfo);
                 var c = song.SongProperties.Count;
-                song.RemoveDuplicateDurations(song, service.Dms);
+                song.RemoveDuplicateDurations(service.Dms);
                 Trace.WriteLineIf(General.TraceVerbose,$"++++After Durations: {song.SongId}:{song.SongProperties.Count - c}");
                 DanceMusicTester.DumpSongProperties(song, General.TraceVerbose);
                 Assert.AreEqual(delta[0],c - song.SongProperties.Count);
-                song.CleanupAlbums(song, service.Dms);
+                song.CleanupAlbums(service.Dms);
                 Trace.WriteLineIf(General.TraceVerbose, $"++++After Albums: {song.SongId}:{song.SongProperties.Count - c}");
                 DanceMusicTester.DumpSongProperties(song, General.TraceVerbose);
                 Assert.AreEqual(delta[1], c - song.SongProperties.Count);
-                song.NormalizeRatingsRatings(song, service.Dms);
+                song.NormalizeRatings(service.Dms);
                 Trace.WriteLineIf(General.TraceVerbose, $"++++After Ratings: {song.SongId}:{song.SongProperties.Count - c}");
                 DanceMusicTester.DumpSongProperties(song, General.TraceVerbose);
                 Assert.AreEqual(delta[2], c - song.SongProperties.Count);
-                song.RemoveEmptyEdits(song, service.Dms);
+                song.RemoveEmptyEdits(service.Dms);
                 Trace.WriteLineIf(General.TraceVerbose, $"++++After Empty: {song.SongId}:{song.SongProperties.Count - c}");
                 DanceMusicTester.DumpSongProperties(song, General.TraceVerbose);
                 Assert.AreEqual(delta[3], c - song.SongProperties.Count);

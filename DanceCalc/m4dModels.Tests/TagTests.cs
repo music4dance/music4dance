@@ -339,8 +339,53 @@ namespace m4dModels.Tests
             }
         }
 
-        static readonly DanceMusicService Service;
+        [TestMethod]
+        public void TagVerify()
+        {
+            var song = new Song();
+            for (var index = 0; index < VerifiesInit.Length; index++)
+            {
+                var init = VerifiesInit[index];
+                var res = song.VerifyTags(init, false);
+                if (index < 3)
+                {
+                    Assert.IsNotNull(res);
+                }
+                else
+                {
+                    Assert.IsNull(res);
+                }
+            }
+        }
 
+
+        [TestMethod]
+        public void TagVerifyFix()
+        {
+            var song = new Song();
+            for (var index = 0; index < VerifiesInit.Length; index++)
+            {
+                var init = VerifiesInit[index];
+                var res = song.VerifyTags(init).Summary;
+                Assert.AreEqual(VerifiesResult[index], res);
+            }
+        }
+
+        private static readonly string[] VerifiesInit = {
+            "",
+            "Blues:dance|Pop:music",
+            "4/4:tempo|fast:tempo",
+            "Crazy|Christmas:Christmas",
+        };
+
+        private static readonly string[] VerifiesResult = {
+            "",
+            "Blues:Dance|Pop:Music",
+            "4/4:Tempo|fast:Tempo",
+            "Christmas:Other|Crazy:Other",
+        };
+
+        static readonly DanceMusicService Service;
 
         private const string SimpleSummary = "Rumba|Bolero|Latin|Blues";
         private const string SimpleList = "Blues|Bolero|Latin|Rumba";

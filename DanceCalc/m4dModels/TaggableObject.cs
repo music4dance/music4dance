@@ -58,15 +58,20 @@ namespace m4dModels
         // the actually added tags in canonical form
         virtual public TagList AddTags(string tags, ApplicationUser user, DanceMusicService dms = null, object data = null, bool updateTypes=true)
         {
+            var added = VerifyTags(tags);
+            return added == null ? null : AddTags(added, user, dms, data, updateTypes);
+        }
+
+        public virtual TagList AddTags(TagList tags, ApplicationUser user, DanceMusicService dms = null, object data = null, bool updateTypes = true)
+        {
             if (user == null)
             {
                 return null;
             }
 
-            var added = new TagList(tags);
             var ut = FindOrCreateUserTags(user, dms);
 
-            var newTags = added.Subtract(ut.Tags);
+            var newTags = tags.Subtract(ut.Tags);
             var allTags = ut.Tags.Add(newTags);
 
             ut.Modified = DateTime.Now;
@@ -76,6 +81,45 @@ namespace m4dModels
 
             return newTags;
         }
+
+        // Add any tags from tags that haven't already been added by the user and return a list of
+        // the actually added tags in canonical form
+        public TagList VerifyTags(string tags, bool fix = true)
+        {
+            var validClasses = ValidClasses;
+
+            var list = new TagList(tags);
+            var result = new List<string>();
+
+            foreach (var tag in list.Tags)
+            {
+                string one;
+                var i = tag.LastIndexOf(':');
+                if (i == -1)
+                {
+                    if (!fix) return null;
+                    one = $"{tag}:Other";
+                }
+                else
+                {
+                    var cls = tag.Substring(i + 1).ToLower();
+                    var val = tag.Substring(0,i);
+                    if (cls.Length < 2 || !validClasses.Contains(cls))
+                    {
+                        if (!fix) return null;
+                        cls = "other";
+                    }
+                    one = $"{val}:{char.ToUpper(cls[0])}{cls.Substring(1).ToLower()}";
+                }
+                result.Add(one);
+            }
+
+            return new TagList(result);
+        }
+
+        protected virtual HashSet<string> ValidClasses => s_validClasses;
+
+        private static readonly HashSet<string> s_validClasses = new HashSet<string> {"other"};
 
         // Remove any tags from tags that have previously been added by the user and return a list
         //  of the actually removed tags in canonical form

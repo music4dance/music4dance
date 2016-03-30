@@ -39,6 +39,9 @@ namespace m4dModels
             song.ChangeTag(SongBase.AddedTags + ":" + DanceId, added, dms);
             song.ChangeTag(SongBase.RemovedTags + ":" + DanceId, removed, dms);
         }
+        protected override HashSet<string> ValidClasses => s_validClasses;
+
+        private static readonly HashSet<string> s_validClasses = new HashSet<string> { "style", "tempo", "other" };
 
         public static IEnumerable<DanceRatingDelta> BuildDeltas(string dances, int delta)
         {
@@ -77,7 +80,7 @@ namespace m4dModels
             {
                 lock (InitialDanceMap)
                 {
-                    if (_builtDanceMap) return InitialDanceMap;
+                    if (s_builtDanceMap) return InitialDanceMap;
 
                     foreach (var d in Dance.DanceLibrary.AllDanceGroups)
                     {
@@ -89,7 +92,7 @@ namespace m4dModels
                         AddDanceToMap(d);
                     }
 
-                    _builtDanceMap = true;
+                    s_builtDanceMap = true;
                 }
 
                 return InitialDanceMap;
@@ -101,7 +104,7 @@ namespace m4dModels
             var name = SongBase.CleanDanceName(dance.Name);
             InitialDanceMap.Add(name, dance.Id);
         }
-        private static bool _builtDanceMap;
+        private static bool s_builtDanceMap;
         private static readonly Dictionary<string, string> InitialDanceMap = new Dictionary<string, string>()
         {
             {"SLOWANDCROSSSTEPWALTZ","CSW,SWZ"},

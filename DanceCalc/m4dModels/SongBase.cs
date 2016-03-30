@@ -640,6 +640,10 @@ namespace m4dModels
             return acc;
         }
 
+        protected override HashSet<string> ValidClasses => s_validClasses;
+
+        private static readonly HashSet<string> s_validClasses = new HashSet<string> { "dance","music","tempo","other" };
+
         #endregion
 
         #region Comparison

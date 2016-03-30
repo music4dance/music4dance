@@ -18,16 +18,16 @@ namespace m4dModels.Tests
             Assert.AreEqual(s_tester.Users.Count - 1, users.Count(),"Count of Users");
             var dances = from d in s_tester.Dms.Context.Dances select d;
             Assert.AreEqual(s_tester.Dances.Count, dances.Count(), "Count of Dances");
-            //foreach (var s in s_tester.Dms.SerializeTags())
-            //{
-            //    Trace.WriteLine(s);
-            //}
+            foreach (var s in s_tester.Dms.SerializeTags())
+            {
+                Trace.WriteLine(s);
+            }
             var tts = from tt in s_tester.Dms.Context.TagTypes select tt;
-            Assert.AreEqual(s_tester.Tags.Count(), tts.Count(), "Count of Tag Types");
+            Assert.AreEqual(s_tester.Tags.Count, tts.Count(), "Count of Tag Types");
             var searches = from ss in s_tester.Dms.Context.Searches select ss;
-            Assert.AreEqual(s_tester.Searches.Count(), searches.Count(), "Count of Searches");
+            Assert.AreEqual(s_tester.Searches.Count, searches.Count(), "Count of Searches");
             var songs = from s in s_tester.Dms.Context.Songs where s.TitleHash != 0 select s;
-            Assert.AreEqual(s_tester.Songs.Count(), songs.Count(),"Count of Songs");
+            Assert.AreEqual(s_tester.Songs.Count, songs.Count(),"Count of Songs");
         }
 
         [TestMethod]

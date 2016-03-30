@@ -55,6 +55,18 @@ namespace m4d.Controllers
         }
 
         //
+        // GET: /Admin/ResetAdmin
+        [Authorize(Roles = "showDiagnostics")]
+        public ActionResult ResetAdmin()
+        {
+            AdminMonitor.CompleteTask(false,"Force Reset");
+            ViewBag.TraceLevel = TraceLevels.General.Level.ToString();
+            ViewBag.BotReport = SpiderManager.CreateBotReport();
+            return View("Diagnostics");
+        }
+
+
+        //
         // GET: /Admin/InitializaitonTasks
         [Authorize(Roles = "showDiagnostics")]
         public ActionResult InitializationTasks()
@@ -1548,8 +1560,18 @@ namespace m4d.Controllers
             }
 
             tags = !string.IsNullOrEmpty(tags) ? tags.Trim() : null;
+            TagList tagList = null;
+            if (tags != null)
+            {
+                tagList = newSongs[0].VerifyTags(tags, false);
+                if (tagList == null)
+                {
+                    ViewBag.ErrorMessage = $"Invalid Tag List: {tags}";
+                    return View("Error");
+                }
+            }
 
-            if (hasArtist || hasAlbum || (tags != null))
+            if (hasArtist || hasAlbum || (tagList != null))
             {
                 foreach (var sd in newSongs)
                 {
@@ -1561,9 +1583,9 @@ namespace m4d.Controllers
                     {
                         sd.Albums.Add(ad);
                     }
-                    if (tags != null)
+                    if (tagList != null)
                     {
-                        sd.AddTags(tags,appuser,Database,sd,false);
+                        sd.AddTags(tagList,appuser,Database,sd,false);
                     }
                 }
             }
@@ -2028,6 +2050,9 @@ namespace m4d.Controllers
 
                 var success = Database.ResetIndex();
 
+                if (success)
+                    RecomputeMarker.SetMarker("songindex", DateTime.MinValue);
+
                 ViewBag.Name = "Reset Index";
                 ViewBag.Success = success;
                 ViewBag.Message = @"Index Reset";
@@ -2079,11 +2104,49 @@ namespace m4d.Controllers
                 return FailAdminTask($"BuildIndex: {e.Message}", e);
             }
         }
-#endregion
 
-#region Migration-Restore
+        //
+        // Get: //CleanupProperties
+        [Authorize(Roles = "showDiagnostics")]
+        public ActionResult CleanupProperties(int count = 100, string filter = null)
+        {
+            try
+            {
+                StartAdminTask("CleanupProperties");
 
-    private void RestoreDb(string state = "InitialCreate")
+                SongFilter songFilter = null;
+                if (!string.IsNullOrWhiteSpace(filter))
+                {
+                    songFilter = new SongFilter(filter);
+                }
+
+                var from = RecomputeMarker.GetMarker("propertycleanup");
+
+                var info = Database.CleanupProperties(count, from, songFilter);
+
+                if (info.Succeeded > 0)
+                {
+                    RecomputeMarker.SetMarker("propertycleanup", info.LastTime);
+                }
+
+                ViewBag.Name = "Cleaned up Properties";
+                ViewBag.Success = true;
+
+                ViewBag.Message = $"{info.Succeeded} songs cleanded, {info.Failed} failed.";
+
+                return CompleteAdminTask(true, $"{info.Succeeded} songs cleaned up. {info.Message}");
+            }
+            catch (Exception e)
+            {
+                return FailAdminTask($"CleanupProperties: {e.Message}", e);
+            }
+        }
+
+        #endregion
+
+        #region Migration-Restore
+
+        private void RestoreDb(string state = "InitialCreate")
         {
             DbMigrator migrator;
 

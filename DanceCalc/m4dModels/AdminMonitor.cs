@@ -44,7 +44,7 @@ namespace m4dModels
         {
             lock (Lock)
             {
-                _stopwatch.Stop();
+                _stopwatch?.Stop();
 
                 _lastTaskCompleted = completed;
                 _lastTaskName = Name;
