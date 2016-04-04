@@ -104,6 +104,13 @@ namespace m4d.APIControllers
             var i = 0;
             while (!Task.Run(() => recompute.Invoke(CreateDisconnectedService(),id,message)).Result)
             {
+                if (!AdminMonitor.StartTask(id))
+                {
+                    TelemetryClient.TrackEvent("Recompute",
+                        new Dictionary<string, string> { { "Id", id }, { "Phase", "Iteration" }, { "Code", "Conflict" }, { "Task", AdminMonitor.Name }, { "Iteration", i.ToString() } });
+                    return;
+                }
+
                 TelemetryClient.TrackEvent("Recompute",
                     new Dictionary<string, string> { { "Id", id }, { "Phase", "Iteration" }, { "Code", "Pending" }, { "Task", AdminMonitor.Name }, { "Iteration", i.ToString() } });
                 i += 1;

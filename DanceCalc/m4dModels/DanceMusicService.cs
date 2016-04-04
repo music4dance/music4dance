@@ -427,7 +427,9 @@ namespace m4dModels
             var index = 0;
             foreach (var dance in Dances.Include("TopSongs.Song.DanceRatings"))
             {
-                AdminMonitor.UpdateTask("UpdateDance = " + dance.Name, index++);
+                var message = "UpdateDance = " + dance.Name;
+                Trace.WriteLine(message);
+                AdminMonitor.UpdateTask(message, index++);
 
                 Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Computing info for " + dance.Name);
                 dance.SongCount = dance.DanceRatings.Select(dr => dr.Song.Purchase).Count(p => p != null);
