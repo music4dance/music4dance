@@ -2,51 +2,11 @@
 @using DanceLibrary;
 
 @* ReSharper disable once InvertIf *@
-@helper TagButton(TagCount tag, SongFilter filter, float cloudSize = 0)
+@helper TagModalButton(TagCount tag, SongFilter filter, SongBase song, float cloudSize = 0.0f)
 {
-    var azureSearch = false;
     var buckets = new[] {.25F,.5F,.75F,1,5,10,20,25,50,100};
     var sizes = new[] {14,16,18,20,22,24,26,28,30,32};
     var iconSize = 14;
-
-    var urlBase = "/song/addtags?tags={0}" + WebUtility.UrlEncode(tag.TagValue) + ":" + WebUtility.UrlEncode(tag.TagClass);
-    var url = urlBase;
-    string danceName = null;
-    string urlDance = null;
-    string urlFiltered = null;
-    if (filter != null)
-    {
-        azureSearch = filter.IsAzure;
-        var dance = Dances.Instance.DanceFromId(filter.Dances);
-        if (dance != null)
-        {
-            var filterDance = new SongFilter { Dances = filter.Dances };
-            danceName = dance.Name;
-            urlDance = urlBase + "&filter=" + WebUtility.UrlEncode(filterDance.ToString());
-        }
-
-        if (!filter.IsEmpty)
-        {
-            urlFiltered = urlBase + "&filter=" + WebUtility.UrlEncode(filter.ToString());
-        }
-
-    }
-    else
-    {
-        filter = new SongFilter();
-    }
-
-    var tc = tag.TagClass;
-    if (tc == null)
-    {
-        tc = "other";
-    }
-    else
-    {
-        tc = tc.ToLower();
-    }
-
-    var img = "/Content/" + TagType.ClassToName(tc) + "-50.png";
 
     var size = string.Empty;
     if (cloudSize > 0)
@@ -61,31 +21,7 @@
         iconSize = sizes[bucket];
     }
 
-    <div class="btn-group @size">
-        <a href="#!" role="button" class="dropdown-toggle label label-@tc" data-toggle="dropdown" aria-expanded="false"><img src="@img" height="@iconSize.ToString()" width="@iconSize.ToString()" /> @tag.TagValue</a>
-        <ul class="dropdown-menu" role="menu">
-            @if (!azureSearch)
-            {
-                if (urlFiltered != null)
-                {
-                    <li><a href="@string.Format(urlFiltered, "%2B")">Filter the list to include only songs tagged as @tag.TagValue</a></li>
-                    <li><a href="@string.Format(urlFiltered, "%2D")">Filter the list to include only songs not tagged as @tag.TagValue</a></li>
-                }
-                if (urlDance != null)
-                {
-                    <li><a href="@string.Format(urlDance, "%2B")">List all @danceName songs tagged as @tag.TagValue</a></li>
-                    <li><a href="@string.Format(urlDance, "%2D")">List all @danceName songs not tagged as @tag.TagValue</a></li>
-                }
-            }
-            <li><a href="@string.Format(url, "%2B")">List all songs tagged as @tag.TagValue</a></li>
-            <li><a href="@string.Format(url, "%2D")">List all songs not tagged as @tag.TagValue</a></li>
-            <li><a href="https://www.music4dance.net/blog/tag-filtering">Help</a></li>
-        </ul>
-    </div>
-}
 
-@helper TagModalButton(SongBase song, TagCount tag, SongFilter filter)
-{
     var urlBase = "/song/addtags?tags={0}" + WebUtility.UrlEncode(tag.TagValue) + ":" + WebUtility.UrlEncode(tag.TagClass);
     var url = urlBase;
     string danceName = null;
@@ -125,13 +61,21 @@
     }
 
     var img = "/Content/" + TagType.ClassToName(tc) + "-50.png";
+    var title = (song == null) ? string.Empty : song.Title;
+    var artist = (song == null) ? string.Empty : song.Artist;
 
-    <a href="#" role="button" class="label label-@tc tag-label" 
+    var label = "label tag-label";
+    if (cloudSize != 0.0f)
+    {
+        label = "btn tag-text tag-cloud " + size;
+    }
+
+    <a href="#" role="button" class="@label label-@tc tag-label" 
        data-toggle="modal" data-target="#filterModal" aria-expanded="false"
-       data-title="@song.Title" data-artist="@song.Artist"
+       data-title="@title" data-artist="@artist"
        data-tag-value="@tag.TagValue" data-dance-name="@danceName"
        data-url="@url" data-filtered-url="@(urlFiltered ?? string.Empty)" data-dance-url="@(urlDance ?? string.Empty)">
-        <img src="@img" height="14" width="14"/> @tag.TagValue
+        <img src="@img" height="@iconSize.ToString()" width="@iconSize.ToString()"/> @tag.TagValue
     </a>
 }
 

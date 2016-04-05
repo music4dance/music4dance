@@ -5,11 +5,6 @@
     var max = tags.Where(t => t.TagClass != "Dance").Max(t => t.Count);
     var inc = ((float)max) / 100;
     var valid = new[] { "music", "other", "style", "tempo" };
-    var filter = string.Empty;
-    if (ViewData.ContainsKey("SongFilter"))
-    {
-        filter = "&filter=" + WebUtility.UrlEncode(ViewBag.SongFilter.ToString());
-    }
     var empty = 0;
     var skipped = 0;
     var shown = 0;
@@ -33,11 +28,16 @@
         }
 
         shown += 1;
-        
-        @TagHelpers.TagButton(titem,ViewBag.SongFilter,inc)
+
+        @TagHelpers.TagModalButton(titem, ViewBag.SongFilter, null, inc)
     }
     @if (User.IsInRole("showDiagnostics"))
     {
         <p>Max = @max Perc = @inc Shown = @shown Skipped = @skipped Empty = @empty</p>
     }
 </div>
+
+@Html.Partial("_filtermodal")
+
+
+

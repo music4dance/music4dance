@@ -173,6 +173,7 @@ h1, h2, h3, h4, h5, h6 { font-family: "Merienda";font-weight: 700 }
 .pagination-align {
     margin: 20px 0
 }
+
 .play-link {
 }
 
@@ -187,6 +188,10 @@ h1, h2, h3, h4, h5, h6 { font-family: "Merienda";font-weight: 700 }
 
 .tag-text:hover, .tag-text:focus {
     color: white;
+}
+
+.tag-cloud {
+    margin-bottom: 2px;
 }
 
 /* Move into LESS if this works*/

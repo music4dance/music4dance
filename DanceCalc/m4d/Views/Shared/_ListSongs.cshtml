@@ -91,7 +91,7 @@
 {
     foreach (var titem in song.TagSummary.Tags.Where(t => !string.Equals(t.TagClass, "dance", StringComparison.OrdinalIgnoreCase)))
     {
-        @TagHelpers.TagModalButton(song, titem, filter)
+        @TagHelpers.TagModalButton(titem, filter, song)
     }
 }
 
@@ -404,7 +404,7 @@
                                         label = label + " <span class='glyphicon glyphicon-asterisk' aria-hidden='true'></span>";
                                         foreach (var dtitem in ditem.TagSummary.Tags)
                                         {
-                                            tags += TagHelpers.TagModalButton(item, dtitem, filter); //"<span class=\"label label-" + dtitem.TagClass.ToLower() + "\">" + dtitem.TagValue + "</span> ";
+                                            tags += TagHelpers.TagModalButton(dtitem, filter, item); //"<span class=\"label label-" + dtitem.TagClass.ToLower() + "\">" + dtitem.TagValue + "</span> ";
                                         }
                                     }
                                     var hasDance = danceQuery.HasDance(ditem.DanceId);

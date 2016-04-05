@@ -3,7 +3,14 @@
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                <h4 class="modal-title" id="filterModalLabel"><span data-bind="text: title"></span> by <span data-bind="text: artist"></span></h4>
+                <h4 class="modal-title" id="filterModalLabel">
+                    <!-- ko if:title-->
+                        <span data-bind="text: title"></span> by <span data-bind="text: artist"></span>
+                    <!-- /ko -->
+                    <!-- ko ifnot:title-->
+                        <span data-bind="text: tagValue"></span>
+                    <!-- /ko -->
+                </h4>
             </div>
             <div class="modal-body">
                 <div class="list-group">
