@@ -8,6 +8,8 @@
     ViewBag.SongFilter = new SongFilter { SortOrder = "Album" };
 }
 
+@Html.Partial("_SetupFilterScript")
+
 <h2>Album: @Model.Title</h2>
 @if (!string.IsNullOrWhiteSpace(@Model.Artist))
 {

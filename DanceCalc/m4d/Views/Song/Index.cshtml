@@ -1,6 +1,7 @@
 ﻿@model PagedList.IPagedList<Song>
-@using System.Runtime.Serialization.Json
 @using PagedList.Mvc;
+
+@Html.Partial("_SetupFilterScript")
 
 @* ReSharper disable once SuggestVarOrType_SimpleTypes *@
 @{
@@ -162,12 +163,10 @@ else
     </div>
 }
 
-@Html.Partial("_TagEditor")
-
 @section Scripts
 {
     @{
-        if (filter.Advanced)
+        @*if (filter.Advanced)
         {
             <script>var showAdvanced = true</script>
         }
@@ -182,17 +181,7 @@ else
         else
         {
             <script>var danceOr = true</script>
-        }
-
-        string filterString = null;
-        if (ViewData.ContainsKey("SongFilter"))
-        {
-            var stream = new MemoryStream();
-            var serializer = new DataContractJsonSerializer(typeof(SongFilter));
-            serializer.WriteObject(stream, ViewBag.SongFilter);
-            filterString = System.Text.Encoding.UTF8.GetString(stream.ToArray());
-        }
-        <script>window.songFilter = @(filterString == null ? null : Html.Raw(filterString));</script>
+        }*@
     }
     @Scripts.Render("~/bundles/jqueryval")
     @Scripts.Render("~/bundles/knockout")

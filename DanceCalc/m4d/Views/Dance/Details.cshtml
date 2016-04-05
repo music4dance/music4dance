@@ -3,6 +3,8 @@
 @using m4d.Utilities
 @model SongCounts
 
+@Html.Partial("_SetupFilterScript")
+
 @{
     ViewBag.Title = Model.DanceName + " Information, Top Ten List, and Resources.";
     ViewBag.Description = "General information about the dance" + Model.DanceName + " along with a top ten song list, preferred tempo details, and other resources.";

@@ -163,6 +163,37 @@
     };
 </script>
 
+<div class="modal fade" id="playModal" tabindex="-1" role="dialog" aria-labelledby="playModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="playModalLabel"><span data-bind="text: title"></span> by <span data-bind="text: artist"></span></h4>
+            </div>
+            <div class="modal-body">
+                <ul data-bind="foreach: purchase">
+                    <li style="list-style: none; padding-bottom: 5px"><a href="#" class="play-link" data-bind="attr:{id:id + $parent.songId()}"><img data-bind="attr:{src:'/content/' + logo + '-logo.png', alt:title}" width="32" height="32"/><span style="padding-left: 8px" data-bind="text:help"></span></a></li>
+                </ul>
+                <div data-bind="if: sample">
+                    @*<span data-bind="text:sample"></span>*@
+                    <audio id="sample-player" controls>
+                        <source type="audio/mpeg">
+                        Your browswer does not support audio
+                    </audio>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+    @*var buttonId = string.Format("{0}{1}", id, song.SongId);
+    var link = string.Format("~/Content/{0}-logo.png", logo);
+<li><a href="#" id="@buttonId" class="play-link"><img src="@Url.Content(link)" alt="@help" width="20" height="20" /> @title</a></li>*@
+
 <table class="table table-striped table-songs">
     <thead>
     <tr>
@@ -313,7 +344,15 @@
                         if (!string.IsNullOrWhiteSpace(item.Purchase))
                         {
                             var id = "Play" + item.SongId;
-                            <div id="@id" class="btn-group play-button">
+                            <a href="#" id="@id" role="button" class="btn play-button" style="padding: 0"
+                               data-toggle="modal" data-target="#playModal" aria-expanded="false"
+                               data-song-id ="@item.SongId"
+                               data-title="@item.Title" data-artist="@item.Artist"
+                               data-purchase="@item.Purchase" data-sample="@item.Sample"
+                               >
+                                <img src="@Url.Content("~/Content/playbutton.png")" alt="Play" width="20" height="20"/>
+                            </a>
+                            @*<div id="@id" class="btn-group play-button">
                                 <a href="#" role="button" class="btn dropdown-toggle" style="padding:0" data-toggle="dropdown" aria-expanded="false"><img src="@Url.Content("~/Content/playbutton.png")" alt="Play" width="20" height="20"/></a>
                                 <ul class="dropdown-menu" role="menu">
                                     @Purchase(item, 'X', "xbox", "Groove", "Availiable on Groove Music")
@@ -329,7 +368,7 @@
                                         <source src="@item.Sample" type="audio/mpeg">
                                     </audio>
                                 }
-                            </div>
+                            </div>*@
                         }
                     }
                 </td>

@@ -1,40 +1,78 @@
-﻿$(document).ready(function () {
+﻿// TODONEXT: Implement modal for dance popup & tag menu
+
+$(document).ready(function () {
+    // setup the viewmodel for modals
+
+    var viewModel = {
+        songId: ko.observable(''),
+        title: ko.observable(''),
+        artist: ko.observable(''),
+        purchase: ko.observableArray(),
+        sample: ko.observable(''),
+        tagValue: ko.observable(''),
+        tagClass: ko.observable(''),
+        danceName: ko.observable(''),
+        danceId: ko.observable('')
+    };
+
+    ko.applyBindings(viewModel);
+
     // Setup tool-tips
     $('[data-toggle="tooltip"]').tooltip();
 
-    // Handling for purchase links
-    var uri = '/api/purchaseinfo/';
-    $('.play-link').click(function() {
-        $.getJSON(uri + this.id[0] + '?songs=' + this.id.substring(1))
-            .done(function(data) {
-                //if (data[0].Target == null) {
-                    window.location = data[0].Link;
-                //} else {
-                //    window.open(data[0].Link, data[0].Target);
-                //}
-            })
-            .fail(function() {
-                window.alert('Unable to fetch data from ' + this.id + 'please try again later.  If this issue persists, please report it to us at info@music4dance.net');
-                //$('#product').text('Error: ' + err);
-            });
-    });
+    // Handling for the player
+    var purchaseInfo = {
+        X: { id: 'A', logo: 'amazon', title: 'Amazon', help: 'Available at Amazon' },
+        I: { id: 'I', logo: 'itunes', title: 'ITunes', help: 'Available on ITunes' },
+        S: { id: 'S', logo: 'spotify', title: 'Spotify', help: 'Available on Spotify' },
+        A: { id: 'X', logo: 'xbox', title: 'Groove', help: 'Available on Groove Music' }
+    };
 
-    // Handing for the player
-    $('.play-button').on('show.bs.dropdown', function () {
-        var t = $(this)[0];
-        var id = 'Audio' + t.id.substring(4);
-        var audio = $('#' + id)[0];
-        if (audio && audio.canPlayType && audio.canPlayType('audio/mpeg')) {
-            audio.play();
+    $('#playModal').on('show.bs.modal', function (event) {
+        var t = $(event.relatedTarget);
+        viewModel.songId(t.data('song-id'));
+        viewModel.artist(t.data('artist'));
+        viewModel.title(t.data('title'));
+        var s = t.data('sample');
+        if (s === '.') s = null;
+        viewModel.sample(s);
+
+        viewModel.purchase.removeAll();
+        var p = t.data('purchase');
+
+        for (var i = 0; i < p.length; i++) {
+            var info = purchaseInfo[p[i]];
+            if (info) {
+                viewModel.purchase.push(info);
+            }
         }
+
+        if (s !== null) {
+            $('#sample-player').attr('src',s).trigger('play');
+        }
+
+        // Handling for purchase links
+        var uri = '/api/purchaseinfo/';
+        $('.play-link').click(function () {
+            $.getJSON(uri + this.id[0] + '?songs=' + this.id.substring(1))
+                .done(function (data) {
+                    //if (data[0].Target == null) {
+                    window.location = data[0].Link;
+                    //} else {
+                    //    window.open(data[0].Link, data[0].Target);
+                    //}
+                })
+                .fail(function () {
+                    window.alert('Unable to fetch data from ' + this.id + 'please try again later.  If this issue persists, please report it to us at info@music4dance.net');
+                    //$('#product').text('Error: ' + err);
+                });
+        });
     });
 
-    $('.play-button').on('hide.bs.dropdown', function () {
-        var t = $(this)[0];
-        var id = 'Audio' + t.id.substring(4);
-        var audio = $('#' + id)[0];
-        if (audio && audio.canPlayType && audio.canPlayType('audio/mpeg')) {
-            audio.pause();
+    $('#playModal').on('hide.bs.modal', function () {
+        var s = $('#sample-player');
+        if (s.length) {
+            s.trigger('pause');
         }
     });
 

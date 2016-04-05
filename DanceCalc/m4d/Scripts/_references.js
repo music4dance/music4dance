@@ -1,4 +1,5 @@
 ﻿/// <autosync enabled="true" />
+/// <reference path="advancedsearch.js" />
 /// <reference path="azuresearch.js" />
 /// <reference path="bootstrap.min.js" />
 /// <reference path="catalog.js" />

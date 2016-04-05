@@ -752,6 +752,7 @@
     <None Include="Properties\PublishProfiles\m4d.pubxml" />
     <Content Include="MvcDiagnostics.aspx" />
     <Content Include="pinterest-885c1.html" />
+    <Content Include="Scripts\advancedsearch.js" />
     <Content Include="Scripts\bootstrap.js" />
     <Content Include="Scripts\bootstrap.min.js" />
     <Content Include="Scripts\chosen.jquery.js" />
@@ -983,6 +984,7 @@
     <Content Include="Views\Searches\Details.cshtml" />
     <Content Include="Views\Searches\Index.cshtml" />
     <Content Include="Views\Song\AzureSearch.cshtml" />
+    <Content Include="Views\Shared\_SetupFilterScript.cshtml" />
     <None Include="Web.m4d.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

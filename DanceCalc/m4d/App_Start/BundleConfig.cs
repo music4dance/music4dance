@@ -57,6 +57,7 @@ namespace m4d
             bundles.Add(PageBundle("edit"));
             bundles.Add(PageBundle("merge"));
             bundles.Add(PageBundle("azuresearch"));
+            bundles.Add(PageBundle("advancedsearch"));
 
             bundles.Add(new StyleBundle("~/bundles/tools-style").Include(
                 "~/Content/chosen.css",

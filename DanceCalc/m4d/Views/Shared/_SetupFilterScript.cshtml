@@ -1,0 +1,18 @@
+﻿@using System.Runtime.Serialization.Json
+@{
+    string filterString = null;
+    if (ViewData.ContainsKey("SongFilter"))
+    {
+        var stream = new MemoryStream();
+        var serializer = new DataContractJsonSerializer(typeof(SongFilter));
+        serializer.WriteObject(stream, ViewBag.SongFilter);
+        filterString = System.Text.Encoding.UTF8.GetString(stream.ToArray());
+    }
+}
+
+<script>
+    window.songFilter = @(filterString == null ? null : Html.Raw(filterString));
+    if (window.songFilter != null) {
+        window.songFilter.raw = '@ViewBag.SongFilter.ToString()';
+    }
+</script>
