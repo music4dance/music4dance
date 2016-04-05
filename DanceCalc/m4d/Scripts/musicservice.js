@@ -1,8 +1,7 @@
-﻿// TODONEXT: Implement modal for dance popup & tag menu
+﻿$(document).ready(function () {
+    var purchaseUri = '/api/purchaseinfo/';
 
-$(document).ready(function () {
     // setup the viewmodel for modals
-
     var viewModel = {
         songId: ko.observable(''),
         title: ko.observable(''),
@@ -13,7 +12,8 @@ $(document).ready(function () {
         danceName: ko.observable(''),
         url: ko.observable(''),
         filteredUrl: ko.observable(''),
-        danceUrl: ko.observable('')
+        danceUrl: ko.observable(''),
+        tagText: ko.observable('')
     };
 
     ko.applyBindings(viewModel);
@@ -29,11 +29,17 @@ $(document).ready(function () {
         A: { id: 'X', logo: 'xbox', title: 'Groove', help: 'Available on Groove Music' }
     };
 
-    $('#playModal').on('show.bs.modal', function (event) {
+    var setupModal = function(event)
+    {
         var t = $(event.relatedTarget);
-        viewModel.songId(t.data('song-id'));
         viewModel.artist(t.data('artist'));
         viewModel.title(t.data('title'));
+        return t;
+    }
+
+    $('#playModal').on('show.bs.modal', function (event) {
+        var t = setupModal(event);
+        viewModel.songId(t.data('song-id'));
         var s = t.data('sample');
         if (s === '.') s = null;
         viewModel.sample(s);
@@ -53,9 +59,8 @@ $(document).ready(function () {
         }
 
         // Handling for purchase links
-        var uri = '/api/purchaseinfo/';
         $('.play-link').click(function () {
-            $.getJSON(uri + this.id[0] + '?songs=' + this.id.substring(1))
+            $.getJSON(purchaseUri + this.id[0] + '?songs=' + this.id.substring(1))
                 .done(function (data) {
                     //if (data[0].Target == null) {
                     window.location = data[0].Link;
@@ -77,30 +82,28 @@ $(document).ready(function () {
         }
     });
 
-    // Handling for tag filter
-    $('#filterModal').on('show.bs.modal', function (event) {
-        var t = $(event.relatedTarget);
-        viewModel.artist(t.data('artist'));
-        viewModel.title(t.data('title'));
+    var setupTagModal = function(event) {
+        var t = setupModal(event);
 
-        viewModel.tagValue(t.data('tag-value'));
         viewModel.danceName(t.data('dance-name'));
         viewModel.url(t.data('url'));
         viewModel.filteredUrl(t.data('filtered-url'));
         viewModel.danceUrl(t.data('dance-url'));
+
+        return t;
+    }
+
+    // Handling for tag filter
+    $('#filterModal').on('show.bs.modal', function (event) {
+        $('#danceModal').modal('hide');
+        var t = setupTagModal(event);
+        viewModel.tagValue(t.data('tag-value'));
     });
 
-
-    var currentDance = null;
-    $('[data-toggle="popover"]').popover({ html: true, trigger: 'click' });
-    $('[data-toggle="popover"]').on('show.bs.popover', function () {
-        if (currentDance && currentDance !== this) {
-            $(currentDance).queue(function (next) {
-                $(this).popover('hide');
-                next();
-            });
-        }
-        currentDance = this;
+    // Handling for dance filter
+    $('#danceModal').on('show.bs.modal', function (event) {
+        var t = setupTagModal(event);
+        viewModel.tagText(t.data('tags'));
     });
 
     // Handle like links
@@ -160,7 +163,7 @@ $(document).ready(function () {
     button.click(function () {
         button.replaceWith('<span>Loading Spotify</span>');
         button = spotify.children('span');
-        var listUrl = uri + 's?songs=' + ids + '&fulllink=false'; //.substring(0,16);
+        var listUrl = purchaseUri + 's?songs=' + ids + '&fulllink=false'; //.substring(0,16);
         $.getJSON(listUrl)
             .done(function(data) {
                 var player = '<iframe  src="https://embed.spotify.com/?uri=spotify:trackset:' + name + ':' + data + '" frameborder="0" allowtransparency="true"></iframe>';

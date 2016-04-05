@@ -19,6 +19,14 @@
     LikeDictionary likes = ViewData.ContainsKey("Likes") ? ViewBag.Likes : null;
     LikeDictionary danceLikes = ViewData.ContainsKey("DanceLikes") ? ViewBag.DanceLikes : null;
 
+    var filterNoDance = new SongFilter(filter.ToString());
+    filterNoDance.Dances = null;
+    filterNoDance.SortOrder = null;
+    var danceQuery = filter.DanceQuery;
+    var numDances = danceQuery.Dances.Count();
+    var isExclusive = danceQuery.IsExclusive || numDances < 2;
+    var isInclusive = (!danceQuery.IsExclusive || numDances == 1) && (filterNoDance.IsEmptyPaged || numDances > 1);
+
     const string likeTipNull = "Click to like/dislike {0}.";
     const string likeTipTrue = "You have liked {0}, click to dislike";
     const string likeTipFalse = "You have disliked {0}, click to reset";
@@ -394,28 +402,49 @@
                                     if (!string.IsNullOrWhiteSpace(ditem.TagSummary.Summary))
                                     {
                                         label = label + " <span class='glyphicon glyphicon-asterisk' aria-hidden='true'></span>";
-                                        tags += bstring;
                                         foreach (var dtitem in ditem.TagSummary.Tags)
                                         {
                                             tags += TagHelpers.TagModalButton(item, dtitem, filter); //"<span class=\"label label-" + dtitem.TagClass.ToLower() + "\">" + dtitem.TagValue + "</span> ";
                                         }
                                     }
-                                    var danceQuery = filter.DanceQuery;
-                                    var isExclusive = danceQuery.IsExclusive || !danceQuery.Dances.Any();
                                     var hasDance = danceQuery.HasDance(ditem.DanceId);
+                                    var filterT = new SongFilter(filter.ToString());
+                                    if (hasDance ? (numDances > 1) : (numDances > 0))
+                                    {
+                                        filterT.Action = "Advanced";
+                                    }
+                                    //var content = MvcHtmlString.Create(
+                                    //    Html.ActionLink(name + " dance page...", name, "dances") +
+                                    //    (azureSearch ? string.Empty :
+                                    //        ((!filter.IsEmpty && isExclusive && !hasDance ? bstring + Html.ActionLink("Filter list to songs tagged as " + name + "...", "search", "song", new {dances = danceQuery.AddDance(ditem.DanceId).Query, filter}, null) : string.Empty) +
+                                    //         (!filter.IsEmpty && !isExclusive && !hasDance ? bstring + Html.ActionLink("Expand list to included songs tagged as " + name + "...", "search", "song", new {dances = danceQuery.AddDance(ditem.DanceId).Query, filter}, null) : string.Empty))) +
+                                    //    bstring + Html.ActionLink("List all " + name + " songs...", "search", "song", new {dances = ditem.DanceId}, null) +
+                                    //    bstring + "<a href=\"https://www.music4dance.net/blog/tag-filtering\">Help</a>" +
+                                    //    tags);
 
-                                    var content = MvcHtmlString.Create(
-                                        Html.ActionLink(name + " dance page...", name, "dances") +
-                                        (azureSearch ? string.Empty : 
-                                            ((!filter.IsEmpty && isExclusive && !hasDance ? bstring + Html.ActionLink("Filter list to songs tagged as " + name + "...", "search", "song", new {dances = danceQuery.AddDance(ditem.DanceId).Query, filter}, null) : string.Empty) +
-                                             (!filter.IsEmpty && !isExclusive && !hasDance ? bstring + Html.ActionLink("Expand list to included songs tagged as " + name + "...", "search", "song", new {dances = danceQuery.AddDance(ditem.DanceId).Query, filter}, null) : string.Empty))) +
-                                        bstring + Html.ActionLink("List all " + name + " songs...", "search", "song", new {dances = ditem.DanceId}, null) +
-                                        bstring + "<a href=\"https://www.music4dance.net/blog/tag-filtering\">Help</a>" +
-                                        tags);
+                                    var urlFiltered = string.Empty;
+                                    var urlDance = string.Empty;
+                                    var url = "/song/search?dances=" + ditem.DanceId;
 
-                                    <a href='#!' class='rating @badge label label-music' role='button'
-                                       data-container='body' data-toggle='popover' data-placement='left' data-title='@Html.ActionLink(name, name, "dances")'
-                                       data-content='@content'>@Html.Raw(label)</a>
+                                    if (!azureSearch && !filter.IsEmpty && !hasDance)
+                                    {
+                                        var dq = danceQuery.AddDance(ditem.DanceId);
+                                        if (isExclusive)
+                                        {
+                                            urlFiltered = "/song/search?dances=" + dq.MakeExclusive().Query + "&filter=" + filterT;
+                                        }
+                                        if (isInclusive)
+                                        {
+                                            urlDance = "/song/search?dances=" + dq.MakeInclusive().Query + "&filter=" + filterT;
+                                        }
+                                    }
+
+                                    <a href='#' class='rating @badge label label-music' role='button'
+                                       data-toggle='modal' data-target='#danceModal' aria-expanded='false'
+                                       data-title='@item.Title' data-artist='@item.Artist' data-dance-name='@name'
+                                       data-filtered-url="@urlFiltered" data-dance-url='@urlDance' data-url='@url'
+                                       data-tags='@MvcHtmlString.Create(tags)'
+                                       >@Html.Raw(label)</a>
                                 }
                             }
                             <span class="visible-xs">@Tags(item, filter)</span>
@@ -450,3 +479,4 @@
 
 @Html.Partial("_playmodal")
 @Html.Partial("_filtermodal")
+@Html.Partial("_dancemodal")

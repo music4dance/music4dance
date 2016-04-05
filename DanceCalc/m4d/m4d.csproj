@@ -987,6 +987,7 @@
     <Content Include="Views\Shared\_SetupFilterScript.cshtml" />
     <Content Include="Views\Shared\_playmodal.cshtml" />
     <Content Include="Views\Shared\_filtermodal.cshtml" />
+    <Content Include="Views\Shared\_dancemodal.cshtml" />
     <None Include="Web.m4d.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
