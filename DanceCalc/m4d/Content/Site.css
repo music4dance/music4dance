@@ -393,6 +393,33 @@ a.text-other:hover,
     #banner { display: none;}
 }
 
+.filter-list {
+    margin-left: 22px; 
+    padding-left: 0;
+}
+
+.filter-item {
+    font-size: 125%;
+    padding-left: 22px;
+    text-indent: -22px;
+}
+
+.filter-dance {
+    text-decoration: underline;
+}
+
+.filter-tag {
+    text-decoration: underline;
+}
+
+.filter-negate {
+    font-weight: bold;
+}
+
+.tag-label {
+    margin-right: .2em
+}
+
 .big-text { font-size: 150%}
 
 .cloud-0 {font-size: 100%}

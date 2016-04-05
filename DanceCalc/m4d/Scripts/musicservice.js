@@ -10,9 +10,10 @@ $(document).ready(function () {
         purchase: ko.observableArray(),
         sample: ko.observable(''),
         tagValue: ko.observable(''),
-        tagClass: ko.observable(''),
         danceName: ko.observable(''),
-        danceId: ko.observable('')
+        url: ko.observable(''),
+        filteredUrl: ko.observable(''),
+        danceUrl: ko.observable('')
     };
 
     ko.applyBindings(viewModel);
@@ -75,6 +76,20 @@ $(document).ready(function () {
             s.trigger('pause');
         }
     });
+
+    // Handling for tag filter
+    $('#filterModal').on('show.bs.modal', function (event) {
+        var t = $(event.relatedTarget);
+        viewModel.artist(t.data('artist'));
+        viewModel.title(t.data('title'));
+
+        viewModel.tagValue(t.data('tag-value'));
+        viewModel.danceName(t.data('dance-name'));
+        viewModel.url(t.data('url'));
+        viewModel.filteredUrl(t.data('filtered-url'));
+        viewModel.danceUrl(t.data('dance-url'));
+    });
+
 
     var currentDance = null;
     $('[data-toggle="popover"]').popover({ html: true, trigger: 'click' });

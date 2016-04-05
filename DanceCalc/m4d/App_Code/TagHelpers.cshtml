@@ -83,3 +83,55 @@
         </ul>
     </div>
 }
+
+@helper TagModalButton(SongBase song, TagCount tag, SongFilter filter)
+{
+    var urlBase = "/song/addtags?tags={0}" + WebUtility.UrlEncode(tag.TagValue) + ":" + WebUtility.UrlEncode(tag.TagClass);
+    var url = urlBase;
+    string danceName = null;
+    string urlDance = null;
+    string urlFiltered = null;
+    if (filter != null)
+    {
+        if (!filter.IsAzure)
+        {
+            var dance = Dances.Instance.DanceFromId(filter.Dances);
+            if (dance != null)
+            {
+                var filterDance = new SongFilter {Dances = filter.Dances};
+                danceName = dance.Name;
+                urlDance = urlBase + "&filter=" + WebUtility.UrlEncode(filterDance.ToString());
+            }
+
+            if (!filter.IsEmpty)
+            {
+                urlFiltered = urlBase + "&filter=" + WebUtility.UrlEncode(filter.ToString());
+            }
+        }
+    }
+    else
+    {
+        filter = new SongFilter();
+    }
+
+    var tc = tag.TagClass;
+    if (tc == null)
+    {
+        tc = "other";
+    }
+    else
+    {
+        tc = tc.ToLower();
+    }
+
+    var img = "/Content/" + TagType.ClassToName(tc) + "-50.png";
+
+    <a href="#" role="button" class="label label-@tc tag-label" 
+       data-toggle="modal" data-target="#filterModal" aria-expanded="false"
+       data-title="@song.Title" data-artist="@song.Artist"
+       data-tag-value="@tag.TagValue" data-dance-name="@danceName"
+       data-url="@url" data-filtered-url="@(urlFiltered ?? string.Empty)" data-dance-url="@(urlDance ?? string.Empty)">
+        <img src="@img" height="14" width="14"/> @tag.TagValue
+    </a>
+}
+

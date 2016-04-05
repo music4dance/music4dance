@@ -985,6 +985,8 @@
     <Content Include="Views\Searches\Index.cshtml" />
     <Content Include="Views\Song\AzureSearch.cshtml" />
     <Content Include="Views\Shared\_SetupFilterScript.cshtml" />
+    <Content Include="Views\Shared\_playmodal.cshtml" />
+    <Content Include="Views\Shared\_filtermodal.cshtml" />
     <None Include="Web.m4d.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

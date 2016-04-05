@@ -1,0 +1,38 @@
+﻿<div class="modal fade" id="filterModal" tabindex="-1" role="dialog" aria-labelledby="filterModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="filterModalLabel"><span data-bind="text: title"></span> by <span data-bind="text: artist"></span></h4>
+            </div>
+            <div class="modal-body">
+                <div class="filter-list">
+                    <p class="filter-item" data-bind="if:filteredUrl">
+                        <a data-bind="attr:{href:filteredUrl().replace('{0}','%2B')}"><span class="glyphicon glyphicon-filter"></span> Filter the list to include only songs tagged as <span class="filter-tag" data-bind="text:tagValue"></span></a>
+                    </p>
+                    <p class="filter-item" data-bind="if:filteredUrl">
+                        <a data-bind="attr:{href:filteredUrl().replace('{0}','%2D')}"><span class="glyphicon glyphicon-filter"></span> Filter the list to include only songs <span class="filter-negate">not</span> tagged as <span class="filter-tag" data-bind="text:tagValue"></span></a>
+                    </p>
+                    <p class="filter-item" data-bind="if:danceUrl">
+                        <a data-bind="attr:{href:danceUrl().replace('{0}','%2B')}"><span class="glyphicon glyphicon-list"></span> List all <span class="filter-dance" data-bind="text:danceName"></span> songs tagged as <span data-bind="text:tagValue"></span></a>
+                    </p>
+                    <p class="filter-item" data-bind="if:danceUrl">
+                        <a data-bind="attr:{href:danceUrl().replace('{0}','%2D')}"><span class="glyphicon glyphicon-list"></span> List all <span class="filter-dance" data-bind="text:danceName"></span> songs <span class="filter-negate">not</span> tagged as <span class="filter-tag" data-bind="text:tagValue"></span></a>
+                    </p>
+                    <p class="filter-item" data-bind="if:url">
+                        <a data-bind="attr:{href:url().replace('{0}','%2B')}"><span class="glyphicon glyphicon-cd"></span> List all songs tagged as <span data-bind="text:tagValue"></span></a>
+                    </p>
+                    <p class="filter-item" data-bind="if:url">
+                        <a data-bind="attr:{href:url().replace('{0}','%2D')}"><span class="glyphicon glyphicon-cd"></span> List all songs <span class="filter-negate">not</span> tagged as <span class="filter-tag" data-bind="text:tagValue"></span></a>
+                    </p>
+                    <p class="filter-item">
+                        <a href="https://www.music4dance.net/blog/tag-filtering"><span class="glyphicon glyphicon-question-sign"></span> Help</a>
+                    </p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
