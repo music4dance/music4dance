@@ -6,9 +6,9 @@
                 <h4 class="modal-title" id="playModalLabel"><span data-bind="text: title"></span> by <span data-bind="text: artist"></span></h4>
             </div>
             <div class="modal-body">
-                <ul data-bind="foreach: purchase">
-                    <li style="list-style: none; padding-bottom: 5px"><a href="#" class="play-link" data-bind="attr:{id:id + $parent.songId()}"><img data-bind="attr:{src:'/content/' + logo + '-logo.png', alt:title}" width="32" height="32" /><span style="padding-left: 8px" data-bind="text:help"></span></a></li>
-                </ul>
+                <div class="list-group" data-bind="foreach: purchase">
+                    <a href="#" class="play-link list-group-item" data-bind="attr:{id:id + $parent.songId()}"><img data-bind="attr:{src:'/content/' + logo + '-logo.png', alt:title}" width="32" height="32" /><span style="padding-left: 8px" data-bind="text:help"></span></a>
+                </div>
                 <div data-bind="if: sample">
                     @*<span data-bind="text:sample"></span>*@
                     <audio id="sample-player" controls>
