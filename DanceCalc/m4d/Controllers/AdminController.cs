@@ -1541,7 +1541,7 @@ namespace m4d.Controllers
 
             var headerList = !string.IsNullOrWhiteSpace(headers) ? SongDetails.BuildHeaderMap(headers, ',') : HeaderFromList(CleanSeparator(separator), lines);
 
-            var newSongs = SongDetails.CreateFromRows(appuser, separator, headerList, lines, SongBase.DanceRatingAutoCreate);
+            var newSongs = SongDetails.CreateFromRows(appuser, separator, headerList, lines, SongBase.DanceRatingCreate);
 
             var hasArtist = false;
             if (!string.IsNullOrEmpty(artist))
@@ -2235,7 +2235,7 @@ namespace m4d.Controllers
         {
             var map = SongDetails.BuildHeaderMap(lines[0]);
             lines.RemoveAt(0);
-            return SongDetails.CreateFromRows(user, "\t", map, lines, SongBase.DanceRatingAutoCreate);
+            return SongDetails.CreateFromRows(user, "\t", map, lines, SongBase.DanceRatingCreate);
         }
 
         List<string> UploadFile() 

@@ -92,7 +92,7 @@ namespace m4dModels
             typeof(SongBase).GetProperty(ValenceFiled),
         };
 
-        public static readonly int DanceRatingCreate = 3;  // TODO: when we allow a user to manually add a song, give lots of credit
+        public static readonly int DanceRatingCreate = 2;
         public static readonly int DanceRatingInitial = 2;
         public static readonly int DanceRatingIncrement = 2;
         public static readonly int DanceRatingAutoCreate = 1;
