@@ -1040,11 +1040,18 @@ namespace m4dModels
             return song;
         }
 
-        public SongDetails FindSongDetails(Guid id, string userName = null)
+        public SongDetails FindSongDetails(Guid id, string userName = null, bool showDiagnostics=false)
         {
             var song = FindSong(id);
 
-            return song == null ? null : new SongDetails(song,userName,this);
+            if (song == null) return null;
+
+            if (showDiagnostics)
+            {
+                song.LoadTags(this);
+            }
+
+            return new SongDetails(song, userName, this);
         }
 
         public SongDetails FindMergedSong(Guid id, string userName = null)
@@ -2612,6 +2619,94 @@ namespace m4dModels
             {
                 AdminMonitor.CompleteTask(false, e.Message, e);
             }
+        }
+
+        public int RebuildTagTypes(bool update = false)
+        {
+            var oldCounts = TagTypes.ToDictionary(tt => tt.Key.ToUpper(), tt => tt.Count);
+            var newCounts = new Dictionary<string, Dictionary<string, int>>();
+
+            // Compute the tag type count based on the user tags
+            // ReSharper disable once LoopCanBePartlyConvertedToQuery
+            foreach (var ut in Tags)
+            {
+                foreach (var tag in ut.Tags.Tags)
+                {
+                    var norm = tag.ToUpper();
+                    Dictionary<string, int> n;
+                    if (!newCounts.TryGetValue(norm, out n))
+                    {
+                        n = new Dictionary<string, int>();
+                        newCounts[norm] = n;
+                    }
+
+                    if (n.ContainsKey(tag))
+                    {
+                        n[tag] += 1;
+                    }
+                    else
+                    {
+                        n[tag] = 1;
+                    }
+                }
+            }
+
+            if (update)
+            {
+                Context.TrackChanges(false);
+            }
+
+            var changed = 0;
+            foreach (var nc in newCounts)
+            {
+                var key = nc.Key;
+                var val = nc.Value.Sum(v => v.Value);
+
+                if (!oldCounts.ContainsKey(key))
+                {
+                    Trace.WriteLineIf(TraceLevels.General.TraceInfo, $"A\t{key}\t\t{val}");
+                    if (update)
+                    {
+                        var tt = TagTypes.Create();
+                        tt.Key = nc.Value.Keys.First();
+                        tt.Count = val;
+                        TagTypes.Add(tt);
+                    }
+                    changed += 1;
+                }
+                else
+                {
+                    if (val != oldCounts[key])
+                    {
+                        Trace.WriteLineIf(TraceLevels.General.TraceInfo, $"C\t{key}\t{oldCounts[key]}\t{val}");
+                        if (update)
+                        {
+                            var tt = TagTypes.Find(key);
+                            tt.Count = val;
+                        }
+                        changed += 1;
+                    }
+                    oldCounts.Remove(key);
+                }
+            }
+
+            foreach (var oc in oldCounts.Where(oc => oc.Value > 0))
+            {
+                Trace.WriteLineIf(TraceLevels.General.TraceInfo, $"R\t{oc.Key}\t{oc.Value}\t");
+                if (update)
+                {
+                    var tt = TagTypes.Find(oc.Key);
+                    tt.Count = 0;
+                }
+                changed += 1;
+            }
+
+            if (update)
+            {
+                Context.TrackChanges(true);
+            }
+
+            return changed;
         }
 
         public void SeedDances()

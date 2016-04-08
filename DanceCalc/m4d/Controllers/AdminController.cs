@@ -227,93 +227,16 @@ namespace m4d.Controllers
         [Authorize(Roles = "dbAdmin")]
         public ActionResult UpdateTagTypes(bool update = false)
         {
-            var oldCounts = Database.TagTypes.ToDictionary(tt => tt.Key.ToUpper(), tt => tt.Count);
-            var newCounts = new Dictionary<string, Dictionary<string, int>>();
-
-            // Compute the tag type count based on the user tags
-            // ReSharper disable once LoopCanBePartlyConvertedToQuery
-            foreach (var ut in Database.Tags)
+            try
             {
-                foreach (var tag in ut.Tags.Tags)
-                {
-                    var norm = tag.ToUpper();
-                    Dictionary<string, int> n;
-                    if (!newCounts.TryGetValue(norm, out n))
-                    {
-                        n = new Dictionary<string, int>();
-                        newCounts[norm] = n;
-                    }
-
-                    if (n.ContainsKey(tag))
-                    {
-                        n[tag] += 1;
-                    }
-                    else
-                    {
-                        n[tag] = 1;
-                    }
-                }
+                StartAdminTask("UpdateTagTypes");
+                var changed = Database.RebuildTagTypes(update);
+                return CompleteAdminTask(true, $"Type counts were changed ({changed})");
             }
-
-            if (update)
+            catch (Exception e)
             {
-                Context.TrackChanges(false);
+                return FailAdminTask("Tag Types failed to update", e);
             }
-
-            var changed = 0;
-            foreach (var nc in newCounts)
-            {
-                var key = nc.Key;
-                var val = nc.Value.Sum(v => v.Value);
-
-                if (!oldCounts.ContainsKey(key))
-                {
-                    Trace.WriteLineIf(TraceLevels.General.TraceInfo, $"A\t{key}\t\t{val}");
-                    if (update)
-                    {
-                        var tt = Database.TagTypes.Create();
-                        tt.Key = nc.Value.Keys.First();
-                        tt.Count = val;
-                        Database.TagTypes.Add(tt);
-                    }
-                    changed += 1;
-                }
-                else
-                {
-                    if (val != oldCounts[key])
-                    {
-                        Trace.WriteLineIf(TraceLevels.General.TraceInfo, $"C\t{key}\t{oldCounts[key]}\t{val}");
-                        if (update)
-                        {
-                            var tt = Database.TagTypes.Find(key);
-                            tt.Count = val;
-                        }
-                        changed += 1;
-                    }
-                    oldCounts.Remove(key);
-                }
-            }
-
-            foreach (var oc in oldCounts.Where(oc => oc.Value > 0))
-            {
-                Trace.WriteLineIf(TraceLevels.General.TraceInfo, $"R\t{oc.Key}\t{oc.Value}\t");
-                if (update)
-                {
-                    var tt = Database.TagTypes.Find(oc.Key);
-                    tt.Count = 0;
-                }
-                changed += 1;
-            }
-
-            if (update)
-            {
-                Context.TrackChanges(true);
-            }
-
-            ViewBag.Success = true;
-            ViewBag.Message = $"Type counts were changed ({changed})";
-            return View("Results");
-
         }
 
         //

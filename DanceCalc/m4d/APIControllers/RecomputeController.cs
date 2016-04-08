@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -67,6 +68,10 @@ namespace m4d.APIControllers
                 case "indexsongs":
                     recompute = DoHandleSongIndex;
                     message = "Updated song index";
+                    break;
+                case "tagtypes":
+                    recompute = DoHandleTagTypes;
+                    message = "Updated {0} tag types";
                     break;
                 default:
                     client.TrackEvent("Recompute",
@@ -141,6 +146,20 @@ namespace m4d.APIControllers
             {
                 dms.RebuildDanceInfo();
                 Complete(id, message);
+            }
+            catch (Exception e)
+            {
+                Fail(e);
+            }
+            return true;
+        }
+
+        private static bool DoHandleTagTypes(DanceMusicService dms, string id, string message)
+        {
+            try
+            {
+                var count = dms.RebuildTagTypes(true);
+                Complete(id, string.Format(message,count));
             }
             catch (Exception e)
             {

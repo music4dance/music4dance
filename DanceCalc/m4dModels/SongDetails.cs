@@ -66,13 +66,21 @@ namespace m4dModels
             ApplicationUser au = null;
             if (user != null)
             {
-                 au = dms.FindUser(user);
+                au = dms.FindUser(user);
                 if (au != null)
                 {
                     SetCurrentUserTags(au, dms);
                 }
             }
 
+            if (song.Tags != null)
+            {
+                Tags = new List<Tag>();
+                foreach (var tag in song.Tags)
+                {
+                    Tags.Add(tag);
+                }
+            }
             if (forSerialization)
                 SetupSerialization(au, dms);
         }

@@ -450,6 +450,13 @@ namespace m4dModels
             return modified;
         }
 
+        public void LoadTags(DanceMusicService dms)
+        {
+            var id = TagIdBase;
+            var tags = dms.Tags.Where(t => t.Id.Contains(id)).ToList();
+            Tags = tags;
+        }
+
         private bool DeleteDanceRatings(ApplicationUser user, TagList deleted, DanceMusicService dms)
         {
             var ratings = new List<DanceRating>();

@@ -347,7 +347,7 @@ namespace m4d.Controllers
             if (spider != null) return spider;
 
             var gid = id ?? Guid.Empty;
-            var song = Database.FindSongDetails(gid, User.Identity.Name);
+            var song = Database.FindSongDetails(gid, User.Identity.Name, User.IsInRole("showDiagnostics"));
             if (song == null)
             {
                 song = Database.FindMergedSong(gid, User.Identity.Name);
@@ -460,7 +460,7 @@ namespace m4d.Controllers
         [Authorize(Roles = "canEdit")] 
         public ActionResult Edit(Guid? id = null, decimal? tempo = null, SongFilter filter = null)
         {
-            var song = Database.FindSongDetails(id ?? Guid.Empty, User.Identity.Name);
+            var song = Database.FindSongDetails(id ?? Guid.Empty, User.Identity.Name, User.IsInRole("showDiagnostics"));
             if (song == null)
             {
                 return ReturnError(HttpStatusCode.NotFound, $"The song with id = {id} has been deleted.");

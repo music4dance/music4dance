@@ -49,10 +49,35 @@
         <div id="users" class="col-md-6">
             @if (Model.ModifiedBy != null)
             {
+                var tags = new List<Tag>();
+                if (Model.Tags != null)
+                {
+                    tags.AddRange(Model.Tags);
+                }
                 <b>Undo Changes for:</b>
                 foreach (var mr in Model.ModifiedBy)
                 {
+                    var utags = tags.Where(t => t.UserId == mr.ApplicationUserId).ToList();
                     @UserHelper.UndoUser(Html, Model, filter, mr.UserName)
+                    if (utags.Any())
+                    {
+                        <ul>
+                            @foreach (var tag in utags)
+                            {
+                                tags.Remove(tag);
+                                <li>@tag.Id <b>@tag.Tags.ToString()</b></li>
+                            }
+                        </ul>
+                    }
+                }
+                if (tags.Any())
+                {
+                    <ul>
+                        @foreach (var tag in tags)
+                        {
+                            <li>@tag.Id <b>@tag.Tags.ToString()</b></li>
+                        }
+                    </ul>
                 }
             }
         </div>
