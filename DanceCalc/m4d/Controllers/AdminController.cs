@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Configuration;
-using System.Data.Entity;
 using System.Data.Entity.Infrastructure;
 using System.Data.Entity.Migrations;
 using System.Diagnostics;
@@ -219,6 +218,23 @@ namespace m4d.Controllers
             catch (Exception e)
             {
                 return FailAdminTask($"UpdateAlbums: {e.Message}", e);
+            }
+        }
+
+        //
+        // Get: //CleanDeletedSongs
+        [Authorize(Roles = "dbAdmin")]
+        public ActionResult CleanDeletedSongs()
+        {
+            try
+            {
+                StartAdminTask("CleanDeletedSongs");
+                var changed = Database.CleanDeletedSongs();
+                return CompleteAdminTask(true, $"Songs were cleaned ({changed})");
+            }
+            catch (Exception e)
+            {
+                return FailAdminTask("Deleted Songs failed to update", e);
             }
         }
 

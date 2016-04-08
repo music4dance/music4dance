@@ -1081,12 +1081,26 @@ namespace m4dModels
 
         public void Delete(ApplicationUser user, DanceMusicService dms)
         {
-            CreateEditProperties(user, DeleteCommand, dms);
+            if (user != null)
+                CreateEditProperties(user, DeleteCommand, dms);
+
+            CleanUserTags(dms);
 
             ClearValues();
             TitleHash = 0;
+            Album = null;
 
-            Modified = DateTime.Now;
+            if (user != null)
+                Modified = DateTime.Now;
+        }
+
+        public bool CleanUserTags(DanceMusicService dms)
+        {
+            var tags = dms.Tags.Where(t => t.Id.EndsWith(TagIdBase)).ToList();
+            if (!tags.Any()) return false;
+
+            dms.Tags.RemoveRange(tags);
+            return true;
         }
 
         public void RestoreScalar(SongDetails sd)

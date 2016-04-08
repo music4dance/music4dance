@@ -2709,6 +2709,24 @@ namespace m4dModels
             return changed;
         }
 
+        public int CleanDeletedSongs()
+        {
+            var songs = Songs.Where(s => s.Title == null);
+
+            Context.TrackChanges(false);
+
+            var count = 0;
+            foreach (var song in songs)
+            {
+                RemoveSong(song,null);
+                count += 1;
+            }
+
+            Context.TrackChanges(true);
+
+            return count;
+        }
+
         public void SeedDances()
         {
             var dances = DanceLibrary.Dances.Instance;
