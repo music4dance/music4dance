@@ -62,7 +62,11 @@ namespace m4d.APIControllers
                     break;
                 case "propertycleanup":
                     recompute = DoHandlePropertyCleanup;
-                    message = "Cleand up properties";
+                    message = "Cleaned up properties";
+                    break;
+                case "indexsongs":
+                    recompute = DoHandleSongIndex;
+                    message = "Updated song index";
                     break;
                 default:
                     client.TrackEvent("Recompute",
@@ -152,6 +156,38 @@ namespace m4d.APIControllers
                 var from = RecomputeMarker.GetMarker(id);
 
                 var info = dms.CleanupProperties(250, from, new SongFilter());
+
+                if (info.Succeeded > 0 || info.Failed > 0)
+                {
+                    RecomputeMarker.SetMarker(id, info.LastTime);
+                }
+
+                if (info.Complete)
+                {
+                    Complete(id, message);
+                }
+                else
+                {
+                    AdminMonitor.CompleteTask(true, message);
+                    TelemetryClient.TrackEvent("Recompute",
+                        new Dictionary<string, string> { { "Id", id }, { "Phase", "Intermediate" }, { "Code", "Success" }, { "Message", AdminMonitor.Status.ToString() }, { "Time", AdminMonitor.Duration.ToString() } });
+                }
+                return info.Complete;
+            }
+            catch (Exception e)
+            {
+                Fail(e);
+                return true;
+            }
+        }
+
+        private static bool DoHandleSongIndex(DanceMusicService dms, string id, string message)
+        {
+            try
+            {
+                var from = RecomputeMarker.GetMarker(id);
+
+                var info = dms.IndexSongs(250, from, false, new SongFilter());
 
                 if (info.Succeeded > 0 || info.Failed > 0)
                 {

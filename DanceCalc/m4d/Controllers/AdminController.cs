@@ -2051,7 +2051,7 @@ namespace m4d.Controllers
                 var success = Database.ResetIndex();
 
                 if (success)
-                    RecomputeMarker.SetMarker("songindex", DateTime.MinValue);
+                    RecomputeMarker.SetMarker("indexsongs", DateTime.MinValue);
 
                 ViewBag.Name = "Reset Index";
                 ViewBag.Success = success;
@@ -2082,14 +2082,14 @@ namespace m4d.Controllers
 
                 if (!from.HasValue)
                 {
-                    from = RecomputeMarker.GetMarker("songindex");
+                    from = RecomputeMarker.GetMarker("indexsongs");
                 }
 
                 var info = Database.IndexSongs(count, from, rebuild, songFilter);
 
                 if (info.Succeeded > 0)
                 {
-                    RecomputeMarker.SetMarker("songindex", info.LastTime);
+                    RecomputeMarker.SetMarker("indexsongs", info.LastTime);
                 }
 
                 ViewBag.Name = "Indexed Songs";
