@@ -25,6 +25,7 @@ namespace m4dModels
             Beat = song.Danceability;
             Energy = song.Energy;
             Mood = song.Valence;
+            Tempo = (double?) song.Tempo;
 
             Created = song.Created;
             Modified = song.Modified;

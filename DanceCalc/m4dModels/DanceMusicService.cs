@@ -3121,7 +3121,8 @@ namespace m4dModels
                     QueryType = filter.IsSimple ? QueryType.Simple : QueryType.Full,
                     IncludeTotalResultCount = true,
                     Top =pageSize,
-                    Skip =(filter.Page-1)*pageSize
+                    Skip =(filter.Page-1)*pageSize,
+                    OrderBy = filter.SongSort.OData
                 };
 
                 var response = indexClient.Documents.Search<SongIndexed>(filter.SearchString, sp);

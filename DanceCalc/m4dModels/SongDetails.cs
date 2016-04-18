@@ -230,6 +230,12 @@ namespace m4dModels
                             properties.Add(new SongProperty(Guid.Empty, TitleField, m.Groups["title"].Value));
                             properties.Add(new SongProperty(Guid.Empty, ArtistField, m.Groups["artist"].Value));
                         }
+                        else
+                        {
+                            // TODO: Figure out a clean way to propagate errors
+                            Trace.WriteLineIf(TraceLevels.General.TraceError,$"Invalid TitleArtist: {cell}");
+                            return null;
+                        }
                         cell = null;
                         break;
                     case PurchaseField:

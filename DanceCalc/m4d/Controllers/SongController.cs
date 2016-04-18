@@ -224,7 +224,9 @@ namespace m4d.Controllers
         {
             filter.SortOrder = SongSort.DoSort(sortOrder, filter.SortOrder);
 
-            return DoIndex(filter);
+            return filter.IsAzure ? 
+                RedirectToAction("azuresearch", new {searchString = "", filter = filter.ToString()}) :
+                DoIndex(filter);
         }
 
         [AllowAnonymous]

@@ -1534,6 +1534,7 @@ namespace m4d.Controllers
             ViewBag.Headers = headers;
             ViewBag.Artist = artist;
             ViewBag.Album = album;
+            ViewBag.Tags = tags;
             ViewBag.Action = "CommitUploadCatalog";
 
             // ReSharper disable once InvertIf

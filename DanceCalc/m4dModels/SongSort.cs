@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 
@@ -72,6 +73,21 @@ namespace m4dModels
                     default:
                         return Id;
                 }
+            }
+        }
+
+        public IList<string> OData
+        {
+            get
+            {
+                if (Id == "Dances") return null;
+                var desc = Descending;
+                if (Id == "Modified" || Id == "Created")
+                {
+                    desc = !desc;
+                }
+                var order = desc ? "desc" : "asc";
+                return new List<string> {$"{Id} {order}"};
             }
         }
 

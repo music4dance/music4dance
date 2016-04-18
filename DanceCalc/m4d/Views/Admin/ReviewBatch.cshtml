@@ -9,6 +9,27 @@
 
 <h2>@ViewBag.Title</h2>
 
+@if (ViewData.ContainsKey("UserName"))
+{
+    <h3><b>UserName:</b> @ViewBag.UserName</h3>
+}
+
+@if (ViewData.ContainsKey("Dances"))
+{
+    <h3><b>Dances:</b> @ViewBag.Dances</h3>
+}
+
+@if (ViewData.ContainsKey("Tags"))
+{
+    <h3><b>Tags:</b> @ViewBag.Tags</h3>
+}
+
+@if (ViewData.ContainsKey("Headers"))
+{
+    <h3><b>Headers:</b> @ViewBag.Headers</h3>
+}
+
+
 <table class="table table-striped">
     <tr>
         <th>

@@ -3,7 +3,6 @@
 @using PagedList.Mvc;
 
 @{
-    ViewBag.NoSort = true;
     SongFilter filter = ViewData.ContainsKey("SongFilter") ? ViewBag.SongFilter : SongFilter.AzureSimple;
 
     var description = filter.Description;

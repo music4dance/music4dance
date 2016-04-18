@@ -239,7 +239,7 @@
         @if (!hideDances)
         {
             <th style="max-width:200px" data-toggle="tooltip" data-placement="bottom" data-container="body" title="@("Dance Style Tags" + (canSort ? ": Click to sort by most voted on dance style." : string.Empty))">
-                @if (canSort)
+                @if (canSort && !azureSearch)
                 {
                     @Html.ActionLink("Dances", "sort", "song", new {sortOrder = "Dances", filter}, null)
                     @Html.Raw(songOrder.GetSortGlyph("Dances"))
