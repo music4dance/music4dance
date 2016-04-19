@@ -36,6 +36,14 @@ namespace m4d.Utilities
             marker.SetGuid(guid);
         }
 
+        public static void ResetMarker(string name)
+        {
+            if (Markers.ContainsKey(name))
+            {
+                Markers.Remove(name);
+            }
+            System.IO.File.Delete(ComputePath(name));
+        }
         private RecomputeMarker(string name)
         {
             _name = name;
@@ -86,10 +94,15 @@ namespace m4d.Utilities
             return marker;
         }
 
-        private string Path => System.IO.Path.Combine(AppData,"marker." + _name + ".txt");
+        private string Path => ComputePath(_name);
 
         private static readonly Dictionary<string,RecomputeMarker> Markers = new Dictionary<string, RecomputeMarker>();
 
         private static readonly string AppData = System.Web.Hosting.HostingEnvironment.MapPath("~/app_data");
+
+        private static string ComputePath(string name)
+        {
+            return System.IO.Path.Combine(AppData, "marker." + name + ".txt");
+        }
     }
 }

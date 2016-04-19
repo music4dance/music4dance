@@ -1982,13 +1982,13 @@ namespace m4d.Controllers
         //
         // Get: //ResetSearchIdx
         [Authorize(Roles = "showDiagnostics")]
-        public ActionResult ResetSearchIdx()
+        public ActionResult ResetSearchIdx(string id = "default")
         {
             try
             {
                 StartAdminTask("ResetIndex");
 
-                var success = Database.ResetIndex();
+                var success = Database.ResetIndex(id);
 
                 if (success)
                     RecomputeMarker.SetMarker("indexsongs", DateTime.MinValue);

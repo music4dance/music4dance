@@ -1576,7 +1576,7 @@ namespace m4dModels
 
         private LocalMerger MergeFromPurchaseInfo(SongDetails song)
         {
-            // ReSharper disable once LoopCanBePartlyConvertedToQuery
+            // ReSharper disable once LoopCanBeConvertedToQuery
             foreach (var service in MusicService.GetSearchableServices())
             {
                 var id = song.GetPurchaseId(service.Id);
@@ -2947,21 +2947,18 @@ namespace m4dModels
 
         #region Search
 
-        private const string SearchServiceName = "m4d";
-        private const string SearchAdminKey = "***REMOVED***";
-        private const string SearchQueryKey = "5B2BAFC30F0CD25405A10B08582B5451";
-
-        private const string SongIndex = "songs";
-        public bool ResetIndex()
+        public bool ResetIndex(string id = "default")
         {
-            using (var serviceClient = new SearchServiceClient(SearchServiceName, new SearchCredentials(SearchAdminKey)))
+            var info = SearchServiceInfo.GetInfo(id);
+            using (var serviceClient = new SearchServiceClient(info.Name, new SearchCredentials(info.AdminKey)))
             {
-                if (serviceClient.Indexes.Exists(SongIndex))
+                if (serviceClient.Indexes.Exists(info.Index))
                 {
-                    serviceClient.Indexes.Delete(SongIndex);
+                    serviceClient.Indexes.Delete(info.Index);
                 }
 
                 var index = SongIndexed.Index;
+                index.Name = info.Index;
 
                 serviceClient.Indexes.Create(index);
             }
@@ -2969,7 +2966,7 @@ namespace m4dModels
             return true;
         }
 
-        private IQueryable<Song> TakeTail(IQueryable<Song> songs, DateTime? from, int max)
+        private static IQueryable<Song> TakeTail(IQueryable<Song> songs, DateTime? from, int max)
         {
             if (from != null)
             {
@@ -2981,7 +2978,7 @@ namespace m4dModels
             return songs.Take(max + 100);
         }
 
-        public BatchInfo IndexSongs(int max = -1, DateTime? from = null, bool rebuild = false, SongFilter filter = null)
+        public BatchInfo IndexSongs(int max = -1, DateTime? from = null, bool rebuild = false, SongFilter filter = null, string id="default")
         {
             if (max == -1) max = 100;
 
@@ -2996,8 +2993,10 @@ namespace m4dModels
 
             var lastTouched = DateTime.MinValue;
 
-            using (var serviceClient = new SearchServiceClient(SearchServiceName, new SearchCredentials(SearchAdminKey)))
-            using (var indexClient = serviceClient.Indexes.GetClient(SongIndex))
+            var info = SearchServiceInfo.GetInfo(id);
+
+            using (var serviceClient = new SearchServiceClient(info.Name, new SearchCredentials(info.AdminKey)))
+            using (var indexClient = serviceClient.Indexes.GetClient(info.Index))
             {
                 var tried = 0;
                 var exists = true;
@@ -3014,7 +3013,7 @@ namespace m4dModels
                         }
                         catch (Microsoft.Rest.Azure.CloudException e)
                         {
-                            Trace.WriteLine(e.Message);
+                            Trace.WriteLineIf(TraceLevels.General.TraceVerbose,e.Message);
                             // Not found.
                         }
                     }
@@ -3034,7 +3033,7 @@ namespace m4dModels
                         }
                     }
 
-                    if (doc == null || rebuild)
+                    if (doc == null)
                     {
                         AdminMonitor.UpdateTask("BuildBatch", songs.Count);
                         songs.Add(si);
@@ -3111,10 +3110,12 @@ namespace m4dModels
             return ret;
         }
 
-        public SearchResults AzureSearch(SongFilter filter, int pageSize)
+        public SearchResults AzureSearch(SongFilter filter, int pageSize, string id = "default")
         {
-            using (var serviceClient = new SearchServiceClient(SearchServiceName, new SearchCredentials(SearchQueryKey)))
-            using (var indexClient = serviceClient.Indexes.GetClient(SongIndex))
+            var info = SearchServiceInfo.GetInfo(id);
+
+            using (var serviceClient = new SearchServiceClient(info.Name, new SearchCredentials(info.QueryKey)))
+            using (var indexClient = serviceClient.Indexes.GetClient(info.Index))
             {
                 var sp = new SearchParameters
                 {
@@ -3131,10 +3132,12 @@ namespace m4dModels
             }
         }
 
-        public SuggestionList AzureSuggestions(string query)
+        public SuggestionList AzureSuggestions(string query, string id = "default")
         {
-            using (var serviceClient = new SearchServiceClient(SearchServiceName, new SearchCredentials(SearchQueryKey)))
-            using (var indexClient = serviceClient.Indexes.GetClient(SongIndex))
+            var info = SearchServiceInfo.GetInfo(id);
+
+            using (var serviceClient = new SearchServiceClient(info.Name, new SearchCredentials(info.QueryKey)))
+            using (var indexClient = serviceClient.Indexes.GetClient(info.Index))
             {
                 var sp = new SuggestParameters {Top=10};
 

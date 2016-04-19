@@ -30,7 +30,6 @@ namespace m4d.APIControllers
             {
                 client.TrackEvent("Recompute",
                     new Dictionary<string, string> { { "Id", id }, { "Phase","Auth"}, {"Code","Fail"}, { "AuthScheme", authenticationHeader.Scheme }, { "ClientToken", token }, { "ServerToken", SecurityToken } });
-
                 return Unauthorized();
             }
 
@@ -48,10 +47,17 @@ namespace m4d.APIControllers
                 return Conflict();
             }
 
+            if (force)
+            {
+                RecomputeMarker.ResetMarker(id);
+            }
+
             string message;
             DoHandleRecompute recompute;
 
-            switch (id)
+            var rgid = id.Split('-');
+
+            switch (rgid[0])
             {
                 case "songstats":
                     recompute= DoHandleSongStats;
@@ -76,6 +82,7 @@ namespace m4d.APIControllers
                 default:
                     client.TrackEvent("Recompute",
                         new Dictionary<string, string> { { "Id", id }, { "Phase", "Start" }, { "Code", "Unknown" } });
+                    AdminMonitor.CompleteTask(false, $"Bad Id: {id}");
                     return BadRequest();
             }
 
@@ -84,11 +91,11 @@ namespace m4d.APIControllers
 
             if (sync)
             {
-                HandleSyncRecompute(recompute, id,message);
+                HandleSyncRecompute(recompute, id, message, force);
             }
             else
             {
-                HandleRecompute(recompute, id, message);
+                HandleRecompute(recompute, id, message, force);
             }
 
             return Ok(new {changed = true, message});
@@ -100,33 +107,33 @@ namespace m4d.APIControllers
             return Database.Songs.Any(s => s.Modified > updated);
         }
 
-        private delegate bool DoHandleRecompute(DanceMusicService dms, string id, string message);
+        private delegate bool DoHandleRecompute(DanceMusicService dms, string id, string message, int iteration, bool force);
 
-        // TODO: Should Do*** functions take name of task and message so that we can clean up duplicate code?
-        private static void HandleRecompute(DoHandleRecompute recompute, string id, string message)
+        private static void HandleRecompute(DoHandleRecompute recompute, string id, string message, bool force)
         {
-            Task.Run(() => recompute.Invoke(CreateDisconnectedService(),id,message));
+            Task.Run(() => recompute.Invoke(CreateDisconnectedService(),id,message,0,force));
         }
 
-        private static void HandleSyncRecompute(DoHandleRecompute recompute, string id, string message)
+        private static void HandleSyncRecompute(DoHandleRecompute recompute, string id, string message, bool force)
         {
-            var i = 0;
-            while (!Task.Run(() => recompute.Invoke(CreateDisconnectedService(),id,message)).Result)
+            int[] i = {0};
+            while (!Task.Run(() => recompute.Invoke(CreateDisconnectedService(),id,message,i[0],force)).Result)
             {
                 if (!AdminMonitor.StartTask(id))
                 {
                     TelemetryClient.TrackEvent("Recompute",
-                        new Dictionary<string, string> { { "Id", id }, { "Phase", "Iteration" }, { "Code", "Conflict" }, { "Task", AdminMonitor.Name }, { "Iteration", i.ToString() } });
+                        new Dictionary<string, string> { { "Id", id }, { "Phase", "Iteration" }, { "Code", "Conflict" }, { "Task", AdminMonitor.Name }, { "Iteration", i[0].ToString() } });
                     return;
                 }
 
                 TelemetryClient.TrackEvent("Recompute",
-                    new Dictionary<string, string> { { "Id", id }, { "Phase", "Iteration" }, { "Code", "Pending" }, { "Task", AdminMonitor.Name }, { "Iteration", i.ToString() } });
-                i += 1;
+                    new Dictionary<string, string> { { "Id", id }, { "Phase", "Iteration" }, { "Code", "Pending" }, { "Task", AdminMonitor.Name }, { "Iteration", i[0].ToString() } });
+
+                i[0] += 1;
             }
         }
 
-        private static bool DoHandleSongStats(DanceMusicService dms, string id, string message)
+        private static bool DoHandleSongStats(DanceMusicService dms, string id, string message, int iteration, bool force)
         {
             try
             {
@@ -140,7 +147,7 @@ namespace m4d.APIControllers
             return true;
         }
 
-        private static bool DoHandleDanceInfo(DanceMusicService dms, string id, string message)
+        private static bool DoHandleDanceInfo(DanceMusicService dms, string id, string message, int iteration, bool force)
         {
             try
             {
@@ -154,7 +161,7 @@ namespace m4d.APIControllers
             return true;
         }
 
-        private static bool DoHandleTagTypes(DanceMusicService dms, string id, string message)
+        private static bool DoHandleTagTypes(DanceMusicService dms, string id, string message, int iteration, bool force)
         {
             try
             {
@@ -168,7 +175,7 @@ namespace m4d.APIControllers
             return true;
         }
 
-        private static bool DoHandlePropertyCleanup(DanceMusicService dms, string id, string message)
+        private static bool DoHandlePropertyCleanup(DanceMusicService dms, string id, string message, int iteration, bool force)
         {
             try
             {
@@ -200,13 +207,21 @@ namespace m4d.APIControllers
             }
         }
 
-        private static bool DoHandleSongIndex(DanceMusicService dms, string id, string message)
+        private static bool DoHandleSongIndex(DanceMusicService dms, string id, string message, int iteration, bool force)
         {
             try
             {
+                var rgid = id.Split('-');
+                var name = rgid.Length > 1 ? rgid[1] : "default";
+
+                if (force && iteration == 0)
+                {
+                    dms.ResetIndex(name);
+                }
+
                 var from = RecomputeMarker.GetMarker(id);
 
-                var info = dms.IndexSongs(250, from, false, new SongFilter());
+                var info = dms.IndexSongs(250, from, force, new SongFilter(), name);
 
                 if (info.Succeeded > 0 || info.Failed > 0)
                 {
