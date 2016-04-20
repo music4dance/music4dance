@@ -406,7 +406,7 @@
 
         window.danceAction = self.danceAction;
         if (self.tempo !== 0) {
-            $(self.tempoId).val(self.tempo/self.numerator);
+            $(self.tempoId).val(self.tempo);
         }
         //$('#tempo').focus(function () { setFocus(true);});
     }
