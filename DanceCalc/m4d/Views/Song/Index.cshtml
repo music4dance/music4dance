@@ -6,7 +6,7 @@
 @* ReSharper disable once SuggestVarOrType_SimpleTypes *@
 @{
     SongFilter filter = ViewData.ContainsKey("SongFilter") ? ViewBag.SongFilter : SongFilter.Default;
-    DanceQuery danceQuery = filter.DanceQuery;
+    var danceQuery = filter.DanceQuery;
     var description = filter.Description;
 
     ViewBag.Title = "Songs for Dancing";
@@ -14,7 +14,7 @@
     var isAdmin = User.IsInRole("dbAdmin");
 
     var dances = (IList<SongCounts>)ViewBag.Dances;
-        
+
     var userName = filter.UserQuery.IsEmpty ? User.Identity.Name : filter.UserQuery.UserName;
 }
 

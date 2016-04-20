@@ -106,8 +106,8 @@ namespace m4dModels
         public UserQuery UserQuery => new UserQuery(User);
         public SongSort SongSort => new SongSort(SortOrder);
 
-        public bool IsLucene => string.Equals(Action.ToLower(), "azure+lucene", StringComparison.OrdinalIgnoreCase);
-        public bool IsSimple => string.Equals(Action.ToLower(), "azure+simple", StringComparison.OrdinalIgnoreCase);
+        public bool IsLucene => string.Equals(Action.ToLower().Replace(' ', '+'), "azure+lucene", StringComparison.OrdinalIgnoreCase);
+        public bool IsSimple => string.Equals(Action.ToLower().Replace(' ','+'), "azure+simple", StringComparison.OrdinalIgnoreCase);
         public bool IsAzure => Action.ToLower().StartsWith("azure",StringComparison.OrdinalIgnoreCase);
 
         public bool Advanced => !string.IsNullOrWhiteSpace(Purchase) ||

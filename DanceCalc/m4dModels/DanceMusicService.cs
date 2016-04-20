@@ -3033,15 +3033,13 @@ namespace m4dModels
                         }
                     }
 
-                    if (doc == null)
-                    {
-                        AdminMonitor.UpdateTask("BuildBatch", songs.Count);
-                        songs.Add(si);
-                        exists = false;
+                    if (doc != null) continue;
 
-                        if (songs.Count >= max)
-                            break;
-                    }
+                    AdminMonitor.UpdateTask("BuildBatch", songs.Count);
+                    songs.Add(si);
+                    exists = false;
+
+                    if (songs.Count >= max) break;
                 }
 
                 var deletes = 0;
@@ -3117,13 +3115,25 @@ namespace m4dModels
             using (var serviceClient = new SearchServiceClient(info.Name, new SearchCredentials(info.QueryKey)))
             using (var indexClient = serviceClient.Indexes.GetClient(info.Index))
             {
+                var order = filter.SongSort.OData;
+                //var odataFilter = filter.SongSort.Numeric ? $"{filter.SongSort.Id} ne null" : null;
+                var odataFilter = filter.SongSort.Numeric ? $"({filter.SongSort.Id} ne null) and ({filter.SongSort.Id} ne 0)" : null;
+                //var order = new List<string> {"Tempo desc"};
+                var dq = filter.DanceQuery;
+                if (dq.Dances.Count() == 1)
+                {
+                    odataFilter = (odataFilter == null) ? "" : odataFilter + " and ";
+                    odataFilter += $"DanceTags/any(t: t eq '{dq.Dances.First().Name.ToLower()}')";
+                }
+
                 var sp = new SearchParameters
                 {
                     QueryType = filter.IsSimple ? QueryType.Simple : QueryType.Full,
+                    Filter = odataFilter,
                     IncludeTotalResultCount = true,
-                    Top =pageSize,
-                    Skip =(filter.Page-1)*pageSize,
-                    OrderBy = filter.SongSort.OData
+                    Top = pageSize,
+                    Skip = (filter.Page - 1) * pageSize,
+                    OrderBy = order
                 };
 
                 var response = indexClient.Documents.Search<SongIndexed>(filter.SearchString, sp);
@@ -3139,19 +3149,22 @@ namespace m4dModels
             using (var serviceClient = new SearchServiceClient(info.Name, new SearchCredentials(info.QueryKey)))
             using (var indexClient = serviceClient.Indexes.GetClient(info.Index))
             {
-                var sp = new SuggestParameters {Top=10};
-
+                var sp = new SuggestParameters {Top=50};
+          
                 var response = indexClient.Documents.Suggest<SongIndexed>(query, "songs", sp);
 
+                var comp = new SuggestionComparer();
                 //var ret = new SuggestionList {Query = "query", Suggestions = new List<Suggestion>()};
-                return new SuggestionList
+                var ret = response.Results.Select(result => new Suggestion
+                {
+                    Value = result.Text,
+                    Data = result.Document.SongId.ToString()
+                }).Distinct(comp).Take(10).ToList();
+
+               return new SuggestionList
                 {
                     Query = query,
-                    Suggestions = response.Results.Select(result => new Suggestion
-                    {
-                        Value = result.Text,
-                        Data = result.Document.SongId.ToString()
-                    }).ToList()
+                    Suggestions = ret
                 };
             }
         }

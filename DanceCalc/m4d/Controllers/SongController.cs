@@ -70,6 +70,7 @@ namespace m4d.Controllers
             {
                 dances = null;
             }
+
             if (!string.Equals(dances, filter.Dances, StringComparison.OrdinalIgnoreCase))
             {
                 filter.Dances = dances;
@@ -89,27 +90,58 @@ namespace m4d.Controllers
         }
 
         [AllowAnonymous]
-        public ActionResult AzureSearch(string searchString, int page=1, SongFilter filter=null)
+        public ActionResult AzureSearch(string searchString, int page=1, string dances=null, SongFilter filter=null)
         {
             if (filter == null || filter.IsEmpty)
             {
                 filter = SongFilter.AzureSimple;
             }
 
-            HelpPage = filter.IsSimple ? "simple-search" : "full-search";
+            if (string.IsNullOrWhiteSpace(dances))
+            {
+                dances = null;
+            }
+
+            if (!string.Equals(dances, filter.Dances, StringComparison.OrdinalIgnoreCase))
+            {
+                filter.Dances = dances;
+                filter.Page = 1;
+
+                if (string.IsNullOrWhiteSpace(filter.SortOrder))
+                {
+                    filter.SortOrder = "Dances";
+                }
+            }
 
             filter.SearchString = searchString;
+
             if (page != 0)
                 filter.Page = page;
+
+            return DoAzureSearch(filter);
+        }
+
+        private ActionResult DoAzureSearch(SongFilter filter)
+        {
+            HelpPage = filter.IsSimple ? "simple-search" : "full-search";
+
+            if (!filter.IsEmptyPaged && SpiderManager.CheckAnySpiders(Request.UserAgent))
+            {
+                return View("BotFilter", filter);
+            }
 
             var results = Database.AzureSearch(filter, 25);
             BuildDanceList();
             ViewBag.SongFilter = filter;
 
+            var songs = new StaticPagedList<SongBase>(results.Songs, results.CurrentPage, results.PageSize, (int)results.TotalCount);
+
+            var dances = filter.DanceQuery.DanceIds.ToList();
+            SetupLikes(results.Songs, dances.Count == 1 ? dances[0] : null);
+
             ReportSearch(filter);
 
-            var songs = new StaticPagedList<SongBase>(results.Songs,results.CurrentPage,results.PageSize,(int)results.TotalCount);
-            return View(songs);
+            return View("azuresearch",songs);
         }
 
         //
@@ -224,9 +256,7 @@ namespace m4d.Controllers
         {
             filter.SortOrder = SongSort.DoSort(sortOrder, filter.SortOrder);
 
-            return filter.IsAzure ? 
-                RedirectToAction("azuresearch", new {searchString = "", filter = filter.ToString()}) :
-                DoIndex(filter);
+            return filter.IsAzure ? DoAzureSearch(filter) : DoIndex(filter);
         }
 
         [AllowAnonymous]

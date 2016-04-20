@@ -56,7 +56,7 @@ namespace m4dModels
         public bool Descending { get; private set; }
         public int Count { get; private set; }
 
-        public bool Numeric => s_numerical.Contains(Id);
+        public bool Numeric => s_intrinsic.Contains(Id) || Id == "Tempo";
         public bool Directional => s_directional.Contains(Id);
 
         public string FriendlyName
