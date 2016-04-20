@@ -50,6 +50,7 @@ namespace m4d.Controllers
         {
             ViewBag.TraceLevel = TraceLevels.General.Level.ToString();
             ViewBag.BotReport = SpiderManager.CreateBotReport();
+            ViewBag.SearchIdx = SearchServiceInfo.DefaultId;
             return View();
         }
 
@@ -679,6 +680,17 @@ namespace m4d.Controllers
 
             return RedirectToAction("Diagnostics");
         }
+
+        //
+        // Get: //SetSearchIdx
+        public ActionResult SetSearchIdx(string id)
+        {
+            Trace.WriteLineIf(TraceLevels.General.TraceInfo, $"Set Search Index: '{id}'");
+            SearchServiceInfo.DefaultId = id;
+
+            return RedirectToAction("Diagnostics");
+        }
+
         //
         // Get: //CompressRegions
         [Authorize(Roles = "dbAdmin")]

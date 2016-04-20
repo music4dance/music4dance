@@ -36,7 +36,17 @@ namespace m4dModels
         private const string BasicAdmin = "***REMOVED***";
         private const string BasicQuery = "***REMOVED***";
 
-        private static string DefaultId => s_defaultId ?? ((s_defaultId = Environment.GetEnvironmentVariable("SEARCHINDEX")) ?? "free");
+        public static string DefaultId
+        {
+            get
+            {
+                return s_defaultId = s_defaultId ?? Environment.GetEnvironmentVariable("SEARCHINDEX") ?? "free";
+            }
+            set
+            {
+                s_defaultId = value;
+            }
+        }
         private static string s_defaultId;
 
         private static readonly Dictionary<string, SearchServiceInfo> s_info = new Dictionary<string, SearchServiceInfo>

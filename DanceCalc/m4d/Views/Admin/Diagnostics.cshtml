@@ -35,10 +35,18 @@
 <ul>
     <li>@Html.ActionLink("Show Status", "AdminStatus", "Admin")</li>
     <li>Application Insights Telemetry Disabled = @Html.ActionLink(TelemetryConfiguration.Active.DisableTelemetry.ToString(), "DisableTelemetry", "Admin", new {disable = !TelemetryConfiguration.Active.DisableTelemetry}, null)</li>
-    <li>Verbose Telemetry Enabled = @Html.ActionLink(DMController.VerboseTelemetry.ToString(), "EnableVerboseTelemetry", "Admin", new { enable = !DMController.VerboseTelemetry }, null)</li>
+    <li>Verbose Telemetry Enabled = @Html.ActionLink(DMController.VerboseTelemetry.ToString(), "EnableVerboseTelemetry", "Admin", new {enable = !DMController.VerboseTelemetry}, null)</li>
     <li>@Html.ActionLink("Flush Telemetry", "FlushTelemetry", "Admin")</li>
     <li>@Html.ActionLink("Reset Admin Status", "ResetAdmin", "Admin")</li>
 </ul>
+
+<h3>Search Index: @ViewBag.SearchIdx</h3>
+<ul>
+    <li>@Html.ActionLink("free", "SetSearchIdx", "Admin", new { id="free" }, null)</li>
+    <li>@Html.ActionLink("basica", "SetSearchIdx", "Admin", new { id = "basica" }, null)</li>
+    <li>@Html.ActionLink("basicb", "SetSearchIdx", "Admin", new { id = "basicb" }, null)</li>
+</ul>
+
 
 <hr />
 <h3>Logging</h3>
