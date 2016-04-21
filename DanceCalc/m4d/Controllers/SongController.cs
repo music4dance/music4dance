@@ -604,6 +604,29 @@ namespace m4d.Controllers
             return RedirectToAction("Index", new {filter });
         }
 
+
+        //
+        // POST: /Song/AdminEdit/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Authorize(Roles = "canEdit")]
+        public ActionResult AdminEdit(Guid songId, string properties, SongFilter filter=null)
+        {
+            var song = Database.FindSong(songId);
+
+            if (!ModelState.IsValid || !Database.AdminEditSong(song, properties))
+                return RedirectToAction("Index", new {filter});
+
+            Database.SaveChanges();
+
+            var user = Database.FindUser(User.Identity.Name);
+            var sd = Database.FindSongDetails(songId, user.UserName);
+
+            ViewBag.DanceMap = SongCounts.GetDanceMap(Database);
+            ViewBag.DanceList = GetDancesSingle(Database);
+            return View("details", sd);
+        }
+
         public ActionResult CleanupAlbums(Guid id, SongFilter filter = null)
         {
             var user = Database.FindUser(User.Identity.Name);

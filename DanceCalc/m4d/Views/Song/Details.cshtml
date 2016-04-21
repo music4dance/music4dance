@@ -40,7 +40,14 @@
     <hr />
     <div class="row">
         <div id="songDump" class="col-md-12">
-            <code style="white-space: pre">@Model.ToString()</code>
+        @using (Html.BeginForm("AdminEdit", "Song", null, FormMethod.Post, new {@class = "form-horizontal"}))
+        {
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="songId" value="@Model.SongId"/>
+            <input type="hidden" name="filter" value="@filter.ToString()" />
+            <input type="text" name="properties" value="@Model.ToString()"/>
+            <button type="submit">AdminEdit</button>
+        }
         </div>
     </div>
 

@@ -948,6 +948,25 @@ namespace m4dModels
             return new Song();
         }
 
+        public static int TryParseId(string s, out Guid id)
+        {
+            const string idField = "SongId=";
+            id = Guid.Empty;
+            if (!s.StartsWith("SongId")) return 0;
+
+            var t = s.IndexOf('\t');
+            if (t == -1) return 0;
+
+            var sg = s.Substring(idField.Length, t - idField.Length);
+            Guid g;
+            if (Guid.TryParse(sg, out g))
+            {
+                id = g;
+            }
+
+            return t + 1;
+        }
+
         public static int CreateTitleHash(string title)
         {
             return CreateNormalForm(title).GetHashCode();

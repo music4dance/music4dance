@@ -166,6 +166,34 @@ namespace m4dModels.Tests
             Assert.AreEqual(1, t.Count);
 
         }
+
+        private const string AdminEditS = @"SongId={08f6d679-537b-42ba-8317-4e8c6b61bd19}	.Create=	User=DWTS	Time=03/24/2016 16:27:19	Title=In the Night	Artist=The Weeknd	Tag+=DWTS:Other|Episode 1:Other|Season 22:Other|Tango:Dance|United States:Other	DanceRating=TNG+1	Tag+:TNG=Artem:Other|Mischa:Other	.Edit=	User=batch-a	Time=03/24/2016 16:42:15	Length=235	Album:00=Beauty Behind The Madness [Explicit]	Track:00=10	Purchase:00:AS=D:B014DIBD3W	Purchase:00:AA=D:B014DI9R94	Tag+=r-b:Music	.Edit=	User=batch-i	Time=03/24/2016 16:42:16	Purchase:00:IS=1017804211	Purchase:00:IA=1017804102	Tag+=R&B/Soul:Music	.Edit=	User=batch-s	Time=03/24/2016 16:42:16	Purchase:00:SS=3MaQvpdNb4Vv7J7K9jYw1t	Purchase:00:SA=7q6thErM1TVz3wu46kynOe	.Edit=	User=batch-x	Time=03/24/2016 16:42:17	Purchase:00:XS=music.30962C09-0100-11DB-89CA-0019B92A3933	Tag+=R&B / Soul:Music	.FailedLookup=-:0	.Edit=	User=batch-e	Time=03/24/2016 16:50:03	Tempo=168.0	Danceability=0.502552	Energy=0.6824393	Valence=0.5534304	Tag+=3/4:Tempo	.Edit=	User=batch-s	Time=03/24/2016 16:58:37	Sample=https://p.scdn.co/mp3-preview/d23898b52b1812b26147b5e3b4817fa1b4e25505";
+        private const string AdminEditE = @"SongId={08f6d679-537b-42ba-8317-4e8c6b61bd19}	.Create=	User=DWTS	Time=03/24/2016 16:27:19	Title=In the Night	Artist=The Weeknd	Tag+=DWTS:Other|Episode 1:Other|Season 22:Other|Tango (Ballroom):Dance|United States:Other	DanceRating=TGO+2	Tag+:TGO=Artem:Other|Mischa:Other	.Edit=	User=batch-a	Time=03/24/2016 16:42:15	Length=235	Album:00=Beauty Behind The Madness [Explicit]	Track:00=10	Purchase:00:AS=D:B014DIBD3W	Purchase:00:AA=D:B014DI9R94	Tag+=r-b:Music	.Edit=	User=batch-i	Time=03/24/2016 16:42:16	Purchase:00:IS=1017804211	Purchase:00:IA=1017804102	Tag+=R&B/Soul:Music	.Edit=	User=batch-s	Time=03/24/2016 16:42:16	Purchase:00:SS=3MaQvpdNb4Vv7J7K9jYw1t	Purchase:00:SA=7q6thErM1TVz3wu46kynOe	.Edit=	User=batch-x	Time=03/24/2016 16:42:17	Purchase:00:XS=music.30962C09-0100-11DB-89CA-0019B92A3933	Tag+=R&B / Soul:Music	.FailedLookup=-:0	.Edit=	User=batch-e	Time=03/24/2016 16:50:03	Tempo=168.0	Danceability=0.502552	Energy=0.6824393	Valence=0.5534304	Tag+=4/4:Tempo	.Edit=	User=batch-s	Time=03/24/2016 16:58:37	Sample=https://p.scdn.co/mp3-preview/d23898b52b1812b26147b5e3b4817fa1b4e25505";
+
+        [TestMethod]
+        public void AdminEditTest()
+        {
+            var service = new DanceMusicTester(
+                new List<string>
+                {
+                    AdminEditS,
+                });
+
+            var song = service.Dms.FindSong(new Guid("08f6d679-537b-42ba-8317-4e8c6b61bd19"));
+
+            Assert.IsTrue(service.Dms.AdminEditSong(song, AdminEditE));
+            service.Dms.SaveChanges();
+
+            song = service.Dms.FindSong(new Guid("08f6d679-537b-42ba-8317-4e8c6b61bd19"));
+            var actual = song.Serialize(null);
+
+            Assert.AreEqual(AdminEditE, actual);
+            Assert.IsTrue(song.TagSummary.Summary.Contains("4/4:Tempo"));
+            Assert.IsTrue(song.TagSummary.Summary.Contains("Tango (Ballroom):Dance"));
+            Assert.IsFalse(song.TagSummary.Summary.Contains("Tango:Dance"));
+            Assert.AreEqual(1,song.DanceRatings.Count);
+            Assert.AreEqual("TGO",song.DanceRatings.First().DanceId);
+        }
     }
 }
 

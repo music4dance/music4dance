@@ -173,6 +173,28 @@ namespace m4dModels
             return true;
         }
 
+        internal bool AdminEdit(string properties, DanceMusicService dms)
+        {
+            CleanUserTags(dms);
+
+            dms.DanceRatings.RemoveRange(DanceRatings.ToList());
+            DanceRatings.Clear();
+
+            dms.Modified.RemoveRange(ModifiedBy.ToList());
+            ModifiedBy.Clear();
+
+            dms.SongProperties.RemoveRange(SongProperties.ToList());
+            SongProperties.Clear();
+
+            ClearValues();
+            TitleHash = 0;
+            Album = null;
+
+            Load(properties,dms);
+
+            return true;
+        }
+
         // Edit 'this' based on songdetails + extras
         public bool Edit(ApplicationUser user, SongDetails edit, IEnumerable<UserTag> tags, DanceMusicService dms)
         {

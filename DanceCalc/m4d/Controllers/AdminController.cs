@@ -1107,6 +1107,7 @@ namespace m4d.Controllers
                     var searches = TryGetSection(lines, DanceMusicService.IsSearchBreak);
                     var songs = TryGetSection(lines, DanceMusicService.IsSongBreak);
 
+                    var admin = string.Equals(reloadDatabase, "admin", StringComparison.InvariantCultureIgnoreCase);
                     var reload = false;
                     if (string.Equals(reloadDatabase, "reload", StringComparison.InvariantCultureIgnoreCase))
                     {
@@ -1126,6 +1127,8 @@ namespace m4d.Controllers
                     {
                         if (reload)
                             Database.LoadSongs(songs);
+                        else if (admin)
+                            Database.AdminUpdate(songs);
                         else
                             Database.UpdateSongs(songs);
                         SongCounts.ClearCache();

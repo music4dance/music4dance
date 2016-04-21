@@ -120,6 +120,20 @@ namespace m4dModels
             return new SongDetails(song,user.UserName,this);
         }
 
+        public bool AdminEditSong(Song edit, string properties)
+        {
+            return edit.AdminEdit(properties,this);
+        }
+
+        public bool AdminEditSong(string properties)
+        {
+            Guid id;
+            if (SongBase.TryParseId(properties, out id) == 0) return false;
+
+            var song = FindSong(id);
+            return song != null && AdminEditSong(song, properties);
+        }
+
         public SongDetails UpdateSong(ApplicationUser user, Song song, SongDetails edit, bool createLog = true)
         {
             if (createLog)
@@ -2427,6 +2441,46 @@ namespace m4dModels
             Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Clearing Song Cache");
             SongCounts.ClearCache();
             Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Exiting UpdateSongs");
+        }
+
+        public void AdminUpdate(IList<string> lines)
+        {
+            Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Entering AdminUpdate");
+
+            _context.TrackChanges(false);
+
+            // Load the dance List
+            Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Loading Dances");
+            LoadDances();
+
+            Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Loading Songs");
+
+            if (lines.Count > 0 && IsSongBreak(lines[0]))
+            {
+                lines.RemoveAt(0);
+            }
+
+            var c = 0;
+            foreach (var line in lines)
+            {
+                if (line.StartsWith("//"))
+                    continue;
+
+                AdminMonitor.UpdateTask("UpdateSongs", c);
+
+                AdminEditSong(line);
+
+                c += 1;
+                if (c % 100 == 0)
+                {
+                    Trace.WriteLineIf(TraceLevels.General.TraceInfo, $"{c} songs updated");
+                }
+            }
+
+            _context.TrackChanges(true);
+            Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Clearing Song Cache");
+            SongCounts.ClearCache();
+            Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Exiting AdminUpdate");
         }
 
         // ReSharper disable once FieldCanBeMadeReadOnly.Local

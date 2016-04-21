@@ -94,24 +94,14 @@ namespace m4dModels
 
         public SongDetails(string s)
         {
-            const string idField = "SongId=";
-            SongId = Guid.Empty;
-            if (s.StartsWith("SongId"))
+            Guid id;
+            var ich = TryParseId(s, out id);
+            if (ich > 0)
             {
-                var t = s.IndexOf('\t');
-                if (t != -1)
-                {
-                    var sg = s.Substring(idField.Length, t - idField.Length);
-                    s = s.Substring(t + 1);
-                    Guid g;
-                    if (Guid.TryParse(sg, out g))
-                    {
-                        SongId = g;
-                    }
-                }
+                SongId = id;
+                s = s.Substring(ich);
             }
-
-            if (SongId.Equals(Guid.Empty))
+            else
             {
                 SongId = Guid.NewGuid();
             }
