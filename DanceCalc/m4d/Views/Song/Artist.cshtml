@@ -1,0 +1,24 @@
+﻿@model m4d.ViewModels.ArtistViewModel
+
+@{
+    ViewBag.Title = Model.Name;
+    ViewBag.NoSort = true;
+    ViewBag.HideArtist = true;
+    ViewBag.SongFilter = new SongFilter { SortOrder = "Album" };
+}
+
+@Html.Partial("_SetupFilterScript")
+
+<h2>Artist: @Model.Name</h2>
+
+<div class="row col-xs-12">
+    @{Html.RenderPartial("_ListSongs", @Model.Songs, ViewData);}
+</div>
+
+
+@section Scripts
+{
+    @Scripts.Render("~/bundles/knockout")
+    @Scripts.Render("~/bundles/musicservice")
+}
+

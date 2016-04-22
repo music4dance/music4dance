@@ -49,7 +49,7 @@
 {
     if (!string.IsNullOrWhiteSpace(song.Artist))
     {
-        @Html.ActionLink(song.Artist, "search", "song", new { searchString = song.Artist, dances = "ALL" }, null)
+        @Html.ActionLink(song.Artist, "artist", "song", new { name = song.Artist }, null)
     }
 }
 

@@ -414,6 +414,27 @@ namespace m4d.Controllers
             return View("Album", model);
         }
 
+        [AllowAnonymous]
+        public ActionResult Artist(string name)
+        {
+            var spider = CheckSpiders();
+            if (spider != null) return spider;
+
+            ArtistViewModel model = null;
+
+            if (!string.IsNullOrWhiteSpace(name))
+            {
+                
+                model = ArtistViewModel.Create(name, User.IsInRole(DanceMusicService.EditRole) ? DanceMusicService.CruftFilter.AllCruft : DanceMusicService.CruftFilter.NoCruft, Database);
+            }
+
+            if (model == null)
+                return ReturnError(HttpStatusCode.NotFound, $"Album '{name}' not found.");
+
+            ViewBag.DanceMap = SongCounts.GetDanceMap(Database);
+            return View("Artist", model);
+        }
+
 
         //
         // GET: /Song/CreateI

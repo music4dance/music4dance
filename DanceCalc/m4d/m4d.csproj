@@ -500,6 +500,7 @@
     <Compile Include="Utilities\SongBinder.cs" />
     <Compile Include="Utilities\XboxAuthentication.cs" />
     <Compile Include="ViewModels\AlbumViewModel.cs" />
+    <Compile Include="ViewModels\ArtistViewModel.cs" />
     <Compile Include="ViewModels\BotHitModel.cs" />
     <Compile Include="ViewModels\DanceClass.cs" />
     <Compile Include="ViewModels\LikeView.cs" />
@@ -988,6 +989,7 @@
     <Content Include="Views\Shared\_playmodal.cshtml" />
     <Content Include="Views\Shared\_filtermodal.cshtml" />
     <Content Include="Views\Shared\_dancemodal.cshtml" />
+    <Content Include="Views\Song\Artist.cshtml" />
     <None Include="Web.m4d.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
