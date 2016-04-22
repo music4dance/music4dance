@@ -130,8 +130,7 @@ namespace m4d.ViewModels
                             new SiteMapEntry {Title = "What if I just want to search for songs on music4dance like I do on Google?", Reference = "blog/what-if-i-just-want-to-search-for-songs-on-music4dance-like-i-do-on-google/", Description="One of the things that I've had a lot of fun with is building a sophisticated search engine where..."},
                             new SiteMapEntry {Title = "Mobile First improvements to the music4dance website", Reference = "blog/mobile-first-improvements-to-the-music4dance-website/", Description="Most of the time that I use music4dance it’s on desktop computer, but I certainly want access to all of what it can do on my phone and tablet..."},
                             new SiteMapEntry {Title = "Search like Google Part II: Autocomplete, Filter by Dance Style and Sorting", Reference = "blog/search-like-google-part-ii-autocomplete-filter-by-dance-style-and-sorting", Description="Auto-complete is something everyone expects when searching..."},
-
-
+                            new SiteMapEntry {Title = "What are your favorite Prince songs for partner dancing?", Reference = "blog/what-are-your-favorite-prince-songs-for-partner-dancing", Description="I, like many, am mourning and listening to Prince's music. Over and over again..."},
                             //new SiteMapEntry {Title = "", Reference = "", Description=""},
                         }
                     },
