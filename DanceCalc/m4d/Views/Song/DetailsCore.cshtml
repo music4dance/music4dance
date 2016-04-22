@@ -38,7 +38,7 @@
         @Model.Title
         @if (!string.IsNullOrWhiteSpace(@Model.Artist))
         {
-            <small>by @Html.ActionLink(Model.Artist, "artist", "song", new { name = song.Artist }, null)</small>
+            <small>by @Html.ActionLink(Model.Artist, "artist", "song", new { name = Model.Artist }, null)</small>
         }
     </h1>
 </div>
