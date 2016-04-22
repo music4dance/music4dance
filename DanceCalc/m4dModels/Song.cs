@@ -1656,6 +1656,12 @@ namespace m4dModels
         }
         #endregion
 
+        protected override void ClearValues()
+        {
+            base.ClearValues();
+            Purchase = null;
+        }
+
         private void SetupCollections()
         {
             // TODO: Use this in constructor???  Move to SongBase???

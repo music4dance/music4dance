@@ -831,14 +831,13 @@ namespace m4dModels
             return ret.OrderBy(sp => sp.Id);
         }
 
-        protected void ClearValues()
+        protected virtual void ClearValues()
         {
             foreach (var pi in ScalarProperties)
             {
                 pi.SetValue(this, null);
             }
 
-            Purchase = null;
             TagSummary.Clean();
 
             if (DanceRatings != null)
