@@ -22,7 +22,7 @@ namespace m4dModels
 
         public static SearchServiceInfo GetInfo(string id)
         {
-            if (id == "basicb")
+            if (id == "default")
             {
                 id = DefaultId;
             }
@@ -40,7 +40,7 @@ namespace m4dModels
         {
             get
             {
-                return s_defaultId = s_defaultId ?? Environment.GetEnvironmentVariable("SEARCHINDEX") ?? "free";
+                return s_defaultId = s_defaultId ?? Environment.GetEnvironmentVariable("SEARCHINDEX") ?? "basicb";
             }
             set
             {

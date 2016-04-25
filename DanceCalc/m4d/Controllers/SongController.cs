@@ -102,7 +102,7 @@ namespace m4d.Controllers
                 dances = null;
             }
 
-            if (!string.Equals(dances, filter.Dances, StringComparison.OrdinalIgnoreCase))
+            if (dances != null && !string.Equals(dances, filter.Dances, StringComparison.OrdinalIgnoreCase))
             {
                 filter.Dances = dances;
                 filter.Page = 1;

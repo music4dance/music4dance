@@ -106,6 +106,24 @@ namespace m4dModels
         public UserQuery UserQuery => new UserQuery(User);
         public SongSort SongSort => new SongSort(SortOrder);
 
+        public IList<string> ODataSort
+        {
+            get
+            {
+                var sort = SongSort;
+
+                if (sort.Id != "Dances") return sort.OData;
+
+                var dq = DanceQuery;
+                var dids = dq.DanceIds.ToList();
+
+                if (dids.Count == 0) return null;
+
+                var order = sort.Descending ? "asc" : "desc";
+                return dids.Select(did => $"dance_{did} {order}").ToList();
+            }
+        }
+
         public bool IsLucene => string.Equals(Action.ToLower().Replace(' ', '+'), "azure+lucene", StringComparison.OrdinalIgnoreCase);
         public bool IsSimple => string.Equals(Action.ToLower().Replace(' ','+'), "azure+simple", StringComparison.OrdinalIgnoreCase);
         public bool IsAzure => Action.ToLower().StartsWith("azure",StringComparison.OrdinalIgnoreCase);

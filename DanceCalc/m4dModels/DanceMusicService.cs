@@ -1405,7 +1405,6 @@ namespace m4dModels
             {
                 count = songs.Count();
                 Trace.WriteLineIf(count != lastCount, $"Songs by user like = {songs.Count()}");
-                lastCount = count;
             }
 #endif
 
@@ -2218,9 +2217,9 @@ namespace m4dModels
                 var favorite = string.Equals(cells[3], "true", StringComparison.OrdinalIgnoreCase);
                 int count;
                 int.TryParse(cells[4], out count);
-                var created = DateTime.Now;
+                DateTime created;
                 DateTime.TryParse(cells[5], out created);
-                var modified = DateTime.Now;
+                DateTime modified;
                 DateTime.TryParse(cells[6], out modified);
 
                 var user = string.IsNullOrWhiteSpace(userName) ? null : FindUser(userName);
@@ -2483,7 +2482,7 @@ namespace m4dModels
         }
 
         // ReSharper disable once FieldCanBeMadeReadOnly.Local
-        private static Guid _guidError = new Guid("25053e8c-5f1e-441e-bd54-afdab5b1b638");
+        private static Guid s_guidError = new Guid("25053e8c-5f1e-441e-bd54-afdab5b1b638");
 
         public void RebuildUserTags(string userName, bool update, string songIds=null, SongFilter filter=null)
         {
@@ -2513,7 +2512,7 @@ namespace m4dModels
                 {
                     AdminMonitor.UpdateTask("Running Songs", c);
 
-                    if (song.SongId == _guidError)
+                    if (song.SongId == s_guidError)
                     {
                         Trace.WriteLine("This One: " + song);
                     }
@@ -2646,7 +2645,7 @@ namespace m4dModels
                 {
                     AdminMonitor.UpdateTask("Running Songs", c);
 
-                    if (song.SongId == _guidError)
+                    if (song.SongId == s_guidError)
                     {
                         Trace.WriteLine("This One: " + song);
                     }
@@ -3170,10 +3169,8 @@ namespace m4dModels
             using (var serviceClient = new SearchServiceClient(info.Name, new SearchCredentials(info.QueryKey)))
             using (var indexClient = serviceClient.Indexes.GetClient(info.Index))
             {
-                var order = filter.SongSort.OData;
-                //var odataFilter = filter.SongSort.Numeric ? $"{filter.SongSort.Id} ne null" : null;
+                var order = filter.ODataSort;
                 var odataFilter = filter.SongSort.Numeric ? $"({filter.SongSort.Id} ne null) and ({filter.SongSort.Id} ne 0)" : null;
-                //var order = new List<string> {"Tempo desc"};
                 var dq = filter.DanceQuery;
                 if (dq.Dances.Count() == 1)
                 {
@@ -3192,11 +3189,7 @@ namespace m4dModels
                 };
 
                 var response = indexClient.Documents.Search(filter.SearchString, sp);
-                var songs = new List<SongDetails>();
-                foreach (var d in response.Results)
-                {
-                    songs.Add(new SongDetails(d.Document));
-                }
+                var songs = response.Results.Select(d => new SongDetails(d.Document)).ToList();
                 return new SearchResults(filter.SearchString, songs.Count,response.Count ?? -1,filter.Page??1,pageSize,songs);
             }
         }
