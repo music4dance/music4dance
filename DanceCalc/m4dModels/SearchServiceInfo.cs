@@ -22,7 +22,7 @@ namespace m4dModels
 
         public static SearchServiceInfo GetInfo(string id)
         {
-            if (id == "default")
+            if (id == "basicb")
             {
                 id = DefaultId;
             }

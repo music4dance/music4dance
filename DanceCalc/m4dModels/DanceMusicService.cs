@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Data.Entity;
 using System.Diagnostics;
 using System.Linq;
-using System.Net;
 using DanceLibrary;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.EntityFramework;
@@ -3011,7 +3010,7 @@ namespace m4dModels
                     serviceClient.Indexes.Delete(info.Index);
                 }
 
-                var index = SongIndexed.Index;
+                var index = SongDetails.GetIndex(this);
                 index.Name = info.Index;
 
                 serviceClient.Indexes.Create(index);
@@ -3042,12 +3041,14 @@ namespace m4dModels
             if (filter == null) filter = new SongFilter();
             var songlist = TakeTail(BuildSongList(filter), from, max);
 
-            var songs = new List<SongIndexed>();
-            var deleted = new List<SongIndexed>();
+            var songs = new List<Document>();
+            var deleted = new List<Document>();
 
             var lastTouched = DateTime.MinValue;
 
             var info = SearchServiceInfo.GetInfo(id);
+
+            var idField = new List<string> {"SongId"};
 
             using (var serviceClient = new SearchServiceClient(info.Name, new SearchCredentials(info.AdminKey)))
             using (var indexClient = serviceClient.Indexes.GetClient(info.Index))
@@ -3056,14 +3057,14 @@ namespace m4dModels
                 var exists = true;
                 foreach (var song in songlist)
                 {
-                    SongIndexed doc = null;
+                    Document doc = null;
                     lastTouched = song.Modified;
 
                     if (!rebuild || exists)
                     {
                         try
                         {
-                            doc = indexClient.Documents.Get<SongIndexed>(song.SongId.ToString());
+                            doc = indexClient.Documents.Get(song.SongId.ToString(),idField);
                         }
                         catch (Microsoft.Rest.Azure.CloudException e)
                         {
@@ -3072,7 +3073,7 @@ namespace m4dModels
                         }
                     }
 
-                    var si = new SongIndexed(new SongDetails(song));
+                    var si = new SongDetails(song).GetIndexDocument();
                     if (doc != null)
                     {
                         if (rebuild)
@@ -3103,7 +3104,7 @@ namespace m4dModels
 
                     foreach (var song in songlist)
                     {
-                        deleted.Add(new SongIndexed(new SongDetails(song)));
+                        deleted.Add(new SongDetails(song).GetIndexDocument());
                         if (lastTouched < song.Modified)
                         {
                             lastTouched = song.Modified;
@@ -3190,8 +3191,12 @@ namespace m4dModels
                     OrderBy = order
                 };
 
-                var response = indexClient.Documents.Search<SongIndexed>(filter.SearchString, sp);
-                var songs = response.Results.Select(si => Songs.Find(si.Document.SongId)).Cast<SongBase>().ToList();
+                var response = indexClient.Documents.Search(filter.SearchString, sp);
+                var songs = new List<SongDetails>();
+                foreach (var d in response.Results)
+                {
+                    songs.Add(new SongDetails(d.Document));
+                }
                 return new SearchResults(filter.SearchString, songs.Count,response.Count ?? -1,filter.Page??1,pageSize,songs);
             }
         }
@@ -3205,14 +3210,14 @@ namespace m4dModels
             {
                 var sp = new SuggestParameters {Top=50};
           
-                var response = indexClient.Documents.Suggest<SongIndexed>(query, "songs", sp);
+                var response = indexClient.Documents.Suggest(query, "songs", sp);
 
                 var comp = new SuggestionComparer();
                 //var ret = new SuggestionList {Query = "query", Suggestions = new List<Suggestion>()};
                 var ret = response.Results.Select(result => new Suggestion
                 {
                     Value = result.Text,
-                    Data = result.Document.SongId.ToString()
+                    Data = result.Document["SongId"] as string
                 }).Distinct(comp).Take(10).ToList();
 
                return new SuggestionList

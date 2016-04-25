@@ -30,8 +30,9 @@ namespace m4dModels.Tests
             foreach (var song in songs)
             {
                 var sd = new SongDetails(song);
-                var result = new SongIndexed(sd);
+                var result = sd.GetIndexDocument();
                 Assert.IsNotNull(result);
+                Assert.AreEqual(sd.SongId.ToString(),result["SongId"]);
             }
         }
     }

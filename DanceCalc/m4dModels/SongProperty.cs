@@ -39,7 +39,7 @@ namespace m4dModels
                 }
                 if (value.Contains("\\<EQ>\\"))
                 {
-                    value.Replace("\\<EQ>\\", "=");
+                    value = value.Replace("\\<EQ>\\", "=");
                 }
                 if (string.Equals(name, SongBase.TempoField))
                 {
@@ -227,14 +227,13 @@ namespace m4dModels
             var sep = string.Empty;
             foreach (var sp in properties)
             {
-                if (actions == null || !actions.Contains(sp.Name))
-                {
-                    var p = sp.ToString();
+                if (actions != null && actions.Contains(sp.Name)) continue;
 
-                    sb.AppendFormat("{0}{1}", sep, p);
+                var p = sp.ToString();
 
-                    sep = "\t";
-                }
+                sb.AppendFormat("{0}{1}", sep, p);
+
+                sep = "\t";
             }
 
             return sb.ToString();
@@ -261,16 +260,9 @@ namespace m4dModels
 
         public static string SerializeValue(object o)
         {
-            if (o == null)
-            {
-                return null;
-            }
-            else
-            {
-                return o.ToString();
-            }
+            return o?.ToString();
         }
-        
+
         #endregion
 
         #region Static Helpers

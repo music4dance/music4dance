@@ -121,7 +121,6 @@
     <Compile Include="ServiceType.cs" />
     <Compile Include="SongCounts.cs" />
     <Compile Include="SongFilterConverter.cs" />
-    <Compile Include="SongIndexed.cs" />
     <Compile Include="SongPropertyMerge.cs" />
     <Compile Include="SongSort.cs" />
     <Compile Include="SpotifyService.cs" />

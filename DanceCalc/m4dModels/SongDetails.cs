@@ -9,6 +9,7 @@ using System.Runtime.Serialization.Json;
 using System.Text;
 using System.Text.RegularExpressions;
 using DanceLibrary;
+using Microsoft.Azure.Search.Models;
 
 namespace m4dModels
 {
@@ -1349,6 +1350,142 @@ namespace m4dModels
         {
             return tracks.Where(track => track.Duration.HasValue && Math.Abs(track.Duration.Value - duration) < epsilon).ToList();
         }
+
+        #endregion
+
+        #region Index
+        public static Index GetIndex(DanceMusicService dms)
+        {
+            if (s_index != null) return s_index;
+
+            var fields = new List<Field>
+            {
+                new Field("SongId", DataType.String) {IsKey = true},
+                new Field("Title", DataType.String) {IsSearchable = true, IsSortable = true, IsFilterable = true, IsFacetable = true},
+                new Field("Artist", DataType.String) {IsSearchable = true, IsSortable = true, IsFilterable = false, IsFacetable = false},
+                new Field("Albums", DataType.Collection(DataType.String)) {IsSearchable = true, IsSortable = false, IsFilterable = true, IsFacetable = true},
+                new Field("Users", DataType.Collection(DataType.String)) {IsSearchable = true, IsSortable = false, IsFilterable = true, IsFacetable = true},
+                new Field("Created", DataType.DateTimeOffset) {IsSearchable = false, IsSortable = true, IsFilterable = true, IsFacetable = true},
+                new Field("Modified", DataType.DateTimeOffset) {IsSearchable = false, IsSortable = true, IsFilterable = true, IsFacetable = true},
+                new Field("Tempo", DataType.Double) {IsSearchable = false, IsSortable = true, IsFilterable = true, IsFacetable = true},
+                new Field("Length", DataType.Int32) {IsSearchable = false, IsSortable = true, IsFilterable = true, IsFacetable = true},
+                new Field("Beat", DataType.Double) {IsSearchable = false, IsSortable = true, IsFilterable = true, IsFacetable = true},
+                new Field("Energy", DataType.Double) {IsSearchable = false, IsSortable = true, IsFilterable = true, IsFacetable = true},
+                new Field("Mood", DataType.Double) {IsSearchable = false, IsSortable = true, IsFilterable = true, IsFacetable = true},
+                new Field("Purchase", DataType.Collection(DataType.String)) {IsSearchable = true, IsSortable = false, IsFilterable = true, IsFacetable = true},
+                new Field("DanceTags", DataType.Collection(DataType.String)) {IsSearchable = true, IsSortable = false, IsFilterable = true, IsFacetable = true},
+                new Field("DanceTagsInferred", DataType.Collection(DataType.String)) {IsSearchable = true, IsSortable = false, IsFilterable = true, IsFacetable = true},
+                new Field("GenreTags", DataType.Collection(DataType.String)) {IsSearchable = true, IsSortable = false, IsFilterable = true, IsFacetable = true},
+                new Field("StyleTags", DataType.Collection(DataType.String)) {IsSearchable = true, IsSortable = false, IsFilterable = true, IsFacetable = true},
+                new Field("TempoTags", DataType.Collection(DataType.String)) {IsSearchable = true, IsSortable = false, IsFilterable = true, IsFacetable = true},
+                new Field("OtherTags", DataType.Collection(DataType.String)) {IsSearchable = true, IsSortable = false, IsFilterable = true, IsFacetable = true},
+                new Field("Sample", DataType.String) {IsSearchable = false, IsSortable = false, IsFilterable = false, IsFacetable = false},
+                new Field("Properties", DataType.String) {IsSearchable = false, IsSortable = false, IsFilterable = false, IsFacetable = false, IsRetrievable = true},
+            };
+
+            var fsc = SongCounts.GetFlatSongCounts(dms);
+            fields.AddRange(
+                from sc in fsc
+                where sc.SongCount != 0 && sc.DanceId != "ALL"
+                select new Field(BuildDanceFieldName(sc.DanceId), DataType.Int32) { IsSearchable = false, IsSortable = true, IsFilterable = false, IsFacetable = false, IsRetrievable = false });
+
+            s_index = new Index
+            {
+                Name = "songs",
+                Fields = fields.ToArray(),
+                Suggesters = new[]
+                {
+                    new Suggester("songs",SuggesterSearchMode.AnalyzingInfixMatching, "Title", "Artist", "Albums", "DanceTags", "Purchase", "GenreTags", "TempoTags", "StyleTags", "OtherTags")
+                }
+            };
+
+            return s_index;
+        }
+        private static Index s_index;
+
+        public Document GetIndexDocument()
+        {
+            // Set up the purchase flags
+            var purchase = string.IsNullOrWhiteSpace(Purchase) ? new List<string>() : Purchase.ToCharArray().Select(c => MusicService.GetService(c).Name).ToList();
+            if (HasSample) purchase.Add("Sample");
+            if (HasEchoNest) purchase.Add("EchoNest");
+
+            // And the tags
+            var genre = TagSummary.GetTagSet("Music");
+            var other = TagSummary.GetTagSet("Other");
+            var tempo = TagSummary.GetTagSet("Tempo");
+            var style = new HashSet<string>();
+
+            var dance = TagSummary.GetTagSet("Dance");
+            var inferred = new HashSet<string>();
+
+            foreach (var dr in DanceRatings)
+            {
+                var d = Dances.Instance.DanceFromId(dr.DanceId).Name.ToLower();
+                if (!dance.Contains(d))
+                {
+                    inferred.Add(d);
+                }
+                other.UnionWith(dr.TagSummary.GetTagSet("Other"));
+                tempo.UnionWith(dr.TagSummary.GetTagSet("Tempo"));
+                style.UnionWith(dr.TagSummary.GetTagSet("Style"));
+            }
+
+            var doc = new Document
+            {
+                ["SongId"] = SongId.ToString(),
+                [TitleField] = Title,
+                [ArtistField] = Artist,
+                [LengthField] = Length,
+                ["Beat"] = Danceability,
+                ["Energy"] = Energy,
+                ["Mood"] = Valence,
+                [TempoField] = (double?) Tempo,
+                ["Created"] = Created,
+                ["Modified"] = Modified,
+                [SampleField] = Sample,
+                [PurchaseField] = purchase.ToArray(),
+                ["Albums"] = Albums.Select(ad => ad.Name).ToArray(),
+                ["Users"] = ModifiedBy.Select(m => m.UserName).ToArray(),
+                ["DanceTags"] = dance.ToArray(),
+                ["DanceTagsInferred"] = inferred.ToArray(),
+                ["GenreTags"] = genre.ToArray(),
+                ["TempoTags"] = tempo.ToArray(),
+                ["StyleTags"] = style.ToArray(),
+                ["OtherTags"] = other.ToArray(),
+                ["Properties"] = SongProperty.Serialize(OrderedProperties, null)
+            };
+
+            // Set the dance ratings
+            foreach (var dr in DanceRatings)
+            {
+
+                doc[BuildDanceFieldName(dr.DanceId)] = dr.Weight;
+            }
+
+            return doc;
+        }
+
+        public SongDetails(Document d)
+        {
+            var s = d["Properties"] as string;
+            var sid = d["SongId"] as string;
+            if (s == null || sid == null) throw new ArgumentOutOfRangeException(nameof(d));
+
+            Guid id;
+            if (!Guid.TryParse(sid, out id)) throw new ArgumentOutOfRangeException(nameof(d));
+            SongId = id;
+
+            var properties = new List<SongProperty>();
+            SongProperty.Load(SongId, s, properties);
+            Load(SongId, properties);
+        }
+
+        private static string BuildDanceFieldName(string id)
+        {
+            return $"dance_{id}";
+        }
+
 
         #endregion
     }
