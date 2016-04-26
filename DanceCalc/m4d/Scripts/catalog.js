@@ -1,12 +1,13 @@
 ﻿$(document).ready(function () {
     // Handling for Dance selector
     $('.search-panel .dropdown-menu').find('a').click(function (e) {
+        // Testing to see if somehow we screwed a hash algorithm...
         e.preventDefault();
         var param = $(this).attr('href').replace('#', '');
         var name = $(this).text();
         $('.search-panel span#dance_selector').text(name);
 
-        $('.input-group #dances').val((param === 'ALL') ? '' : param);
+        $('.input-group #dances').val(param);
 
         $('#search').submit();
     });

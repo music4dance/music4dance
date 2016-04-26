@@ -124,6 +124,54 @@ namespace m4dModels
             }
         }
 
+        public string GetTagFilter(DanceMusicService dms)
+        {
+            var tags = new TagList(Tags);
+
+            if (tags.IsEmpty) return null;
+
+            var tlInclude = new TagList(Tags);
+            var tlExclude = new TagList();
+
+            if (tlInclude.IsQualified)
+            {
+                var temp = tlInclude;
+                tlInclude = temp.ExtractAdd();
+                tlExclude = temp.ExtractRemove();
+            }
+
+            // We're accepting either a straight include list of tags or a qualified list (+/- for include/exlude)
+            // TODO: For now this is going to be explicit (i&i&!e*!e) - do we need a stronger expression syntax at this level
+            //  or can we do some kind of top level OR of queries?
+
+            var rInclude = new TagList(dms.GetTagRings(tlInclude).Select(tt => tt.Key));
+            var rExclude = new TagList(dms.GetTagRings(tlExclude).Select(tt => tt.Key));
+
+            var sb = new StringBuilder();
+
+            foreach (var tp in s_tagClasses)
+            {
+                HandleFilterClass(sb, rInclude, tp.Key, tp.Value, "{0}Tags/any(t: t eq '{1}')");
+                HandleFilterClass(sb, rExclude, tp.Key, tp.Value, "{0}Tags/all(t: t ne '{1}')");
+            }
+
+            return sb.ToString();
+        }
+
+        private static void HandleFilterClass(StringBuilder sb, TagList tags, string tagClass, string tagName, string format)
+        {
+            var filtered = tags.Filter(tagClass);
+            if (filtered.IsEmpty) return;
+
+            foreach (var t in filtered.StripType())
+            {
+                if (sb.Length > 0) sb.Append(" and ");
+                sb.AppendFormat(format, tagName, t.ToLower());
+            }
+        }
+
+        private static readonly Dictionary<string, string> s_tagClasses = new Dictionary<string,string> { { "Music" , "Genre"} , { "Style", "Style"} , { "Tempo", "Tempo" } , { "Other", "Other" }  };
+
         public bool IsLucene => string.Equals(Action.ToLower().Replace(' ', '+'), "azure+lucene", StringComparison.OrdinalIgnoreCase);
         public bool IsSimple => string.Equals(Action.ToLower().Replace(' ','+'), "azure+simple", StringComparison.OrdinalIgnoreCase);
         public bool IsAzure => Action.ToLower().StartsWith("azure",StringComparison.OrdinalIgnoreCase);
@@ -189,7 +237,7 @@ namespace m4dModels
         {
             get
             {
-                return !PropertyInfo.Where(pi => pi.Name != "Page").Select(t => t.GetValue(this)).Where((o, i) => o != null && !IsAltDefault(o, i)).Any();
+                return !PropertyInfo.Where(pi => pi.Name != "Page" && pi.Name != "Action").Select(t => t.GetValue(this)).Where((o, i) => o != null && !IsAltDefault(o, i)).Any();
             }
         }
 

@@ -3177,6 +3177,12 @@ namespace m4dModels
                     odataFilter = (odataFilter == null) ? "" : odataFilter + " and ";
                     odataFilter += $"DanceTags/any(t: t eq '{dq.Dances.First().Name.ToLower()}')";
                 }
+                var tags = filter.GetTagFilter(this);
+                if (tags != null)
+                {
+                    odataFilter = (odataFilter == null) ? "" : odataFilter + " and ";
+                    odataFilter += tags;
+                }
 
                 var sp = new SearchParameters
                 {

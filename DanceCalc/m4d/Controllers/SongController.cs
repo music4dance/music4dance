@@ -263,7 +263,7 @@ namespace m4d.Controllers
         public ActionResult FilterUser(string user, SongFilter filter)
         {
             filter.User = string.IsNullOrWhiteSpace(user) ? null : user;
-            return DoIndex(filter);
+            return filter.IsAzure ? DoAzureSearch(filter) : DoIndex(filter);
         }
 
         [AllowAnonymous]
@@ -279,7 +279,7 @@ namespace m4d.Controllers
 
             filter.Purchase = purchase;
             filter.Page = 1;
-            return DoIndex(filter);
+            return filter.IsAzure ? DoAzureSearch(filter) : DoIndex(filter);
         }
 
         [AllowAnonymous]
@@ -292,7 +292,7 @@ namespace m4d.Controllers
             filter.TempoMax = tempoMax;
             filter.Page = 1;
 
-            return DoIndex(filter);
+            return filter.IsAzure ? DoAzureSearch(filter) : DoIndex(filter);
         }
 
         //
@@ -339,7 +339,7 @@ namespace m4d.Controllers
             var list = new TagList(tags).AddMissingQualifier('+');
             filter.Tags = list.ToString();
 
-            return DoIndex(filter);
+            return filter.IsAzure ? DoAzureSearch(filter) : DoIndex(filter);
         }
 
         [AllowAnonymous]
@@ -354,7 +354,7 @@ namespace m4d.Controllers
             filter.Tags = ret.ToString();
             filter.Page = null;
 
-            return DoIndex(filter);
+            return filter.IsAzure ? DoAzureSearch(filter) : DoIndex( filter);
         }
 
         [AllowAnonymous]
@@ -366,7 +366,7 @@ namespace m4d.Controllers
             filter.Tags = ret.ToString();
             filter.Page = null;
 
-            return DoIndex(filter);
+            return filter.IsAzure ? DoAzureSearch(filter) : DoIndex(filter);
         }
 
         //

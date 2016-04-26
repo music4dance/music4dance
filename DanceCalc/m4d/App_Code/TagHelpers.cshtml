@@ -29,43 +29,37 @@
     string urlFiltered = null;
     if (filter != null)
     {
-        if (!filter.IsAzure)
+        var dance = Dances.Instance.DanceFromId(filter.Dances);
+        if (dance != null)
         {
-            var dance = Dances.Instance.DanceFromId(filter.Dances);
-            if (dance != null)
-            {
-                var filterDance = new SongFilter {Dances = filter.Dances};
-                danceName = dance.Name;
-                urlDance = urlBase + "&filter=" + WebUtility.UrlEncode(filterDance.ToString());
-            }
+            var filterDance = new SongFilter {Action=filter.Action, Dances = filter.Dances};
+            danceName = dance.Name;
+            urlDance = urlBase + "&filter=" + WebUtility.UrlEncode(filterDance.ToString());
+        }
 
-            if (!filter.IsEmpty)
-            {
-                urlFiltered = urlBase + "&filter=" + WebUtility.UrlEncode(filter.ToString());
-            }
+        if (!filter.IsEmptyPaged)
+        {
+            urlFiltered = urlBase + "&filter=" + WebUtility.UrlEncode(filter.ToString());
         }
     }
     else
     {
         filter = new SongFilter();
     }
+    if (filter.IsAzure)
+    {
+        url += "&filter=" + WebUtility.UrlEncode(filter.Action);
+    }
 
     var tc = tag.TagClass;
-    if (tc == null)
-    {
-        tc = "other";
-    }
-    else
-    {
-        tc = tc.ToLower();
-    }
+    tc = tc?.ToLower() ?? "other";
 
     var img = "/Content/" + TagType.ClassToName(tc) + "-50.png";
     var title = (song == null) ? string.Empty : song.Title;
     var artist = (song == null) ? string.Empty : song.Artist;
 
     var label = "label tag-label";
-    if (cloudSize != 0.0f)
+    if (Math.Abs(cloudSize) > .01)
     {
         label = "btn tag-text tag-cloud " + size;
     }
