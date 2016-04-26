@@ -320,158 +320,148 @@
                     }
                 </td>
                 @if (isAdmin)
+                {
+                    var id = "Selected-" + item.SongId;
+                    if (canSort)
                     {
-                        var id = "Selected-" + item.SongId;
-                        if (canSort)
-                        {
-                            <td><input name="selectedSongs" id="@id" type="checkbox" value="@item.SongId" /></td>
-                            }
-                        <td><a href="/song/edit?id=@item.SongId&filter=@filter" role="button" class="btn btn-link btn-sm"><span class="glyphicon glyphicon-pencil"></span></a></td>
+                        <td><input name="selectedSongs" id="@id" type="checkbox" value="@item.SongId" /></td>
                     }
+                    <td><a href="/song/edit?id=@item.SongId&filter=@filter" role="button" class="btn btn-link btn-sm"><span class="glyphicon glyphicon-pencil"></span></a></td>
+                }
 
-                    <td>
-                        @Html.ActionLink(item.Title, "details", "song", new { id = item.SongId, filter }, null)
-                        @if (tempoString != null)
+                <td>
+                    @Html.ActionLink(item.Title, "details", "song", new { id = item.SongId, filter }, null)
+                    @if (tempoString != null)
                     {
                             <small class="hidden-sm hidden-md hidden-lg">(@Html.Raw(tempoString) BPM)</small>
-                        }
-                        <span class="visible-xs"> - @Artist(item)</span>
-                    </td>
+                    }
+                    <span class="visible-xs"> - @Artist(item)</span>
+                </td>
 
-                    @if (!hideArtist)
-                    {
-                        <td class="hidden-xs">@Artist(item)</td>
-                    }
+                @if (!hideArtist)
+                {
+                    <td class="hidden-xs">@Artist(item)</td>
+                }
 
-                    @if (albumName == null)
-                    {
-                        @*<td class="hidden-xs">
-                            @if (!string.IsNullOrWhiteSpace(item.AlbumName))
-                            {
-                                @Html.ActionLink(item.AlbumName, "album", "song", new { title = item.AlbumName }, null)
-                            }
-                        </td>*@
-                    }
-                    else
-                    {
-                        <td class="hidden-xs">
-                            @{
-                                var track = sd.TrackFromAlbum(albumName);
-                                if (track > 0)
-                                {
-                                    @track.ToString()
-                                }
-                            }
-                        </td>
-                    }
-                    <td class="hidden-xs">
-                        @if (tempoString != null)
+                @if (albumName == null)
+                {
+                    @*<td class="hidden-xs">
+                        @if (!string.IsNullOrWhiteSpace(item.AlbumName))
                         {
-                            @Html.Raw(tempoString)
+                            @Html.ActionLink(item.AlbumName, "album", "song", new { title = item.AlbumName }, null)
+                        }
+                    </td>*@
+                }
+                else
+                {
+                    <td class="hidden-xs">
+                        @{
+                            var track = sd.TrackFromAlbum(albumName);
+                            if (track > 0)
+                            {
+                                @track.ToString()
+                            }
                         }
                     </td>
-                    @if (showLength)
+                }
+                <td class="hidden-xs">
+                    @if (tempoString != null)
                     {
-                        <td class="hidden-xs">
-                            @if (item.Length != null)
-                            {
-                                @((new SongDuration(item.Length.Value)).ToString());
-                            }
-                        </td>
+                        @Html.Raw(tempoString)
                     }
+                </td>
+                @if (showLength)
+                {
                     <td class="hidden-xs">
-                        @EchoHelper.EchoValues(item)
+                        @if (item.Length != null)
+                        {
+                            @((new SongDuration(item.Length.Value)).ToString());
+                        }
                     </td>
-                    @if (!hideDances)
-                    {
-                        <td>
-                            <span class="visible-xs">
-                                @EchoHelper.EchoValues(item)
-                            </span>
-                            @if (scaledDances != null)
-                            {
-                                const string bstring = "<br />";
-                                foreach (var ditem in scaledDances)
-                                {
-                                    // TODO: Dance name pulled from the danceMap doesn't require a db lookup - is there a way
-                                    //  to make the more intuitive ditem.Dance.Name work without a lookup???
-                                    var badge = SongCounts.GetRatingBadge(danceMap, ditem.DanceId, ditem.Weight);
-                                    var name = danceMap[ditem.DanceId].DanceName;
-                                    var label = name;
-                                    var tags = string.Empty;
-                                    if (!string.IsNullOrWhiteSpace(ditem.TagSummary.Summary))
-                                    {
-                                        label = label + " <span class='glyphicon glyphicon-asterisk' aria-hidden='true'></span>";
-                                        foreach (var dtitem in ditem.TagSummary.Tags)
-                                        {
-                                            tags += TagHelpers.TagModalButton(dtitem, filter, item); //"<span class=\"label label-" + dtitem.TagClass.ToLower() + "\">" + dtitem.TagValue + "</span> ";
-                                        }
-                                    }
-                                    var hasDance = danceQuery.HasDance(ditem.DanceId);
-                                    var filterT = new SongFilter(filter.ToString());
-                                    if (hasDance ? (numDances > 1) : (numDances > 0))
-                                    {
-                                        filterT.Action = "Advanced";
-                                    }
-                                    //var content = MvcHtmlString.Create(
-                                    //    Html.ActionLink(name + " dance page...", name, "dances") +
-                                    //    (azureSearch ? string.Empty :
-                                    //        ((!filter.IsEmpty && isExclusive && !hasDance ? bstring + Html.ActionLink("Filter list to songs tagged as " + name + "...", "search", "song", new {dances = danceQuery.AddDance(ditem.DanceId).Query, filter}, null) : string.Empty) +
-                                    //         (!filter.IsEmpty && !isExclusive && !hasDance ? bstring + Html.ActionLink("Expand list to included songs tagged as " + name + "...", "search", "song", new {dances = danceQuery.AddDance(ditem.DanceId).Query, filter}, null) : string.Empty))) +
-                                    //    bstring + Html.ActionLink("List all " + name + " songs...", "search", "song", new {dances = ditem.DanceId}, null) +
-                                    //    bstring + "<a href=\"https://www.music4dance.net/blog/tag-filtering\">Help</a>" +
-                                    //    tags);
-
-                                    var urlFiltered = string.Empty;
-                                    var urlDance = string.Empty;
-                                    var url = "/song/search?dances=" + ditem.DanceId;
-
-                                    if (!azureSearch && !filter.IsEmpty && !hasDance)
-                                    {
-                                        var dq = danceQuery.AddDance(ditem.DanceId);
-                                        if (isExclusive)
-                                        {
-                                            urlFiltered = "/song/search?dances=" + dq.MakeExclusive().Query + "&filter=" + filterT;
-                                        }
-                                        if (isInclusive)
-                                        {
-                                            urlDance = "/song/search?dances=" + dq.MakeInclusive().Query + "&filter=" + filterT;
-                                        }
-                                    }
-
-                                    <a href='#' class='rating @badge label label-music' role='button'
-                                       data-toggle='modal' data-target='#danceModal' aria-expanded='false'
-                                       data-title='@item.Title' data-artist='@item.Artist' data-dance-name='@name'
-                                       data-filtered-url="@urlFiltered" data-dance-url='@urlDance' data-url='@url'
-                                       data-tags='@MvcHtmlString.Create(tags)'
-                                       >@Html.Raw(label)</a>
-                                }
-                            }
-                            <span class="visible-xs">@Tags(item, filter)</span>
-                        </td>
-                    }
-                    <td class="hidden-xs">@Tags(item, filter)</td>
-                    @if (hideDances)
-                    {
-                        <td class="visible-xs">
+                }
+                <td class="hidden-xs">
+                    @EchoHelper.EchoValues(item)
+                </td>
+                @if (!hideDances)
+                {
+                    <td>
+                        <span class="visible-xs">
                             @EchoHelper.EchoValues(item)
-                            @Tags(item, filter)
-                        </td>
-                    }
+                        </span>
+                        @if (scaledDances != null)
+                        {
+                            foreach (var ditem in scaledDances)
+                            {
+                                // TODO: Dance name pulled from the danceMap doesn't require a db lookup - is there a way
+                                //  to make the more intuitive ditem.Dance.Name work without a lookup???
+                                var badge = SongCounts.GetRatingBadge(danceMap, ditem.DanceId, ditem.Weight);
+                                var name = danceMap[ditem.DanceId].DanceName;
+                                var label = name;
+                                var tags = string.Empty;
+                                if (!string.IsNullOrWhiteSpace(ditem.TagSummary.Summary))
+                                {
+                                    label = label + " <span class='glyphicon glyphicon-asterisk' aria-hidden='true'></span>";
+                                    foreach (var dtitem in ditem.TagSummary.Tags)
+                                    {
+                                        tags += TagHelpers.TagModalButton(dtitem, filter, item); //"<span class=\"label label-" + dtitem.TagClass.ToLower() + "\">" + dtitem.TagValue + "</span> ";
+                                    }
+                                }
+                                var hasDance = danceQuery.HasDance(ditem.DanceId);
+                                var filterT = new SongFilter(filter.ToString());
+                                if (hasDance ? (numDances > 1) : (numDances > 0))
+                                {
+                                    filterT.Action = "Advanced";
+                                }
 
-                    @if (isAdmin)
-                    {
-                        var play = item.Sample != null ? (item.Sample != "." ? "P" : "p") : string.Empty;
-                        var echo = item.Danceability != null ? (float.IsNaN(item.Danceability.Value) ? "e" : "E") : string.Empty;
-                        <td>@(item.Purchase + play + echo)</td>
-                    }
+                                var urlFiltered = string.Empty;
+                                var urlDance = string.Empty;
+                                var url = "/song/search?dances=" + ditem.DanceId;
 
-                    @if (showDate)
-                    {
-                        @TimeHelper(item,songOrder)
-                    }
+                                if (!azureSearch && !filter.IsEmpty && !hasDance)
+                                {
+                                    var dq = danceQuery.AddDance(ditem.DanceId);
+                                    if (isExclusive)
+                                    {
+                                        urlFiltered = "/song/search?dances=" + dq.MakeExclusive().Query + "&filter=" + filterT;
+                                    }
+                                    if (isInclusive)
+                                    {
+                                        urlDance = "/song/search?dances=" + dq.MakeInclusive().Query + "&filter=" + filterT;
+                                    }
+                                }
 
-                </tr>
+                                <a href='#' class='rating @badge label label-music' role='button'
+                                    data-toggle='modal' data-target='#danceModal' aria-expanded='false'
+                                    data-title='@item.Title' data-artist='@item.Artist' data-dance-name='@name'
+                                    data-filtered-url="@urlFiltered" data-dance-url='@urlDance' data-url='@url'
+                                    data-tags='@MvcHtmlString.Create(tags)'
+                                    >@Html.Raw(label)</a>
+                            }
+                        }
+                        <span class="visible-xs">@Tags(item, filter)</span>
+                    </td>
+                }
+                <td class="hidden-xs">@Tags(item, filter)</td>
+                @if (hideDances)
+                {
+                    <td class="visible-xs">
+                        @EchoHelper.EchoValues(item)
+                        @Tags(item, filter)
+                    </td>
+                }
+
+                @if (isAdmin)
+                {
+                    var play = item.Sample != null ? (item.Sample != "." ? "P" : "p") : string.Empty;
+                    var echo = item.Danceability != null ? (float.IsNaN(item.Danceability.Value) ? "e" : "E") : string.Empty;
+                    <td>@(item.Purchase + play + echo)</td>
+                }
+
+                @if (showDate)
+                {
+                    @TimeHelper(item,songOrder)
+                }
+            </tr>
             }
         }
     </tbody>
