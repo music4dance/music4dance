@@ -190,6 +190,32 @@ namespace m4dModels
             return SwapUser(user, "me");
         }
 
+        public string ODataPurchase
+        {
+            get
+            {
+                var purch = Purchase;
+                if (string.IsNullOrWhiteSpace(purch)) return null;
+
+                var not = "";
+                if (purch.StartsWith("!"))
+                {
+                    not = "not ";
+                    purch = purch.Substring(1);
+                }
+
+                var services = purch.ToCharArray().Select(c => MusicService.GetService(c).Name);
+
+                var sb = new StringBuilder();
+                foreach (var s in services)
+                {
+                    if (sb.Length > 0) sb.Append(" or ");
+                    sb.AppendFormat("Purchase/any(t: t eq '{0}')", s);
+                }
+
+                return $"{not}({sb})";
+            }
+        }
 
         public override string ToString()
         {

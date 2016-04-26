@@ -3178,6 +3178,22 @@ namespace m4dModels
                     odataFilter = ((odataFilter == null) ? "" : odataFilter + " and ") + danceFilter;
                 }
 
+                if (filter.TempoMin.HasValue)
+                {
+                    odataFilter = ((odataFilter == null) ? "" : odataFilter + " and ") + $"(Tempo ge {filter.TempoMin})";
+                }
+
+                if (filter.TempoMax.HasValue)
+                {
+                    odataFilter = ((odataFilter == null) ? "" : odataFilter + " and ") + $"(Tempo lt {filter.TempoMax})";
+                }
+
+                var purchaseFilter = filter.ODataPurchase;
+                if (purchaseFilter != null)
+                {
+                    odataFilter = ((odataFilter == null) ? "" : odataFilter + " and ") + purchaseFilter;
+                }
+
                 var sp = new SearchParameters
                 {
                     QueryType = filter.IsSimple ? QueryType.Simple : QueryType.Full,
