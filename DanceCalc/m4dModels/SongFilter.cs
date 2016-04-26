@@ -172,12 +172,13 @@ namespace m4dModels
 
         private static readonly Dictionary<string, string> s_tagClasses = new Dictionary<string,string> { { "Music" , "Genre"} , { "Style", "Style"} , { "Tempo", "Tempo" } , { "Other", "Other" }  };
 
-        public bool IsLucene => string.Equals(Action.ToLower().Replace(' ', '+'), "azure+lucene", StringComparison.OrdinalIgnoreCase);
         public bool IsSimple => string.Equals(Action.ToLower().Replace(' ','+'), "azure+simple", StringComparison.OrdinalIgnoreCase);
+        public bool IsAdvanced => string.Equals(Action.ToLower().Replace(' ', '+'), "azure+advanced", StringComparison.OrdinalIgnoreCase) || string.Equals(Action,"advanced", StringComparison.OrdinalIgnoreCase);
+        public bool IsLucene => string.Equals(Action.ToLower().Replace(' ', '+'), "azure+lucene", StringComparison.OrdinalIgnoreCase);
         public bool IsAzure => Action.ToLower().StartsWith("azure",StringComparison.OrdinalIgnoreCase);
 
-        public bool Advanced => !string.IsNullOrWhiteSpace(Purchase) ||
-                                TempoMin.HasValue || TempoMax.HasValue || DanceQuery.Advanced;
+        //public bool Advanced => !string.IsNullOrWhiteSpace(Purchase) ||
+        //                        TempoMin.HasValue || TempoMax.HasValue || DanceQuery.Advanced;
 
         public bool Anonymize(string user)
         {
@@ -245,12 +246,6 @@ namespace m4dModels
         {
             get
             {
-                // First pull out Azure Search (we'll figure out how to integrate this better)
-                if (IsAzure)
-                {
-                    return $"All songs matching \"{SearchString}\" + (using Azure Search {(IsSimple?"Simple" : "Lucene")} Query)";
-                }
-
                 // All [dance] songs [including the text "<SearchString>] [Available on [Groove|Amazon|ITunes|Spotify] [Including tags TI] [Excluding tags TX] [Tempo Range] [(liked|disliked|edited) by user] sorted by [Sort Order] from [High|low] to [low|high]
                 // TOOD: If we pass in context, we can have user name + we can do better stuff with the tags...
 
@@ -299,6 +294,12 @@ namespace m4dModels
 
                 sb.Append(SongSort.Description);
 
+                if (IsAzure)
+                {
+                    sb.Append(" (Beta Search)");
+                }
+
+
                 return sb.ToString().Trim();
             }
         }
@@ -306,7 +307,7 @@ namespace m4dModels
         public SongFilter ToggleMode()
         {
             var ret= new SongFilter(ToString());
-            if (ret.IsSimple) ret.Action = "azure-lucene";
+            if (ret.IsSimple) ret.Action = "azure-advanced";
             else if (ret.IsLucene) ret.Action = "azure-simple";
 
             return ret;

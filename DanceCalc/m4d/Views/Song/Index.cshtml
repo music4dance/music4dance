@@ -27,7 +27,7 @@
 
 @Html.Partial("ItemTags")
 
-@if (string.Equals(filter.Action, "advanced", StringComparison.OrdinalIgnoreCase))
+@if (filter.IsAdvanced)
 {
         // Advanced search header
         <h1>Search Results</h1>
@@ -37,7 +37,6 @@
                 @Html.ActionLink("Change Search","advancedsearchform",new {filter}, new {@class="btn btn-default"})
             </div>
         </div>
-        <hr/>
 }
 else
 {
@@ -139,7 +138,7 @@ else
                 @Html.ActionLink(dance.Name + " Page", dance.Name, "dances", new { filter, type = "I", count = 1 }, new { @class = "btn btn-default", role = "button" })
             }
         }
-        @if (!string.Equals(filter.Action, "advanced", StringComparison.OrdinalIgnoreCase))
+        @if (!filter.IsAdvanced)
         {
             if (!filter.IsEmpty)
             {
@@ -149,7 +148,7 @@ else
     </div>
 </div>
 
-@if (string.Equals(filter.Action, "advanced", StringComparison.OrdinalIgnoreCase))
+@if (filter.IsAdvanced)
     {
     <div class="row">
         @Spotify()

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data.Entity;
 using System.Diagnostics;
 using System.Linq;
+using System.Text;
 using DanceLibrary;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.EntityFramework;
@@ -3171,17 +3172,10 @@ namespace m4dModels
             {
                 var order = filter.ODataSort;
                 var odataFilter = filter.SongSort.Numeric ? $"({filter.SongSort.Id} ne null) and ({filter.SongSort.Id} ne 0)" : null;
-                var dq = filter.DanceQuery;
-                if (dq.Dances.Count() == 1)
+                var danceFilter = filter.DanceQuery.ODataFilter;
+                if (danceFilter != null)
                 {
-                    odataFilter = (odataFilter == null) ? "" : odataFilter + " and ";
-                    odataFilter += $"DanceTags/any(t: t eq '{dq.Dances.First().Name.ToLower()}')";
-                }
-                var tags = filter.GetTagFilter(this);
-                if (tags != null)
-                {
-                    odataFilter = (odataFilter == null) ? "" : odataFilter + " and ";
-                    odataFilter += tags;
+                    odataFilter = ((odataFilter == null) ? "" : odataFilter + " and ") + danceFilter;
                 }
 
                 var sp = new SearchParameters

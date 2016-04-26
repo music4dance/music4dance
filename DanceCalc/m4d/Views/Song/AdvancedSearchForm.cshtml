@@ -6,6 +6,7 @@
     {
         filter.SortOrder = string.Empty;
     }
+    var isAzure = filter.IsAzure;
 
     var danceQuery = filter.DanceQuery;
     var description = filter.Description;
@@ -57,11 +58,19 @@
 @Html.Partial("ItemTags")
 
 <div class="row">
-    <h1 class="col-xs-12" style="font-size: 22px;text-align: center">Advanced Song Search</h1>
+    <h1 class="col-xs-12" style="font-size: 22px; text-align: center">
+        Advanced Song Search
+        @if (isAzure)
+        {
+            <em> (BETA)</em>
+        }
+    </h1>
 </div>
 <div class="row">
     <p class="col-xs-4 col-xs-offset-2">@Html.ActionLink("Saved Searches", "index", "searches", new {user=@userName,filter} , new { id = "saved-search" })</p>
-    <p class="col-xs-4" style="text-align: right">@Html.ActionLink("Basic Search", "index", "song", null , new { id = "basic-search" })</p>
+    <p class="col-xs-4" style="text-align: right">
+        @(isAzure ? Html.ActionLink("Simple Search", "AzureSearch", "song", null, new {id = "basic-search"}) : Html.ActionLink("Basic Search", "index", "song", null, new {id = "basic-search"}))
+    </p>
 </div>
 <div class="row">
     <div class="col-sm-10 col-sm-offset-1 col-md-8 col-md-offset-2" style="font-size:16px; border:40px solid;">

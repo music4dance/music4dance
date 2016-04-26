@@ -100,8 +100,13 @@
                             </li>
                             <li>@Html.ActionLink("Song Library", "index", "song")
                                 <ul style="list-style-type:none" role="menu">
-                                    <li>@Html.ActionLink("Simple Search (BETA)", "azuresearch", "song")</li>
                                     <li>@Html.ActionLink("Advanced Search", "advancedsearchform", "song")</li>
+                                    <li>Search BETA
+                                        <ul>
+                                            <li style="list-style: none; margin-left: -2em">@Html.ActionLink("Simple", "azuresearch", "song")</li>
+                                            <li style="list-style:none; margin-left: -2em">@Html.ActionLink("Advanced", "advancedsearchform", "song", new { filter = new SongFilter("azure+advanced") }, null)</li>
+                                        </ul>
+                                    </li>
                                 </ul>
                             </li>
                             <li>@Html.ActionLink("Wedding", "wedding-music", "dances")</li>

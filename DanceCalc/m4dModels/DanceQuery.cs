@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data.Entity.ModelConfiguration.Conventions;
 using System.Linq;
+using System.Text;
 using DanceLibrary;
 
 namespace m4dModels
@@ -71,6 +71,38 @@ namespace m4dModels
         public DanceQuery MakeExclusive()
         {
             return IsExclusive && DanceIds.Count() > 1 ? this : new DanceQuery("AND," + Query);
+        }
+
+        public string ODataFilter
+        {
+            get
+            {
+                var dances = Dances.ToList();
+                switch (dances.Count)
+                {
+                    case 0:
+                        return null;
+                    case 1:
+                        return $"(DanceTags/any(t: t eq '{dances[0].Name.ToLower()}')" + 
+                            (IncludeInferred ? $"or  DanceTagsInferred/any(t: t eq '{dances[0].Name.ToLower()}')" : "") + ")";
+                }
+
+                var sb = new StringBuilder();
+                var con = IsExclusive ? "and" : "or";
+
+                foreach (var d in dances)
+                {
+                    if (sb.Length > 0) sb.Append($" {con} ");
+                    sb.AppendFormat("(DanceTags/any(t: t eq '{0}')", d.Name.ToLower());
+                    if (IncludeInferred)
+                    {
+                        sb.AppendFormat(" or DanceTagsInferred/any(t: t eq '{0}')", d.Name.ToLower());
+                    }
+                    sb.Append(")");
+                }
+
+                return $"({sb})";
+            }
         }
 
         public override string ToString()

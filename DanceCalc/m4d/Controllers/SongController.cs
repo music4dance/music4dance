@@ -164,7 +164,10 @@ namespace m4d.Controllers
                 filter = SongFilter.Default;
             }
 
-            filter.Action = "Advanced";
+            if (!filter.IsAdvanced)
+            {
+                filter.Action = "Advanced";
+            }
 
             if (string.IsNullOrWhiteSpace(searchString))
             {
@@ -248,7 +251,7 @@ namespace m4d.Controllers
                 return RedirectToAction("SignIn", "Account", new { ReturnUrl = "/song/advancedsearchform?filter="+filter });
             }
 
-            return DoIndex(filter);
+            return filter.IsAzure ? DoAzureSearch(filter) : DoIndex(filter);
         }
 
         [AllowAnonymous]

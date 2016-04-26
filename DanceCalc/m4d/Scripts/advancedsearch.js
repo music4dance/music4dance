@@ -9,7 +9,7 @@
         }
     };
 
-    // This is a taggable object, se notes in tagchooser.js for details
+    // This is a taggable object, see notes in tagchooser.js for details
     // ReSharper disable once InconsistentNaming
     var TagFilter = function (data, parent, include) {
         var self = this;

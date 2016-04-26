@@ -19,66 +19,75 @@
 
 @Html.Partial("_SetupFilterScript")
 
-<div class="row">
-    <h1 class="col-sm-12" style="width: auto; font-size: 22px;">Simple Search (BETA)</h1>
-</div>
+@if (!filter.IsAdvanced)
+{
+    <div class="row">
+        <h1 class="col-sm-12" style="width: auto; font-size: 22px;">Simple Search (BETA)</h1>
+    </div>
+}
 
 @Html.Partial("ItemTags")
 
-@using (Html.BeginForm("AzureSearch", "Song", FormMethod.Get, new {id = "search"}))
+@if (filter.IsAdvanced)
 {
-    var danceName = (danceQuery.All || danceQuery.Advanced) ? "All Dances" : danceQuery.Dances.First().Name;
-
+    // Advanced search header
+    <h1>Search Results (Beta)</h1>
     <div class="row">
-        <div class="input-group col-sm-12" style="padding-left: 15px">
-            <div class="input-group-btn search-panel">
-                <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" style="margin-left: 15px">
-                    <span id="dance_selector">@danceName</span> <span class="caret"></span>
-                </button>
-                <ul class="dropdown-menu" role="menu">
-                    <li id="DID_ALL"><a href="#ALL"><strong>All Dances</strong></a></li>
-                    @foreach (var sc in dances.OrderBy(x => x.DanceName))
-                    {
-                        var id = "DID_" + sc.DanceId;
-                        var href = "#" + sc.DanceId;
-                        <li id="@id"><a href=@href><strong>@sc.DanceName</strong></a></li>
-                        foreach (var sci in sc.Children.OrderBy(x => x.DanceName))
+        <div class="col-sm-6"><h4>@description</h4>
+        </div>
+        <div class="col-sm-2 col-sm-offset-2">
+            @Html.ActionLink("Change Search", "advancedsearchform", new {filter}, new {@class = "btn btn-default"})
+        </div>
+    </div>
+}
+else
+{
+    using (Html.BeginForm("AzureSearch", "Song", FormMethod.Get, new {id = "search"}))
+    {
+        var danceName = (danceQuery.All || danceQuery.Advanced) ? "All Dances" : danceQuery.Dances.First().Name;
+
+        <div class="row">
+            <div class="input-group col-sm-12" style="padding-left: 15px">
+                <div class="input-group-btn search-panel">
+                    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" style="margin-left: 15px">
+                        <span id="dance_selector">@danceName</span> <span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu" role="menu">
+                        <li id="DID_ALL"><a href="#ALL"><strong>All Dances</strong></a></li>
+                        @foreach (var sc in dances.OrderBy(x => x.DanceName))
                         {
-                            if (sci.SongCount > 0)
+                            var id = "DID_" + sc.DanceId;
+                            var href = "#" + sc.DanceId;
+                            <li id="@id"><a href=@href><strong>@sc.DanceName</strong></a></li>
+                            foreach (var sci in sc.Children.OrderBy(x => x.DanceName))
                             {
-                                id = "DID_" + sci.DanceId;
-                                href = "#" + sci.DanceId;
-                                <li id="@id"><a href=@href><small>&nbsp;@sci.DanceName</small></a></li>
+                                if (sci.SongCount > 0)
+                                {
+                                    id = "DID_" + sci.DanceId;
+                                    href = "#" + sci.DanceId;
+                                    <li id="@id"><a href=@href><small>&nbsp;@sci.DanceName</small></a></li>
+                                }
                             }
                         }
-                    }
-                </ul>
+                    </ul>
+                </div>
+                <input type="hidden" name="dances" id="dances" value="@filter.Dances"/>
+                <input type="hidden" name="filter" id="filter" value="@filter.ToString()"/>
+                <input type="hidden" name="tags" id="tags"/>
+                @Html.TextBox("SearchString", filter.SearchString, new {@class = "form-control search-text", placeholder = "search string", id = "search-text"})
+                <span class="input-group-btn">
+                    <button id="submit-search" class="btn btn-default" type="submit" style="margin-right: 15px"><span class="glyphicon glyphicon-search"></span></button>
+                </span>
+                <input type="hidden" name="filter" id="filter" value="@filter.ToString()"/>
             </div>
-            <input type="hidden" name="dances" id="dances" value="@filter.Dances" />
-            <input type="hidden" name="filter" id="filter" value="@filter.ToString()" />
-            <input type="hidden" name="tags" id="tags" />
-            @Html.TextBox("SearchString", filter.SearchString, new {@class = "form-control search-text", placeholder = "search string", id = "search-text"})
-            <span class="input-group-btn">
-                <button id="submit-search" class="btn btn-default" type="submit" style="margin-right: 15px"><span class="glyphicon glyphicon-search"></span></button>
-            </span>
-            <input type="hidden" name="filter" id="filter" value="@filter.ToString()"/>
         </div>
-   </div>
-}
-
-<div class="row">
-    <p class="col-xs-6"> @Html.ActionLink("Saved Searches", "index", "searches", new {user = @userName, filter}, new {id = "saved-search"})</p>
-    @if (isSimple)
-    {
+    }
+    <div class="row">
+        <p class="col-xs-6"> @Html.ActionLink("Saved Searches", "index", "searches", new {user = @userName, filter}, new {id = "saved-search"})</p>
         <p class="col-xs-6" style="text-align: right">@Html.ActionLink("Classic Search", "index", "song", null, new {id = "basic-search"})</p>
-    }
-    else
-    {
-        <p class="col-xs-6" style="text-align: right; padding-right: 20px">@Html.ActionLink(isSimple ? "Switch to Advanced" : "Switch to Simple", "AzureSearch", "song", new {filter = filter.ToggleMode()}, new {id = "search-mode"})</p>
-    }
-    @*<p class="col-xs-6" style="text-align: right; padding-right:20px">@Html.ActionLink(isSimple ? "Switch to Advanced" : "Switch to Simple", "AzureSearch", "song", new { filter=filter.ToggleMode() }, new { id = "search-mode" })</p>*@
-</div>
-
+        @*<p class="col-xs-6" style="text-align: right; padding-right:20px">@Html.ActionLink(isSimple ? "Switch to Advanced" : "Switch to Simple", "AzureSearch", "song", new { filter=filter.ToggleMode() }, new { id = "search-mode" })</p>*@
+    </div>
+}
 
 @{ Html.RenderPartial("_ListSongs", @Model, ViewData);}
 
@@ -86,9 +95,25 @@
     <div class="col-sm-6">
         @Html.PagedListPager(Model, page => Url.Action("AzureSearch", new {filter,page}))
     </div>
-    <div class="col-sm-6 pagination-align">
+    <div class="col-sm-2 pagination-align">
         Page @(Model.PageCount < Model.PageNumber ? 0 : Model.PageNumber) of @Model.PageCount
         (@Model.TotalItemCount songs found.)
+    </div>
+    <div class="col-md-4 pagination-align">
+        @if (!danceQuery.All)
+        {
+            foreach (var dance in danceQuery.Dances)
+            {
+                @Html.ActionLink(dance.Name + " Page", dance.Name, "dances", new { filter, type = "I", count = 1 }, new { @class = "btn btn-default", role = "button" })
+            }
+        }
+        @if (!filter.IsAdvanced)
+        {
+            if (!filter.IsEmptyPaged)
+            {
+                @Html.ActionLink("New Search", "AzureSearch", "song", new { @class = "btn btn-default", role = "button" })
+            }
+        }
     </div>
 </div>
 
