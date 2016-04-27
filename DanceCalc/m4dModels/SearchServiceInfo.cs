@@ -40,7 +40,7 @@ namespace m4dModels
         {
             get
             {
-                return s_defaultId = s_defaultId ?? Environment.GetEnvironmentVariable("SEARCHINDEX") ?? "basicb";
+                return s_defaultId = s_defaultId ?? Environment.GetEnvironmentVariable("SEARCHINDEX") ?? "basica";
             }
             set
             {

@@ -50,7 +50,7 @@
     var u = userName ?? UserQuery.AnonymousUser;
     var nq = include.HasValue ? new UserQuery(u, include.Value, like) : new UserQuery("null");
 
-    <option value="@nq.Query" @(string.Equals(nq.Query, query.Query, StringComparison.OrdinalIgnoreCase) ? "selected" : string.Empty)>@nq.ActionDescription()</option>
+    <option value="@nq.Query" @(string.Equals(nq.Query, query.Query, StringComparison.OrdinalIgnoreCase) ? "selected" : string.Empty)>@nq.ActionDescription</option>
 }
 
 

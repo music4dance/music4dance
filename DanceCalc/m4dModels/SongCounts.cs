@@ -59,6 +59,7 @@ namespace m4dModels
 
                 DanceCategories.ClearCache();
                 DanceMusicService.BlowTagCache();
+                SongDetails.ResetIndex();
             }
         }
 

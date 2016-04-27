@@ -104,25 +104,69 @@ namespace m4dModels
 
         public const string AnonymousUser = "me";
 
-        public string ActionDescription()
+        public string ActionDescription
         {
-            if (IsNull) return "Don't filter on my activity";
-            var start = IsInclude ? "Include only" : "Exclude all";
-            string end;
-            if (IsLike)
+            get
             {
-                end = "I marked LIKE";
+                if (IsNull) return "Don't filter on my activity";
+                var start = IsInclude ? "Include only" : "Exclude all";
+                string end;
+                if (IsLike)
+                {
+                    end = "I marked LIKE";
+                }
+                else if (IsHate)
+                {
+                    end = "I marked DON'T LIKE";
+                }
+                else
+                {
+                    end = "I tagged";
+                }
+
+                return $"{start} songs {end}";
             }
-            else if (IsHate)
+        }
+
+        public string ODataFilter
+        {
+            get
             {
-                end = "I marked DON'T LIKE";
+                if (IsEmpty || IsAnonymous) return null;
+
+                var inc = "any";
+                var cmp = "eq";
+                if (IsExclude)
+                {
+                    inc = "all";
+                    cmp = "ne";
+                }
+
+                var like = NullableLike;
+                var userName = UserName.ToLower();
+
+                if (like.HasValue)
+                {
+                    return MakeOneOdata(userName, inc, cmp, NullableLike);
+                }
+
+                var a = MakeOneOdata(userName, inc, cmp, null);
+                var b = MakeOneOdata(userName, inc, cmp, true);
+                var c = MakeOneOdata(userName, inc, cmp, false);
+
+                return IsInclude ? $"({a} or {b} or {c})" : $"!({a} and {b} and {c})";
             }
-            else
+        }
+
+        private static string MakeOneOdata(string userName, string inc, string cmp, bool? like)
+        {
+            var vote = string.Empty;
+            if (like.HasValue)
             {
-                end = "I tagged";
+                vote = like.Value ? "|l" : "|h";
             }
 
-            return $"{start} songs {end}";
+            return $"Users/{inc}(t: t {cmp} '{userName}{vote}')";
         }
 
         public string Description(bool trivial = false)

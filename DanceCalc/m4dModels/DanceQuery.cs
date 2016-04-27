@@ -84,7 +84,7 @@ namespace m4dModels
                         return null;
                     case 1:
                         return $"(DanceTags/any(t: t eq '{dances[0].Name.ToLower()}')" + 
-                            (IncludeInferred ? $"or  DanceTagsInferred/any(t: t eq '{dances[0].Name.ToLower()}')" : "") + ")";
+                            (IncludeInferred ? $" or  DanceTagsInferred/any(t: t eq '{dances[0].Name.ToLower()}')" : "") + ")";
                 }
 
                 var sb = new StringBuilder();

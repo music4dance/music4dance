@@ -199,6 +199,13 @@ namespace m4dModels
                 odata = ((odata == null) ? "" : odata + " and ") + danceFilter;
             }
 
+            var userFilter = UserQuery.ODataFilter;
+            if (userFilter != null)
+            {
+                odata = ((odata == null) ? "" : odata + " and ") + userFilter;
+            }
+
+
             if (TempoMin.HasValue)
             {
                 odata = ((odata == null) ? "" : odata + " and ") + $"(Tempo ge {TempoMin})";

@@ -1401,6 +1401,11 @@ namespace m4dModels
 
             return s_index;
         }
+
+        public static void ResetIndex()
+        {
+            s_index = null;
+        }
         private static Index s_index;
 
         public Document GetIndexDocument()
@@ -1431,6 +1436,8 @@ namespace m4dModels
                 style.UnionWith(dr.TagSummary.GetTagSet("Style"));
             }
 
+            var users = ModifiedBy.Select(m => m.UserName.ToLower() + (m.Like.HasValue ? (m.Like.Value ? "|l" : "|h") : string.Empty)).ToArray();
+
             var doc = new Document
             {
                 ["SongId"] = SongId.ToString(),
@@ -1446,7 +1453,7 @@ namespace m4dModels
                 [SampleField] = Sample,
                 [PurchaseField] = purchase.ToArray(),
                 ["Albums"] = Albums.Select(ad => ad.Name).ToArray(),
-                ["Users"] = ModifiedBy.Select(m => m.UserName).ToArray(),
+                ["Users"] = users,
                 ["DanceTags"] = dance.ToArray(),
                 ["DanceTagsInferred"] = inferred.ToArray(),
                 ["GenreTags"] = genre.ToArray(),
