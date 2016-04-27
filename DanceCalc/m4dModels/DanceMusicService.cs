@@ -3171,32 +3171,11 @@ namespace m4dModels
             using (var indexClient = serviceClient.Indexes.GetClient(info.Index))
             {
                 var order = filter.ODataSort;
-                var odataFilter = filter.SongSort.Numeric ? $"({filter.SongSort.Id} ne null) and ({filter.SongSort.Id} ne 0)" : null;
-                var danceFilter = filter.DanceQuery.ODataFilter;
-                if (danceFilter != null)
-                {
-                    odataFilter = ((odataFilter == null) ? "" : odataFilter + " and ") + danceFilter;
-                }
-
-                if (filter.TempoMin.HasValue)
-                {
-                    odataFilter = ((odataFilter == null) ? "" : odataFilter + " and ") + $"(Tempo ge {filter.TempoMin})";
-                }
-
-                if (filter.TempoMax.HasValue)
-                {
-                    odataFilter = ((odataFilter == null) ? "" : odataFilter + " and ") + $"(Tempo lt {filter.TempoMax})";
-                }
-
-                var purchaseFilter = filter.ODataPurchase;
-                if (purchaseFilter != null)
-                {
-                    odataFilter = ((odataFilter == null) ? "" : odataFilter + " and ") + purchaseFilter;
-                }
+                var odataFilter = filter.GetOdataFilter(this);
 
                 var sp = new SearchParameters
                 {
-                    QueryType = filter.IsSimple ? QueryType.Simple : QueryType.Full,
+                    QueryType = QueryType.Simple, // filter.IsSimple ? QueryType.Simple : QueryType.Full,
                     Filter = odataFilter,
                     IncludeTotalResultCount = true,
                     Top = pageSize,

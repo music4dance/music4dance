@@ -1,12 +1,10 @@
 ﻿using System;
-using System.Data.Entity.Core.Common.CommandTrees;
-using System.Diagnostics;
 using System.Linq;
 using System.Text;
 
 namespace m4dModels
 {
-    // normalize to (+|-)UserName\|[L|H]
+    // normalize to (+|-)UserName\|[l|h]
     public class UserQuery
     {
         public UserQuery(string query = null)
@@ -14,7 +12,32 @@ namespace m4dModels
             Query = Normalize(query);
         }
 
-        public UserQuery(UserQuery query, string userName)
+
+        public UserQuery(string userName, bool include, bool? like)
+        {
+            var qs = Normalize(userName);
+            if (!string.IsNullOrEmpty(qs) && !string.IsNullOrWhiteSpace(qs) && qs != "null")
+            {
+                if (!include)
+                {
+                    qs = "-" + qs.Substring(1);
+                }
+                if (like.HasValue)
+                {
+                    if (like.Value)
+                    {
+                        qs += 'l';
+                    }
+                    else
+                    {
+                        qs += 'h';
+                    }
+                }
+            }
+            Query = qs;
+        }
+
+        public UserQuery(UserQuery query, string userName) : this(userName, query.IsInclude, query.NullableLike)
         {
             var qs = Normalize(userName);
             if (!query.IsEmpty && !string.IsNullOrWhiteSpace(qs) && qs != "null")
@@ -25,14 +48,24 @@ namespace m4dModels
                 }
                 if (query.IsLike)
                 {
-                    qs += 'L';
+                    qs += 'l';
                 }
                 else if (query.IsHate)
                 {
-                    qs += 'H';
+                    qs += 'h';
                 }
             }
             Query = qs;
+        }
+
+        private bool? NullableLike
+        {
+            get
+            {
+                if (IsLike) return true;
+                if (IsHate) return false;
+                return null;
+            }
         }
 
         private static string Normalize(string query)
@@ -64,9 +97,33 @@ namespace m4dModels
         public bool IsInclude => !IsEmpty && Query[0] == '+';
         public bool IsExclude => !IsEmpty && Query[0] == '-';
         public bool HasOpinion => !IsEmpty && !Query.EndsWith("|");
-        public bool IsLike => Query.EndsWith("|l");
-        public bool IsHate => Query.EndsWith("|h");
+        public bool IsLike => Query.EndsWith("|l") || Query.EndsWith("|L");
+        public bool IsHate => Query.EndsWith("|h") || Query.EndsWith("|H");
         public string UserName => IsEmpty ? null : Query.Substring(1, Query.IndexOf('|') - 1);
+        public bool IsAnonymous => string.Equals(AnonymousUser, UserName,StringComparison.OrdinalIgnoreCase);
+
+        public const string AnonymousUser = "me";
+
+        public string ActionDescription()
+        {
+            if (IsNull) return "Don't filter on my activity";
+            var start = IsInclude ? "Include only" : "Exclude all";
+            string end;
+            if (IsLike)
+            {
+                end = "I marked LIKE";
+            }
+            else if (IsHate)
+            {
+                end = "I marked DON'T LIKE";
+            }
+            else
+            {
+                end = "I tagged";
+            }
+
+            return $"{start} songs {end}";
+        }
 
         public string Description(bool trivial = false)
         {

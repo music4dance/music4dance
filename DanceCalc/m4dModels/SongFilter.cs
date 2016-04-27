@@ -182,12 +182,46 @@ namespace m4dModels
 
         public bool Anonymize(string user)
         {
-            return SwapUser("me", user);
+            return SwapUser(UserQuery.AnonymousUser, user);
         }
 
         public bool Deanonymize(string user)
         {
-            return SwapUser(user, "me");
+            return SwapUser(user, UserQuery.AnonymousUser);
+        }
+
+        public string GetOdataFilter(DanceMusicService dms)
+        {
+            var odata = SongSort.Numeric ? $"({SongSort.Id} ne null) and ({SongSort.Id} ne 0)" : null;
+            var danceFilter = DanceQuery.ODataFilter;
+            if (danceFilter != null)
+            {
+                odata = ((odata == null) ? "" : odata + " and ") + danceFilter;
+            }
+
+            if (TempoMin.HasValue)
+            {
+                odata = ((odata == null) ? "" : odata + " and ") + $"(Tempo ge {TempoMin})";
+            }
+
+            if (TempoMax.HasValue)
+            {
+                odata = ((odata == null) ? "" : odata + " and ") + $"(Tempo lt {TempoMax})";
+            }
+
+            var purchaseFilter = ODataPurchase;
+            if (purchaseFilter != null)
+            {
+                odata = ((odata == null) ? "" : odata + " and ") + purchaseFilter;
+            }
+
+            var tagFilter = GetTagFilter(dms);
+            if (tagFilter != null)
+            {
+                odata = ((odata == null) ? "" : odata + " and ") + $"(Tempo lt {TempoMax})";
+            }
+
+            return odata;
         }
 
         public string ODataPurchase

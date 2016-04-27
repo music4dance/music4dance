@@ -167,7 +167,7 @@
         if (window.userName === '') {
             $('#user').val('null');
         } else {
-            $('#user').val('-' + window.userName + '|H');
+            $('#user').val('-' + window.userName + '|h');
         }
 
         // Set the SortBy radio buttons to Last Modified/Ascending

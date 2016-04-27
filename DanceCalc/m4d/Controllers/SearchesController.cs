@@ -20,7 +20,7 @@ namespace m4d.Controllers
         // GET: Searches
         public ActionResult Index(string user, string sort=null, SongFilter filter=null, bool showDetails=false)
         {
-            if (string.IsNullOrWhiteSpace(user) || user.Equals("me", StringComparison.OrdinalIgnoreCase))
+            if (string.IsNullOrWhiteSpace(user) || user.Equals(UserQuery.AnonymousUser, StringComparison.OrdinalIgnoreCase))
             {
                 user = null;
             }

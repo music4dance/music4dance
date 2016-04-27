@@ -246,7 +246,7 @@ namespace m4d.Controllers
             }
 
             var uq = filter.UserQuery;
-            if (!uq.IsEmpty && string.IsNullOrEmpty(uq.UserName))
+            if (!uq.IsEmpty && uq.IsAnonymous)
             {
                 return RedirectToAction("SignIn", "Account", new { ReturnUrl = "/song/advancedsearchform?filter="+filter });
             }
@@ -305,8 +305,7 @@ namespace m4d.Controllers
         {
             if (User.Identity.IsAuthenticated && filter.IsEmpty)
             {
-                // TOOD: Build constructors for userquery so we don't have to know the syntax to create a new one...
-                filter.User = "-" + User.Identity.Name + "|H";
+                filter.User = new UserQuery(User.Identity.Name, false, false).Query;
             }
 
             if (page.HasValue)

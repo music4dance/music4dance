@@ -17,7 +17,10 @@
     var dances = (IList<SongCounts>)ViewBag.Dances;
 
     var userQuery = filter.UserQuery;
-    var userName = filter.UserQuery.IsEmpty ? User.Identity.Name : filter.UserQuery.UserName;
+    if (userQuery.IsAnonymous && !string.IsNullOrWhiteSpace(User.Identity.Name)) { userQuery = new UserQuery(userQuery, User.Identity.Name);}
+
+    var userName = (userQuery.IsEmpty || userQuery.IsAnonymous) ? User.Identity.Name : userQuery.UserName;
+
     if (string.IsNullOrWhiteSpace(userName))
     {
         userQuery = userQuery.IsEmpty ? new UserQuery("null") : new UserQuery(userQuery,User.Identity.Name);
@@ -25,7 +28,7 @@
     }
     else if (userQuery.IsEmpty && !userQuery.IsNull)
     {
-        userQuery = new UserQuery("-" + User.Identity.Name + "|H");
+        userQuery = new UserQuery(User.Identity.Name, false, false);
     }
 }
 
@@ -37,10 +40,19 @@
     </label>
 }
 
-@helper UserOption(string queryString, string text, UserQuery query)
+@*@helper UserOption(string queryString, string text, UserQuery query)
 {
     <option value="@queryString" @(string.Equals(queryString,query.Query,StringComparison.OrdinalIgnoreCase) ? "selected" : string.Empty)>@text</option>
+}*@
+
+@helper UserOption(UserQuery query, string userName, bool? include, bool? like)
+{
+    var u = userName ?? UserQuery.AnonymousUser;
+    var nq = include.HasValue ? new UserQuery(u, include.Value, like) : new UserQuery("null");
+
+    <option value="@nq.Query" @(string.Equals(nq.Query, query.Query, StringComparison.OrdinalIgnoreCase) ? "selected" : string.Empty)>@nq.ActionDescription()</option>
 }
+
 
 @helper SortOrder(string name, string order, string label=null)
 {
@@ -154,13 +166,13 @@
                 </div>
                 <div class="col-sm-9">
                     <select id="user" name="user">
-                        @UserOption("null","Don't filter on my activity",userQuery)
-                        @UserOption("-" + userName + "|H","Exclude all songs I marked DON'T LIKE",userQuery)
-                        @UserOption("+" + userName + "|H","Include only songs I marked DON'T LIKE",userQuery)
-                        @UserOption("-" + userName + "|L","Exclude all songs I marked LIKE",userQuery)
-                        @UserOption("+" + userName + "|L","Include only songs I marked LIKE",userQuery)
-                        @UserOption("-" + userName + "|", "Exclude all songs I tagged",userQuery)
-                        @UserOption("+" + userName + "|", "Include only songs I tagged",userQuery)
+                        @UserOption(userQuery, userName, null, null)
+                        @UserOption(userQuery, userName, false, true)
+                        @UserOption(userQuery, userName, false, false)
+                        @UserOption(userQuery, userName, false, null)
+                        @UserOption(userQuery, userName, true, true)
+                        @UserOption(userQuery, userName, true, false)
+                        @UserOption(userQuery, userName, true, null)
                     </select>
                 </div>
             </div>
