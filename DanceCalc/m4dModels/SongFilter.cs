@@ -225,7 +225,7 @@ namespace m4dModels
             var tagFilter = GetTagFilter(dms);
             if (tagFilter != null)
             {
-                odata = ((odata == null) ? "" : odata + " and ") + $"(Tempo lt {TempoMax})";
+                odata = ((odata == null) ? "" : odata + " and ") + tagFilter;
             }
 
             return odata;
