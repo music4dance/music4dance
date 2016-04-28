@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -111,13 +110,13 @@ namespace m4d.APIControllers
 
         private static void HandleRecompute(DoHandleRecompute recompute, string id, string message, bool force)
         {
-            Task.Run(() => recompute.Invoke(CreateDisconnectedService(),id,message,0,force));
+            Task.Run(() => recompute.Invoke(DanceMusicContext.CreateDisconnectedService(),id,message,0,force));
         }
 
         private static void HandleSyncRecompute(DoHandleRecompute recompute, string id, string message, bool force)
         {
             int[] i = {0};
-            while (!Task.Run(() => recompute.Invoke(CreateDisconnectedService(),id,message,i[0],force)).Result)
+            while (!Task.Run(() => recompute.Invoke(DanceMusicContext.CreateDisconnectedService(),id,message,i[0],force)).Result)
             {
                 if (!AdminMonitor.StartTask(id))
                 {
@@ -261,12 +260,6 @@ namespace m4d.APIControllers
             TelemetryClient.TrackEvent("Recompute",
                 new Dictionary<string, string> { { "Id", AdminMonitor.Name }, { "Phase", "End" }, { "Code", "Exception" }, { "Message", e.Message }, {"Time", AdminMonitor.Duration.ToString()} });
             AdminMonitor.CompleteTask(false, e.Message, e);
-        }
-
-        private static DanceMusicService CreateDisconnectedService()
-        {
-            var context = DanceMusicContext.Create();
-            return new DanceMusicService(context,ApplicationUserManager.Create(null,context));
         }
 
         private string SecurityToken => _securityToken ?? (_securityToken = Environment.GetEnvironmentVariable("RECOMPUTEJOB_KEY"));

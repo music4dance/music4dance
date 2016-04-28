@@ -2023,11 +2023,13 @@ namespace m4d.Controllers
         //
         // Get: //BuildSearchIdx
         [Authorize(Roles = "showDiagnostics")]
-        public ActionResult BuildSearchIdx(int count = 100, DateTime? from = null, bool rebuild = false, string filter = null)
+        public ActionResult BuildSearchIdx(string id = "default", int count = 100, DateTime? from = null, bool rebuild = false, string filter = null)
         {
             try
             {
                 StartAdminTask("BuildIndex");
+
+                var name = "indexsongs-" + id;
 
                 SongFilter songFilter = null;
                 if (!string.IsNullOrWhiteSpace(filter))
@@ -2037,26 +2039,50 @@ namespace m4d.Controllers
 
                 if (!from.HasValue)
                 {
-                    from = RecomputeMarker.GetMarker("indexsongs");
+                    from = RecomputeMarker.GetMarker(name);
                 }
 
                 var info = Database.IndexSongs(count, from, rebuild, songFilter);
 
                 if (info.Succeeded > 0)
                 {
-                    RecomputeMarker.SetMarker("indexsongs", info.LastTime);
+                    RecomputeMarker.SetMarker(name, info.LastTime);
                 }
 
-                ViewBag.Name = "Indexed Songs";
+                ViewBag.Name = "Indexed Songs " + id;
                 ViewBag.Success = true;
 
                 ViewBag.Message = $"{info.Succeeded} songs indexed, {info.Failed} failed. {(info.Message ?? string.Empty)}";
 
-                return CompleteAdminTask(true, $"{info.Succeeded} songs indexed.");
+                return CompleteAdminTask(true, $"{info.Succeeded} songs indexed ({id}).");
             }
             catch (Exception e)
             {
                 return FailAdminTask($"BuildIndex: {e.Message}", e);
+            }
+        }
+
+        //
+        // Get: //UpdateSearchIdx
+        [Authorize(Roles = "showDiagnostics")]
+        public ActionResult UpdateSearchIdx(string id = "default")
+        {
+            try
+            {
+                StartAdminTask("UpdateIndex");
+
+                var count = Database.UpdateAzureIndex(id);
+
+                ViewBag.Name = "Update Song Index";
+                ViewBag.Success = true;
+
+                ViewBag.Message = $"{count} songs indexed";
+
+                return CompleteAdminTask(true, $"{count} songs indexed.");
+            }
+            catch (Exception e)
+            {
+                return FailAdminTask($"UpdateIndex: {e.Message}", e);
             }
         }
 

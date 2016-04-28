@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Data.Entity;
 using System.Diagnostics;
 using System.Linq;
-using System.Text;
 using DanceLibrary;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.EntityFramework;
@@ -3161,6 +3160,80 @@ namespace m4dModels
             }
 
             return ret;
+        }
+
+        static private readonly string[] s_updateFields =  { "Modified", "Properties" };
+        static private readonly string[] s_updateEntities = { "Song", "SongProperties", "ModifiedBy", "DanceRatings" };
+        static private readonly string[] s_updateNoId = { SongBase.NoSongId };
+        private static readonly TimeSpan s_updateDelta = TimeSpan.FromMilliseconds(10);
+
+
+        public int UpdateAzureIndex(string id = "default")
+        {
+            var skip = 0;
+            var done = false;
+
+            var info = SearchServiceInfo.GetInfo(id);
+
+            using (var serviceClient = new SearchServiceClient(info.Name, new SearchCredentials(info.AdminKey)))
+            using (var indexClient = serviceClient.Indexes.GetClient(info.Index))
+            {
+                do
+                {
+                    var songs = new List<Document>();
+
+                    var chunk = 5;
+                    switch (skip)
+                    {
+                        case 0:
+                            break;
+                        case 15:
+                            chunk = 50;
+                            break;
+                        default:
+                            chunk = 500;
+                            Context.ClearEntities(s_updateEntities);
+                            break;
+                    }
+
+                    var sqlRecent = TakeRecent(chunk, skip);
+                    // ReSharper disable once LoopCanBeConvertedToQuery
+                    foreach (var song in sqlRecent)
+                    {
+                        try
+                        {
+                            var doc = indexClient.Documents.Get(song.SongId.ToString(), s_updateFields);
+                            var diff = song.Modified - ((DateTimeOffset) doc["Modified"]).UtcDateTime;
+                            var teq = diff < s_updateDelta;
+                            if (teq && doc["Properties"] as string == song.Serialize(s_updateNoId))
+                            {
+                                done = true;
+                                break;
+                            }
+                        }
+                        catch (Microsoft.Rest.Azure.CloudException)
+                        {
+                            // Document isn't in the index at all, so add it
+                        }
+
+                        songs.Add(new SongDetails(song).GetIndexDocument());
+                        skip += 1;
+                    }
+
+                    if (songs.Count <= 0) continue;
+
+                    var batch = IndexBatch.MergeOrUpload(songs);
+                    indexClient.Documents.Index(batch);
+
+                } while (!done);
+            }
+
+            return skip;
+        }
+
+        private IList<Song> TakeRecent(int c, int skip = 0)
+        {
+            return Songs.OrderByDescending(s => s.Modified).Skip(skip).Take(c).Include("DanceRatings").Include("ModifiedBy").Include("SongProperties").ToList();
         }
 
         public SearchResults AzureSearch(SongFilter filter, int pageSize, string id = "default")

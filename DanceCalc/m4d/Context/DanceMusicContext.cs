@@ -11,6 +11,7 @@ using m4d.Controllers;
 using m4dModels;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.EntityFramework;
+using EntityState = System.Data.Entity.EntityState;
 
 // Let's see if we can mock up a recoverable log file by spitting out
 // something resembling a tab-separated flat list of songs items with a
@@ -41,6 +42,12 @@ namespace m4d.Context
 
             var properties = new Dictionary<string, string> { { "id", _id.ToString() } };
             DMController.TelemetryClient.TrackEvent("CreateDbContext", properties);
+        }
+
+        public static DanceMusicService CreateDisconnectedService()
+        {
+            var context = Create();
+            return new DanceMusicService(context, ApplicationUserManager.Create(null, context));
         }
 
         //private static DbConnection CreateConnection(string nameOrConnectionString)
@@ -171,7 +178,7 @@ namespace m4d.Context
                 
             }
 
-            if (string.Equals(role, DanceMusicService.PseudoRole))
+            if (String.Equals(role, DanceMusicService.PseudoRole))
             {
                 user.LockoutEnabled = true;
             }
@@ -282,7 +289,7 @@ namespace m4d.Context
         {
             var list = Set<T>().Local.ToList();
             foreach (var p in list) 
-                Entry(p).State = System.Data.Entity.EntityState.Detached;
+                Entry(p).State = EntityState.Detached;
         }
 
         public void TrackChanges(bool track)

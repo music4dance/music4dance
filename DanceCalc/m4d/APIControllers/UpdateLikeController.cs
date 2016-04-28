@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Web;
 using System.Web.Http;
+using m4d.Context;
 using m4dModels;
 using Microsoft.AspNet.Identity;
 
@@ -13,7 +14,10 @@ namespace m4d.APIControllers
         {
             var user = Database.FindUser(HttpContext.Current.User.Identity.GetUserName());
 
-            Database.EditLike(user, id, like, string.IsNullOrWhiteSpace(dance)||dance=="null"?null:dance);
+            if (Database.EditLike(user, id, like, string.IsNullOrWhiteSpace(dance) || dance == "null" ? null : dance))
+            {
+                IndexUpdater.Enqueue();
+            }
 
             return Ok(new { changed = 1 });
         }

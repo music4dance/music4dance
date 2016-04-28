@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Web;
 using System.Web.Http;
+using m4d.Context;
 using m4dModels;
 using Microsoft.AspNet.Identity;
 
@@ -13,7 +14,10 @@ namespace m4d.APIControllers
             var uts = tags.ToUserTags();
 
             var user = Database.FindUser(HttpContext.Current.User.Identity.GetUserName());
-            Database.EditTags(user, id, uts);
+            if (Database.EditTags(user, id, uts))
+            {
+                IndexUpdater.Enqueue();
+            }
 
             return Ok(new{changed=1});
         }

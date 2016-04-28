@@ -7,6 +7,7 @@ using System.Net;
 using System.Web;
 using System.Web.Mvc;
 using DanceLibrary;
+using m4d.Context;
 using m4d.Utilities;
 using m4d.ViewModels;
 using m4dModels;
@@ -484,7 +485,7 @@ namespace m4d.Controllers
 
                 if (newSong != null)
                 {
-                    Database.SaveChanges();
+                    UpdateAndEnqueue();
                 }
 
                 ViewBag.DanceMap = SongCounts.GetDanceMap(Database);
@@ -520,6 +521,7 @@ namespace m4d.Controllers
             {
                 return ReturnError(HttpStatusCode.NotFound, $"The song with id = {id} has been deleted.");
             }
+            Enqueue();
 
             SetupEditViewBag(tempo);
 
@@ -558,7 +560,7 @@ namespace m4d.Controllers
                 // ReSharper disable once InvertIf
                 if (edit != null)
                 {
-                    Database.SaveChanges();
+                    UpdateAndEnqueue();
 
                     // TODO: Need to figure out a cleaner way to make editsong return a fully hydrated songdetails before save happens (for batch mode)
                     //  Possibly get SongDetails constructor to hydrate CurrentUser tags from properties collection rather than going to the db?
@@ -624,6 +626,8 @@ namespace m4d.Controllers
             var userName = User.Identity.Name;
             var user = Database.FindUser(userName);
             Database.DeleteSong(user,song);
+            Enqueue();
+
             return RedirectToAction("Index", new {filter });
         }
 
@@ -640,7 +644,8 @@ namespace m4d.Controllers
             if (!ModelState.IsValid || !Database.AdminEditSong(song, properties))
                 return RedirectToAction("Index", new {filter});
 
-            Database.SaveChanges();
+            song.Modified = DateTime.Now;
+            UpdateAndEnqueue();
 
             var user = Database.FindUser(User.Identity.Name);
             var sd = Database.FindSongDetails(songId, user.UserName);
@@ -656,7 +661,7 @@ namespace m4d.Controllers
 
             if (Database.CleanupAlbums(user, Database.FindSong(id)) != 0)
             {
-                Database.SaveChanges();
+                UpdateAndEnqueue();
             }
 
             return RedirectToAction("Details", new { id, filter });
@@ -727,7 +732,7 @@ namespace m4d.Controllers
                 return ReturnError(HttpStatusCode.NotFound, $"The song with id = {id} has been deleted.");
             }
             song.SetRatingsFromProperties();
-            Database.SaveChanges();
+            UpdateAndEnqueue();
 
             HelpPage = "song-details";
             ViewBag.DanceMap = SongCounts.GetDanceMap(Database);
@@ -788,7 +793,7 @@ namespace m4d.Controllers
                 ResolveIntField(SongBase.LengthField, songList, Request.Form),
                 Request.Form[SongBase.AlbumListField], new HashSet<string>(Request.Form.AllKeys));
 
-            Database.SaveChanges();
+            UpdateAndEnqueue();
 
             SongCounts.ClearCache();
 

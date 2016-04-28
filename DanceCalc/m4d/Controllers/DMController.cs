@@ -157,6 +157,17 @@ namespace m4d.Controllers
             return SpiderManager.CheckBadSpiders(Request.UserAgent) ? View("BotWarning") : null;
         }
 
+        protected void UpdateAndEnqueue()
+        {
+            Database.SaveChanges();
+            IndexUpdater.Enqueue();
+        }
+
+        protected void Enqueue()
+        {
+            IndexUpdater.Enqueue();
+        }
+
         #region AdminTaskHelpers
         protected void StartAdminTask(string name)
         {
