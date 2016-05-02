@@ -39,7 +39,7 @@
 
     // Handle basic search link
     $('#basic-search').click(function () {
-        var txt = $('#keyword').val();
+        var txt = $('#search-text').val();
         if (!txt) txt = '.';
 
         var dances = $('#dances').val();

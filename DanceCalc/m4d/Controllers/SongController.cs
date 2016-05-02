@@ -114,7 +114,10 @@ namespace m4d.Controllers
                 }
             }
 
-            filter.SearchString = searchString;
+            if (searchString != null)
+            {
+                filter.SearchString = searchString;
+            }
 
             if (page != 0)
                 filter.Page = page;

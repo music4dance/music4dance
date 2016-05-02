@@ -90,10 +90,10 @@
         {
             <div class="form-group" style="margin-top:1em; margin-bottom:1em">
                 <div class="col-sm-2" >
-                    <label for="keyword" class="control-label search-label">Keywords:</label>
+                    <label for="search-text" class="control-label search-label">Keywords:</label>
                 </div>
                 <div class="col-sm-9 col-md-10">
-                    @Html.TextBox("SearchString", filter.SearchString, new { id = "keyword", @class = "form-control search-text", placeholder = "Artist, Title, or Album" })
+                    @Html.TextBox("SearchString", filter.SearchString, new { id = "search-text", @class = "form-control search-text", placeholder = isAzure ? "search string" : "Artist, Title, or Album" })
                 </div>
                 <input type="hidden" name="dances" id="dances" value="@filter.Dances"/>
                 <input type="hidden" name="filter" id="filter" value="@filter.ToString()"/>
