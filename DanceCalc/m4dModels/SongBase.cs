@@ -146,7 +146,7 @@ namespace m4dModels
                         currentUser = new ApplicationUser(prop.Value);
                         // TOOD: if the placeholder user works, we should use it to simplify the ModifiedRecord
                         currentModified = new ModifiedRecord {SongId = SongId, UserName = prop.Value};
-                        AddModifiedBy(currentModified);
+                        currentModified = AddModifiedBy(currentModified);
                         break;
                     case DanceRatingField:
                         {
@@ -728,7 +728,7 @@ namespace m4dModels
             return ModifiedBy.FirstOrDefault(mr => string.Equals(mr.UserName, userName, StringComparison.OrdinalIgnoreCase));
         }
 
-        protected virtual bool AddModifiedBy(ModifiedRecord mr)
+        protected virtual ModifiedRecord AddModifiedBy(ModifiedRecord mr)
         {
             mr.SongId = SongId;
 
@@ -743,10 +743,10 @@ namespace m4dModels
                 other = ModifiedBy.FirstOrDefault(r => r.UserName == mr.UserName);
             }
 
-            if (other != null) return false;
+            if (other != null) return other;
 
             ModifiedBy.Add(mr);
-            return true;
+            return mr;
         }
         protected virtual SongProperty CreateProperty(string name, object value, SongLog log, DanceMusicService dms)
         {

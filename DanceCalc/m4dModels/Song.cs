@@ -792,25 +792,26 @@ namespace m4dModels
             return true;
         }
 
-        public bool AddUser(ApplicationUser user, DanceMusicService dms)
+        public bool AddUser(ApplicationUser user, DanceMusicService dms, bool? like=null)
         {
             ModifiedRecord us;
             if (dms != null)
             {
                 us = dms.CreateModified(SongId, user.Id);
                 us.ApplicationUser = user;
+                us.Like = like;
             }
             else
             {
-                us = new ModifiedRecord { ApplicationUser = user, Song = this, SongId = SongId };
+                us = new ModifiedRecord { ApplicationUser = user, Song = this, SongId = SongId, Like = like};
             }
-            return AddModifiedBy(us);
+            return AddModifiedBy(us) == us;
         }
 
-        public bool AddUser(string name, DanceMusicService dms)
+        public bool AddUser(string name, DanceMusicService dms, bool? like=null)
         {
             var u = dms.FindUser(name);
-            return AddUser(u, dms);
+            return AddUser(u, dms, like);
         }
 
         public void CreateAlbums(IList<AlbumDetails> albums, DanceMusicService dms)
@@ -1179,7 +1180,7 @@ namespace m4dModels
             }
             foreach (var user in sd.ModifiedBy.Where(user => ModifiedBy.All(u => u.UserName != user.UserName)))
             {
-                AddUser(user.UserName, dms);
+                AddUser(user.UserName, dms, user.Like);
             }
 
             ApplicationUser currentUser = null;
@@ -1193,7 +1194,7 @@ namespace m4dModels
             SetTimesFromProperties();
         }
 
-        protected override bool AddModifiedBy(ModifiedRecord mr)
+        protected override ModifiedRecord AddModifiedBy(ModifiedRecord mr)
         {
             if (ModifiedBy == null)
             {
