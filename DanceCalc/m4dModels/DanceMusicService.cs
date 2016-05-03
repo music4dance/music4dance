@@ -3188,7 +3188,7 @@ namespace m4dModels
                     {
                         case 0:
                             break;
-                        case 15:
+                        case 5:
                             chunk = 50;
                             break;
                         default:

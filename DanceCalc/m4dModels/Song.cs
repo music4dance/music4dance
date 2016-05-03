@@ -1144,7 +1144,7 @@ namespace m4dModels
             }
 
             Purchase = sd.GetPurchaseTags();
-            //TagSummary = sd.TagSummary;
+            TagSummary = sd.TagSummary;
         }
         public void Restore(SongDetails sd,DanceMusicService dms)
         {
