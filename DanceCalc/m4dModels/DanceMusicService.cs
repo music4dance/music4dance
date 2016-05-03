@@ -3181,6 +3181,7 @@ namespace m4dModels
                 do
                 {
                     var songs = new List<Document>();
+                    var deleted = new List<Document>();
 
                     var chunk = 5;
                     switch (skip)
@@ -3200,6 +3201,7 @@ namespace m4dModels
                     // ReSharper disable once LoopCanBeConvertedToQuery
                     foreach (var song in sqlRecent)
                     {
+                        var exists = true;
                         try
                         {
                             var doc = indexClient.Documents.Get(song.SongId.ToString(), s_updateFields);
@@ -3213,17 +3215,31 @@ namespace m4dModels
                         }
                         catch (Microsoft.Rest.Azure.CloudException)
                         {
+                            exists = false;
                             // Document isn't in the index at all, so add it
                         }
 
-                        songs.Add(new SongDetails(song).GetIndexDocument());
+                        if (!song.IsNull)
+                        {
+                            songs.Add(new SongDetails(song).GetIndexDocument());
+                        }
+                        else if (exists)
+                        {
+                            deleted.Add(new SongDetails(song).GetIndexDocument());
+                        }
                         skip += 1;
                     }
 
-                    if (songs.Count <= 0) continue;
-
-                    var batch = IndexBatch.MergeOrUpload(songs);
-                    indexClient.Documents.Index(batch);
+                    if (songs.Count > 0)
+                    {
+                        var batch = IndexBatch.MergeOrUpload(songs);
+                        indexClient.Documents.Index(batch);
+                    }
+                    else if (deleted.Count > 0)
+                    {
+                        var delete = IndexBatch.Delete(deleted);
+                        indexClient.Documents.Index(delete);
+                    }
 
                 } while (!done);
             }
