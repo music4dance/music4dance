@@ -158,6 +158,7 @@
         <td>
             @Html.ActionLink("Change Roles", "ChangeRoles", new { id = item.Id }),
             @Html.ActionLink("List Songs", "FilterUser", "Song", new { user = item.UserName }, null),
+            @Html.ActionLink("List Searches", "Index", "Searches", new { user = item.UserName, showDetails=true, sort="recent" }, null),
             @Html.ActionLink("Delete", "Delete", new { id = item.Id })
             @Html.ActionLink("Edit", "Edit", new { id = item.Id })
             @*
