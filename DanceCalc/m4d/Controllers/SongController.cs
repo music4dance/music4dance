@@ -98,6 +98,11 @@ namespace m4d.Controllers
                 filter = SongFilter.AzureSimple;
             }
 
+            if (User.Identity.IsAuthenticated && filter.IsEmpty)
+            {
+                filter.User = new UserQuery(User.Identity.Name, false, false).Query;
+            }
+
             if (string.IsNullOrWhiteSpace(dances))
             {
                 dances = null;
