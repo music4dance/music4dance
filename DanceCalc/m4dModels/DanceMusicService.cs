@@ -321,9 +321,8 @@ namespace m4dModels
         {
             var ret = new BatchInfo();
 
-            // Get songlist with NoCruft filter (which still totals less that 10,000)
             if (filter == null) filter = new SongFilter();
-            var songlist = TakeTail(BuildSongList(filter), from, max);
+            var songlist = TakeTail(BuildSongList(filter,CruftFilter.AllCruft), from, max);
 
             var lastTouched = DateTime.MinValue;
             var succeeded = new List<Song>();
