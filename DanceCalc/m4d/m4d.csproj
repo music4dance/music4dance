@@ -760,6 +760,7 @@
     <Content Include="Content\bootstrap\alerts.less" />
     <Content Include="App_Code\EchoHelper.cshtml" />
     <Content Include="Content\DavidGray-Resume.pdf" />
+    <Content Include="App_Code\SongHelper.cshtml" />
     <None Include="Properties\PublishProfiles\m4d.pubxml" />
     <Content Include="MvcDiagnostics.aspx" />
     <Content Include="pinterest-885c1.html" />

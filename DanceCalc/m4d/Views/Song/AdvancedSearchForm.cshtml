@@ -81,7 +81,7 @@
 <div class="row">
     <p class="col-xs-4 col-xs-offset-2">@Html.ActionLink("Saved Searches", "index", "searches", new {user=@userName,filter} , new { id = "saved-search" })</p>
     <p class="col-xs-4" style="text-align: right">
-        @(isAzure ? Html.ActionLink("Simple Search", "AzureSearch", "song", null, new {id = "basic-search"}) : Html.ActionLink("Basic Search", "index", "song", null, new {id = "basic-search"}))
+        @(isAzure ? Html.ActionLink("Simple Search", "AzureSearch", "song", null, new {id = "basic-search", data_type="azure+simple" }) : Html.ActionLink("Basic Search", "index", "song", null, new {id = "basic-search", data_type = "index" }))
     </p>
 </div>
 <div class="row">
@@ -277,7 +277,6 @@
     @*Local Scripts*@
     @Scripts.Render("~/bundles/tagchooser")
     @Scripts.Render("~/bundles/advancedsearch")
-    @Scripts.Render("~/bundles/catalog")
 
     @*Style Sheets for external libraries*@
     @Styles.Render("~/bundles/tools-style")

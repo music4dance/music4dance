@@ -1,0 +1,136 @@
+﻿@using System.Security.Policy
+@using System.Web.Mvc
+@using System.Web.Mvc.Html
+@using m4dModels
+@using PagedList.Mvc;
+
+@helper Spotify(IEnumerable<SongBase> songs)
+{
+    <div id="spotify-player" class="col-md-6" data-trackset-name="music4dance" data-trackset-songs="@string.Join(",", songs.Select(s => s.SongId))">
+        <button class="btn-default btn-block btn-lg">Show Spotify Player</button>
+    </div>
+}
+
+// Advanced search header
+@helper AdvancedHeader(System.Web.Mvc.HtmlHelper html, SongFilter filter)
+{
+    <h1>Search Results @(filter.IsAzure? "(BETA)" : string.Empty)</h1>
+    <div class="row">
+        <div class="col-sm-6"><h4>@filter.Description</h4></div>
+        <div class="col-sm-2 col-sm-offset-2">
+            @html.ActionLink("Change Search", "advancedsearchform", new { filter }, new { @class = "btn btn-default" })
+        </div>
+    </div>
+}
+
+// Basic search header
+@helper SimpleHeader(System.Web.Mvc.HtmlHelper html, SongFilter filter, IList<SongCounts> dances, string userName)
+{
+    var danceQuery = filter.DanceQuery;
+    var isAzure = filter.IsAzure;
+
+    using (html.BeginForm(isAzure? "AzureSearch": "Search", "Song", FormMethod.Get, new { id = "search" }))
+    {
+        var danceName = (danceQuery.All || danceQuery.Advanced) ? "All Dances" : danceQuery.Dances.First().Name;
+
+        <div class="row">
+            <h1 class="col-sm-2" style="width: auto; font-size: 22px;">
+                @if (isAzure)
+                {
+                    <text>Search (BETA)</text>
+                }
+                else
+                {
+                    <text>Song Library</text>
+                }
+            </h1>
+            <div class="col-sm-offset-2" style="margin-left: 1px">
+                <div class="input-group" style="margin-top: 1em">
+                    <div class="input-group-btn search-panel">
+                        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" style="margin-left: 15px">
+                            <span id="dance_selector">@danceName</span> <span class="caret"></span>
+                        </button>
+                        <ul class="dropdown-menu" role="menu">
+                            <li id="DID_ALL"><a href="#ALL"><strong>All Dances</strong></a></li>
+                            @foreach (var sc in dances.OrderBy(x => x.DanceName))
+                            {
+                                var id = "DID_" + sc.DanceId;
+                                var href = "#" + sc.DanceId;
+                                <li id="@id"><a href=@href><strong>@sc.DanceName</strong></a></li>
+                                foreach (var sci in sc.Children.OrderBy(x => x.DanceName))
+                                {
+                                    if (sci.SongCount > 0)
+                                    {
+                                        id = "DID_" + sci.DanceId;
+                                        href = "#" + sci.DanceId;
+                                        <li id="@id"><a href=@href><small>&nbsp;@sci.DanceName</small></a></li>
+                                    }
+                                }
+                            }
+                        </ul>
+                    </div>
+                    <input type="hidden" name="dances" id="dances" value="@filter.Dances" />
+                    <input type="hidden" name="filter" id="filter" value="@filter.ToString()" />
+                    <input type="hidden" name="tags" id="tags" />
+                    @html.TextBox("SearchString", filter.SearchString, new { @class = "form-control search-text", placeholder = isAzure ? "search string" : "Artist, Title, or Album", id = "search-text" })
+                    <span class="input-group-btn">
+                        <button id="submit-search" class="btn btn-default" type="submit" style="margin-right: 15px"><span class="glyphicon glyphicon-search"></span></button>
+                    </span>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <p class="col-xs-6">  @html.ActionLink("Saved Searches", "index", "searches", new { user = userName, filter }, new { id = "saved-search" })</p>
+            <p class="col-xs-6" style="text-align: right; padding-right:20px">@html.ActionLink("Advanced Search", "advancedsearchform", "song", new { filter }, new { id = "advanced-search" })</p>
+        </div>
+    }
+}
+
+@helper SearchHeader(System.Web.Mvc.HtmlHelper html, SongFilter filter, IList<SongCounts> dances, string userName)
+{
+    @(filter.IsAdvanced ? AdvancedHeader(html, filter) : SimpleHeader(html, filter, dances, userName))
+}
+
+@helper Footer(System.Web.Mvc.HtmlHelper html, UrlHelper urlHelp, PagedList.IPagedList<SongBase> songs, SongFilter filter)
+{
+    var danceQuery = filter.DanceQuery;
+    <div class="row">
+        <div class="col-md-6">
+            @html.PagedListPager(songs, page => urlHelp.Action(filter.Action, new { page, filter }))
+        </div>
+        <div class="col-md-2 pagination-align">
+            Page @(songs.PageCount < songs.PageNumber ? 0 : songs.PageNumber) of @songs.PageCount
+            (@songs.TotalItemCount songs found.)
+        </div>
+        <div class="col-md-4 pagination-align">
+            @if (!danceQuery.All)
+            {
+                foreach (var dance in danceQuery.Dances)
+                {
+                    @html.ActionLink(dance.Name + " Page", dance.Name, "dances", new { filter, type = "I", count = 1 }, new { @class = "btn btn-default", role = "button" })
+                }
+            }
+            @if (!filter.IsAdvanced)
+            {
+                if (!filter.IsEmpty)
+                {
+                    @html.ActionLink("New Search", "index", "song", new { @class = "btn btn-default", role = "button" })
+                }
+            }
+        </div>
+    </div>
+
+    if (filter.IsAdvanced)
+    {
+        <div class="row">
+            @Spotify(songs)
+        </div>
+    }
+    else
+    {
+        <div class="row">
+            @Spotify(songs)
+            <div class="col-md-6"><h4>@filter.Description</h4></div>
+        </div>
+    }
+}

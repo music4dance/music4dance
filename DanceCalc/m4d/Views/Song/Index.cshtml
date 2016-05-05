@@ -1,4 +1,4 @@
-﻿@model PagedList.IPagedList<Song>
+﻿@model PagedList.IPagedList<SongBase>
 @using PagedList.Mvc;
 
 @Html.Partial("_SetupFilterScript")
@@ -18,77 +18,10 @@
     var userName = filter.UserQuery.IsEmpty ? User.Identity.Name : filter.UserQuery.UserName;
 }
 
-@helper Spotify()
-{
-    <div id="spotify-player" class="col-md-6" data-trackset-name="music4dance" data-trackset-songs="@string.Join(",", Model.Select(s => s.SongId))">
-        <button class="btn-default btn-block btn-lg">Show Spotify Player</button>
-    </div>
-}
 
 @Html.Partial("ItemTags")
 
-@if (filter.IsAdvanced)
-{
-        // Advanced search header
-        <h1>Search Results</h1>
-        <div class="row">
-            <div class="col-sm-6"><h4>@description</h4></div>
-            <div class="col-sm-2 col-sm-offset-2">
-                @Html.ActionLink("Change Search","advancedsearchform",new {filter}, new {@class="btn btn-default"})
-            </div>
-        </div>
-}
-else
-{
-    // Basic search header
-    using (Html.BeginForm("Search", "Song", FormMethod.Get, new {id = "search"}))
-    {
-        var danceName = (danceQuery.All || danceQuery.Advanced)? "All Dances" : danceQuery.Dances.First().Name;
-
-        <div class="row">
-            <h1 class="col-sm-2" style="width: auto; font-size: 22px;">Song Library</h1>
-            <div class="col-sm-offset-2" style="margin-left: 1px">
-                <div class="input-group" style="margin-top: 1em">
-                    <div class="input-group-btn search-panel">
-                        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" style="margin-left: 15px">
-                            <span id="dance_selector">@danceName</span> <span class="caret"></span>
-                        </button>
-                        <ul class="dropdown-menu" role="menu">
-                            <li id="DID_ALL"><a href="#ALL"><strong>All Dances</strong></a></li>
-                            @foreach (var sc in dances.OrderBy(x => x.DanceName))
-                            {
-                                var id = "DID_" + sc.DanceId;
-                                var href = "#" + sc.DanceId;
-                                <li id="@id"><a href=@href><strong>@sc.DanceName</strong></a></li>
-                                foreach (var sci in sc.Children.OrderBy(x => x.DanceName))
-                                {
-                                    if (sci.SongCount > 0)
-                                    {
-                                        id = "DID_" + sci.DanceId;
-                                        href = "#" + sci.DanceId;
-                                        <li id="@id"><a href=@href><small>&nbsp;@sci.DanceName</small></a></li>
-                                    }
-                                }
-                            }
-                        </ul>
-                    </div>
-                    <input type="hidden" name="dances" id="dances" value="@filter.Dances"/>
-                    <input type="hidden" name="filter" id="filter" value="@filter.ToString()"/>
-                    <input type="hidden" name="tags" id="tags"/>
-                    @Html.TextBox("SearchString", filter.SearchString, new {@class = "form-control search-text", placeholder = "Artist, Title, or Album", id="search-text" })
-                    <span class="input-group-btn">
-                        <button id="submit-search" class="btn btn-default" type="submit" style="margin-right: 15px"><span class="glyphicon glyphicon-search"></span></button>
-                    </span>
-                </div>
-            </div>
-        </div>
-        <div class="row">
-            <p class="col-xs-6">  @Html.ActionLink("Saved Searches", "index", "searches", new {user=@userName,filter} , new { id = "saved-search" })</p>
-            <p class="col-xs-6" style="text-align: right; padding-right:20px">@Html.ActionLink("Advanced Search", "advancedsearchform", "song", new {filter} , new { id = "advanced-search" })</p>
-        </div>
-    }
-}
-
+@SongHelper.SearchHeader(Html, filter, dances, userName)
 
 @if (isAdmin)
 {
@@ -122,66 +55,10 @@ else
     Html.RenderPartial("_ListSongs", @Model, ViewData);
 }
 
-<div class="row">
-    <div class="col-md-6">
-        @Html.PagedListPager(Model, page => Url.Action(filter.Action, new { page, filter }))
-    </div>
-    <div class="col-md-2 pagination-align">
-        Page @(Model.PageCount < Model.PageNumber ? 0 : Model.PageNumber) of @Model.PageCount
-        (@Model.TotalItemCount songs found.)
-    </div>
-    <div class="col-md-4 pagination-align">
-        @if (!danceQuery.All)
-        {
-            foreach (var dance in danceQuery.Dances)
-            {
-                @Html.ActionLink(dance.Name + " Page", dance.Name, "dances", new { filter, type = "I", count = 1 }, new { @class = "btn btn-default", role = "button" })
-            }
-        }
-        @if (!filter.IsAdvanced)
-        {
-            if (!filter.IsEmpty)
-            {
-            @Html.ActionLink("New Search", "index", "song", new { @class = "btn btn-default", role = "button" })
-            }
-        }
-    </div>
-</div>
-
-@if (filter.IsAdvanced)
-    {
-    <div class="row">
-        @Spotify()
-    </div>
-}
-else
-{
-    <div class="row">
-        @Spotify()
-        <div class="col-md-6"><h4>@description</h4></div>
-    </div>
-}
+@SongHelper.Footer(Html, Url, Model, filter)
 
 @section Scripts
 {
-    @{
-        @*if (filter.Advanced)
-        {
-            <script>var showAdvanced = true</script>
-        }
-        else
-        {
-            <script>var showAdvanced = false</script>
-        }
-        if (danceQuery.IsExclusive)
-        {
-            <script>var danceOr = false</script>
-        }
-        else
-        {
-            <script>var danceOr = true</script>
-        }*@
-    }
     @Scripts.Render("~/bundles/jqueryval")
     @Scripts.Render("~/bundles/knockout")
     @Scripts.Render("~/bundles/knockout-mapping")
