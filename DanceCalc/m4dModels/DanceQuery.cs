@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using DanceLibrary;
@@ -55,6 +56,13 @@ namespace m4dModels
         {
             return DanceIds.Contains(id, StringComparer.OrdinalIgnoreCase);
         }
+
+        //public bool IsDanceOrEmpty(string id)
+        //{
+        //    var ids = DanceIds as string[];
+        //    Debug.Assert(ids != null);
+        //    return ids.Length == 0 || (ids.Length == 1 && string.Equals(id, ids[0]));
+        //}
 
         public DanceQuery AddDance(string dance)
         {

@@ -20,7 +20,7 @@
             continue;
         }
 
-        var tc = titem.TagClass == null ? null : titem.TagClass.ToLower();
+        var tc = titem.TagClass?.ToLower();
         if (tc == null || !valid.Contains(tc))
         {
             skipped += 1;

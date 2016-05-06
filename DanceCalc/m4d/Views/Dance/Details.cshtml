@@ -61,6 +61,7 @@
         {
         <a href="#references" class="list-group-item">References</a>
         }
+        @Html.ActionLink("All " + @Model.DanceName + " Songs", "search", "song", new { dances = @Model.DanceId }, new {@class="list-group-item"})
         @if (tags.Count > 0)
         {
         <a href="#tags" class="list-group-item">Tags</a>

@@ -293,20 +293,15 @@ namespace m4dModels
             serializer.WriteObject(stream, this);
              return Encoding.UTF8.GetString(stream.ToArray());
         }
-        public bool IsEmpty
-        {
-            get
-            {
-                return !PropertyInfo.Where(pi => pi.Name != "SortOrder").Select(t => t.GetValue(this)).Where((o, i) => o != null && !IsAltDefault(o, i)).Any();
-            }
-        }
+        public bool IsEmpty => EmptyExcept(new[] { "SortOrder" });
 
-        public bool IsEmptyPaged
+        public bool IsEmptyPaged => EmptyExcept(new [] {"Page", "Action","SortOrder"});
+
+        public bool IsEmptyDance => EmptyExcept(new[] { "Page", "Action", "SortOrder", "Dances" }) && DanceQuery.Dances.Count() < 2;
+
+        private bool EmptyExcept(IEnumerable<string> properties)
         {
-            get
-            {
-                return !PropertyInfo.Where(pi => pi.Name != "Page" && pi.Name != "Action").Select(t => t.GetValue(this)).Where((o, i) => o != null && !IsAltDefault(o, i)).Any();
-            }
+            return !PropertyInfo.Where(pi => !properties.Contains(pi.Name)).Select(t => t.GetValue(this)).Where((o, i) => o != null && !IsAltDefault(o, i)).Any();
         }
 
         public string Description
