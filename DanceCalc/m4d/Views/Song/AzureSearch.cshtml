@@ -1,6 +1,5 @@
 ﻿@model PagedList.IPagedList<SongBase>
 @*@using System.Runtime.Serialization.Json*@
-@using PagedList.Mvc;
 
 @{
     SongFilter filter = ViewData.ContainsKey("SongFilter") ? ViewBag.SongFilter : SongFilter.AzureSimple;
@@ -24,31 +23,7 @@
 
 @{ Html.RenderPartial("_ListSongs", @Model, ViewData);}
 
-<div class="row">
-    <div class="col-sm-6">
-        @Html.PagedListPager(Model, page => Url.Action("AzureSearch", new {filter,page}))
-    </div>
-    <div class="col-sm-2 pagination-align">
-        Page @(Model.PageCount < Model.PageNumber ? 0 : Model.PageNumber) of @Model.PageCount
-        (@Model.TotalItemCount songs found.)
-    </div>
-    <div class="col-md-4 pagination-align">
-        @if (!danceQuery.All)
-        {
-            foreach (var dance in danceQuery.Dances)
-            {
-                @Html.ActionLink(dance.Name + " Page", dance.Name, "dances", new { filter, type = "I", count = 1 }, new { @class = "btn btn-default", role = "button" })
-            }
-        }
-        @if (!filter.IsAdvanced)
-        {
-            if (!filter.IsEmptyPaged)
-            {
-                @Html.ActionLink("New Search", "AzureSearch", "song", new { @class = "btn btn-default", role = "button" })
-            }
-        }
-    </div>
-</div>
+@SongHelper.Footer(Html, Url, Model, filter)
 
 @section Scripts
 {
