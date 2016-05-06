@@ -93,10 +93,15 @@
 
 @helper Footer(System.Web.Mvc.HtmlHelper html, UrlHelper urlHelp, PagedList.IPagedList<SongBase> songs, SongFilter filter)
 {
+    var action = filter.Action;
+    if (filter.IsAzure)
+    {
+        action = "azuresearch";
+    }
     var danceQuery = filter.DanceQuery;
     <div class="row">
         <div class="col-md-6">
-            @html.PagedListPager(songs, page => urlHelp.Action(filter.Action, new { page, filter }))
+            @html.PagedListPager(songs, page => urlHelp.Action(action, new { page, filter }))
         </div>
         <div class="col-md-2 pagination-align">
             Page @(songs.PageCount < songs.PageNumber ? 0 : songs.PageNumber) of @songs.PageCount

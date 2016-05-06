@@ -378,6 +378,15 @@ var editor = function () {
 
         ko.mapping.fromJS(data, albumMapping, this);
 
+        self.hasInferred = ko.pureComputed(function () {
+            for (var i = 0; i < self.DanceRatings().length; i++) {
+                if (!self.DanceRatings()[i].isExplicit()) {
+                    return true;
+                }
+            }
+            return false;
+        }, this);
+
         // Alubm Management
         self.nextIndex = function () {
             var max = 1;

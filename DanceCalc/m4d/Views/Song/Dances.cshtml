@@ -2,30 +2,56 @@
     var isModerator = User.IsInRole("canEdit");
 }
 
+<script type="text/html" id="dance-template">
+    <li class="list-group-item">
+        @if (isModerator)
+        {
+            <a role="button" class="btn btn-small btn-danger" style="padding: 1px 3px 0 3px" data-show="tooltip" data-placement="top" title="Moderator Only: Click to completely remove this dance style and all related tags from this song." data-bind="click:removeDance">
+                <span class="glyphicon glyphicon-remove-circle"></span>
+            </a>
+        }
+        <span class="rating-block" data-show="tooltip" data-placement="top" data-bind="css: Badge, attr: {'data-original-title':tooltip}">
+            <a data-bind="attr: {href: link}, text: DanceName, css:danceTag"></a>
+        </span>
+        &nbsp;
+        <a role="button" class="btn btn-small btn-info" style="padding: 2px" data-show="tooltip" data-placement="top" data-bind="attr: {'data-original-title':liketip},  visible:canTag"><img data-bind="click:toggleVote, attr: {src:voteImage, 'alt':voteName}" /></a>
+        <span style="font-size: 18px" data-bind="template: {name:'tag-template',foreach:TagSummary.tagTypes}"></span>
+    </li>
+</script>
 
-<div class="panel panel-default">
-    <div class="panel-heading">
-        <h3 class="panel-title">Dances</h3>
+<div class="col-md-6">
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <h3 class="panel-title">Dances</h3>
+        </div>
+
+
+        <ul class="panel-body list-group" data-bind="foreach: song.DanceRatings">
+            <!-- ko if: isExplicit -->
+            <li class="list-group-item" style="padding: 2px 3px" data-bind="template: 'dance-template'"></li>
+            <!-- /ko -->
+        </ul>
     </div>
 
-    <ul class="panel-body list-group" data-bind="foreach: song.DanceRatings">
-        <li class="list-group-item">
-            @if (isModerator)
-            {
-                <a role="button" class="btn btn-small btn-danger" style="padding: 1px 3px 0 3px" data-show="tooltip" data-placement="top" title="Moderator Only: Click to completely remove this dance style and all related tags from this song." data-bind="click:removeDance">
-                    <span class="glyphicon glyphicon-remove-circle"></span>
-                </a>
-            }
-            <span class="rating-block" data-show="tooltip" data-placement="top" data-bind="css: Badge, attr: {'data-original-title':tooltip}">
-                <a data-bind="attr: {href: link}, text: DanceName, css:danceTag"></a>
-            </span>
-            &nbsp;
-            <a role="button" class="btn btn-small btn-info" style="padding: 2px" data-show="tooltip" data-placement="top" data-bind="attr: {'data-original-title':liketip},  visible:canTag"><img data-bind="click:toggleVote, attr: {src:voteImage, 'alt':voteName}"/></a>
-            <span style="font-size: 18px" data-bind="template: {name:'tag-template',foreach:TagSummary.tagTypes}"></span>
-        </li>
-    </ul>
-
-    <div style="margin:0 10px 10px 10px" data-bind="visible:canTag">
-        @Html.DropDownList("addDance", ViewBag.DanceList as IEnumerable<SelectListItem>, new { @class = "chosen-select", data_placeholder = "Add a dance style..."})
+    <div style="margin: 0 10px 10px 10px" data-bind="visible:canTag">
+        @Html.DropDownList("addDance", ViewBag.DanceList as IEnumerable<SelectListItem>, new {@class = "chosen-select", data_placeholder = "Add a dance style..."})
     </div>
 </div>
+
+<!-- ko if: song.hasInferred -->
+<div class="col-md-6">
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <h3 class="panel-title">
+                Dances <small>(Inferred by Tempo)</small>
+            </h3>
+        </div>
+
+        <ul class="panel-body list-group" data-bind="foreach: song.DanceRatings">
+            <!-- ko ifnot: isExplicit -->
+            <li class="list-group-item" style="padding: 2px 3px" data-bind="template: 'dance-template'"></li>
+            <!-- /ko -->
+        </ul>
+    </div>
+</div>
+<!-- /ko -->
