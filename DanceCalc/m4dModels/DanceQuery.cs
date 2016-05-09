@@ -10,9 +10,10 @@ namespace m4dModels
     public class DanceQuery
     {
         private const string AllRef = "ALL";
-        private const string And = "AND";
-        private const string AndX = "ADX";
-        private const string OneOfX = "OOX";
+        private const string And = "AND"; // Exclusive + Explicit
+        private const string AndX = "ADX"; // Exclusive + Inferred
+        //private const string OneOf = ""; // Inclusive + Explicit
+        private const string OneOfX = "OOX"; // Inclusive + Inferred
 
         private readonly string[] _modifiers = {And,AndX,OneOfX};
 
@@ -73,12 +74,23 @@ namespace m4dModels
 
         public DanceQuery MakeInclusive()
         {
-            return IsExclusive ? new DanceQuery(Query.Substring(4)) : this;
+            return IsExclusive ? new DanceQuery((StartsWith(AndX) ? (OneOfX + ",") : string.Empty) + RemoveQualifier()) : this;
         }
 
         public DanceQuery MakeExclusive()
         {
-            return IsExclusive && DanceIds.Count() > 1 ? this : new DanceQuery("AND," + Query);
+            return (IsExclusive && DanceIds.Count() > 1) ? 
+                this : new DanceQuery((IncludeInferred ? AndX : And) + "," + (StartsWith(OneOfX) ? RemoveQualifier() : Query));
+        }
+
+        public DanceQuery MakeInferred()
+        {
+            return IncludeInferred ? this : new DanceQuery(IsExclusive ? AndX + "," + RemoveQualifier() : OneOfX + "," + Query);
+        }
+
+        public DanceQuery MakeExplicit()
+        {
+            return !IncludeInferred ? this : new DanceQuery((IsExclusive ? And + "," : string.Empty) + "," + RemoveQualifier());
         }
 
         public string ODataFilter
@@ -132,15 +144,15 @@ namespace m4dModels
             switch (count)
             {
                 case 0:
-                    return "All songs" + suffix;
+                    return "songs" + suffix;
                 case 1:
-                    return $"All {dances[0]} songs{suffix}";
+                    return $"{dances[0]} songs{suffix}";
                 case 2:
-                    return $"All songs dancable to {prefix} of {dances[0]} {connector} {dances[1]}{suffix}";
+                    return $"songs dancable to {prefix} of {dances[0]} {connector} {dances[1]}{suffix}";
                 default:
                     var last = dances[count - 1];
                     dances.RemoveAt(count - 1);
-                    return $"All songs danceable to {prefix} of {string.Join(", ", dances)} {connector} {last}{suffix}";
+                    return $"songs danceable to {prefix} of {string.Join(", ", dances)} {connector} {last}{suffix}";
             }
         }
 
@@ -149,5 +161,9 @@ namespace m4dModels
             return Query.StartsWith(qualifier + ",", StringComparison.InvariantCultureIgnoreCase);
         }
 
+        private string RemoveQualifier()
+        {
+            return Query.Substring(4);
+        }
     }
 }

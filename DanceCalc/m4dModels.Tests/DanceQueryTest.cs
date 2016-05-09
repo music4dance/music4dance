@@ -37,11 +37,25 @@ namespace m4dModels.Tests
             q = q.AddDance("RUM");
             Assert.AreEqual("BOL,RUM",q.Query);
 
-            q = q.MakeExclusive();
-            Assert.AreEqual("AND,BOL,RUM",q.Query);
+            var qX = q.MakeExclusive();
+            Assert.AreEqual("AND,BOL,RUM",qX.Query);
 
-            q = q.MakeInclusive();
+            q = qX.MakeInclusive();
             Assert.AreEqual("BOL,RUM", q.Query);
+
+            qX = qX.MakeExplicit();
+            Assert.AreEqual("AND,BOL,RUM", qX.Query);
+            qX = qX.MakeInferred();
+            Assert.AreEqual("ADX,BOL,RUM", qX.Query);
+            qX = qX.MakeInclusive();
+            Assert.AreEqual("OOX,BOL,RUM", qX.Query);
+
+            q = q.MakeExplicit();
+            Assert.AreEqual("BOL,RUM", q.Query);
+            q = q.MakeInferred();
+            Assert.AreEqual("OOX,BOL,RUM", q.Query);
+            q = q.MakeExclusive();
+            Assert.AreEqual("ADX,BOL,RUM", q.Query);
         }
     }
 }

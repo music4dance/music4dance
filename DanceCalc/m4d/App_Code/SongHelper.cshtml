@@ -94,14 +94,15 @@
 @helper Footer(System.Web.Mvc.HtmlHelper html, UrlHelper urlHelp, PagedList.IPagedList<SongBase> songs, SongFilter filter)
 {
     var action = filter.Action;
+    var danceQuery = filter.DanceQuery;
+
     if (filter.IsAzure)
     {
         action = "azuresearch";
     }
-    var danceQuery = filter.DanceQuery;
     <div class="row">
         <div class="col-md-6">
-            @html.PagedListPager(songs, page => urlHelp.Action(action, new { page, filter }))
+            @html.PagedListPager(songs, page => urlHelp.Action(action, new {page, filter}))
         </div>
         <div class="col-md-2 pagination-align">
             Page @(songs.PageCount < songs.PageNumber ? 0 : songs.PageNumber) of @songs.PageCount
@@ -112,18 +113,32 @@
             {
                 foreach (var dance in danceQuery.Dances)
                 {
-                    @html.ActionLink(dance.Name + " Page", dance.Name, "dances", new { filter, type = "I", count = 1 }, new { @class = "btn btn-default", role = "button" })
+                    @html.ActionLink(dance.Name + " Page", dance.Name, "dances", new {filter, type = "I", count = 1}, new {@class = "btn btn-default", role = "button"})
                 }
             }
             @if (!filter.IsAdvanced)
             {
                 if (!filter.IsEmpty)
                 {
-                    @html.ActionLink("New Search", "index", "song", new { @class = "btn btn-default", role = "button" })
+                    @html.ActionLink("New Search", "index", "song", new {@class = "btn btn-default", role = "button"})
                 }
             }
         </div>
     </div>
+    if (!danceQuery.IncludeInferred)
+    {
+        var newFilter = filter.ToggleInferred();
+        <div class="row">
+            <div class="col-md-12">
+                <p class="big-text">
+                    Not seeing as many songs as you expect in this list?
+                    You are currently seeing only songs that someone has explicitly tagged as @(danceQuery.ToString()).
+                    You can widen the search by choosing to include songs inferred by tempo on the @html.ActionLink("Advanced Search page", "AdvancedSearchForm", "Song", new {filter = newFilter}, null)
+                    or just @html.ActionLink("clicking here", action, "Song", new {filter = newFilter}, null).
+                </p>
+            </div>
+        </div>
+     }
 
     if (filter.IsAdvanced)
     {

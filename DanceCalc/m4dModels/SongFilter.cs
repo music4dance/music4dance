@@ -314,7 +314,7 @@ namespace m4dModels
                 var separator = " ";
 
                 var danceQuery = DanceQuery;
-                var prefix = danceQuery.ToString();
+                var prefix = "All "+ danceQuery.ToString();
 
                 var sb = new StringBuilder(prefix);
 
@@ -369,6 +369,17 @@ namespace m4dModels
         public SongFilter ToggleMode()
         {
             var ret= new SongFilter(ToString());
+            if (ret.IsSimple) ret.Action = "azure-advanced";
+            else if (ret.IsLucene) ret.Action = "azure-simple";
+
+            return ret;
+        }
+
+        public SongFilter ToggleInferred()
+        {
+            var ret = new SongFilter(ToString());
+            var danceQuery = DanceQuery;
+            ret.Dances = danceQuery.IncludeInferred ? danceQuery.MakeExplicit().Query : danceQuery.MakeInferred().Query;
             if (ret.IsSimple) ret.Action = "azure-advanced";
             else if (ret.IsLucene) ret.Action = "azure-simple";
 
