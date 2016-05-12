@@ -31,6 +31,7 @@
     <NuGetPackageImportStamp>
     </NuGetPackageImportStamp>
     <TargetFrameworkProfile />
+    <ApplicationInsightsResourceId>/subscriptions/e248126d-ff1e-421d-8fa2-fecff3a7a402/resourcegroups/Default-Web-WestUS/providers/microsoft.insights/components/m4d</ApplicationInsightsResourceId>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -152,6 +153,10 @@
     </Reference>
     <Reference Include="Microsoft.ApplicationInsights.Extensibility.RuntimeTelemetry">
       <HintPath>..\packages\Microsoft.ApplicationInsights.RuntimeTelemetry.0.14.0-build20632\lib\net45\Microsoft.ApplicationInsights.Extensibility.RuntimeTelemetry.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.ApplicationInsights.TraceListener, Version=2.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.ApplicationInsights.TraceListener.2.0.0\lib\net45\Microsoft.ApplicationInsights.TraceListener.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="Microsoft.AspNet.Identity.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.AspNet.Identity.Core.2.2.1\lib\net45\Microsoft.AspNet.Identity.Core.dll</HintPath>
@@ -765,6 +770,8 @@
     <Content Include="MvcDiagnostics.aspx" />
     <Content Include="pinterest-885c1.html" />
     <Content Include="Scripts\advancedsearch.js" />
+    <Content Include="Scripts\ai.0.22.9-build00167.js" />
+    <Content Include="Scripts\ai.0.22.9-build00167.min.js" />
     <Content Include="Scripts\bootstrap.js" />
     <Content Include="Scripts\bootstrap.min.js" />
     <Content Include="Scripts\chosen.jquery.js" />
@@ -815,6 +822,7 @@
     <Content Include="Scripts\undo.js" />
     <Content Include="Scripts\_references.js" />
     <Content Include="Scripts\jquery-2.2.3.min.map" />
+    <Content Include="Service References\Application Insights\ConnectedService.json" />
     <None Include="Service References\AWSReference\configuration91.svcinfo" />
     <None Include="Service References\AWSReference\configuration.svcinfo" />
     <Content Include="Service References\AWSReference\m4d.AWSReference.BrowseNodeLookupResponse.datasource">
