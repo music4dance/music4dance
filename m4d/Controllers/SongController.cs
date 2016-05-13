@@ -11,6 +11,7 @@ using m4d.Context;
 using m4d.Utilities;
 using m4d.ViewModels;
 using m4dModels;
+using Microsoft.Azure.Search.Models;
 using PagedList;
 
 namespace m4d.Controllers
@@ -155,6 +156,40 @@ namespace m4d.Controllers
 
             return View("azuresearch",songs);
         }
+
+        //
+        // GET: /Song/RawSearchForm
+        [AllowAnonymous]
+        public ActionResult RawSearchForm(string search=null, string filter = null, string sort=null, bool isLucene = false)
+        {
+            HelpPage = "advanced-search";
+            return View();
+        }
+
+        [AllowAnonymous]
+        public ActionResult RawSearch(string search = null, string filter = null, string sort = null, bool isLucene = false)
+        {
+            // TODONEXT: Get raw search working: Build the form, get sort order working, make sure end-to-end works
+            IList<string> order = new List<string> {sort};
+            var p = new SearchParameters
+            {
+                QueryType = isLucene ? QueryType.Full : QueryType.Simple,
+                Filter = filter,
+                Top = 25,
+                OrderBy = order
+            };
+
+            ViewBag.RawSearch = p;
+
+            var results = Database.AzureSearch(search, p);
+            BuildDanceList();
+            ViewBag.SongFilter = filter;
+
+            var songs = new StaticPagedList<SongBase>(results.Songs, results.CurrentPage, results.PageSize, (int)results.TotalCount);
+
+            return View("azuresearch", songs);
+        }
+
 
         //
         // GET: /Song/AdvancedSearchForm
