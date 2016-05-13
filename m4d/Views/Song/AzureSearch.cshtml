@@ -3,7 +3,6 @@
 
 @{
     SongFilter filter = ViewData.ContainsKey("SongFilter") ? ViewBag.SongFilter : SongFilter.AzureSimple;
-    var danceQuery = filter.DanceQuery;
 
     var description = filter.Description;
 
@@ -24,6 +23,15 @@
 @{ Html.RenderPartial("_ListSongs", @Model, ViewData);}
 
 @SongHelper.Footer(Html, Url, Model, filter)
+
+@if (User.IsInRole("showDiagnostics"))
+{
+    <div class="row">
+        <div class="col-md-12">
+            <b>Raw Search Paramters: </b>@WebUtility.UrlDecode(ViewBag.RawSearch.ToString()) 
+        </div>
+    </div>
+}
 
 @section Scripts
 {

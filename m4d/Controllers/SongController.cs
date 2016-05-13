@@ -139,7 +139,10 @@ namespace m4d.Controllers
                 return View("BotFilter", filter);
             }
 
-            var results = Database.AzureSearch(filter, 25);
+            var p = Database.AzureParmsFromFilter(filter, 25);
+            ViewBag.RawSearch = p;
+
+            var results = Database.AzureSearch(filter.SearchString, p);
             BuildDanceList();
             ViewBag.SongFilter = filter;
 
@@ -175,7 +178,7 @@ namespace m4d.Controllers
 
             if (!filter.IsAdvanced)
             {
-                filter.Action = "Advanced";
+                filter.Action = filter.IsAzure ? "azure+advanced" : "Advanced";
             }
 
             if (string.IsNullOrWhiteSpace(searchString))

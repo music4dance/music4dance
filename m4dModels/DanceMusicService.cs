@@ -3251,30 +3251,43 @@ namespace m4dModels
             return Songs.OrderByDescending(s => s.Modified).Skip(skip).Take(c).Include("DanceRatings").Include("ModifiedBy").Include("SongProperties").ToList();
         }
 
-        public SearchResults AzureSearch(SongFilter filter, int pageSize, string id = "default")
+        public SearchResults AzureSearch(SongFilter filter, int? pageSize = null, string id = "default")
+        {
+            return AzureSearch(filter.SearchString, AzureParmsFromFilter(filter, pageSize), id);
+        }
+
+        public SearchResults AzureSearch(string search, SearchParameters parameters, string id = "default")
         {
             var info = SearchServiceInfo.GetInfo(id);
 
             using (var serviceClient = new SearchServiceClient(info.Name, new SearchCredentials(info.QueryKey)))
             using (var indexClient = serviceClient.Indexes.GetClient(info.Index))
             {
-                var order = filter.ODataSort;
-                var odataFilter = filter.GetOdataFilter(this);
 
-                var sp = new SearchParameters
-                {
-                    QueryType = QueryType.Simple, // filter.IsSimple ? QueryType.Simple : QueryType.Full,
-                    Filter = odataFilter,
-                    IncludeTotalResultCount = true,
-                    Top = pageSize,
-                    Skip = (filter.Page - 1) * pageSize,
-                    OrderBy = order
-                };
-
-                var response = indexClient.Documents.Search(filter.SearchString, sp);
+                var response = indexClient.Documents.Search(search, parameters);
                 var songs = response.Results.Select(d => new SongDetails(d.Document)).ToList();
-                return new SearchResults(filter.SearchString, songs.Count,response.Count ?? -1,filter.Page??1,pageSize,songs);
+                var pageSize = parameters.Top ?? 25;
+                var page = ((parameters.Skip ?? 0)/pageSize) + 1;
+                return new SearchResults(search, songs.Count,response.Count ?? -1,page,pageSize,songs);
             }
+        }
+
+        public SearchParameters AzureParmsFromFilter(SongFilter filter, int? pageSize = null)
+        {
+            if (!pageSize.HasValue) pageSize = 25;
+
+            var order = filter.ODataSort;
+            var odataFilter = filter.GetOdataFilter(this);
+
+            return new SearchParameters
+            {
+                QueryType = QueryType.Simple, // filter.IsSimple ? QueryType.Simple : QueryType.Full,
+                Filter = odataFilter,
+                IncludeTotalResultCount = true,
+                Top = pageSize,
+                Skip = (filter.Page - 1) * pageSize,
+                OrderBy = order
+            };
         }
 
         public SuggestionList AzureSuggestions(string query, string id = "default")
