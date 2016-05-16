@@ -7,11 +7,9 @@ using System.Net;
 using System.Web;
 using System.Web.Mvc;
 using DanceLibrary;
-using m4d.Context;
 using m4d.Utilities;
 using m4d.ViewModels;
 using m4dModels;
-using Microsoft.Azure.Search.Models;
 using PagedList;
 
 namespace m4d.Controllers
@@ -157,39 +155,36 @@ namespace m4d.Controllers
             return View("azuresearch",songs);
         }
 
+
         //
         // GET: /Song/RawSearchForm
         [AllowAnonymous]
-        public ActionResult RawSearchForm(string search=null, string filter = null, string sort=null, bool isLucene = false)
+        public ActionResult RawSearch(string text = null, string filter = null, string sort = null, bool isLucene = false)
         {
             HelpPage = "advanced-search";
-            return View();
+
+            return View(new RawSearch {Text=text,Filter=filter,Sort=sort,IsLucene=isLucene});
         }
 
+        // POST: Tag/Edit/5
+        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
+        // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
+        [HttpPost]
+        [ValidateAntiForgeryToken]
         [AllowAnonymous]
-        public ActionResult RawSearch(string search = null, string filter = null, string sort = null, bool isLucene = false)
+        public ActionResult RawSearch([Bind(Include = "Text,Filter,Sort,IsLucene")] RawSearch rawSearch)
         {
-            // TODONEXT: Get raw search working: Build the form, get sort order working, make sure end-to-end works
-            IList<string> order = new List<string> {sort};
-            var p = new SearchParameters
+            if (ModelState.IsValid)
             {
-                QueryType = isLucene ? QueryType.Full : QueryType.Simple,
-                Filter = filter,
-                Top = 25,
-                OrderBy = order
-            };
+                var results = Database.AzureSearch(rawSearch.Text, rawSearch.AzureSearchParams);
 
-            ViewBag.RawSearch = p;
+                var songs = new StaticPagedList<SongBase>(results.Songs, results.CurrentPage, results.PageSize, (int)results.TotalCount);
 
-            var results = Database.AzureSearch(search, p);
-            BuildDanceList();
-            ViewBag.SongFilter = filter;
+                return View("azuresearch", songs);
+            }
 
-            var songs = new StaticPagedList<SongBase>(results.Songs, results.CurrentPage, results.PageSize, (int)results.TotalCount);
-
-            return View("azuresearch", songs);
+            return View(rawSearch);
         }
-
 
         //
         // GET: /Song/AdvancedSearchForm

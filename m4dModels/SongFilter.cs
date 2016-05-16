@@ -34,6 +34,8 @@ namespace m4dModels
             Action = "Index";
         }
 
+        // action-dances-sortorder-searchstring-purchase-user-tempomin-tempomax-page-tags-level
+
         public SongFilter(string value)
         {
             if (string.IsNullOrWhiteSpace(value))
@@ -88,6 +90,15 @@ namespace m4dModels
                 pi.SetValue(this,v);
             }
         }
+
+        public SongFilter(RawSearch raw)
+        {
+            Action = "azure+raw+" + (raw.IsLucene ? "lucene" : "");
+            SearchString = raw.Text;
+            Dances = raw.Filter;
+            SortOrder = raw.Sort;
+        }
+
         public string Action { get { return _action ?? "index"; } set { _action = value; } }
         private string _action;
 
@@ -174,7 +185,8 @@ namespace m4dModels
 
         public bool IsSimple => string.Equals(Action.ToLower().Replace(' ','+'), "azure+simple", StringComparison.OrdinalIgnoreCase);
         public bool IsAdvanced => string.Equals(Action.ToLower().Replace(' ', '+'), "azure+advanced", StringComparison.OrdinalIgnoreCase) || string.Equals(Action,"advanced", StringComparison.OrdinalIgnoreCase);
-        public bool IsLucene => string.Equals(Action.ToLower().Replace(' ', '+'), "azure+lucene", StringComparison.OrdinalIgnoreCase);
+        public bool IsLucene => Action.ToLower().Replace(' ', '+').EndsWith("+lucene", StringComparison.OrdinalIgnoreCase);
+        public bool IsRaw => Action.ToLower().Replace(' ', '+').StartsWith("azure+raw", StringComparison.OrdinalIgnoreCase);
         public bool IsAzure => Action.ToLower().StartsWith("azure",StringComparison.OrdinalIgnoreCase);
 
         //public bool Advanced => !string.IsNullOrWhiteSpace(Purchase) ||
@@ -310,6 +322,11 @@ namespace m4dModels
             {
                 // All [dance] songs [including the text "<SearchString>] [Available on [Groove|Amazon|ITunes|Spotify] [Including tags TI] [Excluding tags TX] [Tempo Range] [(liked|disliked|edited) by user] sorted by [Sort Order] from [High|low] to [low|high]
                 // TOOD: If we pass in context, we can have user name + we can do better stuff with the tags...
+
+                if (IsRaw)
+                {
+                    return new RawSearch(this).ToString();
+                }
 
                 var separator = " ";
 

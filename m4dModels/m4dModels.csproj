@@ -116,6 +116,7 @@
     <Compile Include="PurchaseRegion.cs" />
     <Compile Include="PurchaseType.cs" />
     <Compile Include="QuickTimer.cs" />
+    <Compile Include="RawSearch.cs" />
     <Compile Include="Search.cs" />
     <Compile Include="SearchResults.cs" />
     <Compile Include="SearchServiceInfo.cs" />

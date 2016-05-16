@@ -997,7 +997,6 @@
     <Content Include="Views\Home\FAQ.cshtml" />
     <Content Include="Views\Dance\BallroomCompetitionCategories.cshtml" />
     <Content Include="Views\Dance\weddingdancemusic.cshtml" />
-    <Content Include="Views\Song\AdvancedSearchForm.cshtml" />
     <Content Include="Views\Account\_WhySignUp.cshtml" />
     <Content Include="Views\Shared\BotWarning.cshtml" />
     <Content Include="Views\Shared\_botreport.cshtml" />
@@ -1010,7 +1009,7 @@
     <Content Include="Views\Shared\_filtermodal.cshtml" />
     <Content Include="Views\Shared\_dancemodal.cshtml" />
     <Content Include="Views\Song\Artist.cshtml" />
-    <Content Include="Views\Song\RawSearchForm.cshtml" />
+    <Content Include="Views\Song\RawSearch.cshtml" />
     <None Include="Web.m4d.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
