@@ -155,15 +155,15 @@ namespace m4d.Controllers
             return View("azuresearch",songs);
         }
 
-
+        //TODONEXT: Get form binding working for edit, then migrate the manual search to just use the azure search - potentially add page to rawsearch...
         //
         // GET: /Song/RawSearchForm
         [AllowAnonymous]
-        public ActionResult RawSearch(string text = null, string filter = null, string sort = null, bool isLucene = false)
+        public ActionResult RawSearch(string text = null, string ofilter = null, string sort = null, bool isLucene = false)
         {
             HelpPage = "advanced-search";
 
-            return View(new RawSearch {Text=text,Filter=filter,Sort=sort,IsLucene=isLucene});
+            return View(new RawSearch {Text=text,Filter=ofilter,Sort=sort,IsLucene=isLucene});
         }
 
         // POST: Tag/Edit/5

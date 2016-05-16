@@ -1010,6 +1010,7 @@
     <Content Include="Views\Shared\_dancemodal.cshtml" />
     <Content Include="Views\Song\Artist.cshtml" />
     <Content Include="Views\Song\RawSearch.cshtml" />
+    <Content Include="Views\Song\AdvancedSearchForm.cshtml" />
     <None Include="Web.m4d.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
