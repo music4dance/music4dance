@@ -94,9 +94,10 @@ namespace m4dModels
         public SongFilter(RawSearch raw)
         {
             Action = "azure+raw+" + (raw.IsLucene ? "lucene" : "");
-            SearchString = raw.Text;
+            SearchString = raw.SearchText;
             Dances = raw.Filter;
             SortOrder = raw.Sort;
+            Page = raw.Page;
         }
 
         public string Action { get { return _action ?? "index"; } set { _action = value; } }
@@ -184,7 +185,9 @@ namespace m4dModels
         private static readonly Dictionary<string, string> s_tagClasses = new Dictionary<string,string> { { "Music" , "Genre"} , { "Style", "Style"} , { "Tempo", "Tempo" } , { "Other", "Other" }  };
 
         public bool IsSimple => string.Equals(Action.ToLower().Replace(' ','+'), "azure+simple", StringComparison.OrdinalIgnoreCase);
-        public bool IsAdvanced => string.Equals(Action.ToLower().Replace(' ', '+'), "azure+advanced", StringComparison.OrdinalIgnoreCase) || string.Equals(Action,"advanced", StringComparison.OrdinalIgnoreCase);
+        public bool IsAdvanced => string.Equals(Action.ToLower().Replace(' ', '+'), "azure+advanced", StringComparison.OrdinalIgnoreCase) || 
+            string.Equals(Action,"advanced", StringComparison.OrdinalIgnoreCase) ||
+            IsRaw;
         public bool IsLucene => Action.ToLower().Replace(' ', '+').EndsWith("+lucene", StringComparison.OrdinalIgnoreCase);
         public bool IsRaw => Action.ToLower().Replace(' ', '+').StartsWith("azure+raw", StringComparison.OrdinalIgnoreCase);
         public bool IsAzure => Action.ToLower().StartsWith("azure",StringComparison.OrdinalIgnoreCase);

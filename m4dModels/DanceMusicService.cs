@@ -3272,7 +3272,7 @@ namespace m4dModels
             using (var serviceClient = new SearchServiceClient(info.Name, new SearchCredentials(info.QueryKey)))
             using (var indexClient = serviceClient.Indexes.GetClient(info.Index))
             {
-
+                parameters.IncludeTotalResultCount = true;
                 var response = indexClient.Documents.Search(search, parameters);
                 var songs = response.Results.Select(d => new SongDetails(d.Document)).ToList();
                 var pageSize = parameters.Top ?? 25;
@@ -3285,6 +3285,10 @@ namespace m4dModels
         {
             if (!pageSize.HasValue) pageSize = 25;
 
+            if (filter.IsRaw)
+            {
+                return new RawSearch(filter).GetAzureSearchParams(pageSize);
+            }
             var order = filter.ODataSort;
             var odataFilter = filter.GetOdataFilter(this);
 

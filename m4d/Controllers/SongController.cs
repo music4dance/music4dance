@@ -155,15 +155,26 @@ namespace m4d.Controllers
             return View("azuresearch",songs);
         }
 
-        //TODONEXT: Get form binding working for edit, then migrate the manual search to just use the azure search - potentially add page to rawsearch...
+        // TODONEXT: Still struggling with binding for get vs. post.  Should we step back and directly mirror what we're doing with advanced search? (Fully separate form and search, everything get, no post)?
+
         //
         // GET: /Song/RawSearchForm
+        [AllowAnonymous]
+        public ActionResult RawSearchForm(SongFilter filter)
+        {
+            HelpPage = "advanced-search";
+
+            return View("RawSearch",new RawSearch(filter??new SongFilter()));
+        }
+
+        //
+        // GET: /Song/RawSearch
         [AllowAnonymous]
         public ActionResult RawSearch(string text = null, string ofilter = null, string sort = null, bool isLucene = false)
         {
             HelpPage = "advanced-search";
 
-            return View(new RawSearch {Text=text,Filter=ofilter,Sort=sort,IsLucene=isLucene});
+            return View(new RawSearch {SearchText=text,Filter=ofilter,Sort=sort,IsLucene=isLucene});
         }
 
         // POST: Tag/Edit/5
@@ -172,15 +183,11 @@ namespace m4d.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [AllowAnonymous]
-        public ActionResult RawSearch([Bind(Include = "Text,Filter,Sort,IsLucene")] RawSearch rawSearch)
+        public ActionResult RawSearch([Bind(Include = "SearchText,Filter,Sort,IsLucene")] RawSearch rawSearch)
         {
             if (ModelState.IsValid)
             {
-                var results = Database.AzureSearch(rawSearch.Text, rawSearch.AzureSearchParams);
-
-                var songs = new StaticPagedList<SongBase>(results.Songs, results.CurrentPage, results.PageSize, (int)results.TotalCount);
-
-                return View("azuresearch", songs);
+                return DoAzureSearch(new SongFilter(rawSearch));
             }
 
             return View(rawSearch);

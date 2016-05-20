@@ -14,11 +14,12 @@
 // Advanced search header
 @helper AdvancedHeader(System.Web.Mvc.HtmlHelper html, SongFilter filter)
 {
-    <h1>Search Results @(filter.IsAzure? "(BETA)" : string.Empty)</h1>
+    var url = "/song/" + (filter.IsRaw ? "raw" : "advanced") + "searchform?filter=" + filter.ToString();
+    <h1>Search Results @(filter.IsRaw ? "(RAW)" : filter.IsAzure ? "(BETA)" : string.Empty)</h1>
     <div class="row">
         <div class="col-sm-6"><h4>@filter.Description</h4></div>
         <div class="col-sm-2 col-sm-offset-2">
-            @html.ActionLink("Change Search", "advancedsearchform", new { filter }, new { @class = "btn btn-default" })
+            <a href="@url" class = "btn btn-default">Change Search <span class="glyphicon glyphicon-search"></span></a>
         </div>
     </div>
 }

@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Security.Principal;
 using Microsoft.Azure.Search.Models;
 
 namespace m4dModels
@@ -13,46 +11,52 @@ namespace m4dModels
         public RawSearch()
         {
         }
-        public RawSearch(SongFilter filter)
+        public RawSearch(SongFilter songFilter)
         {
-            
+            if (songFilter.IsEmpty) return;
+
+            if (!songFilter.IsRaw) throw new ArgumentException(@"Can't cast SongFilter to RawSearch - try using DanceMusicService.AzureParmsFromFilter", nameof(songFilter));
+
+            SearchText = songFilter.SearchString;
+            Filter = songFilter.Dances;
+            Sort = songFilter.SortOrder;
+            IsLucene = songFilter.IsLucene;
+
+            Page = songFilter.Page;
         }
 
-        public RawSearch(string val)
+        public RawSearch(string val) : this(new SongFilter(val))
         {
-            var sf = new SongFilter(val);
-            if (!sf.IsRaw) throw new ArgumentException(@"Can't cast SongFilter to RawSearch - try using DanceMusicService.AzureParmsFromFilter",nameof(sf));
-
-            Text = sf.SearchString;
-            Filter = sf.Dances;
-            Sort = sf.SortOrder;
-            IsLucene = sf.IsLucene;
         }
 
-        public string Text { get; set; }
+        [Display(Name = @"Search Text")]
+        public string SearchText { get; set; }
+        [Display(Name = @"OData Filter")]
         public string Filter { get; set; }
+        [Display(Name = @"Sort")]
         public string Sort { get; set; }
+        [Display(Name = @"Use Lucene Syntax")]
         public bool IsLucene { get; set; }
 
-        public SearchParameters AzureSearchParams 
-        {
-            get
-            {
-                var order = string.IsNullOrEmpty(Sort) ? null : Sort.Split('|').ToList();
+        public int? Page { get; set; }
 
-                return new SearchParameters
-                {
-                    QueryType = IsLucene ? QueryType.Full : QueryType.Simple,
-                    Filter = Filter,
-                    Top = 25,
-                    OrderBy = order
-                };
-            }
+        public SearchParameters GetAzureSearchParams(int? pageSize)
+        {
+            var order = string.IsNullOrEmpty(Sort) ? null : Sort.Split('|').ToList();
+
+            return new SearchParameters
+            {
+                QueryType = IsLucene ? QueryType.Full : QueryType.Simple,
+                Filter = Filter,
+                IncludeTotalResultCount = true,
+                Top = pageSize??25,
+                OrderBy = order
+            };
         }
 
         public override string ToString()
         {
-            return $"Raw Azure Search: Search String = \"{Text}\", Filter=\"{Filter}\" Sort = \"{Sort}\" Lucene = {IsLucene}";
+            return $"Raw Azure Search: Search String = \"{SearchText}\", Filter=\"{Filter}\" Sort = \"{Sort}\" Lucene = {IsLucene}";
         }
     }
 }

@@ -4,14 +4,15 @@
 @{
     var isAdmin = User.IsInRole("dbAdmin");
     var canSort = ViewData.ContainsKey("NoSort") ? !ViewBag.NoSort : true;
+    var showDate = canSort;
     var hideDances = ViewData.ContainsKey("HideDances") ? ViewBag.HideDances : false;
     string albumName = ViewData.ContainsKey("AlbumName") ? ViewBag.AlbumName : null;
     var hideArtist = ViewData.ContainsKey("HideArtist") ? ViewBag.HideArtist : false;
     var showLength = ViewData.ContainsKey("ShowLength") ? ViewBag.ShowLength : false;
 
     var danceMap = (IDictionary<string, SongCounts>)ViewBag.DanceMap;
-    var showDate = canSort;
     SongFilter filter = ViewData.ContainsKey("SongFilter") ? ViewBag.SongFilter : new SongFilter();
+    canSort = canSort && !filter.IsRaw;
     var songOrder = new SongSort(filter.SortOrder);
     var danceId = ViewData.ContainsKey("DanceId") ? ViewBag.DanceId : null;
     var danceName = (danceId == null) ? null : danceMap[danceId].DanceName;

@@ -164,6 +164,10 @@ table.table-songs > tbody > tr > td
     max-width: none;
 }
 
+.wide-text-control {
+    max-width: none;
+}
+
 h1, h2, h3, h4, h5, h6 { font-family: "Merienda";font-weight: 700 }
 
 .filter-button {
