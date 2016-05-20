@@ -294,6 +294,15 @@ namespace m4dModels
             song.UpdateFromService(this);
 
             var sd = new SongDetails(title,artist,tempo,length,albums);
+
+            // TODO: This is a bit of a kludge - for scalar parameters that we
+            //  didn't ask the user about, we'll just copy over the one from the auto-merged song
+
+            sd.Danceability = song.Danceability;
+            sd.Energy = song.Energy;
+            sd.Valence = song.Valence;
+            sd.Sample = song.Sample;
+
             song.Edit(user, sd, null, this);
 
             return song;

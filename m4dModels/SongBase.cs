@@ -207,6 +207,18 @@ namespace m4dModels
                             currentModified.Like = prop.ObjectValue as bool?;
                         }
                         break;
+                    //case DanceabilityField:
+                    //    Danceability = prop.ObjectValue as float?;
+                    //    break;
+                    //case EnergyField:
+                    //    Energy = prop.ObjectValue as float?;
+                    //    break;
+                    //case ValenceFiled:
+                    //    Valence = prop.ObjectValue as float?;
+                    //    break;
+                    //case SampleField:
+                    //    Sample = prop.Value;
+                    //    break;
                     default:
                         // All of the simple properties we can just set
                         if (!prop.IsAction)
