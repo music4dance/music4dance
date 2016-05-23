@@ -95,7 +95,7 @@ namespace m4dModels
         {
             Action = "azure+raw+" + (raw.IsLucene ? "lucene" : "");
             SearchString = raw.SearchText;
-            Dances = raw.Filter;
+            Dances = raw.ODataFilter;
             SortOrder = raw.Sort;
             Page = raw.Page;
         }

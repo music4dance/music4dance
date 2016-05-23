@@ -12,10 +12,11 @@
 
     var danceMap = (IDictionary<string, SongCounts>)ViewBag.DanceMap;
     SongFilter filter = ViewData.ContainsKey("SongFilter") ? ViewBag.SongFilter : new SongFilter();
-    canSort = canSort && !filter.IsRaw;
+    var isRaw = filter.IsRaw;
+    canSort = canSort && !isRaw;
     var songOrder = new SongSort(filter.SortOrder);
     var danceId = ViewData.ContainsKey("DanceId") ? ViewBag.DanceId : null;
-    var danceName = (danceId == null) ? null : danceMap[danceId].DanceName;
+    var danceName = (isRaw || danceId == null) ? null : danceMap[danceId].DanceName;
     var azureSearch = filter.IsAzure;
     LikeDictionary likes = ViewData.ContainsKey("Likes") ? ViewBag.Likes : null;
     LikeDictionary danceLikes = ViewData.ContainsKey("DanceLikes") ? ViewBag.DanceLikes : null;

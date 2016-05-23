@@ -13,12 +13,12 @@ namespace m4dModels
         }
         public RawSearch(SongFilter songFilter)
         {
-            if (songFilter.IsEmpty) return;
+            if (songFilter == null || songFilter.IsEmpty) return;
 
             if (!songFilter.IsRaw) throw new ArgumentException(@"Can't cast SongFilter to RawSearch - try using DanceMusicService.AzureParmsFromFilter", nameof(songFilter));
 
             SearchText = songFilter.SearchString;
-            Filter = songFilter.Dances;
+            ODataFilter = songFilter.Dances;
             Sort = songFilter.SortOrder;
             IsLucene = songFilter.IsLucene;
 
@@ -32,7 +32,7 @@ namespace m4dModels
         [Display(Name = @"Search Text")]
         public string SearchText { get; set; }
         [Display(Name = @"OData Filter")]
-        public string Filter { get; set; }
+        public string ODataFilter { get; set; }
         [Display(Name = @"Sort")]
         public string Sort { get; set; }
         [Display(Name = @"Use Lucene Syntax")]
@@ -47,8 +47,9 @@ namespace m4dModels
             return new SearchParameters
             {
                 QueryType = IsLucene ? QueryType.Full : QueryType.Simple,
-                Filter = Filter,
+                Filter = ODataFilter,
                 IncludeTotalResultCount = true,
+                Skip = ((Page ?? 1) - 1) * pageSize,
                 Top = pageSize??25,
                 OrderBy = order
             };
@@ -56,7 +57,7 @@ namespace m4dModels
 
         public override string ToString()
         {
-            return $"Raw Azure Search: Search String = \"{SearchText}\", Filter=\"{Filter}\" Sort = \"{Sort}\" Lucene = {IsLucene}";
+            return $"Raw Azure Search: Search String = \"{SearchText}\", Filter=\"{ODataFilter}\" Sort = \"{Sort}\" Lucene = {IsLucene}";
         }
     }
 }

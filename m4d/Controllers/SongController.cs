@@ -155,42 +155,26 @@ namespace m4d.Controllers
             return View("azuresearch",songs);
         }
 
-        // TODONEXT: Still struggling with binding for get vs. post.  Should we step back and directly mirror what we're doing with advanced search? (Fully separate form and search, everything get, no post)?
-
         //
         // GET: /Song/RawSearchForm
         [AllowAnonymous]
-        public ActionResult RawSearchForm(SongFilter filter)
+        public ActionResult RawSearchForm(SongFilter filter = null)
         {
             HelpPage = "advanced-search";
 
-            return View("RawSearch",new RawSearch(filter??new SongFilter()));
+            ViewBag.AzureIndexInfo = SongDetails.GetIndex(Database);
+            return View(new RawSearch(filter));
         }
 
         //
         // GET: /Song/RawSearch
         [AllowAnonymous]
-        public ActionResult RawSearch(string text = null, string ofilter = null, string sort = null, bool isLucene = false)
+        public ActionResult RawSearch([Bind(Include = "SearchText,ODataFilter,Sort,IsLucene")] RawSearch rawSearch)
         {
             HelpPage = "advanced-search";
 
-            return View(new RawSearch {SearchText=text,Filter=ofilter,Sort=sort,IsLucene=isLucene});
-        }
-
-        // POST: Tag/Edit/5
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
-        // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        [AllowAnonymous]
-        public ActionResult RawSearch([Bind(Include = "SearchText,Filter,Sort,IsLucene")] RawSearch rawSearch)
-        {
-            if (ModelState.IsValid)
-            {
-                return DoAzureSearch(new SongFilter(rawSearch));
-            }
-
-            return View(rawSearch);
+            ViewBag.AzureIndexInfo = SongDetails.GetIndex(Database);
+            return ModelState.IsValid ? DoAzureSearch(new SongFilter(rawSearch)) : View("RawSearchForm",rawSearch);
         }
 
         //
@@ -352,14 +336,19 @@ namespace m4d.Controllers
         [AllowAnonymous]
         public ActionResult Index(int? page, string purchase, SongFilter filter)
         {
-            if (User.Identity.IsAuthenticated && filter.IsEmpty)
-            {
-                filter.User = new UserQuery(User.Identity.Name, false, false).Query;
-            }
-
             if (page.HasValue)
             {
                 filter.Page = page;
+            }
+
+            if (filter.IsAzure)
+            {
+                return DoAzureSearch(filter);
+            }
+
+            if (User.Identity.IsAuthenticated && filter.IsEmpty)
+            {
+                filter.User = new UserQuery(User.Identity.Name, false, false).Query;
             }
 
             if (!string.IsNullOrWhiteSpace(purchase))

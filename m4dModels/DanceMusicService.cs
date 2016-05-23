@@ -3298,7 +3298,7 @@ namespace m4dModels
                 Filter = odataFilter,
                 IncludeTotalResultCount = true,
                 Top = pageSize,
-                Skip = (filter.Page - 1) * pageSize,
+                Skip = ((filter.Page??1) - 1) * pageSize,
                 OrderBy = order
             };
         }
