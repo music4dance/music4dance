@@ -81,6 +81,6 @@
     @Html.AntiForgeryToken()
     <p>
         <input type="submit" value="Delete" /> |
-        @Html.ActionLink("Back to List", (string)ViewBag.SongFilter.TargetAction, new { filter = ViewBag.SongFilter }, new { @class = "btn btn-ml btn-primary", role = "button" })
+        @Html.ActionLink("Back to List", ((SongFilter)ViewBag.SongFilter).TargetAction, new { filter = ViewBag.SongFilter }, new { @class = "btn btn-ml btn-primary", role = "button" })
     </p>
 }
