@@ -63,6 +63,10 @@ namespace m4dModels
                 "basicb",
                 new SearchServiceInfo("basicb", "msc4dnc", "songs-b", BasicAdmin, BasicQuery)
             },
+            {
+                "basicc",
+                new SearchServiceInfo("basicc", "msc4dnc", "songs-c", BasicAdmin, BasicQuery)
+            },
         };
     }
 }

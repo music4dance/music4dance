@@ -154,7 +154,8 @@ namespace m4dModels
                 var b = MakeOneOdata(userName, inc, cmp, true);
                 var c = MakeOneOdata(userName, inc, cmp, false);
 
-                return IsInclude ? $"({a} or {b} or {c})" : $"!({a} and {b} and {c})";
+                // For the include case, explicitly drop the false case
+                return IsInclude ? $"({a} or {b})" : $"!({a} and {b} and {c})";
             }
         }
 

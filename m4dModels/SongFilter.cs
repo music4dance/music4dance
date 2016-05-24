@@ -114,6 +114,8 @@ namespace m4dModels
         public string Tags { get; set; }
         public int? Level { get; set; }
 
+        public string TargetAction => IsAzure ? "azuresearch" : Action;
+
         public DanceQuery DanceQuery => new DanceQuery(Dances);
         public UserQuery UserQuery => new UserQuery(User);
         public SongSort SongSort => new SongSort(SortOrder);

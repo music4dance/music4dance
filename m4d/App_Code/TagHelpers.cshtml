@@ -32,7 +32,7 @@
         var dance = Dances.Instance.DanceFromId(filter.Dances);
         if (dance != null)
         {
-            var filterDance = new SongFilter {Action=filter.Action, Dances = filter.Dances};
+            var filterDance = new SongFilter {Action=filter.TargetAction, Dances = filter.Dances};
             danceName = dance.Name;
             urlDance = urlBase + "&filter=" + WebUtility.UrlEncode(filterDance.ToString());
         }
@@ -48,7 +48,7 @@
     }
     if (filter.IsAzure)
     {
-        url += "&filter=" + WebUtility.UrlEncode(filter.Action);
+        url += "&filter=" + WebUtility.UrlEncode(filter.TargetAction);
     }
 
     var tc = tag.TagClass;

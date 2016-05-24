@@ -1179,6 +1179,11 @@ namespace m4dModels
                     {
                         mod = mod.Where(m => m.Like == true);
                     }
+                    else
+                    {
+                        // For the all songs tagged condition, we're going to exclude explicitly disliked songs
+                        mod = mod.Where(m => m.Like != false);
+                    }
 
                     songs = from m in mod select m.Song;
                     userFilter = true;

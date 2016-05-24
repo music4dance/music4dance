@@ -9,10 +9,11 @@
 
 <h3>Search Indexing</h3>
 <ul>
-    <li>Default: @Html.ActionLink("Reset", "ResetSearchIdx"), @Html.ActionLink("Load (rebuild)", "BuildSearchIdx", new { count = 500, rebuild = true }, null), @Html.ActionLink("Load (incremental)", "BuildSearchIdx", new { count = 100 }, null)</li>
+    <li>Default: @Html.ActionLink("Reset", "ResetSearchIdx"), @Html.ActionLink("Load (rebuild)", "BuildSearchIdx", new { count = 500, rebuild = true }, null), @Html.ActionLink("Load (incremental)", "BuildSearchIdx", new { count = 100 }, null), @Html.ActionLink("Update", "UpdateSearchIdx", new { id = "default" }, null)</li>
     <li>Free: @Html.ActionLink("Reset", "ResetSearchIdx", new { id = "free"}, null), @Html.ActionLink("Load (rebuild)", "BuildSearchIdx", new { id = "free", count = 500, rebuild = true }, null), @Html.ActionLink("Load (incremental)", "BuildSearchIdx", new { id = "free", count = 100 }, null), @Html.ActionLink("Update", "UpdateSearchIdx", new { id = "free" }, null)</li>
     <li>BasicA: @Html.ActionLink("Reset", "ResetSearchIdx", new { id = "basica" }, null), @Html.ActionLink("Load (rebuild)", "BuildSearchIdx", new { id = "basica", count = 500, rebuild = true }, null), @Html.ActionLink("Load (incremental)", "BuildSearchIdx", new { id = "basica", count = 100 }, null), @Html.ActionLink("Update", "UpdateSearchIdx", new { id = "basica" }, null)</li>
     <li>BasicB: @Html.ActionLink("Reset", "ResetSearchIdx", new { id = "basicb" }, null), @Html.ActionLink("Load (rebuild)", "BuildSearchIdx", new { id = "basicb", count = 500, rebuild = true }, null), @Html.ActionLink("Load (incremental)", "BuildSearchIdx", new { id = "basicb", count = 100 }, null), @Html.ActionLink("Update", "UpdateSearchIdx", new { id = "basicb" }, null)</li>
+    <li>BasicC: @Html.ActionLink("Reset", "ResetSearchIdx", new { id = "basicc" }, null), @Html.ActionLink("Load (rebuild)", "BuildSearchIdx", new { id = "basicc", count = 500, rebuild = true }, null), @Html.ActionLink("Load (incremental)", "BuildSearchIdx", new { id = "basicc", count = 100 }, null), @Html.ActionLink("Update", "UpdateSearchIdx", new { id = "basicc" }, null)</li>
 </ul>
 
 <h3> Initializiation Tasks</h3>
