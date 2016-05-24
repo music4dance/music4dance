@@ -131,7 +131,7 @@ namespace m4d.Utilities
                     break;
             }
 
-            return (auth == null) ? null : auth.GetAccessString();
+            return auth?.GetAccessString();
         }
 
         private static AdmAuthentication s_xbox;

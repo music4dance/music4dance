@@ -1371,12 +1371,13 @@ namespace m4d.Controllers
                 var user = Database.FindUser("batch-e");
 
                 var skipTempo = options != null && options.Contains("T");
+                var retry = options != null && options.Contains("R");
 
                 while (!done)
                 {
                     AdminMonitor.UpdateTask("BuildPage", page);
 
-                    var sq = Database.BuildSongList(filter).Where(s => s.Danceability == null);
+                    var sq = Database.BuildSongList(filter).Where(s => s.Danceability == null ||  (retry && s.Danceability == 0.0f));
                     if (skipTempo)
                     {
                         sq = sq.Where(s => s.Tempo == null);
@@ -1411,7 +1412,7 @@ namespace m4d.Controllers
                         {
                             string[] regions;
                             var idt = PurchaseRegion.ParseIdAndRegionInfo(id, out regions);
-                            track = MusicServiceManager.LookupEchoTrack(idt);
+                            track = MusicServiceManager.LookupEchoTrack(idt,service);
                             if (track != null)
                                 break;
                         }
