@@ -30,8 +30,8 @@ namespace m4dModels
             return s_info[id];
         }
 
-        private const string FreeAdmin = "***REMOVED***";
-        private const string FreeQuery = "5B2BAFC30F0CD25405A10B08582B5451";
+        //private const string FreeAdmin = "***REMOVED***";
+        //private const string FreeQuery = "5B2BAFC30F0CD25405A10B08582B5451";
 
         private const string BasicAdmin = "***REMOVED***";
         private const string BasicQuery = "***REMOVED***";
@@ -51,10 +51,6 @@ namespace m4dModels
 
         private static readonly Dictionary<string, SearchServiceInfo> s_info = new Dictionary<string, SearchServiceInfo>
         {
-            {
-                "free",
-                new SearchServiceInfo("default", "m4d", "songs", FreeAdmin, FreeQuery)
-            },
             {
                 "basica",
                 new SearchServiceInfo("basica", "msc4dnc", "songs-a", BasicAdmin, BasicQuery)
