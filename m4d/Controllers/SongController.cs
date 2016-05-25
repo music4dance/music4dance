@@ -141,7 +141,7 @@ namespace m4d.Controllers
             var p = Database.AzureParmsFromFilter(filter, 25);
             ViewBag.RawSearch = p;
 
-            var results = Database.AzureSearch(filter.SearchString, p);
+            var results = Database.AzureSearch(filter.SearchString, p, HttpContext.User.IsInRole(DanceMusicService.EditRole) ? DanceMusicService.CruftFilter.AllCruft : DanceMusicService.CruftFilter.NoCruft);
             BuildDanceList();
             ViewBag.SongFilter = filter;
 

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data.Entity;
 using System.Diagnostics;
 using System.Linq;
+using System.Text;
 using DanceLibrary;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.EntityFramework;
@@ -3049,9 +3050,8 @@ namespace m4dModels
 
             var ret = new BatchInfo();
 
-            // Get songlist with NoCruft filter (which still totals less that 10,000)
             if (filter == null) filter = new SongFilter();
-            var songlist = TakeTail(BuildSongList(filter), from, max);
+            var songlist = TakeTail(BuildSongList(filter,CruftFilter.AllCruft), from, max);
 
             var songs = new List<Document>();
             var deleted = new List<Document>();
@@ -3265,14 +3265,39 @@ namespace m4dModels
             return Songs.OrderByDescending(s => s.Modified).Skip(skip).Take(c).Include("DanceRatings").Include("ModifiedBy").Include("SongProperties").ToList();
         }
 
-        public SearchResults AzureSearch(SongFilter filter, int? pageSize = null, string id = "default")
+        public SearchResults AzureSearch(SongFilter filter, int? pageSize = null, CruftFilter cruft = CruftFilter.NoCruft, string id = "default")
         {
-            return AzureSearch(filter.SearchString, AzureParmsFromFilter(filter, pageSize), id);
+            return AzureSearch(filter.SearchString, AzureParmsFromFilter(filter, pageSize), cruft, id);
         }
 
-        public SearchResults AzureSearch(string search, SearchParameters parameters, string id = "default")
+        public SearchResults AzureSearch(string search, SearchParameters parameters, CruftFilter cruft = CruftFilter.NoCruft, string id = "default")
         {
             var info = SearchServiceInfo.GetInfo(id);
+
+            var extra = new StringBuilder();
+            if ((cruft & CruftFilter.NoPublishers) != CruftFilter.NoPublishers)
+            {
+                extra.Append("Purchase/any()");
+            }
+
+            if ((cruft & CruftFilter.NoDances) != CruftFilter.NoDances)
+            {
+                if (extra.Length > 0) extra.Append(" and ");
+                extra.Append("DanceTags/any()");
+            }
+
+            if (extra.Length > 0)
+            {
+                if (parameters.Filter == null)
+                {
+                    parameters.Filter = extra.ToString();
+                }
+                else
+                {
+                    extra.AppendFormat(" and {0}", parameters.Filter);
+                    parameters.Filter = extra.ToString();
+                }
+            }
 
             using (var serviceClient = new SearchServiceClient(info.Name, new SearchCredentials(info.QueryKey)))
             using (var indexClient = serviceClient.Indexes.GetClient(info.Index))
