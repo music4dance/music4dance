@@ -70,13 +70,20 @@
     }
 
     <hr />
-    <h2>Backups</h2>
-    <li>@Html.ActionLink("Backup the Database", "BackupDatabase"), @Html.ActionLink("Users", "BackupDatabase", new { tags = false, dances = false, songs = false, searches = false }), @Html.ActionLink("Dances", "BackupDatabase", new { tags = false, users = false, songs = false, searches = false }), @Html.ActionLink("Tags", "BackupDatabase", new { dances = false, users = false, searches = false, songs = false }), @Html.ActionLink("Searches", "BackupDatabase", new { tags = false, dances = false, users = false, songs = false })</li>
+    <h2>Backup Database</h2>
+    <li>@Html.ActionLink("Backup the Database", "BackupDatabase"), @Html.ActionLink("Users", "BackupDatabase", new {tags = false, dances = false, songs = false, searches = false}), @Html.ActionLink("Dances", "BackupDatabase", new {tags = false, users = false, songs = false, searches = false}), @Html.ActionLink("Tags", "BackupDatabase", new {dances = false, users = false, searches = false, songs = false}), @Html.ActionLink("Searches", "BackupDatabase", new {tags = false, dances = false, users = false, songs = false})</li>
+    <li>@Html.ActionLink("Backup - No Songs", "BackupDatabase", new { songs = false })</li>
     <li>@Html.ActionLink("Backup the Database (with lookup history)", "BackupDatabase", new { useLookupHistory = "true" })</li>
     <li>@Html.ActionLink("Backup tail", "BackupTail", new { count = 150 })</li>
     <li>@Html.ActionLink("Backup tail (500)", "BackupTail", new { count = 500 })</li>
     <li>@Html.ActionLink("Backup tail (today)", "BackupTail", new {from = DateTime.Now.ToShortDateString(), count = 5000})</li>
     <li>@Html.ActionLink("Backup tail (yesterday & today)", "BackupTail", new { from = (DateTime.Now - new TimeSpan(1,0,0,0)).ToShortDateString(), count = 5000 })</li>
+
+    <h2>Backup Index</h2>
+    <li>@Html.ActionLink("Backup", "IndexBackup")</li>
+    <li>@Html.ActionLink("Backup tail", "IndexBackup", new { count = 150 })</li>
+    <li>@Html.ActionLink("Backup tail (yesterday & today)", "IndexBackup", new { from = (DateTime.Now - new TimeSpan(1, 0, 0, 0)).ToShortDateString() })</li>
+
 
     <h3>Backup Delta</h3>
     using (Html.BeginForm("BackupDelta", "Admin", FormMethod.Post, new { enctype = "multipart/form-data" }))

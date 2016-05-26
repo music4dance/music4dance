@@ -9,6 +9,7 @@ using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.EntityFramework;
 using Microsoft.Azure.Search;
 using Microsoft.Azure.Search.Models;
+using Microsoft.Rest.Azure;
 
 namespace m4dModels
 {
@@ -3357,6 +3358,50 @@ namespace m4dModels
                     Query = query,
                     Suggestions = ret
                 };
+            }
+        }
+
+        public IEnumerable<string> BackupIndex(string name = "default", int count = -1, DateTime? from = null, string filter = null)
+        {
+            var info = SearchServiceInfo.GetInfo(name);
+            var songFilter = (filter == null) ? SongFilter.AzureSimple : new SongFilter(filter);
+
+            var parameters = filter == null ? new SearchParameters {QueryType = QueryType.Simple} : AzureParmsFromFilter(songFilter);
+            parameters.IncludeTotalResultCount = false;
+            parameters.Skip = null;
+            parameters.Top = (count == -1) ? (int?) null : count;
+            parameters.OrderBy = new [] {"Modified desc"};
+            parameters.Select = new[] {"SongId", "Modified", "Properties"};
+
+            using (var serviceClient = new SearchServiceClient(info.Name, new SearchCredentials(info.QueryKey)))
+            using (var indexClient = serviceClient.Indexes.GetClient(info.Index))
+            {
+                SearchContinuationToken token = null;
+                var searchString = string.IsNullOrWhiteSpace(songFilter.SearchString) ? null : songFilter.SearchString;
+                var results = new List<string>();
+                do
+                {
+                    var response = (token == null)
+                        ? indexClient.Documents.Search(searchString, parameters)
+                        : indexClient.Documents.ContinueSearch(token);
+
+                    foreach (var doc in response.Results)
+                    {
+                        var m = doc.Document["Modified"];
+                        var modified = (DateTimeOffset)m;
+                        if (from != null && modified < from)
+                        {
+                            response.ContinuationToken = null;
+                            break;
+                        }
+
+                        results.Add(SongBase.Serialize(doc.Document["SongId"] as string, doc.Document["Properties"] as string));
+                        AdminMonitor.UpdateTask("readSongs", results.Count);
+                    }
+                    token = response.ContinuationToken;
+                } while (token != null);
+
+                return results;
             }
         }
 

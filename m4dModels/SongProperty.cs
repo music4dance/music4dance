@@ -89,7 +89,7 @@ namespace m4dModels
         #endregion
 
         #region Properties
-        public Int64 Id { get; set; }
+        public long Id { get; set; }
         public Guid SongId { get; set; }
         public virtual Song Song { get; set; }
         public string Name { get; set; }

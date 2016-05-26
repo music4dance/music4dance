@@ -1659,6 +1659,40 @@ namespace m4d.Controllers
 
 
         //
+        // Get: //IndexBackup
+        [Authorize(Roles = "showDiagnostics")]
+        public ActionResult IndexBackup(string name="default", int count = -1, DateTime? from = null, string filter = null)
+        {
+            try
+            {
+                StartAdminTask("Index Backup");
+
+                var dt = DateTime.Now;
+                var fname = $"index-{dt.Year:d4}-{dt.Month:d2}-{dt.Day:d2}.txt";
+                var path = Path.Combine(Server.MapPath("~/App_Data"), fname);
+
+                var n = 0;
+                using (var file = System.IO.File.CreateText(path))
+                {
+                        var lines = Database.BackupIndex(name,count,from,filter);
+                        foreach (var line in lines)
+                        {
+                            file.WriteLine(line);
+                            AdminMonitor.UpdateTask("writeSongs", ++n);
+                        }
+                }
+
+                AdminMonitor.CompleteTask(true, $"Backup ({n} songs) complete to: {path}");
+                return File("~/app_data/" + fname, MediaTypeNames.Text.Plain, fname);
+            }
+            catch (Exception e)
+            {
+                return FailAdminTask("Failed to backup index", e);
+            }
+
+        }
+
+        //
         // Get: //BackupDatabase
         [Authorize(Roles = "showDiagnostics")]
         public ActionResult BackupDatabase(bool users = true, bool tags = true, bool dances = true, bool searches=true, bool songs = true, string useLookupHistory = null)
@@ -1672,7 +1706,7 @@ namespace m4d.Controllers
                 var dt = DateTime.Now;
                 var h = history ? "-lookup" : string.Empty;
                 var fname = $"backup-{dt.Year:d4}-{dt.Month:d2}-{dt.Day:d2}{h}.txt";
-                var path = Path.Combine(Server.MapPath("~/content"),fname);
+                var path = Path.Combine(Server.MapPath("~/App_Data"),fname);
 
                 using (var file = System.IO.File.CreateText(path))
                 {
@@ -1737,7 +1771,7 @@ namespace m4d.Controllers
                 }
 
                 AdminMonitor.CompleteTask(true, "Backup complete to: " + path);
-                return File("~/content/" + fname, MediaTypeNames.Text.Plain,fname);
+                return File("~/app_data/" + fname, MediaTypeNames.Text.Plain,fname);
                 //AdminMonitor.CompleteTask(true, "Backup complete to: " + path);
                 //var res = new FilePathResult("~/content/" + fname,System.Net.Mime.MediaTypeNames.Text.Plain);
                 //res.FileDownloadName = fname;

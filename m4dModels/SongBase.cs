@@ -119,8 +119,19 @@ namespace m4dModels
                 return props;
             }
 
-            return $"SongId={SongId.ToString("B")}\t{props}";
+            return Serialize(SongId.ToString("B"),props);
         }
+
+        public static string Serialize(string id, string properties)
+        {
+            return $"SongId={id}\t{properties}";
+        }
+
+        public static string Serialize(string id, IEnumerable<string> properties)
+        {
+            return Serialize(id, string.Join("\t", properties));
+        }
+
         public override string ToString()
         {
             return Serialize(null);
