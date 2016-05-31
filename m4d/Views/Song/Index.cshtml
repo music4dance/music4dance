@@ -12,7 +12,7 @@
     ViewBag.Description = "music4dance catalog: " + description;
     var isAdmin = User.IsInRole("dbAdmin");
 
-    var dances = (IList<SongCounts>)ViewBag.Dances;
+    var dances = (IList<DanceStats>)ViewBag.Dances;
 
     var userName = filter.UserQuery.IsEmpty ? User.Identity.Name : filter.UserQuery.UserName;
 }

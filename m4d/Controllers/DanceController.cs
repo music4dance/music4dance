@@ -18,7 +18,7 @@ namespace m4d.Controllers
         {
             if (string.IsNullOrWhiteSpace(dance))
             {
-                var data = SongCounts.GetSongCounts(Database);
+                var data = SongCounts.GetDanceStats(Database);
 
                 HelpPage = "dance-styles";
                 return View(data);
@@ -44,19 +44,19 @@ namespace m4d.Controllers
                 {
                     // TODO: Wedding dance help page?
                     HelpPage = "dance-styles";
-                    return View("weddingdancemusic", SongCounts.GetSongCounts(Database));
+                    return View("weddingdancemusic", SongCounts.GetDanceStats(Database));
                 }
             }
 
             HelpPage = "dance-details";
             ViewBag.DanceMap = SongCounts.GetDanceMap(Database);
-            var sc = SongCounts.FromName(dance, Database);
+            var ds = SongCounts.FromName(dance, Database);
 
-            if (sc == null) return ReturnError(HttpStatusCode.NotFound, $"The dance with the name = {dance} isn't defined.");
+            if (ds == null) return ReturnError(HttpStatusCode.NotFound, $"The dance with the name = {dance} isn't defined.");
 
-            SetupLikes(sc.GetTopSongs(Database),sc.DanceId);
+            SetupLikes(ds.TopSongs,ds.DanceId);
 
-            return View("details", sc);
+            return View("details", ds);
         }
 
         // GET: GroupRedirect/group/dance

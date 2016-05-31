@@ -1,4 +1,4 @@
-﻿@model IEnumerable<SongCounts>
+﻿@model IEnumerable<DanceStats>
 
 
 @{
@@ -10,7 +10,7 @@
     string[] columns = { "Wedding", "First Dance", "Mother Son", "Father Daughter" };
 }
 
-@helper DanceRow(SongCounts sc, string[] columns, bool isGroup)
+@helper DanceRow(DanceStats danceStats, string[] columns, bool isGroup)
 {
     var counts = new int[columns.Length];
     var show = false;
@@ -20,7 +20,7 @@
         var column = columns[i];
 
         var tag = column + ":Other";
-        counts[i] = sc.Dance.SongTags.TagCount(tag);
+        counts[i] = danceStats.Dance.SongTags.TagCount(tag);
         if (counts[i] != 0)
         {
             show = true;
@@ -35,11 +35,11 @@
         <td>
             @if (isGroup)
             {
-                <b>@Html.ActionLink(sc.DanceName,sc.SeoName, "dances")</b>
+                <b>@Html.ActionLink(danceStats.DanceName,danceStats.SeoName, "dances")</b>
             }
             else
             {
-                <span style="margin-left: 10px">@Html.ActionLink(sc.DanceName, sc.SeoName, "dances")</span>
+                <span style="margin-left: 10px">@Html.ActionLink(danceStats.DanceName, danceStats.SeoName, "dances")</span>
             }
         </td>
 
@@ -49,7 +49,7 @@
                 @if (counts[i] != 0)
                 {
                     <span class='label label-info'>
-                        @Html.ActionLink(counts[i].ToString(), "Index", "Song", new { filter = string.Format("Index-{0}-Dances-.-.-.-.-.-1-+{1}:Other", sc.DanceId, columns[i]) }, new {@class= "tag-text" })
+                        @Html.ActionLink(counts[i].ToString(), "Index", "Song", new { filter = string.Format("Index-{0}-Dances-.-.-.-.-.-1-+{1}:Other", danceStats.DanceId, columns[i]) }, new {@class= "tag-text" })
                     </span>
                 }
                 else

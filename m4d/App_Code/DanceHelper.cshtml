@@ -47,19 +47,19 @@
         </tr>
         @foreach (var cat in danceList)
         {
-            var sc = cat.SongCount;
+            var danceStats = cat.DanceStats;
             var d = cat.SpecificDance;
 
-            var name = dctIn == DanceCategoryType.Both ? d.Style : sc.DanceName;
-            var link = dctIn == DanceCategoryType.Both ? DanceObject.SeoFriendly(d.Style) : sc.SeoName;
+            var name = dctIn == DanceCategoryType.Both ? d.Style : danceStats.DanceName;
+            var link = dctIn == DanceCategoryType.Both ? DanceObject.SeoFriendly(d.Style) : danceStats.SeoName;
             <tr>
                 <td>@html.ActionLink(name, link, "dances") </td>
                 <td>@d.Meter</td>
-                <td>@ShowTempo(html,d.TempoRange, d.Meter, sc.DanceId)</td>
-                <td>@ShowTempo(html, d.DanceSportTempo, d.Meter, sc.DanceId)</td>
-                <td class="hidden-xs">@ShowTempo(html, d.NDCATempoA, d.Meter, sc.DanceId)</td>
-                <td class="hidden-xs">@ShowTempo(html, d.NDCATempoB, d.Meter, sc.DanceId)</td>
-                <td class="visible-xs">@ShowTempo(html, d.NDCATempoA, d.Meter, sc.DanceId)<br/>@ShowTempo(html, d.NDCATempoB, d.Meter, sc.DanceId)</td>
+                <td>@ShowTempo(html,d.TempoRange, d.Meter, danceStats.DanceId)</td>
+                <td>@ShowTempo(html, d.DanceSportTempo, d.Meter, danceStats.DanceId)</td>
+                <td class="hidden-xs">@ShowTempo(html, d.NDCATempoA, d.Meter, danceStats.DanceId)</td>
+                <td class="hidden-xs">@ShowTempo(html, d.NDCATempoB, d.Meter, danceStats.DanceId)</td>
+                <td class="visible-xs">@ShowTempo(html, d.NDCATempoA, d.Meter, danceStats.DanceId)<br/>@ShowTempo(html, d.NDCATempoB, d.Meter, danceStats.DanceId)</td>
                 <td class="hidden-xs">@d.TempoRange.ToBpm(d.Meter)</td>
             </tr>
         }

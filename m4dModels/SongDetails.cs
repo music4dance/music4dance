@@ -1383,7 +1383,7 @@ namespace m4dModels
                 new Field("Properties", DataType.String) {IsSearchable = false, IsSortable = false, IsFilterable = false, IsFacetable = false, IsRetrievable = true},
             };
 
-            var fsc = SongCounts.GetFlatSongCounts(dms);
+            var fsc = SongCounts.GetFlatDanceStats(dms);
             fields.AddRange(
                 from sc in fsc
                 where sc.SongCount != 0 && sc.DanceId != "ALL"

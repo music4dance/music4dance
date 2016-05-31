@@ -429,8 +429,7 @@ namespace m4d.Controllers
             }
 
             HelpPage = "song-details";
-            ViewBag.DanceMap = SongCounts.GetDanceMap(Database);
-            ViewBag.DanceList = GetDancesSingle(Database);
+            BuildDanceList(DanceBags.Map | DanceBags.Single);
             return View(song);
         }
 
@@ -450,7 +449,7 @@ namespace m4d.Controllers
             if (model == null)
                 return ReturnError(HttpStatusCode.NotFound, $"Album '{title}' not found.");
 
-            ViewBag.DanceMap = SongCounts.GetDanceMap(Database);
+            BuildDanceList(DanceBags.Map);
             return View("Album", model);
         }
 
@@ -471,7 +470,7 @@ namespace m4d.Controllers
             if (model == null)
                 return ReturnError(HttpStatusCode.NotFound, $"Album '{name}' not found.");
 
-            ViewBag.DanceMap = SongCounts.GetDanceMap(Database);
+            BuildDanceList(DanceBags.Map);
             return View("Artist", model);
         }
 
@@ -525,8 +524,7 @@ namespace m4d.Controllers
                     UpdateAndEnqueue();
                 }
 
-                ViewBag.DanceMap = SongCounts.GetDanceMap(Database);
-                ViewBag.DanceList = GetDancesSingle(Database);
+                BuildDanceList(DanceBags.Map | DanceBags.Single);
                 return View("details", newSong);
             }
 
@@ -575,9 +573,7 @@ namespace m4d.Controllers
             ViewBag.paramShowMPM = true;
             ViewBag.paramShowBPM = true;
 
-            ViewBag.DanceList = GetDancesSingle(Database);
-
-            ViewBag.DanceMap = SongCounts.GetDanceMap(Database);
+            BuildDanceList(DanceBags.Map | DanceBags.Single);
         }
         //
         // POST: /Song/Edit/5
@@ -604,8 +600,7 @@ namespace m4d.Controllers
                     edit = Database.FindSongDetails(edit.SongId, user.UserName);
 
                     ViewBag.BackAction = "Index";
-                    ViewBag.DanceMap = SongCounts.GetDanceMap(Database);
-                    ViewBag.DanceList = GetDancesSingle(Database);
+                    BuildDanceList(DanceBags.Map | DanceBags.Single);
                     return View("details", edit);
                 }
 
@@ -687,8 +682,7 @@ namespace m4d.Controllers
             var user = Database.FindUser(User.Identity.Name);
             var sd = Database.FindSongDetails(songId, user.UserName);
 
-            ViewBag.DanceMap = SongCounts.GetDanceMap(Database);
-            ViewBag.DanceList = GetDancesSingle(Database);
+            BuildDanceList(DanceBags.Map | DanceBags.Single);
             return View("details", sd);
         }
 
@@ -772,8 +766,7 @@ namespace m4d.Controllers
             UpdateAndEnqueue();
 
             HelpPage = "song-details";
-            ViewBag.DanceMap = SongCounts.GetDanceMap(Database);
-            ViewBag.DanceList = GetDancesSingle(Database);
+            BuildDanceList(DanceBags.Map | DanceBags.Single);
 
             return View("Details", Database.FindSongDetails(song.SongId));
         }
@@ -835,8 +828,7 @@ namespace m4d.Controllers
             SongCounts.ClearCache();
 
             ViewBag.BackAction = "MergeCandidates";
-            ViewBag.DanceMap = SongCounts.GetDanceMap(Database);
-            ViewBag.DanceList = GetDancesSingle(Database);
+            BuildDanceList(DanceBags.Map | DanceBags.Single);
             return View("details",Database.FindSongDetails(song.SongId));
         }
 
@@ -1058,7 +1050,7 @@ namespace m4d.Controllers
 
             var view = new ServiceSearchResults { ServiceType = type, Song = song };
 
-            ViewBag.DanceMap = SongCounts.GetDanceMap(Database);
+            BuildDanceList(DanceBags.Map);
             ViewBag.SongTitle = title;
             ViewBag.SongArtist = artist;
             ViewBag.Type = type;
@@ -1111,8 +1103,7 @@ namespace m4d.Controllers
             }
 
             HelpPage = "song-details";
-            ViewBag.DanceMap = SongCounts.GetDanceMap(Database);
-            ViewBag.DanceList = GetDancesSingle(Database);
+            BuildDanceList(DanceBags.Map | DanceBags.Single);
             return View("Details", Database.FindSongDetails(id));
         }
 
@@ -1518,7 +1509,7 @@ namespace m4d.Controllers
         #region General Utilities
         static public IEnumerable<SelectListItem> GetDancesSingle(DanceMusicService dms)
         {
-            var counts = SongCounts.GetFlatSongCounts(dms);
+            var counts = SongCounts.GetFlatDanceStats(dms);
 
             var dances = new List<SelectListItem>(counts.Count)
             {
@@ -1591,11 +1582,26 @@ namespace m4d.Controllers
             Database.UpdateSearches(User.Identity.IsAuthenticated ? Database.FindUser(User.Identity.Name) : null, filter);
         }
 
-        private void BuildDanceList()
+        [Flags]
+        enum DanceBags
         {
-            ViewBag.Dances = SongCounts.GetSongCounts(Database);
-            ViewBag.DanceMap = SongCounts.GetDanceMap(Database);
-            ViewBag.DanceList = GetDancesSingle(Database);
+            //None = 0x00,
+            List = 0x01,
+            Map = 0x02,
+            Single = 0x04,
+            All = List|Map|Single
+        }
+
+        private void BuildDanceList(DanceBags bags = DanceBags.All)
+        {
+            if ((bags & DanceBags.List) == DanceBags.List)
+                ViewBag.Dances = SongCounts.GetDanceStats(Database);
+
+            if ((bags & DanceBags.Map) == DanceBags.Map)
+                ViewBag.DanceMap = SongCounts.GetDanceMap(Database);
+
+            if ((bags & DanceBags.Single) == DanceBags.Single)
+                ViewBag.DanceList = GetDancesSingle(Database);
         }
         #endregion
 

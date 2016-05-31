@@ -14,7 +14,7 @@
     ViewBag.Title = "Advanced Search";
     ViewBag.Description = "music4dance advanced search form: " + description;
 
-    var dances = (IList<SongCounts>)ViewBag.Dances;
+    var dances = (IList<DanceStats>)ViewBag.Dances;
 
     var userQuery = filter.UserQuery;
     if (userQuery.IsAnonymous && !string.IsNullOrWhiteSpace(User.Identity.Name)) { userQuery = new UserQuery(userQuery, User.Identity.Name);}

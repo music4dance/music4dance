@@ -1,5 +1,4 @@
-﻿@using System.Security.Policy
-@using System.Web.Mvc
+﻿@using System.Web.Mvc
 @using System.Web.Mvc.Html
 @using m4dModels
 @using PagedList.Mvc;
@@ -14,7 +13,7 @@
 // Advanced search header
 @helper AdvancedHeader(System.Web.Mvc.HtmlHelper html, SongFilter filter)
 {
-    var url = "/song/" + (filter.IsRaw ? "raw" : "advanced") + "searchform?filter=" + filter.ToString();
+    var url = "/song/" + (filter.IsRaw ? "raw" : "advanced") + "searchform?filter=" + filter;
     <h1>Search Results @(filter.IsRaw ? "(RAW)" : filter.IsAzure ? "(BETA)" : string.Empty)</h1>
     <div class="row">
         <div class="col-sm-6"><h4>@filter.Description</h4></div>
@@ -25,7 +24,7 @@
 }
 
 // Basic search header
-@helper SimpleHeader(System.Web.Mvc.HtmlHelper html, SongFilter filter, IList<SongCounts> dances, string userName)
+@helper SimpleHeader(System.Web.Mvc.HtmlHelper html, SongFilter filter, IList<DanceStats> dances, string userName)
 {
     var danceQuery = filter.DanceQuery;
     var isAzure = filter.IsAzure;
@@ -87,7 +86,7 @@
     }
 }
 
-@helper SearchHeader(System.Web.Mvc.HtmlHelper html, SongFilter filter, IList<SongCounts> dances, string userName)
+@helper SearchHeader(System.Web.Mvc.HtmlHelper html, SongFilter filter, IList<DanceStats> dances, string userName)
 {
     @(filter.IsAdvanced ? AdvancedHeader(html, filter) : SimpleHeader(html, filter, dances, userName))
 }
@@ -105,6 +104,7 @@
             (@songs.TotalItemCount songs found.)
         </div>
         <div class="col-md-4 pagination-align">
+            @* ReSharper disable once Mvc.ControllerNotResolved *@
             @if (!danceQuery.All)
             {
                 foreach (var dance in danceQuery.Dances)
@@ -116,7 +116,7 @@
             {
                 if (!filter.IsEmpty)
                 {
-                    @html.ActionLink("New Search", "index", "song", new {@class = "btn btn-default", role = "button"})
+                    @html.ActionLink("New Search", string.Empty, "song", new {@class = "btn btn-default", role = "button"})
                 }
             }
         </div>

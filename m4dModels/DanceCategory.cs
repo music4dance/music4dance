@@ -17,11 +17,11 @@ namespace m4dModels
     {
         public CompetitionDance(string id, DanceMusicService dms) : this()
         {
-            SongCount = SongCounts.FromId(id,dms);
+            DanceStats = SongCounts.FromId(id,dms);
             SpecificDance = Dances.Instance.DanceFromId(id) as DanceInstance;
-            SongCount.AddCompetitionDance(this);
+            DanceStats.AddCompetitionDance(this);
         }
-        public SongCounts SongCount { get; private set; }
+        public DanceStats DanceStats { get; private set; }
         public DanceInstance SpecificDance { get; private set; }
     }
     public class DanceCategory

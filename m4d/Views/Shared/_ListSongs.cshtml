@@ -10,7 +10,7 @@
     var hideArtist = ViewData.ContainsKey("HideArtist") ? ViewBag.HideArtist : false;
     var showLength = ViewData.ContainsKey("ShowLength") ? ViewBag.ShowLength : false;
 
-    var danceMap = (IDictionary<string, SongCounts>)ViewBag.DanceMap;
+    var danceMap = (IDictionary<string, DanceStats>)ViewBag.DanceMap;
     SongFilter filter = ViewData.ContainsKey("SongFilter") ? ViewBag.SongFilter : new SongFilter();
     var isRaw = filter.IsRaw;
     canSort = canSort && !isRaw;
