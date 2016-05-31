@@ -620,7 +620,7 @@ namespace m4d.Controllers
         {
             ViewBag.Name = "ClearSongCache";
 
-            SongCounts.ClearCache();
+            DanceStatsManager.ClearCache();
 
             ViewBag.Success = true;
             ViewBag.Message = "Cache was cleared";
@@ -1131,7 +1131,7 @@ namespace m4d.Controllers
                             Database.AdminUpdate(songs);
                         else
                             Database.UpdateSongs(songs);
-                        SongCounts.ClearCache();
+                        DanceStatsManager.ClearCache();
                     }
 
                     return CompleteAdminTask(true, "Database restored");

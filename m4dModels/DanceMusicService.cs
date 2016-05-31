@@ -443,8 +443,6 @@ namespace m4dModels
 
             // TODO: Add include/exclude as permanent fixtures in the header and link them to appropriate cloud
             //  Think about how we might fix the multi-categorization problem (LTN vs. International Latin)
-            //  Actually replace SongCounts
-
             // Get the Max Weight and Count of songs for each dance
 
             var index = 0;
@@ -520,7 +518,7 @@ namespace m4dModels
         {
             RebuildDances();
             RebuildDanceTags();
-            SongCounts.ClearCache();
+            DanceStatsManager.ClearCache();
         }
 
         #endregion
@@ -1695,7 +1693,7 @@ namespace m4dModels
 
             return modified;
         }
-        public ICollection<ICollection<PurchaseLink>> GetPurchaseLinks(ServiceType serviceType, IEnumerable<Song> songs, string region = null)
+        public ICollection<ICollection<PurchaseLink>> GetPurchaseLinks(ServiceType serviceType, IEnumerable<SongBase> songs, string region = null)
         {
             if (songs == null) return null;
 
@@ -1708,7 +1706,7 @@ namespace m4dModels
             {
                 if (song.Purchase == null || !song.Purchase.Contains(cid)) continue;
 
-                var sd = new SongDetails(song);
+                var sd = (song as SongDetails) ?? new SongDetails(song);
                 var l = sd.GetPurchaseLinks(sid,region);
                 if (l != null)
                     links.Add(l);
@@ -2452,7 +2450,7 @@ namespace m4dModels
 
             _context.TrackChanges(true);
             Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Clearing Song Cache");
-            SongCounts.ClearCache();
+            DanceStatsManager.ClearCache();
             Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Exiting UpdateSongs");
         }
 
@@ -2492,7 +2490,7 @@ namespace m4dModels
 
             _context.TrackChanges(true);
             Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Clearing Song Cache");
-            SongCounts.ClearCache();
+            DanceStatsManager.ClearCache();
             Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Exiting AdminUpdate");
         }
 

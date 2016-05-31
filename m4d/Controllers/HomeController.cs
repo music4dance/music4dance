@@ -38,7 +38,7 @@ namespace m4d.Controllers
         public ActionResult SiteMap()
         {
             ThemeName = BlogTheme;
-            var data = SongCounts.GetFlatDanceStats(Database).OrderBy(sc => sc.DanceName);
+            var data = DanceStatsManager.GetFlatDanceStats(Database).OrderBy(sc => sc.DanceName);
             return View(data);
         }
 

@@ -136,7 +136,7 @@ namespace m4d.APIControllers
         {
             try
             {
-                SongCounts.RebuildSongCounts(dms);
+                DanceStatsManager.RebuildDanceStats(dms);
                 Complete(id,message);
             }
             catch (Exception e)

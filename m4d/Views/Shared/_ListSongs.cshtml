@@ -280,7 +280,7 @@
             List<DanceRating> scaledDances = null;
             if (item.DanceRatings != null)
             {
-                scaledDances = item.DanceRatings.OrderByDescending(dr => SongCounts.GetScaledRating(danceMap, dr.DanceId, dr.Weight)).ToList();
+                scaledDances = item.DanceRatings.OrderByDescending(dr => DanceStatsManager.GetScaledRating(danceMap, dr.DanceId, dr.Weight)).ToList();
             }
             string tempoString = null;
             if (item.Tempo.HasValue)
@@ -396,7 +396,7 @@
                             {
                                 // TODO: Dance name pulled from the danceMap doesn't require a db lookup - is there a way
                                 //  to make the more intuitive ditem.Dance.Name work without a lookup???
-                                var badge = SongCounts.GetRatingBadge(danceMap, ditem.DanceId, ditem.Weight);
+                                var badge = DanceStatsManager.GetRatingBadge(danceMap, ditem.DanceId, ditem.Weight);
                                 var name = danceMap[ditem.DanceId].DanceName;
                                 var label = name;
                                 var tags = string.Empty;

@@ -122,7 +122,7 @@
     <Compile Include="SearchResults.cs" />
     <Compile Include="SearchServiceInfo.cs" />
     <Compile Include="ServiceType.cs" />
-    <Compile Include="SongCounts.cs" />
+    <Compile Include="DanceStatsManager.cs" />
     <Compile Include="SongFilterConverter.cs" />
     <Compile Include="SongPropertyMerge.cs" />
     <Compile Include="SongSort.cs" />

@@ -25,7 +25,7 @@ namespace m4dModels
         {
         }
 
-        public SongDetails(Song song, string user=null, DanceMusicService dms=null, bool forSerialization=true)
+        public SongDetails(SongBase song, string user=null, DanceMusicService dms=null, bool forSerialization=true)
         {
             SongId = song.SongId;
             Created = song.Created;
@@ -1383,7 +1383,7 @@ namespace m4dModels
                 new Field("Properties", DataType.String) {IsSearchable = false, IsSortable = false, IsFilterable = false, IsFacetable = false, IsRetrievable = true},
             };
 
-            var fsc = SongCounts.GetFlatDanceStats(dms);
+            var fsc = DanceStatsManager.GetFlatDanceStats(dms);
             fields.AddRange(
                 from sc in fsc
                 where sc.SongCount != 0 && sc.DanceId != "ALL"

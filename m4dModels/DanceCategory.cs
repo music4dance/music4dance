@@ -17,7 +17,7 @@ namespace m4dModels
     {
         public CompetitionDance(string id, DanceMusicService dms) : this()
         {
-            DanceStats = SongCounts.FromId(id,dms);
+            DanceStats = DanceStatsManager.FromId(id,dms);
             SpecificDance = Dances.Instance.DanceFromId(id) as DanceInstance;
             DanceStats.AddCompetitionDance(this);
         }
@@ -65,22 +65,6 @@ namespace m4dModels
 
     public class DanceCategories
     {
-        static public DanceCategories GetDanceCategories(DanceMusicService dms)
-        {
-            lock (s_instance)
-            {
-                s_instance.Initialize(dms);
-                return s_instance;
-            }
-        }
-
-        static public void ClearCache()
-        {
-            lock (s_instance)
-            {
-                s_instance._categories.Clear();
-            }
-        }
 
         public DanceCategory FromName(string name)
         {
@@ -101,17 +85,18 @@ namespace m4dModels
                 FromName(Rhythm)
             };
         }
+
+        public int CountGroups => 1;
+
+        public int CountCategories => _categories.Count;
+
         private void AddCategory(DanceMusicService dms, string name, IEnumerable<string> round, IEnumerable<string> extras = null)
         {
             var cat = new DanceCategory(dms, name, round, extras);
             _categories[DanceCategory.BuildCanonicalName(name)] = cat;
         }
 
-        private DanceCategories()
-        {
-        }
-
-        private void Initialize(DanceMusicService dms)
+        public void Initialize(DanceMusicService dms)
         {
             if (_categories.Count > 0) return;
 
@@ -121,6 +106,11 @@ namespace m4dModels
             AddCategory(dms, Rhythm, new[] { "CHAA", "RMBA", "ECSA", "BOLA", "MBOA" }, new[] { "HSTA", "MRGA", "PDLA", "PLKA", "SMBA", "WCSA" });
         }
 
+        public void Clear()
+        {
+            _categories.Clear();
+        }
+
         public const string Standard = "International Standard";
         public const string Latin = "International Latin";
         public const string Smooth = "American Smooth";
@@ -128,7 +118,5 @@ namespace m4dModels
         public const string Ballroom = "Ballroom";
 
         private readonly Dictionary<string, DanceCategory> _categories = new Dictionary<string, DanceCategory>();
-
-        private static readonly DanceCategories s_instance = new DanceCategories();
     }
 }

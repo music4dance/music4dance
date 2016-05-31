@@ -825,7 +825,7 @@ namespace m4d.Controllers
 
             UpdateAndEnqueue();
 
-            SongCounts.ClearCache();
+            DanceStatsManager.ClearCache();
 
             ViewBag.BackAction = "MergeCandidates";
             BuildDanceList(DanceBags.Map | DanceBags.Single);
@@ -1509,7 +1509,7 @@ namespace m4d.Controllers
         #region General Utilities
         static public IEnumerable<SelectListItem> GetDancesSingle(DanceMusicService dms)
         {
-            var counts = SongCounts.GetFlatDanceStats(dms);
+            var counts = DanceStatsManager.GetFlatDanceStats(dms);
 
             var dances = new List<SelectListItem>(counts.Count)
             {
@@ -1595,10 +1595,10 @@ namespace m4d.Controllers
         private void BuildDanceList(DanceBags bags = DanceBags.All)
         {
             if ((bags & DanceBags.List) == DanceBags.List)
-                ViewBag.Dances = SongCounts.GetDanceStats(Database);
+                ViewBag.Dances = DanceStatsManager.GetDanceStats(Database);
 
             if ((bags & DanceBags.Map) == DanceBags.Map)
-                ViewBag.DanceMap = SongCounts.GetDanceMap(Database);
+                ViewBag.DanceMap = DanceStatsManager.GetDanceMap(Database);
 
             if ((bags & DanceBags.Single) == DanceBags.Single)
                 ViewBag.DanceList = GetDancesSingle(Database);
@@ -1941,7 +1941,7 @@ namespace m4d.Controllers
             {
                 Context.Configuration.AutoDetectChangesEnabled = true;
                 Database.SaveChanges();
-                SongCounts.ClearCache();
+                DanceStatsManager.ClearCache();
             }
 
             return ret;

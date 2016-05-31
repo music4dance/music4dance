@@ -18,13 +18,13 @@ namespace m4d.Controllers
         {
             if (string.IsNullOrWhiteSpace(dance))
             {
-                var data = SongCounts.GetDanceStats(Database);
+                var data = DanceStatsManager.GetDanceStats(Database);
 
                 HelpPage = "dance-styles";
                 return View(data);
             }
 
-            var categories = DanceCategories.GetDanceCategories(Database);
+            var categories = DanceStatsManager.GetDanceCategories(Database);
             if (categories != null)
             {
                 HelpPage = "dance-category";
@@ -44,13 +44,13 @@ namespace m4d.Controllers
                 {
                     // TODO: Wedding dance help page?
                     HelpPage = "dance-styles";
-                    return View("weddingdancemusic", SongCounts.GetDanceStats(Database));
+                    return View("weddingdancemusic", DanceStatsManager.GetDanceStats(Database));
                 }
             }
 
             HelpPage = "dance-details";
-            ViewBag.DanceMap = SongCounts.GetDanceMap(Database);
-            var ds = SongCounts.FromName(dance, Database);
+            ViewBag.DanceMap = DanceStatsManager.GetDanceMap(Database);
+            var ds = DanceStatsManager.FromName(dance, Database);
 
             if (ds == null) return ReturnError(HttpStatusCode.NotFound, $"The dance with the name = {dance} isn't defined.");
 
@@ -111,7 +111,7 @@ namespace m4d.Controllers
                 Context.Entry(dance).State = EntityState.Modified;
                 Database.SaveChanges();
 
-                SongCounts.ReloadDances(Database);
+                DanceStatsManager.ReloadDances(Database);
 
                 return RedirectToAction("Index", new { dance = dance.Name });
             }
