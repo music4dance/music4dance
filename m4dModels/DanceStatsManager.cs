@@ -48,7 +48,7 @@ namespace m4dModels
                     DanceStats danceStats;
                     if (s_map.TryGetValue(dance.Id, out danceStats))
                     {
-                        danceStats.Dance = dance;
+                        danceStats.CopyDanceInfo(dance,dms);
                     }
                 }
             }
@@ -72,8 +72,6 @@ namespace m4dModels
 
             var all = new DanceStats
             {
-                DanceId = "ALL",
-                DanceName = "All Dances",
                 SongCount = tree.Sum(s => s.SongCount),
                 Children = null
             };
@@ -266,36 +264,14 @@ namespace m4dModels
                 throw new ArgumentNullException(nameof(d));
             }
 
-            var dance = dms.Dances.FirstOrDefault(t => t.Id == d.Id);
-
-            var count = 0;
-            var max = 0;
-            List<SongBase> topSongs = null;
-            ICollection<ICollection<PurchaseLink>> topSpotify = null;
- 
-            if (dance != null)
+            var danceStats = new DanceStats
             {
-                count = dance.SongCount;
-                max = dance.MaxWeight;
-
-                topSongs = dance.TopSongs?.OrderBy(ts => ts.Rank).Select(ts => new SongDetails(ts.Song) as SongBase).ToList();
-                topSpotify = dms.GetPurchaseLinks(ServiceType.Spotify, topSongs);
-            }
-
-            var sc = new DanceStats()
-            {
-                DanceId = d.Id,
-                DanceName = d.Name,
-                SongCount = count,
-                MaxWeight = max,
-                Dance = dance,
-                TopSongs = topSongs,
-                TopSpotify = topSpotify,
-                BlogTag = d.BlogTag,
+                DanceObject = d,
                 Children = null
             };
 
-            return sc;
+            danceStats.CopyDanceInfo(dms.Dances.FirstOrDefault(t => t.Id == d.Id), dms);
+            return danceStats;
         }
 
         [SuppressMessage("ReSharper", "InvertIf")]

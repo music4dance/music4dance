@@ -16,9 +16,9 @@
             }
             @if (ViewBag.ShowTempo)
             {
-                decimal min = item.Dance.Info.TempoRange.Min;
-                decimal max = item.Dance.Info.TempoRange.Max;
-                int numerator = item.Dance.Info.Meter.Numerator;
+                decimal min = item.DanceObject.TempoRange.Min;
+                decimal max = item.DanceObject.TempoRange.Max;
+                int numerator = item.DanceObject.Meter.Numerator;
                 if (max == min)
                 {
                     <small>(@(max * numerator) BPM / @max MPM)</small>

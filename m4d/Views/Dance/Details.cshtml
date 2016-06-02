@@ -12,16 +12,16 @@
     ViewBag.SongFilter = new SongFilter { Dances = @Model.DanceId };
 
     var description = @"<p>We're busy doing research and pulling together a general description for " + Model.DanceName + @".  Please check back later for more info.</p>";
-    if (!string.IsNullOrWhiteSpace(Model.Dance.Description))
+    if (!string.IsNullOrWhiteSpace(Model.Description))
     {
         var md = new Markdown { ExtraMode = true, SafeMode = false };
-        description = Model.Dance.Description;
+        description = Model.Description;
         description = Dance.SmartLinks(description, true);
         description = md.Transform(description);
     }
 
     var topSpotify = @DanceMusicService.PurchaseLinksToInfo(@Model.TopSpotify, User.Region());
-    var tags = @Model.Dance.SongTags.Tags;
+    var tags = @Model.SongTags.Tags;
 }
 
 @Html.Partial("_SetupFilterScript")
@@ -44,7 +44,7 @@
         <div class="visible-xs-inline">
             <a href="#dancedescription" class="list-group-item">Dance Description</a>
         </div>
-        @if (Model.Parent != null && Model.Dance.Info.Meter.Numerator != 1)
+        @if (Model.Parent != null && Model.DanceObject.Meter.Numerator != 1)
         {
         <a href="#tempo-info" class="list-group-item">Tempo Info</a>
         }
@@ -57,7 +57,7 @@
         {
         <a href="#dance-styles" class="list-group-item">Dance Sytles</a>
         }
-        @if (Model.Dance.DanceLinks != null && Model.Dance.DanceLinks.Count > 0)
+        @if (Model.DanceLinks != null && Model.DanceLinks.Count > 0)
         {
         <a href="#references" class="list-group-item">References</a>
         }
@@ -77,9 +77,9 @@
                 <div class="big-text">@Html.Raw(description)</div>
             </section>
             <section id="tempo-info">
-                @if (@Model.Parent != null && Model.Dance.Info.Meter.Numerator != 1)
+                @if (@Model.Parent != null && Model.DanceObject.Meter.Numerator != 1)
                 {
-                var info = Model.Dance.Info;
+                var info = Model.DanceObject;
                 var tempo = info.TempoRange;
                 var oneTempo = tempo.Min == tempo.Max;
                 var bpmMin = tempo.Min*info.Meter.Numerator;
@@ -142,13 +142,13 @@
 </section>
 }
 
-@if (Model.Dance.DanceLinks != null && Model.Dance.DanceLinks.Count > 0)
+@if (Model.DanceLinks != null && Model.DanceLinks.Count > 0)
 {
     <hr/>
     <section id="references">
     <h4>References</h4>
     <ul>
-        @foreach (var dl in Model.Dance.DanceLinks)
+        @foreach (var dl in Model.DanceLinks)
         {
         <li><b>@dl.Description:</b> <a href="@dl.Link">@dl.Link</a></li>
         }
