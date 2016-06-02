@@ -10,91 +10,61 @@ using DanceLibrary;
 
 namespace m4dModels
 {
-    public class DanceStatsManager
+    public class DanceStatsInstance
     {
+        public List<DanceStats> Tree { get; set; }
+        public DanceCategories Categories { get; set; }
+        public List<DanceStats> List => _flat ?? (_flat = Flatten());
+        public Dictionary<string, DanceStats> Map => _map ?? (_map = List.ToDictionary(ds => ds.DanceId));
 
-        #region Access
-
-        static public DanceCategories GetDanceCategories(DanceMusicService dms)
+        private List<DanceStats> Flatten()
         {
-            lock (s_map)
-            {
-                // ReSharper disable once InvertIf
-                if (s_categories.CountCategories == 0)
-                {
-                    BuildDanceStats(dms);
-                    s_categories.Initialize(dms);
-                }
-
-                return s_categories;
-            }
-        }
-
-        public static IList<DanceStats> GetFlatDanceStats(DanceMusicService dms)
-        {
-            Trace.WriteLineIf(TraceLevels.General.TraceVerbose,
-                $"Entering GetFlatDanceStats:  dms={(dms == null ? "<<NULL>>" : "Valid")}");
-            var tree = GetDanceStats(dms);
-
             var flat = new List<DanceStats>();
 
-            Debug.Assert(tree != null);
+            flat.AddRange(Tree);
 
-            flat.AddRange(tree);
-
-            foreach (var children in tree.Select(sc => sc.Children))
+            foreach (var children in Tree.Select(ds => ds.Children))
             {
                 flat.AddRange(children);
             }
 
             var all = new DanceStats
             {
-                SongCount = tree.Sum(s => s.SongCount),
+                SongCount = Tree.Sum(s => s.SongCount),
                 Children = null
             };
 
             flat.Insert(0, all);
 
-#if TRACE
-            if (TraceLevels.General.TraceVerbose)
-            {
-                foreach (var sc in flat)
-                {
-                    Trace.WriteLine($"{sc.DanceId}: {sc.SongCount}");
-                }
-            }
-#endif
             return flat;
+        }
+
+        private List<DanceStats> _flat;
+        private Dictionary<string, DanceStats> _map;
+    }
+
+    public class DanceStatsManager
+    {
+        #region Access
+
+        static public DanceCategories GetDanceCategories(DanceMusicService dms)
+        {
+            return GetInstance(dms).Categories;
+        }
+
+        public static IList<DanceStats> GetFlatDanceStats(DanceMusicService dms)
+        {
+            return GetInstance(dms).List;
         }
 
         public static IList<DanceStats> GetDanceStats(DanceMusicService dms)
         {
-            lock (s_map)
-            {
-                if (s_stats.Count != 0) return s_stats;
-
-                RebuildDanceStats(dms);
-
-                return s_stats;
-            }
+            return GetInstance(dms).Tree;
         }
 
         public static IDictionary<string, DanceStats> GetDanceMap(DanceMusicService dms)
         {
-            lock (s_map)
-            {
-                if (s_map.Count != 0) return s_map;
-
-                var list = GetFlatDanceStats(dms);
-
-                foreach (var sc in list)
-                {
-                    s_map.Add(sc.DanceId, sc);
-                }
-
-
-                return s_map;
-            }
+            return GetInstance(dms).Map;
         }
 
         public static DanceStats FromName(string name, DanceMusicService dms)
@@ -106,32 +76,6 @@ namespace m4dModels
         public static DanceStats FromId(string id, DanceMusicService dms)
         {
             return FromId(id, GetDanceMap(dms));
-        }
-
-        public static DanceStats FromId(string id, IDictionary<string, DanceStats> map)
-        {
-            return LookupDanceStats(map, id);
-        }
-
-        [SuppressMessage("ReSharper", "InvertIf")]
-        private static DanceStats LookupDanceStats(IDictionary<string, DanceStats> map, string danceId)
-        {
-            if (danceId.Length > 3) danceId = danceId.Substring(0, 3);
-
-            DanceStats sc;
-            if (map.TryGetValue(danceId, out sc)) return sc;
-
-            Trace.WriteLineIf(TraceLevels.General.TraceError, $"Failed to find danceId {danceId}");
-            // Clear out the cache to force a reload: workaround for possible cache corruption.
-            // TODO: Put in the infrastructure to send app insights events when this happens
-            if (Dances.Instance.DanceFromId(danceId) != null)
-            {
-                Trace.WriteLineIf(TraceLevels.General.TraceError, $"Attempting to rebuild cache");
-
-                ClearCache();
-                Reloads += 1;
-            }
-            return null;
         }
         #endregion
 
@@ -178,21 +122,61 @@ namespace m4dModels
         {
             return song.DanceRatings.Select(dr => GetRatingInfo(map, dr.DanceId, dr.Weight)).ToList();
         }
+
+        public static DanceStats FromId(string id, IDictionary<string, DanceStats> map)
+        {
+            return LookupDanceStats(map, id);
+        }
+
+        [SuppressMessage("ReSharper", "InvertIf")]
+        private static DanceStats LookupDanceStats(IDictionary<string, DanceStats> map, string danceId)
+        {
+            if (danceId.Length > 3) danceId = danceId.Substring(0, 3);
+
+            DanceStats sc;
+            if (map.TryGetValue(danceId, out sc)) return sc;
+
+            Trace.WriteLineIf(TraceLevels.General.TraceError, $"Failed to find danceId {danceId}");
+            // Clear out the cache to force a reload: workaround for possible cache corruption.
+            // TODO: Put in the infrastructure to send app insights events when this happens
+            if (Dances.Instance.DanceFromId(danceId) != null)
+            {
+                Trace.WriteLineIf(TraceLevels.General.TraceError, "Attempting to rebuild cache");
+
+                ClearCache();
+                Reloads += 1;
+            }
+            return null;
+        }
+
         #endregion
 
         #region Building
 
-        private static List<DanceStats> s_stats = new List<DanceStats>();
-        private static readonly Dictionary<string, DanceStats> s_map = new Dictionary<string, DanceStats>();
-        private static readonly DanceCategories s_categories = new DanceCategories();
+        private static readonly object s_lock = new object();
+        private static DanceStatsInstance s_instance;
+
+        private static DanceStatsInstance GetInstance(DanceMusicService dms)
+        {
+            lock (s_lock)
+            {
+                if (s_instance == null) s_instance = new DanceStatsInstance {Tree = BuildDanceStats(dms)};
+
+                if (s_instance.Categories == null)
+                {
+                    s_instance.Categories = new DanceCategories();
+                    s_instance.Categories.Initialize(dms);
+                }
+
+                return s_instance;
+            }
+        }
 
         public static void ClearCache()
         {
-            lock (s_map)
+            lock (s_lock)
             {
-                s_stats.Clear();
-                s_map.Clear();
-                s_categories.Clear();
+                s_instance = null;
 
                 DanceMusicService.BlowTagCache();
                 SongDetails.ResetIndex();
@@ -201,22 +185,22 @@ namespace m4dModels
 
         public static void RebuildDanceStats(DanceMusicService dms)
         {
-            lock (s_map)
+            lock (s_lock)
             {
                 ClearCache();
-                BuildDanceStats(dms);
+                GetInstance(dms);
             }
         }
 
         public static void ReloadDances(DanceMusicService dms)
         {
-            lock (s_map)
+            lock (s_lock)
             {
                 dms.Context.LoadDances();
                 foreach (var dance in dms.Dances)
                 {
                     DanceStats danceStats;
-                    if (s_map.TryGetValue(dance.Id, out danceStats))
+                    if (s_instance.Map.TryGetValue(dance.Id, out danceStats))
                     {
                         danceStats.CopyDanceInfo(dance, dms);
                     }
@@ -224,8 +208,9 @@ namespace m4dModels
             }
         }
 
-        private static void BuildDanceStats(DanceMusicService dms)
+        private static List<DanceStats> BuildDanceStats(DanceMusicService dms)
         {
+            var stats = new List<DanceStats>();
             dms.Context.LoadDances();
 
             var used = new HashSet<string>();
@@ -237,7 +222,7 @@ namespace m4dModels
                 var scGroup = InfoFromDance(dms, dg);
                 scGroup.Children = new List<DanceStats>();
 
-                s_stats.Add(scGroup);
+                stats.Add(scGroup);
 
                 foreach (var dtyp in dg.Members.Select(dtypT => dtypT as DanceType))
                 {
@@ -254,7 +239,7 @@ namespace m4dModels
                 Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Ungrouped Dance: {0}", dt.Id);
             }
 
-            s_stats = s_stats.OrderByDescending(x => x.Children.Count).ToList();
+            return stats.OrderByDescending(x => x.Children.Count).ToList();
         }
 
         private static void HandleType(DanceType dtyp, DanceStats scGroup, DanceMusicService dms)
