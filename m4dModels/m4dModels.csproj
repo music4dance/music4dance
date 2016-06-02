@@ -157,6 +157,7 @@
     <Compile Include="TagSummary.cs" />
     <Compile Include="TagType.cs" />
     <Compile Include="TopN.cs" />
+    <Compile Include="ToStringJsonConverter.cs" />
     <Compile Include="TraceLevels.cs" />
     <Compile Include="TrackNumber.cs" />
     <Compile Include="UndoAction.cs" />

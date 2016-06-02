@@ -1,5 +1,6 @@
-﻿// TODONEXT: Abstract out the loader so that we can load from SQL or a file (and eventually AzureSearch), make something to save to JSON, 
-// enable quick load from JSON and then referesh if the JSON version is potentially out of date
+﻿// TODONEXT: Figure out how to make competition dance save index (either do some funky JSON serialization of the CD type or do a more complet pseudo property)
+// Get JSON loading working,  Figure out how to do JSON loading on start-up and throw a background task to update when appropriate, Figure out if we can manage 
+//  AzureSQL loading...
 
 using System;
 using System.Collections.Generic;

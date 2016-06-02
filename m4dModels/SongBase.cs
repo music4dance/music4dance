@@ -9,6 +9,7 @@ using System.Reflection;
 using System.Runtime.Serialization;
 using System.Text;
 using DanceLibrary;
+using Newtonsoft.Json;
 using static System.Char;
 
 // ReSharper disable ArrangeThisQualifier
@@ -16,6 +17,7 @@ using static System.Char;
 namespace m4dModels
 {
     [DataContract]
+    [JsonConverter(typeof(ToStringJsonConverter))]
     public abstract class SongBase : TaggableObject
     {
         #region Constants

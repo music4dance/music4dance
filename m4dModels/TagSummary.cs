@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
+using Newtonsoft.Json;
 
 namespace m4dModels
 {
@@ -9,6 +10,7 @@ namespace m4dModels
     //  Tag0[:Count0]|Tag1[:Count1]...TagN[:CountN]
     //  where Tags are in alphabetical order
     [ComplexType]
+    [JsonConverter(typeof(ToStringJsonConverter))]
     public class TagSummary 
     {
         #region Properties

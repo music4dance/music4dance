@@ -1693,6 +1693,15 @@ namespace m4d.Controllers
         }
 
         //
+        // Get: //DanceStatistics
+        [Authorize(Roles = "showDiagnostics")]
+        public ActionResult DanceStatistics()
+        {
+            var json = new JsonNetResult(DanceStatsManager.GetDanceStats(Database));
+            return json;
+        }
+
+        //
         // Get: //BackupDatabase
         [Authorize(Roles = "showDiagnostics")]
         public ActionResult BackupDatabase(bool users = true, bool tags = true, bool dances = true, bool searches=true, bool songs = true, string useLookupHistory = null)

@@ -84,6 +84,9 @@
     <li>@Html.ActionLink("Backup tail", "IndexBackup", new { count = 150 })</li>
     <li>@Html.ActionLink("Backup tail (yesterday & today)", "IndexBackup", new { from = (DateTime.Now - new TimeSpan(1, 0, 0, 0)).ToShortDateString() })</li>
 
+    <h2>JSON Backup</h2>
+    <li>@Html.ActionLink("Dance Statistics", "DanceStatistics")</li>
+
 
     <h3>Backup Delta</h3>
     using (Html.BeginForm("BackupDelta", "Admin", FormMethod.Post, new { enctype = "multipart/form-data" }))
