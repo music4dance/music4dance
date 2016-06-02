@@ -439,6 +439,9 @@ namespace m4dModels
             // Clear out the Top10s
             Context.Database.ExecuteSqlCommand("TRUNCATE TABLE dbo.TopNs");
 
+            // TODO: Remove this when everyone is updated...
+            Context.Database.ExecuteSqlCommand("delete from dances where LEN(dances.Id) > 3");
+
             Context.TrackChanges(false);
 
             // TODO: Add include/exclude as permanent fixtures in the header and link them to appropriate cloud
@@ -2795,17 +2798,12 @@ namespace m4dModels
         public void SeedDances()
         {
             var dances = DanceLibrary.Dances.Instance;
-            foreach (var d in dances.AllDances)
+            foreach (var dance in from d in dances.AllDanceTypes let dance = _context.Dances.Find(d.Id) where dance == null select new Dance { Id = d.Id })
             {
-                var dance = _context.Dances.Find(d.Id);
-                if (dance == null)
-                {
-                    dance = new Dance { Id = d.Id };
-                    _context.Dances.Add(dance);
-                }
+                _context.Dances.Add(dance);
             }
-
         }
+
         private void LoadDances()
         {
             Context.LoadDances();

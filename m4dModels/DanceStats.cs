@@ -1,14 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 using DanceLibrary;
 
 namespace m4dModels
 {
     public class DanceStats
-    {        public string DanceId { get; set; }
+    {
+        public string DanceId { get; set; }
 
         public string DanceName { get; set; }
         public int SongCount { get; set; }
