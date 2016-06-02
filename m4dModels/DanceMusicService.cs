@@ -2798,6 +2798,10 @@ namespace m4dModels
         public void SeedDances()
         {
             var dances = DanceLibrary.Dances.Instance;
+            foreach (var dance in from d in dances.AllDanceGroups let dance = _context.Dances.Find(d.Id) where dance == null select new Dance { Id = d.Id })
+            {
+                _context.Dances.Add(dance);
+            }
             foreach (var dance in from d in dances.AllDanceTypes let dance = _context.Dances.Find(d.Id) where dance == null select new Dance { Id = d.Id })
             {
                 _context.Dances.Add(dance);

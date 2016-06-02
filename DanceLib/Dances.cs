@@ -4,10 +4,8 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
-using System.IO;
 using System.Linq;
 using System.Text;
-using System.Xml.Linq;
 
 namespace DanceLibrary
 {
@@ -100,10 +98,10 @@ namespace DanceLibrary
         override public string Id { get; set; }
 
         [JsonProperty]
-        override public string Name {get; set;}
+        override public sealed string Name {get; set;}
 
         [JsonProperty]
-        override public Meter Meter {get; set;}
+        override public sealed Meter Meter {get; set;}
 
         public override TempoRange TempoRange
         {
@@ -714,24 +712,22 @@ namespace DanceLibrary
 
         public static Dances Reset()
         {
-            _instance = null;
+            s_instance = null;
             return Instance;
         }
         public static Dances Instance 
         { 
             get
             {
-                if (_instance == null)
-                {
-                    _instance = new Dances();
-                    _instance.LoadDances();
-                    _instance.LoadGroups();
-                }
-                return _instance;
+                if (s_instance != null) return s_instance;
+                s_instance = new Dances();
+                s_instance.LoadDances();
+                s_instance.LoadGroups();
+                return s_instance;
             }
         }
 
-        private static Dances _instance = null;
+        private static Dances s_instance;
 
         public IEnumerable<DanceInstance> AllDanceInstances => _allDanceInstances;
 
@@ -823,21 +819,16 @@ namespace DanceLibrary
                     decimal delta;
                     decimal deltaPercent;
                     decimal median;
-                    var match = false;
+                    bool match;
 
-                    if (meter == null)
-                    {
-                        match = di.CalculateBeatMatch(rate, epsilon, out delta, out deltaPercent, out median);
-                    }
-                    else 
-                    {
-                        match = di.CalculateTempoMatch(rate, epsilon, out delta, out deltaPercent, out median);
-                    }
+                    match = meter == null ? 
+                        di.CalculateBeatMatch(rate, epsilon, out delta, out deltaPercent, out median) : 
+                        di.CalculateTempoMatch(rate, epsilon, out delta, out deltaPercent, out median);
                     
                     // This tempo and style matches the dance instance
                     if (match)
                     {
-                        DanceSample ds = null;
+                        DanceSample ds;
                         if (dances.ContainsKey(di.DanceType.Name))
                         {
                             ds = dances[di.DanceType.Name];
@@ -847,9 +838,8 @@ namespace DanceLibrary
                         }
                         else
                          {
-                            ds = new DanceSample(di,delta);
-                            ds.TempoDeltaPercent = deltaPercent;
-                            dances.Add(di.DanceType.Name, ds);
+                             ds = new DanceSample(di, delta) {TempoDeltaPercent = deltaPercent};
+                             dances.Add(di.DanceType.Name, ds);
                         }
                     }
                 }

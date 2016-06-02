@@ -129,6 +129,8 @@ namespace m4dModels
                     s_map.Add(sc.DanceId, sc);
                 }
 
+                s_categories.Initialize(dms);
+
                 return s_map;
             }
         }
@@ -224,9 +226,6 @@ namespace m4dModels
             }
 
             s_stats = s_stats.OrderByDescending(x => x.Children.Count).ToList();
-
-            // Finally, set up the categories
-            s_categories.Initialize(dms);
         }
 
         private static void HandleType(DanceType dtyp, DanceStats scGroup, DanceMusicService dms)
