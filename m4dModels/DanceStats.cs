@@ -46,9 +46,6 @@ namespace m4dModels
         [JsonProperty]
         public IReadOnlyList<CompetitionDance> CompetitionDances => _competitionDances;
 
-        [JsonProperty]
-        public IList<string> CompetitionDanceIds => _competitionDances?.Select(d => d.SpecificDance.Id).ToList();
-
         public void AddCompetitionDance(CompetitionDance competitionDance)
         {
             lock (this)

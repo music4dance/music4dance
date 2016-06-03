@@ -6,16 +6,17 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
+// ReSharper disable NonReadonlyMemberInGetHashCode
 
 namespace DanceLibrary
 {
-    static internal class Tags
+    internal static class Tags
     {
-        static internal readonly string Style = "Style";
-        static internal readonly string All = "All";
-        static internal readonly string Competitor = "Competitor";
-        static internal readonly string Level = "Level";
-        static internal readonly string Organization = "Organization";
+        internal static readonly string Style = "Style";
+        internal static readonly string All = "All";
+        internal static readonly string Competitor = "Competitor";
+        internal static readonly string Level = "Level";
+        internal static readonly string Organization = "Organization";
     }
 
     public class OrgSpec
@@ -95,13 +96,13 @@ namespace DanceLibrary
         }
 
         [JsonProperty]
-        override public string Id { get; set; }
+        public override string Id { get; set; }
 
         [JsonProperty]
-        override public sealed string Name {get; set;}
+        public sealed override string Name {get; set;}
 
         [JsonProperty]
-        override public sealed Meter Meter {get; set;}
+        public sealed override Meter Meter {get; set;}
 
         public override TempoRange TempoRange
         {
@@ -140,15 +141,12 @@ namespace DanceLibrary
         public override bool Equals(object obj)
         {
             var other = obj as DanceType;
-            if (other == null)
-                return false;
-            else
-                return this.Name == other.Name;
+            return other != null && Name == other.Name;
         }
 
         public override int GetHashCode()
         {
-            return this.Name.GetHashCode();
+            return Name.GetHashCode();
         }
 
     }
@@ -175,7 +173,7 @@ namespace DanceLibrary
         public DanceType DanceType { get; internal set;}
 
         [JsonProperty]
-        override public TempoRange TempoRange { get; set; }
+        public sealed override TempoRange TempoRange { get; set; }
 
         public TempoRange DanceSportTempo
         {
@@ -498,7 +496,7 @@ namespace DanceLibrary
             Debug.Assert(danceIds != null);
             foreach (var did in danceIds)
             {
-                DanceObject dob = Dances.Instance.DanceFromId(did);
+                var dob = Dances.Instance.DanceFromId(did);
                 Debug.Assert(dob != null);
 
                 Members.Add(dob);
@@ -940,7 +938,7 @@ namespace DanceLibrary
             IEnumerable<string> ret = null;
             if (!string.IsNullOrWhiteSpace(dances))
             {
-                var a = dances.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+                var a = dances.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
                 if (a.Length > 0)
                 {
                     ret = a;
@@ -952,20 +950,22 @@ namespace DanceLibrary
 
         private void DoExpand(string dance, Dictionary<string,string> set)
         {
-            DanceObject dobj = null;
+            DanceObject dobj;
             if (!set.ContainsKey(dance) && _danceDictionary.TryGetValue(dance.ToUpper(), out dobj))
             {
                 set.Add(dance, dance);
 
                 // TODO: Revisit making dance objects generically have children...
-                if (dobj is DanceType)
+                var type = dobj as DanceType;
+                if (type != null)
                 {
-                    var dt = dobj as DanceType;
-                    if (dt.Instances != null)
-                        foreach (DanceObject child in dt.Instances)
-                        {
-                            DoExpand(child.Id, set);
-                        }
+                    var dt = type;
+                    if (dt.Instances == null) return;
+
+                    foreach (var child in dt.Instances)
+                    {
+                        DoExpand(child.Id, set);
+                    }
                 }
                 else if (dobj is DanceGroup)
                 {
