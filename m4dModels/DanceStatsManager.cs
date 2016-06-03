@@ -1,6 +1,6 @@
-﻿// TODONEXT: Figure out how to make competition dance save index (either do some funky JSON serialization of the CD type or do a more complet pseudo property)
-// Get JSON loading working,  Figure out how to do JSON loading on start-up and throw a background task to update when appropriate, Figure out if we can manage 
-//  AzureSQL loading...
+﻿// TODONEXT: Get JSON loading working,  Figure out how to do JSON loading on start-up and throw a background task to update when appropriate, 
+//  Figure out if we can manage AzureSearch loading...
+//  
 
 using System;
 using System.Collections.Generic;

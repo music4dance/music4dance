@@ -43,6 +43,7 @@ namespace m4dModels
         [JsonProperty]
         public DanceObject DanceObject {get; set;}
 
+        [JsonProperty]
         public IReadOnlyList<CompetitionDance> CompetitionDances => _competitionDances;
 
         [JsonProperty]

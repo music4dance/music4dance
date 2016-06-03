@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using DanceLibrary;
+using Newtonsoft.Json;
 
 namespace m4dModels
 {
@@ -13,38 +14,57 @@ namespace m4dModels
         International
     };
 
-    public struct CompetitionDance
+    [JsonObject(MemberSerialization.OptIn)]
+    public class CompetitionDance
     {
-        public CompetitionDance(string id, DanceMusicService dms) : this()
+        public CompetitionDance(string group, string category, string id, int order, DanceMusicService dms)
         {
+            Group = group;
+            Category = category;
+            DanceId = id;
+            Order = order;
             DanceStats = DanceStatsManager.FromId(id,dms);
-            SpecificDance = Dances.Instance.DanceFromId(id) as DanceInstance;
             DanceStats.AddCompetitionDance(this);
         }
-        public DanceStats DanceStats { get; private set; }
-        public DanceInstance SpecificDance { get; private set; }
+        public DanceStats DanceStats { get; }
+
+        [JsonProperty]
+        public string DanceId { get; }
+
+        [JsonProperty]
+        public string Group { get; }
+        [JsonProperty]
+        public string Category { get; }
+
+        [JsonProperty]
+        public int Order { get; }
+
+        public DanceInstance SpecificDance => Dances.Instance.DanceFromId(DanceId) as DanceInstance;
+
     }
     public class DanceCategory
     {
         public string Name { get; }
+        public string Group { get; }
         public string CanonicalName => BuildCanonicalName(Name);
         public IReadOnlyList<CompetitionDance> Round => _round;
         public IReadOnlyList<CompetitionDance> Extras => _extra;
 
-        internal DanceCategory(DanceMusicService dms, string name, IEnumerable<string> round, IEnumerable<string> extras = null)
+        internal DanceCategory(DanceMusicService dms, string group, string name, IEnumerable<string> round, IEnumerable<string> extras = null)
         {
+            Group = group;
             Name = name;
             _round= new List<CompetitionDance>();
             foreach (var d in round)
             {
-                _round.Add(new CompetitionDance(d,dms));
+                _round.Add(new CompetitionDance(group, name, d,_round.Count,dms));
             }
             if (extras == null) return;
 
             _extra = new List<CompetitionDance>();
             foreach (var d in extras)
             {
-                _extra.Add(new CompetitionDance(d, dms));
+                _extra.Add(new CompetitionDance(group, name, d, -1, dms));
             }
         }
 
@@ -90,9 +110,9 @@ namespace m4dModels
 
         public int CountCategories => _categories.Count;
 
-        private void AddCategory(DanceMusicService dms, string name, IEnumerable<string> round, IEnumerable<string> extras = null)
+        private void AddCategory(DanceMusicService dms, string group, string name, IEnumerable<string> round, IEnumerable<string> extras = null)
         {
-            var cat = new DanceCategory(dms, name, round, extras);
+            var cat = new DanceCategory(dms, group, name, round, extras);
             _categories[DanceCategory.BuildCanonicalName(name)] = cat;
         }
 
@@ -100,10 +120,10 @@ namespace m4dModels
         {
             if (_categories.Count > 0) return;
 
-            AddCategory(dms, Standard, new[] { "SWZI", "TGOI", "VWZI", "SFTI", "QSTI" });
-            AddCategory(dms, Latin, new[] { "CHAI", "SMBI", "RMBI", "PDLI", "JIVI" });
-            AddCategory(dms, Smooth, new[] { "SWZA", "TGOA", "SFTA", "VWZA" }, new[] { "PBDA" });
-            AddCategory(dms, Rhythm, new[] { "CHAA", "RMBA", "ECSA", "BOLA", "MBOA" }, new[] { "HSTA", "MRGA", "PDLA", "PLKA", "SMBA", "WCSA" });
+            AddCategory(dms, Ballroom, Standard, new[] { "SWZI", "TGOI", "VWZI", "SFTI", "QSTI" });
+            AddCategory(dms, Ballroom, Latin, new[] { "CHAI", "SMBI", "RMBI", "PDLI", "JIVI" });
+            AddCategory(dms, Ballroom, Smooth, new[] { "SWZA", "TGOA", "SFTA", "VWZA" }, new[] { "PBDA" });
+            AddCategory(dms, Ballroom, Rhythm, new[] { "CHAA", "RMBA", "ECSA", "BOLA", "MBOA" }, new[] { "HSTA", "MRGA", "PDLA", "PLKA", "SMBA", "WCSA" });
         }
 
         public void Clear()
