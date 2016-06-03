@@ -275,6 +275,12 @@ namespace DanceLibrary
         public string Style {get; set;}
 
         [JsonProperty]
+        public string Group { get; set; }
+
+        [JsonProperty]
+        public int Order { get; set; }
+
+        [JsonProperty]
         public List<DanceException> Exceptions { get; set; }
 
         public TempoRange FilteredTempo

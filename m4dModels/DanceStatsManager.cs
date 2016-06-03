@@ -1,4 +1,7 @@
-﻿// TODONEXT: Get JSON loading working,  Figure out how to do JSON loading on start-up and throw a background task to update when appropriate, 
+﻿// TODONEXT: Refactor competition categories so that the information is encoded in the dances.txt json (just add a group and order property to danceInstance)
+//  Then get the dances.txt file updated + write a test against the new info.
+//  Look at default/null behavior of dancestats serialization
+//  Get JSON loading working,  Figure out how to do JSON loading on start-up and throw a background task to update when appropriate, 
 //  Figure out if we can manage AzureSearch loading...
 //  
 
