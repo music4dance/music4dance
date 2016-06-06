@@ -182,12 +182,9 @@ namespace DanceLibrary
                 if (Exceptions == null)
                     return TempoRange;
 
-                foreach (var ex in Exceptions)
+                foreach (var ex in Exceptions.Where(ex => ex.Organization == "DanceSport"))
                 {
-                    if (ex.Organization == "DanceSport")
-                    {
-                        return ex.TempoRange;
-                    }
+                    return ex.TempoRange;
                 }
                 return TempoRange;
             }
@@ -299,12 +296,8 @@ namespace DanceLibrary
 
                 // Now include all of the tempos in the exceptions that are covered by
                 //  the selected filter
-                foreach (var de in exceptions)
-                {
-                    tempoRange = de.TempoRange.Include(tempoRange);
-                }
 
-                return tempoRange;
+                return exceptions.Aggregate(tempoRange, (current, de) => de.TempoRange.Include(current));
             }
         }
 
@@ -372,6 +365,7 @@ namespace DanceLibrary
         {
             var exceptions = new List<DanceException>();
 
+            // ReSharper disable once LoopCanBeConvertedToQuery
             foreach (var de in Exceptions)
             {
                 if (FilterObject.GetValue(Tags.Competitor, de.Competitor) &&
@@ -445,7 +439,7 @@ namespace DanceLibrary
 
         public override string ToString()
         {
-            return string.Format("{0} ({1}MPM)", Style, FilteredTempo);
+            return $"{Style} ({FilteredTempo}MPM)";
         }
     }
 
@@ -489,7 +483,7 @@ namespace DanceLibrary
     }
 
     [JsonObject(MemberSerialization.OptIn)]
-    public class DanceGroup : DanceObject
+    public sealed class DanceGroup : DanceObject
     {
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors"), JsonConstructor]
         public DanceGroup(string name, string id, string description, string[] danceIds)
@@ -611,9 +605,9 @@ namespace DanceLibrary
                 if (Math.Abs(TempoDelta) < .01M)
                     return "";
                 else if (TempoDelta < 0)
-                    return string.Format("{0:F2}MPM",TempoDelta); 
+                    return $"{TempoDelta:F2}MPM"; 
                 else
-                    return string.Format("+{0:F2}MPM", TempoDelta); 
+                    return $"+{TempoDelta:F2}MPM"; 
             }
         }
 
@@ -626,9 +620,9 @@ namespace DanceLibrary
                 if (Math.Abs(TempoDeltaPercent) < .01M)
                     return "Exact";
                 else if (TempoDeltaPercent < 0)
-                    return string.Format("{0:F1}%", TempoDeltaPercent);
+                    return $"{TempoDeltaPercent:F1}%";
                 else
-                    return string.Format("+{0:F1}%", TempoDeltaPercent); 
+                    return $"+{TempoDeltaPercent:F1}%"; 
             }
         }
 
@@ -641,10 +635,10 @@ namespace DanceLibrary
 
         public override string ToString()
         {
-            return string.Format("{0}: Style=({1}), Delta=({2})", DanceType.Name, Style, TempoDeltaString);
+            return $"{DanceType.Name}: Style=({Style}), Delta=({TempoDeltaString})";
         }
 
-        private List<DanceInstance> _rgdi = new List<DanceInstance>();
+        private readonly List<DanceInstance> _rgdi = new List<DanceInstance>();
     }
         
     public class Dances
@@ -792,11 +786,11 @@ namespace DanceLibrary
         }
 
         private List<DanceType> _allDanceTypes = new List<DanceType>();
-        private List<DanceInstance> _allDanceInstances = new List<DanceInstance>();
+        private readonly List<DanceInstance> _allDanceInstances = new List<DanceInstance>();
         private List<DanceGroup> _allDanceGroups = new List<DanceGroup>();
-        private List<DanceObject> _allDanceObjects = new List<DanceObject>();
-        private Dictionary<string, DanceObject> _danceDictionary = new Dictionary<string, DanceObject>();
-        private List<DanceType> _npDanceTypes = new List<DanceType>();
+        private readonly List<DanceObject> _allDanceObjects = new List<DanceObject>();
+        private readonly Dictionary<string, DanceObject> _danceDictionary = new Dictionary<string, DanceObject>();
+        private readonly List<DanceType> _npDanceTypes = new List<DanceType>();
 
         private decimal SignedMin(decimal a, decimal b)
         {
@@ -812,39 +806,32 @@ namespace DanceLibrary
 
             // Cut a fairly wide swath on what we include in the list
             var dances = new Dictionary<string,DanceSample>();
-            foreach (var di in _allDanceInstances)
+            foreach (var di in _allDanceInstances.Where(di => di.StyleId != 'P').Where(di => meter == null || di.CanMatch(meter)))
             {
-                // TODO: For now, let's just filter out "Performance" dances, we can think about how to pull them in more generally later
-                if (di.StyleId == 'P') continue;
+                decimal delta;
+                decimal deltaPercent;
+                decimal median;
+                bool match;
 
-                // Meter is absolute, and null values in some of the other classes are also absolue so check those first
-                if (meter == null || di.CanMatch(meter))
-                {
-                    decimal delta;
-                    decimal deltaPercent;
-                    decimal median;
-                    bool match;
-
-                    match = meter == null ? 
-                        di.CalculateBeatMatch(rate, epsilon, out delta, out deltaPercent, out median) : 
-                        di.CalculateTempoMatch(rate, epsilon, out delta, out deltaPercent, out median);
+                match = meter == null ? 
+                    di.CalculateBeatMatch(rate, epsilon, out delta, out deltaPercent, out median) : 
+                    di.CalculateTempoMatch(rate, epsilon, out delta, out deltaPercent, out median);
                     
-                    // This tempo and style matches the dance instance
-                    if (match)
+                // This tempo and style matches the dance instance
+                if (match)
+                {
+                    DanceSample ds;
+                    if (dances.ContainsKey(di.DanceType.Name))
                     {
-                        DanceSample ds;
-                        if (dances.ContainsKey(di.DanceType.Name))
-                        {
-                            ds = dances[di.DanceType.Name];
-                            ds.TempoDelta = SignedMin(ds.TempoDelta, delta);
-                            ds.TempoDeltaPercent = SignedMin(ds.TempoDeltaPercent,deltaPercent);
-                            ds.Add(di);
-                        }
-                        else
-                         {
-                             ds = new DanceSample(di, delta) {TempoDeltaPercent = deltaPercent};
-                             dances.Add(di.DanceType.Name, ds);
-                        }
+                        ds = dances[di.DanceType.Name];
+                        ds.TempoDelta = SignedMin(ds.TempoDelta, delta);
+                        ds.TempoDeltaPercent = SignedMin(ds.TempoDeltaPercent,deltaPercent);
+                        ds.Add(di);
+                    }
+                    else
+                    {
+                        ds = new DanceSample(di, delta) {TempoDeltaPercent = deltaPercent};
+                        dances.Add(di.DanceType.Name, ds);
                     }
                 }
             }
@@ -916,8 +903,7 @@ namespace DanceLibrary
         }
         public IList<DanceObject> FromIds(string dances)
         {
-            if (dances != null)
-                dances = dances.ToUpper();
+            dances = dances?.ToUpper();
             var list = ParseDanceList(dances);
 
             return FromIds(list);
@@ -975,7 +961,7 @@ namespace DanceLibrary
                 }
                 else if (dobj is DanceGroup)
                 {
-                    var dg = dobj as DanceGroup;
+                    var dg = (DanceGroup) dobj;
                     foreach  (var id in dg.DanceIds)
                     {
                         DoExpand(id, set);
