@@ -16,6 +16,7 @@ using m4d.Utilities;
 using m4dModels;
 using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.AspNet.Identity;
+using Newtonsoft.Json;
 using Configuration = m4d.Migrations.Configuration;
 
 namespace m4d.Controllers
@@ -1697,8 +1698,13 @@ namespace m4d.Controllers
         [Authorize(Roles = "showDiagnostics")]
         public ActionResult DanceStatistics()
         {
-            var json = new JsonNetResult(DanceStatsManager.GetDanceStats(Database));
-            return json;
+            return new JsonNetResult(
+                DanceStatsManager.GetDanceStats(Database),
+                new JsonSerializerSettings
+                {
+                    NullValueHandling = NullValueHandling.Ignore,
+                    DefaultValueHandling = DefaultValueHandling.IgnoreAndPopulate
+                });
         }
 
         //

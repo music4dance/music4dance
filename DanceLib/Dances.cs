@@ -162,12 +162,11 @@ namespace DanceLibrary
             TempoRange = tempoRange;
             Exceptions = new List<DanceException>(exceptions);
 
-            if (exceptions != null)
+            if (exceptions == null) return;
+
+            foreach (var exception in exceptions)
             {
-                foreach (var exception in exceptions)
-                {
-                    exception.DanceInstance = this;
-                }
+                exception.DanceInstance = this;
             }
         }
 
@@ -276,6 +275,7 @@ namespace DanceLibrary
         public string CompetitionGroup { get; set; }
 
         [JsonProperty]
+        [DefaultValue(0)]
         public int CompetitionOrder { get; set; }
 
         [JsonProperty]

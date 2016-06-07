@@ -14,21 +14,11 @@ namespace m4d.Controllers
         public JsonSerializerSettings SerializerSettings { get; set; }
         public Formatting Formatting { get; set; }
 
-        public JsonNetResult(object data, Formatting formatting)
-            : this(data)
-        {
-            Formatting = formatting;
-        }
-
-        public JsonNetResult(object data) : this()
+        public JsonNetResult(object data = null, JsonSerializerSettings serializerSettings = null, Formatting formatting = Formatting.None)
         {
             Data = data;
-        }
-
-        public JsonNetResult()
-        {
-            Formatting = Formatting.None;
-            SerializerSettings = new JsonSerializerSettings();
+            Formatting = formatting;
+            SerializerSettings = serializerSettings ?? new JsonSerializerSettings();
         }
 
         public override void ExecuteResult(ControllerContext context)
