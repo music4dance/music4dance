@@ -10,13 +10,13 @@
     var hideArtist = ViewData.ContainsKey("HideArtist") ? ViewBag.HideArtist : false;
     var showLength = ViewData.ContainsKey("ShowLength") ? ViewBag.ShowLength : false;
 
-    var danceMap = (IDictionary<string, DanceStats>)ViewBag.DanceMap;
+    DanceStatsInstance danceStats = ViewBag.DanceStats;
     SongFilter filter = ViewData.ContainsKey("SongFilter") ? ViewBag.SongFilter : new SongFilter();
     var isRaw = filter.IsRaw;
     canSort = canSort && !isRaw;
     var songOrder = new SongSort(filter.SortOrder);
     var danceId = ViewData.ContainsKey("DanceId") ? ViewBag.DanceId : null;
-    var danceName = (isRaw || danceId == null) ? null : danceMap[danceId].DanceName;
+    var danceName = (isRaw || danceId == null) ? null : danceStats.FromId(danceId).DanceName;
     var azureSearch = filter.IsAzure;
     LikeDictionary likes = ViewData.ContainsKey("Likes") ? ViewBag.Likes : null;
     LikeDictionary danceLikes = ViewData.ContainsKey("DanceLikes") ? ViewBag.DanceLikes : null;
@@ -280,7 +280,7 @@
             List<DanceRating> scaledDances = null;
             if (item.DanceRatings != null)
             {
-                scaledDances = item.DanceRatings.OrderByDescending(dr => DanceStatsManager.GetScaledRating(danceMap, dr.DanceId, dr.Weight)).ToList();
+                scaledDances = item.DanceRatings.OrderByDescending(dr => danceStats.GetScaledRating(dr.DanceId, dr.Weight)).ToList();
             }
             string tempoString = null;
             if (item.Tempo.HasValue)
@@ -304,9 +304,9 @@
                     @{
                         if (danceId != null)
                         {
-                            @LikeHelper(item, danceLikes, "dance", "dancing " + danceName + " to this song", danceId, likeTipNull, likeTipTrue, likeTipFalse);
+                            @LikeHelper(item, danceLikes, "dance", "dancing " + danceName + " to this song", danceId, likeTipNull, likeTipTrue, likeTipFalse)
                         }
-                        @LikeHelper(item, likes, "heart", "this song", "like", likeTipNull, likeTipTrue, likeTipFalse);
+                        @LikeHelper(item, likes, "heart", "this song", "like", likeTipNull, likeTipTrue, likeTipFalse)
                         if (!string.IsNullOrWhiteSpace(item.Purchase))
                         {
                             var id = "Play" + item.SongId;
@@ -377,7 +377,7 @@
                     <td class="hidden-xs">
                         @if (item.Length != null)
                         {
-                            @((new SongDuration(item.Length.Value)).ToString());
+                            @((new SongDuration(item.Length.Value)).ToString())
                         }
                     </td>
                 }
@@ -390,14 +390,15 @@
                         <span class="visible-xs">
                             @EchoHelper.EchoValues(item)
                         </span>
+                        @* ReSharper disable once LoopCanBeConvertedToQuery *@
                         @if (scaledDances != null)
                         {
                             foreach (var ditem in scaledDances)
                             {
                                 // TODO: Dance name pulled from the danceMap doesn't require a db lookup - is there a way
                                 //  to make the more intuitive ditem.Dance.Name work without a lookup???
-                                var badge = DanceStatsManager.GetRatingBadge(danceMap, ditem.DanceId, ditem.Weight);
-                                var name = danceMap[ditem.DanceId].DanceName;
+                                var badge = danceStats.GetRatingBadge(ditem.DanceId, ditem.Weight);
+                                var name = danceStats.FromId(ditem.DanceId).DanceName;
                                 var label = name;
                                 var tags = string.Empty;
                                 if (!string.IsNullOrWhiteSpace(ditem.TagSummary.Summary))

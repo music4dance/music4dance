@@ -13,14 +13,12 @@ namespace m4dModels
 
         public DanceRatingInfo(DanceRating dr, ApplicationUser user, DanceMusicService dms)
         {
-            // TODO: Make this more resilient - server appears to have gotten into a state where DanceStats weren't returning this map correctly
-            var map = DanceStatsManager.GetDanceMap(dms);
-
             DanceId = dr.DanceId;
             SongId = dr.SongId;
             Weight = dr.Weight;
             TagSummary = dr.TagSummary;
-            var sc = DanceStatsManager.FromId(DanceId, dms);
+            var stats = DanceStatsManager.GetInstance(dms);
+            var sc = stats.FromId(DanceId);
 
             if (sc != null)
             {
@@ -28,7 +26,7 @@ namespace m4dModels
                 Max = sc.MaxWeight;
             }
 
-            Badge = DanceStatsManager.GetRatingBadge(map, DanceId, Weight);
+            Badge = stats.GetRatingBadge(DanceId, Weight);
 
             if (user != null)
             {

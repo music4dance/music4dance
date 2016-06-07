@@ -1,12 +1,11 @@
-﻿// TODONEXT: Move the dancemap helpers into DanceStatsInstance and get everyone using that
-//  Get JSON loading working,  Figure out how to do JSON loading on start-up and throw a background task to update when appropriate, 
+﻿// TODONEXT: Get JSON loading working,  
+//  Figure out how to do JSON loading on start-up and throw a background task to update when appropriate, 
 //  Figure out if we can manage AzureSearch loading...
 //  
 
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using DanceLibrary;
 
@@ -17,6 +16,74 @@ namespace m4dModels
         public List<DanceStats> Tree { get; set; }
         public List<DanceStats> List => _flat ?? (_flat = Flatten());
         public Dictionary<string, DanceStats> Map => _map ?? (_map = List.ToDictionary(ds => ds.DanceId));
+
+        public int GetScaledRating(string danceId, int weight, int scale = 5)
+        {
+            var sc = FromId(danceId);
+            if (sc == null) return 0;
+
+            float max = sc.MaxWeight;
+            var ret = (int)(Math.Ceiling(weight * scale / max));
+
+            if (TraceLevels.General.TraceInfo && (weight > max || ret < 0))
+            {
+                Trace.WriteLine($"{danceId}: {weight} ? {max}");
+            }
+
+            return Math.Max(0, Math.Min(ret, scale));
+        }
+        public string GetRatingBadge(string danceId, int weight)
+        {
+            var scaled = GetScaledRating(danceId, weight);
+
+            //return "/Content/thermometer-" + scaled.ToString() + ".png";
+            return "rating-" + scaled;
+        }
+
+        public DanceRatingInfo GetRatingInfo(string danceId, int weight)
+        {
+            var sc = FromId(danceId);
+            if (sc == null) return null;
+
+            return new DanceRatingInfo
+            {
+                DanceId = danceId,
+                DanceName = sc.DanceName,
+                Weight = weight,
+                Max = sc.MaxWeight,
+                Badge = GetRatingBadge(danceId, weight)
+            };
+        }
+
+        public IEnumerable<DanceRatingInfo> GetRatingInfo(SongBase song)
+        {
+            return song.DanceRatings.Select(dr => GetRatingInfo(dr.DanceId, dr.Weight)).ToList();
+        }
+
+        public DanceStats FromId(string danceId)
+        {
+            if (danceId.Length > 3) danceId = danceId.Substring(0, 3);
+
+            DanceStats sc;
+            if (Map.TryGetValue(danceId, out sc)) return sc;
+
+            if (Dances.Instance.DanceFromId(danceId) == null) return null;
+
+            Trace.WriteLineIf(TraceLevels.General.TraceError, $"Failed to find danceId {danceId}");
+            // Clear out the cache to force a reload: workaround for possible cache corruption.
+            // TODO: Put in the infrastructure to send app insights events when this happens
+            Trace.WriteLineIf(TraceLevels.General.TraceError, "Attempting to rebuild cache");
+
+            DanceStatsManager.ClearCache(true);
+            return null;
+        }
+
+        public DanceStats FromName(string name)
+        {
+            name = DanceObject.SeoFriendly(name);
+            return List.FirstOrDefault(sc => string.Equals(sc.SeoName, name));
+        }
+
 
         private List<DanceStats> Flatten()
         {
@@ -64,94 +131,6 @@ namespace m4dModels
         {
             return GetInstance(dms).Tree;
         }
-
-        public static IDictionary<string, DanceStats> GetDanceMap(DanceMusicService dms)
-        {
-            return GetInstance(dms).Map;
-        }
-
-        public static DanceStats FromName(string name, DanceMusicService dms)
-        {
-            name = DanceObject.SeoFriendly(name);
-            return GetFlatDanceStats(dms).FirstOrDefault(sc => string.Equals(sc.SeoName, name));
-        }
-
-        public static DanceStats FromId(string id, DanceMusicService dms)
-        {
-            return FromId(id, GetDanceMap(dms));
-        }
-        #endregion
-
-        #region Map Utilities
-        public static int GetScaledRating(IDictionary<string, DanceStats> map, string danceId, int weight, int scale = 5)
-        {
-            var sc = LookupDanceStats(map, danceId);
-            if (sc == null) return 0;
-
-            float max = sc.MaxWeight;
-            var ret = (int)(Math.Ceiling(weight * scale / max));
-
-            if (TraceLevels.General.TraceInfo && (weight > max || ret < 0))
-            {
-                Trace.WriteLine($"{danceId}: {weight} ? {max}");
-            }
-
-            return Math.Max(0, Math.Min(ret, scale));
-        }
-        public static string GetRatingBadge(IDictionary<string, DanceStats> map, string danceId, int weight)
-        {
-            var scaled = GetScaledRating(map, danceId, weight);
-
-            //return "/Content/thermometer-" + scaled.ToString() + ".png";
-            return "rating-" + scaled;
-        }
-
-        public static DanceRatingInfo GetRatingInfo(IDictionary<string, DanceStats> map, string danceId, int weight)
-        {
-            var sc = LookupDanceStats(map, danceId);
-            if (sc == null) return null;
-
-            return new DanceRatingInfo
-            {
-                DanceId = danceId,
-                DanceName = sc.DanceName,
-                Weight = weight,
-                Max = sc.MaxWeight,
-                Badge = GetRatingBadge(map, danceId, weight)
-            };
-        }
-
-        public static IEnumerable<DanceRatingInfo> GetRatingInfo(IDictionary<string, DanceStats> map, SongBase song)
-        {
-            return song.DanceRatings.Select(dr => GetRatingInfo(map, dr.DanceId, dr.Weight)).ToList();
-        }
-
-        public static DanceStats FromId(string id, IDictionary<string, DanceStats> map)
-        {
-            return LookupDanceStats(map, id);
-        }
-
-        [SuppressMessage("ReSharper", "InvertIf")]
-        private static DanceStats LookupDanceStats(IDictionary<string, DanceStats> map, string danceId)
-        {
-            if (danceId.Length > 3) danceId = danceId.Substring(0, 3);
-
-            DanceStats sc;
-            if (map.TryGetValue(danceId, out sc)) return sc;
-
-            Trace.WriteLineIf(TraceLevels.General.TraceError, $"Failed to find danceId {danceId}");
-            // Clear out the cache to force a reload: workaround for possible cache corruption.
-            // TODO: Put in the infrastructure to send app insights events when this happens
-            if (Dances.Instance.DanceFromId(danceId) != null)
-            {
-                Trace.WriteLineIf(TraceLevels.General.TraceError, "Attempting to rebuild cache");
-
-                ClearCache();
-                Reloads += 1;
-            }
-            return null;
-        }
-
         #endregion
 
         #region Building
@@ -159,7 +138,7 @@ namespace m4dModels
         private static readonly object s_lock = new object();
         private static DanceStatsInstance s_instance;
 
-        public static void ClearCache()
+        public static void ClearCache(bool reload = false)
         {
             lock (s_lock)
             {
@@ -167,6 +146,7 @@ namespace m4dModels
 
                 DanceMusicService.BlowTagCache();
                 SongDetails.ResetIndex();
+                Reloads += 1;
             }
         }
 

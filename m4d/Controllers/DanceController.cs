@@ -34,7 +34,7 @@ namespace m4d.Controllers
             {
                 // TODO: Wedding dance help page?
                 HelpPage = "dance-styles";
-                return View("weddingdancemusic", DanceStatsManager.GetDanceStats(Database));
+                return View("weddingdancemusic", stats.List);
             }
 
             var category = CompetitionCategory.GetCategory(dance);
@@ -45,10 +45,8 @@ namespace m4d.Controllers
                 return View("category", category);
             }
 
-            // TODO: Use dancestats everywhere we had been using DanceMap
             HelpPage = "dance-details";
-            ViewBag.DanceMap = DanceStatsManager.GetDanceMap(Database);
-            var ds = DanceStatsManager.FromName(dance, Database);
+            var ds = stats.FromName(dance);
 
             if (ds == null) return ReturnError(HttpStatusCode.NotFound, $"The dance with the name = {dance} isn't defined.");
 
