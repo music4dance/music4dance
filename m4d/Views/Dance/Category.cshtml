@@ -1,9 +1,12 @@
-﻿@model DanceCategory
+﻿@using DanceLibrary
+@model CompetitionCategory
 
 @{
+    DanceStatsInstance stats = ViewBag.DanceStats;
+
     ViewBag.Title = @Model.Name;
     ViewBag.Description = "A description of the competition dance category " + @Model.Name + " along with tempo ranges and song lists.";
-    var catType = @Model.Name.StartsWith("International") ? DanceCategoryType.International : DanceCategoryType.American;
+    var catType = @Model.CategoryType;
     var blogName = "https://www.music4dance.net/blog/tag/" + @Model.Name.ToLowerInvariant().Replace(' ', '-') + "/";
 }
 
@@ -21,11 +24,11 @@
     @DanceHelper.BallroomList(Html)
 </div>
 
-@DanceHelper.CategoryTable(Html, Model.Round, "An " + @DanceHelper.FullRoundName(Model) + "dance round consist of the following:", catType)
+@DanceHelper.CategoryTable(Html, stats, Model.Round, "An " + @DanceHelper.FullRoundName(Model) + "dance round consist of the following:", catType)
 
 @if (@Model.Extras != null)
 {
-    @DanceHelper.CategoryTable(Html, Model.Extras, "Other dances categorized as " + @Model.Name + ", although they aren't part of the competition round, are:", catType)
+    @DanceHelper.CategoryTable(Html, stats, Model.Extras, "Other dances categorized as " + @Model.Name + ", although they aren't part of the competition round, are:", catType)
 }
 
 @{

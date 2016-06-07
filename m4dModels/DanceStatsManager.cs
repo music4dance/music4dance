@@ -17,7 +17,6 @@ namespace m4dModels
     public class DanceStatsInstance
     {
         public List<DanceStats> Tree { get; set; }
-        public DanceCategories Categories { get; set; }
         public List<DanceStats> List => _flat ?? (_flat = Flatten());
         public Dictionary<string, DanceStats> Map => _map ?? (_map = List.ToDictionary(ds => ds.DanceId));
 
@@ -50,10 +49,12 @@ namespace m4dModels
     public class DanceStatsManager
     {
         #region Access
-
-        static public DanceCategories GetDanceCategories(DanceMusicService dms)
+        public static DanceStatsInstance GetInstance(DanceMusicService dms)
         {
-            return GetInstance(dms).Categories;
+            lock (s_lock)
+            {
+                return s_instance ?? (s_instance = new DanceStatsInstance { Tree = BuildDanceStats(dms) });
+            }
         }
 
         public static IList<DanceStats> GetFlatDanceStats(DanceMusicService dms)
@@ -159,22 +160,6 @@ namespace m4dModels
 
         private static readonly object s_lock = new object();
         private static DanceStatsInstance s_instance;
-
-        private static DanceStatsInstance GetInstance(DanceMusicService dms)
-        {
-            lock (s_lock)
-            {
-                if (s_instance == null) s_instance = new DanceStatsInstance {Tree = BuildDanceStats(dms)};
-
-                if (s_instance.Categories == null)
-                {
-                    s_instance.Categories = new DanceCategories();
-                    s_instance.Categories.Initialize(dms);
-                }
-
-                return s_instance;
-            }
-        }
 
         public static void ClearCache()
         {

@@ -10,6 +10,8 @@
     "Instances": [
       {
         "Style": "American Smooth",
+        "CompetitionGroup": "Ballroom",
+        "CompetitionOrder": "1",
         "TempoRange": {
           "Min": 28.0,
           "Max": 30.0
@@ -27,6 +29,8 @@
       },
       {
         "Style": "International Standard",
+        "CompetitionGroup": "Ballroom",
+        "CompetitionOrder": "1",
         "TempoRange": {
           "Min": 28.0,
           "Max": 30.0
@@ -93,6 +97,8 @@
     "Instances": [
       {
         "Style": "American Smooth",
+        "CompetitionGroup": "Ballroom",
+        "CompetitionOrder": "3",
         "TempoRange": {
           "Min": 30.0,
           "Max": 34.0
@@ -125,6 +131,8 @@
       },
       {
         "Style": "International Standard",
+        "CompetitionGroup": "Ballroom",
+        "CompetitionOrder": "4",
         "TempoRange": {
           "Min": 28.0,
           "Max": 30.0
@@ -144,6 +152,8 @@
     "Instances": [
       {
         "Style": "American Smooth",
+        "CompetitionGroup": "Ballroom",
+        "CompetitionOrder": "2",
         "TempoRange": {
           "Min": 30.0,
           "Max": 30.0
@@ -161,6 +171,8 @@
       },
       {
         "Style": "International Standard",
+        "CompetitionGroup": "Ballroom",
+        "CompetitionOrder": "2",
         "TempoRange": {
           "Min": 32.0,
           "Max": 32.0
@@ -189,6 +201,8 @@
     "Instances": [
       {
         "Style": "American Smooth",
+        "CompetitionGroup": "Ballroom",
+        "CompetitionOrder": "0",
         "TempoRange": {
           "Min": 60.0,
           "Max": 62.0
@@ -208,6 +222,8 @@
     "Instances": [
       {
         "Style": "American Smooth",
+        "CompetitionGroup": "Ballroom",
+        "CompetitionOrder": "4",
         "TempoRange": {
           "Min": 53.0,
           "Max": 54.0
@@ -225,6 +241,8 @@
       },
       {
         "Style": "International Standard",
+        "CompetitionGroup": "Ballroom",
+        "CompetitionOrder": "3",
         "TempoRange": {
           "Min": 56.0,
           "Max": 58.0
@@ -253,6 +271,8 @@
     "Instances": [
       {
         "Style": "International Standard",
+        "CompetitionGroup": "Ballroom",
+        "CompetitionOrder": "5",
         "TempoRange": {
           "Min": 48.0,
           "Max": 52.0
@@ -280,6 +300,8 @@
     "Instances": [
       {
         "Style": "American Rhythm",
+        "CompetitionGroup": "Ballroom",
+        "CompetitionOrder": "4",
         "TempoRange": {
           "Min": 24.0,
           "Max": 26.0
@@ -309,6 +331,8 @@
     "Instances": [
       {
         "Style": "American Rhythm",
+        "CompetitionGroup": "Ballroom",
+        "CompetitionOrder": "1",
         "TempoRange": {
           "Min": 30.0,
           "Max": 30.0
@@ -317,6 +341,8 @@
       },
       {
         "Style": "International Latin",
+        "CompetitionGroup": "Ballroom",
+        "CompetitionOrder": "1",
         "TempoRange": {
           "Min": 31.0,
           "Max": 31.0
@@ -345,6 +371,8 @@
     "Instances": [
       {
         "Style": "American Rhythm",
+        "CompetitionGroup": "Ballroom",
+        "CompetitionOrder": "5",
         "TempoRange": {
           "Min": 47.0,
           "Max": 51.0
@@ -388,6 +416,8 @@
     "Instances": [
       {
         "Style": "International Latin",
+        "CompetitionGroup": "Ballroom",
+        "CompetitionOrder": "5",
         "TempoRange": {
           "Min": 38.0,
           "Max": 44.0
@@ -424,6 +454,8 @@
     "Instances": [
       {
         "Style": "American Rhythm",
+        "CompetitionGroup": "Ballroom",
+        "CompetitionOrder": "2",
         "TempoRange": {
           "Min": 30.0,
           "Max": 36.0
@@ -456,6 +488,8 @@
       },
       {
         "Style": "International Latin",
+        "CompetitionGroup": "Ballroom",
+        "CompetitionOrder": "3",
         "TempoRange": {
           "Min": 26.0,
           "Max": 27.0
@@ -493,6 +527,8 @@
     "Instances": [
       {
         "Style": "American Rhythm",
+        "CompetitionGroup": "Ballroom",
+        "CompetitionOrder": "3",
         "TempoRange": {
           "Min": 34.0,
           "Max": 36.0
@@ -522,6 +558,8 @@
     "Instances": [
       {
         "Style": "American Rhythm",
+        "CompetitionGroup": "Ballroom",
+        "CompetitionOrder": "0",
         "TempoRange": {
           "Min": 28.0,
           "Max": 32.0
@@ -541,6 +579,8 @@
     "Instances": [
       {
         "Style": "American Rhythm",
+        "CompetitionGroup": "Ballroom",
+        "CompetitionOrder": "0",
         "TempoRange": {
           "Min": 28.0,
           "Max": 30.0
@@ -560,6 +600,8 @@
     "Instances": [
       {
         "Style": "American Rhythm",
+        "CompetitionGroup": "Ballroom",
+        "CompetitionOrder": "0",
         "TempoRange": {
           "Min": 29.0,
           "Max": 32.0
@@ -580,6 +622,8 @@
     "Instances": [
       {
         "Style": "International Latin",
+        "CompetitionGroup": "Ballroom",
+        "CompetitionOrder": "4",
         "TempoRange": {
           "Min": 60.0,
           "Max": 62.0
@@ -588,6 +632,8 @@
       },
       {
         "Style": "American Rhythm",
+        "CompetitionGroup": "Ballroom",
+        "CompetitionOrder": "0",
         "TempoRange": {
           "Min": 58.0,
           "Max": 60.0
@@ -607,6 +653,8 @@
     "Instances": [
       {
         "Style": "International Latin",
+        "CompetitionGroup": "Ballroom",
+        "CompetitionOrder": "2",
         "TempoRange": {
           "Min": 48.0,
           "Max": 52.0
@@ -639,6 +687,8 @@
       },
       {
         "Style": "American Rhythm",
+        "CompetitionGroup": "Ballroom",
+        "CompetitionOrder": "0",
         "TempoRange": {
           "Min": 48.0,
           "Max": 52.0
@@ -673,6 +723,8 @@
     "Instances": [
       {
         "Style": "American Rhythm",
+        "CompetitionGroup": "Ballroom",
+        "CompetitionOrder": "0",
         "TempoRange": {
           "Min": 60.0,
           "Max": 62.0

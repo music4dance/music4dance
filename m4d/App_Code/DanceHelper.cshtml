@@ -8,13 +8,13 @@
     @html.ActionLink(range.ToString(), "advancedsearch", "song", new { dances = danceId, tempomin = bpm.Min, tempomax = bpm.Max }, null)
 }
 
-@helper CategoryTable(System.Web.Mvc.HtmlHelper html, IEnumerable<CompetitionDance> dances, string title, DanceCategoryType dct)
+@helper CategoryTable(System.Web.Mvc.HtmlHelper html, DanceStatsInstance stats, IEnumerable<DanceInstance> dances, string title, DanceCategoryType dct)
 {
     var dctIn = dct;
-    var danceList = (dances as IList<CompetitionDance>) ?? dances.ToList();
-    if (dct == DanceCategoryType.Both && danceList.All(cd => cd.SpecificDance.StyleId == danceList[0].SpecificDance.StyleId))
+    var danceList = (dances as IList<DanceInstance>) ?? dances.ToList();
+    if (dct == DanceCategoryType.Both && danceList.All(cd => cd.StyleId == danceList[0].StyleId))
     {
-        dct = (danceList[0].SpecificDance.StyleId == 'I') ? DanceCategoryType.International : DanceCategoryType.American;
+        dct = (danceList[0].StyleId == 'I') ? DanceCategoryType.International : DanceCategoryType.American;
     }
     string ndcaTitleA = null;
     string ndcaTitleB = null;
@@ -45,10 +45,9 @@
             <th class="visible-xs">NDCA @ndcaTitleA<br/>NDCA @ndcaTitleB</th>
             <th class="hidden-xs">BPM</th>
         </tr>
-        @foreach (var cat in danceList)
+        @foreach (var d in danceList)
         {
-            var danceStats = cat.DanceStats;
-            var d = cat.SpecificDance;
+            var danceStats = stats.Map[d.Id.Substring(0, 3)];
 
             var name = dctIn == DanceCategoryType.Both ? d.Style : danceStats.DanceName;
             var link = dctIn == DanceCategoryType.Both ? DanceObject.SeoFriendly(d.Style) : danceStats.SeoName;
@@ -70,7 +69,7 @@
     }
 }
 
-@helper FullRoundName(DanceCategory category)
+@helper FullRoundName(CompetitionCategory category)
 {
     @category.Name @(category.Round.Count == 4 ? " four " : " five " )
 }

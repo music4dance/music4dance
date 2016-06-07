@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Web.Mvc;
+using DanceLibrary;
 using m4dModels;
 
 namespace m4d.Controllers
@@ -16,38 +17,35 @@ namespace m4d.Controllers
         [AllowAnonymous]
         public ActionResult Index(string dance)
         {
+            var stats = DanceStatsManager.GetInstance(Database);
             if (string.IsNullOrWhiteSpace(dance))
             {
-                var data = DanceStatsManager.GetDanceStats(Database);
-
                 HelpPage = "dance-styles";
-                return View(data);
+                return View(stats);
             }
 
-            var categories = DanceStatsManager.GetDanceCategories(Database);
-            if (categories != null)
+            ViewBag.DanceStats = stats;
+            if (string.Equals(dance, "ballroom-competition-categories", StringComparison.OrdinalIgnoreCase))
+            {
+                return View("BallroomCompetitionCategories", CompetitionCategory.GetGroup(CompetitionCategory.Ballroom));
+            }
+
+            if (string.Equals(dance, "wedding-music", StringComparison.OrdinalIgnoreCase))
+            {
+                // TODO: Wedding dance help page?
+                HelpPage = "dance-styles";
+                return View("weddingdancemusic", DanceStatsManager.GetDanceStats(Database));
+            }
+
+            var category = CompetitionCategory.GetCategory(dance);
+            if (category != null)
             {
                 HelpPage = "dance-category";
-                var category = categories?.FromName(dance);
 
-                if (category != null)
-                {
-                    return View("category", category);
-                }
-
-                if (string.Equals(dance, "ballroom-competition-categories", StringComparison.OrdinalIgnoreCase))
-                {
-                    return View("BallroomCompetitionCategories", categories.GetGroup(DanceCategories.Ballroom));
-                }
-
-                if (string.Equals(dance, "wedding-music", StringComparison.OrdinalIgnoreCase))
-                {
-                    // TODO: Wedding dance help page?
-                    HelpPage = "dance-styles";
-                    return View("weddingdancemusic", DanceStatsManager.GetDanceStats(Database));
-                }
+                return View("category", category);
             }
 
+            // TODO: Use dancestats everywhere we had been using DanceMap
             HelpPage = "dance-details";
             ViewBag.DanceMap = DanceStatsManager.GetDanceMap(Database);
             var ds = DanceStatsManager.FromName(dance, Database);

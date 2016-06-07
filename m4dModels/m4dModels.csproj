@@ -96,7 +96,6 @@
     <Compile Include="ApplicationUser.cs" />
     <Compile Include="ContactStatus.cs" />
     <Compile Include="CountryCodes.cs" />
-    <Compile Include="DanceCategory.cs" />
     <Compile Include="DanceMerge.cs" />
     <Compile Include="DanceMusicService.cs" />
     <Compile Include="DanceQuery.cs" />

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Dynamic;
 using System.Linq;
 using System.Text;
 // ReSharper disable NonReadonlyMemberInGetHashCode
@@ -272,10 +273,10 @@ namespace DanceLibrary
         public string Style {get; set;}
 
         [JsonProperty]
-        public string Group { get; set; }
+        public string CompetitionGroup { get; set; }
 
         [JsonProperty]
-        public int Order { get; set; }
+        public int CompetitionOrder { get; set; }
 
         [JsonProperty]
         public List<DanceException> Exceptions { get; set; }
@@ -600,14 +601,11 @@ namespace DanceLibrary
 
         public string TempoDeltaString
         {
-            get 
+            get
             {
                 if (Math.Abs(TempoDelta) < .01M)
                     return "";
-                else if (TempoDelta < 0)
-                    return $"{TempoDelta:F2}MPM"; 
-                else
-                    return $"+{TempoDelta:F2}MPM"; 
+                return TempoDelta < 0 ? $"{TempoDelta:F2}MPM" : $"+{TempoDelta:F2}MPM";
             }
         }
 
@@ -619,10 +617,7 @@ namespace DanceLibrary
             {
                 if (Math.Abs(TempoDeltaPercent) < .01M)
                     return "Exact";
-                else if (TempoDeltaPercent < 0)
-                    return $"{TempoDeltaPercent:F1}%";
-                else
-                    return $"+{TempoDeltaPercent:F1}%"; 
+                return TempoDeltaPercent < 0 ? $"{TempoDeltaPercent:F1}%" : $"+{TempoDeltaPercent:F1}%";
             }
         }
 
@@ -640,7 +635,90 @@ namespace DanceLibrary
 
         private readonly List<DanceInstance> _rgdi = new List<DanceInstance>();
     }
-        
+
+    public enum DanceCategoryType
+    {
+        Both,
+        American,
+        International
+    };
+
+    public class CompetitionCategory
+    {
+        public const string Standard = "International Standard";
+        public const string Latin = "International Latin";
+        public const string Smooth = "American Smooth";
+        public const string Rhythm = "American Rhythm";
+        public const string Ballroom = "Ballroom";
+
+        internal static void RegisterDanceInstance(DanceInstance dance)
+        {
+            if (string.IsNullOrWhiteSpace(dance.CompetitionGroup)) return;
+
+            var name = BuildCanonicalName(dance.Style);
+            var category = GetCategory(name);
+            if (category == null)
+            {
+                var group = (List<CompetitionCategory>)GetGroup(dance.CompetitionGroup);
+                category = new CompetitionCategory {Name=dance.Style,Group=dance.CompetitionGroup};
+                group.Add(category);
+                s_mapCategories[name] = category;
+            }
+
+            if (dance.CompetitionOrder > 0)
+            {
+                category._round.Add(dance);
+                category._round.Sort((c1, c2) => c1.CompetitionOrder.CompareTo(c2.CompetitionOrder));
+            }
+            else
+            {
+                category._extra.Add(dance);
+            }
+        }
+
+        public static IEnumerable<CompetitionCategory> GetGroup(string name)
+        {
+            List<CompetitionCategory> categories;
+            if (s_mapGroups.TryGetValue(name, out categories)) return categories;
+
+            categories = new List<CompetitionCategory>();
+            s_mapGroups[name] = (categories);
+            return categories;
+        }
+
+        public static CompetitionCategory GetCategory(string name)
+        {
+            CompetitionCategory category;
+            return (s_mapCategories.TryGetValue(BuildCanonicalName(name), out category)) ? category : null;
+        }
+
+        private static readonly Dictionary<string, List<CompetitionCategory>> s_mapGroups = new Dictionary<string, List<CompetitionCategory>>();
+        private static readonly Dictionary<string, CompetitionCategory> s_mapCategories = new Dictionary<string, CompetitionCategory>();
+
+        public string Name { get; private set; }
+        public string Group { get; private set; }
+        public DanceCategoryType CategoryType => Name.StartsWith("International") ? DanceCategoryType.International : DanceCategoryType.American;
+        public string CanonicalName => BuildCanonicalName(Name);
+        //TODO:  Should be IReadOnlyList, but not enabled in Portable library?
+        public IList<DanceInstance> Round => _round;
+        public IList<DanceInstance> Extras => _extra;
+
+        private readonly List<DanceInstance> _round = new List<DanceInstance>();
+        private readonly List<DanceInstance> _extra = new List<DanceInstance>();
+
+        public static string BuildCanonicalName(string name)
+        {
+            var sb = new StringBuilder();
+            foreach (var c in from char c in name where char.IsLetter(c) select c)
+            {
+                sb.Append(char.ToLower(c));
+            }
+
+            return sb.ToString();
+        }
+    }
+
+
     public class Dances
     {
         private Dances()
@@ -677,6 +755,7 @@ namespace DanceLibrary
             {
                 _allDanceObjects.Add(di);
                 _danceDictionary.Add(di.Id, di);
+                CompetitionCategory.RegisterDanceInstance(di);
             }
         }
 
@@ -792,7 +871,7 @@ namespace DanceLibrary
         private readonly Dictionary<string, DanceObject> _danceDictionary = new Dictionary<string, DanceObject>();
         private readonly List<DanceType> _npDanceTypes = new List<DanceType>();
 
-        private decimal SignedMin(decimal a, decimal b)
+        private static decimal SignedMin(decimal a, decimal b)
         {
             var abs = Math.Min(Math.Abs(a), Math.Abs(b));
 
@@ -943,29 +1022,28 @@ namespace DanceLibrary
         private void DoExpand(string dance, Dictionary<string,string> set)
         {
             DanceObject dobj;
-            if (!set.ContainsKey(dance) && _danceDictionary.TryGetValue(dance.ToUpper(), out dobj))
+            if (set.ContainsKey(dance) || !_danceDictionary.TryGetValue(dance.ToUpper(), out dobj)) return;
+
+            set.Add(dance, dance);
+
+            // TODO: Revisit making dance objects generically have children...
+            var type = dobj as DanceType;
+            if (type != null)
             {
-                set.Add(dance, dance);
+                var dt = type;
+                if (dt.Instances == null) return;
 
-                // TODO: Revisit making dance objects generically have children...
-                var type = dobj as DanceType;
-                if (type != null)
+                foreach (var child in dt.Instances)
                 {
-                    var dt = type;
-                    if (dt.Instances == null) return;
-
-                    foreach (var child in dt.Instances)
-                    {
-                        DoExpand(child.Id, set);
-                    }
+                    DoExpand(child.Id, set);
                 }
-                else if (dobj is DanceGroup)
+            }
+            else if (dobj is DanceGroup)
+            {
+                var dg = (DanceGroup) dobj;
+                foreach  (var id in dg.DanceIds)
                 {
-                    var dg = (DanceGroup) dobj;
-                    foreach  (var id in dg.DanceIds)
-                    {
-                        DoExpand(id, set);
-                    }
+                    DoExpand(id, set);
                 }
             }
         }

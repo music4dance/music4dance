@@ -1,7 +1,10 @@
-﻿@model IEnumerable<DanceCategory>
+﻿@using DanceLibrary
+@model IEnumerable<CompetitionCategory>
 @{
     ViewBag.Title = "Ballroom Competition Categories";
     ViewBag.Description = "An overview of competitive ballroom categories along with tempo ranges and song lists.";
+
+    DanceStatsInstance stats = ViewBag.DanceStats;
 }
 
 <ol class="breadcrumb">
@@ -38,7 +41,7 @@
     var catType = category.Name.StartsWith("International") ? DanceCategoryType.International : DanceCategoryType.American;
     <section id="@category.CanonicalName">
         <h3>@DanceHelper.LinkCategory(Html, category.Name)</h3>
-        @DanceHelper.CategoryTable(Html, category.Round, "An " + @DanceHelper.FullRoundName(category) + "dance round consist of the following:", catType)
+        @DanceHelper.CategoryTable(Html, stats, category.Round, "An " + @DanceHelper.FullRoundName(category) + "dance round consist of the following:", catType)
         <p>More about @DanceHelper.LinkCategory(Html, category.Name) dances.</p>
         <hr />
     </section>

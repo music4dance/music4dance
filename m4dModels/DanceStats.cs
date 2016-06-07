@@ -43,20 +43,7 @@ namespace m4dModels
         [JsonProperty]
         public DanceObject DanceObject {get; set;}
 
-        [JsonProperty]
-        public IReadOnlyList<CompetitionDance> CompetitionDances => _competitionDances;
-
-        public void AddCompetitionDance(CompetitionDance competitionDance)
-        {
-            lock (this)
-            {
-                if (_competitionDances == null)
-                {
-                    _competitionDances = new List<CompetitionDance>();
-                }
-                _competitionDances.Add(competitionDance);
-            }
-        }
+        public IEnumerable<DanceInstance> CompetitionDances { get; private set; }
 
         public void CopyDanceInfo(Dance dance, DanceMusicService dms)
         {
@@ -70,9 +57,12 @@ namespace m4dModels
             TopSpotify = dms.GetPurchaseLinks(ServiceType.Spotify, TopSongs);
             SongTags = dance.SongTags;
             DanceLinks = dance.DanceLinks;
+
+            var dt = DanceObject as DanceType;
+            if (dt == null) return;
+
+            var competion = dt.Instances.Where(di => !string.IsNullOrWhiteSpace(di.CompetitionGroup)).ToList();
+            if (competion.Any()) CompetitionDances = competion;
         }
-
-        private List<CompetitionDance> _competitionDances;
-
     }
 }

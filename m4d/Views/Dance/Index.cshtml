@@ -1,5 +1,5 @@
 ﻿@using DanceLibrary
-@model IEnumerable<DanceStats>
+@model DanceStatsInstance
 
 @{
     ViewBag.Title = "Dance Style Index";
@@ -23,7 +23,7 @@
 <div class="row">
     @foreach (var box in boxes)
     {
-        var item = Model.FirstOrDefault(m => m.DanceId == box);
+        var item = Model.Tree.FirstOrDefault(m => m.DanceId == box);
 
         <div class="list-group col-sm-3">
             <h4><span id="@item.SeoName" class="btn btn-info btn-lg dance">@item.DanceName <span id="@item.DanceId" class="badge">@item.SongCount</span></span></h4>

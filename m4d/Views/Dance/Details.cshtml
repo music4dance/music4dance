@@ -1,4 +1,5 @@
 ﻿@using System.Globalization
+@using DanceLibrary
 @using MarkdownDeep
 @using m4d.Utilities
 @model DanceStats
@@ -22,6 +23,8 @@
 
     var topSpotify = @DanceMusicService.PurchaseLinksToInfo(@Model.TopSpotify, User.Region());
     var tags = @Model.SongTags.Tags;
+
+    DanceStatsInstance stats = ViewBag.DanceStats;
 }
 
 @Html.Partial("_SetupFilterScript")
@@ -127,7 +130,7 @@
 @if (@Model.CompetitionDances != null)
 {
 <section id="category-info">
-    @DanceHelper.CategoryTable(Html,Model.CompetitionDances,"Competition Tempo information:",DanceCategoryType.Both)
+    @DanceHelper.CategoryTable(Html,stats,Model.CompetitionDances,"Competition Tempo information:",DanceCategoryType.Both)
 </section>
 }
 
