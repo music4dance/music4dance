@@ -1,4 +1,4 @@
-﻿// TODONEXT: Get JSON loading working,  
+﻿// TODONEXT: Further texting on JSON loading + figure out Unicode issue on save/load cycle
 //  Figure out how to do JSON loading on start-up and throw a background task to update when appropriate, 
 //  Figure out if we can manage AzureSearch loading...
 //  
@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using DanceLibrary;
+using Newtonsoft.Json;
 
 namespace m4dModels
 {
@@ -84,6 +85,15 @@ namespace m4dModels
             return List.FirstOrDefault(sc => string.Equals(sc.SeoName, name));
         }
 
+        internal List<DanceType> GetDanceTypes()
+        {
+            return List.Where(s => s.DanceType != null).Select(s => s.DanceType).ToList();
+        }
+
+        internal List<DanceGroup> GetDanceGroups()
+        {
+            return List.Where(s => s.DanceGroup != null).Select(s => s.DanceGroup).ToList();
+        }
 
         private List<DanceStats> Flatten()
         {
@@ -119,6 +129,14 @@ namespace m4dModels
             lock (s_lock)
             {
                 return s_instance ?? (s_instance = new DanceStatsInstance { Tree = BuildDanceStats(dms) });
+            }
+        }
+
+        public static void SetInstance(DanceStatsInstance instance)
+        {
+            lock (s_lock)
+            {
+                s_instance = instance;
             }
         }
 
@@ -173,6 +191,31 @@ namespace m4dModels
                     }
                 }
             }
+        }
+
+        public static DanceStatsInstance LoadFromJson(string json, bool resetDances = false)
+        {
+            var settings = new JsonSerializerSettings
+            {
+                NullValueHandling = NullValueHandling.Include,
+                DefaultValueHandling = DefaultValueHandling.Ignore
+            };
+
+            var instance = new DanceStatsInstance {Tree = JsonConvert.DeserializeObject<List<DanceStats>>(json, settings)};
+
+            if (resetDances) Dances.Reset(Dances.Load(instance.GetDanceTypes(), instance.GetDanceGroups()));
+
+            return instance;
+        }
+
+        public static string SaveToJson()
+        {
+            return JsonConvert.SerializeObject(s_instance.Tree,
+                new JsonSerializerSettings
+                {
+                    NullValueHandling = NullValueHandling.Ignore,
+                    DefaultValueHandling = DefaultValueHandling.IgnoreAndPopulate
+                });
         }
 
         private static List<DanceStats> BuildDanceStats(DanceMusicService dms)

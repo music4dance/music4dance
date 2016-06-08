@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using DanceLibrary;
 
@@ -9,13 +10,40 @@ namespace m4dModels
 
     public class DanceStats
     {
+        public DanceStats()
+        {
+        }
+
+        [JsonConstructor]
+        public DanceStats(string danceId, string danceName, string description, int songCount, int maxWeight, string songTags, IEnumerable<string> topSongs, DanceStats[] children, DanceType danceType, DanceGroup danceGroup)
+        {
+            Description = description;
+            SongCount = songCount;
+            MaxWeight = maxWeight;
+            SongTags = new TagSummary(songTags);
+            TopSongs = topSongs.Select(s => new SongDetails(s)).ToList();
+
+            if (danceType != null)
+            {
+                DanceObject = danceType;
+            }
+            else if (danceGroup != null)
+            {
+                DanceObject = danceGroup;
+
+                Children = children.ToList();
+            }
+
+            Debug.Assert(danceId == DanceObject.Id && danceName == DanceObject.Name);
+        }
+
         [JsonProperty]
         public string DanceId => DanceObject?.Id??"All";
 
         [JsonProperty]
         public string DanceName => DanceObject?.Name??"All Dances";
         [JsonProperty]
-        public string BlogTag => DanceObject.BlogTag;
+        public string BlogTag => DanceObject?.BlogTag;
 
         // Properties mirrored from the database Dance object
         [JsonProperty]
@@ -40,8 +68,14 @@ namespace m4dModels
         public string SeoName => DanceObject.SeoFriendly(DanceName);
 
         // Dance Metadata
-        [JsonProperty]
         public DanceObject DanceObject {get; set;}
+
+        [JsonProperty]
+        public DanceType DanceType => DanceObject as DanceType;
+
+        [JsonProperty]
+        public DanceGroup DanceGroup => DanceObject as DanceGroup;
+
 
         public IEnumerable<DanceInstance> CompetitionDances { get; private set; }
 

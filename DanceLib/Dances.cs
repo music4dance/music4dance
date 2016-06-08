@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
-using System.Dynamic;
 using System.Linq;
 using System.Text;
 // ReSharper disable NonReadonlyMemberInGetHashCode
@@ -62,11 +61,10 @@ namespace DanceLibrary
 
         public static string SeoFriendly(string name)
         {
-            if (!string.IsNullOrWhiteSpace(name))
-            {
-                name = name.Replace(' ', '-');
-                name = name.ToLower();
-            }
+            if (string.IsNullOrWhiteSpace(name)) return name;
+
+            name = name.Replace(' ', '-');
+            name = name.ToLower();
             return name;
         }
     }
@@ -487,21 +485,13 @@ namespace DanceLibrary
     public sealed class DanceGroup : DanceObject
     {
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors"), JsonConstructor]
-        public DanceGroup(string name, string id, string description, string[] danceIds)
+        public DanceGroup(string name, string id, string[] danceIds)
         {
             Name = name;
             Id = id;
 
-            Members = new List<DanceObject>();
-
             Debug.Assert(danceIds != null);
-            foreach (var did in danceIds)
-            {
-                var dob = Dances.Instance.DanceFromId(did);
-                Debug.Assert(dob != null);
-
-                Members.Add(dob);
-            }
+            DanceIds = danceIds.ToList();
         }
         
         [JsonProperty]
@@ -547,24 +537,9 @@ namespace DanceLibrary
         }
 
         [JsonProperty]
-        public string[] DanceIds
-        {
-            get
-            {
-                Debug.Assert(Members != null && Members.Count > 0);
+        public List<string> DanceIds { get; set; }
 
-                var c = Members.Count;
-                var ids = new string[c];
-
-                for (var i = 0; i < c; i++)
-                {
-                    ids[i] = Members[i].Id;
-                }
-                return ids;
-            }
-        }
-
-        public List<DanceObject> Members { get; private set; }
+        public IList<DanceObject> Members => Dances.Instance.FromIds(DanceIds);
     }
 
     public class DanceSample : IComparable<DanceSample>
@@ -718,24 +693,15 @@ namespace DanceLibrary
         }
     }
 
-
     public class Dances
     {
         private Dances()
         {
         }
 
-        private void LoadDances()
+        private void LoadDances(List<DanceType> danceTypes)
         {
-            var settings = new JsonSerializerSettings
-            {
-                NullValueHandling = NullValueHandling.Include,
-                DefaultValueHandling = DefaultValueHandling.Ignore
-            };
-
-            var json = DanceLibrary.JsonDances;
-            _allDanceTypes = JsonConvert.DeserializeObject<List<DanceType>>(json, settings);
-
+            _allDanceTypes = danceTypes;
             foreach (var dt in _allDanceTypes)
             {
                 _allDanceInstances.AddRange(dt.Instances);
@@ -759,52 +725,23 @@ namespace DanceLibrary
             }
         }
 
-        private void LoadGroups()
+        private void LoadGroups(List<DanceGroup> danceGroups)
         {
-            var settings = new JsonSerializerSettings
-            {
-                NullValueHandling = NullValueHandling.Include,
-                DefaultValueHandling = DefaultValueHandling.Ignore
-            };
-
-            var jsonGroup = DanceLibrary.DanceGroups;
-            _allDanceGroups = JsonConvert.DeserializeObject<List<DanceGroup>>(jsonGroup, settings);
+            _allDanceGroups = danceGroups;
 
             foreach (var dg in _allDanceGroups)
             {
                 _allDanceObjects.Add(dg);
                 _danceDictionary.Add(dg.Id, dg);
 
-                foreach (var d in dg.Members)
+                foreach (var dt in dg.DanceIds.Select(DanceFromId).OfType<DanceType>())
                 {
-                    var dt = d as DanceType;
-                    if (dt != null)
-                    {
-                        dt.GroupName = dg.Name;
-                        dt.GroupId = dg.Id;
-                    }
+                    dt.GroupName = dg.Name;
+                    dt.GroupId = dg.Id;
                 }
             }
         }
 
-        public static Dances Reset()
-        {
-            s_instance = null;
-            return Instance;
-        }
-        public static Dances Instance 
-        { 
-            get
-            {
-                if (s_instance != null) return s_instance;
-                s_instance = new Dances();
-                s_instance.LoadDances();
-                s_instance.LoadGroups();
-                return s_instance;
-            }
-        }
-
-        private static Dances s_instance;
 
         public IEnumerable<DanceInstance> AllDanceInstances => _allDanceInstances;
 
@@ -1047,5 +984,29 @@ namespace DanceLibrary
                 }
             }
         }
+
+        public static Dances Load(List<DanceType> danceTypes = null,List<DanceGroup> danceGroups = null)
+        {
+            var dances = new Dances();
+
+            var settings = new JsonSerializerSettings
+            {
+                NullValueHandling = NullValueHandling.Include,
+                DefaultValueHandling = DefaultValueHandling.Ignore
+            };
+
+            dances.LoadDances(danceTypes??JsonConvert.DeserializeObject<List<DanceType>>(DanceLibrary.JsonDances, settings));
+            dances.LoadGroups(danceGroups?? JsonConvert.DeserializeObject<List<DanceGroup>>(DanceLibrary.DanceGroups, settings));
+
+            return dances;
+        }
+
+        public static Dances Reset(Dances instance=null)
+        {
+            return s_instance = instance??Load();
+        }
+        public static Dances Instance => s_instance ?? (s_instance = Load());
+
+        private static Dances s_instance;
     }
 }

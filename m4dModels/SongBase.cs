@@ -617,7 +617,7 @@ namespace m4dModels
             if (!string.IsNullOrWhiteSpace(qualifier))
                 tobj = FindRating(qualifier);
 
-            return tobj.AddTags(tags, user, dms, (dms == null) ? null : this);
+            return tobj?.AddTags(tags, user, dms, (dms == null) ? null : this);
         }
 
         public TagList RemoveObjectTags(string qualifier, string tags, ApplicationUser user, DanceMusicService dms = null)
