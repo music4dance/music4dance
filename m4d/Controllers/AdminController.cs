@@ -617,11 +617,11 @@ namespace m4d.Controllers
         //
         // Get: //ClearSongCache
         [Authorize(Roles = "showDiagnostics")]
-        public ActionResult ClearSongCache()
+        public ActionResult ClearSongCache(bool reload=false)
         {
             ViewBag.Name = "ClearSongCache";
 
-            DanceStatsManager.ClearCache();
+            DanceStatsManager.ClearCache(null,reload);
 
             ViewBag.Success = true;
             ViewBag.Message = "Cache was cleared";

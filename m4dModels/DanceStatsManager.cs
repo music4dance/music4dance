@@ -1,11 +1,11 @@
-﻿// TODONEXT: Figure out how to do JSON loading on start-up and throw a background task to update when appropriate, 
-//  Figure out if we can manage AzureSearch loading...
-//  
+﻿// TODONEXT: Figure out if we can manage AzureSearch loading...
 
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 using DanceLibrary;
 using Newtonsoft.Json;
 
@@ -74,7 +74,7 @@ namespace m4dModels
             // TODO: Put in the infrastructure to send app insights events when this happens
             Trace.WriteLineIf(TraceLevels.General.TraceError, "Attempting to rebuild cache");
 
-            DanceStatsManager.ClearCache(true);
+            DanceStatsManager.ClearCache(null, true);
             return null;
         }
 
@@ -82,6 +82,36 @@ namespace m4dModels
         {
             name = DanceObject.SeoFriendly(name);
             return List.FirstOrDefault(sc => string.Equals(sc.SeoName, name));
+        }
+        public static DanceStatsInstance LoadFromJson(string json, bool resetDances = false)
+        {
+            var settings = new JsonSerializerSettings
+            {
+                NullValueHandling = NullValueHandling.Include,
+                DefaultValueHandling = DefaultValueHandling.Ignore
+            };
+
+            var tree = JsonConvert.DeserializeObject<List<DanceStats>>(json, settings);
+            foreach (var d in tree)
+            {
+                d.SetParents();
+            }
+            var instance = new DanceStatsInstance { Tree = tree };
+
+            if (resetDances) Dances.Reset(Dances.Load(instance.GetDanceTypes(), instance.GetDanceGroups()));
+
+            return instance;
+        }
+
+        public string SaveToJson()
+        {
+            return JsonConvert.SerializeObject(Tree,
+                Formatting.Indented,
+                new JsonSerializerSettings
+                {
+                    NullValueHandling = NullValueHandling.Ignore,
+                    DefaultValueHandling = DefaultValueHandling.IgnoreAndPopulate
+                });
         }
 
         internal List<DanceType> GetDanceTypes()
@@ -122,12 +152,14 @@ namespace m4dModels
 
     public class DanceStatsManager
     {
+        public static string AppData;
+
         #region Access
         public static DanceStatsInstance GetInstance(DanceMusicService dms)
         {
             lock (s_lock)
             {
-                return s_instance ?? (s_instance = new DanceStatsInstance { Tree = BuildDanceStats(dms) });
+                return s_instance ?? (s_instance = LoadFromAppData()) ?? (s_instance = LoadFromSql(dms));
             }
         }
 
@@ -155,25 +187,45 @@ namespace m4dModels
         private static readonly object s_lock = new object();
         private static DanceStatsInstance s_instance;
 
-        public static void ClearCache(bool reload = false)
+        public static void ClearCache(DanceMusicService dms = null, bool reload = false)
         {
+            DanceStatsInstance instance = null;
+
+            if (dms != null) instance = LoadFromSql(dms);
+            else if (reload) instance = LoadFromAppData();
+
             lock (s_lock)
             {
-                s_instance = null;
+                if (reload)
+                {
+                    Reloads += 1;
+                }
 
-                DanceMusicService.BlowTagCache();
-                SongDetails.ResetIndex();
-                Reloads += 1;
+                if (instance != null)
+                {
+                    s_instance = instance;
+                    ClearAssociates();
+                    return;
+                }
+
+                Task.Run(() => RebuildDanceStats(DanceMusicService.GetService()));
             }
         }
 
-        public static void RebuildDanceStats(DanceMusicService dms)
+        private static void RebuildDanceStats(DanceMusicService dms)
         {
+            var instance = LoadFromSql(dms);
             lock (s_lock)
             {
-                ClearCache();
-                GetInstance(dms);
+                s_instance = instance;
+                ClearAssociates();
             }
+        }
+
+        private static void ClearAssociates()
+        {
+            DanceMusicService.BlowTagCache();
+            SongDetails.ResetIndex();
         }
 
         public static void ReloadDances(DanceMusicService dms)
@@ -192,30 +244,30 @@ namespace m4dModels
             }
         }
 
-        public static DanceStatsInstance LoadFromJson(string json, bool resetDances = false)
+        private static DanceStatsInstance LoadFromAppData()
         {
-            var settings = new JsonSerializerSettings
+            lock (s_lock)
             {
-                NullValueHandling = NullValueHandling.Include,
-                DefaultValueHandling = DefaultValueHandling.Ignore
-            };
+                var path = System.IO.Path.Combine(AppData, "dance-stats.json");
+                return !System.IO.File.Exists(path) ? null : DanceStatsInstance.LoadFromJson(System.IO.File.ReadAllText(path));
+            }
+        }
 
-            var instance = new DanceStatsInstance {Tree = JsonConvert.DeserializeObject<List<DanceStats>>(json, settings)};
-
-            if (resetDances) Dances.Reset(Dances.Load(instance.GetDanceTypes(), instance.GetDanceGroups()));
-
+        private static DanceStatsInstance LoadFromSql(DanceMusicService dms)
+        {
+            var instance =  new DanceStatsInstance {Tree = BuildDanceStats(dms) };
+            SaveToAppData(instance);
             return instance;
         }
 
-        public static string SaveToJson()
+        private static void SaveToAppData(DanceStatsInstance instance)
         {
-            return JsonConvert.SerializeObject(s_instance.Tree,
-                Formatting.Indented,
-                new JsonSerializerSettings
-                {
-                    NullValueHandling = NullValueHandling.Ignore,
-                    DefaultValueHandling = DefaultValueHandling.IgnoreAndPopulate
-                });
+            lock (s_lock)
+            {
+                var json = instance.SaveToJson();
+                var path = System.IO.Path.Combine(AppData, "dance-stats.json");
+                System.IO.File.WriteAllText(path,json,Encoding.UTF8);
+            }
         }
 
         private static List<DanceStats> BuildDanceStats(DanceMusicService dms)

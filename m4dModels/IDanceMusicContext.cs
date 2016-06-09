@@ -5,6 +5,11 @@ using Microsoft.AspNet.Identity.EntityFramework;
 
 namespace m4dModels
 {
+    public interface IDanceMusicFactory
+    {
+        DanceMusicService CreateDisconnectedService();
+    }
+
     public interface IDanceMusicContext: IDisposable
     {
         DbSet<Song> Songs { get;  }

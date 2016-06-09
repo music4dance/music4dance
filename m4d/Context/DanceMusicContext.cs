@@ -25,6 +25,15 @@ using EntityState = System.Data.Entity.EntityState;
 
 namespace m4d.Context
 {
+    public class DanceMusicFactory : IDanceMusicFactory
+    {
+        public DanceMusicService CreateDisconnectedService()
+        {
+            var context = DanceMusicContext.Create();
+            return new DanceMusicService(context, ApplicationUserManager.Create(null, context));
+        }
+    }
+
     public class DanceMusicContext : IdentityDbContext<ApplicationUser>, IDanceMusicContext
     {
         #region Construction
@@ -42,12 +51,6 @@ namespace m4d.Context
 
             var properties = new Dictionary<string, string> { { "id", _id.ToString() } };
             DMController.TelemetryClient.TrackEvent("CreateDbContext", properties);
-        }
-
-        public static DanceMusicService CreateDisconnectedService()
-        {
-            var context = Create();
-            return new DanceMusicService(context, ApplicationUserManager.Create(null, context));
         }
 
         //private static DbConnection CreateConnection(string nameOrConnectionString)

@@ -4,6 +4,7 @@ using System.Web.Http;
 using System.Web.Mvc;
 using System.Web.Optimization;
 using System.Web.Routing;
+using m4d.Context;
 using m4d.Controllers;
 using m4d.Utilities;
 using m4dModels;
@@ -21,6 +22,9 @@ namespace m4d
             BundleConfig.RegisterBundles(BundleTable.Bundles);
 
             ModelBinders.Binders[typeof(SongDetails)] = new SongBinder();
+
+            DanceStatsManager.AppData = System.Web.Hosting.HostingEnvironment.MapPath("~/app_data");
+            DanceMusicService.Factory = new DanceMusicFactory();
         }
         protected void Application_Error(object sender, EventArgs e)
         {

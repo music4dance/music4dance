@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using m4dModels;
 
 namespace m4d.Context
 {
@@ -31,7 +32,7 @@ namespace m4d.Context
         private static void DoUpdate()
         {
             Trace.WriteLine("Entering DoUpdate");
-            using (var dms = DanceMusicContext.CreateDisconnectedService())
+            using (var dms = DanceMusicService.GetService()) 
             {
                 var count = dms.UpdateAzureIndex();
                 Trace.WriteLine($"Updated {count} songs.");

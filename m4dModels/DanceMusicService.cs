@@ -9,13 +9,20 @@ using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.EntityFramework;
 using Microsoft.Azure.Search;
 using Microsoft.Azure.Search.Models;
-using Microsoft.Rest.Azure;
 
 namespace m4dModels
 {
     public class DanceMusicService : IDisposable
     {
         #region Lifetime Management
+
+        public static IDanceMusicFactory Factory { get; set; }
+
+        public static DanceMusicService GetService()
+        {
+            return Factory.CreateDisconnectedService();
+        }
+
         private IDanceMusicContext _context;
 
         public DanceMusicService(IDanceMusicContext context, UserManager<ApplicationUser> userManager)
@@ -1696,7 +1703,7 @@ namespace m4dModels
 
             return modified;
         }
-        public ICollection<ICollection<PurchaseLink>> GetPurchaseLinks(ServiceType serviceType, IEnumerable<SongBase> songs, string region = null)
+        public static ICollection<ICollection<PurchaseLink>> GetPurchaseLinks(ServiceType serviceType, IEnumerable<SongBase> songs, string region = null)
         {
             if (songs == null) return null;
 
@@ -1722,7 +1729,6 @@ namespace m4dModels
         {
             var songs = Context.Songs.Where(s => songIds.Contains(s.SongId)).Include("DanceRatings").Include("ModifiedBy.ApplicationUser").Include("SongProperties");
             return GetPurchaseLinks(serviceType, songs, region);
-            
         }
 
         public string GetPurchaseInfo(ServiceType serviceType, IEnumerable<Song> songs, string region)

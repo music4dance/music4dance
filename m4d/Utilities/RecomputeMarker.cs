@@ -86,11 +86,10 @@ namespace m4d.Utilities
         {
             RecomputeMarker marker;
 
-            if (!Markers.TryGetValue(name, out marker))
-            {
-                marker = new RecomputeMarker(name);
-                Markers[name] = marker;
-            }
+            if (Markers.TryGetValue(name, out marker)) return marker;
+
+            marker = new RecomputeMarker(name);
+            Markers[name] = marker;
             return marker;
         }
 

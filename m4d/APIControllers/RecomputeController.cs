@@ -110,13 +110,13 @@ namespace m4d.APIControllers
 
         private static void HandleRecompute(DoHandleRecompute recompute, string id, string message, bool force)
         {
-            Task.Run(() => recompute.Invoke(DanceMusicContext.CreateDisconnectedService(),id,message,0,force));
+            Task.Run(() => recompute.Invoke(DanceMusicService.GetService(),id,message,0,force));
         }
 
         private static void HandleSyncRecompute(DoHandleRecompute recompute, string id, string message, bool force)
         {
             int[] i = {0};
-            while (!Task.Run(() => recompute.Invoke(DanceMusicContext.CreateDisconnectedService(),id,message,i[0],force)).Result)
+            while (!Task.Run(() => recompute.Invoke(DanceMusicService.GetService(), id,message,i[0],force)).Result)
             {
                 if (!AdminMonitor.StartTask(id))
                 {
@@ -136,7 +136,7 @@ namespace m4d.APIControllers
         {
             try
             {
-                DanceStatsManager.RebuildDanceStats(dms);
+                DanceStatsManager.ClearCache(dms);
                 Complete(id,message);
             }
             catch (Exception e)

@@ -58,7 +58,8 @@ namespace m4dModels
         public virtual ICollection<DanceLink> DanceLinks { get; set; }
         [JsonProperty]
         public IEnumerable<SongBase> TopSongs { get; set; }
-        public ICollection<ICollection<PurchaseLink>> TopSpotify { get; set; }
+
+        public ICollection<ICollection<PurchaseLink>> TopSpotify => DanceMusicService.GetPurchaseLinks(ServiceType.Spotify, TopSongs);
 
         // Structural properties
         public DanceStats Parent { get; set; }
@@ -88,7 +89,6 @@ namespace m4dModels
             MaxWeight = dance.MaxWeight;
             TopSongs =
                 dance.TopSongs?.OrderBy(ts => ts.Rank).Select(ts => new SongDetails(ts.Song) as SongBase).ToList();
-            TopSpotify = dms.GetPurchaseLinks(ServiceType.Spotify, TopSongs);
             SongTags = dance.SongTags;
             DanceLinks = dance.DanceLinks;
 
@@ -97,6 +97,16 @@ namespace m4dModels
 
             var competion = dt.Instances.Where(di => !string.IsNullOrWhiteSpace(di.CompetitionGroup)).ToList();
             if (competion.Any()) CompetitionDances = competion;
+        }
+
+        public void SetParents()
+        {
+            if (Children == null) return;
+            foreach (var c in Children)
+            {
+                c.Parent = this;
+                c.SetParents();
+            }
         }
     }
 }
