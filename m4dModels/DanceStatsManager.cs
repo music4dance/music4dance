@@ -1,5 +1,4 @@
-﻿// TODONEXT: Further testing on JSON loading + figure out Unicode issue on save/load cycle
-//  Figure out how to do JSON loading on start-up and throw a background task to update when appropriate, 
+﻿// TODONEXT: Figure out how to do JSON loading on start-up and throw a background task to update when appropriate, 
 //  Figure out if we can manage AzureSearch loading...
 //  
 
@@ -211,6 +210,7 @@ namespace m4dModels
         public static string SaveToJson()
         {
             return JsonConvert.SerializeObject(s_instance.Tree,
+                Formatting.Indented,
                 new JsonSerializerSettings
                 {
                     NullValueHandling = NullValueHandling.Ignore,

@@ -1704,7 +1704,8 @@ namespace m4d.Controllers
                 {
                     NullValueHandling = NullValueHandling.Ignore,
                     DefaultValueHandling = DefaultValueHandling.IgnoreAndPopulate
-                });
+                },
+                Formatting.Indented);
         }
 
         //

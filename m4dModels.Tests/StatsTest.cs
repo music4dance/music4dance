@@ -18,6 +18,9 @@ namespace m4dModels.Tests
 
             var jsonNew = DanceStatsManager.SaveToJson();
             Assert.IsNotNull(jsonNew);
+
+            jsonNew = jsonNew.Replace("[ ]", "[]");
+            Assert.AreEqual(json,jsonNew);
         }
     }
 }
