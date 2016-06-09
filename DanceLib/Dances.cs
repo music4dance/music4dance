@@ -73,10 +73,9 @@ namespace DanceLibrary
     public class DanceType : DanceObject
     {
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors"), JsonConstructor]
-        public DanceType(string name, string description, Meter meter, string[] organizations, DanceInstance[] instances) 
+        public DanceType(string name,  Meter meter, string[] organizations, DanceInstance[] instances) 
         {
             Name = name;
-            Description = description;
             Meter = meter;
             Instances = new List<DanceInstance>(instances);
 
@@ -130,8 +129,6 @@ namespace DanceLibrary
         [JsonProperty]
         public string GroupName { get; set; }
         public string GroupId { get; set; }
-
-        public string Description {get;set;}
 
         public Uri Link {get;set;}
 
