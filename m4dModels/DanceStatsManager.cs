@@ -1,4 +1,4 @@
-﻿// TODONEXT: Further texting on JSON loading + figure out Unicode issue on save/load cycle
+﻿// TODONEXT: Further testing on JSON loading + figure out Unicode issue on save/load cycle
 //  Figure out how to do JSON loading on start-up and throw a background task to update when appropriate, 
 //  Figure out if we can manage AzureSearch loading...
 //  
