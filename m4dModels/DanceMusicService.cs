@@ -3267,7 +3267,7 @@ namespace m4dModels
             return skip;
         }
 
-        private IList<Song> TakeRecent(int c, int skip = 0)
+        private IEnumerable<Song> TakeRecent(int c, int skip = 0)
         {
             return Songs.OrderByDescending(s => s.Modified).Skip(skip).Take(c).Include("DanceRatings").Include("ModifiedBy").Include("SongProperties").ToList();
         }
@@ -3278,6 +3278,24 @@ namespace m4dModels
         }
 
         public SearchResults AzureSearch(string search, SearchParameters parameters, CruftFilter cruft = CruftFilter.NoCruft, string id = "default")
+        {
+            parameters.IncludeTotalResultCount = true;
+            var response = DoAzureSearch(search,parameters,cruft,id);
+            var songs = response.Results.Select(d => new SongDetails(d.Document)).ToList();
+            var pageSize = parameters.Top ?? 25;
+            var page = ((parameters.Skip ?? 0)/pageSize) + 1;
+            return new SearchResults(search, songs.Count,response.Count ?? -1,page,pageSize,songs);
+        }
+
+        public FacetResults GetTagFacets(string categories, int count, string id = "default")
+        {
+            var parameters = AzureParmsFromFilter(new SongFilter());
+            parameters.Facets = categories.Split(',').Select(c => $"{c},count:{count}").ToList();
+
+            return DoAzureSearch(null, parameters, CruftFilter.NoCruft, id).Facets;
+        }
+
+        private static DocumentSearchResult DoAzureSearch(string search, SearchParameters parameters, CruftFilter cruft = CruftFilter.NoCruft, string id = "default")
         {
             var info = SearchServiceInfo.GetInfo(id);
 
@@ -3309,12 +3327,7 @@ namespace m4dModels
             using (var serviceClient = new SearchServiceClient(info.Name, new SearchCredentials(info.QueryKey)))
             using (var indexClient = serviceClient.Indexes.GetClient(info.Index))
             {
-                parameters.IncludeTotalResultCount = true;
-                var response = indexClient.Documents.Search(search, parameters);
-                var songs = response.Results.Select(d => new SongDetails(d.Document)).ToList();
-                var pageSize = parameters.Top ?? 25;
-                var page = ((parameters.Skip ?? 0)/pageSize) + 1;
-                return new SearchResults(search, songs.Count,response.Count ?? -1,page,pageSize,songs);
+                return indexClient.Documents.Search(search, parameters);
             }
         }
 

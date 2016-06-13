@@ -279,11 +279,18 @@ namespace m4d.Context
                 }
             }
         }
-        public void LoadDances()
+        public void LoadDances(bool includeRatings=false)
         {
             Configuration.LazyLoadingEnabled = false;
 
-            Dances.Include("DanceLinks").Include("TopSongs.Song.DanceRatings").Load();
+            if (includeRatings)
+            {
+                Dances.Include("DanceLinks").Include("TopSongs.Song.DanceRatings").Load();
+            }
+            else
+            {
+                Dances.Include("DanceLinks").Load();
+            }
 
             Configuration.LazyLoadingEnabled = true;
         }

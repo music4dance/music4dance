@@ -50,7 +50,11 @@ namespace m4dModels
         public string Description { get; set; }
 
         [JsonProperty]
-        public int SongCount { get; set; }
+        public long SongCount { get; set; }
+        [JsonProperty]
+        public long SongCountExplicit { get; set; }
+        [JsonProperty]
+        public long SongCountImplicit { get; set; }
         [JsonProperty]
         public int MaxWeight { get; set; }
         [JsonProperty]
@@ -80,16 +84,19 @@ namespace m4dModels
 
         public IEnumerable<DanceInstance> CompetitionDances { get; private set; }
 
-        public void CopyDanceInfo(Dance dance, DanceMusicService dms)
+        public void CopyDanceInfo(Dance dance, bool includeStats, DanceMusicService dms)
         {
             if (dance == null) return;
 
             Description = dance.Description;
-            SongCount = dance.SongCount;
-            MaxWeight = dance.MaxWeight;
-            TopSongs =
-                dance.TopSongs?.OrderBy(ts => ts.Rank).Select(ts => new SongDetails(ts.Song) as SongBase).ToList();
-            SongTags = dance.SongTags;
+            if (includeStats)
+            {
+                SongCount = dance.SongCount;
+                MaxWeight = dance.MaxWeight;
+                TopSongs =
+                    dance.TopSongs?.OrderBy(ts => ts.Rank).Select(ts => new SongDetails(ts.Song) as SongBase).ToList();
+                SongTags = dance.SongTags;
+            }
             DanceLinks = dance.DanceLinks;
 
             var dt = DanceObject as DanceType;

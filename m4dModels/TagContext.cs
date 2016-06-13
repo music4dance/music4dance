@@ -68,7 +68,7 @@ namespace m4dModels
         {
             
         }
-        public void LoadDances()
+        public void LoadDances(bool includeRatings=true)
         {
             throw new NotImplementedException();
         }

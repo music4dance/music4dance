@@ -1085,6 +1085,34 @@ namespace m4d.Controllers
         }
 
         //
+        // Get: //AzureFacets
+        [Authorize(Roles = "dbAdmin")]
+        public ActionResult AzureFacets(string categories, int count)
+        {
+            try
+            {
+                StartAdminTask("BuildFacets");
+
+                var facets = Database.GetTagFacets(categories, count);
+
+                foreach (var facet in facets)
+                {
+                    Trace.WriteLine($"------------------{facet.Key}----------------");
+                    foreach (var value in facet.Value)
+                    {
+                        Trace.WriteLine($"{value.Value}: {value.Count}");
+                    }
+                }
+
+                return CompleteAdminTask(true, "Finished rebuilding Dance Tags");
+            }
+            catch (Exception e)
+            {
+                return FailAdminTask("Dances Tags failed to rebuild", e);
+            }
+        }
+
+        //
         // Get: //ReloadDatabase
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -1696,10 +1724,24 @@ namespace m4d.Controllers
         //
         // Get: //DanceStatistics
         [Authorize(Roles = "showDiagnostics")]
-        public ActionResult DanceStatistics()
+        public ActionResult DanceStatistics(string source = null)
         {
+            DanceStatsInstance instance = null;
+            switch (source)
+            {
+                case "azure":
+                    instance = DanceStatsManager.LoadFromAzure(Database);
+                    break;
+                case "sql":
+                    instance = DanceStatsManager.LoadFromSql(Database);
+                    break;
+                default:
+                    instance = DanceStatsManager.GetInstance(Database);
+                    break;
+            }
+
             return new JsonNetResult(
-                DanceStatsManager.GetDanceStats(Database),
+                instance.Tree,
                 new JsonSerializerSettings
                 {
                     NullValueHandling = NullValueHandling.Ignore,
