@@ -172,6 +172,11 @@ namespace m4dModels
             return sb.ToString();
         }
 
+        public static IEnumerable<string> GetTagClasses()
+        {
+            return s_tagClasses.Keys;
+        }
+
         private static void HandleFilterClass(StringBuilder sb, TagList tags, string tagClass, string tagName, string format)
         {
             var filtered = tags.Filter(tagClass);

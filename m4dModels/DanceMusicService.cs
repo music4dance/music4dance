@@ -3284,15 +3284,21 @@ namespace m4dModels
             var songs = response.Results.Select(d => new SongDetails(d.Document)).ToList();
             var pageSize = parameters.Top ?? 25;
             var page = ((parameters.Skip ?? 0)/pageSize) + 1;
-            return new SearchResults(search, songs.Count,response.Count ?? -1,page,pageSize,songs);
+            var facets = response.Facets;
+            return new SearchResults(search, songs.Count,response.Count ?? -1,page,pageSize,songs,facets);
         }
 
         public FacetResults GetTagFacets(string categories, int count, string id = "default")
         {
-            var parameters = AzureParmsFromFilter(new SongFilter());
-            parameters.Facets = categories.Split(',').Select(c => $"{c},count:{count}").ToList();
+            var parameters = AzureParmsFromFilter(new SongFilter(), 1);
+            AddAzureCategories(parameters,categories,count);
 
             return DoAzureSearch(null, parameters, CruftFilter.NoCruft, id).Facets;
+        }
+
+        public static void AddAzureCategories(SearchParameters parameters, string categories, int count)
+        {
+            parameters.Facets = categories.Split(',').Select(c => $"{c},count:{count}").ToList();
         }
 
         private static DocumentSearchResult DoAzureSearch(string search, SearchParameters parameters, CruftFilter cruft = CruftFilter.NoCruft, string id = "default")

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
+using Microsoft.Azure.Search.Models;
 using Newtonsoft.Json;
 
 namespace m4dModels
@@ -10,10 +11,11 @@ namespace m4dModels
     //  Tag0[:Count0]|Tag1[:Count1]...TagN[:CountN]
     //  where Tags are in alphabetical order
     [ComplexType]
-    [JsonConverter(typeof(ToStringJsonConverter))]
-    public class TagSummary 
+    [JsonConverter(typeof (ToStringJsonConverter))]
+    public class TagSummary
     {
         #region Properties
+
         public string Summary { get; set; }
         public IList<TagCount> Tags => Parse(Summary);
 
@@ -49,10 +51,17 @@ namespace m4dModels
         {
             Summary = "";
         }
+
         public TagSummary(string serialized)
         {
             // Normalize the tags summary by pushing it through parse/deserialize
             Summary = Serialize(Parse(serialized));
+        }
+
+        public TagSummary(FacetResults facets)
+        {
+            Summary = Serialize(Parse(string.Join("|", 
+                facets.Keys.Select(key => string.Join("|", facets[key].Select(f => $"{f.Value}:{key.Substring(0, key.Length - 4)}:{f.Count}"))).ToList())));
         }
 
         public TagSummary(IEnumerable<TagCount> tags)
@@ -113,7 +122,7 @@ namespace m4dModels
         #endregion
 
         #region Implementation
-        static private List<TagCount> Parse(string serialized)
+        private static List<TagCount> Parse(string serialized)
         {
             var tags = new List<TagCount>();
 
@@ -130,7 +139,7 @@ namespace m4dModels
             return tags;
         }
 
-        static private string Serialize(IEnumerable<TagCount> tags)
+        private static string Serialize(IEnumerable<TagCount> tags)
         {
             var list = tags as List<TagCount> ?? tags.ToList();
             list.Sort((sc1, sc2) => String.Compare(sc1.Value, sc2.Value, StringComparison.Ordinal));

@@ -1727,15 +1727,16 @@ namespace m4d.Controllers
         public ActionResult DanceStatistics(string source = null)
         {
             DanceStatsInstance instance = null;
+            source = string.IsNullOrWhiteSpace(source) ? null : source;
             switch (source)
             {
-                case "azure":
-                    instance = DanceStatsManager.LoadFromAzure(Database);
+                default:
+                    instance = DanceStatsManager.LoadFromAzure(Database, source);
                     break;
                 case "sql":
                     instance = DanceStatsManager.LoadFromSql(Database);
                     break;
-                default:
+                case null:
                     instance = DanceStatsManager.GetInstance(Database);
                     break;
             }
