@@ -20,6 +20,7 @@ namespace m4dModels.Tests
             Assert.IsNotNull(jsonNew);
 
             jsonNew = jsonNew.Replace("[ ]", "[]");
+            jsonNew = jsonNew.Replace("\r\n", "\n");
             Assert.AreEqual(json,jsonNew);
         }
     }

@@ -49,10 +49,17 @@ namespace m4d.Controllers
         [Authorize(Roles = "showDiagnostics")]
         public ActionResult Diagnostics()
         {
+            SetupDiagnostics();
+            return View();
+        }
+
+        private void SetupDiagnostics()
+        {
             ViewBag.TraceLevel = TraceLevels.General.Level.ToString();
             ViewBag.BotReport = SpiderManager.CreateBotReport();
             ViewBag.SearchIdx = SearchServiceInfo.DefaultId;
-            return View();
+            ViewBag.StatsUpdateTime = DanceStatsManager.LastUpdate;
+            ViewBag.StatsUpdateSource = DanceStatsManager.Source;
         }
 
         //
@@ -61,8 +68,7 @@ namespace m4d.Controllers
         public ActionResult ResetAdmin()
         {
             AdminMonitor.CompleteTask(false,"Force Reset");
-            ViewBag.TraceLevel = TraceLevels.General.Level.ToString();
-            ViewBag.BotReport = SpiderManager.CreateBotReport();
+            SetupDiagnostics();
             return View("Diagnostics");
         }
 
@@ -1724,17 +1730,17 @@ namespace m4d.Controllers
         //
         // Get: //DanceStatistics
         [Authorize(Roles = "showDiagnostics")]
-        public ActionResult DanceStatistics(string source = null)
+        public ActionResult DanceStatistics(string source = null, bool save=true)
         {
-            DanceStatsInstance instance = null;
+            DanceStatsInstance instance;
             source = string.IsNullOrWhiteSpace(source) ? null : source;
             switch (source)
             {
                 default:
-                    instance = DanceStatsManager.LoadFromAzure(Database, source);
+                    instance = DanceStatsManager.LoadFromAzure(Database, source, save);
                     break;
                 case "sql":
-                    instance = DanceStatsManager.LoadFromSql(Database);
+                    instance = DanceStatsManager.LoadFromSql(Database,save);
                     break;
                 case null:
                     instance = DanceStatsManager.GetInstance(Database);

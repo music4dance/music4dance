@@ -154,6 +154,9 @@ namespace m4dModels
     public class DanceStatsManager
     {
         public static string AppData;
+        public static DateTime LastUpdate { get; private set; }
+        public static string Source { get; private set; }
+
 
         #region Access
         public static DanceStatsInstance GetInstance(DanceMusicService dms)
@@ -239,9 +242,12 @@ namespace m4dModels
                     DanceStats danceStats;
                     if (s_instance.Map.TryGetValue(dance.Id, out danceStats))
                     {
-                        danceStats.CopyDanceInfo(dance, true, dms);
+                        danceStats.CopyDanceInfo(dance, false, dms);
                     }
                 }
+
+                LastUpdate = DateTime.Now;
+                Source = Source + " + reload";
             }
         }
 
@@ -249,22 +255,43 @@ namespace m4dModels
         {
             lock (s_lock)
             {
+                if (AppData == null) return null;
+
                 var path = System.IO.Path.Combine(AppData, "dance-stats.json");
-                return !System.IO.File.Exists(path) ? null : DanceStatsInstance.LoadFromJson(System.IO.File.ReadAllText(path));
+                if (!System.IO.File.Exists(path)) return null;
+
+                LastUpdate = DateTime.Now;
+                Source = "AppData";
+                return DanceStatsInstance.LoadFromJson(System.IO.File.ReadAllText(path));
             }
+        }
+
+        public static DanceStatsInstance LoadFromStore(DanceMusicService dms)
+        {
+            if (Source == null || Source.Contains("SQL") || Source.Contains("AppData")) return LoadFromSql(dms);
+
+            return LoadFromAzure(dms);
         }
 
         public static DanceStatsInstance LoadFromSql(DanceMusicService dms, bool save = true)
         {
             var instance =  new DanceStatsInstance {Tree = BuildDanceStats(dms) };
-            if (save) SaveToAppData(instance);
+            if (!save) return instance;
+
+            LastUpdate = DateTime.Now;
+            Source = "SQL";
+            SaveToAppData(instance);
             return instance;
         }
 
         public static DanceStatsInstance LoadFromAzure(DanceMusicService dms, string source = "default", bool save = false)
         {
             var instance = new DanceStatsInstance { Tree = AzureDanceStats(dms,source) };
-            if (save)SaveToAppData(instance);
+            if (!save) return instance;
+
+            LastUpdate = DateTime.Now;
+            Source = "Azure";
+            SaveToAppData(instance);
             return instance;
         }
 
@@ -272,6 +299,8 @@ namespace m4dModels
         {
             lock (s_lock)
             {
+                if (AppData == null) return;
+
                 var json = instance.SaveToJson();
                 var path = System.IO.Path.Combine(AppData, "dance-stats.json");
                 System.IO.File.WriteAllText(path,json,Encoding.UTF8);

@@ -61,7 +61,7 @@ namespace m4dModels
         public TagSummary(FacetResults facets)
         {
             Summary = Serialize(Parse(string.Join("|", 
-                facets.Keys.Select(key => string.Join("|", facets[key].Select(f => $"{f.Value}:{key.Substring(0, key.Length - 4)}:{f.Count}"))).ToList())));
+                facets.Keys.Select(key => string.Join("|", facets[key].Select(f => $"{f.Value}:{SongFilter.TagClassFromName(key.Substring(0, key.Length - 4))}:{f.Count}"))).ToList())));
         }
 
         public TagSummary(IEnumerable<TagCount> tags)
@@ -80,6 +80,15 @@ namespace m4dModels
         public void Clean()
         {
             Summary = string.Empty;
+        }
+
+        public bool HasTag(string tag)
+        {
+            var idx = Summary.IndexOf(tag, StringComparison.OrdinalIgnoreCase);
+            if (idx == -1) return false;
+            var tl = tag.Length;
+            return (idx == 0 || Summary[idx - 1] == '|') &&
+                   (Summary[idx + tl] == ':' || idx == Summary.Length - tl || Summary[idx + tl] == '|');
         }
 
         public void ChangeTags(TagList added, TagList removed)
@@ -103,11 +112,9 @@ namespace m4dModels
 
             if (removed != null)
             {
-                foreach (var s in removed.Tags)
+                foreach (var tc in removed.Tags.Select(s => tags.FirstOrDefault(
+                    t => string.Equals(t.Value, s, StringComparison.InvariantCultureIgnoreCase))).Where(tc => tc != null))
                 {
-                    var tc = tags.FirstOrDefault(t => string.Equals(t.Value, s, StringComparison.InvariantCultureIgnoreCase));
-                    if (tc == null) continue;
-
                     tc.Count -= 1;
                     if (tc.Count <= 0)
                     {

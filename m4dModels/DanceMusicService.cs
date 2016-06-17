@@ -510,9 +510,11 @@ namespace m4dModels
 
                 var dT = dance;
                 var acc = new TagAccumulator();
+                var tag = dance.Name + ":Dance";
 
                 foreach (var rating in DanceRatings.Where(dr => dr.DanceId == dT.Id).Include("Song"))
                 {
+                    if (!rating.Song.TagSummary.HasTag(tag)) continue;
                     acc.AddTags(rating.TagSummary);
                     acc.AddTags(rating.Song.TagSummary);
                 }

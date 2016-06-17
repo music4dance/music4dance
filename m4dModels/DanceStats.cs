@@ -21,7 +21,7 @@ namespace m4dModels
             SongCount = songCount;
             MaxWeight = maxWeight;
             SongTags = new TagSummary(songTags);
-            TopSongs = topSongs.Select(s => new SongDetails(s)).ToList();
+            TopSongs = topSongs?.Select(s => new SongDetails(s)).ToList();
 
             if (danceType != null)
             {
@@ -59,6 +59,12 @@ namespace m4dModels
         public int MaxWeight { get; set; }
         [JsonProperty]
         public TagSummary SongTags { get; set; }
+
+        public TagSummary AggregateSongTags => (Children == null) ? 
+            SongTags :
+            TagAccumulator.MergeSummaries(Children.Select(c => c.SongTags).Concat(Enumerable.Repeat(SongTags,1)));
+
+        [JsonProperty]
         public virtual ICollection<DanceLink> DanceLinks { get; set; }
         [JsonProperty]
         public IEnumerable<SongBase> TopSongs { get; set; }
