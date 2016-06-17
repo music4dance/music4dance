@@ -1938,26 +1938,33 @@ namespace m4dModels
             return ret;
         }
 
+        public Dictionary<string,TagType> GetTagMap()
+        {
+            lock (s_tagCache)
+            {
+                if (s_tagCache.Any()) return s_tagCache;
+
+                _context.ProxyCreationEnabled = false;
+                foreach (var tt in TagTypes)
+                {
+                    s_tagCache.Add(tt.Key.ToLower(), tt);
+                }
+                _context.ProxyCreationEnabled = true;
+                return s_tagCache;
+            }
+        }
+
         public ICollection<TagType> GetTagRings(TagList tags)
         {
             lock (s_tagCache)
             {
-                if (!s_tagCache.Any())
-                {
-                    _context.ProxyCreationEnabled = false;
-                    foreach (var tt in TagTypes)
-                    {
-                        s_tagCache.Add(tt.Key.ToLower(), tt);
-                    }
-                    _context.ProxyCreationEnabled = true;
-                }
-
+                var tagCache = GetTagMap();
                 var map = new Dictionary<string, TagType>();
                 // ReSharper disable once LoopCanBePartlyConvertedToQuery
                 foreach (var tag in tags.Tags)
                 {
                     TagType tt;
-                    if (!s_tagCache.TryGetValue(tag.ToLower(), out tt))
+                    if (!tagCache.TryGetValue(tag.ToLower(), out tt))
                         continue;
 
                     while (tt.Primary != null)

@@ -386,7 +386,8 @@ namespace m4dModels
 
             // SongTags
             if (results.FacetResults == null) return;
-            stats.SongTags = new TagSummary(results.FacetResults);
+            var tagMap = dms.GetTagMap();
+            stats.SongTags = new TagSummary(results.FacetResults,tagMap);
         }
 
         private static void AzureHandleType(DanceObject dtyp, DanceStats scGroup, IReadOnlyDictionary<string, long> tags, IReadOnlyDictionary<string, long> inferred, DanceMusicService dms, string source)
