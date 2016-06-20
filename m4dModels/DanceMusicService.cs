@@ -510,9 +510,11 @@ namespace m4dModels
 
                 var dT = dance;
                 var acc = new TagAccumulator();
+                var tag = dance.Name + ":Dance";
 
                 foreach (var rating in DanceRatings.Where(dr => dr.DanceId == dT.Id).Include("Song"))
                 {
+                    if (!rating.Song.TagSummary.HasTag(tag)) continue;
                     acc.AddTags(rating.TagSummary);
                     acc.AddTags(rating.Song.TagSummary);
                 }
@@ -1936,26 +1938,33 @@ namespace m4dModels
             return ret;
         }
 
+        public Dictionary<string,TagType> GetTagMap()
+        {
+            lock (s_tagCache)
+            {
+                if (s_tagCache.Any()) return s_tagCache;
+
+                _context.ProxyCreationEnabled = false;
+                foreach (var tt in TagTypes)
+                {
+                    s_tagCache.Add(tt.Key.ToLower(), tt);
+                }
+                _context.ProxyCreationEnabled = true;
+                return s_tagCache;
+            }
+        }
+
         public ICollection<TagType> GetTagRings(TagList tags)
         {
             lock (s_tagCache)
             {
-                if (!s_tagCache.Any())
-                {
-                    _context.ProxyCreationEnabled = false;
-                    foreach (var tt in TagTypes)
-                    {
-                        s_tagCache.Add(tt.Key.ToLower(), tt);
-                    }
-                    _context.ProxyCreationEnabled = true;
-                }
-
+                var tagCache = GetTagMap();
                 var map = new Dictionary<string, TagType>();
                 // ReSharper disable once LoopCanBePartlyConvertedToQuery
                 foreach (var tag in tags.Tags)
                 {
                     TagType tt;
-                    if (!s_tagCache.TryGetValue(tag.ToLower(), out tt))
+                    if (!tagCache.TryGetValue(tag.ToLower(), out tt))
                         continue;
 
                     while (tt.Primary != null)
@@ -3267,7 +3276,7 @@ namespace m4dModels
             return skip;
         }
 
-        private IList<Song> TakeRecent(int c, int skip = 0)
+        private IEnumerable<Song> TakeRecent(int c, int skip = 0)
         {
             return Songs.OrderByDescending(s => s.Modified).Skip(skip).Take(c).Include("DanceRatings").Include("ModifiedBy").Include("SongProperties").ToList();
         }
@@ -3278,6 +3287,30 @@ namespace m4dModels
         }
 
         public SearchResults AzureSearch(string search, SearchParameters parameters, CruftFilter cruft = CruftFilter.NoCruft, string id = "default")
+        {
+            parameters.IncludeTotalResultCount = true;
+            var response = DoAzureSearch(search,parameters,cruft,id);
+            var songs = response.Results.Select(d => new SongDetails(d.Document)).ToList();
+            var pageSize = parameters.Top ?? 25;
+            var page = ((parameters.Skip ?? 0)/pageSize) + 1;
+            var facets = response.Facets;
+            return new SearchResults(search, songs.Count,response.Count ?? -1,page,pageSize,songs,facets);
+        }
+
+        public FacetResults GetTagFacets(string categories, int count, string id = "default")
+        {
+            var parameters = AzureParmsFromFilter(new SongFilter(), 1);
+            AddAzureCategories(parameters,categories,count);
+
+            return DoAzureSearch(null, parameters, CruftFilter.NoCruft, id).Facets;
+        }
+
+        public static void AddAzureCategories(SearchParameters parameters, string categories, int count)
+        {
+            parameters.Facets = categories.Split(',').Select(c => $"{c},count:{count}").ToList();
+        }
+
+        private static DocumentSearchResult DoAzureSearch(string search, SearchParameters parameters, CruftFilter cruft = CruftFilter.NoCruft, string id = "default")
         {
             var info = SearchServiceInfo.GetInfo(id);
 
@@ -3309,12 +3342,7 @@ namespace m4dModels
             using (var serviceClient = new SearchServiceClient(info.Name, new SearchCredentials(info.QueryKey)))
             using (var indexClient = serviceClient.Indexes.GetClient(info.Index))
             {
-                parameters.IncludeTotalResultCount = true;
-                var response = indexClient.Documents.Search(search, parameters);
-                var songs = response.Results.Select(d => new SongDetails(d.Document)).ToList();
-                var pageSize = parameters.Top ?? 25;
-                var page = ((parameters.Skip ?? 0)/pageSize) + 1;
-                return new SearchResults(search, songs.Count,response.Count ?? -1,page,pageSize,songs);
+                return indexClient.Documents.Search(search, parameters);
             }
         }
 

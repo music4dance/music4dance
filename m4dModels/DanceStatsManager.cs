@@ -1,4 +1,4 @@
-﻿// TODONEXT: Figure out if we can manage AzureSearch loading...
+﻿// TODONEXT: Verify dancestats build from azure get tag counts building from azure
 
 using System;
 using System.Collections.Generic;
@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using DanceLibrary;
+using Microsoft.Azure.Search.Models;
 using Newtonsoft.Json;
 
 namespace m4dModels
@@ -153,6 +154,9 @@ namespace m4dModels
     public class DanceStatsManager
     {
         public static string AppData;
+        public static DateTime LastUpdate { get; private set; }
+        public static string Source { get; private set; }
+
 
         #region Access
         public static DanceStatsInstance GetInstance(DanceMusicService dms)
@@ -238,9 +242,12 @@ namespace m4dModels
                     DanceStats danceStats;
                     if (s_instance.Map.TryGetValue(dance.Id, out danceStats))
                     {
-                        danceStats.CopyDanceInfo(dance, dms);
+                        danceStats.CopyDanceInfo(dance, false, dms);
                     }
                 }
+
+                LastUpdate = DateTime.Now;
+                Source = Source + " + reload";
             }
         }
 
@@ -248,14 +255,42 @@ namespace m4dModels
         {
             lock (s_lock)
             {
+                if (AppData == null) return null;
+
                 var path = System.IO.Path.Combine(AppData, "dance-stats.json");
-                return !System.IO.File.Exists(path) ? null : DanceStatsInstance.LoadFromJson(System.IO.File.ReadAllText(path));
+                if (!System.IO.File.Exists(path)) return null;
+
+                LastUpdate = DateTime.Now;
+                Source = "AppData";
+                return DanceStatsInstance.LoadFromJson(System.IO.File.ReadAllText(path));
             }
         }
 
-        private static DanceStatsInstance LoadFromSql(DanceMusicService dms)
+        public static DanceStatsInstance LoadFromStore(DanceMusicService dms)
+        {
+            if (Source == null || Source.Contains("SQL") || Source.Contains("AppData")) return LoadFromSql(dms);
+
+            return LoadFromAzure(dms);
+        }
+
+        public static DanceStatsInstance LoadFromSql(DanceMusicService dms, bool save = true)
         {
             var instance =  new DanceStatsInstance {Tree = BuildDanceStats(dms) };
+            if (!save) return instance;
+
+            LastUpdate = DateTime.Now;
+            Source = "SQL";
+            SaveToAppData(instance);
+            return instance;
+        }
+
+        public static DanceStatsInstance LoadFromAzure(DanceMusicService dms, string source = "default", bool save = false)
+        {
+            var instance = new DanceStatsInstance { Tree = AzureDanceStats(dms,source) };
+            if (!save) return instance;
+
+            LastUpdate = DateTime.Now;
+            Source = "Azure";
             SaveToAppData(instance);
             return instance;
         }
@@ -264,9 +299,110 @@ namespace m4dModels
         {
             lock (s_lock)
             {
+                if (AppData == null) return;
+
                 var json = instance.SaveToJson();
                 var path = System.IO.Path.Combine(AppData, "dance-stats.json");
                 System.IO.File.WriteAllText(path,json,Encoding.UTF8);
+            }
+        }
+
+        private static List<DanceStats> AzureDanceStats(DanceMusicService dms, string source)
+        {
+            var stats = new List<DanceStats>();
+            dms.Context.LoadDances(false);
+
+            var facets = dms.GetTagFacets("DanceTags,DanceTagsInferred", 100);
+
+            var tags =  IndexDanceFacet(facets["DanceTags"]);
+            var inferred = IndexDanceFacet(facets["DanceTagsInferred"]);
+
+            var used = new HashSet<string>();
+
+            // First handle dancegroups and types under dancegroups
+            foreach (var dg in Dances.Instance.AllDanceGroups)
+            {
+                // All groups except other have a valid 'root' node...
+                var scGroup = InfoFromDance(dms, false, dg);
+                scGroup.Children = new List<DanceStats>();
+                InfoFromAzure(scGroup, dms, source, tags, inferred);
+
+                stats.Add(scGroup);
+
+                foreach (var dtyp in dg.Members.Select(dtypT => dtypT as DanceType))
+                {
+                    Debug.Assert(dtyp != null);
+
+                    AzureHandleType(dtyp, scGroup, tags, inferred, dms, source);
+                    used.Add(dtyp.Id);
+                }
+            }
+
+            // Then handle ungrouped types
+            foreach (var dt in Dances.Instance.AllDanceTypes.Where(dt => !used.Contains(dt.Id)))
+            {
+                Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Ungrouped Dance: {0}", dt.Id);
+            }
+
+            return stats.OrderByDescending(x => x.Children.Count).ToList();
+        }
+
+        private static Dictionary<string, long> IndexDanceFacet(IEnumerable<FacetResult> facets)
+        {
+            var ret = new Dictionary<string, long>();
+
+            foreach (var facet in facets)
+            {
+                var d = Dances.Instance.DanceFromName((string)facet.Value);
+                if (d == null || !facet.Count.HasValue) continue;
+
+                ret[d.Id] = facet.Count.Value;
+            }
+
+            return ret;
+        }
+
+        private static void InfoFromAzure(DanceStats stats, DanceMusicService dms, string source, IReadOnlyDictionary<string, long> tags, IReadOnlyDictionary<string, long> inferred)
+        {
+            // SongCount
+            long expl;
+            long impl;
+
+            stats.SongCountExplicit = tags.TryGetValue(stats.DanceId, out expl) ? expl : 0;
+            stats.SongCountImplicit = inferred.TryGetValue(stats.DanceId, out impl) ? impl : 0;
+            stats.SongCount = stats.SongCountImplicit + stats.SongCountExplicit;
+
+            if (stats.SongCount == 0) return;
+
+            // TopN and MaxWeight
+            var filter = dms.AzureParmsFromFilter(new SongFilter {Dances = stats.DanceId, SortOrder = "Dances"}, 10);
+            DanceMusicService.AddAzureCategories(filter,"GenreTags,StyleTags,TempoTags,OtherTags",100);
+            var results = dms.AzureSearch(null, filter, DanceMusicService.CruftFilter.NoCruft, source);
+            stats.TopSongs = results.Songs;
+            var song = stats.TopSongs.FirstOrDefault();
+            var dr = song?.DanceRatings.FirstOrDefault(d => d.DanceId == stats.DanceId);
+
+            if (dr != null) stats.MaxWeight = dr.Weight;
+
+            // SongTags
+            if (results.FacetResults == null) return;
+            var tagMap = dms.GetTagMap();
+            stats.SongTags = new TagSummary(results.FacetResults,tagMap);
+        }
+
+        private static void AzureHandleType(DanceObject dtyp, DanceStats scGroup, IReadOnlyDictionary<string, long> tags, IReadOnlyDictionary<string, long> inferred, DanceMusicService dms, string source)
+        {
+            var scType = InfoFromDance(dms, false, dtyp);
+            InfoFromAzure(scType, dms, source, tags, inferred);
+
+            scGroup.Children.Add(scType);
+            scType.Parent = scGroup;
+
+            // Only add children to MSC, for other groups they're already built in
+
+            if (scGroup.DanceId == "MSC" || scGroup.DanceId == "PRF")
+            {
+                scGroup.SongCount += scType.SongCount;
             }
         }
 
@@ -281,7 +417,7 @@ namespace m4dModels
             foreach (var dg in Dances.Instance.AllDanceGroups)
             {
                 // All groups except other have a valid 'root' node...
-                var scGroup = InfoFromDance(dms, dg);
+                var scGroup = InfoFromDance(dms, true, dg);
                 scGroup.Children = new List<DanceStats>();
 
                 stats.Add(scGroup);
@@ -308,7 +444,7 @@ namespace m4dModels
         {
             var d = dms.Dances.FirstOrDefault(t => t.Id == dtyp.Id);
 
-            var scType = InfoFromDance(dms, dtyp);
+            var scType = InfoFromDance(dms, true, dtyp);
 
             scGroup.Children.Add(scType);
             scType.Parent = scGroup;
@@ -316,7 +452,7 @@ namespace m4dModels
             foreach (var dinst in dtyp.Instances)
             {
                 Trace.WriteLineIf(d == null, $"Invalid Dance Instance: {dinst.Name}");
-                var scInstance = InfoFromDance(dms, dinst);
+                var scInstance = InfoFromDance(dms, true, dinst);
 
                 if (scInstance.SongCount <= 0) continue;
 
@@ -335,7 +471,7 @@ namespace m4dModels
             }
         }
 
-        private static DanceStats InfoFromDance(DanceMusicService dms, DanceObject d)
+        private static DanceStats InfoFromDance(DanceMusicService dms, bool includeStats, DanceObject d)
         {
             if (d == null)
             {
@@ -348,7 +484,7 @@ namespace m4dModels
                 Children = null
             };
 
-            danceStats.CopyDanceInfo(dms.Dances.FirstOrDefault(t => t.Id == d.Id), dms);
+            danceStats.CopyDanceInfo(dms.Dances.FirstOrDefault(t => t.Id == d.Id), includeStats, dms);
             return danceStats;
         }
 

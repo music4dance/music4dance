@@ -49,10 +49,17 @@ namespace m4d.Controllers
         [Authorize(Roles = "showDiagnostics")]
         public ActionResult Diagnostics()
         {
+            SetupDiagnostics();
+            return View();
+        }
+
+        private void SetupDiagnostics()
+        {
             ViewBag.TraceLevel = TraceLevels.General.Level.ToString();
             ViewBag.BotReport = SpiderManager.CreateBotReport();
             ViewBag.SearchIdx = SearchServiceInfo.DefaultId;
-            return View();
+            ViewBag.StatsUpdateTime = DanceStatsManager.LastUpdate;
+            ViewBag.StatsUpdateSource = DanceStatsManager.Source;
         }
 
         //
@@ -61,8 +68,7 @@ namespace m4d.Controllers
         public ActionResult ResetAdmin()
         {
             AdminMonitor.CompleteTask(false,"Force Reset");
-            ViewBag.TraceLevel = TraceLevels.General.Level.ToString();
-            ViewBag.BotReport = SpiderManager.CreateBotReport();
+            SetupDiagnostics();
             return View("Diagnostics");
         }
 
@@ -1085,6 +1091,34 @@ namespace m4d.Controllers
         }
 
         //
+        // Get: //AzureFacets
+        [Authorize(Roles = "dbAdmin")]
+        public ActionResult AzureFacets(string categories, int count)
+        {
+            try
+            {
+                StartAdminTask("BuildFacets");
+
+                var facets = Database.GetTagFacets(categories, count);
+
+                foreach (var facet in facets)
+                {
+                    Trace.WriteLine($"------------------{facet.Key}----------------");
+                    foreach (var value in facet.Value)
+                    {
+                        Trace.WriteLine($"{value.Value}: {value.Count}");
+                    }
+                }
+
+                return CompleteAdminTask(true, "Finished rebuilding Dance Tags");
+            }
+            catch (Exception e)
+            {
+                return FailAdminTask("Dances Tags failed to rebuild", e);
+            }
+        }
+
+        //
         // Get: //ReloadDatabase
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -1696,10 +1730,25 @@ namespace m4d.Controllers
         //
         // Get: //DanceStatistics
         [Authorize(Roles = "showDiagnostics")]
-        public ActionResult DanceStatistics()
+        public ActionResult DanceStatistics(string source = null, bool save=true)
         {
+            DanceStatsInstance instance;
+            source = string.IsNullOrWhiteSpace(source) ? null : source;
+            switch (source)
+            {
+                default:
+                    instance = DanceStatsManager.LoadFromAzure(Database, source, save);
+                    break;
+                case "sql":
+                    instance = DanceStatsManager.LoadFromSql(Database,save);
+                    break;
+                case null:
+                    instance = DanceStatsManager.GetInstance(Database);
+                    break;
+            }
+
             return new JsonNetResult(
-                DanceStatsManager.GetDanceStats(Database),
+                instance.Tree,
                 new JsonSerializerSettings
                 {
                     NullValueHandling = NullValueHandling.Ignore,

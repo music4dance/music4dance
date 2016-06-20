@@ -22,7 +22,7 @@
     }
 
     var topSpotify = @DanceMusicService.PurchaseLinksToInfo(@Model.TopSpotify, User.Region());
-    var tags = @Model.SongTags.Tags;
+    var tags = @Model.AggregateSongTags.Tags;
 
     DanceStatsInstance stats = ViewBag.DanceStats;
 }

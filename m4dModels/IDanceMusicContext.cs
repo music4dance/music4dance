@@ -31,7 +31,7 @@ namespace m4dModels
 
         void ClearEntities(IEnumerable<string> entities);
 
-        void LoadDances();
+        void LoadDances(bool inclueRatings=true);
 
         bool LazyLoadingEnabled { get; set; }
         bool ProxyCreationEnabled { get; set; }

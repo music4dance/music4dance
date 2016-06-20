@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
+using Microsoft.Azure.Search.Models;
 using Newtonsoft.Json;
 
 namespace m4dModels
@@ -10,10 +11,11 @@ namespace m4dModels
     //  Tag0[:Count0]|Tag1[:Count1]...TagN[:CountN]
     //  where Tags are in alphabetical order
     [ComplexType]
-    [JsonConverter(typeof(ToStringJsonConverter))]
-    public class TagSummary 
+    [JsonConverter(typeof (ToStringJsonConverter))]
+    public class TagSummary
     {
         #region Properties
+
         public string Summary { get; set; }
         public IList<TagCount> Tags => Parse(Summary);
 
@@ -49,10 +51,29 @@ namespace m4dModels
         {
             Summary = "";
         }
+
         public TagSummary(string serialized)
         {
             // Normalize the tags summary by pushing it through parse/deserialize
             Summary = Serialize(Parse(serialized));
+        }
+
+        public TagSummary(FacetResults facets, Dictionary<string,TagType> tagMap)
+        {
+            Summary = Serialize(Parse(string.Join("|", 
+                facets.Keys.Select(key => string.Join("|", facets[key].Select(f => MassageTag(f.Value as string,key, f.Count, tagMap)).ToList())))));
+        }
+
+        private static string MassageTag(string tvalue, string ttype, long? count, Dictionary<string, TagType> tagMap)
+        {
+            string key = $"{tvalue}:{SongFilter.TagClassFromName(ttype.Substring(0, ttype.Length - 4))}";
+            TagType tt;
+            if (tagMap.TryGetValue(key.ToLower(), out tt))
+            {
+                key = tt.Key;
+            }
+
+            return $"{key}:{count}";
         }
 
         public TagSummary(IEnumerable<TagCount> tags)
@@ -71,6 +92,15 @@ namespace m4dModels
         public void Clean()
         {
             Summary = string.Empty;
+        }
+
+        public bool HasTag(string tag)
+        {
+            var idx = Summary.IndexOf(tag, StringComparison.OrdinalIgnoreCase);
+            if (idx == -1) return false;
+            var tl = tag.Length;
+            return (idx == 0 || Summary[idx - 1] == '|') &&
+                   (Summary[idx + tl] == ':' || idx == Summary.Length - tl || Summary[idx + tl] == '|');
         }
 
         public void ChangeTags(TagList added, TagList removed)
@@ -94,11 +124,9 @@ namespace m4dModels
 
             if (removed != null)
             {
-                foreach (var s in removed.Tags)
+                foreach (var tc in removed.Tags.Select(s => tags.FirstOrDefault(
+                    t => string.Equals(t.Value, s, StringComparison.InvariantCultureIgnoreCase))).Where(tc => tc != null))
                 {
-                    var tc = tags.FirstOrDefault(t => string.Equals(t.Value, s, StringComparison.InvariantCultureIgnoreCase));
-                    if (tc == null) continue;
-
                     tc.Count -= 1;
                     if (tc.Count <= 0)
                     {
@@ -113,7 +141,7 @@ namespace m4dModels
         #endregion
 
         #region Implementation
-        static private List<TagCount> Parse(string serialized)
+        private static List<TagCount> Parse(string serialized)
         {
             var tags = new List<TagCount>();
 
@@ -130,7 +158,7 @@ namespace m4dModels
             return tags;
         }
 
-        static private string Serialize(IEnumerable<TagCount> tags)
+        private static string Serialize(IEnumerable<TagCount> tags)
         {
             var list = tags as List<TagCount> ?? tags.ToList();
             list.Sort((sc1, sc2) => String.Compare(sc1.Value, sc2.Value, StringComparison.Ordinal));

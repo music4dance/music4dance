@@ -5,6 +5,16 @@ namespace m4dModels
 {
     public class TagAccumulator
     {
+        public static TagSummary MergeSummaries(IEnumerable<TagSummary> summaries)
+        {
+            var acc = new TagAccumulator();
+            foreach (var summary in summaries)
+            {
+                acc.AddTags(summary);
+            }
+            return acc.TagSummary();
+        }
+
         public TagAccumulator()
         {
             Tags = new Dictionary<string, int>();

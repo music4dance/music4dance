@@ -21,7 +21,7 @@ namespace m4dModels
             SongCount = songCount;
             MaxWeight = maxWeight;
             SongTags = new TagSummary(songTags);
-            TopSongs = topSongs.Select(s => new SongDetails(s)).ToList();
+            TopSongs = topSongs?.Select(s => new SongDetails(s)).ToList();
 
             if (danceType != null)
             {
@@ -50,11 +50,21 @@ namespace m4dModels
         public string Description { get; set; }
 
         [JsonProperty]
-        public int SongCount { get; set; }
+        public long SongCount { get; set; }
+        [JsonProperty]
+        public long SongCountExplicit { get; set; }
+        [JsonProperty]
+        public long SongCountImplicit { get; set; }
         [JsonProperty]
         public int MaxWeight { get; set; }
         [JsonProperty]
         public TagSummary SongTags { get; set; }
+
+        public TagSummary AggregateSongTags => (Children == null) ? 
+            SongTags :
+            TagAccumulator.MergeSummaries(Children.Select(c => c.SongTags).Concat(Enumerable.Repeat(SongTags,1)));
+
+        [JsonProperty]
         public virtual ICollection<DanceLink> DanceLinks { get; set; }
         [JsonProperty]
         public IEnumerable<SongBase> TopSongs { get; set; }
@@ -80,16 +90,19 @@ namespace m4dModels
 
         public IEnumerable<DanceInstance> CompetitionDances { get; private set; }
 
-        public void CopyDanceInfo(Dance dance, DanceMusicService dms)
+        public void CopyDanceInfo(Dance dance, bool includeStats, DanceMusicService dms)
         {
             if (dance == null) return;
 
             Description = dance.Description;
-            SongCount = dance.SongCount;
-            MaxWeight = dance.MaxWeight;
-            TopSongs =
-                dance.TopSongs?.OrderBy(ts => ts.Rank).Select(ts => new SongDetails(ts.Song) as SongBase).ToList();
-            SongTags = dance.SongTags;
+            if (includeStats)
+            {
+                SongCount = dance.SongCount;
+                MaxWeight = dance.MaxWeight;
+                TopSongs =
+                    dance.TopSongs?.OrderBy(ts => ts.Rank).Select(ts => new SongDetails(ts.Song) as SongBase).ToList();
+                SongTags = dance.SongTags;
+            }
             DanceLinks = dance.DanceLinks;
 
             var dt = DanceObject as DanceType;

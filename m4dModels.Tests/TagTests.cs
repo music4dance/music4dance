@@ -67,6 +67,12 @@ namespace m4dModels.Tests
             ta.AddTags(ts2.Summary);
             Trace.WriteLine(ta);
             Assert.AreEqual("Blues:Music:3|Pop:Music:8|Salsa:Music:12|Swing:Dance:11|Swing:Music:8|Waltz:Dance:3",ta.ToString());
+
+            var ts4 = ta.TagSummary();
+            Assert.IsTrue(ts4.HasTag("Blues:Music"));
+            Assert.IsTrue(ts4.HasTag("Swing:Dance"));
+            Assert.IsTrue(ts4.HasTag("Waltz:Dance"));
+            Assert.IsFalse(ts4.HasTag("Tango:Dance"));
         }
 
         #endregion

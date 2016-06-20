@@ -138,7 +138,7 @@ namespace m4dModels.Tests
             set { var t = value; }
         }
 
-        public void LoadDances() { }
+        public void LoadDances(bool includeRatings=true) { }
 
         public void Dispose()
         {
