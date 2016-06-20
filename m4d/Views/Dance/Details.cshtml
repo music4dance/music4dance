@@ -10,7 +10,7 @@
     ViewBag.NoSort = true;
     ViewBag.ShowTempo = true;
     ViewBag.HideDances = true;
-    ViewBag.SongFilter = new SongFilter { Dances = @Model.DanceId };
+    ViewBag.SongFilter = new SongFilter { Action=SearchServiceInfo.UseSql?"index":"azuresearch", Dances = @Model.DanceId };
 
     var description = @"<p>We're busy doing research and pulling together a general description for " + Model.DanceName + @".  Please check back later for more info.</p>";
     if (!string.IsNullOrWhiteSpace(Model.Description))

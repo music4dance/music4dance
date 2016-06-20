@@ -5,7 +5,6 @@
 @* ReSharper disable once SuggestVarOrType_SimpleTypes *@
 @{
     SongFilter filter = ViewData.ContainsKey("SongFilter") ? ViewBag.SongFilter : SongFilter.Default;
-    var danceQuery = filter.DanceQuery;
     var description = filter.Description;
 
     ViewBag.Title = "Songs for Dancing";

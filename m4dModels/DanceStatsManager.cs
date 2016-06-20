@@ -1,4 +1,5 @@
-﻿// TODONEXT: Verify dancestats build from azure get tag counts building from azure
+﻿// TODONEXT: Get dynamic set UseSql working then verify beta/legacy options and that we stay in the right mode end-to-end in all cases
+// Then Verify dancestats build from azure get tag counts building from azure
 
 using System;
 using System.Collections.Generic;
@@ -163,7 +164,7 @@ namespace m4dModels
         {
             lock (s_lock)
             {
-                return s_instance ?? (s_instance = LoadFromAppData()) ?? (s_instance = LoadFromSql(dms));
+                return s_instance ?? (s_instance = LoadFromAppData()) ?? (s_instance = LoadFromStore(dms,true));
             }
         }
 
@@ -195,7 +196,7 @@ namespace m4dModels
         {
             DanceStatsInstance instance = null;
 
-            if (dms != null) instance = LoadFromSql(dms);
+            if (dms != null) instance = LoadFromStore(dms,true);
             else if (reload) instance = LoadFromAppData();
 
             lock (s_lock)
@@ -218,7 +219,7 @@ namespace m4dModels
 
         private static void RebuildDanceStats(DanceMusicService dms)
         {
-            var instance = LoadFromSql(dms);
+            var instance = LoadFromStore(dms,true);
             lock (s_lock)
             {
                 s_instance = instance;
@@ -266,11 +267,9 @@ namespace m4dModels
             }
         }
 
-        public static DanceStatsInstance LoadFromStore(DanceMusicService dms)
+        public static DanceStatsInstance LoadFromStore(DanceMusicService dms, bool save)
         {
-            if (Source == null || Source.Contains("SQL") || Source.Contains("AppData")) return LoadFromSql(dms);
-
-            return LoadFromAzure(dms);
+            return SearchServiceInfo.UseSql && !Source.Contains("Azure") ? LoadFromSql(dms,save) : LoadFromAzure(dms,"default",save);
         }
 
         public static DanceStatsInstance LoadFromSql(DanceMusicService dms, bool save = true)

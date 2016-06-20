@@ -20,14 +20,24 @@ namespace m4dModels
             QueryKey = queryKey;
         }
 
-        public static SearchServiceInfo GetInfo(string id)
+        public static SearchServiceInfo GetInfo(string id=null)
         {
-            if (id == "default")
+            if (id == null || id == "default")
             {
                 id = DefaultId;
             }
 
             return s_info[id];
+        }
+
+        public static bool UseSql
+        {
+            get
+            {
+                LoadDefault();
+                return s_useSql;
+            }
+            set { s_useSql = value; }
         }
 
         //private const string FreeAdmin = "***REMOVED***";
@@ -40,14 +50,46 @@ namespace m4dModels
         {
             get
             {
-                return s_defaultId = s_defaultId ?? Environment.GetEnvironmentVariable("SEARCHINDEX") ?? "basica";
+                return LoadDefault();
             }
             set
             {
                 s_defaultId = value;
             }
         }
+
+        private static string LoadDefault()
+        {
+            if (s_defaultId != null) return s_defaultId;
+
+            var env = Environment.GetEnvironmentVariable("SEARCHINDEX");
+            if (env == null)
+            {
+                s_useSql = false;
+                return s_defaultId = "basica";
+            }
+
+            s_env = env;
+            var rg = env.Split('-');
+            if (rg.Length <= 1 || rg[1] != "SQL")
+            {
+                s_useSql = false;
+            }
+            return s_defaultId = rg[0];
+        }
+
+        public static string RawEnvironment
+        {
+            get
+            {
+                LoadDefault();
+                return s_env;
+            }
+        }
+
         private static string s_defaultId;
+        private static bool s_useSql;
+        private static string s_env = "(EMPTY)";
 
         private static readonly Dictionary<string, SearchServiceInfo> s_info = new Dictionary<string, SearchServiceInfo>
         {

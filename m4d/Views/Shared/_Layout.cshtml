@@ -91,24 +91,45 @@
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown">Music <span class="caret"></span></a>
                         <ul class="dropdown-menu" role="menu">
                             <li>@Html.ActionLink("Dances", "index", "dances")
-                                <ul style="list-style-type:none" role="menu">
-                                    <li>@Html.ActionLink("Ballroom","ballroom-competition-categories","dances")</li>
-                                    <li>@Html.ActionLink("Latin","latin","dances")</li>
+                                <ul style="list-style-type: none" role="menu">
+                                    <li>@Html.ActionLink("Ballroom", "ballroom-competition-categories", "dances")</li>
+                                    <li>@Html.ActionLink("Latin", "latin", "dances")</li>
                                     <li>@Html.ActionLink("Swing", "swing", "dances")</li>
                                     <li>@Html.ActionLink("Tango", "tango", "dances")</li>
                                 </ul>
                             </li>
-                            <li>@Html.ActionLink("Song Library", "index", "song")
-                                <ul style="list-style-type:none" role="menu">
-                                    <li>@Html.ActionLink("Advanced Search", "advancedsearchform", "song")</li>
-                                    <li><a href="https://www.music4dance.net/blog/music4dance-help/simple-search/">Search BETA</a>
-                                        <ul>
-                                            <li style="list-style: none; margin-left: -2em">@Html.ActionLink("Simple", "azuresearch", "song")</li>
-                                            <li style="list-style:none; margin-left: -2em">@Html.ActionLink("Advanced", "advancedsearchform", "song", new { filter = new SongFilter("azure+advanced") }, null)</li>
-                                        </ul>
-                                    </li>
-                                </ul>
-                            </li>
+                            @if (SearchServiceInfo.UseSql)
+                            {
+                                <li>
+                                    @Html.ActionLink("Song Library", "index", "song")
+                                    <ul style="list-style-type: none" role="menu">
+                                        <li>@Html.ActionLink("Advanced Search", "advancedsearchform", "song")</li>
+                                        <li>
+                                            <a href="https://www.music4dance.net/blog/music4dance-help/simple-search/">Search BETA</a>
+                                            <ul>
+                                                <li style="list-style: none; margin-left: -2em">@Html.ActionLink("Simple", "azuresearch", "song")</li>
+                                                <li style="list-style: none; margin-left: -2em">@Html.ActionLink("Advanced", "advancedsearchform", "song", new {filter = new SongFilter("azure+advanced")}, null)</li>
+                                            </ul>
+                                        </li>
+                                    </ul>
+                                </li>
+                            }
+                            else
+                            {
+                                <li>
+                                    @Html.ActionLink("Song Library", "azuresearch", "song")
+                                    <ul style="list-style-type: none" role="menu">
+                                        <li>@Html.ActionLink("Advanced Search","advancedsearchform", "song", new { filter = new SongFilter("azure+advanced") }, null)</li>
+                                        <li>
+                                            <a href="https://www.music4dance.net/blog/music4dance-help/legacy-search/">Legacy Search</a>
+                                            <ul>
+                                                <li style="list-style: none; margin-left: -2em">@Html.ActionLink("Search (Legacy)", "index", "song")</li>
+                                                <li style="list-style: none; margin-left: -2em">@Html.ActionLink("Advanced Search", "advancedsearchform", "song")</li>
+                                            </ul>
+                                        </li>
+                                    </ul>
+                                </li>
+                            }
                             <li>@Html.ActionLink("Wedding", "wedding-music", "dances")</li>
                             <li>@Html.ActionLink("Tags", "index", "tag")</li>
                         </ul>

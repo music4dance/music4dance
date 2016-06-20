@@ -29,10 +29,13 @@
     string urlFiltered = null;
     if (filter != null)
     {
-        var dance = Dances.Instance.DanceFromId(filter.Dances);
-        if (dance != null)
+        var dq = filter.DanceQuery;
+        var dances = dq.Dances.ToList();
+        if (dances.Count == 1)
         {
-            var filterDance = new SongFilter {Action=filter.TargetAction, Dances = filter.Dances};
+            var dance = dances[0];
+
+            var filterDance = new SongFilter {Action=filter.Action, Dances = filter.Dances};
             danceName = dance.Name;
             urlDance = urlBase + "&filter=" + WebUtility.UrlEncode(filterDance.ToString());
         }
@@ -48,7 +51,7 @@
     }
     if (filter.IsAzure)
     {
-        url += "&filter=" + WebUtility.UrlEncode(filter.TargetAction);
+        url += "&filter=" + WebUtility.UrlEncode(filter.Action);
     }
 
     var tc = tag.TagClass;

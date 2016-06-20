@@ -9,10 +9,12 @@ using System.Linq;
 using System.Net.Mime;
 using System.Text;
 using System.Threading;
+using System.Web;
 using System.Web.Mvc;
 using DanceLibrary;
 using m4d.Scrapers;
 using m4d.Utilities;
+using m4d.ViewModels;
 using m4dModels;
 using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.AspNet.Identity;
@@ -627,7 +629,14 @@ namespace m4d.Controllers
         {
             ViewBag.Name = "ClearSongCache";
 
-            DanceStatsManager.ClearCache(null,reload);
+            if (reload)
+            {
+                DanceStatsManager.ClearCache(Database, true);
+            }
+            else
+            {
+                DanceStatsManager.ClearCache();
+            }
 
             ViewBag.Success = true;
             ViewBag.Message = "Cache was cleared";
@@ -684,6 +693,18 @@ namespace m4d.Controllers
             {
                 TelemetryConfiguration.Active.DisableTelemetry = false;
             }
+
+            return RedirectToAction("Diagnostics");
+        }
+
+        //
+        // Get: //SetUseSql
+        public ActionResult SetUseSql(bool flag)
+        {
+            Trace.WriteLineIf(TraceLevels.General.TraceInfo, $"Set Use Sql: '{flag}'");
+            SearchServiceInfo.UseSql = flag;
+
+            SiteMapInfo.LoadCategories();
 
             return RedirectToAction("Diagnostics");
         }

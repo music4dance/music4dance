@@ -12,6 +12,8 @@
 
 @helper DanceRow(DanceStats danceStats, string[] columns, bool isGroup)
 {
+    var action = SearchServiceInfo.UseSql ? "index" : "azuresearch";
+    var filterAction = SearchServiceInfo.UseSql ? "index" : "azure+simple";
     var counts = new int[columns.Length];
     var show = false;
 
@@ -49,7 +51,8 @@
                 @if (counts[i] != 0)
                 {
                     <span class='label label-info'>
-                        @Html.ActionLink(counts[i].ToString(), "Index", "Song", new { filter = string.Format("Index-{0}-Dances-.-.-.-.-.-1-+{1}:Other", danceStats.DanceId, columns[i]) }, new {@class= "tag-text" })
+                        @Html.ActionLink(counts[i].ToString(), action, "Song", 
+                            new { filter = string.Format("{0}-{1}-Dances-.-.-.-.-.-1-+{2}:Other", filterAction, danceStats.DanceId, columns[i]) }, new {@class= "tag-text" })
                     </span>
                 }
                 else

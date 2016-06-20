@@ -3,6 +3,8 @@
 
 @{
     var isAdmin = User.IsInRole("dbAdmin");
+    var action = SearchServiceInfo.UseSql ? "index" : "azure+simple";
+
     var canSort = ViewData.ContainsKey("NoSort") ? !ViewBag.NoSort : true;
     var showDate = canSort;
     var hideDances = ViewData.ContainsKey("HideDances") ? ViewBag.HideDances : false;
@@ -11,7 +13,7 @@
     var showLength = ViewData.ContainsKey("ShowLength") ? ViewBag.ShowLength : false;
 
     DanceStatsInstance danceStats = ViewBag.DanceStats;
-    SongFilter filter = ViewData.ContainsKey("SongFilter") ? ViewBag.SongFilter : new SongFilter();
+    SongFilter filter = ViewData.ContainsKey("SongFilter") ? ViewBag.SongFilter : new SongFilter(action);
     var isRaw = filter.IsRaw;
     canSort = canSort && !isRaw;
     var songOrder = new SongSort(filter.SortOrder);
@@ -21,9 +23,11 @@
     LikeDictionary likes = ViewData.ContainsKey("Likes") ? ViewBag.Likes : null;
     LikeDictionary danceLikes = ViewData.ContainsKey("DanceLikes") ? ViewBag.DanceLikes : null;
 
-    var filterNoDance = new SongFilter(filter.ToString());
-    filterNoDance.Dances = null;
-    filterNoDance.SortOrder = null;
+    var filterNoDance = new SongFilter(filter.ToString())
+    {
+        Dances = null,
+        SortOrder = null
+    };
     var danceQuery = filter.DanceQuery;
     var numDances = danceQuery.Dances.Count();
     var isExclusive = danceQuery.IsExclusive || numDances < 2;
@@ -413,23 +417,24 @@
                                 var filterT = new SongFilter(filter.ToString());
                                 if (hasDance ? (numDances > 1) : (numDances > 0))
                                 {
-                                    filterT.Action = "Advanced";
+                                    filterT.Action = azureSearch ? "azure+advanced":"advanced";
                                 }
 
                                 var urlFiltered = string.Empty;
                                 var urlDance = string.Empty;
-                                var url = "/song/search?dances=" + ditem.DanceId;
+                                var baseUrl = "/song/" + (azureSearch ? "azure" : "") + "search?dances=";
+                                var url = baseUrl + ditem.DanceId;
 
-                                if (!azureSearch && !filter.IsEmpty && !hasDance)
+                                if (!filter.IsEmptyPaged && !hasDance)
                                 {
                                     var dq = danceQuery.AddDance(ditem.DanceId);
                                     if (isExclusive)
                                     {
-                                        urlFiltered = "/song/search?dances=" + dq.MakeExclusive().Query + "&filter=" + filterT;
+                                        urlFiltered = baseUrl + dq.MakeExclusive().Query + "&filter=" + filterT;
                                     }
                                     if (isInclusive)
                                     {
-                                        urlDance = "/song/search?dances=" + dq.MakeInclusive().Query + "&filter=" + filterT;
+                                        urlDance = baseUrl + dq.MakeInclusive().Query + "&filter=" + filterT;
                                     }
                                 }
 
