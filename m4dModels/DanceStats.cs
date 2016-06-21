@@ -21,7 +21,7 @@ namespace m4dModels
             SongCount = songCount;
             MaxWeight = maxWeight;
             SongTags = new TagSummary(songTags);
-            TopSongs = topSongs?.Select(s => new SongDetails(s)).ToList();
+            TopSongs = topSongs?.Where(s => s != null).Select(s => new SongDetails(s)).ToList();
 
             if (danceType != null)
             {
