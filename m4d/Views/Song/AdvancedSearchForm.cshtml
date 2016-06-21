@@ -1,7 +1,8 @@
 ﻿@using System.Runtime.Serialization.Json
 
 @{
-    SongFilter filter = ViewData.ContainsKey("SongFilter") ? ViewBag.SongFilter : SongFilter.Default;
+    var useSql = SearchServiceInfo.UseSql;
+    SongFilter filter = ViewData.ContainsKey("SongFilter") ? ViewBag.SongFilter : (useSql ? SongFilter.Default : SongFilter.AzureSimple);
     if (filter.SortOrder == null)
     {
         filter.SortOrder = string.Empty;
@@ -72,9 +73,13 @@
 <div class="row">
     <h1 class="col-xs-12" style="font-size: 22px; text-align: center">
         Advanced Song Search
-        @if (isAzure)
+        @if (isAzure && SearchServiceInfo.UseSql)
         {
-            <em> (BETA)</em>
+            <text><em> (BETA)</em></text>
+        }
+        else if (!isAzure && !SearchServiceInfo.UseSql)
+        {
+            <text><em> (Legacy)</em></text>
         }
     </h1>
 </div>

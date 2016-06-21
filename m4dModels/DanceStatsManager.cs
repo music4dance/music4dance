@@ -1,5 +1,4 @@
-﻿// TODONEXT: Get dynamic set UseSql working then verify beta/legacy options and that we stay in the right mode end-to-end in all cases
-// Then Verify dancestats build from azure get tag counts building from azure
+﻿// TODONEXT: Verify dancestats builT from azure get tag counts building from azure - do we cache these off as json as well? Same file or different?
 
 using System;
 using System.Collections.Generic;
