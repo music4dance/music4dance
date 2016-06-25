@@ -139,7 +139,7 @@ namespace m4dModels
             return Serialize(null);
         }
 
-        protected void LoadProperties(ICollection<SongProperty> properties) 
+        protected void LoadProperties(ICollection<SongProperty> properties, IReadOnlyDictionary<string, TagType> tagMap) 
         {
             var created = SongProperties != null && SongProperties.Count > 0;
             ApplicationUser currentUser = null;
@@ -174,7 +174,7 @@ namespace m4dModels
                         }
                         else
                         {
-                            AddObjectTags(prop.DanceQualifier, prop.Value, currentUser);
+                            AddObjectTags(prop.DanceQualifier, prop.Value, tagMap);
                         }
                         break;
                     case RemovedTags:
@@ -184,7 +184,7 @@ namespace m4dModels
                         }
                         else
                         {
-                            RemoveObjectTags(prop.DanceQualifier, prop.Value, currentUser);
+                            RemoveObjectTags(prop.DanceQualifier, prop.Value, tagMap);
                         }
                         break;
                     case AlbumField:
@@ -605,6 +605,15 @@ namespace m4dModels
             }
         }
 
+        public TagList AddObjectTags(string qualifier, string tags, IReadOnlyDictionary<string,TagType> tagMap)
+        {
+            TaggableObject tobj = this;
+            if (!string.IsNullOrWhiteSpace(qualifier))
+                tobj = FindRating(qualifier);
+
+            return tobj.AddTags(tags, tagMap);
+        }
+
         public TagList AddObjectTags(string qualifier, string tags, ApplicationUser user, DanceMusicService dms=null)
         {
             if (user == null)
@@ -626,7 +635,16 @@ namespace m4dModels
             if (!string.IsNullOrWhiteSpace(qualifier))
                 tobj = FindRating(qualifier);
 
-            return tobj.RemoveTags(tags, user, dms, (dms == null) ? null : this);
+            return tobj?.RemoveTags(tags, user, dms, (dms == null) ? null : this);
+        }
+
+        public TagList RemoveObjectTags(string qualifier, string tags, IReadOnlyDictionary<string, TagType> tagMap)
+        {
+            TaggableObject tobj = this;
+            if (!string.IsNullOrWhiteSpace(qualifier))
+                tobj = FindRating(qualifier);
+
+            return tobj?.RemoveTags(tags, tagMap);
         }
 
         public TagList GetUserTags(ApplicationUser user)

@@ -22,7 +22,8 @@ namespace m4d.Controllers
         [AllowAnonymous]
         public ActionResult Index()
         {
-            return View(Database.OrderedTagTypes());
+            var model = Database.OrderedTagTypes;
+            return View(model);
         }
 
         // GET: Tag/Details/5

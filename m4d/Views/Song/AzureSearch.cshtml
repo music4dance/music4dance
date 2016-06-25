@@ -20,7 +20,39 @@
 
 @SongHelper.SearchHeader(Html, filter, dances, userName)
 
-@{ Html.RenderPartial("_ListSongs", @Model, ViewData);}
+
+@if (User.IsInRole("dbAdmin"))
+{
+    using (Html.BeginForm("BulkEdit", "Song"))
+    {
+        @Html.AntiForgeryToken()
+        Html.RenderPartial("_ListSongs", @Model, ViewData);
+        <div class="row col-xs-12">
+            <input type="hidden" name="filter" value="@filter" />
+            <input type="submit" name="action" value="Merge" class="btn btn-" />
+            <input type="submit" name="action" value="Delete" class="btn" />
+            <input type="submit" name="action" value="CleanupAlbums" class="btn" />
+            @Html.ActionLink("Add New Song", "Create", null, new { @class = "btn btn-default", role = "button" })
+            @Html.ActionLink("Groove Batch", "BatchMusicService", new { filter, type = "X", count = 10 }, new { @class = "btn btn-success", role = "button" })
+            @Html.ActionLink("ITunes Batch", "BatchMusicService", new { filter, type = "I", count = 10 }, new { @class = "btn btn-success", role = "button" })
+            @Html.ActionLink("Spotify Batch", "BatchMusicService", new { filter, type = "S", count = 10 }, new { @class = "btn btn-success", role = "button" })
+            @Html.ActionLink("Amazon Batch", "BatchMusicService", new { filter, type = "A", count = 10 }, new { @class = "btn btn-success", role = "button" })
+            @Html.ActionLink("Canonical Batch", "BatchMusicService", new { filter, type = "-", count = 10, options = "M" }, new { @class = "btn btn-success", role = "button" })
+            @Html.ActionLink("Clean Services", "BatchCleanService", new { filter, count = 10 }, new { @class = "btn btn-success", role = "button" })
+            @Html.ActionLink("Backup List", "BackupTail", "Admin", new { filter, count = -1 }, new { @class = "btn btn-default", role = "button" })
+            @Html.ActionLink("JSON", "BackupJson", "Admin", new { filter }, new { @class = "btn btn-default", role = "button" })
+            @Html.ActionLink("Update User Tags", "RebuildUserTags", "Admin", new { filter, update = true }, new { @class = "btn btn-default", role = "button" })
+            @Html.ActionLink("Update Tags", "RebuildTags", "Admin", new { filter }, new { @class = "btn btn-default", role = "button" })
+            @Html.ActionLink("Update Tag Summaries", "UpdateTagSummaries", "Admin", new { filter }, new { @class = "btn btn-default", role = "button" })
+            @Html.ActionLink("Echo Batch", "BatchEchoNest", new { filter, count = 10 }, new { @class = "btn btn-warning", role = "button" })
+            @Html.ActionLink("Sample Batch", "BatchSamples", new { filter, count = 10 }, new { @class = "btn btn-warning", role = "button" })
+        </div>
+    }
+}
+else
+{
+    Html.RenderPartial("_ListSongs", @Model, ViewData);
+}
 
 @SongHelper.Footer(Html, Url, Model, filter)
 

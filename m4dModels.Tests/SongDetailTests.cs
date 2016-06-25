@@ -183,7 +183,7 @@ namespace m4dModels.Tests
         [TestMethod]
         public void PropertyByUser()
         {
-            var song = new SongDetails(SQuuen);
+            var song = new SongDetails(SQuuen,null);
 
             var map = song.MapProperyByUsers(SongBase.DanceRatingField);
 
@@ -249,7 +249,7 @@ namespace m4dModels.Tests
 
         static IList<SongDetails> Load()
         {
-            return SongData.Select(str => new SongDetails(str)).ToList();
+            return SongData.Select(str => new SongDetails(str,null)).ToList();
         }
 
         static IList<SongDetails> LoadRows(string header, IReadOnlyCollection<string> rows, DanceMusicService service, int dups = 0)
@@ -259,7 +259,7 @@ namespace m4dModels.Tests
             var user = service.FindUser("dwgray");
 
             IList<string> headers = SongDetails.BuildHeaderMap(header);
-            var ret = SongDetails.CreateFromRows(user,"\t",headers,rows,5);
+            var ret = SongDetails.CreateFromRows(user,"\t",headers,rows,service.TagMap,5);
 
             Assert.AreEqual(rows.Count, ret.Count+dups);
             return ret;

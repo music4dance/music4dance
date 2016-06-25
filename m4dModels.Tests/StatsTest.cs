@@ -21,6 +21,9 @@ namespace m4dModels.Tests
 
             jsonNew = jsonNew.Replace("[ ]", "[]");
             jsonNew = jsonNew.Replace("\r\n", "\n");
+            jsonNew = jsonNew.Replace("      \"SongTags\": \"\",\n", "");
+            jsonNew = jsonNew.Replace("          \"SongTags\": \"\",\n", "");
+
             Assert.AreEqual(json,jsonNew);
         }
     }

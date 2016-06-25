@@ -242,14 +242,15 @@ namespace m4dModels.Tests
         [TestMethod]
         public void AdditiveMerge()
         {
+            var songs = Service.Songs;
             var song = new Song();
             song.Load(MergeSong, Service);
-            Service.Songs.Add(song);
+            songs.Add(song);
 
             var user = Service.UserManager.FindByName("dwgray");
             var header = new List<string> { "Title", "Artist", "DanceRating", "DanceTags:Style", "SongTags:Other"};
             var row = new List<string> { @"Would It Not Be Nice	Beach Boys	Swing	Modern	Wedding" };
-            var merge = SongDetails.CreateFromRows(user, "\t", header, row, SongBase.DanceRatingIncrement)[0];
+            var merge = SongDetails.CreateFromRows(user, "\t", header, row, Service.TagMap, SongBase.DanceRatingIncrement)[0];
             merge.Tempo = 123;
             merge.InferDances(user);
 
@@ -306,7 +307,7 @@ namespace m4dModels.Tests
             };
 
             var user = Service.UserManager.FindByName("dwgray");
-            var song = SongDetails.CreateFromTrack(user, track, "WCS", "Testing:Other|Crazy:Music", "Dances:Style|Mellow:Tempo");
+            var song = SongDetails.CreateFromTrack(user, track, "WCS", "Testing:Other|Crazy:Music", "Dances:Style|Mellow:Tempo",null);
 
             var actual = DanceMusicTester.ReplaceTime(song.Serialize(new[] { SongBase.NoSongId }));
             //Trace.WriteLine(actual);

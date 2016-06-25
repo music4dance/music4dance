@@ -140,6 +140,7 @@ namespace m4dModels.Tests
             Assert.AreEqual(22, service.Dms.Tags.Count());
 
             service.Dms.UpdateSongs(update);
+            DanceStatsManager.ClearCache(service.Dms);
 
             for (var i = 0; i < ids.Length; i++)
             {

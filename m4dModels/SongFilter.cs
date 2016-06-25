@@ -389,7 +389,11 @@ namespace m4dModels
 
                 sb.Append(SongSort.Description);
 
-                if (IsAzure)
+                if (!SearchServiceInfo.UseSql && !IsAzure)
+                {
+                    sb.Append(" (Legacy Search)");
+                }
+                else if (SearchServiceInfo.UseSql && IsAzure)
                 {
                     sb.Append(" (Beta Search)");
                 }

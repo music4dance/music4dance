@@ -40,7 +40,6 @@ namespace m4dModels.Tests
         [TestMethod]
         public void CleanEmpties()
         {
-            // TODONEXT: why isn't this counting as changed at all when run with from the admin task
             var service = new DanceMusicTester(new List<string> {SongA,SongD});
 
             var songs = new List<Song>
@@ -90,7 +89,7 @@ namespace m4dModels.Tests
                 Trace.WriteLineIf(General.TraceInfo, $"{song.SongId}:{song.SongProperties.Count - c}");
                 Assert.AreEqual(c - deltas[index], song.SongProperties.Count);
 
-                var sd = new SongDetails(song.SongId, song.SongProperties);
+                var sd = new SongDetails(song.SongId, song.SongProperties,service.Dms.TagMap);
                 Assert.AreEqual(song.DanceRatings.Count,sd.DanceRatings.Count);
                 foreach (var dr in song.DanceRatings)
                 {
@@ -202,7 +201,7 @@ namespace m4dModels.Tests
                 DanceMusicTester.DumpSongProperties(song, General.TraceInfo);
 
                 // May be worth doing some verification on this, but for now just want to make sure it loads...
-                var sd = new SongDetails(song.SongId, song.SongProperties);
+                var sd = new SongDetails(song.SongId, song.SongProperties,service.Dms.TagMap);
                 Assert.IsNotNull(sd);
             }
         }

@@ -7,7 +7,6 @@ using DanceLibrary;
 namespace m4dModels
 {
     [JsonObject(MemberSerialization.OptIn)]
-
     public class DanceStats
     {
         public DanceStats()
@@ -15,13 +14,14 @@ namespace m4dModels
         }
 
         [JsonConstructor]
-        public DanceStats(string danceId, string danceName, string description, int songCount, int maxWeight, string songTags, IEnumerable<string> topSongs, DanceStats[] children, DanceType danceType, DanceGroup danceGroup)
+        public DanceStats(string danceId, string danceName, string description, int songCount, int maxWeight, string songTags, IEnumerable<string> topSongs, IEnumerable<DanceStats> children, DanceType danceType, DanceGroup danceGroup)
         {
             Description = description;
             SongCount = songCount;
             MaxWeight = maxWeight;
             SongTags = new TagSummary(songTags);
-            TopSongs = topSongs?.Select(s => new SongDetails(s)).ToList();
+            // TODO: We've got a chicken and egg problem here - we should be able to load tags first and then pull in stats so that we can have TagMap available here
+            TopSongs = topSongs?.Select(s => new SongDetails(s,null)).ToList();
 
             if (danceType != null)
             {

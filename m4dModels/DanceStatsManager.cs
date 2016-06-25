@@ -1,4 +1,5 @@
-﻿// TODONEXT: Verify dancestats builT from azure get tag counts building from azure - do we cache these off as json as well? Same file or different?
+﻿// TODONEXT: Get the test working
+//  Verify dancestats builT from azure get tag counts building from azure - do we cache these off as json as well? Same file or different?
 
 using System;
 using System.Collections.Generic;
@@ -12,11 +13,50 @@ using Newtonsoft.Json;
 
 namespace m4dModels
 {
+    [JsonObject(MemberSerialization.OptIn)]
     public class DanceStatsInstance
     {
+        public DanceStatsInstance()
+        {
+        }
+
+        [JsonConstructor]
+        public DanceStatsInstance(IEnumerable<DanceStats> tree, IEnumerable<TagType> tagTypes)
+        {
+            Tree = tree.ToList();
+            TagTypes = tagTypes.ToList();
+
+            Fixup();
+        }
+
+        private void Fixup()
+        {
+            foreach (var d in Tree)
+            {
+                d.SetParents();
+            }
+            Map = List.ToDictionary(ds => ds.DanceId);
+
+            TagMap = TagTypes.ToDictionary(tt => tt.Key.ToLower());
+
+            foreach (var tt in TagTypes.Where(tt => !string.IsNullOrEmpty(tt.PrimaryId)))
+            {
+                tt.Primary = TagMap[tt.PrimaryId.ToLower()];
+                if (tt.Primary.Ring == null) tt.Primary.Ring = new List<TagType>();
+                tt.Primary.Ring.Add(tt);
+            }
+        }
+
+        [JsonProperty]
         public List<DanceStats> Tree { get; set; }
+
         public List<DanceStats> List => _flat ?? (_flat = Flatten());
-        public Dictionary<string, DanceStats> Map => _map ?? (_map = List.ToDictionary(ds => ds.DanceId));
+        public Dictionary<string, DanceStats> Map { get; private set; }
+
+        [JsonProperty]
+        public List<TagType> TagTypes { get; set; }
+
+        public Dictionary<string, TagType> TagMap { get; private set; }
 
         public int GetScaledRating(string danceId, int weight, int scale = 5)
         {
@@ -92,12 +132,7 @@ namespace m4dModels
                 DefaultValueHandling = DefaultValueHandling.Ignore
             };
 
-            var tree = JsonConvert.DeserializeObject<List<DanceStats>>(json, settings);
-            foreach (var d in tree)
-            {
-                d.SetParents();
-            }
-            var instance = new DanceStatsInstance { Tree = tree };
+            var instance = JsonConvert.DeserializeObject<DanceStatsInstance>(json,settings);
 
             if (resetDances) Dances.Reset(Dances.Load(instance.GetDanceTypes(), instance.GetDanceGroups()));
 
@@ -106,13 +141,21 @@ namespace m4dModels
 
         public string SaveToJson()
         {
-            return JsonConvert.SerializeObject(Tree,
+            return JsonConvert.SerializeObject(this,
                 Formatting.Indented,
                 new JsonSerializerSettings
                 {
                     NullValueHandling = NullValueHandling.Ignore,
                     DefaultValueHandling = DefaultValueHandling.IgnoreAndPopulate
                 });
+        }
+
+        public void AddTagType(TagType tt)
+        {
+            TagMap[tt.Key.ToLower()] = tt;
+            var index = TagTypes.BinarySearch(tt,Comparer<TagType>.Create((a, b) => string.Compare(a.Key, b.Key, StringComparison.OrdinalIgnoreCase)));
+            if (index < 0) index = ~index;
+            TagTypes.Insert(index,tt);
         }
 
         internal List<DanceType> GetDanceTypes()
@@ -148,7 +191,6 @@ namespace m4dModels
         }
 
         private List<DanceStats> _flat;
-        private Dictionary<string, DanceStats> _map;
     }
 
     public class DanceStatsManager
@@ -257,7 +299,7 @@ namespace m4dModels
             {
                 if (AppData == null) return null;
 
-                var path = System.IO.Path.Combine(AppData, "dance-stats.json");
+                var path = System.IO.Path.Combine(AppData, "dance-tag-stats.json");
                 if (!System.IO.File.Exists(path)) return null;
 
                 LastUpdate = DateTime.Now;
@@ -268,12 +310,12 @@ namespace m4dModels
 
         public static DanceStatsInstance LoadFromStore(DanceMusicService dms, bool save)
         {
-            return SearchServiceInfo.UseSql && !Source.Contains("Azure") ? LoadFromSql(dms,save) : LoadFromAzure(dms,"default",save);
+            return SearchServiceInfo.UseSql && (Source == null || !Source.Contains("Azure")) ? LoadFromSql(dms,save) : LoadFromAzure(dms,"default",save);
         }
 
         public static DanceStatsInstance LoadFromSql(DanceMusicService dms, bool save = true)
         {
-            var instance =  new DanceStatsInstance {Tree = BuildDanceStats(dms) };
+            var instance =  new DanceStatsInstance(BuildDanceStats(dms),BuildTagTypes(dms));
             if (!save) return instance;
 
             LastUpdate = DateTime.Now;
@@ -284,7 +326,8 @@ namespace m4dModels
 
         public static DanceStatsInstance LoadFromAzure(DanceMusicService dms, string source = "default", bool save = false)
         {
-            var instance = new DanceStatsInstance { Tree = AzureDanceStats(dms,source) };
+            var tags = AzureTagTypes(dms, source).ToList();
+            var instance = new DanceStatsInstance(AzureDanceStats(dms,tags.ToDictionary(tt => tt.Key.ToLower()), source),tags);
             if (!save) return instance;
 
             LastUpdate = DateTime.Now;
@@ -300,17 +343,17 @@ namespace m4dModels
                 if (AppData == null) return;
 
                 var json = instance.SaveToJson();
-                var path = System.IO.Path.Combine(AppData, "dance-stats.json");
+                var path = System.IO.Path.Combine(AppData, "dance-tag-stats.json");
                 System.IO.File.WriteAllText(path,json,Encoding.UTF8);
             }
         }
 
-        private static List<DanceStats> AzureDanceStats(DanceMusicService dms, string source)
+        private static IEnumerable<DanceStats> AzureDanceStats(DanceMusicService dms, IReadOnlyDictionary<string, TagType> tagMap,string source)
         {
             var stats = new List<DanceStats>();
             dms.Context.LoadDances(false);
 
-            var facets = dms.GetTagFacets("DanceTags,DanceTagsInferred", 100);
+            var facets = dms.GetTagFacets("DanceTags,DanceTagsInferred", 100, source);
 
             var tags =  IndexDanceFacet(facets["DanceTags"]);
             var inferred = IndexDanceFacet(facets["DanceTagsInferred"]);
@@ -323,7 +366,7 @@ namespace m4dModels
                 // All groups except other have a valid 'root' node...
                 var scGroup = InfoFromDance(dms, false, dg);
                 scGroup.Children = new List<DanceStats>();
-                InfoFromAzure(scGroup, dms, source, tags, inferred);
+                InfoFromAzure(scGroup, dms, source, tags, tagMap, inferred);
 
                 stats.Add(scGroup);
 
@@ -331,7 +374,7 @@ namespace m4dModels
                 {
                     Debug.Assert(dtyp != null);
 
-                    AzureHandleType(dtyp, scGroup, tags, inferred, dms, source);
+                    AzureHandleType(dtyp, scGroup, tags, inferred, tagMap, dms, source);
                     used.Add(dtyp.Id);
                 }
             }
@@ -343,6 +386,25 @@ namespace m4dModels
             }
 
             return stats.OrderByDescending(x => x.Children.Count).ToList();
+        }
+
+        private static IEnumerable<TagType> AzureTagTypes(DanceMusicService dms, string source)
+        {
+            dms.Context.ProxyCreationEnabled = false;
+            var tagTypes = dms.TagTypes.OrderBy(t => t.Key).ToList();
+
+            var facets = dms.GetTagFacets("GenreTags,StyleTags,TempoTags,OtherTags", 500, source);
+
+            var map = tagTypes.ToDictionary(tt => tt.Key.ToLower());
+
+            foreach (var facet in facets)
+            {
+                var id = SongFilter.TagClassFromName(facet.Key.Substring(0,facet.Key.Length-4)).ToLower();
+                IndexFacet(facet.Value,id,map);
+            }
+
+            dms.Context.ProxyCreationEnabled = true;
+            return tagTypes;
         }
 
         private static Dictionary<string, long> IndexDanceFacet(IEnumerable<FacetResult> facets)
@@ -360,7 +422,26 @@ namespace m4dModels
             return ret;
         }
 
-        private static void InfoFromAzure(DanceStats stats, DanceMusicService dms, string source, IReadOnlyDictionary<string, long> tags, IReadOnlyDictionary<string, long> inferred)
+        private static void IndexFacet(IEnumerable<FacetResult> facets, string category, IReadOnlyDictionary<string,TagType> map)
+        {
+            foreach (var facet in facets)
+            {
+                if (!facet.Count.HasValue) continue;
+
+                var key = $"{facet.Value}:{category}";
+                TagType tt;
+                if (!map.TryGetValue(key, out tt))
+                {
+                    Trace.WriteLine($"Couldn't map key: {key}");
+                    continue;
+                }
+
+                tt.Count = (int)facet.Count.Value;
+            }
+        }
+
+
+        private static void InfoFromAzure(DanceStats stats, DanceMusicService dms, string source, IReadOnlyDictionary<string, long> tags, IReadOnlyDictionary<string, TagType> tagMap, IReadOnlyDictionary<string, long> inferred)
         {
             // SongCount
             long expl;
@@ -384,14 +465,13 @@ namespace m4dModels
 
             // SongTags
             if (results.FacetResults == null) return;
-            var tagMap = dms.GetTagMap();
             stats.SongTags = new TagSummary(results.FacetResults,tagMap);
         }
 
-        private static void AzureHandleType(DanceObject dtyp, DanceStats scGroup, IReadOnlyDictionary<string, long> tags, IReadOnlyDictionary<string, long> inferred, DanceMusicService dms, string source)
+        private static void AzureHandleType(DanceObject dtyp, DanceStats scGroup, IReadOnlyDictionary<string, long> tags, IReadOnlyDictionary<string, long> inferred, IReadOnlyDictionary<string, TagType> tagMap, DanceMusicService dms, string source)
         {
             var scType = InfoFromDance(dms, false, dtyp);
-            InfoFromAzure(scType, dms, source, tags, inferred);
+            InfoFromAzure(scType, dms, source, tags, tagMap, inferred);
 
             scGroup.Children.Add(scType);
             scType.Parent = scGroup;
@@ -484,6 +564,15 @@ namespace m4dModels
 
             danceStats.CopyDanceInfo(dms.Dances.FirstOrDefault(t => t.Id == d.Id), includeStats, dms);
             return danceStats;
+        }
+
+        private static IEnumerable<TagType> BuildTagTypes(DanceMusicService dms)
+        {
+            dms.Context.ProxyCreationEnabled = false;
+            var tagTypes = dms.TagTypes.OrderBy(t => t.Key);
+            dms.Context.ProxyCreationEnabled = true;
+
+            return tagTypes.ToList();
         }
 
         #endregion

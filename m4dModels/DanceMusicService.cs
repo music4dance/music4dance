@@ -297,7 +297,7 @@ namespace m4dModels
             // Add in the properties for all of the songs and then delete them
             foreach (var from in songs)
             {
-                song.UpdateProperties(from.SongProperties, new[] { SongBase.FailedLookup, SongBase.AlbumField, SongBase.TrackField, SongBase.PublisherField, SongBase.PurchaseField });
+                song.UpdateProperties(from.SongProperties, TagMap, new[] { SongBase.FailedLookup, SongBase.AlbumField, SongBase.TrackField, SongBase.PublisherField, SongBase.PurchaseField });
                 RemoveSong(from, user);
             }
             song.UpdateFromService(this);
@@ -974,7 +974,7 @@ namespace m4dModels
             song.CreateEditProperties(entry.User,command,this,entry.Time);
             DoRestoreValues(song, entry, action);
 
-            var sd = new SongDetails(song.SongId, song.SongProperties);
+            var sd = new SongDetails(song.SongId, song.SongProperties,TagMap);
             song.RestoreScalar(sd);
             song.UpdateUsers(this);
 
@@ -1004,7 +1004,7 @@ namespace m4dModels
                 throw new ArgumentOutOfRangeException(nameof(song), @"Attempting to restore a song that hasn't been deleted");
             }
             song.CreateEditProperties(user, SongBase.DeleteCommand + "=false", this);
-            var sd = new SongDetails(song.SongId, song.SongProperties);
+            var sd = new SongDetails(song.SongId, song.SongProperties,TagMap);
             song.Restore(sd, this);
             song.UpdateUsers(this);
         }
@@ -1795,6 +1795,8 @@ namespace m4dModels
 
         #region Tags
 
+        public IReadOnlyDictionary<string, TagType> TagMap => DanceStatsManager.GetInstance(this).TagMap;
+
         public TagType FindOrCreateTagType(string tag)
         {
             // Create a transitory TagType just for the parsing
@@ -1867,6 +1869,11 @@ namespace m4dModels
             return _context.TagTypes.Where(t => t.Key.StartsWith(value + ":"));
         }
 
+        public IReadOnlyList<TagType> CachedTagTypes()
+        {
+            return DanceStatsManager.GetInstance(this).TagTypes;
+        }
+
         public IEnumerable<TagCount> GetTagSuggestions(Guid? user = null, char? targetType = null, string tagType = null, int count = int.MaxValue, bool normalized=false)
         {
             // from m in Modified where m.ApplicationUserId == user.Id && m.Song.TitleHash != 0 select m.Song;
@@ -1879,7 +1886,7 @@ namespace m4dModels
 
             if (userString == null)
             {
-                lock (s_tagCache)
+                lock (s_sugMap)
                 {
                     if (tagType == null) tagType = string.Empty;
                     if (s_sugMap.ContainsKey(tagType))
@@ -1888,7 +1895,7 @@ namespace m4dModels
                     }
                     else
                     {
-                        var tts = (tagType == string.Empty) ? TagTypes : TagTypes.ToList().Where(tt => tt.Category == tagType);
+                        var tts = (tagType == string.Empty) ? CachedTagTypes() : CachedTagTypes().Where(tt => tt.Category == tagType);
                         ret = TagType.ToTagCounts(tts).OrderByDescending(tc => tc.Count);
                         s_sugMap[tagType] = ret;
                     }
@@ -1896,6 +1903,7 @@ namespace m4dModels
             }
             else
             {
+                // AZURETODO: Can't currently do this without user tags in sql database - do we run the user songs???
                 var tags = from t in Tags
                             where
                                 (userString == t.UserId) && 
@@ -1903,8 +1911,8 @@ namespace m4dModels
                                 (tagType == null || t.Tags.Summary.Contains(tagLabel))
                             select t;
 
+                var tagMap = TagMap;
                 var dictionary = new Dictionary<string, int>();
-                TagTypes.Load();
                 foreach (var t in tags)
                 {
                     foreach (var ti in t.Tags.Tags.Where(ti => tagLabel == null || ti.EndsWith(tagLabel)))
@@ -1912,8 +1920,8 @@ namespace m4dModels
                         var tag = ti;
                         if (normalized)
                         {
-                            var tt = TagTypes.Find(tag);
-                            if (tt != null)
+                            TagType tt;
+                            if (tagMap.TryGetValue(tag.ToLower(), out tt))
                             {
                                 tag = tt.GetPrimary().ToString();
                             }
@@ -1938,102 +1946,61 @@ namespace m4dModels
             return ret;
         }
 
-        public Dictionary<string,TagType> GetTagMap()
-        {
-            lock (s_tagCache)
-            {
-                if (s_tagCache.Any()) return s_tagCache;
-
-                _context.ProxyCreationEnabled = false;
-                foreach (var tt in TagTypes)
-                {
-                    s_tagCache.Add(tt.Key.ToLower(), tt);
-                }
-                _context.ProxyCreationEnabled = true;
-                return s_tagCache;
-            }
-        }
+        public IEnumerable<TagType> OrderedTagTypes => DanceStatsManager.GetInstance(this).TagTypes;
 
         public ICollection<TagType> GetTagRings(TagList tags)
         {
-            lock (s_tagCache)
+            var tagCache = TagMap;
+            var map = new Dictionary<string, TagType>();
+            // ReSharper disable once LoopCanBePartlyConvertedToQuery
+            foreach (var tag in tags.Tags)
             {
-                var tagCache = GetTagMap();
-                var map = new Dictionary<string, TagType>();
-                // ReSharper disable once LoopCanBePartlyConvertedToQuery
-                foreach (var tag in tags.Tags)
+                TagType tt;
+                if (!tagCache.TryGetValue(tag.ToLower(), out tt))
+                    continue;
+
+                while (tt.Primary != null)
                 {
-                    TagType tt;
-                    if (!tagCache.TryGetValue(tag.ToLower(), out tt))
-                        continue;
-
-                    while (tt.Primary != null)
-                    {
-                        tt = tt.Primary;
-                    }
-                    if (!map.ContainsKey(tt.Key))
-                    {
-                        map.Add(tt.Key, tt);
-                    }
+                    tt = tt.Primary;
                 }
-
-                return map.Values;
-            }
-        }
-
-        public IEnumerable<TagType> OrderedTagTypes()
-        {
-            lock (s_tagCache)
-            {
-                // ReSharper disable once InvertIf
-                if (s_orderedTagTypes == null)
+                if (!map.ContainsKey(tt.Key))
                 {
-                    _context.ProxyCreationEnabled = false;
-                    var tagTypes = TagTypes.Include(t => t.Primary).OrderBy(t => t.Key);
-                    s_orderedTagTypes = tagTypes.ToList();
-                    _context.ProxyCreationEnabled = true;
+                    map.Add(tt.Key, tt);
                 }
-                return s_orderedTagTypes;
             }
+
+            return map.Values;
         }
 
         private TagType CreateTagType(string value, string category, string primary = null) 
         {
-            lock (s_tagCache)
+            var type = _context.TagTypes.Create();
+            type.Key = TagType.BuildKey(value, category);
+            type.PrimaryId = primary;
+
+            var other = TagTypes.Find(type.Key);
+            if (other != null)
             {
-                BlowTagCache();
-
-                var type = _context.TagTypes.Create();
-                type.Key = TagType.BuildKey(value, category);
-                type.PrimaryId = primary;
-
-                var other = TagTypes.Find(type.Key);
-                if (other != null)
-                {
-                    Trace.WriteLineIf(TraceLevels.General.TraceInfo, $"Attempt to add duplicate tag: {other} {type}");
-                    type = other;
-                }
-                else
-                {
-                    type = _context.TagTypes.Add(type);
-                }
-                return type;
+                Trace.WriteLineIf(TraceLevels.General.TraceInfo, $"Attempt to add duplicate tag: {other} {type}");
+                type = other;
             }
+            else
+            {
+                type = _context.TagTypes.Add(type);
+                DanceStatsManager.GetInstance(this).AddTagType(type);
+            }
+            return type;
         }
 
         public static void BlowTagCache()
         {
-            lock (s_tagCache)
+            lock (s_sugMap)
             {
-                s_tagCache.Clear();
                 s_sugMap.Clear();
-                s_orderedTagTypes = null;
             }
         }
 
         private static readonly Dictionary<string,IOrderedEnumerable<TagCount>> s_sugMap = new Dictionary<string, IOrderedEnumerable<TagCount>>();
-        private static readonly Dictionary<string,TagType> s_tagCache = new Dictionary<string, TagType>();
-        private static List<TagType> s_orderedTagTypes;
 
         #endregion
 
@@ -2398,7 +2365,7 @@ namespace m4dModels
             _context.TrackChanges(true);
         }
 
-        public void UpdateSongs(IList<string> lines)
+        public void UpdateSongs(IList<string> lines, bool clearCache=true)
         {
             Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Entering UpdateSongs");
 
@@ -2415,6 +2382,7 @@ namespace m4dModels
                 lines.RemoveAt(0);
             }
 
+            var tagMap = TagMap;
             var c = 0;
             foreach (var line in lines)
             {
@@ -2423,7 +2391,7 @@ namespace m4dModels
 
                 AdminMonitor.UpdateTask("UpdateSongs", c);
 
-                var sd = new SongDetails(line);
+                var sd = new SongDetails(line,tagMap);
                 var song = FindSong(sd.SongId);
 
                 if (song == null)
@@ -2467,8 +2435,12 @@ namespace m4dModels
             }
 
             _context.TrackChanges(true);
-            Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Clearing Song Cache");
-            DanceStatsManager.ClearCache();
+
+            if (clearCache)
+            {
+                Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Clearing Song Cache");
+                DanceStatsManager.ClearCache();
+            }
             Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Exiting UpdateSongs");
         }
 
@@ -3290,7 +3262,8 @@ namespace m4dModels
         {
             parameters.IncludeTotalResultCount = true;
             var response = DoAzureSearch(search,parameters,cruft,id);
-            var songs = response.Results.Select(d => new SongDetails(d.Document)).ToList();
+            var tagMap = TagMap;
+            var songs = response.Results.Select(d => new SongDetails(d.Document,tagMap)).ToList();
             var pageSize = parameters.Top ?? 25;
             var page = ((parameters.Skip ?? 0)/pageSize) + 1;
             var facets = response.Facets;

@@ -88,12 +88,12 @@ namespace m4dModels
 
         // TODO: I want to be able to create SongDetails as a completely disconnected object
         //  but mapping all of the information from songs.  
-        public SongDetails(Guid songId, ICollection<SongProperty> properties)
+        public SongDetails(Guid songId, ICollection<SongProperty> properties, IReadOnlyDictionary<string,TagType> tagMap)
         {
-            Load(songId, properties);
+            Load(songId, properties, tagMap);
         }
 
-        public SongDetails(string s)
+        public SongDetails(string s, IReadOnlyDictionary<string, TagType> tagMap)
         {
             Guid id;
             var ich = TryParseId(s, out id);
@@ -109,7 +109,7 @@ namespace m4dModels
 
             var properties = new List<SongProperty>();
             SongProperty.Load(SongId, s, properties);
-            Load(SongId, properties);
+            Load(SongId, properties, tagMap);
         }
 
         public SongDetails(string title, string artist, decimal? tempo, int? length, IList<AlbumDetails> albums)
@@ -120,11 +120,11 @@ namespace m4dModels
             Length = length;
             _albums = (albums as List<AlbumDetails>) ?? albums?.ToList();
         }
-        private void Load(Guid songId, ICollection<SongProperty> properties)
+        private void Load(Guid songId, ICollection<SongProperty> properties, IReadOnlyDictionary<string, TagType> tagMap)
         {
             SongId = songId;
 
-            LoadProperties(properties);
+            LoadProperties(properties, tagMap);
 
             Albums = BuildAlbumInfo(properties);
             Properties.AddRange(properties);
@@ -133,7 +133,7 @@ namespace m4dModels
         #endregion
 
         #region Serialization
-        public static SongDetails CreateFromRow(ApplicationUser user, IList<string> fields, IList<string> cells, int weight=1)
+        public static SongDetails CreateFromRow(ApplicationUser user, IList<string> fields, IList<string> cells, IReadOnlyDictionary<string,TagType> tagMap,int weight=1)
         {
             var properties = new List<SongProperty>();
             var specifiedUser = false;
@@ -416,7 +416,7 @@ namespace m4dModels
                 }
             }
 
-            return new SongDetails(Guid.Empty, properties);
+            return new SongDetails(Guid.NewGuid(), properties, tagMap);
         }
 
         public static List<string> BuildHeaderMap(string line, char separator = '\t')
@@ -472,7 +472,7 @@ namespace m4dModels
             {"MPM", MeasureTempo},
         };
 
-        public static IList<SongDetails> CreateFromRows(ApplicationUser user, string separator, IList<string> headers, IEnumerable<string> rows, int weight)
+        public static IList<SongDetails> CreateFromRows(ApplicationUser user, string separator, IList<string> headers, IEnumerable<string> rows, IReadOnlyDictionary<string,TagType> tagMap, int weight)
         {
             var songs = new Dictionary<string, SongDetails>();
             var itc = string.Equals(separator.Trim(), "ITC");
@@ -514,7 +514,7 @@ namespace m4dModels
 
                 if (cells.Count == headers.Count)
                 {
-                    var sd = CreateFromRow(user, headers, cells, weight);
+                    var sd = CreateFromRow(user, headers, cells, tagMap, weight);
                     if (sd != null)
                     {
                         var ta = sd.TitleArtistAlbumString;
@@ -576,7 +576,7 @@ namespace m4dModels
         }
 
         //private static readonly List<string> s_trackFields = new List<string>(new string[] {""});
-        public static SongDetails CreateFromTrack(ApplicationUser user, ServiceTrack track, string dances, string songTags, string danceTags)
+        public static SongDetails CreateFromTrack(ApplicationUser user, ServiceTrack track, string dances, string songTags, string danceTags, IReadOnlyDictionary<string,TagType> tagMap)
         {
             // Title;Artist;Duration;Album;Track;DanceRating;SongTags;DanceTags;PurchaseInfo;
 
@@ -615,7 +615,7 @@ namespace m4dModels
                 cells.Add(track.TrackId);
             }
 
-            var sd = CreateFromRow(user, fields, cells, DanceRatingIncrement);
+            var sd = CreateFromRow(user, fields, cells, tagMap, DanceRatingIncrement);
             sd.InferDances(user);
             return sd;
             //var properties = new List<SongProperty>
@@ -1473,7 +1473,7 @@ namespace m4dModels
             return doc;
         }
 
-        public SongDetails(Document d)
+        public SongDetails(Document d, IReadOnlyDictionary<string,TagType> tagMap)
         {
             var s = d["Properties"] as string;
             var sid = d["SongId"] as string;
@@ -1485,7 +1485,7 @@ namespace m4dModels
 
             var properties = new List<SongProperty>();
             SongProperty.Load(SongId, s, properties);
-            Load(SongId, properties);
+            Load(SongId, properties,tagMap);
         }
 
         private static string BuildDanceFieldName(string id)

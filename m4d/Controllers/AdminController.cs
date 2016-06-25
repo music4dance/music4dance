@@ -9,7 +9,6 @@ using System.Linq;
 using System.Net.Mime;
 using System.Text;
 using System.Threading;
-using System.Web;
 using System.Web.Mvc;
 using DanceLibrary;
 using m4d.Scrapers;
@@ -268,52 +267,27 @@ namespace m4d.Controllers
         //
         // Get: //UpdateTagSummaries
         [Authorize(Roles = "dbAdmin")]
-        public ActionResult UpdateTagSummaries()
+        public ActionResult UpdateTagSummaries(SongFilter filter = null)
         {
+            if (filter == null) filter = SongFilter.Default;
+
             try
             {
                 StartAdminTask("UpdateTagSummaries");
                 Context.TrackChanges(false);
 
-                var counts = Database.TagTypes.ToDictionary(tt => tt.Key, tt => tt.Count);
-
                 // Do the actual update
                 var sumChanged = 0;
                 var i = 0;
                 // ReSharper disable once LoopCanBePartlyConvertedToQuery
-                foreach (var s in Database.Songs)
+                foreach (var s in Database.BuildSongList(filter,DanceMusicService.CruftFilter.AllCruft))
                 {
                     AdminMonitor.UpdateTask("Update Song Tags", i++);
-                    if (!s.UpdateTagSummary(Database)) continue;
+                    if (!s.UpdateTagSummaries(Database)) continue;
+
+                    s.Modified = DateTime.Now;
 
                     sumChanged += 1;
-                }
-
-                i = 0;
-                // ReSharper disable once LoopCanBePartlyConvertedToQuery
-                foreach (var dr in Database.DanceRatings)
-                {
-                    AdminMonitor.UpdateTask("Update Dance Rating Tags", i++);
-                    if (!dr.UpdateTagSummary(Database)) continue;
-
-                    sumChanged += 1;
-                }
-
-                // Validate that we didn't change counts...
-                AdminMonitor.UpdateTask("Validate Counts");
-                var typeChanged = 0;
-                foreach (var tt in Database.TagTypes)
-                {
-                    int c;
-                    if (counts.TryGetValue(tt.Key, out c) && c == tt.Count) continue;
-
-                    typeChanged += 1;
-                    break;
-                }
-
-                if (typeChanged > 0)
-                {
-                    return CompleteAdminTask(false, $"Changed underlying count unexpectedly ({typeChanged})");
                 }
 
                 Context.TrackChanges(true);
@@ -551,11 +525,9 @@ namespace m4d.Controllers
 
                 var np = times.FirstOrDefault();
 
-                if (np == null) continue;
+                var d = np?.ObjectValue as DateTime?;
 
-                var d = np.ObjectValue as DateTime?;
-
-                if (!d.HasValue) continue;
+                if (d == null) continue;
 
                 prop.Value = np.Value;
                 prop.Song.Created = d.Value;
@@ -625,18 +597,11 @@ namespace m4d.Controllers
         //
         // Get: //ClearSongCache
         [Authorize(Roles = "showDiagnostics")]
-        public ActionResult ClearSongCache(bool reload=false)
+        public ActionResult ClearSongCache(bool reloadFromStore=false, bool reloadFromFile = false)
         {
             ViewBag.Name = "ClearSongCache";
 
-            if (reload)
-            {
-                DanceStatsManager.ClearCache(Database, true);
-            }
-            else
-            {
-                DanceStatsManager.ClearCache();
-            }
+            DanceStatsManager.ClearCache(reloadFromStore ? Database : null, reloadFromFile);
 
             ViewBag.Success = true;
             ViewBag.Message = "Cache was cleared";
@@ -1551,7 +1516,7 @@ namespace m4d.Controllers
 
             var headerList = !string.IsNullOrWhiteSpace(headers) ? SongDetails.BuildHeaderMap(headers, ',') : HeaderFromList(CleanSeparator(separator), lines);
 
-            var newSongs = SongDetails.CreateFromRows(appuser, separator, headerList, lines, SongBase.DanceRatingCreate);
+            var newSongs = SongDetails.CreateFromRows(appuser, separator, headerList, lines, Database.TagMap, SongBase.DanceRatingCreate);
 
             var hasArtist = false;
             if (!string.IsNullOrEmpty(artist))
@@ -2327,16 +2292,16 @@ namespace m4d.Controllers
             return file.Split(Environment.NewLine.ToCharArray(), StringSplitOptions.RemoveEmptyEntries).ToList();
         }
 
-        private static IList<SongDetails> SongsFromTracks(ApplicationUser user, IEnumerable<ServiceTrack> tracks, string dances, string songTags, string danceTags)
+        private IList<SongDetails> SongsFromTracks(ApplicationUser user, IEnumerable<ServiceTrack> tracks, string dances, string songTags, string danceTags)
         {
-            return tracks.Where(track => !string.IsNullOrEmpty(track.Artist)).Select(track => SongDetails.CreateFromTrack(user, track, dances, songTags, danceTags)).ToList();
+            return tracks.Where(track => !string.IsNullOrEmpty(track.Artist)).Select(track => SongDetails.CreateFromTrack(user, track, dances, songTags, danceTags, Database.TagMap)).ToList();
         }
 
-        private static IList<SongDetails> SongsFromFile(ApplicationUser user, IList<string> lines)
+        private IList<SongDetails> SongsFromFile(ApplicationUser user, IList<string> lines)
         {
             var map = SongDetails.BuildHeaderMap(lines[0]);
             lines.RemoveAt(0);
-            return SongDetails.CreateFromRows(user, "\t", map, lines, SongBase.DanceRatingCreate);
+            return SongDetails.CreateFromRows(user, "\t", map, lines, Database.TagMap, SongBase.DanceRatingCreate);
         }
 
         List<string> UploadFile() 

@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
-using System.Net;
-using System.Text;
 using DanceLibrary;
 
 namespace m4dModels
@@ -303,7 +301,7 @@ namespace m4dModels
 
             var mrg = new List<SongProperty>(upd.Skip(c));
 
-            UpdateProperties(mrg);
+            UpdateProperties(mrg,dms.TagMap);
             UpdateFromService(dms);
 
             UpdatePurchaseInfo(update);
@@ -316,16 +314,38 @@ namespace m4dModels
             return true;
         }
 
-        public void UpdateProperties(ICollection<SongProperty> properties, string[] excluded = null)
+        public void UpdateProperties(ICollection<SongProperty> properties, IReadOnlyDictionary<string,TagType> tagMap, string[] excluded = null)
         {
-            LoadProperties(properties);
+            LoadProperties(properties, tagMap);
 
             foreach (var prop in properties.Where(prop => excluded == null || !excluded.Contains(prop.BaseName)))
             {
                 SongProperties.Add(prop.CopyTo(this));
-            }           
+            }
         }
 
+        public bool UpdateTagSummaries(DanceMusicService dms)
+        {
+            var changed = false;
+            var delta = new SongDetails(SongId,SongProperties,dms.TagMap);
+            if (!Equals(TagSummary.Summary, delta.TagSummary.Summary))
+            {
+                changed = UpdateTagSummary(delta.TagSummary);
+            }
+
+            foreach (var dr in DanceRatings)
+            {
+                var drDelta = delta.DanceRatings.FirstOrDefault(drd => drd.DanceId == dr.DanceId);
+                if (drDelta == null)
+                {
+                    Trace.WriteLine($"Bad Comparison: {SongId}:{dr.DanceId}");
+                    continue;
+                }
+
+                changed |= dr.UpdateTagSummary(drDelta.TagSummary);
+            }
+            return changed;
+        }
 
         public void UpdateFromService(DanceMusicService dms)
         {
@@ -1645,7 +1665,7 @@ namespace m4dModels
 
         public void Load(string s, DanceMusicService dms)
         {
-            var sd = new SongDetails(s);
+            var sd = new SongDetails(s,dms?.TagMap);
 
             if (sd.SongId == new Guid(_guidMatch))
             {

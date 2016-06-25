@@ -37,7 +37,11 @@ namespace m4dModels
                 LoadDefault();
                 return s_useSql;
             }
-            set { s_useSql = value; }
+            set
+            {
+                LoadDefault();
+                s_useSql = value;
+            }
         }
 
         //private const string FreeAdmin = "***REMOVED***";
