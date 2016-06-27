@@ -19,7 +19,7 @@ namespace m4dModels
             Description = description;
             SongCount = songCount;
             MaxWeight = maxWeight;
-            SongTags = new TagSummary(songTags);
+            SongTags = string.IsNullOrEmpty(songTags) ? null : new TagSummary(songTags);
             // TODO: We've got a chicken and egg problem here - we should be able to load tags first and then pull in stats so that we can have TagMap available here
             TopSongs = topSongs?.Select(s => new SongDetails(s,null)).ToList();
 
@@ -120,6 +120,11 @@ namespace m4dModels
                 c.Parent = this;
                 c.SetParents();
             }
+        }
+
+        public void RebuildTopSongs(Dictionary<string, TagType> tagMap)
+        {
+            TopSongs = TopSongs?.Select(s => new SongDetails(s.Serialize(null), tagMap)).ToList();
         }
     }
 }

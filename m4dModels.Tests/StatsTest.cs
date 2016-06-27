@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Text.RegularExpressions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace m4dModels.Tests
@@ -21,8 +22,13 @@ namespace m4dModels.Tests
 
             jsonNew = jsonNew.Replace("[ ]", "[]");
             jsonNew = jsonNew.Replace("\r\n", "\n");
-            jsonNew = jsonNew.Replace("      \"SongTags\": \"\",\n", "");
-            jsonNew = jsonNew.Replace("          \"SongTags\": \"\",\n", "");
+            const string strRegex = @"[ ]*""SongTags"": """",\n";
+            var re = new Regex(strRegex, RegexOptions.Multiline);
+            jsonNew = re.Replace(jsonNew, "");
+
+            const string strRegex2 = @"[ ]*""SongTags"": """",\r\n";
+            var re2 = new Regex(strRegex2, RegexOptions.Multiline);
+            json = re2.Replace(json,"");
 
             Assert.AreEqual(json,jsonNew);
         }

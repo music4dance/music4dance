@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using DanceLibrary;
 using Microsoft.Azure.Search.Models;
@@ -13,6 +14,96 @@ using Newtonsoft.Json;
 
 namespace m4dModels
 {
+    public class SmartLock
+    {
+        private readonly object _lockObject = new object();
+        private string _holdingTrace = "";
+
+        private static readonly int WARN_TIMEOUT_MS = 5000; //5 secs
+
+        public void Lock(Action action)
+        {
+            try
+            {
+                Enter();
+                action.Invoke();
+            }
+            catch (Exception ex)
+            {
+                Trace.WriteLine($"SmartLock Lock action: {ex.Message}");
+            }
+            finally
+            {
+                Exit();
+            }
+        }
+
+        public TResult Lock<TResult>(Func<TResult> action)
+        {
+            
+            try
+            {
+                Enter();
+                return action.Invoke();
+            }
+            catch (Exception ex)
+            {
+                Trace.WriteLine($"SmartLock Lock action: {ex.Message}");
+                return default(TResult);
+            }
+            finally
+            {
+                Exit();
+            }
+        }
+
+        private void Enter()
+        {
+            try
+            {
+                var locked = false;
+                var timeoutMs = 0;
+                while (!locked)
+                {
+                    //keep trying to get the lock, and warn if not accessible after timeout
+                    locked = Monitor.TryEnter(_lockObject, WARN_TIMEOUT_MS);
+                    if (!locked)
+                    {
+                        timeoutMs += WARN_TIMEOUT_MS;
+                        Trace.WriteLine("Lock held: " + (timeoutMs / 1000) + " secs by " + _holdingTrace + " requested by " + GetStackTrace());
+                    }
+                }
+
+                //save a stack trace for the code that is holding the lock
+                _holdingTrace = GetStackTrace();
+            }
+            catch (Exception ex)
+            {
+                Trace.WriteLine($"SmartLock Enter: {ex.Message}");
+            }
+        }
+
+        private string GetStackTrace()
+        {
+            var trace = new StackTrace();
+            var threadId = Thread.CurrentThread.Name ?? "";
+            return "[" + threadId + "]" + trace.ToString().Replace('\n', '|').Replace("\r", "");
+        }
+
+        private void Exit()
+        {
+            try
+            {
+                Monitor.Exit(_lockObject);
+                _holdingTrace = "";
+            }
+            catch (Exception ex)
+            {
+                Trace.WriteLine($"SmartLock Exit: {ex.Message}");
+            }
+        }
+    }
+
     [JsonObject(MemberSerialization.OptIn)]
     public class DanceStatsInstance
     {
@@ -23,8 +114,8 @@ namespace m4dModels
         [JsonConstructor]
         public DanceStatsInstance(IEnumerable<DanceStats> tree, IEnumerable<TagType> tagTypes)
         {
-            Tree = tree.ToList();
             TagTypes = tagTypes.ToList();
+            Tree = tree.ToList();
 
             Fixup();
         }
@@ -45,18 +136,23 @@ namespace m4dModels
                 if (tt.Primary.Ring == null) tt.Primary.Ring = new List<TagType>();
                 tt.Primary.Ring.Add(tt);
             }
+
+            foreach (var ds in List)
+            {
+                ds.RebuildTopSongs(TagMap);
+            }
         }
+
+        [JsonProperty]
+        public List<TagType> TagTypes { get; set; }
+
+        public Dictionary<string, TagType> TagMap { get; private set; }
 
         [JsonProperty]
         public List<DanceStats> Tree { get; set; }
 
         public List<DanceStats> List => _flat ?? (_flat = Flatten());
         public Dictionary<string, DanceStats> Map { get; private set; }
-
-        [JsonProperty]
-        public List<TagType> TagTypes { get; set; }
-
-        public Dictionary<string, TagType> TagMap { get; private set; }
 
         public int GetScaledRating(string danceId, int weight, int scale = 5)
         {
@@ -203,18 +299,15 @@ namespace m4dModels
         #region Access
         public static DanceStatsInstance GetInstance(DanceMusicService dms)
         {
-            lock (s_lock)
-            {
-                return s_instance ?? (s_instance = LoadFromAppData()) ?? (s_instance = LoadFromStore(dms,true));
-            }
+            return s_lock.Lock(() => s_instance ?? (s_instance = LoadFromAppData()) ?? (s_instance = LoadFromStore(dms, true)));
         }
 
         public static void SetInstance(DanceStatsInstance instance)
         {
-            lock (s_lock)
+            s_lock.Lock(() =>
             {
                 s_instance = instance;
-            }
+            });
         }
 
         public static IList<DanceStats> GetFlatDanceStats(DanceMusicService dms)
@@ -230,7 +323,7 @@ namespace m4dModels
 
         #region Building
 
-        private static readonly object s_lock = new object();
+        private static readonly SmartLock s_lock = new SmartLock();
         private static DanceStatsInstance s_instance;
 
         public static void ClearCache(DanceMusicService dms = null, bool reload = false)
@@ -240,7 +333,7 @@ namespace m4dModels
             if (dms != null) instance = LoadFromStore(dms,true);
             else if (reload) instance = LoadFromAppData();
 
-            lock (s_lock)
+            s_lock.Lock(() =>
             {
                 if (reload)
                 {
@@ -255,17 +348,17 @@ namespace m4dModels
                 }
 
                 Task.Run(() => RebuildDanceStats(DanceMusicService.GetService()));
-            }
+            });
         }
 
         private static void RebuildDanceStats(DanceMusicService dms)
         {
             var instance = LoadFromStore(dms,true);
-            lock (s_lock)
+            s_lock.Lock(() =>
             {
                 s_instance = instance;
                 ClearAssociates();
-            }
+            });
         }
 
         private static void ClearAssociates()
@@ -276,7 +369,7 @@ namespace m4dModels
 
         public static void ReloadDances(DanceMusicService dms)
         {
-            lock (s_lock)
+            s_lock.Lock(() =>
             {
                 dms.Context.LoadDances();
                 foreach (var dance in dms.Dances)
@@ -290,12 +383,12 @@ namespace m4dModels
 
                 LastUpdate = DateTime.Now;
                 Source = Source + " + reload";
-            }
+            });
         }
 
         private static DanceStatsInstance LoadFromAppData()
         {
-            lock (s_lock)
+            return s_lock.Lock(() =>
             {
                 if (AppData == null) return null;
 
@@ -305,7 +398,7 @@ namespace m4dModels
                 LastUpdate = DateTime.Now;
                 Source = "AppData";
                 return DanceStatsInstance.LoadFromJson(System.IO.File.ReadAllText(path));
-            }
+            });
         }
 
         public static DanceStatsInstance LoadFromStore(DanceMusicService dms, bool save)
@@ -338,14 +431,14 @@ namespace m4dModels
 
         private static void SaveToAppData(DanceStatsInstance instance)
         {
-            lock (s_lock)
+            s_lock.Lock(() =>
             {
                 if (AppData == null) return;
 
                 var json = instance.SaveToJson();
                 var path = System.IO.Path.Combine(AppData, "dance-tag-stats.json");
-                System.IO.File.WriteAllText(path,json,Encoding.UTF8);
-            }
+                System.IO.File.WriteAllText(path, json, Encoding.UTF8);
+            });
         }
 
         private static IEnumerable<DanceStats> AzureDanceStats(DanceMusicService dms, IReadOnlyDictionary<string, TagType> tagMap,string source)
@@ -456,7 +549,7 @@ namespace m4dModels
             // TopN and MaxWeight
             var filter = dms.AzureParmsFromFilter(new SongFilter {Dances = stats.DanceId, SortOrder = "Dances"}, 10);
             DanceMusicService.AddAzureCategories(filter,"GenreTags,StyleTags,TempoTags,OtherTags",100);
-            var results = dms.AzureSearch(null, filter, DanceMusicService.CruftFilter.NoCruft, source);
+            var results = dms.AzureSearch(null, filter, DanceMusicService.CruftFilter.NoCruft, source, tagMap);
             stats.TopSongs = results.Songs;
             var song = stats.TopSongs.FirstOrDefault();
             var dr = song?.DanceRatings.FirstOrDefault(d => d.DanceId == stats.DanceId);
@@ -464,8 +557,7 @@ namespace m4dModels
             if (dr != null) stats.MaxWeight = dr.Weight;
 
             // SongTags
-            if (results.FacetResults == null) return;
-            stats.SongTags = new TagSummary(results.FacetResults,tagMap);
+            stats.SongTags = (results.FacetResults == null) ? new TagSummary() : new TagSummary(results.FacetResults,tagMap);
         }
 
         private static void AzureHandleType(DanceObject dtyp, DanceStats scGroup, IReadOnlyDictionary<string, long> tags, IReadOnlyDictionary<string, long> inferred, IReadOnlyDictionary<string, TagType> tagMap, DanceMusicService dms, string source)

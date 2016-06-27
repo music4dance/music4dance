@@ -3258,12 +3258,11 @@ namespace m4dModels
             return AzureSearch(filter.SearchString, AzureParmsFromFilter(filter, pageSize), cruft, id);
         }
 
-        public SearchResults AzureSearch(string search, SearchParameters parameters, CruftFilter cruft = CruftFilter.NoCruft, string id = "default")
+        public SearchResults AzureSearch(string search, SearchParameters parameters, CruftFilter cruft = CruftFilter.NoCruft, string id = "default", IReadOnlyDictionary<string,TagType> tagMap = null)
         {
             parameters.IncludeTotalResultCount = true;
             var response = DoAzureSearch(search,parameters,cruft,id);
-            var tagMap = TagMap;
-            var songs = response.Results.Select(d => new SongDetails(d.Document,tagMap)).ToList();
+            var songs = response.Results.Select(d => new SongDetails(d.Document,tagMap??TagMap)).ToList();
             var pageSize = parameters.Top ?? 25;
             var page = ((parameters.Skip ?? 0)/pageSize) + 1;
             var facets = response.Facets;
