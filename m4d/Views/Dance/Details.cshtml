@@ -5,12 +5,15 @@
 @model DanceStats
 
 @{
+    var defaultFilter = SearchServiceInfo.UseSql ? SongFilter.Default : SongFilter.AzureSimple;
+    var danceFilter = new SongFilter {Action = defaultFilter.Action, Dances = @Model.DanceId};
+
     ViewBag.Title = Model.DanceName + " Information, Top Ten List, and Resources.";
     ViewBag.Description = "General information about the dance" + Model.DanceName + " along with a top ten song list, preferred tempo details, and other resources.";
     ViewBag.NoSort = true;
     ViewBag.ShowTempo = true;
     ViewBag.HideDances = true;
-    ViewBag.SongFilter = new SongFilter { Action=SearchServiceInfo.UseSql?"index":"azuresearch", Dances = @Model.DanceId };
+    ViewBag.SongFilter = danceFilter;
 
     var description = @"<p>We're busy doing research and pulling together a general description for " + Model.DanceName + @".  Please check back later for more info.</p>";
     if (!string.IsNullOrWhiteSpace(Model.Description))
@@ -64,7 +67,7 @@
         {
         <a href="#references" class="list-group-item">References</a>
         }
-        @Html.ActionLink("All " + @Model.DanceName + " Songs", "search", "song", new { dances = @Model.DanceId }, new {@class="list-group-item"})
+        @Html.ActionLink("All " + @Model.DanceName + " Songs", "index", "song", new { filter = @danceFilter }, new {@class="list-group-item"})
         @if (tags.Count > 0)
         {
         <a href="#tags" class="list-group-item">Tags</a>
@@ -82,20 +85,20 @@
             <section id="tempo-info">
                 @if (@Model.Parent != null && Model.DanceObject.Meter.Numerator != 1)
                 {
-                var info = Model.DanceObject;
-                var tempo = info.TempoRange;
-                var oneTempo = tempo.Min == tempo.Max;
-                var bpmMin = tempo.Min*info.Meter.Numerator;
-                var bpmMax = tempo.Max*info.Meter.Numerator;
-                var rangeText = (oneTempo) ? "at" : "between";
-                var bpmText = bpmMin.ToString(CultureInfo.CurrentCulture) + (oneTempo ? string.Empty : " and " + bpmMax.ToString(CultureInfo.CurrentCulture)) + " beats per minute";
-                var mpmText = tempo.MinString + (oneTempo ? string.Empty : " and " + tempo.MaxString) + " measures per mintue";
+                    var info = Model.DanceObject;
+                    var tempo = info.TempoRange;
+                    var oneTempo = tempo.Min == tempo.Max;
+                    var bpmMin = tempo.Min*info.Meter.Numerator - (oneTempo?0.5m:0);
+                    var bpmMax = tempo.Max*info.Meter.Numerator + (oneTempo ? 0.5m : 0);
+                    var rangeText = (oneTempo) ? "at" : "between";
+                    var bpmText = bpmMin.ToString(CultureInfo.CurrentCulture) + (oneTempo ? string.Empty : " and " + bpmMax.ToString(CultureInfo.CurrentCulture)) + " beats per minute";
+                    var mpmText = tempo.MinString + (oneTempo ? string.Empty : " and " + tempo.MaxString) + " measures per mintue";
                 <hr />
                 <h4>Tempo Information</h4>
                 <p class="big-text">
                     The @Model.DanceName is generally danced to music in a @info.Meter Meter
                     @rangeText @mpmText (@bpmText)
-                    . @Html.ActionLink("Click here", "advancedsearch", "song", new {dances = @Model.DanceId, tempomin = @bpmMin, tempomax = @bpmMax}, null) to see a list of @Model.DanceName songs @rangeText @bpmText.
+                    . @Html.ActionLink("Click here", "advancedsearch", "song", new {dances = @Model.DanceId, tempomin = @bpmMin, tempomax = @bpmMax, filter=@defaultFilter}, null) to see a list of @Model.DanceName songs @rangeText @bpmText.
                 </p>
                 <dl>
                     @SmartLink.TempiTool()
@@ -110,7 +113,7 @@
 {
     <section id="top-ten">
         <div>
-            <h3>@Html.ActionLink("music4dance's", "Index", "Home") top 10 songs for dancing @Html.ActionLink(@Model.DanceName, "Search", "Song", new {dances = @Model.DanceId}, null)</h3>
+            <h3>@Html.ActionLink("music4dance's", "Index", "Home") top 10 songs for dancing @Html.ActionLink(@Model.DanceName, "index", "song", new {filter = @Model.DanceId}, null)</h3>
         </div>
         <div>
             @{Html.RenderPartial("_ListSongs", @Model.TopSongs, ViewData);}
@@ -123,7 +126,7 @@
     </section>
 
     <div>
-        <p class="big-text">@Html.ActionLink("Browse", "search", "song", new { dances = @Model.DanceId }, null) all <b>@Model.SongCount</b> @Model.DanceName songs in the music4dance @Html.ActionLink("catalog", "index", "song").</p>
+        <p class="big-text">@Html.ActionLink("Browse", "index", "song", new { filter = @danceFilter }, null) all <b>@Model.SongCount</b> @Model.DanceName songs in the music4dance @Html.ActionLink("catalog", "index", "song" , new {filter=@defaultFilter}, null).</p>
     </div>
 }
 
