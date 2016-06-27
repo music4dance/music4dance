@@ -1095,7 +1095,7 @@ namespace m4d.Controllers
         [Authorize(Roles = "canEdit")]
         public ActionResult CleanMusicServices(Guid id, SongFilter filter = null)
         {
-            var song = Database.FindSong(id, User.Identity.Name);
+            var song = Database.FindSong(id);
             if (song == null)
             {
                 return ReturnError(HttpStatusCode.NotFound, $"The song with id = {id} has been deleted.");

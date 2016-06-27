@@ -763,7 +763,7 @@ namespace m4dModels
 
             var result = new UndoResult { Original = entry };
 
-            var song = FindSong(entry.SongReference, entry.SongSignature);
+            var song = FindSong(entry.SongReference);
 
             if (song == null)
             {
@@ -885,7 +885,7 @@ namespace m4dModels
             {
                 case SongBase.DeleteCommand:
                 case SongBase.EditCommand:
-                    song = FindSong(log.SongReference, log.SongSignature);
+                    song = FindSong(log.SongReference);
                     break;
                 case SongBase.MergeCommand:
                 case SongBase.CreateCommand:
@@ -1050,31 +1050,25 @@ namespace m4dModels
         #endregion
 
         #region Song Lookup
-        public Song FindSong(Guid id, string signature = null)
+        public Song FindSong(Guid id)
         {
-            // First find a match id
-            //Song song = _context.Songs.Find(id);
             var song = _context.Songs.Where(s => s.SongId == id).Include("DanceRatings").Include("ModifiedBy").Include("SongProperties").FirstOrDefault();
-
-            // TODO: Think about signature mis-matches, we can't do the straighforward fail on mis-match because
-            //  we're using this for edit and it's perfectly reasonable to edit parts of the sig...
-            // || !(string.IsNullOrWhiteSpace(signature) || song.IsNull || MatchSigatures(signature,song.Signature))
-            if (song == null && signature != null)
-            {
-                song = FindSongBySignature(signature);
-            }
 
             if (song == null)
             {
                 Trace.WriteLineIf(TraceLevels.General.TraceVerbose,
-                    $"Couldn't find song by Id: {id} or signature {signature}");
+                    $"Couldn't find song by Id: {id}");
             }
 
             return song;
         }
 
-        public SongDetails FindSongDetails(Guid id, string userName = null, bool showDiagnostics=false)
+        public SongDetails FindSongDetails(Guid id, string userName = null, bool showDiagnostics = false)
         {
+            // TODO: In order to replace songdetails with azure loading we'll have to implement the ability
+            //  to load the user tags from the properties (or rewrite the front end to manage this)
+            //if (SearchServiceInfo.UseSql)
+            //{
             var song = FindSong(id);
 
             if (song == null) return null;
@@ -1085,6 +1079,24 @@ namespace m4dModels
             }
 
             return new SongDetails(song, userName, this);
+            //}
+
+            //var info = SearchServiceInfo.GetInfo();
+
+            //using (var serviceClient = new SearchServiceClient(info.Name, new SearchCredentials(info.AdminKey)))
+            //using (var indexClient = serviceClient.Indexes.GetClient(info.Index))
+            //{
+            //    try
+            //    {
+            //        var doc = indexClient.Documents.Get(id.ToString(), new[] {"Properties"});
+            //        return doc == null ? null : new SongDetails(doc["Properties"] as string, TagMap);
+            //    }
+            //    catch (Microsoft.Rest.Azure.CloudException e)
+            //    {
+            //        Trace.WriteLineIf(TraceLevels.General.TraceVerbose, e.Message);
+            //        return null;
+            //    }
+            //}
         }
 
         public SongDetails FindMergedSong(Guid id, string userName = null)
@@ -1101,14 +1113,6 @@ namespace m4dModels
 
                 id = property.SongId;
             }
-        }
-
-
-        private Song FindSongBySignature(string signature)
-        {
-            var song = _context.Songs.FirstOrDefault(s => s.Signature == signature);
-
-            return song;
         }
 
         private IEnumerable<Song> SongsFromList(string list)
