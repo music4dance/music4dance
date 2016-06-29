@@ -46,11 +46,15 @@ namespace m4d.Controllers
             }
 
             HelpPage = "dance-details";
-            var ds = stats.FromName(dance);
+
+            // TODONEXT: TopSongs are cached, which means the the likes aren't going to be propagated
+            //  in a timely fashion withough refreshings something somewhere:  Playing with Charlie/Samba
+
+            var ds = stats.FromName(dance, User.Identity.Name);
 
             if (ds == null) return ReturnError(HttpStatusCode.NotFound, $"The dance with the name = {dance} isn't defined.");
 
-            SetupLikes(ds.TopSongs,ds.DanceId);
+            //SetupLikes(ds.TopSongs,ds.DanceId);
 
             return View("details", ds);
         }

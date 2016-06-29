@@ -87,6 +87,15 @@ namespace m4dModels
         [JsonProperty]
         public DanceGroup DanceGroup => DanceObject as DanceGroup;
 
+        public Dance Dance => new Dance
+        {
+            Id = DanceId,
+            Description = Description,
+            MaxWeight = MaxWeight,
+            DanceLinks = DanceLinks,
+            SongCount = (int) SongCount,
+            SongTags = SongTags
+        };
 
         public IEnumerable<DanceInstance> CompetitionDances { get; private set; }
 
@@ -122,9 +131,24 @@ namespace m4dModels
             }
         }
 
-        public void RebuildTopSongs(Dictionary<string, TagType> tagMap)
+        public void RebuildTopSongs(DanceStatsInstance danceStats)
         {
-            TopSongs = TopSongs?.Select(s => new SongDetails(s.Serialize(null), tagMap)).ToList();
+            TopSongs = TopSongs?.Select(s => new SongDetails(s.Serialize(null), danceStats)).ToList();
+        }
+
+        public DanceStats CloneForUser(string userName, DanceStatsInstance danceStats)
+        {
+            return new DanceStats
+            {
+                Description = Description,
+                SongCount = SongCount,
+                MaxWeight = MaxWeight,
+                SongTags = SongTags,
+                DanceObject = DanceObject,
+                Parent = Parent,
+                Children = Children,
+                TopSongs = TopSongs?.Select(s => new SongDetails(s.SongId, s.Serialize(null), danceStats, userName)).ToList()
+            };
         }
     }
 }

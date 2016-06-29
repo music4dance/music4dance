@@ -301,7 +301,7 @@ namespace m4dModels
 
             var mrg = new List<SongProperty>(upd.Skip(c));
 
-            UpdateProperties(mrg,dms.TagMap);
+            UpdateProperties(mrg,dms.DanceStats);
             UpdateFromService(dms);
 
             UpdatePurchaseInfo(update);
@@ -314,9 +314,9 @@ namespace m4dModels
             return true;
         }
 
-        public void UpdateProperties(ICollection<SongProperty> properties, IReadOnlyDictionary<string,TagType> tagMap, string[] excluded = null)
+        public void UpdateProperties(ICollection<SongProperty> properties, DanceStatsInstance stats, string[] excluded = null)
         {
-            LoadProperties(properties, tagMap);
+            LoadProperties(properties, stats);
 
             foreach (var prop in properties.Where(prop => excluded == null || !excluded.Contains(prop.BaseName)))
             {
@@ -327,7 +327,7 @@ namespace m4dModels
         public bool UpdateTagSummaries(DanceMusicService dms)
         {
             var changed = false;
-            var delta = new SongDetails(SongId,SongProperties,dms.TagMap);
+            var delta = new SongDetails(SongId,SongProperties,dms.DanceStats);
             if (!Equals(TagSummary.Summary, delta.TagSummary.Summary))
             {
                 changed = UpdateTagSummary(delta.TagSummary);
@@ -1665,7 +1665,7 @@ namespace m4dModels
 
         public void Load(string s, DanceMusicService dms)
         {
-            var sd = new SongDetails(s,dms?.TagMap);
+            var sd = new SongDetails(s,dms?.DanceStats);
 
             if (sd.SongId == new Guid(_guidMatch))
             {

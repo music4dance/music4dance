@@ -259,7 +259,7 @@ namespace m4dModels.Tests
             var user = service.FindUser("dwgray");
 
             IList<string> headers = SongDetails.BuildHeaderMap(header);
-            var ret = SongDetails.CreateFromRows(user,"\t",headers,rows,service.TagMap,5);
+            var ret = SongDetails.CreateFromRows(user,"\t",headers,rows,service.DanceStats,5);
 
             Assert.AreEqual(rows.Count, ret.Count+dups);
             return ret;

@@ -1516,7 +1516,7 @@ namespace m4d.Controllers
 
             var headerList = !string.IsNullOrWhiteSpace(headers) ? SongDetails.BuildHeaderMap(headers, ',') : HeaderFromList(CleanSeparator(separator), lines);
 
-            var newSongs = SongDetails.CreateFromRows(appuser, separator, headerList, lines, Database.TagMap, SongBase.DanceRatingCreate);
+            var newSongs = SongDetails.CreateFromRows(appuser, separator, headerList, lines, Database.DanceStats, SongBase.DanceRatingCreate);
 
             var hasArtist = false;
             if (!string.IsNullOrEmpty(artist))
@@ -2294,14 +2294,14 @@ namespace m4d.Controllers
 
         private IList<SongDetails> SongsFromTracks(ApplicationUser user, IEnumerable<ServiceTrack> tracks, string dances, string songTags, string danceTags)
         {
-            return tracks.Where(track => !string.IsNullOrEmpty(track.Artist)).Select(track => SongDetails.CreateFromTrack(user, track, dances, songTags, danceTags, Database.TagMap)).ToList();
+            return tracks.Where(track => !string.IsNullOrEmpty(track.Artist)).Select(track => SongDetails.CreateFromTrack(user, track, dances, songTags, danceTags, Database.DanceStats)).ToList();
         }
 
         private IList<SongDetails> SongsFromFile(ApplicationUser user, IList<string> lines)
         {
             var map = SongDetails.BuildHeaderMap(lines[0]);
             lines.RemoveAt(0);
-            return SongDetails.CreateFromRows(user, "\t", map, lines, Database.TagMap, SongBase.DanceRatingCreate);
+            return SongDetails.CreateFromRows(user, "\t", map, lines, Database.DanceStats, SongBase.DanceRatingCreate);
         }
 
         List<string> UploadFile() 

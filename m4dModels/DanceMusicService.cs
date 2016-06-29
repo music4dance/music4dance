@@ -297,7 +297,7 @@ namespace m4dModels
             // Add in the properties for all of the songs and then delete them
             foreach (var from in songs)
             {
-                song.UpdateProperties(from.SongProperties, TagMap, new[] { SongBase.FailedLookup, SongBase.AlbumField, SongBase.TrackField, SongBase.PublisherField, SongBase.PurchaseField });
+                song.UpdateProperties(from.SongProperties, DanceStats, new[] { SongBase.FailedLookup, SongBase.AlbumField, SongBase.TrackField, SongBase.PublisherField, SongBase.PurchaseField });
                 RemoveSong(from, user);
             }
             song.UpdateFromService(this);
@@ -974,7 +974,7 @@ namespace m4dModels
             song.CreateEditProperties(entry.User,command,this,entry.Time);
             DoRestoreValues(song, entry, action);
 
-            var sd = new SongDetails(song.SongId, song.SongProperties,TagMap);
+            var sd = new SongDetails(song.SongId, song.SongProperties,DanceStats);
             song.RestoreScalar(sd);
             song.UpdateUsers(this);
 
@@ -1004,7 +1004,7 @@ namespace m4dModels
                 throw new ArgumentOutOfRangeException(nameof(song), @"Attempting to restore a song that hasn't been deleted");
             }
             song.CreateEditProperties(user, SongBase.DeleteCommand + "=false", this);
-            var sd = new SongDetails(song.SongId, song.SongProperties,TagMap);
+            var sd = new SongDetails(song.SongId, song.SongProperties,DanceStats);
             song.Restore(sd, this);
             song.UpdateUsers(this);
         }
@@ -1065,38 +1065,43 @@ namespace m4dModels
 
         public SongDetails FindSongDetails(Guid id, string userName = null, bool showDiagnostics = false)
         {
+            if (string.IsNullOrEmpty(userName)) userName = null;
+
             // TODO: In order to replace songdetails with azure loading we'll have to implement the ability
             //  to load the user tags from the properties (or rewrite the front end to manage this)
-            //if (SearchServiceInfo.UseSql)
-            //{
-            var song = FindSong(id);
-
-            if (song == null) return null;
-
-            if (showDiagnostics)
+            if (SearchServiceInfo.UseSql)
             {
-                song.LoadTags(this);
+                var song = FindSong(id);
+
+                if (song == null) return null;
+
+                if (showDiagnostics)
+                {
+                    song.LoadTags(this);
+                }
+
+                return new SongDetails(song, userName, this);
             }
 
-            return new SongDetails(song, userName, this);
-            //}
+            var info = SearchServiceInfo.GetInfo();
 
-            //var info = SearchServiceInfo.GetInfo();
+            using (var serviceClient = new SearchServiceClient(info.Name, new SearchCredentials(info.AdminKey)))
+            using (var indexClient = serviceClient.Indexes.GetClient(info.Index))
+            {
+                try
+                {
+                    var doc = indexClient.Documents.Get(id.ToString(), new[] {"Properties" });
+                    if (doc == null) return null;
 
-            //using (var serviceClient = new SearchServiceClient(info.Name, new SearchCredentials(info.AdminKey)))
-            //using (var indexClient = serviceClient.Indexes.GetClient(info.Index))
-            //{
-            //    try
-            //    {
-            //        var doc = indexClient.Documents.Get(id.ToString(), new[] {"Properties"});
-            //        return doc == null ? null : new SongDetails(doc["Properties"] as string, TagMap);
-            //    }
-            //    catch (Microsoft.Rest.Azure.CloudException e)
-            //    {
-            //        Trace.WriteLineIf(TraceLevels.General.TraceVerbose, e.Message);
-            //        return null;
-            //    }
-            //}
+                    var details = new SongDetails(id,doc["Properties"] as string, DanceStats, userName);
+                    return details;
+                }
+                catch (Microsoft.Rest.Azure.CloudException e)
+                {
+                    Trace.WriteLineIf(TraceLevels.General.TraceVerbose, e.Message);
+                    return null;
+                }
+            }
         }
 
         public SongDetails FindMergedSong(Guid id, string userName = null)
@@ -1801,6 +1806,8 @@ namespace m4dModels
 
         public IReadOnlyDictionary<string, TagType> TagMap => DanceStatsManager.GetInstance(this).TagMap;
 
+        public DanceStatsInstance DanceStats => DanceStatsManager.GetInstance(this);
+
         public TagType FindOrCreateTagType(string tag)
         {
             // Create a transitory TagType just for the parsing
@@ -2386,7 +2393,7 @@ namespace m4dModels
                 lines.RemoveAt(0);
             }
 
-            var tagMap = TagMap;
+            var danceStats = DanceStats;
             var c = 0;
             foreach (var line in lines)
             {
@@ -2395,7 +2402,7 @@ namespace m4dModels
 
                 AdminMonitor.UpdateTask("UpdateSongs", c);
 
-                var sd = new SongDetails(line,tagMap);
+                var sd = new SongDetails(line,danceStats);
                 var song = FindSong(sd.SongId);
 
                 if (song == null)
@@ -3262,11 +3269,11 @@ namespace m4dModels
             return AzureSearch(filter.SearchString, AzureParmsFromFilter(filter, pageSize), cruft, id);
         }
 
-        public SearchResults AzureSearch(string search, SearchParameters parameters, CruftFilter cruft = CruftFilter.NoCruft, string id = "default", IReadOnlyDictionary<string,TagType> tagMap = null)
+        public SearchResults AzureSearch(string search, SearchParameters parameters, CruftFilter cruft = CruftFilter.NoCruft, string id = "default", DanceStatsInstance stats = null)
         {
             parameters.IncludeTotalResultCount = true;
             var response = DoAzureSearch(search,parameters,cruft,id);
-            var songs = response.Results.Select(d => new SongDetails(d.Document,tagMap??TagMap)).ToList();
+            var songs = response.Results.Select(d => new SongDetails(d.Document,stats)).ToList();
             var pageSize = parameters.Top ?? 25;
             var page = ((parameters.Skip ?? 0)/pageSize) + 1;
             var facets = response.Facets;

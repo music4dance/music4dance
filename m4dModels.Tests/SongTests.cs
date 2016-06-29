@@ -250,7 +250,7 @@ namespace m4dModels.Tests
             var user = Service.UserManager.FindByName("dwgray");
             var header = new List<string> { "Title", "Artist", "DanceRating", "DanceTags:Style", "SongTags:Other"};
             var row = new List<string> { @"Would It Not Be Nice	Beach Boys	Swing	Modern	Wedding" };
-            var merge = SongDetails.CreateFromRows(user, "\t", header, row, Service.TagMap, SongBase.DanceRatingIncrement)[0];
+            var merge = SongDetails.CreateFromRows(user, "\t", header, row, Service.DanceStats, SongBase.DanceRatingIncrement)[0];
             merge.Tempo = 123;
             merge.InferDances(user);
 

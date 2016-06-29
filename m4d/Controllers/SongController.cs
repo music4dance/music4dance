@@ -145,7 +145,7 @@ namespace m4d.Controllers
                 filter.SearchString, p, 
                 HttpContext.User.IsInRole(DanceMusicService.EditRole) ? DanceMusicService.CruftFilter.AllCruft : DanceMusicService.CruftFilter.NoCruft,
                 "default",
-                Database.TagMap);
+                Database.DanceStats);
             BuildDanceList();
             ViewBag.SongFilter = filter;
 

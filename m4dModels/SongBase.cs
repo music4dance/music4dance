@@ -139,7 +139,7 @@ namespace m4dModels
             return Serialize(null);
         }
 
-        protected void LoadProperties(ICollection<SongProperty> properties, IReadOnlyDictionary<string, TagType> tagMap) 
+        protected void LoadProperties(ICollection<SongProperty> properties, DanceStatsInstance stats) 
         {
             var created = SongProperties != null && SongProperties.Count > 0;
             ApplicationUser currentUser = null;
@@ -174,7 +174,7 @@ namespace m4dModels
                         }
                         else
                         {
-                            AddObjectTags(prop.DanceQualifier, prop.Value, tagMap);
+                            AddObjectTags(prop.DanceQualifier, prop.Value, stats?.TagMap);
                         }
                         break;
                     case RemovedTags:
@@ -184,7 +184,7 @@ namespace m4dModels
                         }
                         else
                         {
-                            RemoveObjectTags(prop.DanceQualifier, prop.Value, tagMap);
+                            RemoveObjectTags(prop.DanceQualifier, prop.Value, stats?.TagMap);
                         }
                         break;
                     case AlbumField:
@@ -220,18 +220,6 @@ namespace m4dModels
                             currentModified.Like = prop.ObjectValue as bool?;
                         }
                         break;
-                    //case DanceabilityField:
-                    //    Danceability = prop.ObjectValue as float?;
-                    //    break;
-                    //case EnergyField:
-                    //    Energy = prop.ObjectValue as float?;
-                    //    break;
-                    //case ValenceFiled:
-                    //    Valence = prop.ObjectValue as float?;
-                    //    break;
-                    //case SampleField:
-                    //    Sample = prop.Value;
-                    //    break;
                     default:
                         // All of the simple properties we can just set
                         if (!prop.IsAction)
@@ -649,30 +637,33 @@ namespace m4dModels
 
         public TagList GetUserTags(ApplicationUser user)
         {
-            var userName = user.UserName;
+            return GetUserTags(user.UserName);
+        }
 
+        public TagList GetUserTags(string userName, string danceId = null)
+        {
             // Build the tags from the properties
             var acc = new TagList();
+            if (string.IsNullOrEmpty(userName)) return acc;
+
             string cu = null;
             foreach (var prop in OrderedProperties)
             {
-                // NOTE: This works because we're switching on the full name, not the
-                //  basename, so this gets the user tags for the song, not the dances
                 // ReSharper disable once SwitchStatementMissingSomeCases
-                switch (prop.Name)
+                switch (prop.BaseName)
                 {
                     case UserField:
                     case UserProxy:
                         cu = prop.Value;
                         break;
                     case AddedTags:
-                        if (userName.Equals(cu))
+                        if (userName.Equals(cu) && prop.DanceQualifier == danceId)
                         {
                             acc = acc.Add(new TagList(prop.Value));
                         }
                         break;
                     case RemovedTags:
-                        if (userName.Equals(cu))
+                        if (userName.Equals(cu) && prop.DanceQualifier == danceId)
                         {
                             acc = acc.Subtract(new TagList(prop.Value));
                         }
