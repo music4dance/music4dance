@@ -56,11 +56,24 @@ namespace m4dModels
 
         public UserManager<ApplicationUser> UserManager { get; }
 
-        public int SaveChanges()
+        public int SaveChanges(IEnumerable<SongBase> songs = null)
         {
-            return _context.SaveChanges();
+            var ret =  _context.SaveChanges();
+            if (ret == 0 || songs == null) return ret;
+
+            UpdateTopSongs(songs);
+            return ret;
         }
 
+        public void UpdateTopSongs(IEnumerable<SongBase> songs = null)
+        {
+            if (songs == null) return;
+
+            foreach (var song in songs)
+            {
+                DanceStats.UpdateSong(song, this);
+            }
+        }
         public static readonly string EditRole = "canEdit";
         public static readonly string TagRole = "canTag";
         public static readonly string DiagRole = "showDiagnostics";
@@ -194,7 +207,7 @@ namespace m4dModels
 
             if (song.CurrentLog != null)
                 _context.Log.Add(song.CurrentLog);
-            SaveChanges();
+            SaveChanges(new[] { song });
             return true;
         }
 
@@ -215,7 +228,7 @@ namespace m4dModels
 
             if (song.CurrentLog != null)
                 _context.Log.Add(song.CurrentLog);
-            SaveChanges();
+            SaveChanges(new [] {song});
             return true;
         }
 
@@ -327,7 +340,7 @@ namespace m4dModels
             if (createLog)
                 LogSongCommand(SongBase.DeleteCommand, song, user);
             RemoveSong(song,user);
-            SaveChanges();
+            SaveChanges(new [] {song});
         }
 
         private void RemoveSong(Song song, ApplicationUser user)
@@ -730,7 +743,7 @@ namespace m4dModels
             // And finally, get rid of the undo entires and save the changes
             Context.Log.RemoveRange(logs);
 
-            SaveChanges();
+            SaveChanges(new [] { song } );
         }
         private UndoResult UndoEntry(ApplicationUser user, SongLog entry, bool doLog = false, string maskCommand = null)
         {

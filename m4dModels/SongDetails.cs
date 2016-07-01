@@ -121,7 +121,7 @@ namespace m4dModels
             SongProperty.Load(SongId, s, properties);
             Load(SongId, properties, stats);
 
-            if (forSerialization) SetupSerialization(userName, stats);
+            if (forSerialization && stats != null) SetupSerialization(userName, stats);
 
             if (userName == null) return;
             _currentUserTags = GetUserTags(userName);

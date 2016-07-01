@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Net;
 using System.Web;
 using System.Web.Mvc;
@@ -157,14 +158,15 @@ namespace m4d.Controllers
             return SpiderManager.CheckBadSpiders(Request.UserAgent) ? View("BotWarning") : null;
         }
 
-        protected void UpdateAndEnqueue()
+        protected void UpdateAndEnqueue(IEnumerable<SongBase> songs = null)
         {
-            Database.SaveChanges();
+            Database.SaveChanges(songs);
             IndexUpdater.Enqueue();
         }
 
-        protected void Enqueue()
+        protected void Enqueue(IEnumerable<SongBase> songs = null)
         {
+            Database.UpdateTopSongs(songs);
             IndexUpdater.Enqueue();
         }
 

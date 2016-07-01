@@ -262,6 +262,27 @@ namespace m4dModels
             TagTypes.Insert(index,tt);
         }
 
+        public void UpdateSong(SongBase song, DanceMusicService dms)
+        {
+            if (_topSongs == null) _topSongs = new HashSet<Guid>(List.SelectMany(d => d.TopSongs??new List<SongDetails>()).Select(s => s.SongId));
+
+            if (!_topSongs.Contains(song.SongId)) return;
+
+            var sd = song.IsNull ? null : (song as SongDetails)??new SongDetails(song,null,dms);
+
+            foreach (var d in List)
+            {
+                var songs = d.TopSongs as List<SongDetails>;
+                if (songs == null) continue;
+                var idx = songs.FindIndex(s => s.SongId == song.SongId);
+                if (idx == -1) continue;
+                if (sd != null)
+                    songs[idx] = sd;
+                else
+                    songs.RemoveAt(idx);
+            }
+        }
+
         internal List<DanceType> GetDanceTypes()
         {
             return List.Where(s => s.DanceType != null).Select(s => s.DanceType).ToList();
@@ -295,6 +316,7 @@ namespace m4dModels
         }
 
         private List<DanceStats> _flat;
+        private HashSet<Guid> _topSongs;
     }
 
     public class DanceStatsManager
