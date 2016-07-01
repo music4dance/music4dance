@@ -56,6 +56,13 @@ namespace m4dModels
 
         public UserManager<ApplicationUser> UserManager { get; }
 
+        // TODONEXT: Verify that calling this works...
+        public void UpdateAndEnqueue(IEnumerable<SongBase> songs = null)
+        {
+            SaveChanges(songs);
+            IndexUpdater.Enqueue();
+        }
+
         public int SaveChanges(IEnumerable<SongBase> songs = null)
         {
             var ret =  _context.SaveChanges();
@@ -207,7 +214,7 @@ namespace m4dModels
 
             if (song.CurrentLog != null)
                 _context.Log.Add(song.CurrentLog);
-            SaveChanges(new[] { song });
+            UpdateAndEnqueue(new[] { song });
             return true;
         }
 
@@ -228,7 +235,7 @@ namespace m4dModels
 
             if (song.CurrentLog != null)
                 _context.Log.Add(song.CurrentLog);
-            SaveChanges(new [] {song});
+            UpdateAndEnqueue(new [] {song});
             return true;
         }
 
@@ -340,7 +347,7 @@ namespace m4dModels
             if (createLog)
                 LogSongCommand(SongBase.DeleteCommand, song, user);
             RemoveSong(song,user);
-            SaveChanges(new [] {song});
+            UpdateAndEnqueue(new [] {song});
         }
 
         private void RemoveSong(Song song, ApplicationUser user)
@@ -743,7 +750,7 @@ namespace m4dModels
             // And finally, get rid of the undo entires and save the changes
             Context.Log.RemoveRange(logs);
 
-            SaveChanges(new [] { song } );
+            UpdateAndEnqueue(new [] { song } );
         }
         private UndoResult UndoEntry(ApplicationUser user, SongLog entry, bool doLog = false, string maskCommand = null)
         {
