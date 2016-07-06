@@ -190,6 +190,8 @@ namespace m4dModels
 
             Load(properties,dms);
 
+            Modified = DateTime.Now;
+
             return true;
         }
 
@@ -1665,7 +1667,7 @@ namespace m4dModels
 
         public void Load(string s, DanceMusicService dms)
         {
-            var sd = new SongDetails(s,dms?.DanceStats);
+            var sd = new SongDetails(s,dms?.DanceStats,null,false);
 
             if (sd.SongId == new Guid(_guidMatch))
             {

@@ -93,6 +93,11 @@ namespace m4dModels
             Load(songId, properties, stats);
         }
 
+        public SongDetails(SongBase s, DanceStatsInstance stats, string userName = null, bool forSerialization = true)
+        {
+            Init(s.SongId, SongProperty.Serialize(s.OrderedProperties,null), stats, userName, forSerialization);
+        }
+
         public SongDetails(Guid guid, string s, DanceStatsInstance stats, string userName = null, bool forSerialization = true)
         {
             Init(guid,s,stats,userName,forSerialization);

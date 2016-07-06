@@ -1,11 +1,8 @@
-﻿// TODONEXT: Get the test working
-//  Verify dancestats builT from azure get tag counts building from azure - do we cache these off as json as well? Same file or different?
-
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Data.SqlTypes;
 using System.Diagnostics;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -262,13 +259,15 @@ namespace m4dModels
             TagTypes.Insert(index,tt);
         }
 
+
         public void UpdateSong(SongBase song, DanceMusicService dms)
         {
-            if (_topSongs == null) _topSongs = new HashSet<Guid>(List.SelectMany(d => d.TopSongs??new List<SongDetails>()).Select(s => s.SongId));
 
-            if (!_topSongs.Contains(song.SongId)) return;
+            if (!TopSongs.ContainsKey(song.SongId)) return;
 
             var sd = song.IsNull ? null : (song as SongDetails)??new SongDetails(song,null,dms);
+
+            TopSongs[song.SongId] = sd;
 
             foreach (var d in List)
             {
@@ -281,6 +280,13 @@ namespace m4dModels
                 else
                     songs.RemoveAt(idx);
             }
+        }
+
+        public SongDetails FindSongDetails(Guid songId, string userName)
+        {
+            var sd = TopSongs.GetValueOrDefault(songId);
+            if (sd == null) return null;
+            return (userName == null) ? sd : new SongDetails(sd, this, userName);
         }
 
         internal List<DanceType> GetDanceTypes()
@@ -315,8 +321,10 @@ namespace m4dModels
             return flat;
         }
 
+        private Dictionary<Guid,SongDetails> TopSongs => _topSongs ?? (_topSongs = new Dictionary<Guid,SongDetails>(List.SelectMany(d => d.TopSongs ?? new List<SongBase>()).Select(s => (s as SongDetails)??new SongDetails(s,this)).DistinctBy(s => s.SongId).ToDictionary(s => s.SongId)));
+
         private List<DanceStats> _flat;
-        private HashSet<Guid> _topSongs;
+        private Dictionary<Guid,SongDetails> _topSongs;
     }
 
     public class DanceStatsManager

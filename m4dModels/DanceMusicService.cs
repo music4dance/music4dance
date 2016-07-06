@@ -703,15 +703,10 @@ namespace m4dModels
         {
             var song = Songs.Find(songId);
 
-            // First update the song
+            // TODO:Remove
             var logs = Context.Log.Where(l => l.User.Id == user.Id && l.SongReference == songId).OrderByDescending(l => l.Id).ToList();
 
-            foreach (var log in logs)
-            {
-                UndoEntry(user, log);
-            }
-
-            // Then delete the songprops since they should have a net null effect at this point
+            // Delete the songprops
             SongProperty lastCommand = null;
             var props = new List<SongProperty>();
             var collect = false;
@@ -743,10 +738,9 @@ namespace m4dModels
                 prop.SongId = Guid.Empty;
             }
 
-            // Then remove the modified reference
-            var mr = song.ModifiedBy.FirstOrDefault(m => m.ApplicationUser == user);
-            if (mr != null) song.ModifiedBy.Remove(mr);
+            AdminEditSong(song, song.Serialize(null));
 
+            // TODO:Remove
             // And finally, get rid of the undo entires and save the changes
             Context.Log.RemoveRange(logs);
 
@@ -1087,8 +1081,9 @@ namespace m4dModels
         {
             if (string.IsNullOrEmpty(userName)) userName = null;
 
-            // TODO: In order to replace songdetails with azure loading we'll have to implement the ability
-            //  to load the user tags from the properties (or rewrite the front end to manage this)
+            var sd = DanceStats.FindSongDetails(id,userName);
+            if (sd != null) return sd;
+
             if (SearchServiceInfo.UseSql)
             {
                 var song = FindSong(id);

@@ -111,6 +111,7 @@
     <Compile Include="BatchInfo.cs" />
     <Compile Include="IndexUpdater.cs" />
     <Compile Include="LikeDictionarycs.cs" />
+    <Compile Include="LinqExtensions.cs" />
     <Compile Include="LocalMerger.cs" />
     <Compile Include="MergeCluster.cs" />
     <Compile Include="MusicServiceStub.cs" />
