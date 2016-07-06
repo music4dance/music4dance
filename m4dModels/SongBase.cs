@@ -297,13 +297,6 @@ namespace m4dModels
         public bool HasSample => Sample != null && Sample != ".";
         public bool HasEchoNest => Danceability != null && !float.IsNaN(Danceability.Value);
 
-        public virtual SongLog CurrentLog
-        {
-            get { return null; }
-            // ReSharper disable once ValueParameterNotUsed
-            set { }
-        }
-
         public string AlbumName => new AlbumTrack(Album).Album;
 
         public int TrackNumber  => new AlbumTrack(Album).Track;
@@ -589,7 +582,7 @@ namespace m4dModels
             var tags = list?.ToString();
             if (!string.IsNullOrWhiteSpace(tags))
             {
-                CreateProperty(command, tags, CurrentLog, dms);
+                CreateProperty(command, tags, dms);
             }
         }
 
@@ -782,11 +775,11 @@ namespace m4dModels
             ModifiedBy.Add(mr);
             return mr;
         }
-        protected virtual SongProperty CreateProperty(string name, object value, SongLog log, DanceMusicService dms)
+        protected virtual SongProperty CreateProperty(string name, object value, DanceMusicService dms)
         {
-            return CreateProperty(name, value, null, log, dms);
+            return CreateProperty(name, value, null, dms);
         }
-        protected virtual SongProperty CreateProperty(string name, object value, object old, SongLog log, DanceMusicService dms)
+        protected virtual SongProperty CreateProperty(string name, object value, object old, DanceMusicService dms)
         {
             if (SongProperties == null)
             {

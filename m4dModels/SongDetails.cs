@@ -129,7 +129,9 @@ namespace m4dModels
             if (forSerialization && stats != null) SetupSerialization(userName, stats);
 
             if (userName == null) return;
+
             _currentUserTags = GetUserTags(userName);
+            _currentUserLike = ModifiedBy.FirstOrDefault(mr => mr.UserName == userName)?.Like;
         }
 
         public SongDetails(string title, string artist, decimal? tempo, int? length, IList<AlbumDetails> albums)

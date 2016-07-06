@@ -13,10 +13,6 @@ namespace m4dModels
         #region Properties
         public int TitleHash { get; set; }
 
-        // These are helper properties (they don't map to database columns)
-
-        public override SongLog CurrentLog { get; set; }
-
         #endregion
 
         #region Actions
@@ -25,12 +21,9 @@ namespace m4dModels
         {
             var time = DateTime.Now;
             
-            var log = CurrentLog;
-            log?.Initialize(user, this, command);
-
             if (!string.IsNullOrWhiteSpace(command))
             {
-                CreateProperty(command, value, null, log, dms);
+                CreateProperty(command, value, null, dms);
             }
 
             Created = time;
@@ -39,13 +32,12 @@ namespace m4dModels
             if (!addUser || user == null) return;
 
             AddUser(user, dms);
-            CreateProperty(UserField, user.UserName, null, log, dms);
-            CreateProperty(TimeField, time.ToString(CultureInfo.InvariantCulture), null, log, dms);
+            CreateProperty(UserField, user.UserName, null, dms);
+            CreateProperty(TimeField, time.ToString(CultureInfo.InvariantCulture), null, dms);
         }
 
         public void Create(SongDetails sd, IEnumerable<UserTag> tags, ApplicationUser user, string command, string value, DanceMusicService dms)
         {
-            var log = CurrentLog;
             var addUser = !(sd.ModifiedBy != null && sd.ModifiedList.Count > 0 && AddUser(sd.ModifiedList[0].UserName, dms));
 
             Create(user, command, value, addUser, dms);
@@ -57,10 +49,10 @@ namespace m4dModels
                 var mr = ModifiedBy.First();
                 mr.Owned = sd.ModifiedList[0].Owned;
 
-                CreateProperty(UserField, mr.UserName, null, log, dms);
-                CreateProperty(TimeField, Created.ToString(CultureInfo.InvariantCulture), null, log, dms);
+                CreateProperty(UserField, mr.UserName, null, dms);
+                CreateProperty(TimeField, Created.ToString(CultureInfo.InvariantCulture), null, dms);
                 if (mr.Owned.HasValue)
-                    CreateProperty(OwnerHash, mr.Owned, null, log, dms);
+                    CreateProperty(OwnerHash, mr.Owned, null, dms);
             }
 
             Debug.Assert(!string.IsNullOrWhiteSpace(sd.Title));
@@ -70,7 +62,7 @@ namespace m4dModels
                 if (prop == null) continue;
 
                 pi.SetValue(this, prop);
-                CreateProperty(pi.Name, prop, null, log, dms);
+                CreateProperty(pi.Name, prop, null, dms);
             }
 
             if (tags == null)
@@ -122,7 +114,7 @@ namespace m4dModels
                 if (old != null)
                 {
                     // We're in existing album territory
-                    modified |= album.ModifyInfo(dms, this, old, CurrentLog);
+                    modified |= album.ModifyInfo(dms, this, old);
                     oldAlbums.Remove(old);
                 }
                 else
@@ -130,7 +122,7 @@ namespace m4dModels
                     // We're in new territory only do something if the name field is non-empty
                     if (string.IsNullOrWhiteSpace(album.Name)) continue;
 
-                    album.CreateProperties(dms, this, CurrentLog);
+                    album.CreateProperties(dms, this);
                     modified = true;
                 }
             }
@@ -139,7 +131,7 @@ namespace m4dModels
             foreach (var album in oldAlbums)
             {
                 modified = true;
-                album.Remove(dms, this, CurrentLog);
+                album.Remove(dms, this);
             }
 
             // Now check order and insert a re-order record if they aren't line up...
@@ -166,7 +158,7 @@ namespace m4dModels
             {
                 return modified;
             }
-            CreateProperty(AlbumOrder, temp, null, CurrentLog, dms);
+            CreateProperty(AlbumOrder, temp, null, dms);
 
             return true;
         }
@@ -235,7 +227,7 @@ namespace m4dModels
             CreateEditProperties(modrec.ApplicationUser,EditCommand,dms);
             var lt = modrec.LikeString;
             modrec.Like = like;
-            CreateProperty(LikeTag, modrec.LikeString, lt, CurrentLog, dms);
+            CreateProperty(LikeTag, modrec.LikeString, lt, dms);
             return true;
         }
 
@@ -390,14 +382,14 @@ namespace m4dModels
                 if (old != null)
                 {
                     // We're in existing album territory
-                    modified |= album.UpdateInfo(dms, this, old, CurrentLog);
+                    modified |= album.UpdateInfo(dms, this, old);
                 }
                 else
                 {
                     // We're in new territory only do something if the name field is non-empty
                     if (string.IsNullOrWhiteSpace(album.Name)) continue;
 
-                    album.CreateProperties(dms, this, CurrentLog);
+                    album.CreateProperties(dms, this);
                     modified = true;
                 }
             }
@@ -462,7 +454,7 @@ namespace m4dModels
                 var mr = ModifiedBy.FirstOrDefault(m => m.ApplicationUserId == user.Id);
                 if (mr != null && mr.Like != like)
                 {
-                    CreateProperty(LikeTag, lt, mr.LikeString,CurrentLog, dms);
+                    CreateProperty(LikeTag, lt, mr.LikeString, dms);
                     mr.Like = like;
                     modified = true;
                 }
@@ -530,7 +522,7 @@ namespace m4dModels
                 var u = mr.ApplicationUser;
 
                 // Add the user property into the SongProperties
-                var userProp = CreateProperty(UserProxy, u.UserName, CurrentLog, dms);
+                var userProp = CreateProperty(UserProxy, u.UserName, dms);
 
                 // Back out any top-level tags related to the dance styles
                 var songTags = FindUserTag(u, dms);
@@ -557,16 +549,12 @@ namespace m4dModels
             // If any other user 
             if (lastUser.UserName != user.UserName)
             {
-                CreateProperty(UserProxy, user.UserName, CurrentLog, dms);
+                CreateProperty(UserProxy, user.UserName, dms);
             }
 
-            foreach (var rating in ratings)
+            foreach (var r in ratings.Select(rating => new DanceRatingDelta {DanceId = rating.DanceId, Delta = -rating.Weight}))
             {
-                var r = new DanceRatingDelta {DanceId = rating.DanceId, Delta = -rating.Weight};
                 UpdateDanceRating(r, true);
-
-                // TODO: Should we push the log update further down?
-                CurrentLog?.UpdateData(DanceRatingField,r.ToString());
             }
 
             return true;
@@ -625,7 +613,7 @@ namespace m4dModels
             if (mrN == null || (!force && !mrN.Owned.HasValue) || (mr.Owned == mrN.Owned)) return false;
 
             mr.Owned = mrN.Owned;
-            CreateProperty(OwnerHash, mr.Owned, CurrentLog, dms);
+            CreateProperty(OwnerHash, mr.Owned, dms);
             return true;
         }
 
@@ -652,7 +640,7 @@ namespace m4dModels
                 {
                     if (AddUser(us.ApplicationUser, dms))
                     {
-                        CreateProperty(UserField, us.ApplicationUser.UserName, null, CurrentLog, dms);
+                        CreateProperty(UserField, us.ApplicationUser.UserName, null, dms);
                     }
                 }
 
@@ -698,7 +686,7 @@ namespace m4dModels
 
                 var value = new DanceRatingDelta { DanceId = dance.Key, Delta = dance.Value }.ToString();
 
-                CreateProperty(DanceRatingField, value, null, CurrentLog, dms);
+                CreateProperty(DanceRatingField, value, null, dms);
             }
 
         }
@@ -712,7 +700,7 @@ namespace m4dModels
 
             GetType().GetProperty(name).SetValue(this, eP);
 
-            CreateProperty(name, eP, oP, CurrentLog, dms);
+            CreateProperty(name, eP, oP, dms);
 
             return true;
         }
@@ -728,7 +716,7 @@ namespace m4dModels
                 return false;
 
             GetType().GetProperty(name).SetValue(this, eP);
-            CreateProperty(name, eP, null, CurrentLog, dms);
+            CreateProperty(name, eP, null, dms);
 
             return true;
         }
@@ -740,16 +728,16 @@ namespace m4dModels
 
             return o;
         }
-        protected override SongProperty CreateProperty(string name, object value, object old, SongLog log, DanceMusicService dms)
+        protected override SongProperty CreateProperty(string name, object value, object old, DanceMusicService dms)
         {
             SongProperty prop = null;
             if (dms != null)
             {
-                prop = dms.CreateSongProperty(this, name, value, old, log);
+                prop = dms.CreateSongProperty(this, name, value, old);
             }
             else
             {
-                base.CreateProperty(name, value, old, log, null);
+                base.CreateProperty(name, value, old, null);
             }
 
             return prop;
@@ -852,7 +840,7 @@ namespace m4dModels
                     Album = albums[0].AlbumTrack;
                 }
 
-                ad.CreateProperties(dms, this, CurrentLog);
+                ad.CreateProperties(dms, this);
             }
         }
 
@@ -899,7 +887,6 @@ namespace m4dModels
                 CreateProperty(
                     DanceRatingField,
                     new DanceRatingDelta { DanceId = dr.DanceId, Delta = dr.Weight }.ToString(),
-                    CurrentLog,
                     dms
                 );
             }
@@ -910,8 +897,6 @@ namespace m4dModels
         //  TODO: Ought to be able to refactor both of these into one that calls the other
         public bool EditDanceRatings(IEnumerable<DanceRatingDelta> deltas, DanceMusicService dms)
         {
-            var log = CurrentLog;
-
             foreach (var drd in deltas)
             {
                 var valid = true;
@@ -949,7 +934,7 @@ namespace m4dModels
 
                 if (valid)
                 {
-                    dms.CreateSongProperty(this, DanceRatingField, drd.ToString(), log);
+                    dms.CreateSongProperty(this, DanceRatingField, drd.ToString());
                 }
             }
             return true;
@@ -964,8 +949,6 @@ namespace m4dModels
             {
                 DanceRatings = new List<DanceRating>();
             }
-
-            var log = CurrentLog;
 
             var changed = false;
 
@@ -1011,7 +994,7 @@ namespace m4dModels
 
                 dr.Weight += delta;
 
-                CreateProperty(DanceRatingField, new DanceRatingDelta { DanceId = dr.DanceId, Delta = delta }.ToString(), log, dms);
+                CreateProperty(DanceRatingField, new DanceRatingDelta { DanceId = dr.DanceId, Delta = delta }.ToString(), dms);
 
                 changed = true;
             }
@@ -1034,8 +1017,7 @@ namespace m4dModels
                     CreateProperty(
                         DanceRatingField,
                         new DanceRatingDelta { DanceId = ndr, Delta = DanceRatingInitial }.ToString(),
-                        log, dms
-                        );
+                        dms);
 
                     changed = true;
                 }
@@ -1663,16 +1645,16 @@ namespace m4dModels
         #region Serialization
         // ReSharper disable once ConvertToConstant.Local
         // ReSharper disable once FieldCanBeMadeReadOnly.Local
-        static string _guidMatch = "d40817d45b68427d86e989fa21773b48";
+        //static string _guidMatch = "d40817d45b68427d86e989fa21773b48";
 
         public void Load(string s, DanceMusicService dms)
         {
             var sd = new SongDetails(s,dms?.DanceStats,null,false);
 
-            if (sd.SongId == new Guid(_guidMatch))
-            {
-                Trace.WriteLine("This is the bad one?");
-            }
+            //if (sd.SongId == new Guid(_guidMatch))
+            //{
+            //    Trace.WriteLine("This is the bad one?");
+            //}
 
             Restore(sd, dms);
             UpdateUsers(dms);

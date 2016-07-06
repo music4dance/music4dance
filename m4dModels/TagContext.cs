@@ -28,11 +28,6 @@ namespace m4dModels
 
         public DbSet<TagType> TagTypes { get; set; }
 
-        public DbSet<SongLog> Log
-        {
-            get { throw new NotImplementedException(); }
-        }
-
         public DbSet<ModifiedRecord> Modified
         {
             get { throw new NotImplementedException(); }

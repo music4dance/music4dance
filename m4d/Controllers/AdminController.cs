@@ -175,7 +175,7 @@ namespace m4d.Controllers
                 if (artist == null) continue;
 
                 var sd = new SongDetails(song) {Artist = artist};
-                Database.EditSong(user, sd, null, false);
+                Database.EditSong(user, sd, null);
                 count += 1;
             }
             Database.SaveChanges();
@@ -347,7 +347,7 @@ namespace m4d.Controllers
 
                 if (ngs.Count > 0)
                 {
-                    Database.UpdateDances(batch, song, ngs.Values, false);
+                    Database.UpdateDances(batch, song, ngs.Values);
                 }
             }
 
@@ -409,7 +409,7 @@ namespace m4d.Controllers
 
                 if (nts.Count > 0)
                 {
-                    Database.UpdateDances(batch, song, nts, false);
+                    Database.UpdateDances(batch, song, nts);
                 }
             }
 
@@ -1265,7 +1265,7 @@ namespace m4d.Controllers
                     
                 if (m.Right != null)
                 {
-                    var add = Database.AdditiveMerge(user, m.Right.SongId, sd, null, false);
+                    var add = Database.AdditiveMerge(user, m.Right.SongId, sd, null);
                     if (add)
                     {
                         m.Right = Database.FindSongDetails(m.Right.SongId,user.UserName);
@@ -1276,7 +1276,7 @@ namespace m4d.Controllers
                 // Otherwise add it
                 else
                 {
-                    var add = Database.CreateSong(user, sd, null, SongBase.CreateCommand, null, false);
+                    var add = Database.CreateSong(user, sd, null, SongBase.CreateCommand, null);
                     if (add != null)
                     {
                         Database.Songs.Add(add);

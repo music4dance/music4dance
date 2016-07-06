@@ -599,8 +599,10 @@ namespace m4d.Controllers
                 {
                     UpdateAndEnqueue(new[] {edit});
 
-                    // TODO: Need to figure out a cleaner way to make editsong return a fully hydrated songdetails before save happens (for batch mode)
+                    // TODONEXT: We should have the code to do this - if we make the DanceStats cache hold all recent songs, this might just fall out
+                    // Need to figure out a cleaner way to make editsong return a fully hydrated songdetails before save happens (for batch mode)
                     //  Possibly get SongDetails constructor to hydrate CurrentUser tags from properties collection rather than going to the db?
+                    // After that we can start migrating to SongDetails as the primary
                     edit = Database.FindSongDetails(edit.SongId, user.UserName);
 
                     ViewBag.BackAction = "Index";
@@ -1416,7 +1418,7 @@ namespace m4d.Controllers
                         if (track == null)
                         {
                             song.Danceability = float.NaN;
-                            if (Database.EditSong(user, sd, null, false) != null)
+                            if (Database.EditSong(user, sd, null) != null)
                             {
                                 failed.Add(song);
                             }
@@ -1453,7 +1455,7 @@ namespace m4d.Controllers
                             };
                             }
 
-                            if (Database.EditSong(user, sd, tags, false) != null)
+                            if (Database.EditSong(user, sd, tags) != null)
                             {
                                 succeeded.Add(song);
                             }

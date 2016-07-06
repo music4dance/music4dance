@@ -109,7 +109,6 @@ namespace m4d.Context
         public DbSet<TopN> TopNs { get; set; }
         public DbSet<Tag> Tags { get; set; }
         public DbSet<TagType> TagTypes { get; set; }
-        public DbSet<SongLog> Log { get; set; }
         public DbSet<ModifiedRecord> Modified { get; set; }
         public DbSet<Search> Searches { get; set; }
 
@@ -126,7 +125,6 @@ namespace m4d.Context
             modelBuilder.Properties<DateTime>().Configure(c => c.HasColumnType("datetime2"));
 
             modelBuilder.Entity<Song>().Property(song => song.Tempo).HasPrecision(6, 2);
-            modelBuilder.Entity<Song>().Ignore(song => song.CurrentLog);
             modelBuilder.Entity<Song>().Ignore(song => song.AlbumName);
 
             modelBuilder.Entity<Dance>().Property(dance => dance.Id).HasMaxLength(5);
@@ -245,7 +243,6 @@ namespace m4d.Context
             RemoveEntities<DanceRating>();
             RemoveEntities<Tag>();
             RemoveEntities<ModifiedRecord>();
-            RemoveEntities<SongLog>();
         }
 
         // TODO: Figure out if there is a type-safe way to do this...
@@ -269,9 +266,6 @@ namespace m4d.Context
                         break;
                     case "ModifiedRecord":
                         RemoveEntities<ModifiedRecord>();
-                        break;
-                    case "SongLog":
-                        RemoveEntities<SongLog>();
                         break;
                     case "TopN":
                         RemoveEntities<TopN>();

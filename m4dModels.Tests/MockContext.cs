@@ -56,7 +56,6 @@ namespace m4dModels.Tests
             Tags = new TagSet();
             TagTypes = new TagTypeSet();
             Searches = new SearchSet();
-            Log = new TestDbSet<SongLog>();
             Modified = new TestDbSet<ModifiedRecord>();
             Users = new ApplicationUserSet();
             Roles = new TestDbSet<IdentityRole>();
@@ -97,8 +96,6 @@ namespace m4dModels.Tests
         public DbSet<Tag> Tags { get; set; }
 
         public DbSet<TagType> TagTypes { get; set; }
-
-        public DbSet<SongLog> Log { get; set; }
 
         public DbSet<ModifiedRecord> Modified { get; set; }
 

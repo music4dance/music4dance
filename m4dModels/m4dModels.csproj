@@ -135,8 +135,6 @@
     <Compile Include="DanceRating.cs" />
     <Compile Include="DbObject.cs" />
     <Compile Include="ITunesService.cs" />
-    <Compile Include="LogBase.cs" />
-    <Compile Include="LogValue.cs" />
     <Compile Include="ModifiedRecord.cs" />
     <Compile Include="MusicService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -146,7 +144,6 @@
     <Compile Include="SongBase.cs" />
     <Compile Include="SongDetails.cs" />
     <Compile Include="SongFilter.cs" />
-    <Compile Include="SongLog.cs" />
     <Compile Include="SongMerge.cs" />
     <Compile Include="SongProperty.cs" />
     <Compile Include="AlbumTrack.cs" />
@@ -162,7 +159,6 @@
     <Compile Include="TraceLevels.cs" />
     <Compile Include="TrackNumber.cs" />
     <Compile Include="UndoAction.cs" />
-    <Compile Include="UndoResult.cs" />
     <Compile Include="UserQuery.cs" />
     <Compile Include="UserTag.cs" />
     <Compile Include="XboxService.cs" />
