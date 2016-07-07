@@ -131,7 +131,7 @@ namespace m4d.Controllers
 
         private ActionResult DoAzureSearch(SongFilter filter)
         {
-            HelpPage = filter.IsSimple ? "simple-search" : "full-search";
+            HelpPage = filter.IsSimple ? "song-list" : "advanced-search";
 
             if (!filter.IsEmptyPaged && SpiderManager.CheckAnySpiders(Request.UserAgent))
             {
