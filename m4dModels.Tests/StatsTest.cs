@@ -13,7 +13,7 @@ namespace m4dModels.Tests
         {
             var json = File.ReadAllText(@".\TestData\dancestatistics.txt");
 
-            var instance = DanceStatsInstance.LoadFromJson(json,true);
+            var instance = DanceStatsInstance.LoadFromJson(json);
             DanceStatsManager.SetInstance(instance);
             Assert.IsNotNull(instance);
 

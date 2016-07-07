@@ -599,10 +599,7 @@ namespace m4d.Controllers
                 {
                     UpdateAndEnqueue(new[] {edit});
 
-                    // TODONEXT: We should have the code to do this - if we make the DanceStats cache hold all recent songs, this might just fall out
-                    // Need to figure out a cleaner way to make editsong return a fully hydrated songdetails before save happens (for batch mode)
-                    //  Possibly get SongDetails constructor to hydrate CurrentUser tags from properties collection rather than going to the db?
-                    // After that we can start migrating to SongDetails as the primary
+                    // This should be a quick round-trip to hydrate with the user details
                     edit = Database.FindSongDetails(edit.SongId, user.UserName);
 
                     ViewBag.BackAction = "Index";

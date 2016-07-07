@@ -225,7 +225,7 @@ namespace m4dModels
             var stats = List.FirstOrDefault(sc => string.Equals(sc.SeoName, name));
             return (userName == null) ? stats : stats?.CloneForUser(userName,this);
         }
-        public static DanceStatsInstance LoadFromJson(string json, bool resetDances = false)
+        public static DanceStatsInstance LoadFromJson(string json)
         {
             var settings = new JsonSerializerSettings
             {
@@ -235,7 +235,7 @@ namespace m4dModels
 
             var instance = JsonConvert.DeserializeObject<DanceStatsInstance>(json,settings);
 
-            if (resetDances) Dances.Reset(Dances.Load(instance.GetDanceTypes(), instance.GetDanceGroups()));
+            Dances.Reset(Dances.Load(instance.GetDanceTypes(), instance.GetDanceGroups()));
 
             return instance;
         }
@@ -262,10 +262,12 @@ namespace m4dModels
 
         public void UpdateSong(SongBase song, DanceMusicService dms)
         {
-
-            if (!TopSongs.ContainsKey(song.SongId)) return;
-
-            var sd = song.IsNull ? null : (song as SongDetails)??new SongDetails(song,null,dms);
+            var sd = song.IsNull ? null : (song as SongDetails) ?? new SongDetails(song, null, dms);
+            if (!TopSongs.ContainsKey(song.SongId))
+            {
+                _otherSongs[song.SongId] = sd;
+                return;
+            }
 
             TopSongs[song.SongId] = sd;
 
@@ -284,7 +286,7 @@ namespace m4dModels
 
         public SongDetails FindSongDetails(Guid songId, string userName)
         {
-            var sd = TopSongs.GetValueOrDefault(songId);
+            var sd = TopSongs.GetValueOrDefault(songId) ?? _otherSongs.GetValueOrDefault(songId);
             if (sd == null) return null;
             return (userName == null) ? sd : new SongDetails(sd, this, userName);
         }
@@ -322,6 +324,7 @@ namespace m4dModels
         }
 
         private Dictionary<Guid,SongDetails> TopSongs => _topSongs ?? (_topSongs = new Dictionary<Guid,SongDetails>(List.SelectMany(d => d.TopSongs ?? new List<SongBase>()).Select(s => (s as SongDetails)??new SongDetails(s,this)).DistinctBy(s => s.SongId).ToDictionary(s => s.SongId)));
+        private Dictionary<Guid, SongDetails> _otherSongs = new Dictionary<Guid, SongDetails>();
 
         private List<DanceStats> _flat;
         private Dictionary<Guid,SongDetails> _topSongs;

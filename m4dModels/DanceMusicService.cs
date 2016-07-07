@@ -55,7 +55,6 @@ namespace m4dModels
 
         public UserManager<ApplicationUser> UserManager { get; }
 
-        // TODONEXT: Verify that calling this works...
         public void UpdateAndEnqueue(IEnumerable<SongBase> songs = null)
         {
             SaveChanges(songs);
@@ -80,6 +79,7 @@ namespace m4dModels
                 DanceStats.UpdateSong(song, this);
             }
         }
+
         public static readonly string EditRole = "canEdit";
         public static readonly string TagRole = "canTag";
         public static readonly string DiagRole = "showDiagnostics";
@@ -2785,10 +2785,12 @@ namespace m4dModels
                         if (!song.IsNull)
                         {
                             songs.Add(new SongDetails(song).GetIndexDocument());
+                            DanceStats.UpdateSong(song,this);
                         }
                         else if (exists)
                         {
                             deleted.Add(new SongDetails(song).GetIndexDocument());
+                            DanceStats.UpdateSong(song, this);
                         }
                         skip += 1;
                     }
