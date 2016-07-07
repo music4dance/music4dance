@@ -11,6 +11,8 @@ namespace m4dModels.Tests
     {
         public static DanceMusicService CreateService(bool seedUsers)
         {
+            // TODO: Hopefully we can load from json at some point
+            SearchServiceInfo.UseSql = true;
             var context = new MockContext(seedUsers);
             var umanager = new UserManager<ApplicationUser>(new MockUserStore(context));
             var service = new DanceMusicService(context, umanager);
@@ -54,7 +56,6 @@ namespace m4dModels.Tests
             Tags = new TagSet();
             TagTypes = new TagTypeSet();
             Searches = new SearchSet();
-            Log = new TestDbSet<SongLog>();
             Modified = new TestDbSet<ModifiedRecord>();
             Users = new ApplicationUserSet();
             Roles = new TestDbSet<IdentityRole>();
@@ -95,8 +96,6 @@ namespace m4dModels.Tests
         public DbSet<Tag> Tags { get; set; }
 
         public DbSet<TagType> TagTypes { get; set; }
-
-        public DbSet<SongLog> Log { get; set; }
 
         public DbSet<ModifiedRecord> Modified { get; set; }
 

@@ -24,22 +24,21 @@ namespace m4dModels
         {
             TagSummary = new TagSummary();
         }
+
         public abstract char IdModifier { get; }
-        public abstract string TagIdBase {get;}
+        public abstract string TagIdBase { get; }
 
         [DataMember]
         public string TagId
         {
-            get
-            {
-                return $"{IdModifier}:{TagIdBase}";
-            }
+            get { return $"{IdModifier}:{TagIdBase}"; }
             set
             {
                 throw new NotImplementedException(
                     "If we hit this it means we're trying to deserialize a Taggable object - Not sure we want to do this");
             }
         }
+
         [DataMember]
         public TagSummary TagSummary { get; set; }
 
@@ -48,7 +47,8 @@ namespace m4dModels
         public IList<Tag> Tags { get; set; }
 
         // Override this to register changed tags per user for your class (for instance song would push in song properties)
-        public virtual void RegisterChangedTags(TagList added, TagList removed, ApplicationUser user, DanceMusicService dms, object data)
+        public virtual void RegisterChangedTags(TagList added, TagList removed, ApplicationUser user,
+            DanceMusicService dms, object data)
         {
             //Trace.WriteLineIf(TraceLevels.General.TraceVerbose, string.Format("{0}:{1} - added={2};removed={3}", 
             //    user.UserName, TagId, added == null ? "(null)" : added.ToString(), removed == null ? "removed" : removed.ToString()));
@@ -56,10 +56,35 @@ namespace m4dModels
 
         // Add any tags from tags that haven't already been added by the user and return a list of
         // the actually added tags in canonical form
-        virtual public TagList AddTags(string tags, ApplicationUser user, DanceMusicService dms = null, object data = null, bool updateTypes=true)
+        public virtual TagList AddTags(string tags, ApplicationUser user, DanceMusicService dms = null,
+            object data = null, bool updateTypes = true)
         {
             var added = VerifyTags(tags);
             return added == null ? null : AddTags(added, user, dms, data, updateTypes);
+        }
+
+        public TagList AddTags(string tags, IReadOnlyDictionary<string, TagType> tagMap)
+        {
+            return AddTags(VerifyTags(tags), tagMap);
+        }
+
+        public TagList AddTags(TagList tags, IReadOnlyDictionary<string, TagType> tagMap)
+        {
+            var ring = tagMap == null ? tags : ConvertToRing(tags, tagMap);
+            TagSummary.ChangeTags(ring, null);
+            return ring;
+        }
+
+        public TagList RemoveTags(string tags, IReadOnlyDictionary<string, TagType> tagMap)
+        {
+            return RemoveTags(VerifyTags(tags), tagMap);
+        }
+
+        public TagList RemoveTags(TagList tags, IReadOnlyDictionary<string, TagType> tagMap)
+        {
+            var ring = tagMap == null ? tags : ConvertToRing(tags, tagMap);
+            TagSummary.ChangeTags(null,ring);
+            return ring;
         }
 
         public virtual TagList AddTags(TagList tags, ApplicationUser user, DanceMusicService dms = null, object data = null, bool updateTypes = true)
@@ -203,6 +228,7 @@ namespace m4dModels
             RegisterChangedTags(added, removed, user, dms, data);
         }
 
+
         // TODO: Think about if we need both implementations (dms and stand-alone);
         private static void UpdateTagTypes(TagList added, TagList removed, DanceMusicService dms)
         {
@@ -315,12 +341,21 @@ namespace m4dModels
             }
 
             var changed = ts.Summary != TagSummary.Summary;
-            if (changed && TraceLevels.General.TraceVerbose)
+            if (changed)
             {
-                Trace.WriteLine($"{TagId}: {ts.Summary} - {TagSummary.Summary}");
+                Trace.WriteLineIf(TraceLevels.General.TraceVerbose,$"{TagId}: {ts.Summary} - {TagSummary.Summary}");
             }
 
             return changed;
+        }
+
+        public bool UpdateTagSummary(TagSummary newSummary)
+        {
+            if (newSummary.Summary == TagSummary.Summary) return false;
+
+            TagSummary = newSummary;
+
+            return true;
         }
 
         private void UpdateUserTag(Tag tag, DanceMusicService dms)
@@ -379,6 +414,12 @@ namespace m4dModels
 
             return (dms == null) ? tags : 
                 new TagList(tags.Tags.Select(t => (dms.TagTypes.Find(t)??new TagType{Key=t}).GetPrimary()).Select(tt => tt.Key).Distinct().ToList());
+        }
+
+        private static TagList ConvertToRing(TagList tags, IReadOnlyDictionary<string,TagType> tagMap)
+        {
+            return tags == null ? null : 
+                new TagList(tags.Tags.Select(t => (tagMap.GetValueOrDefault(t.ToLower()) ?? new TagType { Key = t }).GetPrimary()).Select(tt => tt.Key).Distinct().ToList());
         }
     }
 }

@@ -2,25 +2,31 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Newtonsoft.Json;
 
 namespace m4dModels
 {
+    [JsonObject(MemberSerialization.OptIn)]
     public class TagType
     {
         #region Properties
+        [JsonProperty]
         public string Key { get; set; }
         // The user visible tag
         public string Value => Key.Substring(0, Key.IndexOf(':'));
 
+        [JsonProperty]
         public DateTime Modified { get; set; }
 
         // A single tag category/namespace
         public string Category => Key.Substring(Key.IndexOf(':')+1);
 
-        // The total number of refernces to this tag
+        // The total number of references to this tag
+        [JsonProperty]
         public int Count { get; set; }
 
         // For tag rings, point to the 'primary' variation of the tag
+        [JsonProperty]
         public string PrimaryId { get; set; }
         public virtual TagType Primary {get; set;}
         public virtual ICollection<TagType> Ring {get; set;}

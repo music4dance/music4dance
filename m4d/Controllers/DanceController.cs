@@ -46,7 +46,8 @@ namespace m4d.Controllers
             }
 
             HelpPage = "dance-details";
-            var ds = stats.FromName(dance);
+
+            var ds = stats.FromName(dance, User.Identity.Name);
 
             if (ds == null) return ReturnError(HttpStatusCode.NotFound, $"The dance with the name = {dance} isn't defined.");
 

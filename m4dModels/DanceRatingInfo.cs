@@ -11,13 +11,32 @@ namespace m4dModels
         {
         }
 
-        public DanceRatingInfo(DanceRating dr, ApplicationUser user, DanceMusicService dms)
+        private DanceRatingInfo(DanceRating dr)
         {
             DanceId = dr.DanceId;
             SongId = dr.SongId;
             Weight = dr.Weight;
             TagSummary = dr.TagSummary;
-            var stats = DanceStatsManager.GetInstance(dms);
+        }
+
+        public DanceRatingInfo(DanceRating dr, ApplicationUser user, DanceMusicService dms) : this(dr)
+        {
+            Init(DanceStatsManager.GetInstance(dms));
+
+            if (user != null)
+            {
+                SetCurrentUserTags(user, dms);
+            }
+        }
+
+        public DanceRatingInfo(DanceRating dr, TagList userTags, DanceStatsInstance stats) : this(dr)
+        {
+            Init(stats);
+            _currentUserTags = userTags;
+        }
+
+        private void Init(DanceStatsInstance stats)
+        {
             var sc = stats.FromId(DanceId);
 
             if (sc != null)
@@ -27,11 +46,6 @@ namespace m4dModels
             }
 
             Badge = stats.GetRatingBadge(DanceId, Weight);
-
-            if (user != null)
-            {
-                SetCurrentUserTags(user, dms);
-            }
         }
 
         [DataMember]

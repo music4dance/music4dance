@@ -101,9 +101,19 @@ namespace m4dModels
                 object ret = null;
                 switch (BaseName)
                 {
+                    case "SongId":
+                        if (!string.IsNullOrEmpty(Value))
+                        {
+                            Guid id;
+                            if (Guid.TryParse(Value, out id))
+                            {
+                                ret = id;
+                            }
+                        }
+                        break;
                     case SongBase.TempoField:
                         // decimal
-                        if (Value != null)
+                        if (!string.IsNullOrEmpty(Value))
                         {
                             decimal v;
                             decimal.TryParse(Value, out v);
@@ -114,7 +124,7 @@ namespace m4dModels
                     case SongBase.ValenceFiled:
                     case SongBase.EnergyField:
                         // float
-                        if (Value != null)
+                        if (!string.IsNullOrEmpty(Value))
                         {
                             float v;
                             float.TryParse(Value, out v);
@@ -125,7 +135,7 @@ namespace m4dModels
                     case SongBase.TrackField:
                     case SongBase.DanceRatingField:
                         //int
-                        if (Value != null)
+                        if (!string.IsNullOrEmpty(Value))
                         {
                             int v;
                             int.TryParse(Value, out v);

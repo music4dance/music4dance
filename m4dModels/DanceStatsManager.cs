@@ -1,10 +1,10 @@
-﻿// TODONEXT: Verify dancestats builT from azure get tag counts building from azure - do we cache these off as json as well? Same file or different?
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using DanceLibrary;
 using Microsoft.Azure.Search.Models;
@@ -12,11 +12,150 @@ using Newtonsoft.Json;
 
 namespace m4dModels
 {
+    public class SmartLock
+    {
+        private readonly object _lockObject = new object();
+        private string _holdingTrace = "";
+
+        private static readonly int WARN_TIMEOUT_MS = 5000; //5 secs
+
+        public void Lock(Action action)
+        {
+            try
+            {
+                Enter();
+                action.Invoke();
+            }
+            catch (Exception ex)
+            {
+                Trace.WriteLine($"SmartLock Lock action: {ex.Message}");
+            }
+            finally
+            {
+                Exit();
+            }
+        }
+
+        public TResult Lock<TResult>(Func<TResult> action)
+        {
+            
+            try
+            {
+                Enter();
+                return action.Invoke();
+            }
+            catch (Exception ex)
+            {
+                Trace.WriteLine($"SmartLock Lock action: {ex.Message}");
+                return default(TResult);
+            }
+            finally
+            {
+                Exit();
+            }
+        }
+
+        private void Enter()
+        {
+            try
+            {
+                var locked = false;
+                var timeoutMs = 0;
+                while (!locked)
+                {
+                    //keep trying to get the lock, and warn if not accessible after timeout
+                    locked = Monitor.TryEnter(_lockObject, WARN_TIMEOUT_MS);
+                    if (!locked)
+                    {
+                        timeoutMs += WARN_TIMEOUT_MS;
+                        Trace.WriteLine("Lock held: " + (timeoutMs / 1000) + " secs by " + _holdingTrace + " requested by " + GetStackTrace());
+                    }
+                }
+
+                //save a stack trace for the code that is holding the lock
+                _holdingTrace = GetStackTrace();
+            }
+            catch (Exception ex)
+            {
+                Trace.WriteLine($"SmartLock Enter: {ex.Message}");
+            }
+        }
+
+        private string GetStackTrace()
+        {
+            var trace = new StackTrace();
+            var threadId = Thread.CurrentThread.Name ?? "";
+            return "[" + threadId + "]" + trace.ToString().Replace('\n', '|').Replace("\r", "");
+        }
+
+        private void Exit()
+        {
+            try
+            {
+                Monitor.Exit(_lockObject);
+                _holdingTrace = "";
+            }
+            catch (Exception ex)
+            {
+                Trace.WriteLine($"SmartLock Exit: {ex.Message}");
+            }
+        }
+    }
+
+    [JsonObject(MemberSerialization.OptIn)]
     public class DanceStatsInstance
     {
+        public DanceStatsInstance(IEnumerable<TagType> tagTypes)
+        {
+            TagTypes = (tagTypes as List<TagType>)?.ToList();
+            FixupTags();
+        }
+
+        [JsonConstructor]
+        public DanceStatsInstance(IEnumerable<DanceStats> tree, IEnumerable<TagType> tagTypes)
+        {
+            TagTypes = tagTypes.ToList();
+            Tree = tree.ToList();
+
+            FixupTags();
+            FixupStats();
+        }
+
+        public void FixupStats()
+        {
+            foreach (var d in Tree)
+            {
+                d.SetParents();
+            }
+            Map = List.ToDictionary(ds => ds.DanceId);
+
+            foreach (var ds in List)
+            {
+                ds.RebuildTopSongs(this);
+            }
+        }
+
+        public void FixupTags() { 
+            TagMap = TagTypes.ToDictionary(tt => tt.Key.ToLower());
+
+            foreach (var tt in TagTypes.Where(tt => !string.IsNullOrEmpty(tt.PrimaryId)))
+            {
+                tt.Primary = TagMap[tt.PrimaryId.ToLower()];
+                if (tt.Primary.Ring == null) tt.Primary.Ring = new List<TagType>();
+                tt.Primary.Ring.Add(tt);
+            }
+        }
+
+        [JsonProperty]
+        public List<TagType> TagTypes { get; set; }
+
+        public Dictionary<string, TagType> TagMap { get; private set; }
+
+        [JsonProperty]
         public List<DanceStats> Tree { get; set; }
+
         public List<DanceStats> List => _flat ?? (_flat = Flatten());
-        public Dictionary<string, DanceStats> Map => _map ?? (_map = List.ToDictionary(ds => ds.DanceId));
+        public Dictionary<string, DanceStats> Map { get; private set; }
 
         public int GetScaledRating(string danceId, int weight, int scale = 5)
         {
@@ -79,12 +218,14 @@ namespace m4dModels
             return null;
         }
 
-        public DanceStats FromName(string name)
+        public DanceStats FromName(string name, string userName = null)
         {
+            if (string.IsNullOrEmpty(userName)) userName = null;
             name = DanceObject.SeoFriendly(name);
-            return List.FirstOrDefault(sc => string.Equals(sc.SeoName, name));
+            var stats = List.FirstOrDefault(sc => string.Equals(sc.SeoName, name));
+            return (userName == null) ? stats : stats?.CloneForUser(userName,this);
         }
-        public static DanceStatsInstance LoadFromJson(string json, bool resetDances = false)
+        public static DanceStatsInstance LoadFromJson(string json)
         {
             var settings = new JsonSerializerSettings
             {
@@ -92,27 +233,62 @@ namespace m4dModels
                 DefaultValueHandling = DefaultValueHandling.Ignore
             };
 
-            var tree = JsonConvert.DeserializeObject<List<DanceStats>>(json, settings);
-            foreach (var d in tree)
-            {
-                d.SetParents();
-            }
-            var instance = new DanceStatsInstance { Tree = tree };
+            var instance = JsonConvert.DeserializeObject<DanceStatsInstance>(json,settings);
 
-            if (resetDances) Dances.Reset(Dances.Load(instance.GetDanceTypes(), instance.GetDanceGroups()));
+            Dances.Reset(Dances.Load(instance.GetDanceTypes(), instance.GetDanceGroups()));
 
             return instance;
         }
 
         public string SaveToJson()
         {
-            return JsonConvert.SerializeObject(Tree,
+            return JsonConvert.SerializeObject(this,
                 Formatting.Indented,
                 new JsonSerializerSettings
                 {
                     NullValueHandling = NullValueHandling.Ignore,
                     DefaultValueHandling = DefaultValueHandling.IgnoreAndPopulate
                 });
+        }
+
+        public void AddTagType(TagType tt)
+        {
+            TagMap[tt.Key.ToLower()] = tt;
+            var index = TagTypes.BinarySearch(tt,Comparer<TagType>.Create((a, b) => string.Compare(a.Key, b.Key, StringComparison.OrdinalIgnoreCase)));
+            if (index < 0) index = ~index;
+            TagTypes.Insert(index,tt);
+        }
+
+
+        public void UpdateSong(SongBase song, DanceMusicService dms)
+        {
+            var sd = song.IsNull ? null : (song as SongDetails) ?? new SongDetails(song, null, dms);
+            if (!TopSongs.ContainsKey(song.SongId))
+            {
+                _otherSongs[song.SongId] = sd;
+                return;
+            }
+
+            TopSongs[song.SongId] = sd;
+
+            foreach (var d in List)
+            {
+                var songs = d.TopSongs as List<SongDetails>;
+                if (songs == null) continue;
+                var idx = songs.FindIndex(s => s.SongId == song.SongId);
+                if (idx == -1) continue;
+                if (sd != null)
+                    songs[idx] = sd;
+                else
+                    songs.RemoveAt(idx);
+            }
+        }
+
+        public SongDetails FindSongDetails(Guid songId, string userName)
+        {
+            var sd = TopSongs.GetValueOrDefault(songId) ?? _otherSongs.GetValueOrDefault(songId);
+            if (sd == null) return null;
+            return (userName == null) ? sd : new SongDetails(sd, this, userName);
         }
 
         internal List<DanceType> GetDanceTypes()
@@ -147,8 +323,11 @@ namespace m4dModels
             return flat;
         }
 
+        private Dictionary<Guid,SongDetails> TopSongs => _topSongs ?? (_topSongs = new Dictionary<Guid,SongDetails>(List.SelectMany(d => d.TopSongs ?? new List<SongBase>()).Select(s => (s as SongDetails)??new SongDetails(s,this)).DistinctBy(s => s.SongId).ToDictionary(s => s.SongId)));
+        private Dictionary<Guid, SongDetails> _otherSongs = new Dictionary<Guid, SongDetails>();
+
         private List<DanceStats> _flat;
-        private Dictionary<string, DanceStats> _map;
+        private Dictionary<Guid,SongDetails> _topSongs;
     }
 
     public class DanceStatsManager
@@ -157,22 +336,23 @@ namespace m4dModels
         public static DateTime LastUpdate { get; private set; }
         public static string Source { get; private set; }
 
+        public static Dance DanceFromId(string id)
+        {
+            return s_instance != null ? s_instance.Map[id].Dance : new Dance {Id = id};
+        }
 
         #region Access
         public static DanceStatsInstance GetInstance(DanceMusicService dms)
         {
-            lock (s_lock)
-            {
-                return s_instance ?? (s_instance = LoadFromAppData()) ?? (s_instance = LoadFromStore(dms,true));
-            }
+            return s_lock.Lock(() => s_instance ?? (s_instance = LoadFromAppData()) ?? (s_instance = LoadFromStore(dms, true)));
         }
 
         public static void SetInstance(DanceStatsInstance instance)
         {
-            lock (s_lock)
+            s_lock.Lock(() =>
             {
                 s_instance = instance;
-            }
+            });
         }
 
         public static IList<DanceStats> GetFlatDanceStats(DanceMusicService dms)
@@ -188,7 +368,7 @@ namespace m4dModels
 
         #region Building
 
-        private static readonly object s_lock = new object();
+        private static readonly SmartLock s_lock = new SmartLock();
         private static DanceStatsInstance s_instance;
 
         public static void ClearCache(DanceMusicService dms = null, bool reload = false)
@@ -198,7 +378,7 @@ namespace m4dModels
             if (dms != null) instance = LoadFromStore(dms,true);
             else if (reload) instance = LoadFromAppData();
 
-            lock (s_lock)
+            s_lock.Lock(() =>
             {
                 if (reload)
                 {
@@ -213,17 +393,17 @@ namespace m4dModels
                 }
 
                 Task.Run(() => RebuildDanceStats(DanceMusicService.GetService()));
-            }
+            });
         }
 
         private static void RebuildDanceStats(DanceMusicService dms)
         {
             var instance = LoadFromStore(dms,true);
-            lock (s_lock)
+            s_lock.Lock(() =>
             {
                 s_instance = instance;
                 ClearAssociates();
-            }
+            });
         }
 
         private static void ClearAssociates()
@@ -234,7 +414,7 @@ namespace m4dModels
 
         public static void ReloadDances(DanceMusicService dms)
         {
-            lock (s_lock)
+            s_lock.Lock(() =>
             {
                 dms.Context.LoadDances();
                 foreach (var dance in dms.Dances)
@@ -248,32 +428,32 @@ namespace m4dModels
 
                 LastUpdate = DateTime.Now;
                 Source = Source + " + reload";
-            }
+            });
         }
 
         private static DanceStatsInstance LoadFromAppData()
         {
-            lock (s_lock)
+            return s_lock.Lock(() =>
             {
                 if (AppData == null) return null;
 
-                var path = System.IO.Path.Combine(AppData, "dance-stats.json");
+                var path = System.IO.Path.Combine(AppData, "dance-tag-stats.json");
                 if (!System.IO.File.Exists(path)) return null;
 
                 LastUpdate = DateTime.Now;
                 Source = "AppData";
                 return DanceStatsInstance.LoadFromJson(System.IO.File.ReadAllText(path));
-            }
+            });
         }
 
         public static DanceStatsInstance LoadFromStore(DanceMusicService dms, bool save)
         {
-            return SearchServiceInfo.UseSql && !Source.Contains("Azure") ? LoadFromSql(dms,save) : LoadFromAzure(dms,"default",save);
+            return SearchServiceInfo.UseSql && (Source == null || !Source.Contains("Azure")) ? LoadFromSql(dms,save) : LoadFromAzure(dms,"default",save);
         }
 
         public static DanceStatsInstance LoadFromSql(DanceMusicService dms, bool save = true)
         {
-            var instance =  new DanceStatsInstance {Tree = BuildDanceStats(dms) };
+            var instance =  new DanceStatsInstance(BuildDanceStats(dms),BuildTagTypes(dms));
             if (!save) return instance;
 
             LastUpdate = DateTime.Now;
@@ -284,7 +464,9 @@ namespace m4dModels
 
         public static DanceStatsInstance LoadFromAzure(DanceMusicService dms, string source = "default", bool save = false)
         {
-            var instance = new DanceStatsInstance { Tree = AzureDanceStats(dms,source) };
+            var instance = new DanceStatsInstance(AzureTagTypes(dms, source));
+            instance.Tree = AzureDanceStats(dms, instance, source).ToList();
+            instance.FixupStats();
             if (!save) return instance;
 
             LastUpdate = DateTime.Now;
@@ -295,22 +477,22 @@ namespace m4dModels
 
         private static void SaveToAppData(DanceStatsInstance instance)
         {
-            lock (s_lock)
+            s_lock.Lock(() =>
             {
                 if (AppData == null) return;
 
                 var json = instance.SaveToJson();
-                var path = System.IO.Path.Combine(AppData, "dance-stats.json");
-                System.IO.File.WriteAllText(path,json,Encoding.UTF8);
-            }
+                var path = System.IO.Path.Combine(AppData, "dance-tag-stats.json");
+                System.IO.File.WriteAllText(path, json, Encoding.UTF8);
+            });
         }
 
-        private static List<DanceStats> AzureDanceStats(DanceMusicService dms, string source)
+        private static IEnumerable<DanceStats> AzureDanceStats(DanceMusicService dms, DanceStatsInstance danceStats,string source)
         {
             var stats = new List<DanceStats>();
             dms.Context.LoadDances(false);
 
-            var facets = dms.GetTagFacets("DanceTags,DanceTagsInferred", 100);
+            var facets = dms.GetTagFacets("DanceTags,DanceTagsInferred", 100, source);
 
             var tags =  IndexDanceFacet(facets["DanceTags"]);
             var inferred = IndexDanceFacet(facets["DanceTagsInferred"]);
@@ -323,7 +505,7 @@ namespace m4dModels
                 // All groups except other have a valid 'root' node...
                 var scGroup = InfoFromDance(dms, false, dg);
                 scGroup.Children = new List<DanceStats>();
-                InfoFromAzure(scGroup, dms, source, tags, inferred);
+                InfoFromAzure(scGroup, dms, source, tags, danceStats, inferred);
 
                 stats.Add(scGroup);
 
@@ -331,7 +513,7 @@ namespace m4dModels
                 {
                     Debug.Assert(dtyp != null);
 
-                    AzureHandleType(dtyp, scGroup, tags, inferred, dms, source);
+                    AzureHandleType(dtyp, scGroup, tags, inferred, danceStats, dms, source);
                     used.Add(dtyp.Id);
                 }
             }
@@ -343,6 +525,25 @@ namespace m4dModels
             }
 
             return stats.OrderByDescending(x => x.Children.Count).ToList();
+        }
+
+        private static IEnumerable<TagType> AzureTagTypes(DanceMusicService dms, string source)
+        {
+            dms.Context.ProxyCreationEnabled = false;
+            var tagTypes = dms.TagTypes.OrderBy(t => t.Key).ToList();
+
+            var facets = dms.GetTagFacets("GenreTags,StyleTags,TempoTags,OtherTags", 500, source);
+
+            var map = tagTypes.ToDictionary(tt => tt.Key.ToLower());
+
+            foreach (var facet in facets)
+            {
+                var id = SongFilter.TagClassFromName(facet.Key.Substring(0,facet.Key.Length-4)).ToLower();
+                IndexFacet(facet.Value,id,map);
+            }
+
+            dms.Context.ProxyCreationEnabled = true;
+            return tagTypes;
         }
 
         private static Dictionary<string, long> IndexDanceFacet(IEnumerable<FacetResult> facets)
@@ -360,7 +561,26 @@ namespace m4dModels
             return ret;
         }
 
-        private static void InfoFromAzure(DanceStats stats, DanceMusicService dms, string source, IReadOnlyDictionary<string, long> tags, IReadOnlyDictionary<string, long> inferred)
+        private static void IndexFacet(IEnumerable<FacetResult> facets, string category, IReadOnlyDictionary<string,TagType> map)
+        {
+            foreach (var facet in facets)
+            {
+                if (!facet.Count.HasValue) continue;
+
+                var key = $"{facet.Value}:{category}";
+                TagType tt;
+                if (!map.TryGetValue(key, out tt))
+                {
+                    Trace.WriteLine($"Couldn't map key: {key}");
+                    continue;
+                }
+
+                tt.Count = (int)facet.Count.Value;
+            }
+        }
+
+
+        private static void InfoFromAzure(DanceStats stats, DanceMusicService dms, string source, IReadOnlyDictionary<string, long> tags, DanceStatsInstance danceStats, IReadOnlyDictionary<string, long> inferred)
         {
             // SongCount
             long expl;
@@ -375,7 +595,7 @@ namespace m4dModels
             // TopN and MaxWeight
             var filter = dms.AzureParmsFromFilter(new SongFilter {Dances = stats.DanceId, SortOrder = "Dances"}, 10);
             DanceMusicService.AddAzureCategories(filter,"GenreTags,StyleTags,TempoTags,OtherTags",100);
-            var results = dms.AzureSearch(null, filter, DanceMusicService.CruftFilter.NoCruft, source);
+            var results = dms.AzureSearch(null, filter, DanceMusicService.CruftFilter.NoCruft, source, danceStats);
             stats.TopSongs = results.Songs;
             var song = stats.TopSongs.FirstOrDefault();
             var dr = song?.DanceRatings.FirstOrDefault(d => d.DanceId == stats.DanceId);
@@ -383,15 +603,13 @@ namespace m4dModels
             if (dr != null) stats.MaxWeight = dr.Weight;
 
             // SongTags
-            if (results.FacetResults == null) return;
-            var tagMap = dms.GetTagMap();
-            stats.SongTags = new TagSummary(results.FacetResults,tagMap);
+            stats.SongTags = (results.FacetResults == null) ? new TagSummary() : new TagSummary(results.FacetResults,danceStats.TagMap);
         }
 
-        private static void AzureHandleType(DanceObject dtyp, DanceStats scGroup, IReadOnlyDictionary<string, long> tags, IReadOnlyDictionary<string, long> inferred, DanceMusicService dms, string source)
+        private static void AzureHandleType(DanceObject dtyp, DanceStats scGroup, IReadOnlyDictionary<string, long> tags, IReadOnlyDictionary<string, long> inferred, DanceStatsInstance danceStats, DanceMusicService dms, string source)
         {
             var scType = InfoFromDance(dms, false, dtyp);
-            InfoFromAzure(scType, dms, source, tags, inferred);
+            InfoFromAzure(scType, dms, source, tags, danceStats, inferred);
 
             scGroup.Children.Add(scType);
             scType.Parent = scGroup;
@@ -484,6 +702,15 @@ namespace m4dModels
 
             danceStats.CopyDanceInfo(dms.Dances.FirstOrDefault(t => t.Id == d.Id), includeStats, dms);
             return danceStats;
+        }
+
+        private static IEnumerable<TagType> BuildTagTypes(DanceMusicService dms)
+        {
+            dms.Context.ProxyCreationEnabled = false;
+            var tagTypes = dms.TagTypes.OrderBy(t => t.Key);
+            dms.Context.ProxyCreationEnabled = true;
+
+            return tagTypes.ToList();
         }
 
         #endregion

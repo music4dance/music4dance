@@ -72,7 +72,7 @@ namespace m4dModels.Tests
             UserTag[] tags = {new UserTag {Id="",Tags=new TagList("Swing:Dance|Jump Swing:Dance|Funk:Music|Even:Tempo")}};
 
             var userSsb = service.Dms.FindUser("HunterZ");
-            var changed = service.Dms.EditTags(userSsb, new Guid("2ea20b99-b2f2-4139-ba22-ad84a73ed8f3"), tags, false);
+            var changed = service.Dms.EditTags(userSsb, new Guid("2ea20b99-b2f2-4139-ba22-ad84a73ed8f3"), tags);
             Assert.IsTrue(changed);
 
             var song = service.Dms.FindSong(new Guid("{2ea20b99-b2f2-4139-ba22-ad84a73ed8f3}"));
@@ -90,7 +90,7 @@ namespace m4dModels.Tests
                 new UserTag { Id = "HST", Tags = new TagList("Slow:Tempo|Traditional:Tempo|Crazy:Other") }
             };
 
-            changed = service.Dms.EditTags(userDwg, new Guid("2ea20b99-b2f2-4139-ba22-ad84a73ed8f3"), tags2, false);
+            changed = service.Dms.EditTags(userDwg, new Guid("2ea20b99-b2f2-4139-ba22-ad84a73ed8f3"), tags2);
             result = DanceMusicTester.ReplaceTime(song.Serialize(new[] { SongBase.NoSongId }));
             Trace.WriteLine(result);
 
@@ -140,6 +140,7 @@ namespace m4dModels.Tests
             Assert.AreEqual(22, service.Dms.Tags.Count());
 
             service.Dms.UpdateSongs(update);
+            DanceStatsManager.ClearCache(service.Dms);
 
             for (var i = 0; i < ids.Length; i++)
             {

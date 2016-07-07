@@ -19,7 +19,6 @@ namespace m4dModels
         DbSet<TopN> TopNs { get; set; }
         DbSet<Tag> Tags { get; }
         DbSet<TagType> TagTypes { get; }
-        DbSet<SongLog> Log { get; }
         DbSet<ModifiedRecord> Modified { get; }
         DbSet<Search> Searches { get; }
         IDbSet<ApplicationUser> Users { get; }

@@ -50,15 +50,34 @@ namespace m4dModels
         public DbSet<DanceRating> DanceRatings => _context.DanceRatings;
         public DbSet<Tag> Tags => _context.Tags;
         public DbSet<TagType> TagTypes => _context.TagTypes;
-        public DbSet<SongLog> Log => _context.Log;
         public DbSet<ModifiedRecord> Modified => _context.Modified;
         public DbSet<Search> Searches => _context.Searches;
 
         public UserManager<ApplicationUser> UserManager { get; }
 
-        public int SaveChanges()
+        public void UpdateAndEnqueue(IEnumerable<SongBase> songs = null)
         {
-            return _context.SaveChanges();
+            SaveChanges(songs);
+            IndexUpdater.Enqueue();
+        }
+
+        public int SaveChanges(IEnumerable<SongBase> songs = null)
+        {
+            var ret =  _context.SaveChanges();
+            if (ret == 0 || songs == null) return ret;
+
+            UpdateTopSongs(songs);
+            return ret;
+        }
+
+        public void UpdateTopSongs(IEnumerable<SongBase> songs = null)
+        {
+            if (songs == null) return;
+
+            foreach (var song in songs)
+            {
+                DanceStats.UpdateSong(song, this);
+            }
         }
 
         public static readonly string EditRole = "canEdit";
@@ -70,27 +89,24 @@ namespace m4dModels
         #endregion
 
         #region Edit
-        private Song CreateSong(Guid? guid = null, bool doLog = false)
+        private Song CreateSong(Guid? guid = null)
         {
             if (guid == null || guid == Guid.Empty)
                 guid = Guid.NewGuid();
             var song = _context.Songs.Create();
             song.SongId = guid.Value;
 
-            if (doLog)
-                song.CurrentLog = _context.Log.Create();
-
             return song;
         }
 
-        public Song CreateSong(ApplicationUser user, SongDetails sd=null,  IEnumerable<UserTag> tags = null, string command = SongBase.CreateCommand, string value = null, bool createLog = true)
+        public Song CreateSong(ApplicationUser user, SongDetails sd=null,  IEnumerable<UserTag> tags = null, string command = SongBase.CreateCommand, string value = null)
         {
             if (sd != null)
             {
                 Trace.WriteLineIf(string.Equals(sd.Title, sd.Artist), $"Title and Artist are the same ({sd.Title})");                
             }
 
-            var song = CreateSong(sd?.SongId, createLog);
+            var song = CreateSong(sd?.SongId);
             if (sd == null)
             {
                 song.Create(user, command, value, true, this);
@@ -101,31 +117,20 @@ namespace m4dModels
             }
 
             song = _context.Songs.Add(song);
-            if (createLog)
-            {
-                _context.Log.Add(song.CurrentLog);
-            }
 
             return song;
         }
 
-        public SongDetails CreateSongDetails(ApplicationUser user, SongDetails sd, IEnumerable<UserTag> tags = null, bool createLog = true)
+        public SongDetails CreateSongDetails(ApplicationUser user, SongDetails sd, IEnumerable<UserTag> tags = null)
         {
-            return new SongDetails(CreateSong(user, sd, tags, SongBase.CreateCommand, null, createLog),user.UserName,this);
+            return new SongDetails(CreateSong(user, sd, tags),user.UserName,this);
         }
 
-        public SongDetails EditSong(ApplicationUser user, SongDetails edit, IEnumerable<UserTag> tags = null, bool createLog = true)
+        public SongDetails EditSong(ApplicationUser user, SongDetails edit, IEnumerable<UserTag> tags = null)
         {
             var song = _context.Songs.Find(edit.SongId);
-            if (createLog)
-                song.CurrentLog = CreateSongLog(user, song, SongBase.EditCommand);
 
-            if (!song.Edit(user, edit, tags, this)) return null;
-
-            if (createLog)
-                _context.Log.Add(song.CurrentLog);
-
-            return new SongDetails(song,user.UserName,this);
+            return !song.Edit(user, edit, tags, this) ? null : new SongDetails(song,user.UserName,this);
         }
 
         public bool AdminEditSong(Song edit, string properties)
@@ -142,67 +147,38 @@ namespace m4dModels
             return song != null && AdminEditSong(song, properties);
         }
 
-        public SongDetails UpdateSong(ApplicationUser user, Song song, SongDetails edit, bool createLog = true)
+        public SongDetails UpdateSong(ApplicationUser user, Song song, SongDetails edit)
         {
-            if (createLog)
-                song.CurrentLog = CreateSongLog(user, song, SongBase.EditCommand);
-
-            if (!song.Update(user, edit, this)) return null;
-
-            if (createLog)
-                _context.Log.Add(song.CurrentLog);
-
-            return new SongDetails(song,user.UserName,this,false);
+            return !song.Update(user, edit, this) ? null : new SongDetails(song,user.UserName,this,false);
         }
 
         // This is an additive merge - only add new things if they don't conflict with the old
         //  TODO: I'm pretty sure I can clean up this and all the other editing stuff by pushing
         //  the diffing part down into SongDetails (which will also let me unit test it more easily)
-        public bool AdditiveMerge(ApplicationUser user, Guid songId, SongDetails edit, List<string> addDances, bool createLog = true)
+        public bool AdditiveMerge(ApplicationUser user, Guid songId, SongDetails edit, List<string> addDances)
         {
-            var song = _context.Songs.Find(songId);
-            if (createLog)
-                song.CurrentLog = CreateSongLog(user, song, SongBase.EditCommand);
-
-            if (!song.AdditiveMerge(user, edit, addDances, this)) 
-                return false;
-
-            if (song.CurrentLog != null)
-                _context.Log.Add(song.CurrentLog);
-
-            return true;
+            return _context.Songs.Find(songId).AdditiveMerge(user, edit, addDances, this);
         }
 
-        public void UpdateDances(ApplicationUser user, Song song, IEnumerable<DanceRatingDelta> deltas, bool doLog = true)
+        public void UpdateDances(ApplicationUser user, Song song, IEnumerable<DanceRatingDelta> deltas)
         {
-            if (doLog)
-            {
-                song.CurrentLog = CreateSongLog(user, song, SongBase.EditCommand);
-            }
-
             song.CreateEditProperties(user, SongBase.EditCommand, this);
             song.EditDanceRatings(deltas, this);
         }
 
-        public bool EditTags(ApplicationUser user, Guid songId, IEnumerable<UserTag> tags, bool doLog = true)
+        public bool EditTags(ApplicationUser user, Guid songId, IEnumerable<UserTag> tags)
         {
             var song = _context.Songs.Find(songId);
-            if (doLog)
-                song.CurrentLog = CreateSongLog(user, song, SongBase.EditCommand);
 
             if (!song.EditTags(user, tags, this)) return false;
 
-            if (song.CurrentLog != null)
-                _context.Log.Add(song.CurrentLog);
-            SaveChanges();
+            UpdateAndEnqueue(new[] { song });
             return true;
         }
 
-        public bool EditLike(ApplicationUser user, Guid songId, bool? like, string danceId=null, bool doLog = true)
+        public bool EditLike(ApplicationUser user, Guid songId, bool? like, string danceId=null)
         {
             var song = _context.Songs.Find(songId);
-            if (doLog)
-                song.CurrentLog = CreateSongLog(user, song, SongBase.EditCommand);
 
             if (danceId == null)
             {
@@ -213,9 +189,7 @@ namespace m4dModels
                 if (!song.EditDanceLike(user, like, danceId, this)) return false;
             }
 
-            if (song.CurrentLog != null)
-                _context.Log.Add(song.CurrentLog);
-            SaveChanges();
+            UpdateAndEnqueue(new [] {song});
             return true;
         }
 
@@ -231,7 +205,7 @@ namespace m4dModels
                 Trace.WriteLineIf(TraceLevels.General.TraceVerbose, $"{delta}: {song.Title} {song.Artist} {song.Album}");
                 changed += delta;
                 sd.Albums = albums.ToList();
-                sd = EditSong(user, sd, null, false);
+                sd = EditSong(user, sd);
             }
 
             var album = sd.Album;
@@ -289,15 +263,13 @@ namespace m4dModels
             var songIds = string.Join(";", songs.Select(s => s.SongId.ToString()));
 
             var song = CreateSong(user, null,null, SongBase.MergeCommand, songIds);
-            song.CurrentLog.SongReference = song.SongId;
-            song.CurrentLog.SongSignature = song.Signature;
 
             song = _context.Songs.Add(song);
 
             // Add in the properties for all of the songs and then delete them
             foreach (var from in songs)
             {
-                song.UpdateProperties(from.SongProperties, new[] { SongBase.FailedLookup, SongBase.AlbumField, SongBase.TrackField, SongBase.PublisherField, SongBase.PurchaseField });
+                song.UpdateProperties(from.SongProperties, DanceStats, new[] { SongBase.FailedLookup, SongBase.AlbumField, SongBase.TrackField, SongBase.PublisherField, SongBase.PurchaseField });
                 RemoveSong(from, user);
             }
             song.UpdateFromService(this);
@@ -322,12 +294,10 @@ namespace m4dModels
             return MergeSongs(user,songs,title,artist,tempo,length,MergeAlbums(songs,defAlbums,keys,artist));
         }
 
-        public void DeleteSong(ApplicationUser user, Song song, bool createLog=true)
+        public void DeleteSong(ApplicationUser user, Song song)
         {
-            if (createLog)
-                LogSongCommand(SongBase.DeleteCommand, song, user);
             RemoveSong(song,user);
-            SaveChanges();
+            UpdateAndEnqueue(new [] {song});
         }
 
         private void RemoveSong(Song song, ApplicationUser user)
@@ -536,11 +506,11 @@ namespace m4dModels
         #endregion
 
         #region Properties
-        public SongProperty CreateSongProperty(Song song, string name, object value, SongLog log)
+        public SongProperty CreateSongProperty(Song song, string name, object value)
         {
-            return CreateSongProperty(song, name, value, null, log);
+            return CreateSongProperty(song, name, value, null);
         }
-        public SongProperty CreateSongProperty(Song song, string name, object value, object old, SongLog log)
+        public SongProperty CreateSongProperty(Song song, string name, object value, object old)
         {
             var csp = _context.SongProperties;
 
@@ -560,138 +530,19 @@ namespace m4dModels
             }
             song.SongProperties.Add(ret);
 
-            if (log != null)
-            {
-                LogPropertyUpdate(ret, log,old?.ToString());
-            }
-
             _context.SongProperties.Add(ret);
 
             return ret;
-        }
-
-
-        private void DoRestoreValues(Song song, SongLog entry, UndoAction action)
-        {
-            // For scalar properties and albums just updating the property will
-            //  provide the information for rebulding the song
-            // For users, this is additive, so no need to do anything except with a new song
-            // For DanceRatings and tags, we're going to update the song here since it is cummulative
-            // For Like/Hate we'll update the modified record here
-
-            var drDelete = new List<DanceRating>();
-            var currentUser = entry.User;
-            ModifiedRecord currentModified = null;
-
-            foreach (var lv in entry.GetValues())
-            {
-                if (lv.IsAction) continue;
-
-                var np = _context.SongProperties.Create();
-                var baseName = lv.BaseName;
-
-                np.Song = song;
-                np.Name = lv.Name;
-
-                // This works for everything but Dancerating and Tags, which will be overwritten below
-                np.Value = action == UndoAction.Undo ? lv.Old : lv.Value;
-
-                switch (baseName)
-                {
-                    case SongBase.UserField:
-                    case SongBase.UserProxy:
-                        currentUser = FindUser(lv.Value);
-                        song.AddUser(currentUser, this);
-                        currentModified = song.FindModified(currentUser.UserName);
-                        break;
-                    case SongBase.DanceRatingField:
-                        var drd = new DanceRatingDelta(lv.Value);
-                        if (action == UndoAction.Undo)
-                        {
-                            drd.Delta *= -1;
-                        }
-
-                        np.Value = drd.ToString();
-
-                        // TODO: Consider implementing a MergeDanceRating at the song level
-                        var dr = song.DanceRatings.FirstOrDefault(d => string.Equals(d.DanceId, drd.DanceId));
-                        if (dr == null)
-                        {
-                            song.AddDanceRating(new DanceRating() { DanceId = drd.DanceId, Weight = drd.Delta });
-                        }
-                        else
-                        {
-                            dr.Weight += drd.Delta;
-                            if (dr.Weight <= 0)
-                            {
-                                drDelete.Add(dr);
-                            }
-                        }
-                        break;
-                    case SongBase.AddedTags:
-                    case SongBase.RemovedTags:
-                        np = null;
-                        var add = (baseName.Equals(SongBase.AddedTags) && action == UndoAction.Redo) ||
-                                  (baseName.Equals(SongBase.RemovedTags) && action == UndoAction.Undo);
-
-                        if (add)
-                            song.AddObjectTags(lv.DanceQualifier, lv.Value, currentUser, this);
-                        else
-                            song.RemoveObjectTags(lv.DanceQualifier, lv.Value, currentUser, this);
-                        break;
-                    case SongBase.LikeTag:
-                        if (currentModified != null)
-                        {
-                            currentModified.LikeString = lv.Value;
-                        }
-                        break;
-                }
-
-                if (np != null)
-                    song.SongProperties.Add(np);
-            }
-
-            foreach (var dr in drDelete)
-            {
-                song.DanceRatings.Remove(dr);
-            }
         }
         #endregion
 
         #region Logging
 
-        public void RestoreFromLog(IEnumerable<string> lines)
-        {
-            foreach (var line in lines)
-            {
-                RestoreFromLog(line);
-            }
-        }
-
-        public IEnumerable<UndoResult> UndoLog(ApplicationUser user, IEnumerable<SongLog> entries)
-        {
-            return entries.Select(entry => UndoEntry(user, entry, true)).ToList();
-        }
-
-        // TODO: This depends on all of the user's changes being in the SongLog, which will hopefully be true of end users but isn't true
-        //  of pseudo users/admin users, so eventually need to at minimum catch this and at best deal with it smoothly...
-        //  and preferably handle that case - I think this is probably a case of figuring out how to rebuild the song
-        //  locally (not hitting global tagtypes and other values) and cache the 'old' values for everything we would want to undo
-        //  Actually, we may need to do this to get this feature to work in the general case - I think right now we may be
-        //  tromping values that other users have changed between the current user's actions and the undo
         public void UndoUserChanges(ApplicationUser user, Guid songId)
         {
             var song = Songs.Find(songId);
 
-            // First update the song
-            var logs = Context.Log.Where(l => l.User.Id == user.Id && l.SongReference == songId).OrderByDescending(l => l.Id).ToList();
-
-            foreach (var log in logs)
-            {
-                UndoEntry(user, log);
-            }
-
-            // Then delete the songprops since they should have a net null effect at this point
+            // Delete the songprops
             SongProperty lastCommand = null;
             var props = new List<SongProperty>();
             var collect = false;
@@ -723,277 +574,14 @@ namespace m4dModels
                 prop.SongId = Guid.Empty;
             }
 
-            // Then remove the modified reference
-            var mr = song.ModifiedBy.FirstOrDefault(m => m.ApplicationUser == user);
-            if (mr != null) song.ModifiedBy.Remove(mr);
+            AdminEditSong(song, song.Serialize(null));
 
-            // And finally, get rid of the undo entires and save the changes
-            Context.Log.RemoveRange(logs);
-
-            SaveChanges();
-        }
-        private UndoResult UndoEntry(ApplicationUser user, SongLog entry, bool doLog = false, string maskCommand = null)
-        {
-            var action = entry.Action;
-            string error = null;
-
-            // Quick recurse on Redo
-            if (action.StartsWith(SongBase.RedoCommand))
-            {
-                var idx = entry.GetIntData(SongBase.SuccessResult);
-
-                action = SongBase.RedoCommand;
-
-                if (idx.HasValue)
-                {
-                    var uentry = _context.Log.Find(idx.Value);
-                    var idx2 = uentry.GetIntData(SongBase.SuccessResult);
-
-                    if (idx2.HasValue)
-                    {
-                        var rentry = _context.Log.Find(idx2.Value);
-
-                        return UndoEntry(user, rentry, doLog, maskCommand);
-                    }
-                }
-
-                error =
-                    $"Unable to redo a failed undo song id='{entry.SongReference}' signature='{entry.SongSignature}'";
-            }
-
-            var result = new UndoResult { Original = entry };
-
-            var song = FindSong(entry.SongReference, entry.SongSignature);
-
-            if (song == null)
-            {
-                error = $"Unable to find song id='{entry.SongReference}' signature='{entry.SongSignature}'";
-            }
-
-            var command = SongBase.UndoCommand + entry.Action;
-            if (error == null)
-            {
-                if (action.StartsWith(SongBase.UndoCommand))
-                {
-                    var idx = entry.GetIntData(SongBase.SuccessResult);
-                    action = SongBase.UndoCommand;
-
-                    if (idx.HasValue)
-                    {
-                        var rentry = _context.Log.Find(idx.Value);
-
-                        error = RedoEntry(rentry, song);
-                        command = SongBase.RedoCommand + entry.Action.Substring(SongBase.UndoCommand.Length);
-                    }
-                    else
-                    {
-                        error =
-                            $"Unable to redo a failed undo song id='{entry.SongReference}' signature='{entry.SongSignature}'";
-                    }
-                }
-
-                switch (action)
-                {
-                    case SongBase.DeleteCommand:
-                        error = Undelete(song,user);
-                        break;
-                    case SongBase.MergeCommand:
-                        error = Unmerge(entry, song);
-                        break;
-                    case SongBase.EditCommand:
-                        error = RestoreValuesFromLog(entry, song, UndoAction.Undo, maskCommand);
-                        break;
-                    case SongBase.CreateCommand:
-                        RemoveSong(song,user);
-                        break;
-                    case SongBase.UndoCommand:
-                    case SongBase.RedoCommand:
-                        break;
-                    default:
-                        error = $"'{entry.Action}' action not yet supported for Undo.";
-                        break;
-                }
-
-            }
-
-            if (doLog)
-            {
-                var newEntry = CreateSongLog(user, song, command);
-
-                newEntry.UpdateData(error == null ? SongBase.SuccessResult : SongBase.FailResult, entry.Id.ToString());
-                if (error != null)
-                {
-                    newEntry.UpdateData(SongBase.MessageData, error);
-                }
-                _context.Log.Add(newEntry);
-                result.Result = newEntry;
-            }
-            else
-            {
-                result.Result = null;
-            }
-
-            // Have to save changes each time because
-            // the may be cumulative (can we optimize by
-            // doing a savechanges when a songId comes
-            // up a second time?
-            SaveChanges();
-
-            return result;
+            UpdateAndEnqueue(new [] { song } );
         }
 
         private string Undelete(Song song, ApplicationUser user)
         {
             RestoreSong(song, user);
-            return null;
-        }
-
-        private string Unmerge(SongLog entry, Song song)
-        {
-            // First restore the merged songs
-            var t = entry.GetData(SongBase.MergeCommand);
-
-            var songs = SongsFromList(t);
-            foreach (var s in songs)
-            {
-                RestoreSong(s, entry.User);
-            }
-
-            // Now delete the merged song
-            RemoveSong(song,entry.User);
-
-            return null;
-        }
-
-        public void RestoreFromLog(string line)
-        {
-            var log = _context.Log.Create();
-
-            if (!log.Initialize(line, this))
-            {
-                Trace.WriteLine($"Unable to restore line: {line}");
-            }
-
-            RestoreFromLog(log);
-        }
-
-        public void RestoreFromLog(SongLog log, string maskCommand=null)
-        {
-            Song song = null;
-
-            switch (log.Action)
-            {
-                case SongBase.DeleteCommand:
-                case SongBase.EditCommand:
-                    song = FindSong(log.SongReference, log.SongSignature);
-                    break;
-                case SongBase.MergeCommand:
-                case SongBase.CreateCommand:
-                    break;
-                default:
-                    Trace.WriteLine($"Bad Command: {log.Action}");
-                    return;
-            }
-
-            switch (log.Action)
-            {
-                case SongBase.DeleteCommand:
-                    RemoveSong(song,log.User);
-                    break;
-                case SongBase.EditCommand:
-                    RestoreValuesFromLog(log, song, UndoAction.Redo, maskCommand);
-                    break;
-                case SongBase.MergeCommand:
-                case SongBase.CreateCommand:
-                    CreateSongFromLog(log);
-                    break;
-                default:
-                    Trace.WriteLine($"Bad Command: {log.Action}");
-                    break;
-            }
-
-            _context.Log.Add(log);
-            SaveChanges();
-        }
-
-        private static void LogPropertyUpdate(SongProperty sp, SongLog log, string oldValue = null)
-        {
-            log.UpdateData(sp.Name, sp.Value, oldValue);
-        }
-
-        private string RedoEntry(SongLog entry, Song song)
-        {
-            string error = null;
-
-            switch (entry.Action)
-            {
-                case SongBase.DeleteCommand:
-                    RemoveSong(song,entry.User);
-                    break;
-                case SongBase.MergeCommand:
-                    error = Remerge(entry, song, entry.User);
-                    break;
-                case SongBase.EditCommand:
-                    error = RestoreValuesFromLog(entry, song, UndoAction.Redo);
-                    break;
-                case SongBase.CreateCommand:
-                    RestoreSong(song,entry.User);
-                    break;
-                default:
-                    error = $"'{entry.Action}' action not yet supported for Redo.";
-                    break;
-            }
-
-            return error;
-        }
-
-        private void LogSongCommand(string command, Song song, ApplicationUser user, bool includeSignature = true)
-        {
-            var log = _context.Log.Create();
-            log.Time = DateTime.Now;
-            log.User = user;
-            log.SongReference = song.SongId;
-            log.Action = command;
-
-            if (includeSignature)
-            {
-                log.SongSignature = song.Signature;
-            }
-
-            foreach (var p in song.SongProperties)
-            {
-                LogPropertyUpdate(p, log);
-            }
-
-            _context.Log.Add(log);
-        }
-
-        private string RestoreValuesFromLog(SongLog entry, Song song, UndoAction action, string maskCommand = null)
-        {
-            var command = maskCommand ?? ((action == UndoAction.Undo) ? SongBase.UndoCommand : SongBase.RedoCommand);
-            song.CreateEditProperties(entry.User,command,this,entry.Time);
-            DoRestoreValues(song, entry, action);
-
-            var sd = new SongDetails(song.SongId, song.SongProperties);
-            song.RestoreScalar(sd);
-            song.UpdateUsers(this);
-
-            return null;
-        }
-
-        private string Remerge(SongLog entry, Song song, ApplicationUser user)
-        {
-            // First, restore the merged to song
-            RestoreSong(song,user);
-
-            // Then remove the merged from songs
-            var t = entry.GetData(SongBase.MergeCommand);
-            var songs = SongsFromList(t);
-            foreach (var s in songs)
-            {
-                RemoveSong(s,user);
-            }
-
             return null;
         }
 
@@ -1004,87 +592,67 @@ namespace m4dModels
                 throw new ArgumentOutOfRangeException(nameof(song), @"Attempting to restore a song that hasn't been deleted");
             }
             song.CreateEditProperties(user, SongBase.DeleteCommand + "=false", this);
-            var sd = new SongDetails(song.SongId, song.SongProperties);
+            var sd = new SongDetails(song.SongId, song.SongProperties,DanceStats);
             song.Restore(sd, this);
             song.UpdateUsers(this);
         }
 
-        private SongLog CreateSongLog(ApplicationUser user, Song song, string action)
-        {
-            var log = _context.Log.Create();
-
-            log.Initialize(user, song, action);
-
-            return log;
-        }
-
-        private void CreateSongFromLog(SongLog log)
-        {
-            var initV = log.GetData(SongBase.MergeCommand);
-
-            // For merge case, first we delete the old songs
-            if (initV != null)
-            {
-                try
-                {
-                    foreach (var d in SongsFromList(initV))
-                    {
-                        RemoveSong(d,log.User);
-                    }
-                }
-                catch (Exception e)
-                {
-                    Trace.WriteLine(e.Message);
-                }
-            }
-
-            var song = CreateSong(log.SongReference);
-            song.Created = log.Time;
-            song.Modified = DateTime.Now;
-
-            DoRestoreValues(song, log, UndoAction.Redo);
-
-            RestoreSong(song,log.User);
-            _context.Songs.Add(song);
-        }
         #endregion
 
         #region Song Lookup
-        public Song FindSong(Guid id, string signature = null)
+        public Song FindSong(Guid id)
         {
-            // First find a match id
-            //Song song = _context.Songs.Find(id);
             var song = _context.Songs.Where(s => s.SongId == id).Include("DanceRatings").Include("ModifiedBy").Include("SongProperties").FirstOrDefault();
-
-            // TODO: Think about signature mis-matches, we can't do the straighforward fail on mis-match because
-            //  we're using this for edit and it's perfectly reasonable to edit parts of the sig...
-            // || !(string.IsNullOrWhiteSpace(signature) || song.IsNull || MatchSigatures(signature,song.Signature))
-            if (song == null && signature != null)
-            {
-                song = FindSongBySignature(signature);
-            }
 
             if (song == null)
             {
                 Trace.WriteLineIf(TraceLevels.General.TraceVerbose,
-                    $"Couldn't find song by Id: {id} or signature {signature}");
+                    $"Couldn't find song by Id: {id}");
             }
 
             return song;
         }
 
-        public SongDetails FindSongDetails(Guid id, string userName = null, bool showDiagnostics=false)
+        public SongDetails FindSongDetails(Guid id, string userName = null, bool showDiagnostics = false)
         {
-            var song = FindSong(id);
+            if (string.IsNullOrEmpty(userName)) userName = null;
 
-            if (song == null) return null;
+            var sd = DanceStats.FindSongDetails(id,userName);
+            if (sd != null) return sd;
 
-            if (showDiagnostics)
+            if (SearchServiceInfo.UseSql)
             {
-                song.LoadTags(this);
+                var song = FindSong(id);
+
+                if (song == null) return null;
+
+                if (showDiagnostics)
+                {
+                    song.LoadTags(this);
+                }
+
+                return new SongDetails(song, userName, this);
             }
 
-            return new SongDetails(song, userName, this);
+            var info = SearchServiceInfo.GetInfo();
+
+            using (var serviceClient = new SearchServiceClient(info.Name, new SearchCredentials(info.AdminKey)))
+            using (var indexClient = serviceClient.Indexes.GetClient(info.Index))
+            {
+                try
+                {
+                    var doc = indexClient.Documents.Get(id.ToString(), new[] {"Properties" });
+                    if (doc == null) return null;
+
+                    var details = new SongDetails(id,doc["Properties"] as string, DanceStats, userName);
+                    return details;
+                }
+                catch (Microsoft.Rest.Azure.CloudException e)
+                {
+                    Trace.WriteLineIf(TraceLevels.General.TraceVerbose, e.Message);
+                    return null;
+                }
+            }
         }
 
         public SongDetails FindMergedSong(Guid id, string userName = null)
@@ -1101,14 +669,6 @@ namespace m4dModels
 
                 id = property.SongId;
             }
-        }
-
-
-        private Song FindSongBySignature(string signature)
-        {
-            var song = _context.Songs.FirstOrDefault(s => s.Signature == signature);
-
-            return song;
         }
 
         private IEnumerable<Song> SongsFromList(string list)
@@ -1795,6 +1355,10 @@ namespace m4dModels
 
         #region Tags
 
+        public IReadOnlyDictionary<string, TagType> TagMap => DanceStatsManager.GetInstance(this).TagMap;
+
+        public DanceStatsInstance DanceStats => DanceStatsManager.GetInstance(this);
+
         public TagType FindOrCreateTagType(string tag)
         {
             // Create a transitory TagType just for the parsing
@@ -1867,6 +1431,11 @@ namespace m4dModels
             return _context.TagTypes.Where(t => t.Key.StartsWith(value + ":"));
         }
 
+        public IReadOnlyList<TagType> CachedTagTypes()
+        {
+            return DanceStatsManager.GetInstance(this).TagTypes;
+        }
+
         public IEnumerable<TagCount> GetTagSuggestions(Guid? user = null, char? targetType = null, string tagType = null, int count = int.MaxValue, bool normalized=false)
         {
             // from m in Modified where m.ApplicationUserId == user.Id && m.Song.TitleHash != 0 select m.Song;
@@ -1879,7 +1448,7 @@ namespace m4dModels
 
             if (userString == null)
             {
-                lock (s_tagCache)
+                lock (s_sugMap)
                 {
                     if (tagType == null) tagType = string.Empty;
                     if (s_sugMap.ContainsKey(tagType))
@@ -1888,7 +1457,7 @@ namespace m4dModels
                     }
                     else
                     {
-                        var tts = (tagType == string.Empty) ? TagTypes : TagTypes.ToList().Where(tt => tt.Category == tagType);
+                        var tts = (tagType == string.Empty) ? CachedTagTypes() : CachedTagTypes().Where(tt => tt.Category == tagType);
                         ret = TagType.ToTagCounts(tts).OrderByDescending(tc => tc.Count);
                         s_sugMap[tagType] = ret;
                     }
@@ -1896,6 +1465,7 @@ namespace m4dModels
             }
             else
             {
+                // AZURETODO: Can't currently do this without user tags in sql database - do we run the user songs???
                 var tags = from t in Tags
                             where
                                 (userString == t.UserId) && 
@@ -1903,8 +1473,8 @@ namespace m4dModels
                                 (tagType == null || t.Tags.Summary.Contains(tagLabel))
                             select t;
 
+                var tagMap = TagMap;
                 var dictionary = new Dictionary<string, int>();
-                TagTypes.Load();
                 foreach (var t in tags)
                 {
                     foreach (var ti in t.Tags.Tags.Where(ti => tagLabel == null || ti.EndsWith(tagLabel)))
@@ -1912,8 +1482,8 @@ namespace m4dModels
                         var tag = ti;
                         if (normalized)
                         {
-                            var tt = TagTypes.Find(tag);
-                            if (tt != null)
+                            TagType tt;
+                            if (tagMap.TryGetValue(tag.ToLower(), out tt))
                             {
                                 tag = tt.GetPrimary().ToString();
                             }
@@ -1938,102 +1508,61 @@ namespace m4dModels
             return ret;
         }
 
-        public Dictionary<string,TagType> GetTagMap()
-        {
-            lock (s_tagCache)
-            {
-                if (s_tagCache.Any()) return s_tagCache;
-
-                _context.ProxyCreationEnabled = false;
-                foreach (var tt in TagTypes)
-                {
-                    s_tagCache.Add(tt.Key.ToLower(), tt);
-                }
-                _context.ProxyCreationEnabled = true;
-                return s_tagCache;
-            }
-        }
+        public IEnumerable<TagType> OrderedTagTypes => DanceStatsManager.GetInstance(this).TagTypes;
 
         public ICollection<TagType> GetTagRings(TagList tags)
         {
-            lock (s_tagCache)
+            var tagCache = TagMap;
+            var map = new Dictionary<string, TagType>();
+            // ReSharper disable once LoopCanBePartlyConvertedToQuery
+            foreach (var tag in tags.Tags)
             {
-                var tagCache = GetTagMap();
-                var map = new Dictionary<string, TagType>();
-                // ReSharper disable once LoopCanBePartlyConvertedToQuery
-                foreach (var tag in tags.Tags)
+                TagType tt;
+                if (!tagCache.TryGetValue(tag.ToLower(), out tt))
+                    continue;
+
+                while (tt.Primary != null)
                 {
-                    TagType tt;
-                    if (!tagCache.TryGetValue(tag.ToLower(), out tt))
-                        continue;
-
-                    while (tt.Primary != null)
-                    {
-                        tt = tt.Primary;
-                    }
-                    if (!map.ContainsKey(tt.Key))
-                    {
-                        map.Add(tt.Key, tt);
-                    }
+                    tt = tt.Primary;
                 }
-
-                return map.Values;
-            }
-        }
-
-        public IEnumerable<TagType> OrderedTagTypes()
-        {
-            lock (s_tagCache)
-            {
-                // ReSharper disable once InvertIf
-                if (s_orderedTagTypes == null)
+                if (!map.ContainsKey(tt.Key))
                 {
-                    _context.ProxyCreationEnabled = false;
-                    var tagTypes = TagTypes.Include(t => t.Primary).OrderBy(t => t.Key);
-                    s_orderedTagTypes = tagTypes.ToList();
-                    _context.ProxyCreationEnabled = true;
+                    map.Add(tt.Key, tt);
                 }
-                return s_orderedTagTypes;
             }
+
+            return map.Values;
         }
 
         private TagType CreateTagType(string value, string category, string primary = null) 
         {
-            lock (s_tagCache)
+            var type = _context.TagTypes.Create();
+            type.Key = TagType.BuildKey(value, category);
+            type.PrimaryId = primary;
+
+            var other = TagTypes.Find(type.Key);
+            if (other != null)
             {
-                BlowTagCache();
-
-                var type = _context.TagTypes.Create();
-                type.Key = TagType.BuildKey(value, category);
-                type.PrimaryId = primary;
-
-                var other = TagTypes.Find(type.Key);
-                if (other != null)
-                {
-                    Trace.WriteLineIf(TraceLevels.General.TraceInfo, $"Attempt to add duplicate tag: {other} {type}");
-                    type = other;
-                }
-                else
-                {
-                    type = _context.TagTypes.Add(type);
-                }
-                return type;
+                Trace.WriteLineIf(TraceLevels.General.TraceInfo, $"Attempt to add duplicate tag: {other} {type}");
+                type = other;
             }
+            else
+            {
+                type = _context.TagTypes.Add(type);
+                DanceStatsManager.GetInstance(this).AddTagType(type);
+            }
+            return type;
         }
 
         public static void BlowTagCache()
         {
-            lock (s_tagCache)
+            lock (s_sugMap)
             {
-                s_tagCache.Clear();
                 s_sugMap.Clear();
-                s_orderedTagTypes = null;
             }
         }
 
         private static readonly Dictionary<string,IOrderedEnumerable<TagCount>> s_sugMap = new Dictionary<string, IOrderedEnumerable<TagCount>>();
-        private static readonly Dictionary<string,TagType> s_tagCache = new Dictionary<string, TagType>();
-        private static List<TagType> s_orderedTagTypes;
 
         #endregion
 
@@ -2398,7 +1927,7 @@ namespace m4dModels
             _context.TrackChanges(true);
         }
 
-        public void UpdateSongs(IList<string> lines)
+        public void UpdateSongs(IList<string> lines, bool clearCache=true)
         {
             Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Entering UpdateSongs");
 
@@ -2415,6 +1944,7 @@ namespace m4dModels
                 lines.RemoveAt(0);
             }
 
+            var danceStats = DanceStats;
             var c = 0;
             foreach (var line in lines)
             {
@@ -2423,7 +1953,7 @@ namespace m4dModels
 
                 AdminMonitor.UpdateTask("UpdateSongs", c);
 
-                var sd = new SongDetails(line);
+                var sd = new SongDetails(line,danceStats);
                 var song = FindSong(sd.SongId);
 
                 if (song == null)
@@ -2432,7 +1962,7 @@ namespace m4dModels
                     var user = FindOrAddUser(up != null ? up.Value : "batch", EditRole);
 
                     song = CreateSong(sd.SongId);
-                    UpdateSong(user, song, sd, false);
+                    UpdateSong(user, song, sd);
                     Songs.Add(song);
 
                     // This was a merge so delete the input songs
@@ -2441,7 +1971,7 @@ namespace m4dModels
                         var list = SongsFromList(sd.Properties[0].Value);
                         foreach (var s in list)
                         {
-                            DeleteSong(user, s, false);
+                            DeleteSong(user, s);
                         }
                     }
                 }
@@ -2451,11 +1981,11 @@ namespace m4dModels
                     var user = FindOrAddUser(up != null ? up.Value : "batch", EditRole);
                     if (sd.IsNull)
                     {
-                        DeleteSong(user, song, false);
+                        DeleteSong(user, song);
                     }
                     else
                     {
-                        UpdateSong(user, song, sd, false);
+                        UpdateSong(user, song, sd);
                     }
                 }
 
@@ -2467,8 +1997,12 @@ namespace m4dModels
             }
 
             _context.TrackChanges(true);
-            Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Clearing Song Cache");
-            DanceStatsManager.ClearCache();
+
+            if (clearCache)
+            {
+                Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Clearing Song Cache");
+                DanceStatsManager.ClearCache();
+            }
             Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Exiting UpdateSongs");
         }
 
@@ -3251,10 +2785,12 @@ namespace m4dModels
                         if (!song.IsNull)
                         {
                             songs.Add(new SongDetails(song).GetIndexDocument());
+                            DanceStats.UpdateSong(song,this);
                         }
                         else if (exists)
                         {
                             deleted.Add(new SongDetails(song).GetIndexDocument());
+                            DanceStats.UpdateSong(song, this);
                         }
                         skip += 1;
                     }
@@ -3286,11 +2822,11 @@ namespace m4dModels
             return AzureSearch(filter.SearchString, AzureParmsFromFilter(filter, pageSize), cruft, id);
         }
 
-        public SearchResults AzureSearch(string search, SearchParameters parameters, CruftFilter cruft = CruftFilter.NoCruft, string id = "default")
+        public SearchResults AzureSearch(string search, SearchParameters parameters, CruftFilter cruft = CruftFilter.NoCruft, string id = "default", DanceStatsInstance stats = null)
         {
             parameters.IncludeTotalResultCount = true;
             var response = DoAzureSearch(search,parameters,cruft,id);
-            var songs = response.Results.Select(d => new SongDetails(d.Document)).ToList();
+            var songs = response.Results.Select(d => new SongDetails(d.Document,stats)).ToList();
             var pageSize = parameters.Top ?? 25;
             var page = ((parameters.Skip ?? 0)/pageSize) + 1;
             var facets = response.Facets;
@@ -3456,7 +2992,6 @@ namespace m4dModels
         }
         public ApplicationUser FindOrAddUser(string name, string role)
         {
-            
             var user = FindUser(name);
 
             if (user == null)

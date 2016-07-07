@@ -43,6 +43,7 @@
             @Html.ActionLink("JSON", "BackupJson", "Admin", new { filter }, new { @class = "btn btn-default", role = "button" })
             @Html.ActionLink("Update User Tags", "RebuildUserTags", "Admin", new {filter, update=true}, new { @class = "btn btn-default", role = "button" })
             @Html.ActionLink("Update Tags", "RebuildTags", "Admin", new {filter}, new { @class = "btn btn-default", role = "button" })
+            @Html.ActionLink("Update Tag Summaries", "UpdateTagSummaries", "Admin", new { filter }, new { @class = "btn btn-default", role = "button" })
             @Html.ActionLink("Echo Batch", "BatchEchoNest", new { filter, count = 10 }, new { @class = "btn btn-warning", role = "button" })
             @Html.ActionLink("Sample Batch", "BatchSamples", new { filter, count = 10 }, new { @class = "btn btn-warning", role = "button" })
         </div>

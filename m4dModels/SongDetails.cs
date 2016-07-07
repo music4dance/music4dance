@@ -88,28 +88,50 @@ namespace m4dModels
 
         // TODO: I want to be able to create SongDetails as a completely disconnected object
         //  but mapping all of the information from songs.  
-        public SongDetails(Guid songId, ICollection<SongProperty> properties)
+        public SongDetails(Guid songId, ICollection<SongProperty> properties, DanceStatsInstance stats)
         {
-            Load(songId, properties);
+            Load(songId, properties, stats);
         }
 
-        public SongDetails(string s)
+        public SongDetails(SongBase s, DanceStatsInstance stats, string userName = null, bool forSerialization = true)
         {
+            Init(s.SongId, SongProperty.Serialize(s.OrderedProperties,null), stats, userName, forSerialization);
+        }
+
+        public SongDetails(Guid guid, string s, DanceStatsInstance stats, string userName = null, bool forSerialization = true)
+        {
+            Init(guid,s,stats,userName,forSerialization);
+        }
+
+        public SongDetails(string s, DanceStatsInstance stats, string userName = null, bool forSerialization = true)
+        {
+            // Take a guid parameter?
             Guid id;
             var ich = TryParseId(s, out id);
             if (ich > 0)
             {
-                SongId = id;
                 s = s.Substring(ich);
             }
             else
             {
-                SongId = Guid.NewGuid();
+                id = Guid.NewGuid();
             }
+            Init(id,s,stats,userName,forSerialization);
+        }
 
+        private void Init(Guid id, string s, DanceStatsInstance stats, string userName, bool forSerialization)
+        {
+            SongId = id;
             var properties = new List<SongProperty>();
             SongProperty.Load(SongId, s, properties);
-            Load(SongId, properties);
+            Load(SongId, properties, stats);
+
+            if (forSerialization && stats != null) SetupSerialization(userName, stats);
+
+            if (userName == null) return;
+
+            _currentUserTags = GetUserTags(userName);
+            _currentUserLike = ModifiedBy.FirstOrDefault(mr => mr.UserName == userName)?.Like;
         }
 
         public SongDetails(string title, string artist, decimal? tempo, int? length, IList<AlbumDetails> albums)
@@ -120,11 +142,11 @@ namespace m4dModels
             Length = length;
             _albums = (albums as List<AlbumDetails>) ?? albums?.ToList();
         }
-        private void Load(Guid songId, ICollection<SongProperty> properties)
+        private void Load(Guid songId, ICollection<SongProperty> properties, DanceStatsInstance stats)
         {
             SongId = songId;
 
-            LoadProperties(properties);
+            LoadProperties(properties, stats);
 
             Albums = BuildAlbumInfo(properties);
             Properties.AddRange(properties);
@@ -133,7 +155,7 @@ namespace m4dModels
         #endregion
 
         #region Serialization
-        public static SongDetails CreateFromRow(ApplicationUser user, IList<string> fields, IList<string> cells, int weight=1)
+        public static SongDetails CreateFromRow(ApplicationUser user, IList<string> fields, IList<string> cells, DanceStatsInstance stats,int weight=1)
         {
             var properties = new List<SongProperty>();
             var specifiedUser = false;
@@ -416,7 +438,7 @@ namespace m4dModels
                 }
             }
 
-            return new SongDetails(Guid.Empty, properties);
+            return new SongDetails(Guid.NewGuid(), properties, stats);
         }
 
         public static List<string> BuildHeaderMap(string line, char separator = '\t')
@@ -472,7 +494,7 @@ namespace m4dModels
             {"MPM", MeasureTempo},
         };
 
-        public static IList<SongDetails> CreateFromRows(ApplicationUser user, string separator, IList<string> headers, IEnumerable<string> rows, int weight)
+        public static IList<SongDetails> CreateFromRows(ApplicationUser user, string separator, IList<string> headers, IEnumerable<string> rows, DanceStatsInstance stats, int weight)
         {
             var songs = new Dictionary<string, SongDetails>();
             var itc = string.Equals(separator.Trim(), "ITC");
@@ -514,7 +536,7 @@ namespace m4dModels
 
                 if (cells.Count == headers.Count)
                 {
-                    var sd = CreateFromRow(user, headers, cells, weight);
+                    var sd = CreateFromRow(user, headers, cells, stats, weight);
                     if (sd != null)
                     {
                         var ta = sd.TitleArtistAlbumString;
@@ -576,7 +598,7 @@ namespace m4dModels
         }
 
         //private static readonly List<string> s_trackFields = new List<string>(new string[] {""});
-        public static SongDetails CreateFromTrack(ApplicationUser user, ServiceTrack track, string dances, string songTags, string danceTags)
+        public static SongDetails CreateFromTrack(ApplicationUser user, ServiceTrack track, string dances, string songTags, string danceTags, DanceStatsInstance stats)
         {
             // Title;Artist;Duration;Album;Track;DanceRating;SongTags;DanceTags;PurchaseInfo;
 
@@ -615,7 +637,7 @@ namespace m4dModels
                 cells.Add(track.TrackId);
             }
 
-            var sd = CreateFromRow(user, fields, cells, DanceRatingIncrement);
+            var sd = CreateFromRow(user, fields, cells, stats, DanceRatingIncrement);
             sd.InferDances(user);
             return sd;
             //var properties = new List<SongProperty>
@@ -677,6 +699,15 @@ namespace m4dModels
 
             var ratings = new List<DanceRating>(RatingsList.Count);
             ratings.AddRange(RatingsList.Select(rating => new DanceRatingInfo(rating, user, dms)));
+            _ratingsList = ratings;
+        }
+
+        public void SetupSerialization(string userName, DanceStatsInstance stats)
+        {
+            if (RatingsList == null || RatingsList.Count == 0) return;
+
+            var ratings = new List<DanceRating>(RatingsList.Count);
+            ratings.AddRange(RatingsList.Select(rating => new DanceRatingInfo(rating, GetUserTags(userName,rating.DanceId), stats)));
             _ratingsList = ratings;
         }
 
@@ -1473,7 +1504,7 @@ namespace m4dModels
             return doc;
         }
 
-        public SongDetails(Document d)
+        public SongDetails(Document d, DanceStatsInstance stats)
         {
             var s = d["Properties"] as string;
             var sid = d["SongId"] as string;
@@ -1485,7 +1516,7 @@ namespace m4dModels
 
             var properties = new List<SongProperty>();
             SongProperty.Load(SongId, s, properties);
-            Load(SongId, properties);
+            Load(SongId, properties,stats);
         }
 
         private static string BuildDanceFieldName(string id)

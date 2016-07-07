@@ -7,7 +7,6 @@ using DanceLibrary;
 namespace m4dModels
 {
     [JsonObject(MemberSerialization.OptIn)]
-
     public class DanceStats
     {
         public DanceStats()
@@ -15,13 +14,14 @@ namespace m4dModels
         }
 
         [JsonConstructor]
-        public DanceStats(string danceId, string danceName, string description, int songCount, int maxWeight, string songTags, IEnumerable<string> topSongs, DanceStats[] children, DanceType danceType, DanceGroup danceGroup)
+        public DanceStats(string danceId, string danceName, string description, int songCount, int maxWeight, string songTags, IEnumerable<string> topSongs, IEnumerable<DanceStats> children, DanceType danceType, DanceGroup danceGroup)
         {
             Description = description;
             SongCount = songCount;
             MaxWeight = maxWeight;
-            SongTags = new TagSummary(songTags);
-            TopSongs = topSongs?.Where(s => s != null).Select(s => new SongDetails(s)).ToList();
+            SongTags = string.IsNullOrEmpty(songTags) ? null : new TagSummary(songTags);
+            // TODO: We've got a chicken and egg problem here - we should be able to load tags first and then pull in stats so that we can have TagMap available here
+            TopSongs = topSongs?.Select(s => new SongDetails(s,null)).ToList();
 
             if (danceType != null)
             {
@@ -87,6 +87,15 @@ namespace m4dModels
         [JsonProperty]
         public DanceGroup DanceGroup => DanceObject as DanceGroup;
 
+        public Dance Dance => new Dance
+        {
+            Id = DanceId,
+            Description = Description,
+            MaxWeight = MaxWeight,
+            DanceLinks = DanceLinks,
+            SongCount = (int) SongCount,
+            SongTags = SongTags
+        };
 
         public IEnumerable<DanceInstance> CompetitionDances { get; private set; }
 
@@ -120,6 +129,26 @@ namespace m4dModels
                 c.Parent = this;
                 c.SetParents();
             }
+        }
+
+        public void RebuildTopSongs(DanceStatsInstance danceStats)
+        {
+            TopSongs = TopSongs?.Select(s => new SongDetails(s.Serialize(null), danceStats)).ToList();
+        }
+
+        public DanceStats CloneForUser(string userName, DanceStatsInstance danceStats)
+        {
+            return new DanceStats
+            {
+                Description = Description,
+                SongCount = SongCount,
+                MaxWeight = MaxWeight,
+                SongTags = SongTags,
+                DanceObject = DanceObject,
+                Parent = Parent,
+                Children = Children,
+                TopSongs = TopSongs?.Select(s => new SongDetails(s.SongId, s.Serialize(null), danceStats, userName)).ToList()
+            };
         }
     }
 }

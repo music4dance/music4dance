@@ -301,13 +301,13 @@ Hustle is traditionally danced to [disco music](https://www.music4dance.net/song
         private static void ValidateTagSummary(IEnumerable<TagCount> tags, int expectedCount, string first, string last, string name)
         {
             var list = tags.ToList();
-            //Trace.WriteLine("All tags=" + list.Count);
+            Trace.WriteLine("All tags=" + list.Count);
             Assert.AreEqual(expectedCount, list.Count, name + " length");
 
             Trace.WriteLine("First:" + list[0]);
-            //Assert.AreEqual(first,list[0].Serialize(),name + " first");
+            Assert.AreEqual(first,list[0].Serialize(),name + " first");
             Trace.WriteLine("Last:" + list[list.Count-1]);
-            //Assert.AreEqual(last, list[list.Count - 1].Serialize(), name + " last");
+            Assert.AreEqual(last, list[list.Count - 1].Serialize(), name + " last");
         }
 
         static bool ListEquivalent(IEnumerable<string> expected, IList<string> actual)
