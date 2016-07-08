@@ -20,7 +20,7 @@ namespace m4dModels
         {
             if (string.IsNullOrWhiteSpace(sort))
             {
-                sort = SongBase.MoodField;
+                sort = SongBase.ModifiedField;
             }
             var list = sort.Split('_').ToList();
             var count = -1;
