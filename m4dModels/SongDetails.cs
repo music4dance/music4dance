@@ -1504,7 +1504,7 @@ namespace m4dModels
             return doc;
         }
 
-        public SongDetails(Document d, DanceStatsInstance stats)
+        public SongDetails(Document d, DanceStatsInstance stats, string userName = null)
         {
             var s = d["Properties"] as string;
             var sid = d["SongId"] as string;
@@ -1512,11 +1512,8 @@ namespace m4dModels
 
             Guid id;
             if (!Guid.TryParse(sid, out id)) throw new ArgumentOutOfRangeException(nameof(d));
-            SongId = id;
 
-            var properties = new List<SongProperty>();
-            SongProperty.Load(SongId, s, properties);
-            Load(SongId, properties,stats);
+            Init(id,s,stats,userName,true);
         }
 
         private static string BuildDanceFieldName(string id)

@@ -655,6 +655,48 @@ namespace m4dModels
             }
         }
 
+        IEnumerable<SongDetails> FindUserSongs(string user, string id = "default")
+        {
+            const int max = 250;
+
+            var filter = SongFilter.AzureSimple;
+            filter.User = user;
+
+            var afilter = AzureParmsFromFilter(filter);
+            afilter.Top = max;
+            afilter.IncludeTotalResultCount = false;
+
+            var results = new List<SongDetails>();
+
+            var stats = DanceStats;
+
+            var info = SearchServiceInfo.GetInfo(id);
+
+            using (var serviceClient = new SearchServiceClient(info.Name, new SearchCredentials(info.AdminKey)))
+            using (var indexClient = serviceClient.Indexes.GetClient(info.Index))
+            {
+                var response = DoAzureSearch(indexClient, null, afilter);
+
+                results.AddRange(response.Results.Select(d => new SongDetails(d.Document, stats, user)));
+
+                if (response.ContinuationToken == null) return results;
+
+                try
+                {
+                    while (response.ContinuationToken != null && results.Count < max)
+                    {
+                        response = indexClient.Documents.ContinueSearch(response.ContinuationToken);
+                        results.AddRange(response.Results.Select(d => new SongDetails(d.Document, stats, user)));
+                    }
+                }
+                catch (Microsoft.Rest.Azure.CloudException e)
+                {
+                    Trace.WriteLineIf(TraceLevels.General.TraceVerbose, e.Message);
+                }
+                return results;
+            }
+        }
+
         public SongDetails FindMergedSong(Guid id, string userName = null)
         {
             while (true)
@@ -1463,15 +1505,14 @@ namespace m4dModels
                     }
                 }
             }
-            else
+            else if (SearchServiceInfo.UseSql)
             {
-                // AZURETODO: Can't currently do this without user tags in sql database - do we run the user songs???
                 var tags = from t in Tags
-                            where
-                                (userString == t.UserId) && 
-                                (trg == null || t.Id.StartsWith(trg)) &&
-                                (tagType == null || t.Tags.Summary.Contains(tagLabel))
-                            select t;
+                    where
+                        (userString == t.UserId) &&
+                        (trg == null || t.Id.StartsWith(trg)) &&
+                        (tagType == null || t.Tags.Summary.Contains(tagLabel))
+                    select t;
 
                 var tagMap = TagMap;
                 var dictionary = new Dictionary<string, int>();
@@ -1499,6 +1540,19 @@ namespace m4dModels
                 ret = dictionary.Select(pair => new TagCount(pair.Key, pair.Value))
                     .OrderByDescending(tc => tc.Count);
             }
+            else
+            {
+                var au = UserManager.FindById(user.ToString());
+
+                if (!s_usMap.TryGetValue(au.UserName, out ret))
+                {
+                    var songs = FindUserSongs(au.UserName);
+                    ret = BuildUserSuggestsions(songs);
+                    s_usMap[au.UserName] = ret;
+                }
+
+                if (tagType != null) ret = ret.Where(t => t.TagClass == tagType).OrderByDescending(tc => tc.Count);
+            }
 
             if (count < int.MaxValue)
             {
@@ -1506,6 +1560,29 @@ namespace m4dModels
             }
 
             return ret;
+        }
+
+        // This assumes that the songdetails have been loaded with a specific current user info
+        private static IOrderedEnumerable<TagCount> BuildUserSuggestsions(IEnumerable<SongDetails> songs)
+        {
+            var dictionary = new Dictionary<string, int>();
+            foreach (var song in songs)
+            {
+                int c;
+                foreach (var dt in from dr in song.DanceRatings select dr as DanceRatingInfo into dri where dri?.CurrentUserTags != null from dt in dri.CurrentUserTags.Tags select dt)
+                {
+                    dictionary[dt] = dictionary.TryGetValue(dt, out c) ? c + 1 : 1;
+                }
+
+                if (song.CurrentUserTags == null) continue;
+
+                foreach (var tag in song.CurrentUserTags.Tags)
+                {
+                    dictionary[tag] = dictionary.TryGetValue(tag, out c) ? c + 1 : 1;
+                }
+            }
+
+            return dictionary.Select(pair => new TagCount(pair.Key, pair.Value)).OrderByDescending(tc => tc.Count);
         }
 
         public IEnumerable<TagType> OrderedTagTypes => DanceStatsManager.GetInstance(this).TagTypes;
@@ -1559,10 +1636,12 @@ namespace m4dModels
             lock (s_sugMap)
             {
                 s_sugMap.Clear();
+                s_usMap.Clear();
             }
         }
 
         private static readonly Dictionary<string,IOrderedEnumerable<TagCount>> s_sugMap = new Dictionary<string, IOrderedEnumerable<TagCount>>();
+        private static readonly Dictionary<string, IOrderedEnumerable<TagCount>> s_usMap = new Dictionary<string, IOrderedEnumerable<TagCount>>();
 
         #endregion
 
@@ -2846,10 +2925,8 @@ namespace m4dModels
             parameters.Facets = categories.Split(',').Select(c => $"{c},count:{count}").ToList();
         }
 
-        private static DocumentSearchResult DoAzureSearch(string search, SearchParameters parameters, CruftFilter cruft = CruftFilter.NoCruft, string id = "default")
+        private static DocumentSearchResult DoAzureSearch(ISearchIndexClient client, string search, SearchParameters parameters, CruftFilter cruft = CruftFilter.NoCruft)
         {
-            var info = SearchServiceInfo.GetInfo(id);
-
             var extra = new StringBuilder();
             if ((cruft & CruftFilter.NoPublishers) != CruftFilter.NoPublishers)
             {
@@ -2862,23 +2939,30 @@ namespace m4dModels
                 extra.Append("DanceTags/any()");
             }
 
-            if (extra.Length > 0)
+            if (extra.Length <= 0)
+                return client.Documents.Search(search, parameters);
+
+            if (parameters.Filter == null)
             {
-                if (parameters.Filter == null)
-                {
-                    parameters.Filter = extra.ToString();
-                }
-                else
-                {
-                    extra.AppendFormat(" and {0}", parameters.Filter);
-                    parameters.Filter = extra.ToString();
-                }
+                parameters.Filter = extra.ToString();
             }
+            else
+            {
+                extra.AppendFormat(" and {0}", parameters.Filter);
+                parameters.Filter = extra.ToString();
+            }
+
+            return client.Documents.Search(search, parameters);
+        }
+
+        private static DocumentSearchResult DoAzureSearch(string search, SearchParameters parameters, CruftFilter cruft = CruftFilter.NoCruft, string id = "default")
+        {
+            var info = SearchServiceInfo.GetInfo(id);
 
             using (var serviceClient = new SearchServiceClient(info.Name, new SearchCredentials(info.QueryKey)))
             using (var indexClient = serviceClient.Indexes.GetClient(info.Index))
             {
-                return indexClient.Documents.Search(search, parameters);
+                return DoAzureSearch(indexClient, search, parameters, cruft);
             }
         }
 
