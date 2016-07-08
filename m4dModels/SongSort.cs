@@ -7,9 +7,9 @@ namespace m4dModels
 {
     public class SongSort
     {
-        private static readonly string[] s_directional = { "Title", "Artist", "Album", "Tempo", "Modified", "Created","Energy","Mood","Beat" };
-        private static readonly string[] s_numerical = { "Tempo", "Modified", "Created" };
-        private static readonly string[] s_intrinsic = {"Energy", "Mood", "Beat"};
+        private static readonly string[] s_directional = { SongBase.TitleField, SongBase.ArtistField, SongBase.AlbumField, SongBase.TempoField, SongBase.ModifiedField, SongBase.CreatedField,SongBase.EnergyField,SongBase.MoodField,SongBase.BeatField };
+        private static readonly string[] s_numerical = { SongBase.TempoField, SongBase.MoodField, SongBase.CreatedField };
+        private static readonly string[] s_intrinsic = {SongBase.EnergyField, SongBase.MoodField, SongBase.BeatField};
 
         private const string SortAsc = "<span class='glyphicon glyphicon-sort-by-alphabet'></span>";
         private const string SortDsc = "<span class='glyphicon glyphicon-sort-by-alphabet-alt'></span>";
@@ -20,7 +20,7 @@ namespace m4dModels
         {
             if (string.IsNullOrWhiteSpace(sort))
             {
-                sort = "Modified";
+                sort = SongBase.MoodField;
             }
             var list = sort.Split('_').ToList();
             var count = -1;
@@ -102,23 +102,23 @@ namespace m4dModels
                 {
                     switch (Id)
                     {
-                        case "Tempo":
+                        case SongBase.TempoField:
                             ret.Append("slowest to fastest");
                             break;
-                        case "Modified":
-                        case "Created":
+                        case SongBase.ModifiedField:
+                        case SongBase.CreatedField:
                             ret.Append("newest to oldest");
                             break;
-                        case "Dances":
+                        case SongBase.DancesField:
                             ret.Append("most popular to least popular");
                             break;
-                        case "Beat":
+                        case SongBase.BeatField:
                             ret.Append("weakest to strongest");
                             break;
-                        case "Mood":
+                        case SongBase.MoodField:
                             ret.Append("saddest to happiest");
                             break;
-                        case "Energy":
+                        case SongBase.EnergyField:
                             ret.Append("lowest to highest");
                             break;
                         default:
@@ -129,23 +129,23 @@ namespace m4dModels
                 else {
                     switch (Id)
                     {
-                        case "Tempo":
+                        case SongBase.TempoField:
                             ret.Append("fastest to slowest");
                             break;
-                        case "Modified":
-                        case "Created":
+                        case SongBase.ModifiedField:
+                        case SongBase.CreatedField:
                             ret.Append("oldest to newest");
                             break;
-                        case "Dances":
+                        case SongBase.DancesField:
                             ret.Append("most popular to least popular");
                             break;
-                        case "Beat":
+                        case SongBase.BeatField:
                             ret.Append("strongest to weakest");
                             break;
-                        case "Mood":
+                        case SongBase.MoodField:
                             ret.Append("happiest to saddest");
                             break;
-                        case "Energy":
+                        case SongBase.EnergyField:
                             ret.Append("highest to lowest");
                             break;
                         default:

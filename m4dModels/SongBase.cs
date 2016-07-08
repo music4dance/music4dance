@@ -59,6 +59,23 @@ namespace m4dModels
         // Proxy Fields
         public const string UserProxy = "UserProxy";
 
+        // Azure Search Fields
+        public const string SongIdField = "SongId";
+        public const string AltIdField = "AlternateIds";
+        public const string MoodField = "Mood";
+        public const string BeatField = "Beat";
+        public const string AlbumsField = "Albums";
+        public const string CreatedField = "Created";
+        public const string ModifiedField = "Modified";
+        public const string DancesField = "Dances";
+        public const string UsersField = "Users";
+        public const string DanceTagsInferred = "DanceTagsInferred";
+        public const string GenreTags = "GenreTags";
+        public const string TempoTags = "TempoTags";
+        public const string StyleTags = "StyleTags";
+        public const string OtherTags = "OtherTags";
+        public const string PropertiesField = "Properties";
+
         // Special cases for reading scraped data
         public const string TitleArtistCell = "TitleArtist";
         public const string DancersCell = "Dancers";
@@ -976,9 +993,9 @@ namespace m4dModels
 
         public static int TryParseId(string s, out Guid id)
         {
-            const string idField = "SongId=";
+            const string idField = SongIdField + "=";
             id = Guid.Empty;
-            if (!s.StartsWith("SongId")) return 0;
+            if (!s.StartsWith(SongIdField)) return 0;
 
             var t = s.IndexOf('\t');
             if (t == -1) return 0;

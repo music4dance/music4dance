@@ -641,10 +641,10 @@ namespace m4dModels
             {
                 try
                 {
-                    var doc = indexClient.Documents.Get(id.ToString(), new[] {"Properties" });
+                    var doc = indexClient.Documents.Get(id.ToString(), new[] {SongBase.PropertiesField});
                     if (doc == null) return null;
 
-                    var details = new SongDetails(id,doc["Properties"] as string, DanceStats, userName);
+                    var details = new SongDetails(id,doc[SongBase.PropertiesField] as string, DanceStats, userName);
                     return details;
                 }
                 catch (Microsoft.Rest.Azure.CloudException e)
@@ -699,6 +699,11 @@ namespace m4dModels
 
         public SongDetails FindMergedSong(Guid id, string userName = null)
         {
+            if (!SearchServiceInfo.UseSql)
+                return DoAzureSearch(null, new SearchParameters {Filter = $"(AlternateIds/any(t: t eq '{id}'))"})
+                    .Results.Select(
+                        r => new SongDetails(r.Document, DanceStats, userName)).FirstOrDefault(s => !s.IsNull);
+
             while (true)
             {
                 var idS = id.ToString();
@@ -2804,7 +2809,7 @@ namespace m4dModels
             return ret;
         }
 
-        static private readonly string[] s_updateFields =  { "Modified", "Properties" };
+        static private readonly string[] s_updateFields =  { SongBase.ModifiedField, SongBase.PropertiesField };
         static private readonly string[] s_updateEntities = { "Song", "SongProperties", "ModifiedBy", "DanceRatings" };
         static private readonly string[] s_updateNoId = { SongBase.NoSongId };
         private static readonly TimeSpan s_updateDelta = TimeSpan.FromMilliseconds(10);
@@ -3058,7 +3063,7 @@ namespace m4dModels
             parameters.Skip = null;
             parameters.Top = (count == -1) ? (int?) null : count;
             parameters.OrderBy = new [] {"Modified desc"};
-            parameters.Select = new[] {"SongId", "Modified", "Properties"};
+            parameters.Select = new[] {SongBase.SongIdField, SongBase.ModifiedField, SongBase.PropertiesField};
 
             using (var serviceClient = new SearchServiceClient(info.Name, new SearchCredentials(info.QueryKey)))
             using (var indexClient = serviceClient.Indexes.GetClient(info.Index))
@@ -3082,7 +3087,7 @@ namespace m4dModels
                             break;
                         }
 
-                        results.Add(SongBase.Serialize(doc.Document["SongId"] as string, doc.Document["Properties"] as string));
+                        results.Add(SongBase.Serialize(doc.Document[SongBase.SongIdField] as string, doc.Document[SongBase.PropertiesField] as string));
                         AdminMonitor.UpdateTask("readSongs", results.Count);
                     }
                     token = response.ContinuationToken;

@@ -70,7 +70,7 @@ namespace m4dModels
             if (env == null)
             {
                 s_useSql = false;
-                return s_defaultId = "basica";
+                return s_defaultId = "basicb";
             }
 
             s_env = env;

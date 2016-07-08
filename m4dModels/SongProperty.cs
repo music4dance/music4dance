@@ -101,7 +101,7 @@ namespace m4dModels
                 object ret = null;
                 switch (BaseName)
                 {
-                    case "SongId":
+                    case SongBase.SongIdField:
                         if (!string.IsNullOrEmpty(Value))
                         {
                             Guid id;
