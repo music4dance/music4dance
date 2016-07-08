@@ -1,4 +1,5 @@
-﻿@{
+﻿@using System.Web.Handlers
+@{
     ViewBag.Title = "UploadBackup";
 }
 
@@ -67,6 +68,29 @@
         <input type="submit" name="reloadDatabase" id="Reload" value="Reload" />
         <input type="submit" name="reloadDatabase" id="Update" value="Update" />
         <input type="submit" name="reloadDatabase" id="Admin" value="Admin" />
+    }
+
+    <h3>Reload the Index</h3>
+    using (Html.BeginForm("LoadIdx", "Admin", FormMethod.Post, new { enctype = "multipart/form-data" }))
+    {
+        @Html.AntiForgeryToken();
+        <input type="file" name="FileUpload" />
+        <br/>
+        <input type="submit" name="idxName" id="basica" value="basica" />
+        <input type="submit" name="idxName" id="basicb" value="basicb" />
+        <input type="submit" name="idxName" id="basicc" value="basicc" />
+    }
+
+    <h3>Update the Index</h3>
+    using (Html.BeginForm("LoadIdx", "Admin", FormMethod.Post, new { enctype = "multipart/form-data" }))
+    {
+        @Html.AntiForgeryToken();
+        <input type="file" name="FileUpload"/>
+        <input type="hidden" name="reset" id="reset" value="false"/>
+        <br />
+        <input type="submit" name="idxName" id="basica" value="basicb" />
+        <input type="submit" name="idxName" id="basicb" value="basicb" />
+        <input type="submit" name="idxName" id="basicc" value="basicc" />
     }
 
     <hr />

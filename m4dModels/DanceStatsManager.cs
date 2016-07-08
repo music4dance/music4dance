@@ -121,7 +121,7 @@ namespace m4dModels
             FixupStats();
         }
 
-        public void FixupStats()
+        public void FixupStats(DanceMusicService dms = null, string source = "default")
         {
             foreach (var d in Tree)
             {
@@ -131,7 +131,25 @@ namespace m4dModels
 
             foreach (var ds in List)
             {
-                ds.RebuildTopSongs(this);
+                if (dms == null)
+                {
+                    ds.RebuildTopSongs(this);
+                }
+                else if (ds.SongCount > 0)
+                {
+                    // TopN and MaxWeight
+                    var filter = dms.AzureParmsFromFilter(new SongFilter { Dances = ds.DanceId, SortOrder = "Dances" }, 10);
+                    DanceMusicService.AddAzureCategories(filter, "GenreTags,StyleTags,TempoTags,OtherTags", 100);
+                    var results = dms.AzureSearch(null, filter, DanceMusicService.CruftFilter.NoCruft, source, this);
+                    ds.TopSongs = results.Songs;
+                    var song = ds.TopSongs.FirstOrDefault();
+                    var dr = song?.DanceRatings.FirstOrDefault(d => d.DanceId == ds.DanceId);
+
+                    if (dr != null) ds.MaxWeight = dr.Weight;
+
+                    // SongTags
+                    ds.SongTags = (results.FacetResults == null) ? new TagSummary() : new TagSummary(results.FacetResults, TagMap);
+                }
             }
         }
 
@@ -466,7 +484,7 @@ namespace m4dModels
         {
             var instance = new DanceStatsInstance(AzureTagTypes(dms, source));
             instance.Tree = AzureDanceStats(dms, instance, source).ToList();
-            instance.FixupStats();
+            instance.FixupStats(dms,source);
             if (!save) return instance;
 
             LastUpdate = DateTime.Now;
@@ -589,21 +607,6 @@ namespace m4dModels
             stats.SongCountExplicit = tags.TryGetValue(stats.DanceId, out expl) ? expl : 0;
             stats.SongCountImplicit = inferred.TryGetValue(stats.DanceId, out impl) ? impl : 0;
             stats.SongCount = stats.SongCountImplicit + stats.SongCountExplicit;
-
-            if (stats.SongCount == 0) return;
-
-            // TopN and MaxWeight
-            var filter = dms.AzureParmsFromFilter(new SongFilter {Dances = stats.DanceId, SortOrder = "Dances"}, 10);
-            DanceMusicService.AddAzureCategories(filter,"GenreTags,StyleTags,TempoTags,OtherTags",100);
-            var results = dms.AzureSearch(null, filter, DanceMusicService.CruftFilter.NoCruft, source, danceStats);
-            stats.TopSongs = results.Songs;
-            var song = stats.TopSongs.FirstOrDefault();
-            var dr = song?.DanceRatings.FirstOrDefault(d => d.DanceId == stats.DanceId);
-
-            if (dr != null) stats.MaxWeight = dr.Weight;
-
-            // SongTags
-            stats.SongTags = (results.FacetResults == null) ? new TagSummary() : new TagSummary(results.FacetResults,danceStats.TagMap);
         }
 
         private static void AzureHandleType(DanceObject dtyp, DanceStats scGroup, IReadOnlyDictionary<string, long> tags, IReadOnlyDictionary<string, long> inferred, DanceStatsInstance danceStats, DanceMusicService dms, string source)

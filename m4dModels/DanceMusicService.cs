@@ -2810,6 +2810,39 @@ namespace m4dModels
         private static readonly TimeSpan s_updateDelta = TimeSpan.FromMilliseconds(10);
 
 
+        public int UploadIndex(IList<string> lines, string id = "default")
+        {
+            const int chunkSize = 500;
+            var info = SearchServiceInfo.GetInfo(id);
+            var page = 0;
+            var stats = DanceStats;
+            var added = 0;
+
+            using (var serviceClient = new SearchServiceClient(info.Name, new SearchCredentials(info.AdminKey)))
+            using (var indexClient = serviceClient.Indexes.GetClient(info.Index))
+            {
+                for (var i = 0; i < lines.Count; page += 1)
+                {
+                    AdminMonitor.UpdateTask("AddSongs", added);
+                    var chunk = new List<SongDetails>();
+                    for (; i < lines.Count && i < (page+1)*chunkSize; i++)
+                    {
+                        chunk.Add(new SongDetails(lines[i],stats));
+                    }
+
+                    var songs = (from song in chunk where !song.IsNull select song.GetIndexDocument()).ToList();
+
+                    if (songs.Count <= 0) continue;
+
+                    var batch = IndexBatch.MergeOrUpload(songs);
+                    var results = indexClient.Documents.Index(batch);
+                    added += results.Results.Count;
+                }
+
+                return added;
+            }
+        }
+
         public int UpdateAzureIndex(string id = "default")
         {
             var skip = 0;
@@ -2879,7 +2912,7 @@ namespace m4dModels
                         var batch = IndexBatch.MergeOrUpload(songs);
                         indexClient.Documents.Index(batch);
                     }
-                    else if (deleted.Count > 0)
+                    if (deleted.Count > 0)
                     {
                         var delete = IndexBatch.Delete(deleted);
                         indexClient.Documents.Index(delete);

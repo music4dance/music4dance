@@ -681,6 +681,8 @@ namespace m4d.Controllers
             Trace.WriteLineIf(TraceLevels.General.TraceInfo, $"Set Search Index: '{id}'");
             SearchServiceInfo.DefaultId = id;
 
+            DanceStatsManager.LoadFromAzure(Database, id, true);
+
             return RedirectToAction("Diagnostics");
         }
 
@@ -1101,6 +1103,39 @@ namespace m4d.Controllers
             catch (Exception e)
             {
                 return FailAdminTask("Dances Tags failed to rebuild", e);
+            }
+        }
+
+        //
+        // Get: //ReloadIndex
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Authorize(Roles = "dbAdmin")]
+        public ActionResult LoadIdx(string idxName = "default", bool reset = true)
+        {
+            try
+            {
+                StartAdminTask("LoadIndex");
+                AdminMonitor.UpdateTask("UploadFile");
+
+                var lines = UploadFile();
+
+                AdminMonitor.UpdateTask("LoadIndex");
+
+                if (reset) Database.ResetIndex(idxName);
+
+                var c = Database.UploadIndex(lines, idxName);
+
+                if (SearchServiceInfo.GetInfo(idxName).Id == SearchServiceInfo.GetInfo("default").Id)
+                {
+                    DanceStatsManager.LoadFromAzure(Database, idxName, true);
+                }
+
+                return CompleteAdminTask(true, $"Index {idxName} loaded with {c} songs");
+            }
+            catch (Exception e)
+            {
+                return FailAdminTask($"Load Index ({idxName}): {e.Message}", e);
             }
         }
 
