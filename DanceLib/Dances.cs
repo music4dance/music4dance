@@ -648,6 +648,12 @@ namespace DanceLibrary
             }
         }
 
+        internal static void Reset()
+        {
+            s_mapGroups.Clear();
+            s_mapCategories.Clear();
+        }
+
         public static IEnumerable<CompetitionCategory> GetGroup(string name)
         {
             List<CompetitionCategory> categories;
@@ -714,6 +720,7 @@ namespace DanceLibrary
                 }
             }
 
+            CompetitionCategory.Reset();
             foreach (var di in _allDanceInstances)
             {
                 _allDanceObjects.Add(di);
