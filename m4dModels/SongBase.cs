@@ -35,6 +35,7 @@ namespace m4dModels
         public const string DanceabilityField = "Danceability";
         public const string EnergyField = "Energy";
         public const string ValenceFiled = "Valence";
+        public const string TitleHashField = "TitleHash";
 
         // Album Fields
         public const string AlbumField = "Album";

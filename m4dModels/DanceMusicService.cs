@@ -1159,20 +1159,19 @@ namespace m4dModels
 
         public enum MatchMethod { None, Tempo, Merge };
 
+        private IEnumerable<SongBase> SongsFromHash(int hash)
+        {
+            if (SearchServiceInfo.UseSql) return from s in Songs where (s.TitleHash == hash) select s;
+
+            return DoAzureSearch(null, new SearchParameters { Filter = $"(TitleHash eq {hash})" })
+                    .Results.Select(
+                        r => new SongDetails(r.Document, DanceStats));
+        }
         private LocalMerger MergeFromTitle(SongDetails song)
         {
-            var songT = song;
-            var songs = from s in Songs where (s.TitleHash == songT.TitleHash) select s;
+            var songs = SongsFromHash(song.TitleHash);
 
-            var candidates = new List<SongDetails>();
-            foreach (var s in songs)
-            {
-                // Title-Artist match at minimum
-                if (SongBase.SoftArtistMatch(s.Artist,song.Artist))
-                {
-                    candidates.Add(new SongDetails(s));
-                }
-            }
+            var candidates = (from s in songs where SongBase.SoftArtistMatch(s.Artist, song.Artist) select (s as SongDetails) ?? new SongDetails(s)).ToList();
 
             if (candidates.Count <= 0)
                 return new LocalMerger {Left = song, Right = null, MatchType = MatchType.None, Conflict = false};
