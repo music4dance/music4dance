@@ -22,7 +22,7 @@
         var column = columns[i];
 
         var tag = column + ":Other";
-        counts[i] = danceStats.AggregateSongTags.TagCount(tag);
+        counts[i] = danceStats.AggregateSongTags?.TagCount(tag) ?? 0;
         if (counts[i] != 0)
         {
             show = true;
