@@ -41,8 +41,6 @@
     <li>@Html.ActionLink("Times from Properties", "TimesFromProperties")</li>
     <li>@Html.ActionLink("Times from Properties: Batch", "TimesFromProperties", new { exclude = "batch|batch-i|batch-s|batch-a|batch-x|batch-e" }, null)</li>
     <li>@Html.ActionLink("Times from Properties: Recent Batch", "TimesFromProperties", new {exclude="batch|batch-i|batch-s|batch-a|batch-x|batch-e", from= (DateTime.Now - new TimeSpan(1, 0, 0, 0)).ToShortDateString()}, null)</li>
-    @*<li>@Html.ActionLink("Add Dance Groups", "AddDanceGroups")</li>
-        <li>@Html.ActionLink("Clean Tags", "CleanTags")</li>*@
     <li>@Html.ActionLink("Infer Dance Types", "InferDanceTypes")</li>
     <li>@Html.ActionLink("Update Spotify Regions", "SpotifyRegions", "Admin", new {count = 500}, null)</li>
     <li>@Html.ActionLink("Region Stats", "RegionStats", "Admin")</li>
