@@ -149,7 +149,7 @@ namespace m4d.Controllers
             BuildDanceList();
             ViewBag.SongFilter = filter;
 
-            var songs = new StaticPagedList<SongBase>(results.Songs, results.CurrentPage, results.PageSize, (int)results.TotalCount);
+            var songs = new StaticPagedList<Song>(results.Songs, results.CurrentPage, results.PageSize, (int)results.TotalCount);
 
             var dances = filter.DanceQuery.DanceIds.ToList();
             SetupLikes(results.Songs, dances.Count == 1 ? dances[0] : null);
@@ -821,11 +821,11 @@ namespace m4d.Controllers
             var user = Database.FindUser(userName);
 
             var song = Database.MergeSongs(user, songList, 
-                ResolveStringField(SongBase.TitleField, songList, Request.Form),
-                ResolveStringField(SongBase.ArtistField, songList, Request.Form),
-                ResolveDecimalField(SongBase.TempoField, songList, Request.Form),
-                ResolveIntField(SongBase.LengthField, songList, Request.Form),
-                Request.Form[SongBase.AlbumListField], new HashSet<string>(Request.Form.AllKeys));
+                ResolveStringField(Song.TitleField, songList, Request.Form),
+                ResolveStringField(Song.ArtistField, songList, Request.Form),
+                ResolveDecimalField(Song.TempoField, songList, Request.Form),
+                ResolveIntField(Song.LengthField, songList, Request.Form),
+                Request.Form[Song.AlbumListField], new HashSet<string>(Request.Form.AllKeys));
 
             UpdateAndEnqueue(songList);
 
@@ -918,7 +918,7 @@ namespace m4d.Controllers
                     var songsQ = Database.BuildSongList(filter, cruftFilter);
                     if (skipVisited)
                     {
-                        songsQ = songsQ.Where(s => s.SongProperties.All(p => p.Name != SongBase.FailedLookup));
+                        songsQ = songsQ.Where(s => s.SongProperties.All(p => p.Name != Song.FailedLookup));
                     }
                     var songs = songsQ.Skip(page * pageSize).Take(pageSize).ToList();
                     var processed = 0;
@@ -933,7 +933,7 @@ namespace m4d.Controllers
                         var failLevel = -1;
                         var fail =
                             song.OrderedProperties.FirstOrDefault(
-                                p => p.Name == SongBase.FailedLookup && p.Value.StartsWith(type));
+                                p => p.Name == Song.FailedLookup && p.Value.StartsWith(type));
                         if (fail?.Value != null && fail.Value.Length > 2)
                         {
                             int.TryParse(fail.Value.Substring(2), out failLevel);
@@ -983,7 +983,7 @@ namespace m4d.Controllers
                                 if (failcode > failLevel)
                                 {
                                     var sp = Database.SongProperties.Create();
-                                    sp.Name = SongBase.FailedLookup;
+                                    sp.Name = Song.FailedLookup;
                                     sp.Value = type + ":" + failcode.ToString();
                                     song.SongProperties.Add(sp);
                                 }
@@ -1119,8 +1119,8 @@ namespace m4d.Controllers
                 StartAdminTask("BatchCleanService");
                 AdminMonitor.UpdateTask("BatchCleanService");
 
-                var failed = new List<SongBase>();
-                var succeeded = new List<SongBase>();
+                var failed = new List<Song>();
+                var succeeded = new List<Song>();
 
                 Context.TrackChanges(false);
 
@@ -1348,8 +1348,8 @@ namespace m4d.Controllers
                 var tried = 0;
                 var skipped = 0;
 
-                var failed = new List<SongBase>();
-                var succeeded = new List<SongBase>();
+                var failed = new List<Song>();
+                var succeeded = new List<Song>();
 
                 Context.TrackChanges(false);
 
@@ -1828,7 +1828,7 @@ namespace m4d.Controllers
             return found;
         }
 
-        private bool CleanMusicServiceSong(SongBase song)
+        private bool CleanMusicServiceSong(Song song)
         {
             var del = new List<SongProperty>();
 
@@ -1837,7 +1837,7 @@ namespace m4d.Controllers
             var lastMs = ServiceType.None;
             var lastDel = false;
 
-            foreach (var prop in song.OrderedProperties.Where(p => p.BaseName == SongBase.PurchaseField))
+            foreach (var prop in song.OrderedProperties.Where(p => p.BaseName == Song.PurchaseField))
             {
                 PurchaseType pt;
                 ServiceType ms;
@@ -1886,7 +1886,7 @@ namespace m4d.Controllers
             // ReSharper disable once InvertIf
             if (del.Any())
             {
-                del.AddRange(song.SongProperties.Where(p => p.Name == SongBase.FailedLookup));
+                del.AddRange(song.SongProperties.Where(p => p.Name == Song.FailedLookup));
                 foreach (var prop in del)
                 {
                     song.SongProperties.Remove(prop);
@@ -1954,10 +1954,10 @@ namespace m4d.Controllers
         private Song AutoMerge(List<Song> songs, ApplicationUser user)
         {
             var song = Database.MergeSongs(user, songs,
-                ResolveStringField(SongBase.TitleField, songs),
-                ResolveStringField(SongBase.ArtistField, songs),
-                ResolveDecimalField(SongBase.TempoField, songs),
-                ResolveIntField(SongBase.LengthField, songs),
+                ResolveStringField(Song.TitleField, songs),
+                ResolveStringField(Song.ArtistField, songs),
+                ResolveDecimalField(Song.TempoField, songs),
+                ResolveIntField(Song.LengthField, songs),
                 SongDetails.BuildAlbumInfo(songs)
                 );
 

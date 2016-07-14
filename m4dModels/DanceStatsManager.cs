@@ -213,7 +213,7 @@ namespace m4dModels
             };
         }
 
-        public IEnumerable<DanceRatingInfo> GetRatingInfo(SongBase song)
+        public IEnumerable<DanceRatingInfo> GetRatingInfo(Song song)
         {
             return song.DanceRatings.Select(dr => GetRatingInfo(dr.DanceId, dr.Weight)).ToList();
         }
@@ -278,7 +278,7 @@ namespace m4dModels
         }
 
 
-        public void UpdateSong(SongBase song, DanceMusicService dms)
+        public void UpdateSong(Song song, DanceMusicService dms)
         {
             var sd = song.IsNull ? null : (song as SongDetails) ?? new SongDetails(song, null, dms);
             if (!TopSongs.ContainsKey(song.SongId))
@@ -341,7 +341,7 @@ namespace m4dModels
             return flat;
         }
 
-        private Dictionary<Guid,SongDetails> TopSongs => _topSongs ?? (_topSongs = new Dictionary<Guid,SongDetails>(List.SelectMany(d => d.TopSongs ?? new List<SongBase>()).Select(s => (s as SongDetails)??new SongDetails(s,this)).DistinctBy(s => s.SongId).ToDictionary(s => s.SongId)));
+        private Dictionary<Guid,SongDetails> TopSongs => _topSongs ?? (_topSongs = new Dictionary<Guid,SongDetails>(List.SelectMany(d => d.TopSongs ?? new List<Song>()).Select(s => (s as SongDetails)??new SongDetails(s,this)).DistinctBy(s => s.SongId).ToDictionary(s => s.SongId)));
         private Dictionary<Guid, SongDetails> _otherSongs = new Dictionary<Guid, SongDetails>();
 
         private List<DanceStats> _flat;

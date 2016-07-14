@@ -164,7 +164,7 @@ namespace m4d.Controllers
             var songs = from s in Database.Songs where string.Equals(s.Title, s.Artist) select s;
             foreach (var song in songs)
             {
-                var artists = from p in song.SongProperties where p.Name == SongBase.ArtistField select p;
+                var artists = from p in song.SongProperties where p.Name == Song.ArtistField select p;
                 var alist = artists.ToList();
                 //song.SongProperties.Select(p => string.Equals(p.BaseName, Song.ArtistField)).ToList();
 
@@ -1190,7 +1190,7 @@ namespace m4d.Controllers
                 // Otherwise add it
                 else
                 {
-                    var add = Database.CreateSong(user, sd, null, SongBase.CreateCommand, null);
+                    var add = Database.CreateSong(user, sd, null, Song.CreateCommand, null);
                     if (add != null)
                     {
                         Database.Songs.Add(add);
@@ -1331,7 +1331,7 @@ namespace m4d.Controllers
 
                 if (user != null && song != null)
                 {
-                    song.CreateEditProperties(user, SongBase.EditCommand, Database);
+                    song.CreateEditProperties(user, Song.EditCommand, Database);
                     song.AddTags(tags, user, Database, song);
                 }
 
@@ -1430,7 +1430,7 @@ namespace m4d.Controllers
 
             var headerList = !string.IsNullOrWhiteSpace(headers) ? SongDetails.BuildHeaderMap(headers, ',') : HeaderFromList(CleanSeparator(separator), lines);
 
-            var newSongs = SongDetails.CreateFromRows(appuser, separator, headerList, lines, Database.DanceStats, SongBase.DanceRatingCreate);
+            var newSongs = SongDetails.CreateFromRows(appuser, separator, headerList, lines, Database.DanceStats, Song.DanceRatingCreate);
 
             var hasArtist = false;
             if (!string.IsNullOrEmpty(artist))
@@ -1930,7 +1930,7 @@ namespace m4d.Controllers
         [Authorize(Roles = "dbAdmin")]
         public ActionResult CleanLookupHistory()
         {
-            var properties = from sp in Database.SongProperties where sp.Name == SongBase.FailedLookup select sp;
+            var properties = from sp in Database.SongProperties where sp.Name == Song.FailedLookup select sp;
 
             Context.TrackChanges(false);
             var c = 0;
@@ -2173,7 +2173,7 @@ namespace m4d.Controllers
         {
             var map = SongDetails.BuildHeaderMap(lines[0]);
             lines.RemoveAt(0);
-            return SongDetails.CreateFromRows(user, "\t", map, lines, Database.DanceStats, SongBase.DanceRatingCreate);
+            return SongDetails.CreateFromRows(user, "\t", map, lines, Database.DanceStats, Song.DanceRatingCreate);
         }
 
         List<string> UploadFile() 

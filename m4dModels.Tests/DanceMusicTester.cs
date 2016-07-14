@@ -73,7 +73,7 @@ namespace m4dModels.Tests
             return false;
         }
 
-        public static void DumpSongProperties(SongBase song, bool verbose = true)
+        public static void DumpSongProperties(Song song, bool verbose = true)
         {
             if (!verbose) return;
 

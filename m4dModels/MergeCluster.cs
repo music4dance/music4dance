@@ -29,7 +29,7 @@ namespace m4dModels
                 var hash = song.TitleHash;
                 if (level != 2)
                 {
-                    hash = SongBase.CreateTitleHash(song.Title + song.Artist);
+                    hash = Song.CreateTitleHash(song.Title + song.Artist);
                 }
 
                 if (!clusters.TryGetValue(hash, out mc))
@@ -105,7 +105,7 @@ namespace m4dModels
                         }
 
                         MergeCluster lump;
-                        var hash = SongBase.CreateTitleHash(s.Artist);
+                        var hash = Song.CreateTitleHash(s.Artist);
                         if (!lumps.TryGetValue(hash, out lump))
                         {
 

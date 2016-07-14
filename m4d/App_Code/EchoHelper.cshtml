@@ -51,7 +51,7 @@
     <span>@type = @value.Value.ToString("0.00")</span>
 }
 
-@helper EchoValues(SongBase song, int size = 25, bool description = false)
+@helper EchoValues(Song song, int size = 25, bool description = false)
 {
     @EchoValue("Beat", song.Danceability, size, description)
     @EchoValue("Energy", song.Energy, size, description)

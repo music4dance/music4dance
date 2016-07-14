@@ -2,7 +2,7 @@
 @using DanceLibrary;
 
 @* ReSharper disable once InvertIf *@
-@helper TagModalButton(TagCount tag, SongFilter filter, SongBase song, float cloudSize = 0.0f)
+@helper TagModalButton(TagCount tag, SongFilter filter, Song song, float cloudSize = 0.0f)
 {
     var buckets = new[] {.25F,.5F,.75F,1,5,10,20,25,50,100};
     var sizes = new[] {14,16,18,20,22,24,26,28,30,32};

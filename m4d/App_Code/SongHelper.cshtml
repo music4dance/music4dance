@@ -3,7 +3,7 @@
 @using m4dModels
 @using PagedList.Mvc;
 
-@helper Spotify(IEnumerable<SongBase> songs)
+@helper Spotify(IEnumerable<Song> songs)
 {
     <div id="spotify-player" class="col-md-6" data-trackset-name="music4dance" data-trackset-songs="@string.Join(",", songs.Select(s => s.SongId))">
         <button class="btn-default btn-block btn-lg">Show Spotify Player</button>
@@ -109,7 +109,7 @@
     @(filter.IsAdvanced ? AdvancedHeader(html, filter) : SimpleHeader(html, filter, dances, userName))
 }
 
-@helper Footer(System.Web.Mvc.HtmlHelper html, UrlHelper urlHelp, PagedList.IPagedList<SongBase> songs, SongFilter filter)
+@helper Footer(System.Web.Mvc.HtmlHelper html, UrlHelper urlHelp, PagedList.IPagedList<Song> songs, SongFilter filter)
 {
     var danceQuery = filter.DanceQuery;
 

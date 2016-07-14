@@ -29,8 +29,8 @@ namespace m4d.APIControllers
 
                 if (tracks == null || tracks.Count == 0)
                 {
-                    artist = SongBase.CleanString(artist);
-                    title = SongBase.CleanString(title);
+                    artist = Song.CleanString(artist);
+                    title = Song.CleanString(title);
 
                     tracks = InternalGetServiceTracks(song, ms, true, title, artist, album, region);
                 }

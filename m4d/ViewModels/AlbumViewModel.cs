@@ -17,7 +17,7 @@ namespace m4d.ViewModels
         {
             // TODO: if we really don't have distinct in linq syntax should probably use function syntax for the whole thing...
             var ids = (from sp in dms.SongProperties
-                where sp.Name.StartsWith(SongBase.AlbumField) && sp.Value == title
+                where sp.Name.StartsWith(Song.AlbumField) && sp.Value == title
                 select sp.SongId).Distinct();
             var songs = from s in dms.Songs
                 where ids.Contains(s.SongId)
@@ -54,11 +54,11 @@ namespace m4d.ViewModels
 
                 if (artist == null && !string.IsNullOrWhiteSpace(sd.Artist))
                 {
-                    artist = SongBase.CreateNormalForm(sd.Artist);
+                    artist = Song.CreateNormalForm(sd.Artist);
                 }
                 else if (uniqueArtist)
                 {
-                    if (!string.Equals(SongBase.CreateNormalForm(sd.Artist), artist, StringComparison.InvariantCultureIgnoreCase))
+                    if (!string.Equals(Song.CreateNormalForm(sd.Artist), artist, StringComparison.InvariantCultureIgnoreCase))
                     {
                         uniqueArtist = false;
                     }

@@ -111,7 +111,7 @@ namespace m4dModels.Tests
                 var s = service.Songs.Find(guids[i]);
                 Assert.IsNotNull(s);
 
-                var txt = DanceMusicTester.ReplaceTime(s.Serialize(new[] { SongBase.NoSongId }));
+                var txt = DanceMusicTester.ReplaceTime(s.Serialize(new[] { Song.NoSongId }));
                 Trace.WriteLine(txt);
                 Assert.AreEqual(RowPopsCreate[i], txt);
             }
@@ -135,7 +135,7 @@ namespace m4dModels.Tests
             foreach (var song in merges.Select(merge => service.Songs.Find(merge.Right?.SongId ?? merge.Left.SongId)))
             {
                 Assert.IsNotNull(song);
-                var txt = DanceMusicTester.ReplaceTime(song.Serialize(new[] { SongBase.NoSongId }));
+                var txt = DanceMusicTester.ReplaceTime(song.Serialize(new[] { Song.NoSongId }));
                 Trace.WriteLine(txt);
                 Assert.AreEqual(MergeProps[i++], txt);
             }
@@ -159,7 +159,7 @@ namespace m4dModels.Tests
             foreach (var song in merges.Select(merge => service.Songs.Find(merge.Right?.SongId ?? merge.Left.SongId)))
             {
                 Assert.IsNotNull(song);
-                var txt = DanceMusicTester.ReplaceTime(song.Serialize(new[] { SongBase.NoSongId }));
+                var txt = DanceMusicTester.ReplaceTime(song.Serialize(new[] { Song.NoSongId }));
                 var ex = DanceMergeProps[i];
                 Trace.WriteLine(ex);
                 Trace.WriteLine(txt);
@@ -185,7 +185,7 @@ namespace m4dModels.Tests
         {
             var song = new SongDetails(SQuuen,null);
 
-            var map = song.MapProperyByUsers(SongBase.DanceRatingField);
+            var map = song.MapProperyByUsers(Song.DanceRatingField);
 
             //foreach (var kv in map)
             //{
@@ -221,7 +221,7 @@ namespace m4dModels.Tests
                 {
                     song.AddTags(tags, user, service, song);
                 }
-                var r = DanceMusicTester.ReplaceTime(song.Serialize(new[] { SongBase.NoSongId }));
+                var r = DanceMusicTester.ReplaceTime(song.Serialize(new[] { Song.NoSongId }));
                 Trace.WriteLine(r);
                 Assert.AreEqual(expected[i], r);
             }
@@ -237,7 +237,7 @@ namespace m4dModels.Tests
             foreach (var sd in songs)
             {
                 var s = new Song() { SongId = Guid.NewGuid() };
-                s.Create(sd, null, user, SongBase.CreateCommand, null, service);
+                s.Create(sd, null, user, Song.CreateCommand, null, service);
                 service.Songs.Add(s);
                 ids.Add(s.SongId);
             }

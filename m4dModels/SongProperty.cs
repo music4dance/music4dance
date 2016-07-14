@@ -39,7 +39,7 @@ namespace m4dModels
                 {
                     value = value.Replace("\\<EQ>\\", "=");
                 }
-                if (string.Equals(name, SongBase.TempoField))
+                if (string.Equals(name, Song.TempoField))
                 {
                     value = FormatTempo(value);
                 }
@@ -83,7 +83,7 @@ namespace m4dModels
                 object ret = null;
                 switch (BaseName)
                 {
-                    case SongBase.SongIdField:
+                    case Song.SongIdField:
                         if (!string.IsNullOrEmpty(Value))
                         {
                             Guid id;
@@ -93,7 +93,7 @@ namespace m4dModels
                             }
                         }
                         break;
-                    case SongBase.TempoField:
+                    case Song.TempoField:
                         // decimal
                         if (!string.IsNullOrEmpty(Value))
                         {
@@ -102,9 +102,9 @@ namespace m4dModels
                             ret = v;
                         }
                         break;
-                    case SongBase.DanceabilityField:
-                    case SongBase.ValenceFiled:
-                    case SongBase.EnergyField:
+                    case Song.DanceabilityField:
+                    case Song.ValenceFiled:
+                    case Song.EnergyField:
                         // float
                         if (!string.IsNullOrEmpty(Value))
                         {
@@ -113,9 +113,9 @@ namespace m4dModels
                             ret = v;
                         }
                         break;
-                    case SongBase.LengthField:
-                    case SongBase.TrackField:
-                    case SongBase.DanceRatingField:
+                    case Song.LengthField:
+                    case Song.TrackField:
+                    case Song.DanceRatingField:
                         //int
                         if (!string.IsNullOrEmpty(Value))
                         {
@@ -124,14 +124,14 @@ namespace m4dModels
                             ret = v;
                         }
                         break;
-                    case SongBase.TimeField:
+                    case Song.TimeField:
                         {
                             DateTime v;
                             DateTime.TryParse(Value, out v);
                             ret = v;
                         }
                         break;
-                    case SongBase.OwnerHash:
+                    case Song.OwnerHash:
                         {
                             int hash;
                             if (int.TryParse(Value, NumberStyles.HexNumber, CultureInfo.CurrentCulture, out hash))
@@ -140,7 +140,7 @@ namespace m4dModels
                             }
                         }
                         break;
-                    case SongBase.LikeTag:
+                    case Song.LikeTag:
                         {
                             bool like;
                             if (bool.TryParse(Value, out like))
@@ -189,7 +189,7 @@ namespace m4dModels
             {
                 value = string.Empty;
             }
-            else if (string.Equals(BaseName, SongBase.TempoField))
+            else if (string.Equals(BaseName, Song.TempoField))
             {
                 value = FormatTempo(value);
             }

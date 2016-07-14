@@ -66,15 +66,15 @@ namespace m4dModels
 
             if (data == null) return;
 
-            var song = data as SongBase;
+            var song = data as Song;
             if (song == null)
             {
                 Trace.WriteLineIf(TraceLevels.General.TraceError, "Bad Song");
                 return;
             }
 
-            song.ChangeTag(SongBase.AddedTags + ":" + DanceId, added);
-            song.ChangeTag(SongBase.RemovedTags + ":" + DanceId, removed);
+            song.ChangeTag(Song.AddedTags + ":" + DanceId, added);
+            song.ChangeTag(Song.RemovedTags + ":" + DanceId, removed);
         }
         protected override HashSet<string> ValidClasses => s_validClasses;
 
@@ -90,7 +90,7 @@ namespace m4dModels
             {
                 string list;
                 string[] ids = null;
-                if (DanceMap.TryGetValue(SongBase.CleanDanceName(ds), out list))
+                if (DanceMap.TryGetValue(Song.CleanDanceName(ds), out list))
                 {
                     ids = list.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
                 }
@@ -138,7 +138,7 @@ namespace m4dModels
 
         private static void AddDanceToMap(DanceObject dance)
         {
-            var name = SongBase.CleanDanceName(dance.Name);
+            var name = Song.CleanDanceName(dance.Name);
             InitialDanceMap.Add(name, dance.Id);
         }
         private static bool s_builtDanceMap;

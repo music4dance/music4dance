@@ -23,7 +23,7 @@ namespace m4dModels
         [DataMember]
         public TagList CurrentUserTags { get; protected set; }
 
-        public void SetCurrentUserTags(string user, SongBase song)
+        public void SetCurrentUserTags(string user, Song song)
         {
             CurrentUserTags = GetUserTags(user, song);
         }
@@ -74,7 +74,7 @@ namespace m4dModels
                 return null;
             }
 
-            var ut = GetUserTags(user,data as SongBase);
+            var ut = GetUserTags(user,data as Song);
 
             var newTags = tags.Subtract(ut);
 
@@ -225,9 +225,9 @@ namespace m4dModels
             return true;
         }
 
-        public TagList GetUserTags(string userName, SongBase song = null)
+        public TagList GetUserTags(string userName, Song song = null)
         {
-            if (song == null) song = this as SongBase;
+            if (song == null) song = this as Song;
             var danceId = (this as DanceRating)?.DanceId;
             Debug.Assert(song != null);
 
@@ -241,17 +241,17 @@ namespace m4dModels
                 // ReSharper disable once SwitchStatementMissingSomeCases
                 switch (prop.BaseName)
                 {
-                    case SongBase.UserField:
-                    case SongBase.UserProxy:
+                    case Song.UserField:
+                    case Song.UserProxy:
                         cu = prop.Value;
                         break;
-                    case SongBase.AddedTags:
+                    case Song.AddedTags:
                         if (userName.Equals(cu) && prop.DanceQualifier == danceId)
                         {
                             acc = acc.Add(new TagList(prop.Value));
                         }
                         break;
-                    case SongBase.RemovedTags:
+                    case Song.RemovedTags:
                         if (userName.Equals(cu) && prop.DanceQualifier == danceId)
                         {
                             acc = acc.Subtract(new TagList(prop.Value));

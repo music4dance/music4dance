@@ -32,7 +32,7 @@ namespace m4dModels.Tests
                 var sd = new SongDetails(song);
                 var result = sd.GetIndexDocument();
                 Assert.IsNotNull(result);
-                Assert.AreEqual(sd.SongId.ToString(),result[SongBase.SongIdField]);
+                Assert.AreEqual(sd.SongId.ToString(),result[Song.SongIdField]);
             }
         }
     }

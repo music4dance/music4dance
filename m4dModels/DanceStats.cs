@@ -67,7 +67,7 @@ namespace m4dModels
         [JsonProperty]
         public virtual ICollection<DanceLink> DanceLinks { get; set; }
         [JsonProperty]
-        public IEnumerable<SongBase> TopSongs { get; set; }
+        public IEnumerable<Song> TopSongs { get; set; }
 
         public ICollection<ICollection<PurchaseLink>> TopSpotify => DanceMusicService.GetPurchaseLinks(ServiceType.Spotify, TopSongs);
 
@@ -109,7 +109,7 @@ namespace m4dModels
                 SongCount = dance.SongCount;
                 MaxWeight = dance.MaxWeight;
                 TopSongs =
-                    dance.TopSongs?.OrderBy(ts => ts.Rank).Select(ts => new SongDetails(ts.Song) as SongBase).ToList();
+                    dance.TopSongs?.OrderBy(ts => ts.Rank).Select(ts => new SongDetails(ts.Song) as Song).ToList();
                 SongTags = dance.SongTags;
             }
             DanceLinks = dance.DanceLinks;
