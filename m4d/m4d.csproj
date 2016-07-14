@@ -391,7 +391,6 @@
     <Compile Include="APIControllers\PurchaseInfoController.cs" />
     <Compile Include="Controllers\SearchesController.cs" />
     <Compile Include="Controllers\SongController.cs" />
-    <Compile Include="Controllers\SongPropertyController.cs" />
     <Compile Include="Controllers\TagController.cs" />
     <!--<Compile Include="GlimpseSecurityPolicy.cs" />-->
     <Compile Include="Global.asax.cs">
@@ -911,7 +910,6 @@
     <Content Include="Views\Shared\_LoginPartial.cshtml" />
     <Content Include="Views\Admin\Index.cshtml" />
     <Content Include="Views\Admin\SeedDatabase.cshtml" />
-    <Content Include="Views\SongProperty\Index.cshtml" />
     <Content Include="Views\Song\Create.cshtml" />
     <Content Include="Views\Song\Delete.cshtml" />
     <Content Include="Views\Song\Details.cshtml" />
