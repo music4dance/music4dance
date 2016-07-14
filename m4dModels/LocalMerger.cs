@@ -7,8 +7,8 @@
 
     public class LocalMerger
     {
-        public SongDetails Left { get; set; }
-        public SongDetails Right { get; set; }
+        public Song Left { get; set; }
+        public Song Right { get; set; }
         public bool Conflict { get; set; }
         public MatchType MatchType { get; set; }
     }

@@ -80,7 +80,7 @@ namespace m4dModels.Tests
             song.Load(@"User=batch	Title=Test	Artist=Me	Tempo=30.0",Service);
 
             //Trace.WriteLine(init);
-            var sd = new SongDetails(song);
+            var sd = new Song(song);
 
             sd.UpdateDanceRatings(new[] {"RMB","CHA"}, 5);
             sd.UpdateDanceRatings(new[] { "FXT" }, 7);
@@ -253,7 +253,7 @@ namespace m4dModels.Tests
             var user = Service.UserManager.FindByName("dwgray");
             var header = new List<string> { "Title", "Artist", "DanceRating", "DanceTags:Style", "SongTags:Other"};
             var row = new List<string> { @"Would It Not Be Nice	Beach Boys	Swing	Modern	Wedding" };
-            var merge = SongDetails.CreateFromRows(user, "\t", header, row, Service.DanceStats, Song.DanceRatingIncrement)[0];
+            var merge = Song.CreateFromRows(user, "\t", header, row, Service.DanceStats, Song.DanceRatingIncrement)[0];
             merge.Tempo = 123;
             merge.InferDances(user);
 
@@ -310,7 +310,7 @@ namespace m4dModels.Tests
             };
 
             var user = Service.UserManager.FindByName("dwgray");
-            var song = SongDetails.CreateFromTrack(user, track, "WCS", "Testing:Other|Crazy:Music", "Dances:Style|Mellow:Tempo",null);
+            var song = Song.CreateFromTrack(user, track, "WCS", "Testing:Other|Crazy:Music", "Dances:Style|Mellow:Tempo",null);
 
             var actual = DanceMusicTester.ReplaceTime(song.Serialize(new[] { Song.NoSongId }));
             //Trace.WriteLine(actual);
@@ -331,7 +331,7 @@ namespace m4dModels.Tests
 
         //    var header = new List<string> { "Title", "Artist"};
         //    var row = new List<string> { @"Would It Not Be Nice	Beach Boys" };
-        //    var merge = SongDetails.CreateFromRows(user, "\t", header, row, SongBase.DanceRatingIncrement)[0];
+        //    var merge = Song.CreateFromRows(user, "\t", header, row, SongBase.DanceRatingIncrement)[0];
         //    merge.Tempo = 123;
         //    Service.UpdateDanceRatingsAndTags(merge,user,new[]{"SWG"},"Testing:Other","Modern:Style", SongBase.DanceRatingIncrement);
 

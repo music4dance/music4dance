@@ -166,7 +166,7 @@ namespace m4d.Controllers
         {
             HelpPage = "advanced-search";
 
-            ViewBag.AzureIndexInfo = SongDetails.GetIndex(Database);
+            ViewBag.AzureIndexInfo = Song.GetIndex(Database);
             return View(new RawSearch(filter));
         }
 
@@ -177,7 +177,7 @@ namespace m4d.Controllers
         {
             HelpPage = "advanced-search";
 
-            ViewBag.AzureIndexInfo = SongDetails.GetIndex(Database);
+            ViewBag.AzureIndexInfo = Song.GetIndex(Database);
             return ModelState.IsValid ? DoAzureSearch(new SongFilter(rawSearch)) : View("RawSearchForm",rawSearch);
         }
 
@@ -500,7 +500,7 @@ namespace m4d.Controllers
                 adl = new List<AlbumDetails> { ad };
             }
 
-            var sd = new SongDetails(title,artist,tempo,length,adl);
+            var sd = new Song(title,artist,tempo,length,adl);
             SetupEditViewBag(tempo);
             return View(sd);
         }
@@ -511,7 +511,7 @@ namespace m4d.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "canEdit")]
-        public ActionResult Create(SongDetails song, string userTags, SongFilter filter = null)
+        public ActionResult Create(Song song, string userTags, SongFilter filter = null)
         {
             if (ModelState.IsValid)
             {
@@ -584,8 +584,8 @@ namespace m4d.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "canEdit")] 
-        //public ActionResult Edit([ModelBinder(typeof(m4d.Utilities.SongBinder))]SongDetails song, List<string> addDances, List<string> remDances, string filter = null)
-        public ActionResult Edit(SongDetails song, string userTags, SongFilter filter = null)
+        //public ActionResult Edit([ModelBinder(typeof(m4d.Utilities.SongBinder))]Song song, List<string> addDances, List<string> remDances, string filter = null)
+        public ActionResult Edit(Song song, string userTags, SongFilter filter = null)
         {
             if (ModelState.IsValid)
             {
@@ -905,7 +905,7 @@ namespace m4d.Controllers
                 var users = new Dictionary<char, ApplicationUser>();
 
                 var failed = new List<Song>();
-                var succeeded = new List<SongDetails>();
+                var succeeded = new List<Song>();
 
                 Context.TrackChanges(false);
 
@@ -941,13 +941,13 @@ namespace m4d.Controllers
 
                         if (failLevel == retryLevel || count == 1)
                         {
-                            var sd = new SongDetails(song);
+                            var sd = new Song(song);
 
                             // Something of a kludge - we're goint to make type ='-' && failcode == 0 mean that we've tried 
                             //  the multi-service lookup...
                             var failcode = service == null ? 0 : -1;
 
-                            SongDetails add = null;
+                            Song add = null;
                             if (service == null)
                             {
                                 foreach (
@@ -1214,7 +1214,7 @@ namespace m4d.Controllers
                 //var skipExisting = true;
 
                 var failed = new List<Song>();
-                var succeeded = new List<SongDetails>();
+                var succeeded = new List<Song>();
 
                 Context.TrackChanges(false);
 
@@ -1248,7 +1248,7 @@ namespace m4d.Controllers
 
                         processed += 1;
 
-                        var sd = new SongDetails(song);
+                        var sd = new Song(song);
 
                         ServiceTrack track = null;
                         // First try Spotify
@@ -1399,7 +1399,7 @@ namespace m4d.Controllers
                             continue;
                         }
 
-                        var sd = new SongDetails(song);
+                        var sd = new Song(song);
                         var ids = sd.GetPurchaseIds(service);
 
                         EchoTrack track = null;
@@ -1611,7 +1611,7 @@ namespace m4d.Controllers
 
         #region MusicService
 
-        private string DefaultServiceSearch(SongDetails song, bool clean)
+        private string DefaultServiceSearch(Song song, bool clean)
         {
             if (clean)
                 return song.CleanTitle + " " + song.CleanArtist;
@@ -1619,7 +1619,7 @@ namespace m4d.Controllers
             return song.Title + " " + song.Artist;
         }
 
-        private IList<ServiceTrack> FindMusicServiceSong(SongDetails song, MusicService service, bool clean = false, string title = null, string artist = null)
+        private IList<ServiceTrack> FindMusicServiceSong(Song song, MusicService service, bool clean = false, string title = null, string artist = null)
         {
             IList<ServiceTrack> tracks = null;
             try
@@ -1643,7 +1643,7 @@ namespace m4d.Controllers
             return tracks;
         }
 
-        private void FixupTitleArtist(SongDetails song, bool clean, ref string title, ref string artist)
+        private void FixupTitleArtist(Song song, bool clean, ref string title, ref string artist)
         {
             if (song != null && artist == null && title == null)
             {
@@ -1655,10 +1655,10 @@ namespace m4d.Controllers
             ViewBag.SongTitle = title;
         }
 
-        private SongDetails UpdateMusicService(SongDetails song, MusicService service, string name, string album, string artist, string trackId, string collectionId, string alternateId, string duration, int? trackNum)
+        private Song UpdateMusicService(Song song, MusicService service, string name, string album, string artist, string trackId, string collectionId, string alternateId, string duration, int? trackNum)
         {
             // This is a very transitory object to hold the old values for a semi-automated edit
-            var alt = new SongDetails();
+            var alt = new Song();
 
             if (!string.IsNullOrWhiteSpace(name) && string.IsNullOrWhiteSpace(song.Title))
             {
@@ -1757,7 +1757,7 @@ namespace m4d.Controllers
             }
         }
 
-        private SongDetails UpdateSongAndService(SongDetails sd, MusicService service, IDictionary<char, ApplicationUser> users)
+        private Song UpdateSongAndService(Song sd, MusicService service, IDictionary<char, ApplicationUser> users)
         {
             var found = MatchSongAndService(sd, service);
 
@@ -1782,7 +1782,7 @@ namespace m4d.Controllers
 
             return null;
         }
-        private IList<ServiceTrack> MatchSongAndService(SongDetails sd, MusicService service)
+        private IList<ServiceTrack> MatchSongAndService(Song sd, MusicService service)
         {
             IList<ServiceTrack> found = new List<ServiceTrack>();
             var tracks = FindMusicServiceSong(sd, service);
@@ -1821,8 +1821,8 @@ namespace m4d.Controllers
             //  Note that this degenerates to chosing a single album if that is what is available
             if (found.Count == 0 && !sd.HasRealAblums)
             {
-                var track = SongDetails.FindDominantTrack(tracks);
-                if (track.Duration != null) found = SongDetails.DurationFilter(tracks, track.Duration.Value, 6);
+                var track = Song.FindDominantTrack(tracks);
+                if (track.Duration != null) found = Song.DurationFilter(tracks, track.Duration.Value, 6);
             }
 
             return found;
@@ -1958,7 +1958,7 @@ namespace m4d.Controllers
                 ResolveStringField(Song.ArtistField, songs),
                 ResolveDecimalField(Song.TempoField, songs),
                 ResolveIntField(Song.LengthField, songs),
-                SongDetails.BuildAlbumInfo(songs)
+                Song.BuildAlbumInfo(songs)
                 );
 
             return song;

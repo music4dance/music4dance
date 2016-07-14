@@ -1,4 +1,4 @@
-﻿@model SongDetails
+﻿@model Song
 
 @Html.Partial("SetupSongScript")
 @Html.Partial("ItemTags")
@@ -8,7 +8,7 @@
 {
     @Html.AntiForgeryToken()
     @Html.ValidationSummary(true)
-    SongDetails old = null;
+    Song old = null;
     ViewBag.UseLogo = true;
 
     try

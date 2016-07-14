@@ -94,7 +94,7 @@ namespace m4dModels
             return song;
         }
 
-        public Song CreateSong(ApplicationUser user, SongDetails sd=null,  IEnumerable<UserTag> tags = null, string command = Song.CreateCommand, string value = null)
+        public Song CreateSong(ApplicationUser user, Song sd=null,  IEnumerable<UserTag> tags = null, string command = Song.CreateCommand, string value = null)
         {
             if (sd != null)
             {
@@ -116,16 +116,16 @@ namespace m4dModels
             return song;
         }
 
-        public SongDetails CreateSongDetails(ApplicationUser user, SongDetails sd, IEnumerable<UserTag> tags = null)
+        public Song CreateSongDetails(ApplicationUser user, Song sd, IEnumerable<UserTag> tags = null)
         {
-            return new SongDetails(CreateSong(user, sd, tags),user.UserName,this);
+            return new Song(CreateSong(user, sd, tags),user.UserName,this);
         }
 
-        public SongDetails EditSong(ApplicationUser user, SongDetails edit, IEnumerable<UserTag> tags = null)
+        public Song EditSong(ApplicationUser user, Song edit, IEnumerable<UserTag> tags = null)
         {
             var song = _context.Songs.Find(edit.SongId);
 
-            return !song.Edit(user, edit, tags, this) ? null : new SongDetails(song,user.UserName,this);
+            return !song.Edit(user, edit, tags, this) ? null : new Song(song,user.UserName,this);
         }
 
         public bool AdminEditSong(Song edit, string properties)
@@ -142,15 +142,15 @@ namespace m4dModels
             return song != null && AdminEditSong(song, properties);
         }
 
-        public SongDetails UpdateSong(ApplicationUser user, Song song, SongDetails edit)
+        public Song UpdateSong(ApplicationUser user, Song song, Song edit)
         {
-            return !song.Update(user, edit, this) ? null : new SongDetails(song,user.UserName,this,false);
+            return !song.Update(user, edit, this) ? null : new Song(song,user.UserName,this,false);
         }
 
         // This is an additive merge - only add new things if they don't conflict with the old
         //  TODO: I'm pretty sure I can clean up this and all the other editing stuff by pushing
-        //  the diffing part down into SongDetails (which will also let me unit test it more easily)
-        public bool AdditiveMerge(ApplicationUser user, Guid songId, SongDetails edit, List<string> addDances)
+        //  the diffing part down into Song (which will also let me unit test it more easily)
+        public bool AdditiveMerge(ApplicationUser user, Guid songId, Song edit, List<string> addDances)
         {
             return _context.Songs.Find(songId).AdditiveMerge(user, edit, addDances, this);
         }
@@ -191,7 +191,7 @@ namespace m4dModels
         public int CleanupAlbums(ApplicationUser user, Song song)
         {
             var changed = 0;
-            var sd = new SongDetails(song);
+            var sd = new Song(song);
 
             var albums = AlbumDetails.MergeAlbums(sd.Albums, sd.Artist, true);
             if (albums.Count != sd.Albums.Count)
@@ -212,7 +212,7 @@ namespace m4dModels
 
         private static IList<AlbumDetails> MergeAlbums(IEnumerable<Song> songs, string def, ICollection<string> keys, string artist)
         {
-            var details = songs.Select(s => new SongDetails(s)).ToList();
+            var details = songs.Select(s => new Song(s)).ToList();
             var albumsIn = new List<AlbumDetails>();
             var albumsOut = new List<AlbumDetails>();
 
@@ -269,7 +269,7 @@ namespace m4dModels
             }
             song.UpdateFromService(this);
 
-            var sd = new SongDetails(title,artist,tempo,length,albums);
+            var sd = new Song(title,artist,tempo,length,albums);
 
             // TODO: This is a bit of a kludge - for scalar parameters that we
             //  didn't ask the user about, we'll just copy over the one from the auto-merged song
@@ -388,7 +388,7 @@ namespace m4dModels
             return dr;
         }
 
-        public void UpdateDanceRatingsAndTags(SongDetails sd, ApplicationUser user, IEnumerable<string> dances, string songTags, string danceTags, int weight)
+        public void UpdateDanceRatingsAndTags(Song sd, ApplicationUser user, IEnumerable<string> dances, string songTags, string danceTags, int weight)
         {
             if (!string.IsNullOrEmpty(songTags))
             {
@@ -591,7 +591,7 @@ namespace m4dModels
             return song;
         }
 
-        public SongDetails FindSongDetails(Guid id, string userName = null, bool showDiagnostics = false)
+        public Song FindSongDetails(Guid id, string userName = null, bool showDiagnostics = false)
         {
             if (string.IsNullOrEmpty(userName)) userName = null;
 
@@ -609,7 +609,7 @@ namespace m4dModels
                     song.LoadTags(this);
                 }
 
-                return new SongDetails(song, userName, this);
+                return new Song(song, userName, this);
             }
 
             var info = SearchServiceInfo.GetInfo();
@@ -622,7 +622,7 @@ namespace m4dModels
                     var doc = indexClient.Documents.Get(id.ToString(), new[] {Song.PropertiesField});
                     if (doc == null) return null;
 
-                    var details = new SongDetails(id,doc[Song.PropertiesField] as string, DanceStats, userName);
+                    var details = new Song(id,doc[Song.PropertiesField] as string, DanceStats, userName);
                     return details;
                 }
                 catch (Microsoft.Rest.Azure.CloudException e)
@@ -633,7 +633,7 @@ namespace m4dModels
             }
         }
 
-        IEnumerable<SongDetails> FindUserSongs(string user, string id = "default")
+        IEnumerable<Song> FindUserSongs(string user, string id = "default")
         {
             const int max = 250;
 
@@ -644,7 +644,7 @@ namespace m4dModels
             afilter.Top = max;
             afilter.IncludeTotalResultCount = false;
 
-            var results = new List<SongDetails>();
+            var results = new List<Song>();
 
             var stats = DanceStats;
 
@@ -655,7 +655,7 @@ namespace m4dModels
             {
                 var response = DoAzureSearch(indexClient, null, afilter);
 
-                results.AddRange(response.Results.Select(d => new SongDetails(d.Document, stats, user)));
+                results.AddRange(response.Results.Select(d => new Song(d.Document, stats, user)));
 
                 if (response.ContinuationToken == null) return results;
 
@@ -664,7 +664,7 @@ namespace m4dModels
                     while (response.ContinuationToken != null && results.Count < max)
                     {
                         response = indexClient.Documents.ContinueSearch(response.ContinuationToken);
-                        results.AddRange(response.Results.Select(d => new SongDetails(d.Document, stats, user)));
+                        results.AddRange(response.Results.Select(d => new Song(d.Document, stats, user)));
                     }
                 }
                 catch (Microsoft.Rest.Azure.CloudException e)
@@ -675,12 +675,12 @@ namespace m4dModels
             }
         }
 
-        public SongDetails FindMergedSong(Guid id, string userName = null)
+        public Song FindMergedSong(Guid id, string userName = null)
         {
             if (!SearchServiceInfo.UseSql)
                 return DoAzureSearch(null, new SearchParameters {Filter = $"(AlternateIds/any(t: t eq '{id}'))"})
                     .Results.Select(
-                        r => new SongDetails(r.Document, DanceStats, userName)).FirstOrDefault(s => !s.IsNull);
+                        r => new Song(r.Document, DanceStats, userName)).FirstOrDefault(s => !s.IsNull);
 
             while (true)
             {
@@ -1143,18 +1143,18 @@ namespace m4dModels
 
             return DoAzureSearch(null, new SearchParameters { Filter = $"(TitleHash eq {hash})" })
                     .Results.Select(
-                        r => new SongDetails(r.Document, DanceStats));
+                        r => new Song(r.Document, DanceStats));
         }
-        private LocalMerger MergeFromTitle(SongDetails song)
+        private LocalMerger MergeFromTitle(Song song)
         {
             var songs = SongsFromHash(song.TitleHash);
 
-            var candidates = (from s in songs where Song.SoftArtistMatch(s.Artist, song.Artist) select (s as SongDetails) ?? new SongDetails(s)).ToList();
+            var candidates = (from s in songs where Song.SoftArtistMatch(s.Artist, song.Artist) select (s as Song) ?? new Song(s)).ToList();
 
             if (candidates.Count <= 0)
                 return new LocalMerger {Left = song, Right = null, MatchType = MatchType.None, Conflict = false};
 
-            SongDetails match = null;
+            Song match = null;
             var type = MatchType.None;
 
             // Now we have a list of existing songs that are a title-artist match to our new song - so see
@@ -1195,7 +1195,7 @@ namespace m4dModels
             return new LocalMerger { Left = song, Right = match, MatchType = type, Conflict = false };
         }
 
-        private LocalMerger MergeFromPurchaseInfo(SongDetails song)
+        private LocalMerger MergeFromPurchaseInfo(Song song)
         {
             // ReSharper disable once LoopCanBeConvertedToQuery
             foreach (var service in MusicService.GetSearchableServices())
@@ -1213,7 +1213,7 @@ namespace m4dModels
             return null;
         }
 
-        public IList<LocalMerger> MatchSongs(IList<SongDetails> newSongs, MatchMethod method)
+        public IList<LocalMerger> MatchSongs(IList<Song> newSongs, MatchMethod method)
         {
             newSongs = RemoveDuplicateSongs(newSongs);
             var merge = new List<LocalMerger>();
@@ -1238,10 +1238,10 @@ namespace m4dModels
             return merge;
         }
 
-        public IList<SongDetails> RemoveDuplicateSongs(IList<SongDetails> songs)
+        public IList<Song> RemoveDuplicateSongs(IList<Song> songs)
         {
             var hash = new HashSet<string>();
-            var ret = new List<SongDetails>();
+            var ret = new List<Song>();
             foreach (var song in songs)
             {
                 var key = song.TitleArtistString;
@@ -1302,7 +1302,7 @@ namespace m4dModels
             {
                 if (song.Purchase == null || !song.Purchase.Contains(cid)) continue;
 
-                var sd = (song as SongDetails) ?? new SongDetails(song);
+                var sd = (song as Song) ?? new Song(song);
                 var l = sd.GetPurchaseLinks(sid,region);
                 if (l != null)
                     links.Add(l);
@@ -1344,7 +1344,7 @@ namespace m4dModels
         {
             return (from links in songLinks select links.SingleOrDefault(l => l.AvailableMarkets == null || l.AvailableMarkets.Contains(region)) into link where link != null select link).ToList();
         }
-        public SongDetails GetSongFromService(MusicService service,string id,string userName=null)
+        public Song GetSongFromService(MusicService service,string id,string userName=null)
         {
             if (string.IsNullOrWhiteSpace(id)) return null;
 
@@ -1545,7 +1545,7 @@ namespace m4dModels
         }
 
         // This assumes that the songdetails have been loaded with a specific current user info
-        private static IOrderedEnumerable<TagCount> BuildUserSuggestsions(IEnumerable<SongDetails> songs)
+        private static IOrderedEnumerable<TagCount> BuildUserSuggestsions(IEnumerable<Song> songs)
         {
             var dictionary = new Dictionary<string, int>();
             foreach (var song in songs)
@@ -2014,7 +2014,7 @@ namespace m4dModels
 
                 AdminMonitor.UpdateTask("UpdateSongs", c);
 
-                var sd = new SongDetails(line,danceStats);
+                var sd = new Song(line,danceStats);
                 var song = FindSong(sd.SongId);
 
                 if (song == null)
@@ -2429,7 +2429,7 @@ namespace m4dModels
 
             foreach (var song in songs)
             {
-                var sd = new SongDetails(song);
+                var sd = new Song(song);
                 song.Purchase = sd.GetPurchaseTags();
             }
         }
@@ -2634,7 +2634,7 @@ namespace m4dModels
                     serviceClient.Indexes.Delete(info.Index);
                 }
 
-                var index = SongDetails.GetIndex(this);
+                var index = Song.GetIndex(this);
                 index.Name = info.Index;
 
                 serviceClient.Indexes.Create(index);
@@ -2696,7 +2696,7 @@ namespace m4dModels
                         }
                     }
 
-                    var si = new SongDetails(song).GetIndexDocument();
+                    var si = new Song(song).GetIndexDocument();
                     if (doc != null)
                     {
                         if (rebuild)
@@ -2727,7 +2727,7 @@ namespace m4dModels
 
                     foreach (var song in songlist)
                     {
-                        deleted.Add(new SongDetails(song).GetIndexDocument());
+                        deleted.Add(new Song(song).GetIndexDocument());
                         if (lastTouched < song.Modified)
                         {
                             lastTouched = song.Modified;
@@ -2806,10 +2806,10 @@ namespace m4dModels
                 for (var i = 0; i < lines.Count; page += 1)
                 {
                     AdminMonitor.UpdateTask("AddSongs", added);
-                    var chunk = new List<SongDetails>();
+                    var chunk = new List<Song>();
                     for (; i < lines.Count && i < (page+1)*chunkSize; i++)
                     {
-                        chunk.Add(new SongDetails(lines[i],stats));
+                        chunk.Add(new Song(lines[i],stats));
                     }
 
                     var songs = (from song in chunk where !song.IsNull select song.GetIndexDocument()).ToList();
@@ -2878,12 +2878,12 @@ namespace m4dModels
 
                         if (!song.IsNull)
                         {
-                            songs.Add(new SongDetails(song).GetIndexDocument());
+                            songs.Add(new Song(song).GetIndexDocument());
                             DanceStats.UpdateSong(song,this);
                         }
                         else if (exists)
                         {
-                            deleted.Add(new SongDetails(song).GetIndexDocument());
+                            deleted.Add(new Song(song).GetIndexDocument());
                             DanceStats.UpdateSong(song, this);
                         }
                         skip += 1;
@@ -2920,7 +2920,7 @@ namespace m4dModels
         {
             parameters.IncludeTotalResultCount = true;
             var response = DoAzureSearch(search,parameters,cruft,id);
-            var songs = response.Results.Select(d => new SongDetails(d.Document,stats)).ToList();
+            var songs = response.Results.Select(d => new Song(d.Document,stats)).ToList();
             var pageSize = parameters.Top ?? 25;
             var page = ((parameters.Skip ?? 0)/pageSize) + 1;
             var facets = response.Facets;

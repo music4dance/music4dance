@@ -47,7 +47,7 @@ namespace m4d.APIControllers
         }
 
         // TODO:  Pretty sure we can pull the 'clean' parameter from this and descendents
-        private IList<ServiceTrack> InternalGetServiceTracks(SongDetails song, MusicService service, bool clean, string title, string artist, string album, string region)
+        private IList<ServiceTrack> InternalGetServiceTracks(Song song, MusicService service, bool clean, string title, string artist, string album, string region)
         {
             IList<ServiceTrack> tracks = null;
 

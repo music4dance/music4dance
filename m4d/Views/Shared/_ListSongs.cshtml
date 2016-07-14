@@ -276,10 +276,10 @@
     <tbody>
         @foreach (var item in Model)
         {
-            SongDetails sd = null;
+            Song sd = null;
             if (albumName != null)
             {
-                sd = item as SongDetails;
+                sd = item as Song;
             }
             List<DanceRating> scaledDances = null;
             if (item.DanceRatings != null)

@@ -11,7 +11,7 @@ namespace m4d.ViewModels
         [Key]
         public string Title {get;set;}
         public string Artist {get;set;}
-        public IList<SongDetails> Songs {get;set;}
+        public IList<Song> Songs {get;set;}
 
         static public AlbumViewModel Create(string title, DanceMusicService dms)
         {
@@ -23,7 +23,7 @@ namespace m4d.ViewModels
                 where ids.Contains(s.SongId)
                 select s;
 
-            var map = new Dictionary<int,SongDetails>();
+            var map = new Dictionary<int,Song>();
             var max = 0;
             var floor = -1;
 
@@ -34,7 +34,7 @@ namespace m4d.ViewModels
 
             foreach (var song in songs)
             {
-                var sd = new SongDetails(song);
+                var sd = new Song(song);
                 var album = sd.AlbumFromTitle(title);
                 if (album == null) continue;
 
@@ -70,11 +70,11 @@ namespace m4d.ViewModels
                 }
             }
 
-            var list = new List<SongDetails>();
+            var list = new List<Song>();
             // First add in the tracks that have valid #'s in order
             for (var i = 0; i <= max; i++)
             {
-                SongDetails sd;
+                Song sd;
                 if (map.TryGetValue(i,out sd))
                 {
                     list.Add(sd);
@@ -83,7 +83,7 @@ namespace m4d.ViewModels
             // Then append the tracks that either don't have a number or are dups
             for (var i = -1; i > floor; i--)
             {
-                SongDetails sd;
+                Song sd;
                 if (map.TryGetValue(i, out sd))
                 {
                     list.Add(sd);

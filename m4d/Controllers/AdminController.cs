@@ -174,7 +174,7 @@ namespace m4d.Controllers
                 var artist = ap.Value;
                 if (artist == null) continue;
 
-                var sd = new SongDetails(song) {Artist = artist};
+                var sd = new Song(song) {Artist = artist};
                 Database.EditSong(user, sd, null);
                 count += 1;
             }
@@ -1428,9 +1428,9 @@ namespace m4d.Controllers
                 lines = FileToLines(songs);
             }
 
-            var headerList = !string.IsNullOrWhiteSpace(headers) ? SongDetails.BuildHeaderMap(headers, ',') : HeaderFromList(CleanSeparator(separator), lines);
+            var headerList = !string.IsNullOrWhiteSpace(headers) ? Song.BuildHeaderMap(headers, ',') : HeaderFromList(CleanSeparator(separator), lines);
 
-            var newSongs = SongDetails.CreateFromRows(appuser, separator, headerList, lines, Database.DanceStats, Song.DanceRatingCreate);
+            var newSongs = Song.CreateFromRows(appuser, separator, headerList, lines, Database.DanceStats, Song.DanceRatingCreate);
 
             var hasArtist = false;
             if (!string.IsNullOrEmpty(artist))
@@ -1800,7 +1800,7 @@ namespace m4d.Controllers
             var lines = new List<string>();
             foreach (var song in songs)
             {
-                lines.Add(new SongDetails(song,null,Database).ToJson());
+                lines.Add(new Song(song,null,Database).ToJson());
             }
 
             var s = "[\r\n" + string.Join(",\r\n", lines) + "\r\n]";
@@ -2148,7 +2148,7 @@ namespace m4d.Controllers
             if (songs.Count < 2) throw new ArgumentOutOfRangeException(nameof(songs));
             var line = songs[0];
 
-            var map = SongDetails.BuildHeaderMap(line);
+            var map = Song.BuildHeaderMap(line);
 
             // Kind of kludgy, but temporary build the header
             //  map to see if it's valid then pass back a cownomma
@@ -2164,16 +2164,16 @@ namespace m4d.Controllers
             return file.Split(Environment.NewLine.ToCharArray(), StringSplitOptions.RemoveEmptyEntries).ToList();
         }
 
-        private IList<SongDetails> SongsFromTracks(ApplicationUser user, IEnumerable<ServiceTrack> tracks, string dances, string songTags, string danceTags)
+        private IList<Song> SongsFromTracks(ApplicationUser user, IEnumerable<ServiceTrack> tracks, string dances, string songTags, string danceTags)
         {
-            return tracks.Where(track => !string.IsNullOrEmpty(track.Artist)).Select(track => SongDetails.CreateFromTrack(user, track, dances, songTags, danceTags, Database.DanceStats)).ToList();
+            return tracks.Where(track => !string.IsNullOrEmpty(track.Artist)).Select(track => Song.CreateFromTrack(user, track, dances, songTags, danceTags, Database.DanceStats)).ToList();
         }
 
-        private IList<SongDetails> SongsFromFile(ApplicationUser user, IList<string> lines)
+        private IList<Song> SongsFromFile(ApplicationUser user, IList<string> lines)
         {
-            var map = SongDetails.BuildHeaderMap(lines[0]);
+            var map = Song.BuildHeaderMap(lines[0]);
             lines.RemoveAt(0);
-            return SongDetails.CreateFromRows(user, "\t", map, lines, Database.DanceStats, Song.DanceRatingCreate);
+            return Song.CreateFromRows(user, "\t", map, lines, Database.DanceStats, Song.DanceRatingCreate);
         }
 
         List<string> UploadFile() 

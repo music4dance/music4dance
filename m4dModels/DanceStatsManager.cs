@@ -280,7 +280,7 @@ namespace m4dModels
 
         public void UpdateSong(Song song, DanceMusicService dms)
         {
-            var sd = song.IsNull ? null : (song as SongDetails) ?? new SongDetails(song, null, dms);
+            var sd = song.IsNull ? null : (song as Song) ?? new Song(song, null, dms);
             if (!TopSongs.ContainsKey(song.SongId))
             {
                 _otherSongs[song.SongId] = sd;
@@ -291,7 +291,7 @@ namespace m4dModels
 
             foreach (var d in List)
             {
-                var songs = d.TopSongs as List<SongDetails>;
+                var songs = d.TopSongs as List<Song>;
                 if (songs == null) continue;
                 var idx = songs.FindIndex(s => s.SongId == song.SongId);
                 if (idx == -1) continue;
@@ -302,11 +302,11 @@ namespace m4dModels
             }
         }
 
-        public SongDetails FindSongDetails(Guid songId, string userName)
+        public Song FindSongDetails(Guid songId, string userName)
         {
             var sd = TopSongs.GetValueOrDefault(songId) ?? _otherSongs.GetValueOrDefault(songId);
             if (sd == null) return null;
-            return (userName == null) ? sd : new SongDetails(sd, this, userName);
+            return (userName == null) ? sd : new Song(sd, this, userName);
         }
 
         internal List<DanceType> GetDanceTypes()
@@ -341,11 +341,11 @@ namespace m4dModels
             return flat;
         }
 
-        private Dictionary<Guid,SongDetails> TopSongs => _topSongs ?? (_topSongs = new Dictionary<Guid,SongDetails>(List.SelectMany(d => d.TopSongs ?? new List<Song>()).Select(s => (s as SongDetails)??new SongDetails(s,this)).DistinctBy(s => s.SongId).ToDictionary(s => s.SongId)));
-        private Dictionary<Guid, SongDetails> _otherSongs = new Dictionary<Guid, SongDetails>();
+        private Dictionary<Guid,Song> TopSongs => _topSongs ?? (_topSongs = new Dictionary<Guid,Song>(List.SelectMany(d => d.TopSongs ?? new List<Song>()).Select(s => (s as Song)??new Song(s,this)).DistinctBy(s => s.SongId).ToDictionary(s => s.SongId)));
+        private Dictionary<Guid, Song> _otherSongs = new Dictionary<Guid, Song>();
 
         private List<DanceStats> _flat;
-        private Dictionary<Guid,SongDetails> _topSongs;
+        private Dictionary<Guid,Song> _topSongs;
     }
 
     public class DanceStatsManager
@@ -427,7 +427,7 @@ namespace m4dModels
         private static void ClearAssociates()
         {
             DanceMusicService.BlowTagCache();
-            SongDetails.ResetIndex();
+            Song.ResetIndex();
         }
 
         public static void ReloadDances(DanceMusicService dms)

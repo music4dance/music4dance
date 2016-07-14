@@ -7,7 +7,7 @@ namespace m4dModels
     public class SongMerge
     {
         public string Name {get;set;}
-        public List<SongDetails> Songs {get; set;}
+        public List<Song> Songs {get; set;}
         public List<DanceMerge> Ratings { get; set; }
         public string Tags { get; set; }
         public List<SongPropertyMerge> Properties {get; set;}
@@ -18,7 +18,7 @@ namespace m4dModels
 
         public SongMerge(List<Song> songs)
         {
-            Songs = songs.Select(s => new SongDetails(s)).ToList();
+            Songs = songs.Select(s => new Song(s)).ToList();
 
             Properties = new List<SongPropertyMerge>();
 

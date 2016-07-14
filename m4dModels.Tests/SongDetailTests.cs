@@ -14,9 +14,9 @@ namespace m4dModels.Tests
         [TestMethod]
         public void TitleArtistMatch()
         {
-            var sd1 = new SongDetails { Title = "A Song (With a subtitle)", Artist = "Crazy Artist" };
-            var sd2 = new SongDetails { Title = "Moliendo Café", Artist = "The Who" };
-            var sd3 = new SongDetails { Title = "If the song or not", Artist = "Señor Bolero" };
+            var sd1 = new Song { Title = "A Song (With a subtitle)", Artist = "Crazy Artist" };
+            var sd2 = new Song { Title = "Moliendo Café", Artist = "The Who" };
+            var sd3 = new Song { Title = "If the song or not", Artist = "Señor Bolero" };
 
             Assert.IsTrue(sd1.TitleArtistMatch("A Song (With a subtitle)","Crazy Artist"),"SD1: Exact");
             Assert.IsTrue(sd1.TitleArtistMatch("Song", "Crazy Artist"), "SD1: Weak");
@@ -183,7 +183,7 @@ namespace m4dModels.Tests
         [TestMethod]
         public void PropertyByUser()
         {
-            var song = new SongDetails(SQuuen,null);
+            var song = new Song(SQuuen,null);
 
             var map = song.MapProperyByUsers(Song.DanceRatingField);
 
@@ -247,19 +247,19 @@ namespace m4dModels.Tests
             return ids;
         }
 
-        static IList<SongDetails> Load()
+        static IList<Song> Load()
         {
-            return SongData.Select(str => new SongDetails(str,null)).ToList();
+            return SongData.Select(str => new Song(str,null)).ToList();
         }
 
-        static IList<SongDetails> LoadRows(string header, IReadOnlyCollection<string> rows, DanceMusicService service, int dups = 0)
+        static IList<Song> LoadRows(string header, IReadOnlyCollection<string> rows, DanceMusicService service, int dups = 0)
         {
             if (rows == null) throw new ArgumentNullException(nameof(rows));
 
             var user = service.FindUser("dwgray");
 
-            IList<string> headers = SongDetails.BuildHeaderMap(header);
-            var ret = SongDetails.CreateFromRows(user,"\t",headers,rows,service.DanceStats,5);
+            IList<string> headers = Song.BuildHeaderMap(header);
+            var ret = Song.CreateFromRows(user,"\t",headers,rows,service.DanceStats,5);
 
             Assert.AreEqual(rows.Count, ret.Count+dups);
             return ret;
