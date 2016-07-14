@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
+﻿using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Runtime.Serialization;
@@ -11,12 +9,6 @@ namespace m4dModels
     // Assumption:  We'll only maintain one tag entry per user, per object (undo provided only on songs where we've got properties).
     // Do we really need a timestamp on these?
 
-    // TODO: If we want users to be taggable we'll need to rethink base class vs. interface (possibly both?)
-    //  Test Editing a song with tags, merging a song with tags, log & restore log with tags
-    //  Complete:  Saving/reloading the database
-    //  Go through and make sure we're hitting TAGTEST
-    //  Go through the old tagging code rip TAGDELETE
-    //  Implement & Test Tag Rings????
     [DataContract]
     public abstract class TaggableObject
     {
@@ -28,13 +20,16 @@ namespace m4dModels
         [DataMember]
         public TagSummary TagSummary { get; set; }
 
-        // TODO: Do we actually want this?  Or should this be a dms based operations rather than a property
-        [NotMapped]
-        public IList<Tag> Tags { get; set; }
+        [DataMember]
+        public TagList CurrentUserTags { get; protected set; }
+
+        public void SetCurrentUserTags(string user, SongBase song)
+        {
+            CurrentUserTags = GetUserTags(user, song);
+        }
 
         // Override this to register changed tags per user for your class (for instance song would push in song properties)
-        public virtual void RegisterChangedTags(TagList added, TagList removed, ApplicationUser user,
-            DanceMusicService dms, object data)
+        public virtual void RegisterChangedTags(TagList added, TagList removed, string user, object data)
         {
             //Trace.WriteLineIf(TraceLevels.General.TraceVerbose, string.Format("{0}:{1} - added={2};removed={3}", 
             //    user.UserName, TagId, added == null ? "(null)" : added.ToString(), removed == null ? "removed" : removed.ToString()));
@@ -42,53 +37,48 @@ namespace m4dModels
 
         // Add any tags from tags that haven't already been added by the user and return a list of
         // the actually added tags in canonical form
-        public virtual TagList AddTags(string tags, ApplicationUser user, DanceMusicService dms = null,
-            object data = null, bool updateTypes = true)
+        public virtual TagList AddTags(string tags, string user, DanceStatsInstance stats, object data = null, bool updateTypes = true)
         {
             var added = VerifyTags(tags);
-            return added == null ? null : AddTags(added, user, dms, data, updateTypes);
+            return added == null ? null : AddTags(added, user, stats, data, updateTypes);
         }
 
-        public TagList AddTags(string tags, IReadOnlyDictionary<string, TagType> tagMap)
+        public TagList AddTags(string tags, DanceStatsInstance stats)
         {
-            return AddTags(VerifyTags(tags), tagMap);
+            return AddTags(VerifyTags(tags), stats);
         }
 
-        public TagList AddTags(TagList tags, IReadOnlyDictionary<string, TagType> tagMap)
+        public TagList AddTags(TagList tags, DanceStatsInstance stats)
         {
-            var ring = tagMap == null ? tags : ConvertToRing(tags, tagMap);
+            var ring = stats == null ? tags : ConvertToRing(tags, stats);
             TagSummary.ChangeTags(ring, null);
             return ring;
         }
 
-        public TagList RemoveTags(string tags, IReadOnlyDictionary<string, TagType> tagMap)
+        public TagList RemoveTags(string tags, DanceStatsInstance stats)
         {
-            return RemoveTags(VerifyTags(tags), tagMap);
+            return RemoveTags(VerifyTags(tags), stats);
         }
 
-        public TagList RemoveTags(TagList tags, IReadOnlyDictionary<string, TagType> tagMap)
+        public TagList RemoveTags(TagList tags, DanceStatsInstance stats)
         {
-            var ring = tagMap == null ? tags : ConvertToRing(tags, tagMap);
+            var ring = stats == null ? tags : ConvertToRing(tags, stats);
             TagSummary.ChangeTags(null,ring);
             return ring;
         }
 
-        public virtual TagList AddTags(TagList tags, ApplicationUser user, DanceMusicService dms = null, object data = null, bool updateTypes = true)
+        public virtual TagList AddTags(TagList tags, string user, DanceStatsInstance stats, object data = null, bool updateTypes = true)
         {
             if (user == null)
             {
                 return null;
             }
 
-            var ut = FindOrCreateUserTags(user, dms);
+            var ut = GetUserTags(user,data as SongBase);
 
-            var newTags = tags.Subtract(ut.Tags);
-            var allTags = ut.Tags.Add(newTags);
+            var newTags = tags.Subtract(ut);
 
-            ut.Modified = DateTime.Now;
-            ut.Tags = allTags;
-
-            DoUpdate(newTags, null, user, dms, data, updateTypes);
+            DoUpdate(newTags, null, user, stats, data, updateTypes);
 
             return newTags;
         }
@@ -136,203 +126,94 @@ namespace m4dModels
         //  of the actually removed tags in canonical form
         // TODO: Currently if removeTags gets rid of everything, an add tags in the same session with be a no-op,
         //  working around this by always doing an add before a remove, but that sucks long term
-        public TagList RemoveTags(string tags, ApplicationUser user, DanceMusicService dms = null, object data = null, bool updateTypes=true)
+        public TagList RemoveTags(string tags, string user, DanceStatsInstance stats, object data = null, bool updateTypes=true)
         {
             // If there were no pre-existing user tags, removal is a no-op
-            var ut = FindUserTag(user, dms);
-            if (ut == null || ut.Tags.IsEmpty)
+            var ut = GetUserTags(user);
+            if (ut == null || ut.IsEmpty)
                 return new TagList();
 
             var removed = new TagList(tags);
 
-            var badTags = removed.Subtract(ut.Tags);
+            var badTags = removed.Subtract(ut);
             var oldTags = removed.Subtract(badTags);
-            var newTags = ut.Tags.Subtract(oldTags);
-
-            ut.Modified = DateTime.Now;
-            ut.Tags = newTags;
 
             if (oldTags.IsEmpty)
                 return oldTags;
 
-            DoUpdate(null, oldTags, user, dms, data, updateTypes);
+            DoUpdate(null, oldTags, user, stats, data, updateTypes);
 
-            if (dms != null && ut.Tags.IsEmpty && FindUserTag(user, dms) != null)
-            {
-                try
-                {
-                    dms.Tags.Remove(ut);
-                }
-                catch (InvalidOperationException)
-                {
-                    Trace.WriteLineIf(TraceLevels.General.TraceInfo,$"Bad Remove Tag: {ut}");
-                }
-            }
             return oldTags;
         }
 
         // Change the user's set of tags for this object to reflect the tags parameter
         //  return true if tags have actually changed
-        public bool ChangeTags(string tags, ApplicationUser user, DanceMusicService dms = null, object data = null, bool updateTypes = true)
+        public bool ChangeTags(string tags, string user, DanceStatsInstance stats, object data = null, bool updateTypes = true)
         {
-            return ChangeTags(new TagList(tags), user, dms, data, updateTypes);
+            return ChangeTags(new TagList(tags), user, stats, data, updateTypes);
         }
 
-        public bool ChangeTags(TagList newTags, ApplicationUser user, DanceMusicService dms = null, object data = null, bool updateTypes = true)
+        public bool ChangeTags(TagList newTags, string user, DanceStatsInstance stats, object data = null, bool updateTypes = true)
         {
             // Short-circuit if both old and new are empty
-            var ut = FindUserTag(user, dms);
-            if (newTags.IsEmpty && ut == null)
+            var ut = GetUserTags(user);
+            if (newTags.IsEmpty && ut.IsEmpty)
                 return false;
 
-            ut = ut??FindOrCreateUserTags(user, dms);
-
-            var userTags = ut.Tags;
-
-            var added = newTags.Subtract(userTags);
-            var removed = userTags == null ? new TagList() : userTags.Subtract(newTags);
+            var added = newTags.Subtract(ut);
+            var removed = ut.Subtract(newTags);
 
             if (added.Tags.Count <= 0 && removed.Tags.Count <= 0) return false;
 
-            ut.Modified = DateTime.Now;
-            ut.Tags = newTags;
-            DoUpdate(added, removed, user, dms, data, updateTypes);
+            DoUpdate(added, removed, user, stats, data, updateTypes);
 
             return true;
         }
 
-        private void DoUpdate(TagList added, TagList removed, ApplicationUser user, DanceMusicService dms, object data, bool updateTypes=true)
+        private void DoUpdate(TagList added, TagList removed, string user, DanceStatsInstance stats, object data, bool updateTypes=true)
         {
             if (TagSummary == null)
                 TagSummary = new TagSummary();
 
-            var addRing = ConvertToRing(added,dms);
-            var delRing = ConvertToRing(removed, dms);
+            var addRing = ConvertToRing(added,stats);
+            var delRing = ConvertToRing(removed, stats);
             TagSummary.ChangeTags(addRing, delRing);
-            if (updateTypes && dms != null)
-                UpdateTagTypes(added, removed, dms);
-            RegisterChangedTags(added, removed, user, dms, data);
+            if (updateTypes && stats != null)
+                UpdateTagTypes(added, removed, stats);
+            RegisterChangedTags(added, removed, user, data);
         }
 
 
         // TODO: Think about if we need both implementations (dms and stand-alone);
-        private static void UpdateTagTypes(TagList added, TagList removed, DanceMusicService dms)
+        private static void UpdateTagTypes(TagList added, TagList removed, DanceStatsInstance stats)
         {
-            if (dms == null)
-                return;
+            // DBKILL: Figure out how to queue up tagtype modifications based on a DSI...
+            //if (stats == null)
+            //    return;
 
-            if (added != null)
-            {
-                foreach (var tag in added.Tags)
-                {
-                    // Create a transitory tag type to parse the tag string
-                    var tt = dms.FindOrCreateTagType(tag);
-                    tt.Count += 1;
-                }
-            }
+            //if (added != null)
+            //{
+            //    foreach (var tag in added.Tags)
+            //    {
+            //        // Create a transitory tag type to parse the tag string
+            //        var tt = dms.FindOrCreateTagType(tag);
+            //        tt.Count += 1;
+            //    }
+            //}
 
-            if (removed == null) return;
+            //if (removed == null) return;
 
-            foreach (var tt in removed.Tags.Select(dms.FindOrCreateTagType))
-            {
-                tt.Count -= 1;
-                // TODO: We should consider a service that occassionally sweeps TagTypes and removes the ones that
-                //  aren't used, but we can't proactively delete them this way since when we're doing a full load
-                //  of the database this causes inconsistencies.
-                //if (tt.Count <= 0)
-                //{
-                //    dms.TagTypes.Remove(tt);
-                //}
-            }
-        }
-        public virtual TagList UserTags(ApplicationUser user, DanceMusicService dms=null)
-        {
-            var tag = FindUserTag(user, dms);
-            return tag == null ? new TagList() : tag.Tags;
-        }
-
-        public Tag FindUserTag(ApplicationUser user, DanceMusicService dms=null)
-        {
-            if (user == null)
-            {
-                Trace.WriteLine("Null User in FindUserTag?");
-                return null;
-            }
-
-            // TODO: Local tag list is riding the edge of flaky...
-            Tag tag = null;
-            if (Tags != null)
-            {
-                tag = Tags.FirstOrDefault(t => (t.UserId == user.Id) && (t.Id == TagId)) ??
-                      Tags.FirstOrDefault(t => (t.User != null) && (t.User.UserName == user.UserName) && (t.Id == TagId));
-            }
-
-            if (tag != null || dms == null) return tag;
-
-            tag = dms.Tags.FirstOrDefault(t => t.UserId == user.Id && t.Id == TagId);
-            if (tag == null) return null;
-
-            if (Tags == null)
-                Tags = new List<Tag>();
-
-            Tags.Add(tag);
-            return tag;
-        }
-
-        public IEnumerable<Tag> FindUserTags(DanceMusicService dms)
-        {
-            return dms.Tags.Where(t => t.Id == TagId).ToList();
-        }
-
-        private Tag FindOrCreateUserTags(ApplicationUser user, DanceMusicService dms)
-        {
-            if (user == null)
-            {
-                return null;
-            }
-
-            var ut = FindUserTag(user, dms);
-
-            if (ut != null) return ut;
-
-            ut = dms != null ? dms.Tags.Create() : new Tag();
-            ut.UserId = user.Id;
-            ut.User = user;
-            ut.Id = TagId;
-            ut.Tags = new TagList();
-
-            dms?.Tags.Add(ut);
-
-            if (Tags == null)
-            {
-                Tags = new List<Tag>();
-            }
-            Tags.Add(ut);
-
-            return ut;
-        }
-
-
-        public bool UpdateTagSummary(DanceMusicService dms)
-        {
-            var tagId = TagId;
-            var tags = from t in dms.Context.Tags where t.Id == tagId select t;
-
-            var ts = TagSummary;
-
-            TagSummary = new TagSummary();
-            foreach (var tag in tags)
-            {
-                TagSummary.ChangeTags(ConvertToRing(tag.Tags, dms), null);
-            }
-
-            var changed = ts.Summary != TagSummary.Summary;
-            if (changed)
-            {
-                Trace.WriteLineIf(TraceLevels.General.TraceVerbose,$"{TagId}: {ts.Summary} - {TagSummary.Summary}");
-            }
-
-            return changed;
+            //foreach (var tt in removed.Tags.Select(dms.FindOrCreateTagType))
+            //{
+            //    tt.Count -= 1;
+            //    // TODO: We should consider a service that occassionally sweeps TagTypes and removes the ones that
+            //    //  aren't used, but we can't proactively delete them this way since when we're doing a full load
+            //    //  of the database this causes inconsistencies.
+            //    //if (tt.Count <= 0)
+            //    //{
+            //    //    dms.TagTypes.Remove(tt);
+            //    //}
+            //}
         }
 
         public bool UpdateTagSummary(TagSummary newSummary)
@@ -344,66 +225,47 @@ namespace m4dModels
             return true;
         }
 
-        private void UpdateUserTag(Tag tag, DanceMusicService dms)
+        public TagList GetUserTags(string userName, SongBase song = null)
         {
-            if (tag.User.IsPlaceholder) 
+            if (song == null) song = this as SongBase;
+            var danceId = (this as DanceRating)?.DanceId;
+            Debug.Assert(song != null);
+
+            // Build the tags from the properties
+            var acc = new TagList();
+            if (string.IsNullOrEmpty(userName)) return acc;
+
+            string cu = null;
+            foreach (var prop in song.SongProperties)
             {
-                tag.User = dms.FindUser(tag.User.UserName);//dms.FindOrAddUser(tag.User.UserName);
-                if (tag.User == null)
+                // ReSharper disable once SwitchStatementMissingSomeCases
+                switch (prop.BaseName)
                 {
-                    throw new InvalidCastException("tag");
+                    case SongBase.UserField:
+                    case SongBase.UserProxy:
+                        cu = prop.Value;
+                        break;
+                    case SongBase.AddedTags:
+                        if (userName.Equals(cu) && prop.DanceQualifier == danceId)
+                        {
+                            acc = acc.Add(new TagList(prop.Value));
+                        }
+                        break;
+                    case SongBase.RemovedTags:
+                        if (userName.Equals(cu) && prop.DanceQualifier == danceId)
+                        {
+                            acc = acc.Subtract(new TagList(prop.Value));
+                        }
+                        break;
                 }
             }
-            var ut = FindOrCreateUserTags(tag.User, dms);
-            if (ut.Tags.Summary == tag.Tags.Summary) return;
 
-            var removed = ut.Tags.Subtract(tag.Tags);
-            var added = tag.Tags.Subtract(ut.Tags);
-
-            foreach (var t in removed.Tags)
-            {
-                var tt = dms.TagTypes.Find(t);
-                if (tt != null) tt.Count -= 1;
-            }
-
-            foreach (var t in added.Tags)
-            {
-                var tt = dms.FindOrCreateTagType(t);
-                if (tt != null) tt.Count += 1;
-            }
-
-            ut.Tags = tag.Tags;
-            ut.Modified = DateTime.Now;
-        }
-        public void UpdateUserTags(DanceMusicService dms)
-        {
-            if (Tags == null) return;
-
-            var tags = Tags;
-            Tags = null;
-
-            foreach (var tag in tags)
-            {
-                UpdateUserTag(tag, dms);
-                var ring = ConvertToRing(tag.Tags, dms);
-                if (ring.Summary != tag.Tags.Summary)
-                {
-                    TagSummary.ChangeTags(ring, tag.Tags);
-                }
-            }
+            return acc;
         }
 
-        private static TagList ConvertToRing(TagList tags, DanceMusicService dms)
+        private static TagList ConvertToRing(TagList tags, DanceStatsInstance stats)
         {
-            if (tags == null)
-                return null;
-
-            return (dms == null) ? tags : 
-                new TagList(tags.Tags.Select(t => (dms.TagTypes.Find(t)??new TagType{Key=t}).GetPrimary()).Select(tt => tt.Key).Distinct().ToList());
-        }
-
-        private static TagList ConvertToRing(TagList tags, IReadOnlyDictionary<string,TagType> tagMap)
-        {
+            var tagMap = stats.TagMap;
             return tags == null ? null : 
                 new TagList(tags.Tags.Select(t => (tagMap.GetValueOrDefault(t.ToLower()) ?? new TagType { Key = t }).GetPrimary()).Select(tt => tt.Key).Distinct().ToList());
         }

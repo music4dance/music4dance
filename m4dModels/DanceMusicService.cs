@@ -318,7 +318,7 @@ namespace m4dModels
 
                 var init = song.SongProperties.Count;
 
-                var changed = song.CleanupProperties(this);
+                var changed = song.CleanupProperties();
 
                 var final = song.SongProperties.Count;
 
