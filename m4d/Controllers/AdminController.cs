@@ -1719,20 +1719,21 @@ namespace m4d.Controllers
                         }
                     }
 
-                    if (songs)
-                    {
-                        Context.Configuration.LazyLoadingEnabled = false;
-                        var n = 0;
-                        AdminMonitor.UpdateTask("songs");
-                        var lines = Database.SerializeSongs(true, history);
-                        AdminMonitor.UpdateTask("writeSongs");
-                        foreach (var line in lines)
-                        {
-                            file.WriteLine(line);
-                            AdminMonitor.UpdateTask("writeSongs", ++n);
-                        }
-                        Context.Configuration.LazyLoadingEnabled = true;
-                    }
+                    // KILLDB: Should we enable a way to do this dump from the azure search DB?
+                    //if (songs)
+                    //{
+                    //    Context.Configuration.LazyLoadingEnabled = false;
+                    //    var n = 0;
+                    //    AdminMonitor.UpdateTask("songs");
+                    //    var lines = Database.SerializeSongs(true, history);
+                    //    AdminMonitor.UpdateTask("writeSongs");
+                    //    foreach (var line in lines)
+                    //    {
+                    //        file.WriteLine(line);
+                    //        AdminMonitor.UpdateTask("writeSongs", ++n);
+                    //    }
+                    //    Context.Configuration.LazyLoadingEnabled = true;
+                    //}
                 }
 
                 AdminMonitor.CompleteTask(true, "Backup complete to: " + path);

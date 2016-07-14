@@ -423,7 +423,7 @@ namespace m4d.Controllers
             if (spider != null) return spider;
 
             var gid = id ?? Guid.Empty;
-            var song = Database.FindSongDetails(gid, User.Identity.Name, User.IsInRole("showDiagnostics"));
+            var song = Database.FindSong(gid, User.Identity.Name, User.IsInRole("showDiagnostics"));
             if (song == null)
             {
                 song = Database.FindMergedSong(gid, User.Identity.Name);
@@ -491,7 +491,7 @@ namespace m4d.Controllers
                 {
                     Name = album,
                     Track = track
-                };
+                };C
                 if (service != null)
                 {
                     var ms = MusicService.GetService(service[0]);
@@ -518,10 +518,8 @@ namespace m4d.Controllers
                 var user = Database.FindUser(User.Identity.Name);
                 var jt = JTags.FromJson(userTags);
 
-                //song.UpdateDanceRatings(addDances, SongBase.DanceRatingCreate);
-                //var tags = new TagList(editTags).Add(new TagList(SongBase.TagsFromDances(addDances)));
-                //song.AddTags(tags.ToString(), user, Database, song);
-                var newSong = Database.CreateSongDetails(user, song, jt.ToUserTags());
+                var newSong = Database.CreateSong(user, song, jt.ToUserTags());
+                song.AddTags(new TagList(userTags), user.UserName, Database.DanceStats, song);
 
                 if (newSong != null)
                 {
@@ -555,7 +553,7 @@ namespace m4d.Controllers
         [Authorize(Roles = "canEdit")] 
         public ActionResult Edit(Guid? id = null, decimal? tempo = null, SongFilter filter = null)
         {
-            var song = Database.FindSongDetails(id ?? Guid.Empty, User.Identity.Name, User.IsInRole("showDiagnostics"));
+            var song = Database.FindSong(id ?? Guid.Empty, User.Identity.Name, User.IsInRole("showDiagnostics"));
             if (song == null)
             {
                 return ReturnError(HttpStatusCode.NotFound, $"The song with id = {id} has been deleted.");
@@ -600,7 +598,7 @@ namespace m4d.Controllers
                     UpdateAndEnqueue(new[] {edit});
 
                     // This should be a quick round-trip to hydrate with the user details
-                    edit = Database.FindSongDetails(edit.SongId, user.UserName);
+                    edit = Database.FindSong(edit.SongId, user.UserName);
 
                     ViewBag.BackAction = "Index";
                     BuildDanceList(DanceBags.Stats | DanceBags.Single);
@@ -683,7 +681,7 @@ namespace m4d.Controllers
             UpdateAndEnqueue(new [] {song});
 
             var user = Database.FindUser(User.Identity.Name);
-            var sd = Database.FindSongDetails(songId, user.UserName);
+            var sd = Database.FindSong(songId, user.UserName);
 
             BuildDanceList(DanceBags.Stats | DanceBags.Single);
             return View("details", sd);
@@ -761,7 +759,7 @@ namespace m4d.Controllers
         [Authorize(Roles = "canEdit")]
         public ActionResult UpdateRatings(Guid id, SongFilter filter = null)
         {
-            var song = Database.Songs.Find(id);
+            var song = Database.FindSong(id);
             if (song == null)
             {
                 return ReturnError(HttpStatusCode.NotFound, $"The song with id = {id} has been deleted.");
@@ -772,7 +770,7 @@ namespace m4d.Controllers
             HelpPage = "song-details";
             BuildDanceList(DanceBags.Stats | DanceBags.Single);
 
-            return View("Details", Database.FindSongDetails(song.SongId));
+            return View("Details", song);
         }
 
 
@@ -807,12 +805,7 @@ namespace m4d.Controllers
         public ActionResult MergeResults(string songIds, SongFilter filter = null)
         {
             // See if we can do the actual merge and then return the song details page...
-            var ids = songIds.Split(',').Select(Guid.Parse).ToList();
-
-            var songs = from s in Database.Songs
-                        where ids.Contains(s.SongId)
-                        select s;
-            var songList = songs.ToList();
+            var songs = Database.FindSongs(songIds.Split(',').Select(Guid.Parse)).ToList();
 
             // Create a merged version of the song (and commit to DB)
 
@@ -820,20 +813,20 @@ namespace m4d.Controllers
             var userName = User.Identity.Name;
             var user = Database.FindUser(userName);
 
-            var song = Database.MergeSongs(user, songList, 
-                ResolveStringField(Song.TitleField, songList, Request.Form),
-                ResolveStringField(Song.ArtistField, songList, Request.Form),
-                ResolveDecimalField(Song.TempoField, songList, Request.Form),
-                ResolveIntField(Song.LengthField, songList, Request.Form),
+            var song = Database.MergeSongs(user, songs, 
+                ResolveStringField(Song.TitleField, songs, Request.Form),
+                ResolveStringField(Song.ArtistField, songs, Request.Form),
+                ResolveDecimalField(Song.TempoField, songs, Request.Form),
+                ResolveIntField(Song.LengthField, songs, Request.Form),
                 Request.Form[Song.AlbumListField], new HashSet<string>(Request.Form.AllKeys));
 
-            UpdateAndEnqueue(songList);
+            UpdateAndEnqueue(songs);
 
             DanceStatsManager.ClearCache();
 
             ViewBag.BackAction = "MergeCandidates";
             BuildDanceList(DanceBags.Stats | DanceBags.Single);
-            return View("details",Database.FindSongDetails(song.SongId));
+            return View("details",Database.FindSong(song.SongId));
         }
 
         /// <summary>

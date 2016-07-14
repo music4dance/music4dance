@@ -11,7 +11,7 @@ namespace m4d.APIControllers
     {
         public IHttpActionResult Get(Guid id, string service, string title = null, string artist = null, string album = null, string region=null)
         {
-            var song = Database.FindSongDetails(id);
+            var song = Database.FindSong(id);
             if (song != null && artist == null && title == null)
             {
                 artist = song.Artist;

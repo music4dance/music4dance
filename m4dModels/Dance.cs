@@ -10,22 +10,11 @@ namespace m4dModels
 {
     public class Dance
     {
-        public Dance()
-        {
-            SongTags = new TagSummary();
-        }
         public string Id { get; set; }
         public string Description { get; set; }
         public DateTime Modified { get; set; }
 
-        public virtual ICollection<DanceRating> DanceRatings { get; set; }
         public virtual ICollection<DanceLink> DanceLinks { get; set; }
-
-        // Properties that are batch generated
-        public int SongCount { get; set; }
-        public int MaxWeight { get; set; }
-        public TagSummary SongTags { get; set; }
-        public virtual ICollection<TopN> TopSongs { get; set; }
 
         public string SmartLinks()
         {

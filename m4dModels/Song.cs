@@ -189,7 +189,7 @@ namespace m4dModels
             _albums = (albums as List<AlbumDetails>) ?? albums?.ToList();
         }
 
-        private void Load(Guid songId, ICollection<SongProperty> properties, DanceStatsInstance stats)
+        public void Load(Guid songId, ICollection<SongProperty> properties, DanceStatsInstance stats)
         {
             SongId = songId;
 
@@ -199,7 +199,7 @@ namespace m4dModels
             SongProperties.AddRange(properties);
         }
 
-        private void Load(string properties, DanceStatsInstance stats)
+        public void Load(string properties, DanceStatsInstance stats)
         {
             var props = new List<SongProperty>();
             SongProperty.Load(properties, props);
