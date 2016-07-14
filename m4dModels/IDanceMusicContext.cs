@@ -12,23 +12,14 @@ namespace m4dModels
 
     public interface IDanceMusicContext: IDisposable
     {
-        DbSet<Song> Songs { get;  }
-        DbSet<SongProperty> SongProperties { get;  }
         DbSet<Dance> Dances { get; }
-        DbSet<DanceRating> DanceRatings { get; }
-        DbSet<TopN> TopNs { get; set; }
-        DbSet<Tag> Tags { get; }
         DbSet<TagType> TagTypes { get; }
-        DbSet<ModifiedRecord> Modified { get; }
         DbSet<Search> Searches { get; }
         IDbSet<ApplicationUser> Users { get; }
         IDbSet<IdentityRole> Roles { get; }
         Database Database { get; }
         int SaveChanges();
         void TrackChanges(bool track);
-        void CheckpointSongs();
-
-        void ClearEntities(IEnumerable<string> entities);
 
         void LoadDances(bool inclueRatings=true);
 

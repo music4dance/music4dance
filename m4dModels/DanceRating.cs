@@ -11,17 +11,10 @@ namespace m4dModels
     public class DanceRating : TaggableObject
     {
         [DataMember]
-        public Guid SongId { get; set; }
-        public virtual Song Song { get; set; }
-        [DataMember]
         public string DanceId { get; set; }
         public virtual Dance Dance { get; set; }
         [DataMember]
         public int Weight { get; set; }
-
-        public override char IdModifier => 'X';
-
-        public override string TagIdBase => DanceId + SongId.ToString("N");
 
         public override void RegisterChangedTags(TagList added, TagList removed, ApplicationUser user, DanceMusicService dms, object data)
         {
@@ -29,7 +22,7 @@ namespace m4dModels
 
             if (data == null) return;
 
-            var song = data as Song;
+            var song = data as SongBase;
             if (song == null)
             {
                 Trace.WriteLineIf(TraceLevels.General.TraceError, "Bad Song");

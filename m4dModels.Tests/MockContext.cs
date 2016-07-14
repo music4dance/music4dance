@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
 using Microsoft.AspNet.Identity;
@@ -29,15 +28,6 @@ namespace m4dModels.Tests
             }
         }
 
-        private class SongSet : TestDbSet<Song>
-        {
-            public override Song Find(params object[] keyValues)
-            {
-                var id = keyValues.Single() as Guid?;
-                return id == null ? null : this.SingleOrDefault(s => s.SongId == id);
-            }
-        }
-
         private class ApplicationUserSet : TestDbSet<ApplicationUser>
         {
             public override ApplicationUser Find(params object[] keyValues)
@@ -49,14 +39,9 @@ namespace m4dModels.Tests
 
         public MockContext(bool seedUsers = true)
         {
-            Songs = new SongSet();
-            SongProperties = new TestDbSet<SongProperty>();
             Dances = new DanceSet();
-            DanceRatings = new TestDbSet<DanceRating>();
-            Tags = new TagSet();
             TagTypes = new TagTypeSet();
             Searches = new SearchSet();
-            Modified = new TestDbSet<ModifiedRecord>();
             Users = new ApplicationUserSet();
             Roles = new TestDbSet<IdentityRole>();
 
@@ -83,21 +68,12 @@ namespace m4dModels.Tests
 
         #endregion
 
-        public DbSet<Song> Songs { get; set; }
-
-        public DbSet<SongProperty> SongProperties { get; set; }
 
         public DbSet<Dance> Dances { get; set; }
 
-        public DbSet<DanceRating> DanceRatings { get; set; }
-
-        public DbSet<TopN> TopNs { get; set; }
-
-        public DbSet<Tag> Tags { get; set; }
 
         public DbSet<TagType> TagTypes { get; set; }
 
-        public DbSet<ModifiedRecord> Modified { get; set; }
 
         public DbSet<Search> Searches { get; set; }
 
@@ -118,12 +94,6 @@ namespace m4dModels.Tests
         {
             // NOOP?
         }
-
-        public void CheckpointSongs()
-        {
-        }
-
-        public void ClearEntities(IEnumerable<string> entities) { }
 
         public bool LazyLoadingEnabled
         {

@@ -8,7 +8,7 @@ using DanceLibrary;
 
 namespace m4dModels
 {
-    public class Dance : TaggableObject
+    public class Dance
     {
         public Dance()
         {
@@ -26,10 +26,6 @@ namespace m4dModels
         public int MaxWeight { get; set; }
         public TagSummary SongTags { get; set; }
         public virtual ICollection<TopN> TopSongs { get; set; }
-
-        public override char IdModifier => 'D';
-
-        public override string TagIdBase => Id;
 
         public string SmartLinks()
         {

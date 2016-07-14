@@ -53,27 +53,6 @@ namespace m4d.Context
             DMController.TelemetryClient.TrackEvent("CreateDbContext", properties);
         }
 
-        //private static DbConnection CreateConnection(string nameOrConnectionString)
-        //{
-        //    var connectionStringSetting =
-        //        ConfigurationManager.ConnectionStrings[nameOrConnectionString];
-        //    string connectionString;
-        //    string providerName;
-
-        //    if (connectionStringSetting != null)
-        //    {
-        //        connectionString = connectionStringSetting.ConnectionString;
-        //        providerName = connectionStringSetting.ProviderName;
-        //    }
-        //    else
-        //    {
-        //        providerName = "System.Data.SqlClient";
-        //        connectionString = nameOrConnectionString;
-        //    }
-
-        //    return CreateConnection(connectionString, providerName);
-        //}
-
         private Guid _id = Guid.NewGuid();
 
         private static DbConnection CreateConnection(string connectionString, string providerInvariantName)
@@ -101,40 +80,19 @@ namespace m4d.Context
         #endregion
 
         #region Properties
-        public DbSet<Song> Songs { get; set; }
-        public DbSet<SongProperty> SongProperties { get; set; }
         public DbSet<Dance> Dances { get; set; }
-        public DbSet<DanceRating> DanceRatings { get; set; }
-        // ReSharper disable once InconsistentNaming
-        public DbSet<TopN> TopNs { get; set; }
-        public DbSet<Tag> Tags { get; set; }
         public DbSet<TagType> TagTypes { get; set; }
-        public DbSet<ModifiedRecord> Modified { get; set; }
         public DbSet<Search> Searches { get; set; }
-
         #endregion
 
         #region Events
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
-            modelBuilder.Ignore<SongBase>();
-            modelBuilder.Ignore<SongDetails>();
-            modelBuilder.Ignore<DanceRatingInfo>();
-            modelBuilder.Ignore<TaggableObject>();
-
             modelBuilder.Properties<DateTime>().Configure(c => c.HasColumnType("datetime2"));
-
-            modelBuilder.Entity<Song>().Property(song => song.Tempo).HasPrecision(6, 2);
-            modelBuilder.Entity<Song>().Ignore(song => song.AlbumName);
 
             modelBuilder.Entity<Dance>().Property(dance => dance.Id).HasMaxLength(5);
             modelBuilder.Entity<Dance>().Ignore(dance => dance.Info);
-            // ReSharper disable once SimilarAnonymousTypeNearby
-            modelBuilder.Entity<DanceRating>().HasKey(dr => new { dr.SongId, dr.DanceId });
-            // ReSharper disable once SimilarAnonymousTypeNearby
-            modelBuilder.Entity<TopN>().HasKey(tn => new { tn.DanceId, tn.SongId });
 
-            modelBuilder.Entity<TaggableObject>().Ignore(to => to.TagId);
             //modelBuilder.Entity<TaggableObject>().HasKey(to => to.TagIdBase);
             modelBuilder.Entity<Tag>().HasKey(t => new { t.UserId, t.Id });
             modelBuilder.Entity<TagType>().HasKey(tt => tt.Key);
@@ -144,9 +102,6 @@ namespace m4d.Context
                 .WithMany(x => x.Ring)
                 .HasForeignKey(x => x.PrimaryId)
                 .WillCascadeOnDelete(false);
-
-            modelBuilder.Entity<ModifiedRecord>().HasKey(t => new { t.ApplicationUserId, t.SongId });
-            modelBuilder.Entity<ModifiedRecord>().Ignore(mr => mr.UserName);
 
             modelBuilder.Entity<DanceLink>().HasKey(dl => dl.Id);
 
@@ -179,7 +134,7 @@ namespace m4d.Context
                 
             }
 
-            if (String.Equals(role, DanceMusicService.PseudoRole))
+            if (Equals(role, DanceMusicService.PseudoRole))
             {
                 user.LockoutEnabled = true;
             }
@@ -188,7 +143,7 @@ namespace m4d.Context
                 uman.AddToRole(user.Id, role);
             }
 
-            ApplicationUser ctxtUser = Users.Find(user.Id); //Users.FirstOrDefault(u => string.Equals(u.UserName, name, StringComparison.InvariantCultureIgnoreCase)); 
+            var ctxtUser = Users.Find(user.Id); //Users.FirstOrDefault(u => string.Equals(u.UserName, name, StringComparison.InvariantCultureIgnoreCase)); 
             Debug.Assert(ctxtUser != null);
             return ctxtUser;
         }
@@ -228,51 +183,6 @@ namespace m4d.Context
             TrackChanges(false);
         }
 
-        public void CheckpointSongs()
-        {
-            if (Configuration.AutoDetectChangesEnabled)
-            {
-                throw new InvalidConstraintException("Attempting a checkpoint without having first disabled auto-detect");
-            }
-
-            TrackChanges(true);
-            TrackChanges(false);
-
-            RemoveEntities<Song>();
-            RemoveEntities<SongProperty>();
-            RemoveEntities<DanceRating>();
-            RemoveEntities<Tag>();
-            RemoveEntities<ModifiedRecord>();
-        }
-
-        // TODO: Figure out if there is a type-safe way to do this...
-        public void ClearEntities(IEnumerable<string> entities)
-        {
-            foreach (var s in entities)
-            {
-                switch (s)
-                {
-                    case "Song":
-                        RemoveEntities<Song>();
-                        break;
-                    case "SongProperty":
-                        RemoveEntities<SongProperty>();
-                        break;
-                    case "DanceRating":
-                        RemoveEntities<DanceRating>();
-                        break;
-                    case "Tag":
-                        RemoveEntities<Tag>();
-                        break;
-                    case "ModifiedRecord":
-                        RemoveEntities<ModifiedRecord>();
-                        break;
-                    case "TopN":
-                        RemoveEntities<TopN>();
-                        break;
-                }
-            }
-        }
         public void LoadDances(bool includeRatings=false)
         {
             Configuration.LazyLoadingEnabled = false;
@@ -287,29 +197,6 @@ namespace m4d.Context
             }
 
             Configuration.LazyLoadingEnabled = true;
-        }
-
-        private void RemoveEntities<T>() where T : class
-        {
-            var list = Set<T>().Local.ToList();
-            foreach (var p in list) 
-                Entry(p).State = EntityState.Detached;
-        }
-
-        public void TrackChanges(bool track)
-        {
-            if (track && Configuration.AutoDetectChangesEnabled == false)
-            {
-                // Turn change tracking back on and update what's been changed
-                //  while it was off
-                Configuration.AutoDetectChangesEnabled = true;
-                ChangeTracker.DetectChanges();
-                SaveChanges();
-            }
-            else if (!track && Configuration.AutoDetectChangesEnabled)
-            {
-                Configuration.AutoDetectChangesEnabled = false;
-            }
         }
 
         public bool LazyLoadingEnabled

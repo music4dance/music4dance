@@ -44,13 +44,8 @@ namespace m4dModels
         #region Properties
 
         public IDanceMusicContext Context => _context;
-        public DbSet<Song> Songs => _context.Songs;
-        public DbSet<SongProperty> SongProperties => _context.SongProperties;
         public DbSet<Dance> Dances => _context.Dances;
-        public DbSet<DanceRating> DanceRatings => _context.DanceRatings;
-        public DbSet<Tag> Tags => _context.Tags;
         public DbSet<TagType> TagTypes => _context.TagTypes;
-        public DbSet<ModifiedRecord> Modified => _context.Modified;
         public DbSet<Search> Searches => _context.Searches;
 
         public UserManager<ApplicationUser> UserManager { get; }
@@ -579,23 +574,6 @@ namespace m4dModels
             UpdateAndEnqueue(new [] { song } );
         }
 
-        private string Undelete(Song song, ApplicationUser user)
-        {
-            RestoreSong(song, user);
-            return null;
-        }
-
-        private void RestoreSong(Song song, ApplicationUser user)
-        {
-            if (!string.IsNullOrWhiteSpace(song.Title))
-            {
-                throw new ArgumentOutOfRangeException(nameof(song), @"Attempting to restore a song that hasn't been deleted");
-            }
-            song.CreateEditProperties(user, SongBase.DeleteCommand + "=false", this);
-            var sd = new SongDetails(song.SongId, song.SongProperties,DanceStats);
-            song.Restore(sd, this);
-            song.UpdateUsers(this);
-        }
 
         #endregion
 

@@ -25,20 +25,6 @@ namespace m4dModels
             TagSummary = new TagSummary();
         }
 
-        public abstract char IdModifier { get; }
-        public abstract string TagIdBase { get; }
-
-        [DataMember]
-        public string TagId
-        {
-            get { return $"{IdModifier}:{TagIdBase}"; }
-            set
-            {
-                throw new NotImplementedException(
-                    "If we hit this it means we're trying to deserialize a Taggable object - Not sure we want to do this");
-            }
-        }
-
         [DataMember]
         public TagSummary TagSummary { get; set; }
 

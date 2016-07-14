@@ -1,14 +1,22 @@
-﻿using System;
+﻿// TODONEXT: Continue to clean up Songbase, then rename to Song
+//  Take a look at TaggableObject and see if we still need it
+//  Start plugging away at DanceMusicService
+
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Reflection;
 using System.Runtime.Serialization;
+using System.Runtime.Serialization.Json;
 using System.Text;
+using System.Text.RegularExpressions;
 using DanceLibrary;
+using Microsoft.Azure.Search.Models;
 using Newtonsoft.Json;
 using static System.Char;
 
@@ -18,7 +26,8 @@ namespace m4dModels
 {
     [DataContract]
     [JsonConverter(typeof(ToStringJsonConverter))]
-    public abstract class SongBase : TaggableObject
+    [KnownType(typeof(DanceRatingInfo))]
+    public class SongBase : TaggableObject
     {
         #region Constants
         // These are the constants that define fields, virtual fields and command
@@ -120,7 +129,93 @@ namespace m4dModels
 
         #endregion
 
+        #region Construction
+
+        public SongBase(Guid songId, ICollection<SongProperty> properties, DanceStatsInstance stats)
+        {
+            Load(songId, properties, stats);
+        }
+
+        public SongBase(SongBase s, DanceStatsInstance stats, string userName = null, bool forSerialization = true)
+        {
+            Init(s.SongId, SongProperty.Serialize(s.SongProperties, null), stats, userName, forSerialization);
+        }
+
+        public SongBase(Guid guid, string s, DanceStatsInstance stats, string userName = null, bool forSerialization = true)
+        {
+            Init(guid, s, stats, userName, forSerialization);
+        }
+
+        public SongBase(string s, DanceStatsInstance stats, string userName = null, bool forSerialization = true)
+        {
+            // Take a guid parameter?
+            Guid id;
+            var ich = TryParseId(s, out id);
+            if (ich > 0)
+            {
+                s = s.Substring(ich);
+            }
+            else
+            {
+                id = Guid.NewGuid();
+            }
+            Init(id, s, stats, userName, forSerialization);
+        }
+
+        private void Init(Guid id, string s, DanceStatsInstance stats, string userName, bool forSerialization)
+        {
+            SongId = id;
+            var properties = new List<SongProperty>();
+            SongProperty.Load(s, properties);
+            Load(SongId, properties, stats);
+
+            if (forSerialization && stats != null) SetupSerialization(userName, stats);
+
+            if (userName == null) return;
+
+            _currentUserTags = GetUserTags(userName);
+            _currentUserLike = ModifiedBy.FirstOrDefault(mr => mr.UserName == userName)?.Like;
+        }
+
+        public SongBase(string title, string artist, decimal? tempo, int? length, IList<AlbumDetails> albums)
+        {
+            Title = title;
+            Artist = artist;
+            Tempo = tempo;
+            Length = length;
+            _albums = (albums as List<AlbumDetails>) ?? albums?.ToList();
+        }
+
+        private void Load(Guid songId, ICollection<SongProperty> properties, DanceStatsInstance stats)
+        {
+            SongId = songId;
+
+            LoadProperties(properties, stats);
+
+            Albums = BuildAlbumInfo(properties);
+            SongProperties.AddRange(properties);
+        }
+
+        private void Load(string properties, DanceStatsInstance stats)
+        {
+            var props = new List<SongProperty>();
+            SongProperty.Load(properties, props);
+            Load(SongId, props, stats);
+        }
+
+        #endregion
+
         #region Serialization
+
+        public void SetupSerialization(string userName, DanceStatsInstance stats)
+        {
+            if (DanceRatings == null || DanceRatings.Count == 0) return;
+
+            var ratings = new List<DanceRating>(DanceRatings.Count);
+            ratings.AddRange(DanceRatings.Select(rating => new DanceRatingInfo(rating, GetUserTags(userName, rating.DanceId), stats)));
+            _danceRatings = ratings;
+        }
+
         /// <summary>
         /// Serialize the song to a single string
         /// </summary>
@@ -133,7 +228,7 @@ namespace m4dModels
                 return null;
             }
 
-            var props = SongProperty.Serialize(OrderedProperties, actions);
+            var props = SongProperty.Serialize(SongProperties, actions);
             if (actions != null && actions.Contains(NoSongId))
             {
                 return props;
@@ -157,6 +252,502 @@ namespace m4dModels
             return Serialize(null);
         }
 
+        public static SongBase CreateFromRow(ApplicationUser user, IList<string> fields, IList<string> cells, DanceStatsInstance stats, int weight = 1)
+        {
+            var properties = new List<SongProperty>();
+            var specifiedUser = false;
+            var specifiedAction = false;
+            SongProperty tagProperty = null;
+            IList<string> tags = null;
+            List<DanceRatingDelta> ratings = null;
+            IList<string> danceTags = null;
+            List<SongProperty> danceTagProperties = null;
+
+            for (var i = 0; i < cells.Count; i++)
+            {
+                if (fields[i] == null) continue;
+
+                var cell = cells[i];
+
+                var baseName = SongProperty.ParseBaseName(fields[i]);
+                string qual = null;
+                cell = cell.Trim();
+                if ((cell.Length > 0) && (cell[0] == '"') && (cell[cell.Length - 1] == '"'))
+                {
+                    cell = cell.Trim('"');
+                }
+
+                specifiedAction |= SongProperty.IsActionName(baseName);
+                // ReSharper disable once SwitchStatementMissingSomeCases
+                switch (baseName)
+                {
+                    case DanceRatingField:
+                        // Any positive delta here will be translated into whatever the creator
+                        //  decides is appropriate, just need this property to be appropriately
+                        //  parsable as a DRD.
+                        {
+                            var w = weight;
+                            if (fields.Count > i + 1 && fields[i + 1] == "R")
+                            {
+                                if (!int.TryParse(cells[i + 1], out w))
+                                    w = weight;
+                                i += 1;
+                            }
+                            ratings = DanceRating.BuildDeltas(cell, w).ToList();
+                            tagProperty = new SongProperty(AddedTags,
+                                TagsFromDances(ratings.Select(r => r.DanceId)));
+                            properties.Add(tagProperty);
+                            properties.AddRange(ratings.Select(rating => new SongProperty(baseName, rating.ToString())));
+                            cell = null;
+                        }
+                        break;
+                    case LengthField:
+                        if (!string.IsNullOrWhiteSpace(cell))
+                        {
+                            try
+                            {
+                                var d = new SongDuration(cell);
+                                var l = d.Length;
+                                cell = l.ToString("F0");
+                            }
+                            catch (ArgumentOutOfRangeException)
+                            {
+                                cell = null;
+                            }
+                        }
+                        break;
+                    case ArtistField:
+                        cell = CleanArtistString(cell);
+                        break;
+                    case TitleField:
+                        cell = CleanText(cell);
+                        // Song is not valid without a title
+                        if (string.IsNullOrWhiteSpace(cell))
+                        {
+                            return null;
+                        }
+                        break;
+                    case TitleArtistCell:
+                        var re = new Regex(@"""(?<title>[^""]*)""\s*[―—](?<artist>.*)");
+                        var m = re.Match(cell);
+                        if (!m.Success)
+                        {
+                            re = new Regex(@"(?<title>[^―—]*)\s*[―—](?<artist>.*)");
+                            m = re.Match(cell);
+                        }
+                        if (m.Success)
+                        {
+                            properties.Add(new SongProperty(TitleField, m.Groups["title"].Value));
+                            properties.Add(new SongProperty(ArtistField, m.Groups["artist"].Value));
+                        }
+                        else
+                        {
+                            // TODO: Figure out a clean way to propagate errors
+                            Trace.WriteLineIf(TraceLevels.General.TraceError, $"Invalid TitleArtist: {cell}");
+                            return null;
+                        }
+                        cell = null;
+                        break;
+                    case PurchaseField:
+                        qual = SongProperty.ParseQualifier(fields[i]);
+                        if (qual == "AS" && !cell.Contains(':'))
+                        {
+                            cell = "D:" + cell;
+                        }
+                        else
+                        if (qual == "IS")
+                        {
+                            var ids = cell.Split('|');
+                            if (ids.Length == 2)
+                            {
+                                cell = ids[0];
+                                properties.Add(new SongProperty(baseName, ids[1], 0, "IA"));
+                            }
+                        }
+                        break;
+                    case OwnerHash:
+                        cell = cell.GetHashCode().ToString("X");
+                        break;
+                    case UserField:
+                    case UserProxy:
+                        specifiedUser = true;
+                        break;
+                    case AddedTags:
+                        {
+                            tags = new List<string>();
+                            danceTags = new List<string>();
+
+                            cell = cell.ToUpper();
+                            if (cell.Contains("ENGLISH LANGUAGE"))
+                            {
+                                tags.Add("English:Other");
+                            }
+                            if (cell.Contains("SPANISH LANGUAGE"))
+                            {
+                                tags.Add("Spanish:Other");
+                            }
+                            if (cell.Contains("HIGH ENERGY"))
+                            {
+                                tags.Add("High Energy:Other");
+                            }
+                            if (cell.Contains("LOW ENERGY"))
+                            {
+                                tags.Add("Low Energy:Other");
+                            }
+                            if (cell.Contains("MEDIUM ENERGY"))
+                            {
+                                tags.Add("Medium Energy:Other");
+                            }
+                            if (cell.Contains("INSTRUMENTAL"))
+                            {
+                                tags.Add("Instrumental:Other");
+                            }
+
+                            if (cell.Contains("TRADITIONAL") || cell.Contains("TYPICAL") || cell.Contains("OLD SOUNDING") || cell.Contains("CLASSIC"))
+                            {
+                                danceTags.Add("Traditional:Style");
+                            }
+                            if (cell.Contains("CONTEMPORARY"))
+                            {
+                                danceTags.Add("Contemporary:Style");
+                            }
+                            if (cell.Contains("MODERN"))
+                            {
+                                danceTags.Add("Modern:Style");
+                            }
+
+                            if (tags.Count == 0) tags = null;
+                            if (danceTags.Count == 0) danceTags = null;
+
+                            cell = null;
+                        }
+                        break;
+                    case SongTags:
+                        if (!string.IsNullOrWhiteSpace(cell))
+                        {
+                            var tcs = SongProperty.ParsePart(fields[i], 1);
+                            if (string.IsNullOrWhiteSpace(tcs)) tcs = "Other";
+                            tags = new TagList(cell).Normalize(tcs).ToStringList();
+                        }
+                        cell = null;
+                        break;
+                    case DancersCell:
+                        var dancers = cell.Split(new[] { '&' }, StringSplitOptions.RemoveEmptyEntries);
+                        danceTags = dancers.Select(dancer => dancer.Trim() + ":Other").ToList();
+                        cell = null;
+                        break;
+                    case DanceTags:
+                        if (!string.IsNullOrWhiteSpace(cell))
+                        {
+                            var tc = SongProperty.ParsePart(fields[i], 1);
+                            if (string.IsNullOrWhiteSpace(tc)) tc = "Other";
+                            danceTags = new TagList(cell).Normalize(tc).ToStringList();
+                        }
+                        cell = null;
+                        break;
+                    case MeasureTempo:
+                        decimal tempo;
+                        if (decimal.TryParse(cell, out tempo))
+                        {
+                            var numerator = 4;
+                            if (ratings != null && ratings.Count > 0)
+                            {
+                                var did = ratings[0].DanceId;
+                                var d = Dances.Instance.DanceFromId(did);
+                                if (d != null)
+                                {
+                                    numerator = d.Meter.Numerator;
+                                }
+                            }
+                            tempo = tempo * numerator;
+                            cell = tempo.ToString(CultureInfo.InvariantCulture);
+                            baseName = TempoField;
+                        }
+                        else
+                        {
+                            cell = null;
+                        }
+
+                        break;
+                }
+
+                if (tags != null && tags.Count > 0)
+                {
+                    var tl = new TagList(tags);
+
+                    if (tagProperty != null)
+                    {
+                        tl = tl.Add(new TagList(tagProperty.Value));
+                        tagProperty.Value = tl.ToString();
+                    }
+                    else
+                    {
+                        tagProperty = new SongProperty(AddedTags, tl.ToString());
+                        properties.Add(tagProperty);
+                    }
+                }
+                tags = null;
+
+                if (danceTags != null && ratings != null)
+                {
+                    var tl = new TagList(danceTags);
+                    if (danceTagProperties != null && danceTagProperties.Count > 0)
+                    {
+                        tl = tl.Add(new TagList(danceTagProperties[0].Value));
+                        foreach (var p in danceTagProperties)
+                        {
+                            p.Value = tl.ToString();
+                        }
+                    }
+                    else
+                    {
+                        danceTagProperties = new List<SongProperty>();
+                        foreach (var p in ratings.Select(drd => new SongProperty(AddedTags, tl.ToString(), -1, drd.DanceId)))
+                        {
+                            properties.Add(p);
+                            danceTagProperties.Add(p);
+                        }
+                    }
+                    danceTags = null;
+                }
+
+                if (string.IsNullOrWhiteSpace(cell)) continue;
+
+                var idx = IsAlbumField(fields[i]) ? 0 : -1;
+                var prop = new SongProperty(baseName, cell, idx, qual);
+                properties.Add(prop);
+            }
+
+            const string sep = "|";
+            Trace.WriteLineIf(user == null && !specifiedUser, $"Bad User for {string.Join(sep, cells)}");
+
+            // ReSharper disable once InvertIf
+            if (user != null)
+            {
+                if (!specifiedUser)
+                {
+                    properties.Insert(0, new SongProperty(TimeField, DateTime.Now.ToString(CultureInfo.InvariantCulture)));
+                    properties.Insert(0, new SongProperty(UserField, user.UserName));
+                }
+                if (!specifiedAction)
+                {
+                    properties.Insert(0, new SongProperty(CreateCommand));
+                }
+            }
+
+            return new SongBase(Guid.NewGuid(), properties, stats);
+        }
+
+        public static List<string> BuildHeaderMap(string line, char separator = '\t')
+        {
+            var map = new List<string>();
+            var headers = line.Split(separator);
+
+            foreach (var parts in headers.Select(t => t.Trim()).Select(header => header.Split(':')))
+            {
+                string field;
+                // If this fails, we want to add a null to our list because
+                // that indicates a column we don't care about
+                if (parts.Length > 0 && PropertyMap.TryGetValue(parts[0].ToUpper(), out field))
+                {
+                    map.Add((parts.Length > 1) ? field + ":" + parts[1] : field);
+                }
+                else
+                {
+                    map.Add(null);
+                }
+            }
+
+            return map;
+        }
+
+        private static readonly Dictionary<string, string> PropertyMap = new Dictionary<string, string>()
+        {
+            {"DANCE", DanceRatingField},
+            {"TITLE", TitleField},
+            {"ARTIST", ArtistField},
+            {"CONTRIBUTING ARTISTS", ArtistField},
+            {"LABEL", PublisherField},
+            {"USER", UserField},
+            {"TEMPO", TempoField},
+            {"BPM", TempoField},
+            {"BEATS-PER-MINUTE", TempoField},
+            {"LENGTH", LengthField},
+            {"TRACK",TrackField},
+            {"ALBUM", AlbumField},
+            {"#", TrackField},
+            {"PUBLISHER", PublisherField},
+            {"AMAZONTRACK", SongProperty.FormatName(PurchaseField,null,"AS")},
+            {"AMAZON", SongProperty.FormatName(PurchaseField,null,"AS")},
+            {"ITUNES", SongProperty.FormatName(PurchaseField,null,"IS")},
+            {"PATH",OwnerHash},
+            {"TIME",LengthField},
+            {"COMMENT",AddedTags},
+            {"RATING","R"},
+            {"DANCERS",DancersCell},
+            {"TITLE+ARTIST",TitleArtistCell},
+            {"DANCETAGS",DanceTags},
+            {"SONGTAGS",SongTags},
+            {"MPM", MeasureTempo},
+        };
+
+        public static IList<SongBase> CreateFromRows(ApplicationUser user, string separator, IList<string> headers, IEnumerable<string> rows, DanceStatsInstance stats, int weight)
+        {
+            var songs = new Dictionary<string, SongBase>();
+            var itc = string.Equals(separator.Trim(), "ITC");
+            var itcd = string.Equals(separator.Trim(), "ITC-");
+
+            foreach (var line in rows)
+            {
+                Trace.WriteLineIf(TraceLevels.General.TraceVerbose, "Create Song From Row:" + line);
+                List<string> cells;
+
+                if (itc || itcd)
+                {
+                    cells = new List<string>();
+                    var re = itc ? new Regex(@"\w*(?<bpm>\d+)(?<title>[^\t]*)\t(?<artist>.*)") : new Regex(@"\w*(?<bpm>\d+)(?<title>[^-]*)-(?<artist>.*)");
+                    var m = re.Match(line.Trim());
+                    if (m.Success)
+                    {
+                        cells.Add(m.Groups["bpm"].Value);
+                        cells.Add(m.Groups["title"].Value);
+                        cells.Add(m.Groups["artist"].Value);
+                    }
+                    else
+                    {
+                        continue;
+                    }
+                }
+                else
+                {
+                    cells = new List<string>(Regex.Split(line, separator));
+                }
+
+
+                // Concat back the last field (which seems a typical pattern)
+                while (cells.Count > headers.Count)
+                {
+                    cells[headers.Count - 1] = $"{cells[headers.Count - 1]}{separator}{(cells[headers.Count])}";
+                    cells.RemoveAt(headers.Count);
+                }
+
+                if (cells.Count == headers.Count)
+                {
+                    var sd = CreateFromRow(user, headers, cells, stats, weight);
+                    if (sd != null)
+                    {
+                        var ta = sd.TitleArtistAlbumString;
+                        if (string.Equals(sd.Title, sd.Artist))
+                        {
+                            Trace.WriteLine($"Title and Artist are the same ({sd.Title})");
+                        }
+                        SongBase old;
+                        if (songs.TryGetValue(ta, out old))
+                        {
+                            old.MergeRow(sd);
+                        }
+                        else
+                        {
+                            songs.Add(ta, sd);
+                        }
+                    }
+                }
+                else
+                {
+                    Trace.WriteLineIf(TraceLevels.General.TraceInfo,
+                        $"Bad cell count {cells.Count} != {headers.Count}: {line}");
+                }
+            }
+
+            var ret = new List<SongBase>(songs.Values);
+
+            foreach (var sd in ret)
+            {
+                sd.InferDances(user);
+            }
+            return ret;
+        }
+
+        private void MergeRow(SongBase other)
+        {
+            if (other.Length.HasValue && !Length.HasValue)
+            {
+                Length = other.Length;
+                CreateProperty(LengthField, other.Length.Value);
+            }
+            if (other.Tempo.HasValue && !Tempo.HasValue)
+            {
+                Tempo = other.Tempo;
+                CreateProperty(TempoField, other.Tempo.Value);
+            }
+
+            var tagPropOther = other.LastProperty(AddedTags);
+            if (tagPropOther != null)
+            {
+                var tagProp = LastProperty(AddedTags);
+                tagProp.Value = (new TagList(tagProp.Value)).Add(new TagList(tagPropOther.Value)).ToString();
+            }
+
+            foreach (var dr in other.DanceRatings)
+            {
+                UpdateDanceRating(new DanceRatingDelta(dr.DanceId, dr.Weight), true);
+            }
+        }
+
+        //private static readonly List<string> s_trackFields = new List<string>(new string[] {""});
+        public static SongBase CreateFromTrack(ApplicationUser user, ServiceTrack track, string dances, string songTags, string danceTags, DanceStatsInstance stats)
+        {
+            // Title;Artist;Duration;Album;Track;DanceRating;SongTags;DanceTags;PurchaseInfo;
+
+            var fields = new List<string>
+            {
+                TitleField,
+                ArtistField,
+                LengthField,
+                AlbumField,
+                TrackField,
+                DanceRatingField,
+                SongTags,
+                DanceTags
+            };
+
+            var cells = new List<string>
+            {
+                track.Name,
+                track.Artist,
+                track.Duration?.ToString(),
+                track.Album,
+                track.TrackNumber?.ToString(),
+                dances,
+                songTags,
+                danceTags
+            };
+
+            if (track.CollectionId != null)
+            {
+                fields.Add(PurchaseField + ":00:" + AlbumDetails.BuildPurchaseKey(PurchaseType.Album, track.Service));
+                cells.Add(track.CollectionId);
+            }
+            if (track.TrackId != null)
+            {
+                fields.Add(PurchaseField + ":00:" + AlbumDetails.BuildPurchaseKey(PurchaseType.Song, track.Service));
+                cells.Add(track.TrackId);
+            }
+
+            var sd = CreateFromRow(user, fields, cells, stats, DanceRatingIncrement);
+            sd.InferDances(user);
+            return sd;
+        }
+
+        public string ToJson()
+        {
+            var stream = new MemoryStream();
+            var serializer = new DataContractJsonSerializer(typeof(SongBase));
+            serializer.WriteObject(stream, this);
+            return Encoding.UTF8.GetString(stream.ToArray());
+        }
+
+
         protected void LoadProperties(ICollection<SongProperty> properties, DanceStatsInstance stats) 
         {
             var created = SongProperties != null && SongProperties.Count > 0;
@@ -176,7 +767,7 @@ namespace m4dModels
                     case UserProxy:
                         currentUser = new ApplicationUser(prop.Value);
                         // TOOD: if the placeholder user works, we should use it to simplify the ModifiedRecord
-                        currentModified = new ModifiedRecord {SongId = SongId, UserName = prop.Value};
+                        currentModified = new ModifiedRecord {UserName = prop.Value};
                         currentModified = AddModifiedBy(currentModified);
                         break;
                     case DanceRatingField:
@@ -262,9 +853,6 @@ namespace m4dModels
         #endregion
 
         #region Properties
-        public override char IdModifier => 'S';
-
-        public override string TagIdBase => SongId.ToString("N");
 
         [DataMember]
         public Guid SongId { get; set; }
@@ -280,7 +868,7 @@ namespace m4dModels
         [DataMember]
         public int? Length { get; set; }
         [DataMember]
-        public virtual string Purchase { get; set; }
+        public string Purchase => GetPurchaseTags();
         [DataMember]
         public string Sample { get; set; }
         [DataMember]
@@ -294,17 +882,56 @@ namespace m4dModels
         public DateTime Created { get; set; }
         [DataMember]
         public DateTime Modified { get; set; }
-        public virtual string Album { get; set; }
 
         [DataMember]
-        public virtual ICollection<DanceRating> DanceRatings { get; set; }
-        [DataMember]
-        public virtual ICollection<ModifiedRecord> ModifiedBy { get; set; }
-        [DataMember]
-        public virtual ICollection<SongProperty> SongProperties { get; set; }
+        public List<DanceRating> DanceRatings => _danceRatings ?? (_danceRatings = new List<DanceRating>());
+        private List<DanceRating> _danceRatings;
 
-        // These are helper properties (they don't map to database columns)
-        public string Signature => BuildSignature(Artist, Title);
+        [DataMember]
+        public List<ModifiedRecord> ModifiedBy => _ModifiedBy ?? (_ModifiedBy = new List<ModifiedRecord>());
+        private List<ModifiedRecord> _ModifiedBy;
+
+        [DataMember]
+        public List<SongProperty> SongProperties => _properties ?? (_properties = new List<SongProperty>());
+        private List<SongProperty> _properties;
+
+        [DataMember]
+        public List<AlbumDetails> Albums
+        {
+            get { return _albums ?? (_albums = new List<AlbumDetails>()); }
+            set
+            {
+                _albums = value;
+            }
+        }
+        private List<AlbumDetails> _albums;
+
+        public int TitleHash => CreateTitleHash(Title);
+
+        [DataMember]
+        public TagList CurrentUserTags
+        {
+            get { return _currentUserTags; }
+            set { throw new NotImplementedException("Shouldn't hit the setter for this."); }
+        }
+
+        [DataMember]
+        public bool? CurrentUserLike
+        {
+            get { return _currentUserLike; }
+            set { throw new NotImplementedException("Shouldn't hit the setter for this."); }
+        }
+
+        public void SetCurrentUserTags(ApplicationUser user)
+        {
+            if (user == null) return;
+
+            _currentUserTags = GetUserTags(user);
+        }
+
+        private TagList _currentUserTags;
+        private bool? _currentUserLike;
+
 
         public bool TempoConflict(SongBase s, decimal delta)
         {
@@ -314,10 +941,6 @@ namespace m4dModels
 
         public bool HasSample => Sample != null && Sample != ".";
         public bool HasEchoNest => Danceability != null && !float.IsNaN(Danceability.Value);
-
-        public string AlbumName => new AlbumTrack(Album).Album;
-
-        public int TrackNumber  => new AlbumTrack(Album).Track;
 
         public TimeSpan ModifiedSpan => DateTime.Now - Modified;
 
@@ -354,9 +977,1480 @@ namespace m4dModels
             }
         }
 
-        public IOrderedEnumerable<SongProperty> OrderedProperties
+        #endregion
+
+        #region Actions
+
+        public void Create(ApplicationUser user, string command, string value, bool addUser)
         {
-            get { return SongProperties.OrderBy(sp => sp.Id); }
+            var time = DateTime.Now;
+
+            if (!string.IsNullOrWhiteSpace(command))
+            {
+                CreateProperty(command, value);
+            }
+
+            Created = time;
+            Modified = time;
+
+            if (!addUser || user == null) return;
+
+            AddUser(user);
+            CreateProperty(UserField, user.UserName);
+            CreateProperty(TimeField, time.ToString(CultureInfo.InvariantCulture));
+        }
+
+        public void Create(SongBase sd, IEnumerable<UserTag> tags, ApplicationUser user, string command, string value, DanceStatsInstance stats)
+        {
+            var addUser = !(sd.ModifiedBy != null && sd.ModifiedBy.Count > 0 && AddUser(sd.ModifiedBy[0].UserName));
+
+            Create(user, command, value, addUser);
+
+            // Handle User association
+            if (!addUser)
+            {
+                // This is the Modified record created when we computed the addUser condition above
+                var mr = ModifiedBy.First();
+                mr.Owned = sd.ModifiedBy[0].Owned;
+
+                CreateProperty(UserField, mr.UserName);
+                CreateProperty(TimeField, Created.ToString(CultureInfo.InvariantCulture));
+                if (mr.Owned.HasValue)
+                    CreateProperty(OwnerHash, mr.Owned);
+            }
+
+            Debug.Assert(!string.IsNullOrWhiteSpace(sd.Title));
+            foreach (var pi in ScalarProperties)
+            {
+                var prop = pi.GetValue(sd);
+                if (prop == null) continue;
+
+                pi.SetValue(this, prop);
+                CreateProperty(pi.Name, prop);
+            }
+
+            if (tags == null)
+            {
+                // Handle Tags
+                TagsFromProperties(user, sd.SongProperties, stats, this);
+
+                // Handle Dance Ratings
+                CreateDanceRatings(sd.DanceRatings, stats);
+
+                DanceTagsFromProperties(user, sd.SongProperties, stats, this);
+            }
+            else
+            {
+                InternalEditTags(user, tags, stats);
+            }
+
+            // Handle Albums
+            CreateAlbums(sd.Albums);
+
+            SetTimesFromProperties();
+        }
+
+        private bool EditCore(ApplicationUser user, SongBase edit, DanceStatsInstance stats)
+        {
+            CreateEditProperties(user, EditCommand);
+
+            var modified = ScalarFields.Aggregate(false, (current, field) => current | UpdateProperty(edit, field));
+
+            var oldAlbums = BuildAlbumInfo(this);
+
+            var foundFirst = false;
+
+            foreach (var album in edit.Albums)
+            {
+                var album1 = album;
+                var old = oldAlbums.FirstOrDefault(a => a.Index == album1.Index);
+
+                if (!foundFirst && !string.IsNullOrEmpty(album.Name))
+                {
+                    foundFirst = true;
+                }
+
+                if (old != null)
+                {
+                    // We're in existing album territory
+                    modified |= album.ModifyInfo(this, old);
+                    oldAlbums.Remove(old);
+                }
+                else
+                {
+                    // We're in new territory only do something if the name field is non-empty
+                    if (string.IsNullOrWhiteSpace(album.Name)) continue;
+
+                    album.CreateProperties(this);
+                    modified = true;
+                }
+            }
+
+            // Handle deleted albums
+            foreach (var album in oldAlbums)
+            {
+                modified = true;
+                album.Remove(this);
+            }
+
+            // Now check order and insert a re-order record if they aren't line up...
+            // TODO: Linq???
+            var needReorder = false;
+            var reorder = new List<int>();
+            var prev = -1;
+
+            foreach (var t in edit.Albums.Select(album => album.Index))
+            {
+                if (prev > t)
+                {
+                    needReorder = true;
+                }
+                prev = t;
+                reorder.Add(t);
+            }
+
+            if (!needReorder) return modified;
+
+            var temp = string.Join(",", reorder.Select(x => x.ToString()));
+            var order = LastProperty(AlbumOrder);
+            if (order?.Value == temp)
+            {
+                return modified;
+            }
+            CreateProperty(AlbumOrder, temp);
+
+            return true;
+        }
+
+        internal bool AdminEdit(string properties, DanceStatsInstance stats)
+        {
+            DanceRatings.Clear();
+            ModifiedBy.Clear();
+
+            SongProperties.Clear();
+
+            ClearValues();
+
+            Load(properties,stats);
+
+            Modified = DateTime.Now;
+
+            return true;
+        }
+
+        // Edit 'this' based on SongBase + extras
+        public bool Edit(ApplicationUser user, SongBase edit, IEnumerable<UserTag> tags, DanceStatsInstance stats)
+        {
+            var modified = EditCore(user, edit, stats);
+
+            modified |= UpdatePurchaseInfo(edit);
+            modified |= UpdateModified(user, edit, true);
+
+            if (tags != null)
+            {
+                modified |= InternalEditTags(user, tags, stats);
+            }
+
+            if (modified)
+            {
+                InferDances(user);
+                Modified = DateTime.Now;
+                return true;
+            }
+
+            RemoveEditProperties(user, EditCommand, dms);
+
+            return false;
+        }
+
+        public bool EditLike(ApplicationUser user, bool? like)
+        {
+            var modified = AddUser(user);
+            var modrec = FindModified(user.UserName);
+            modified |= EditLike(modrec, like);
+            return modified;
+        }
+
+        public bool EditLike(ModifiedRecord modrec, bool? like)
+        {
+            if (modrec.Like == like) return false;
+
+            CreateEditProperties(modrec.ApplicationUser, EditCommand);
+            var lt = modrec.LikeString;
+            modrec.Like = like;
+            CreateProperty(LikeTag, modrec.LikeString, lt);
+            return true;
+        }
+
+        public bool EditDanceLike(ApplicationUser user, bool? like, string danceId, DanceMusicService dms)
+        {
+            var r = UserDanceRating(user.UserName, danceId);
+
+            // If the existing like value is in line with the current rating, do nothing
+            if ((like.HasValue && (like.Value && r > 0 || !like.Value && r < 0)) || (!like.HasValue && r == 0))
+            {
+                return false;
+            }
+
+            CreateEditProperties(user, EditCommand, dms);
+
+            // First, neutralize existing rating
+            var delta = -r;
+            var tagDelta = TagsFromDances(new[] { danceId });
+            var tagNeg = "!" + tagDelta;
+            if (like.HasValue)
+            {
+                // Then, update the value for our current nudge factor in the appropriate direction
+                if (like.Value)
+                {
+                    delta += DanceRatingIncrement;
+                    AddTags(tagDelta, user, dms, this);
+                    RemoveTags(tagNeg, user, dms, this);
+                }
+                else
+                {
+                    delta += DanceRatingDecrement;
+                    AddTags(tagNeg, user, dms, this);
+                    RemoveTags(tagDelta, user, dms, this);
+                }
+            }
+            else
+            {
+                RemoveTags(tagDelta + "|" + tagNeg, user, dms, this);
+            }
+
+            UpdateDanceRating(new DanceRatingDelta { DanceId = danceId, Delta = delta }, true);
+            return true;
+        }
+
+        public bool Update(ApplicationUser user, SongBase update, DanceMusicService dms)
+        {
+            SetupCollections();
+            // Verify that our heads are the same (TODO:move this to debug mode at some point?)
+            var old = OrderedProperties.ToList(); // Where(p => !p.IsAction).
+            var upd = update.Properties.ToList(); // Where(p => !p.IsAction).
+            var c = old.Count;
+            for (var i = 0; i < c; i++)
+            {
+                if (upd.Count >= i && string.Equals(old[i].Name, upd[i].Name)) continue;
+
+                Trace.WriteLine($"Unexpected Update: {SongId}");
+                return false;
+            }
+
+            // Nothing has changed
+            if (c == upd.Count)
+            {
+                return false;
+            }
+
+            var mrg = new List<SongProperty>(upd.Skip(c));
+
+            UpdateProperties(mrg, dms.DanceStats);
+            UpdateFromService(dms);
+
+            UpdatePurchaseInfo(update);
+            Album = null;
+            if (update.Albums != null && update.Albums.Count > 0)
+            {
+                Album = update.Albums[0].AlbumTrack;
+            }
+
+            return true;
+        }
+
+        public void UpdateProperties(ICollection<SongProperty> properties, DanceStatsInstance stats, string[] excluded = null)
+        {
+            LoadProperties(properties, stats);
+
+            foreach (var prop in properties.Where(prop => excluded == null || !excluded.Contains(prop.BaseName)))
+            {
+                SongProperties.Add(new SongProperty {Name = prop.Name, Value = prop.Value});
+            }
+        }
+
+        public bool UpdateTagSummaries(DanceMusicService dms)
+        {
+            var changed = false;
+            var delta = new SongBase(SongId, SongProperties, dms.DanceStats);
+            if (!Equals(TagSummary.Summary, delta.TagSummary.Summary))
+            {
+                changed = UpdateTagSummary(delta.TagSummary);
+            }
+
+            foreach (var dr in DanceRatings)
+            {
+                var drDelta = delta.DanceRatings.FirstOrDefault(drd => drd.DanceId == dr.DanceId);
+                if (drDelta == null)
+                {
+                    Trace.WriteLine($"Bad Comparison: {SongId}:{dr.DanceId}");
+                    continue;
+                }
+
+                changed |= dr.UpdateTagSummary(drDelta.TagSummary);
+            }
+            return changed;
+        }
+
+        public void RebuildUserTags(ApplicationUser user, DanceMusicService tms)
+        {
+            TagsFromProperties(user, SongProperties, tms, this);
+            DanceTagsFromProperties(user, SongProperties, tms, this);
+        }
+
+        // This is an additive merge - only add new things if they don't conflict with the old
+        public bool AdditiveMerge(ApplicationUser user, SongBase edit, List<string> addDances, DanceMusicService dms)
+        {
+            CreateEditProperties(user, EditCommand, dms);
+
+            var modified = ScalarFields.Aggregate(false, (current, field) => current | AddProperty(edit, field, dms));
+
+            var oldAlbums = SongBase.BuildAlbumInfo(this);
+
+            foreach (var album in edit.Albums)
+            {
+                var album1 = album;
+                var old = oldAlbums.FirstOrDefault(a => a.Index == album1.Index);
+
+                if (string.IsNullOrWhiteSpace(Album) && !string.IsNullOrEmpty(album.Name))
+                {
+                    Album = album.AlbumTrack;
+                }
+
+                if (old != null)
+                {
+                    // We're in existing album territory
+                    modified |= album.UpdateInfo(this, old);
+                }
+                else
+                {
+                    // We're in new territory only do something if the name field is non-empty
+                    if (string.IsNullOrWhiteSpace(album.Name)) continue;
+
+                    album.CreateProperties(this);
+                    modified = true;
+                }
+            }
+
+            if (addDances != null && addDances.Count > 0)
+            {
+                var tags = TagsFromDances(addDances);
+                var newTags = AddTags(tags, user, dms, this);
+                modified = newTags != null && !string.IsNullOrWhiteSpace(tags);
+
+                modified |= EditDanceRatings(addDances, DanceRatingIncrement, null, 0, dms);
+
+                InferDances(user);
+            }
+            else
+            {
+                // Handle Tags
+                modified |= TagsFromProperties(user, edit.SongProperties, dms, this);
+
+                // Handle Dance Ratings
+                CreateDanceRatings(edit.DanceRatings, dms);
+
+                modified |= DanceTagsFromProperties(user, edit.SongProperties, dms, this);
+            }
+
+            modified |= UpdatePurchaseInfo(edit, true);
+            modified |= UpdateModified(user, edit, dms, false);
+
+            return modified;
+        }
+
+        public bool EditTags(ApplicationUser user, IEnumerable<UserTag> tags, DanceMusicService dms)
+        {
+            CreateEditProperties(user, EditCommand, dms);
+
+            return InternalEditTags(user, tags, dms);
+        }
+
+        private bool InternalEditTags(ApplicationUser user, IEnumerable<UserTag> tags, DanceMusicService dms)
+        {
+            var hash = new Dictionary<string, TagList>();
+            foreach (var tag in tags)
+            {
+                hash[tag.Id] = tag.Tags;
+            }
+
+            // Possibly a bit of a kludge, but we're going to handle vote (Like/Hate) as a top level tag up to this point
+            // So:  null:Like, true:Like, false:Like converts to the appropriate nullable boolean on the modified record.
+            var modified = false;
+            var songTags = new TagList(hash[""].Summary);
+            var likeTags = songTags.Filter("Like");
+            if (!likeTags.IsEmpty)
+            {
+                songTags = songTags.Subtract(likeTags);
+                var lt = likeTags.StripType()[0];
+                var like = ModifiedRecord.ParseLike(lt);
+
+                // TODO: See if we can easily add this into the full editor
+                //  Fix songfilter text to include user
+                //  Fix move to advanced form to include user
+                //  Make sure that login loop isn't broken
+                var mr = ModifiedBy.FirstOrDefault(m => m.ApplicationUserId == user.Id);
+                if (mr != null && mr.Like != like)
+                {
+                    CreateProperty(LikeTag, lt, mr.LikeString);
+                    mr.Like = like;
+                    modified = true;
+                }
+            }
+
+            // First strip out all of the deleted dances and save them for later
+            var deleted = songTags.ExtractPrefixed('^');
+            songTags = songTags.ExtractNotPrefixed('^');
+
+            // Next handle the top-level tags, this will incidently add any new danceratings
+            //  implied by those tags
+            modified |= ChangeTags(songTags, user, dms, "Dances");
+
+            // Edit the tags for each of the dance ratings: Note that I'm stripping out blank dance ratings
+            //  at the client, so need to make sure that we remove any tags from dance ratings on the server
+            //  that aren't passed through in our tag list.
+
+            foreach (var dr in DanceRatings)
+            {
+                TagList tl;
+                if (!hash.TryGetValue(dr.DanceId, out tl))
+                    tl = new TagList();
+                modified |= dr.ChangeTags(tl.Summary, user, dms, this);
+            }
+
+            // Finally do the full removal of all danceratings/tags associated with the removed tags
+            modified |= DeleteDanceRatings(user, deleted, dms);
+
+            return modified;
+        }
+
+        public void LoadTags(DanceMusicService dms)
+        {
+            var id = TagIdBase;
+            var tags = dms.Tags.Where(t => t.Id.Contains(id)).ToList();
+            Tags = tags;
+        }
+
+        private bool DeleteDanceRatings(ApplicationUser user, TagList deleted, DanceMusicService dms)
+        {
+            var ratings = new List<DanceRating>();
+
+            // For each entry find the actual dance rating
+            // ReSharper disable once LoopCanBeConvertedToQuery
+            foreach (var dance in deleted.StripType())
+            {
+                var d = Dances.Instance.DanceFromName(dance);
+                if (d == null) continue;
+
+                var did = d.Id;
+                var rating = DanceRatings.FirstOrDefault(dr => dr.DanceId == did);
+                if (rating == null) continue;
+
+                ratings.Add(rating);
+            }
+            if (!ratings.Any())
+                return false;
+
+            // For each user that has modified the song, back out anything having to do with the deleted dances
+            var lastUser = user;
+            var remove = deleted.Add(deleted.AddQualifier('!'));
+            foreach (var mr in ModifiedBy)
+            {
+                var userModified = false;
+                var u = mr.ApplicationUser;
+
+                // Add the user property into the SongProperties
+                var userProp = CreateProperty(UserProxy, u.UserName, dms);
+
+                // Back out any top-level tags related to the dance styles
+                var songTags = FindUserTag(u, dms);
+                if (songTags != null)
+                {
+                    var newSongTags = songTags.Tags.Subtract(remove);
+                    if (newSongTags.Summary != songTags.Tags.Summary)
+                    {
+                        userModified = true;
+                        userModified |= ChangeTags(newSongTags, u, dms, this);
+                    }
+                }
+
+                // Back out the tags directly associated with the dance style
+                userModified = ratings.Aggregate(userModified, (current, rating) => current | rating.ChangeTags(string.Empty, user, dms, this));
+
+                // If this user didn't touch anything, back out the user property
+                if (userModified)
+                    lastUser = u;
+                else
+                    TruncateProperty(dms, userProp.Name, userProp.Value);
+            }
+
+            // If any other user 
+            if (lastUser.UserName != user.UserName)
+            {
+                CreateProperty(UserProxy, user.UserName, dms);
+            }
+
+            foreach (var r in ratings.Select(rating => new DanceRatingDelta { DanceId = rating.DanceId, Delta = -rating.Weight }))
+            {
+                UpdateDanceRating(r, true);
+            }
+
+            return true;
+        }
+
+        public override void RegisterChangedTags(TagList added, TagList removed, ApplicationUser user, DanceStatsInstance stats, object data)
+        {
+            var test = data as string;
+            if (string.Equals("Dances", test, StringComparison.OrdinalIgnoreCase))
+            {
+                var dts = added?.Filter("Dance") ?? new TagList();
+                var dtr = removed?.Filter("Dance") ?? new TagList();
+
+                if (!dts.IsEmpty || !dtr.IsEmpty)
+                {
+                    var likes = DancesFromTags(dts.ExtractNotPrefixed('!'));
+                    var hates = DancesFromTags(dts.ExtractPrefixed('!'));
+                    var nulls =
+                        DancesFromTags(dtr.ExtractPrefixed('!').Add(dtr.ExtractNotPrefixed('!')))
+                            .Where(x => !likes.Contains(x) && !hates.Contains(x));
+                    UpdateUserDanceRatings(user.UserName, likes, DanceRatingIncrement);
+                    UpdateUserDanceRatings(user.UserName, hates, DanceRatingDecrement);
+                    UpdateUserDanceRatings(user.UserName, nulls, 0);
+
+                    // TODO:Dance tags have a property where there may be a "!" version (hate), we need
+                    //  to explicity disallow having both the like and hate, but if we do it here we'll remove
+                    //  things that don't need to be removed.
+                    //removed = removed ?? new TagList();
+                    //removed = dts.Tags.Aggregate(removed, 
+                    //    (current, tag) => current.Add(tag.StartsWith("!") ? tag.Substring(1) : "!" + tag));
+                }
+            }
+
+            base.RegisterChangedTags(added, removed, user, stats, data);
+
+            // TODO: We're still removing negative tags need to figure out how to easily
+            // refilter removed for no-op tags...
+
+        }
+
+        private void UpdateUserDanceRatings(string userName, IEnumerable<string> danceIds, int rating)
+        {
+            foreach (var did in danceIds)
+            {
+                var delta = -UserDanceRating(userName, did) + rating;
+                UpdateDanceRating(new DanceRatingDelta { DanceId = did, Delta = delta }, true);
+            }
+        }
+
+        private bool UpdateModified(ApplicationUser user, SongBase edit, DanceMusicService dms, bool force)
+        {
+            var mr = ModifiedBy.FirstOrDefault(m => m.UserName == user.UserName);
+            if (mr == null) return false;
+
+            var mrN = edit.ModifiedBy.FirstOrDefault(m => m.UserName == user.UserName);
+            if (mrN == null || (!force && !mrN.Owned.HasValue) || (mr.Owned == mrN.Owned)) return false;
+
+            mr.Owned = mrN.Owned;
+            CreateProperty(OwnerHash, mr.Owned, dms);
+            return true;
+        }
+
+        public void MergeDetails(IEnumerable<Song> songs, DanceMusicService dms)
+        {
+            // Add in the to/from properties and create new weight table as well as creating the user associations
+            var weights = new Dictionary<string, int>();
+            foreach (var from in songs)
+            {
+                foreach (var dr in from.DanceRatings)
+                {
+                    int weight;
+                    if (weights.TryGetValue(dr.DanceId, out weight))
+                    {
+                        weights[dr.DanceId] = weight + dr.Weight;
+                    }
+                    else
+                    {
+                        weights[dr.DanceId] = dr.Weight;
+                    }
+                }
+
+                foreach (var us in from.ModifiedBy)
+                {
+                    if (AddUser(us.ApplicationUser, dms))
+                    {
+                        CreateProperty(UserField, us.ApplicationUser.UserName, null, dms);
+                    }
+                }
+
+                // TAGTEST: Try merging two songs with tags.
+                ApplicationUser currentUser = null;
+                var userWritten = false;
+                foreach (var prop in from.SongProperties)
+                {
+                    var bn = prop.BaseName;
+
+                    // ReSharper disable once SwitchStatementMissingSomeCases
+                    switch (bn)
+                    {
+                        case UserField:
+                        case UserProxy:
+                            currentUser = dms.FindUser(prop.Value);
+                            userWritten = false;
+                            break;
+                        case AddedTags:
+                        case RemovedTags:
+                            if (!userWritten)
+                            {
+                                CreateEditProperties(currentUser, EditCommand, dms);
+                                userWritten = true;
+                            }
+                            if (bn == AddedTags)
+                            {
+                                AddTags(prop.Value, currentUser, dms, this);
+                            }
+                            else
+                            {
+                                RemoveTags(prop.Value, currentUser, dms, this);
+                            }
+                            break;
+                    }
+                }
+            }
+
+            // Dump the weight table
+            foreach (var dance in weights)
+            {
+                dms.CreateDanceRating(this, dance.Key, dance.Value);
+
+                var value = new DanceRatingDelta { DanceId = dance.Key, Delta = dance.Value }.ToString();
+
+                CreateProperty(DanceRatingField, value, null, dms);
+            }
+
+        }
+        private bool UpdateProperty(SongBase edit, string name, DanceMusicService dms)
+        {
+            // TODO: This can be optimized
+            var eP = edit.GetType().GetProperty(name).GetValue(edit);
+            var oP = GetType().GetProperty(name).GetValue(this);
+
+            if (Equals(eP, oP)) return false;
+
+            GetType().GetProperty(name).SetValue(this, eP);
+
+            CreateProperty(name, eP, oP, dms);
+
+            return true;
+        }
+
+        // Only update if the old song didn't have this property
+        private bool AddProperty(SongBase edit, string name, DanceMusicService dms)
+        {
+            var eP = edit.GetType().GetProperty(name).GetValue(edit);
+            var oP = GetType().GetProperty(name).GetValue(this);
+
+            // Edit property is null or whitespace and Old property isn't null or whitespace
+            if (NullIfWhitespace(eP) == null || NullIfWhitespace(oP) != null)
+                return false;
+
+            GetType().GetProperty(name).SetValue(this, eP);
+            CreateProperty(name, eP, null, dms);
+
+            return true;
+        }
+
+        private static object NullIfWhitespace(object o)
+        {
+            var s = o as string;
+            if (s != null && string.IsNullOrWhiteSpace(s)) o = null;
+
+            return o;
+        }
+
+        public void CreateEditProperties(ApplicationUser user, string command,DateTime? time = null)
+        {
+            var rg = command.Split(new[] { '=' }, StringSplitOptions.RemoveEmptyEntries);
+            // Add the command into the property log
+            var cmd = EditCommand;
+            string val = null;
+
+            if (rg.Length > 0)
+            {
+                cmd = rg[0];
+            }
+            if (rg.Length > 1)
+            {
+                val = rg[1];
+            }
+
+            CreateProperty(cmd, val);
+
+            // Handle User association
+            if (user != null)
+            {
+                AddUser(user);
+                CreateProperty(UserField, user.UserName);
+            }
+
+            // Handle Timestamps
+            if (!time.HasValue)
+            {
+                time = DateTime.Now;
+            }
+            Modified = time.Value;
+            CreateProperty(TimeField, time.Value.ToString(CultureInfo.InvariantCulture));
+        }
+
+        public void RemoveEditProperties(ApplicationUser user, string command)
+        {
+            TruncateProperty(TimeField);
+            TruncateProperty(UserField, user.UserName);
+            TruncateProperty(EditCommand);
+        }
+
+        private void TruncateProperty(string name, string value = null)
+        {
+            var prop = SongProperties.Last();
+            if (prop.Name != name || (value != null && prop.Value != value)) return;
+
+            SongProperties.Remove(prop);
+        }
+
+        // DBKILL: Isthis redundant????
+        private bool UpdatePurchaseInfo(SongBase edit, bool additive = false)
+        {
+            var pi = additive ? edit.MergePurchaseTags(Purchase) : edit.GetPurchaseTags();
+
+            return (Purchase ?? string.Empty) != (pi ?? string.Empty);
+        }
+
+        public bool AddUser(ApplicationUser user, bool? like = null)
+        {
+            var us = new ModifiedRecord { ApplicationUser = user, UserName = user.UserName, Like = like };
+            return AddModifiedBy(us) == us;
+        }
+
+        public bool AddUser(string name, bool? like = null)
+        {
+            var us = new ModifiedRecord { UserName = name, Like = like };
+            return AddModifiedBy(us) == us;
+        }
+
+        public void CreateAlbums(IList<AlbumDetails> albums)
+        {
+            if (albums == null) return;
+
+            albums = AlbumDetails.MergeAlbums(albums, Artist, false);
+
+            for (var ia = 0; ia < albums.Count; ia++)
+            {
+                var ad = albums[ia];
+                if (string.IsNullOrWhiteSpace(ad.Name)) continue;
+
+                if (ia == 0)
+                {
+                    Album = albums[0].AlbumTrack;
+                }
+
+                ad.CreateProperties(this);
+            }
+        }
+
+        // If dms != null, create the properties
+        public void AddDanceRating(DanceRating dr)
+        {
+            if (dr.DanceId == null)
+            {
+                dr.DanceId = dr.Dance.Id;
+            }
+
+            var other = DanceRatings.FirstOrDefault(r => r.DanceId == dr.DanceId);
+
+            if (other == null)
+            {
+                DanceRatings.Add(dr);
+            }
+            else
+            {
+                other.Weight += dr.Weight;
+            }
+        }
+        public bool CreateDanceRatings(IEnumerable<DanceRating> ratings, DanceStatsInstance stats)
+        {
+            if (ratings == null)
+            {
+                return false;
+            }
+
+            foreach (var dr in ratings)
+            {
+                AddDanceRating(dr.DanceId, dr.Weight, stats);
+                CreateProperty(
+                    DanceRatingField,
+                    new DanceRatingDelta { DanceId = dr.DanceId, Delta = dr.Weight }.ToString()
+                );
+            }
+
+            return true;
+        }
+
+        //  TODO: Ought to be able to refactor both of these into one that calls the other
+        public bool EditDanceRatings(IEnumerable<DanceRatingDelta> deltas, DanceStatsInstance stats)
+        {
+            foreach (var drd in deltas)
+            {
+                var valid = true;
+                var dro = DanceRatings.FirstOrDefault(r => r.DanceId == drd.DanceId);
+                if (drd.Delta > 0)
+                {
+                    if (dro == null)
+                    {
+                        AddDanceRating(drd.DanceId, drd.Delta, stats);
+                    }
+                    else
+                    {
+                        dro.Weight += drd.Delta;
+                    }
+                }
+                else if (drd.Delta < 0)
+                {
+                    if (dro == null)
+                    {
+                        valid = false;
+                    }
+                    else if (dro.Weight + drd.Delta < 0)
+                    {
+                        DanceRatings.Remove(dro);
+                    }
+                    else
+                    {
+                        dro.Weight += drd.Delta;
+                    }
+                }
+                else
+                {
+                    valid = false;
+                }
+
+                if (valid)
+                {
+                    CreateProperty(DanceRatingField, drd.ToString());
+                }
+            }
+            return true;
+        }
+        public bool EditDanceRatings(IList<string> addIn, int addWeight, IList<string> removeIn, int remWeight, DanceStatsInstance stats)
+        {
+            if (addIn == null && removeIn == null)
+            {
+                return false;
+            }
+
+            var changed = false;
+
+            List<string> add = null;
+            if (addIn != null)
+                add = new List<string>(addIn);
+
+            List<string> remove = null;
+            if (removeIn != null)
+                remove = new List<string>(removeIn);
+
+            var del = new List<DanceRating>();
+
+            // Cleaner way to get old dance ratings?
+            foreach (var dr in DanceRatings)
+            {
+                var added = false;
+                var delta = 0;
+
+                // This handles the incremental weights
+                if (add != null && add.Contains(dr.DanceId))
+                {
+                    delta = addWeight;
+                    add.Remove(dr.DanceId);
+                    added = true;
+                }
+
+                // This handles the decremented weights
+                if (remove != null && remove.Contains(dr.DanceId))
+                {
+                    if (!added)
+                    {
+                        delta += remWeight;
+                    }
+
+                    if (dr.Weight + delta <= 0)
+                    {
+                        del.Add(dr);
+                    }
+                }
+
+                if (delta == 0) continue;
+
+                dr.Weight += delta;
+
+                CreateProperty(DanceRatingField, new DanceRatingDelta { DanceId = dr.DanceId, Delta = delta }.ToString());
+
+                changed = true;
+            }
+
+            // This handles the deleted weights
+            foreach (var dr in del)
+            {
+                DanceRatings.Remove(dr);
+            }
+
+            // This handles the new ratings
+            if (add == null) return changed;
+
+            foreach (var ndr in add)
+            {
+                var dr = AddDanceRating(ndr, DanceRatingInitial, stats);
+
+                if (dr != null)
+                {
+                    CreateProperty(
+                        DanceRatingField,
+                        new DanceRatingDelta { DanceId = ndr, Delta = DanceRatingInitial }.ToString());
+
+                    changed = true;
+                }
+                else
+                {
+                    Trace.WriteLine($"Invalid DanceId={ndr}");
+                }
+
+            }
+
+            return changed;
+        }
+
+        private bool BaseTagsFromProperties(ApplicationUser user, IEnumerable<SongProperty> properties, DanceMusicService dms, object data, bool dance)
+        {
+            var modified = false;
+            foreach (var p in properties)
+            {
+                // ReSharper disable once SwitchStatementMissingSomeCases
+                switch (p.BaseName)
+                {
+                    case UserField:
+                    case UserProxy:
+                        user = dms.FindUser(p.Value);
+                        break;
+                    case AddedTags:
+                        var qual = p.DanceQualifier;
+                        if (qual == null && !dance)
+                        {
+                            modified |= !AddTags(p.Value, user, dms, data).IsEmpty;
+                        }
+                        else if (qual != null && dance)
+                        {
+                            var rating = DanceRatings.FirstOrDefault(r => r.DanceId == qual);
+
+                            if (rating != null)
+                            {
+                                modified = !rating.AddTags(p.Value, user, dms, data).IsEmpty;
+                            }
+                            // Else case is where the dancerating has been fully removed, we
+                            //  can safely drop this on the floor
+                        }
+                        break;
+                    case RemovedTags:
+                        qual = p.DanceQualifier;
+                        if (qual == null && !dance)
+                        {
+                            modified |= !RemoveTags(p.Value, user, dms, data).IsEmpty;
+                        }
+                        else if (qual != null && dance)
+                        {
+                            var rating = DanceRatings.FirstOrDefault(r => r.DanceId == qual);
+
+                            if (rating != null)
+                            {
+                                modified |= !rating.RemoveTags(p.Value, user, dms, data).IsEmpty;
+                            }
+                            // Else case is where the dancerating has been fully removed, we
+                            //  can safely drop this on the floor
+                        }
+                        break;
+                }
+            }
+
+            return modified;
+        }
+
+        private bool TagsFromProperties(ApplicationUser user, IEnumerable<SongProperty> properties, DanceMusicService dms, object data)
+        {
+            // Clear out cached user tags
+            Tags = null;
+
+            return BaseTagsFromProperties(user, properties, dms, data, false);
+        }
+
+        private bool DanceTagsFromProperties(ApplicationUser user, IEnumerable<SongProperty> properties, DanceMusicService dms, object data)
+        {
+            // Clear out cached user tags
+            if (DanceRatings == null) return BaseTagsFromProperties(user, properties, dms, data, true);
+
+            foreach (var dr in DanceRatings)
+            {
+                dr.Tags = null;
+            }
+
+            return BaseTagsFromProperties(user, properties, dms, data, true);
+        }
+
+        public void Delete(ApplicationUser user)
+        {
+            if (user != null)
+                CreateEditProperties(user, DeleteCommand);
+
+            ClearValues();
+
+            if (user != null)
+                Modified = DateTime.Now;
+        }
+
+        public void RestoreScalar(SongBase sd)
+        {
+            if (!sd.SongId.Equals(Guid.Empty))
+            {
+                SongId = sd.SongId;
+            }
+            foreach (var pi in ScalarProperties)
+            {
+                var v = pi.GetValue(sd);
+                pi.SetValue(this, v);
+            }
+
+            if (sd.HasAlbums)
+            {
+                Album = sd.Albums[0].AlbumTrack;
+            }
+
+            TagSummary = sd.TagSummary;
+        }
+
+        public void UpdateUsers(DanceMusicService dms)
+        {
+            var users = new HashSet<string>();
+
+            foreach (var us in ModifiedBy)
+            {
+                if (us.ApplicationUser == null && us.UserName != null)
+                {
+                    us.ApplicationUser = dms.FindUser(us.UserName);
+                }
+                if (us.ApplicationUser != null && us.ApplicationUserId == null)
+                {
+                    us.ApplicationUserId = us.ApplicationUser.Id;
+                }
+
+                if (users.Contains(us.ApplicationUserId))
+                {
+                    Trace.WriteLineIf(TraceLevels.General.TraceVerbose,
+                        $"Duplicate Mapping: Song = {SongId} User = {us.ApplicationUserId}");
+                }
+                else
+                {
+                    users.Add(us.ApplicationUserId);
+                }
+            }
+        }
+
+        public void UpdateDanceTags(DanceMusicService dms)
+        {
+            if (DanceRatings == null) return;
+            foreach (var d in DanceRatings)
+            {
+                d.UpdateUserTags(dms);
+            }
+        }
+
+        public bool RemoveEmptyEdits(DanceMusicService dms)
+        {
+            // Cleanup null edits
+            var buffer = new List<SongProperty>();
+
+            var users = new Dictionary<string, List<SongProperty>>();
+            var activeUsers = new HashSet<string>();
+
+            var inEmpty = false;
+            string currentUser = null;
+
+            foreach (var prop in OrderedProperties)
+            {
+                // Run through the properties and add all clusters of empties
+                if (prop.IsAction)
+                {
+                    if (inEmpty)
+                    {
+                        if (currentUser != null)
+                        {
+                            List<SongProperty> r;
+                            if (!users.TryGetValue(currentUser, out r))
+                            {
+                                r = new List<SongProperty>();
+                                users[currentUser] = r;
+                            }
+                            r.AddRange(buffer);
+                        }
+                        buffer.Clear();
+                    }
+                    if (prop.Name != EditCommand) continue;
+
+                    inEmpty = true;
+                    buffer.Add(prop);
+                }
+                else if (prop.Name == UserField || prop.Name == TimeField)
+                {
+                    if (prop.Name == UserField)
+                    {
+                        // Count == 1 case is where the .Edit command is the only thing there
+                        if (inEmpty && buffer.Count > 1)
+                        {
+                            if (currentUser != null)
+                            {
+                                List<SongProperty> r;
+                                if (!users.TryGetValue(currentUser, out r))
+                                {
+                                    r = new List<SongProperty>();
+                                    users[currentUser] = r;
+                                }
+                                r.AddRange(buffer);
+                            }
+                            buffer.Clear();
+                        }
+                        else if (currentUser != null)
+                        {
+                            activeUsers.Add(currentUser);
+                        }
+
+                        currentUser = prop.Value;
+                        inEmpty = true;
+                    }
+
+                    if (inEmpty)
+                    {
+                        buffer.Add(prop);
+                    }
+                }
+                else
+                {
+                    inEmpty = false;
+                    buffer.Clear();
+                }
+            }
+
+            var remove = new List<SongProperty>();
+            foreach (var user in users)
+            {
+                if (activeUsers.Contains(user.Key))
+                {
+                    remove.AddRange(user.Value);
+                }
+                else
+                {
+                    var props = user.Value;
+                    var u = props.FirstOrDefault(p => p.Name == UserField);
+                    if (u == null) continue;
+
+                    props.Remove(u);
+                    remove.AddRange(props);
+                }
+            }
+
+            if (remove.Count == 0) return false;
+
+            foreach (var prop in remove)
+            {
+                SongProperties.Remove(prop);
+                dms.Context.SongProperties.Remove(prop);
+            }
+
+            return true;
+        }
+
+        public bool RemoveDuplicateDurations(DanceMusicService dms)
+        {
+            // Cleanup durations that are within 20 seconds of an average
+
+            var count = 0;
+            var outliers = 0;
+            var avg = 0;
+            SongProperty first = null;
+            var remove = new List<SongProperty>();
+
+            foreach (var prop in OrderedProperties)
+            {
+                if (prop.Name != LengthField) continue;
+
+                var val = prop.ObjectValue;
+                if (!(val is int)) continue;
+
+                var current = (int)val;
+
+                if (count == 0)
+                {
+                    avg = current;
+                    first = prop;
+                    count = 1;
+                }
+                else if (Math.Abs(avg - current) > 20)
+                {
+                    outliers += 1;
+                    remove.Add(prop);
+                }
+                else
+                {
+                    avg = ((avg * count) + current) / (count + 1);
+                    count += 1;
+                    remove.Add(prop);
+                }
+            }
+
+            if (remove.Count == 0 || first == null || outliers > count / 2) return false;
+
+            first.Value = avg.ToString();
+
+            foreach (var prop in remove)
+            {
+                SongProperties.Remove(prop);
+                dms.Context.SongProperties.Remove(prop);
+            }
+
+            return true;
+        }
+
+        public bool CleanupAlbums(DanceMusicService dms)
+        {
+            // Remove the properties for album info that has been 'deleted'
+            // and if any have been removed, also get rid of promote and order
+
+            var albums = new Dictionary<int, List<SongProperty>>();
+            var remove = new List<SongProperty>();
+            var deleted = new HashSet<int>();
+
+            var changed = false;
+            foreach (var prop in OrderedProperties)
+            {
+                var bn = prop.BaseName;
+                var index = prop.Index ?? -1;
+
+                switch (bn)
+                {
+                    case AlbumOrder:
+                    case AlbumPromote:
+                        remove.Add(prop);
+                        break;
+                    case AlbumField:
+                    case TrackField:
+                    case PublisherField:
+                    case PurchaseField:
+                        if (prop.IsNull)
+                        {
+                            if (bn == AlbumField)
+                            {
+                                deleted.Add(index);
+                                // pull the previous properties and add this to removed
+                                List<SongProperty> old;
+                                if (albums.TryGetValue(index, out old))
+                                {
+                                    remove.AddRange(old);
+                                    albums.Remove(index);
+                                }
+                                remove.Add(prop);
+                                changed = true;
+                            }
+                            else if (deleted.Contains(index))
+                            {
+                                remove.Add(prop);
+                                changed = true;
+                            }
+                        }
+                        else
+                        {
+                            List<SongProperty> old;
+                            if (!albums.TryGetValue(index, out old))
+                            {
+                                old = new List<SongProperty>();
+                                albums[index] = old;
+                            }
+                            old.Add(prop);
+                            if (deleted.Contains(index))
+                            {
+                                deleted.Remove(index);
+                            }
+                        }
+                        break;
+                }
+            }
+
+            if (remove.Count == 0 || !changed) return false;
+
+            foreach (var prop in remove)
+            {
+                SongProperties.Remove(prop);
+                dms.Context.SongProperties.Remove(prop);
+            }
+
+            return true;
+        }
+
+        private class TagTracker
+        {
+            public TagTracker()
+            {
+                Tags = new TagList();
+            }
+            public TagList Tags { get; set; }
+            public SongProperty Property { get; set; }
+        }
+
+        private class RatingTracker
+        {
+            public int Rating { get; set; }
+            public SongProperty Property { get; set; }
+        }
+
+        private class UserEdits
+        {
+            public UserEdits()
+            {
+                UserTags = new Dictionary<string, TagTracker>();
+                Ratings = new Dictionary<string, RatingTracker>();
+            }
+            public Dictionary<string, TagTracker> UserTags { get; }
+
+            public Dictionary<string, RatingTracker> Ratings { get; }
+        }
+
+        public bool NormalizeRatings(DanceMusicService dms, int max = 2, int min = -1)
+        {
+            // This function should not semantically change the tags, but it will potentially
+            //  reduce the danceratings where there were redundant entries previously and normalize based
+            // on max/min
+
+            // For each user, keep a list of the tags and danceratings that they have applied
+            var users = new Dictionary<string, UserEdits>();
+            var remove = new List<SongProperty>();
+
+            string currentUser = null;
+            UserEdits currentEdits = null;
+            var changed = false;
+
+            foreach (var prop in OrderedProperties)
+            {
+                var bn = prop.BaseName;
+                switch (prop.BaseName)
+                {
+                    case UserField:
+                    case UserProxy:
+                        if (!string.Equals(currentUser, prop.Value, StringComparison.OrdinalIgnoreCase))
+                        {
+                            currentUser = prop.Value;
+                            if (!users.TryGetValue(currentUser, out currentEdits))
+                            {
+                                currentEdits = new UserEdits();
+                                users[currentUser] = currentEdits;
+                            }
+                        }
+                        break;
+                    case AddedTags:
+                    case RemovedTags:
+                        var qual = prop.DanceQualifier ?? string.Empty;
+                        if (currentEdits == null)
+                        {
+                            Trace.WriteLine($"Tag property {prop} comes before user.");
+                            break;
+                        }
+                        TagTracker acc;
+                        if (!currentEdits.UserTags.TryGetValue(qual, out acc))
+                        {
+                            acc = new TagTracker { Property = prop };
+                            currentEdits.UserTags[qual] = acc;
+                        }
+                        else
+                        {
+                            remove.Add(prop);
+                        }
+                        acc.Tags = (bn == AddedTags) ?
+                            acc.Tags.Add(new TagList(prop.Value)) :
+                            acc.Tags.Subtract(new TagList(prop.Value));
+                        break;
+                    case DanceRatingField:
+                        if (currentEdits == null)
+                        {
+                            Trace.WriteLine($"DanceRating property {prop} comes before user.");
+                            break;
+                        }
+                        var drd = new DanceRatingDelta(prop.Value);
+                        RatingTracker rating;
+                        var delta = drd.Delta;
+
+                        // Enforce normalization of max/min values
+                        if (delta > max) delta = max;
+                        else if (delta < min) delta = min;
+
+                        if (drd.Delta != delta)
+                        {
+                            changed = true;
+                            drd.Delta = delta;
+                            prop.Value = drd.ToString();
+                        }
+
+                        if (!currentEdits.Ratings.TryGetValue(drd.DanceId, out rating))
+                        {
+                            currentEdits.Ratings[drd.DanceId] = new RatingTracker { Rating = delta, Property = prop };
+                        }
+                        else
+                        {
+                            // Keep the vote that is in the direction that is most recent for this user, then the largest value
+                            if ((Math.Sign(rating.Rating) != Math.Sign(delta)) || (Math.Abs(rating.Rating) <= Math.Abs(delta)))
+                            {
+                                changed = true;
+                                rating.Rating = delta;
+                                rating.Property.Value = drd.ToString();
+                            }
+                            remove.Add(prop);
+                        }
+                        break;
+                }
+            }
+
+            foreach (var prop in remove)
+            {
+                SongProperties.Remove(prop);
+                dms.Context.SongProperties.Remove(prop);
+                changed = true;
+            }
+
+            foreach (var edit in users.Values)
+            {
+                foreach (var tracker in edit.UserTags.Values)
+                {
+                    var tags = tracker.Tags.ToString();
+                    if (string.Equals(tags, tracker.Property.Value))
+                        continue;
+                    tracker.Property.Value = tags;
+                    changed = true;
+                }
+            }
+
+            if (changed) SetRatingsFromProperties();
+
+            return changed;
+        }
+
+        public bool CleanupProperties(DanceMusicService dms)
+        {
+            var changed = RemoveDuplicateDurations(dms);
+            changed |= CleanupAlbums(dms);
+            changed |= NormalizeRatings(dms);
+            changed |= RemoveEmptyEdits(dms);
+
+            return changed;
         }
         #endregion
 
@@ -383,11 +2477,6 @@ namespace m4dModels
         {
             DanceRating ret = null;
 
-            if (DanceRatings == null)
-            {
-                DanceRatings = new List<DanceRating>();
-            }
-
             var dr = DanceRatings.FirstOrDefault(r => r.DanceId.Equals(drd.DanceId));
 
             if (dr == null)
@@ -405,7 +2494,7 @@ namespace m4dModels
 
             if (!updateProperties) return ret;
 
-            SongProperties.Add(new SongProperty { SongId = SongId, Name = DanceRatingField, Value = drd.ToString() });
+            SongProperties.Add(new SongProperty { Name = DanceRatingField, Value = drd.ToString() });
 
             return ret;
         }
@@ -567,6 +2656,24 @@ namespace m4dModels
             return level;
         }
 
+        public void UpdateDanceRatingsAndTags(ApplicationUser user, IEnumerable<string> dances, int weight)
+        {
+            var enumerable = dances as IList<string> ?? dances.ToList();
+            var tags = TagsFromDances(enumerable);
+            var added = AddTags(tags, user);
+            if (added != null && !added.IsEmpty)
+                SongProperties.Add(new SongProperty(Guid.Empty, AddedTags, added.ToString()));
+            UpdateDanceRatings(enumerable, weight);
+        }
+
+        private DanceRating AddDanceRating(string danceId, int weight, DanceStatsInstance stats)
+        {
+            var ds = stats.FromId(danceId);
+            if (ds == null) return null;
+
+            return new DanceRating {Dance = ds.Dance, DanceId = danceId, Weight = weight};
+        }
+
         #endregion
 
         #region Tags
@@ -658,7 +2765,7 @@ namespace m4dModels
             if (string.IsNullOrEmpty(userName)) return acc;
 
             string cu = null;
-            foreach (var prop in OrderedProperties)
+            foreach (var prop in SongProperties)
             {
                 // ReSharper disable once SwitchStatementMissingSomeCases
                 switch (prop.BaseName)
@@ -688,6 +2795,703 @@ namespace m4dModels
         protected override HashSet<string> ValidClasses => s_validClasses;
 
         private static readonly HashSet<string> s_validClasses = new HashSet<string> { "dance","music","tempo","other" };
+
+        #endregion
+
+        #region Album
+        public string AlbumList
+        {
+            get
+            {
+                if (!HasAlbums) return null;
+
+                var ret = new StringBuilder();
+                var sep = string.Empty;
+
+                foreach (var album in Albums)
+                {
+                    ret.Append(sep);
+                    ret.Append(album.Name);
+                    sep = "|";
+                }
+
+                return ret.ToString();
+            }
+        }
+
+        public AlbumDetails FindAlbum(string album, int? track = null)
+        {
+            if (string.IsNullOrWhiteSpace(album)) return null;
+
+            AlbumDetails ret = null;
+            var candidates = new List<AlbumDetails>();
+            var title = CleanAlbum(album, Artist);
+
+            foreach (var ad in Albums.Where(ad => string.Equals(CleanAlbum(ad.Name, Artist), title, StringComparison.CurrentCultureIgnoreCase)))
+            {
+                candidates.Add(ad);
+                if (!string.Equals(ad.Name, album, StringComparison.CurrentCultureIgnoreCase))
+                    continue;
+
+                ret = ad;
+                break;
+            }
+
+            if (ret == null && candidates.Count > 0)
+            {
+                if (track.HasValue)
+                {
+                    foreach (var ad in candidates)
+                    {
+                        if (ad.Track == track)
+                        {
+                            ret = ad;
+                        }
+                    }
+                }
+                else
+                {
+                    ret = candidates[0];
+                }
+            }
+
+            return ret;
+        }
+
+        public bool HasAlbums => Albums != null && Albums.Count > 0;
+        // "Real" albums in this case being non-ballroom compilation-type albums
+        public bool HasRealAblums
+        {
+            get
+            {
+                var ret = false;
+                if (HasAlbums)
+                {
+                    ret = Albums.Any(a => a.IsRealAlbum);
+                }
+                return ret;
+            }
+        }
+
+        public List<AlbumDetails> CloneAlbums()
+        {
+            var albums = new List<AlbumDetails>(Albums.Count);
+            albums.AddRange(Albums.Select(album => new AlbumDetails(album)));
+
+            return albums;
+        }
+
+        public int GetNextAlbumIndex()
+        {
+            return GetNextAlbumIndex(Albums);
+        }
+
+        public string GetPurchaseTags()
+        {
+            return GetPurchaseTags(Albums);
+        }
+
+        public string MergePurchaseTags(string pi)
+        {
+            var oi = SortChars(pi);
+            var ni = GetPurchaseTags();
+
+            ni = ni ?? string.Empty;
+
+            var merged = oi.Union(ni);
+            return SortChars(merged);
+        }
+
+        private static string SortChars(IEnumerable<char> chars)
+        {
+            if (chars == null) return string.Empty;
+
+            var a = chars.ToArray();
+            Array.Sort(a);
+            return new string(a);
+        }
+        public ICollection<PurchaseLink> GetPurchaseLinks(string service = "AIXS", string region = null)
+        {
+            var links = new List<PurchaseLink>();
+            service = service.ToUpper();
+
+            foreach (var ms in MusicService.GetServices())
+            {
+                if (!service.Contains(ms.CID)) continue;
+
+                foreach (var album in Albums)
+                {
+                    var l = album.GetPurchaseLink(ms.Id, region);
+                    if (l == null) continue;
+
+                    links.Add(l);
+                    break;
+                }
+            }
+
+            return links;
+        }
+
+        public ICollection<string> GetPurchaseIds(MusicService service)
+        {
+            return Albums.Select(album => album.GetPurchaseIdentifier(service.Id, PurchaseType.Song)).Where(id => id != null).ToList();
+        }
+
+        public string GetPurchaseId(ServiceType service)
+        {
+            string ret = null;
+            foreach (var album in Albums)
+            {
+                ret = album.GetPurchaseIdentifier(service, PurchaseType.Song);
+                if (ret != null)
+                    break;
+            }
+            return ret;
+        }
+
+        public static string GetPurchaseTags(ICollection<AlbumDetails> albums)
+        {
+            var added = new HashSet<char>();
+
+            foreach (var d in albums)
+            {
+                var tags = d.GetPurchaseTags();
+                if (tags == null) continue;
+
+                foreach (var c in tags.Where(c => !added.Contains(c)))
+                {
+                    added.Add(c);
+                }
+            }
+
+            return added.Count == 0 ? null : SortChars(added);
+        }
+        public static int GetNextAlbumIndex(ICollection<AlbumDetails> albums)
+        {
+            int[] ret = { 0 };
+            foreach (var ad in albums.Where(ad => ad.Index >= ret[0]))
+            {
+                ret[0] = ad.Index + 1;
+            }
+            return ret[0];
+        }
+
+        public static List<AlbumDetails> BuildAlbumInfo(IList<Song> songs)
+        {
+            var results = BuildAlbumInfo(songs[0]);
+
+            for (var i = 1; i < songs.Count; i++)
+            {
+                var next = BuildAlbumInfo(songs[i]);
+
+                foreach (var ad in next.Where(ad => results.All(d => d.Name != ad.Name)))
+                {
+                    results.Add(ad);
+                }
+            }
+
+            return results;
+        }
+
+        public static List<AlbumDetails> BuildAlbumInfo(SongBase song)
+        {
+            var properties =
+                from prop in song.SongProperties
+                    //                where prop.BaseName.Equals(AlbumField)
+                select prop;
+            return BuildAlbumInfo(properties);
+        }
+        public static List<AlbumDetails> BuildAlbumInfo(IEnumerable<SongProperty> properties)
+        {
+            var names = new List<string>(new[] {
+                AlbumField,PublisherField,TrackField,PurchaseField,AlbumPromote,AlbumOrder
+            });
+
+            // First build a hashtable of index->albuminfo, maintaining the total number and the
+            // high water mark of indexed albums
+
+            var max = 0;
+            var map = new Dictionary<int, AlbumDetails>();
+            var removed = new Dictionary<int, AlbumDetails>();
+
+            // Also keep a list of 'promotions' - current semantics are that if an album
+            //  has a promotion it is removed and re-inserted at the head of the list
+            var promotions = new List<int>();
+            List<int> reorder = null;
+
+            foreach (var prop in properties)
+            {
+                var name = prop.BaseName;
+                var idx = prop.Index ?? 0;
+
+                var qual = prop.Qualifier;
+
+                if (names.Contains(name))
+                {
+                    AlbumDetails d;
+                    if (map.ContainsKey(idx))
+                    {
+                        d = map[idx];
+                    }
+                    else
+                    {
+                        if (idx > max)
+                        {
+                            max = idx;
+                        }
+                        d = new AlbumDetails { Index = idx };
+                        map.Add(idx, d);
+                    }
+
+                    var remove = string.IsNullOrWhiteSpace(prop.Value);
+
+                    switch (name)
+                    {
+                        case AlbumField:
+                            if (remove)
+                            {
+                                d.Name = null; // This is an album that has been removed
+                                removed[idx] = d;
+                            }
+                            else
+                            {
+                                d.Name = prop.Value;
+                                if (removed.ContainsKey(idx))
+                                {
+                                    removed.Remove(idx);
+                                }
+                            }
+                            break;
+                        case PublisherField:
+                            d.Publisher = remove ? null : prop.Value;
+                            break;
+                        case TrackField:
+                            if (remove)
+                            {
+                                d.Track = null;
+                            }
+                            else
+                            {
+                                int t;
+                                int.TryParse(prop.Value, out t);
+                                d.Track = t;
+                            }
+                            break;
+                        case PurchaseField:
+                            if (d.Purchase == null)
+                            {
+                                d.Purchase = new Dictionary<string, string>();
+                            }
+
+                            if (remove)
+                            {
+                                d.Purchase.Remove(qual);
+                            }
+                            else
+                            {
+                                d.Purchase[qual] = prop.Value;
+                            }
+                            break;
+                        case AlbumPromote:
+                            // Promote to first
+                            promotions.Add(idx);
+                            break;
+                        case AlbumOrder:
+                            // Forget all previous promotions and do a re-order base ond values
+                            promotions.Clear();
+                            reorder = prop.Value.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries).Select(int.Parse).ToList();
+                            break;
+                    }
+                }
+            }
+
+            // Remove the deleted albums
+            foreach (var key in removed.Keys)
+            {
+                map.Remove(key);
+            }
+
+            var albums = new List<AlbumDetails>(map.Count);
+
+            // Do the (single) latest full re-order
+            if (reorder != null)
+            {
+                albums = new List<AlbumDetails>();
+
+                foreach (var t in reorder)
+                {
+                    AlbumDetails d;
+                    if (map.TryGetValue(t, out d))
+                    {
+                        albums.Add(d);
+                    }
+                }
+            }
+            else
+            // Start with everything in its 'natural' order
+            {
+                for (var i = 0; i <= max; i++)
+                {
+                    AlbumDetails d;
+                    if (map.TryGetValue(i, out d) && d.Name != null)
+                    {
+                        albums.Add(d);
+                    }
+                }
+            }
+
+            // Now do individual (trivial) promotions
+            foreach (var t in promotions)
+            {
+                AlbumDetails d;
+                if (!map.TryGetValue(t, out d) || d.Name == null) continue;
+
+                albums.Remove(d);
+                albums.Insert(0, d);
+            }
+
+            return albums;
+        }
+
+        private void BuildAlbumInfo()
+        {
+            var properties =
+                from prop in SongProperties
+                select prop;
+
+            Albums = BuildAlbumInfo(properties);
+        }
+        #endregion
+
+        #region Tracks
+
+        public AlbumDetails AlbumFromTitle(string title)
+        {
+            AlbumDetails ret = null;
+            AlbumDetails alt = null;
+
+            // We'll prefer the normalized album name, but if we can't find it we'll grab the stripped version...
+            var stripped = CreateNormalForm(title);
+            var normal = NormalizeAlbumString(title);
+            foreach (var album in Albums)
+            {
+                if (string.Equals(normal, NormalizeAlbumString(album.Name), StringComparison.InvariantCultureIgnoreCase))
+                {
+                    ret = album;
+                    break;
+                }
+                else if (string.Equals(stripped, NormalizeAlbumString(album.Name), StringComparison.InvariantCultureIgnoreCase))
+                {
+                    alt = album;
+                }
+            }
+
+            return ret ?? alt;
+        }
+        public int TrackFromAlbum(string title)
+        {
+            var ret = 0;
+
+            var album = AlbumFromTitle(title);
+            if (album?.Track != null)
+            {
+                ret = album.Track.Value;
+            }
+            return ret;
+        }
+
+
+        /// <summary>
+        /// Finds a representitive of the largest cluster of tracks 
+        ///  (clustered by approximate duration) that is an very
+        ///  close title/artist match
+        /// </summary>
+        /// <param name="tracks"></param>
+        /// <returns></returns>
+        public static ServiceTrack FindDominantTrack(IList<ServiceTrack> tracks)
+        {
+            var ordered = RankTracksByCluster(tracks, null);
+            return ordered != null ? tracks.First() : null;
+        }
+
+        public IList<ServiceTrack> RankTracks(IList<ServiceTrack> tracks)
+        {
+            if (Length.HasValue)
+            {
+                return RankTracksByDuration(tracks, Length.Value);
+            }
+            else
+            {
+                string album = null;
+                if (Albums != null && Albums.Count > 0)
+                {
+                    album = Albums[0].Name;
+                }
+                return RankTracksByCluster(tracks, album);
+            }
+        }
+        public static IList<ServiceTrack> RankTracksByCluster(IList<ServiceTrack> tracks, string album)
+        {
+            List<ServiceTrack> ret = null;
+
+            var cluster = ClusterTracks(tracks);
+
+            // If we only have one cluster, we're set
+            if (cluster.Count == 1)
+            {
+            }
+            else if (cluster.Count != 0) // Try clustering off phase if we had any clustering at all
+            {
+                var clusterT = ClusterTracks(tracks, 10, 5);
+                if (clusterT.Count == 1)
+                {
+                    cluster = clusterT;
+                }
+                else
+                {
+                    // Neither clustering results in a clear winner, so try for the one with the
+                    // smallest number
+                    if (clusterT.Count < cluster.Count)
+                    {
+                        cluster = clusterT;
+                    }
+                }
+            }
+            else
+            {
+                cluster = null;
+            }
+
+            if (cluster != null)
+            {
+                //ret = cluster.Values.Aggregate((seed, f) => f.Count > seed.Count ? f : seed);
+                foreach (var list in cluster.Values)
+                {
+                    var c = list.Count;
+                    foreach (var t in list)
+                    {
+                        t.TrackRank = c;
+                    }
+                }
+
+                ret = tracks.OrderByDescending(t => t.TrackRank).ToList();
+            }
+
+            if (ret != null && album != null)
+            {
+                album = CleanString(album);
+
+                var amatches = ret.Where(t => string.Equals(CleanString(t.Album), album, StringComparison.InvariantCultureIgnoreCase)).ToList();
+
+                foreach (var t in amatches)
+                {
+                    ret.Remove(t);
+                }
+
+                ret.InsertRange(0, amatches);
+            }
+
+            return ret;
+        }
+
+        public static IList<ServiceTrack> RankTracksByDuration(IList<ServiceTrack> tracks, int duration)
+        {
+            foreach (var t in tracks)
+            {
+                t.TrackRank = t.Duration.HasValue ? Math.Abs(duration - t.Duration.Value) : int.MaxValue;
+            }
+
+            return tracks.OrderBy(t => t.TrackRank).ToList();
+        }
+
+        private static Dictionary<int, List<ServiceTrack>> ClusterTracks(IList<ServiceTrack> tracks, int size = 10, int offset = 0)
+        {
+            var ret = new Dictionary<int, List<ServiceTrack>>();
+
+            foreach (var track in tracks)
+            {
+                if (track.Duration.HasValue)
+                {
+                    var cluster = (track.Duration.Value + offset) / size;
+                    List<ServiceTrack> list;
+                    if (!ret.TryGetValue(cluster, out list))
+                    {
+                        list = new List<ServiceTrack>();
+                        ret.Add(cluster, list);
+                    }
+                    list.Add(track);
+                }
+            }
+
+            return ret;
+        }
+
+        public IList<ServiceTrack> TitleArtistFilter(IList<ServiceTrack> tracks)
+        {
+            return tracks.Where(track => TitleArtistMatch(track.Name, track.Artist)).ToList();
+        }
+
+        public IList<ServiceTrack> DurationFilter(IList<ServiceTrack> tracks, int epsilon)
+        {
+            return !Length.HasValue ? null : DurationFilter(tracks, Length.Value, epsilon);
+        }
+
+        static public IList<ServiceTrack> DurationFilter(IList<ServiceTrack> tracks, int duration, int epsilon)
+        {
+            return tracks.Where(track => track.Duration.HasValue && Math.Abs(track.Duration.Value - duration) < epsilon).ToList();
+        }
+
+        #endregion
+
+        #region Index
+        public static Index GetIndex(DanceMusicService dms)
+        {
+            if (s_index != null) return s_index;
+
+            var fields = new List<Field>
+            {
+                new Field(SongIdField, Microsoft.Azure.Search.Models.DataType.String) {IsKey = true},
+                new Field(AltIdField, Microsoft.Azure.Search.Models.DataType.Collection(Microsoft.Azure.Search.Models.DataType.String)) {IsSearchable = false, IsSortable = false, IsFilterable = true, IsFacetable = false},
+                new Field(TitleField, Microsoft.Azure.Search.Models.DataType.String) {IsSearchable = true, IsSortable = true, IsFilterable = true, IsFacetable = true},
+                new Field(TitleHashField, Microsoft.Azure.Search.Models.DataType.Int32) {IsSearchable = false, IsSortable = false, IsFilterable = true, IsFacetable = false},
+                new Field(ArtistField, Microsoft.Azure.Search.Models.DataType.String) {IsSearchable = true, IsSortable = true, IsFilterable = false, IsFacetable = false},
+                new Field(AlbumsField, Microsoft.Azure.Search.Models.DataType.Collection(Microsoft.Azure.Search.Models.DataType.String)) {IsSearchable = true, IsSortable = false, IsFilterable = true, IsFacetable = true},
+                new Field(UsersField, Microsoft.Azure.Search.Models.DataType.Collection(Microsoft.Azure.Search.Models.DataType.String)) {IsSearchable = true, IsSortable = false, IsFilterable = true, IsFacetable = true},
+                new Field(CreatedField, Microsoft.Azure.Search.Models.DataType.DateTimeOffset) {IsSearchable = false, IsSortable = true, IsFilterable = true, IsFacetable = true},
+                new Field(ModifiedField, Microsoft.Azure.Search.Models.DataType.DateTimeOffset) {IsSearchable = false, IsSortable = true, IsFilterable = true, IsFacetable = true},
+                new Field(TempoField, Microsoft.Azure.Search.Models.DataType.Double) {IsSearchable = false, IsSortable = true, IsFilterable = true, IsFacetable = true},
+                new Field(LengthField, Microsoft.Azure.Search.Models.DataType.Int32) {IsSearchable = false, IsSortable = true, IsFilterable = true, IsFacetable = true},
+                new Field(BeatField, Microsoft.Azure.Search.Models.DataType.Double) {IsSearchable = false, IsSortable = true, IsFilterable = true, IsFacetable = true},
+                new Field(EnergyField, Microsoft.Azure.Search.Models.DataType.Double) {IsSearchable = false, IsSortable = true, IsFilterable = true, IsFacetable = true},
+                new Field(MoodField, Microsoft.Azure.Search.Models.DataType.Double) {IsSearchable = false, IsSortable = true, IsFilterable = true, IsFacetable = true},
+                new Field(PurchaseField, Microsoft.Azure.Search.Models.DataType.Collection(Microsoft.Azure.Search.Models.DataType.String)) {IsSearchable = true, IsSortable = false, IsFilterable = true, IsFacetable = true},
+                new Field(DanceTags, Microsoft.Azure.Search.Models.DataType.Collection(Microsoft.Azure.Search.Models.DataType.String)) {IsSearchable = true, IsSortable = false, IsFilterable = true, IsFacetable = true},
+                new Field(DanceTagsInferred, Microsoft.Azure.Search.Models.DataType.Collection(Microsoft.Azure.Search.Models.DataType.String)) {IsSearchable = true, IsSortable = false, IsFilterable = true, IsFacetable = true},
+                new Field(GenreTags, Microsoft.Azure.Search.Models.DataType.Collection(Microsoft.Azure.Search.Models.DataType.String)) {IsSearchable = true, IsSortable = false, IsFilterable = true, IsFacetable = true},
+                new Field(StyleTags, Microsoft.Azure.Search.Models.DataType.Collection(Microsoft.Azure.Search.Models.DataType.String)) {IsSearchable = true, IsSortable = false, IsFilterable = true, IsFacetable = true},
+                new Field(TempoTags, Microsoft.Azure.Search.Models.DataType.Collection(Microsoft.Azure.Search.Models.DataType.String)) {IsSearchable = true, IsSortable = false, IsFilterable = true, IsFacetable = true},
+                new Field(OtherTags, Microsoft.Azure.Search.Models.DataType.Collection(Microsoft.Azure.Search.Models.DataType.String)) {IsSearchable = true, IsSortable = false, IsFilterable = true, IsFacetable = true},
+                new Field(SampleField, Microsoft.Azure.Search.Models.DataType.String) {IsSearchable = false, IsSortable = false, IsFilterable = false, IsFacetable = false},
+                new Field(PropertiesField, Microsoft.Azure.Search.Models.DataType.String) {IsSearchable = false, IsSortable = false, IsFilterable = false, IsFacetable = false, IsRetrievable = true},
+            };
+
+            var fsc = DanceStatsManager.GetFlatDanceStats(dms);
+            fields.AddRange(
+                from sc in fsc
+                where sc.SongCount != 0 && sc.DanceId != "ALL"
+                select new Field(BuildDanceFieldName(sc.DanceId), Microsoft.Azure.Search.Models.DataType.Int32) { IsSearchable = false, IsSortable = true, IsFilterable = false, IsFacetable = false, IsRetrievable = false });
+
+            s_index = new Index
+            {
+                Name = "songs",
+                Fields = fields.ToArray(),
+                Suggesters = new[]
+                {
+                    new Suggester("songs",SuggesterSearchMode.AnalyzingInfixMatching, TitleField, ArtistField, AlbumsField, DanceTags, PurchaseField, GenreTags, TempoTags, StyleTags, OtherTags)
+                }
+            };
+
+            return s_index;
+        }
+
+        public static void ResetIndex()
+        {
+            s_index = null;
+        }
+        private static Index s_index;
+
+        public Document GetIndexDocument()
+        {
+            // Set up the purchase flags
+            var purchase = string.IsNullOrWhiteSpace(Purchase) ? new List<string>() : Purchase.ToCharArray().Select(c => MusicService.GetService(c).Name).ToList();
+            if (HasSample) purchase.Add("Sample");
+            if (HasEchoNest) purchase.Add("EchoNest");
+
+            // And the tags
+            var genre = TagSummary.GetTagSet("Music");
+            var other = TagSummary.GetTagSet("Other");
+            var tempo = TagSummary.GetTagSet("Tempo");
+            var style = new HashSet<string>();
+
+            var dance = TagSummary.GetTagSet("Dance");
+            var inferred = new HashSet<string>();
+
+            foreach (var dr in DanceRatings)
+            {
+                var d = Dances.Instance.DanceFromId(dr.DanceId).Name.ToLower();
+                if (!dance.Contains(d))
+                {
+                    inferred.Add(d);
+                }
+                other.UnionWith(dr.TagSummary.GetTagSet("Other"));
+                tempo.UnionWith(dr.TagSummary.GetTagSet("Tempo"));
+                style.UnionWith(dr.TagSummary.GetTagSet("Style"));
+            }
+
+            var users = ModifiedBy.Select(m => m.UserName.ToLower() + (m.Like.HasValue ? (m.Like.Value ? "|l" : "|h") : string.Empty)).ToArray();
+
+            var altIds = new string[0];
+            var merges = FilteredProperties(MergeCommand);
+            if (merges != null && merges.Any())
+            {
+                altIds =
+                    merges.SelectMany(m => m.Value.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries))
+                        .ToArray();
+            }
+
+            var doc = new Document
+            {
+                [SongIdField] = SongId.ToString(),
+                [AltIdField] = altIds,
+                [TitleField] = Title,
+                [TitleHashField] = TitleHash,
+                [ArtistField] = Artist,
+                [LengthField] = Length,
+                [BeatField] = Danceability,
+                [EnergyField] = Energy,
+                [MoodField] = Valence,
+                [TempoField] = (double?)Tempo,
+                [CreatedField] = Created,
+                [ModifiedField] = Modified,
+                [SampleField] = Sample,
+                [PurchaseField] = purchase.ToArray(),
+                [AlbumsField] = Albums.Select(ad => ad.Name).ToArray(),
+                [UsersField] = users,
+                [DanceTags] = dance.ToArray(),
+                [DanceTagsInferred] = inferred.ToArray(),
+                [GenreTags] = genre.ToArray(),
+                [TempoTags] = tempo.ToArray(),
+                [StyleTags] = style.ToArray(),
+                [OtherTags] = other.ToArray(),
+                [PropertiesField] = SongProperty.Serialize(SongProperties, null)
+            };
+
+            // Set the dance ratings
+            foreach (var dr in DanceRatings)
+            {
+                doc[BuildDanceFieldName(dr.DanceId)] = dr.Weight;
+            }
+
+            return doc;
+        }
+
+        public SongBase(Document d, DanceStatsInstance stats, string userName = null)
+        {
+            var s = d[PropertiesField] as string;
+            var sid = d[SongIdField] as string;
+            if (s == null || sid == null) throw new ArgumentOutOfRangeException(nameof(d));
+
+            Guid id;
+            if (!Guid.TryParse(sid, out id)) throw new ArgumentOutOfRangeException(nameof(d));
+
+            Init(id, s, stats, userName, true);
+        }
+
+        private static string BuildDanceFieldName(string id)
+        {
+            return $"dance_{id}";
+        }
+
 
         #endregion
 
@@ -773,10 +3577,8 @@ namespace m4dModels
             return ModifiedBy.FirstOrDefault(mr => string.Equals(mr.UserName, userName, StringComparison.OrdinalIgnoreCase));
         }
 
-        protected virtual ModifiedRecord AddModifiedBy(ModifiedRecord mr)
+        protected ModifiedRecord AddModifiedBy(ModifiedRecord mr)
         {
-            mr.SongId = SongId;
-
             ModifiedRecord other = null;
 
             if (mr.ApplicationUserId != null)
@@ -793,17 +3595,10 @@ namespace m4dModels
             ModifiedBy.Add(mr);
             return mr;
         }
-        protected virtual SongProperty CreateProperty(string name, object value, DanceMusicService dms)
+
+        public SongProperty CreateProperty(string name, object value)
         {
-            return CreateProperty(name, value, null, dms);
-        }
-        protected virtual SongProperty CreateProperty(string name, object value, object old, DanceMusicService dms)
-        {
-            if (SongProperties == null)
-            {
-                SongProperties = new List<SongProperty>();
-            }
-            var prop = new SongProperty { SongId = SongId, Name = name, Value = value?.ToString() };
+            var prop = new SongProperty { Name = name, Value = value?.ToString() };
             SongProperties.Add(prop);
 
             return prop;
@@ -832,7 +3627,7 @@ namespace m4dModels
 
         public SongProperty FirstProperty(string name)
         {
-            return OrderedProperties.FirstOrDefault(p => p.Name == name);
+            return SongProperties.FirstOrDefault(p => p.Name == name);
         }
 
         public SongProperty LastProperty(string name, IEnumerable<string> excludeUsers = null, IEnumerable<string> includeUsers = null)
@@ -840,14 +3635,14 @@ namespace m4dModels
             return FilteredProperties(excludeUsers,includeUsers).LastOrDefault(p => p.Name == name);
         }
 
-        public IOrderedEnumerable<SongProperty> FilteredProperties(string baseName, IEnumerable<string> excludeUsers = null, IEnumerable<string> includeUsers = null)
+        public IEnumerable<SongProperty> FilteredProperties(string baseName, IEnumerable<string> excludeUsers = null, IEnumerable<string> includeUsers = null)
         {
-            return FilteredProperties(excludeUsers, includeUsers).Where(p => p.BaseName == baseName).OrderBy(p => p.Id);
+            return FilteredProperties(excludeUsers, includeUsers).Where(p => p.BaseName == baseName);
         }
 
-        public IOrderedEnumerable<SongProperty> FilteredProperties(IEnumerable<string> excludeUsers = null, IEnumerable<string> includeUsers = null)
+        public IEnumerable<SongProperty> FilteredProperties(IEnumerable<string> excludeUsers = null, IEnumerable<string> includeUsers = null)
         {
-            if (excludeUsers == null && includeUsers == null) return OrderedProperties;
+            if (excludeUsers == null && includeUsers == null) return SongProperties;
 
             var eu = (excludeUsers == null) ? null : (excludeUsers as HashSet<string> ?? new HashSet<string>(excludeUsers));
             var iu = (includeUsers == null) ? null : (includeUsers as HashSet<string> ?? new HashSet<string>(includeUsers));
@@ -855,7 +3650,7 @@ namespace m4dModels
             var ret = new List<SongProperty>();
 
             var inFilter = includeUsers != null;
-            foreach (var prop in OrderedProperties)
+            foreach (var prop in SongProperties)
             {
                 if (prop.BaseName == UserField || prop.BaseName == UserProxy)
                 {
@@ -873,10 +3668,10 @@ namespace m4dModels
                     ret.Add(prop);
             }
 
-            return ret.OrderBy(sp => sp.Id);
+            return ret;
         }
 
-        protected virtual void ClearValues()
+        protected void ClearValues()
         {
             foreach (var pi in ScalarProperties)
             {
@@ -1218,6 +4013,18 @@ namespace m4dModels
         protected static IList<DanceObject> TagsToDances(TagList tags)
         {
             return Dances.Instance.FromNames(tags.Filter("Dance").StripType()).ToList();
+        }
+
+        public static void AddProperty(IList<SongProperty> properties, string baseName, object value = null, int index = -1, string qual = null)
+        {
+            if (value != null)
+                properties.Add(SongProperty.Create(baseName, value.ToString(), index, qual));
+        }
+
+        public static void AddProperty(IList<SongProperty> properties, string baseName, string value, int index = -1, string qual = null)
+        {
+            if (!string.IsNullOrWhiteSpace(value))
+                properties.Add(SongProperty.Create(baseName, value, index, qual));
         }
 
         #endregion

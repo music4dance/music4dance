@@ -12,12 +12,12 @@ namespace m4dModels
 
         public ModifiedRecord(ModifiedRecord mod)
         {
+            // KILLDB: Do we need ApplicationUser & ApplicationUserId in this record?
             // TODO: This is causing Application users to be loaded as 
             //  inidividual TSQL queiries, should we change the top level
             //  song query to load those records or figure out a way
             //  to defer or batch this query?
             ApplicationUserId = mod.ApplicationUserId;
-            SongId = mod.SongId;
             if (mod.ApplicationUser != null)
             {
                 _userName = mod.ApplicationUser.UserName;
@@ -28,9 +28,6 @@ namespace m4dModels
 
         public string ApplicationUserId { get; set; }
         public virtual ApplicationUser ApplicationUser { get; set; }
-
-        public Guid SongId { get; set; }
-        public virtual Song Song { get; set; }
 
         // This is both a boolean to indicate that the user owns the track
         //  and a hash for the filename so that in the future hopefully

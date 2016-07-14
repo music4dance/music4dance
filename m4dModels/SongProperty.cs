@@ -22,13 +22,11 @@ namespace m4dModels
 
         public SongProperty(SongProperty prop)
         {
-            SongId = prop.SongId;
             Name = prop.Name;
             Value = prop.Value;
         }
-        public SongProperty(Guid songId, string name, string value)
+        public SongProperty(string name, string value)
         {
-            SongId = songId;
             Name = name;
 
             if (!string.IsNullOrWhiteSpace(value))
@@ -49,10 +47,8 @@ namespace m4dModels
 
             Value = value;
         }
-        public SongProperty(Guid songId, string baseName, string value = null, int index = -1, string qual = null)
+        public SongProperty(string baseName, string value = null, int index = -1, string qual = null)
         {
-            SongId = songId;
-
             var name = baseName;
 
             if (index >= 0)
@@ -71,27 +67,13 @@ namespace m4dModels
 
         public static SongProperty Create(string baseName, string value = null, int index = -1, string qual = null)
         {
-            return new SongProperty(Guid.Empty,baseName,value,index,qual);
+            return new SongProperty(baseName,value,index,qual);
         }
 
-        public SongProperty CopyTo(Song song)
-        {
-            var n = new SongProperty
-            {
-                SongId = song.SongId,
-                Song = song,
-                Name = Name,
-                Value = Value
-            };
-            return n;
-        }
 
         #endregion
 
         #region Properties
-        public long Id { get; set; }
-        public Guid SongId { get; set; }
-        public virtual Song Song { get; set; }
         public string Name { get; set; }
         public string Value { get; set; }
         public object ObjectValue
@@ -249,7 +231,7 @@ namespace m4dModels
             return sb.ToString();
         }
 
-        public static void Load(Guid songId, string props, ICollection<SongProperty> properties)
+        public static void Load(string props, ICollection<SongProperty> properties)
         {
             var cells = props.Split('\t');
 
@@ -259,7 +241,7 @@ namespace m4dModels
 
                 if (values.Length == 2)
                 {
-                    properties.Add(new SongProperty(songId, values[0], values[1]));
+                    properties.Add(new SongProperty(values[0], values[1]));
                 }
                 else
                 {
