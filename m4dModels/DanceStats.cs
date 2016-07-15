@@ -91,10 +91,7 @@ namespace m4dModels
         {
             Id = DanceId,
             Description = Description,
-            MaxWeight = MaxWeight,
             DanceLinks = DanceLinks,
-            SongCount = (int) SongCount,
-            SongTags = SongTags
         };
 
         public IEnumerable<DanceInstance> CompetitionDances { get; private set; }
@@ -104,14 +101,6 @@ namespace m4dModels
             if (dance == null) return;
 
             Description = dance.Description;
-            if (includeStats)
-            {
-                SongCount = dance.SongCount;
-                MaxWeight = dance.MaxWeight;
-                TopSongs =
-                    dance.TopSongs?.OrderBy(ts => ts.Rank).Select(ts => new Song(ts.Song) as Song).ToList();
-                SongTags = dance.SongTags;
-            }
             DanceLinks = dance.DanceLinks;
 
             var dt = DanceObject as DanceType;
@@ -134,6 +123,17 @@ namespace m4dModels
         public void RebuildTopSongs(DanceStatsInstance danceStats)
         {
             TopSongs = TopSongs?.Select(s => new Song(s.Serialize(null), danceStats)).ToList();
+        }
+
+        public void AggregateSongCounts(IReadOnlyDictionary<string, long> tags, IReadOnlyDictionary<string, long> inferred)
+        {
+            // SongCount
+            long expl;
+            long impl;
+
+            SongCountExplicit = tags.TryGetValue(DanceId, out expl) ? expl : 0;
+            SongCountImplicit = inferred.TryGetValue(DanceId, out impl) ? impl : 0;
+            SongCount = SongCountImplicit + SongCountExplicit;
         }
 
         public DanceStats CloneForUser(string userName, DanceStatsInstance danceStats)

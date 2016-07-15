@@ -30,19 +30,6 @@ namespace m4dModels
             return s_info[id];
         }
 
-        public static bool UseSql
-        {
-            get
-            {
-                LoadDefault();
-                return s_useSql;
-            }
-            set
-            {
-                LoadDefault();
-                s_useSql = value;
-            }
-        }
 
         //private const string FreeAdmin = "***REMOVED***";
         //private const string FreeQuery = "5B2BAFC30F0CD25405A10B08582B5451";
@@ -69,17 +56,11 @@ namespace m4dModels
             var env = Environment.GetEnvironmentVariable("SEARCHINDEX");
             if (env == null)
             {
-                s_useSql = false;
                 return s_defaultId = "basicb";
             }
 
             s_env = env;
-            var rg = env.Split('-');
-            if (rg.Length <= 1 || rg[1] != "SQL")
-            {
-                s_useSql = false;
-            }
-            return s_defaultId = rg[0];
+            return s_defaultId = s_env;
         }
 
         public static string RawEnvironment
@@ -92,7 +73,6 @@ namespace m4dModels
         }
 
         private static string s_defaultId;
-        private static bool s_useSql;
         private static string s_env = "(EMPTY)";
 
         private static readonly Dictionary<string, SearchServiceInfo> s_info = new Dictionary<string, SearchServiceInfo>
