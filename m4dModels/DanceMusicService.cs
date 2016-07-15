@@ -500,6 +500,16 @@ namespace m4dModels
                     r => new Song(r.Document, DanceStats, userName)).FirstOrDefault(s => !s.IsNull);
         }
 
+        public DateTime GetLastModified()
+        {
+            // TODONEXT: Implement this with AZS to find most recently modified...
+            var ret = DoAzureSearch(null, new SearchParameters {OrderBy=new [] { "Modified desc" }, Top=1,Select=new[] {Song.ModifiedField} }, CruftFilter.AllCruft);
+            if (ret.Results.Count == 0) return DateTime.MinValue;
+
+            var d = ret.Results[0].Document[Song.ModifiedField];
+            return (DateTime) d;
+        }
+
         private IEnumerable<Song> SongsFromList(string list)
         {
             var dels = list.Split(';');
