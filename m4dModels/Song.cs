@@ -176,8 +176,7 @@ namespace m4dModels
 
             if (userName == null) return;
 
-            _statsTags = GetUserTags(userName);
-            _statsLike = ModifiedBy.FirstOrDefault(mr => mr.UserName == userName)?.Like;
+            _currentUserLike = ModifiedBy.FirstOrDefault(mr => mr.UserName == userName)?.Like;
         }
 
         public Song(string title, string artist, decimal? tempo, int? length, IList<AlbumDetails> albums)
@@ -871,8 +870,9 @@ namespace m4dModels
         [Range(0, 9999)]
         [DataMember]
         public int? Length { get; set; }
+
         [DataMember]
-        public string Purchase => GetPurchaseTags();
+        public string Purchase { get { return GetPurchaseTags(); } set {} }
         [DataMember]
         public string Sample { get; set; }
         [DataMember]
@@ -892,8 +892,8 @@ namespace m4dModels
         private List<DanceRating> _danceRatings;
 
         [DataMember]
-        public List<ModifiedRecord> ModifiedBy => _ModifiedBy ?? (_ModifiedBy = new List<ModifiedRecord>());
-        private List<ModifiedRecord> _ModifiedBy;
+        public List<ModifiedRecord> ModifiedBy => _modifiedBy ?? (_modifiedBy = new List<ModifiedRecord>());
+        private List<ModifiedRecord> _modifiedBy;
 
         [DataMember]
         public List<SongProperty> SongProperties => _properties ?? (_properties = new List<SongProperty>());
@@ -913,14 +913,13 @@ namespace m4dModels
         public int TitleHash => CreateTitleHash(Title);
 
         [DataMember]
-        public bool? statsLike
+        public bool? CurrentUserLike
         {
-            get { return _statsLike; }
+            get { return _currentUserLike; }
             set { throw new NotImplementedException("Shouldn't hit the setter for this."); }
         }
 
-        private TagList _statsTags;
-        private bool? _statsLike;
+        private bool? _currentUserLike;
 
 
         public bool TempoConflict(Song s, decimal delta)
@@ -1040,7 +1039,7 @@ namespace m4dModels
             SetTimesFromProperties();
         }
 
-        private bool EditCore(string user, Song edit, DanceStatsInstance stats)
+        private bool EditCore(string user, Song edit)
         {
             CreateEditProperties(user, EditCommand);
 
@@ -1131,10 +1130,10 @@ namespace m4dModels
         // Edit 'this' based on SongBase + extras
         public bool Edit(string user, Song edit, IEnumerable<UserTag> tags, DanceStatsInstance stats)
         {
-            var modified = EditCore(user, edit, stats);
+            var modified = EditCore(user, edit);
 
             modified |= UpdatePurchaseInfo(edit);
-            modified |= UpdateModified(user, edit, stats, true);
+            modified |= UpdateModified(user, edit, true);
 
             if (tags != null)
             {
@@ -1279,7 +1278,7 @@ namespace m4dModels
         {
             CreateEditProperties(user, EditCommand);
 
-            var modified = ScalarFields.Aggregate(false, (current, field) => current | AddProperty(edit, field, stats));
+            var modified = ScalarFields.Aggregate(false, (current, field) => current | AddProperty(edit, field));
 
             var oldAlbums = BuildAlbumInfo(this);
 
@@ -1325,7 +1324,7 @@ namespace m4dModels
             }
 
             modified |= UpdatePurchaseInfo(edit, true);
-            modified |= UpdateModified(user, edit, stats, false);
+            modified |= UpdateModified(user, edit, false);
 
             return modified;
         }
@@ -1471,7 +1470,7 @@ namespace m4dModels
             }
         }
 
-        private bool UpdateModified(string user, Song edit, DanceStatsInstance stats, bool force)
+        private bool UpdateModified(string user, Song edit, bool force)
         {
             var mr = ModifiedBy.FirstOrDefault(m => m.UserName == user);
             if (mr == null) return false;
@@ -1565,7 +1564,7 @@ namespace m4dModels
         }
 
         // Only update if the old song didn't have this property
-        private bool AddProperty(Song edit, string name, DanceStatsInstance stats)
+        private bool AddProperty(Song edit, string name)
         {
             var eP = edit.GetType().GetProperty(name).GetValue(edit);
             var oP = GetType().GetProperty(name).GetValue(this);
@@ -2967,14 +2966,14 @@ namespace m4dModels
             return albums;
         }
 
-        private void BuildAlbumInfo()
-        {
-            var properties =
-                from prop in SongProperties
-                select prop;
+        //private void BuildAlbumInfo()
+        //{
+        //    var properties =
+        //        from prop in SongProperties
+        //        select prop;
 
-            Albums = BuildAlbumInfo(properties);
-        }
+        //    Albums = BuildAlbumInfo(properties);
+        //}
         #endregion
 
         #region Tracks
@@ -3245,8 +3244,8 @@ namespace m4dModels
             var users = ModifiedBy.Select(m => m.UserName.ToLower() + (m.Like.HasValue ? (m.Like.Value ? "|l" : "|h") : string.Empty)).ToArray();
 
             var altIds = new string[0];
-            var merges = FilteredProperties(MergeCommand);
-            if (merges != null && merges.Any())
+            var merges = FilteredProperties(MergeCommand).ToList();
+            if (merges.Any())
             {
                 altIds =
                     merges.SelectMany(m => m.Value.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries))

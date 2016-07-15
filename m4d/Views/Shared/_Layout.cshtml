@@ -102,13 +102,6 @@
                                 @Html.ActionLink("Song Library", "azuresearch", "song")
                                 <ul style="list-style-type: none" role="menu">
                                     <li>@Html.ActionLink("Advanced Search","advancedsearchform", "song", new { filter = new SongFilter("azure+advanced") }, null)</li>
-                                    <li>
-                                        <a href="https://www.music4dance.net/blog/music4dance-help/legacy-search/">Legacy Search</a>
-                                        <ul>
-                                            <li style="list-style: none; margin-left: -2em">@Html.ActionLink("Search (Legacy)", "index", "song")</li>
-                                            <li style="list-style: none; margin-left: -2em">@Html.ActionLink("Advanced Search", "advancedsearchform", "song")</li>
-                                        </ul>
-                                    </li>
                                 </ul>
                             </li>
                             <li>@Html.ActionLink("Wedding", "wedding-music", "dances")</li>
