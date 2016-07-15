@@ -13,7 +13,6 @@ using System.Web.Mvc;
 using DanceLibrary;
 using m4d.Scrapers;
 using m4d.Utilities;
-using m4d.ViewModels;
 using m4dModels;
 using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.AspNet.Identity;
@@ -537,18 +536,6 @@ namespace m4d.Controllers
             {
                 TelemetryConfiguration.Active.DisableTelemetry = false;
             }
-
-            return RedirectToAction("Diagnostics");
-        }
-
-        //
-        // Get: //SetUseSql
-        public ActionResult SetUseSql(bool flag)
-        {
-            Trace.WriteLineIf(TraceLevels.General.TraceInfo, $"Set Use Sql: '{flag}'");
-            SearchServiceInfo.UseSql = flag;
-
-            SiteMapInfo.LoadCategories();
 
             return RedirectToAction("Diagnostics");
         }

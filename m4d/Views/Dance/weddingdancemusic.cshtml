@@ -12,8 +12,9 @@
 
 @helper DanceRow(DanceStats danceStats, string[] columns, bool isGroup)
 {
-    var action = SearchServiceInfo.UseSql ? "index" : "azuresearch";
-    var filterAction = SearchServiceInfo.UseSql ? "index" : "azure+simple";
+    var action = "index";
+    var filterAction = "index";
+
     var counts = new int[columns.Length];
     var show = false;
 

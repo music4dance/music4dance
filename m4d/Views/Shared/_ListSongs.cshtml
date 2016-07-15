@@ -3,7 +3,7 @@
 
 @{
     var isAdmin = User.IsInRole("dbAdmin");
-    var action = SearchServiceInfo.UseSql ? "index" : "azure+simple";
+    var action = "index";
 
     var canSort = ViewData.ContainsKey("NoSort") ? !ViewBag.NoSort : true;
     var showDate = canSort;

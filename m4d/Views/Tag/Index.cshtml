@@ -1,9 +1,9 @@
-﻿@model IEnumerable<TagType>
+﻿@*@model IEnumerable<TagType>
 
 @{
     ViewBag.Title = "Tag Cloud";
     ViewBag.Description = "Explore songs based on musical genre, tempo, style and other tags.";
-    ViewBag.SongFilter = new SongFilter { Action = SearchServiceInfo.UseSql ? "index" : "azure+simple" };
+    ViewBag.SongFilter = SongFilter.Default;
 }
 <h1>Tag Cloud</h1>
 
@@ -70,4 +70,4 @@
 @section Scripts {
     @Scripts.Render("~/bundles/knockout")
     @Scripts.Render("~/bundles/musicservice")
-}
+}*@

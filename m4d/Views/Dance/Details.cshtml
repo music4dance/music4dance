@@ -5,7 +5,7 @@
 @model DanceStats
 
 @{
-    var defaultFilter = SearchServiceInfo.UseSql ? SongFilter.Default : SongFilter.AzureSimple;
+    var defaultFilter = SongFilter.Default;
     var danceFilter = new SongFilter {Action = defaultFilter.Action, Dances = @Model.DanceId};
 
     ViewBag.Title = Model.DanceName + " Information, Top Ten List, and Resources.";

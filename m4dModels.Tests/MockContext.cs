@@ -11,7 +11,6 @@ namespace m4dModels.Tests
         public static DanceMusicService CreateService(bool seedUsers)
         {
             // TODO: Hopefully we can load from json at some point
-            SearchServiceInfo.UseSql = true;
             var context = new MockContext(seedUsers);
             var umanager = new UserManager<ApplicationUser>(new MockUserStore(context));
             var service = new DanceMusicService(context, umanager);

@@ -11,22 +11,12 @@
 }
 
 // Advanced search header
-@helper AdvancedHeader(System.Web.Mvc.HtmlHelper html, SongFilter filter)
-{
-    var isAzure = filter.IsAzure;
+@helper AdvancedHeader(System.Web.Mvc.HtmlHelper html, SongFilter filter){
     var url = "/song/" + (filter.IsRaw ? "raw" : "advanced") + "searchform?filter=" + filter;
     <h1>Search Results
         @if (filter.IsRaw)
         {
             <text> (RAW)</text>
-        }
-        @if (isAzure && SearchServiceInfo.UseSql)
-        {
-            <text> (BETA)</text>
-        }
-        else if (!isAzure && !SearchServiceInfo.UseSql)
-        {
-            <text> (Legacy)</text>
         }
     </h1>
     <div class="row">
@@ -49,18 +39,7 @@
 
         <div class="row">
             <h1 class="col-sm-2" style="width: auto; font-size: 22px;">
-                @if (isAzure && SearchServiceInfo.UseSql)
-                {
-                    <text>Simple Search (BETA)</text>
-                }
-                else if (!isAzure && !SearchServiceInfo.UseSql)
-                {
-                    <text>Search (Legacy)</text>
-                }
-                else
-                {
-                    <text>Song Library</text>
-                }
+                Song Library
             </h1>
             <div class="col-sm-offset-2" style="margin-left: 1px">
                 <div class="input-group" style="margin-top: 1em">
