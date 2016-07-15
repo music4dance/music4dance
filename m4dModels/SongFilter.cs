@@ -19,9 +19,9 @@ namespace m4dModels
         private const char Separator = '-';
         private readonly string _sepStr = new string(Separator, 1);
  
-        static public SongFilter Default => new SongFilter();
-        static public SongFilter AzureSimple => new SongFilter("azure+simple");
-        static public SongFilter AzureLucene => new SongFilter("azure+lucene");
+        public static SongFilter Default => new SongFilter();
+        public static SongFilter AzureSimple => new SongFilter("azure+simple");
+        public static SongFilter AzureLucene => new SongFilter("azure+lucene");
 
         static SongFilter()
         {

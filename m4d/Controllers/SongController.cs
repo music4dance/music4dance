@@ -781,7 +781,7 @@ namespace m4d.Controllers
         public ActionResult BulkEdit(Guid[] selectedSongs, string action, SongFilter filter = null)
         {
             // DBKILL: Enable Later
-            return View("Index");
+            return RestoreBatch();
             //var songs = from s in Database.Songs
             //            where selectedSongs.Contains(s.SongId)
             //            select s;
@@ -843,7 +843,7 @@ namespace m4d.Controllers
         public ActionResult BatchMusicService(string type= "X", string options = null, SongFilter filter=null, int count = 1, int pageSize = 1000)
         {
             // DBKILL: Enable Later
-            return View("Index");
+            return RestoreBatch();
             //try
             //{
             //    StartAdminTask("BatchMusicService");
@@ -1111,7 +1111,7 @@ namespace m4d.Controllers
         public ActionResult BatchCleanService(SongFilter filter = null, int count = 1)
         {
             // DBKILL: Enable Later
-            return View("Index");
+            return RestoreBatch();
             //try
             //{
             //    StartAdminTask("BatchCleanService");
@@ -1192,7 +1192,7 @@ namespace m4d.Controllers
         public ActionResult BatchSamples(string options = null, SongFilter filter = null, int count = 1, int pageSize = 1000)
         {
             // DBKILL: Enable Later
-            return View("Index");
+            return RestoreBatch();
 
             //try
             //{
@@ -1343,7 +1343,7 @@ namespace m4d.Controllers
         public ActionResult BatchEchoNest(SongFilter filter = null, string options = null, int count = 1, int pageSize = 1000)
         {
             // DBKILL: Enable Later
-            return View("Index");
+            return RestoreBatch();
             //try
             //{
             //    StartAdminTask("BatchEchoNest");
