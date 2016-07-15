@@ -18,7 +18,7 @@ namespace m4dModels
 
         public SongMerge(List<Song> songs)
         {
-            Songs = songs.Select(s => new Song(s)).ToList();
+            Songs = songs;
 
             Properties = new List<SongPropertyMerge>();
 

@@ -478,7 +478,7 @@ namespace m4dModels
         private static IEnumerable<DanceStats> AzureDanceStats(DanceMusicService dms, string source)
         {
             var stats = new List<DanceStats>();
-            dms.Context.LoadDances(false);
+            dms.Context.LoadDances();
 
             var facets = dms.GetTagFacets("DanceTags,DanceTagsInferred", 100, source);
 
@@ -515,7 +515,6 @@ namespace m4dModels
 
         private static IEnumerable<TagType> AzureTagTypes(DanceMusicService dms, string source)
         {
-            dms.Context.ProxyCreationEnabled = false;
             var tagTypes = dms.TagTypes.OrderBy(t => t.Key).ToList();
 
             var facets = dms.GetTagFacets("GenreTags,StyleTags,TempoTags,OtherTags", 500, source);
@@ -528,7 +527,6 @@ namespace m4dModels
                 IndexFacet(facet.Value,id,map);
             }
 
-            dms.Context.ProxyCreationEnabled = true;
             return tagTypes;
         }
 

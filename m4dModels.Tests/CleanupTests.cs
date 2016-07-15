@@ -56,7 +56,7 @@ namespace m4dModels.Tests
                 Trace.WriteLineIf(General.TraceInfo, $"---------------Predump for Song {song.SongId}");
                 DanceMusicTester.DumpSongProperties(song, General.TraceInfo);
                 var c = song.SongProperties.Count;
-                Assert.IsTrue(song.RemoveEmptyEdits(service.Dms));
+                Assert.IsTrue(song.RemoveEmptyEdits());
                 Trace.WriteLineIf(General.TraceInfo, $"{song.SongId}:{song.SongProperties.Count - c}");
                 Assert.AreEqual(c - deltas[index], song.SongProperties.Count);
 

@@ -172,43 +172,13 @@ namespace m4d.Context
             return ret;
         }
 
-        public void CheckpointChanges()
-        {
-            if (Configuration.AutoDetectChangesEnabled)
-            {
-                throw new InvalidConstraintException("Attempting a checkpoint without having first disabled auto-detect");
-            }
-
-            TrackChanges(true);
-            TrackChanges(false);
-        }
-
-        public void LoadDances(bool includeRatings=false)
+        public void LoadDances()
         {
             Configuration.LazyLoadingEnabled = false;
 
-            if (includeRatings)
-            {
-                Dances.Include("DanceLinks").Include("TopSongs.Song.DanceRatings").Load();
-            }
-            else
-            {
-                Dances.Include("DanceLinks").Load();
-            }
+            Dances.Include("DanceLinks").Load();
 
             Configuration.LazyLoadingEnabled = true;
-        }
-
-        public bool LazyLoadingEnabled
-        {
-            get { return Configuration.LazyLoadingEnabled; }
-            set { Configuration.LazyLoadingEnabled = value; }
-        }
-
-        public bool ProxyCreationEnabled
-        {
-            get { return Configuration.ProxyCreationEnabled; }
-            set { Configuration.ProxyCreationEnabled = value; }
         }
 
         #endregion

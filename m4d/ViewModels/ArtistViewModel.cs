@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using m4dModels;
@@ -13,17 +14,19 @@ namespace m4d.ViewModels
 
         static public ArtistViewModel Create(string name, DanceMusicService.CruftFilter cruft, DanceMusicService dms)
         {
-            var songs = dms.Songs.Where(s => s.Artist == name);
-            if ((cruft & DanceMusicService.CruftFilter.NoDances) != DanceMusicService.CruftFilter.NoDances)
-            {
-                songs = songs.Where(s => s.DanceRatings.Any());
-            }
-            if ((cruft & DanceMusicService.CruftFilter.NoPublishers) != DanceMusicService.CruftFilter.NoPublishers)
-            {
-                songs = songs.Where(s => s.Purchase != null);
-            }
+            // DBKILL: Implement ArtistView in AzureSearch
+            throw new NotImplementedException("Implement ArtistView in AzureSearch");
+            //var songs = dms.Songs.Where(s => s.Artist == name);
+            //if ((cruft & DanceMusicService.CruftFilter.NoDances) != DanceMusicService.CruftFilter.NoDances)
+            //{
+            //    songs = songs.Where(s => s.DanceRatings.Any());
+            //}
+            //if ((cruft & DanceMusicService.CruftFilter.NoPublishers) != DanceMusicService.CruftFilter.NoPublishers)
+            //{
+            //    songs = songs.Where(s => s.Purchase != null);
+            //}
 
-            return new ArtistViewModel {Name = name, Songs = songs.Take(100).ToList() };
+            //return new ArtistViewModel {Name = name, Songs = songs.Take(100).ToList() };
         }
     }
 }

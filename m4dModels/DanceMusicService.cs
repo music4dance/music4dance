@@ -1470,8 +1470,6 @@ namespace m4dModels
                 }
             }
 
-            _context.TrackChanges(true);
-
             if (clearCache)
             {
                 Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Clearing Song Cache");
@@ -1483,8 +1481,6 @@ namespace m4dModels
         public void AdminUpdate(IList<string> lines)
         {
             Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Entering AdminUpdate");
-
-            _context.TrackChanges(false);
 
             // Load the dance List
             Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Loading Dances");
@@ -1514,7 +1510,6 @@ namespace m4dModels
                 }
             }
 
-            _context.TrackChanges(true);
             Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Clearing Song Cache");
             DanceStatsManager.ClearCache();
             Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Exiting AdminUpdate");
