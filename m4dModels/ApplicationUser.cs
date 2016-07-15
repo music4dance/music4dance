@@ -136,7 +136,6 @@ namespace m4dModels
             // Add custom user claims here
             return userIdentity;
         }
-        public ICollection<ModifiedRecord> Modified { get; set; }
 
         public string GetRoles(IDbSet<IdentityRole> roles, string separator=", ")
         {

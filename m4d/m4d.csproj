@@ -484,6 +484,10 @@
     <Compile Include="Migrations\201607062250031_RemoveLogs.Designer.cs">
       <DependentUpon>201607062250031_RemoveLogs.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201607151825104_RemoveSongs.cs" />
+    <Compile Include="Migrations\201607151825104_RemoveSongs.Designer.cs">
+      <DependentUpon>201607151825104_RemoveSongs.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Context\DanceMusicConfiguration.cs" />
     <Compile Include="Context\DanceMusicContext.cs" />
@@ -1095,6 +1099,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201607062250031_RemoveLogs.resx">
       <DependentUpon>201607062250031_RemoveLogs.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201607151825104_RemoveSongs.resx">
+      <DependentUpon>201607151825104_RemoveSongs.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
