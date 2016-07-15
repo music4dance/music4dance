@@ -44,6 +44,9 @@ namespace m4d.Controllers
 
             base.OnActionExecuting(filterContext);
         }
+        private DanceMusicService.CruftFilter DefaultCruftFilter => User.IsInRole(DanceMusicService.EditRole)
+            ? DanceMusicService.CruftFilter.AllCruft
+            : DanceMusicService.CruftFilter.NoCruft;
 
         #region Commands
 
@@ -141,11 +144,7 @@ namespace m4d.Controllers
             var p = Database.AzureParmsFromFilter(filter, 25);
             ViewBag.RawSearch = p;
 
-            var results = Database.AzureSearch(
-                filter.SearchString, p, 
-                HttpContext.User.IsInRole(DanceMusicService.EditRole) ? DanceMusicService.CruftFilter.AllCruft : DanceMusicService.CruftFilter.NoCruft,
-                "default",
-                Database.DanceStats);
+            var results = Database.AzureSearch(filter.SearchString, p, DefaultCruftFilter, "default", Database.DanceStats);
             BuildDanceList();
             ViewBag.SongFilter = filter;
 
@@ -447,7 +446,7 @@ namespace m4d.Controllers
 
             if (!string.IsNullOrWhiteSpace(title))
             {
-                model = AlbumViewModel.Create(title, Database);
+                model = AlbumViewModel.Create(title, DefaultCruftFilter, Database);
             }
 
             if (model == null)
@@ -468,7 +467,7 @@ namespace m4d.Controllers
             if (!string.IsNullOrWhiteSpace(name))
             {
                 
-                model = ArtistViewModel.Create(name, User.IsInRole(DanceMusicService.EditRole) ? DanceMusicService.CruftFilter.AllCruft : DanceMusicService.CruftFilter.NoCruft, Database);
+                model = ArtistViewModel.Create(name, DefaultCruftFilter, Database);
             }
 
             if (model == null)
@@ -477,7 +476,6 @@ namespace m4d.Controllers
             BuildDanceList(DanceBags.Stats);
             return View("Artist", model);
         }
-
 
         //
         // GET: /Song/CreateI

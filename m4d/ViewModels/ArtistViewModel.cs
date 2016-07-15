@@ -12,21 +12,11 @@ namespace m4d.ViewModels
         public string Name { get; set; }
         public IList<Song> Songs { get; set; }
 
-        static public ArtistViewModel Create(string name, DanceMusicService.CruftFilter cruft, DanceMusicService dms)
+        public static ArtistViewModel Create(string name, DanceMusicService.CruftFilter cruft, DanceMusicService dms)
         {
-            // DBKILL: Implement ArtistView in AzureSearch
-            throw new NotImplementedException("Implement ArtistView in AzureSearch");
-            //var songs = dms.Songs.Where(s => s.Artist == name);
-            //if ((cruft & DanceMusicService.CruftFilter.NoDances) != DanceMusicService.CruftFilter.NoDances)
-            //{
-            //    songs = songs.Where(s => s.DanceRatings.Any());
-            //}
-            //if ((cruft & DanceMusicService.CruftFilter.NoPublishers) != DanceMusicService.CruftFilter.NoPublishers)
-            //{
-            //    songs = songs.Where(s => s.Purchase != null);
-            //}
+            var songs = dms.FindArtist(name,cruft);
 
-            //return new ArtistViewModel {Name = name, Songs = songs.Take(100).ToList() };
+            return new ArtistViewModel {Name = name, Songs = songs.Take(100).ToList() };
         }
     }
 }

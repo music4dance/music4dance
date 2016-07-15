@@ -451,7 +451,12 @@ namespace m4dModels
             }
         }
 
-        IEnumerable<Song> FindUserSongs(string user, string id = "default")
+        private IEnumerable<Song> SongsFromAzureResult(DocumentSearchResult result, string user = null)
+        {
+            return result.Results.Select(d => new Song(d.Document, DanceStats, user));
+        }
+
+        private IEnumerable<Song> FindUserSongs(string user, string id = "default")
         {
             const int max = 250;
 
@@ -473,7 +478,7 @@ namespace m4dModels
             {
                 var response = DoAzureSearch(indexClient, null, afilter);
 
-                results.AddRange(response.Results.Select(d => new Song(d.Document, stats, user)));
+                results.AddRange(SongsFromAzureResult(response,user));
 
                 if (response.ContinuationToken == null) return results;
 
@@ -1841,6 +1846,17 @@ namespace m4dModels
         {
             parameters.Facets = categories.Split(',').Select(c => $"{c},count:{count}").ToList();
         }
+
+        public IEnumerable<Song> FindAlbum(string name, CruftFilter cruft = CruftFilter.NoCruft)
+        {
+            return SongsFromAzureResult(DoAzureSearch($"\"{name}\"",new SearchParameters {SearchFields=new [] {Song.AlbumsField}},cruft));
+        }
+
+        public IEnumerable<Song> FindArtist(string name, CruftFilter cruft = CruftFilter.NoCruft)
+        {
+            return SongsFromAzureResult(DoAzureSearch($"\"{name}\"", new SearchParameters { SearchFields = new[] { Song.ArtistField } }, cruft));
+        }
+
 
         private static DocumentSearchResult DoAzureSearch(ISearchIndexClient client, string search, SearchParameters parameters, CruftFilter cruft = CruftFilter.NoCruft)
         {
