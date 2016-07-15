@@ -1719,7 +1719,7 @@ namespace m4d.Controllers
                         }
                     }
 
-                    // KILLDB: Should we enable a way to do this dump from the azure search DB?
+                    // DBKILL: Should we enable a way to do this dump from the azure search DB?
                     //if (songs)
                     //{
                     //    Context.Configuration.LazyLoadingEnabled = false;

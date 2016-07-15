@@ -780,7 +780,7 @@ namespace m4d.Controllers
         [Authorize(Roles = "canEdit")]
         public ActionResult BulkEdit(Guid[] selectedSongs, string action, SongFilter filter = null)
         {
-            // KILLDB: Enable Later
+            // DBKILL: Enable Later
             return View("Index");
             //var songs = from s in Database.Songs
             //            where selectedSongs.Contains(s.SongId)
@@ -842,7 +842,7 @@ namespace m4d.Controllers
         [Authorize(Roles = "canEdit")]
         public ActionResult BatchMusicService(string type= "X", string options = null, SongFilter filter=null, int count = 1, int pageSize = 1000)
         {
-            // KILLDB: Enable Later
+            // DBKILL: Enable Later
             return View("Index");
             //try
             //{
@@ -1110,7 +1110,7 @@ namespace m4d.Controllers
         [Authorize(Roles = "canEdit")]
         public ActionResult BatchCleanService(SongFilter filter = null, int count = 1)
         {
-            // KILLDB: Enable Later
+            // DBKILL: Enable Later
             return View("Index");
             //try
             //{
@@ -1191,7 +1191,7 @@ namespace m4d.Controllers
         [Authorize(Roles = "canEdit")]
         public ActionResult BatchSamples(string options = null, SongFilter filter = null, int count = 1, int pageSize = 1000)
         {
-            // KILLDB: Enable Later
+            // DBKILL: Enable Later
             return View("Index");
 
             //try
@@ -1342,7 +1342,7 @@ namespace m4d.Controllers
         [Authorize(Roles = "canEdit")]
         public ActionResult BatchEchoNest(SongFilter filter = null, string options = null, int count = 1, int pageSize = 1000)
         {
-            // KILLDB: Enable Later
+            // DBKILL: Enable Later
             return View("Index");
             //try
             //{

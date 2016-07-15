@@ -1728,7 +1728,7 @@ namespace m4dModels
         {
             return 0;
 
-            // KILLDB: Need to make sure that we're queueing updates to the Azure Index where we used to save to the DB
+            // DBKILL: Need to make sure that we're queueing updates to the Azure Index where we used to save to the DB
             //var skip = 0;
             //var done = false;
 
@@ -2020,7 +2020,7 @@ namespace m4dModels
 
         //public void ChangeUserName(string oldUserName, string userName)
         //{
-            // KILLDB: Do we want to enable this in the new universe?
+            // DBKILL: Do we want to enable this in the new universe?
             //var user = UserManager.FindByName(oldUserName);
             //if (user == null)
             //{
