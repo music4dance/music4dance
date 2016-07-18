@@ -94,7 +94,6 @@ namespace m4d.Context
             modelBuilder.Entity<Dance>().Ignore(dance => dance.Info);
 
             //modelBuilder.Entity<TaggableObject>().HasKey(to => to.TagIdBase);
-            modelBuilder.Entity<Tag>().HasKey(t => new { t.UserId, t.Id });
             modelBuilder.Entity<TagType>().HasKey(tt => tt.Key);
             modelBuilder.Entity<TagType>().Ignore(tt => tt.Value);
             modelBuilder.Entity<TagType>().Ignore(tt => tt.Category);

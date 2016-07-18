@@ -65,21 +65,14 @@ namespace m4dModels
         {
             if (songs == null || !songs.Any()) return;
 
-            UpdateTopSongs(songs);
-            IndexUpdater.Enqueue(id);
-        }
-
-        public void UpdateTopSongs(IEnumerable<Song> songs = null, string id = "default")
-        {
-            if (songs == null) return;
-
             // DBKill: we probably need to keep a DSI for each index (built on demand of course) so that we can do live swaps
             var stats = DanceStats;
-
             foreach (var song in songs)
             {
                 stats.UpdateSong(song, this);
             }
+
+            IndexUpdater.Enqueue(id);
         }
 
         public static readonly string EditRole = "canEdit";
@@ -821,27 +814,6 @@ namespace m4dModels
             //return purchase == null ? null : FindSong(purchase.SongId, userName);
         }
 
-        // TODO: This is extremely dependent on the form of the danceIds, just
-        //  a temporary kludge until we get multi-select working
-        private static string TrySingleId(List<string> danceList)
-        {
-            string ret = null;
-            if (danceList != null && danceList.Count > 0 && !string.IsNullOrWhiteSpace(danceList[0]))
-            {
-                ret = danceList[0].Substring(0, 3).ToUpper();
-                for (var i = 1; i < danceList.Count; i++)
-                {
-                    if (!string.Equals(ret, danceList[i].Substring(0, 3),StringComparison.OrdinalIgnoreCase))
-                    {
-                        ret = null;
-                        break;
-                    }
-                }
-            }
-
-            return ret;
-        }
-
         #endregion
 
         #region Tags
@@ -861,30 +833,6 @@ namespace m4dModels
         public TagType FindOrCreateTagType(string value, string category, string primary = null)
         {
             return _context.TagTypes.Find(TagType.BuildKey(value, category)) ?? CreateTagType(value, category);
-        }
-
-        // TAGDELETE: I think we can get rid of this because is seems easier just to keep
-        //  verbose normalized tags around (looks like a case of over eager optimization)
-        public string CompressTags(string tags, string category)
-        {
-            var old = new TagList(tags);
-            var result = new List<string>();
-            foreach (var tag in old.Tags)
-            {
-                var types = TagTypes.Where(tt => tt.Value == tag).ToList();
-                var type = types.FirstOrDefault(tt => tt.Category == category);
-                var count = types.Count;
-
-                if (type == null)
-                {
-                    type = CreateTagType(tag, category);
-                    count += 1;
-                }
-
-                result.Add(count > 1 ? type.ToString() : tag);
-            }
-
-            return new TagList(result).ToString();
         }
 
         // Add in category for tags that don't already have one + create
@@ -1734,86 +1682,43 @@ namespace m4dModels
 
         public int UpdateAzureIndex(string id = "default")
         {
-            return 0;
+            //DBKILL: Need to make sure that we're queueing updates to the Azure Index where we used to save to the DB
+            var songs = DanceStats.DequeuSongs();
 
-            // DBKILL: Need to make sure that we're queueing updates to the Azure Index where we used to save to the DB
-            //var skip = 0;
-            //var done = false;
+            var info = SearchServiceInfo.GetInfo(id);
 
-            //var info = SearchServiceInfo.GetInfo(id);
+            using (var serviceClient = new SearchServiceClient(info.Name, new SearchCredentials(info.AdminKey)))
+            using (var indexClient = serviceClient.Indexes.GetClient(info.Index))
+            {
+                var deleted = new List<Document>();
+                var added = new List<Document>();
 
-            //using (var serviceClient = new SearchServiceClient(info.Name, new SearchCredentials(info.AdminKey)))
-            //using (var indexClient = serviceClient.Indexes.GetClient(info.Index))
-            //{
-            //    do
-            //    {
-            //        var songs = new List<Document>();
-            //        var deleted = new List<Document>();
+                // ReSharper disable once LoopCanBeConvertedToQuery
+                foreach (var song in songs)
+                {
+                    if (!song.IsNull)
+                    {
+                        added.Add(song.GetIndexDocument());
+                    }
+                    else
+                    {
+                        deleted.Add(song.GetIndexDocument());
+                    }
+                }
 
-            //        var chunk = 5;
-            //        switch (skip)
-            //        {
-            //            case 0:
-            //                break;
-            //            case 5:
-            //                chunk = 50;
-            //                break;
-            //            default:
-            //                chunk = 500;
-            //                Context.ClearEntities(s_updateEntities);
-            //                break;
-            //        }
+                if (added.Count > 0)
+                {
+                    var batch = IndexBatch.MergeOrUpload(added);
+                    indexClient.Documents.Index(batch);
+                }
+                if (deleted.Count > 0)
+                {
+                    var delete = IndexBatch.Delete(deleted);
+                    indexClient.Documents.Index(delete);
+                }
 
-            //        var sqlRecent = TakeRecent(chunk, skip);
-            //        // ReSharper disable once LoopCanBeConvertedToQuery
-            //        foreach (var song in sqlRecent)
-            //        {
-            //            var exists = true;
-            //            try
-            //            {
-            //                var doc = indexClient.Documents.Get(song.SongId.ToString(), s_updateFields);
-            //                var diff = song.Modified - ((DateTimeOffset) doc["Modified"]).UtcDateTime;
-            //                var teq = diff < s_updateDelta;
-            //                if (teq && doc["Properties"] as string == song.Serialize(s_updateNoId))
-            //                {
-            //                    done = true;
-            //                    break;
-            //                }
-            //            }
-            //            catch (Microsoft.Rest.Azure.CloudException)
-            //            {
-            //                exists = false;
-            //                // Document isn't in the index at all, so add it
-            //            }
-
-            //            if (!song.IsNull)
-            //            {
-            //                songs.Add(new Song(song).GetIndexDocument());
-            //                DanceStats.UpdateSong(song,this);
-            //            }
-            //            else if (exists)
-            //            {
-            //                deleted.Add(new Song(song).GetIndexDocument());
-            //                DanceStats.UpdateSong(song, this);
-            //            }
-            //            skip += 1;
-            //        }
-
-            //        if (songs.Count > 0)
-            //        {
-            //            var batch = IndexBatch.MergeOrUpload(songs);
-            //            indexClient.Documents.Index(batch);
-            //        }
-            //        if (deleted.Count > 0)
-            //        {
-            //            var delete = IndexBatch.Delete(deleted);
-            //            indexClient.Documents.Index(delete);
-            //        }
-
-            //    } while (!done);
-            //}
-
-            //return skip;
+                return added.Count + deleted.Count;
+            }
         }
 
         public SearchResults AzureSearch(SongFilter filter, int? pageSize = null, CruftFilter cruft = CruftFilter.NoCruft, string id = "default")

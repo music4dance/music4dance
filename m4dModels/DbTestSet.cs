@@ -181,23 +181,6 @@ namespace m4dModels
         }
     }
 
-    public class TagSet : TestDbSet<Tag>
-    {
-        public override Tag Find(params object[] keyValues)
-        {
-            if (keyValues.Length  != 2)
-                return null;
-
-            var uid = keyValues[0] as string;
-            var tid = keyValues[1] as string;
-
-            if (uid == null || tid == null)
-                return null;
-
-            return this.SingleOrDefault(t => t.UserId == uid && t.Id == tid);
-        }
-    }
-
     public class SearchSet : TestDbSet<Search>
     {
         public override Search Find(params object[] keyValues)

@@ -50,7 +50,7 @@ namespace m4dModels
         private void DoUpdate()
         {
             Trace.WriteLine("Entering DoUpdate");
-            using (var dms = DanceMusicService.GetService()) 
+            using (var dms = DanceMusicService.GetService())
             {
                 var count = dms.UpdateAzureIndex(_index);
                 Trace.WriteLine($"Updated {count} songs.");

@@ -280,8 +280,22 @@ namespace m4dModels
                 else
                     songs[idx] = song;
             }
+
+            lock (_queuedSongs)
+            {
+                _queuedSongs[song.SongId] = song;
+            }
         }
 
+        public IEnumerable<Song> DequeuSongs()
+        {
+            lock (_queuedSongs)
+            {
+                var ret =  _queuedSongs.Values.ToList();
+                _queuedSongs.Clear();
+                return ret;
+            }
+        }
         public Song FindSongDetails(Guid songId, string userName)
         {
             var sd = TopSongs.GetValueOrDefault(songId) ?? _otherSongs.GetValueOrDefault(songId);
@@ -323,6 +337,7 @@ namespace m4dModels
 
         private Dictionary<Guid,Song> TopSongs => _topSongs ?? (_topSongs = new Dictionary<Guid,Song>(List.SelectMany(d => d.TopSongs ?? new List<Song>()).DistinctBy(s => s.SongId).ToDictionary(s => s.SongId)));
         private readonly Dictionary<Guid, Song> _otherSongs = new Dictionary<Guid, Song>();
+        private readonly Dictionary<Guid, Song> _queuedSongs = new Dictionary<Guid, Song>();
 
         private List<DanceStats> _flat;
         private Dictionary<Guid,Song> _topSongs;

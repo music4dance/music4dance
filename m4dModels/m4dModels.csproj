@@ -130,7 +130,6 @@
     <Compile Include="SpotifyService.cs" />
     <Compile Include="StringableList.cs" />
     <Compile Include="Suggestion.cs" />
-    <Compile Include="Tag.cs" />
     <Compile Include="Dance.cs" />
     <Compile Include="DanceRating.cs" />
     <Compile Include="DbObject.cs" />
@@ -151,7 +150,6 @@
     <Compile Include="TagList.cs" />
     <Compile Include="TagSummary.cs" />
     <Compile Include="TagType.cs" />
-    <Compile Include="TopN.cs" />
     <Compile Include="ToStringJsonConverter.cs" />
     <Compile Include="TraceLevels.cs" />
     <Compile Include="TrackNumber.cs" />
