@@ -157,16 +157,14 @@ namespace m4d.Controllers
             return SpiderManager.CheckBadSpiders(Request.UserAgent) ? View("BotWarning") : null;
         }
 
-        protected void UpdateAndEnqueue(IEnumerable<Song> songs = null)
+        protected void SaveSong(Song song)
         {
-            Database.SaveChanges(songs);
-            IndexUpdater.Enqueue();
+            Database.SaveSong(song);
         }
 
-        protected void Enqueue(IEnumerable<Song> songs = null)
+        protected void SaveSongs(IEnumerable<Song> songs = null)
         {
-            Database.UpdateTopSongs(songs);
-            IndexUpdater.Enqueue();
+            Database.SaveSongs(songs);
         }
 
         #region AdminTaskHelpers

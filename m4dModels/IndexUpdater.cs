@@ -1,53 +1,79 @@
-﻿using System.Diagnostics;
+﻿using System.Collections.Generic;
+using System.Diagnostics;
 using System.Threading.Tasks;
 
 namespace m4dModels
 {
     public class IndexUpdater
     {
-        public static void Enqueue()
+        public static void Enqueue(string index)
+        {
+            // This turns "default" into a real id
+            index = SearchServiceInfo.GetInfo(index).Id;
+            lock (s_updaters)
+            {
+                IndexUpdater updater;
+                if (!s_updaters.TryGetValue(index, out updater))
+                {
+                    updater = new IndexUpdater(index);
+                    s_updaters[index] = updater;
+                }
+
+                updater.Enqueue();
+            }
+        }
+
+        private IndexUpdater(string index)
+        {
+            _index = index;
+        }
+
+        private void Enqueue()
         {
             Trace.WriteLine("Entering Enque");
-            lock (s_lock)
+            lock (_lock)
             {
-                if (s_task == null)
+                if (_task == null)
                 {
                     Trace.WriteLine("Setting up task");
-                    s_task = Task.Delay(1000*60).ContinueWith(_ => DoUpdate());
+                    _task = Task.Delay(1000*60).ContinueWith(_ => DoUpdate());
                 }
-                else if (s_task.Status == TaskStatus.Running)
+                else if (_task.Status == TaskStatus.Running)
                 {
-                    s_continue = true;
+                    _continue = true;
                 }
 
             }
             Trace.WriteLine("Exiting Enque");
         }
 
-        private static void DoUpdate()
+        private void DoUpdate()
         {
             Trace.WriteLine("Entering DoUpdate");
             using (var dms = DanceMusicService.GetService()) 
             {
-                var count = dms.UpdateAzureIndex();
+                var count = dms.UpdateAzureIndex(_index);
                 Trace.WriteLine($"Updated {count} songs.");
             }
 
             // In the case where things have been enqueud 
-            lock (s_lock)
+            lock (_lock)
             {
-                s_task = null;
-                if (s_continue)
+                _task = null;
+                if (_continue)
                 {
-                    s_continue = false;
+                    _continue = false;
                     Enqueue();
                 }
             }
             Trace.WriteLine("Exiting DoUpdate");
         }
 
-        private static Task s_task;
-        private static readonly object s_lock = new object();
-        private static bool s_continue;
+        private readonly string _index;
+        private Task _task;
+        private readonly object _lock = new object();
+        private bool _continue;
+
+        private static readonly Dictionary<string,IndexUpdater> s_updaters = new Dictionary<string,IndexUpdater>();
     }
 }

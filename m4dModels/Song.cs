@@ -1,8 +1,4 @@
-﻿// TODONEXT: Continue to clean up Songbase, then rename to Song
-//  Take a look at TaggableObject and see if we still need it
-//  Start plugging away at DanceMusicService
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;

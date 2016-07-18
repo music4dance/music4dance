@@ -115,8 +115,8 @@ namespace m4d.Controllers
         {
             ViewBag.Name = "Update Purchase Info";
 
-            Database.UpdatePurchaseInfo(songIds);
-            Database.SaveChanges();
+            var songs = Database.UpdatePurchaseInfo(songIds);
+            Database.SaveSongs(songs);
 
             ViewBag.Success = true;
             ViewBag.Message = "Purchase info was successully updated";
@@ -1394,10 +1394,7 @@ namespace m4d.Controllers
 
             var modified = Database.MergeCatalog(user, initial, dances);
 
-            if (modified)
-            {
-                Database.SaveChanges();
-            }
+            Database.SaveSongs(modified);
 
             return View("UploadCatalog");
         }

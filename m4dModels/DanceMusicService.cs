@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data.Entity;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
 using Microsoft.AspNet.Identity;
@@ -49,28 +50,35 @@ namespace m4dModels
 
         public UserManager<ApplicationUser> UserManager { get; }
 
-        public void UpdateAndEnqueue(IEnumerable<Song> songs = null)
+        public int SaveChanges()
         {
-            SaveChanges(songs);
-            IndexUpdater.Enqueue();
+            return _context.SaveChanges();
         }
 
-        public int SaveChanges(IEnumerable<Song> songs = null)
+        public void SaveSong(Song song, string id = "default")
         {
-            var ret =  _context.SaveChanges();
-            if (ret == 0 || songs == null) return ret;
+            SaveSongs(new [] {song}, id);
+        }
+
+        [SuppressMessage("ReSharper", "PossibleMultipleEnumeration")]
+        public void SaveSongs(IEnumerable<Song> songs, string id = "default")
+        {
+            if (songs == null || !songs.Any()) return;
 
             UpdateTopSongs(songs);
-            return ret;
+            IndexUpdater.Enqueue(id);
         }
 
-        public void UpdateTopSongs(IEnumerable<Song> songs = null)
+        public void UpdateTopSongs(IEnumerable<Song> songs = null, string id = "default")
         {
             if (songs == null) return;
 
+            // DBKill: we probably need to keep a DSI for each index (built on demand of course) so that we can do live swaps
+            var stats = DanceStats;
+
             foreach (var song in songs)
             {
-                DanceStats.UpdateSong(song, this);
+                stats.UpdateSong(song, this);
             }
         }
 
@@ -154,7 +162,7 @@ namespace m4dModels
 
             if (!song.EditTags(user.UserName, tags, DanceStats)) return false;
 
-            UpdateAndEnqueue(new[] { song });
+            SaveSong(song);
             return true;
         }
 
@@ -171,7 +179,7 @@ namespace m4dModels
                 if (!song.EditDanceLike(user.UserName, like, danceId, DanceStats)) return false;
             }
 
-            UpdateAndEnqueue(new [] {song});
+            SaveSong(song);
             return true;
         }
 
@@ -263,13 +271,7 @@ namespace m4dModels
         public void DeleteSong(ApplicationUser user, Song song)
         {
             song.Delete(user.UserName);
-            UpdateAndEnqueue(new [] {song});
-        }
-
-        private void RemoveSong(Song song, ApplicationUser user)
-        {
-            song.Delete(user.UserName);
-            UpdateAndEnqueue(new [] {song});
+            SaveSong(song);
         }
 
         public BatchInfo CleanupProperties(int max, DateTime from, SongFilter filter)
@@ -399,7 +401,7 @@ namespace m4dModels
 
             AdminEditSong(song, song.Serialize(null));
 
-            UpdateAndEnqueue(new [] { song } );
+            SaveSong(song);
         }
 
 
@@ -507,7 +509,6 @@ namespace m4dModels
 
         public DateTime GetLastModified()
         {
-            // TODONEXT: Implement this with AZS to find most recently modified...
             var ret = DoAzureSearch(null, new SearchParameters {OrderBy=new [] { "Modified desc" }, Top=1,Select=new[] {Song.ModifiedField} }, CruftFilter.AllCruft);
             if (ret.Results.Count == 0) return DateTime.MinValue;
 
@@ -723,9 +724,9 @@ namespace m4dModels
             return ret;
         }
 
-        public bool MergeCatalog(ApplicationUser user, IList<LocalMerger> merges, IEnumerable<string> dances = null)
+        public IEnumerable<Song> MergeCatalog(ApplicationUser user, IList<LocalMerger> merges, IEnumerable<string> dances = null)
         {
-            var modified = false;
+            var songs = new List<Song>();
 
             var dancesL = dances?.ToList() ?? new List<string>();
 
@@ -740,23 +741,19 @@ namespace m4dModels
                         m.Left.UpdateDanceRatingsAndTags(user.UserName, dancesL, Song.DanceRatingInitial,DanceStats);
                         m.Left.InferDances(user.UserName);
                     }
-                    var temp = CreateSong(user, m.Left);
-                    if (temp != null)
-                    {
-                        modified = true;
-                        m.Left.SongId = temp.SongId;
-                    }
+                    songs.Add(m.Left);
                 }
                 // Any other matchtype should result in a merge, which for now is just adding the dance(s) from
                 //  the new list to the existing song (or adding weight).
                 // Now we're going to potentially add tempo - need a more general solution for this going forward
                 else
                 {
-                    modified = AdditiveMerge(user, m.Right.SongId, m.Left, dancesL);
+                    if (AdditiveMerge(user, m.Right.SongId, m.Left, dancesL))
+                        songs.Add(m.Left);
                 }
             }
 
-            return modified;
+            return songs;
         }
         public static ICollection<ICollection<PurchaseLink>> GetPurchaseLinks(ServiceType serviceType, IEnumerable<Song> songs, string region = null)
         {
@@ -1543,7 +1540,7 @@ namespace m4dModels
             Context.LoadDances();
         }
 
-        public void UpdatePurchaseInfo(string songIds)
+        public IEnumerable<Song> UpdatePurchaseInfo(string songIds)
         {
             // DBKILL: Need to have a mechanism to do song updates in chunks
             //var songs = (songIds == null) ? Songs.Where(s => s.TitleHash != 0) : SongsFromList(songIds);
@@ -1553,6 +1550,7 @@ namespace m4dModels
             //    var sd = new Song(song);
             //    song.Purchase = sd.GetPurchaseTags();
             //}
+            return null;
         }
         #endregion
 

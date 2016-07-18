@@ -521,7 +521,7 @@ namespace m4d.Controllers
 
                 if (newSong != null)
                 {
-                    UpdateAndEnqueue(new [] {newSong});
+                    SaveSong(newSong);
                 }
 
                 BuildDanceList(DanceBags.Stats | DanceBags.Single);
@@ -556,7 +556,7 @@ namespace m4d.Controllers
             {
                 return ReturnError(HttpStatusCode.NotFound, $"The song with id = {id} has been deleted.");
             }
-            Enqueue();
+            SaveSong(song);
 
             SetupEditViewBag(tempo);
 
@@ -593,7 +593,7 @@ namespace m4d.Controllers
                 // ReSharper disable once InvertIf
                 if (edit != null)
                 {
-                    UpdateAndEnqueue(new[] {edit});
+                    SaveSong(edit);
 
                     // This should be a quick round-trip to hydrate with the user details
                     edit = Database.FindSong(edit.SongId, user.UserName);
@@ -657,7 +657,6 @@ namespace m4d.Controllers
             var userName = User.Identity.Name;
             var user = Database.FindUser(userName);
             Database.DeleteSong(user,song);
-            Enqueue(new [] {song});
 
             return RedirectToAction("Index", new {filter });
         }
@@ -676,7 +675,7 @@ namespace m4d.Controllers
                 return RedirectToAction("Index", new {filter});
 
             song.Modified = DateTime.Now;
-            UpdateAndEnqueue(new [] {song});
+            SaveSong(song);
 
             var user = Database.FindUser(User.Identity.Name);
             var sd = Database.FindSong(songId, user.UserName);
@@ -692,7 +691,7 @@ namespace m4d.Controllers
             var song = Database.FindSong(id);
             if (Database.CleanupAlbums(user, song) != 0)
             {
-                UpdateAndEnqueue(new[] {song});
+                SaveSong(song);
             }
 
             return RedirectToAction("Details", new { id, filter });
@@ -763,7 +762,7 @@ namespace m4d.Controllers
                 return ReturnError(HttpStatusCode.NotFound, $"The song with id = {id} has been deleted.");
             }
             song.SetRatingsFromProperties();
-            UpdateAndEnqueue(new [] {song});
+            SaveSong(song);
 
             HelpPage = "song-details";
             BuildDanceList(DanceBags.Stats | DanceBags.Single);
@@ -819,7 +818,7 @@ namespace m4d.Controllers
                 ResolveIntField(Song.LengthField, songs, Request.Form),
                 Request.Form[Song.AlbumListField], new HashSet<string>(Request.Form.AllKeys));
 
-            UpdateAndEnqueue(songs);
+            SaveSongs(songs);
 
             DanceStatsManager.ClearCache();
 
@@ -1097,7 +1096,7 @@ namespace m4d.Controllers
 
             if (CleanMusicServiceSong(song))
             {
-                Database.SaveChanges();
+                Database.SaveSong(song);
             }
 
             HelpPage = "song-details";
@@ -1884,8 +1883,6 @@ namespace m4d.Controllers
 
             try
             {
-                Context.Configuration.AutoDetectChangesEnabled = false;
-
                 foreach (var song in songs)
                 {
                     if (cluster == null)
@@ -1914,8 +1911,7 @@ namespace m4d.Controllers
             }
             finally
             {
-                Context.Configuration.AutoDetectChangesEnabled = true;
-                Database.SaveChanges();
+                Database.SaveSongs(ret);
                 DanceStatsManager.ClearCache();
             }
 

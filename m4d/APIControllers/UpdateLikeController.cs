@@ -13,12 +13,9 @@ namespace m4d.APIControllers
         {
             var user = Database.FindUser(HttpContext.Current.User.Identity.GetUserName());
 
-            if (Database.EditLike(user, id, like, string.IsNullOrWhiteSpace(dance) || dance == "null" ? null : dance))
-            {
-                IndexUpdater.Enqueue();
-            }
+            var changed = Database.EditLike(user, id, like, string.IsNullOrWhiteSpace(dance) || dance == "null" ? null : dance);
 
-            return Ok(new { changed = 1 });
+            return Ok(new { changed = changed ? 1 : 0 });
         }
     }
 }
