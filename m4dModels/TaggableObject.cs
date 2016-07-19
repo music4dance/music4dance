@@ -188,6 +188,8 @@ namespace m4dModels
         private static void UpdateTagTypes(TagList added, TagList removed, DanceStatsInstance stats)
         {
             // DBKILL: Figure out how to queue up tagtype modifications based on a DSI...
+            // I think this may be a no-op at edit time, but then we need generating taglist from azure to 
+            //  run periodically and add new tags to the DB
             //if (stats == null)
             //    return;
 

@@ -577,7 +577,6 @@ namespace m4d.Controllers
         //public ActionResult Edit([ModelBinder(typeof(m4d.Utilities.SongBinder))]Song song, List<string> addDances, List<string> remDances, string filter = null)
         public ActionResult Edit(Song song, string userTags, SongFilter filter = null)
         {
-            // TODONEXT: Figure out why editing isn't working in genral: need to think about round-tripping songs during edit phase
             if (ModelState.IsValid)
             {
                 var user = Database.FindUser(User.Identity.Name);

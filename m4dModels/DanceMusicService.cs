@@ -269,69 +269,68 @@ namespace m4dModels
 
         public BatchInfo CleanupProperties(int max, DateTime from, SongFilter filter)
         {
-            return null;
+            var ret = new BatchInfo();
 
-            // DBKILL - Need to get batch/tail of azure songs implemented
-            //var ret = new BatchInfo();
+            if (filter == null) filter = new SongFilter();
+            var songlist = TakeTail(filter, max, from);
 
-            //if (filter == null) filter = new SongFilter();
-            //var songlist = TakeTail(BuildSongList(filter,CruftFilter.AllCruft), from, max);
+            var lastTouched = DateTime.MinValue;
+            var succeeded = new List<Song>();
+            var failed = new List<Song>();
+            var cummulative = 0;
 
-            //var lastTouched = DateTime.MinValue;
-            //var succeeded = new List<Song>();
-            //var failed = new List<Song>();
-            //var cummulative = 0;
+            foreach (var song in songlist)
+            {
+                lastTouched = song.Modified;
 
-            //foreach (var song in songlist)
-            //{
-            //    lastTouched = song.Modified;
+                var init = song.SongProperties.Count;
 
-            //    var init = song.SongProperties.Count;
+                var changed = song.CleanupProperties();
 
-            //    var changed = song.CleanupProperties();
+                var final = song.SongProperties.Count;
 
-            //    var final = song.SongProperties.Count;
+                if (changed)
+                {
+                    Trace.WriteLine($"Succeeded ({init - final})): {song}");
+                    succeeded.Add(song);
+                    cummulative += init - final;
+                }
+                else
+                {
+                    if (init - final != 0)
+                    {
+                        Trace.WriteLine($"Failed ({init - final}): {song}");
+                    }
+                    Trace.WriteLine($"Skipped: {song}");
+                    failed.Add(song);
+                }
 
-            //    if (changed)
-            //    {
-            //        Trace.WriteLine($"Succeeded ({init-final})): {song}");
-            //        succeeded.Add(song);
-            //        cummulative += init - final;
-            //    }
-            //    else
-            //    {
-            //        if (init - final != 0)
-            //        {
-            //            Trace.WriteLine($"Failed ({init - final}): {song}");
-            //        }
-            //        Trace.WriteLine($"Skipped: {song}");
-            //        failed.Add(song);
-            //    }
+                SaveSongs(succeeded);
 
-            //    AdminMonitor.UpdateTask("CleanProperty", succeeded.Count + failed.Count);
+                AdminMonitor.UpdateTask("CleanProperty", succeeded.Count + failed.Count);
 
-            //    if (succeeded.Count + failed.Count >= max)
-            //    {
-            //        break;
-            //    }
-            //}
+                if (succeeded.Count + failed.Count >= max)
+                {
+                    break;
+                }
+            }
 
-            //ret.LastTime = lastTouched;
-            //ret.Succeeded = succeeded.Count;
-            //ret.Failed = failed.Count;
+            ret.LastTime = lastTouched;
+            ret.Succeeded = succeeded.Count;
+            ret.Failed = failed.Count;
 
-            //ret.Message = $"Cleaned up {cummulative} properties.";
-            //if (ret.Succeeded > 0)
-            //{
-            //    SaveChanges();
-            //}
+            ret.Message = $"Cleaned up {cummulative} properties.";
+            if (ret.Succeeded > 0)
+            {
+                SaveChanges();
+            }
 
-            //if (ret.Succeeded + ret.Failed >= max) return ret;
+            if (ret.Succeeded + ret.Failed >= max) return ret;
 
-            //ret.Complete = true;
-            //ret.Message += "No more songs to clean up";
+            ret.Complete = true;
+            ret.Message += "No more songs to clean up";
 
-            //return ret;
+            return ret;
         }
         #endregion
 
@@ -1753,33 +1752,50 @@ namespace m4dModels
             return SongsFromAzureResult(DoAzureSearch($"\"{name}\"", new SearchParameters { SearchFields = new[] { Song.ArtistField } }, cruft));
         }
 
+        private IEnumerable<Song> TakeTail(SongFilter filter, int max, DateTime? from, string id = "default")
+        {
+            var parameters = AzureParmsFromFilter(filter);
+            parameters.OrderBy = new[] { "Modified desc"};
+            parameters.IncludeTotalResultCount = false;
+            parameters.Top = null;
+
+            var info = SearchServiceInfo.GetInfo(id);
+            using (var serviceClient = new SearchServiceClient(info.Name, new SearchCredentials(info.QueryKey)))
+            using (var indexClient = serviceClient.Indexes.GetClient(info.Index))
+            {
+                SearchContinuationToken token = null;
+                var results = new List<Song>();
+                do
+                {
+                    var response = (token == null)
+                        ? indexClient.Documents.Search(null, parameters)
+                        : indexClient.Documents.ContinueSearch(token);
+
+                    foreach (var doc in response.Results)
+                    {
+                        var m = doc.Document["Modified"];
+                        var modified = (DateTimeOffset)m;
+                        if (from != null && modified < from)
+                        {
+                            response.ContinuationToken = null;
+                            break;
+                        }
+
+                        results.Add(new Song(doc.Document,DanceStats));
+
+                        if (results.Count >= max) break;
+                    }
+                    token = response.ContinuationToken;
+                } while (token != null && results.Count < max);
+
+                return results;
+            }
+        }
+
 
         private static DocumentSearchResult DoAzureSearch(ISearchIndexClient client, string search, SearchParameters parameters, CruftFilter cruft = CruftFilter.NoCruft)
         {
-            var extra = new StringBuilder();
-            if ((cruft & CruftFilter.NoPublishers) != CruftFilter.NoPublishers)
-            {
-                extra.Append("Purchase/any()");
-            }
-
-            if ((cruft & CruftFilter.NoDances) != CruftFilter.NoDances)
-            {
-                if (extra.Length > 0) extra.Append(" and ");
-                extra.Append("DanceTags/any()");
-            }
-
-            if (extra.Length <= 0)
-                return client.Documents.Search(search, parameters);
-
-            if (parameters.Filter == null)
-            {
-                parameters.Filter = extra.ToString();
-            }
-            else
-            {
-                extra.AppendFormat(" and {0}", parameters.Filter);
-                parameters.Filter = extra.ToString();
-            }
+            parameters = AddCruftInfo(parameters, cruft);
 
             return client.Documents.Search(search, parameters);
         }
@@ -1815,6 +1831,34 @@ namespace m4dModels
                 Skip = ((filter.Page??1) - 1) * pageSize,
                 OrderBy = order
             };
+        }
+
+        private static SearchParameters AddCruftInfo(SearchParameters parameters, CruftFilter cruft)
+        {
+            if (cruft == CruftFilter.NoCruft) return parameters;
+
+            var extra = new StringBuilder();
+            if ((cruft & CruftFilter.NoPublishers) != CruftFilter.NoPublishers)
+            {
+                extra.Append("Purchase/any()");
+            }
+
+            if ((cruft & CruftFilter.NoDances) != CruftFilter.NoDances)
+            {
+                if (extra.Length > 0) extra.Append(" and ");
+                extra.Append("DanceTags/any()");
+            }
+
+            if (parameters.Filter == null)
+            {
+                parameters.Filter = extra.ToString();
+            }
+            else
+            {
+                extra.AppendFormat(" and {0}", parameters.Filter);
+                parameters.Filter = extra.ToString();
+            }
+            return parameters;
         }
 
         public SuggestionList AzureSuggestions(string query, string id = "default")
