@@ -33,10 +33,10 @@ namespace m4dModels
             Trace.WriteLine("Entering Enque");
             lock (_lock)
             {
-                if (_task == null)
+                if (_task == null || _task.IsFaulted)
                 {
                     Trace.WriteLine("Setting up task");
-                    _task = Task.Delay(1000*60).ContinueWith(_ => DoUpdate());
+                    _task = Task.Delay(100*60).ContinueWith(_ => DoUpdate());
                 }
                 else if (_task.Status == TaskStatus.Running)
                 {

@@ -207,6 +207,7 @@ namespace m4dModels
 
         public void SetupSerialization(string userName, DanceStatsInstance stats)
         {
+            CurrentUserTags = GetUserTags(userName, this);
             if (DanceRatings == null || DanceRatings.Count == 0) return;
 
             foreach (var dr in _danceRatings)
@@ -1138,7 +1139,7 @@ namespace m4dModels
 
             if (modified)
             {
-                InferDances(user);
+                InferDances(user,true);
                 Modified = DateTime.Now;
                 return true;
             }
@@ -1306,7 +1307,7 @@ namespace m4dModels
 
                 modified |= EditDanceRatings(addDances, DanceRatingIncrement, null, 0, stats);
 
-                InferDances(user);
+                InferDances(user,true);
             }
             else
             {
@@ -2414,10 +2415,10 @@ namespace m4dModels
             return Dances.Instance.FromNames(tags.Strip()).Select(d => d.Id);
         }
 
-        public void InferDances(string user)
+        public void InferDances(string user, bool recent = false)
         {
             // Get the dances from the current user's tags
-            var tags = GetUserTags(user);
+            var tags = GetUserTags(user,null,recent);
 
             // Infer dance groups != MSC
             var dances = TagsToDances(tags);

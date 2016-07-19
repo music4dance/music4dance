@@ -259,31 +259,31 @@ namespace m4dModels
 
         public void UpdateSong(Song song, DanceMusicService dms)
         {
-            if (!TopSongs.ContainsKey(song.SongId))
-            {
-                if (song.IsNull) _otherSongs.Remove(song.SongId);
-                _otherSongs[song.SongId] = song;
-                return;
-            }
-
-            if (song.IsNull) TopSongs.Remove(song.SongId);
-            TopSongs[song.SongId] = song;
-
-            foreach (var d in List)
-            {
-                var songs = d.TopSongs as List<Song>;
-                if (songs == null) continue;
-                var idx = songs.FindIndex(s => s.SongId == song.SongId);
-                if (idx == -1) continue;
-                if (song.IsNull)
-                    songs.RemoveAt(idx);
-                else
-                    songs[idx] = song;
-            }
-
             lock (_queuedSongs)
             {
                 _queuedSongs[song.SongId] = song;
+
+                if (!TopSongs.ContainsKey(song.SongId))
+                {
+                    if (song.IsNull) _otherSongs.Remove(song.SongId);
+                    _otherSongs[song.SongId] = song;
+                    return;
+                }
+
+                if (song.IsNull) TopSongs.Remove(song.SongId);
+                TopSongs[song.SongId] = song;
+
+                foreach (var d in List)
+                {
+                    var songs = d.TopSongs as List<Song>;
+                    if (songs == null) continue;
+                    var idx = songs.FindIndex(s => s.SongId == song.SongId);
+                    if (idx == -1) continue;
+                    if (song.IsNull)
+                        songs.RemoveAt(idx);
+                    else
+                        songs[idx] = song;
+                }
             }
         }
 

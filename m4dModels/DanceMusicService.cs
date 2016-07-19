@@ -113,7 +113,7 @@ namespace m4dModels
         {
             var song = FindSong(edit.SongId);
 
-            return !song.Edit(user.UserName, edit, tags, DanceStats) ? null : edit;
+            return !song.Edit(user.UserName, edit, tags, DanceStats) ? null : song;
         }
 
         public bool AdminEditSong(Song edit, string properties)
@@ -1640,13 +1640,6 @@ namespace m4dModels
             return true;
         }
 
-
-        static private readonly string[] s_updateFields =  { Song.ModifiedField, Song.PropertiesField };
-        static private readonly string[] s_updateEntities = { "Song", "SongProperties", "ModifiedBy", "DanceRatings" };
-        static private readonly string[] s_updateNoId = { Song.NoSongId };
-        private static readonly TimeSpan s_updateDelta = TimeSpan.FromMilliseconds(10);
-
-
         public int UploadIndex(IList<string> lines, string id = "default")
         {
             const int chunkSize = 500;
@@ -1708,7 +1701,7 @@ namespace m4dModels
 
                 if (added.Count > 0)
                 {
-                    var batch = IndexBatch.MergeOrUpload(added);
+                    var batch = IndexBatch.Upload(added);
                     indexClient.Documents.Index(batch);
                 }
                 if (deleted.Count > 0)

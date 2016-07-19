@@ -517,12 +517,8 @@ namespace m4d.Controllers
                 var jt = JTags.FromJson(userTags);
 
                 var newSong = Database.CreateSong(user, song, jt.ToUserTags());
-                song.AddTags(new TagList(userTags), user.UserName, Database.DanceStats, song);
-
-                if (newSong != null)
-                {
-                    SaveSong(newSong);
-                }
+                //newSong.AddTags(new TagList(userTags), user.UserName, Database.DanceStats, song);
+                SaveSong(newSong);
 
                 BuildDanceList(DanceBags.Stats | DanceBags.Single);
                 return View("details", newSong);
@@ -556,8 +552,6 @@ namespace m4d.Controllers
             {
                 return ReturnError(HttpStatusCode.NotFound, $"The song with id = {id} has been deleted.");
             }
-            SaveSong(song);
-
             SetupEditViewBag(tempo);
 
             return View(song);
@@ -583,6 +577,7 @@ namespace m4d.Controllers
         //public ActionResult Edit([ModelBinder(typeof(m4d.Utilities.SongBinder))]Song song, List<string> addDances, List<string> remDances, string filter = null)
         public ActionResult Edit(Song song, string userTags, SongFilter filter = null)
         {
+            // TODONEXT: Figure out why editing isn't working in genral: need to think about round-tripping songs during edit phase
             if (ModelState.IsValid)
             {
                 var user = Database.FindUser(User.Identity.Name);
@@ -777,23 +772,19 @@ namespace m4d.Controllers
         [Authorize(Roles = "canEdit")]
         public ActionResult BulkEdit(Guid[] selectedSongs, string action, SongFilter filter = null)
         {
-            // DBKILL: Enable Later
-            return RestoreBatch();
-            //var songs = from s in Database.Songs
-            //            where selectedSongs.Contains(s.SongId)
-            //            select s;
+            var songs = Database.FindSongs(selectedSongs);
 
-            //switch (action)
-            //{
-            //    case "Merge":
-            //        return Merge(songs);
-            //    case "Delete":
-            //        return Delete(songs,filter);
-            //    case "CleanupAlbums":
-            //        return CleanupAlbums(songs);
-            //    default:
-            //        return View("Index");
-            //}
+            switch (action)
+            {
+                case "Merge":
+                    return Merge(songs);
+                case "Delete":
+                    return Delete(songs, filter);
+                case "CleanupAlbums":
+                    return CleanupAlbums(songs);
+                default:
+                    return View("Index");
+            }
         }
 
         //

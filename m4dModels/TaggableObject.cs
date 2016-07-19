@@ -156,7 +156,7 @@ namespace m4dModels
         public bool ChangeTags(TagList newTags, string user, DanceStatsInstance stats, object data = null, bool updateTypes = true)
         {
             // Short-circuit if both old and new are empty
-            var ut = GetUserTags(user);
+            var ut = GetUserTags(user, data as Song);
             if (newTags.IsEmpty && ut.IsEmpty)
                 return false;
 
@@ -225,7 +225,7 @@ namespace m4dModels
             return true;
         }
 
-        public TagList GetUserTags(string userName, Song song = null)
+        public TagList GetUserTags(string userName, Song song = null, bool recent = false)
         {
             if (song == null) song = this as Song;
             var danceId = (this as DanceRating)?.DanceId;
@@ -243,6 +243,7 @@ namespace m4dModels
                 {
                     case Song.UserField:
                     case Song.UserProxy:
+                        if (recent) acc = new TagList();
                         cu = prop.Value;
                         break;
                     case Song.AddedTags:
