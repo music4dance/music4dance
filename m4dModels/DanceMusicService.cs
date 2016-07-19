@@ -272,7 +272,7 @@ namespace m4dModels
             var ret = new BatchInfo();
 
             if (filter == null) filter = new SongFilter();
-            var songlist = TakeTail(filter, max, from);
+            var songlist = TakeTail(filter, max, from, CruftFilter.AllCruft);
 
             var lastTouched = DateTime.MinValue;
             var succeeded = new List<Song>();
@@ -1674,9 +1674,11 @@ namespace m4dModels
 
         public int UpdateAzureIndex(string id = "default")
         {
-            //DBKILL: Need to make sure that we're queueing updates to the Azure Index where we used to save to the DB
-            var songs = DanceStats.DequeuSongs();
+            return UpdateAzureIndex(DanceStats.DequeuSongs(), id);
+        }
 
+        public int UpdateAzureIndex(IEnumerable<Song> songs, string id = "default")
+        {
             var info = SearchServiceInfo.GetInfo(id);
 
             using (var serviceClient = new SearchServiceClient(info.Name, new SearchCredentials(info.AdminKey)))
@@ -1752,10 +1754,16 @@ namespace m4dModels
             return SongsFromAzureResult(DoAzureSearch($"\"{name}\"", new SearchParameters { SearchFields = new[] { Song.ArtistField } }, cruft));
         }
 
-        private IEnumerable<Song> TakeTail(SongFilter filter, int max, DateTime? from, string id = "default")
+        public IEnumerable<Song> TakeTail(SongFilter filter, int max, DateTime? from = null, CruftFilter cruft = CruftFilter.NoCruft, string id = "default")
         {
-            var parameters = AzureParmsFromFilter(filter);
-            parameters.OrderBy = new[] { "Modified desc"};
+            var parameters = AddCruftInfo(AzureParmsFromFilter(filter), cruft);
+
+            return TakeTail(parameters,max,from,id);
+        }
+
+        public IEnumerable<Song> TakeTail(SearchParameters parameters, int max, DateTime? from = null, string id = "default")
+        {
+            parameters.OrderBy = new[] { "Modified desc" };
             parameters.IncludeTotalResultCount = false;
             parameters.Top = null;
 
@@ -1833,9 +1841,9 @@ namespace m4dModels
             };
         }
 
-        private static SearchParameters AddCruftInfo(SearchParameters parameters, CruftFilter cruft)
+        public static SearchParameters AddCruftInfo(SearchParameters parameters, CruftFilter cruft)
         {
-            if (cruft == CruftFilter.NoCruft) return parameters;
+            if (cruft == CruftFilter.AllCruft) return parameters;
 
             var extra = new StringBuilder();
             if ((cruft & CruftFilter.NoPublishers) != CruftFilter.NoPublishers)
