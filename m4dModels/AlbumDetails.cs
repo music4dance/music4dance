@@ -228,6 +228,12 @@ namespace m4dModels
             return MusicService.GetServices().Select(service => GetPurchaseLink(service.Id)).Where(link => link != null).ToList();
         }
 
+        public IList<string> GetExtendedPurchaseIds(PurchaseType pt)
+        {
+            string[] regions;
+            return (from service in MusicService.GetSearchableServices() let id = GetPurchaseIdentifier(service.Id, pt) where id != null select $"{service.CID}:{PurchaseRegion.ParseIdAndRegionInfo(id,out regions)}").ToList();
+        }
+
         public PurchaseLink GetPurchaseLink(ServiceType ms, PurchaseType pt, string region=null)
         {
             // Short-circuit if there is no purchase info for this ablum

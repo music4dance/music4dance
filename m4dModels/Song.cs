@@ -80,6 +80,8 @@ namespace m4dModels
         public const string StyleTags = "StyleTags";
         public const string OtherTags = "OtherTags";
         public const string PropertiesField = "Properties";
+        public const string ServiceIds = "ServiceIds";
+        public const string LookupStatus = "LookupStatus";
 
         // Special cases for reading scraped data
         public const string TitleArtistCell = "TitleArtist";
@@ -95,7 +97,7 @@ namespace m4dModels
         public const string MergeCommand = ".Merge";
         public const string UndoCommand = ".Undo";
         public const string RedoCommand = ".Redo";
-        public const string FailedLookup = ".FailedLookup"; // 0: Not found on Title/Artist; 1: Not found on Title/Artist/Album
+        public const string FailedLookup = ".FailedLookup"; 
         public const string NoSongId = ".NoSongId"; // Pseudo action for serialization
         public const string SerializeDeleted = ".SerializeDeleted"; // Pseudo action for serialization
 
@@ -870,6 +872,7 @@ namespace m4dModels
 
         [DataMember]
         public string Purchase { get { return GetPurchaseTags(); } set {} }
+
         [DataMember]
         public string Sample { get; set; }
         [DataMember]
@@ -1331,6 +1334,25 @@ namespace m4dModels
             CreateEditProperties(user, EditCommand);
 
             return InternalEditTags(user, tags, stats);
+        }
+
+        public bool AddLookupFail()
+        {
+            if (LookupFailed()) return false;
+
+            CreateProperty(FailedLookup,null);
+
+            return true;
+        }
+
+        public bool LookupFailed()
+        {
+            return SongProperties.Any(p => p.Name == FailedLookup);
+        }
+
+        public bool LookupTried()
+        {
+            return SongProperties.Any(p => p.Name == FailedLookup || p.Name.StartsWith(PurchaseField));
         }
 
         private bool InternalEditTags(string user, IEnumerable<UserTag> tags, DanceStatsInstance stats)
@@ -2747,6 +2769,11 @@ namespace m4dModels
             return Albums.Select(album => album.GetPurchaseIdentifier(service.Id, PurchaseType.Song)).Where(id => id != null).ToList();
         }
 
+        public ICollection<string> GetExtendedPurchaseIds()
+        {
+            return Albums.SelectMany(album => album.GetExtendedPurchaseIds(PurchaseType.Song)).ToList();
+        }
+
         public string GetPurchaseId(ServiceType service)
         {
             string ret = null;
@@ -3175,6 +3202,7 @@ namespace m4dModels
                 new Field(EnergyField, Microsoft.Azure.Search.Models.DataType.Double) {IsSearchable = false, IsSortable = true, IsFilterable = true, IsFacetable = true},
                 new Field(MoodField, Microsoft.Azure.Search.Models.DataType.Double) {IsSearchable = false, IsSortable = true, IsFilterable = true, IsFacetable = true},
                 new Field(PurchaseField, Microsoft.Azure.Search.Models.DataType.Collection(Microsoft.Azure.Search.Models.DataType.String)) {IsSearchable = true, IsSortable = false, IsFilterable = true, IsFacetable = true},
+                new Field(LookupStatus, Microsoft.Azure.Search.Models.DataType.Boolean) {IsSearchable = false, IsSortable = false, IsFilterable = true, IsFacetable = false},
                 new Field(DanceTags, Microsoft.Azure.Search.Models.DataType.Collection(Microsoft.Azure.Search.Models.DataType.String)) {IsSearchable = true, IsSortable = false, IsFilterable = true, IsFacetable = true},
                 new Field(DanceTagsInferred, Microsoft.Azure.Search.Models.DataType.Collection(Microsoft.Azure.Search.Models.DataType.String)) {IsSearchable = true, IsSortable = false, IsFilterable = true, IsFacetable = true},
                 new Field(GenreTags, Microsoft.Azure.Search.Models.DataType.Collection(Microsoft.Azure.Search.Models.DataType.String)) {IsSearchable = true, IsSortable = false, IsFilterable = true, IsFacetable = true},
@@ -3182,6 +3210,7 @@ namespace m4dModels
                 new Field(TempoTags, Microsoft.Azure.Search.Models.DataType.Collection(Microsoft.Azure.Search.Models.DataType.String)) {IsSearchable = true, IsSortable = false, IsFilterable = true, IsFacetable = true},
                 new Field(OtherTags, Microsoft.Azure.Search.Models.DataType.Collection(Microsoft.Azure.Search.Models.DataType.String)) {IsSearchable = true, IsSortable = false, IsFilterable = true, IsFacetable = true},
                 new Field(SampleField, Microsoft.Azure.Search.Models.DataType.String) {IsSearchable = false, IsSortable = false, IsFilterable = false, IsFacetable = false},
+                new Field(ServiceIds, Microsoft.Azure.Search.Models.DataType.Collection(Microsoft.Azure.Search.Models.DataType.String)) {IsSearchable = true, IsSortable = false, IsFilterable = false, IsFacetable = false},
                 new Field(PropertiesField, Microsoft.Azure.Search.Models.DataType.String) {IsSearchable = false, IsSortable = false, IsFilterable = false, IsFacetable = false, IsRetrievable = true},
             };
 
@@ -3216,6 +3245,8 @@ namespace m4dModels
             var purchase = string.IsNullOrWhiteSpace(Purchase) ? new List<string>() : Purchase.ToCharArray().Select(c => MusicService.GetService(c).Name).ToList();
             if (HasSample) purchase.Add("Sample");
             if (HasEchoNest) purchase.Add("EchoNest");
+
+            var purchaseIds = GetExtendedPurchaseIds();
 
             // And the tags
             var genre = TagSummary.GetTagSet("Music");
@@ -3265,6 +3296,8 @@ namespace m4dModels
                 [ModifiedField] = Modified,
                 [SampleField] = Sample,
                 [PurchaseField] = purchase.ToArray(),
+                [ServiceIds] = purchaseIds.ToArray(),
+                [LookupStatus] = LookupTried(),
                 [AlbumsField] = Albums.Select(ad => ad.Name).ToArray(),
                 [UsersField] = users,
                 [DanceTags] = dance.ToArray(),
