@@ -113,7 +113,8 @@ namespace m4dModels
         {
             var song = FindSong(edit.SongId);
 
-            return !song.Edit(user.UserName, edit, tags, DanceStats) ? null : song;
+            // TODO: Figure out if we need to rebuild the song after edit in all cases or if there is a cleaner way to do this
+            return !song.Edit(user.UserName, edit, tags, DanceStats) ? null : new Song(song.SongId, song.SongProperties, DanceStats);
         }
 
         public bool AdminEditSong(Song edit, string properties)

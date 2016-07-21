@@ -922,7 +922,7 @@ namespace m4d.Controllers
 
                         if (add != null)
                         {
-                            succeeded.Add(new Song(add.SongId,add.SongProperties,Database.DanceStats));
+                            succeeded.Add(add);
                             tried += 1;
                         }
                         else if (service == null && song.AddLookupFail())
@@ -1204,7 +1204,7 @@ namespace m4d.Controllers
                             }
                             else
                             {
-                                failed.Add(song);
+                                failed.Add(s);
                             }
 
                         }
@@ -1268,8 +1268,8 @@ namespace m4d.Controllers
                 var tried = 0;
                 var skipped = 0;
 
-                var failed = new List<Song>();
-                var succeeded = new List<Song>();
+                var failed = new List<Guid>();
+                var succeeded = new List<Guid>();
 
                 var page = 0;
                 var done = false;
@@ -1307,6 +1307,7 @@ namespace m4d.Controllers
                     var processed = 0;
 
                     var stemp = new List<Song>();
+                    var ftemp = new List<Song>();
                     foreach (var song in songs)
                     {
                         AdminMonitor.UpdateTask($"Processing ({succeeded.Count})", processed);
@@ -1341,9 +1342,10 @@ namespace m4d.Controllers
                         if (track == null)
                         {
                             song.Danceability = float.NaN;
-                            if (Database.EditSong(user, song) != null)
+                            var s = Database.EditSong(user, song);
+                            if (s != null)
                             {
-                                failed.Add(song);
+                                ftemp.Add(s);
                             }
                         }
                         else
@@ -1378,9 +1380,10 @@ namespace m4d.Controllers
                             };
                             }
 
-                            if (Database.EditSong(user, song, tags) != null)
+                            var s = Database.EditSong(user, song, tags);
+                            if (s != null)
                             {
-                                stemp.Add(song);
+                                stemp.Add(s);
                             }
                         }
 
@@ -1401,8 +1404,9 @@ namespace m4d.Controllers
                         Trace.WriteLineIf(TraceLevels.General.TraceInfo, $"{tried} songs tried.");
                     }
 
-                    Database.UpdateAzureIndex(stemp);
-                    succeeded.AddRange(stemp);
+                    Database.UpdateAzureIndex(stemp.Concat(ftemp));
+                    succeeded.AddRange(stemp.Select(s => s.SongId));
+                    failed.AddRange(ftemp.Select(s => s.SongId));
 
                     page += 1;
                     if (processed < pageSize)
@@ -1419,7 +1423,7 @@ namespace m4d.Controllers
                 ViewBag.Succeeded = succeeded;
                 ViewBag.Skipped = skipped;
 
-                AdminMonitor.CompleteTask(true, $"BatchEchonest: Completed={tried <= count}, Succeeded={succeeded.Count} - ({string.Join(",", succeeded.Select(s => s.SongId))}), Failed={failed.Count} - ({string.Join(",", failed.Select(s => s.SongId))}), Skipped={skipped}");
+                AdminMonitor.CompleteTask(true, $"BatchEchonest: Completed={tried <= count}, Succeeded={succeeded.Count} - ({string.Join(",", succeeded)}), Failed={failed.Count} - ({string.Join(",", failed)}), Skipped={skipped}");
 
                 return View("BatchMusicService");
             }
