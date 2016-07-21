@@ -258,7 +258,7 @@ namespace m4dModels
                 tt = new TagType(tag);
                 _queuedTags[tt.Key] = tt;
             }
-
+            AddTagType(tt);
             return tt;
         }
 

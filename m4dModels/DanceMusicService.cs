@@ -869,8 +869,6 @@ namespace m4dModels
             // from m in Modified where m.ApplicationUserId == user.Id && m.Song.TitleHash != 0 select m.Song;
 
             var userString = user?.ToString();
-            var trg = targetType.HasValue ? new string(targetType.Value, 1) : null;
-            var tagLabel = tagType == null ? null : ":" + tagType;
 
             IOrderedEnumerable<TagCount> ret;
 
@@ -1691,7 +1689,12 @@ namespace m4dModels
                 AddTagType(tag);
                 changed = true;
             }
-            if (changed) SaveChanges();
+            if (changed)
+            {
+                SaveChanges();
+                // TODO: Consider doing a lighter version of this
+                BlowTagCache();
+            }
 
             using (var serviceClient = new SearchServiceClient(info.Name, new SearchCredentials(info.AdminKey)))
             using (var indexClient = serviceClient.Indexes.GetClient(info.Index))
