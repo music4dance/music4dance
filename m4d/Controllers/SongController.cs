@@ -922,7 +922,7 @@ namespace m4d.Controllers
 
                         if (add != null)
                         {
-                            succeeded.Add(add);
+                            succeeded.Add(new Song(add.SongId,add.SongProperties,Database.DanceStats));
                             tried += 1;
                         }
                         else if (service == null && song.AddLookupFail())
@@ -930,9 +930,12 @@ namespace m4d.Controllers
                             failed.Add(song);
                         }
 
-                        sucIds.AddRange(succeeded.Select(s => s.SongId));
-                        failIds.AddRange(failed.Select(s => s.SongId));
                     }
+
+                    sucIds.AddRange(succeeded.Select(s => s.SongId));
+                    failIds.AddRange(failed.Select(s => s.SongId));
+
+                    Database.UpdateAzureIndex(succeeded.Concat(failed));
 
                     if (tried > count)
                         break;
@@ -947,8 +950,8 @@ namespace m4d.Controllers
                 }
 
                 ViewBag.Completed = tried <= count;
-                ViewBag.Failed = failIds.Count;
-                ViewBag.Succeeded = sucIds.Count;
+                ViewBag.Failed = failIds;
+                ViewBag.Succeeded = sucIds;
                 ViewBag.Skipped = 0;
 
                 AdminMonitor.CompleteTask(true, $"BatchMusicService: Completed={tried <= count}, Succeeded={sucIds.Count} - ({string.Join(",", sucIds)}), Failed={failIds.Count} - ({string.Join(",", failIds)}), Skipped={0}");
@@ -1120,154 +1123,141 @@ namespace m4d.Controllers
         [Authorize(Roles = "canEdit")]
         public ActionResult BatchSamples(string options = null, SongFilter filter = null, int count = 1, int pageSize = 1000)
         {
-            // DBKILL: Enable Later
-            return RestoreBatch();
+            try
+            {
+                StartAdminTask("BatchSamples");
+                AdminMonitor.UpdateTask("BatchSamples");
 
-            //try
-            //{
-            //    StartAdminTask("BatchSamples");
-            //    AdminMonitor.UpdateTask("BatchSamples");
+                ViewBag.BatchName = "BatchSamples";
+                ViewBag.Options = options;
+                ViewBag.Error = false;
 
-            //    ViewBag.BatchName = "BatchSamples";
-            //    ViewBag.Options = options;
-            //    ViewBag.Error = false;
+                var tried = 0;
+                var skipped = 0;
 
-            //    var tried = 0;
-            //    var skipped = 0;
+                if (filter == null)
+                {
+                    filter = new SongFilter();
+                }
+                filter.Purchase = "IS";
 
-            //    if (filter == null)
-            //    {
-            //        filter = new SongFilter();
-            //    }
-            //    filter.Purchase = "IS";
+                var page = 0;
+                var done = false;
 
-            //    //var skipExisting = true;
+                var spotify = MusicService.GetService(ServiceType.Spotify);
+                var itunes = MusicService.GetService(ServiceType.ITunes);
+                var user = Database.FindUser("batch-s");
+                Debug.Assert(user != null);
 
-            //    var failed = new List<Song>();
-            //    var succeeded = new List<Song>();
+                var parameters = Database.AzureParmsFromFilter(filter);
+                parameters.Filter = ((parameters.Filter == null) ? "" : parameters.Filter + " and ") + "(Sample eq null or Sample eq '.')";
 
-            //    Context.TrackChanges(false);
+                var sucIds = new List<Guid>();
+                var failIds = new List<Guid>();
 
-            //    var page = 0;
-            //    var done = false;
+                while (!done)
+                {
+                    AdminMonitor.UpdateTask("BuildPage", page);
+                    var songs = Database.TakeTail(parameters, pageSize);
 
-            //    var spotify = MusicService.GetService(ServiceType.Spotify);
-            //    var itunes = MusicService.GetService(ServiceType.ITunes);
-            //    var user = Database.FindUser("batch-s");
-            //    Debug.Assert(user != null);
+                    var failed = new List<Song>();
+                    var succeeded = new List<Song>();
 
-            //    while (!done)
-            //    {
-            //        AdminMonitor.UpdateTask("BuildPage", page);
-            //        var songsQ = Database.BuildSongList(filter);
-            //        //if (skipExisting)
-            //        //{
-            //            songsQ = songsQ.Where(s => s.Sample == null);
-            //        //}
+                    var processed = 0;
+                    foreach (var song in songs)
+                    {
+                        AdminMonitor.UpdateTask($"Processing ({succeeded.Count})", processed);
 
-            //        if (TraceLevels.General.TraceVerbose)
-            //        {
-            //            var c = songsQ.Count();
-            //            Trace.WriteLine($"Candidates for Sample lookup = {c}");
-            //        }
-            //        var songs = songsQ.Skip(page * pageSize).Take(pageSize).ToList();
-            //        var processed = 0;
-            //        foreach (var song in songs)
-            //        {
-            //            AdminMonitor.UpdateTask($"Processing ({succeeded.Count})", processed);
+                        processed += 1;
 
-            //            processed += 1;
+                        ServiceTrack track = null;
+                        // First try Spotify
+                        var ids = song.GetPurchaseIds(spotify);
+                        foreach (var id in ids)
+                        {
+                            string[] regions;
+                            var idt = PurchaseRegion.ParseIdAndRegionInfo(id, out regions);
+                            track = MusicServiceManager.GetMusicServiceTrack(idt, spotify);
+                            if (track?.SampleUrl != null)
+                                break;
+                        }
 
-            //            var sd = new Song(song);
+                        if (track == null)
+                        {
+                            // If spotify failed, try itunes
+                            ids = song.GetPurchaseIds(itunes);
+                            foreach (var id in ids)
+                            {
+                                track = MusicServiceManager.GetMusicServiceTrack(id, itunes);
+                                if (track?.SampleUrl != null)
+                                    break;
+                            }
+                        }
+                        tried += 1;
+                        if (track?.SampleUrl == null)
+                        {
+                            song.Sample = ".";
+                            var s = Database.EditSong(user, song);
+                            if (s == null)
+                            {
+                                skipped += 1;
+                            }
+                            else
+                            {
+                                failed.Add(song);
+                            }
 
-            //            ServiceTrack track = null;
-            //            // First try Spotify
-            //            var ids = sd.GetPurchaseIds(spotify);
-            //            foreach (var id in ids)
-            //            {
-            //                string[] regions;
-            //                var idt = PurchaseRegion.ParseIdAndRegionInfo(id, out regions);
-            //                track = MusicServiceManager.GetMusicServiceTrack(idt, spotify);
-            //                if (track?.SampleUrl != null)
-            //                    break;
-            //            }
+                        }
+                        else
+                        {
+                            song.Sample = track.SampleUrl;
+                            var s = Database.EditSong(user, song);
+                            if (s == null)
+                            {
+                                skipped += 1;
+                            }
+                            else
+                            {
+                                succeeded.Add(s);
+                            }
+                        }
+                        if (tried > count)
+                            break;
 
-            //            if (track == null)
-            //            {
-            //                // If spotify failed, try itunes
-            //                ids = sd.GetPurchaseIds(itunes);
-            //                foreach (var id in ids)
-            //                {
-            //                    track = MusicServiceManager.GetMusicServiceTrack(id, itunes);
-            //                    if (track?.SampleUrl != null)
-            //                        break;
-            //                }
-            //            }
-            //            tried += 1;
-            //            if (track?.SampleUrl == null)
-            //            {
-            //                sd.Sample = ".";
-            //                sd = Database.EditSong(user, sd);
-            //                if (sd == null)
-            //                {
-            //                    skipped += 1;
-            //                }
-            //                else
-            //                {
-            //                    failed.Add(song);
-            //                }
+                        if ((tried + 1) % 100 != 0) continue;
 
-            //            }
-            //            else
-            //            {
-            //                sd.Sample = track.SampleUrl;
-            //                sd = Database.EditSong(user, sd);
-            //                if (sd == null)
-            //                {
-            //                    skipped += 1;
-            //                }
-            //                else
-            //                {
-            //                    succeeded.Add(sd);
-            //                }
-            //            }
-            //            if (tried > count)
-            //                break;
+                        Trace.WriteLineIf(TraceLevels.General.TraceInfo, $"{tried} songs tried.");
+                    }
 
-            //            if ((tried + 1) % 100 != 0) continue;
+                    sucIds.AddRange(succeeded.Select(s => s.SongId));
+                    failIds.AddRange(failed.Select(s => s.SongId));
 
-            //            Trace.WriteLineIf(TraceLevels.General.TraceInfo, $"{tried} songs tried.");
-            //            Context.CheckpointChanges();
-            //        }
+                    Database.UpdateAzureIndex(succeeded.Concat(failed));
 
-            //        page += 1;
-            //        if (processed < pageSize)
-            //        {
-            //            done = true;
-            //        }
-            //        Context.CheckpointSongs();
-            //    }
+                    page += 1;
+                    if (processed < pageSize)
+                    {
+                        done = true;
+                    }
+                }
 
-            //    if (failed.Count + succeeded.Count > 0)
-            //    {
-            //        Context.TrackChanges(true);
-            //    }
+                ViewBag.Completed = tried <= count;
+                ViewBag.Failed = failIds;
+                ViewBag.Succeeded = sucIds;
+                ViewBag.Skipped = skipped;
 
-            //    ViewBag.Completed = tried <= count;
-            //    ViewBag.Failed = failed;
-            //    ViewBag.Succeeded = succeeded;
-            //    ViewBag.Skipped = skipped;
+                AdminMonitor.CompleteTask(true, $"BatchSample: Completed={tried <= count}, Succeeded={sucIds.Count} - ({string.Join(",", sucIds)}), Failed={failIds.Count} - ({string.Join(",", failIds)}), Skipped={0}");
 
-            //    AdminMonitor.CompleteTask(true, $"BatchSample: Completed={tried <= count}, Succeeded={succeeded.Count} - ({string.Join(",", succeeded.Select(s => s.SongId))}), Failed={failed.Count} - ({string.Join(",", failed.Select(s => s.SongId))}), Skipped={skipped}");
-
-            //    return View("BatchMusicService");
-            //}
-            //catch (Exception e)
-            //{
-            //    return FailAdminTask($"BatchSample: {e.Message}", e);
-            //}
+                return View("BatchMusicService");
+            }
+            catch (Exception e)
+            {
+                return FailAdminTask($"BatchSample: {e.Message}", e);
+            }
         }
 
+        //TODONEXT:  Figure out why our basic song updating isn't working for batch mode stuff - seems like our editsong is updating
+        //  the properties but not the object itself???
         [Authorize(Roles = "canEdit")]
         public ActionResult BatchEchoNest(SongFilter filter = null, string options = null, int count = 1, int pageSize = 1000)
         {
@@ -1435,7 +1425,7 @@ namespace m4d.Controllers
             }
             catch (Exception e)
             {
-                return FailAdminTask($"BatchEchoNext: {e.Message}", e);
+                return FailAdminTask($"BatchEchoNest: {e.Message}", e);
             }
         }
 

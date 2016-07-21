@@ -13,14 +13,14 @@
 <ul class="list-group">
     @foreach (var item in ViewBag.Succeeded)
     {
-        <li class="list-group-item"><a href="/song/details/@item.SongId">@item.Title - @item.Artist</a></li>
+        <li class="list-group-item"><a href="/song/details/@item">@item</a></li>
     }
 </ul>
 <h2>Failed (@ViewBag.Failed.Count)</h2>
 <ul class="list-group">
     @foreach (var item in ViewBag.Failed)
     {
-        <li class="list-group-item"><a href="/song/details/@item.SongId">@item.Title - @item.Artist</a></li>
+        <li class="list-group-item"><a href="/song/details/@item">@item</a></li>
     }
 </ul>
 

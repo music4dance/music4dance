@@ -3209,7 +3209,7 @@ namespace m4dModels
                 new Field(StyleTags, Microsoft.Azure.Search.Models.DataType.Collection(Microsoft.Azure.Search.Models.DataType.String)) {IsSearchable = true, IsSortable = false, IsFilterable = true, IsFacetable = true},
                 new Field(TempoTags, Microsoft.Azure.Search.Models.DataType.Collection(Microsoft.Azure.Search.Models.DataType.String)) {IsSearchable = true, IsSortable = false, IsFilterable = true, IsFacetable = true},
                 new Field(OtherTags, Microsoft.Azure.Search.Models.DataType.Collection(Microsoft.Azure.Search.Models.DataType.String)) {IsSearchable = true, IsSortable = false, IsFilterable = true, IsFacetable = true},
-                new Field(SampleField, Microsoft.Azure.Search.Models.DataType.String) {IsSearchable = false, IsSortable = false, IsFilterable = false, IsFacetable = false},
+                new Field(SampleField, Microsoft.Azure.Search.Models.DataType.String) {IsSearchable = false, IsSortable = false, IsFilterable = true, IsFacetable = false},
                 new Field(ServiceIds, Microsoft.Azure.Search.Models.DataType.Collection(Microsoft.Azure.Search.Models.DataType.String)) {IsSearchable = true, IsSortable = false, IsFilterable = false, IsFacetable = false},
                 new Field(PropertiesField, Microsoft.Azure.Search.Models.DataType.String) {IsSearchable = false, IsSortable = false, IsFilterable = false, IsFacetable = false, IsRetrievable = true},
             };

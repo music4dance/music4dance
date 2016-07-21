@@ -138,9 +138,9 @@ namespace m4dModels
         // This is an additive merge - only add new things if they don't conflict with the old
         //  TODO: I'm pretty sure I can clean up this and all the other editing stuff by pushing
         //  the diffing part down into Song (which will also let me unit test it more easily)
-        public bool AdditiveMerge(ApplicationUser user, Guid songId, Song edit, List<string> addDances)
+        public bool AdditiveMerge(ApplicationUser user, Song initial, Song edit, List<string> addDances)
         {
-            return FindSong(songId).AdditiveMerge(user.UserName, edit, addDances, DanceStats);
+            return initial.AdditiveMerge(user.UserName, edit, addDances, DanceStats);
         }
 
         public void UpdateDances(ApplicationUser user, Song song, IEnumerable<DanceRatingDelta> deltas)
@@ -740,8 +740,8 @@ namespace m4dModels
                 // Now we're going to potentially add tempo - need a more general solution for this going forward
                 else
                 {
-                    if (AdditiveMerge(user, m.Right.SongId, m.Left, dancesL))
-                        songs.Add(m.Left);
+                    if (AdditiveMerge(user, m.Right, m.Left, dancesL))
+                        songs.Add(m.Right);
                 }
             }
 
