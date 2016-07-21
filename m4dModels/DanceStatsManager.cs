@@ -248,7 +248,21 @@ namespace m4dModels
                 });
         }
 
-        public void AddTagType(TagType tt)
+        public TagType FindOrCreateTagType(string tag)
+        {
+            var tt = TagMap.GetValueOrDefault(tag) ?? _queuedTags.GetValueOrDefault(tag);
+            if (tt != null) return tt;
+
+            lock (_queuedSongs)
+            {
+                tt = new TagType(tag);
+                _queuedTags[tt.Key] = tt;
+            }
+
+            return tt;
+        }
+
+        public void AddTagType(TagType tt, bool queue = false)
         {
             TagMap[tt.Key.ToLower()] = tt;
             var index = TagTypes.BinarySearch(tt,Comparer<TagType>.Create((a, b) => string.Compare(a.Key, b.Key, StringComparison.OrdinalIgnoreCase)));
@@ -287,7 +301,7 @@ namespace m4dModels
             }
         }
 
-        public IEnumerable<Song> DequeuSongs()
+        public IEnumerable<Song> DequeueSongs()
         {
             lock (_queuedSongs)
             {
@@ -296,6 +310,17 @@ namespace m4dModels
                 return ret;
             }
         }
+
+        public IEnumerable<TagType> DequeueTagTypes()
+        {
+            lock (_queuedSongs)
+            {
+                var ret = _queuedTags.Values.ToList();
+                _queuedTags.Clear();
+                return ret;
+            }
+        }
+
         public Song FindSongDetails(Guid songId, string userName)
         {
             var sd = TopSongs.GetValueOrDefault(songId) ?? _otherSongs.GetValueOrDefault(songId);
@@ -338,6 +363,7 @@ namespace m4dModels
         private Dictionary<Guid,Song> TopSongs => _topSongs ?? (_topSongs = new Dictionary<Guid,Song>(List.SelectMany(d => d.TopSongs ?? new List<Song>()).DistinctBy(s => s.SongId).ToDictionary(s => s.SongId)));
         private readonly Dictionary<Guid, Song> _otherSongs = new Dictionary<Guid, Song>();
         private readonly Dictionary<Guid, Song> _queuedSongs = new Dictionary<Guid, Song>();
+        private readonly Dictionary<string, TagType> _queuedTags = new Dictionary<string, TagType>();
 
         private List<DanceStats> _flat;
         private Dictionary<Guid,Song> _topSongs;

@@ -106,7 +106,7 @@ namespace m4dModels
                 song.Create(sd, tags, user.UserName, command, value, DanceStats);
             }
 
-            return song;
+            return new Song(song,DanceStats,user.UserName);
         }
 
         public Song EditSong(ApplicationUser user, Song edit, IEnumerable<UserTag> tags = null)
@@ -803,15 +803,12 @@ namespace m4dModels
         }
         public Song GetSongFromService(MusicService service,string id,string userName=null)
         {
-            return null;
+            if (string.IsNullOrWhiteSpace(id)) return null;
 
-            //DBKILL: Need to index purchase links if we want to re-enable this
-            //if (string.IsNullOrWhiteSpace(id)) return null;
-
-            //var end = $":{service.CID}S";
-            //var purchase = SongProperties.FirstOrDefault(sp => sp.Value.StartsWith(id) && sp.Name.StartsWith("Purchase:") && sp.Name.EndsWith(end));
-
-            //return purchase == null ? null : FindSong(purchase.SongId, userName);
+            //TODONEXT: Get this working using search rather than filter
+            var parameters = new SearchParameters {SearchFields = new [] {Song.ServiceIds} };
+            var results = DoAzureSearch("'{service.CID}:{id}'", parameters, CruftFilter.AllCruft);
+            return (results.Results.Count > 0) ? new Song(results.Results[0].Document,DanceStats,userName) : null;
         }
 
         #endregion
@@ -821,14 +818,6 @@ namespace m4dModels
         public IReadOnlyDictionary<string, TagType> TagMap => DanceStatsManager.GetInstance(this).TagMap;
 
         public DanceStatsInstance DanceStats => DanceStatsManager.GetInstance(this);
-
-        public TagType FindOrCreateTagType(string tag)
-        {
-            // Create a transitory TagType just for the parsing
-            var temp = new TagType(tag);
-
-            return FindOrCreateTagType(temp.Value, temp.Category);
-        }
 
         public TagType FindOrCreateTagType(string value, string category, string primary = null)
         {
@@ -973,6 +962,19 @@ namespace m4dModels
             return map.Values;
         }
 
+        private void AddTagType(TagType tagType)
+        {
+            if (TagTypes.Find(tagType.Key) != null) return;
+
+            var newType = TagTypes.Create();
+            newType.Key = tagType.Key;
+            newType.PrimaryId = tagType.PrimaryId;
+            newType.Count = tagType.Count;
+            newType.Modified = DateTime.Now;
+
+            TagTypes.Add(newType);
+        }
+
         private TagType CreateTagType(string value, string category, string primary = null) 
         {
             var type = _context.TagTypes.Create();
@@ -988,7 +990,7 @@ namespace m4dModels
             else
             {
                 type = _context.TagTypes.Add(type);
-                DanceStatsManager.GetInstance(this).AddTagType(type);
+                DanceStats.AddTagType(type);
             }
             return type;
         }
@@ -1675,12 +1677,21 @@ namespace m4dModels
 
         public int UpdateAzureIndex(string id = "default")
         {
-            return UpdateAzureIndex(DanceStats.DequeuSongs(), id);
+            return UpdateAzureIndex(DanceStats.DequeueSongs(), id);
         }
 
         public int UpdateAzureIndex(IEnumerable<Song> songs, string id = "default")
         {
             var info = SearchServiceInfo.GetInfo(id);
+
+            var changed = false;
+            var tags = DanceStats.DequeueTagTypes();
+            foreach (var tag in tags)
+            {
+                AddTagType(tag);
+                changed = true;
+            }
+            if (changed) SaveChanges();
 
             using (var serviceClient = new SearchServiceClient(info.Name, new SearchCredentials(info.AdminKey)))
             using (var indexClient = serviceClient.Indexes.GetClient(info.Index))

@@ -1655,7 +1655,6 @@ namespace m4dModels
             SongProperties.Remove(prop);
         }
 
-        // DBKILL: Isthis redundant????
         private bool UpdatePurchaseInfo(Song edit, bool additive = false)
         {
             var pi = additive ? edit.MergePurchaseTags(Purchase) : edit.GetPurchaseTags();

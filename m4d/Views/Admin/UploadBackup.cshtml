@@ -20,24 +20,6 @@
     <li>@Html.ActionLink("Upload Catalog (Paul)", "UploadCatalog", new { separator = @"\t", headers = "Dance,Rating,Title,BPM,Length,Artist,Comment", user = "paul" })</li>
     <li>@Html.ActionLink("Upload Album", "UploadCatalog", new { headers = "Title", separator = @"\t" })</li>
 
-    <h3>Upload Tag Types</h3>
-    using (Html.BeginForm("UploadTagTypes", "Admin", FormMethod.Post, new { enctype = "multipart/form-data" }))
-    {
-        @Html.AntiForgeryToken();
-        <input type="file" name="FileUpload" />
-        <br />
-        <input type="submit" name="UploadTags" id="Submit" value="Upload" />
-    }
-    <hr />
-
-    <h3>Upload Tags</h3>
-    using (Html.BeginForm("UploadTags", "Admin", FormMethod.Post, new { enctype = "multipart/form-data" }))
-    {
-        @Html.AntiForgeryToken();
-        <input type="file" name="FileUpload" />
-        <br />
-        <input type="submit" name="UploadTags" id="Submit" value="Upload" />
-    }
     <hr />
 
     <h3>Upload Tempi</h3>

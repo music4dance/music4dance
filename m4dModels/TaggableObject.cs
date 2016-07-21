@@ -183,39 +183,34 @@ namespace m4dModels
             RegisterChangedTags(added, removed, user, data);
         }
 
-
-        // TODO: Think about if we need both implementations (dms and stand-alone);
         private static void UpdateTagTypes(TagList added, TagList removed, DanceStatsInstance stats)
         {
-            // DBKILL: Figure out how to queue up tagtype modifications based on a DSI...
-            // I think this may be a no-op at edit time, but then we need generating taglist from azure to 
-            //  run periodically and add new tags to the DB
-            //if (stats == null)
-            //    return;
+            if (stats == null)
+                return;
 
-            //if (added != null)
-            //{
-            //    foreach (var tag in added.Tags)
-            //    {
-            //        // Create a transitory tag type to parse the tag string
-            //        var tt = dms.FindOrCreateTagType(tag);
-            //        tt.Count += 1;
-            //    }
-            //}
+            if (added != null)
+            {
+                foreach (var tag in added.Tags)
+                {
+                    // Create a transitory tag type to parse the tag string
+                    var tt = stats.FindOrCreateTagType(tag);
+                    tt.Count += 1;
+                }
+            }
 
-            //if (removed == null) return;
+            if (removed == null) return;
 
-            //foreach (var tt in removed.Tags.Select(dms.FindOrCreateTagType))
-            //{
-            //    tt.Count -= 1;
-            //    // TODO: We should consider a service that occassionally sweeps TagTypes and removes the ones that
-            //    //  aren't used, but we can't proactively delete them this way since when we're doing a full load
-            //    //  of the database this causes inconsistencies.
-            //    //if (tt.Count <= 0)
-            //    //{
-            //    //    dms.TagTypes.Remove(tt);
-            //    //}
-            //}
+            foreach (var tt in removed.Tags.Select(stats.FindOrCreateTagType))
+            {
+                tt.Count -= 1;
+                // TODO: We should consider a service that occassionally sweeps TagTypes and removes the ones that
+                //  aren't used, but we can't proactively delete them this way since when we're doing a full load
+                //  of the database this causes inconsistencies.
+                //if (tt.Count <= 0)
+                //{
+                //    dms.TagTypes.Remove(tt);
+                //}
+            }
         }
 
         public bool UpdateTagSummary(TagSummary newSummary)
