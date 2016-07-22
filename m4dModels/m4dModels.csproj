@@ -124,6 +124,7 @@
     <Compile Include="SearchServiceInfo.cs" />
     <Compile Include="ServiceType.cs" />
     <Compile Include="DanceStatsManager.cs" />
+    <Compile Include="SmartLock.cs" />
     <Compile Include="SongFilterConverter.cs" />
     <Compile Include="SongPropertyMerge.cs" />
     <Compile Include="SongSort.cs" />
@@ -148,6 +149,7 @@
     <Compile Include="TagCount.cs" />
     <Compile Include="TaggableObject.cs" />
     <Compile Include="TagList.cs" />
+    <Compile Include="TagManager.cs" />
     <Compile Include="TagSummary.cs" />
     <Compile Include="TagType.cs" />
     <Compile Include="ToStringJsonConverter.cs" />

@@ -815,7 +815,7 @@ namespace m4dModels
 
         #region Tags
 
-        public IReadOnlyDictionary<string, TagType> TagMap => DanceStatsManager.GetInstance(this).TagMap;
+        public IReadOnlyDictionary<string, TagType> TagMap => DanceStatsManager.GetInstance(this).TagManager.TagMap;
 
         public DanceStatsInstance DanceStats => DanceStatsManager.GetInstance(this);
 
@@ -988,7 +988,7 @@ namespace m4dModels
             else
             {
                 type = _context.TagTypes.Add(type);
-                DanceStats.AddTagType(type);
+                DanceStats.TagManager.AddTagType(type);
             }
             return type;
         }
@@ -1683,7 +1683,7 @@ namespace m4dModels
             var info = SearchServiceInfo.GetInfo(id);
 
             var changed = false;
-            var tags = DanceStats.DequeueTagTypes();
+            var tags = DanceStats.TagManager.DequeueTagTypes();
             foreach (var tag in tags)
             {
                 AddTagType(tag);

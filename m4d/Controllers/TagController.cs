@@ -57,11 +57,11 @@ namespace m4d.Controllers
         {
             if (ModelState.IsValid)
             {
-                var tt = Database.DanceStats.FindOrCreateTagType(tagType.Key);
+                var tt = Database.DanceStats.TagManager.FindOrCreateTagType(tagType.Key);
                 if (tagType.PrimaryId != null)
                 {
                     tt.PrimaryId = tagType.PrimaryId;
-                    tt.Primary = Database.DanceStats.TagMap[tt.PrimaryId];
+                    tt.Primary = Database.DanceStats.TagManager.TagMap[tt.PrimaryId];
                 }
 
                 Database.UpdateAzureIndex(null);

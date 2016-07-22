@@ -193,14 +193,14 @@ namespace m4dModels
                 foreach (var tag in added.Tags)
                 {
                     // Create a transitory tag type to parse the tag string
-                    var tt = stats.FindOrCreateTagType(tag);
+                    var tt = stats.TagManager.FindOrCreateTagType(tag);
                     tt.Count += 1;
                 }
             }
 
             if (removed == null) return;
 
-            foreach (var tt in removed.Tags.Select(stats.FindOrCreateTagType))
+            foreach (var tt in removed.Tags.Select(stats.TagManager.FindOrCreateTagType))
             {
                 tt.Count -= 1;
                 // TODO: We should consider a service that occassionally sweeps TagTypes and removes the ones that
@@ -263,7 +263,7 @@ namespace m4dModels
 
         private static TagList ConvertToRing(TagList tags, DanceStatsInstance stats)
         {
-            var tagMap = stats.TagMap;
+            var tagMap = stats.TagManager.TagMap;
             return tags == null ? null : 
                 new TagList(tags.Tags.Select(t => (tagMap.GetValueOrDefault(t.ToLower()) ?? new TagType { Key = t }).GetPrimary()).Select(tt => tt.Key).Distinct().ToList());
         }
