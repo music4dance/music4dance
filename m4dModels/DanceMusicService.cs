@@ -805,7 +805,6 @@ namespace m4dModels
         {
             if (string.IsNullOrWhiteSpace(id)) return null;
 
-            //TODONEXT: Get this working using search rather than filter
             var parameters = new SearchParameters {SearchFields = new [] {Song.ServiceIds} };
             var results = DoAzureSearch("'{service.CID}:{id}'", parameters, CruftFilter.AllCruft);
             return (results.Results.Count > 0) ? new Song(results.Results[0].Document,DanceStats,userName) : null;

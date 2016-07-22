@@ -1256,8 +1256,6 @@ namespace m4d.Controllers
             }
         }
 
-        //TODONEXT:  Figure out why our basic song updating isn't working for batch mode stuff - seems like our editsong is updating
-        //  the properties but not the object itself???
         [Authorize(Roles = "canEdit")]
         public ActionResult BatchEchoNest(SongFilter filter = null, string options = null, int count = 1, int pageSize = 1000)
         {

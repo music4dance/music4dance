@@ -102,6 +102,7 @@
     <Compile Include="DanceRatingDelta.cs" />
     <Compile Include="DanceRatingInfo.cs" />
     <Compile Include="DanceStats.cs" />
+    <Compile Include="DanceStatsInstance.cs" />
     <Compile Include="DbTestSet.cs" />
     <Compile Include="DictionaryExtensions.cs" />
     <Compile Include="EchoTrack.cs" />
