@@ -1695,6 +1695,7 @@ namespace m4dModels
                 // TODO: Consider doing a lighter version of this
                 BlowTagCache();
             }
+            if (songs == null) return 0;
 
             using (var serviceClient = new SearchServiceClient(info.Name, new SearchCredentials(info.AdminKey)))
             using (var indexClient = serviceClient.Indexes.GetClient(info.Index))

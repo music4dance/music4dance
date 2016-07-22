@@ -57,10 +57,15 @@ namespace m4d.Controllers
         {
             if (ModelState.IsValid)
             {
-                DanceMusicService.BlowTagCache();
+                var tt = Database.DanceStats.FindOrCreateTagType(tagType.Key);
+                if (tagType.PrimaryId != null)
+                {
+                    tt.PrimaryId = tagType.PrimaryId;
+                    tt.Primary = Database.DanceStats.TagMap[tt.PrimaryId];
+                }
 
-                Database.TagTypes.Add(tagType);
-                Database.SaveChanges();
+                Database.UpdateAzureIndex(null);
+
                 return RedirectToAction("Index");
             }
 
@@ -110,8 +115,12 @@ namespace m4d.Controllers
                 return View(tagType);
             }
 
-            DanceMusicService.BlowTagCache();
-
+            // TODONEXT:Figure out how to get edit and delete working:  cases are 
+            //  Delete an existing tag (do we want to check for usage?)
+            //  Rename an existing tag (change in place or add/delete? - do we chance all user instances) - rebuild all tag summaries if primary
+            //  Change a tag to not be primary (rebuild all tag summaries - search on old primary)
+            //  Change a tag to be primary (rebuild all tag summaries - search on old primary)
+            string oldTagkey = null;
             if (string.Equals(tagType.Key, newKey))
             {
                 if (string.Equals(tagType.Key, tagType.PrimaryId))
@@ -119,8 +128,12 @@ namespace m4d.Controllers
                     tagType.PrimaryId = null;
                     tagType.Primary = null;
                 }
+                else
+                {
+                    oldTagkey = tagType.Key;
+                }
                 Context.Entry(tagType).State = EntityState.Modified;
-                Database.SaveChanges();
+                //Database.DanceStats.
             }
             else
             {
