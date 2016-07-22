@@ -9,19 +9,21 @@ namespace m4dModels
 {
     public class TagManager
     {
-        public TagManager(IEnumerable<TagType> tagTypes)
+        public TagManager(IEnumerable<TagGroup> tagGroups)
         {
-            TagTypes = (tagTypes as List<TagType>)?.ToList();
+            TagGroups = (tagGroups as List<TagGroup>)?.ToList();
             FixupTags();
         }
 
         public TagManager(DanceMusicService dms, string source = "default")
         {
-            TagTypes = dms.TagTypes.OrderBy(t => t.Key).ToList();
+            TagGroups = dms.TagGroups.OrderBy(t => t.Key).ToList();
 
             var facets = dms.GetTagFacets("GenreTags,StyleTags,TempoTags,OtherTags", 500, source);
 
-            TagMap = TagTypes.ToDictionary(tt => tt.Key.ToLower());
+            TagMap = TagGroups.ToDictionary(tt => tt.Key.ToLower());
+
+            FixupTags();
 
             foreach (var facet in facets)
             {
@@ -30,46 +32,94 @@ namespace m4dModels
             }
         }
 
-        public List<TagType> TagTypes { get; set; }
+        public List<TagGroup> TagGroups { get; set; }
 
-        public Dictionary<string, TagType> TagMap { get; private set; }
+        public Dictionary<string, TagGroup> TagMap { get; private set; }
 
         public void FixupTags()
         {
-            TagMap = TagTypes.ToDictionary(tt => tt.Key.ToLower());
+            TagMap = TagGroups.ToDictionary(tt => tt.Key.ToLower());
 
-            foreach (var tt in TagTypes.Where(tt => !string.IsNullOrEmpty(tt.PrimaryId)))
+            foreach (var tt in TagGroups.Where(tt => !string.IsNullOrEmpty(tt.PrimaryId)))
             {
                 tt.Primary = TagMap[tt.PrimaryId.ToLower()];
-                if (tt.Primary.Ring == null) tt.Primary.Ring = new List<TagType>();
-                tt.Primary.Ring.Add(tt);
+                if (tt.Primary.Children == null) tt.Primary.Children = new List<TagGroup>();
+                tt.Primary.Children.Add(tt);
             }
         }
 
-        public TagType FindOrCreateTagType(string tag)
+        public TagGroup FindOrCreateTagGroup(string tag)
         {
             lock (_queuedTags)
             {
                 var tt = TagMap.GetValueOrDefault(tag) ?? _queuedTags.GetValueOrDefault(tag);
                 if (tt != null) return tt;
 
-                tt = new TagType(tag);
+                var t = TagList.NormalizeTag(tag);
+
+                tt = new TagGroup(t);
                 _queuedTags[tt.Key] = tt;
 
-                AddTagType(tt);
+                AddTagGroup(tt);
                 return tt;
             }
         }
 
-        public void AddTagType(TagType tt, bool queue = false)
+        public void AddTagGroup(TagGroup tt)
         {
-            TagMap[tt.Key.ToLower()] = tt;
-            var index = TagTypes.BinarySearch(tt, Comparer<TagType>.Create((a, b) => string.Compare(a.Key, b.Key, StringComparison.OrdinalIgnoreCase)));
-            if (index < 0) index = ~index;
-            TagTypes.Insert(index, tt);
+            lock (_queuedTags)
+            {
+                TagMap[tt.Key.ToLower()] = tt;
+                var index = TagGroups.BinarySearch(tt,
+                    Comparer<TagGroup>.Create((a, b) => string.Compare(a.Key, b.Key, StringComparison.OrdinalIgnoreCase)));
+                if (index < 0) index = ~index;
+                TagGroups.Insert(index, tt);
+            }
         }
 
-        public IEnumerable<TagType> DequeueTagTypes()
+        public void DeleteTagGroup(string key)
+        {
+            lock (_queuedTags)
+            {
+                key = key.ToLower();
+                if (!TagMap.Remove(key)) return;
+                var tt = new TagGroup(key);
+                var index = TagGroups.BinarySearch(tt,
+                    Comparer<TagGroup>.Create((a, b) => string.Compare(a.Key, b.Key, StringComparison.OrdinalIgnoreCase)));
+                if (index < 0) return;
+                TagGroups.RemoveAt(index);
+            }
+        }
+
+        public void UpdateTagRing(string key, string primaryId)
+        {
+            lock (_queuedTags)
+            {
+                var tagGroup = TagMap.GetValueOrDefault(key.ToLower());
+                if (tagGroup == null) return;
+
+                tagGroup.PrimaryId = primaryId;
+                tagGroup.Primary = TagMap.GetValueOrDefault(primaryId.ToLower());
+
+                tagGroup.Primary.AddChild(tagGroup);
+            }
+        }
+
+        public void ChangeTagName(string oldKey, string newKey)
+        {
+            lock (_queuedTags)
+            {
+                var tag = TagMap.GetValueOrDefault(oldKey.ToLower());
+                if (tag == null) return;
+
+                DeleteTagGroup(oldKey);
+
+                tag.Key = newKey;
+                AddTagGroup(tag);
+            }
+        }
+
+        public IEnumerable<TagGroup> DequeueTagGroups()
         {
             lock (_queuedTags)
             {
@@ -86,13 +136,13 @@ namespace m4dModels
                 if (!facet.Count.HasValue) continue;
 
                 var key = $"{facet.Value}:{category}";
-                var tt = FindOrCreateTagType(key);
+                var tt = FindOrCreateTagGroup(key);
 
                 tt.Count = (int)facet.Count.Value;
             }
         }
 
-        private readonly Dictionary<string, TagType> _queuedTags = new Dictionary<string, TagType>();
+        private readonly Dictionary<string, TagGroup> _queuedTags = new Dictionary<string, TagGroup>();
 
     }
 }

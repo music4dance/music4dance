@@ -12,12 +12,12 @@ namespace m4d.Migrations
             AddColumn("dbo.AspNetUsers", "LastActive", c => c.DateTime(nullable: false, precision: 7, storeType: "datetime2"));
             AddColumn("dbo.AspNetUsers", "RowCountDefault", c => c.Int());
             AddColumn("dbo.AspNetUsers", "ColumnDefaults", c => c.String());
-            AddColumn("dbo.TagTypes", "Modified", c => c.DateTime(nullable: false, precision: 7, storeType: "datetime2"));
+            AddColumn("dbo.TagGroups", "Modified", c => c.DateTime(nullable: false, precision: 7, storeType: "datetime2"));
         }
         
         public override void Down()
         {
-            DropColumn("dbo.TagTypes", "Modified");
+            DropColumn("dbo.TagGroups", "Modified");
             DropColumn("dbo.AspNetUsers", "ColumnDefaults");
             DropColumn("dbo.AspNetUsers", "RowCountDefault");
             DropColumn("dbo.AspNetUsers", "LastActive");

@@ -14,19 +14,19 @@ namespace m4dModels.Tests
             Service = MockContext.CreateService(true);
             Service.SeedDances();
 
-            Service.FindOrCreateTagType("Swing", "Music");
-            Service.FindOrCreateTagType("Swing", "Dance");
-            Service.FindOrCreateTagType("Salsa", "Music");
-            Service.FindOrCreateTagType("Salsa", "Dance");
-            Service.FindOrCreateTagType("Pop", "Music");
-            var tt = Service.FindOrCreateTagType("Foxtrot", "Dance");
-            var tt1 = Service.FindOrCreateTagType("fox-trot", "Dance","FoxTrot");
-            var tt2 = Service.FindOrCreateTagType("Fox Trot", "Dance", "FoxTrot");
+            Service.FindOrCreateTagGroup("Swing", "Music");
+            Service.FindOrCreateTagGroup("Swing", "Dance");
+            Service.FindOrCreateTagGroup("Salsa", "Music");
+            Service.FindOrCreateTagGroup("Salsa", "Dance");
+            Service.FindOrCreateTagGroup("Pop", "Music");
+            var tt = Service.FindOrCreateTagGroup("Foxtrot", "Dance");
+            var tt1 = Service.FindOrCreateTagGroup("fox-trot", "Dance","FoxTrot");
+            var tt2 = Service.FindOrCreateTagGroup("Fox Trot", "Dance", "FoxTrot");
 
             tt1.Primary = tt;
             tt2.Primary = tt;
         }
-        #region TagType
+        #region TagGroup
         [TestMethod]
         public void TestCompressTags()
         {
@@ -191,7 +191,7 @@ namespace m4dModels.Tests
                 return;
             }
 
-            var tt = dms.TagTypes.Find(name);
+            var tt = dms.TagGroups.Find(name);
             Assert.AreNotEqual(null, tt);
             Assert.AreEqual(count, tt.Count);
         }
@@ -263,14 +263,14 @@ namespace m4dModels.Tests
             Assert.AreEqual(expected,song.TagSummary.ToString());
 
             // ReSharper disable once PossibleNullReferenceException
-            var cft = Service.TagTypes.Find("Foxtrot:Dance").Count;
-            var cswing = Service.TagTypes.Find("Swing:Dance").Count;
+            var cft = Service.TagGroups.Find("Foxtrot:Dance").Count;
+            var cswing = Service.TagGroups.Find("Swing:Dance").Count;
 
             song.UpdateTagSummary(Service);
             Assert.AreEqual(expected, song.TagSummary.ToString());
 
-            Assert.AreEqual(cft, Service.TagTypes.Find("Foxtrot:Dance").Count);
-            Assert.AreEqual(cswing, Service.TagTypes.Find("Swing:Dance").Count);
+            Assert.AreEqual(cft, Service.TagGroups.Find("Foxtrot:Dance").Count);
+            Assert.AreEqual(cswing, Service.TagGroups.Find("Swing:Dance").Count);
         }
 
         [TestMethod]

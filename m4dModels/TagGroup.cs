@@ -7,7 +7,7 @@ using Newtonsoft.Json;
 namespace m4dModels
 {
     [JsonObject(MemberSerialization.OptIn)]
-    public class TagType
+    public class TagGroup
     {
         #region Properties
         [JsonProperty]
@@ -28,8 +28,8 @@ namespace m4dModels
         // For tag rings, point to the 'primary' variation of the tag
         [JsonProperty]
         public string PrimaryId { get; set; }
-        public virtual TagType Primary {get; set;}
-        public virtual ICollection<TagType> Ring {get; set;}
+        public virtual TagGroup Primary {get; set;}
+        public virtual IList<TagGroup> Children { get; set; }
 
         public string EncodedKey => TagEncode(Key);
 
@@ -38,34 +38,34 @@ namespace m4dModels
         #endregion
 
         #region Constructors
-        public TagType() { }
+        public TagGroup() { }
 
-        public TagType(string tag)
+        public TagGroup(string tag)
         {
             Key = !tag.Contains(':') ? tag + ":Other" : tag;
         }
 
-        public TagType(TagType tt)
+        public TagGroup(TagGroup tt)
         {
             Copy(tt);
         }
 
-        public void Copy(TagType tt)
+        public void Copy(TagGroup tt)
         {
             Key = tt.Key;
             PrimaryId = tt.PrimaryId;
             Primary = tt.Primary;
             Count = tt.Count;
-            Ring = tt.Ring != null ? new List<TagType>(tt.Ring) : new List<TagType>();
+            Children = tt.Children != null ? new List<TagGroup>(tt.Children) : new List<TagGroup>();
         }
 
-        // TODO: Think TagType should be derived from tagcount?
-        public static implicit operator TagCount(TagType tt)
+        // TODO: Think TagGroup should be derived from tagcount?
+        public static implicit operator TagCount(TagGroup tt)
         {
             return new TagCount(tt.Key,tt.Count);
         }
 
-        public static IEnumerable<TagCount> ToTagCounts(IEnumerable<TagType> ttl)
+        public static IEnumerable<TagCount> ToTagCounts(IEnumerable<TagGroup> ttl)
         {
             var d = new Dictionary<string, TagCount>();
             foreach (var tt in ttl)
@@ -92,7 +92,7 @@ namespace m4dModels
             return Key;
         }
 
-        public TagType GetPrimary()
+        public TagGroup GetPrimary()
         {
             var p = this;
             while (p.Primary != null)
@@ -255,5 +255,11 @@ namespace m4dModels
             return name;
         }
         #endregion
+
+        public void AddChild(TagGroup tagGroup)
+        {
+            if (Children == null) Children = new List<TagGroup>();
+            Children.Add(tagGroup);
+        }
     }
 }

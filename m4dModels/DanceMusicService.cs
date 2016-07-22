@@ -45,7 +45,7 @@ namespace m4dModels
 
         public IDanceMusicContext Context => _context;
         public DbSet<Dance> Dances => _context.Dances;
-        public DbSet<TagType> TagTypes => _context.TagTypes;
+        public DbSet<TagGroup> TagGroups => _context.TagGroups;
         public DbSet<Search> Searches => _context.Searches;
 
         public UserManager<ApplicationUser> UserManager { get; }
@@ -814,13 +814,13 @@ namespace m4dModels
 
         #region Tags
 
-        public IReadOnlyDictionary<string, TagType> TagMap => DanceStatsManager.GetInstance(this).TagManager.TagMap;
+        public IReadOnlyDictionary<string, TagGroup> TagMap => DanceStatsManager.GetInstance(this).TagManager.TagMap;
 
         public DanceStatsInstance DanceStats => DanceStatsManager.GetInstance(this);
 
-        public TagType FindOrCreateTagType(string value, string category, string primary = null)
+        public TagGroup FindOrCreateTagGroup(string value, string category, string primary = null)
         {
-            return _context.TagTypes.Find(TagType.BuildKey(value, category)) ?? CreateTagType(value, category);
+            return TagGroups.Find(TagGroup.BuildKey(value, category)) ?? CreateTagGroup(value, category);
         }
 
         // Add in category for tags that don't already have one + create
@@ -837,7 +837,7 @@ namespace m4dModels
                 var rg = tag.Split(':');
                 if (rg.Length == 1)
                 {
-                    fullTag = TagType.BuildKey(tag, category);
+                    fullTag = TagGroup.BuildKey(tag, category);
                 }
                 else if (rg.Length == 2)
                 {
@@ -845,7 +845,7 @@ namespace m4dModels
                     tempCat = rg[1];
                 }
 
-                FindOrCreateTagType(tempTag, tempCat);
+                FindOrCreateTagGroup(tempTag, tempCat);
 
                 result.Add(fullTag);
             }
@@ -853,14 +853,14 @@ namespace m4dModels
             return new TagList(result).ToString();
         }
 
-        public IEnumerable<TagType> GetTagTypes(string value)
+        public IEnumerable<TagGroup> GetTagTypes(string value)
         {
-            return _context.TagTypes.Where(t => t.Key.StartsWith(value + ":"));
+            return TagGroups.Where(t => t.Key.StartsWith(value + ":"));
         }
 
-        public IReadOnlyList<TagType> CachedTagTypes()
+        public IReadOnlyList<TagGroup> CachedTagGroups()
         {
-            return DanceStatsManager.GetInstance(this).TagTypes;
+            return DanceStatsManager.GetInstance(this).TagGroups;
         }
 
         public IEnumerable<TagCount> GetTagSuggestions(Guid? user = null, char? targetType = null, string tagType = null, int count = int.MaxValue, bool normalized=false)
@@ -882,8 +882,8 @@ namespace m4dModels
                     }
                     else
                     {
-                        var tts = (tagType == string.Empty) ? CachedTagTypes() : CachedTagTypes().Where(tt => tt.Category == tagType);
-                        ret = TagType.ToTagCounts(tts).OrderByDescending(tc => tc.Count);
+                        var tts = (tagType == string.Empty) ? CachedTagGroups() : CachedTagGroups().Where(tt => tt.Category == tagType);
+                        ret = TagGroup.ToTagCounts(tts).OrderByDescending(tc => tc.Count);
                         s_sugMap[tagType] = ret;
                     }
                 }
@@ -933,23 +933,20 @@ namespace m4dModels
             return dictionary.Select(pair => new TagCount(pair.Key, pair.Value)).OrderByDescending(tc => tc.Count);
         }
 
-        public IEnumerable<TagType> OrderedTagTypes => DanceStatsManager.GetInstance(this).TagTypes;
+        public IEnumerable<TagGroup> OrderedTagGroups => DanceStatsManager.GetInstance(this).TagGroups;
 
-        public ICollection<TagType> GetTagRings(TagList tags)
+        public ICollection<TagGroup> GetTagRings(TagList tags)
         {
             var tagCache = TagMap;
-            var map = new Dictionary<string, TagType>();
+            var map = new Dictionary<string, TagGroup>();
             // ReSharper disable once LoopCanBePartlyConvertedToQuery
             foreach (var tag in tags.Tags)
             {
-                TagType tt;
+                TagGroup tt;
                 if (!tagCache.TryGetValue(tag.ToLower(), out tt))
                     continue;
 
-                while (tt.Primary != null)
-                {
-                    tt = tt.Primary;
-                }
+                tt = tt.GetPrimary();
                 if (!map.ContainsKey(tt.Key))
                 {
                     map.Add(tt.Key, tt);
@@ -959,26 +956,25 @@ namespace m4dModels
             return map.Values;
         }
 
-        private void AddTagType(TagType tagType)
+        private void AddTagType(TagGroup tagGroup)
         {
-            if (TagTypes.Find(tagType.Key) != null) return;
+            if (TagGroups.Find(tagGroup.Key) != null) return;
 
-            var newType = TagTypes.Create();
-            newType.Key = tagType.Key;
-            newType.PrimaryId = tagType.PrimaryId;
-            newType.Count = tagType.Count;
+            var newType = TagGroups.Create();
+            newType.Key = tagGroup.Key;
+            newType.PrimaryId = tagGroup.PrimaryId;
+            newType.Count = tagGroup.Count;
             newType.Modified = DateTime.Now;
 
-            TagTypes.Add(newType);
+            TagGroups.Add(newType);
         }
 
-        private TagType CreateTagType(string value, string category, string primary = null) 
+        private TagGroup CreateTagGroup(string value, string category, bool updateTagManager = true) 
         {
-            var type = _context.TagTypes.Create();
-            type.Key = TagType.BuildKey(value, category);
-            type.PrimaryId = primary;
+            var type = TagGroups.Create();
+            type.Key = TagGroup.BuildKey(value, category);
 
-            var other = TagTypes.Find(type.Key);
+            var other = TagGroups.Find(type.Key);
             if (other != null)
             {
                 Trace.WriteLineIf(TraceLevels.General.TraceInfo, $"Attempt to add duplicate tag: {other} {type}");
@@ -986,8 +982,9 @@ namespace m4dModels
             }
             else
             {
-                type = _context.TagTypes.Add(type);
-                DanceStats.TagManager.AddTagType(type);
+                type = TagGroups.Add(type);
+                if (updateTagManager)
+                    DanceStats.TagManager.AddTagGroup(type);
             }
             return type;
         }
@@ -1298,13 +1295,13 @@ namespace m4dModels
                 AdminMonitor.UpdateTask("LoadTags", index + 1);
 
                 var cells = s.Split('\t');
-                TagType tt = null;
+                TagGroup tt = null;
                 if (cells.Length >= 2)
                 {
                     var category = cells[0];
                     var value = cells[1];
 
-                    tt = FindOrCreateTagType(value, category);
+                    tt = CreateTagGroup(value, category, false);
                 }
 
                 if (tt != null && cells.Length >= 3 && !string.IsNullOrWhiteSpace(cells[2]))
@@ -1321,11 +1318,11 @@ namespace m4dModels
                 }
             }
 
-            foreach (var tt in TagTypes)
+            foreach (var tt in TagGroups)
             {
                 if (tt.PrimaryId != null && tt.Primary == null)
                 {
-                    tt.Primary = TagTypes.Find(tt.PrimaryId);
+                    tt.Primary = TagGroups.Find(tt.PrimaryId);
                 }
             }
             Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Saving Changes");
@@ -1550,7 +1547,7 @@ namespace m4dModels
             }
 
             // ReSharper disable once LoopCanBeConvertedToQuery
-            foreach (var tt in TagTypes)
+            foreach (var tt in TagGroups)
             {
                 tags.Add($"{tt.Category}\t{tt.Value}\t{tt.PrimaryId}\t{tt.Modified.ToString("g")}");
             }
@@ -1682,7 +1679,7 @@ namespace m4dModels
             var info = SearchServiceInfo.GetInfo(id);
 
             var changed = false;
-            var tags = DanceStats.TagManager.DequeueTagTypes();
+            var tags = DanceStats.TagManager.DequeueTagGroups();
             foreach (var tag in tags)
             {
                 AddTagType(tag);

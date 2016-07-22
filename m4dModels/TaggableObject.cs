@@ -179,11 +179,11 @@ namespace m4dModels
             var delRing = ConvertToRing(removed, stats);
             TagSummary.ChangeTags(addRing, delRing);
             if (updateTypes && stats != null)
-                UpdateTagTypes(added, removed, stats);
+                UpdateTagGroups(added, removed, stats);
             RegisterChangedTags(added, removed, user, data);
         }
 
-        private static void UpdateTagTypes(TagList added, TagList removed, DanceStatsInstance stats)
+        private static void UpdateTagGroups(TagList added, TagList removed, DanceStatsInstance stats)
         {
             if (stats == null)
                 return;
@@ -193,22 +193,22 @@ namespace m4dModels
                 foreach (var tag in added.Tags)
                 {
                     // Create a transitory tag type to parse the tag string
-                    var tt = stats.TagManager.FindOrCreateTagType(tag);
+                    var tt = stats.TagManager.FindOrCreateTagGroup(tag);
                     tt.Count += 1;
                 }
             }
 
             if (removed == null) return;
 
-            foreach (var tt in removed.Tags.Select(stats.TagManager.FindOrCreateTagType))
+            foreach (var tt in removed.Tags.Select(stats.TagManager.FindOrCreateTagGroup))
             {
                 tt.Count -= 1;
-                // TODO: We should consider a service that occassionally sweeps TagTypes and removes the ones that
+                // TODO: We should consider a service that occassionally sweeps TagGroups and removes the ones that
                 //  aren't used, but we can't proactively delete them this way since when we're doing a full load
                 //  of the database this causes inconsistencies.
                 //if (tt.Count <= 0)
                 //{
-                //    dms.TagTypes.Remove(tt);
+                //    dms.TagGroups.Remove(tt);
                 //}
             }
         }
@@ -265,7 +265,7 @@ namespace m4dModels
         {
             var tagMap = stats.TagManager.TagMap;
             return tags == null ? null : 
-                new TagList(tags.Tags.Select(t => (tagMap.GetValueOrDefault(t.ToLower()) ?? new TagType { Key = t }).GetPrimary()).Select(tt => tt.Key).Distinct().ToList());
+                new TagList(tags.Tags.Select(t => (tagMap.GetValueOrDefault(t.ToLower()) ?? new TagGroup { Key = t }).GetPrimary()).Select(tt => tt.Key).Distinct().ToList());
         }
     }
 }

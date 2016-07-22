@@ -5,8 +5,7 @@ namespace m4d.APIControllers
 {
     public class TagSuggestionController : DMApiController
     {
-        public IHttpActionResult GetTagSuggestions(Guid? user = null, char? targetType = null, string tagType = null,
-            int count = int.MaxValue, bool normalized = false)
+        public IHttpActionResult GetTagSuggestions(Guid? user = null, char? targetType = null, string tagType = null, int count = int.MaxValue, bool normalized = false)
         {
             //var test = false;
             try
@@ -20,7 +19,7 @@ namespace m4d.APIControllers
             catch (Exception)
             {
                 return NotFound();
-            }                        
+            }
         }
     }
 }

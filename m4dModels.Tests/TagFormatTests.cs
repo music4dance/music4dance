@@ -12,7 +12,7 @@ namespace m4dModels.Tests
             for (var i = 0; i < Decoded.Length; i++ )
             {
                 var d = Decoded[i];
-                var e = TagType.TagEncode(d);
+                var e = TagGroup.TagEncode(d);
                 Trace.WriteLine(e);
                 Assert.AreEqual(Encoded[i], e);
             }
@@ -24,7 +24,7 @@ namespace m4dModels.Tests
             for (var i = 0; i < Encoded.Length; i++)
             {
                 var e = Encoded[i];
-                var d = TagType.TagDecode(e);
+                var d = TagGroup.TagDecode(e);
                 Assert.AreEqual(Decoded[i], d);
             }
         }

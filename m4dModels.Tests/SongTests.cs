@@ -162,10 +162,10 @@ namespace m4dModels.Tests
 
             if (verifyGlobal)
             {
-                Assert.AreEqual(1, Service.TagTypes.Find("!Latin:Dance").Count);
-                Assert.AreEqual(2, Service.TagTypes.Find("Polka:Dance").Count);
-                Assert.AreEqual(1, Service.TagTypes.Find("!Polka:Dance").Count);
-                Assert.AreEqual(1, Service.TagTypes.Find("Unconventional:Style").Count);
+                Assert.AreEqual(1, Service.TagGroups.Find("!Latin:Dance").Count);
+                Assert.AreEqual(2, Service.TagGroups.Find("Polka:Dance").Count);
+                Assert.AreEqual(1, Service.TagGroups.Find("!Polka:Dance").Count);
+                Assert.AreEqual(1, Service.TagGroups.Find("Unconventional:Style").Count);
             }
 
             Assert.IsNotNull(song.DanceRatings.FirstOrDefault(dr => dr.DanceId == "PLK"));
@@ -178,15 +178,15 @@ namespace m4dModels.Tests
             Trace.WriteLine(actual);
             Assert.AreEqual(ModeratorExpected, actual);
 
-            Trace.WriteLine(Service.TagTypes.Find("!Latin:Dance").Count);
-            Trace.WriteLine(Service.TagTypes.Find("Polka:Dance").Count);
-            Trace.WriteLine(Service.TagTypes.Find("!Polka:Dance").Count);
-            Trace.WriteLine(Service.TagTypes.Find("Unconventional:Style").Count);
+            Trace.WriteLine(Service.TagGroups.Find("!Latin:Dance").Count);
+            Trace.WriteLine(Service.TagGroups.Find("Polka:Dance").Count);
+            Trace.WriteLine(Service.TagGroups.Find("!Polka:Dance").Count);
+            Trace.WriteLine(Service.TagGroups.Find("Unconventional:Style").Count);
 
-            Assert.AreEqual(2, Service.TagTypes.Find("!Latin:Dance").Count);
-            Assert.AreEqual(0, Service.TagTypes.Find("Polka:Dance").Count);
-            Assert.AreEqual(0, Service.TagTypes.Find("!Polka:Dance").Count);
-            Assert.AreEqual(2, Service.TagTypes.Find("Unconventional:Style").Count);
+            Assert.AreEqual(2, Service.TagGroups.Find("!Latin:Dance").Count);
+            Assert.AreEqual(0, Service.TagGroups.Find("Polka:Dance").Count);
+            Assert.AreEqual(0, Service.TagGroups.Find("!Polka:Dance").Count);
+            Assert.AreEqual(2, Service.TagGroups.Find("Unconventional:Style").Count);
 
             Assert.IsNull(song.DanceRatings.FirstOrDefault(dr => dr.DanceId == "PLK"));
             Assert.IsNull(song.DanceRatings.FirstOrDefault(dr => dr.DanceId == "PDL"));
@@ -194,10 +194,10 @@ namespace m4dModels.Tests
 
         private static void CleanTagTypes()
         {
-            var old = Service.TagTypes.ToList();
+            var old = Service.TagGroups.ToList();
             foreach (var tt in old)
             {
-                Service.TagTypes.Remove(tt);
+                Service.TagGroups.Remove(tt);
             }
         }
 

@@ -1,4 +1,4 @@
-﻿@model IEnumerable<TagType>
+﻿@model IEnumerable<TagGroup>
 
 @{
     ViewBag.Title = "Tag Cloud";
@@ -7,7 +7,7 @@
 }
 <h1>Tag Cloud</h1>
 
-@Html.Partial("_TagCloud",TagType.ToTagCounts(Model))
+@Html.Partial("_TagCloud",TagGroup.ToTagCounts(Model))
 
 @if (User.IsInRole("showDiagnostics"))
 {
@@ -26,7 +26,7 @@
                 @Html.DisplayNameFor(model => model.Primary.PrimaryId)
             </th>
             <th>
-                Ring
+                Children
             </th>
             <th></th>
         </tr>
@@ -45,10 +45,10 @@
                     @Html.DisplayFor(modelItem => item1.PrimaryId)
                 </td>
                 <td>
-                    @if (item.Ring != null && item.Ring.Count > 0)
+                    @if (item.Children != null && item.Children.Count > 0)
                     {
                         var separator = "";
-                        foreach (var child in item.Ring)
+                        foreach (var child in item.Children)
                         {
                             @separator
                             @child.Key

@@ -39,7 +39,7 @@ namespace m4dModels.Tests
         public MockContext(bool seedUsers = true)
         {
             Dances = new DanceSet();
-            TagTypes = new TagTypeSet();
+            TagTypes = new TagGroupSet();
             Searches = new SearchSet();
             Users = new ApplicationUserSet();
             Roles = new TestDbSet<IdentityRole>();
@@ -71,7 +71,7 @@ namespace m4dModels.Tests
         public DbSet<Dance> Dances { get; set; }
 
 
-        public DbSet<TagType> TagTypes { get; set; }
+        public DbSet<TagGroup> TagTypes { get; set; }
 
 
         public DbSet<Search> Searches { get; set; }

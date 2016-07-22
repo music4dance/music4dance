@@ -18,9 +18,9 @@ namespace m4dModels
         }
 
         [JsonConstructor]
-        public DanceStatsInstance(IEnumerable<DanceStats> tree, IEnumerable<TagType> tagTypes)
+        public DanceStatsInstance(IEnumerable<DanceStats> tree, IEnumerable<TagGroup> tagGroups)
         {
-            TagManager = new TagManager(tagTypes);
+            TagManager = new TagManager(tagGroups);
             Tree = tree.ToList();
             FixupStats();
         }
@@ -60,8 +60,8 @@ namespace m4dModels
         [JsonProperty]
         public List<DanceStats> Tree { get; set; }
 
-        [JsonProperty]
-        public List<TagType> TagTypes => TagManager.TagTypes;
+        [JsonProperty(PropertyName="TagGroups")]
+        public List<TagGroup> TagGroups => TagManager.TagGroups;
 
         public TagManager TagManager { get; set; }
 

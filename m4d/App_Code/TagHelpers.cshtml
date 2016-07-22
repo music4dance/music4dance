@@ -57,7 +57,7 @@
     var tc = tag.TagClass;
     tc = tc?.ToLower() ?? "other";
 
-    var img = "/Content/" + TagType.ClassToName(tc) + "-50.png";
+    var img = "/Content/" + TagGroup.ClassToName(tc) + "-50.png";
     var title = (song == null) ? string.Empty : song.Title;
     var artist = (song == null) ? string.Empty : song.Artist;
 

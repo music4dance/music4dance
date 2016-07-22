@@ -76,7 +76,7 @@ namespace m4dModels
         private string GetStackTrace()
         {
             var trace = new StackTrace();
-            var threadId = Thread.CurrentThread.Name ?? "";
+            var threadId = Thread.CurrentThread.Name ?? Thread.CurrentThread.ManagedThreadId.ToString();
             return "[" + threadId + "]" + trace.ToString().Replace('\n', '|').Replace("\r", "");
         }
 

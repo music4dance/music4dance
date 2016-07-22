@@ -1,17 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Configuration;
-using System.Data;
 using System.Data.Common;
 using System.Data.Entity;
 using System.Data.Entity.Validation;
 using System.Diagnostics;
-using System.Linq;
 using m4d.Controllers;
 using m4dModels;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.EntityFramework;
-using EntityState = System.Data.Entity.EntityState;
 
 // Let's see if we can mock up a recoverable log file by spitting out
 // something resembling a tab-separated flat list of songs items with a
@@ -81,7 +77,7 @@ namespace m4d.Context
 
         #region Properties
         public DbSet<Dance> Dances { get; set; }
-        public DbSet<TagType> TagTypes { get; set; }
+        public DbSet<TagGroup> TagGroups { get; set; }
         public DbSet<Search> Searches { get; set; }
         #endregion
 
@@ -94,13 +90,12 @@ namespace m4d.Context
             modelBuilder.Entity<Dance>().Ignore(dance => dance.Info);
 
             //modelBuilder.Entity<TaggableObject>().HasKey(to => to.TagIdBase);
-            modelBuilder.Entity<TagType>().HasKey(tt => tt.Key);
-            modelBuilder.Entity<TagType>().Ignore(tt => tt.Value);
-            modelBuilder.Entity<TagType>().Ignore(tt => tt.Category);
-            modelBuilder.Entity<TagType>().HasOptional(x => x.Primary)
-                .WithMany(x => x.Ring)
-                .HasForeignKey(x => x.PrimaryId)
-                .WillCascadeOnDelete(false);
+            modelBuilder.Entity<TagGroup>().HasKey(tt => tt.Key);
+            modelBuilder.Entity<TagGroup>().Ignore(tt => tt.Count);
+            modelBuilder.Entity<TagGroup>().Ignore(tt => tt.Value);
+            modelBuilder.Entity<TagGroup>().Ignore(tt => tt.Category);
+            modelBuilder.Entity<TagGroup>().Ignore(tt => tt.Children);
+            modelBuilder.Entity<TagGroup>().HasOptional(x => x.Primary).WithMany().HasForeignKey(x => x.PrimaryId);
 
             modelBuilder.Entity<DanceLink>().HasKey(dl => dl.Id);
 

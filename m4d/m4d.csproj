@@ -492,6 +492,10 @@
     <Compile Include="Migrations\201607182016274_RemoveUserTags.Designer.cs">
       <DependentUpon>201607182016274_RemoveUserTags.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201607222048257_RemoveRings.cs" />
+    <Compile Include="Migrations\201607222048257_RemoveRings.Designer.cs">
+      <DependentUpon>201607222048257_RemoveRings.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Context\DanceMusicConfiguration.cs" />
     <Compile Include="Context\DanceMusicContext.cs" />
@@ -529,7 +533,7 @@
     <Compile Include="ViewModels\ServiceSearchResults.cs" />
     <Compile Include="ViewModels\AccountViewModels.cs" />
     <Compile Include="ViewModels\SiteMapInfo.cs" />
-    <Compile Include="ViewModels\TagTypeView.cs" />
+    <Compile Include="ViewModels\TagGroupView.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="BingSiteAuth.xml" />
@@ -1109,6 +1113,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201607182016274_RemoveUserTags.resx">
       <DependentUpon>201607182016274_RemoveUserTags.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201607222048257_RemoveRings.resx">
+      <DependentUpon>201607222048257_RemoveRings.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>

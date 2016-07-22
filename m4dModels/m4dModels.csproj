@@ -152,7 +152,7 @@
     <Compile Include="TagList.cs" />
     <Compile Include="TagManager.cs" />
     <Compile Include="TagSummary.cs" />
-    <Compile Include="TagType.cs" />
+    <Compile Include="TagGroup.cs" />
     <Compile Include="ToStringJsonConverter.cs" />
     <Compile Include="TraceLevels.cs" />
     <Compile Include="TrackNumber.cs" />

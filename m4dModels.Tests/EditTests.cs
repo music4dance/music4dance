@@ -81,7 +81,7 @@
 
 //            var tag = song.FindUserTag(userSsb, service.Dms);
 //            Assert.AreEqual(@"Even:Tempo|Funk:Music|Jump Swing:Dance|Swing:Dance", tag.Tags.Summary);
-//            var ttFunk = service.Dms.FindOrCreateTagType("Funk", "Music");
+//            var ttFunk = service.Dms.FindOrCreateTagGroup("Funk", "Music");
 //            Assert.AreEqual(1,ttFunk.Count);
 
 //            var userDwg = service.Dms.FindUser("dwgray");
@@ -129,7 +129,7 @@
 //                @"SongId={af6ab5aa-7061-40c3-9519-3c6df3142375}	.Create=	User=HunterZ	Time=3/17/2014 5:45:49 PM	Title=Footloose	Artist=Kenny Loggins	Tempo=165.0	DanceRating=SWG+5	User=batch	Time=5/7/2014 11:41:41 AM	Title=Footloose (From The Paramount Film ""Footloose"")	Length=226	Album:0=Movie Music: The Definitive Performances	Track:0=30	Purchase:0:XS=music.F7040900-0100-11DB-89CA-0019B92A3933	PromoteAlbum:0=	User=batch	Time=5/20/2014 10:41:30 AM	Title=Footloose	Length=227	Track:0=6	Purchase:0:IS=193322556	Purchase:0:IA=193321271	User=JuliaS	Time=6/9/2014 8:13:17 PM	DanceRating=JIV+6	User=batch	Time=6/25/2014 9:34:41 PM	Length=226	Album:01=Footloose (15th Anniversary Collectors' Edition)	Track:01=1	Purchase:01:AS=D:B003YNUSCK	Purchase:01:AA=D:B003YNT2R2	PromoteAlbum:01=	User=HunterZ	Time=9/4/2014 5:06:50 PM	OrderAlbums=1,0	User=JuliaS	Time=9/4/2014 5:06:54 PM	OrderAlbums=1,0	User=batch	Time=9/4/2014 5:06:58 PM	OrderAlbums=1,0	User=OliviaL	Time=10/1/2014 6:06:50 PM	DanceRating=JSW+6	User=batch	Time=10/9/2014 11:00:16 AM	DanceRating=SWG+5	User=batch	Time=10/9/2014 12:08:56 PM	DanceRating=BBA+4	DanceRating=JIV+4	DanceRating=JSW+4	DanceRating=LHP+4	User=HunterZ	Time=11/20/2014 11:31:43 AM	Tag+=Swing:Dance	User=JuliaS	Time=11/20/2014 11:31:43 AM	Tag+=Jive:Dance	User=batch	Time=11/20/2014 11:31:43 AM	Tag+=Soundtrack:Music	User=OliviaL	Time=11/20/2014 11:31:43 AM	Tag+=Jump Swing:Dance	.Edit=	User=batch-a	Time=12/10/2014 3:58:12 PM	Length=225	Album:02=The Essential Kenny Loggins	Track:02=1	Purchase:02:AS=D:B00Q6JOWBM	Purchase:02:AA=D:B00Q6JLVFW	Album:03='80s Pop Hits	Track:03=10	Purchase:03:AS=D:B001I84EZ0	Purchase:03:AA=D:B001I861CO	OrderAlbums=1,0,2,3	Tag+=pop:Music|soundtracks:Music	.Edit=	User=batch-i	Time=12/10/2014 3:58:15 PM	Length=220	Purchase:02:IS=201425720	Purchase:02:IA=201420897	Album:03=80's Pop Hits	Purchase:03:IS=318675593	Purchase:03:IA=318675016	Album:04=Now That's What I Call the 80s	Track:04=2	Purchase:04:IS=275319062	Purchase:04:IA=275318699	Album:05=21 Classic #1 Hits	Track:05=13	Purchase:05:IS=897940141	Purchase:05:IA=897940098	Album:06=Footloose (15th Anniversary Collectors' Edition) [Original Soundtrack of the Motion Picture]	Track:06=1	Purchase:06:IS=209743272	Purchase:06:IA=209743140	Album:07=NOW That's What I Call 80s Hits	Track:07=4	Purchase:07:IS=716299225	Purchase:07:IA=716298811	Album:08=Paramount Pictures 90th Anniversary Memorable Songs	Track:08=11	Purchase:08:IS=566390942	Purchase:08:IA=566390543	Album:09=Yesterday, Today, Tomorrow - The Greatest Hits of Kenny Loggins	Track:09=3	Purchase:09:IS=405600299	Purchase:09:IA=405600175	Album:10=Clasicos del Cine	Track:10=9	Purchase:10:IS=352320677	Purchase:10:IA=352320346	OrderAlbums=1,0,2,3,4,5,6,7,8,9,10	Tag+=Pop:Music|Rock:Music|Soundtrack:Music	.Edit=	User=batch-x	Time=12/10/2014 3:58:16 PM	Length=222	Album:03='80s Pop Hits	Track:03=36	Purchase:03:XS=music.77EAB601-0100-11DB-89CA-0019B92A3933	Purchase:07:XS=music.E807C506-0100-11DB-89CA-0019B92A3933	Album:09=Yesterday, Today, Tomorrow - The Greatest Hits Of Kenny Loggins	Purchase:09:XS=music.A9589E06-0100-11DB-89CA-0019B92A3933	Album:10=Clasicos Del Cine	Purchase:10:XS=music.4EE65706-0100-11DB-89CA-0019B92A3933	OrderAlbums=1,0,2,3,4,5,6,7,8,9,10	Tag+=Pop:Music|Rock:Music	.FailedLookup=-:0	.Edit=	User=batch-s	Time=1/6/2015 4:41:31 PM	Length=227	Purchase:01:SS=2vz1CsL5WBsbpBcwgboTAw	Purchase:01:SA=4FZ9s0pelFSliPWhVEWRcC	Track:02=2001	Purchase:02:SS=4YR6Dextuoc3I8nJ0XgzKI	Purchase:02:SA=68ZonGoyvksZu4sqqNXect	Purchase:09:SS=6W2VbtvMrDXm5vYeB7amkO	Purchase:09:SA=3uN87hwClF0hult2cxMbAW	Purchase:10:SS=6ijK0byhkfjqMQcLrzSIbl	Purchase:10:SA=1VWbR5cktfUGFnNGL1WdnM	Album:11=Essential - Girls Night In	Track:11=3013	Purchase:11:SS=0xEur0ftFwD8VmnxUmxwTH	Purchase:11:SA=17zgFSNatj3fVsmlERKQ9m	Album:12=The Best Of The 80's	Track:12=6	Purchase:12:SS=1Ppwc43WYFEBXw2n1ePhDY	Purchase:12:SA=1WNKfSND9D7t30sBPDo1gr	Album:13=100 Hits Of The '80s	Track:13=83	Purchase:13:SS=0TFp6nGwhfY1ratCI91yO2	Purchase:13:SA=0pvhletDH7CphbKErUtPCF	Album:14=Pure... Summer	Track:14=4015	Purchase:14:SS=13Qcym7wfIkgq6GscwupsH	Purchase:14:SA=3JTmiGp6xdTVmROfjdOjCY	Album:15=The Definitive 80's (eighties)	Track:15=10	Purchase:15:SS=1sz51pUbe1NaXXinsN8voP	Purchase:15:SA=0H8w0t8lsZiSTVA3yORSVP	Album:16=Pure... 80's Dance Party	Track:16=7	Purchase:16:SS=7CNir8fZuWSulxdR65wqCx	Purchase:16:SA=7rASm7HnbYY5git3gHnled	Album:17=Party Starters!	Track:17=4	Purchase:17:SS=2h0VZdaXF5vNUaGsyHTizD	Purchase:17:SA=02SW2cdsmFaH07UZPN6Iti	Album:18=Pure... Dance Party	Track:18=2013	Purchase:18:SS=0U88IK0Z8AyLKRmD3OhclM	Purchase:18:SA=6uqQP2jsszOsS9b1VMcfid	Album:19=The Essential Kenny Loggins 3.0	Track:19=2001	Purchase:19:SS=76MDlktsCnab9gZb7CLi2o	Purchase:19:SA=5xY88ZyGU8oRraqDD6ThQX	Album:20=The Best Year Of My Life: 1984	Track:20=11	Purchase:20:SS=1Qg2k8sPqbuXdxTivhZQPx	Purchase:20:SA=7ycuJrld7VgCZMn6WXmP2R	Album:21=Movie Hits - the best music from film inc. the Titanic Soundtrack, Dirty Dancing OST, The Bodyguard sound track and more	Track:21=13	Purchase:21:SS=7gBr8cKCwl37vK1SxLA750	Purchase:21:SA=3xRX45h9FltGuSianOejL0	Album:22=Happy New Year!	Track:22=6	Purchase:22:SS=6Pd8RYBGCHvhlLZ5uNcJlf	Purchase:22:SA=0jaUJLO5YXHKEijMJCD0Na	Album:23=Collections	Track:23=1	Purchase:23:SS=51Dnr3ugBcnbnvpSKBSORP	Purchase:23:SA=0kpSQYsWe0kv1MobrDjSBQ	OrderAlbums=1,0,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23	.Edit=	User=dwgray	Time=1/16/2015 10:28:14 AM	OrderAlbums=1,0,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23	DanceRating=LHP+3	Tag+=Lindy Hop:Dance"
 //            };
 
-//            var ttc = service.Dms.TagTypes.Count();
+//            var ttc = service.Dms.TagGroups.Count();
 //            foreach (var l in service.Dms.SerializeTags())
 //            {
 //                Trace.WriteLine(l);
@@ -156,13 +156,13 @@
 //                Trace.WriteLine(l);
 //            }
 
-//            Assert.AreEqual(ttc+1, service.Dms.TagTypes.Count());
+//            Assert.AreEqual(ttc+1, service.Dms.TagGroups.Count());
 //            Assert.AreEqual(28, service.Dms.Tags.Count());
-//            var t = service.Dms.TagTypes.Find("Traditional:Style");
+//            var t = service.Dms.TagGroups.Find("Traditional:Style");
 //            Assert.IsNotNull(t);
 //            Assert.AreEqual(1,t.Count);
 
-//            t = service.Dms.TagTypes.Find("Xtra:Other");
+//            t = service.Dms.TagGroups.Find("Xtra:Other");
 //            Assert.IsNotNull(t);
 //            Assert.AreEqual(1, t.Count);
 

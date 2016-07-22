@@ -172,9 +172,9 @@ namespace m4dModels
         object IDbAsyncEnumerator.Current => Current;
     }
 
-    public class TagTypeSet : TestDbSet<TagType>
+    public class TagGroupSet : TestDbSet<TagGroup>
     {
-        public override TagType Find(params object[] keyValues)
+        public override TagGroup Find(params object[] keyValues)
         {
             var id = keyValues.Single() as string;
             return id == null ? null : this.SingleOrDefault(tt => string.Equals(tt.Key,id,StringComparison.OrdinalIgnoreCase));

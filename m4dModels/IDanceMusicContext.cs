@@ -13,7 +13,7 @@ namespace m4dModels
     public interface IDanceMusicContext: IDisposable
     {
         DbSet<Dance> Dances { get; }
-        DbSet<TagType> TagTypes { get; }
+        DbSet<TagGroup> TagGroups { get; }
         DbSet<Search> Searches { get; }
         IDbSet<ApplicationUser> Users { get; }
         IDbSet<IdentityRole> Roles { get; }
@@ -36,9 +36,9 @@ namespace m4dModels
     //        modelBuilder.Entity<Dance>().Ignore(dance => dance.Info);
     //        modelBuilder.Entity<DanceRating>().HasKey(dr => new { dr.SongId, dr.DanceId });
 
-    //        modelBuilder.Entity<TagType>().HasKey(tt => tt.Key);
-    //        modelBuilder.Entity<TagType>().Ignore(tt => tt.Value);
-    //        modelBuilder.Entity<TagType>().Ignore(tt => tt.Category);
+    //        modelBuilder.Entity<TagGroup>().HasKey(tt => tt.Key);
+    //        modelBuilder.Entity<TagGroup>().Ignore(tt => tt.Value);
+    //        modelBuilder.Entity<TagGroup>().Ignore(tt => tt.Category);
 
 
     //        modelBuilder.Entity<ModifiedRecord>().HasKey(t => new { t.ApplicationUserId, t.SongId });

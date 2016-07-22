@@ -2,12 +2,12 @@
 
 namespace m4d.ViewModels
 {
-    public class TagTypeView : TagType
+    public class TagGroupView : TagGroup
     {
-        public TagTypeView()
+        public TagGroupView()
         {
         }
-        public TagTypeView(TagType tt) : base(tt)
+        public TagGroupView(TagGroup tt) : base(tt)
         {
             NewKey = tt.Key;
         }
