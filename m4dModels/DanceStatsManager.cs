@@ -134,9 +134,13 @@ namespace m4dModels
         }
 
 
-        public static DanceStatsInstance LoadFromAzure(DanceMusicService dms, string source = "default", bool save = false)
+        public static DanceStatsInstance LoadFromAzure(DanceMusicService dms, string source = "default", bool save = false, bool tagsOnly = false)
         {
-            var instance = new DanceStatsInstance(new TagManager(dms,source), AzureDanceStats(dms, source), dms, source);
+            bool copy = (tagsOnly && s_instance != null);
+            var instance = new DanceStatsInstance(
+                new TagManager(dms, source),
+                copy ? s_instance.Tree : AzureDanceStats(dms, source), 
+                copy ? null : dms, source);
             if (!save) return instance;
 
             LastUpdate = DateTime.Now;

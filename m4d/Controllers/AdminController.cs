@@ -1347,14 +1347,14 @@ namespace m4d.Controllers
         //
         // Get: //DanceStatistics
         [Authorize(Roles = "showDiagnostics")]
-        public ActionResult DanceStatistics(string source = null, bool save=true)
+        public ActionResult DanceStatistics(string source = null, bool save=true, bool noDances=false)
         {
             DanceStatsInstance instance;
             source = string.IsNullOrWhiteSpace(source) ? null : source;
             switch (source)
             {
                 default:
-                    instance = DanceStatsManager.LoadFromAzure(Database, source, save);
+                    instance = DanceStatsManager.LoadFromAzure(Database, source, save, !noDances);
                     break;
                 case null:
                     instance = DanceStatsManager.GetInstance(Database);

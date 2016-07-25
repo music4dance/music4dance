@@ -154,7 +154,7 @@ var tagChooser = function () {
             msg.show();
             lst.hide();
 
-            var uri = '/api/tagsuggestion?TagGroup=' + type;
+            var uri = '/api/tagsuggestion?TagType=' + type;
             if (user) {
                 uri += '&count=500&user=' + user;
             }

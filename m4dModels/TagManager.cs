@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Microsoft.Azure.Search.Models;
 
 namespace m4dModels
@@ -98,10 +96,19 @@ namespace m4dModels
                 var tagGroup = TagMap.GetValueOrDefault(key.ToLower());
                 if (tagGroup == null) return;
 
-                tagGroup.PrimaryId = primaryId;
-                tagGroup.Primary = TagMap.GetValueOrDefault(primaryId.ToLower());
+                if (string.IsNullOrEmpty(primaryId))
+                {
+                    tagGroup.Primary?.Children?.Remove(tagGroup);
+                    tagGroup.PrimaryId = null;
+                    tagGroup.Primary = null;
+                }
+                else
+                {
+                    tagGroup.PrimaryId = primaryId;
+                    tagGroup.Primary = TagMap.GetValueOrDefault(primaryId.ToLower());
+                    tagGroup.Primary.AddChild(tagGroup);
+                }
 
-                tagGroup.Primary.AddChild(tagGroup);
             }
         }
 
