@@ -5,7 +5,7 @@ namespace m4dModels
 {
     public class SearchResults
     {
-        public SearchResults(string query, int count, long totalCount, int currentPage, int pageSize, IEnumerable<SongBase> songs, FacetResults facets)
+        public SearchResults(string query, int count, long totalCount, int currentPage, int pageSize, IEnumerable<Song> songs, FacetResults facets)
         {
             Query = query;
             Count = count;
@@ -20,7 +20,7 @@ namespace m4dModels
         public long TotalCount { get; }
         public int CurrentPage { get; }
         public int PageSize { get; }
-        public IEnumerable<SongBase> Songs { get; }
+        public IEnumerable<Song> Songs { get; }
 
         public FacetResults FacetResults { get; }
     }

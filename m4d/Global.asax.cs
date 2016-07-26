@@ -21,7 +21,7 @@ namespace m4d
             RouteConfig.RegisterRoutes(RouteTable.Routes);
             BundleConfig.RegisterBundles(BundleTable.Bundles);
 
-            ModelBinders.Binders[typeof(SongDetails)] = new SongBinder();
+            ModelBinders.Binders[typeof(Song)] = new SongBinder();
 
             DanceStatsManager.AppData = System.Web.Hosting.HostingEnvironment.MapPath("~/app_data");
             DanceMusicService.Factory = new DanceMusicFactory();

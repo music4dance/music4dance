@@ -139,7 +139,7 @@ namespace m4d.Utilities
             return DoFetchTracks(null, false, title, artist);
         }
 
-        public IList<ServiceTrack> FetchTracks(SongDetails song, bool clean = false)
+        public IList<ServiceTrack> FetchTracks(Song song, bool clean = false)
         {
             return DoFetchTracks(song, clean);
         }
@@ -172,7 +172,7 @@ namespace m4d.Utilities
             }
         }
 
-        private IList<ServiceTrack> DoFetchTracks(SongDetails song, bool clean = false, string title = null, string artist = null)
+        private IList<ServiceTrack> DoFetchTracks(Song song, bool clean = false, string title = null, string artist = null)
         {
             var tracks = new List<ServiceTrack>();
 

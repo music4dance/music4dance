@@ -45,7 +45,6 @@
 <h3>Search Index: @ViewBag.SearchIdx</h3>
 <p>Source = @ViewBag.StatsUpdateSource, Time=@ViewBag.StatsUpdateTime</p>
 <ul>
-    <li>UseSql = @Html.ActionLink(SearchServiceInfo.UseSql.ToString(), "SetUseSql", "Admin", new { flag =  !SearchServiceInfo.UseSql }, null)</li>
     <li>@Html.ActionLink("basica", "SetSearchIdx", "Admin", new {id = "basica"}, null)</li>
     <li>@Html.ActionLink("basicb", "SetSearchIdx", "Admin", new {id = "basicb"}, null)</li>
     <li>@Html.ActionLink("basicc", "SetSearchIdx", "Admin", new {id = "basicc"}, null)</li>

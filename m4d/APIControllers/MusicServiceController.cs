@@ -11,7 +11,7 @@ namespace m4d.APIControllers
     {
         public IHttpActionResult Get(Guid id, string service, string title = null, string artist = null, string album = null, string region=null)
         {
-            var song = Database.FindSongDetails(id);
+            var song = Database.FindSong(id);
             if (song != null && artist == null && title == null)
             {
                 artist = song.Artist;
@@ -29,8 +29,8 @@ namespace m4d.APIControllers
 
                 if (tracks == null || tracks.Count == 0)
                 {
-                    artist = SongBase.CleanString(artist);
-                    title = SongBase.CleanString(title);
+                    artist = Song.CleanString(artist);
+                    title = Song.CleanString(title);
 
                     tracks = InternalGetServiceTracks(song, ms, true, title, artist, album, region);
                 }
@@ -47,7 +47,7 @@ namespace m4d.APIControllers
         }
 
         // TODO:  Pretty sure we can pull the 'clean' parameter from this and descendents
-        private IList<ServiceTrack> InternalGetServiceTracks(SongDetails song, MusicService service, bool clean, string title, string artist, string album, string region)
+        private IList<ServiceTrack> InternalGetServiceTracks(Song song, MusicService service, bool clean, string title, string artist, string album, string region)
         {
             IList<ServiceTrack> tracks = null;
 

@@ -7,6 +7,7 @@ using System.Net;
 using System.Web.Mvc;
 using m4d.ViewModels;
 using m4dModels;
+using Microsoft.Azure.Search.Models;
 
 namespace m4d.Controllers
 {
@@ -22,7 +23,7 @@ namespace m4d.Controllers
         [AllowAnonymous]
         public ActionResult Index()
         {
-            var model = Database.OrderedTagTypes;
+            var model = Database.OrderedTagGroups;
             return View(model);
         }
 
@@ -33,12 +34,12 @@ namespace m4d.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            var tagType = Database.TagTypes.Find(TagType.TagDecode(id));
-            if (tagType == null)
+            var tagGroup = Database.TagGroups.Find(TagGroup.TagDecode(id));
+            if (tagGroup == null)
             {
                 return HttpNotFound();
             }
-            return View(tagType);
+            return View(tagGroup);
         }
 
         // GET: Tag/Create
@@ -53,27 +54,32 @@ namespace m4d.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create([Bind(Include = "Key,Count,PrimaryId")] TagType tagType)
+        public ActionResult Create([Bind(Include = "Key,PrimaryId")] TagGroup tagGroup)
         {
             if (ModelState.IsValid)
             {
-                DanceMusicService.BlowTagCache();
+                var tt = Database.DanceStats.TagManager.FindOrCreateTagGroup(tagGroup.Key);
+                if (tagGroup.PrimaryId != null)
+                {
+                    tt.PrimaryId = tagGroup.PrimaryId;
+                    tt.Primary = Database.DanceStats.TagManager.TagMap[tt.PrimaryId];
+                }
 
-                Database.TagTypes.Add(tagType);
-                Database.SaveChanges();
+                Database.UpdateAzureIndex(null);
+
                 return RedirectToAction("Index");
             }
 
             SetupPrimary();
-            return View(tagType);
+            return View(tagGroup);
         }
 
         private void SetupPrimary()
         {
-            var tagTypes = Database.TagTypes.ToList();
-            var nullT = new TagType();
-            tagTypes.Insert(0, nullT);
-            ViewBag.PrimaryId = new SelectList(tagTypes, "Key", "Key", string.Empty);
+            var tagGroups = Database.TagGroups.ToList();
+            var nullT = new TagGroup();
+            tagGroups.Insert(0, nullT);
+            ViewBag.PrimaryId = new SelectList(tagGroups, "Key", "Key", string.Empty);
         }
 
         // GET: Tag/Edit/5
@@ -84,15 +90,15 @@ namespace m4d.Controllers
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
 
-            var tagType = Database.TagTypes.Find(TagType.TagDecode(id));
-            if (tagType == null)
+            var tagGroup = Database.TagGroups.Find(TagGroup.TagDecode(id));
+            if (tagGroup == null)
             {
                 return HttpNotFound();
             }
-            var pid = tagType.PrimaryId ?? tagType.Key;
+            var pid = tagGroup.PrimaryId ?? tagGroup.Key;
 
-            ViewBag.PrimaryId = new SelectList(Database.TagTypes, "Key", "Key", pid);
-            return View(new TagTypeView(tagType));
+            ViewBag.PrimaryId = new SelectList(Database.TagGroups, "Key", "Key", pid);
+            return View(new TagGroupView(tagGroup));
         }
 
         // POST: Tag/Edit/5
@@ -100,112 +106,92 @@ namespace m4d.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit([Bind(Include = "Key,Count,PrimaryId")] TagType tagType, string newKey)
+        public ActionResult Edit([Bind(Include = "Key,PrimaryId")] TagGroup tagGroup, string newKey)
         {
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
-                DanceMusicService.BlowTagCache();
+                var pid = tagGroup.PrimaryId ?? tagGroup.Key;
 
-                if (string.Equals(tagType.Key,newKey))
+                ViewBag.PrimaryId = new SelectList(Database.TagGroups, "Key", "Key", pid);
+                return View(tagGroup);
+            }
+
+            //  Rename an existing tag (change in place or add/delete? - do we chance all user instances) - rebuild all tag summaries if primary
+            //  Change a tag to not be primary (rebuild all tag summaries - search on old primary)
+            //  Change a tag to be primary (rebuild all tag summaries - search on old primary)
+
+            var changed = false;
+
+            var oldTag = Database.TagGroups.Find(tagGroup.Key);
+            tagGroup.Key = newKey;
+
+            if (string.Equals(oldTag.Key, tagGroup.PrimaryId))
+            {
+                tagGroup.PrimaryId = null;
+                tagGroup.Primary = null;
+            }
+
+            if (!string.Equals(oldTag.Key, tagGroup.Key))
+            {
+                Database.DanceStats.TagManager.ChangeTagName(oldTag.Key, tagGroup.Key);
+                Database.TagGroups.Remove(oldTag);
+                var newTag = Database.TagGroups.Create();
+                newTag.Key = tagGroup.Key;
+                newTag.PrimaryId = tagGroup.PrimaryId;
+                Database.TagGroups.Add(newTag);
+                changed = true;
+            }
+
+            if (tagGroup.PrimaryId != oldTag.PrimaryId)
+            {
+                changed = true;
+                string filter = null;
+                // Removed this tag from an existing ring
+                if (tagGroup.PrimaryId == null)
                 {
-                    if (string.Equals(tagType.Key,tagType.PrimaryId))
-                    {
-                        tagType.PrimaryId = null;
-                        tagType.Primary = null;
-                    }
-                    Context.Entry(tagType).State = EntityState.Modified;
-                    Database.SaveChanges();
+                    var primary = oldTag.GetPrimary();
+                    filter = FilterFromTag(primary.Key);
                 }
+                // Added this type to a ring
+                else if (oldTag.PrimaryId == null)
+                {
+                    var primary = tagGroup.GetPrimary();
+                    filter = FilterFromTag(primary.Key);
+                }
+                // Moved this from one ring to another
                 else
                 {
-                    // NOTE: This should work more smoothly because the only foreign
-                    //  keys dependant on this as a primary key are in the TagType table itself
+                    var primaryA = oldTag.GetPrimary();
+                    var primaryB = tagGroup.GetPrimary();
 
-                    // Save off the parent
-                    if (string.Equals(tagType.Key, tagType.PrimaryId))
-                    {
-                        tagType.PrimaryId = null;
-                        tagType.Primary = null;
-                    }
-
-                    // Save off the children
-                    var oldTagType = Database.TagTypes.Find(tagType.Key);
-                    var children = new List<string>();
-                    if (oldTagType.Ring != null)
-                    {
-                        children.AddRange(oldTagType.Ring.Select(child => child.Key));
-                        oldTagType.Ring.Clear();
-                    }
-
-                    // Delete the old type
-                    Database.TagTypes.Remove(oldTagType);
-                    Database.SaveChanges();
-
-                    // Add the new type and put back in the child references
-                    var temp = new TagType(newKey);
-                    var newTagType = Database.FindOrCreateTagType(tagType.Value, temp.Category, temp.PrimaryId);
-
-                    foreach (var c in children)
-                    {
-                        var child = Database.TagTypes.Find(c);
-                        child.PrimaryId = newKey;
-                        child.Primary = newTagType;
-                        if (newTagType.Ring.All(tt => tt.Key != newKey))
-                        {
-                            newTagType.Ring.Add(child);
-                        }
-                    }
-                    Database.SaveChanges();
-
-                    // Go through the Tag table and fix up all of the references
-                    var songIds = new List<Guid>();
-                    var tags = from t in Database.Tags where t.Tags.Summary.Contains(oldTagType.Key) select t;
-                    foreach (var tag in tags)
-                    {
-                        tag.Tags.Summary = tag.Tags.Summary.Replace(oldTagType.Key, newKey);
-                        newTagType.Count += 1;
-                        
-                        // TODO: We're handling songs and dance references now, but need to generalize to other taggable objects
-                        //  Also should figure out how to pull out id in a more general way
-                        if (tag.Id.StartsWith("S:"))
-                        {
-                            songIds.Add(new Guid(tag.Id.Substring(2)));
-                        }
-                        else if (tag.Id.StartsWith("X:"))
-                        {
-                            songIds.Add(new Guid(tag.Id.Substring(5)));
-                        }
-                        else
-                        {
-                            Trace.WriteLineIf(TraceLevels.General.TraceInfo, "When did we start supporting tags on non-songs/dance references");
-                        }
-                    }
-                    Database.SaveChanges();
-
-                    // Use the tag table to reference all the affected songs and fix them
-                    //  Both the TagSummary and the Properties
-                    foreach (var song in songIds.Select(songId => Database.FindSong(songId)).Where(song => song != null))
-                    {
-                        song.TagSummary.Summary = song.TagSummary.Summary.Replace(oldTagType.Key, newKey);
-
-                        foreach (var prop in song.SongProperties.Where(prop => prop.Name.StartsWith(SongBase.AddedTags) || prop.Name.StartsWith(SongBase.RemovedTags)).Where(prop => prop.Value.Contains(oldTagType.Key)))
-                        {
-                            prop.Value = prop.Value.Replace(oldTagType.Key, newKey);
-                        }
-
-                        foreach (var dr in song.DanceRatings)
-                        {
-                            dr.TagSummary.Summary = dr.TagSummary.Summary.Replace(oldTagType.Key, newKey);
-                        }
-                    }
-                    Database.SaveChanges();
+                    filter = $"{FilterFromTag(primaryA.Key)} or {FilterFromTag(primaryB.Key)}";
                 }
-                return RedirectToAction("Index");
-            }
-            var pid = tagType.PrimaryId ?? tagType.Key;
 
-            ViewBag.PrimaryId = new SelectList(Database.TagTypes, "Key", "Key", pid);
-            return View(tagType);
+                oldTag.PrimaryId = tagGroup.PrimaryId;
+                oldTag.Modified = DateTime.Now;
+                Database.DanceStats.TagManager.UpdateTagRing(oldTag.Key, oldTag.PrimaryId);
+
+                var parameters = new SearchParameters {Filter=filter};
+
+                var stats = Database.DanceStats;
+                while (Database.UpdateAzureIndex(Database.TakeTail(parameters, 1000)) != 0)
+                {
+                    Trace.WriteLine("Updated another batch of tags");
+                };
+            }
+
+            if (changed)
+                Database.SaveChanges();
+
+            return RedirectToAction("Index");
+        }
+
+        private string FilterFromTag(string key)
+        {
+            var filter = SongFilter.Default;
+            filter.Tags = key;
+            var parameters = Database.AzureParmsFromFilter(filter);
+            return parameters.Filter;
         }
 
         // GET: Tag/Delete/5
@@ -215,12 +201,12 @@ namespace m4d.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            var tagType = Database.TagTypes.Find(TagType.TagDecode(id));
-            if (tagType == null)
+            var tagGroup = Database.TagGroups.Find(TagGroup.TagDecode(id));
+            if (tagGroup == null)
             {
                 return HttpNotFound();
             }
-            return View(tagType);
+            return View(tagGroup);
         }
 
         // POST: Tag/Delete/5
@@ -228,11 +214,14 @@ namespace m4d.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult DeleteConfirmed(string id)
         {
+            // TODO: Should we consider guarding this?  If the tagtype is being used we may screw ourselves
+            var tagGroup = Database.TagGroups.Find(TagGroup.TagDecode(id));
+            Database.DanceStats.TagManager.DeleteTagGroup(tagGroup.Key);
+            Database.TagGroups.Remove(tagGroup);
+            Database.SaveChanges();
+
             DanceMusicService.BlowTagCache();
 
-            var tagType = Database.TagTypes.Find(TagType.TagDecode(id));
-            Database.TagTypes.Remove(tagType);
-            Database.SaveChanges();
             return RedirectToAction("Index");
         }
     }

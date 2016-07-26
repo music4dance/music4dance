@@ -58,16 +58,16 @@ namespace m4dModels
             Summary = Serialize(Parse(serialized));
         }
 
-        public TagSummary(FacetResults facets, IReadOnlyDictionary<string, TagType> tagMap)
+        public TagSummary(FacetResults facets, IReadOnlyDictionary<string, TagGroup> tagMap)
         {
             Summary = Serialize(Parse(string.Join("|", 
                 facets.Keys.Select(key => string.Join("|", facets[key].Select(f => MassageTag(f.Value as string,key, f.Count, tagMap)).ToList())))));
         }
 
-        private static string MassageTag(string tvalue, string ttype, long? count, IReadOnlyDictionary<string, TagType> tagMap)
+        private static string MassageTag(string tvalue, string ttype, long? count, IReadOnlyDictionary<string, TagGroup> tagMap)
         {
             string key = $"{tvalue}:{SongFilter.TagClassFromName(ttype.Substring(0, ttype.Length - 4))}";
-            TagType tt;
+            TagGroup tt;
             if (tagMap.TryGetValue(key.ToLower(), out tt))
             {
                 key = tt.Key;

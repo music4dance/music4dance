@@ -21,7 +21,7 @@ namespace m4dModels
             MaxWeight = maxWeight;
             SongTags = string.IsNullOrEmpty(songTags) ? null : new TagSummary(songTags);
             // TODO: We've got a chicken and egg problem here - we should be able to load tags first and then pull in stats so that we can have TagMap available here
-            TopSongs = topSongs?.Select(s => new SongDetails(s,null)).ToList();
+            TopSongs = topSongs?.Select(s => new Song(s,null)).ToList();
 
             if (danceType != null)
             {
@@ -67,7 +67,7 @@ namespace m4dModels
         [JsonProperty]
         public virtual ICollection<DanceLink> DanceLinks { get; set; }
         [JsonProperty]
-        public IEnumerable<SongBase> TopSongs { get; set; }
+        public IEnumerable<Song> TopSongs { get; set; }
 
         public ICollection<ICollection<PurchaseLink>> TopSpotify => DanceMusicService.GetPurchaseLinks(ServiceType.Spotify, TopSongs);
 
@@ -91,10 +91,7 @@ namespace m4dModels
         {
             Id = DanceId,
             Description = Description,
-            MaxWeight = MaxWeight,
             DanceLinks = DanceLinks,
-            SongCount = (int) SongCount,
-            SongTags = SongTags
         };
 
         public IEnumerable<DanceInstance> CompetitionDances { get; private set; }
@@ -104,14 +101,6 @@ namespace m4dModels
             if (dance == null) return;
 
             Description = dance.Description;
-            if (includeStats)
-            {
-                SongCount = dance.SongCount;
-                MaxWeight = dance.MaxWeight;
-                TopSongs =
-                    dance.TopSongs?.OrderBy(ts => ts.Rank).Select(ts => new SongDetails(ts.Song) as SongBase).ToList();
-                SongTags = dance.SongTags;
-            }
             DanceLinks = dance.DanceLinks;
 
             var dt = DanceObject as DanceType;
@@ -133,7 +122,18 @@ namespace m4dModels
 
         public void RebuildTopSongs(DanceStatsInstance danceStats)
         {
-            TopSongs = TopSongs?.Select(s => new SongDetails(s.Serialize(null), danceStats)).ToList();
+            TopSongs = TopSongs?.Select(s => new Song(s.Serialize(null), danceStats)).ToList();
+        }
+
+        public void AggregateSongCounts(IReadOnlyDictionary<string, long> tags, IReadOnlyDictionary<string, long> inferred)
+        {
+            // SongCount
+            long expl;
+            long impl;
+
+            SongCountExplicit = tags.TryGetValue(DanceId, out expl) ? expl : 0;
+            SongCountImplicit = inferred.TryGetValue(DanceId, out impl) ? impl : 0;
+            SongCount = SongCountImplicit + SongCountExplicit;
         }
 
         public DanceStats CloneForUser(string userName, DanceStatsInstance danceStats)
@@ -147,7 +147,7 @@ namespace m4dModels
                 DanceObject = DanceObject,
                 Parent = Parent,
                 Children = Children,
-                TopSongs = TopSongs?.Select(s => new SongDetails(s.SongId, s.Serialize(null), danceStats, userName)).ToList()
+                TopSongs = TopSongs?.Select(s => new Song(s.SongId, s.Serialize(null), danceStats, userName)).ToList()
             };
         }
     }

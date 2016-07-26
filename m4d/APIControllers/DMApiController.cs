@@ -11,6 +11,7 @@ using Microsoft.ApplicationInsights;
 
 namespace m4d.APIControllers
 {
+    // ReSharper disable once InconsistentNaming
     public class DMApiController : ApiController
     {
         protected DanceMusicService Database => _database ??

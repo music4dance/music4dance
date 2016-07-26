@@ -172,29 +172,12 @@ namespace m4dModels
         object IDbAsyncEnumerator.Current => Current;
     }
 
-    public class TagTypeSet : TestDbSet<TagType>
+    public class TagGroupSet : TestDbSet<TagGroup>
     {
-        public override TagType Find(params object[] keyValues)
+        public override TagGroup Find(params object[] keyValues)
         {
             var id = keyValues.Single() as string;
             return id == null ? null : this.SingleOrDefault(tt => string.Equals(tt.Key,id,StringComparison.OrdinalIgnoreCase));
-        }
-    }
-
-    public class TagSet : TestDbSet<Tag>
-    {
-        public override Tag Find(params object[] keyValues)
-        {
-            if (keyValues.Length  != 2)
-                return null;
-
-            var uid = keyValues[0] as string;
-            var tid = keyValues[1] as string;
-
-            if (uid == null || tid == null)
-                return null;
-
-            return this.SingleOrDefault(t => t.UserId == uid && t.Id == tid);
         }
     }
 

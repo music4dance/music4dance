@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Data.Entity;
 using System.Web;
 using System.Web.Http;
 using m4dModels;
@@ -13,12 +14,9 @@ namespace m4d.APIControllers
             var uts = tags.ToUserTags();
 
             var user = Database.FindUser(HttpContext.Current.User.Identity.GetUserName());
-            if (Database.EditTags(user, id, uts))
-            {
-                IndexUpdater.Enqueue();
-            }
+            var changed = Database.EditTags(user, id, uts);
 
-            return Ok(new{changed=1});
+            return Ok(new{changed=changed?1:0});
         }
     }
 }

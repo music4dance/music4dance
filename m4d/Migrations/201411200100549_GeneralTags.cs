@@ -20,7 +20,7 @@ namespace m4d.Migrations
                 .Index(t => t.UserId);
             
             CreateTable(
-                "dbo.TagTypes",
+                "dbo.TagGroups",
                 c => new
                     {
                         Key = c.String(nullable: false, maxLength: 128),
@@ -28,18 +28,18 @@ namespace m4d.Migrations
                         PrimaryId = c.String(maxLength: 128),
                     })
                 .PrimaryKey(t => t.Key)
-                .ForeignKey("dbo.TagTypes", t => t.PrimaryId)
+                .ForeignKey("dbo.TagGroups", t => t.PrimaryId)
                 .Index(t => t.PrimaryId);
             
         }
         
         public override void Down()
         {
-            DropForeignKey("dbo.TagTypes", "PrimaryId", "dbo.TagTypes");
+            DropForeignKey("dbo.TagGroups", "PrimaryId", "dbo.TagGroups");
             DropForeignKey("dbo.Tags", "UserId", "dbo.AspNetUsers");
-            DropIndex("dbo.TagTypes", new[] { "PrimaryId" });
+            DropIndex("dbo.TagGroups", new[] { "PrimaryId" });
             DropIndex("dbo.Tags", new[] { "UserId" });
-            DropTable("dbo.TagTypes");
+            DropTable("dbo.TagGroups");
             DropTable("dbo.Tags");
         }
     }

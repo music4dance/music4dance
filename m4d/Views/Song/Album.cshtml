@@ -13,7 +13,7 @@
 <h2>Album: @Model.Title</h2>
 @if (!string.IsNullOrWhiteSpace(@Model.Artist))
 {
-    <h3>Artist: @Html.ActionLink(@Model.Artist, "search", "song", new { searchString = @Model.Artist, dances = "ALL" }, null)</h3>
+    <h3>Artist: @Html.ActionLink(@Model.Artist, "artist", "song", new { name = @Model.Artist }, null)</h3>
 }
 
 <div class="row col-xs-12">

@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Net;
 using System.Web;
 using System.Web.Mvc;
-using m4d.APIControllers;
 using m4d.Context;
 using m4d.Utilities;
 using m4dModels;
@@ -158,16 +157,14 @@ namespace m4d.Controllers
             return SpiderManager.CheckBadSpiders(Request.UserAgent) ? View("BotWarning") : null;
         }
 
-        protected void UpdateAndEnqueue(IEnumerable<SongBase> songs = null)
+        protected void SaveSong(Song song)
         {
-            Database.SaveChanges(songs);
-            IndexUpdater.Enqueue();
+            Database.SaveSong(song);
         }
 
-        protected void Enqueue(IEnumerable<SongBase> songs = null)
+        protected void SaveSongs(IEnumerable<Song> songs = null)
         {
-            Database.UpdateTopSongs(songs);
-            IndexUpdater.Enqueue();
+            Database.SaveSongs(songs);
         }
 
         #region AdminTaskHelpers
@@ -198,6 +195,14 @@ namespace m4d.Controllers
             {
                 AdminMonitor.CompleteTask(false, message, e);
             }
+
+            return View("Results");
+        }
+
+        protected ActionResult RestoreBatch()
+        {
+            ViewBag.Success = false;
+            ViewBag.Message = "This functionality hasn't been re-implemented after the azure-search migration - do we really need it?";
 
             return View("Results");
         }

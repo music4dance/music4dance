@@ -17,135 +17,136 @@ namespace m4dModels
         
         public static List<Song> GetMergeCandidates(IDanceMusicContext dmc, int n, int level)
         {
-            var clusters = new Dictionary<int,MergeCluster>();
+            throw new NotImplementedException("Need to get merge working again");
+            //var clusters = new Dictionary<int,MergeCluster>();
 
-            // ReSharper disable once LoopCanBePartlyConvertedToQuery
-            foreach (var song in dmc.Songs)
-            {
-                if (song.IsNull) continue;
+            //// ReSharper disable once LoopCanBePartlyConvertedToQuery
+            //foreach (var song in dmc.Songs)
+            //{
+            //    if (song.IsNull) continue;
 
-                MergeCluster mc;
+            //    MergeCluster mc;
 
-                var hash = song.TitleHash;
-                if (level != 2)
-                {
-                    hash = SongBase.CreateTitleHash(song.Title + song.Artist);
-                }
+            //    var hash = song.TitleHash;
+            //    if (level != 2)
+            //    {
+            //        hash = Song.CreateTitleHash(song.Title + song.Artist);
+            //    }
 
-                if (!clusters.TryGetValue(hash, out mc))
-                {
-                    mc = new MergeCluster(hash);
-                    clusters.Add(hash, mc);
-                }
+            //    if (!clusters.TryGetValue(hash, out mc))
+            //    {
+            //        mc = new MergeCluster(hash);
+            //        clusters.Add(hash, mc);
+            //    }
 
-                mc.Songs.Add(song);
-            }
+            //    mc.Songs.Add(song);
+            //}
 
-            // Consider improving this algorithm, but for now, just take the top n songs
-            var ret = new List<Song>();
+            //// Consider improving this algorithm, but for now, just take the top n songs
+            //var ret = new List<Song>();
 
-            foreach (var cluster in clusters.Values.TakeWhile(cluster => ret.Count + cluster.Songs.Count <= n).Where(cluster => cluster.Songs.Count > 1))
-            {
-                // Level 2 is all songs with a similar title
-                if (level == 2)
-                {
-                    ret.AddRange(cluster.Songs);
-                }
-                // Level 0 is similar title + all other fields are the same or empty
-                else if (level == 0)
-                {
-                    var lumps = new List<MergeCluster>();
+            //foreach (var cluster in clusters.Values.TakeWhile(cluster => ret.Count + cluster.Songs.Count <= n).Where(cluster => cluster.Songs.Count > 1))
+            //{
+            //    // Level 2 is all songs with a similar title
+            //    if (level == 2)
+            //    {
+            //        ret.AddRange(cluster.Songs);
+            //    }
+            //    // Level 0 is similar title + all other fields are the same or empty
+            //    else if (level == 0)
+            //    {
+            //        var lumps = new List<MergeCluster>();
 
-                    foreach (var s in cluster.Songs)
-                    {
-                        var added = false;
-                        foreach (var lump in lumps)
-                        {
-                            if (!s.Equivalent(lump.Songs[0])) continue;
+            //        foreach (var s in cluster.Songs)
+            //        {
+            //            var added = false;
+            //            foreach (var lump in lumps)
+            //            {
+            //                if (!s.Equivalent(lump.Songs[0])) continue;
 
-                            lump.Songs.Add(s);
-                            added = true;
-                            break;
-                        }
+            //                lump.Songs.Add(s);
+            //                added = true;
+            //                break;
+            //            }
 
-                        if (added) continue;
+            //            if (added) continue;
 
-                        var mc = new MergeCluster(0);
-                        mc.Songs.Add(s);
-                        lumps.Add(mc);
-                    }
+            //            var mc = new MergeCluster(0);
+            //            mc.Songs.Add(s);
+            //            lumps.Add(mc);
+            //        }
 
-                    foreach (var l in lumps)
-                    {
-                        if (ret.Count + l.Songs.Count > n)
-                        {
-                            break;
-                        }
+            //        foreach (var l in lumps)
+            //        {
+            //            if (ret.Count + l.Songs.Count > n)
+            //            {
+            //                break;
+            //            }
 
-                        if (l.Songs.Count > 1)
-                        {
-                            ret.AddRange(l.Songs);
-                        }
-                    }
+            //            if (l.Songs.Count > 1)
+            //            {
+            //                ret.AddRange(l.Songs);
+            //            }
+            //        }
 
-                }
+            //    }
 
-                // Level 1 (default) is all songs that have a similar title and similar or empty artist
-                else
-                {
-                    var lumps = new Dictionary<int, MergeCluster>();
+            //    // Level 1 (default) is all songs that have a similar title and similar or empty artist
+            //    else
+            //    {
+            //        var lumps = new Dictionary<int, MergeCluster>();
 
-                    var emptyArtist = false;
-                    foreach (var s in cluster.Songs)
-                    {
-                        if (string.IsNullOrWhiteSpace(s.Artist))
-                        {
-                            emptyArtist = true;
-                            break;
-                        }
+            //        var emptyArtist = false;
+            //        foreach (var s in cluster.Songs)
+            //        {
+            //            if (string.IsNullOrWhiteSpace(s.Artist))
+            //            {
+            //                emptyArtist = true;
+            //                break;
+            //            }
 
-                        MergeCluster lump;
-                        var hash = SongBase.CreateTitleHash(s.Artist);
-                        if (!lumps.TryGetValue(hash, out lump))
-                        {
+            //            MergeCluster lump;
+            //            var hash = Song.CreateTitleHash(s.Artist);
+            //            if (!lumps.TryGetValue(hash, out lump))
+            //            {
 
-                            lump = new MergeCluster(hash);
-                            lumps.Add(hash, lump);
-                        }
+            //                lump = new MergeCluster(hash);
+            //                lumps.Add(hash, lump);
+            //            }
 
-                        lump.Songs.Add(s);
-                    }
+            //            lump.Songs.Add(s);
+            //        }
 
-                    if (emptyArtist)
-                    {
-                        // Add all of the songs in the cluster
-                        ret.AddRange(cluster.Songs);
-                    }
-                    else
-                    {
-                        foreach (var l in lumps.Values)
-                        {
-                            // Level 3 == level but filter out lumps with lengths that are too divergents (epsilon > 20?)
-                            if (level == 3)
-                            {
-                                l.Songs = FilterLength(l.Songs);
-                            }
+            //        if (emptyArtist)
+            //        {
+            //            // Add all of the songs in the cluster
+            //            ret.AddRange(cluster.Songs);
+            //        }
+            //        else
+            //        {
+            //            foreach (var l in lumps.Values)
+            //            {
+            //                // Level 3 == level but filter out lumps with lengths that are too divergents (epsilon > 20?)
+            //                if (level == 3)
+            //                {
+            //                    l.Songs = FilterLength(l.Songs);
+            //                }
 
-                            if (ret.Count + l.Songs.Count > n)
-                            {
-                                break;
-                            }
+            //                if (ret.Count + l.Songs.Count > n)
+            //                {
+            //                    break;
+            //                }
 
-                            if (l.Songs.Count > 1)
-                            {
-                                ret.AddRange(l.Songs);
-                            }
-                        }
-                    }
-                }
-            }
+            //                if (l.Songs.Count > 1)
+            //                {
+            //                    ret.AddRange(l.Songs);
+            //                }
+            //            }
+            //        }
+            //    }
+            //}
 
-            return ret;
+            //return ret;
         }
 
         private static List<Song> FilterLength(List<Song> lump)

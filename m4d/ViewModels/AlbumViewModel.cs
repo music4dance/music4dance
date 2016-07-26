@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
 using m4dModels;
 
 namespace m4d.ViewModels
@@ -11,19 +10,13 @@ namespace m4d.ViewModels
         [Key]
         public string Title {get;set;}
         public string Artist {get;set;}
-        public IList<SongDetails> Songs {get;set;}
+        public IList<Song> Songs {get;set;}
 
-        static public AlbumViewModel Create(string title, DanceMusicService dms)
+        public static AlbumViewModel Create(string title, DanceMusicService.CruftFilter cruft, DanceMusicService dms)
         {
-            // TODO: if we really don't have distinct in linq syntax should probably use function syntax for the whole thing...
-            var ids = (from sp in dms.SongProperties
-                where sp.Name.StartsWith(SongBase.AlbumField) && sp.Value == title
-                select sp.SongId).Distinct();
-            var songs = from s in dms.Songs
-                where ids.Contains(s.SongId)
-                select s;
+            var songs = dms.FindAlbum(title);
 
-            var map = new Dictionary<int,SongDetails>();
+            var map = new Dictionary<int, Song>();
             var max = 0;
             var floor = -1;
 
@@ -34,8 +27,7 @@ namespace m4d.ViewModels
 
             foreach (var song in songs)
             {
-                var sd = new SongDetails(song);
-                var album = sd.AlbumFromTitle(title);
+                var album = song.AlbumFromTitle(title);
                 if (album == null) continue;
 
                 int track;
@@ -49,16 +41,16 @@ namespace m4d.ViewModels
                     track = album.Track.Value;
                 }
 
-                map.Add(track, sd);
+                map.Add(track, song);
                 max = Math.Max(max, track);
 
-                if (artist == null && !string.IsNullOrWhiteSpace(sd.Artist))
+                if (artist == null && !string.IsNullOrWhiteSpace(song.Artist))
                 {
-                    artist = SongBase.CreateNormalForm(sd.Artist);
+                    artist = Song.CreateNormalForm(song.Artist);
                 }
                 else if (uniqueArtist)
                 {
-                    if (!string.Equals(SongBase.CreateNormalForm(sd.Artist), artist, StringComparison.InvariantCultureIgnoreCase))
+                    if (!string.Equals(Song.CreateNormalForm(song.Artist), artist, StringComparison.InvariantCultureIgnoreCase))
                     {
                         uniqueArtist = false;
                     }
@@ -70,23 +62,23 @@ namespace m4d.ViewModels
                 }
             }
 
-            var list = new List<SongDetails>();
+            var list = new List<Song>();
             // First add in the tracks that have valid #'s in order
             for (var i = 0; i <= max; i++)
             {
-                SongDetails sd;
-                if (map.TryGetValue(i,out sd))
+                Song song;
+                if (map.TryGetValue(i, out song))
                 {
-                    list.Add(sd);
+                    list.Add(song);
                 }
             }
             // Then append the tracks that either don't have a number or are dups
             for (var i = -1; i > floor; i--)
             {
-                SongDetails sd;
-                if (map.TryGetValue(i, out sd))
+                Song song;
+                if (map.TryGetValue(i, out song))
                 {
-                    list.Add(sd);
+                    list.Add(song);
                 }
             }
 

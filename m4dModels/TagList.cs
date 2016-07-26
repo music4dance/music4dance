@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Data;
+using System.Globalization;
 using System.Linq;
 
 namespace m4dModels
@@ -169,6 +170,18 @@ namespace m4dModels
             return Parse(Summary);
         }
 
+        public static string NormalizeTag(string tag)
+        {
+            var fields = tag.Split(':').ToList();
+            if (!fields[0].Contains('-')) fields[0] = s_ti.ToTitleCase(fields[0]);
+            if (fields.Count < 2)
+                fields.Add("Other");
+            else if (!char.IsUpper(fields[1][0]))
+                fields[1] = fields[1].Substring(0, 1).ToUpper() + fields[1].Substring(1);
+
+            return string.Join(":", fields);
+        }
+
         #endregion
 
         #region Implementation
@@ -199,6 +212,9 @@ namespace m4dModels
 
             return (tag[0] == '+' || tag[0] == '-') ? tag.Substring(1) : tag;
         }
+
+        private static readonly TextInfo s_ti = new CultureInfo("en-US", false).TextInfo;
+
         #endregion
     }
 }

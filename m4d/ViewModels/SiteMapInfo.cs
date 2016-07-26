@@ -71,29 +71,15 @@ namespace m4d.ViewModels
                     Type = "music",
                     Entries = new List<SiteMapEntry>
                     {
-                        (SearchServiceInfo.UseSql) ?
-                            new SiteMapEntry
+                        new SiteMapEntry
+                        {
+                            Title =  "Song Library", Reference="song/azuresearch",
+                            Children = new List<SiteMapEntry>
                             {
-                                Title =  "Song Library", Reference="song",
-                                Children = new List<SiteMapEntry>
-                                {
-                                    new SiteMapEntry {Title = "Advanced Search", Reference = "song/advancedsearchform"},
-                                    new SiteMapEntry {Title = "Saved Searches", Reference = "searches/index"},
-                                    new SiteMapEntry {Title = "Simple Search (BETA)", Reference = "song/azuresearch"},
-                                    new SiteMapEntry {Title = "Advanced Search (BETA)", Reference = "song/advancedsearchform?filter=azure+advanced"}
-                                }
-                            }:
-                            new SiteMapEntry
-                            {
-                                Title =  "Song Library", Reference="song/azuresearch",
-                                Children = new List<SiteMapEntry>
-                                {
-                                    new SiteMapEntry {Title = "Advanced Search", Reference = "song/advancedsearchform?filter=azure+advanced"},
-                                    new SiteMapEntry {Title = "Saved Searches", Reference = "searches/index"},
-                                    new SiteMapEntry {Title = "Search (Legacy)", Reference = "song"},
-                                    new SiteMapEntry {Title = "Advanced Search (Legacy)", Reference = "song/advancedsearch"}
-                                }
-                            },
+                                new SiteMapEntry {Title = "Advanced Search", Reference = "song/advancedsearchform?filter=azure+advanced"},
+                                new SiteMapEntry {Title = "Saved Searches", Reference = "searches/index"},
+                            }
+                        },
                         new SiteMapEntry {Title =  "Dance Index", Reference="dances"},
                         new SiteMapEntry
                         {

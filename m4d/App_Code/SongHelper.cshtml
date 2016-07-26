@@ -3,7 +3,7 @@
 @using m4dModels
 @using PagedList.Mvc;
 
-@helper Spotify(IEnumerable<SongBase> songs)
+@helper Spotify(IEnumerable<Song> songs)
 {
     <div id="spotify-player" class="col-md-6" data-trackset-name="music4dance" data-trackset-songs="@string.Join(",", songs.Select(s => s.SongId))">
         <button class="btn-default btn-block btn-lg">Show Spotify Player</button>
@@ -11,22 +11,12 @@
 }
 
 // Advanced search header
-@helper AdvancedHeader(System.Web.Mvc.HtmlHelper html, SongFilter filter)
-{
-    var isAzure = filter.IsAzure;
+@helper AdvancedHeader(System.Web.Mvc.HtmlHelper html, SongFilter filter){
     var url = "/song/" + (filter.IsRaw ? "raw" : "advanced") + "searchform?filter=" + filter;
     <h1>Search Results
         @if (filter.IsRaw)
         {
             <text> (RAW)</text>
-        }
-        @if (isAzure && SearchServiceInfo.UseSql)
-        {
-            <text> (BETA)</text>
-        }
-        else if (!isAzure && !SearchServiceInfo.UseSql)
-        {
-            <text> (Legacy)</text>
         }
     </h1>
     <div class="row">
@@ -49,18 +39,7 @@
 
         <div class="row">
             <h1 class="col-sm-2" style="width: auto; font-size: 22px;">
-                @if (isAzure && SearchServiceInfo.UseSql)
-                {
-                    <text>Simple Search (BETA)</text>
-                }
-                else if (!isAzure && !SearchServiceInfo.UseSql)
-                {
-                    <text>Search (Legacy)</text>
-                }
-                else
-                {
-                    <text>Song Library</text>
-                }
+                Song Library
             </h1>
             <div class="col-sm-offset-2" style="margin-left: 1px">
                 <div class="input-group" style="margin-top: 1em">
@@ -109,7 +88,7 @@
     @(filter.IsAdvanced ? AdvancedHeader(html, filter) : SimpleHeader(html, filter, dances, userName))
 }
 
-@helper Footer(System.Web.Mvc.HtmlHelper html, UrlHelper urlHelp, PagedList.IPagedList<SongBase> songs, SongFilter filter)
+@helper Footer(System.Web.Mvc.HtmlHelper html, UrlHelper urlHelp, PagedList.IPagedList<Song> songs, SongFilter filter)
 {
     var danceQuery = filter.DanceQuery;
 

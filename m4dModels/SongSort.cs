@@ -7,9 +7,9 @@ namespace m4dModels
 {
     public class SongSort
     {
-        private static readonly string[] s_directional = { SongBase.TitleField, SongBase.ArtistField, SongBase.AlbumField, SongBase.TempoField, SongBase.ModifiedField, SongBase.CreatedField,SongBase.EnergyField,SongBase.MoodField,SongBase.BeatField };
-        private static readonly string[] s_numerical = { SongBase.TempoField, SongBase.MoodField, SongBase.CreatedField };
-        private static readonly string[] s_intrinsic = {SongBase.EnergyField, SongBase.MoodField, SongBase.BeatField};
+        private static readonly string[] s_directional = { Song.TitleField, Song.ArtistField, Song.AlbumField, Song.TempoField, Song.ModifiedField, Song.CreatedField,Song.EnergyField,Song.MoodField,Song.BeatField };
+        private static readonly string[] s_numerical = { Song.TempoField, Song.MoodField, Song.CreatedField };
+        private static readonly string[] s_intrinsic = {Song.EnergyField, Song.MoodField, Song.BeatField};
 
         private const string SortAsc = "<span class='glyphicon glyphicon-sort-by-alphabet'></span>";
         private const string SortDsc = "<span class='glyphicon glyphicon-sort-by-alphabet-alt'></span>";
@@ -20,7 +20,7 @@ namespace m4dModels
         {
             if (string.IsNullOrWhiteSpace(sort))
             {
-                sort = SongBase.ModifiedField;
+                sort = Song.ModifiedField;
             }
             var list = sort.Split('_').ToList();
             var count = -1;
@@ -102,23 +102,23 @@ namespace m4dModels
                 {
                     switch (Id)
                     {
-                        case SongBase.TempoField:
+                        case Song.TempoField:
                             ret.Append("slowest to fastest");
                             break;
-                        case SongBase.ModifiedField:
-                        case SongBase.CreatedField:
+                        case Song.ModifiedField:
+                        case Song.CreatedField:
                             ret.Append("newest to oldest");
                             break;
-                        case SongBase.DancesField:
+                        case Song.DancesField:
                             ret.Append("most popular to least popular");
                             break;
-                        case SongBase.BeatField:
+                        case Song.BeatField:
                             ret.Append("weakest to strongest");
                             break;
-                        case SongBase.MoodField:
+                        case Song.MoodField:
                             ret.Append("saddest to happiest");
                             break;
-                        case SongBase.EnergyField:
+                        case Song.EnergyField:
                             ret.Append("lowest to highest");
                             break;
                         default:
@@ -129,23 +129,23 @@ namespace m4dModels
                 else {
                     switch (Id)
                     {
-                        case SongBase.TempoField:
+                        case Song.TempoField:
                             ret.Append("fastest to slowest");
                             break;
-                        case SongBase.ModifiedField:
-                        case SongBase.CreatedField:
+                        case Song.ModifiedField:
+                        case Song.CreatedField:
                             ret.Append("oldest to newest");
                             break;
-                        case SongBase.DancesField:
+                        case Song.DancesField:
                             ret.Append("most popular to least popular");
                             break;
-                        case SongBase.BeatField:
+                        case Song.BeatField:
                             ret.Append("strongest to weakest");
                             break;
-                        case SongBase.MoodField:
+                        case Song.MoodField:
                             ret.Append("happiest to saddest");
                             break;
-                        case SongBase.EnergyField:
+                        case Song.EnergyField:
                             ret.Append("highest to lowest");
                             break;
                         default:

@@ -1,9 +1,9 @@
 ﻿@using DanceLibrary
-@model IEnumerable<SongBase>
+@model IEnumerable<Song>
 
 @{
     var isAdmin = User.IsInRole("dbAdmin");
-    var action = SearchServiceInfo.UseSql ? "index" : "azure+simple";
+    var action = "index";
 
     var canSort = ViewData.ContainsKey("NoSort") ? !ViewBag.NoSort : true;
     var showDate = canSort;
@@ -51,7 +51,7 @@
     }
 }
 
-@helper Artist(SongBase song)
+@helper Artist(Song song)
 {
     if (!string.IsNullOrWhiteSpace(song.Artist))
     {
@@ -76,7 +76,7 @@
 
                 var rg = tag.Split(':');
                 var url = "/song/removetags?tags=" + WebUtility.UrlEncode(tag) + "&filter=" + WebUtility.UrlEncode(filter.ToString());
-                var img = "/Content/" + TagType.ClassToName(rg.Length > 0 ? rg[1] : "tag") + "-50.png";
+                var img = "/Content/" + TagGroup.ClassToName(rg.Length > 0 ? rg[1] : "tag") + "-50.png";
                 <span class="label label-@rg[1].ToLower()" style="margin-right: 5px"><a role="button" class="tag-text" href="@url"><img src="@img" height="12" width="12" />@rg[0] <span class="glyphicon glyphicon-remove-sign"></span></a></span>
             }
         }
@@ -93,7 +93,7 @@
     }
 }
 
-@helper Tags(SongBase song, SongFilter filter)
+@helper Tags(Song song, SongFilter filter)
 {
     foreach (var titem in song.TagSummary.Tags.Where(t => !string.Equals(t.TagClass, "dance", StringComparison.OrdinalIgnoreCase)))
     {
@@ -101,7 +101,7 @@
     }
 }
 
-@helper TimeHelper(SongBase song, SongSort order)
+@helper TimeHelper(Song song, SongSort order)
 {
     var created = order.Id == "Created";
     var prefix = created ? "Created" : "Last modified";
@@ -114,7 +114,7 @@
     </td>
 }
 
-@helper LikeHelper(SongBase song, LikeDictionary likes, string img, string modifier, string danceId, string tipNull, string tipTrue, string tipFalse)
+@helper LikeHelper(Song song, LikeDictionary likes, string img, string modifier, string danceId, string tipNull, string tipTrue, string tipFalse)
 {
     bool? like;
     if (likes == null || !likes.TryGetValue(song.SongId, out like))
@@ -276,10 +276,10 @@
     <tbody>
         @foreach (var item in Model)
         {
-            SongDetails sd = null;
+            Song sd = null;
             if (albumName != null)
             {
-                sd = item as SongDetails;
+                sd = item as Song;
             }
             List<DanceRating> scaledDances = null;
             if (item.DanceRatings != null)

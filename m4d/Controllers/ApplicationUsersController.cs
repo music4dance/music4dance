@@ -104,7 +104,8 @@ namespace m4d.Controllers
                 {
                     if (!string.Equals(oldUserName, applicationUser.UserName))
                     {
-                        Database.ChangeUserName(oldUserName, applicationUser.UserName);
+                        throw new NotImplementedException("Enable change user name in Azure Search");
+                        //Database.ChangeUserName(oldUserName, applicationUser.UserName);
                     }
                     Context.SaveChanges();
                 }
@@ -180,18 +181,20 @@ namespace m4d.Controllers
         // GET: ApplicationUsers/Details/5
         public ActionResult AutoLike(string id)
         {
-            if (id == null)
-            {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
-            }
+            // DBKill: Do we need this?
+            return RestoreBatch();
+            //if (id == null)
+            //{
+            //    return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+            //}
 
-            var user = UserManager.FindById(id);
+            //var user = UserManager.FindById(id);
 
-            ViewBag.Title = "AutoLike";
-            var count = Database.BatchUserLike(user, true);
-            ViewBag.Message = $"{count} songs liked.";
+            //ViewBag.Title = "AutoLike";
+            //var count = Database.BatchUserLike(user, true);
+            //ViewBag.Message = $"{count} songs liked.";
 
-            return View("Info");
+            //return View("Info");
         }
 
         // GET: ApplicationUsers/Delete/5

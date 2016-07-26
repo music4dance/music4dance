@@ -10,22 +10,59 @@ namespace m4dModels
     [DataContract]
     public class DanceRating : TaggableObject
     {
-        [DataMember]
-        public Guid SongId { get; set; }
-        public virtual Song Song { get; set; }
+        public DanceRating() { }
+
+        public DanceRating(string id, int weight, DanceStatsInstance stats)
+        {
+            DanceId = id;
+            Weight = weight;
+            SetupSerialization(stats);
+        }
+
+        public void SetupSerialization(DanceStatsInstance stats, TagList userTags = null)
+        {
+            var sc = stats.FromId(DanceId);
+
+            if (sc != null)
+            {
+                DanceName = sc.DanceName;
+                Max = sc.MaxWeight;
+            }
+
+            Badge = stats.GetRatingBadge(DanceId, Weight);
+            CurrentUserTags = userTags;
+        }
+
+        //public DanceRating(string id, string user, DanceStatsInstance stats)
+        //{
+        //    var sc = stats.FromId(DanceId);
+
+        //    if (sc != null)
+        //    {
+        //        DanceName = sc.DanceName;
+        //        Max = sc.MaxWeight;
+        //    }
+
+        //    Badge = stats.GetRatingBadge(DanceId, Weight);
+        //}
+
         [DataMember]
         public string DanceId { get; set; }
-        public virtual Dance Dance { get; set; }
+        public Dance Dance { get; set; }
+
+        [DataMember]
+        public string DanceName { get; set; }
+        [DataMember]
+        public int Max { get; set; }
+        [DataMember]
+        public string Badge { get; set; }
+
         [DataMember]
         public int Weight { get; set; }
 
-        public override char IdModifier => 'X';
-
-        public override string TagIdBase => DanceId + SongId.ToString("N");
-
-        public override void RegisterChangedTags(TagList added, TagList removed, ApplicationUser user, DanceMusicService dms, object data)
+        public override void RegisterChangedTags(TagList added, TagList removed, string user, object data)
         {
-            base.RegisterChangedTags(added, removed, user, dms, data);
+            base.RegisterChangedTags(added, removed, user, data);
 
             if (data == null) return;
 
@@ -36,8 +73,8 @@ namespace m4dModels
                 return;
             }
 
-            song.ChangeTag(SongBase.AddedTags + ":" + DanceId, added, dms);
-            song.ChangeTag(SongBase.RemovedTags + ":" + DanceId, removed, dms);
+            song.ChangeTag(Song.AddedTags + ":" + DanceId, added);
+            song.ChangeTag(Song.RemovedTags + ":" + DanceId, removed);
         }
         protected override HashSet<string> ValidClasses => s_validClasses;
 
@@ -53,7 +90,7 @@ namespace m4dModels
             {
                 string list;
                 string[] ids = null;
-                if (DanceMap.TryGetValue(SongBase.CleanDanceName(ds), out list))
+                if (DanceMap.TryGetValue(Song.CleanDanceName(ds), out list))
                 {
                     ids = list.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
                 }
@@ -101,7 +138,7 @@ namespace m4dModels
 
         private static void AddDanceToMap(DanceObject dance)
         {
-            var name = SongBase.CleanDanceName(dance.Name);
+            var name = Song.CleanDanceName(dance.Name);
             InitialDanceMap.Add(name, dance.Id);
         }
         private static bool s_builtDanceMap;

@@ -56,7 +56,7 @@ namespace m4dModels.Tests
                 Trace.WriteLineIf(General.TraceInfo, $"---------------Predump for Song {song.SongId}");
                 DanceMusicTester.DumpSongProperties(song, General.TraceInfo);
                 var c = song.SongProperties.Count;
-                Assert.IsTrue(song.RemoveEmptyEdits(service.Dms));
+                Assert.IsTrue(song.RemoveEmptyEdits());
                 Trace.WriteLineIf(General.TraceInfo, $"{song.SongId}:{song.SongProperties.Count - c}");
                 Assert.AreEqual(c - deltas[index], song.SongProperties.Count);
 
@@ -89,7 +89,7 @@ namespace m4dModels.Tests
                 Trace.WriteLineIf(General.TraceInfo, $"{song.SongId}:{song.SongProperties.Count - c}");
                 Assert.AreEqual(c - deltas[index], song.SongProperties.Count);
 
-                var sd = new SongDetails(song.SongId, song.SongProperties,service.Dms.DanceStats);
+                var sd = new Song(song.SongId, song.SongProperties,service.Dms.DanceStats);
                 Assert.AreEqual(song.DanceRatings.Count,sd.DanceRatings.Count);
                 foreach (var dr in song.DanceRatings)
                 {
@@ -201,7 +201,7 @@ namespace m4dModels.Tests
                 DanceMusicTester.DumpSongProperties(song, General.TraceInfo);
 
                 // May be worth doing some verification on this, but for now just want to make sure it loads...
-                var sd = new SongDetails(song.SongId, song.SongProperties,service.Dms.DanceStats);
+                var sd = new Song(song.SongId, song.SongProperties,service.Dms.DanceStats);
                 Assert.IsNotNull(sd);
             }
         }

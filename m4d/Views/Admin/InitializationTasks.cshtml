@@ -9,10 +9,10 @@
 
 <h3>Search Indexing</h3>
 <ul>
-    <li>Default: @Html.ActionLink("Reset", "ResetSearchIdx"), @Html.ActionLink("Load (rebuild)", "BuildSearchIdx", new { count = 500, rebuild = true }, null), @Html.ActionLink("Load (incremental)", "BuildSearchIdx", new { count = 100 }, null), @Html.ActionLink("Update", "UpdateSearchIdx", new { id = "default" }, null)</li>
-    <li>BasicA: @Html.ActionLink("Reset", "ResetSearchIdx", new { id = "basica" }, null), @Html.ActionLink("Load (rebuild)", "BuildSearchIdx", new { id = "basica", count = 500, rebuild = true }, null), @Html.ActionLink("Load (incremental)", "BuildSearchIdx", new { id = "basica", count = 100 }, null), @Html.ActionLink("Update", "UpdateSearchIdx", new { id = "basica" }, null)</li>
-    <li>BasicB: @Html.ActionLink("Reset", "ResetSearchIdx", new { id = "basicb" }, null), @Html.ActionLink("Load (rebuild)", "BuildSearchIdx", new { id = "basicb", count = 500, rebuild = true }, null), @Html.ActionLink("Load (incremental)", "BuildSearchIdx", new { id = "basicb", count = 100 }, null), @Html.ActionLink("Update", "UpdateSearchIdx", new { id = "basicb" }, null)</li>
-    <li>BasicC: @Html.ActionLink("Reset", "ResetSearchIdx", new { id = "basicc" }, null), @Html.ActionLink("Load (rebuild)", "BuildSearchIdx", new { id = "basicc", count = 500, rebuild = true }, null), @Html.ActionLink("Load (incremental)", "BuildSearchIdx", new { id = "basicc", count = 100 }, null), @Html.ActionLink("Update", "UpdateSearchIdx", new { id = "basicc" }, null)</li>
+    <li>Default: @Html.ActionLink("Reset", "ResetSearchIdx")</li>
+    <li>BasicA: @Html.ActionLink("Reset", "ResetSearchIdx", new { id = "basica" }, null)</li>
+    <li>BasicB: @Html.ActionLink("Reset", "ResetSearchIdx", new { id = "basicb" }, null)</li>
+    <li>BasicC: @Html.ActionLink("Reset", "ResetSearchIdx", new { id = "basicc" }, null)</li>
 </ul>
 
 <h3> Initializiation Tasks</h3>
@@ -22,7 +22,6 @@
         @Html.ActionLink("RebuildDanceInfo", "RebuildDanceInfo")
         <ul>
             <li>@Html.ActionLink("Recompute Dance Stats", "RebuildDances")</li>
-            <li>@Html.ActionLink("Rebuild Dance Tags", "RebuildDanceTags")</li>
         </ul>
     </li>
 </ul>
@@ -30,14 +29,9 @@
 <h3>Clean Up</h3>
 <ul>
     <li>@Html.ActionLink("Cleanup Properties", "CleanupProperties", new { count = 100 }, null)</li>
-    <li>@Html.ActionLink("Clean Deleted Songs", "CleanDeletedSongs")</li>
     <li>@Html.ActionLink("Update Purchase Info", "UpdatePurchase")</li>
-    <li>@Html.ActionLink("Update Title Hashes", "UpdateTitleHash")</li>
     <li>@Html.ActionLink("Clean up Tempi", "CleanTempi")</li>
-    <li>@Html.ActionLink("Fix up Artists", "FixArtists")</li>
     <li>@Html.ActionLink("Update Albums", "UpdateAlbums")</li>
-    <li>@Html.ActionLink("Remove Lookup History", "CleanLookupHistory")</li>
-    <li>@Html.ActionLink("Fix up Zero Times", "FixZeroTime")</li>
     <li>@Html.ActionLink("Times from Properties", "TimesFromProperties")</li>
     <li>@Html.ActionLink("Times from Properties: Batch", "TimesFromProperties", new { exclude = "batch|batch-i|batch-s|batch-a|batch-x|batch-e" }, null)</li>
     <li>@Html.ActionLink("Times from Properties: Recent Batch", "TimesFromProperties", new {exclude="batch|batch-i|batch-s|batch-a|batch-x|batch-e", from= (DateTime.Now - new TimeSpan(1, 0, 0, 0)).ToShortDateString()}, null)</li>
@@ -45,7 +39,6 @@
     <li>@Html.ActionLink("Update Spotify Regions", "SpotifyRegions", "Admin", new {count = 500}, null)</li>
     <li>@Html.ActionLink("Region Stats", "RegionStats", "Admin")</li>
     <li>@Html.ActionLink("Compress Regions", "CompressRegions", "Admin")</li>
-    <li>@Html.ActionLink("Cleanup Albums", "CleanAlbums", "Admin")</li>
 </ul>
 
 <h3>Merging</h3>

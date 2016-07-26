@@ -5,7 +5,7 @@ namespace m4d.Controllers
 {
     public class ContentController : DMController
     {
-        protected void SetupLikes(IEnumerable<SongBase> songs, string danceId)
+        protected void SetupLikes(IEnumerable<Song> songs, string danceId)
         {
             var userName = HttpContext.User.Identity.Name;
             var likes = Database.UserLikes(songs, userName);

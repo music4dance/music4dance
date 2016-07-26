@@ -1,0 +1,232 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
+using DanceLibrary;
+using Newtonsoft.Json;
+
+namespace m4dModels
+{
+    [JsonObject(MemberSerialization.OptIn)]
+    public class DanceStatsInstance
+    {
+        public DanceStatsInstance(TagManager tagManager, IEnumerable<DanceStats> tree, DanceMusicService dms, string source)
+        {
+            TagManager = tagManager;
+            Tree = (tree as List<DanceStats>)?.ToList();
+            FixupStats(dms, source);
+        }
+
+        [JsonConstructor]
+        public DanceStatsInstance(IEnumerable<DanceStats> tree, IEnumerable<TagGroup> tagGroups)
+        {
+            TagManager = new TagManager(tagGroups);
+            Tree = tree.ToList();
+            FixupStats();
+        }
+
+        public void FixupStats(DanceMusicService dms = null, string source = "default")
+        {
+            foreach (var d in Tree)
+            {
+                d.SetParents();
+            }
+            Map = List.ToDictionary(ds => ds.DanceId);
+
+            foreach (var ds in List)
+            {
+                if (dms == null)
+                {
+                    ds.RebuildTopSongs(this);
+                }
+                else if (ds.SongCount > 0)
+                {
+                    // TopN and MaxWeight
+                    var filter = dms.AzureParmsFromFilter(new SongFilter { Dances = ds.DanceId, SortOrder = "Dances" }, 10);
+                    DanceMusicService.AddAzureCategories(filter, "GenreTags,StyleTags,TempoTags,OtherTags", 100);
+                    var results = dms.AzureSearch(null, filter, DanceMusicService.CruftFilter.NoCruft, source, this);
+                    ds.TopSongs = results.Songs;
+                    var song = ds.TopSongs.FirstOrDefault();
+                    var dr = song?.DanceRatings.FirstOrDefault(d => d.DanceId == ds.DanceId);
+
+                    if (dr != null) ds.MaxWeight = dr.Weight;
+
+                    // SongTags
+                    ds.SongTags = (results.FacetResults == null) ? new TagSummary() : new TagSummary(results.FacetResults, TagManager.TagMap);
+                }
+            }
+        }
+
+        [JsonProperty]
+        public List<DanceStats> Tree { get; set; }
+
+        [JsonProperty(PropertyName="TagGroups")]
+        public List<TagGroup> TagGroups => TagManager.TagGroups;
+
+        public TagManager TagManager { get; set; }
+
+        public List<DanceStats> List => _flat ?? (_flat = Flatten());
+        public Dictionary<string, DanceStats> Map { get; private set; }
+
+        public int GetScaledRating(string danceId, int weight, int scale = 5)
+        {
+            var sc = FromId(danceId);
+            if (sc == null) return 0;
+
+            float max = sc.MaxWeight;
+            var ret = (int)(Math.Ceiling(weight * scale / max));
+
+            if (TraceLevels.General.TraceInfo && (weight > max || ret < 0))
+            {
+                Trace.WriteLine($"{danceId}: {weight} ? {max}");
+            }
+
+            return Math.Max(0, Math.Min(ret, scale));
+        }
+        public string GetRatingBadge(string danceId, int weight)
+        {
+            var scaled = GetScaledRating(danceId, weight);
+
+            //return "/Content/thermometer-" + scaled.ToString() + ".png";
+            return "rating-" + scaled;
+        }
+
+        public DanceStats FromId(string danceId)
+        {
+            if (danceId.Length > 3) danceId = danceId.Substring(0, 3);
+
+            DanceStats sc;
+            if (Map.TryGetValue(danceId, out sc)) return sc;
+
+            if (Dances.Instance.DanceFromId(danceId) == null) return null;
+
+            Trace.WriteLineIf(TraceLevels.General.TraceError, $"Failed to find danceId {danceId}");
+            // Clear out the cache to force a reload: workaround for possible cache corruption.
+            // TODO: Put in the infrastructure to send app insights events when this happens
+            Trace.WriteLineIf(TraceLevels.General.TraceError, "Attempting to rebuild cache");
+
+            DanceStatsManager.ClearCache(null, true);
+            return null;
+        }
+
+        public DanceStats FromName(string name, string userName = null)
+        {
+            if (string.IsNullOrEmpty(userName)) userName = null;
+            name = DanceObject.SeoFriendly(name);
+            var stats = List.FirstOrDefault(sc => string.Equals(sc.SeoName, name));
+            return (userName == null) ? stats : stats?.CloneForUser(userName, this);
+        }
+        public static DanceStatsInstance LoadFromJson(string json)
+        {
+            var settings = new JsonSerializerSettings
+            {
+                NullValueHandling = NullValueHandling.Include,
+                DefaultValueHandling = DefaultValueHandling.Ignore
+            };
+
+            var instance = JsonConvert.DeserializeObject<DanceStatsInstance>(json, settings);
+
+            Dances.Reset(Dances.Load(instance.GetDanceTypes(), instance.GetDanceGroups()));
+
+            return instance;
+        }
+
+        public string SaveToJson()
+        {
+            return JsonConvert.SerializeObject(this,
+                Formatting.Indented,
+                new JsonSerializerSettings
+                {
+                    NullValueHandling = NullValueHandling.Ignore,
+                    DefaultValueHandling = DefaultValueHandling.IgnoreAndPopulate
+                });
+        }
+
+
+        public void UpdateSong(Song song, DanceMusicService dms)
+        {
+            lock (_queuedSongs)
+            {
+                _queuedSongs[song.SongId] = song;
+
+                if (!TopSongs.ContainsKey(song.SongId))
+                {
+                    if (song.IsNull) _otherSongs.Remove(song.SongId);
+                    _otherSongs[song.SongId] = song;
+                    return;
+                }
+
+                if (song.IsNull) TopSongs.Remove(song.SongId);
+                TopSongs[song.SongId] = song;
+
+                foreach (var d in List)
+                {
+                    var songs = d.TopSongs as List<Song>;
+                    if (songs == null) continue;
+                    var idx = songs.FindIndex(s => s.SongId == song.SongId);
+                    if (idx == -1) continue;
+                    if (song.IsNull)
+                        songs.RemoveAt(idx);
+                    else
+                        songs[idx] = song;
+                }
+            }
+        }
+
+        public IEnumerable<Song> DequeueSongs()
+        {
+            lock (_queuedSongs)
+            {
+                var ret = _queuedSongs.Values.ToList();
+                _queuedSongs.Clear();
+                return ret;
+            }
+        }
+
+        public Song FindSongDetails(Guid songId, string userName)
+        {
+            var sd = TopSongs.GetValueOrDefault(songId) ?? _otherSongs.GetValueOrDefault(songId);
+            if (sd == null) return null;
+            return (userName == null) ? sd : new Song(sd, this, userName);
+        }
+
+        internal List<DanceType> GetDanceTypes()
+        {
+            return List.Where(s => s.DanceType != null).Select(s => s.DanceType).ToList();
+        }
+
+        internal List<DanceGroup> GetDanceGroups()
+        {
+            return List.Where(s => s.DanceGroup != null).Select(s => s.DanceGroup).ToList();
+        }
+
+        private List<DanceStats> Flatten()
+        {
+            var flat = new List<DanceStats>();
+
+            flat.AddRange(Tree);
+
+            foreach (var children in Tree.Select(ds => ds.Children))
+            {
+                flat.AddRange(children);
+            }
+
+            var all = new DanceStats
+            {
+                SongCount = Tree.Sum(s => s.SongCount),
+                Children = null
+            };
+
+            flat.Insert(0, all);
+
+            return flat;
+        }
+
+        private Dictionary<Guid, Song> TopSongs => _topSongs ?? (_topSongs = new Dictionary<Guid, Song>(List.SelectMany(d => d.TopSongs ?? new List<Song>()).DistinctBy(s => s.SongId).ToDictionary(s => s.SongId)));
+        private readonly Dictionary<Guid, Song> _otherSongs = new Dictionary<Guid, Song>();
+        private readonly Dictionary<Guid, Song> _queuedSongs = new Dictionary<Guid, Song>();
+
+        private List<DanceStats> _flat;
+        private Dictionary<Guid, Song> _topSongs;
+    }
+}

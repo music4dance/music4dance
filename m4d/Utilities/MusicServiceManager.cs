@@ -16,7 +16,7 @@ namespace m4d.Utilities
         //  between itunes and groove doesn't work.   So I'm going to shoe-horn this in to get it working
         //  and refactor later.
 
-        public IList<ServiceTrack> FindMusicServiceSong(SongDetails song, MusicService service, bool clean = false, string title = null, string artist = null, string album = null, string region = null)
+        public IList<ServiceTrack> FindMusicServiceSong(Song song, MusicService service, bool clean = false, string title = null, string artist = null, string album = null, string region = null)
         {
             IList<ServiceTrack> list;
 
@@ -41,7 +41,7 @@ namespace m4d.Utilities
 
             list = FilterKaraoke(list);
 
-            list = song != null ? song.RankTracks(list) : SongDetails.RankTracksByCluster(list, album);
+            list = song != null ? song.RankTracks(list) : Song.RankTracksByCluster(list, album);
 
             return list;
         }
@@ -105,7 +105,7 @@ namespace m4d.Utilities
             return exclude.Any(s => name.IndexOf(s, StringComparison.InvariantCultureIgnoreCase) != -1);
         }
 
-        private IList<ServiceTrack> DoFindMusicServiceSong(SongDetails song, MusicService service, bool clean = false, string title = null, string artist = null, string region = null)
+        private IList<ServiceTrack> DoFindMusicServiceSong(Song song, MusicService service, bool clean = false, string title = null, string artist = null, string region = null)
         {
             IList<ServiceTrack> tracks;
             switch (service.Id)
@@ -162,7 +162,7 @@ namespace m4d.Utilities
             }
         }
         // ReSharper disable once InconsistentNaming
-        private IList<ServiceTrack> FindMSSongAmazon(SongDetails song, bool clean = false, string title = null, string artist = null)
+        private IList<ServiceTrack> FindMSSongAmazon(Song song, bool clean = false, string title = null, string artist = null)
         {
             var custom = !string.IsNullOrWhiteSpace(title) || !string.IsNullOrWhiteSpace(artist);
 
