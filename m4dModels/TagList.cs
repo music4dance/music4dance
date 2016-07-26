@@ -173,7 +173,7 @@ namespace m4dModels
         public static string NormalizeTag(string tag)
         {
             var fields = tag.Split(':').ToList();
-            if (!fields[0].Contains('-')) fields[0] = s_ti.ToTitleCase(fields[0]);
+            if (!fields[0].Contains('-') && fields[0].Any(char.IsLower)) fields[0] = s_ti.ToTitleCase(fields[0]);
             if (fields.Count < 2)
                 fields.Add("Other");
             else if (!char.IsUpper(fields[1][0]))

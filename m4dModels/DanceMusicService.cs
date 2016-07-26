@@ -977,7 +977,7 @@ namespace m4dModels
             var other = TagGroups.Find(type.Key);
             if (other != null)
             {
-                Trace.WriteLineIf(TraceLevels.General.TraceInfo, $"Attempt to add duplicate tag: {other} {type}");
+                // This will update case
                 type = other;
             }
             else
@@ -1301,6 +1301,13 @@ namespace m4dModels
                 {
                     var category = cells[0];
                     var value = cells[1];
+                    var key = TagGroup.BuildKey(value, category);
+
+                    var ttOld = TagGroups.Find(key);
+                    if (ttOld != null && ttOld.Key != key)
+                    {
+                        TagGroups.Remove(ttOld);
+                    }
 
                     tt = CreateTagGroup(value, category, false);
                 }
@@ -1329,6 +1336,7 @@ namespace m4dModels
             foreach (var tt in TagGroups.Where(tt => tt.PrimaryId != null && tt.Primary == null))
             {
                 tt.Primary = TagGroups.Find(tt.PrimaryId);
+                tt.Primary.AddChild(tt);
             }
             Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Saving Changes");
             SaveChanges();
