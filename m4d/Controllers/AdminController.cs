@@ -1477,6 +1477,8 @@ namespace m4d.Controllers
         {
             var users = Database.SerializeUsers(true,from);
             var dances = Database.SerializeDances(true, from);
+            var tags = Database.SerializeTags(true, from);
+            var searches = Database.SerializeSearches(true, from);
 
             SongFilter songFilter = null;
             if (!string.IsNullOrWhiteSpace(filter))
@@ -1495,6 +1497,15 @@ namespace m4d.Controllers
             {
                 s += string.Join("\r\n", dances) + "\r\n";
             }
+            if (tags.Count > 0)
+            {
+                s += string.Join("\r\n", tags) + "\r\n";
+            }
+            if (searches.Count > 0)
+            {
+                s += string.Join("\r\n", searches) + "\r\n";
+            }
+
             s += string.Join("\r\n", songs);
 
             var bytes = Encoding.UTF8.GetBytes(s);

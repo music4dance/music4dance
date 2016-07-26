@@ -80,8 +80,10 @@ namespace m4dModels
             lock (_queuedTags)
             {
                 key = key.ToLower();
+                var tt = TagMap.GetValueOrDefault(key);
+                if (tt == null) return;
                 if (!TagMap.Remove(key)) return;
-                var tt = new TagGroup(key);
+                tt.Primary?.Children.Remove(tt);
                 var index = TagGroups.BinarySearch(tt,
                     Comparer<TagGroup>.Create((a, b) => string.Compare(a.Key, b.Key, StringComparison.OrdinalIgnoreCase)));
                 if (index < 0) return;

@@ -982,6 +982,7 @@ namespace m4dModels
             }
             else
             {
+                type.Modified = DateTime.Now;
                 type = TagGroups.Add(type);
                 if (updateTagManager)
                     DanceStats.TagManager.AddTagGroup(type);
@@ -1309,21 +1310,25 @@ namespace m4dModels
                     tt.PrimaryId = cells[2];
                 }
 
-                DateTime modified;
-                if (tt != null && cells.Length >= 4 && 
-                    !string.IsNullOrWhiteSpace(cells[3]) && 
-                    DateTime.TryParse(cells[3], out modified))
+                if (tt != null)
                 {
-                    tt.Modified = modified;
+                    DateTime modified;
+                    if (cells.Length >= 4 &&
+                        !string.IsNullOrWhiteSpace(cells[3]) &&
+                        DateTime.TryParse(cells[3], out modified))
+                    {
+                        tt.Modified = modified;
+                    }
+                    else
+                    {
+                        tt.Modified = DateTime.MinValue;
+                    }
                 }
             }
 
-            foreach (var tt in TagGroups)
+            foreach (var tt in TagGroups.Where(tt => tt.PrimaryId != null && tt.Primary == null))
             {
-                if (tt.PrimaryId != null && tt.Primary == null)
-                {
-                    tt.Primary = TagGroups.Find(tt.PrimaryId);
-                }
+                tt.Primary = TagGroups.Find(tt.PrimaryId);
             }
             Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Saving Changes");
             SaveChanges();
@@ -1537,38 +1542,42 @@ namespace m4dModels
             return users;
         }
 
-        public IList<string> SerializeTags(bool withHeader = true)
+        public IList<string> SerializeTags(bool withHeader = true, DateTime? from = null)
         {
             var tags = new List<string>();
 
-            if (withHeader)
-            {
-                tags.Add(TagBreak);
-            }
+            if (!from.HasValue) from = new DateTime(1, 1, 1);
 
             // ReSharper disable once LoopCanBeConvertedToQuery
-            foreach (var tt in TagGroups)
+            foreach (var tt in TagGroups.Where(t => t.Modified >= from.Value))
             {
                 tags.Add($"{tt.Category}\t{tt.Value}\t{tt.PrimaryId}\t{tt.Modified.ToString("g")}");
+            }
+
+            if (withHeader && tags.Count > 0)
+            {
+                tags.Insert(0,TagBreak);
             }
 
             return tags;
         }
 
-        public IList<string> SerializeSearches(bool withHeader = true)
+        public IList<string> SerializeSearches(bool withHeader = true, DateTime? from = null)
         {
             var searches = new List<string>();
 
-            if (withHeader)
-            {
-                searches.Add(SearchBreak);
-            }
+            if (!from.HasValue) from = new DateTime(1, 1, 1);
 
             // ReSharper disable once LoopCanBeConvertedToQuery
-            foreach (var search in Searches.Include(s => s.ApplicationUser))
+            foreach (var search in Searches.Include(s => s.ApplicationUser).Where(s => s.Modified >= from.Value))
             {
                 var userName = (search.ApplicationUser != null) ? search.ApplicationUser.UserName : string.Empty;
                 searches.Add($"{userName}\t{search.Name}\t{search.Query}\t{search.Favorite}\t{search.Count}\t{search.Created.ToString("g")}\t{search.Modified.ToString("g")}");
+            }
+
+            if (withHeader && searches.Count > 0)
+            {
+                searches.Add(SearchBreak);
             }
 
             return searches;
