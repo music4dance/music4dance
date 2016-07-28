@@ -133,7 +133,9 @@ namespace m4dModels
 
         public Song UpdateSong(ApplicationUser user, Song song, Song edit)
         {
-            return !song.Update(user.UserName, edit, DanceStats) ? null : song;
+            if (!song.Update(user.UserName, edit, DanceStats)) return null;
+            SaveSong(song);
+            return song;
         }
 
         // This is an additive merge - only add new things if they don't conflict with the old
@@ -1304,12 +1306,19 @@ namespace m4dModels
                     var key = TagGroup.BuildKey(value, category);
 
                     var ttOld = TagGroups.Find(key);
-                    if (ttOld != null && ttOld.Key != key)
+                    if (ttOld != null)
                     {
-                        TagGroups.Remove(ttOld);
+                        if (ttOld.Key != key)
+                        {
+                            TagGroups.Remove(ttOld);
+                            ttOld = null;
+                        }
                     }
 
-                    tt = CreateTagGroup(value, category, false);
+                    if (ttOld == null)
+                    {
+                        tt = CreateTagGroup(value, category, false);
+                    }
                 }
 
                 if (tt != null && cells.Length >= 3 && !string.IsNullOrWhiteSpace(cells[2]))
@@ -1333,10 +1342,18 @@ namespace m4dModels
                 }
             }
 
-            foreach (var tt in TagGroups.Where(tt => tt.PrimaryId != null && tt.Primary == null))
+            foreach (var tt in TagGroups)
             {
-                tt.Primary = TagGroups.Find(tt.PrimaryId);
-                tt.Primary.AddChild(tt);
+                if (string.IsNullOrEmpty(tt.PrimaryId))
+                {
+                    tt.Primary = null;
+                }
+                else
+                {
+                    tt.Primary = TagGroups.Find(tt.PrimaryId);
+                    if (tt.Primary.Children == null || tt.Primary.Children.All(c => c.Key != tt.Key))
+                        tt.Primary.AddChild(tt);
+                }
             }
             Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Saving Changes");
             SaveChanges();

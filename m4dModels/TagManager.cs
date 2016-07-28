@@ -50,7 +50,7 @@ namespace m4dModels
         {
             lock (_queuedTags)
             {
-                var tt = TagMap.GetValueOrDefault(tag) ?? _queuedTags.GetValueOrDefault(tag);
+                var tt = TagMap.GetValueOrDefault(tag.ToLower()) ?? _queuedTags.GetValueOrDefault(tag.ToLower());
                 if (tt != null) return tt;
 
                 var t = TagList.NormalizeTag(tag);
