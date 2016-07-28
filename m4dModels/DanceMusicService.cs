@@ -1577,7 +1577,7 @@ namespace m4dModels
 
             if (withHeader && searches.Count > 0)
             {
-                searches.Add(SearchBreak);
+                searches.Insert(0,SearchBreak);
             }
 
             return searches;
