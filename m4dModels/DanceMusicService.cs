@@ -1358,6 +1358,8 @@ namespace m4dModels
             Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Saving Changes");
             SaveChanges();
 
+            BlowTagCache();
+
             Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Exiting LoadTags");
         }
         public void LoadSongs(IList<string> lines)

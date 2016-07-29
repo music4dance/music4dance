@@ -172,7 +172,6 @@ namespace m4dModels
 
         public static string NormalizeTag(string tag)
         {
-            // TODONEXT: Figure out why DWTS is giving us grief (when reloading we should get everything from the DB tables first, right?)
             var fields = tag.Split(':').ToList();
             if (!fields[0].Contains('-') && fields[0].Any(char.IsLower))
                 fields[0] = s_ti.ToTitleCase(fields[0]);
