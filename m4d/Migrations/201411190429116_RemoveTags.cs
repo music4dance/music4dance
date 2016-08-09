@@ -7,7 +7,7 @@ namespace m4d.Migrations
         public override void Up()
         {
             DropForeignKey("dbo.Tags", "SongId", "dbo.Songs");
-            DropForeignKey("dbo.Tags", "Value", "dbo.TagGroups");
+            DropForeignKey("dbo.Tags", "Value", "dbo.TagTypes");
             DropIndex("dbo.Tags", new[] { "SongId" });
             DropIndex("dbo.Tags", new[] { "Value" });
             AddColumn("dbo.DanceRatings", "TagSummary_Summary", c => c.String());
@@ -15,13 +15,13 @@ namespace m4d.Migrations
             AddColumn("dbo.Songs", "TagSummary_Summary", c => c.String());
             DropColumn("dbo.Songs", "TagSummary");
             DropTable("dbo.Tags");
-            DropTable("dbo.TagGroups");
+            DropTable("dbo.TagTypes");
         }
         
         public override void Down()
         {
             CreateTable(
-                "dbo.TagGroups",
+                "dbo.TagTypes",
                 c => new
                     {
                         Value = c.String(nullable: false, maxLength: 128),
@@ -46,7 +46,7 @@ namespace m4d.Migrations
             DropColumn("dbo.DanceRatings", "TagSummary_Summary");
             CreateIndex("dbo.Tags", "Value");
             CreateIndex("dbo.Tags", "SongId");
-            AddForeignKey("dbo.Tags", "Value", "dbo.TagGroups", "Value", cascadeDelete: true);
+            AddForeignKey("dbo.Tags", "Value", "dbo.TagTypes", "Value", cascadeDelete: true);
             AddForeignKey("dbo.Tags", "SongId", "dbo.Songs", "SongId", cascadeDelete: true);
         }
     }

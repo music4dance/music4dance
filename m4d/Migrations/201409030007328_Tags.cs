@@ -16,12 +16,12 @@ namespace m4d.Migrations
                     })
                 .PrimaryKey(t => new { t.SongId, t.Value })
                 .ForeignKey("dbo.Songs", t => t.SongId, cascadeDelete: true)
-                .ForeignKey("dbo.TagGroups", t => t.Value, cascadeDelete: true)
+                .ForeignKey("dbo.TagTypes", t => t.Value, cascadeDelete: true)
                 .Index(t => t.SongId)
                 .Index(t => t.Value);
             
             CreateTable(
-                "dbo.TagGroups",
+                "dbo.TagTypes",
                 c => new
                     {
                         Value = c.String(nullable: false, maxLength: 128),
@@ -35,12 +35,12 @@ namespace m4d.Migrations
         
         public override void Down()
         {
-            DropForeignKey("dbo.Tags", "Value", "dbo.TagGroups");
+            DropForeignKey("dbo.Tags", "Value", "dbo.TagTypes");
             DropForeignKey("dbo.Tags", "SongId", "dbo.Songs");
             DropIndex("dbo.Tags", new[] { "Value" });
             DropIndex("dbo.Tags", new[] { "SongId" });
             DropColumn("dbo.Songs", "TagSummary");
-            DropTable("dbo.TagGroups");
+            DropTable("dbo.TagTypes");
             DropTable("dbo.Tags");
         }
     }
