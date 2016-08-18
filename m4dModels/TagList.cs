@@ -183,6 +183,13 @@ namespace m4dModels
             return string.Join(":", fields);
         }
 
+        public static string Concatenate(string tags1, string tags2)
+        {
+            return string.IsNullOrWhiteSpace(tags1) ? tags2 :
+                string.IsNullOrWhiteSpace(tags2) ? tags1 : 
+                    new TagList($"{tags1}|{tags2}").ToString();
+        }
+
         #endregion
 
         #region Implementation
@@ -202,7 +209,7 @@ namespace m4dModels
             return tags;
         }
 
-        static private string Serialize(List<string> tags)
+        static private string Serialize(IEnumerable<string> tags)
         {
             return string.Join("|", tags);
         }

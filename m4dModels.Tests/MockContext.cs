@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Data.Entity;
+using System.IO;
 using System.Linq;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.EntityFramework;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace m4dModels.Tests
 {
@@ -10,11 +12,16 @@ namespace m4dModels.Tests
     {
         public static DanceMusicService CreateService(bool seedUsers)
         {
-            // TODO: Hopefully we can load from json at some point
             var context = new MockContext(seedUsers);
             var umanager = new UserManager<ApplicationUser>(new MockUserStore(context));
             var service = new DanceMusicService(context, umanager);
-            service.SeedDances();
+
+            var json = File.ReadAllText(@".\TestData\dancestatistics.txt");
+            var instance = DanceStatsInstance.LoadFromJson(json);
+            Assert.IsNotNull(instance);
+            DanceStatsManager.SetInstance(instance);
+            Assert.IsNotNull(service.DanceStats);
+
             return service;
         }
 
