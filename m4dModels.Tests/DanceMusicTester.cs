@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace m4dModels.Tests
 {
@@ -21,18 +22,18 @@ namespace m4dModels.Tests
             Dances = File.ReadAllLines(@".\TestData\test-dances.txt").ToList();
             Tags = File.ReadAllLines(@".\TestData\test-tags.txt").ToList();
             Searches = File.ReadAllLines(@".\TestData\test-searches.txt").ToList();
-            Songs = songs ?? File.ReadAllLines(@".\TestData\test-songs.txt").ToList();
 
             Dms.LoadUsers(Users);
             Dms.LoadDances(Dances);
             Dms.LoadTags(Tags);
             Dms.LoadSearches(Searches);
-            Dms.LoadSongs(Songs);
 
-            foreach (var prop in Dms.Songs.SelectMany(song => song.SongProperties))
-            {
-                Dms.SongProperties.Add(prop);
-            }
+            var json = File.ReadAllText(@".\TestData\dancestatistics.txt");
+
+            var instance = DanceStatsInstance.LoadFromJson(json);
+            Assert.IsNotNull(instance);
+            DanceStatsManager.SetInstance(instance);
+            Assert.IsNotNull(Dms.DanceStats);
         }
 
         public List<string> Users { private set; get; }
@@ -42,8 +43,6 @@ namespace m4dModels.Tests
         public List<string> Tags { private set; get; }
 
         public List<string> Searches { private set; get; }
-
-        public List<string> Songs { private set; get; }
 
         public DanceMusicService Dms { private set; get; }
 
@@ -77,7 +76,7 @@ namespace m4dModels.Tests
         {
             if (!verbose) return;
 
-            foreach (var prop in song.OrderedProperties)
+            foreach (var prop in song.SongProperties)
             {
                 Trace.WriteLine(prop.ToString());
             }
