@@ -35,7 +35,7 @@ namespace m4d.Migrations
         
         public override void Down()
         {
-            DropForeignKey("dbo.TagTypes", "PrimaryId", "dbo.TagGroups");
+            DropForeignKey("dbo.TagTypes", "PrimaryId", "dbo.TagTypes");
             DropForeignKey("dbo.Tags", "UserId", "dbo.AspNetUsers");
             DropIndex("dbo.TagTypes", new[] { "PrimaryId" });
             DropIndex("dbo.Tags", new[] { "UserId" });

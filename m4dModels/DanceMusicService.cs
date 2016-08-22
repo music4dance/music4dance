@@ -1344,6 +1344,11 @@ namespace m4dModels
 
             foreach (var tt in TagGroups)
             {
+                tt.Children = null;
+            }
+
+            foreach (var tt in TagGroups)
+            {
                 if (string.IsNullOrEmpty(tt.PrimaryId))
                 {
                     tt.Primary = null;
@@ -1351,7 +1356,7 @@ namespace m4dModels
                 else
                 {
                     tt.Primary = TagGroups.Find(tt.PrimaryId);
-                    if (tt.Primary.Children == null || tt.Primary.Children.All(c => c.Key != tt.Key))
+                    if (tt.Primary.Children == null)
                         tt.Primary.AddChild(tt);
                 }
             }
