@@ -8,6 +8,7 @@ using System.IO;
 using System.Linq;
 using System.Net.Mime;
 using System.Text;
+using System.Threading.Tasks;
 using System.Web.Mvc;
 using m4d.Scrapers;
 using m4d.Utilities;
@@ -962,7 +963,7 @@ namespace m4d.Controllers
         }
 
         //
-        // Get: //AdminStatus
+        // Get: //FlushTelemetry
         [Authorize(Roles = "dbAdmin")]
         public ActionResult FlushTelemetry()
         {
@@ -1073,6 +1074,26 @@ namespace m4d.Controllers
         #endregion
 
         #region Catalog
+
+
+        //
+        // Get: //ReviewBatch
+        [HttpGet]
+        [Authorize(Roles = "dbAdmin")]
+        public ActionResult ReviewBatch(string commit, string title, int fileId, string user = null, string dances  = null, string tags = null, string headers = null)
+        {
+            ViewBag.Action = commit;
+            ViewBag.Title = title;
+            if (!string.IsNullOrWhiteSpace(user)) ViewBag.UserName = user;
+            if (!string.IsNullOrWhiteSpace(dances)) ViewBag.Dance = dances;
+            if (!string.IsNullOrWhiteSpace(tags)) ViewBag.Tags = tags;
+            if (!string.IsNullOrWhiteSpace(headers)) ViewBag.Headers = headers;
+
+            ViewBag.FileId = fileId;
+
+            return View(GetReviewById(fileId));
+        }
+
 
         //
         // Get: //UploadCatalog
@@ -1263,6 +1284,8 @@ namespace m4d.Controllers
         {
             ViewBag.Name = "Scrape Spotify";
 
+            StartAdminTask("ScrapeSpotify");
+
             if (string.IsNullOrWhiteSpace(url) || string.IsNullOrWhiteSpace(user))
             {
                 ViewBag.Success = false;
@@ -1278,20 +1301,21 @@ namespace m4d.Controllers
 
             var newSongs = SongsFromTracks(appuser,tracks,dances,songTags,danceTags);
 
+            if (newSongs.Count == 0) return View("Error");
 
-            ViewBag.UserName = user;
-            ViewBag.Action = "CommitUploadCatalog";
-
-            IList<LocalMerger> results = null;
-            // ReSharper disable once InvertIf
-            if (newSongs.Count > 0)
+            Task.Run(() =>
             {
-                results = Database.MatchSongs(newSongs, DanceMusicService.MatchMethod.Merge);
-                ViewBag.FileId = CacheReview(results);
-            }
+                AdminMonitor.UpdateTask("Starting Merge");
+                var results = DanceMusicService.GetService().MatchSongs(newSongs, DanceMusicService.MatchMethod.Merge);
+                var tags = songTags ?? "" + danceTags;
+                var link = $"/admin/reviewbatch?title=Scrape Spotify&commit=CommitUploadCatalog&fileId={CacheReview(results)}&user={user}" +
+                          (string.IsNullOrWhiteSpace(tags) ? "" : tags);
+                AdminMonitor.CompleteTask(true,$"<a href='{link}'>{link}</a>");
+            });
 
-            return View("ReviewBatch", results);
+            return View("AdminStatus",AdminMonitor.Status);
         }
+
 
         static string CleanSeparator(string separator)
         {
