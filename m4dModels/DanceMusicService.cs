@@ -1537,8 +1537,9 @@ namespace m4dModels
             var users = new List<string>();
 
             if (!from.HasValue) from = new DateTime(1,1,1);
-
-            foreach (var user in UserManager.Users.Where(u => u.StartDate >= from.Value))
+            
+            // ReSharper disable once LoopCanBeConvertedToQuery
+            foreach (var user in UserManager.Users.Where(u => u.LastActive >= from.Value).OrderByDescending(u => u.LastActive > u.StartDate ? u.LastActive : u.StartDate))
             {
                 var userId = user.Id;
                 var username = user.UserName;
@@ -1577,7 +1578,7 @@ namespace m4dModels
             if (!from.HasValue) from = new DateTime(1, 1, 1);
 
             // ReSharper disable once LoopCanBeConvertedToQuery
-            foreach (var tt in TagGroups.Where(t => t.Modified >= from.Value))
+            foreach (var tt in TagGroups.Where(t => t.Modified >= from.Value).OrderBy(t => t.Modified))
             {
                 tags.Add($"{tt.Category}\t{tt.Value}\t{tt.PrimaryId}\t{tt.Modified.ToString("g")}");
             }
@@ -1597,7 +1598,7 @@ namespace m4dModels
             if (!from.HasValue) from = new DateTime(1, 1, 1);
 
             // ReSharper disable once LoopCanBeConvertedToQuery
-            foreach (var search in Searches.Include(s => s.ApplicationUser).Where(s => s.Modified >= from.Value))
+            foreach (var search in Searches.Include(s => s.ApplicationUser).Where(s => s.Modified >= from.Value).OrderBy(s => s.Modified))
             {
                 var userName = (search.ApplicationUser != null) ? search.ApplicationUser.UserName : string.Empty;
                 searches.Add($"{userName}\t{search.Name}\t{search.Query}\t{search.Favorite}\t{search.Count}\t{search.Created.ToString("g")}\t{search.Modified.ToString("g")}");
@@ -1631,7 +1632,7 @@ namespace m4dModels
 
             if (!from.HasValue) from = new DateTime(1, 1, 1);
 
-            var dancelist = Dances.Where(d => d.Modified >= from.Value).OrderBy(d => d.Id);
+            var dancelist = Dances.Where(d => d.Modified >= from.Value).OrderBy(d => d.Modified);
             // ReSharper disable once LoopCanBeConvertedToQuery
             foreach (var dance in dancelist)
             {
