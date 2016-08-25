@@ -1305,7 +1305,8 @@ namespace m4dModels
                     var value = cells[1];
                     var key = TagGroup.BuildKey(value, category);
 
-                    var ttOld = TagGroups.Find(key);
+                    var ttOld = TagGroups.Find(key) ?? TagMap.GetValueOrDefault(key);
+
                     if (ttOld != null)
                     {
                         if (ttOld.Key != key)
