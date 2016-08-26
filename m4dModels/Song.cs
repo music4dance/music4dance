@@ -363,6 +363,11 @@ namespace m4dModels
                             re = new Regex(@"(?<title>[^―—]*)\s*[―—](?<artist>.*)");
                             m = re.Match(cell);
                         }
+                        if (!m.Success)
+                        {
+                            re = new Regex(@"“(?<title>[^”]*)”\s*(?<artist>.*)");
+                            m = re.Match(cell);
+                        }
                         if (m.Success)
                         {
                             properties.Add(new SongProperty(TitleField, m.Groups["title"].Value));

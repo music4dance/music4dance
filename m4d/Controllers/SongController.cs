@@ -4,6 +4,7 @@ using System.Collections.Specialized;
 using System.Diagnostics;
 using System.Linq;
 using System.Net;
+using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
 using DanceLibrary;
@@ -858,6 +859,7 @@ namespace m4d.Controllers
                 var failIds = new List<Guid>();
 
                 var retry = false;
+                var spotRetry = false;
                 var cruftFilter = DanceMusicService.CruftFilter.AllCruft;
 
                 // May do more options in future
@@ -873,6 +875,9 @@ namespace m4d.Controllers
                         case 'R':
                             retry = true;
                             break;
+                        case 'S':
+                            spotRetry = true;
+                            break;
                     }
                 }
 
@@ -883,7 +888,11 @@ namespace m4d.Controllers
 
                 var parameters = DanceMusicService.AddCruftInfo(Database.AzureParmsFromFilter(filter),cruftFilter);
                 parameters.Top = null;
-                if (!retry)
+                if (spotRetry)
+                {
+                    parameters.Filter = ((parameters.Filter == null) ? "" : parameters.Filter + " and ") + "(Purchase/all(t: t ne 'Groove') and Purchase/all(t: t ne 'Amazon') or Purchase/all(t: t ne 'ITunes'))";
+                }
+                else if (!retry)
                 {
                     parameters.Filter = ((parameters.Filter == null) ? "" : parameters.Filter + " and ") + "(LookupStatus ne true)";
                 }
@@ -891,7 +900,7 @@ namespace m4d.Controllers
                 while (!done)
                 {
                     AdminMonitor.UpdateTask("BuildSongList", page);
-                    var songs = Database.TakeTail(parameters, pageSize);
+                    var songs = Database.TakeTail(parameters, Math.Min(count,pageSize));
                     var succeeded = new List<Song>();
                     var failed = new List<Song>();
 
@@ -949,7 +958,7 @@ namespace m4d.Controllers
                     }
                 }
 
-                ViewBag.Completed = tried <= count;
+                ViewBag.Completed = failIds.Count + sucIds.Count < count;
                 ViewBag.Failed = failIds;
                 ViewBag.Succeeded = sucIds;
                 ViewBag.Skipped = 0;
@@ -1133,7 +1142,7 @@ namespace m4d.Controllers
                 ViewBag.Error = false;
 
                 var tried = 0;
-                var skipped = 0;
+                //var skipped = 0;
 
                 if (filter == null)
                 {
@@ -1155,100 +1164,104 @@ namespace m4d.Controllers
                 var sucIds = new List<Guid>();
                 var failIds = new List<Guid>();
 
-                while (!done)
+                Task.Run(() =>
                 {
-                    AdminMonitor.UpdateTask("BuildPage", page);
-                    var songs = Database.TakeTail(parameters, pageSize);
 
-                    var failed = new List<Song>();
-                    var succeeded = new List<Song>();
-
-                    var processed = 0;
-                    foreach (var song in songs)
+                    while (!done)
                     {
-                        AdminMonitor.UpdateTask($"Processing ({succeeded.Count})", processed);
+                        AdminMonitor.UpdateTask("BuildPage", page);
+                        var songs = Database.TakeTail(parameters, pageSize);
 
-                        processed += 1;
+                        var failed = new List<Song>();
+                        var succeeded = new List<Song>();
 
-                        ServiceTrack track = null;
-                        // First try Spotify
-                        var ids = song.GetPurchaseIds(spotify);
-                        foreach (var id in ids)
+                        var processed = 0;
+                        foreach (var song in songs)
                         {
-                            string[] regions;
-                            var idt = PurchaseRegion.ParseIdAndRegionInfo(id, out regions);
-                            track = MusicServiceManager.GetMusicServiceTrack(idt, spotify);
-                            if (track?.SampleUrl != null)
-                                break;
-                        }
+                            AdminMonitor.UpdateTask($"Processing ({succeeded.Count})", processed);
 
-                        if (track == null)
-                        {
-                            // If spotify failed, try itunes
-                            ids = song.GetPurchaseIds(itunes);
+                            processed += 1;
+
+                            ServiceTrack track = null;
+                            // First try Spotify
+                            var ids = song.GetPurchaseIds(spotify);
                             foreach (var id in ids)
                             {
-                                track = MusicServiceManager.GetMusicServiceTrack(id, itunes);
+                                string[] regions;
+                                var idt = PurchaseRegion.ParseIdAndRegionInfo(id, out regions);
+                                track = MusicServiceManager.GetMusicServiceTrack(idt, spotify);
                                 if (track?.SampleUrl != null)
                                     break;
                             }
-                        }
-                        tried += 1;
-                        if (track?.SampleUrl == null)
-                        {
-                            song.Sample = ".";
-                            var s = Database.EditSong(user, song);
-                            if (s == null)
+
+                            if (track == null)
                             {
-                                skipped += 1;
+                                // If spotify failed, try itunes
+                                ids = song.GetPurchaseIds(itunes);
+                                foreach (var id in ids)
+                                {
+                                    track = MusicServiceManager.GetMusicServiceTrack(id, itunes);
+                                    if (track?.SampleUrl != null)
+                                        break;
+                                }
+                            }
+                            tried += 1;
+                            if (track?.SampleUrl == null)
+                            {
+                                song.Sample = ".";
+                                var s = Database.EditSong(user, song);
+                                if (s != null)
+                                {
+                                    failed.Add(s);
+                                }
+                                //else
+                                //{
+                                //    //skipped += 1;
+                                //}
                             }
                             else
                             {
-                                failed.Add(s);
+                                song.Sample = track.SampleUrl;
+                                var s = Database.EditSong(user, song);
+                                if (s != null)
+                                {
+                                    succeeded.Add(s);
+                                }
+                                //else
+                                //{
+                                //    skipped += 1;
+                                //}
                             }
+                            if (tried > count)
+                                break;
 
+                            if ((tried + 1)%100 != 0) continue;
+
+                            Trace.WriteLineIf(TraceLevels.General.TraceInfo, $"{tried} songs tried.");
                         }
-                        else
+
+                        sucIds.AddRange(succeeded.Select(s => s.SongId));
+                        failIds.AddRange(failed.Select(s => s.SongId));
+
+                        Database.UpdateAzureIndex(succeeded.Concat(failed));
+
+                        page += 1;
+                        if (processed < pageSize)
                         {
-                            song.Sample = track.SampleUrl;
-                            var s = Database.EditSong(user, song);
-                            if (s == null)
-                            {
-                                skipped += 1;
-                            }
-                            else
-                            {
-                                succeeded.Add(s);
-                            }
+                            done = true;
                         }
-                        if (tried > count)
-                            break;
-
-                        if ((tried + 1) % 100 != 0) continue;
-
-                        Trace.WriteLineIf(TraceLevels.General.TraceInfo, $"{tried} songs tried.");
                     }
 
-                    sucIds.AddRange(succeeded.Select(s => s.SongId));
-                    failIds.AddRange(failed.Select(s => s.SongId));
+                    //ViewBag.Completed = tried <= count;
+                    //ViewBag.Failed = failIds;
+                    //ViewBag.Succeeded = sucIds;
+                    //ViewBag.Skipped = skipped;
 
-                    Database.UpdateAzureIndex(succeeded.Concat(failed));
+                    AdminMonitor.CompleteTask(true,
+                        $"BatchSample: Completed={tried <= count}, Succeeded={sucIds.Count} - ({string.Join(",", sucIds)}), Failed={failIds.Count} - ({string.Join(",", failIds)}), Skipped={0}");
+                });
 
-                    page += 1;
-                    if (processed < pageSize)
-                    {
-                        done = true;
-                    }
-                }
-
-                ViewBag.Completed = tried <= count;
-                ViewBag.Failed = failIds;
-                ViewBag.Succeeded = sucIds;
-                ViewBag.Skipped = skipped;
-
-                AdminMonitor.CompleteTask(true, $"BatchSample: Completed={tried <= count}, Succeeded={sucIds.Count} - ({string.Join(",", sucIds)}), Failed={failIds.Count} - ({string.Join(",", failIds)}), Skipped={0}");
-
-                return View("BatchMusicService");
+                return RedirectToAction("AdminStatus", "Admin", AdminMonitor.Status);
             }
             catch (Exception e)
             {
@@ -1297,133 +1310,137 @@ namespace m4d.Controllers
                     parameters.Filter = ((parameters.Filter == null) ? "" : parameters.Filter + " and ") + "(Beat eq null)";
                 }
 
-                while (!done)
+                Task.Run(() =>
                 {
-                    AdminMonitor.UpdateTask("BuildPage", page);
-
-                    var songs = Database.TakeTail(parameters, pageSize);
-                    var processed = 0;
-
-                    var stemp = new List<Song>();
-                    var ftemp = new List<Song>();
-                    foreach (var song in songs)
+                    while (!done)
                     {
-                        AdminMonitor.UpdateTask($"Processing ({succeeded.Count})", processed);
+                        AdminMonitor.UpdateTask("BuildPage", page);
 
-                        tried += 1;
-                        processed += 1;
+                        var songs = Database.TakeTail(parameters, pageSize);
+                        var processed = 0;
 
-                        if (song.Purchase == null)
+                        var stemp = new List<Song>();
+                        var ftemp = new List<Song>();
+                        foreach (var song in songs)
                         {
-                            Trace.WriteLineIf(TraceLevels.General.TraceInfo, $"Bad Purchase: {song}");
-                            skipped += 1;
-                            continue;
-                        }
-                        if (song.Purchase == null || !song.Purchase.Contains('S'))
-                        {
-                            skipped += 1;
-                            continue;
-                        }
+                            AdminMonitor.UpdateTask($"Processing ({succeeded.Count})", processed);
 
-                        var ids = song.GetPurchaseIds(service);
+                            tried += 1;
+                            processed += 1;
 
-                        EchoTrack track = null;
-                        foreach (var id in ids)
-                        {
-                            string[] regions;
-                            var idt = PurchaseRegion.ParseIdAndRegionInfo(id, out regions);
-                            track = MusicServiceManager.LookupEchoTrack(idt, service);
-                            if (track != null)
-                                break;
-                        }
+                            if (song.Purchase == null)
+                            {
+                                Trace.WriteLineIf(TraceLevels.General.TraceInfo, $"Bad Purchase: {song}");
+                                skipped += 1;
+                                continue;
+                            }
+                            if (song.Purchase == null || !song.Purchase.Contains('S'))
+                            {
+                                skipped += 1;
+                                continue;
+                            }
 
-                        if (track == null)
-                        {
-                            song.Danceability = float.NaN;
-                            var s = Database.EditSong(user, song);
-                            if (s != null)
+                            var ids = song.GetPurchaseIds(service);
+
+                            EchoTrack track = null;
+                            foreach (var id in ids)
                             {
-                                ftemp.Add(s);
+                                string[] regions;
+                                var idt = PurchaseRegion.ParseIdAndRegionInfo(id, out regions);
+                                track = MusicServiceManager.LookupEchoTrack(idt, service);
+                                if (track != null)
+                                    break;
                             }
-                        }
-                        else
-                        {
-                            if (track.BeatsPerMinute != null)
+
+                            if (track == null)
                             {
-                                song.Tempo = track.BeatsPerMinute;
-                            }
-                            if (track.Danceability != null)
-                            {
-                                song.Danceability = track.Danceability;
-                            }
-                            if (track.Energy != null)
-                            {
-                                song.Energy = track.Energy;
-                            }
-                            if (track.Valence != null)
-                            {
-                                song.Valence = track.Valence;
-                            }
-                            UserTag[] tags = null;
-                            var meter = track.Meter;
-                            if (meter != null)
-                            {
-                                tags = new[]
+                                song.Danceability = float.NaN;
+                                var s = Database.EditSong(user, song);
+                                if (s != null)
                                 {
-                                new UserTag
-                                {
-                                    Id = string.Empty,
-                                    Tags = new TagList($"{meter}:Tempo")
+                                    ftemp.Add(s);
                                 }
-                            };
+                            }
+                            else
+                            {
+                                if (track.BeatsPerMinute != null)
+                                {
+                                    song.Tempo = track.BeatsPerMinute;
+                                }
+                                if (track.Danceability != null)
+                                {
+                                    song.Danceability = track.Danceability;
+                                }
+                                if (track.Energy != null)
+                                {
+                                    song.Energy = track.Energy;
+                                }
+                                if (track.Valence != null)
+                                {
+                                    song.Valence = track.Valence;
+                                }
+                                UserTag[] tags = null;
+                                var meter = track.Meter;
+                                if (meter != null)
+                                {
+                                    tags = new[]
+                                    {
+                                        new UserTag
+                                        {
+                                            Id = string.Empty,
+                                            Tags = new TagList($"{meter}:Tempo")
+                                        }
+                                    };
+                                }
+
+                                var s = Database.EditSong(user, song, tags);
+                                if (s != null)
+                                {
+                                    stemp.Add(s);
+                                }
                             }
 
-                            var s = Database.EditSong(user, song, tags);
-                            if (s != null)
-                            {
-                                stemp.Add(s);
-                            }
+                            // TODO: Decide if we want to tromp other tempi
+                            //if (track?.BeatsPerMinute == null || (track.BeatsPerMinute == song.Tempo) ||
+                            //    (sd.Tempo.HasValue && Math.Abs(track.BeatsPerMinute.Value - sd.Tempo.Value) > 5))
+                            //{
+                            //    skipped += 1;
+                            //    continue;
+                            //}
+
+
+                            if (tried > count)
+                                break;
+
+                            if ((tried + 1)%100 != 0) continue;
+
+                            Trace.WriteLineIf(TraceLevels.General.TraceInfo, $"{tried} songs tried.");
                         }
 
-                        // TODO: Decide if we want to tromp other tempi
-                        //if (track?.BeatsPerMinute == null || (track.BeatsPerMinute == song.Tempo) ||
-                        //    (sd.Tempo.HasValue && Math.Abs(track.BeatsPerMinute.Value - sd.Tempo.Value) > 5))
-                        //{
-                        //    skipped += 1;
-                        //    continue;
-                        //}
+                        Database.UpdateAzureIndex(stemp.Concat(ftemp));
+                        succeeded.AddRange(stemp.Select(s => s.SongId));
+                        failed.AddRange(ftemp.Select(s => s.SongId));
 
-
-                        if (tried > count)
-                            break;
-
-                        if ((tried + 1) % 100 != 0) continue;
-
-                        Trace.WriteLineIf(TraceLevels.General.TraceInfo, $"{tried} songs tried.");
+                        page += 1;
+                        if (processed < pageSize)
+                        {
+                            done = true;
+                        }
                     }
 
-                    Database.UpdateAzureIndex(stemp.Concat(ftemp));
-                    succeeded.AddRange(stemp.Select(s => s.SongId));
-                    failed.AddRange(ftemp.Select(s => s.SongId));
+                    //ViewBag.BatchName = "BatchEchoNest";
+                    //ViewBag.SearchType = null;
+                    //ViewBag.Options = null;
+                    //ViewBag.Completed = tried <= count;
+                    //ViewBag.Failed = failed;
+                    //ViewBag.Succeeded = succeeded;
+                    //ViewBag.Skipped = skipped;
 
-                    page += 1;
-                    if (processed < pageSize)
-                    {
-                        done = true;
-                    }
-                }
+                    AdminMonitor.CompleteTask(true,
+                        $"BatchEchonest: Completed={tried <= count}, Succeeded={succeeded.Count} - ({string.Join(",", succeeded)}), Failed={failed.Count} - ({string.Join(",", failed)}), Skipped={skipped}");
+                });
 
-                ViewBag.BatchName = "BatchEchoNest";
-                ViewBag.SearchType = null;
-                ViewBag.Options = null;
-                ViewBag.Completed = tried <= count;
-                ViewBag.Failed = failed;
-                ViewBag.Succeeded = succeeded;
-                ViewBag.Skipped = skipped;
-
-                AdminMonitor.CompleteTask(true, $"BatchEchonest: Completed={tried <= count}, Succeeded={succeeded.Count} - ({string.Join(",", succeeded)}), Failed={failed.Count} - ({string.Join(",", failed)}), Skipped={skipped}");
-
-                return View("BatchMusicService");
+                return RedirectToAction("AdminStatus", "Admin", AdminMonitor.Status);
             }
             catch (Exception e)
             {
