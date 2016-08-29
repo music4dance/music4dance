@@ -6,7 +6,9 @@
 
 <h2>Long Running Task Status: @(Model.IsRunning ? "Running" : (Model.Succeeded ? "Succeeded" : "Failed"))</h2>
 
-<p>@Model.Status</p>
+<p>@Html.Raw(Model.Status)</p>
+
+<p><a href="/admin/adminstatus">REFRESH</a></p>
 
 @if (!Model.IsRunning && Model.Exception != null)
 {

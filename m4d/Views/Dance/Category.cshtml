@@ -24,9 +24,9 @@
     @DanceHelper.BallroomList(Html)
 </div>
 
-@DanceHelper.CategoryTable(Html, stats, Model.Round, "An " + @DanceHelper.FullRoundName(Model) + "dance round consist of the following:", catType)
+@DanceHelper.CategoryTable(Html, stats, Model.Round, "An " + @DanceHelper.FullRoundName(Model) + "dance round consists of the following:", catType)
 
-@if (@Model.Extras != null)
+@if (@Model.Extras != null && @Model.Extras.Count > 0)
 {
     @DanceHelper.CategoryTable(Html, stats, Model.Extras, "Other dances categorized as " + @Model.Name + ", although they aren't part of the competition round, are:", catType)
 }

@@ -27,13 +27,6 @@ namespace m4dModels.Tests
             Dms.LoadDances(Dances);
             Dms.LoadTags(Tags);
             Dms.LoadSearches(Searches);
-
-            var json = File.ReadAllText(@".\TestData\dancestatistics.txt");
-
-            var instance = DanceStatsInstance.LoadFromJson(json);
-            Assert.IsNotNull(instance);
-            DanceStatsManager.SetInstance(instance);
-            Assert.IsNotNull(Dms.DanceStats);
         }
 
         public List<string> Users { private set; get; }

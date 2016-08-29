@@ -89,6 +89,7 @@ namespace m4dModels
         public const string DanceTags = "DanceTags";
         public const string SongTags = "SongTags";
         public const string MeasureTempo = "MPM";
+        public const string MultiDance = "MultiDance";
 
         // Commands
         public const string CreateCommand = ".Create";
@@ -296,10 +297,35 @@ namespace m4dModels
                                 i += 1;
                             }
                             ratings = DanceRating.BuildDeltas(cell, w).ToList();
-                            tagProperty = new SongProperty(AddedTags,
-                                TagsFromDances(ratings.Select(r => r.DanceId)));
-                            properties.Add(tagProperty);
-                            properties.AddRange(ratings.Select(rating => new SongProperty(baseName, rating.ToString())));
+                            tagProperty = UpdateFromRatings(properties, tagProperty, ratings);
+                            cell = null;
+                        }
+                        break;
+                    case MultiDance:
+                        // DID|dancetag|dancetag||DID2||DID3|dancetag
+                        {
+                            var dts = new List<string>();
+                            ratings = new List<DanceRatingDelta>();
+                            foreach (var dnc in cell.Split(new[] { "||" }, StringSplitOptions.RemoveEmptyEntries))
+                            {
+                                var drg = dnc.Split(new[] { '|' }, StringSplitOptions.RemoveEmptyEntries).ToList();
+                                if (drg.Count == 0 || Dances.Instance.DanceFromId(drg[0]) == null)
+                                    continue;
+                                ratings.Add(new DanceRatingDelta(drg[0],DanceRatingCreate));
+                                string dt = null;
+                                drg.RemoveAt(0);
+                                if (drg.Count > 0)
+                                {
+                                    dt = new TagList(string.Join("|", drg)).ToString();
+                                }
+                                dts.Add(dt);
+                            }
+                            tagProperty = UpdateFromRatings(properties, tagProperty, ratings);
+                            for (var di = 0; di < ratings.Count; di++)
+                            {
+                                if (dts[di] == null) continue;
+                                properties.Add(new SongProperty(AddedTags, dts[di], -1, ratings[di].DanceId));
+                            }
                             cell = null;
                         }
                         break;
@@ -335,6 +361,11 @@ namespace m4dModels
                         if (!m.Success)
                         {
                             re = new Regex(@"(?<title>[^―—]*)\s*[―—](?<artist>.*)");
+                            m = re.Match(cell);
+                        }
+                        if (!m.Success)
+                        {
+                            re = new Regex(@"“(?<title>[^”]*)”\s*(?<artist>.*)");
                             m = re.Match(cell);
                         }
                         if (m.Success)
@@ -475,18 +506,7 @@ namespace m4dModels
 
                 if (tags != null && tags.Count > 0)
                 {
-                    var tl = new TagList(tags);
-
-                    if (tagProperty != null)
-                    {
-                        tl = tl.Add(new TagList(tagProperty.Value));
-                        tagProperty.Value = tl.ToString();
-                    }
-                    else
-                    {
-                        tagProperty = new SongProperty(AddedTags, tl.ToString());
-                        properties.Add(tagProperty);
-                    }
+                    tagProperty = UpdateTagProperty(properties, tagProperty, new TagList(tags).ToString());
                 }
                 tags = null;
 
@@ -540,6 +560,28 @@ namespace m4dModels
             return new Song(Guid.NewGuid(), properties, stats);
         }
 
+        private static SongProperty UpdateTagProperty(ICollection<SongProperty> properties, SongProperty tagProperty, string extra)
+        {
+            if (tagProperty != null)
+            {
+                tagProperty.Value = TagList.Concatenate(tagProperty.Value, extra);
+            }
+            else
+            {
+                tagProperty = new SongProperty(AddedTags, extra);
+                properties.Add(tagProperty);
+            }
+            return tagProperty;
+        }
+
+        private static SongProperty UpdateFromRatings(List<SongProperty> properties, SongProperty tagProperty, IReadOnlyCollection<DanceRatingDelta> ratings)
+        {
+            tagProperty = UpdateTagProperty(properties, tagProperty, TagsFromDances(ratings.Select(r => r.DanceId)));
+            properties.AddRange(ratings.Select(rating => new SongProperty(DanceRatingField, rating.ToString())));
+
+            return tagProperty;
+        }
+
         public static List<string> BuildHeaderMap(string line, char separator = '\t')
         {
             var map = new List<string>();
@@ -591,6 +633,7 @@ namespace m4dModels
             {"DANCETAGS",DanceTags},
             {"SONGTAGS",SongTags},
             {"MPM", MeasureTempo},
+            {"MULTIDANCE", MultiDance }
         };
 
         public static IList<Song> CreateFromRows(string user, string separator, IList<string> headers, IEnumerable<string> rows, DanceStatsInstance stats, int weight)

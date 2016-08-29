@@ -84,7 +84,7 @@
         <th></th>
     </tr>
 
-@foreach (var item in Model.Users.OrderByDescending(u => u.StartDate).ToList())
+@foreach (var item in Model.Users.OrderByDescending(u => u.LastActive > u.StartDate ? u.LastActive : u.StartDate).ToList())
 {
     <tr>
         @*

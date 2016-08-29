@@ -41,7 +41,7 @@
     var catType = category.Name.StartsWith("International") ? DanceCategoryType.International : DanceCategoryType.American;
     <section id="@category.CanonicalName">
         <h3>@DanceHelper.LinkCategory(Html, category.Name)</h3>
-        @DanceHelper.CategoryTable(Html, stats, category.Round, "An " + @DanceHelper.FullRoundName(category) + "dance round consist of the following:", catType)
+        @DanceHelper.CategoryTable(Html, stats, category.Round, "An " + @DanceHelper.FullRoundName(category) + "dance round consists of the following:", catType)
         <p>More about @DanceHelper.LinkCategory(Html, category.Name) dances.</p>
         <hr />
     </section>
