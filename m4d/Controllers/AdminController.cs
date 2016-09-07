@@ -908,7 +908,7 @@ namespace m4d.Controllers
                     if (string.Equals(reloadDatabase, "reload", StringComparison.InvariantCultureIgnoreCase))
                     {
                         reload = true;
-                        if (users != null && dances != null && tags != null && songs != null)
+                        if (users != null && dances != null && tags != null)
                         {
                             AdminMonitor.UpdateTask("Wipe Database");
                             RestoreDb(null);
