@@ -504,6 +504,7 @@
     <Compile Include="Scrapers\DanceForum.cs" />
     <Compile Include="Scrapers\DanceScraper.cs" />
     <Compile Include="Scrapers\DWTS.cs" />
+    <Compile Include="Scrapers\***REMOVED***.cs" />
     <Compile Include="Scrapers\WeddingDanceWorkshop.cs" />
     <Compile Include="Scrapers\***REMOVED***.cs" />
     <Compile Include="Service References\AWSReference\Reference.cs">
