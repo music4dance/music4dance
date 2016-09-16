@@ -16,7 +16,7 @@ namespace m4dModels
             get {return string.Join(",",Songs.Select(s => s.SongId));}
         }
 
-        public SongMerge(List<Song> songs)
+        public SongMerge(List<Song> songs, DanceStatsInstance stats)
         {
             Songs = songs;
 
@@ -31,7 +31,7 @@ namespace m4dModels
                 // Slightly kdlugy, but for now we're allowing alternates only for album so do a direct compare
                 var allowAlternates = field.EndsWith("List");
 
-                var spm = new SongPropertyMerge() { Name = field, AllowAlternates = allowAlternates, Values = new List<object>() };
+                var spm = new SongPropertyMerge { Name = field, AllowAlternates = allowAlternates, Values = new List<object>() };
 
                 var defaultIdx = -1;
                 string fsCur = null;
@@ -97,10 +97,10 @@ namespace m4dModels
                 // ReSharper disable once LoopCanBePartlyConvertedToQuery
                 foreach (var dr in song.DanceRatings)
                 {
-                    var dm = new DanceMerge()
+                    var dm = new DanceMerge
                     {
                         DanceId = dr.DanceId,
-                        DanceName = dr.Dance.Info.Name,
+                        DanceName = stats.Map[dr.DanceId].DanceName,
                         SongIdx = idx,
                         Weight = dr.Weight,
                         Keep = true

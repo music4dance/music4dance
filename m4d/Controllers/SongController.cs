@@ -1872,7 +1872,7 @@ namespace m4d.Controllers
         }
         private ActionResult Merge(IEnumerable<Song> songs)
         {
-            var sm = new SongMerge(songs.ToList());
+            var sm = new SongMerge(songs.ToList(),Database.DanceStats);
 
             return View("Merge", sm);
         }

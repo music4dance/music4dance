@@ -1723,25 +1723,6 @@ namespace m4dModels
             }
         }
 
-        // If stats != null, create the properties
-        public void AddDanceRating(DanceRating dr)
-        {
-            if (dr.DanceId == null)
-            {
-                dr.DanceId = dr.Dance.Id;
-            }
-
-            var other = DanceRatings.FirstOrDefault(r => r.DanceId == dr.DanceId);
-
-            if (other == null)
-            {
-                DanceRatings.Add(dr);
-            }
-            else
-            {
-                other.Weight += dr.Weight;
-            }
-        }
         public bool CreateDanceRatings(IEnumerable<DanceRating> ratings, DanceStatsInstance stats)
         {
             if (ratings == null)
@@ -2583,7 +2564,7 @@ namespace m4dModels
             var ds = stats.FromId(danceId);
             if (ds == null) return null;
 
-            return new DanceRating {Dance = ds.Dance, DanceId = danceId, Weight = weight};
+            return new DanceRating {DanceId = danceId, Weight = weight};
         }
 
         #endregion
@@ -3578,6 +3559,8 @@ namespace m4dModels
                     ModifiedBy.Remove(u);
                 }
             }
+
+            _albums = null;
         }
 
         #region TitleArtist

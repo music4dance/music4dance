@@ -236,9 +236,17 @@ namespace m4dModels
 
         public Song MergeSongs(ApplicationUser user, List<Song> songs, string title, string artist, decimal? tempo, int? length, IList<AlbumDetails> albums)
         {
-            var songIds = string.Join(";", songs.Select(s => s.SongId.ToString()));
+            // TODONEXT: This is currently not updating the top level fields of the merged song, figure out why.
+            //  Also - the next in the songcontroller this song isn't being saved, should I do that here???
+            var songIds = songs.Select(s => s.SongId).ToList();
+            var stringIds = string.Join(";", songIds.Select(id => id.ToString()));
 
-            var song = CreateSong(user, null,null, Song.MergeCommand, songIds);
+            if (songs.Any(s => s.SongProperties == null))
+            {
+                songs = FindSongs(songIds).ToList();
+            }
+
+            var song = CreateSong(user, null,null, Song.MergeCommand, stringIds);
 
             // Add in the properties for all of the songs and then delete them
             foreach (var from in songs)
@@ -419,6 +427,7 @@ namespace m4dModels
 
         public IEnumerable<Song> FindSongs(IEnumerable<Guid> ids, string userName = null)
         {
+            // TODO: Can we do a more efficient Azure Seach (look at comment SongsFromIds)
             var info = SearchServiceInfo.GetInfo();
 
             using (var serviceClient = new SearchServiceClient(info.Name, new SearchCredentials(info.AdminKey)))
@@ -428,7 +437,7 @@ namespace m4dModels
             }
         }
 
-        private Song InternalFindSong(Guid id, string userName, SearchIndexClient client)
+        private Song InternalFindSong(Guid id, string userName, ISearchIndexClient client)
         {
             var sd = DanceStats.FindSongDetails(id, userName);
             if (sd != null) return sd;
@@ -1864,6 +1873,74 @@ namespace m4dModels
             }
         }
 
+        //public IEnumerable<Song> SongsFromIds(IEnumerable<Guid> ids, string user = null, string id = "default")
+        //{
+        //    var parameters = new SearchParameters
+        //    {
+        //        QueryType = QueryType.Simple,
+        //        Top = 1000,
+        //        Select = new[] { Song.SongIdField,  Song.PropertiesField }
+        //    };
+
+        //    var info = SearchServiceInfo.GetInfo(id);
+        //    using (var serviceClient = new SearchServiceClient(info.Name, new SearchCredentials(info.QueryKey)))
+        //    using (var indexClient = serviceClient.Indexes.GetClient(info.Index))
+        //    {
+        //        var response = indexClient.Documents.Search(null, parameters);
+
+        //        return response.Results.Select(doc => new Song(doc.Document, DanceStats));
+        //    }
+        //}
+
+        public IEnumerable<Song> LoadLightSongs(string id = "default")
+        {
+            var parameters = new SearchParameters
+            {
+                QueryType = QueryType.Simple,
+                Top = int.MaxValue,
+                Select = new[] { Song.SongIdField, Song.TitleField, Song.ArtistField, Song.LengthField, Song.TempoField }
+            };
+
+            var info = SearchServiceInfo.GetInfo(id);
+            using (var serviceClient = new SearchServiceClient(info.Name, new SearchCredentials(info.QueryKey)))
+            using (var indexClient = serviceClient.Indexes.GetClient(info.Index))
+            {
+                SearchContinuationToken token = null;
+
+                var results = new List<Song>();
+                do
+                {
+                    var response = (token == null)
+                        ? indexClient.Documents.Search(null, parameters)
+                        : indexClient.Documents.ContinueSearch(token);
+
+                    // ReSharper disable once LoopCanBeConvertedToQuery
+                    foreach (var res in response.Results)
+                    {
+                        var doc = res.Document;
+                        var title = doc[Song.TitleField] as string;
+                        if (string.IsNullOrEmpty(title)) continue;
+
+                        var sid = doc[Song.SongIdField] as string;
+                        var lobj = doc[Song.LengthField];
+                        var length = (long?) lobj;
+                        var tobj = doc[Song.TempoField];
+                        var tempo = (double?) tobj;
+
+                        results.Add(new Song {
+                            SongId = sid == null ? new Guid() : new Guid(sid),
+                            Title = title,
+                            Artist = doc[Song.ArtistField] as string,
+                            Length = (int?)length,
+                            Tempo = (decimal?) tempo
+                        });
+                    }
+                    token = response.ContinuationToken;
+                } while (token != null);
+
+                return results;
+            }
+        }
 
         private static DocumentSearchResult DoAzureSearch(string search, SearchParameters parameters, CruftFilter cruft = CruftFilter.NoCruft, ISearchIndexClient client = null)
         {
@@ -2096,7 +2173,7 @@ namespace m4dModels
         #endregion
         public IList<Song> FindMergeCandidates(int n, int level)
         {
-            return MergeCluster.GetMergeCandidates(_context, n, level);
+            return MergeCluster.GetMergeCandidates(this, n, level);
         }
     }
 }
