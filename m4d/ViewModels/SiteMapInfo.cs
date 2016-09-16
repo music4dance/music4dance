@@ -142,6 +142,7 @@ namespace m4d.ViewModels
                                 new SiteMapEntry {Title = "\"Search like Google\" is now the default", Reference = "blog/search-like-google-is-now-the-default", Description="I’ve just updated the music4dance site to make the new search engine the default..."},
                                 new SiteMapEntry {Title = "Content Over Code", Reference = "blog/content-over-code", Description="As an engineer, I have a rather extreme tendency to dive into code when trying to improve the site..."},
                                 new SiteMapEntry {Title = "Do Dancers Think in Eights?", Reference = "blog/do-dancers-think-in-eights/", Description="I was tickled to hear <a href='https://en.wikipedia.org/wiki/Nigel_Lythgoe'>Nigel Lythgoe</a> talk a little about choreographing tap on a <a href='http://www.hulu.com/watch/977710'>recent episode</a> of <a href='https://en.wikipedia.org/wiki/So_You_Think_You_Can_Dance:_The_Next_Generation_(U.S.)'>So You Think You Can Dance</a>..."},
+                                new SiteMapEntry {Title = "Farewell to Rio 2016, but we'll always have The Samba", Reference = "", Description="Now that the 2016 <a href='https://www.olympic.org'>Olympics</a> are over and the <a href='https://www.paralympic.org/'>Paralympics</a> are wrapping up,"},
                                 //new SiteMapEntry {Title = "", Reference = "", Description=""},
                             }
                         },
