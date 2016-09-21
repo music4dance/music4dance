@@ -93,7 +93,7 @@ namespace m4dModels
         {
             if (sd != null)
             {
-                Trace.WriteLineIf(string.Equals(sd.Title, sd.Artist), $"Title and Artist are the same ({sd.Title})");                
+                Trace.WriteLineIf(string.Equals(sd.Title, sd.Artist), $"Title and Artist are the same ({sd.Title})");
             }
 
             var song = CreateSong(sd?.SongId);
@@ -251,6 +251,7 @@ namespace m4dModels
             // Add in the properties for all of the songs and then delete them
             foreach (var from in songs)
             {
+                song.UpdateProperties(from.SongProperties, DanceStats, new[] { Song.FailedLookup, Song.AlbumField, Song.TrackField, Song.PublisherField, Song.PurchaseField });
                 DeleteSong(user, from);
             }
 

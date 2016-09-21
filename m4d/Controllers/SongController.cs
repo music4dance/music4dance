@@ -810,6 +810,7 @@ namespace m4d.Controllers
                 Request.Form[Song.AlbumListField], new HashSet<string>(Request.Form.AllKeys));
 
             SaveSongs(songs);
+            SaveSong(song);
 
             DanceStatsManager.ClearCache();
 
@@ -1838,6 +1839,8 @@ namespace m4d.Controllers
                         if (cluster.Count > 1)
                         {
                             var s = AutoMerge(cluster, user);
+                            Database.SaveSongs(cluster);
+                            Database.SaveSong(s);
                             ret.Add(s);
                         }
                         else if (cluster.Count == 1)
@@ -1851,7 +1854,6 @@ namespace m4d.Controllers
             }
             finally
             {
-                Database.SaveSongs(ret);
                 DanceStatsManager.ClearCache();
             }
 
