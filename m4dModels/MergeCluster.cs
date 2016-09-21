@@ -14,9 +14,21 @@ namespace m4dModels
 
         public int PropertyHash { get; set; }
         public List<Song> Songs { get; set; }
-        
+
+        private static List<Song> s_mergeCandidateCache;
+        private static int s_mergeCandidateLevel;
+
+        public static void ClearMergeCandidateCache()
+        {
+            s_mergeCandidateCache = null;
+        }
+
         public static List<Song> GetMergeCandidates(DanceMusicService dms, int n, int level)
         {
+            if (level == s_mergeCandidateLevel && s_mergeCandidateCache != null)
+            {
+                return s_mergeCandidateCache;
+            }
             var clusters = new Dictionary<int, MergeCluster>();
 
             // ReSharper disable once LoopCanBePartlyConvertedToQuery
@@ -144,7 +156,20 @@ namespace m4dModels
                 }
             }
 
+            s_mergeCandidateCache = ret;
+            s_mergeCandidateLevel = level;
+
             return ret;
+        }
+
+        public static void RemoveMergeCandidate(Song song)
+        {
+            if (s_mergeCandidateCache == null) return;
+
+            var idx = s_mergeCandidateCache.FindIndex(s => s.SongId == song.SongId);
+            if (idx == -1) return;
+
+            s_mergeCandidateCache.RemoveAt(idx);
         }
 
         private static List<Song> FilterLength(List<Song> lump)

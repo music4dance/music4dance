@@ -265,7 +265,7 @@ namespace m4dModels
 
             song.Edit(user.UserName, sd, null, DanceStats);
 
-            return song;
+            return new Song(song.SongId,song.SongProperties,DanceStats);
         }
 
         public Song MergeSongs(ApplicationUser user, List<Song> songs, string title, string artist, decimal? tempo, int? length, string defAlbums, HashSet<string> keys)
@@ -2175,6 +2175,19 @@ namespace m4dModels
         public IList<Song> FindMergeCandidates(int n, int level)
         {
             return MergeCluster.GetMergeCandidates(this, n, level);
+        }
+
+        public void RemoveMergeCandidates(IEnumerable<Song> songs)
+        {
+            foreach (var song in songs)
+            {
+                MergeCluster.RemoveMergeCandidate(song);
+            }
+        }
+
+        public void ClearMergeCandidates()
+        {
+            MergeCluster.ClearMergeCandidateCache();
         }
     }
 }

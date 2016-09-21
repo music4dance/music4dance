@@ -747,6 +747,18 @@ namespace m4d.Controllers
         }
 
         //
+        // Merge: /Song/ClearMergeCache
+        [Authorize(Roles = "canEdit")]
+        public ActionResult ClearMergeCache()
+        {
+            Database.ClearMergeCandidates();
+            ViewBag.Success = true;
+            ViewBag.Message = "Merge Cache Cleared";
+
+            return View("Results");
+        }
+
+        //
         // GET: /Song/UpdateRatings/5
         [Authorize(Roles = "canEdit")]
         public ActionResult UpdateRatings(Guid id, SongFilter filter = null)
@@ -811,6 +823,8 @@ namespace m4d.Controllers
 
             SaveSongs(songs);
             SaveSong(song);
+
+            Database.RemoveMergeCandidates(songs);
 
             DanceStatsManager.ClearCache();
 
@@ -1813,7 +1827,7 @@ namespace m4d.Controllers
         #endregion
 
         #region Merge
-        private IList<Song> AutoMerge(IList<Song> songs, int level)
+        private IList<Song> AutoMerge(IEnumerable<Song> songs, int level)
         {
             // Get the logged in user
             var userName = User.Identity.Name;
@@ -1869,6 +1883,8 @@ namespace m4d.Controllers
                 ResolveIntField(Song.LengthField, songs),
                 Song.BuildAlbumInfo(songs)
                 );
+
+            Database.RemoveMergeCandidates(songs);
 
             return song;
         }
