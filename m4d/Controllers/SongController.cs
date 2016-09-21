@@ -747,6 +747,18 @@ namespace m4d.Controllers
         }
 
         //
+        // Merge: /Song/ClearMergeCache
+        [Authorize(Roles = "canEdit")]
+        public ActionResult ClearMergeCache()
+        {
+            Database.ClearMergeCandidates();
+            ViewBag.Success = true;
+            ViewBag.Message = "Merge Cache Cleared";
+
+            return View("Results");
+        }
+
+        //
         // GET: /Song/UpdateRatings/5
         [Authorize(Roles = "canEdit")]
         public ActionResult UpdateRatings(Guid id, SongFilter filter = null)
@@ -810,6 +822,9 @@ namespace m4d.Controllers
                 Request.Form[Song.AlbumListField], new HashSet<string>(Request.Form.AllKeys));
 
             SaveSongs(songs);
+            SaveSong(song);
+
+            Database.RemoveMergeCandidates(songs);
 
             DanceStatsManager.ClearCache();
 
@@ -1812,7 +1827,7 @@ namespace m4d.Controllers
         #endregion
 
         #region Merge
-        private IList<Song> AutoMerge(IList<Song> songs, int level)
+        private IList<Song> AutoMerge(IEnumerable<Song> songs, int level)
         {
             // Get the logged in user
             var userName = User.Identity.Name;
@@ -1838,6 +1853,8 @@ namespace m4d.Controllers
                         if (cluster.Count > 1)
                         {
                             var s = AutoMerge(cluster, user);
+                            Database.SaveSongs(cluster);
+                            Database.SaveSong(s);
                             ret.Add(s);
                         }
                         else if (cluster.Count == 1)
@@ -1851,7 +1868,6 @@ namespace m4d.Controllers
             }
             finally
             {
-                Database.SaveSongs(ret);
                 DanceStatsManager.ClearCache();
             }
 
@@ -1868,11 +1884,13 @@ namespace m4d.Controllers
                 Song.BuildAlbumInfo(songs)
                 );
 
+            Database.RemoveMergeCandidates(songs);
+
             return song;
         }
         private ActionResult Merge(IEnumerable<Song> songs)
         {
-            var sm = new SongMerge(songs.ToList());
+            var sm = new SongMerge(songs.ToList(),Database.DanceStats);
 
             return View("Merge", sm);
         }

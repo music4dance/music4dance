@@ -33,22 +33,8 @@ namespace m4dModels
             CurrentUserTags = userTags;
         }
 
-        //public DanceRating(string id, string user, DanceStatsInstance stats)
-        //{
-        //    var sc = stats.FromId(DanceId);
-
-        //    if (sc != null)
-        //    {
-        //        DanceName = sc.DanceName;
-        //        Max = sc.MaxWeight;
-        //    }
-
-        //    Badge = stats.GetRatingBadge(DanceId, Weight);
-        //}
-
         [DataMember]
         public string DanceId { get; set; }
-        public Dance Dance { get; set; }
 
         [DataMember]
         public string DanceName { get; set; }
