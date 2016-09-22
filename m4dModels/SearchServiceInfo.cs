@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace m4dModels
 {
@@ -30,6 +31,10 @@ namespace m4dModels
             return s_info[id];
         }
 
+        public static IEnumerable<string> GetAvailableIds()
+        {
+            return s_info.Keys.ToList();
+        }
 
         //private const string FreeAdmin = "***REMOVED***";
         //private const string FreeQuery = "5B2BAFC30F0CD25405A10B08582B5451";

@@ -24,6 +24,13 @@ namespace m4d.Controllers
     {
         public override string DefaultTheme => AdminTheme;
 
+        protected override void OnActionExecuting(ActionExecutingContext filterContext)
+        {
+            SetupDiagnostics();
+
+            base.OnActionExecuting(filterContext);
+        }
+
         #region Commands
 
         //
@@ -47,7 +54,6 @@ namespace m4d.Controllers
         [Authorize(Roles = "showDiagnostics")]
         public ActionResult Diagnostics()
         {
-            SetupDiagnostics();
             return View();
         }
 
@@ -66,7 +72,6 @@ namespace m4d.Controllers
         public ActionResult ResetAdmin()
         {
             AdminMonitor.CompleteTask(false,"Force Reset");
-            SetupDiagnostics();
             return View("Diagnostics");
         }
 
@@ -880,6 +885,28 @@ namespace m4d.Controllers
         }
 
         //
+        // Get: //CloneIdx
+        [HttpGet]
+        [Authorize(Roles = "dbAdmin")]
+        public ActionResult CloneIdx(string id)
+        {
+            try
+            {
+                StartAdminTask("CloneIndex");
+
+                AdminMonitor.UpdateTask("LoadIndex");
+
+                Database.CloneIndex(id);
+
+                return CompleteAdminTask(true, $"Default index cloned to {id}");
+            }
+            catch (Exception e)
+            {
+                return FailAdminTask($"Clone Index ({id}): {e.Message}", e);
+            }
+        }
+
+        //
         // Get: //ReloadDatabase
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -1350,7 +1377,7 @@ namespace m4d.Controllers
                 var n = 0;
                 using (var file = System.IO.File.CreateText(path))
                 {
-                        var lines = Database.BackupIndex(name,count,from,filter);
+                        var lines = Database.BackupIndex(name,count,from, (filter == null) ? null : new SongFilter(filter));
                         foreach (var line in lines)
                         {
                             file.WriteLine(line);

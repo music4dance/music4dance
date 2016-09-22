@@ -1838,7 +1838,7 @@ namespace m4d.Controllers
 
             try
             {
-                foreach (var song in songs)
+                foreach (var song in new List<Song>(songs))
                 {
                     if (cluster == null)
                     {
@@ -1876,6 +1876,9 @@ namespace m4d.Controllers
 
         private Song AutoMerge(List<Song> songs, ApplicationUser user)
         {
+            // These songs are coming from "light loading", so need to reload the full songs before merging
+            songs = Database.FindSongs(songs.Select(s => s.SongId)).ToList();
+
             var song = Database.MergeSongs(user, songs,
                 ResolveStringField(Song.TitleField, songs),
                 ResolveStringField(Song.ArtistField, songs),

@@ -236,8 +236,6 @@ namespace m4dModels
 
         public Song MergeSongs(ApplicationUser user, List<Song> songs, string title, string artist, decimal? tempo, int? length, IList<AlbumDetails> albums)
         {
-            // TODONEXT: This is currently not updating the top level fields of the merged song, figure out why.
-            //  Also - the next in the songcontroller this song isn't being saved, should I do that here???
             var songIds = songs.Select(s => s.SongId).ToList();
             var stringIds = string.Join(";", songIds.Select(id => id.ToString()));
 
@@ -251,11 +249,14 @@ namespace m4dModels
             // Add in the properties for all of the songs and then delete them
             foreach (var from in songs)
             {
-                song.UpdateProperties(from.SongProperties, DanceStats, new[] { Song.FailedLookup, Song.AlbumField, Song.TrackField, Song.PublisherField, Song.PurchaseField });
+                song.UpdateProperties(from.SongProperties, DanceStats, new[]
+                {
+                    Song.FailedLookup, Song.AlbumField, Song.TrackField, Song.PublisherField, Song.PurchaseField, Song.AlbumListField, Song.AlbumOrder, Song.AlbumPromote
+                });
                 DeleteSong(user, from);
             }
 
-            var sd = new Song(title, artist, tempo, length, albums)
+            var sd = new Song(title, artist, tempo, length, new List<AlbumDetails>())
             {
                 Danceability = song.Danceability,
                 Energy = song.Energy,
@@ -265,7 +266,12 @@ namespace m4dModels
 
             song.Edit(user.UserName, sd, null, DanceStats);
 
-            return new Song(song.SongId,song.SongProperties,DanceStats);
+            song.CreateAlbums(albums);
+
+            song =  new Song(song.SongId,song.SongProperties,DanceStats);
+            song.CleanupProperties();
+
+            return song;
         }
 
         public Song MergeSongs(ApplicationUser user, List<Song> songs, string title, string artist, decimal? tempo, int? length, string defAlbums, HashSet<string> keys)
@@ -1698,6 +1704,16 @@ namespace m4dModels
             return true;
         }
 
+        public void CloneIndex(string to, string from = "default")
+        {
+            AdminMonitor.UpdateTask("StartBackup");
+            var lines = BackupIndex(from) as IList<string>;
+            AdminMonitor.UpdateTask("StartReset");
+            ResetIndex(to);
+            AdminMonitor.UpdateTask("StartUpload");
+            UploadIndex(lines,to);
+        }
+
         public int UploadIndex(IList<string> lines, string id = "default")
         {
             const int chunkSize = 500;
@@ -2038,11 +2054,6 @@ namespace m4dModels
                     Suggestions = ret
                 };
             }
-        }
-
-        public IEnumerable<string> BackupIndex(string name = "default", int count = -1, DateTime? from = null, string filter = null)
-        {
-            return BackupIndex(name, count, from, (filter == null) ? null : new SongFilter(filter));
         }
 
         public IEnumerable<string> BackupIndex(string name = "default", int count = -1, DateTime? from = null, SongFilter filter = null)

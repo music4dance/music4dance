@@ -11,6 +11,8 @@
 
 @if (User.IsInRole("dbAdmin"))
 {
+    <h2>Current Index = @ViewBag.SearchIdx</h2>
+
     <h2>Uploads</h2>
 
     <li>@Html.ActionLink("Upload Catalog", "UploadCatalog", new { headers = "TITLE,ARTIST" })</li>
@@ -74,6 +76,17 @@
         <input type="submit" name="idxName" id="basicb" value="basicb" />
         <input type="submit" name="idxName" id="basicc" value="basicc" />
     }
+
+    <hr />
+    <h3>Clone the Index</h3>
+    <ul>
+        @foreach (var id in SearchServiceInfo.GetAvailableIds())
+        {
+            if (SearchServiceInfo.DefaultId == id) {continue;}
+            <li>@Html.ActionLink(id, "CloneIdx", "Admin", new {id}, null)</li>
+        }
+        <li>Enviroment: @SearchServiceInfo.RawEnvironment</li>
+    </ul>
 
     <hr />
     <h2>Backup Database</h2>

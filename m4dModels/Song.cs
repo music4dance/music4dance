@@ -2848,7 +2848,7 @@ namespace m4dModels
             for (var i = 1; i < songs.Count; i++)
             {
                 var next = BuildAlbumInfo(songs[i]);
-
+                // CompareAlbum
                 foreach (var ad in next.Where(ad => results.All(d => d.Name != ad.Name)))
                 {
                     results.Add(ad);
