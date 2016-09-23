@@ -190,7 +190,7 @@ namespace m4dModels
 
             var avg = total/count;
             var ret = new List<Song>();
-            foreach (var song in lump.Where(song => !song.Length.HasValue || Math.Abs(song.Length.Value - avg) < 15))
+            foreach (var song in lump.Where(song => !song.Length.HasValue || Math.Abs(song.Length.Value - avg) < 20))
             {
                 ret.Add(song);
             }

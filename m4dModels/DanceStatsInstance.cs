@@ -151,13 +151,25 @@ namespace m4dModels
 
                 if (!TopSongs.ContainsKey(song.SongId))
                 {
-                    if (song.IsNull) _otherSongs.Remove(song.SongId);
-                    _otherSongs[song.SongId] = song;
+                    if (song.IsNull)
+                    {
+                        _otherSongs.Remove(song.SongId);
+                    }
+                    else
+                    {
+                        _otherSongs[song.SongId] = song;
+                    }
                     return;
                 }
 
-                if (song.IsNull) TopSongs.Remove(song.SongId);
-                TopSongs[song.SongId] = song;
+                if (song.IsNull)
+                {
+                    TopSongs.Remove(song.SongId);
+                }
+                else
+                {
+                    TopSongs[song.SongId] = song;
+                }
 
                 foreach (var d in List)
                 {

@@ -271,6 +271,8 @@ namespace m4dModels
             song =  new Song(song.SongId,song.SongProperties,DanceStats);
             song.CleanupProperties();
 
+            SaveSong(song);
+
             return song;
         }
 
