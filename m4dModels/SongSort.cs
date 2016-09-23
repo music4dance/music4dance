@@ -20,7 +20,8 @@ namespace m4dModels
         {
             if (string.IsNullOrWhiteSpace(sort))
             {
-                sort = Song.ModifiedField;
+//                sort = Song.ModifiedField;
+                return;
             }
             var list = sort.Split('_').ToList();
             var count = -1;
@@ -80,6 +81,8 @@ namespace m4dModels
         {
             get
             {
+                if (string.IsNullOrWhiteSpace(Id)) return null;
+
                 if (Id == "Dances") return null;
                 var desc = Descending;
                 if (Id == "Modified" || Id == "Created")
