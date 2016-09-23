@@ -1713,10 +1713,10 @@ namespace m4dModels
             AdminMonitor.UpdateTask("StartReset");
             ResetIndex(to);
             AdminMonitor.UpdateTask("StartUpload");
-            UploadIndex(lines,to);
+            UploadIndex(lines, false, to);
         }
 
-        public int UploadIndex(IList<string> lines, string id = "default")
+        public int UploadIndex(IList<string> lines, bool trackDeteled, string id = "default")
         {
             const int chunkSize = 500;
             var info = SearchServiceInfo.GetInfo(id);
@@ -1727,13 +1727,20 @@ namespace m4dModels
             using (var serviceClient = new SearchServiceClient(info.Name, new SearchCredentials(info.AdminKey)))
             using (var indexClient = serviceClient.Indexes.GetClient(info.Index))
             {
+                var delete = new List<string>();
+
                 for (var i = 0; i < lines.Count; page += 1)
                 {
                     AdminMonitor.UpdateTask("AddSongs", added);
                     var chunk = new List<Song>();
                     for (; i < lines.Count && i < (page+1)*chunkSize; i++)
                     {
-                        chunk.Add(new Song(lines[i],stats));
+                        var song = new Song(lines[i], stats);
+                        chunk.Add(song);
+                        if (trackDeteled)
+                        {
+                            delete.AddRange(song.GetAltids());
+                        }
                     }
 
                     var songs = (from song in chunk where !song.IsNull select song.GetIndexDocument()).ToList();
@@ -1745,6 +1752,10 @@ namespace m4dModels
                     added += results.Results.Count;
                 }
 
+                if (delete.Count <= 0) return added;
+
+                var docs = IndexBatch.Delete(delete.Select(d => new Document {[Song.SongIdField] = d}));
+                indexClient.Documents.Index(docs);
                 return added;
             }
         }

@@ -869,7 +869,7 @@ namespace m4d.Controllers
 
                 if (reset) Database.ResetIndex(idxName);
 
-                var c = Database.UploadIndex(lines, idxName);
+                var c = Database.UploadIndex(lines, !reset, idxName);
 
                 if (SearchServiceInfo.GetInfo(idxName).Id == SearchServiceInfo.GetInfo("default").Id)
                 {

@@ -989,6 +989,12 @@ namespace m4dModels
         public string ModifiedOrderVerbose => TimeOrderVerbose(ModifiedSpan);
         public string CreatedOrderVerbose => TimeOrderVerbose(CreatedSpan);
 
+        public IEnumerable<string> GetAltids()
+        {
+            var merges = FilteredProperties(MergeCommand).ToList();
+            return merges.Any() ? merges.SelectMany(m => m.Value.Split(new[] {';'}, StringSplitOptions.RemoveEmptyEntries)) : new List<string>();
+        }
+
         private static string TimeOrder(TimeSpan span)
         {
             var seconds = span.TotalSeconds;
@@ -3299,14 +3305,7 @@ namespace m4dModels
 
             var users = ModifiedBy.Select(m => m.UserName.ToLower() + (m.Like.HasValue ? (m.Like.Value ? "|l" : "|h") : string.Empty)).ToArray();
 
-            var altIds = new string[0];
-            var merges = FilteredProperties(MergeCommand).ToList();
-            if (merges.Any())
-            {
-                altIds =
-                    merges.SelectMany(m => m.Value.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries))
-                        .ToArray();
-            }
+            var altIds = GetAltids().ToArray();
 
             var doc = new Document
             {
