@@ -71,6 +71,9 @@ namespace m4dModels
                         return "Last Modified";
                     case "Created":
                         return "When Added";
+                    case null:
+                    case "":
+                        return "Closest Match";
                     default:
                         return Id;
                 }
@@ -98,6 +101,10 @@ namespace m4dModels
         {
             get
             {
+                if (string.IsNullOrWhiteSpace(Id))
+                {
+                    return string.Empty;
+                }
                 var ret = new System.Text.StringBuilder();
                 ret.AppendFormat(" Sorted by {0} from ", FriendlyName);
             

@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using System.Web.Mvc;
 using m4d.Scrapers;
 using m4d.Utilities;
+using m4d.ViewModels;
 using m4dModels;
 using Microsoft.ApplicationInsights.Extensibility;
 using Newtonsoft.Json;
@@ -82,6 +83,18 @@ namespace m4d.Controllers
         public ActionResult InitializationTasks()
         {
             return View();
+        }
+
+        //
+        // Get: //UpdateSitemap
+        [Authorize(Roles = "dbAdmin")]
+        public ActionResult UpdateSitemap()
+        {
+            ViewBag.Name = "Update Sitemap";
+
+            SiteMapInfo.LoadCategories();
+
+            return RedirectToAction("SiteMap","Home");
         }
 
         //

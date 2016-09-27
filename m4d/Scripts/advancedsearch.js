@@ -170,8 +170,8 @@
             $('#user').val('-' + window.userName + '|h');
         }
 
-        // Set the SortBy radio buttons to Last Modified/Ascending
-        $('input:radio[name=sortOrder]').val(['Modified']);
+        // Set the SortBy radio buttons to Default/Ascending
+        $('input:radio[name=sortOrder]').val(['Closest Match']);
         $('input:radio[name=sortDirection]').val(['Ascending']);
 
         // Clear all of the tags 

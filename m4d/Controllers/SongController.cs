@@ -248,7 +248,7 @@ namespace m4d.Controllers
                 filter.Page = 1;
             }
 
-            if (string.IsNullOrWhiteSpace(sortOrder))
+            if (string.IsNullOrWhiteSpace(sortOrder) || string.Equals(sortOrder,"Closest Match",StringComparison.OrdinalIgnoreCase))
             {
                 sortOrder = null;
             }
