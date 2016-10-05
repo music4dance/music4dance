@@ -128,22 +128,6 @@ namespace m4d.Controllers
         }
 
         //
-        // Get: //UpdatePurchase
-        [Authorize(Roles = "dbAdmin")]
-        public ActionResult UpdatePurchase(string songIds = null)
-        {
-            ViewBag.Name = "Update Purchase Info";
-
-            var songs = Database.UpdatePurchaseInfo(songIds);
-            Database.SaveSongs(songs);
-
-            ViewBag.Success = true;
-            ViewBag.Message = "Purchase info was successully updated";
-
-            return View("Results");
-        }
-
-        //
         // Get: //UpdateAlbums
         [Authorize(Roles = "dbAdmin")]
         public ActionResult UpdateAlbums()
@@ -539,113 +523,9 @@ namespace m4d.Controllers
         }
 
 
-        //
-        // Get: //SpotifyRegions
-        [Authorize(Roles = "dbAdmin")]
-        public ActionResult SpotifyRegions(int count = int.MaxValue, int start = 0, string region = "US")
-        {
-            // DBKILL: Restore Cleanup when Necessary
-            return RestoreBatch();
-            //ViewBag.Name = "SpotifyRegions";
-            //var changed = 0;
-            //var updated = 0;
-            //var skipped = 0;
-            //var failed = 0;
-
-            //Context.TrackChanges(false);
-            //var properties = from p in Database.SongProperties
-            //    where p.Name.StartsWith("Purchase") && p.Name.EndsWith(":SS")
-            //    select p;
-
-            //var spotify = MusicService.GetService(ServiceType.Spotify);
-            //foreach (var prop in properties)
-            //{
-            //    if (skipped < start)
-            //    {
-            //        skipped += 1;
-            //        continue;
-            //    }
-            //    string[] regions;
-            //    var id = PurchaseRegion.ParseIdAndRegionInfo(prop.Value, out regions);
-
-            //    if (null == regions)
-            //    {
-            //        // Not sure how we are getting duplicate region info, but this will fix it
-            //        var fix = PurchaseRegion.FixRegionInfo(prop.Value);
-            //        if (fix != null)
-            //        {
-            //            prop.Value = fix;
-            //            changed += 1;
-            //        }
-            //        else
-            //        {
-            //            var track = MusicServiceManager.GetMusicServiceTrack(prop.Value, spotify);
-            //            if (track.AvailableMarkets == null)
-            //            {
-            //                failed += 1;
-            //            }
-            //            else
-            //            {
-            //                prop.Value = PurchaseRegion.FormatIdAndRegionInfo(track.TrackId, track.AvailableMarkets);
-            //                regions = track.AvailableMarkets;
-            //                changed += 1;
-            //            }
-            //        }
-            //    }
-
-            //    if (regions == null || string.IsNullOrWhiteSpace(region) || regions.Contains(region))
-            //    {
-            //        skipped += 1;
-            //    }
-            //    else if (!string.IsNullOrWhiteSpace(region))
-            //    {
-            //        var track = MusicServiceManager.CoerceTrackRegion(id, spotify, region);
-            //        if (track != null)
-            //        {
-            //            prop.Value = PurchaseRegion.FormatIdAndRegionInfo(track.TrackId,
-            //                PurchaseRegion.MergeRegions(regions, track.AvailableMarkets));
-            //            updated += 1;
-
-            //        }
-            //        else
-            //        {
-            //            failed += 1;
-            //        }
-            //    }
-
-            //    if ((changed + updated)%100 == 99)
-            //    {
-            //        Trace.WriteLineIf(TraceLevels.General.TraceInfo,
-            //            $"Skipped == {skipped}; Changed={changed}; Updated={updated}; Failed={failed}");
-            //        Thread.Sleep(5000);
-            //    }
-
-            //    if (changed + failed > count)
-            //        break;
-            //}
-            //Context.TrackChanges(true);
-
-            //ViewBag.Success = true;
-            //ViewBag.Message =
-            //    $"Updated purchase info: Skipped == {skipped}; Changed={changed}; Udpated={updated}; Failed={failed}";
-
-            //return View("Results");
-        }
-
-        //private static bool IsSorted(string[] arr)
-        //{
-        //    for (var i = 1; i < arr.Length; i++)
-        //    {
-        //        if (string.Compare(arr[i - 1], arr[i], StringComparison.OrdinalIgnoreCase) > 0)
-        //        {
-        //            return false;
-        //        }
-        //    }
-        //    return true;
-        //}
 
         //
-        // Get: //SpotifyRegions
+        // Get: //RegionStats
         [Authorize(Roles = "dbAdmin")]
         public ActionResult RegionStats()
         {

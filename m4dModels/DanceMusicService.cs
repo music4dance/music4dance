@@ -1549,18 +1549,6 @@ namespace m4dModels
             Context.LoadDances();
         }
 
-        public IEnumerable<Song> UpdatePurchaseInfo(string songIds)
-        {
-            // DBKILL: Need to have a mechanism to do song updates in chunks
-            //var songs = (songIds == null) ? Songs.Where(s => s.TitleHash != 0) : SongsFromList(songIds);
-
-            //foreach (var song in songs)
-            //{
-            //    var sd = new Song(song);
-            //    song.Purchase = sd.GetPurchaseTags();
-            //}
-            return null;
-        }
         #endregion
 
         #region Save
@@ -1827,7 +1815,7 @@ namespace m4dModels
         {
             parameters.IncludeTotalResultCount = true;
             var response = DoAzureSearch(search,parameters,cruft,id);
-            var songs = response.Results.Select(d => new Song(d.Document,stats)).ToList();
+            var songs = response.Results.Select(d => new Song(d.Document,stats??DanceStats)).ToList();
             var pageSize = parameters.Top ?? 25;
             var page = ((parameters.Skip ?? 0)/pageSize) + 1;
             var facets = response.Facets;

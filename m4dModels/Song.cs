@@ -890,9 +890,12 @@ namespace m4dModels
                 DanceRatings.Remove(dr);
             }
 
-            foreach (var dr in DanceRatings)
+            if (stats != null)
             {
-                dr.SetupSerialization(stats);
+                foreach (var dr in DanceRatings)
+                {
+                    dr.SetupSerialization(stats);
+                }
             }
 
             if (deleted)

@@ -161,15 +161,13 @@ namespace m4d.Utilities
                 return null;
             }
 
-            if (response.Items[0].Item.Length == 0)
-            {
-                Trace.WriteLine(asin + ": No Tracks Returned");
-                return null;
-            }
-            else
+            if (response.Items[0].Item.Length != 0)
             {
                 return BuildServiceTrack(response.Items[0].Item[0]);
             }
+
+            Trace.WriteLine(asin + ": No Tracks Returned");
+            return null;
         }
 
         private IList<ServiceTrack> DoFetchTracks(Song song, bool clean = false, string title = null, string artist = null)
