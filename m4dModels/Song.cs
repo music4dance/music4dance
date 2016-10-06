@@ -998,6 +998,8 @@ namespace m4dModels
             return merges.Any() ? merges.SelectMany(m => m.Value.Split(new[] {';'}, StringSplitOptions.RemoveEmptyEntries)) : new List<string>();
         }
 
+        public bool BatchProcessed { get; set; }
+
         private static string TimeOrder(TimeSpan span)
         {
             var seconds = span.TotalSeconds;
@@ -3282,6 +3284,7 @@ namespace m4dModels
             var purchase = string.IsNullOrWhiteSpace(Purchase) ? new List<string>() : Purchase.ToCharArray().Select(c => MusicService.GetService(c).Name).ToList();
             if (HasSample) purchase.Add("Sample");
             if (HasEchoNest) purchase.Add("EchoNest");
+            if (BatchProcessed) purchase.Add("---");
 
             var purchaseIds = GetExtendedPurchaseIds();
 

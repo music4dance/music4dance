@@ -143,6 +143,8 @@ namespace m4d.Controllers
             }
 
             var p = Database.AzureParmsFromFilter(filter, 25);
+            p.IncludeTotalResultCount = true;
+
             ViewBag.RawSearch = p;
 
             var results = Database.AzureSearch(filter.SearchString, p, DefaultCruftFilter, "default", Database.DanceStats);
@@ -1062,7 +1064,7 @@ namespace m4d.Controllers
         }
 
         [Authorize(Roles = "canEdit")]
-        public ActionResult BatchCleanService(SongFilter filter = null, int count = 1)
+        public ActionResult BatchCleanService(SongFilter filter = null, int count = 100)
         {
             try
             {
@@ -1082,11 +1084,16 @@ namespace m4d.Controllers
 
                 Task.Run(() =>
                 {
+                    var prms = Database.AzureParmsFromFilter(filter, 500);
+                    prms.IncludeTotalResultCount = false;
+                    prms.Filter = ((prms.Filter == null) ? "" : prms.Filter + " and ") + "Purchase/all(t: t ne '---')";
+
                     while (!done)
                     {
                         AdminMonitor.UpdateTask("BuildSongList", filter.Page ?? 1);
-                        var res = Database.AzureSearch(filter, 500, DanceMusicService.CruftFilter.AllCruft);
+                        var res = Database.AzureSearch(filter.SearchString, prms, DanceMusicService.CruftFilter.AllCruft);
                         if (!res.Songs.Any()) break;
+                        var save = new List<Song>();
 
                         var processed = 0;
                         foreach (var song in res.Songs)
@@ -1095,19 +1102,33 @@ namespace m4d.Controllers
 
                             processed += 1;
                             tried += 1;
-                            var newSong = CleanMusicServiceSong(song);
-                            if (newSong != null)
+                            var songT = CleanMusicServiceSong(song);
+                            if (songT != null)
                             {
-                                changed.Add(newSong.SongId);
-                                Database.SaveSong(newSong);
+                                changed.Add(songT.SongId);
+                            }
+                            else
+                            {
+                                songT = song;
                             }
 
-                            if (tried > count)
+                            songT.BatchProcessed = true;
+                            save.Add(songT);
+
+                            if (count > 0 && tried > count)
                                 break;
 
                             if ((tried + 1)%25 != 0) continue;
 
+                            Database.SaveSongs(save);
+                            save = new List<Song>();
                             Trace.WriteLineIf(TraceLevels.General.TraceInfo, $"{tried} songs tried.");
+                        }
+
+                        if (save.Count > 0)
+                        {
+                            Database.SaveSongs(save);
+                            save = new List<Song>();
                         }
 
                         filter.Page += 1;
@@ -1558,7 +1579,7 @@ namespace m4d.Controllers
             ViewBag.SongTitle = title;
         }
 
-        private Song UpdateMusicService(Song song, MusicService service, string name, string album, string artist, string trackId, string collectionId, string alternateId, string duration, int? trackNum)
+        private static Song UpdateMusicService(Song song, MusicService service, string name, string album, string artist, string trackId, string collectionId, string alternateId, string duration, int? trackNum)
         {
             // This is a very transitory object to hold the old values for a semi-automated edit
             var alt = new Song();
@@ -1664,26 +1685,24 @@ namespace m4d.Controllers
         {
             var found = MatchSongAndService(sd, service);
 
-            if (found.Count > 0)
-            {
-                var tags = new TagList();
-                foreach (var foundTrack in found)
-                {
-                    UpdateMusicService(sd, MusicService.GetService(foundTrack.Service), foundTrack.Name, foundTrack.Album, foundTrack.Artist, foundTrack.TrackId, foundTrack.CollectionId, foundTrack.AltId, foundTrack.Duration.ToString(), foundTrack.TrackNumber);
-                    tags = tags.Add(new TagList(Database.NormalizeTags(foundTrack.Genre, "Music")));
-                }
-                ApplicationUser user;
-                // ReSharper disable once InvertIf
-                if (!users.TryGetValue(service.CID, out user))
-                {
-                    user = Database.FindUser("batch-" + service.CID.ToString().ToLower());
-                    users[service.CID] = user;
-                }
+            if (found.Count <= 0) return null;
 
-                return Database.EditSong(user, sd, new[] { new UserTag { Id = string.Empty, Tags = tags } });
+            var tags = new TagList();
+            foreach (var foundTrack in found)
+            {
+                var trackId = PurchaseRegion.FormatIdAndRegionInfo(foundTrack.TrackId, foundTrack.AvailableMarkets);
+                UpdateMusicService(sd, MusicService.GetService(foundTrack.Service), foundTrack.Name, foundTrack.Album, foundTrack.Artist, trackId, foundTrack.CollectionId, foundTrack.AltId, foundTrack.Duration.ToString(), foundTrack.TrackNumber);
+                tags = tags.Add(new TagList(Database.NormalizeTags(foundTrack.Genre, "Music")));
+            }
+            ApplicationUser user;
+            // ReSharper disable once InvertIf
+            if (!users.TryGetValue(service.CID, out user))
+            {
+                user = Database.FindUser("batch-" + service.CID.ToString().ToLower());
+                users[service.CID] = user;
             }
 
-            return null;
+            return Database.EditSong(user, sd, new[] { new UserTag { Id = string.Empty, Tags = tags } });
         }
         private IList<ServiceTrack> MatchSongAndService(Song sd, MusicService service)
         {
@@ -1735,7 +1754,8 @@ namespace m4d.Controllers
         {
             var props = new List<SongProperty>(song.SongProperties);
 
-            var changed =  CleanSpotify(props, region) || CleanBrokenServices(props);
+            var changed = CleanBrokenServices(props);
+            changed |= CleanSpotify(props, region);
 
             Song newSong = null;
 
@@ -1771,16 +1791,23 @@ namespace m4d.Controllers
                     }
                     else
                     {
-                        var track = MusicServiceManager.GetMusicServiceTrack(prop.Value, spotify);
-                        if (track.AvailableMarkets == null)
+                        try
+                        {
+                            var track = MusicServiceManager.GetMusicServiceTrack(prop.Value, spotify);
+                            if (track.AvailableMarkets == null)
+                            {
+                                failed += 1;
+                            }
+                            else
+                            {
+                                prop.Value = PurchaseRegion.FormatIdAndRegionInfo(track.TrackId, track.AvailableMarkets);
+                                regions = track.AvailableMarkets;
+                                changed += 1;
+                            }
+                        }
+                        catch (WebException)
                         {
                             failed += 1;
-                        }
-                        else
-                        {
-                            prop.Value = PurchaseRegion.FormatIdAndRegionInfo(track.TrackId, track.AvailableMarkets);
-                            regions = track.AvailableMarkets;
-                            changed += 1;
                         }
                     }
                 }
@@ -1823,9 +1850,19 @@ namespace m4d.Controllers
 
                 if (!MusicService.TryParsePurchaseType(prop.Qualifier, out pt, out ms)) continue;
 
+                var service = MusicService.GetService(ms);
+                if (!service.IsSearchable) continue;
+
                 string[] regions;
                 var id = PurchaseRegion.ParseIdAndRegionInfo(prop.Value, out regions);
-                var track = MusicServiceManager.GetMusicServiceTrack(id, MusicService.GetService(ms));
+                ServiceTrack track = null;
+                try
+                {
+                    track = MusicServiceManager.GetMusicServiceTrack(id, MusicService.GetService(ms));
+                }
+                catch (WebException)
+                {
+                }
                 if (track != null) continue;
 
                 del.Add(prop);
@@ -1840,7 +1877,7 @@ namespace m4d.Controllers
                 props.Remove(prop);
             }
 
-            return del.Count > 0;
+            return true;
         }
 
         //The old variation seems to delete dups of puchase type, not sure we need this, may prefer to delete full dups at some point

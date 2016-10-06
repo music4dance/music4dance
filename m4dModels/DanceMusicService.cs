@@ -1808,12 +1808,11 @@ namespace m4dModels
 
         public SearchResults AzureSearch(SongFilter filter, int? pageSize = null, CruftFilter cruft = CruftFilter.NoCruft, string id = "default")
         {
-            return AzureSearch(filter.SearchString, AzureParmsFromFilter(filter, pageSize), cruft, id);
+            return AzureSearch(filter.SearchString, AzureParmsFromFilter(filter, pageSize), cruft, id, DanceStats);
         }
 
         public SearchResults AzureSearch(string search, SearchParameters parameters, CruftFilter cruft = CruftFilter.NoCruft, string id = "default", DanceStatsInstance stats = null)
         {
-            parameters.IncludeTotalResultCount = true;
             var response = DoAzureSearch(search,parameters,cruft,id);
             var songs = response.Results.Select(d => new Song(d.Document,stats??DanceStats)).ToList();
             var pageSize = parameters.Top ?? 25;
