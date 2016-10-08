@@ -273,7 +273,9 @@ namespace m4d.Utilities
 
             var genre = item.ItemAttributes.Genre;
 
-            var gidx = genre.IndexOf("-music", StringComparison.OrdinalIgnoreCase);
+            var gidx = -1;
+            if (genre != null) gidx = genre.IndexOf("-music", StringComparison.OrdinalIgnoreCase);
+
             if (gidx != -1)
             {
                 genre = genre.Remove(gidx);

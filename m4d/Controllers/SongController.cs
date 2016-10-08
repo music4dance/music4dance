@@ -1098,37 +1098,41 @@ namespace m4d.Controllers
                         var processed = 0;
                         foreach (var song in res.Songs)
                         {
-                            AdminMonitor.UpdateTask("Processing", processed);
-
-                            processed += 1;
-                            tried += 1;
-                            var songT = CleanMusicServiceSong(song);
-                            if (songT != null)
+                            try
                             {
-                                changed.Add(songT.SongId);
+                                AdminMonitor.UpdateTask("Processing", processed);
+
+                                processed += 1;
+                                tried += 1;
+                                var songT = CleanMusicServiceSong(song);
+                                if (songT != null)
+                                {
+                                    changed.Add(songT.SongId);
+                                }
+                                else
+                                {
+                                    songT = song;
+                                }
+
+                                songT.BatchProcessed = true;
+                                save.Add(songT);
+
+                                if (count > 0 && tried > count)
+                                    break;
+
+                                if ((tried + 1)%25 != 0) continue;
+
+                                Trace.WriteLineIf(TraceLevels.General.TraceInfo, $"{tried} songs tried.");
                             }
-                            else
+                            catch (Exception e)
                             {
-                                songT = song;
+                                Trace.WriteLine($"{song.Title} by {song.Artist} failed with: {e.Message}");
                             }
-
-                            songT.BatchProcessed = true;
-                            save.Add(songT);
-
-                            if (count > 0 && tried > count)
-                                break;
-
-                            if ((tried + 1)%25 != 0) continue;
-
-                            Database.SaveSongs(save);
-                            save = new List<Song>();
-                            Trace.WriteLineIf(TraceLevels.General.TraceInfo, $"{tried} songs tried.");
                         }
 
                         if (save.Count > 0)
                         {
                             Database.SaveSongs(save);
-                            save = new List<Song>();
                         }
 
                         filter.Page += 1;
