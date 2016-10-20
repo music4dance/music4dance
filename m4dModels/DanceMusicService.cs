@@ -4,6 +4,7 @@ using System.Data.Entity;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Net.NetworkInformation;
 using System.Text;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.EntityFramework;
@@ -66,6 +67,20 @@ namespace m4dModels
             if (songs == null || !songs.Any()) return;
 
             // DBKill: we probably need to keep a DSI for each index (built on demand of course) so that we can do live swaps
+            var stats = DanceStats;
+            foreach (var song in songs)
+            {
+                stats.UpdateSong(song, this);
+            }
+
+            UpdateAzureIndex(id);
+        }
+
+        [SuppressMessage("ReSharper", "PossibleMultipleEnumeration")]
+        public void SaveSongsImmediate(IEnumerable<Song> songs, string id = "default")
+        {
+            if (songs == null || !songs.Any()) return;
+
             var stats = DanceStats;
             foreach (var song in songs)
             {
@@ -1772,37 +1787,59 @@ namespace m4dModels
             }
             if (songs == null) return 0;
 
-            using (var serviceClient = new SearchServiceClient(info.Name, new SearchCredentials(info.AdminKey)))
-            using (var indexClient = serviceClient.Indexes.GetClient(info.Index))
+            try
             {
-                var deleted = new List<Document>();
-                var added = new List<Document>();
-
-                // ReSharper disable once LoopCanBeConvertedToQuery
-                foreach (var song in songs)
+                using (var serviceClient = new SearchServiceClient(info.Name, new SearchCredentials(info.AdminKey)))
+                using (var indexClient = serviceClient.Indexes.GetClient(info.Index))
                 {
-                    if (!song.IsNull)
+                    var processed = 0;
+                    var list = (songs as List<Song>) ?? songs.ToList();
+
+                    while (list.Count > 0)
                     {
-                        added.Add(song.GetIndexDocument());
+                        var deleted = new List<Document>();
+                        var added = new List<Document>();
+
+                        // ReSharper disable once LoopCanBeConvertedToQuery
+                        foreach (var song in list)
+                        {
+                            if (!song.IsNull)
+                            {
+                                added.Add(song.GetIndexDocument());
+                            }
+                            else
+                            {
+                                deleted.Add(song.GetIndexDocument());
+                            }
+                            if (added.Count > 990 || deleted.Count > 990)
+                            {
+                                break;
+                            }
+                        }
+
+                        if (added.Count > 0)
+                        {
+                            var batch = IndexBatch.Upload(added);
+                            indexClient.Documents.Index(batch);
+                        }
+                        if (deleted.Count > 0)
+                        {
+                            var delete = IndexBatch.Delete(deleted);
+                            indexClient.Documents.Index(delete);
+                        }
+
+                        list.RemoveRange(0, added.Count + deleted.Count);
+                        processed += added.Count + deleted.Count;
                     }
-                    else
-                    {
-                        deleted.Add(song.GetIndexDocument());
-                    }
+
+                    return processed;
                 }
 
-                if (added.Count > 0)
-                {
-                    var batch = IndexBatch.Upload(added);
-                    indexClient.Documents.Index(batch);
-                }
-                if (deleted.Count > 0)
-                {
-                    var delete = IndexBatch.Delete(deleted);
-                    indexClient.Documents.Index(delete);
-                }
-
-                return added.Count + deleted.Count;
+            }
+            catch (Exception e)
+            {
+                Trace.WriteLine($"UpdateAzureIndex Failed: {e.Message}");
+                return 0;
             }
         }
 
