@@ -8,6 +8,7 @@ using m4d.Context;
 using m4d.Controllers;
 using m4d.Utilities;
 using m4dModels;
+using JavaScriptEngineSwitcher.Core;
 
 namespace m4d
 {
@@ -19,6 +20,7 @@ namespace m4d
             GlobalConfiguration.Configure(WebApiConfig.Register);
             FilterConfig.RegisterGlobalFilters(GlobalFilters.Filters);
             RouteConfig.RegisterRoutes(RouteTable.Routes);
+            JsEngineSwitcherConfig.Configure(JsEngineSwitcher.Instance);
             BundleConfig.RegisterBundles(BundleTable.Bundles);
 
             ModelBinders.Binders[typeof(Song)] = new SongBinder();
