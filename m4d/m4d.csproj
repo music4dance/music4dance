@@ -838,6 +838,7 @@
     <Content Include="Content\teal-bootstrap-theme.css" />
     <Content Include="Content\teal-bootstrap.css" />
     <Content Include="Content\tempo-50.png" />
+    <Content Include="Content\helpmap.txt" />
     <Content Include="Content\thermometer-0.png" />
     <Content Include="Content\thermometer-1.png" />
     <Content Include="Content\thermometer-2.png" />

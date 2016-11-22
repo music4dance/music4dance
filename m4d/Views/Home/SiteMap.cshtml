@@ -1,8 +1,20 @@
 ﻿@using m4d.ViewModels
 
+@helper TitleLink (SiteMapEntry entry, string type)
+{
+    if (string.IsNullOrWhiteSpace(entry.FullPath))
+    {
+        <b class="@type">@entry.Title</b>
+    }
+    else
+    {
+        <a href="@entry.FullPath" class="@type">@entry.Title</a>
+    }
+}
+
 @helper MapEntry(SiteMapEntry entry, string type)
 {
-    <a href="@entry.FullPath" class="@type">@entry.Title</a>
+    @TitleLink(entry, type);
     if (@entry.Children != null)
     {
         <ul>

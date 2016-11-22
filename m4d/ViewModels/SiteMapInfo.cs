@@ -1,6 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
+using System.IO.Packaging;
 using System.Linq;
+using Antlr.Runtime.Misc;
 using DanceLibrary;
 
 namespace m4d.ViewModels
@@ -17,7 +20,7 @@ namespace m4d.ViewModels
 
         protected string MakeFullPath(string rel)
         {
-            return $"https://www.music4dance.net/{rel}";
+            return (rel == null) ? string.Empty : $"https://www.music4dance.net/{rel}";
         }
     }
 
@@ -44,16 +47,45 @@ namespace m4d.ViewModels
         {
             var path = Path.Combine(System.Web.Hosting.HostingEnvironment.MapPath("~/Content")??"",$"{filename}.txt");
             var lines = File.ReadAllLines(path);
-            var children = new List<SiteMapEntry>();
+            var family = new Stack<List<SiteMapEntry>>();
+            family.Push(new List<SiteMapEntry>());
             // ReSharper disable once LoopCanBeConvertedToQuery
             foreach (var line in lines)
             {
-                var parts = line.Split('\t');
-                if (parts.Length < 4) continue;
+                var parts = line.Split('\t').ToList();
+                var curdepth = 0;
+                var depth = family.Count - 1;
 
-                children.Add(new SiteMapEntry {Title = parts[0],Reference=parts[1], Description = parts[2], OneTime = parts[3] == "OneTime"});
+                while (parts.Count > 0 && string.IsNullOrWhiteSpace(parts[0]))
+                {
+                    parts.RemoveAt(0);
+                    curdepth += 1;
+                }
+
+                if (Math.Abs(curdepth - depth) > 1)
+                {
+                    continue;
+                }
+
+                if (curdepth > depth)
+                {
+                    family.Push(new ListStack<SiteMapEntry>());
+                }
+                else if (curdepth < depth)
+                {
+                    var t = family.Pop();
+                    family.Peek()[family.Peek().Count - 1].Children = t;
+                }
+
+                family.Peek().Add(new SiteMapEntry
+                    {
+                        Title = parts[0],
+                        Reference = parts.Count > 1 ? parts[1] : null,
+                        Description = parts.Count > 2 ? parts[2] : null,
+                        OneTime = (parts.Count > 3 && parts[3] == "OneTime")
+                    });
             }
-            Children = children;
+            Children = family.Pop();
         }
     }
 
@@ -129,49 +161,7 @@ namespace m4d.ViewModels
                         new SiteMapEntry {Title =  "Credits", Reference="home/credits"},
                         new SiteMapEntry {Title =  "Reading List", Reference="blog/reading-list"},
                         new SiteMapFile("blogmap") {Title =  "Blog", Reference="blog"},
-                        new SiteMapEntry
-                        {
-                            Title =  "Help", Reference="blog/music4dance-help",
-                            Children = new List<SiteMapEntry>
-                            {
-                                new SiteMapEntry {Title = "Song List", Reference = "blog/music4dance-help/song-list"},
-                                new SiteMapEntry
-                                {
-                                    Title = "Song Details", Reference = "blog/music4dance-help/song-details",
-                                    Children = new List<SiteMapEntry>
-                                    {
-                                        new SiteMapEntry {Title = "Advanced Search", Reference = "blog/music4dance-help/advanced-search"},
-                                        new SiteMapEntry {Title = "Simple Search (BETA)", Reference = "blog/music4dance-help/simple-search"},
-                                        new SiteMapEntry {Title = "Full Search (BETA)", Reference = "blog/music4dance-help/full-search"},
-                                    }
-                                },
-                                new SiteMapEntry {Title = "Dance Styles", Reference = "blog/music4dance-help/dance-styles-help"},
-                                new SiteMapEntry {Title = "Dance Categories", Reference = "blog/music4dance-help/dance-category"},
-                                new SiteMapEntry {Title = "Dance Details", Reference = "blog/music4dance-help/dance-details"},
-                                new SiteMapEntry {Title = "Tag Cloud", Reference = "blog/music4dance-help/tag-cloud"},
-                                new SiteMapEntry {Title = "Tag Definition", Reference = "blog/music4dance-help/tag-definitions"},
-                                new SiteMapEntry {Title = "Tag Filtering", Reference = "blog/music4dance-help/tag-filtering"},
-                                new SiteMapEntry {Title = "Tag Editing", Reference = "blog/music4dance-help/tag-editing"},
-                                new SiteMapEntry {Title = "Tempo Counter", Reference = "blog/music4dance-help/tempo-counter"},
-                                new SiteMapEntry {Title = "Dance Tempi", Reference = "blog/music4dance-help/dance-tempi"},
-                                new SiteMapEntry {Title = "Account Management", Reference = "blog/music4dance-help/account-management"},
-                                new SiteMapEntry
-                                {
-                                    Title = "Playing or Purchasing Songs", Reference = "blog/music4dance-help/playing-or-purchasing-songs/",
-                                    Children = new List<SiteMapEntry>
-                                    {
-                                        new SiteMapEntry {Title = "ITunes", Reference = "blog/music4dance-help/playing-or-purchasing-songs/itunes"},
-                                        new SiteMapEntry {Title = "Amazon", Reference = "blog/music4dance-help/playing-or-purchasing-songs/amazon"},
-                                        new SiteMapEntry {Title = "Spotify", Reference = "blog/music4dance-help/playing-or-purchasing-songs/spotify"},
-                                        new SiteMapEntry {Title = "Groove", Reference = "blog/music4dance-help/playing-or-purchasing-songs/groove"},
-                                        new SiteMapEntry {Title = "EchoNest", Reference = "blog/music4dance-help/playing-or-purchasing-songs/echonest"},
-                                    }
-                                },
-                                new SiteMapEntry {Title = "Beta", Reference = "blog/music4dance-help/beta"},
-                                new SiteMapEntry {Title = "Feedback", Reference = "blog/feedback"},
-                                new SiteMapEntry {Title = "Bug Report", Reference = "blog/bug-report"},
-                            }
-                        },
+                        new SiteMapFile("helpmap") {Title =  "Help", Reference="blog/music4dance-help"},
                     }
                 },
                 new SiteMapCategory

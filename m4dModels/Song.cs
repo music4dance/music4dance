@@ -332,16 +332,25 @@ namespace m4dModels
                     case LengthField:
                         if (!string.IsNullOrWhiteSpace(cell))
                         {
-                            try
+                            decimal l = 0;
+
+                            if (cell.IndexOfAny(new[] {':', 'm', 's'}) == -1 && decimal.TryParse(cell, out l))
                             {
-                                var d = new SongDuration(cell);
-                                var l = d.Length;
-                                cell = l.ToString("F0");
+                                if (l > 1000)
+                                {
+                                    l /= 1000;
+                                }
                             }
-                            catch (ArgumentOutOfRangeException)
+                            else
                             {
-                                cell = null;
+                                try
+                                {
+                                    var d = new SongDuration(cell);
+                                    l = d.Length;
+                                }
+                                catch (ArgumentOutOfRangeException) { }
                             }
+                            cell = (l == 0) ? null : l.ToString("F0");
                         }
                         break;
                     case ArtistField:

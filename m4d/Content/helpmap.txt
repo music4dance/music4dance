@@ -1,0 +1,27 @@
+﻿Songs and Search
+	Song Details	blog/music4dance-help/song-details
+	Advanced Search	blog/music4dance-help/advanced-search
+	Simple Search (BETA)	blog/music4dance-help/simple-search
+	Full Search (BETA)	blog/music4dance-help/full-search
+Dances
+	Dance Styles	blog/music4dance-help/dance-styles-help
+	Dance Categories	blog/music4dance-help/dance-category
+	Dance Details	blog/music4dance-help/dance-details
+Tags
+	Tag Cloud	blog/music4dance-help/tag-cloud
+	Tag Definition	blog/music4dance-help/tag-definitions
+	Tag Filtering	blog/music4dance-help/tag-filtering
+	Tag Editing	blog/music4dance-help/tag-editing
+Tools
+	Tempo Counter	blog/music4dance-help/tempo-counter
+	Dance Tempi	blog/music4dance-help/dance-tempi
+Account Management	blog/music4dance-help/account-management
+Playing or Purchasing Songs	blog/music4dance-help/playing-or-purchasing-songs
+	ITunes	blog/music4dance-help/playing-or-purchasing-songs/itunes
+	Amazon	blog/music4dance-help/playing-or-purchasing-songs/amazon
+	Spotify	blog/music4dance-help/playing-or-purchasing-songs/spotify
+	Groove	blog/music4dance-help/playing-or-purchasing-songs/groove
+	EchoNest	blog/music4dance-help/playing-or-purchasing-songs/echonest
+Beta	blog/music4dance-help/beta
+Feedback	blog/feedback
+Bug Report	blog/bug-report
