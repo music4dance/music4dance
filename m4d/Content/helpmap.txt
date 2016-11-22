@@ -3,6 +3,7 @@
 	Advanced Search	blog/music4dance-help/advanced-search
 	Simple Search (BETA)	blog/music4dance-help/simple-search
 	Full Search (BETA)	blog/music4dance-help/full-search
+	Saved Searched	blog/music4dance-help/saved-searches/
 Dances
 	Dance Styles	blog/music4dance-help/dance-styles-help
 	Dance Categories	blog/music4dance-help/dance-category
