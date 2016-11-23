@@ -25,7 +25,7 @@
     }
 
     var topSpotify = @DanceMusicService.PurchaseLinksToInfo(@Model.TopSpotify, User.Region());
-    var tags = @Model.AggregateSongTags.Tags;
+    var tags = Model.AggregateSongTags?.Tags;
 
     DanceStatsInstance stats = ViewBag.DanceStats;
 }
@@ -68,7 +68,7 @@
         <a href="#references" class="list-group-item">References</a>
         }
         @Html.ActionLink("All " + @Model.DanceName + " Songs", "index", "song", new { filter = @danceFilter }, new {@class="list-group-item"})
-        @if (tags.Count > 0)
+        @if (tags?.Count > 0)
         {
         <a href="#tags" class="list-group-item">Tags</a>
         }
@@ -162,7 +162,7 @@
     </section>
 }
 
-@if (tags.Count > 0)
+@if (tags?.Count > 0)
 {
     <hr/>
     <section id="tags"></section>
