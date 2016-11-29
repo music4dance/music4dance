@@ -42,6 +42,10 @@ namespace m4dModels
         private const string BasicAdmin = "***REMOVED***";
         private const string BasicQuery = "***REMOVED***";
 
+        private const string BackupAdmin = "***REMOVED***";
+        private const string BackupQuery = "5278446C07539DAD5D0BB26EACAE0622";
+
+
         public static string DefaultId
         {
             get
@@ -93,6 +97,10 @@ namespace m4dModels
             {
                 "basicc",
                 new SearchServiceInfo("basicc", "msc4dnc", "songs-c", BasicAdmin, BasicQuery)
+            },
+            {
+                "backup",
+                new SearchServiceInfo("backup", "m4d-backup", "songs", BackupAdmin, BackupQuery)
             },
         };
     }
