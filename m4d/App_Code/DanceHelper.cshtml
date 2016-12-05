@@ -88,3 +88,17 @@
         <li>@html.ActionLink("Sign up", "SignUp", "Account") (it's free) to start building your own music lists.</li>
     </ul>
 }
+
+@helper ShowAdmin(DanceStats stats)
+{
+    <ul>
+        <li>DanceId = @stats.DanceId</li>
+        <li>DanceName = @stats.DanceName</li>
+        <li>SeoName = @stats.SeoName</li>
+        <li>BlogTag = @stats.BlogTag</li>
+        <li>SongCount = @stats.SongCount</li>
+        <li>SongCountExplicit = @stats.SongCountExplicit</li>
+        <li>SongCountImplicit = @stats.SongCountImplicit</li>
+        <li>MaxWeight = @stats.MaxWeight</li>
+    </ul>
+}

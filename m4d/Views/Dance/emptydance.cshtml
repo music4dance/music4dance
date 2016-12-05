@@ -29,3 +29,8 @@
     are greate examples of music for dancing @Model.DanceName, please contact us using our
     <a href="https://www.music4dance.net/blog/feedback/">feedback page</a>.
 </p>
+
+@if (User.IsInRole("showDiagnostics"))
+{
+    @DanceHelper.ShowAdmin(Model)
+}

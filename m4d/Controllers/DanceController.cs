@@ -51,7 +51,7 @@ namespace m4d.Controllers
 
             if (ds == null) return ReturnError(HttpStatusCode.NotFound, $"The dance with the name = {dance} isn't defined.");
 
-            if (ds.SongCountExplicit == 0)
+            if (ds.SongCount == 0)
             {
                 return View("emptydance", ds);
             }

@@ -177,6 +177,11 @@
     }
 </p>
 
+@if (User.IsInRole("showDiagnostics"))
+{
+    @DanceHelper.ShowAdmin(Model)
+}
+
 @section Scripts {
     @Scripts.Render("~/bundles/jqueryval")
     @Scripts.Render("~/bundles/knockout")
