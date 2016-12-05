@@ -1,0 +1,31 @@
+﻿@using System.Globalization
+@using DanceLibrary
+@using MarkdownDeep
+@using m4d.Utilities
+@model DanceStats
+
+<h1>@Model.DanceName</h1>
+
+<p class="big-text">Here at music4dance.net we're busily cataloging music with a specific interest in what
+    dance styles 'work' with the music. Since we come from a partner dancing background our system is
+    set up primarily to work with traditional ballroom and partner social dancing
+    like @Html.ActionLink("Swing", "swing", "dances"), @Html.ActionLink("Salsa", "salsa", "dances") and 
+    @Html.ActionLink("Tango", "tango", "dances") all of which are danced to music of a specific meter and tempo.
+</p>
+<p class="big-text">
+    With the interest in shows like <i>So You Think You Can Dance</i> and <i>Dancing With the Stars</i>, styles like
+    @Html.ActionLink("Broadway", "broadway", "dances"), @Html.ActionLink("Contemporary", "contemporary", "dances"),
+    @Html.ActionLink("Jazz", "jazz", "dances") and even @Html.ActionLink("Ballet", "ballet", "dances") and 
+    @Html.ActionLink("Tap", "tap", "dances") have started to show up in our lists that we are incorporatings in our database.
+</p>
+<p class="big-text">
+    None of these style of dance operate under the same meter and tempo constraints that we are using, so we're creating
+    initial place-holders for those styles and others that we'll roughly call 'performace' dances while we figure out how
+    to generalize our website for such dance styles.
+</p>
+<p class="big-text">
+    In the case of @Model.DanceName, we haven't even added any songs to your catalog. If you are interesteded in helping
+    by either providing a good description of @Model.DanceName that we can use on the site or a list of songs that
+    are greate examples of music for dancing @Model.DanceName, please contact us using our
+    <a href="https://www.music4dance.net/blog/feedback/">feedback page</a>.
+</p>

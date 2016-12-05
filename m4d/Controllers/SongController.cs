@@ -86,6 +86,24 @@ namespace m4d.Controllers
                 }
             }
 
+            if (filter.Dances != null)
+            {
+                var stats = Database.DanceStats;
+                var dq = filter.DanceQuery;
+                foreach (var d in dq.DanceIds)
+                {
+                    var ds = stats.FromId(d);
+                    if (ds == null)
+                    {
+                        return ReturnError(HttpStatusCode.NotFound, $"Dance id = {d} is not defined.");
+                    }
+                    if (ds.SongCount == 0)
+                    {
+                        return RedirectToAction("index", "dances", new {dance = ds.SeoName});
+                    }
+                }
+            }
+
             filter.Purchase = null;
             filter.TempoMin = null;
             filter.TempoMax = null;

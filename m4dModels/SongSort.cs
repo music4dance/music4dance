@@ -7,7 +7,7 @@ namespace m4dModels
 {
     public class SongSort
     {
-        private static readonly string[] s_directional = { Song.TitleField, Song.ArtistField, Song.AlbumField, Song.TempoField, Song.ModifiedField, Song.CreatedField,Song.EnergyField,Song.MoodField,Song.BeatField };
+        private static readonly string[] s_directional = { Song.TitleField, Song.ArtistField, Song.TempoField, Song.ModifiedField, Song.CreatedField,Song.EnergyField,Song.MoodField,Song.BeatField };
         private static readonly string[] s_numerical = { Song.TempoField, Song.MoodField, Song.CreatedField };
         private static readonly string[] s_intrinsic = {Song.EnergyField, Song.MoodField, Song.BeatField};
 
@@ -28,6 +28,17 @@ namespace m4dModels
 
             Id = list[0];
             list.RemoveAt(0);
+
+            if (!string.IsNullOrEmpty(Id))
+            {
+                Id = $"{char.ToUpper(Id[0])}{Id.Substring(1).ToLower()}"; 
+
+                if (!(s_directional.Contains(Id) || s_intrinsic.Contains(Id) || s_numerical.Contains(Id)))
+                {
+                    Id = null;
+                    return;
+                }
+            }
 
             if (list.Count > 0)
             {
