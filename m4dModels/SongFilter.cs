@@ -50,6 +50,17 @@ namespace m4dModels
 
             var cells = value.Split(Separator);
 
+            // Special case a Dance only filter
+            if (cells.Length == 1)
+            {
+                var dance = DanceLibrary.Dances.Instance.DanceFromId(cells[0]);
+                if (dance != null)
+                {
+                    Dances = dance.Id;
+                    return;
+                }
+            }
+
             for (var i = 0; i < cells.Length; i++)
             {
                 if (string.Equals(cells[i], Empty))
