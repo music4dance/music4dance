@@ -48,20 +48,25 @@ namespace m4dModels
                 value = value.Replace(@"\-", _subStr);
             }
 
-            var cells = value.Split(Separator);
+            var cells = value.Split(Separator).ToList();
 
-            // Special case a Dance only filter
-            if (cells.Length == 1)
+            // Special case where the first field is dance
+            //  Need to see if we're still generating these
+            //  as this is way kludgier than I'd like
+            if (cells.Count > 0)
             {
-                var dance = DanceLibrary.Dances.Instance.DanceFromId(cells[0]);
-                if (dance != null)
+                var danceQuery = new DanceQuery(cells[0]);
+                if (danceQuery.Dances.Any())
                 {
-                    Dances = dance.Id;
-                    return;
+                    cells.Insert(0, "index");
+                }
+                if (cells.Count > 2)
+                {
+                    cells.RemoveAt(2);
                 }
             }
 
-            for (var i = 0; i < cells.Length; i++)
+            for (var i = 0; i < cells.Count; i++)
             {
                 if (string.Equals(cells[i], Empty))
                 {
