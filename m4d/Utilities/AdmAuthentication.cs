@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Net;
+using System.Runtime.InteropServices;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Json;
 using System.Security.Principal;
@@ -24,14 +25,32 @@ namespace m4d.Utilities
         public abstract TimeSpan ExpiresIn { get; }
     }
 
-    public abstract class AdmAuthentication : IDisposable
+    public abstract class CoreAuthentication
     {
-        protected abstract string ClientId { get; }
-        protected abstract string ClientSecret { get; }
+        protected abstract string Client { get; }
+        public string ClientId => _clientId ?? (_clientId = Environment.GetEnvironmentVariable(Client + "-client-id"));
+        public string ClientSecret => _clientSecret ?? (_clientSecret = Environment.GetEnvironmentVariable(Client + "-client-secret"));
+
+        private string _clientId;
+        private string _clientSecret;
+    }
+
+    public class EnvAuthentication : CoreAuthentication
+    {
+        public EnvAuthentication(string client)
+        {
+            Client = client;
+        }
+
+        protected override string Client { get; }
+    }
+
+    public abstract class AdmAuthentication : CoreAuthentication, IDisposable
+    {
         protected abstract string RequestFormat { get; }
         protected virtual string RequestExtra => string.Empty;
         protected abstract string RequestUrl { get; }
-        protected abstract Type AccessTokenType { get; } 
+        protected abstract Type AccessTokenType { get; }
 
         protected Timer AccessTokenRenewer { get; set; }
 

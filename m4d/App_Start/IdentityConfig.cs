@@ -34,9 +34,9 @@ namespace m4d
             myMessage.Html = message.Body;
 
             var credentials = new NetworkCredential(
-                       ConfigurationManager.AppSettings["mailAccount"],
-                       ConfigurationManager.AppSettings["mailPassword"]
-                       );
+                Environment.GetEnvironmentVariable("mailAccount"),
+                Environment.GetEnvironmentVariable("mailPassword")
+            );
 
             // Create a Web transport for sending email.
             var transportWeb = new Web(credentials);

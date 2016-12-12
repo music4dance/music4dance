@@ -4,7 +4,6 @@ using System.Globalization;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using m4d.Context;
-using m4d.Controllers;
 using m4d.Utilities;
 using m4dModels;
 using Microsoft.AspNet.Identity;
@@ -59,10 +58,11 @@ namespace m4d
             app.UseTwoFactorRememberBrowserCookie(DefaultAuthenticationTypes.TwoFactorRememberBrowserCookie);
 
             // Uncomment the following lines to enable logging in with third party login providers
+            var msenv = new EnvAuthentication("ms");
             var ms = new MicrosoftAccountAuthenticationOptions
             {
-                ClientId = "000000004412450B",
-                ClientSecret = "0C6Mny6RCkYuHTF62sHVD-ZdQ-fypRuL"
+                ClientId = msenv.ClientId,
+                ClientSecret = msenv.ClientSecret
             };
             ms.Scope.Add("wl.basic");
             ms.Scope.Add("wl.emails");
@@ -73,29 +73,32 @@ namespace m4d
             //   consumerKey: "",
             //   consumerSecret: "");
 
+            var fbenv = new EnvAuthentication("fb");
             var fb = new FacebookAuthenticationOptions
             {
-                AppId = "503791763032198", 
-                AppSecret = "***REMOVED***"
+                AppId = fbenv.ClientId, 
+                AppSecret = fbenv.ClientSecret
             };
             fb.Scope.Add("email");
             fb.SignInAsAuthenticationType = DefaultAuthenticationTypes.ExternalCookie;
             app.UseFacebookAuthentication(fb);
             
+            var ggenv = new EnvAuthentication("goog");
             var gg = new GoogleOAuth2AuthenticationOptions
             {
-                ClientId = "818567039467-mjpj2i4712esqje2rrd4mjjb6lntmqq7.apps.googleusercontent.com",
-                ClientSecret = "***REMOVED***"
+                ClientId = ggenv.ClientId,
+                ClientSecret = ggenv.ClientSecret
             };
             app.UseGoogleAuthentication(gg);
 
+            var spenv = new EnvAuthentication("spot");
             var sp = new SpotifyAuthenticationOptions
             {
-                ClientId = "***REMOVED***",
-                ClientSecret = "***REMOVED***",
+                ClientId = spenv.ClientId,
+                ClientSecret = spenv.ClientSecret,
                 Provider = new SpotifyAuthenticationProvider
                 {
-                    OnAuthenticated = (context) =>
+                    OnAuthenticated = context =>
                     {
                         const string xmlSchemaString = "http://www.w3.org/2001/XMLSchema#string";
 
@@ -109,7 +112,7 @@ namespace m4d
 
                         foreach (var x in context.User)
                         {
-                            var claimType = string.Format("urn:spotify:{0}", x.Key);
+                            var claimType = $"urn:spotify:{x.Key}";
                             var claimValue = x.Value.ToString();
                             if (!context.Identity.HasClaim(claimType, claimValue))
                                 context.Identity.AddClaim(new Claim(claimType, claimValue, xmlSchemaString, "Facebook"));

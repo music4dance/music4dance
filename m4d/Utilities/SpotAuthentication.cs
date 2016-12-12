@@ -21,8 +21,7 @@ namespace m4d.Utilities
 
     public class SpotAuthentication : AdmAuthentication
     {
-        protected override string ClientId => "***REMOVED***";
-        protected override string ClientSecret => "***REMOVED***";
+        protected override string Client => "spot";
 
         protected override string RequestFormat => "grant_type=client_credentials&client_id={0}&client_secret={1}";
         protected override string RequestUrl => "https://accounts.spotify.com/api/token";

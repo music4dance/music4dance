@@ -17,8 +17,7 @@ namespace m4d.Utilities
     }
     public class XboxAuthentication : AdmAuthentication
     {
-        protected override string ClientId => "music4dance";
-        protected override string ClientSecret => "iGvYm97JA+qYV1K2lvh8sAnL8Pebp5cN2KjvGnOD4gI=";
+        protected override string Client => "xbox";
         protected override string RequestFormat => "grant_type=client_credentials&client_id={0}&client_secret={1}&scope=http://music.xboxlive.com";
         protected override string RequestUrl => "https://datamarket.accesscontrol.windows.net/v2/OAuth2-13";
         protected override Type AccessTokenType => typeof (XboxAccessToken);

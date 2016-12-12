@@ -4,6 +4,22 @@ using System.Linq;
 
 namespace m4dModels
 {
+    public class SearchAuth
+    {
+        public SearchAuth(string name)
+        {
+            Name = name;
+        }
+
+        public string AdminKey => _adminKey ?? (_adminKey = Environment.GetEnvironmentVariable(Name + "-admin"));
+        public string QueryKey => _queryKey ?? (_queryKey = Environment.GetEnvironmentVariable(Name + "-query"));
+
+        private string _adminKey;
+        private string _queryKey;
+
+        protected string Name { get; }
+    }
+
     public class SearchServiceInfo
     {
         public string Id { get; }
@@ -36,14 +52,6 @@ namespace m4dModels
             return s_info.Keys.ToList();
         }
 
-        //private const string FreeAdmin = "***REMOVED***";
-        //private const string FreeQuery = "5B2BAFC30F0CD25405A10B08582B5451";
-
-        private const string BasicAdmin = "***REMOVED***";
-        private const string BasicQuery = "***REMOVED***";
-
-        private const string BackupAdmin = "***REMOVED***";
-        private const string BackupQuery = "5278446C07539DAD5D0BB26EACAE0622";
 
 
         public static string DefaultId
@@ -81,27 +89,35 @@ namespace m4dModels
             }
         }
 
-        private static string s_defaultId;
-        private static string s_env = "(EMPTY)";
-
-        private static readonly Dictionary<string, SearchServiceInfo> s_info = new Dictionary<string, SearchServiceInfo>
+        static SearchServiceInfo()
         {
+            var basicAuth = new SearchAuth("basic");
+            var backupAuth = new SearchAuth("backup");
+            s_info = new Dictionary<string, SearchServiceInfo>
+                        {
             {
                 "basica",
-                new SearchServiceInfo("basica", "msc4dnc", "songs-a", BasicAdmin, BasicQuery)
+                new SearchServiceInfo("basica", "msc4dnc", "songs-a", basicAuth.AdminKey, basicAuth.QueryKey)
             },
             {
                 "basicb",
-                new SearchServiceInfo("basicb", "msc4dnc", "songs-b", BasicAdmin, BasicQuery)
+                new SearchServiceInfo("basicb", "msc4dnc", "songs-b", basicAuth.AdminKey, basicAuth.QueryKey)
             },
             {
                 "basicc",
-                new SearchServiceInfo("basicc", "msc4dnc", "songs-c", BasicAdmin, BasicQuery)
+                new SearchServiceInfo("basicc", "msc4dnc", "songs-c", basicAuth.AdminKey, basicAuth.QueryKey)
             },
             {
                 "backup",
-                new SearchServiceInfo("backup", "m4d-backup", "songs", BackupAdmin, BackupQuery)
+                new SearchServiceInfo("backup", "m4d-backup", "songs", backupAuth.AdminKey, backupAuth.QueryKey)
             },
         };
+
+        }
+
+        private static string s_defaultId;
+        private static string s_env = "(EMPTY)";
+
+        private static readonly Dictionary<string, SearchServiceInfo> s_info;
     }
 }
