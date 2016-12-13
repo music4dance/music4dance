@@ -59,10 +59,10 @@ namespace m4dModels
                 if (danceQuery.Dances.Any())
                 {
                     cells.Insert(0, "index");
-                }
-                if (cells.Count > 2)
-                {
-                    cells.RemoveAt(2);
+                    if (cells.Count > 2)
+                    {
+                        cells.RemoveAt(2);
+                    }
                 }
             }
 

@@ -23,8 +23,8 @@ namespace m4dModels.Tests
         [TestMethod]
         public void ComplexSort()
         {
-            SongSort ss = new SongSort("Dance_10");
-            Assert.AreEqual("Dance", ss.Id);
+            SongSort ss = new SongSort("Dances_10");
+            Assert.AreEqual("Dances", ss.Id);
             Assert.AreEqual(10, ss.Count);
             Assert.IsTrue(!ss.Descending);
 
