@@ -434,6 +434,11 @@ namespace m4d.Controllers
                         userid = claim.Value;
                     }
                 }
+
+                if (email != null)
+                {
+                    loginInfo.Email = email;
+                }
             }
 
             switch (result)
