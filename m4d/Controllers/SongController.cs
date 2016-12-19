@@ -1091,13 +1091,13 @@ namespace m4d.Controllers
                         filter.Page = filter.Page + 1;
                     }
 
-                    AdminMonitor.CompleteTask(true,"BatchCleanService: Completed");
+                    AdminMonitor.CompleteTask(true, "BatchClearUpdate: Completed");
                 });
                 return RedirectToAction("AdminStatus", "Admin", AdminMonitor.Status);
             }
             catch (Exception e)
             {
-                return FailAdminTask($"BatchCleanService: {e.Message}", e);
+                return FailAdminTask($"BatchClearUpdate: {e.Message}", e);
             }
         }
 
@@ -1123,8 +1123,10 @@ namespace m4d.Controllers
             return View("Details", newSong??song);
         }
 
+        // B= Broken
+        // S= Spotify Region
         [Authorize(Roles = "canEdit")]
-        public ActionResult BatchCleanService(SongFilter filter = null, int count = 100)
+        public ActionResult BatchCleanService(SongFilter filter = null, string type="BS",int count = 100)
         {
             try
             {
@@ -1165,7 +1167,7 @@ namespace m4d.Controllers
 
                                 processed += 1;
                                 tried += 1;
-                                var songT = CleanMusicServiceSong(song);
+                                var songT = CleanMusicServiceSong(song,type);
                                 if (songT != null)
                                 {
                                     changed.Add(songT.SongId);
@@ -1802,12 +1804,13 @@ namespace m4d.Controllers
             return found;
         }
 
-        private Song CleanMusicServiceSong(Song song, string region = "US")
+        private Song CleanMusicServiceSong(Song song, string type="BS", string region = "US")
         {
             var props = new List<SongProperty>(song.SongProperties);
 
-            var changed = CleanBrokenServices(props);
-            changed |= CleanSpotify(props, region);
+            var changed = false;
+            if (type.IndexOf('B') != -1) { changed |= CleanBrokenServices(props);}
+            if (type.IndexOf('S') != -1) { changed |= CleanSpotify(props, region);}
 
             Song newSong = null;
 
@@ -1932,75 +1935,6 @@ namespace m4d.Controllers
             return true;
         }
 
-        //The old variation seems to delete dups of puchase type, not sure we need this, may prefer to delete full dups at some point
-        //private bool CleanMusicServiceSong(Song song)
-        //{
-        //    var del = new List<SongProperty>();
-
-        //    SongProperty last = null;
-        //    var lastPt = PurchaseType.None;
-        //    var lastMs = ServiceType.None;
-        //    var lastDel = false;
-
-        //    foreach (var prop in song.SongProperties.Where(p => p.BaseName == Song.PurchaseField))
-        //    {
-        //        PurchaseType pt;
-        //        ServiceType ms;
-
-        //        if (!MusicService.TryParsePurchaseType(prop.Qualifier, out pt, out ms))
-        //            continue;
-
-        //        if (pt != PurchaseType.Song)
-        //        {
-        //            if (lastDel && pt == PurchaseType.Album && lastMs == ms)
-        //            {
-        //                del.Add(prop);
-        //                lastPt = PurchaseType.None;
-        //            }
-        //            else
-        //            {
-        //                last = prop;
-        //                lastPt = pt;
-        //                lastMs = ms;
-        //            }
-        //            lastDel = false;
-        //            continue;
-        //        }
-
-        //        lastDel = false;
-        //        string[] regions;
-        //        var purchase = PurchaseRegion.ParseIdAndRegionInfo(prop.Value, out regions);
-        //        if (MusicServiceManager.GetMusicServiceTrack(purchase, MusicService.GetService(ms)) == null)
-        //        {
-        //            del.Add(prop);
-        //            if (lastMs == ms && lastPt == PurchaseType.Album)
-        //            {
-        //                del.Add(last);
-        //            }
-
-        //            last = prop;
-        //            lastPt = pt;
-        //            lastMs = ms;
-        //            lastDel = true;
-        //            continue;
-        //        }
-
-        //        lastPt = PurchaseType.None;
-        //    }
-
-        //    // ReSharper disable once InvertIf
-        //    if (del.Any())
-        //    {
-        //        del.AddRange(song.SongProperties.Where(p => p.Name == Song.FailedLookup));
-        //        foreach (var prop in del)
-        //        {
-        //            song.SongProperties.Remove(prop);
-        //        }
-        //        return true;
-        //    }
-
-        //    return false;
-        //}
 
         #endregion
 

@@ -1376,7 +1376,7 @@ namespace m4dModels
                 var newTags = AddTags(tags, user, stats, this);
                 modified = newTags != null && !string.IsNullOrWhiteSpace(tags);
 
-                modified |= EditDanceRatings(addDances, DanceRatingIncrement, null, 0, stats);
+                modified |= EditDanceRatings(addDances, DanceRatingIncrement, stats);
 
                 InferDances(user,true);
             }
@@ -1750,153 +1750,62 @@ namespace m4dModels
 
         public bool CreateDanceRatings(IEnumerable<DanceRating> ratings, DanceStatsInstance stats)
         {
-            if (ratings == null)
-            {
-                return false;
-            }
-
-            foreach (var dr in ratings)
-            {
-                AddDanceRating(dr.DanceId, dr.Weight, stats);
-                CreateProperty(
-                    DanceRatingField,
-                    new DanceRatingDelta { DanceId = dr.DanceId, Delta = dr.Weight }.ToString()
-                );
-            }
-
-            return true;
+            return ratings != null &&
+                EditDanceRatings(ratings.Select(add => new DanceRatingDelta { DanceId = add.DanceId, Delta = add.Weight }), stats);
         }
 
-        //  TODO: Ought to be able to refactor both of these into one that calls the other
+        public void EditDanceRating(DanceRatingDelta drd, DanceStatsInstance stats)
+        {
+            var dro = DanceRatings.FirstOrDefault(r => r.DanceId == drd.DanceId);
+            if (drd.Delta > 0)
+            {
+                if (dro == null)
+                {
+                    var ds = stats.FromId(drd.DanceId);
+                    if (ds == null) return; // Invalid
+                    DanceRatings.Add(new DanceRating { DanceId = drd.DanceId, Weight = drd.Delta });
+                }
+                else
+                {
+                    dro.Weight += drd.Delta;
+                }
+            }
+            else if (drd.Delta < 0)
+            {
+                if (dro == null) return; // Invalid
+
+                if (dro.Weight + drd.Delta < 0)
+                {
+                    DanceRatings.Remove(dro);
+                }
+                else
+                {
+                    dro.Weight += drd.Delta;
+                }
+            }
+            else
+            {
+                return; // Invalid
+            }
+
+            CreateProperty(DanceRatingField, drd.ToString());
+        }
+
         public bool EditDanceRatings(IEnumerable<DanceRatingDelta> deltas, DanceStatsInstance stats)
         {
+            if (deltas == null) return false;
+            var changed = false;
             foreach (var drd in deltas)
             {
-                var valid = true;
-                var dro = DanceRatings.FirstOrDefault(r => r.DanceId == drd.DanceId);
-                if (drd.Delta > 0)
-                {
-                    if (dro == null)
-                    {
-                        AddDanceRating(drd.DanceId, drd.Delta, stats);
-                    }
-                    else
-                    {
-                        dro.Weight += drd.Delta;
-                    }
-                }
-                else if (drd.Delta < 0)
-                {
-                    if (dro == null)
-                    {
-                        valid = false;
-                    }
-                    else if (dro.Weight + drd.Delta < 0)
-                    {
-                        DanceRatings.Remove(dro);
-                    }
-                    else
-                    {
-                        dro.Weight += drd.Delta;
-                    }
-                }
-                else
-                {
-                    valid = false;
-                }
-
-                if (valid)
-                {
-                    CreateProperty(DanceRatingField, drd.ToString());
-                }
-            }
-            return true;
-        }
-        public bool EditDanceRatings(IList<string> addIn, int addWeight, IList<string> removeIn, int remWeight, DanceStatsInstance stats)
-        {
-            if (addIn == null && removeIn == null)
-            {
-                return false;
-            }
-
-            var changed = false;
-
-            List<string> add = null;
-            if (addIn != null)
-                add = new List<string>(addIn);
-
-            List<string> remove = null;
-            if (removeIn != null)
-                remove = new List<string>(removeIn);
-
-            var del = new List<DanceRating>();
-
-            // Cleaner way to get old dance ratings?
-            foreach (var dr in DanceRatings)
-            {
-                var added = false;
-                var delta = 0;
-
-                // This handles the incremental weights
-                if (add != null && add.Contains(dr.DanceId))
-                {
-                    delta = addWeight;
-                    add.Remove(dr.DanceId);
-                    added = true;
-                }
-
-                // This handles the decremented weights
-                if (remove != null && remove.Contains(dr.DanceId))
-                {
-                    if (!added)
-                    {
-                        delta += remWeight;
-                    }
-
-                    if (dr.Weight + delta <= 0)
-                    {
-                        del.Add(dr);
-                    }
-                }
-
-                if (delta == 0) continue;
-
-                dr.Weight += delta;
-
-                CreateProperty(DanceRatingField, new DanceRatingDelta { DanceId = dr.DanceId, Delta = delta }.ToString());
-
+                EditDanceRating(drd,stats);
                 changed = true;
             }
-
-            // This handles the deleted weights
-            foreach (var dr in del)
-            {
-                DanceRatings.Remove(dr);
-            }
-
-            // This handles the new ratings
-            if (add == null) return changed;
-
-            foreach (var ndr in add)
-            {
-                var dr = AddDanceRating(ndr, DanceRatingInitial, stats);
-
-                if (dr != null)
-                {
-                    CreateProperty(
-                        DanceRatingField,
-                        new DanceRatingDelta { DanceId = ndr, Delta = DanceRatingInitial }.ToString());
-
-                    changed = true;
-                }
-                else
-                {
-                    Trace.WriteLine($"Invalid DanceId={ndr}");
-                }
-
-            }
-
             return changed;
+        }
+        public bool EditDanceRatings(IEnumerable<string> addIn, int addWeight, DanceStatsInstance stats)
+        {
+            return addIn != null && 
+                EditDanceRatings(addIn.Select(add => new DanceRatingDelta() {DanceId = add, Delta = addWeight}),stats);
         }
 
         private bool BaseTagsFromProperties(string user, IEnumerable<SongProperty> properties, DanceStatsInstance stats, object data, bool dance)
@@ -1923,7 +1832,7 @@ namespace m4dModels
 
                             if (rating != null)
                             {
-                                modified = !rating.AddTags(p.Value, user, stats, data).IsEmpty;
+                                modified |= !rating.AddTags(p.Value, user, stats, data).IsEmpty;
                             }
                             // Else case is where the dancerating has been fully removed, we
                             //  can safely drop this on the floor
@@ -2589,7 +2498,8 @@ namespace m4dModels
             var ds = stats.FromId(danceId);
             if (ds == null) return null;
 
-            return new DanceRating {DanceId = danceId, Weight = weight};
+            var dr = new DanceRating { DanceId = danceId, Weight = weight };
+            return dr;
         }
 
         #endregion

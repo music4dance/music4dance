@@ -1270,12 +1270,13 @@ namespace m4d.Controllers
                 var n = 0;
                 using (var file = System.IO.File.CreateText(path))
                 {
-                        var lines = Database.BackupIndex(name,count,from, (filter == null) ? null : new SongFilter(filter));
-                        foreach (var line in lines)
-                        {
-                            file.WriteLine(line);
-                            AdminMonitor.UpdateTask("writeSongs", ++n);
-                        }
+                    var lines = Database.BackupIndex(name,count,from, (filter == null) ? null : new SongFilter(filter));
+                    foreach (var line in lines)
+                    {
+                        file.WriteLine(line);
+                        AdminMonitor.UpdateTask("writeSongs", ++n);
+                    }
+                    file.Close();
                 }
 
                 AdminMonitor.CompleteTask(true, $"Backup ({n} songs) complete to: {path}");

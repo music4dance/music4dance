@@ -40,7 +40,7 @@
 </div>
 
 
-@if ((TraceLevels.General.TraceVerbose || User.IsInRole("showDiagnostics")) && Model != null)
+@if ((TraceLevels.General.TraceVerbose || User.IsInRole("showDiagnostics")) && Model != null  && Model.Exception != null)
 {
     string hresult = "0x" + Model.Exception.HResult.ToString("X8");
     <p><b>Exception:</b>@Model.Exception.Message (@hresult)</p>
