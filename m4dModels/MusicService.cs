@@ -88,6 +88,11 @@ namespace m4dModels
             return null;
         }
 
+        public virtual string NormalizeId(string id)
+        {
+            return id;
+        }
+
         public string BuildTrackRequest(string id, string region=null)
         {
             var ret = BuildRequest(TrackRequest, id);

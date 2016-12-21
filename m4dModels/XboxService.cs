@@ -55,7 +55,16 @@ namespace m4dModels
             return items.Length > 0 ? InternalParseTrackResults(items[0]) : null;
         }
 
-        private ServiceTrack InternalParseTrackResults(dynamic track)
+        public override string NormalizeId(string id)
+        {
+            if (!id.StartsWith("music.", StringComparison.OrdinalIgnoreCase))
+            {
+                id = "music." + id;
+            }
+            return id;
+        }
+
+        private static ServiceTrack InternalParseTrackResults(dynamic track)
         {
             string altId = null;
             if (track.OtherIds != null)

@@ -16,7 +16,7 @@ namespace m4d.APIControllers
             }
 
             var service = MusicService.GetService(id[0]);
-            id = id.Substring(1);
+            id = service.NormalizeId(id.Substring(1));
 
             // Find a song associate with the serice id
             var song = Database.GetSongFromService(service,id, HttpContext.Current.User.Identity.GetUserName());

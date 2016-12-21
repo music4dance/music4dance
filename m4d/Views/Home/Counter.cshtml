@@ -13,10 +13,21 @@
             <label for="idString">ID/URL</label>
             <input type="text" class="form-control" id="idString">
         </div>
-        <button type="submit" id="spotify" value="S" class="btn btn-default service-lookup">Spotify</button>
-        <button type="submit" id="itunes" value ="I" class="btn btn-default service-lookup">ITunes</button>
-        <button type="submit" id="amazon" value="A" class="btn btn-default service-lookup">Amazon</button>
-        <button type="submit" id="xbox" value="X" class="btn btn-default service-lookup">Groove</button>
+        <!-- Split button -->
+        <div class="btn-group">
+            <button type="button" id="service" value="0" class="btn btn-primary service-lookup">Find Anywhere</button>
+            <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <span class="caret"></span>
+                <span class="sr-only">Toggle Dropdown</span>
+            </button>
+            <ul class="dropdown-menu">
+                <li><a href='#' id="service-0" class="service-lookup">Find Anywhere</a></li>
+                <li><a href='#' id="service-s" class="service-lookup">On Spotify</a></li>
+                <li><a href='#' id="service-i" class="service-lookup">On ITunes</a></li>
+                <li><a href='#' id="service-a" class="service-lookup">On Amazon</a></li>
+                <li><a href='#' id="service-x" class="service-lookup">On Groove</a></li>
+            </ul>
+        </div>
     </form>
 
     <div data-bind="with: song"><a class="label label-music" data-bind="attr: {href: '/song/edit?id=' + SongId + '&tempo=' + $root.tempo()}">Edit</a> <em data-bind="text:Title"></em> by <strong data-bind="text:Artist"></strong></div>
@@ -24,6 +35,7 @@
         <a class="label label-music" data-bind="attr: {href: '/song/create?title=' + Name + '&artist=' + Artist + '&length=' + Duration + '&tempo=' + $root.tempo()+ '&album=' + Album + '&track=' + TrackNumber + '&service=S&purchase=' + TrackId}">Create</a>
         <em data-bind="text:Name"></em> by <strong data-bind="text:Artist"></strong> on <span data-bind="text:Album"></span> (<span data-bind="text:TrackNumber"></span>)
     </div>
+    <div data-bind="text: error"></div>
 }
 
 @section Scripts {

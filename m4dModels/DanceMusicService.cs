@@ -850,7 +850,7 @@ namespace m4dModels
             if (string.IsNullOrWhiteSpace(id)) return null;
 
             var parameters = new SearchParameters {SearchFields = new [] {Song.ServiceIds} };
-            var results = DoAzureSearch("'{service.CID}:{id}'", parameters, CruftFilter.AllCruft, client);
+            var results = DoAzureSearch($"'{service.CID}:{id}'", parameters, CruftFilter.AllCruft, client);
             return (results.Results.Count > 0) ? new Song(results.Results[0].Document,DanceStats,userName) : null;
         }
 

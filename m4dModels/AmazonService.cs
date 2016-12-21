@@ -19,6 +19,16 @@
 
             return base.BuildPurchaseLink(pt, album, song);
         }
+
+        public override string NormalizeId(string id)
+        {
+            if (id.IndexOf(':') != -1)
+            {
+                id = "D:" + id;
+            }
+            return id;
+        }
+
         static string Strip(string info)
         {
             if (info != null && (info.StartsWith("A:") || info.StartsWith("D:")))
