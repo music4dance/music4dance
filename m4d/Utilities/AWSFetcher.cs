@@ -113,10 +113,9 @@ namespace m4d.Utilities
 
 
     [SuppressMessage("Microsoft.Design", "CA1001:TypesThatOwnDisposableFieldsShouldBeDisposable")]
-    public class AWSFetcher : IDisposable
+    public class AWSFetcher : CoreAuthentication, IDisposable
     {
-        private const string AccessKeyId = "***REMOVED***";
-        private const string SecretKeyId = "***REMOVED***";
+        protected override string Client => "amazon";
         private const string AssociateTag = "ms4dc-20";
         private const string EndPointAddress = "https://webservices.amazon.com/onca/soap?Service=AWSECommerceService";
         //"https://webservices.amazon.fr/onca/soap?Service=AWSECommerceService"
@@ -130,8 +129,7 @@ namespace m4d.Utilities
             _client = new AWSECommerceServicePortTypeClient(binding, new EndpointAddress(EndPointAddress));
 
             // add authentication to the ECS client
-            _client.ChannelFactory.Endpoint.Behaviors.Add(new AmazonSigningEndpointBehavior(AccessKeyId, SecretKeyId));
-
+            _client.ChannelFactory.Endpoint.Behaviors.Add(new AmazonSigningEndpointBehavior(ClientId, ClientSecret));
         }
 
         public IList<ServiceTrack> FetchTracks(string title, string artist)
@@ -278,7 +276,7 @@ namespace m4d.Utilities
 
             if (gidx != -1)
             {
-                genre = genre.Remove(gidx);
+                genre = genre?.Remove(gidx);
             }
             var track = new ServiceTrack 
             {
@@ -314,7 +312,7 @@ namespace m4d.Utilities
             var itemSearch = new ItemSearch
             {
                 AssociateTag = AssociateTag,
-                AWSAccessKeyId = AccessKeyId,
+                AWSAccessKeyId = ClientId,
                 Request = new[] {request}
             };
 
@@ -346,7 +344,7 @@ namespace m4d.Utilities
             var itemLookup = new ItemLookup
             {
                 AssociateTag = AssociateTag,
-                AWSAccessKeyId = AccessKeyId,
+                AWSAccessKeyId = ClientId,
                 Request = new[] {request}
             };
 
