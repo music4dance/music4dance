@@ -985,6 +985,7 @@
     <None Include="Properties\PublishProfiles\m4d.pubxml" />
     <Content Include="MvcDiagnostics.aspx" />
     <Content Include="pinterest-885c1.html" />
+    <Content Include="Scripts\add.js" />
     <Content Include="Scripts\advancedsearch.js" />
     <Content Include="Scripts\ai.0.22.9-build00167.js" />
     <Content Include="Scripts\ai.0.22.9-build00167.min.js" />
@@ -1226,6 +1227,7 @@
     <Content Include="Views\Song\RawSearchForm.cshtml" />
     <Content Include="Views\Song\AdvancedSearchForm.cshtml" />
     <Content Include="Views\Dance\emptydance.cshtml" />
+    <Content Include="Views\Song\Add.cshtml" />
     <None Include="Web.m4d.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

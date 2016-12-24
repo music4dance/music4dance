@@ -21,6 +21,10 @@
     }
 
     @Html.HiddenFor(m => m.SongId)
+    @Html.HiddenFor(m => m.Sample)
+    @Html.HiddenFor(m => m.Danceability)
+    @Html.HiddenFor(m => m.Valence)
+    @Html.HiddenFor(m => m.Energy)
 
     <div class="form-group row">
         @Html.LabelFor(model => model.Title, new { @class = "control-label col-md-2" })

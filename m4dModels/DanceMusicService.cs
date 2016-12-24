@@ -132,6 +132,14 @@ namespace m4dModels
             return !song.Edit(user.UserName, edit, tags, DanceStats) ? null : new Song(song.SongId, song.SongProperties, DanceStats);
         }
 
+        // Returns true if changed
+        public bool EditSong(string user, Song song, Song edit, IEnumerable<UserTag> tags = null)
+        {
+            var changed = song.Edit(user, edit, tags, DanceStats);
+            if (!changed) return false;
+            song.Load(song.SongId,song.SongProperties,DanceStats);
+            return true;
+        }
         public bool AdminEditSong(Song edit, string properties)
         {
             return edit.AdminEdit(properties,DanceStats);
@@ -849,8 +857,9 @@ namespace m4dModels
         {
             if (string.IsNullOrWhiteSpace(id)) return null;
 
+            var sid = $"\"{service.CID}:{id}\"";
             var parameters = new SearchParameters {SearchFields = new [] {Song.ServiceIds} };
-            var results = DoAzureSearch($"'{service.CID}:{id}'", parameters, CruftFilter.AllCruft, client);
+            var results = DoAzureSearch(sid,parameters,CruftFilter.AllCruft, client);
             return (results.Results.Count > 0) ? new Song(results.Results[0].Document,DanceStats,userName) : null;
         }
 
@@ -869,7 +878,7 @@ namespace m4dModels
 
         // Add in category for tags that don't already have one + create
         //  tagtype if necessary
-        public string NormalizeTags(string tags, string category)
+        public string NormalizeTags(string tags, string category, bool useGroup=false)
         {
             var old = new TagList(tags);
             var result = new List<string>();
@@ -889,9 +898,9 @@ namespace m4dModels
                     tempCat = rg[1];
                 }
 
-                FindOrCreateTagGroup(tempTag, tempCat);
+                var group = FindOrCreateTagGroup(tempTag, tempCat);
 
-                result.Add(fullTag);
+                result.Add(useGroup? group.Key : fullTag);
             }
 
             return new TagList(result).ToString();

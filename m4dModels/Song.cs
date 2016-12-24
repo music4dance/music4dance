@@ -138,6 +138,10 @@ namespace m4dModels
             Load(songId, properties, stats);
         }
 
+        public Song(Song song, DanceStatsInstance stats) : this(song.SongId, song.SongProperties, stats)
+        {
+        }
+
         public Song(Song s, DanceStatsInstance stats, string userName = null, bool forSerialization = true)
         {
             Init(s.SongId, SongProperty.Serialize(s.SongProperties, null), stats, userName, forSerialization);
@@ -187,9 +191,31 @@ namespace m4dModels
             _albums = (albums as List<AlbumDetails>) ?? albums?.ToList();
         }
 
+
         public void Load(Guid songId, ICollection<SongProperty> properties, DanceStatsInstance stats)
         {
+            // In the case that we're rebuilding the song in place, we need to copy out the properties
+            //  before doing anything else
+            var props = properties.ToList();
+            SongProperties.Clear();
+
+            ClearValues();
+
             SongId = songId;
+
+            LoadProperties(props, stats);
+
+            Albums = BuildAlbumInfo(props);
+            SongProperties.AddRange(props);
+        }
+
+        public void Load(ICollection<SongProperty> properties, DanceStatsInstance stats)
+        {
+            var id = SongId;
+
+            ClearValues();
+
+            SongId = id;
 
             LoadProperties(properties, stats);
 
@@ -268,7 +294,7 @@ namespace m4dModels
 
             for (var i = 0; i < cells.Count; i++)
             {
-                if (fields[i] == null) continue;
+                if (fields[i] == null || cells[i] == null) continue;
 
                 var cell = cells[i];
 
@@ -3470,24 +3496,26 @@ namespace m4dModels
             }
 
             TagSummary.Clean();
+            DanceRatings?.Clear();
+            ModifiedBy?.Clear();
 
-            if (DanceRatings != null)
-            {
-                var drs = DanceRatings.ToList();
-                foreach (var dr in drs)
-                {
-                    DanceRatings.Remove(dr);
-                }
-            }
+            //if (DanceRatings != null)
+            //{
+            //    var drs = DanceRatings.ToList();
+            //    foreach (var dr in drs)
+            //    {
+            //        DanceRatings.Remove(dr);
+            //    }
+            //}
 
-            if (ModifiedBy != null)
-            {
-                var us = ModifiedBy.ToList();
-                foreach (var u in us)
-                {
-                    ModifiedBy.Remove(u);
-                }
-            }
+            //if (ModifiedBy != null)
+            //{
+            //    var us = ModifiedBy.ToList();
+            //    foreach (var u in us)
+            //    {
+            //        ModifiedBy.Remove(u);
+            //    }
+            //}
 
             _albums = null;
         }

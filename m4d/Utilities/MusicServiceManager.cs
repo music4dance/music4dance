@@ -48,13 +48,33 @@ namespace m4d.Utilities
 
         public ServiceTrack GetMusicServiceTrack(string id, MusicService service, string region = null)
         {
-            if (service.Id == ServiceType.Amazon)
-                return AmazonFetcher.LookupTrack(id);
+            var sid = $"\"{service.CID}:{id}\"";
+            ServiceTrack ret;
+            if (s_trackCache.TryGetValue(sid, out ret))
+            {
+                return ret;
+            }
 
-            var request = service.BuildTrackRequest(id, region);
-            dynamic results = GetMusicServiceResults(request, service);
-            return service.ParseTrackResults(results);
+            if (service.Id == ServiceType.Amazon)
+            {
+                ret = AmazonFetcher.LookupTrack(id);
+            }
+            else
+            {
+                var request = service.BuildTrackRequest(id, region);
+                dynamic results = GetMusicServiceResults(request, service);
+                ret = service.ParseTrackResults(results);
+            }
+
+            if (s_trackCache.Count > 1000)
+            {
+                s_trackCache.Clear();
+            }
+            s_trackCache[sid] = ret;
+            return ret;
         }
+
+        private static readonly Dictionary<string, ServiceTrack> s_trackCache = new Dictionary<string, ServiceTrack>();
 
         public IList<ServiceTrack> LookupServiceTracks(MusicService service, string url, IPrincipal principal)
         {

@@ -1,0 +1,61 @@
+﻿@model Song
+
+@{
+    ViewBag.Title = "Add Song";
+    ViewBag.Action = "Add";
+    ViewBag.Submit = "Add";
+}
+
+<h2>Add Song</h2>
+
+<form id="lookup-by-id" class="form-inline">
+    <div class="form-group">
+        <label for="idString">ID/URL</label>
+        <input type="text" class="form-control" id="idString">
+    </div>
+    <!-- Split button -->
+    <div class="btn-group">
+        <button type="button" id="service-" value="0" class="btn btn-primary service-lookup">Find Anywhere</button>
+        <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            <span class="caret"></span>
+            <span class="sr-only">Toggle Dropdown</span>
+        </button>
+        <ul class="dropdown-menu">
+            <li><a href='#' id="service-0" class="service-lookup">Find Anywhere</a></li>
+            <li><a href='#' id="service-s" class="service-lookup">On Spotify</a></li>
+            <li><a href='#' id="service-i" class="service-lookup">On ITunes</a></li>
+            <li><a href='#' id="service-a" class="service-lookup">On Amazon</a></li>
+            <li><a href='#' id="service-x" class="service-lookup">On Groove</a></li>
+        </ul>
+    </div>
+</form>
+
+<div data-bind="with: song"><a class="label label-music" data-bind="attr: {href: '/song/edit?id=' + SongId + '&tempo=' + $root.tempo()}">Edit</a> <em data-bind="text:Title"></em> by <strong data-bind="text:Artist"></strong></div>
+<div data-bind="with: track">
+    <a class="label label-music" data-bind="attr: {href: '/song/create?title=' + Name + '&artist=' + Artist + '&length=' + Duration + '&tempo=' + $root.tempo()+ '&album=' + Album + '&track=' + TrackNumber + '&service=S&purchase=' + TrackId}">Create</a>
+    <em data-bind="text:Name"></em> by <strong data-bind="text:Artist"></strong> on <span data-bind="text:Album"></span> (<span data-bind="text:TrackNumber"></span>)
+</div>
+<div data-bind="text: error"></div>
+
+@using (Html.BeginForm("Create", "Song", null, FormMethod.Get, new {id="create"}))
+{
+    @*@Html.AntiForgeryToken()*@
+    <input type="hidden" name="service" id="service"/>
+    <input type="hidden" name="purchase" id="purchase" />
+}
+
+@using (Html.BeginForm("Edit", "Song", null, FormMethod.Get, new { id = "edit" }))
+{
+    @*@Html.AntiForgeryToken()*@
+    <input type="hidden" name="id" id="id" />
+}
+
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+    @Scripts.Render("~/bundles/tools-script")
+    @Scripts.Render("~/bundles/knockout")
+    @Scripts.Render("~/bundles/knockout-mapping")
+    @Scripts.Render("~/bundles/add")
+    @Styles.Render("~/bundles/tools-style")
+}

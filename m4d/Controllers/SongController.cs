@@ -499,37 +499,68 @@ namespace m4d.Controllers
         }
 
         //
-        // GET: /Song/CreateI
-        [Authorize(Roles = "canEdit")] 
+        // GET: /Song/Add
+        public ActionResult Add(SongFilter filter = null)
+        {
+            return View();
+        }
+
+        //
+        // GET: /Song/Create
         public ActionResult Create(string title=null, string artist=null, decimal? tempo = null, int? length=null, string album=null, int? track=null, string service = null, string purchase = null, SongFilter filter = null)
         {
-            IList<AlbumDetails> adl = null;
-            if (album != null)
+            Song sd;
+            if (title == null && service != null && purchase != null)
             {
-                var ad = new AlbumDetails
-                {
-                    Name = album,
-                    Track = track
-                };
-                if (service != null)
-                {
-                    var ms = MusicService.GetService(service[0]);
-                    ad.SetPurchaseInfo(PurchaseType.Song,ms.Id,purchase);
-                }
-                adl = new List<AlbumDetails> { ad };
+                var user = User.Identity.Name;
+                var strack = MusicServiceManager.GetMusicServiceTrack(purchase, MusicService.GetService(service[0]));
+                sd = Song.CreateFromTrack(user,strack,null,null,null,Database.DanceStats);
+                UpdateSongAndServices(sd,user);
+                GetEchoData(sd);
+                GetSampleData(sd);
+                sd.SetupSerialization(user, Database.DanceStats);
             }
+            else
+            {
+                IList<AlbumDetails> adl = null;
+                if (album != null)
+                {
+                    var ad = new AlbumDetails
+                    {
+                        Name = album,
+                        Track = track
+                    };
+                    if (service != null)
+                    {
+                        var ms = MusicService.GetService(service[0]);
+                        ad.SetPurchaseInfo(PurchaseType.Song, ms.Id, purchase);
+                    }
+                    adl = new List<AlbumDetails> { ad };
+                }
 
-            var sd = new Song(title,artist,tempo,length,adl);
+                sd = new Song(title, artist, tempo, length, adl);
+            }
             SetupEditViewBag(tempo);
             return View(sd);
         }
 
+        // TODONEXT: Enforce creating at least one dance style
+        //  Trim down the edit options - remove albums/purchase + just show title, artist
+        //  Fix dance chooser - see if we can reasonably add in tempo suggestions
+        //  Add Like
+        //  Add Preview
+        //  Clean up the actual "add" page
+        //      Give some reasonable feedback between search and start of load
+        //      Make the errors red and review them
+        //      Put some instructions on the page
+        //      Can we persist the service?
+        //  Verify that edit works (and also is cleaned up in the same way as create)
+        //  Verify that batch mode still works
+
         //
         // POST: /Song/Create
-
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [Authorize(Roles = "canEdit")]
         public ActionResult Create(Song song, string userTags, SongFilter filter = null)
         {
             if (ModelState.IsValid)
@@ -565,7 +596,6 @@ namespace m4d.Controllers
 
         //
         // GET: /Song/Edit/5
-        [Authorize(Roles = "canEdit")] 
         public ActionResult Edit(Guid? id = null, decimal? tempo = null, SongFilter filter = null)
         {
             var song = Database.FindSong(id ?? Guid.Empty, User.Identity.Name);
@@ -594,8 +624,6 @@ namespace m4d.Controllers
         // POST: /Song/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [Authorize(Roles = "canEdit")] 
-        //public ActionResult Edit([ModelBinder(typeof(m4d.Utilities.SongBinder))]Song song, List<string> addDances, List<string> remDances, string filter = null)
         public ActionResult Edit(Song song, string userTags, SongFilter filter = null)
         {
             if (ModelState.IsValid)
@@ -913,8 +941,6 @@ namespace m4d.Controllers
                     }
                 }
 
-                var users = new Dictionary<char, ApplicationUser>();
-
                 var page = 0;
                 var done = false;
 
@@ -940,30 +966,17 @@ namespace m4d.Controllers
                     foreach (var song in songs)
                     {
                         AdminMonitor.UpdateTask($"Processing ({succeeded.Count})", processed);
+                        var edit = new Song(song,Database.DanceStats);
 
                         processed += 1;
 
-                        Song add = null;
-                        if (service == null)
-                        {
-                            foreach (
-                                var addT in
-                                    MusicService.GetSearchableServices()
-                                        .Where(st => !(song.Purchase ?? "").Contains(st.CID))
-                                        .Select(serviceT => UpdateSongAndService(song, serviceT, users))
-                                        .Where(addT => addT != null))
-                            {
-                                add = addT;
-                            }
-                        }
-                        else
-                        {
-                            add = UpdateSongAndService(song, service, users);
-                        }
+                        var changed = service == null ? 
+                            UpdateSongAndServices(edit) : 
+                            UpdateSongAndService(song, service);
 
-                        if (add != null)
+                        if (changed)
                         {
-                            succeeded.Add(add);
+                            succeeded.Add(song);
                             tried += 1;
                         }
                         else if (service == null && song.AddLookupFail())
@@ -1241,8 +1254,6 @@ namespace m4d.Controllers
                 var page = 0;
                 var done = false;
 
-                var spotify = MusicService.GetService(ServiceType.Spotify);
-                var itunes = MusicService.GetService(ServiceType.ITunes);
                 var user = Database.FindUser("batch-s");
                 Debug.Assert(user != null);
 
@@ -1270,48 +1281,16 @@ namespace m4d.Controllers
 
                             processed += 1;
 
-                            ServiceTrack track = null;
-                            // First try Spotify
-                            var ids = song.GetPurchaseIds(spotify);
-                            foreach (var id in ids)
-                            {
-                                string[] regions;
-                                var idt = PurchaseRegion.ParseIdAndRegionInfo(id, out regions);
-                                track = MusicServiceManager.GetMusicServiceTrack(idt, spotify);
-                                if (track?.SampleUrl != null)
-                                    break;
-                            }
-
-                            if (track == null)
-                            {
-                                // If spotify failed, try itunes
-                                ids = song.GetPurchaseIds(itunes);
-                                foreach (var id in ids)
-                                {
-                                    track = MusicServiceManager.GetMusicServiceTrack(id, itunes);
-                                    if (track?.SampleUrl != null)
-                                        break;
-                                }
-                            }
                             tried += 1;
-                            if (track?.SampleUrl == null)
+                            if (GetSampleData(song, dms))
                             {
-                                song.Sample = ".";
-                                var s = dms.EditSong(user, song);
-                                if (s != null)
-                                {
-                                    failed.Add(s);
-                                }
+                                succeeded.Add(song);
                             }
                             else
                             {
-                                song.Sample = track.SampleUrl;
-                                var s = dms.EditSong(user, song);
-                                if (s != null)
-                                {
-                                    succeeded.Add(s);
-                                }
+                                failed.Add(song);
                             }
+
                             if (tried > count)
                                 break;
 
@@ -1343,6 +1322,41 @@ namespace m4d.Controllers
             }
         }
 
+        private bool GetSampleData(Song song, DanceMusicService dms = null)
+        {
+            var spotify = MusicService.GetService(ServiceType.Spotify);
+            if (dms == null) dms = Database;
+            var edit = new Song(song, dms.DanceStats);
+
+            ServiceTrack track = null;
+            // First try Spotify
+            var ids = edit.GetPurchaseIds(spotify);
+            foreach (var id in ids)
+            {
+                string[] regions;
+                var idt = PurchaseRegion.ParseIdAndRegionInfo(id, out regions);
+                track = MusicServiceManager.GetMusicServiceTrack(idt, spotify);
+                if (track?.SampleUrl != null)
+                    break;
+            }
+
+            if (track == null)
+            {
+                var itunes = MusicService.GetService(ServiceType.ITunes);
+                // If spotify failed, try itunes
+                ids = edit.GetPurchaseIds(itunes);
+                foreach (var id in ids)
+                {
+                    track = MusicServiceManager.GetMusicServiceTrack(id, itunes);
+                    if (track?.SampleUrl != null)
+                        break;
+                }
+            }
+
+            edit.Sample = (track?.SampleUrl == null) ? @"." : track.SampleUrl;
+            return dms.EditSong(User.Identity.Name, song, edit);
+        }
+
         [Authorize(Roles = "canEdit")]
         public ActionResult BatchEchoNest(SongFilter filter = null, string options = null, int count = 1, int pageSize = 1000)
         {
@@ -1364,9 +1378,6 @@ namespace m4d.Controllers
                     filter = new SongFilter();
                 }
                 filter.Purchase = "S";
-
-                var service = MusicService.GetService(ServiceType.Spotify);
-                var user = Database.FindUser("batch-e");
 
                 var parameters = DanceMusicService.AddCruftInfo(Database.AzureParmsFromFilter(filter),DanceMusicService.CruftFilter.NoCruft);
 
@@ -1415,66 +1426,6 @@ namespace m4d.Controllers
                                 continue;
                             }
 
-                            var ids = song.GetPurchaseIds(service);
-
-                            EchoTrack track = null;
-                            foreach (var id in ids)
-                            {
-                                string[] regions;
-                                var idt = PurchaseRegion.ParseIdAndRegionInfo(id, out regions);
-                                track = MusicServiceManager.LookupEchoTrack(idt, service);
-                                if (track != null)
-                                    break;
-                            }
-
-                            if (track == null)
-                            {
-                                song.Danceability = float.NaN;
-                                var s = dms.EditSong(user, song);
-                                if (s != null)
-                                {
-                                    ftemp.Add(s);
-                                }
-                            }
-                            else
-                            {
-                                if (track.BeatsPerMinute != null)
-                                {
-                                    song.Tempo = track.BeatsPerMinute;
-                                }
-                                if (track.Danceability != null)
-                                {
-                                    song.Danceability = track.Danceability;
-                                }
-                                if (track.Energy != null)
-                                {
-                                    song.Energy = track.Energy;
-                                }
-                                if (track.Valence != null)
-                                {
-                                    song.Valence = track.Valence;
-                                }
-                                UserTag[] tags = null;
-                                var meter = track.Meter;
-                                if (meter != null)
-                                {
-                                    tags = new[]
-                                    {
-                                        new UserTag
-                                        {
-                                            Id = string.Empty,
-                                            Tags = new TagList($"{meter}:Tempo")
-                                        }
-                                    };
-                                }
-
-                                var s = dms.EditSong(user, song, tags);
-                                if (s != null)
-                                {
-                                    stemp.Add(s);
-                                }
-                            }
-
                             // TODO: Decide if we want to tromp other tempi
                             //if (track?.BeatsPerMinute == null || (track.BeatsPerMinute == song.Tempo) ||
                             //    (sd.Tempo.HasValue && Math.Abs(track.BeatsPerMinute.Value - sd.Tempo.Value) > 5))
@@ -1483,6 +1434,14 @@ namespace m4d.Controllers
                             //    continue;
                             //}
 
+                            if (GetEchoData(song, dms))
+                            {
+                                stemp.Add(song);
+                            }
+                            else
+                            {
+                                ftemp.Add(song);
+                            }
 
                             if (tried > count)
                                 break;
@@ -1515,6 +1474,54 @@ namespace m4d.Controllers
             }
         }
 
+        private bool GetEchoData(Song song, DanceMusicService dms = null)
+        {
+            var service = MusicService.GetService(ServiceType.Spotify);
+            var ids = song.GetPurchaseIds(service);
+            if (dms == null) dms = Database;
+            var edit = new Song(song, dms.DanceStats);
+
+            EchoTrack track = null;
+            foreach (var id in ids)
+            {
+                string[] regions;
+                var idt = PurchaseRegion.ParseIdAndRegionInfo(id, out regions);
+                track = MusicServiceManager.LookupEchoTrack(idt, service);
+                if (track != null)
+                    break;
+            }
+
+            if (track == null)
+            {
+                edit.Danceability = float.NaN;
+                return dms.EditSong(User.Identity.Name, song, edit);
+            }
+
+            if (track.BeatsPerMinute != null)
+            {
+                edit.Tempo = track.BeatsPerMinute;
+            }
+            if (track.Danceability != null)
+            {
+                edit.Danceability = track.Danceability;
+            }
+            if (track.Energy != null)
+            {
+                edit.Energy = track.Energy;
+            }
+            if (track.Valence != null)
+            {
+                edit.Valence = track.Valence;
+            }
+            var tags = edit.GetUserTags(User.Identity.Name);
+            var meter = track.Meter;
+            if (meter != null)
+            {
+                tags = tags.Add($"{meter}:Tempo");
+            }
+
+            return  dms.EditSong(User.Identity.Name, song, edit, new [] { new UserTag { Id = string.Empty, Tags = tags}});
+        }
         #endregion
 
         #region General Utilities
@@ -1735,28 +1742,42 @@ namespace m4d.Controllers
             }
         }
 
-        private Song UpdateSongAndService(Song sd, MusicService service, IDictionary<char, ApplicationUser> users)
+        private bool UpdateSongAndServices(Song sd, string user = null)
+        {
+            var changed = false;
+            // ReSharper disable once LoopCanBeConvertedToQuery
+            foreach (var service in MusicService.GetSearchableServices())
+            {
+                changed |= UpdateSongAndService(sd, service, user);
+            }
+            return changed;
+        }
+
+        private bool UpdateSongAndService(Song sd, MusicService service, string user = null)
         {
             var found = MatchSongAndService(sd, service);
+            if (found.Count <= 0) return false;
 
-            if (found.Count <= 0) return null;
+            var edit = new Song(sd,Database.DanceStats);
 
             var tags = new TagList();
             foreach (var foundTrack in found)
             {
                 var trackId = PurchaseRegion.FormatIdAndRegionInfo(foundTrack.TrackId, foundTrack.AvailableMarkets);
-                UpdateMusicService(sd, MusicService.GetService(foundTrack.Service), foundTrack.Name, foundTrack.Album, foundTrack.Artist, trackId, foundTrack.CollectionId, foundTrack.AltId, foundTrack.Duration.ToString(), foundTrack.TrackNumber);
-                tags = tags.Add(new TagList(Database.NormalizeTags(foundTrack.Genre, "Music")));
-            }
-            ApplicationUser user;
-            // ReSharper disable once InvertIf
-            if (!users.TryGetValue(service.CID, out user))
-            {
-                user = Database.FindUser("batch-" + service.CID.ToString().ToLower());
-                users[service.CID] = user;
+                UpdateMusicService(edit, MusicService.GetService(foundTrack.Service), foundTrack.Name, foundTrack.Album, foundTrack.Artist, trackId, foundTrack.CollectionId, foundTrack.AltId, foundTrack.Duration.ToString(), foundTrack.TrackNumber);
+                tags = tags.Add(new TagList(Database.NormalizeTags(foundTrack.Genre, "Music",true)));
             }
 
-            return Database.EditSong(user, sd, new[] { new UserTag { Id = string.Empty, Tags = tags } });
+            if (user != null)
+            {
+                tags = tags.Add(sd.GetUserTags(user));
+            }
+            else
+            {
+                user = $"batch-{service.CID.ToString().ToLower()}";
+            }
+
+            return Database.EditSong(user, sd, edit, new[] { new UserTag { Id = string.Empty, Tags = tags } });
         }
         private IList<ServiceTrack> MatchSongAndService(Song sd, MusicService service)
         {

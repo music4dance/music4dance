@@ -129,7 +129,7 @@
 
             if (typeof window.danceAction == 'function') {
                 $('#add-dance-' + dance.Id).click(function() {
-                    var id = $(this).context.id;
+                    var id = $(this).attr('id');
                     id = id.substring(idpfx.length);
                     window.danceAction(id);
                 });
