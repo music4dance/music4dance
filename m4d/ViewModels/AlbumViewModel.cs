@@ -82,12 +82,7 @@ namespace m4d.ViewModels
                 }
             }
 
-            if (list.Count > 0)
-            {
-                var viewModel = new AlbumViewModel { Title = albumTitle, Artist = uniqueArtist ? list[0].Artist : string.Empty, Songs = list };
-                return viewModel;
-            }
-            return null;
+            return new AlbumViewModel { Title = albumTitle ?? title, Artist = uniqueArtist && list.Count > 0 ? list[0].Artist : string.Empty, Songs = list };
         }
     }
 }

@@ -463,15 +463,16 @@ namespace m4d.Controllers
             var spider = CheckSpiders();
             if (spider != null) return spider;
 
-            AlbumViewModel model = null;
+            AlbumViewModel model;
 
             if (!string.IsNullOrWhiteSpace(title))
             {
                 model = AlbumViewModel.Create(title, DefaultCruftFilter, Database);
             }
-
-            if (model == null)
-                return ReturnError(HttpStatusCode.NotFound, $"Album '{title}' not found.");
+            else
+            {
+                return ReturnError(HttpStatusCode.NotFound, @"Empty album title not valid.");
+            }
 
             BuildDanceList(DanceBags.Stats);
             return View("Album", model);
