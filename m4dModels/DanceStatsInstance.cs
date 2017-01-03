@@ -96,9 +96,9 @@ namespace m4dModels
             if (danceId.Length > 3) danceId = danceId.Substring(0, 3);
 
             DanceStats sc;
-            if (Map.TryGetValue(danceId, out sc)) return sc;
+            if (Map.TryGetValue(danceId.ToUpper(), out sc)) return sc;
 
-            if (Dances.Instance.DanceFromId(danceId) == null) return null;
+            if (Dances.Instance.DanceFromId(danceId.ToUpper()) == null) return null;
 
             Trace.WriteLineIf(TraceLevels.General.TraceError, $"Failed to find danceId {danceId}");
             // Clear out the cache to force a reload: workaround for possible cache corruption.

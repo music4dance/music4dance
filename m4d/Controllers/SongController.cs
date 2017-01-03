@@ -367,7 +367,7 @@ namespace m4d.Controllers
 
             if (id != null && Database.DanceStats.Map.ContainsKey(id.ToUpper()))
             {
-                filter.Dances = id;
+                filter.Dances = id.ToUpper();
             }
 
             if (page.HasValue)
