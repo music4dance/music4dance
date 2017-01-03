@@ -21,6 +21,12 @@ namespace m4d
                 defaults: new { controller = "dance", action = "index", dance = UrlParameter.Optional }
             );
             routes.MapRouteLowercase(
+                name: "SongByDance",
+                url: "song/{id}",
+                defaults: new { controller = "song", action = "index" },
+                constraints:new {id = @"[a-z]{3}"}
+            );
+            routes.MapRouteLowercase(
                 name: "Default",
                 url: "{controller}/{action}/{id}",
                 defaults: new { controller = "home", action = "index", id = UrlParameter.Optional }

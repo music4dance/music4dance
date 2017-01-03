@@ -358,8 +358,18 @@ namespace m4d.Controllers
         //
         // GET: /Index/
         [AllowAnonymous]
-        public ActionResult Index(int? page, string purchase, SongFilter filter)
+        public ActionResult Index(string id = null, int? page = null, string purchase = null, SongFilter filter = null)
         {
+            if (filter == null)
+            {
+                filter = new SongFilter();
+            }
+
+            if (id != null && Database.DanceStats.Map.ContainsKey(id.ToUpper()))
+            {
+                filter.Dances = id;
+            }
+
             if (page.HasValue)
             {
                 filter.Page = page;
@@ -388,7 +398,7 @@ namespace m4d.Controllers
         [AllowAnonymous]
         public ActionResult Advanced(int? page, string purchase, SongFilter filter)
         {
-            return Index(page, purchase, filter);
+            return Index(null, page, purchase, filter);
         }
 
         [AllowAnonymous]
