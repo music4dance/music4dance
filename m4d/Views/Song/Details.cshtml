@@ -10,7 +10,7 @@
 <div class="row">
     <div id="songDetails" class="col-md-12">
         @UserHelper.UndoUser(Html,Model,filter)
-        @if (User.IsInRole("canEdit"))
+        @if (User.IsInRole("showDiagnostics"))
         {
             @Html.ActionLink("Edit", "Edit", new {id = Model.SongId, filter}, new {@class = "btn btn-small btn-default", role = "button"})
             @Html.ActionLink("Delete", "Delete", new {id = Model.SongId, filter}, new {@class = "btn btn-small btn-default", role = "button"})

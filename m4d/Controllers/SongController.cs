@@ -511,7 +511,7 @@ namespace m4d.Controllers
 
         //
         // GET: /Song/Add
-        public ActionResult Add(SongFilter filter = null)
+        public ActionResult Augment(SongFilter filter = null)
         {
             return View();
         }
@@ -526,6 +526,7 @@ namespace m4d.Controllers
                 var user = User.Identity.Name;
                 var strack = MusicServiceManager.GetMusicServiceTrack(purchase, MusicService.GetService(service[0]));
                 sd = Song.CreateFromTrack(user,strack,null,null,null,Database.DanceStats);
+                sd.EditLike(user, true);
                 UpdateSongAndServices(sd,user);
                 GetEchoData(sd);
                 GetSampleData(sd);
@@ -556,10 +557,7 @@ namespace m4d.Controllers
         }
 
         // TODONEXT: Enforce creating at least one dance style
-        //  Trim down the edit options - remove albums/purchase + just show title, artist
-        //  Fix dance chooser - see if we can reasonably add in tempo suggestions
-        //  Add Like
-        //  Add Preview
+        //  Add double/half time controls (or possibly edit of tempo)?
         //  Clean up the actual "add" page
         //      Give some reasonable feedback between search and start of load
         //      Make the errors red and review them

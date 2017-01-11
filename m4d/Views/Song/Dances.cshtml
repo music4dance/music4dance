@@ -1,5 +1,6 @@
 ﻿@{
     var isModerator = User.IsInRole("canEdit");
+    var isDiag = User.IsInRole("showDiagnostics");
 }
 
 <script type="text/html" id="dance-template">
@@ -19,22 +20,21 @@
     </li>
 </script>
 
+<div class="col-md-12" style=@("margin: 0 10px 10px 10px"+ (isDiag?"":";display:none")) data-bind="visible:canTag">
+    @Html.DropDownList("addDance", ViewBag.DanceList as IEnumerable<SelectListItem>, new { @class = "chosen-select", data_placeholder = "Add a dance style..." })
+</div>
+
 <div class="col-md-6">
     <div class="panel panel-default">
         <div class="panel-heading">
             <h3 class="panel-title">Dances</h3>
         </div>
 
-
         <ul class="panel-body list-group" data-bind="foreach: song.DanceRatings">
             <!-- ko if: isExplicit -->
             <li class="list-group-item" style="padding: 2px 3px" data-bind="template: 'dance-template'"></li>
             <!-- /ko -->
         </ul>
-    </div>
-
-    <div style="margin: 0 10px 10px 10px" data-bind="visible:canTag">
-        @Html.DropDownList("addDance", ViewBag.DanceList as IEnumerable<SelectListItem>, new {@class = "chosen-select", data_placeholder = "Add a dance style..."})
     </div>
 </div>
 

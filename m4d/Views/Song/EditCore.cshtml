@@ -1,24 +1,23 @@
 ﻿@model Song
 
+@{
+    var isDiag = User.IsInRole("showDiagnostics");
+    Song old = ViewData.ContainsKey("OldSong") ? ViewBag.OldSong : null;
+    ViewBag.UseLogo = true;
+}
+
 @Html.Partial("SetupSongScript")
 @Html.Partial("ItemTags")
 
+@if (isDiag)
+{
+    <h1>@ViewBag.Title</h1>
+}
 
 @using (Html.BeginForm((string)ViewBag.Action, "Song", null, FormMethod.Post, new { @class="form-horizontal"}))
 {
     @Html.AntiForgeryToken()
     @Html.ValidationSummary(true)
-    Song old = null;
-    ViewBag.UseLogo = true;
-
-    try
-    {
-        old = ViewBag.OldSong;
-    }
-    catch (Microsoft.CSharp.RuntimeBinder.RuntimeBinderException)
-    {
-
-    }
 
     @Html.HiddenFor(m => m.SongId)
     @Html.HiddenFor(m => m.Sample)
@@ -26,88 +25,130 @@
     @Html.HiddenFor(m => m.Valence)
     @Html.HiddenFor(m => m.Energy)
 
-    <div class="form-group row">
-        @Html.LabelFor(model => model.Title, new { @class = "control-label col-md-2" })
-        <div class="col-md-10">
-            @Html.TextBoxFor(model => model.Title, new { @class = "form-control", size="50" })
-            @Html.ValidationMessageFor(model => model.Title)
-            <div class="editor-alternate" id="alt-title">
-                @if (old != null && !string.IsNullOrWhiteSpace(old.Title))
-                {
-                    <a href="#" role="button" class="btn btn-link">@old.Title</a>
-                }
+    if (isDiag)
+    {
+        <div class="form-group row">
+            @Html.LabelFor(model => model.Title, new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.TextBoxFor(model => model.Title, new { @class = "form-control", size = "50" })
+                @Html.ValidationMessageFor(model => model.Title)
+                <div class="editor-alternate" id="alt-title">
+                    @if (!string.IsNullOrWhiteSpace(old?.Title))
+                    {
+                        <a href="#" role="button" class="btn btn-link">@old.Title</a>
+                    }
+                </div>
             </div>
         </div>
-    </div>
-    
-    <div class="form-group row">
-        @Html.LabelFor(model => model.Artist, new { @class = "control-label col-md-2" })
-        <div class="col-md-10">
-            @Html.TextBoxFor(model => model.Artist, new { @class = "form-control", size = "50" })
-            @Html.ValidationMessageFor(model => model.Artist)
-            <div class="editor-alternate" id="alt-artist">
-                @if (old != null && !string.IsNullOrWhiteSpace(old.Artist))
-                {
-                    <a href="#" role="button" class="btn btn-link">@old.Artist</a>
-                }
-            </div>
-        </div>
-    </div>
-    
-    <div class="form-group row">
-        @Html.LabelFor(model => model.Length, new { @class = "control-label col-md-2" })
-        <div class="col-md-10">
-            @Html.EditorFor(model => model.Length, "SongDuration")
 
-            <div class="editor-alternate" id="alt-length">
-                @if (old != null && old.Length != null)
-                {
-                    <a href="#" role="button" class="btn btn-link">@Html.DisplayFor(model => old.Length.Value,"SongDuration")</a>
-                }
+        <div class="form-group row">
+            @Html.LabelFor(model => model.Artist, new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.TextBoxFor(model => model.Artist, new { @class = "form-control", size = "50" })
+                @Html.ValidationMessageFor(model => model.Artist)
+                <div class="editor-alternate" id="alt-artist">
+                    @if (!string.IsNullOrWhiteSpace(old?.Artist))
+                    {
+                        <a href="#" role="button" class="btn btn-link">@old.Artist</a>
+                    }
+                </div>
             </div>
         </div>
-    </div>
 
-    <div class="form-group row">
-        @Html.LabelFor(model => model.Tempo, new { @class = "control-label col-md-2" })
+        <div class="form-group row">
+            @Html.LabelFor(model => model.Length, new {@class = "control-label col-md-2"})
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.Length, "SongDuration")
+
+                <div class="editor-alternate" id="alt-length">
+                    @if (old?.Length != null)
+                    {
+                        <a href="#" role="button" class="btn btn-link">@Html.DisplayFor(model => old.Length.Value, "SongDuration")</a>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-12">
+                <h4><span data-bind="template: {name:'tag-template',foreach:song.TagSummary.tagTypes}"></span></h4>
+            </div>
+        </div>
+    }
+    else
+    {
+        @Html.HiddenFor(m => m.Title)
+        @Html.HiddenFor(m => m.Artist)
+        @Html.HiddenFor(m => m.Length)
+        @Html.HiddenFor(m => m.Created)
+        @Html.HiddenFor(m => m.Modified)
+
+        <div class="page-header">
+            <h1>
+                @if (User.Identity.IsAuthenticated)
+                {
+                    <a class="btn btn-sm btn-info" role="button" data-show="tooltip" data-placement="right" data-bind="attr: {'data-original-title':song.liketip},click:toggleVote">
+                        <img data-bind="attr: {src:song.voteImage}"/>
+                    </a>
+                }
+                @Model.Title
+                @if (!string.IsNullOrWhiteSpace(@Model.Artist))
+                {
+                    <small>by @Html.ActionLink(Model.Artist, "artist", "song", new {name = Model.Artist}, null)</small>
+                }
+            </h1>
+
+            <div class="row">
+                <div class="col-md-12">
+                    <h4><span data-bind="template: {name:'tag-template',foreach:song.TagSummary.tagTypes}"></span></h4>
+                </div>
+            </div>
+        </div>
+    }
+
+    <div class="row">
+        <div class="col-md-2">Tempo: </div>
         <div class="col-md-10">
-            <input class="text-box single-line" data-val="true" data-val-number="The field Tempo must be a number." data-val-range="The field Tempo must be between 5 and 500." data-val-range-max="500" data-val-range-min="5" id="Tempo" name="Tempo" type="text" value="@Model.Tempo" />
+            <input @(isDiag ? "" : "readonly") class="text-box single-line" data-val="true" data-val-number="The field Tempo must be a number." data-val-range="The field Tempo must be between 5 and 500." data-val-range-max="500" data-val-range-min="5" id="Tempo" name="Tempo" type="text" value="@Model.Tempo" />
             @*@Html.ValidationMessageFor(model => model.Tempo)*@
             <a href="#" id="toggle-count" class="btn btn-sm btn-default"><span id="toggle-count-display" class="glyphicon glyphicon-arrow-down"></span></a>
 
             <div class="editor-alternate" id="alt-tempo">
-                @if (old != null && old.Tempo != null)
+                @if (old?.Tempo != null)
                 {
                     <a href="#" role="button" class="btn btn-link">@old.Tempo</a>
                 }
             </div>
         </div>
     </div>
-    <div class="form-group" id="counter-control">
+
+    <div id="counter-control">
+        <div class="row col-sm-12">
+            Add Dance Styles:
+        </div>
+
         <div class="row">
-            <div class="col-md-8 col-md-offset-2">
-                <button id='count' type=button class="btn btn-lg btn-primary btn-block">Count</button>
+            <div class="col-sm-12">
+                @if (isDiag || Model.Tempo == 0)
+                {
+                    <button id='count' type=button class="btn btn-lg btn-primary btn-block">Count</button>
+                }
                 <div>@Html.Partial("_MeterChooser")</div>
             </div>
         </div>
         <div class="row">
-            <div class="col-md-8 col-md-offset-2">
+            <div class="col-sm-12">
                 <div id="dances" class="list-group"></div>
             </div>
         </div>
-        <div class="row col-md-8 col-md-offset-2" id="epsilon">
+        <div class="col-sm-12" id="epsilon">
         </div>
         <div class="row">
-            <div class="col-md-offset-2 col-md-8" id="epsilon"></div>
+            <div class="col-sm-12" id="epsilon"></div>
         </div>
         <div class="row">
-            <span class="col-md-offset-2 col-md-4">LESS</span>
-            <span class="col-md-4" style="text-align:right">MORE</span>
-        </div>
-    </div>
-    <div class="row">
-        <div class="col-md-12">
-            <h4><span data-bind="template: {name:'tag-template',foreach:song.TagSummary.tagTypes}"></span></h4>
+            <span class="col-sm-6">LESS</span>
+            <span class="col-sm-6" style="text-align:right">MORE</span>
         </div>
     </div>
 
@@ -115,12 +156,26 @@
         @Html.Partial("Dances")
     </div>
 
-    <hr class="row col-md-12" />
     <div class="row col-md-12">
         <table>
-            <tr><td></td><td class="album-header">Album</td><td class="track-header">Track</td><td class="publisher-header">Label</td><td class="delete-header"></td></tr>
+            <tr>
+                @if (isDiag)
+                {
+                    <td></td>
+                }
+                <td class="album-header">Album</td>
+                <td class="track-header">Track</td>
+                <td class="publisher-header">Label</td>
+                @if (isDiag)
+                {
+                    <td class="delete-header"></td>
+                }
+               <td></td>
+            </tr>
             <tbody data-bind="foreach: song.Albums">
-                <tr data-bind="if:$data,attr: {id: 'Album_' + $index()}">
+            <tr data-bind="if:$data,attr: {id: 'Album_' + $index()}">
+                @if (isDiag)
+                {
                     <td>
                         <div data-bind="ifnot: $index() == 0">
                             <a href="#" class="btn btn-sm btn-default">
@@ -128,51 +183,60 @@
                             </a>
                         </div>
                     </td>
-                    <td>
-                        <div class="editor-field">
-                            <input data-bind="attr: {id: helpers.computeAlbumId($index(),'Name'), name: helpers.computeAlbumName($index(),'Name')}, value: Name" type="text" />
-                        </div>
-                    </td>
-                    <td>
-                        <div class="editor-field">
-                            <input data-bind="attr: {id: helpers.computeAlbumId($index(),'Track'), name: helpers.computeAlbumName($index(),'Track')}, value: Track" type="text" />
-                        </div>
-                    </td>
-                    <td>
-                        <div class="editor-field">
-                            <input data-bind="attr:{id: helpers.computeAlbumId($index(),'Publisher'), name: helpers.computeAlbumName($index(),'Publisher')}, value: Publisher" type="text" />
-                        </div>
-                    </td>
+                }
+                <td>
+                    <div class="editor-field">
+                        <input @(isDiag ? "" : "readonly") data-bind="attr: {id: helpers.computeAlbumId($index(),'Name'), name: helpers.computeAlbumName($index(),'Name')}, value: Name" type="text"/>
+                    </div>
+                </td>
+                <td>
+                    <div class="editor-field">
+                        <input @(isDiag ? "" : "readonly") data-bind="attr: {id: helpers.computeAlbumId($index(),'Track'), name: helpers.computeAlbumName($index(),'Track')}, value: Track" type="text"/>
+                    </div>
+                </td>
+                <td>
+                    <div class="editor-field">
+                        <input @(isDiag ? "" : "readonly") data-bind="attr:{id: helpers.computeAlbumId($index(),'Publisher'), name: helpers.computeAlbumName($index(),'Publisher')}, value: Publisher" type="text"/>
+                    </div>
+                </td>
+                @if (isDiag)
+                {
                     <td>
                         <button type="button" data-bind="attr: {id: 'Delete_' + $index()}, click: $root.song.removeAlbum">X</button>
                         <input data-bind="attr:{id: helpers.computeAlbumId($index(),'PurchaseInfo'), name: helpers.computeAlbumName($index(),'PurchaseInfo')}, value:PurchaseInfo" type="hidden" />
                         <input data-bind="attr: {id: helpers.computeAlbumId($index(),'Index'), name: helpers.computeAlbumName($index(),'Index')}, value:Index" type="hidden" />
                     </td>
-                    <td>
-                        <div data-bind="foreach: PurchaseLinks">
-                            <a data-bind="attr: {href:Link, target:Target}"><img data-bind="attr: {src:'/Content/' + Logo(), alt: AltText}" /></a>
-                        </div>
-                    </td>
-                </tr>
+                }
+                <td>
+                    <div data-bind="foreach: PurchaseLinks">
+                        <a data-bind="attr: {href:Link, target:Target}"><img data-bind="attr: {src:'/Content/' + Logo(), alt: AltText}"/></a>
+                    </div>
+                </td>
+            </tr>
             </tbody>
         </table>
     </div>
-    <div class="row col-md-12">
-        <a class="btn btn-info" role="button" id="AddAlbum" data-bind="click: song.newAlbum">New Album</a>
-    </div>
+    if (isDiag)
+    {
+        <div class="row col-md-12">
+            <a class="btn btn-info" role="button" id="AddAlbum" data-bind="click: song.newAlbum">New Album</a>
+        </div>
+    }
     <hr class="row col-md-12" />
 
-    <h3 class="row col-md-12">Music Services</h3>
-    <div class="row col-md-12">
-        <input class="text-box single-line" placeholder="leave blank to use title + artist" id="search" type="text" width="75" />
-        <button type="button" id="load-all" class="btn btn-small btn-default" role="button">Search All</button>
-        <button type="button" id="load-xbox" class="btn btn-small btn-default" role="button">Groove</button>
-        <button type="button" id="load-itunes" class="btn btn-small btn-default" role="button">ITunes</button>
-        <button type="button" id="load-spotify" class="btn btn-small btn-default" role="button">Spotify</button>
-        <button type="button" id="load-amazon" class="btn btn-small btn-default" role="button">Amazon</button>
-    </div>
-    <table id="service-results" class="table table-striped row col-md-12">
-        <thead>
+    if (isDiag)
+    {
+        <h3 class="row col-md-12">Music Services</h3>
+        <div class="row col-md-12">
+            <input class="text-box single-line" placeholder="leave blank to use title + artist" id="search" type="text" width="75"/>
+            <button type="button" id="load-all" class="btn btn-small btn-default" role="button">Search All</button>
+            <button type="button" id="load-xbox" class="btn btn-small btn-default" role="button">Groove</button>
+            <button type="button" id="load-itunes" class="btn btn-small btn-default" role="button">ITunes</button>
+            <button type="button" id="load-spotify" class="btn btn-small btn-default" role="button">Spotify</button>
+            <button type="button" id="load-amazon" class="btn btn-small btn-default" role="button">Amazon</button>
+        </div>
+        <table id="service-results" class="table table-striped row col-md-12">
+            <thead>
             <tr>
                 <th></th>
                 <th>Add</th>
@@ -182,50 +246,60 @@
                 <th>#</th>
                 <th>Length</th>
             </tr>
-        </thead>
-        <tbody data-bind="foreach: tracks">
+            </thead>
+            <tbody data-bind="foreach: tracks">
             <tr>
-                <td><a data-bind="attr: {href: SongLink.Link}" class="btn" role="button"><img width="30" height="30" data-bind="attr: {src: serviceLogo}" /></a></td>
-                <td><a href="#" class="btn btn-default" role="button" data-bind="click: $root.song.chooseTrack"><img width="30" height="30" data-bind="attr: {src: ImageUrl}" /></a></td>
+                <td><a data-bind="attr: {href: SongLink.Link}" class="btn" role="button"><img width="30" height="30" data-bind="attr: {src: serviceLogo}"/></a></td>
+                <td><a href="#" class="btn btn-default" role="button" data-bind="click: $root.song.chooseTrack"><img width="30" height="30" data-bind="attr: {src: ImageUrl}"/></a></td>
                 <td data-bind="text: Name"></td>
                 <td data-bind="text: Album"></td>
                 <td data-bind="text: Artist"></td>
                 <td data-bind="text: TrackNumber"></td>
                 <td data-bind="text: durationFormatted"></td>
             </tr>
-        </tbody>
-    </table>
+            </tbody>
+        </table>
 
-    <img src="~/Content/ajax-loader.gif" id="loading-indicator" style="display:none" />
+        <img src="~/Content/ajax-loader.gif" id="loading-indicator" style="display: none"/>
 
-    <hr class="row col-md-12" />
-    <div class="row col-md-12">
-        <div class="display-label">
-            @Html.DisplayNameFor(model => model.Created):
+        <hr class="row col-md-12"/>
+        <div class="row col-md-12">
+            <div class="display-label">
+                @Html.DisplayNameFor(model => model.Created):
+            </div>
+            <div class="display-field">
+                @Html.DisplayFor(model => model.Created)
+                @Html.HiddenFor(model => model.Created)
+            </div>
         </div>
-        <div class="display-field">
-            @Html.DisplayFor(model => model.Created)
-            @Html.HiddenFor(model => model.Created)
+        <br/>
+
+        <div class="row col-md-12">
+            <div class="display-label">
+                @Html.DisplayNameFor(model => model.Modified):
+            </div>
+            <div class="display-field">
+                @Html.DisplayFor(model => model.Modified)
+            </div>
         </div>
-    </div>
-    <br />
 
-    <div class="row col-md-12">
-        <div class="display-label">
-            @Html.DisplayNameFor(model => model.Modified):
+        @*<hr class="row col-md-12" />
+
+        <p class="row col-md-12">
+                <button type="button" id="load-genre-tags" class="btn btn-small btn-default" role="button">Genre</button>
+                <button type="button" id="load-user-genre-tags" class="btn btn-small btn-default" role="button">User</button>
+        </p>*@
+    }
+    else if (Model.Sample != null && Model.Sample != ".")
+    {
+        <div class="row" style="padding-bottom: 10px">
+            <h2 class="col-sm-2">Preview:</h2>
+            <audio controls class="col-sm-8">
+                <source src="@Model.Sample" type="audio/mpeg" />
+                Your browser does not support audio.
+            </audio>
         </div>
-        <div class="display-field">
-            @Html.DisplayFor(model => model.Modified)
-        </div>
-    </div>
-
-    @*<hr class="row col-md-12" />
-
-    <p class="row col-md-12">
-            <button type="button" id="load-genre-tags" class="btn btn-small btn-default" role="button">Genre</button>
-            <button type="button" id="load-user-genre-tags" class="btn btn-small btn-default" role="button">User</button>
-    </p>*@
-
+    }
     <p class="row col-md-12">
         <input type="hidden" name="filter" value="@ViewBag.SongFilter"/>
         <input type="hidden" name="userTags" id="userTags"/>

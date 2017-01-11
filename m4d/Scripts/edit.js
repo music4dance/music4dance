@@ -731,14 +731,9 @@ var editor = function () {
 
         ko.applyBindings(viewModel);
 
-        if (window.hasOwnProperty("paramNewTempo")) {
-            addValue('alt-tempo', window.paramNewTempo);
-            $('#toggle-count-display').removeClass('glyphicon-arrow-down');
-            $('#toggle-count-display').addClass('glyphicon-arrow-up');
-        }
-        else {
-            $('#counter-control').hide();
-        }
+        addValue('alt-tempo', window.paramNewTempo);
+        $('#toggle-count-display').removeClass('glyphicon-arrow-down');
+        $('#toggle-count-display').addClass('glyphicon-arrow-up');
     }
 
 

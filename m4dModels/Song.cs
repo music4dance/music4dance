@@ -237,6 +237,7 @@ namespace m4dModels
         public void SetupSerialization(string userName, DanceStatsInstance stats)
         {
             CurrentUserTags = GetUserTags(userName, this);
+            _currentUserLike = ModifiedBy.FirstOrDefault(mr => mr.UserName == userName)?.Like;
             if (DanceRatings == null || DanceRatings.Count == 0) return;
 
             foreach (var dr in _danceRatings)

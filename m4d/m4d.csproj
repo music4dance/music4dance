@@ -1226,7 +1226,7 @@
     <Content Include="Views\Song\RawSearchForm.cshtml" />
     <Content Include="Views\Song\AdvancedSearchForm.cshtml" />
     <Content Include="Views\Dance\emptydance.cshtml" />
-    <Content Include="Views\Song\Add.cshtml" />
+    <Content Include="Views\Song\Augment.cshtml" />
     <None Include="Web.m4d.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

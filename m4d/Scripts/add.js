@@ -52,7 +52,6 @@
     }
 
     self.getServiceTrack = function (action) {
-        // TODONEXT: handle the any case and the xbox case and refine everything else
         this.viewModel.error(null);
         this.viewModel.song(null);
         this.viewModel.track(null);
