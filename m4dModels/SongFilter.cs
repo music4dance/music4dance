@@ -482,6 +482,6 @@ namespace m4dModels
         }
 
         private static readonly List<PropertyInfo> PropertyInfo;
-        private static readonly object[] AltDefaults = {"index","all","modified",null,null,null,null,1};
+        private static readonly object[] AltDefaults = {"index","all",null,null,null,null,null,1};
     }
 }

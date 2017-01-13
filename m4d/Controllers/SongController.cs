@@ -528,8 +528,8 @@ namespace m4d.Controllers
                 sd = Song.CreateFromTrack(user,strack,null,null,null,Database.DanceStats);
                 sd.EditLike(user, true);
                 UpdateSongAndServices(sd,user);
-                GetEchoData(sd);
-                GetSampleData(sd);
+                GetEchoData(sd,user);
+                GetSampleData(sd,user);
                 sd.SetupSerialization(user, Database.DanceStats);
             }
             else
@@ -563,8 +563,7 @@ namespace m4d.Controllers
         //      Make the errors red and review them
         //      Put some instructions on the page
         //      Can we persist the service?
-        //  Verify that batch mode still works
-
+        
         //
         // POST: /Song/Create
         [HttpPost]
@@ -980,16 +979,16 @@ namespace m4d.Controllers
 
                         var changed = service == null ? 
                             UpdateSongAndServices(edit) : 
-                            UpdateSongAndService(song, service);
+                            UpdateSongAndService(edit, service);
 
                         if (changed)
                         {
-                            succeeded.Add(song);
+                            succeeded.Add(edit);
                             tried += 1;
                         }
                         else if (service == null && song.AddLookupFail())
                         {
-                            failed.Add(song);
+                            failed.Add(edit);
                         }
 
                     }
@@ -1290,7 +1289,7 @@ namespace m4d.Controllers
                             processed += 1;
 
                             tried += 1;
-                            if (GetSampleData(song, dms))
+                            if (GetSampleData(song, user.UserName, dms))
                             {
                                 succeeded.Add(song);
                             }
@@ -1330,7 +1329,7 @@ namespace m4d.Controllers
             }
         }
 
-        private bool GetSampleData(Song song, DanceMusicService dms = null)
+        private bool GetSampleData(Song song, string user, DanceMusicService dms = null)
         {
             var spotify = MusicService.GetService(ServiceType.Spotify);
             if (dms == null) dms = Database;
@@ -1361,8 +1360,8 @@ namespace m4d.Controllers
                 }
             }
 
-            edit.Sample = (track?.SampleUrl == null) ? @"." : track.SampleUrl;
-            return dms.EditSong(User.Identity.Name, song, edit);
+            edit.Sample = track?.SampleUrl??@".";
+            return dms.EditSong(user, song, edit);
         }
 
         [Authorize(Roles = "canEdit")]
@@ -1380,6 +1379,8 @@ namespace m4d.Controllers
 
                 var page = 0;
                 var done = false;
+
+                string user = User.Identity.Name;
 
                 if (filter == null)
                 {
@@ -1442,7 +1443,7 @@ namespace m4d.Controllers
                             //    continue;
                             //}
 
-                            if (GetEchoData(song, dms))
+                            if (GetEchoData(song, user, dms))
                             {
                                 stemp.Add(song);
                             }
@@ -1482,7 +1483,7 @@ namespace m4d.Controllers
             }
         }
 
-        private bool GetEchoData(Song song, DanceMusicService dms = null)
+        private bool GetEchoData(Song song, string user, DanceMusicService dms = null)
         {
             var service = MusicService.GetService(ServiceType.Spotify);
             var ids = song.GetPurchaseIds(service);
@@ -1521,14 +1522,14 @@ namespace m4d.Controllers
             {
                 edit.Valence = track.Valence;
             }
-            var tags = edit.GetUserTags(User.Identity.Name);
+            var tags = edit.GetUserTags(user);
             var meter = track.Meter;
             if (meter != null)
             {
                 tags = tags.Add($"{meter}:Tempo");
             }
 
-            return  dms.EditSong(User.Identity.Name, song, edit, new [] { new UserTag { Id = string.Empty, Tags = tags}});
+            return  dms.EditSong(user, song, edit, new [] { new UserTag { Id = string.Empty, Tags = tags}});
         }
         #endregion
 
