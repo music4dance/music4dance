@@ -20,9 +20,11 @@
     </li>
 </script>
 
-<div class="col-md-12" style=@("margin: 0 10px 10px 10px"+ (isDiag?"":";display:none")) data-bind="visible:canTag">
-    @Html.DropDownList("addDance", ViewBag.DanceList as IEnumerable<SelectListItem>, new { @class = "chosen-select", data_placeholder = "Add a dance style..." })
+<div class="col-md-12" style=@("margin: 0 10px 10px 10px" + (isDiag ? "" : ";display:none")) data-bind="visible:canTag">
+    @Html.DropDownList("addDance", ViewBag.DanceList as IEnumerable<SelectListItem>, new {@class = "chosen-select", data_placeholder = "Add a dance style..."})
 </div>
+
+<h3 id="dance-error" style="display: none" class="field-validation-error">Please choose at least one Dance Style that you would dance to this song.</h3>
 
 <div class="col-md-6">
     <div class="panel panel-default">

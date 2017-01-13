@@ -73,7 +73,7 @@
 
         var id = idControl.val();
         if (!id) {
-            self.viewModel.error("Please enter and music service ID or URL");
+            self.viewModel.error('Please enter a music service ID or URL');
             return;
         }
         id = id.trim();
@@ -90,41 +90,42 @@
                     return true;
                 });
                 if (service === '0') {
-                    this.viewModel.error("Didn't recognize this as a valid id for any supported service.");
+                    this.viewModel.error('We did not recognize this as a valid id for any supported service.');
                     return;
                 }
             } else {
                 // Otherwise we'll do a quick validity check
                 if (!self.matchId(id, self.getService(service).idm)) {
-                    this.viewModel.error("Id/Url format doesn't match selected service");
+                    this.viewModel.error('The Id or Url format doesn\'t match the selected service');
                     return;
                 }
             }
         } else {
             // There was both an inferred and an explicit service, error out if the don't match
             if (service !== '0' && service !== inferred) {
-                this.viewModel.error("Id/Url format doesn't match selected service");
+                this.viewModel.error('The Id or Url format doesn\'t match the selected service');
                 return;
             }
             service = inferred;
+
             // Since we have an inferred service, we'll assume it's a full url
             var t = self.parseId(id, self.getService(service).rgx);
             if (!t) {
-                // But if it isn't we'll grab the tail and assume it's the id
-                var m = id.match(/[a-z0-9]$/i);
-                if (m) {
+                // But if it isn't we'll grab the tail and check that
+                var m = id.match(/[a-z0-9]*$/i);
+                if (m && self.matchId(m[0], self.getService(service).idm)) {
                     t = m[0];
                 }
             }
             id = t;
             if (id === null) {
-                this.viewModel.error("Invalid Id/Url format");
+                this.viewModel.error('Invalid Id/Url format');
                 return;
             }
         }
 
         if (!id || service === '0') {
-            self.viewModel.error("Couldn't parse id");
+            self.viewModel.error('Couldn\'t parse id');
             return;
         }
 
@@ -144,8 +145,8 @@
                     $('#edit').submit();
                 }
             },
-            fail:function (jqXhr, textStatus /*,err*/) {
-                self.viewModel.error("Sorry, we couldn't find that song");
+            error: function (/*jqXhr, textStatus ,err*/) {
+                self.viewModel.error('Sorry, we couldn\'t find that song');
             },
             url: '/api/servicetrack/' + service + id
         });

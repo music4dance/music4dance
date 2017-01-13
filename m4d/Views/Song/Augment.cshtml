@@ -35,7 +35,7 @@
     <a class="label label-music" data-bind="attr: {href: '/song/create?title=' + Name + '&artist=' + Artist + '&length=' + Duration + '&tempo=' + $root.tempo()+ '&album=' + Album + '&track=' + TrackNumber + '&service=S&purchase=' + TrackId}">Create</a>
     <em data-bind="text:Name"></em> by <strong data-bind="text:Artist"></strong> on <span data-bind="text:Album"></span> (<span data-bind="text:TrackNumber"></span>)
 </div>
-<div data-bind="text: error"></div>
+<div data-bind="text: error" class="field-validation-error big-text"></div>
 
 @using (Html.BeginForm("Create", "Song", null, FormMethod.Get, new {id="create"}))
 {

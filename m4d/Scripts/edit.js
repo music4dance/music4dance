@@ -671,6 +671,10 @@ var editor = function () {
             });
     };
 
+    var hasDanceRatings = function() {
+        return viewModel.song.DanceRatings().length > 0;
+    }
+
     var updateUserTags = function() {
         var t = JSON.stringify(viewModel.getRatings());
         $('#userTags').val(t);
@@ -705,6 +709,8 @@ var editor = function () {
             },
             viewModel.song));
         }
+
+        $('#dance-error').hide();
     };
 
 
@@ -740,6 +746,7 @@ var editor = function () {
     return {
         init: init,
         getServiceInfo: getServiceInfo,
+        hasDanceRatings: hasDanceRatings,
         showTagModal: showTagModal,
         replaceValue: replaceValue,
         danceAction: danceAction,
@@ -808,8 +815,17 @@ $(document).ready(function () {
         }
     });
 
-    $('#save').click(function () {
+
+    //$('#save').click(function () {
+    //    editor.updateUserTags();
+    //});
+
+    $('#song').submit(function(event) {
         editor.updateUserTags();
+        if (!editor.hasDanceRatings()) {
+            $('#dance-error').show();
+            event.preventDefault();
+        }
     });
 
     $('#userUndo').click(function () { return editor.confirmUserUndo(); });

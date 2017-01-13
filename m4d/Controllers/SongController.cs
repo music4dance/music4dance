@@ -556,14 +556,13 @@ namespace m4d.Controllers
             return View(sd);
         }
 
-        // TODONEXT: Enforce creating at least one dance style
+        // TODONEXT: 
         //  Add double/half time controls (or possibly edit of tempo)?
         //  Clean up the actual "add" page
         //      Give some reasonable feedback between search and start of load
         //      Make the errors red and review them
         //      Put some instructions on the page
         //      Can we persist the service?
-        //  Verify that edit works (and also is cleaned up in the same way as create)
         //  Verify that batch mode still works
 
         //

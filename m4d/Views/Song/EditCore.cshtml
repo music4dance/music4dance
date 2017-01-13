@@ -14,7 +14,7 @@
     <h1>@ViewBag.Title</h1>
 }
 
-@using (Html.BeginForm((string)ViewBag.Action, "Song", null, FormMethod.Post, new { @class="form-horizontal"}))
+@using (Html.BeginForm((string)ViewBag.Action, "Song", null, FormMethod.Post, new { id="song", @class="form-horizontal"}))
 {
     @Html.AntiForgeryToken()
     @Html.ValidationSummary(true)
@@ -186,6 +186,8 @@
                 }
                 <td>
                     <div class="editor-field">
+                        <input data-bind="attr:{id: helpers.computeAlbumId($index(),'PurchaseInfo'), name: helpers.computeAlbumName($index(),'PurchaseInfo')}, value:PurchaseInfo" type="hidden" />
+                        <input data-bind="attr: {id: helpers.computeAlbumId($index(),'Index'), name: helpers.computeAlbumName($index(),'Index')}, value:Index" type="hidden" />
                         <input @(isDiag ? "" : "readonly") data-bind="attr: {id: helpers.computeAlbumId($index(),'Name'), name: helpers.computeAlbumName($index(),'Name')}, value: Name" type="text"/>
                     </div>
                 </td>
@@ -203,8 +205,6 @@
                 {
                     <td>
                         <button type="button" data-bind="attr: {id: 'Delete_' + $index()}, click: $root.song.removeAlbum">X</button>
-                        <input data-bind="attr:{id: helpers.computeAlbumId($index(),'PurchaseInfo'), name: helpers.computeAlbumName($index(),'PurchaseInfo')}, value:PurchaseInfo" type="hidden" />
-                        <input data-bind="attr: {id: helpers.computeAlbumId($index(),'Index'), name: helpers.computeAlbumName($index(),'Index')}, value:Index" type="hidden" />
                     </td>
                 }
                 <td>

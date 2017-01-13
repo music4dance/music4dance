@@ -22,7 +22,7 @@
 
         public override string NormalizeId(string id)
         {
-            if (id.IndexOf(':') != -1)
+            if (id.IndexOf(':') == -1)
             {
                 id = "D:" + id;
             }
