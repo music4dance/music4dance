@@ -91,7 +91,7 @@ var editor = function () {
 
     // Swap the text of the clicked link with the parent field's value
     var replaceValue = function (self) {
-        var id = self.context.parentElement.id;
+        var id = self[0].parentNode.id;
         var field = $('#' + altToField(id));
         var text = self.text();
         self.text(field.val());
