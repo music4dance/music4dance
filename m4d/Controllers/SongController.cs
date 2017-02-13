@@ -1083,6 +1083,7 @@ namespace m4d.Controllers
         [Authorize(Roles = "canEdit")]
         public ActionResult BatchClearUpdate(SongFilter filter = null, int count = 100)
         {
+            if (count == -1) count = int.MaxValue;
             try
             {
                 StartAdminTask("BatchClearUpdate");
@@ -1097,9 +1098,10 @@ namespace m4d.Controllers
                 Task.Run(() =>
                 {
                     var dms = DanceMusicService.GetService();
-                    while (true)
+                    var c = 0;
+                    while (c < count)
                     {
-                        var prms = Database.AzureParmsFromFilter(filter, 500);
+                        var prms = dms.AzureParmsFromFilter(filter, 500);
                         prms.IncludeTotalResultCount = false;
                         prms.Filter = ((prms.Filter == null) ? "" : prms.Filter + " and ") + "Purchase/any(t: t eq '---')";
                         AdminMonitor.UpdateTask("BuildSongList", ((filter.Page ?? 1) - 1) * 500);
@@ -1109,9 +1111,10 @@ namespace m4d.Controllers
                         dms.SaveSongsImmediate(res.Songs);
 
                         filter.Page = filter.Page + 1;
+                        c += res.Songs.Count();
                     }
 
-                    AdminMonitor.CompleteTask(true, "BatchClearUpdate: Completed");
+                    AdminMonitor.CompleteTask(true, $"BatchClearUpdate: Completed ({c})");
                 });
                 return RedirectToAction("AdminStatus", "Admin", AdminMonitor.Status);
             }
@@ -1124,7 +1127,7 @@ namespace m4d.Controllers
 
         // CleanMusicServices: /Song/CleanMusicServices
         [Authorize(Roles = "canEdit")]
-        public ActionResult CleanMusicServices(Guid id, SongFilter filter = null)
+        public ActionResult CleanMusicServices(Guid id, string type = "ABS", SongFilter filter = null)
         {
             var song = Database.FindSong(id);
             if (song == null)
@@ -1132,7 +1135,7 @@ namespace m4d.Controllers
                 return ReturnError(HttpStatusCode.NotFound, $"The song with id = {id} has been deleted.");
             }
 
-            var newSong = CleanMusicServiceSong(song);
+            var newSong = CleanMusicServiceSong(song,Database,type);
             if (newSong != null)
             {
                 Database.SaveSong(newSong);
@@ -1143,10 +1146,11 @@ namespace m4d.Controllers
             return View("Details", newSong??song);
         }
 
+        // A= Album
         // B= Broken
         // S= Spotify Region
         [Authorize(Roles = "canEdit")]
-        public ActionResult BatchCleanService(SongFilter filter = null, string type="BS",int count = 100)
+        public ActionResult BatchCleanService(SongFilter filter = null, string type="ABS",int count = 100)
         {
             try
             {
@@ -1187,7 +1191,7 @@ namespace m4d.Controllers
 
                                 processed += 1;
                                 tried += 1;
-                                var songT = CleanMusicServiceSong(song,type);
+                                var songT = CleanMusicServiceSong(song,dms,type);
                                 if (songT != null)
                                 {
                                     changed.Add(songT.SongId);
@@ -1834,19 +1838,20 @@ namespace m4d.Controllers
             return found;
         }
 
-        private Song CleanMusicServiceSong(Song song, string type="BS", string region = "US")
+        private Song CleanMusicServiceSong(Song song, DanceMusicService dms, string type="ABS", string region = "US")
         {
             var props = new List<SongProperty>(song.SongProperties);
 
             var changed = false;
             if (type.IndexOf('B') != -1) { changed |= CleanBrokenServices(props);}
             if (type.IndexOf('S') != -1) { changed |= CleanSpotify(props, region);}
+            if (type.IndexOf('A') != -1){changed |= CleanOrphanedAlbums(props);}
 
             Song newSong = null;
 
             if (changed)
             {
-                newSong = new Song(song.SongId,props,Database.DanceStats);
+                newSong = new Song(song.SongId,props,dms.DanceStats);
             }
 
             return newSong;
@@ -1951,6 +1956,32 @@ namespace m4d.Controllers
                 if (track != null) continue;
 
                 del.Add(prop);
+            }
+
+            if (del.Count == 0) return false;
+
+            Trace.WriteLineIf(TraceLevels.General.TraceInfo, $"Removed: {del.Count}");
+
+            foreach (var prop in del)
+            {
+                props.Remove(prop);
+            }
+
+            return true;
+        }
+
+        private static bool CleanOrphanedAlbums(ICollection<SongProperty> props)
+        {
+            var del = new List<SongProperty>();
+            // Check every purchase link and make sure it's still valid
+            // ReSharper disable once LoopCanBeConvertedToQuery
+            foreach (var prop in props.Where(p => p.Name.StartsWith("Purchase") && p.Name.EndsWith("A")))
+            {
+                var s = prop.Name.Substring(0, prop.Name.Length - 1) + 'S';
+                if (props.All(p => p.Name != s))
+                {
+                    del.Add(prop);
+                }
             }
 
             if (del.Count == 0) return false;

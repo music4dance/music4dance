@@ -76,7 +76,7 @@ namespace m4dModels
             float max = sc.MaxWeight;
             var ret = (int)(Math.Ceiling(weight * scale / max));
 
-            if (TraceLevels.General.TraceInfo && (weight > max || ret < 0))
+            if (TraceLevels.General.TraceVerbose && (weight > max || ret < 0))
             {
                 Trace.WriteLine($"{danceId}: {weight} ? {max}");
             }

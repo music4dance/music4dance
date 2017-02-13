@@ -4,7 +4,6 @@ using System.Data.Entity;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
-using System.Net.NetworkInformation;
 using System.Text;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.EntityFramework;
@@ -1728,7 +1727,7 @@ namespace m4dModels
             UploadIndex(lines, false, to);
         }
 
-        public int UploadIndex(IList<string> lines, bool trackDeteled, string id = "default")
+        public int UploadIndex(IList<string> lines, bool trackDeleted, string id = "default")
         {
             const int chunkSize = 500;
             var info = SearchServiceInfo.GetInfo(id);
@@ -1749,7 +1748,7 @@ namespace m4dModels
                     {
                         var song = new Song(lines[i], stats);
                         chunk.Add(song);
-                        if (trackDeteled)
+                        if (trackDeleted)
                         {
                             delete.AddRange(song.GetAltids());
                         }
@@ -1759,9 +1758,18 @@ namespace m4dModels
 
                     if (songs.Count <= 0) continue;
 
-                    var batch = IndexBatch.MergeOrUpload(songs);
-                    var results = indexClient.Documents.Index(batch);
-                    added += results.Results.Count;
+                    try
+                    {
+                        var batch = IndexBatch.MergeOrUpload(songs);
+                        var results = indexClient.Documents.Index(batch);
+                        added += results.Results.Count;
+                    }
+                    catch (IndexBatchException ex)
+                    {
+                        Trace.WriteLine($"IndexBatchException: ex.Message");
+                        added += ex.IndexingResults.Count;
+                    }
+                    Trace.WriteLine($"Upload Index: {added} songs added.");
                 }
 
                 if (delete.Count <= 0) return added;
