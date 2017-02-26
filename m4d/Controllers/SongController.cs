@@ -927,6 +927,7 @@ namespace m4d.Controllers
 
                 var retry = false;
                 var spotRetry = false;
+                var crossRetry = false;
                 var cruftFilter = DanceMusicService.CruftFilter.AllCruft;
 
                 // May do more options in future
@@ -945,79 +946,100 @@ namespace m4d.Controllers
                         case 'S':
                             spotRetry = true;
                             break;
+                        case 'X':
+                            crossRetry = true;
+                            break;
                     }
                 }
 
                 var page = 0;
                 var done = false;
+                if (count < 0)
+                {
+                    count = int.MaxValue;
+                }
 
-                var parameters = DanceMusicService.AddCruftInfo(Database.AzureParmsFromFilter(filter),cruftFilter);
+                var parameters = DanceMusicService.AddCruftInfo(Database.AzureParmsFromFilter(filter), cruftFilter);
                 parameters.Top = null;
                 if (spotRetry)
                 {
-                    parameters.Filter = ((parameters.Filter == null) ? "" : parameters.Filter + " and ") + "(Purchase/all(t: t ne 'Groove') and Purchase/all(t: t ne 'Amazon') or Purchase/all(t: t ne 'ITunes'))";
+                    parameters.Filter = ((parameters.Filter == null) ? "" : parameters.Filter + " and ") +
+                                        "(Purchase/all(t: t ne 'Groove') and Purchase/all(t: t ne 'Amazon') and Purchase/all(t: t ne 'ITunes'))";
                 }
                 else if (!retry)
                 {
-                    parameters.Filter = ((parameters.Filter == null) ? "" : parameters.Filter + " and ") + "(LookupStatus ne true)";
+                    parameters.Filter = ((parameters.Filter == null) ? "" : parameters.Filter + " and ") +
+                                        "(LookupStatus ne true)";
                 }
-
-                while (!done)
+                if (crossRetry)
                 {
-                    AdminMonitor.UpdateTask("BuildSongList", page);
-                    var songs = Database.TakeTail(parameters, Math.Min(count,pageSize));
-                    var succeeded = new List<Song>();
-                    var failed = new List<Song>();
-
-                    var processed = 0;
-                    foreach (var song in songs)
-                    {
-                        AdminMonitor.UpdateTask($"Processing ({succeeded.Count})", processed);
-                        var edit = new Song(song,Database.DanceStats);
-
-                        processed += 1;
-
-                        var changed = service == null ? 
-                            UpdateSongAndServices(edit) : 
-                            UpdateSongAndService(edit, service);
-
-                        if (changed)
-                        {
-                            succeeded.Add(edit);
-                            tried += 1;
-                        }
-                        else if (service == null && song.AddLookupFail())
-                        {
-                            failed.Add(edit);
-                        }
-
-                    }
-
-                    sucIds.AddRange(succeeded.Select(s => s.SongId));
-                    failIds.AddRange(failed.Select(s => s.SongId));
-
-                    Database.UpdateAzureIndex(succeeded.Concat(failed));
-
-                    if (tried > count)
-                        break;
-
-                    Trace.WriteLineIf(TraceLevels.General.TraceInfo, $"{tried} songs tried.");
-
-                    page += 1;
-                    if (processed < pageSize || retry)
-                    {
-                        done = true;
-                    }
+                    parameters.Filter = ((parameters.Filter == null) ? "" : parameters.Filter + " and ") +
+                                        "Purchase/all(t: t ne '---')";
                 }
 
-                ViewBag.Completed = failIds.Count + sucIds.Count < count;
-                ViewBag.Failed = failIds;
-                ViewBag.Succeeded = sucIds;
-                ViewBag.Skipped = 0;
+                Task.Run(() =>
+                {
+                    try
+                    {
+                        var dms = DanceMusicService.GetService();
+                        while (!done && sucIds.Count + failIds.Count < count)
+                        {
+                            AdminMonitor.UpdateTask("BuildSongList", page);
+                            var songs = dms.TakeTail(parameters, Math.Min(count, pageSize));
+                            var succeeded = new List<Song>();
+                            var failed = new List<Song>();
 
-                AdminMonitor.CompleteTask(true, $"BatchMusicService: Completed={tried <= count}, Succeeded={sucIds.Count} - ({string.Join(",", sucIds)}), Failed={failIds.Count} - ({string.Join(",", failIds)}), Skipped={0}");
+                            var processed = 0;
+                            foreach (var song in songs)
+                            {
+                                AdminMonitor.UpdateTask($"Processing ({succeeded.Count})", processed);
+                                var edit = new Song(song, dms.DanceStats);
 
-                return View();
+                                processed += 1;
+
+                                var changed = service == null
+                                    ? UpdateSongAndServices(edit,null,crossRetry,dms)
+                                    : UpdateSongAndService(edit, service,null,dms);
+
+                                if (changed)
+                                {
+                                    edit.BatchProcessed = true;
+                                    succeeded.Add(edit);
+                                    tried += 1;
+                                }
+                                else if (service == null)
+                                {
+                                    song.AddLookupFail();
+                                    song.BatchProcessed = true;
+                                    failed.Add(song);
+                                }
+                            }
+
+                            sucIds.AddRange(succeeded.Select(s => s.SongId));
+                            failIds.AddRange(failed.Select(s => s.SongId));
+
+                            dms.UpdateAzureIndex(succeeded.Concat(failed));
+
+                            if (tried > count)
+                                break;
+
+                            Trace.WriteLineIf(TraceLevels.General.TraceInfo, $"{tried} songs tried.");
+
+                            page += 1;
+                            if (processed < pageSize)
+                            {
+                                done = true;
+                            }
+                        }
+                        AdminMonitor.CompleteTask(true, $"BatchMusicService: Completed={tried <= count}, Succeeded={sucIds.Count} - ({string.Join(",", sucIds)}), Failed={failIds.Count} - ({string.Join(",", failIds)}), Skipped={0}");
+                    }
+                    catch (Exception e)
+                    {
+                        AdminMonitor.CompleteTask(false, $"BatchMusicService: Failed={e.Message}");
+                    }
+                });
+
+                return RedirectToAction("AdminStatus", "Admin", AdminMonitor.Status);
             }
             catch (Exception e)
             {
@@ -1081,8 +1103,10 @@ namespace m4d.Controllers
         }
 
         [Authorize(Roles = "canEdit")]
-        public ActionResult BatchClearUpdate(SongFilter filter = null, int count = 100)
+        public ActionResult BatchClearUpdate(SongFilter filter = null, string type = "U", int count = 100)
         {
+            // Type = (U)pdate
+            //        (L)ookupStatus
             if (count == -1) count = int.MaxValue;
             try
             {
@@ -1103,11 +1127,26 @@ namespace m4d.Controllers
                     {
                         var prms = dms.AzureParmsFromFilter(filter, 500);
                         prms.IncludeTotalResultCount = false;
-                        prms.Filter = ((prms.Filter == null) ? "" : prms.Filter + " and ") + "Purchase/any(t: t eq '---')";
+                        prms.Filter = ((prms.Filter == null) ? "(" :
+                            prms.Filter + " and (");
+
+                        if (type.Contains('U'))
+                        {
+                            prms.Filter += "Purchase/any(t: t eq '---')";
+                        }
+                        if (type.Contains('L'))
+                        {
+                            if (type.Contains('U'))
+                            {
+                                prms.Filter += " or ";
+                            }
+                            prms.Filter += "LookupStatus eq true";
+                        }
+                        prms.Filter += ")";
+
                         AdminMonitor.UpdateTask("BuildSongList", ((filter.Page ?? 1) - 1) * 500);
                         var res = dms.AzureSearch(filter.SearchString, prms, DanceMusicService.CruftFilter.AllCruft);
                         if (!res.Songs.Any()) break;
-
                         dms.SaveSongsImmediate(res.Songs);
 
                         filter.Page = filter.Page + 1;
@@ -1755,30 +1794,35 @@ namespace m4d.Controllers
             }
         }
 
-        private bool UpdateSongAndServices(Song sd, string user = null)
+        private bool UpdateSongAndServices(Song sd, string user = null, bool crossRetry = false, DanceMusicService dms = null)
         {
             var changed = false;
             // ReSharper disable once LoopCanBeConvertedToQuery
             foreach (var service in MusicService.GetSearchableServices())
             {
-                changed |= UpdateSongAndService(sd, service, user);
+                if (crossRetry && sd.Purchase != null && sd.Purchase.Contains(service.CID))
+                {
+                    break;
+                }
+                changed |= UpdateSongAndService(sd, service, user, dms);
             }
             return changed;
         }
 
-        private bool UpdateSongAndService(Song sd, MusicService service, string user = null)
+        private bool UpdateSongAndService(Song sd, MusicService service, string user = null, DanceMusicService dms = null)
         {
+            if (dms == null) {dms = Database;}
             var found = MatchSongAndService(sd, service);
             if (found.Count <= 0) return false;
 
-            var edit = new Song(sd,Database.DanceStats);
+            var edit = new Song(sd,dms.DanceStats);
 
             var tags = new TagList();
             foreach (var foundTrack in found)
             {
                 var trackId = PurchaseRegion.FormatIdAndRegionInfo(foundTrack.TrackId, foundTrack.AvailableMarkets);
                 UpdateMusicService(edit, MusicService.GetService(foundTrack.Service), foundTrack.Name, foundTrack.Album, foundTrack.Artist, trackId, foundTrack.CollectionId, foundTrack.AltId, foundTrack.Duration.ToString(), foundTrack.TrackNumber);
-                tags = tags.Add(new TagList(Database.NormalizeTags(foundTrack.Genre, "Music",true)));
+                tags = tags.Add(new TagList(dms.NormalizeTags(foundTrack.Genre, "Music",true)));
             }
 
             if (user != null)
@@ -1790,7 +1834,7 @@ namespace m4d.Controllers
                 user = $"batch-{service.CID.ToString().ToLower()}";
             }
 
-            return Database.EditSong(user, sd, edit, new[] { new UserTag { Id = string.Empty, Tags = tags } });
+            return dms.EditSong(user, sd, edit, new[] { new UserTag { Id = string.Empty, Tags = tags } });
         }
         private IList<ServiceTrack> MatchSongAndService(Song sd, MusicService service)
         {
