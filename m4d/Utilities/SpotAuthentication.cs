@@ -9,23 +9,12 @@ using System.Web;
 
 namespace m4d.Utilities
 {
-    [DataContract]
-    [SuppressMessage("ReSharper", "InconsistentNaming")]
-    public class SpotAccessToken : AccessToken
-    {
-        [DataMember]
-        public int expires_in { get; set; }
-
-        public override TimeSpan ExpiresIn => TimeSpan.FromSeconds(expires_in - 60);
-    }
-
     public class SpotAuthentication : AdmAuthentication
     {
         protected override string Client => "spot";
 
         protected override string RequestFormat => "grant_type=client_credentials&client_id={0}&client_secret={1}";
         protected override string RequestUrl => "https://accounts.spotify.com/api/token";
-        protected override Type AccessTokenType => typeof(SpotAccessToken);
     }
 
     public class SpotUserAuthentication : SpotAuthentication
@@ -37,7 +26,7 @@ namespace m4d.Utilities
             if (claimsPrincipal == null)
                 return null;
 
-            var token = new SpotAccessToken();
+            var token = new AccessToken();
             string refreshToken = null;
             var start = DateTime.Now;
             foreach (var claim in claimsPrincipal.Claims)

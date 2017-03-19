@@ -16,13 +16,16 @@ namespace m4d.Utilities
 {
     [DataContract]
     [SuppressMessage("ReSharper", "InconsistentNaming")]
-    public abstract class AccessToken
+    public class AccessToken
     {
         [DataMember]
         public string access_token { get; set; }
         [DataMember]
         public string token_type { get; set; }
-        public abstract TimeSpan ExpiresIn { get; }
+        [DataMember]
+        public int expires_in { get; set; }
+
+        public virtual TimeSpan ExpiresIn => TimeSpan.FromSeconds(expires_in - 60);
     }
 
     public abstract class CoreAuthentication
@@ -50,7 +53,6 @@ namespace m4d.Utilities
         protected abstract string RequestFormat { get; }
         protected virtual string RequestExtra => string.Empty;
         protected abstract string RequestUrl { get; }
-        protected abstract Type AccessTokenType { get; }
 
         protected Timer AccessTokenRenewer { get; set; }
 
@@ -89,7 +91,7 @@ namespace m4d.Utilities
             var webRequest = WebRequest.Create(RequestUrl);
             webRequest.ContentType = "application/x-www-form-urlencoded";
             webRequest.Method = "POST";
-            var request = _request ?? (_request = string.Format(RequestFormat, HttpUtility.UrlEncode(ClientId), HttpUtility.UrlEncode(ClientSecret))) + RequestExtra;
+            var request = _request ?? (_request = string.Format(RequestFormat, Uri.EscapeDataString(ClientId), Uri.EscapeDataString(ClientSecret))) + RequestExtra;
             var bytes = Encoding.ASCII.GetBytes(request);
             webRequest.ContentLength = bytes.Length;
             using (var outputStream = webRequest.GetRequestStream())
@@ -100,7 +102,7 @@ namespace m4d.Utilities
             {
                 using (var webResponse = webRequest.GetResponse())
                 {
-                    var serializer = new DataContractJsonSerializer(AccessTokenType);
+                    var serializer = new DataContractJsonSerializer(typeof (AccessToken));
                     //Get deserialized object from JSON stream
                     return (AccessToken)serializer.ReadObject(webResponse.GetResponseStream());
                 }
