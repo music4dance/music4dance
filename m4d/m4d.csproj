@@ -1136,7 +1136,6 @@
     <Content Include="Views\Song\DetailsCore.cshtml" />
     <Content Include="Views\Song\Edit.cshtml" />
     <Content Include="Views\Song\EditCore.cshtml" />
-    <Content Include="Views\Song\Index.cshtml" />
     <Content Include="Views\Song\Merge.cshtml" />
     <Content Include="Views\Song\SongItems.cshtml" />
     <Content Include="Views\Song\MusicServiceSearch.cshtml" />
@@ -1162,7 +1161,6 @@
     <Content Include="Views\Shared\DisplayTemplates\SongDuration.cshtml" />
     <Content Include="Views\Shared\EditorTemplates\SongDuration.cshtml" />
     <Content Include="Views\Shared\_PurchaseLinks.cshtml" />
-    <Content Include="Views\Home\Index.cshtml" />
     <Content Include="Views\Account\ConfirmEmail.cshtml" />
     <Content Include="Views\Account\ForgotPassword.cshtml" />
     <Content Include="Views\Account\ForgotPasswordConfirmation.cshtml" />
