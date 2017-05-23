@@ -304,7 +304,7 @@ namespace m4d.Utilities
             {
                 SearchIndex = "DigitalMusic",
                 Title = title,
-                Keywords = artist,
+                Keywords = string.IsNullOrEmpty(artist) ? title : artist,
                 RelationshipType = new[] {"Tracks"},
                 ResponseGroup = new[] {"ItemAttributes", "RelatedItems"}
             };

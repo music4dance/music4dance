@@ -57,7 +57,7 @@ else
 
 @SongHelper.Footer(Html, Url, Model, filter)
 
-@if (User.IsInRole("showDiagnostics"))
+@if (User.IsInRole("showDiagnostics") && ViewData.ContainsKey("RawSearch"))
 {
     <div class="row">
         <div class="col-md-12">
