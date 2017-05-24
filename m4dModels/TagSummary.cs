@@ -154,14 +154,14 @@ namespace m4dModels
 
             tags.AddRange(rg.Select(s => new TagCount(s)));
 
-            tags.Sort((sc1,sc2)=>String.Compare(sc1.Value, sc2.Value, StringComparison.Ordinal));
+            tags.Sort((sc1,sc2)=>string.Compare(sc1.Value, sc2.Value, StringComparison.Ordinal));
             return tags;
         }
 
         private static string Serialize(IEnumerable<TagCount> tags)
         {
             var list = tags as List<TagCount> ?? tags.ToList();
-            list.Sort((sc1, sc2) => String.Compare(sc1.Value, sc2.Value, StringComparison.Ordinal));
+            list.Sort((sc1, sc2) => string.Compare(sc1.Value, sc2.Value, StringComparison.Ordinal));
             return string.Join("|", list);
         }
         #endregion

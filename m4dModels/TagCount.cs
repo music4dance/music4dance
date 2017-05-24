@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Linq;
 using System.Runtime.Serialization;
 
@@ -29,10 +30,10 @@ namespace m4dModels
 
         public TagCount(string serialized)
         {
-            if (!Parse(serialized))
-            {
-                throw new ArgumentOutOfRangeException();
-            }
+            if (Parse(serialized)) return;
+
+            Trace.WriteLine($"Invalid TagCount: {serialized}");
+            throw new ArgumentOutOfRangeException();
         }
         #endregion
 

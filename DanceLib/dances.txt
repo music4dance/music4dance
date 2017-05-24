@@ -1,6 +1,7 @@
 [
   {
     "Name": "Slow Waltz",
+    "BlogTag" : "waltz",
     "Id" : "SWZ",
     "Meter": {
       "Numerator": 3,
@@ -50,6 +51,7 @@
   },
   {
     "Name": "Cross-step Waltz",
+    "BlogTag" : "waltz",
     "Id": "CSW",
     "Meter": {
       "Numerator": 3,
@@ -143,6 +145,7 @@
   },
   {
     "Name": "Tango (Ballroom)",
+    "BlogTag" : "tango",
     "Id": "TGO",
     "Meter": {
       "Numerator": 4,
@@ -213,6 +216,7 @@
   },
   {
     "Name": "Viennese Waltz",
+    "BlogTag" : "waltz",
     "Id": "VWZ",
     "Meter": {
       "Numerator": 3,
@@ -407,6 +411,7 @@
   },
   {
     "Name": "Jive",
+    "BlogTag" : "jive",
     "Id": "JIV",
     "Meter": {
       "Numerator": 4,
@@ -570,6 +575,7 @@
   },
   {
     "Name": "Hustle",
+    "BlogTag" : "hustle",
     "Id": "HST",
     "Meter": {
       "Numerator": 4,
@@ -754,6 +760,7 @@
   },
   {
     "Name": "Bachata",
+    "BlogTag" : "bachata",
     "Id": "BCH",
     "Meter": {
       "Numerator": 4,
@@ -864,6 +871,7 @@
   },
   {
     "Name": "Carolina Shag",
+    "BlogTag" : "carolina-shag",
     "Id": "CSG",
     "Meter": {
       "Numerator": 4,
@@ -882,6 +890,7 @@
   },
   {
     "Name": "Collegiate Shag",
+    "BlogTag" : "collegiate-shag",
     "Id": "CLS",
     "Meter": {
       "Numerator": 4,
@@ -900,6 +909,7 @@
   },
   {
     "Name": "Argentine Tango",
+    "BlogTag" : "tango",
     "Id": "ATN",
     "Meter": {
       "Numerator": 4,
@@ -918,6 +928,7 @@
   },
   {
     "Name": "Neo Tango",
+    "BlogTag" : "tango",
     "Id": "NTN",
     "Meter": {
       "Numerator": 4,
@@ -1044,6 +1055,7 @@
   },
   {
     "Name": "Jazz",
+    "BlogTag" : "jazz",
     "Id": "JAZ",
     "Meter": {
       "Numerator": 1,

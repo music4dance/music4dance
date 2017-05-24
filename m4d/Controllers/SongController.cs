@@ -798,7 +798,7 @@ namespace m4d.Controllers
 
             ViewBag.ShowLength = true;
 
-            return View("Index", songs.ToPagedList(filter.Page ?? 1, 25));
+            return View("AzureSearch", songs.ToPagedList(filter.Page ?? 1, 25));
         }
 
         //
@@ -850,7 +850,7 @@ namespace m4d.Controllers
                 case "CleanupAlbums":
                     return CleanupAlbums(songs);
                 default:
-                    return View("Index");
+                    return View("AzureSearch");
             }
         }
 
