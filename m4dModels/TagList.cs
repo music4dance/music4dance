@@ -211,7 +211,7 @@ namespace m4dModels
 
         static private string Serialize(IEnumerable<string> tags)
         {
-            return string.Join("|", tags);
+            return string.Join("|", tags.Select(t => t.Trim()));
         }
 
         static private string TrimQualifier(string tag)

@@ -5,6 +5,7 @@
 @{
     ViewBag.Title = "Index";
     var activeUsers = string.Join(",",AccountController.ActiveUsers);
+    var registeredUsers = Model.Users.Count(u => !(u.Email.EndsWith("@music4dance.net") || u.Email.EndsWith("@spotify")));
 }
 
 <h2>User Administrator</h2>
@@ -16,9 +17,9 @@
 *@
 
 <hr/>
-<h3>Actions</h3>
 
 <p><strong>Active Users:</strong> @activeUsers</p>
+<p><strong>Registered Users:</strong> @registeredUsers</p>
 <p>@Html.ActionLink("New Pseudo User", "Create", null, new { @class = "btn btn-default", role = "button" })</p>
 
 <hr />
@@ -66,26 +67,12 @@
         <th>
             Logins
         </th>
-        <th>
-            EMC
-        </th>
-        <th>
-            Lock-End
-        </th>
-        <th>
-            AFC
-        </th>
-        <th>
-            RCD
-        </th>
-        <th>
-            Columns
-        </th>
         <th></th>
     </tr>
 
 @foreach (var item in Model.Users.OrderByDescending(u => u.LastActive > u.StartDate ? u.LastActive : u.StartDate).ToList())
 {
+    var pseudoClass = item.Email.EndsWith("@music4dance.net") || item.Email.EndsWith("@spotify") ? "pseudo-user" : "";
     <tr>
         @*
         <td>
@@ -108,7 +95,7 @@
             @Html.DisplayFor(modelItem => item.LockoutEnabled)
         </td>
         <td>
-            @Html.ActionLink(item.UserName, "Details", new { id = item.Id })
+            @Html.ActionLink(item.UserName, "Details", new {id = item.Id}, new {@class=pseudoClass})
             @if (AccountController.IsUserActive(item.UserName))
             {
                 @: *
@@ -135,31 +122,16 @@
             @Html.DisplayFor(modelItem => item.CanContact)
         </td>
         <td>
-            @string.Join(",",Model.GetRoles(item.Id))
+            @Html.Raw(string.Join("<br/>",Model.GetRoles(item.Id)))
         </td>
         <td>
-            @string.Join(",",Model.GetLogins(item.Id).Select(l => l.LoginProvider))
+            @Html.Raw(string.Join("<br/>", Model.GetLogins(item.Id).Select(l => l.LoginProvider)))
         </td>
         <td>
-            @Html.DisplayFor(modelItem => item.EmailConfirmed)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.LockoutEndDateUtc)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.AccessFailedCount)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.RowCountDefault)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.ColumnDefaults)
-        </td>
-        <td>
-            @Html.ActionLink("Change Roles", "ChangeRoles", new { id = item.Id }),
             @Html.ActionLink("List Songs", "FilterUser", "Song", new { user = item.UserName }, null),
-            @Html.ActionLink("List Searches", "Index", "Searches", new { user = item.UserName, showDetails=true, sort="recent" }, null),
-            @Html.ActionLink("Delete", "Delete", new { id = item.Id })
+            @Html.ActionLink("List Searches", "Index", "Searches", new { user = item.UserName, showDetails = true, sort = "recent" }, null) <br/>
+            @Html.ActionLink("Change Roles", "ChangeRoles", new { id = item.Id }) <br/>
+            @Html.ActionLink("Delete", "Delete", new { id = item.Id }),
             @Html.ActionLink("Edit", "Edit", new { id = item.Id })
             @*
             @Html.ActionLink("Edit", "Edit", new { id=item.Id }) |

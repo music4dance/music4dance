@@ -431,6 +431,8 @@ a.text-other:hover,
 
 .big-text { font-size: 150%}
 
+.pseudo-user {font-style: italic}
+
 .cloud-0 {font-size: 100%}
 .cloud-1 {font-size: 120%}
 .cloud-2 {font-size: 140%}

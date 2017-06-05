@@ -283,10 +283,10 @@ var tagChooser = function () {
         }, this);
 
         self.isUserTag = ko.pureComputed(function () {
-            var val = (self.tag() + ':' + self.cat()).toLowerCase();
+            var val = (self.tag() + ':' + self.cat()).trim().toLowerCase();
             var userTags = self.userTags().Tags();
             for (var i = 0; i < userTags.length; i++) {
-                if (userTags[i].toLowerCase() === val) return true;
+                if (userTags[i].trim().toLowerCase() === val) return true;
             }
             return false;
         }, this);

@@ -18,7 +18,7 @@
         self.isInclude = include;
 
         self.extraTagTypes = [{ name: 'Music', label: 'Musical Genre' }, { name: 'Style', label: 'Style' }];
-        self.changeText = function () { return (include ? 'include' : 'exclude') + 'list.'; }
+        self.changeText = function () { return (include ? 'include' : 'exclude') + ' tags.'; }
         self.action = include ? 'include' : 'exclude';
 
         ko.mapping.fromJS(data, tagMapping, this);
@@ -30,7 +30,6 @@
         self.clear = function () {
             self.CurrentUserTags.Tags.removeAll();
             self.TagSummary.Tags.removeAll();
-            console.log(self.CurrentUserTags.Summary().Summary);
         }
     };
 
@@ -102,6 +101,15 @@
 
     var init = function () {
         var filterTags = window.songFilter ? window.songFilter.Tags : null;
+        // TODO: This is a kludge to work around the fact that somewhere upstream there are spaces
+        //  being inserted into the taglist - figure out where and then we can get rid of this...
+        if (filterTags) {
+            var ftList = filterTags.split('|');
+            for (var i = 0; i < ftList.length; i++) {
+                ftList[i] = ftList[i].trim();
+            }
+            filterTags = ftList.join('|');
+        }
 
         // TOOD: Think about if there is a better factoring here - CurrentUserTags & TagSummary will always be the same in this instance
         //  As a corollary, it appears that even if the will mirror each other, making them the same object fails, so failing the above,
