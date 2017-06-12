@@ -25,7 +25,7 @@ namespace m4dModels
         {
             if (url.Contains("/album/"))
             {
-                var id = url.Substring(url.LastIndexOf('/'));
+                var id = url.Substring(url.LastIndexOf('/')+1);
 
                 return $"https://api.spotify.com/v1/albums/{id}";
             }

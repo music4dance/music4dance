@@ -1546,7 +1546,7 @@ namespace m4d.Controllers
             if (track == null)
             {
                 edit.Danceability = float.NaN;
-                return dms.EditSong(User.Identity.Name, song, edit);
+                return dms.EditSong(user, song, edit);
             }
 
             if (track.BeatsPerMinute != null)
