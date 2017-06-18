@@ -115,6 +115,13 @@ namespace m4d
             }
             return manager;
         }
+        public static bool IsPseudoUser(string email)
+        {
+            return email.EndsWith("@music4dance.net", StringComparison.OrdinalIgnoreCase) ||
+                email.EndsWith("@spotify.com", StringComparison.OrdinalIgnoreCase) ||
+                email.EndsWith("@theGray.com", StringComparison.OrdinalIgnoreCase);
+        }
+
     }
 
     // Configure the application sign-in manager which is used in this application.

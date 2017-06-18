@@ -5,7 +5,9 @@
 @{
     ViewBag.Title = "Index";
     var activeUsers = string.Join(",",AccountController.ActiveUsers);
-    var registeredUsers = Model.Users.Count(u => !(u.Email.EndsWith("@music4dance.net") || u.Email.EndsWith("@spotify")));
+    var registeredUsers = Model.Users.Count(u => !(u.Email.EndsWith("@music4dance.net") ||
+                u.Email.EndsWith("@spotify.com") ||
+                u.Email.EndsWith("@thegray.com")));
 }
 
 <h2>User Administrator</h2>
@@ -72,7 +74,7 @@
 
 @foreach (var item in Model.Users.OrderByDescending(u => u.LastActive > u.StartDate ? u.LastActive : u.StartDate).ToList())
 {
-    var pseudoClass = item.Email.EndsWith("@music4dance.net") || item.Email.EndsWith("@spotify") ? "pseudo-user" : "";
+    var pseudoClass = ApplicationUserManager.IsPseudoUser(item.Email) ? "pseudo-user" : "";
     <tr>
         @*
         <td>
