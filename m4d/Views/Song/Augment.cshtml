@@ -7,7 +7,9 @@
 }
 
 <h2>Add Song</h2>
-
+<p class="big-text">Add a song by entering an ID or URL from Amazon, Groove, ITunes or Spotify and clicking the <b>Find</b> button
+</p>
+<br />
 <form id="lookup-by-id" class="form-inline">
     <div class="form-group">
         <label for="idString">ID/URL</label>
@@ -15,13 +17,13 @@
     </div>
     <!-- Split button -->
     <div class="btn-group">
-        <button type="button" id="service-" value="0" class="btn btn-primary service-lookup">Find Anywhere</button>
+        <button type="button" id="service-" value="0" class="btn btn-primary service-lookup">Find</button>
         <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
             <span class="caret"></span>
             <span class="sr-only">Toggle Dropdown</span>
         </button>
         <ul class="dropdown-menu">
-            <li><a href='#' id="service-0" class="service-lookup">Find Anywhere</a></li>
+            <li><a href='#' id="service-0" class="service-lookup">Find</a></li>
             <li><a href='#' id="service-s" class="service-lookup">On Spotify</a></li>
             <li><a href='#' id="service-i" class="service-lookup">On ITunes</a></li>
             <li><a href='#' id="service-a" class="service-lookup">On Amazon</a></li>
@@ -50,6 +52,35 @@
     <input type="hidden" name="id" id="id" />
 }
 
+<br/>
+<p class="big-text">Each source of music has a different way of identifying songs, in general you can copy whatever sharing link they provide and paste it into the box above.
+    Below are some samples of the recognized formats of each type.
+    More help is availble <a href="https://www.music4dance.net/blog/music4dance-help/beta/">here</a>.
+    </p>
+<H3>Amazon</H3>
+<ul>
+    <li><b>ASIN:</b> B0135P6SS4</li>
+    <li><b>URL/Link:</b> https://www.amazon.com/gp/product/B0135P6SS4/ref=as_li_ss_tl?ie=UTF8&camp=1789&creative=390957&creativeASIN=B0135P6SS4&linkCode=as2</li>
+</ul>
+
+<H3>Groove</H3>
+<ul>
+    <li><b>ID:</b> 5EF98E0A-0100-11DB-89CA-0019B92A3933</li>
+    <li><b>URL/Link:</b> https://mediaredirect.microsoft.com/music/Track/5EF98E0A-0100-11DB-89CA-0019B92A3933</li>
+</ul>
+
+<H3>ITunes</H3>
+<ul>
+    <li><b>ID:</b> 320891562</li>
+    <li><b>URL/Link:</b> https://itunes.apple.com/album/id320891304?i=320891562&ign-mpt=uo%3D4</li>
+</ul>
+
+<H3>Spotify</H3>
+<ul>
+    <li><b>ID:</b> 5kXbjaPptGdfQmMfeJCXlS</li>
+    <li><b>URI:</b> spotify:track:5kXbjaPptGdfQmMfeJCXlS</li>
+    <li><b>URL/Link:</b> https://open.spotify.com/track/5kXbjaPptGdfQmMfeJCXlS</li>
+</ul>
 
 @section Scripts {
     @Scripts.Render("~/bundles/jqueryval")
