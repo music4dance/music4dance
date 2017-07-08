@@ -249,15 +249,16 @@ namespace m4dModels
                 odata = ((odata == null) ? "" : odata + " and ") + userFilter;
             }
 
-
             if (TempoMin.HasValue)
             {
-                odata = ((odata == null) ? "" : odata + " and ") + $"(Tempo ge {TempoMin})";
+                var tempoMin = ((TempoMin.Value % 1M) < (decimal) .0001) ? TempoMin - .5M : TempoMin;
+                odata = ((odata == null) ? "" : odata + " and ") + $"(Tempo ge {tempoMin})";
             }
 
             if (TempoMax.HasValue)
             {
-                odata = ((odata == null) ? "" : odata + " and ") + $"(Tempo lt {TempoMax})";
+                var tempoMax = ((TempoMax.Value % 1M) < (decimal).0001) ? TempoMax + .5M : TempoMax;
+                odata = ((odata == null) ? "" : odata + " and ") + $"(Tempo le {tempoMax})";
             }
 
             var purchaseFilter = ODataPurchase;

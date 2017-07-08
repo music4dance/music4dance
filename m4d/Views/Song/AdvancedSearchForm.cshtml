@@ -70,26 +70,26 @@
 @Html.Partial("ItemTags")
 
 <div class="row">
-    <h1 class="col-xs-12" style="font-size: 22px; text-align: center">
+    <h1 class="col-sm-12" style="font-size: 22px; text-align: center">
         Advanced Song Search
     </h1>
 </div>
 <div class="row">
-    <p class="col-xs-4 col-xs-offset-2">@Html.ActionLink("Saved Searches", "index", "searches", new {user=@userName,filter} , new { id = "saved-search" })</p>
-    <p class="col-xs-4" style="text-align: right">
+    <p class="col-sm-4 col-sm-offset-2">@Html.ActionLink("Saved Searches", "index", "searches", new {user=@userName,filter} , new { id = "saved-search" })</p>
+    <p class="col-sm-4" style="text-align: right">
         @(isAzure ? Html.ActionLink("Simple Search", "AzureSearch", "song", null, new {id = "basic-search", data_type="azure+simple" }) : Html.ActionLink("Basic Search", "index", "song", null, new {id = "basic-search", data_type = "index" }))
     </p>
 </div>
 <div class="row">
-    <div class="col-sm-10 col-sm-offset-1 col-md-8 col-md-offset-2" style="font-size:16px; border:40px solid;">
-        @using (Html.BeginForm("advancedsearch", "Song", FormMethod.Get, new { id = "search", @class="form-horizontal" }))
+    <div class="col-sm-10 col-sm-offset-1 col-md-8 col-md-offset-2" style="font-size: 16px; border: 40px solid;">
+        @using (Html.BeginForm("advancedsearch", "Song", FormMethod.Get, new {id = "search", @class = "form-horizontal"}))
         {
-            <div class="form-group" style="margin-top:1em; margin-bottom:1em">
-                <div class="col-sm-2" >
+            <div class="form-group" style="margin-top: 1em; margin-bottom: 1em">
+                <div class="col-sm-2">
                     <label for="search-text" class="control-label search-label">Keywords:</label>
                 </div>
                 <div class="col-sm-9 col-md-10">
-                    @Html.TextBox("SearchString", filter.SearchString, new { id = "search-text", @class = "form-control search-text", placeholder = isAzure ? "search string" : "Artist, Title, or Album" })
+                    @Html.TextBox("SearchString", filter.SearchString, new {id = "search-text", @class = "form-control search-text", placeholder = isAzure ? "search string" : "Artist, Title, or Album"})
                 </div>
                 <input type="hidden" name="dances" id="dances" value="@filter.Dances"/>
                 <input type="hidden" name="filter" id="filter" value="@filter.ToString()"/>
@@ -101,7 +101,7 @@
                     <label for="chosen-dances" class="control-label search-label">Dance styles:</label>
                 </div>
                 <div class="col-sm-5">
-                    <select id="chosen-dances" class="chosen-select" style="padding-right:15px" multiple data-placeholder="Choose some dance styles...">
+                    <select id="chosen-dances" class="chosen-select" style="padding-right: 15px" multiple data-placeholder="Choose some dance styles...">
                         @foreach (var d in dances)
                         {
                             var set = danceQuery.HasDance(d.DanceId) ? "selected" : "";
@@ -116,15 +116,15 @@
                 </div>
                 <div id="dance-boolean" class="col-sm-2" style="padding-left: 15px">
                     <label class="inline">
-                        <input type="radio" name="db" id="db-any" value="any" @(danceQuery.IsExclusive ? string.Empty : "checked") />Any
+                        <input type="radio" name="db" id="db-any" value="any" @(danceQuery.IsExclusive ? string.Empty : "checked")/>Any
                     </label>&nbsp;&nbsp;
                     <label class="inline">
-                        <input type="radio" name="db" id="db-all" value="all" @(danceQuery.IsExclusive ? "checked" : string.Empty) />All
+                        <input type="radio" name="db" id="db-all" value="all" @(danceQuery.IsExclusive ? "checked" : string.Empty)/>All
                     </label>
                 </div>
                 <div id="dance-inferred" class="col-sm-3" style="padding-left: 15px">
                     <label class="inline">
-                        <input type="checkbox" name="dx" id="inferred" @(danceQuery.IncludeInferred ? "checked" : string.Empty) />Include Inferred
+                        <input type="checkbox" name="dx" id="inferred" @(danceQuery.IncludeInferred ? "checked" : string.Empty)/>Include Inferred
                     </label>
                 </div>
             </div>
@@ -178,10 +178,10 @@
                     <label for="services" class="control-label search-label">Available on:</label>
                 </div>
                 <div class="col-sm-9">
-                    @Service("X","Groove",filter.Purchase)
-                    @Service("A","Amazon",filter.Purchase)
-                    @Service("I","Itunes",filter.Purchase)
-                    @Service("S","Spotify",filter.Purchase)
+                    @Service("X", "Groove", filter.Purchase)
+                    @Service("A", "Amazon", filter.Purchase)
+                    @Service("I", "Itunes", filter.Purchase)
+                    @Service("S", "Spotify", filter.Purchase)
                 </div>
             </div>
 
@@ -190,7 +190,7 @@
                     <label for="sortOrder" class="control-label search-label">Sort By:</label>
                 </div>
                 <div class="col-sm-9">
-                    @SortOrder("Title",filter.SortOrder)
+                    @SortOrder("Title", filter.SortOrder)
                     @SortOrder("Artist", filter.SortOrder)
                     @SortOrder("Tempo", filter.SortOrder)
                     @SortOrder("Dances", filter.SortOrder, "Dance Rating")
@@ -202,11 +202,11 @@
                     @SortOrder("Closest Match", filter.SortOrder)
                 </div>
                 <div class="col-sm-offset-2 col-sm-9">
-                    <label class="form-inline" style="font-weight:normal; margin-right: 1.5em">
-                        <input type="radio" name="sortDirection" value="Ascending" @(!filter.SortOrder.EndsWith("_desc",StringComparison.OrdinalIgnoreCase) ? "checked" : string.Empty)> Ascending (A-Z, Slow-Fast, Newest-Oldest)
+                    <label class="form-inline" style="font-weight: normal; margin-right: 1.5em">
+                        <input type="radio" name="sortDirection" value="Ascending" @(!filter.SortOrder.EndsWith("_desc", StringComparison.OrdinalIgnoreCase) ? "checked" : string.Empty)> Ascending (A-Z, Slow-Fast, Newest-Oldest)
                     </label>
-                    <label class="form-inline" style="font-weight:normal; margin-right:1.5em">
-                        <input type="radio" name="sortDirection" value="Descending" @(filter.SortOrder.EndsWith("_desc",StringComparison.OrdinalIgnoreCase) ? "checked" : string.Empty)> Descending (Z-A, Fast-Slow, Oldest-Newest)
+                    <label class="form-inline" style="font-weight: normal; margin-right: 1.5em">
+                        <input type="radio" name="sortDirection" value="Descending" @(filter.SortOrder.EndsWith("_desc", StringComparison.OrdinalIgnoreCase) ? "checked" : string.Empty)> Descending (Z-A, Fast-Slow, Oldest-Newest)
                     </label>
                 </div>
 
@@ -216,19 +216,22 @@
             </div>
 
             <div class="form-group">
-                <div class="col-xs-2">
+                <div class="col-sm-2">
                     <span class="input-group-btn">
                         <button id="reset-search" class="btn btn-default" type="reset">Reset</button>
                     </span>
                 </div>
-                <div class="col-xs-offset-9">
+                <div class="col-sm-offset-10" style="text-align: right; margin-right: 15px;">
                     <span class="input-group-btn">
                         <button id="submit-search" class="btn btn-default" type="submit">Search <span class="glyphicon glyphicon-search"></span></button>
                     </span>
-                 </div>
+                </div>
             </div>
         }
     </div>
+</div>
+<div class="row">
+    <p class="col-sm-8 col-sm-offset-2" style="text-align: center; margin-top: 10px">Try <a href="https://www.crowdnote.org">crowdnote.org</a> for a different browsing experience.</p>
 </div>
 
 @Html.Partial("_TagEditor")
