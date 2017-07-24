@@ -1526,11 +1526,12 @@ namespace m4d.Controllers
             }
         }
 
-        private bool GetEchoData(Song song, string user, DanceMusicService dms = null)
+        private bool GetEchoData(Song song, string user = null, DanceMusicService dms = null)
         {
             var service = MusicService.GetService(ServiceType.Spotify);
             var ids = song.GetPurchaseIds(service);
             if (dms == null) dms = Database;
+            if (user == null) user = "batch-e";
             var edit = new Song(song, dms.DanceStats);
 
             EchoTrack track = null;
@@ -1572,7 +1573,14 @@ namespace m4d.Controllers
                 tags = tags.Add($"{meter}:Tempo");
             }
 
-            return  dms.EditSong(user, song, edit, new [] { new UserTag { Id = string.Empty, Tags = tags}});
+            if (!dms.EditSong(user, song, edit, new[] {new UserTag {Id = string.Empty, Tags = tags}}))
+                return false;
+
+            if (track.BeatsPerMeasure != null)
+            {
+                edit.InferFromGroups();
+            }
+            return true;
         }
         #endregion
 
@@ -1804,7 +1812,14 @@ namespace m4d.Controllers
                 {
                     break;
                 }
-                changed |= UpdateSongAndService(sd, service, user, dms);
+                if (UpdateSongAndService(sd, service, user, dms))
+                {
+                    if (service.Id == ServiceType.Spotify)
+                    {
+                        GetEchoData(sd, user, dms);
+                    }
+                    changed = true;
+                }
             }
             return changed;
         }

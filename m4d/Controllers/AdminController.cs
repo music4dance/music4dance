@@ -10,11 +10,13 @@ using System.Net.Mime;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web.Mvc;
+using DanceLibrary;
 using m4d.Scrapers;
 using m4d.Utilities;
 using m4d.ViewModels;
 using m4dModels;
 using Microsoft.ApplicationInsights.Extensibility;
+using Microsoft.Azure.Search.Models;
 using Newtonsoft.Json;
 using Configuration = m4d.Migrations.Configuration;
 
@@ -276,65 +278,103 @@ namespace m4d.Controllers
         //
         // Get: //InferDanceTypes
         [Authorize(Roles = "dbAdmin")]
-        public ActionResult InferDanceTypes()
+        public ActionResult InferDanceTypes(string group, int pageSize = 1000)
         {
-            // DBKILL: Restore Cleanup when Necessary
-            return RestoreBatch();
-            //ViewBag.Name = "InferDanceTypes";
+            if (string.IsNullOrEmpty(group))
+            {
+                return View("Error");
+            }
 
-            //var groups = new[] {"SWG", "TNG", "FXT", "WLZ"};
+            var dnc = Dances.Instance.DanceFromId(group) ?? Dances.Instance.DanceFromName(group);
+            if (!(dnc is DanceGroup))
+            {
+                return View("Error");
+            }
 
-            //var count = 0;
-            //Context.TrackChanges(false);
+            try
+            {
+                StartAdminTask("InferDanceTypes");
+                AdminMonitor.UpdateTask("InferDanceTypes");
+                var tried = 0;
+                var skipped = 0;
 
-            //var batch = Database.FindUser("batch");
-            //foreach (var song in Database.Songs)
-            //{
-            //    if (song.Tempo == null) continue;
+                var failed = new List<Guid>();
+                var succeeded = new List<Guid>();
 
-            //    var tempo = song.Tempo.Value;
-            //    var nts = new List<DanceRatingDelta>();
-            //    foreach (var dr in song.DanceRatings)
-            //    {
-            //        var d = Dances.Instance.DanceFromId(dr.DanceId);
-            //        var dg = d as DanceGroup;
-            //        if (dg != null && groups.Contains(dg.Id))
-            //        {
-            //            foreach (var dto in dg.Members)
-            //            {
-            //                var dt = dto as DanceType;
-            //                if (dt == null || !dt.TempoRange.ToBpm(dt.Meter).Contains(tempo)) continue;
+                var page = 0;
+                var done = false;
 
-            //                if (song.DanceRatings.Any(x => x.DanceId == dt.Id)) continue;
+                const string user = "batch";
 
-            //                // TODO: Consider re-using this code to tag songs as not-strict tempo (but it's actually the dance rating that should be tagged).
-            //                var drd = new DanceRatingDelta(dt.Id, 4);
-            //                nts.Add(drd);
-            //                count += 1;
-            //            }
-            //        }
-            //        else
-            //        {
-            //            var di = d as DanceInstance;
-            //            if (di != null)
-            //            {
-            //                Trace.WriteLineIf(TraceLevels.General.TraceInfo, $"Dance Instance: {song.Title}");
-            //            }
-            //        }
-            //    }
+                var name = dnc.Name.ToLower();
+                var parameters = new SearchParameters
+                {
+                    QueryType = QueryType.Simple,
+                    //(DanceTags/any(t: t eq 'tango') or DanceTagsInferred/any(t: t eq 'tango')) and (Tempo ne null)
+                    Filter = $"(DanceTags/any(t: t eq '{name}') or DanceTagsInferred/any(t: t eq '{name}')) and (Tempo ne null)"
+                };
 
-            //    if (nts.Count > 0)
-            //    {
-            //        Database.UpdateDances(batch, song, nts);
-            //    }
-            //}
+                var dms = DanceMusicService.GetService();
+                Task.Run(() =>
+                {
+                    try
+                    {
+                        SearchContinuationToken token = null;
+                        while (!done)
+                        {
+                            AdminMonitor.UpdateTask("BuildPage", page);
 
-            //Context.TrackChanges(true);
+                            var songs = dms.TakePage(parameters, pageSize, ref token);
+                            var processed = 0;
 
-            //ViewBag.Success = true;
-            //ViewBag.Message = $"Dance groups were added ({count})";
+                            var stemp = new List<Song>();
+                            var ftemp = new List<Song>();
+                            foreach (var song in songs)
+                            {
+                                AdminMonitor.UpdateTask($"Processing ({succeeded.Count})", processed);
 
-            //return View("Results");
+                                tried += 1;
+                                processed += 1;
+
+                                if (song.InferFromGroup(dnc.Id, user))
+                                {
+                                    stemp.Add(song);
+                                }
+                                else
+                                {
+                                    ftemp.Add(song);
+                                }
+
+                                if ((tried + 1)%100 != 0) continue;
+
+                                Trace.WriteLineIf(TraceLevels.General.TraceInfo, $"{tried} songs tried.");
+                            }
+
+                            succeeded.AddRange(stemp.Select(s => s.SongId));
+                            failed.AddRange(ftemp.Select(s => s.SongId));
+                            dms.UpdateAzureIndex(stemp);
+
+                            page += 1;
+                            if (processed < pageSize)
+                            {
+                                done = true;
+                            }
+                        }
+                        AdminMonitor.CompleteTask(true,
+                            $"InferDanceTypes: Completed=true, Succeeded={succeeded.Count} - ({string.Join(",", succeeded)}), Failed={failed.Count} - ({string.Join(",", failed)}), Skipped={skipped}");
+                    }
+                    catch (Exception e)
+                    {
+                        FailAdminTask($"InferDanceTypes: {e.Message}", e);
+                    }
+                });
+
+                return RedirectToAction("AdminStatus", "Admin", AdminMonitor.Status);
+            }
+            catch (Exception e)
+            {
+                return FailAdminTask($"InferDanceTypes: {e.Message}", e);
+            }
         }
 
         //

@@ -1905,6 +1905,35 @@ namespace m4dModels
             return TakeTail(parameters,max,from,id);
         }
 
+        public IEnumerable<Song> TakePage(SearchParameters parameters, int pageSize, ref SearchContinuationToken token, string id = "default")
+        {
+            parameters.IncludeTotalResultCount = false;
+            parameters.Top = null;
+
+            var info = SearchServiceInfo.GetInfo(id);
+            using (var serviceClient = new SearchServiceClient(info.Name, new SearchCredentials(info.QueryKey)))
+            using (var indexClient = serviceClient.Indexes.GetClient(info.Index))
+            {
+                var results = new List<Song>();
+                do
+                {
+                    var response = (token == null)
+                        ? indexClient.Documents.Search(null, parameters)
+                        : indexClient.Documents.ContinueSearch(token);
+
+                    foreach (var doc in response.Results)
+                    {
+                        results.Add(new Song(doc.Document, DanceStats));
+
+                        if (results.Count >= pageSize) break;
+                    }
+                    token = response.ContinuationToken;
+                } while (token != null && results.Count < pageSize);
+
+                return results;
+            }
+        }
+
         public IEnumerable<Song> TakeTail(SearchParameters parameters, int max, DateTime? from = null, string id = "default")
         {
             parameters.OrderBy = new[] { "Modified desc" };

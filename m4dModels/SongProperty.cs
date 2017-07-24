@@ -178,7 +178,6 @@ namespace m4dModels
         public string Qualifier => ParseQualifier(Name);
 
         public string DanceQualifier => ParsePart(Name,1);
-
         #endregion
 
         #region Overrides

@@ -1,12 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Data.Entity.ModelConfiguration.Configuration;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net;
 using System.Reflection;
+using System.Reflection.Emit;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Json;
 using System.Text;
@@ -2462,7 +2464,6 @@ namespace m4dModels
                         ngs.Add(g, drd);
                     }
                 }
-
             }
 
             foreach (var ng in ngs.Values)
@@ -2473,25 +2474,52 @@ namespace m4dModels
             // If we have tempo, infer dances from group (SWG, FXT, TNG, WLZ)
             if (!Tempo.HasValue) return;
 
-            var tempo = Tempo.Value;
-
-            // ReSharper disable once LoopCanBeConvertedToQuery
-            // ReSharper disable once LoopCanBePartlyConvertedToQuery
             foreach (var gid in groups)
             {
-                var dg = Dances.Instance.DanceFromId(gid) as DanceGroup;
-                if (dg == null) continue;
-
-                // ReSharper disable once LoopCanBePartlyConvertedToQuery
-                foreach (var dto in dg.Members)
-                {
-                    var dt = dto as DanceType;
-                    if (dt == null || !dt.TempoRange.ToBpm(dt.Meter).Contains(tempo)) continue;
-
-                    var drd = new DanceRatingDelta(dt.Id, 1);
-                    UpdateDanceRating(drd, true);
-                }
+                InferFromGroup(gid);
             }
+        }
+
+        public bool InferFromGroups()
+        {
+            return Tempo.HasValue && 
+                new[] {"SWG", "FXT", "TNG", "WLZ"}.Aggregate(false, (current, @group) => current | InferFromGroup(@group));
+        }
+
+        public bool InferFromGroup(string gid, string user)
+        {
+            if (!Tempo.HasValue) return false;
+
+            var existing = new HashSet<string>(SongProperties.Where(p => p.BaseName == DanceRatingField).Select(p => new DanceRatingDelta(p.Value).DanceId).Distinct());
+            CreateEditProperties(user, EditCommand);
+            if (InferFromGroup(gid,existing))
+            {
+                return true;
+            }
+            RemoveEditProperties(user,EditCommand);
+            return false;
+        }
+
+        private bool InferFromGroup(string gid, HashSet<string> existing = null)
+        {
+            if (!Tempo.HasValue) return false;
+            var tempo = Tempo.Value;
+
+            var dg = Dances.Instance.DanceFromId(gid) as DanceGroup;
+            if (dg == null) return false;
+
+            var changed = false;
+            // ReSharper disable once LoopCanBePartlyConvertedToQuery
+            foreach (var dto in dg.Members)
+            {
+                var dt = dto as DanceType;
+                if (dt == null || !dt.TempoRange.ToBpm(dt.Meter).Contains(tempo) || (existing != null && existing.Contains(dt.Id))) continue;
+
+                var drd = new DanceRatingDelta(dt.Id, 1);
+                UpdateDanceRating(drd, true);
+                changed = true;
+            }
+            return changed;
         }
 
         public int UserDanceRating(string user, string danceId)
@@ -3451,6 +3479,11 @@ namespace m4dModels
         public SongProperty LastProperty(string name, IEnumerable<string> excludeUsers = null, IEnumerable<string> includeUsers = null)
         {
             return FilteredProperties(excludeUsers,includeUsers).LastOrDefault(p => p.Name == name);
+        }
+
+        public IEnumerable<SongProperty> PropertiesForUser(string baseName, string user)
+        {
+            return FilteredProperties(baseName, null, new[] {user});
         }
 
         public IEnumerable<SongProperty> FilteredProperties(string baseName, IEnumerable<string> excludeUsers = null, IEnumerable<string> includeUsers = null)
