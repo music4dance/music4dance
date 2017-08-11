@@ -3,7 +3,6 @@ using System.Data.Entity;
 using System.Linq;
 using System.Net;
 using System.Web.Mvc;
-using m4d.AWSReference;
 using m4dModels;
 
 namespace m4d.Controllers

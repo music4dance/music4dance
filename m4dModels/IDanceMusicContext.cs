@@ -15,9 +15,9 @@ namespace m4dModels
         DbSet<Dance> Dances { get; }
         DbSet<TagGroup> TagGroups { get; }
         DbSet<Search> Searches { get; }
+        DbSet<PlayList> PlayLists { get; }
         IDbSet<ApplicationUser> Users { get; }
         IDbSet<IdentityRole> Roles { get; }
-        Database Database { get; }
         int SaveChanges();
 
         void LoadDances();

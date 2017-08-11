@@ -83,6 +83,8 @@ namespace m4dModels.Tests
 
         public DbSet<Search> Searches { get; set; }
 
+        public DbSet<PlayList> PlayLists { get; set; }
+
         public IDbSet<ApplicationUser> Users { get; set; }
 
         public IDbSet<IdentityRole> Roles { get; set; }

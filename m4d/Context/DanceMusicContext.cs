@@ -79,6 +79,7 @@ namespace m4d.Context
         public DbSet<Dance> Dances { get; set; }
         public DbSet<TagGroup> TagGroups { get; set; }
         public DbSet<Search> Searches { get; set; }
+        public DbSet<PlayList> PlayLists { get; set; }
         #endregion
 
         #region Events

@@ -116,6 +116,7 @@
     <Compile Include="LocalMerger.cs" />
     <Compile Include="MergeCluster.cs" />
     <Compile Include="MusicServiceStub.cs" />
+    <Compile Include="PlayList.cs" />
     <Compile Include="PurchaseRegion.cs" />
     <Compile Include="PurchaseType.cs" />
     <Compile Include="QuickTimer.cs" />

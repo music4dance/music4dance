@@ -591,6 +591,7 @@
     <Compile Include="Controllers\ManageController.cs" />
     <Compile Include="APIControllers\MusicServiceController.cs" />
     <Compile Include="APIControllers\PurchaseInfoController.cs" />
+    <Compile Include="Controllers\PlayListController.cs" />
     <Compile Include="Controllers\SearchesController.cs" />
     <Compile Include="Controllers\SongController.cs" />
     <Compile Include="Controllers\TagController.cs" />
@@ -697,6 +698,10 @@
     <Compile Include="Migrations\201607222048257_RemoveRings.cs" />
     <Compile Include="Migrations\201607222048257_RemoveRings.Designer.cs">
       <DependentUpon>201607222048257_RemoveRings.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201708062232568_PlayLists.cs" />
+    <Compile Include="Migrations\201708062232568_PlayLists.Designer.cs">
+      <DependentUpon>201708062232568_PlayLists.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Context\DanceMusicConfiguration.cs" />
@@ -1225,6 +1230,11 @@
     <Content Include="Views\Song\AdvancedSearchForm.cshtml" />
     <Content Include="Views\Dance\emptydance.cshtml" />
     <Content Include="Views\Song\Augment.cshtml" />
+    <Content Include="Views\PlayList\Create.cshtml" />
+    <Content Include="Views\PlayList\Delete.cshtml" />
+    <Content Include="Views\PlayList\Details.cshtml" />
+    <Content Include="Views\PlayList\Edit.cshtml" />
+    <Content Include="Views\PlayList\Index.cshtml" />
     <None Include="Web.m4d.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
@@ -1324,6 +1334,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201607222048257_RemoveRings.resx">
       <DependentUpon>201607222048257_RemoveRings.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201708062232568_PlayLists.resx">
+      <DependentUpon>201708062232568_PlayLists.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>

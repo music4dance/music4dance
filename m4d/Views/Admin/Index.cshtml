@@ -10,26 +10,26 @@
 <div>
     <h3>@Html.ActionLink("Users", "Index", "ApplicationUsers")</h3>
 </div>
-<hr/>
 
 <div>
-    <h3>@Html.ActionLink("Tags","Tags")</h3>
+    <h3>@Html.ActionLink("Tags", "Tags")</h3>
 </div>
-<hr/>
+
 <div>
     <h3>@Html.ActionLink("Diagnostics", "Diagnostics")</h3>
 </div>
-<hr/>
 
 <div>
     <h3>@Html.ActionLink("Initialization and Cleanup", "InitializationTasks")</h3>
 </div>
-<hr />
 
 <div>
     <h3>@Html.ActionLink("Scraping", "Scraping")</h3>
 </div>
-<hr />
+
+<div>
+    <h3>@Html.ActionLink("PlayLists", "Index", "PlayList")</h3>
+</div>
 
 @if (User.IsInRole("dbAdmin"))
 {

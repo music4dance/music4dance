@@ -34,7 +34,7 @@ namespace m4dModels
         {
             var temp = _context;
             _context = null;
-            temp.Dispose();
+            temp?.Dispose();
         }
 
         public bool IsDisposed => _context == null;
@@ -47,7 +47,7 @@ namespace m4dModels
         public DbSet<Dance> Dances => _context.Dances;
         public DbSet<TagGroup> TagGroups => _context.TagGroups;
         public DbSet<Search> Searches => _context.Searches;
-
+        public DbSet<PlayList> PlayLists => _context.PlayLists;
         public UserManager<ApplicationUser> UserManager { get; }
 
         public int SaveChanges()
