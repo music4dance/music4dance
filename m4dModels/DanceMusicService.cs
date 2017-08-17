@@ -1062,6 +1062,7 @@ namespace m4dModels
         private const string TagBreak = "+++++TAGSS+++++";
         private const string SearchBreak = "+++++SEARCHES+++++";
         private const string DanceBreak = "+++++DANCES+++++";
+        private const string PlaylistBreak = "+++++PLAYLISTS+++++";
         private const string UserHeader = "UserId\tUserName\tRoles\tPWHash\tSecStamp\tLockout\tProviders\tEmail\tEmailConfirmed\tStartDate\tRegion\tPrivacy\tCanContact\tServicePreference\tLastActive\tRowCount\tColumns";
 
         static public bool IsSongBreak(string line) {
@@ -1070,6 +1071,10 @@ namespace m4dModels
         static public bool IsTagBreak(string line)
         {
             return IsBreak(line, TagBreak);
+        }
+        static public bool IsPlaylistBreak(string line)
+        {
+            return IsBreak(line, PlaylistBreak);
         }
         static public bool IsUserBreak(string line)
         {
@@ -1418,6 +1423,55 @@ namespace m4dModels
 
             Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Exiting LoadTags");
         }
+
+        public void LoadPlaylists(IList<string> lines)
+        {
+            Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Entering LoadPlaylists");
+            var now = DateTime.Now;
+
+            for (var index = 0; index < lines.Count; index++)
+            {
+                var s = lines[index];
+                AdminMonitor.UpdateTask("LoadPlaylists", index + 1);
+
+                var cells = s.Split('\t');
+
+
+                if (cells.Length < 4) continue;
+
+                var created = now;
+                DateTime? modified = null;
+                var deleted = false;
+
+                var user = cells[0];
+                PlayListType type;
+                Enum.TryParse(cells[1], out type);
+                var tags = cells[2];
+                var id = cells[3];
+
+                if (cells.Length > 4) DateTime.TryParse(cells[4], out created);
+                DateTime mod;
+                if (cells.Length > 5 && DateTime.TryParse(cells[5], out mod)) modified = mod;
+                if (cells.Length > 6) bool.TryParse(cells[6], out deleted);
+
+                var playlist = PlayLists.Find(id);
+                var isNew = playlist == null;
+                if (isNew) playlist = new PlayList();
+
+                playlist.Id = id;
+                playlist.Type = type;
+                playlist.Tags = tags;
+                playlist.User = user;
+                playlist.Created = created;
+                playlist.Updated = modified;
+                playlist.Deleted = deleted;
+
+                if (isNew) PlayLists.Add(playlist);
+            }
+            SaveChanges();
+            Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Exiting LoadPlaylists");
+        }
+
         public void LoadSongs(IList<string> lines)
         {
             // Load the dance List
@@ -1667,6 +1721,25 @@ namespace m4dModels
             songs.AddRange(BackupIndex("default", max, from, filter));
 
             return songs;
+        }
+
+        public IList<string> SerializePlaylists(bool withHeader = true, DateTime? from = null)
+        {
+            if (!from.HasValue) from = new DateTime(1, 1, 1);
+
+            var playlists = PlayLists.Where(d => (d.Updated.HasValue && d.Updated >= from.Value) || d.Created >= from.Value).OrderBy(d => d.Updated).ThenBy(d => d.Created);
+
+            var lines = new List<string> ();
+            foreach (var p in playlists)
+            {
+                lines.Add($"{p.User}\t{p.Type}\t{p.Tags}\t{p.Id}\t{p.Created}\t{p.Updated}\t{p.Deleted}");
+            }
+
+            if (withHeader && lines.Count > 0)
+            {
+                lines.Insert(0, DanceBreak);
+            }
+            return lines;
         }
 
         public IList<string> SerializeDances(bool withHeader = true, DateTime? from = null)

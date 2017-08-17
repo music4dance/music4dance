@@ -93,7 +93,7 @@
 
     <hr />
     <h2>Backup Database</h2>
-    <li>@Html.ActionLink("Backup the Database", "BackupDatabase"), @Html.ActionLink("Users", "BackupDatabase", new {tags = false, dances = false, songs = false, searches = false}), @Html.ActionLink("Dances", "BackupDatabase", new {tags = false, users = false, songs = false, searches = false}), @Html.ActionLink("Tags", "BackupDatabase", new {dances = false, users = false, searches = false, songs = false}), @Html.ActionLink("Searches", "BackupDatabase", new {tags = false, dances = false, users = false, songs = false})</li>
+    <li>@Html.ActionLink("Backup the Database", "BackupDatabase"), @Html.ActionLink("Users", "BackupDatabase", new {tags = false, dances = false, songs = false, searches = false, playlists = false}), @Html.ActionLink("Dances", "BackupDatabase", new {tags = false, users = false, songs = false, searches = false, playlists = false }), @Html.ActionLink("Tags", "BackupDatabase", new { dances = false, users = false, searches = false, songs = false, playlists = false }), @Html.ActionLink("Playlists", "BackupDatabase", new { dances = false, users = false, tags = false, searches = false, songs = false }), @Html.ActionLink("Searches", "BackupDatabase", new {tags = false, dances = false, users = false, songs = false, playlists = false })</li>
     <li>@Html.ActionLink("Backup - No Songs", "BackupDatabase", new { songs = false })</li>
     <li>@Html.ActionLink("Backup the Database (with lookup history)", "BackupDatabase", new { useLookupHistory = "true" })</li>
     <li>@Html.ActionLink("Backup tail", "BackupTail", new { count = 150 })</li>

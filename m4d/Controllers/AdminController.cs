@@ -860,6 +860,7 @@ namespace m4d.Controllers
                     var users = TryGetSection(lines,DanceMusicService.IsUserBreak);
                     var dances = TryGetSection(lines, DanceMusicService.IsDanceBreak);
                     var tags = TryGetSection(lines, DanceMusicService.IsTagBreak);
+                    var playlists = TryGetSection(lines, DanceMusicService.IsPlaylistBreak);
                     var searches = TryGetSection(lines, DanceMusicService.IsSearchBreak);
                     var songs = TryGetSection(lines, DanceMusicService.IsSongBreak);
 
@@ -878,6 +879,7 @@ namespace m4d.Controllers
                     if (users != null) Database.LoadUsers(users);
                     if (dances != null) Database.LoadDances(dances);
                     if (tags != null) Database.LoadTags(tags);
+                    if (playlists != null) Database.LoadPlaylists(playlists);
                     if (searches != null) Database.LoadSearches(searches);
                     if (songs != null)
                     {
@@ -903,7 +905,7 @@ namespace m4d.Controllers
 
         private static List<string> TryGetSection(List<string> lines, Predicate<string> start)
         {
-            var breaks = new Predicate<string>[] {DanceMusicService.IsDanceBreak, DanceMusicService.IsTagBreak, DanceMusicService.IsSearchBreak, DanceMusicService.IsSongBreak};
+            var breaks = new Predicate<string>[] {DanceMusicService.IsDanceBreak, DanceMusicService.IsTagBreak, DanceMusicService.IsPlaylistBreak, DanceMusicService.IsSearchBreak, DanceMusicService.IsSongBreak};
 
             if (!start(lines[0])) return null;
 
@@ -1359,7 +1361,7 @@ namespace m4d.Controllers
         //
         // Get: //BackupDatabase
         [Authorize(Roles = "showDiagnostics")]
-        public ActionResult BackupDatabase(bool users = true, bool tags = true, bool dances = true, bool searches=true, bool songs = true, string useLookupHistory = null)
+        public ActionResult BackupDatabase(bool users = true, bool tags = true, bool dances = true, bool playlists = true, bool searches=true, bool songs = true, string useLookupHistory = null)
         {
             try
             {
@@ -1404,6 +1406,17 @@ namespace m4d.Controllers
                         {
                             file.WriteLine(line);
                             AdminMonitor.UpdateTask("tags", ++n);
+                        }
+                    }
+
+                    if (playlists)
+                    {
+                        var n = 0;
+                        AdminMonitor.UpdateTask("playlists");
+                        foreach (var line in Database.SerializePlaylists())
+                        {
+                            file.WriteLine(line);
+                            AdminMonitor.UpdateTask("playlists", ++n);
                         }
                     }
 
@@ -1463,6 +1476,7 @@ namespace m4d.Controllers
             var users = Database.SerializeUsers(true,from);
             var dances = Database.SerializeDances(true, from);
             var tags = Database.SerializeTags(true, from);
+            var playlists = Database.SerializeTags(true, from);
             var searches = Database.SerializeSearches(true, from);
 
             SongFilter songFilter = null;
@@ -1485,6 +1499,10 @@ namespace m4d.Controllers
             if (tags.Count > 0)
             {
                 s += string.Join("\r\n", tags) + "\r\n";
+            }
+            if (playlists.Count > 0)
+            {
+                s += string.Join("\r\n", playlists) + "\r\n";
             }
             if (searches.Count > 0)
             {
