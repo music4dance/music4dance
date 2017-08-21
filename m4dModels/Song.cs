@@ -778,6 +778,33 @@ namespace m4dModels
         }
 
         //private static readonly List<string> s_trackFields = new List<string>(new string[] {""});
+        public static Song CreateFromTrack(string user, ServiceTrack track, string multiDance, DanceStatsInstance stats)
+        {
+            // Title;Artist;Duration;Album;Track;MutliDance;PurchaseInfo;
+
+            var fields = new List<string>
+            {
+                TitleField,
+                ArtistField,
+                LengthField,
+                AlbumField,
+                TrackField,
+                MultiDance
+            };
+
+            var cells = new List<string>
+            {
+                track.Name,
+                track.Artist,
+                track.Duration?.ToString(),
+                track.Album,
+                track.TrackNumber?.ToString(),
+                multiDance
+            };
+
+            return CreateFromTrack(user, track, fields, cells, stats);
+        }
+
         public static Song CreateFromTrack(string user, ServiceTrack track, string dances, string songTags, string danceTags, DanceStatsInstance stats)
         {
             // Title;Artist;Duration;Album;Track;DanceRating;SongTags;DanceTags;PurchaseInfo;
@@ -806,6 +833,11 @@ namespace m4dModels
                 danceTags
             };
 
+            return CreateFromTrack(user, track, fields, cells, stats);
+        }
+
+        private static Song CreateFromTrack(string user, ServiceTrack track, IList<string> fields, IList<string> cells , DanceStatsInstance stats)
+        {
             if (track.CollectionId != null)
             {
                 fields.Add(PurchaseField + ":00:" + AlbumDetails.BuildPurchaseKey(PurchaseType.Album, track.Service));

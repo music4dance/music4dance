@@ -374,6 +374,25 @@ namespace m4dModels
 
             return ret;
         }
+
+        public  IList<Song> SongsFromTracks(string user, IEnumerable<ServiceTrack> tracks, string dances, string songTags, string danceTags)
+        {
+            return tracks.Where(track => !string.IsNullOrEmpty(track.Artist)).Select(track => Song.CreateFromTrack(user, track, dances, songTags, danceTags, DanceStats)).ToList();
+        }
+
+        public IList<Song> SongsFromTracks(string user, IEnumerable<ServiceTrack> tracks, string multiDance)
+        {
+            return tracks.Where(track => !string.IsNullOrEmpty(track.Artist)).Select(track => Song.CreateFromTrack(user, track, multiDance, DanceStats)).ToList();
+        }
+
+        public IList<Song> SongsFromFile(string user, IList<string> lines)
+        {
+            var map = Song.BuildHeaderMap(lines[0]);
+            lines.RemoveAt(0);
+            return Song.CreateFromRows(user, "\t", map, lines, DanceStats, Song.DanceRatingCreate);
+        }
+
+
         #endregion
 
         #region Dance Ratings
@@ -1723,6 +1742,7 @@ namespace m4dModels
             return songs;
         }
 
+        [SuppressMessage("ReSharper", "LoopCanBeConvertedToQuery")]
         public IList<string> SerializePlaylists(bool withHeader = true, DateTime? from = null)
         {
             if (!from.HasValue) from = new DateTime(1, 1, 1);
@@ -2339,6 +2359,8 @@ namespace m4dModels
         private readonly HashSet<string> _roleCache = new HashSet<string>();
 
         #endregion
+
+        #region Merging
         public IList<Song> FindMergeCandidates(int n, int level)
         {
             return MergeCluster.GetMergeCandidates(this, n, level);
@@ -2356,5 +2378,20 @@ namespace m4dModels
         {
             MergeCluster.ClearMergeCandidateCache();
         }
+
+        public void UpdatePlayList(string id, IEnumerable<Song> songs)
+        {
+            var playList = PlayLists.Find(id);
+            if (playList == null) throw new ArgumentOutOfRangeException(nameof(id));
+
+            var service = MusicService.FromPlayList(playList.Type);
+            if (service == null) throw new ArgumentOutOfRangeException(nameof(id));
+
+            playList.AddSongs(songs.Select(s => s.GetPurchaseId(service.Id)));
+            playList.Updated = DateTime.Now;
+            SaveChanges();
+        }
+        #endregion
+
     }
 }

@@ -20,8 +20,16 @@ using Microsoft.Azure.Search.Models;
 using Newtonsoft.Json;
 using Configuration = m4d.Migrations.Configuration;
 
+// TODONEXT: Handle the difference between review with an ID and results without one - look at ReviewBatch.cshtml, admincontroller and spotifycontroller
+
 namespace m4d.Controllers
 {
+    public class Review
+    {
+        public string PlayList { get; set; }
+        public IList<LocalMerger> Merge { get; set; }
+    }
+
     [Authorize]
     public class AdminController : DMController
     {
@@ -961,15 +969,14 @@ namespace m4d.Controllers
             ViewBag.FileId = -1;
             ViewBag.Action = "CommitUploadTempi";
 
-            var user = Database.FindUser(User.Identity.Name);
-
             if (lines.Count <= 0) return View("Error");
 
-            var songs = SongsFromFile(user,lines);
+            var songs = Database.SongsFromFile(User.Identity.Name, lines);
             var results = Database.MatchSongs(songs,DanceMusicService.MatchMethod.Tempo);
-            ViewBag.FileId = CacheReview(results);
+            var review = new Review {Merge = results};
+            ViewBag.FileId = CacheReview(review);
 
-            return View("ReviewBatch", results);
+            return View("ReviewBatch", review);
         }
 
 
@@ -1194,10 +1201,12 @@ namespace m4d.Controllers
             if (newSongs.Count > 0)
             {
                 results = Database.MatchSongs(newSongs,DanceMusicService.MatchMethod.Merge);
-                ViewBag.FileId = CacheReview(results);
+                var review = new Review { Merge = results };
+                ViewBag.FileId = CacheReview(review);
+                return View("ReviewBatch", review);
             }
 
-            return View("ReviewBatch", results);
+            return View("Error");
         }
 
 
@@ -1228,12 +1237,17 @@ namespace m4d.Controllers
             {
                 dances = new List<string>(danceIds.Split(';'));
             }
+            R
+            if (initial.Merge.Count <= 0) return View("Error");
 
-            if (initial.Count <= 0) return View("Error");
-
-            var modified = Database.MergeCatalog(user, initial, dances);
+            var modified = Database.MergeCatalog(user, initial.Merge, dances);
 
             Database.SaveSongs(modified);
+
+            if (!string.IsNullOrEmpty(initial.PlayList))
+            {
+                Database.UpdatePlayList(initial.PlayList, initial.Merge.Select(m => m.Left));
+            }
 
             return View("UploadCatalog");
         }
@@ -1261,7 +1275,7 @@ namespace m4d.Controllers
 
             var tracks = MusicServiceManager.LookupServiceTracks(service, url, User);
 
-            var newSongs = SongsFromTracks(appuser,tracks,dances,songTags,danceTags);
+            var newSongs = Database.SongsFromTracks(appuser.UserName,tracks,dances,songTags,danceTags);
 
             if (newSongs.Count == 0) return View("Error");
 
@@ -1270,7 +1284,7 @@ namespace m4d.Controllers
                 AdminMonitor.UpdateTask("Starting Merge");
                 var results = DanceMusicService.GetService().MatchSongs(newSongs, DanceMusicService.MatchMethod.Merge);
                 var tags = songTags ?? "" + danceTags;
-                var link = $"/admin/reviewbatch?title=Scrape Spotify&commit=CommitUploadCatalog&fileId={CacheReview(results)}&user={user}" +
+                var link = $"/admin/reviewbatch?title=Scrape Spotify&commit=CommitUploadCatalog&fileId={CacheReview(new Review {Merge = results})}&user={user}" +
                           (string.IsNullOrWhiteSpace(tags) ? "" : tags);
                 AdminMonitor.CompleteTask(true,$"<a href='{link}'>{link}</a>");
             });
@@ -1834,18 +1848,6 @@ namespace m4d.Controllers
             return file.Split(Environment.NewLine.ToCharArray(), StringSplitOptions.RemoveEmptyEntries).ToList();
         }
 
-        private IList<Song> SongsFromTracks(ApplicationUser user, IEnumerable<ServiceTrack> tracks, string dances, string songTags, string danceTags)
-        {
-            return tracks.Where(track => !string.IsNullOrEmpty(track.Artist)).Select(track => Song.CreateFromTrack(user.UserName, track, dances, songTags, danceTags, Database.DanceStats)).ToList();
-        }
-
-        private IList<Song> SongsFromFile(ApplicationUser user, IList<string> lines)
-        {
-            var map = Song.BuildHeaderMap(lines[0]);
-            lines.RemoveAt(0);
-            return Song.CreateFromRows(user.UserName, "\t", map, lines, Database.DanceStats, Song.DanceRatingCreate);
-        }
-
         List<string> UploadFile() 
         {
             var lines = new List<string>();
@@ -1877,7 +1879,7 @@ namespace m4d.Controllers
             return lines;
         }
 
-        static int CacheReview(IList<LocalMerger> review)
+        public static int CacheReview(Review review)
         {
             int ret;
             lock (Reviews)
@@ -1888,7 +1890,7 @@ namespace m4d.Controllers
             return ret;
         }
 
-        IList<LocalMerger> GetReviewById(int id)
+        static Review GetReviewById(int id)
         {
             lock (Reviews)
             {
@@ -1901,7 +1903,7 @@ namespace m4d.Controllers
         //  for now it's being using primarily on the short running
         //  dev instance, it doesn't seem worthwhile to do anything
         //  more sophisticated
-        static readonly IList<IList<LocalMerger>> Reviews = new List<IList<LocalMerger>>();
+        static readonly IList<Review> Reviews = new List<Review>();
 
         #endregion
     }

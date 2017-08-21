@@ -35,6 +35,22 @@
         </dd>
 
         <dt>
+            @Html.DisplayNameFor(model => model.Created)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Created)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Updated)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Updated)
+        </dd>
+
+        <dt>
             @Html.DisplayNameFor(model => model.SongIds)
         </dt>
 
@@ -43,6 +59,8 @@
         </dd>
 
     </dl>
+
+    
 </div>
 <p>
     @Html.ActionLink("Edit", "Edit", new { id = Model.Id }) |

@@ -93,6 +93,11 @@ namespace m4dModels
             return id;
         }
 
+        public virtual string BuildPlayListLink(PlayList playlist, ApplicationUser user)
+        {
+            return null;
+        }
+
         public string BuildTrackRequest(string id, string region=null)
         {
             var ret = BuildRequest(TrackRequest, id);
@@ -258,6 +263,21 @@ namespace m4dModels
 
             return GetService(type[0]);
         }
+
+        public PlayListType GetPlayListType()
+        {
+            var s = Id.ToString();
+            PlayListType p;
+            return Enum.TryParse(s, out p) ? p : PlayListType.Undefined;
+        }
+
+        public static MusicService FromPlayList(PlayListType type)
+        {
+            var t = type.ToString();
+            ServiceType s;
+            return !Enum.TryParse(t, out s) ? null : GetService(s);
+        }
+
         static MusicService()
         {
             IdMap = new Dictionary<ServiceType, MusicService>();

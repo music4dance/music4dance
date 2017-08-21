@@ -204,5 +204,11 @@ namespace m4dModels
 
             return st;
         }
+        public override string BuildPlayListLink(PlayList playList, ApplicationUser user)
+        {
+            var alias = user.Email.Split('@')[0];
+            return $"https://open.spotify.com/user/{alias}/playlist/{playList.Id}";
+        }
+
     }
 }

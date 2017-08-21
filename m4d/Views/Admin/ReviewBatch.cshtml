@@ -1,4 +1,4 @@
-﻿@model IEnumerable<LocalMerger>
+﻿@model m4d.Controllers.Review
 
 @{
     ViewBag.Title = ViewBag.Name;
@@ -33,13 +33,13 @@
 <table class="table table-striped">
     <tr>
         <th>
-            @Html.DisplayNameFor(model => model.Left.SongId)
+            @Html.DisplayNameFor(model => model.Merge[0].Left.SongId)
         </th>
         <th>
-            @Html.DisplayNameFor(model => model.Left.Title)
+            @Html.DisplayNameFor(model => model.Merge[0].Left.Title)
         </th>
         <th>
-            @Html.DisplayNameFor(model => model.Left.Artist)
+            @Html.DisplayNameFor(model => model.Merge[0].Left.Artist)
         </th>
         <th>
             Album
@@ -48,14 +48,14 @@
             Track
         </th>
         <th>
-            @Html.DisplayNameFor(model => model.Left.Tempo)
+            @Html.DisplayNameFor(model => model.Merge[0].Left.Tempo)
         </th>
         <th>
-            @Html.DisplayNameFor(model => model.Left.Length)
+            @Html.DisplayNameFor(model => model.Merge[0].Left.Length)
         </th>
     </tr>
 
-    @foreach (var item in Model) 
+    @foreach (var item in Model.Merge) 
     {
         <tr>
             <td>
