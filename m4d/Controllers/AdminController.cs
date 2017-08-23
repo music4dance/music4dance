@@ -20,8 +20,6 @@ using Microsoft.Azure.Search.Models;
 using Newtonsoft.Json;
 using Configuration = m4d.Migrations.Configuration;
 
-// TODONEXT: Handle the difference between review with an ID and results without one - look at ReviewBatch.cshtml, admincontroller and spotifycontroller
-
 namespace m4d.Controllers
 {
     public class Review
@@ -1051,20 +1049,23 @@ namespace m4d.Controllers
         [Authorize(Roles = "dbAdmin")]
         public ActionResult ReviewBatch(string commit, string title, int fileId, string user = null, string dances  = null, string tags = null, string headers = null)
         {
+            var review = GetReviewById(fileId);
+
             ViewBag.Action = commit;
             ViewBag.Title = title;
             if (!string.IsNullOrWhiteSpace(user)) ViewBag.UserName = user;
             if (!string.IsNullOrWhiteSpace(dances)) ViewBag.Dance = dances;
             if (!string.IsNullOrWhiteSpace(tags)) ViewBag.Tags = tags;
             if (!string.IsNullOrWhiteSpace(headers)) ViewBag.Headers = headers;
+            if (!string.IsNullOrWhiteSpace(review.PlayList)) ViewBag.PlayList = review.PlayList;
 
             ViewBag.FileId = fileId;
 
-            return View(GetReviewById(fileId));
+            return View(review.Merge);
         }
 
 
-        //
+        //C
         // Get: //UploadCatalog
         [HttpGet]
         [Authorize(Roles = "dbAdmin")]
@@ -1237,9 +1238,10 @@ namespace m4d.Controllers
             {
                 dances = new List<string>(danceIds.Split(';'));
             }
-            R
+
             if (initial.Merge.Count <= 0) return View("Error");
 
+            // TODONEXT: This merge is screwing up and merging user & multidance together in the user field.
             var modified = Database.MergeCatalog(user, initial.Merge, dances);
 
             Database.SaveSongs(modified);

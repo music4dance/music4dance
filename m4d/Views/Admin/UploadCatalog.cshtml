@@ -14,7 +14,7 @@
     var album = "";
     var artist = "";
     var tags = "";
-    
+
     if (ViewData.ContainsKey("Separator") && !string.IsNullOrWhiteSpace(ViewBag.Separator))
     {
         separator = ViewBag.Separator;
@@ -43,7 +43,7 @@
     {
         tags = ViewBag.Tags;
     }
-    
+
     <div class="form-group">
         <span class="control-label">User:</span>
         <input type="text" name="user" value="@user" />
@@ -80,7 +80,6 @@
         <span class="control-label">File:</span>
         <input type="file" name="FileUpload" />
     </div>
-
 
     <input type="submit" name="UploadCatalog" id="Submit" value="Upload" />
 }

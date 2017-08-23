@@ -33,7 +33,11 @@ namespace m4dModels
                 existing.Add(id);
             }
 
-            return initial < existing.Count;
+            if (initial == existing.Count) return false;
+
+            SongIds = string.Join("|", existing);
+            Updated = DateTime.Now;
+            return true;
         }
     }
 }
