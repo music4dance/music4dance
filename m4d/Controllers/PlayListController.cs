@@ -154,7 +154,7 @@ namespace m4d.Controllers
 
             var newSongs = Database.SongsFromTracks(playList.User, tracks, playList.Tags);
 
-            // TODO: Diff with existing playlist
+            // TODONEXT: Diff with existing playlist or otherwise make sure we're not duplicating effort if we update twice
 
             // Match songs & update
 
@@ -165,8 +165,7 @@ namespace m4d.Controllers
                     AdminMonitor.UpdateTask("Starting Merge");
                     var results = DanceMusicService.GetService().MatchSongs(newSongs, DanceMusicService.MatchMethod.Merge);
                     var link =
-                        $"/admin/reviewbatch?title=Scrape Spotify&commit=CommitUploadCatalog&fileId={AdminController.CacheReview(new Review {PlayList=playList.Id,Merge=results})}&user={playList.User}" +
-                        playList.Tags;
+                        $"/admin/reviewbatch?title=Scrape Spotify&commit=CommitUploadCatalog&fileId={AdminController.CacheReview(new Review {PlayList=playList.Id,Merge=results})}&user={playList.User}";
                     AdminMonitor.CompleteTask(true, $"<a href='{link}'>{link}</a>");
                 }
                 catch (Exception e)
@@ -176,10 +175,6 @@ namespace m4d.Controllers
             });
 
             return RedirectToAction("AdminStatus", "Admin", AdminMonitor.Status);
-
-            // Add new songs
-
-            // Kick off spotify playlist update
         }
 
 

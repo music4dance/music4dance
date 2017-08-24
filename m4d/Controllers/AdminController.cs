@@ -1241,7 +1241,6 @@ namespace m4d.Controllers
 
             if (initial.Merge.Count <= 0) return View("Error");
 
-            // TODONEXT: This merge is screwing up and merging user & multidance together in the user field.
             var modified = Database.MergeCatalog(user, initial.Merge, dances);
 
             Database.SaveSongs(modified);
