@@ -14,7 +14,7 @@ namespace m4d.Controllers
         // GET: PlayLists
         public ActionResult Index()
         {
-            return View(Database.PlayLists.ToList());
+            return View(Database.PlayLists.OrderBy(p => p.User).ToList());
         }
 
         // GET: PlayLists/Details/5
@@ -152,9 +152,22 @@ namespace m4d.Controllers
 
             var tracks = MusicServiceManager.LookupServiceTracks(service, url, User);
 
+            var oldTrackIds = playList.SongIds;
+            if (oldTrackIds != null)
+            {
+                tracks = tracks.Where(t => !oldTrackIds.Contains(t.TrackId)).ToList();
+            }
+
+            if (tracks.Count == 0)
+            {
+                ViewBag.Title = "Update Playlist";
+                ViewBag.Message = $"No new tracks for playlist {playList.Id}";
+
+                return View("Info");
+            }
+
             var newSongs = Database.SongsFromTracks(playList.User, tracks, playList.Tags);
 
-            // TODONEXT: Diff with existing playlist or otherwise make sure we're not duplicating effort if we update twice
 
             // Match songs & update
 

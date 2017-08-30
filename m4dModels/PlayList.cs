@@ -21,11 +21,15 @@ namespace m4dModels
         public bool Deleted { get; set; }
         public string SongIds { get; set; }
 
+        public IEnumerable<string> SongIdList => string.IsNullOrEmpty(SongIds)
+            ? null
+            : SongIds.Split(new[] {'|'}, StringSplitOptions.RemoveEmptyEntries);
+
         public bool AddSongs(IEnumerable<string> songIds)
         {
             var existing = string.IsNullOrEmpty(SongIds)
             ? new HashSet<string>()
-            : new HashSet<string>(SongIds.Split(new[] { '|' }, StringSplitOptions.RemoveEmptyEntries));
+            : new HashSet<string>(SongIdList);
 
             var initial = existing.Count;
             foreach (var id in songIds.Where(id => !existing.Contains(id)))

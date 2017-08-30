@@ -974,7 +974,7 @@ namespace m4d.Controllers
             var review = new Review {Merge = results};
             ViewBag.FileId = CacheReview(review);
 
-            return View("ReviewBatch", review);
+            return View("ReviewBatch", review.Merge);
         }
 
 
@@ -1204,7 +1204,7 @@ namespace m4d.Controllers
                 results = Database.MatchSongs(newSongs,DanceMusicService.MatchMethod.Merge);
                 var review = new Review { Merge = results };
                 ViewBag.FileId = CacheReview(review);
-                return View("ReviewBatch", review);
+                return View("ReviewBatch", review.Merge);
             }
 
             return View("Error");
