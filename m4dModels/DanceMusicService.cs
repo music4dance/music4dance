@@ -1757,7 +1757,7 @@ namespace m4dModels
 
             if (withHeader && lines.Count > 0)
             {
-                lines.Insert(0, DanceBreak);
+                lines.Insert(0, PlaylistBreak);
             }
             return lines;
         }
