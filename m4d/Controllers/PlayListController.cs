@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
@@ -138,7 +139,7 @@ namespace m4d.Controllers
             // Load the playlist from spotify
             var service = MusicService.FromPlayList(playList.Type);
             var user = Database.FindUser(playList.User);
-            var url = service?.BuildPlayListLink(playList,user);
+            var url = service?.BuildPlayListLink(playList, user);
             if (url == null)
             {
                 ViewBag.errorMessage = $"Playlists of type ${playList.Type} not not yet supported.";
@@ -147,26 +148,36 @@ namespace m4d.Controllers
 
             if (!AdminMonitor.StartTask("UpdatePlayList"))
             {
-                throw new AdminTaskException("UpdatePlaylist failed to start because there is already an admin task running");
+                throw new AdminTaskException(
+                    "UpdatePlaylist failed to start because there is already an admin task running");
             }
 
-            var tracks = MusicServiceManager.LookupServiceTracks(service, url, User);
-
-            var oldTrackIds = playList.SongIds;
-            if (oldTrackIds != null)
+            IList<Song> newSongs;
+            try
             {
-                tracks = tracks.Where(t => !oldTrackIds.Contains(t.TrackId)).ToList();
-            }
+                var tracks = MusicServiceManager.LookupServiceTracks(service, url, User);
 
-            if (tracks.Count == 0)
+                var oldTrackIds = playList.SongIds;
+                if (oldTrackIds != null)
+                {
+                    tracks = tracks.Where(t => !oldTrackIds.Contains(t.TrackId)).ToList();
+                }
+
+                if (tracks.Count == 0)
+                {
+                    ViewBag.Title = "Update Playlist";
+                    ViewBag.Message = $"No new tracks for playlist {playList.Id}";
+
+                    return View("Info");
+                }
+
+                newSongs = Database.SongsFromTracks(playList.User, tracks, playList.Tags);
+            }
+            catch (Exception e)
             {
-                ViewBag.Title = "Update Playlist";
-                ViewBag.Message = $"No new tracks for playlist {playList.Id}";
-
-                return View("Info");
+                AdminMonitor.CompleteTask(false,$"Update Playlist failed: {e.Message}");
+                return View("Error", new HandleErrorInfo(e,"PlayListController", "Update"));
             }
-
-            var newSongs = Database.SongsFromTracks(playList.User, tracks, playList.Tags);
 
 
             // Match songs & update
