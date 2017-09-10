@@ -170,16 +170,15 @@ namespace m4d.Controllers
 
 
             // Match songs & update
-
             Task.Run(() =>
             {
                 try
                 {
+                    var dms = DanceMusicService.GetService();
                     AdminMonitor.UpdateTask("Starting Merge");
                     var results = DanceMusicService.GetService().MatchSongs(newSongs, DanceMusicService.MatchMethod.Merge);
-                    var link =
-                        $"/admin/reviewbatch?title=Scrape Spotify&commit=CommitUploadCatalog&fileId={AdminController.CacheReview(new Review {PlayList=playList.Id,Merge=results})}&user={playList.User}";
-                    AdminMonitor.CompleteTask(true, $"<a href='{link}'>{link}</a>");
+                    var succeeded = CommitCatalog(dms, new Review {PlayList = playList.Id, Merge = results}, playList.User);
+                    AdminMonitor.CompleteTask(true, $"Updated PlayList {playList.Id} with {succeeded} songs.");
                 }
                 catch (Exception e)
                 {

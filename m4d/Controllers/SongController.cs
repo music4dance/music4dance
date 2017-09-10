@@ -528,8 +528,8 @@ namespace m4d.Controllers
                 sd = Song.CreateFromTrack(user,strack,null,null,null,Database.DanceStats);
                 sd.EditLike(user, true);
                 UpdateSongAndServices(sd,user);
-                GetEchoData(sd,user);
-                GetSampleData(sd,user);
+                MusicServiceManager.GetEchoData(Database, sd,user);
+                MusicServiceManager.GetSampleData(Database, sd,user);
                 sd.SetupSerialization(user, Database.DanceStats);
             }
             else
@@ -1332,7 +1332,7 @@ namespace m4d.Controllers
                             processed += 1;
 
                             tried += 1;
-                            if (GetSampleData(song, user.UserName, dms))
+                            if (MusicServiceManager.GetSampleData(dms, song, user.UserName))
                             {
                                 succeeded.Add(song);
                             }
@@ -1370,41 +1370,6 @@ namespace m4d.Controllers
             {
                 return FailAdminTask($"BatchSample: {e.Message}", e);
             }
-        }
-
-        private bool GetSampleData(Song song, string user, DanceMusicService dms = null)
-        {
-            var spotify = MusicService.GetService(ServiceType.Spotify);
-            if (dms == null) dms = Database;
-            var edit = new Song(song, dms.DanceStats);
-
-            ServiceTrack track = null;
-            // First try Spotify
-            var ids = edit.GetPurchaseIds(spotify);
-            foreach (var id in ids)
-            {
-                string[] regions;
-                var idt = PurchaseRegion.ParseIdAndRegionInfo(id, out regions);
-                track = MusicServiceManager.GetMusicServiceTrack(idt, spotify);
-                if (track?.SampleUrl != null)
-                    break;
-            }
-
-            if (track == null)
-            {
-                var itunes = MusicService.GetService(ServiceType.ITunes);
-                // If spotify failed, try itunes
-                ids = edit.GetPurchaseIds(itunes);
-                foreach (var id in ids)
-                {
-                    track = MusicServiceManager.GetMusicServiceTrack(id, itunes);
-                    if (track?.SampleUrl != null)
-                        break;
-                }
-            }
-
-            edit.Sample = track?.SampleUrl??@".";
-            return dms.EditSong(user, song, edit);
         }
 
         [Authorize(Roles = "canEdit")]
@@ -1486,7 +1451,7 @@ namespace m4d.Controllers
                             //    continue;
                             //}
 
-                            if (GetEchoData(song, user, dms))
+                            if (MusicServiceManager.GetEchoData(dms, song, user))
                             {
                                 stemp.Add(song);
                             }
@@ -1526,62 +1491,6 @@ namespace m4d.Controllers
             }
         }
 
-        private bool GetEchoData(Song song, string user = null, DanceMusicService dms = null)
-        {
-            var service = MusicService.GetService(ServiceType.Spotify);
-            var ids = song.GetPurchaseIds(service);
-            if (dms == null) dms = Database;
-            if (user == null) user = "batch-e";
-            var edit = new Song(song, dms.DanceStats);
-
-            EchoTrack track = null;
-            foreach (var id in ids)
-            {
-                string[] regions;
-                var idt = PurchaseRegion.ParseIdAndRegionInfo(id, out regions);
-                track = MusicServiceManager.LookupEchoTrack(idt, service);
-                if (track != null)
-                    break;
-            }
-
-            if (track == null)
-            {
-                edit.Danceability = float.NaN;
-                return dms.EditSong(user, song, edit);
-            }
-
-            if (track.BeatsPerMinute != null)
-            {
-                edit.Tempo = track.BeatsPerMinute;
-            }
-            if (track.Danceability != null)
-            {
-                edit.Danceability = track.Danceability;
-            }
-            if (track.Energy != null)
-            {
-                edit.Energy = track.Energy;
-            }
-            if (track.Valence != null)
-            {
-                edit.Valence = track.Valence;
-            }
-            var tags = edit.GetUserTags(user);
-            var meter = track.Meter;
-            if (meter != null)
-            {
-                tags = tags.Add($"{meter}:Tempo");
-            }
-
-            if (!dms.EditSong(user, song, edit, new[] {new UserTag {Id = string.Empty, Tags = tags}}))
-                return false;
-
-            if (track.BeatsPerMeasure != null)
-            {
-                edit.InferFromGroups();
-            }
-            return true;
-        }
         #endregion
 
         #region General Utilities
@@ -1816,7 +1725,8 @@ namespace m4d.Controllers
                 {
                     if (service.Id == ServiceType.Spotify)
                     {
-                        GetEchoData(sd, user, dms);
+                        MusicServiceManager.GetEchoData(dms, sd, user);
+                        MusicServiceManager.GetSampleData(dms, sd, user);
                     }
                     changed = true;
                 }

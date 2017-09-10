@@ -163,9 +163,9 @@ namespace m4dModels
         // This is an additive merge - only add new things if they don't conflict with the old
         //  TODO: I'm pretty sure I can clean up this and all the other editing stuff by pushing
         //  the diffing part down into Song (which will also let me unit test it more easily)
-        public bool AdditiveMerge(ApplicationUser user, Song initial, Song edit, List<string> addDances)
+        public bool AdditiveMerge(string user, Song initial, Song edit, List<string> addDances)
         {
-            return initial.AdditiveMerge(user.UserName, edit, addDances, DanceStats);
+            return initial.AdditiveMerge(user, edit, addDances, DanceStats);
         }
 
         public void UpdateDances(ApplicationUser user, Song song, IEnumerable<DanceRatingDelta> deltas)
@@ -787,7 +787,7 @@ namespace m4dModels
             return ret;
         }
 
-        public IEnumerable<Song> MergeCatalog(ApplicationUser user, IList<LocalMerger> merges, IEnumerable<string> dances = null)
+        public IEnumerable<Song> MergeCatalog(string user, IList<LocalMerger> merges, IEnumerable<string> dances = null)
         {
             var songs = new List<Song>();
 
@@ -801,8 +801,8 @@ namespace m4dModels
                 {
                     if (dancesL.Any())
                     {
-                        m.Left.UpdateDanceRatingsAndTags(user.UserName, dancesL, Song.DanceRatingInitial,DanceStats);
-                        m.Left.InferDances(user.UserName);
+                        m.Left.UpdateDanceRatingsAndTags(user, dancesL, Song.DanceRatingInitial,DanceStats);
+                        m.Left.InferDances(user);
                     }
                     songs.Add(m.Left);
                 }

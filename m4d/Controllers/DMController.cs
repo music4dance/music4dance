@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Web;
 using System.Web.Mvc;
@@ -208,6 +209,28 @@ namespace m4d.Controllers
         }
         #endregion
 
+
+        public static int CommitCatalog(DanceMusicService dms, Review review, string userName, string danceIds=null)
+        {
+            List<string> dances = null;
+            if (!string.IsNullOrWhiteSpace(danceIds))
+            {
+                dances = new List<string>(danceIds.Split(';'));
+            }
+
+            if (review.Merge.Count <= 0) return 0;
+
+            var modified = dms.MergeCatalog(userName, review.Merge, dances).ToList();
+
+            dms.SaveSongs(modified);
+
+            if (!string.IsNullOrEmpty(review.PlayList))
+            {
+                dms.UpdatePlayList(review.PlayList, review.Merge.Select(m => m.Left));
+            }
+
+            return modified.Count;
+        }
 
         protected override void Dispose(bool disposing)
         {

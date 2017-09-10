@@ -1227,30 +1227,12 @@ namespace m4d.Controllers
             ViewBag.Headers = headers;
             ViewBag.Separator = separator;
 
-            if (string.IsNullOrWhiteSpace(userName))
+            if (string.IsNullOrEmpty(userName))
             {
                 userName = User.Identity.Name;
             }
-            var user = Database.FindOrAddUser(userName,DanceMusicService.PseudoRole);
 
-            List<string> dances = null;
-            if (!string.IsNullOrWhiteSpace(danceIds))
-            {
-                dances = new List<string>(danceIds.Split(';'));
-            }
-
-            if (initial.Merge.Count <= 0) return View("Error");
-
-            var modified = Database.MergeCatalog(user, initial.Merge, dances);
-
-            Database.SaveSongs(modified);
-
-            if (!string.IsNullOrEmpty(initial.PlayList))
-            {
-                Database.UpdatePlayList(initial.PlayList, initial.Merge.Select(m => m.Left));
-            }
-
-            return View("UploadCatalog");
+            return View(CommitCatalog(Database,initial,userName,danceIds) == 0 ? "Error" : "UploadCatalog");
         }
 
         //

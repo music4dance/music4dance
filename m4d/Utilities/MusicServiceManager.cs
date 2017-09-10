@@ -16,6 +16,7 @@ namespace m4d.Utilities
         //  between itunes and groove doesn't work.   So I'm going to shoe-horn this in to get it working
         //  and refactor later.
 
+        #region Search
         public IList<ServiceTrack> FindMusicServiceSong(Song song, MusicService service, bool clean = false, string title = null, string artist = null, string album = null, string region = null)
         {
             IList<ServiceTrack> list;
@@ -111,7 +112,101 @@ namespace m4d.Utilities
             dynamic results = GetMusicServiceResults(request,service);
             return EchoTrack.BuildEchoTrack(results);
         }
+        #endregion
 
+        #region Update
+        public bool GetEchoData(DanceMusicService dms, Song song, string user = null)
+        {
+            var service = MusicService.GetService(ServiceType.Spotify);
+            var ids = song.GetPurchaseIds(service);
+            if (user == null) user = "batch-e";
+            var edit = new Song(song, dms.DanceStats);
+
+            EchoTrack track = null;
+            foreach (var id in ids)
+            {
+                string[] regions;
+                var idt = PurchaseRegion.ParseIdAndRegionInfo(id, out regions);
+                track = LookupEchoTrack(idt, service);
+                if (track != null)
+                    break;
+            }
+
+            if (track == null)
+            {
+                edit.Danceability = float.NaN;
+                return dms.EditSong(user, song, edit);
+            }
+
+            if (track.BeatsPerMinute != null)
+            {
+                edit.Tempo = track.BeatsPerMinute;
+            }
+            if (track.Danceability != null)
+            {
+                edit.Danceability = track.Danceability;
+            }
+            if (track.Energy != null)
+            {
+                edit.Energy = track.Energy;
+            }
+            if (track.Valence != null)
+            {
+                edit.Valence = track.Valence;
+            }
+            var tags = edit.GetUserTags(user);
+            var meter = track.Meter;
+            if (meter != null)
+            {
+                tags = tags.Add($"{meter}:Tempo");
+            }
+
+            if (!dms.EditSong(user, song, edit, new[] { new UserTag { Id = string.Empty, Tags = tags } }))
+                return false;
+
+            if (track.BeatsPerMeasure != null)
+            {
+                edit.InferFromGroups();
+            }
+            return true;
+        }
+
+        public bool GetSampleData(DanceMusicService dms, Song song, string user)
+        {
+            var spotify = MusicService.GetService(ServiceType.Spotify);
+            var edit = new Song(song, dms.DanceStats);
+
+            ServiceTrack track = null;
+            // First try Spotify
+            var ids = edit.GetPurchaseIds(spotify);
+            foreach (var id in ids)
+            {
+                string[] regions;
+                var idt = PurchaseRegion.ParseIdAndRegionInfo(id, out regions);
+                track = GetMusicServiceTrack(idt, spotify);
+                if (track?.SampleUrl != null)
+                    break;
+            }
+
+            if (track == null)
+            {
+                var itunes = MusicService.GetService(ServiceType.ITunes);
+                // If spotify failed, try itunes
+                ids = edit.GetPurchaseIds(itunes);
+                foreach (var id in ids)
+                {
+                    track = GetMusicServiceTrack(id, itunes);
+                    if (track?.SampleUrl != null)
+                        break;
+                }
+            }
+
+            edit.Sample = track?.SampleUrl ?? @".";
+            return dms.EditSong(user, song, edit);
+        }
+        #endregion
+
+        #region Utilities
         private static IList<ServiceTrack> FilterKaraoke(IList<ServiceTrack> list)
         {
             return list.Where(track => !ContainsKaraoke(track.Name) && !ContainsKaraoke(track.Album)).ToList();
@@ -297,6 +392,7 @@ namespace m4d.Utilities
 
         private AWSFetcher AmazonFetcher => _awsFetcher ?? (_awsFetcher = new AWSFetcher());
         private AWSFetcher _awsFetcher;
+        #endregion
 
     }
 }

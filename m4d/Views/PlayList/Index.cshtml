@@ -12,6 +12,9 @@
 <table class="table">
     <tr>
         <th>
+            @Html.DisplayNameFor(model => model.Id)
+        </th>
+        <th>
             @Html.DisplayNameFor(model => model.User)
         </th>
         <th>
@@ -34,6 +37,9 @@
 
 @foreach (var item in Model) {
     <tr>
+        <td>
+            @Html.ActionLink(item.Id,"Details", new { id = item.Id })
+        </td>
         <td>
             @Html.DisplayFor(modelItem => item.User)
         </td>
