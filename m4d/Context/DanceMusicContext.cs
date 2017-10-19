@@ -1,10 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Data.Common;
 using System.Data.Entity;
 using System.Data.Entity.Validation;
 using System.Diagnostics;
-using m4d.Controllers;
 using m4dModels;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.EntityFramework;
@@ -43,10 +41,6 @@ namespace m4d.Context
             : base("DefaultConnection", throwIfV1Schema: false)
         {
             Database.CommandTimeout = 360;
-            if (!DMController.VerboseTelemetry) return;
-
-            var properties = new Dictionary<string, string> { { "id", _id.ToString() } };
-            DMController.TelemetryClient.TrackEvent("CreateDbContext", properties);
         }
 
         private Guid _id = Guid.NewGuid();
@@ -61,16 +55,6 @@ namespace m4d.Context
                 return connection;
             }
             return null;
-        }
-
-        protected override void Dispose(bool disposing)
-        {
-            if (DMController.VerboseTelemetry)
-            {
-                var properties = new Dictionary<string, string> { { "disposing", disposing.ToString() }, { "id", _id.ToString() } };
-                DMController.TelemetryClient.TrackEvent("DisposeDbContext", properties);
-            }
-            base.Dispose(disposing);
         }
 
         #endregion

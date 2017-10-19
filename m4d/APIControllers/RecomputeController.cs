@@ -24,25 +24,18 @@ namespace m4d.APIControllers
         {
             var authenticationHeader = Request.Headers.Authorization;
             var token = Encoding.UTF8.GetString(Convert.FromBase64String(authenticationHeader.Parameter));
-            var client = TelemetryClient;
             if (authenticationHeader.Scheme != "Token" || token != SecurityToken)
             {
-                client.TrackEvent("Recompute",
-                    new Dictionary<string, string> { { "Id", id }, { "Phase","Auth"}, {"Code","Fail"}, { "AuthScheme", authenticationHeader.Scheme }, { "ClientToken", token }, { "ServerToken", SecurityToken } });
                 return Unauthorized();
             }
 
             if (!force && !HasChanged(id))
             {
-                client.TrackEvent("Recompute",
-                    new Dictionary<string, string> { { "Id", id }, { "Phase", "Start" }, { "Code", "NoChange" } });
                 return Ok(new {changed = false, message = "No updates."});
             }
 
             if (!AdminMonitor.StartTask(id))
             {
-                client.TrackEvent("Recompute",
-                    new Dictionary<string, string> { { "Id", id }, { "Phase", "Start" }, { "Code", "Conflict" }, { "Task", AdminMonitor.Name } });
                 return Conflict();
             }
 
@@ -80,14 +73,10 @@ namespace m4d.APIControllers
                 //    message = "Updated {0} tag types";
                 //    break;
                 default:
-                    client.TrackEvent("Recompute",
-                        new Dictionary<string, string> { { "Id", id }, { "Phase", "Start" }, { "Code", "Unknown" } });
                     AdminMonitor.CompleteTask(false, $"Bad Id: {id}");
                     return BadRequest();
             }
 
-            client.TrackEvent("Recompute",
-                new Dictionary<string, string> { { "Id", id }, { "Phase", "Start" }, { "Code", "Okay" } });
 
             if (sync)
             {
@@ -122,13 +111,8 @@ namespace m4d.APIControllers
             {
                 if (!AdminMonitor.StartTask(id))
                 {
-                    TelemetryClient.TrackEvent("Recompute",
-                        new Dictionary<string, string> { { "Id", id }, { "Phase", "Iteration" }, { "Code", "Conflict" }, { "Task", AdminMonitor.Name }, { "Iteration", i[0].ToString() } });
                     return;
                 }
-
-                TelemetryClient.TrackEvent("Recompute",
-                    new Dictionary<string, string> { { "Id", id }, { "Phase", "Iteration" }, { "Code", "Pending" }, { "Task", AdminMonitor.Name }, { "Iteration", i[0].ToString() } });
 
                 i[0] += 1;
             }
@@ -196,8 +180,6 @@ namespace m4d.APIControllers
                 else
                 {
                     AdminMonitor.CompleteTask(true, message);
-                    TelemetryClient.TrackEvent("Recompute",
-                        new Dictionary<string, string> { { "Id", id }, { "Phase", "Intermediate" }, { "Code", "Success" }, { "Message", AdminMonitor.Status.ToString() }, { "Time", AdminMonitor.Duration.ToString() } });
                 }
                 return info.Complete;
             }
@@ -252,15 +234,11 @@ namespace m4d.APIControllers
         {
             RecomputeMarker.SetMarker(id);
             AdminMonitor.CompleteTask(true, message);
-            TelemetryClient.TrackEvent("Recompute",
-                new Dictionary<string, string> { { "Id", id }, {"Phase","End"}, { "Code", "Success" }, { "Message", AdminMonitor.Status.ToString() }, { "Time", AdminMonitor.Duration.ToString() } });
 
         }
 
         private static void Fail(Exception e)
         {
-            TelemetryClient.TrackEvent("Recompute",
-                new Dictionary<string, string> { { "Id", AdminMonitor.Name }, { "Phase", "End" }, { "Code", "Exception" }, { "Message", e.Message }, {"Time", AdminMonitor.Duration.ToString()} });
             AdminMonitor.CompleteTask(false, e.Message, e);
         }
 

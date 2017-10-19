@@ -1,7 +1,7 @@
 ﻿@using System.Globalization
 @using m4d.Controllers
 @using m4d.Utilities
-@using Microsoft.ApplicationInsights.Extensibility
+
 @{
     ViewBag.Title = "Logging";
 }
@@ -35,10 +35,6 @@
 <h3>Status</h3>
 <ul>
     <li>@Html.ActionLink("Show Status", "AdminStatus", "Admin")</li>
-    <li>Application Insights Telemetry Disabled = @Html.ActionLink(TelemetryConfiguration.Active.DisableTelemetry.ToString(), "DisableTelemetry", "Admin", new {disable = !TelemetryConfiguration.Active.DisableTelemetry}, null)</li>
-    <li>Verbose Telemetry Enabled = @Html.ActionLink(DMController.VerboseTelemetry.ToString(), "EnableVerboseTelemetry", "Admin", new {enable = !DMController.VerboseTelemetry}, null)</li>
-    <li>@Html.ActionLink("Flush Telemetry", "FlushTelemetry", "Admin")</li>
-    <li>@Html.ActionLink("Reset Admin Status", "ResetAdmin", "Admin")</li>
 </ul>
 
 <hr />

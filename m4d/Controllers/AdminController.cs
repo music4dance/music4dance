@@ -15,7 +15,6 @@ using m4d.Scrapers;
 using m4d.Utilities;
 using m4d.ViewModels;
 using m4dModels;
-using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.Azure.Search.Models;
 using Newtonsoft.Json;
 using Configuration = m4d.Migrations.Configuration;
@@ -484,27 +483,6 @@ namespace m4d.Controllers
             return View("Results");
         }
 
-        //
-        // Get: //DisableTelemetry
-        public ActionResult DisableTelemetry(bool disable)
-        {
-            Trace.WriteLineIf(TraceLevels.General.TraceInfo, $"Disable Telemetry: '{disable}'");
-            TelemetryConfiguration.Active.DisableTelemetry = disable;
-
-            return RedirectToAction("Diagnostics");
-        }
-
-        public ActionResult EnableVerboseTelemetry(bool enable)
-        {
-            Trace.WriteLineIf(TraceLevels.General.TraceInfo, $"Enable Verbose Telemetry: '{enable}'");
-            VerboseTelemetry = enable;
-            if (enable)
-            {
-                TelemetryConfiguration.Active.DisableTelemetry = false;
-            }
-
-            return RedirectToAction("Diagnostics");
-        }
 
         //
         // Get: //SetSearchIdx
@@ -937,7 +915,6 @@ namespace m4d.Controllers
         {
             ViewBag.Name = "Flush Telemetry";
 
-            TelemetryClient.Flush();
 
             ViewBag.Success = true;
             ViewBag.Message = "Telemetry has been flushed";

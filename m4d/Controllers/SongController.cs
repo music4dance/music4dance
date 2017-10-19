@@ -1534,8 +1534,6 @@ namespace m4d.Controllers
                 {"Filter", filter.ToString()},
                 {"User", User.Identity.Name}
             };
-            var client = TelemetryClient;
-            client.TrackEvent("SongIndex", properties);
 
             Database.UpdateSearches(User.Identity.IsAuthenticated ? Database.FindUser(User.Identity.Name) : null, filter);
         }

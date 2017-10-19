@@ -1,7 +1,6 @@
 ﻿/// <autosync enabled="true" />
 /// <reference path="add.js" />
 /// <reference path="advancedsearch.js" />
-/// <reference path="ai.0.22.9-build00167.min.js" />
 /// <reference path="azuresearch.js" />
 /// <reference path="bootstrap.min.js" />
 /// <reference path="catalog.js" />

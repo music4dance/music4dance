@@ -7,7 +7,6 @@ using System.Web.Mvc;
 using m4d.Context;
 using m4d.Utilities;
 using m4dModels;
-using Microsoft.ApplicationInsights;
 using Microsoft.AspNet.Identity.Owin;
 
 namespace m4d.Controllers
@@ -82,9 +81,6 @@ namespace m4d.Controllers
             }
         }
         private ApplicationUserManager _userManager;
-
-        public static TelemetryClient TelemetryClient => s_telemetryClient ?? (s_telemetryClient = new TelemetryClient());
-        private static TelemetryClient s_telemetryClient;
 
         public static bool VerboseTelemetry { get; set; } = false;
 
