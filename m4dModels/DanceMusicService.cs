@@ -380,9 +380,9 @@ namespace m4dModels
             return tracks.Where(track => !string.IsNullOrEmpty(track.Artist)).Select(track => Song.CreateFromTrack(user, track, dances, songTags, danceTags, DanceStats)).ToList();
         }
 
-        public IList<Song> SongsFromTracks(string user, IEnumerable<ServiceTrack> tracks, string multiDance)
+        public IList<Song> SongsFromTracks(string user, IEnumerable<ServiceTrack> tracks, string multiDance, string songTags)
         {
-            return tracks.Where(track => !string.IsNullOrEmpty(track.Artist)).Select(track => Song.CreateFromTrack(user, track, multiDance, DanceStats)).ToList();
+            return tracks.Where(track => !string.IsNullOrEmpty(track.Artist)).Select(track => Song.CreateFromTrack(user, track, multiDance, songTags, DanceStats)).ToList();
         }
 
         public IList<Song> SongsFromFile(string user, IList<string> lines)

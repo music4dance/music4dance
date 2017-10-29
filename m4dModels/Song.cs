@@ -778,7 +778,7 @@ namespace m4dModels
         }
 
         //private static readonly List<string> s_trackFields = new List<string>(new string[] {""});
-        public static Song CreateFromTrack(string user, ServiceTrack track, string multiDance, DanceStatsInstance stats)
+        public static Song CreateFromTrack(string user, ServiceTrack track, string multiDance, string songTags, DanceStatsInstance stats)
         {
             // Title;Artist;Duration;Album;Track;MutliDance;PurchaseInfo;
 
@@ -789,7 +789,8 @@ namespace m4dModels
                 LengthField,
                 AlbumField,
                 TrackField,
-                MultiDance
+                MultiDance,
+                SongTags
             };
 
             var cells = new List<string>
@@ -799,7 +800,8 @@ namespace m4dModels
                 track.Duration?.ToString(),
                 track.Album,
                 track.TrackNumber?.ToString(),
-                multiDance
+                multiDance,
+                songTags
             };
 
             return CreateFromTrack(user, track, fields, cells, stats);

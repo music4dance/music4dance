@@ -171,7 +171,8 @@ namespace m4d.Controllers
                     return View("Info");
                 }
 
-                newSongs = Database.SongsFromTracks(playList.User, tracks, playList.Tags);
+                var tags = playList.Tags.Split(new [] { "|||" },2,StringSplitOptions.None);
+                newSongs = Database.SongsFromTracks(playList.User, tracks, tags[0], tags.Length > 0 ? tags[1] : string.Empty);
             }
             catch (Exception e)
             {
