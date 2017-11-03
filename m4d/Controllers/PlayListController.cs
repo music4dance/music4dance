@@ -172,7 +172,7 @@ namespace m4d.Controllers
                 }
 
                 var tags = playList.Tags.Split(new [] { "|||" },2,StringSplitOptions.None);
-                newSongs = Database.SongsFromTracks(playList.User, tracks, tags[0], tags.Length > 0 ? tags[1] : string.Empty);
+                newSongs = Database.SongsFromTracks(playList.User, tracks, tags[0], tags.Length > 1 ? tags[1] : string.Empty);
             }
             catch (Exception e)
             {
