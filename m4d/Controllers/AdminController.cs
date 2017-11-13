@@ -1107,8 +1107,6 @@ namespace m4d.Controllers
                 separator = "\t";
             }
 
-            IList<LocalMerger> results = null;
-
             var appuser = Database.FindUser(user);
 
             if (lines == null)
@@ -1178,7 +1176,7 @@ namespace m4d.Controllers
             // ReSharper disable once InvertIf
             if (newSongs.Count > 0)
             {
-                results = Database.MatchSongs(newSongs,DanceMusicService.MatchMethod.Merge);
+                var results = Database.MatchSongs(newSongs,DanceMusicService.MatchMethod.Merge);
                 var review = new Review { Merge = results };
                 ViewBag.FileId = CacheReview(review);
                 return View("ReviewBatch", review.Merge);
