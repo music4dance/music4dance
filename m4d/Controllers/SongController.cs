@@ -7,6 +7,7 @@ using System.Net;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
+using CsQuery.ExtensionMethods;
 using DanceLibrary;
 using m4d.Utilities;
 using m4d.ViewModels;
@@ -556,7 +557,7 @@ namespace m4d.Controllers
             return View(sd);
         }
 
-        // TODONEXT: 
+        // TODO: 
         //  Add double/half time controls (or possibly edit of tempo)?
         //  Clean up the actual "add" page
         //      Give some reasonable feedback between search and start of load
@@ -1811,9 +1812,10 @@ namespace m4d.Controllers
             var props = new List<SongProperty>(song.SongProperties);
 
             var changed = false;
-            if (type.IndexOf('B') != -1) { changed |= CleanBrokenServices(props);}
-            if (type.IndexOf('S') != -1) { changed |= CleanSpotify(props, region);}
-            if (type.IndexOf('A') != -1){changed |= CleanOrphanedAlbums(props);}
+            if (type.IndexOf('X') != -1) {changed |= CleanDeletedServices(song.SongId,props);}
+            if (type.IndexOf('B') != -1) {changed |= CleanBrokenServices(props);}
+            if (type.IndexOf('S') != -1) {changed |= CleanSpotify(props, region);}
+            if (type.IndexOf('A') != -1) {changed |= CleanOrphanedAlbums(props);}
 
             Song newSong = null;
 
@@ -1937,6 +1939,77 @@ namespace m4d.Controllers
 
             return true;
         }
+
+        //private bool CleanDeletedServices(Guid songId, ICollection<SongProperty> props)
+        //{
+        //    var companions = new List<string> {Song.EditCommand, Song.UserField, Song.TimeField};
+
+        //    var del = new List<SongProperty>();
+        //    var trailing = new List<SongProperty>();
+        //    var addedX = false;
+        //    foreach (var prop in props)
+        //    {
+        //        if (prop.Name.StartsWith("Purchase:") && prop.Name.EndsWith(":XS"))
+        //        {
+        //            trailing.Add(prop);
+        //            addedX = true;
+        //        }
+        //        else if (companions.Contains(prop.Name))
+        //        {
+        //            if (addedX)
+        //            {
+        //                addedX = false;
+        //                del.AddRange(trailing);
+        //                trailing.Clear();
+        //            }
+        //            trailing.Add(prop);
+        //        }
+        //        else
+        //        {
+        //            if (addedX)
+        //            {
+        //                Trace.WriteLine($"Song {songId} has unexpected purchase pattern.");
+        //            }
+        //            trailing.Clear();
+        //        }
+        //    }
+
+        //    if (addedX)
+        //    {
+        //        del.AddRange(trailing);
+        //    }
+
+        //    if (del.Count == 0) return false;
+
+
+        //    Trace.WriteLineIf(TraceLevels.General.TraceInfo, $"Removed: {del.Count}");
+
+        //    foreach (var prop in del)
+        //    {
+        //        props.Remove(prop);
+        //    }
+
+        //    return true;
+        //}
+
+        private bool CleanDeletedServices(Guid songId, ICollection<SongProperty> props)
+        {
+            var companions = new List<string> { Song.EditCommand, Song.UserField, Song.TimeField };
+
+            var del = props.Where(prop => prop.Name.StartsWith("Purchase:") && prop.Name.EndsWith(":XS")).ToList();
+
+            if (del.Count == 0) return false;
+
+            Trace.WriteLineIf(TraceLevels.General.TraceInfo, $"Removed: {del.Count}");
+
+            foreach (var prop in del)
+            {
+                props.Remove(prop);
+            }
+
+            return true;
+        }
+
 
         private static bool CleanOrphanedAlbums(ICollection<SongProperty> props)
         {
