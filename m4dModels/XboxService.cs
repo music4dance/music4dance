@@ -19,6 +19,9 @@ namespace m4dModels
         {
 
         }
+
+        public override bool IsSearchable => false;
+
         public override bool RequiresKey => true;
 
         protected override string BuildPurchaseLink(PurchaseType pt, string album, string song)

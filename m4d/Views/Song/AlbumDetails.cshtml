@@ -22,11 +22,6 @@
     </div>
 }
 @Html.Partial("_PurchaseLinks",Model.PurchaseLinks)
-@*@foreach (var link in @Model.PurchaseLinks)
-{
-    <button id="@xid" type="button"><img src="@Url.Content("~/Content/xbox-logo.png")" alt="Availiable on Groove" width="20" height="20" /></button>
-    <a href="@link.Link"></a>
-}*@
 
 @if (User.IsInRole("showDiagnostics") && Model.HasPurchaseInfo)
 {
