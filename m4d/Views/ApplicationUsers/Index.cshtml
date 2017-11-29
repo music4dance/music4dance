@@ -24,6 +24,17 @@
 <p><strong>Registered Users:</strong> @registeredUsers</p>
 <p>@Html.ActionLink("New Pseudo User", "Create", null, new { @class = "btn btn-default", role = "button" })</p>
 
+@{
+    foreach (var service in MusicService.GetServices())
+    {
+        var sid = new string(service.CID,1);
+        var c = Model.Users.Count(u => u.ServicePreference.Contains(sid));
+        if (c == 0) {continue;}
+
+        <p>@service.Name = @c</p>
+    }
+}
+
 <hr />
 <h3>Users</h3>
 <table class="table">
