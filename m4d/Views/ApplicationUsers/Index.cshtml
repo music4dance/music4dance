@@ -32,7 +32,7 @@
     @foreach (var service in MusicService.GetServices())
     {
         var sid = new string(service.CID, 1);
-        var c = users.Count(u => u.ServicePreference.Contains(sid));
+        var c = users.Count(u => u.ServicePreference != null && u.ServicePreference.Contains(sid));
         if (c == 0)
         {
             continue;
