@@ -9,6 +9,7 @@
     var registeredUsers = users.Count(u => !(u.Email.EndsWith("@music4dance.net") ||
                 u.Email.EndsWith("@spotify.com") ||
                 u.Email.EndsWith("@thegray.com")));
+    var hasServicePreference = users.Count(u => !string.IsNullOrEmpty(u.ServicePreference));
 }
 
 <h2>User Administrator</h2>
@@ -27,7 +28,7 @@
 <p>@Html.ActionLink("New Pseudo User", "Create", null, new { @class = "btn btn-default", role = "button" })</p>
 
 <table class="table table-striped">
-    <tr><th>Service</th><th>Users</th><th>%</th></tr>
+    <tr><th>Service</th><th>Users</th><th>%u</th><th>%p</th></tr>
     @foreach (var service in MusicService.GetServices())
     {
         var sid = new string(service.CID, 1);
@@ -37,9 +38,9 @@
             continue;
         }
 
-        <tr><td>@service.Name</td><td>@c</td><td>@(((double)c / registeredUsers).ToString("0.##%"))</td></tr>
+        <tr><td>@service.Name</td><td>@c</td><td>@(((double)c / registeredUsers).ToString("0.##%"))</td><td>@(((double)c / hasServicePreference).ToString("0.##%"))</td></tr>
     }
-    <tr><td>none</td><td>@(users.Count(u => string.IsNullOrEmpty(u.ServicePreference)) - (users.Count - registeredUsers))</td></tr>
+    <tr><td>none</td><td>@(registeredUsers - hasServicePreference)</td><td>@(((double)(registeredUsers - hasServicePreference) / registeredUsers).ToString("0.##%"))</td></tr>
 </table>
 
 <hr />
