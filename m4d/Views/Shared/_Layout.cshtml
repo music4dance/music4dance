@@ -32,14 +32,15 @@
     <link rel="shortcut icon" href="~/Content/favicon.png"/>
     <link href="//fonts.googleapis.com/css?family=Source+Sans+Pro|Merienda:700" rel="stylesheet" type="text/css">
     @{
-        string theme = "blog";
+        var theme = "blog";
         if (ViewData.ContainsKey("Theme"))
         {
             theme = ViewBag.Theme;
         }
-        string themeBundle = "~/bundles/" + theme;
+        var themeBundle = "~/content/themes/" + theme + "-theme.css";
     }
     @Styles.Render(themeBundle)
+    @Styles.Render("~/content/site.css")
     @RenderSection("styles", false)
     <script type="text/javascript">
         var appInsights = window.appInsights || function(config) {
