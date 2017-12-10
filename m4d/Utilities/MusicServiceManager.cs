@@ -109,8 +109,16 @@ namespace m4d.Utilities
         public virtual EchoTrack LookupEchoTrack(string id, MusicService service)
         {
             string request = $"https://api.spotify.com/v1/audio-features/{id}"; //$"http://developer.echonest.com/api/v4/track/profile?api_key=B0SEV0FNKNEOHGFB0&format=json&id=spotify:track:{id}&bucket=audio_summary";
-            dynamic results = GetMusicServiceResults(request,service);
-            return EchoTrack.BuildEchoTrack(results);
+            try
+            {
+                dynamic results = GetMusicServiceResults(request, service);
+                return EchoTrack.BuildEchoTrack(results);
+            }
+            catch (WebException e)
+            {
+                Trace.WriteLineIf(TraceLevels.General.TraceError,$"Error looking up echo track {id}: {e.Message}");
+                return null;
+            }
         }
         #endregion
 
