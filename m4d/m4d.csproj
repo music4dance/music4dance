@@ -870,17 +870,26 @@
     <Content Include="Content\teal-bootstrap.css" />
     <Content Include="Content\tempo-50.png" />
     <Content Include="Content\helpmap.txt" />
-    <Content Include="Content\themes\admin-theme.css" />
+    <Content Include="Content\themes\admin-theme.css">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="Content\themes\admin-theme.min.css">
       <DependentUpon>admin-theme.css</DependentUpon>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Content\themes\blog-theme.css" />
+    <Content Include="Content\themes\blog-theme.css">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="Content\themes\blog-theme.min.css">
       <DependentUpon>blog-theme.css</DependentUpon>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Content\themes\music-theme.css" />
+    <Content Include="Content\themes\music-theme.css">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="Content\themes\music-theme.min.css">
       <DependentUpon>music-theme.css</DependentUpon>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Content\themes\tools-theme.css" />
     <Content Include="Content\themes\tools-theme.min.css">
