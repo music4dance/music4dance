@@ -64,11 +64,6 @@ namespace m4d
                 "~/Content/chosen.css",
                 "~/Content/jquery.nouislider.css",
                 "~/Content/jquery.nouislider.pips.css"));
-
-            RegisterTheme(bundles, "blog");
-            RegisterTheme(bundles, "music");
-            RegisterTheme(bundles, "tools");
-            RegisterTheme(bundles, "admin");
         }
 
         private static Bundle PageBundle(string name)
@@ -88,22 +83,5 @@ namespace m4d
             bundle.CdnFallbackExpression = fallback;
             return bundle;
         }
-
-        private static void RegisterTheme(BundleCollection bundles, string name)
-        {
-            var bundle = new Bundle("~/bundles/" + name);
-            bundle.Transforms.Add(CssTransformer);
-            bundle.Orderer = Orderer;
-            bundle.Include("~/Content/bootstrap/" + name + "-theme.less",
-                      "~/Content/site.css");
-            bundles.Add(bundle);
-        }
-
-        private static IBundleOrderer Orderer => s_orderer ?? (s_orderer = new NullOrderer());
-        private static IBundleOrderer s_orderer;
-
-        private static IBundleTransform CssTransformer => s_cssTransformer ?? (s_cssTransformer = new StyleTransformer());
-        private static IBundleTransform s_cssTransformer;
-
     }
 }

@@ -23,10 +23,10 @@
 
     // Handling for the player
     var purchaseInfo = {
-        X: { id: 'A', logo: 'amazon', title: 'Amazon', help: 'Available at Amazon' },
+        A: { id: 'A', logo: 'amazon', title: 'Amazon', help: 'Available at Amazon' },
         I: { id: 'I', logo: 'itunes', title: 'ITunes', help: 'Available on ITunes' },
         S: { id: 'S', logo: 'spotify', title: 'Spotify', help: 'Available on Spotify' },
-        A: { id: 'X', logo: 'xbox', title: 'Groove', help: 'Available on Groove Music' }
+        X: { id: 'X', logo: 'xbox', title: 'Groove', help: 'Available on Groove Music' }
     };
 
     var setupModal = function(event)
