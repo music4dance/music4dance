@@ -7,7 +7,6 @@ using System.Net;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
-using CsQuery.ExtensionMethods;
 using DanceLibrary;
 using m4d.Utilities;
 using m4d.ViewModels;
@@ -689,7 +688,7 @@ namespace m4d.Controllers
 
         //
         // GET: /Song/Delete/5
-        [Authorize(Roles = "canEdit")] 
+        [Authorize(Roles = "dbAdmin")] 
         public ActionResult Delete(Guid id, SongFilter filter = null)
         {
             var song = Database.FindSong(id);
@@ -701,7 +700,7 @@ namespace m4d.Controllers
 
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        [Authorize(Roles = "canEdit")] 
+        [Authorize(Roles = "dbAdmin")] 
         public ActionResult DeleteConfirmed(Guid id, SongFilter filter = null)
         {
             var song = Database.FindSong(id);
@@ -717,7 +716,7 @@ namespace m4d.Controllers
         // POST: /Song/AdminEdit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [Authorize(Roles = "canEdit")]
+        [Authorize(Roles = "dbAdmin")]
         public ActionResult AdminEdit(Guid songId, string properties, SongFilter filter=null)
         {
             var song = Database.FindSong(songId);
@@ -773,7 +772,7 @@ namespace m4d.Controllers
 
         //
         // Merge: /Song/MergeCandidates
-        [Authorize(Roles = "canEdit")]
+        [Authorize(Roles = "dbAdmin")]
         public ActionResult MergeCandidates(int? page, int? level, bool? autoCommit, SongFilter filter)
         {
             filter.Action = "MergeCandidates";
@@ -804,7 +803,7 @@ namespace m4d.Controllers
 
         //
         // Merge: /Song/ClearMergeCache
-        [Authorize(Roles = "canEdit")]
+        [Authorize(Roles = "dbAdmin")]
         public ActionResult ClearMergeCache()
         {
             Database.ClearMergeCandidates();
@@ -816,7 +815,7 @@ namespace m4d.Controllers
 
         //
         // GET: /Song/UpdateRatings/5
-        [Authorize(Roles = "canEdit")]
+        [Authorize(Roles = "dbAdmin")]
         public ActionResult UpdateRatings(Guid id, SongFilter filter = null)
         {
             var song = Database.FindSong(id);
@@ -837,7 +836,7 @@ namespace m4d.Controllers
         //
         // BulkEdit: /Song/BulkEdit
         [ValidateAntiForgeryToken]
-        [Authorize(Roles = "canEdit")]
+        [Authorize(Roles = "dbAdmin")]
         public ActionResult BulkEdit(Guid[] selectedSongs, string action, SongFilter filter = null)
         {
             var songs = Database.FindSongs(selectedSongs);
@@ -858,7 +857,7 @@ namespace m4d.Controllers
         //
         // Merge: /Song/Merge
         [ValidateAntiForgeryToken]
-        [Authorize(Roles = "canEdit")]
+        [Authorize(Roles = "dbAdmin")]
         public ActionResult MergeResults(string songIds, SongFilter filter = null)
         {
             // See if we can do the actual merge and then return the song details page...
@@ -895,7 +894,7 @@ namespace m4d.Controllers
         /// <param name="count">Number of songs to try, 1 is special cased as a user verified single entry</param>
         /// <param name="pageSize">Number of song to process per query</param>
         /// <returns></returns>
-        [Authorize(Roles = "canEdit")]
+        [Authorize(Roles = "dbAdmin")]
         public ActionResult BatchMusicService(string type= "X", string options = null, SongFilter filter=null, int count = 1, int pageSize = 1000)
         {
             try
@@ -1049,7 +1048,7 @@ namespace m4d.Controllers
         }
 
         // GET: /Song/MusicServiceSearch/5?search=name
-        [Authorize(Roles = "canEdit")]
+        [Authorize(Roles = "dbAdmin")]
         public ActionResult MusicServiceSearch(Guid? id = null, string type="X", string title = null, string artist = null, SongFilter filter=null)
         {
             var song = Database.FindSong(id??Guid.Empty);
@@ -1079,7 +1078,7 @@ namespace m4d.Controllers
 
         // ChooseMusicService: /Song/ChooseMusicService
         [ValidateAntiForgeryToken]
-        [Authorize(Roles = "canEdit")]
+        [Authorize(Roles = "dbAdmin")]
         public ActionResult ChooseMusicService(Guid songId, string type, string name, string album, string artist, string trackId, string collectionId, string alternateId, string duration, string genre, int? trackNum, SongFilter filter)
         {
             var service = MusicService.GetService(type);
@@ -1103,7 +1102,7 @@ namespace m4d.Controllers
             return View("Edit", song);
         }
 
-        [Authorize(Roles = "canEdit")]
+        [Authorize(Roles = "dbAdmin")]
         public ActionResult BatchClearUpdate(SongFilter filter = null, string type = "U", int count = 100)
         {
             // Type = (U)pdate
@@ -1166,7 +1165,7 @@ namespace m4d.Controllers
 
 
         // CleanMusicServices: /Song/CleanMusicServices
-        [Authorize(Roles = "canEdit")]
+        [Authorize(Roles = "dbAdmin")]
         public ActionResult CleanMusicServices(Guid id, string type = "ABS", SongFilter filter = null)
         {
             var song = Database.FindSong(id);
@@ -1189,7 +1188,7 @@ namespace m4d.Controllers
         // A= Album
         // B= Broken
         // S= Spotify Region
-        [Authorize(Roles = "canEdit")]
+        [Authorize(Roles = "dbAdmin")]
         public ActionResult BatchCleanService(SongFilter filter = null, string type="ABS",int count = 100)
         {
             try
@@ -1281,7 +1280,7 @@ namespace m4d.Controllers
         }
 
 
-        [Authorize(Roles = "canEdit")]
+        [Authorize(Roles = "dbAdmin")]
         public ActionResult BatchSamples(string options = null, SongFilter filter = null, int count = 1, int pageSize = 1000)
         {
             try
@@ -1373,7 +1372,7 @@ namespace m4d.Controllers
             }
         }
 
-        [Authorize(Roles = "canEdit")]
+        [Authorize(Roles = "dbAdmin")]
         public ActionResult BatchEchoNest(SongFilter filter = null, string options = null, int count = 1, int pageSize = 1000)
         {
             try

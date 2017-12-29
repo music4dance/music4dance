@@ -7,7 +7,7 @@
     <li class="list-group-item">
         @if (isModerator)
         {
-            <a role="button" class="btn btn-small btn-danger" style="padding: 1px 3px 0 3px" data-show="tooltip" data-placement="top" title="Moderator Only: Click to completely remove this dance style and all related tags from this song." data-bind="click:removeDance">
+            <a role="button" class="btn btn-sm btn-danger" style="padding: 1px 3px 0 3px" data-show="tooltip" data-placement="top" title="Moderator Only: Click to completely remove this dance style and all related tags from this song." data-bind="click:removeDance">
                 <span class="glyphicon glyphicon-remove-circle"></span>
             </a>
         }
@@ -15,7 +15,7 @@
             <a data-bind="attr: {href: link}, text: DanceName, css:danceTag"></a>
         </span>
         &nbsp;
-        <a role="button" class="btn btn-small btn-info" style="padding: 2px" data-show="tooltip" data-placement="top" data-bind="attr: {'data-original-title':liketip},  visible:canTag"><img data-bind="click:toggleVote, attr: {src:voteImage, 'alt':voteName}" /></a>
+        <a role="button" class="btn btn-sm btn-info" style="padding: 2px" data-show="tooltip" data-placement="top" data-bind="attr: {'data-original-title':liketip},  visible:canTag"><img data-bind="click:toggleVote, attr: {src:voteImage, 'alt':voteName}" /></a>
         <span style="font-size: 18px" data-bind="template: {name:'tag-template',foreach:TagSummary.tagTypes}"></span>
     </li>
 </script>
