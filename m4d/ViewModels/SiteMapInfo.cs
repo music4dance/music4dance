@@ -144,6 +144,7 @@ namespace m4d.ViewModels
                             }
                         },
                         new SiteMapEntry {Title =  "Wedding Music", Reference="dances/wedding-music"},
+                        new SiteMapEntry {Title =  "Holiday Music", Reference="dances/holiday-music"},
                     }
                 },
                 new SiteMapDances(),

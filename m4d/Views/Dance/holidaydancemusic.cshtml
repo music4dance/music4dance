@@ -1,0 +1,27 @@
+﻿@model IEnumerable<Song>
+
+@{
+    ViewBag.Title = "Holiday Dance Music";
+    ViewBag.Description = "Help finding holdiay dance music for partner dancing - Foxtrot, Waltz, Swing and others.";
+}
+
+<ol class="breadcrumb">
+    <li><a href="/">Music4Dance</a></li>
+    <li><a href="/dances">Dances</a></li>
+    <li class="active">Holiday Music</li>
+</ol>
+
+<h1>@ViewBag.Title</h1>
+<p>This page includes a list of all of the Ballroom and other partner dance music on the site that has been tagged as "Holiday" or "Christmas" music.</p>
+
+@{Html.RenderPartial("_ListSongs", Model, ViewData);}
+
+<p>@Model.Count() songs.</p>
+
+<div class="row">
+    <div class="col-sm-10 col-sm-offset-1">
+        <p class="big-text">
+            <img src="~/Content/info.png" alt="tools" width="24" height="24" />Read the <a href="https://www.music4dance.net/blog">music4dance blog</a> entries about <a href="https://www.music4dance.net/blog/tag/holiday">Holiday Music</a>.
+        </p>
+    </div>
+</div>
