@@ -927,6 +927,24 @@
     ]
   },
   {
+    "Name": "Tango Vals",
+    "Id": "TGV",
+    "Meter": {
+      "Numerator": 3,
+      "Denominator": 4
+    },
+    "Instances": [
+      {
+        "Style": "Social",
+        "TempoRange": {
+          "Min": 50,
+          "Max": 80
+        },
+        "Exceptions": []
+      }
+    ]
+  },
+  {
     "Name": "Neo Tango",
     "BlogTag" : "tango",
     "Id": "NTN",

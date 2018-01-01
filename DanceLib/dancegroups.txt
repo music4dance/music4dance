@@ -21,7 +21,7 @@
     "Name": "Tango",
     "Id" : "TNG",
     "BlogTag" : "tango",
-    "DanceIds" : ["TGO","ATN", "NTN", "MGA"]
+    "DanceIds" : ["TGO","ATN", "NTN", "MGA", "TGV"]
   },
   {
     "Name": "Latin",
