@@ -463,7 +463,7 @@ namespace m4d.Controllers
             }
 
             HelpPage = "song-details";
-            BuildDanceList(DanceBags.Stats | DanceBags.Single);
+            BuildDanceList(DanceBags.Stats | DanceBags.Single, true);
             return View(song);
         }
 
@@ -579,11 +579,11 @@ namespace m4d.Controllers
                 //newSong.AddTags(new TagList(userTags), user.UserName, Database.DanceStats, song);
                 SaveSong(newSong);
 
-                BuildDanceList(DanceBags.Stats | DanceBags.Single);
+                BuildDanceList(DanceBags.Stats | DanceBags.Single, true);
                 return View("details", newSong);
             }
 
-            ViewBag.DanceList = GetDancesSingle(Database);
+            ViewBag.DanceList = GetDancesSingle(Database,true);
 
             // Clean out empty albums
             for (var i = 0; i < song.Albums.Count; )
@@ -625,7 +625,7 @@ namespace m4d.Controllers
             ViewBag.paramShowMPM = true;
             ViewBag.paramShowBPM = true;
 
-            BuildDanceList(DanceBags.Stats | DanceBags.Single);
+            BuildDanceList(DanceBags.Stats | DanceBags.Single, true);
         }
         //
         // POST: /Song/Edit/5
@@ -649,7 +649,7 @@ namespace m4d.Controllers
                     edit = Database.FindSong(edit.SongId, user.UserName);
 
                     ViewBag.BackAction = "Index";
-                    BuildDanceList(DanceBags.Stats | DanceBags.Single);
+                    BuildDanceList(DanceBags.Stats | DanceBags.Single, true);
                     return View("details", edit);
                 }
 
@@ -730,7 +730,7 @@ namespace m4d.Controllers
             var user = Database.FindUser(User.Identity.Name);
             var sd = Database.FindSong(songId, user.UserName);
 
-            BuildDanceList(DanceBags.Stats | DanceBags.Single);
+            BuildDanceList(DanceBags.Stats | DanceBags.Single, true);
             return View("details", sd);
         }
 
@@ -1494,7 +1494,7 @@ namespace m4d.Controllers
         #endregion
 
         #region General Utilities
-        static public IEnumerable<SelectListItem> GetDancesSingle(DanceMusicService dms)
+        public static IEnumerable<SelectListItem> GetDancesSingle(DanceMusicService dms, bool includeEmpty=false)
         {
             var counts = DanceStatsManager.GetFlatDanceStats(dms);
 
@@ -1504,7 +1504,7 @@ namespace m4d.Controllers
             };
 
             // ReSharper disable once LoopCanBeConvertedToQuery
-            foreach (var cnt in counts.Where(c => c.SongCount > 0))
+            foreach (var cnt in counts.Where(c => includeEmpty ||  c.SongCount > 0))
             {
                 dances.Add(new SelectListItem { Value = cnt.DanceId, Text = cnt.DanceName, Selected = false });
             }
@@ -1548,7 +1548,7 @@ namespace m4d.Controllers
             All = List|Stats|Single
         }
 
-        private void BuildDanceList(DanceBags bags = DanceBags.All)
+        private void BuildDanceList(DanceBags bags = DanceBags.All, bool includeEmpty=false)
         {
             if ((bags & DanceBags.List) == DanceBags.List)
                 ViewBag.Dances = DanceStatsManager.GetDanceStats(Database);
@@ -1557,7 +1557,7 @@ namespace m4d.Controllers
                 ViewBag.DanceStats = DanceStatsManager.GetInstance(Database);
 
             if ((bags & DanceBags.Single) == DanceBags.Single)
-                ViewBag.DanceList = GetDancesSingle(Database);
+                ViewBag.DanceList = GetDancesSingle(Database, includeEmpty);
         }
         #endregion
 
