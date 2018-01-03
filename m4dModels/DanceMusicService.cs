@@ -1810,7 +1810,26 @@ namespace m4dModels
             return true;
         }
 
-        public void CloneIndex(string to, string from = "default")
+        public bool UpdateIndex(IEnumerable<string> dances, string id = "default")
+        {
+            var info = SearchServiceInfo.GetInfo(id);
+            using (var serviceClient = new SearchServiceClient(info.Name, new SearchCredentials(info.AdminKey)))
+            {
+                var index = serviceClient.Indexes.Get(info.Index);
+                foreach (var dance in dances)
+                {
+                    var field = Song.IndexFieldFromDanceId(dance);
+                    if (index.Fields.All(f => f.Name != field.Name))
+                    {
+                        index.Fields.Add(field);
+                    }
+                }
+                serviceClient.Indexes.CreateOrUpdate(index);
+            }
+            return true;
+        }
+
+            public void CloneIndex(string to, string from = "default")
         {
             AdminMonitor.UpdateTask("StartBackup");
             var lines = BackupIndex(from) as IList<string>;

@@ -2517,7 +2517,7 @@ namespace m4dModels
         public bool InferFromGroups()
         {
             return Tempo.HasValue && 
-                new[] {"SWG", "FXT", "TNG", "WLZ"}.Aggregate(false, (current, @group) => current | InferFromGroup(@group));
+                new[] {"SWG", "FXT", "WLZ"}.Aggregate(false, (current, @group) => current | InferFromGroup(@group));
         }
 
         public bool InferFromGroup(string gid, string user)
@@ -2539,15 +2539,17 @@ namespace m4dModels
             if (!Tempo.HasValue) return false;
             var tempo = Tempo.Value;
 
-            var dg = Dances.Instance.DanceFromId(gid) as DanceGroup;
-            if (dg == null) return false;
+            if (!(Dances.Instance.DanceFromId(gid) is DanceGroup dg)) return false;
 
             var changed = false;
             // ReSharper disable once LoopCanBePartlyConvertedToQuery
             foreach (var dto in dg.Members)
             {
                 var dt = dto as DanceType;
-                if (dt == null || !dt.TempoRange.ToBpm(dt.Meter).Contains(tempo) || (existing != null && existing.Contains(dt.Id))) continue;
+                if (dt == null || 
+                    dt.Id == "TGV" ||
+                    !dt.TempoRange.ToBpm(dt.Meter).Contains(tempo) || 
+                    existing != null && existing.Contains(dt.Id)) continue;
 
                 var drd = new DanceRatingDelta(dt.Id, 1);
                 UpdateDanceRating(drd, true);
@@ -3265,7 +3267,7 @@ namespace m4dModels
             fields.AddRange(
                 from sc in fsc
                 where sc.SongCount != 0 && sc.DanceId != "ALL"
-                select new Field(BuildDanceFieldName(sc.DanceId), Microsoft.Azure.Search.Models.DataType.Int32) { IsSearchable = false, IsSortable = true, IsFilterable = false, IsFacetable = false, IsRetrievable = false });
+                select IndexFieldFromDanceId(sc.DanceId));
 
             s_index = new Index
             {
@@ -3278,6 +3280,11 @@ namespace m4dModels
             };
 
             return s_index;
+        }
+
+        public static Field IndexFieldFromDanceId(string id)
+        {
+            return new Field(BuildDanceFieldName(id), Microsoft.Azure.Search.Models.DataType.Int32) { IsSearchable = false, IsSortable = true, IsFilterable = false, IsFacetable = false, IsRetrievable = false };
         }
 
         public static void ResetIndex()

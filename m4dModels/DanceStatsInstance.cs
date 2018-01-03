@@ -33,6 +33,7 @@ namespace m4dModels
             }
             Map = List.ToDictionary(ds => ds.DanceId);
 
+            var newDances = new List<string>();
             foreach (var ds in List)
             {
                 if (dms == null)
@@ -42,7 +43,8 @@ namespace m4dModels
                 else if (ds.SongCount > 0)
                 {
                     // TopN and MaxWeight
-                    var filter = dms.AzureParmsFromFilter(new SongFilter { Dances = ds.DanceId, SortOrder = "Dances" }, 10);
+                    var filter =
+                        dms.AzureParmsFromFilter(new SongFilter {Dances = ds.DanceId, SortOrder = "Dances"}, 10);
                     DanceMusicService.AddAzureCategories(filter, "GenreTags,StyleTags,TempoTags,OtherTags", 100);
                     var results = dms.AzureSearch(null, filter, DanceMusicService.CruftFilter.NoCruft, source, this);
                     ds.TopSongs = results.Songs;
@@ -52,9 +54,27 @@ namespace m4dModels
                     if (dr != null) ds.MaxWeight = dr.Weight;
 
                     // SongTags
-                    ds.SongTags = (results.FacetResults == null) ? new TagSummary() : new TagSummary(results.FacetResults, TagManager.TagMap);
+                    ds.SongTags = (results.FacetResults == null)
+                        ? new TagSummary()
+                        : new TagSummary(results.FacetResults, TagManager.TagMap);
+                }
+                else
+                {
+                    if (ds.Dance.Description == null)
+                    {
+                        dms.Dances.Add(new Dance {Id = ds.DanceId, Description = "We're busy doing research and pulling together a general description for this dance style. Please check back later for more info."});
+                        dms.SaveChanges();
+                    }
+
+                    newDances.Add(ds.DanceId);
+                    ds.TopSongs = new List<Song>();
+                    ds.SongTags = new TagSummary();
+
+                    Trace.WriteLine(ds.DanceId);
                 }
             }
+
+            dms?.UpdateIndex(newDances);
         }
 
         [JsonProperty]
