@@ -144,6 +144,11 @@ namespace m4dModels
             return edit.AdminEdit(properties,DanceStats);
         }
 
+        public bool AdminAppendSong(Song edit, string user, string properties)
+        {
+            return edit.AdminAppend(user, properties, DanceStats);
+        }
+
         public bool AdminEditSong(string properties)
         {
             Guid id;
@@ -2048,6 +2053,11 @@ namespace m4dModels
 
         public IEnumerable<Song> TakeTail(SearchParameters parameters, int max, DateTime? from = null, string id = "default")
         {
+            return TakeTail(null, parameters, max, from, id);
+        }
+
+        public IEnumerable<Song> TakeTail(string search, SearchParameters parameters, int max, DateTime? from = null, string id = "default")
+        {
             parameters.OrderBy = new[] { "Modified desc" };
             parameters.IncludeTotalResultCount = false;
             parameters.Top = null;
@@ -2061,7 +2071,7 @@ namespace m4dModels
                 do
                 {
                     var response = (token == null)
-                        ? indexClient.Documents.Search(null, parameters)
+                        ? indexClient.Documents.Search(search, parameters)
                         : indexClient.Documents.ContinueSearch(token);
 
                     foreach (var doc in response.Results)

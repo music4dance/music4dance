@@ -60,9 +60,23 @@ else
 {
     <div class="row">
         <div class="col-md-12">
-            <b>Raw Search: </b>@WebUtility.UrlDecode(ViewBag.RawSearch.ToString()) 
+            <b>Raw Search: </b>@WebUtility.UrlDecode(ViewBag.RawSearch.ToString())
         </div>
     </div>
+}
+
+@if (User.IsInRole("dbAdmin"))
+{
+    using (Html.BeginForm("BatchAdminEdit", "Song", FormMethod.Post, new { enctype = "multipart/form-data" }))
+    {
+        @Html.AntiForgeryToken();
+        <span>User:</span> <input type="text" name="user" />
+        <br />
+        <span>Properties:</span> <input type="text" name="properties" />
+        <input type="hidden" name="filter" value="@filter"/>
+        <input type="submit" name="BatchAdminEdit" id="Submit" value="Upload" />
+    }
+
 }
 
 @section Scripts

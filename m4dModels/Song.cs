@@ -1258,6 +1258,27 @@ namespace m4dModels
             return true;
         }
 
+        internal bool AdminAppend(string user, string newProperties, DanceStatsInstance stats)
+        {
+            CreateEditProperties(user,EditCommand);
+
+            var oldProperties = Serialize(new[] { NoSongId });
+
+            DanceRatings.Clear();
+            ModifiedBy.Clear();
+
+            SongProperties.Clear();
+
+            ClearValues();
+
+            Load($"{oldProperties}\t{newProperties}", stats);
+
+            Modified = DateTime.Now;
+
+            return true;
+        }
+
+
         // Edit 'this' based on SongBase + extras
         public bool Edit(string user, Song edit, IEnumerable<UserTag> tags, DanceStatsInstance stats)
         {
