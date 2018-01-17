@@ -116,7 +116,10 @@ namespace m4dModels
             Page = raw.Page;
         }
 
-        public string Action { get { return _action ?? "index"; } set { _action = value; } }
+        public string Action {
+            get => _action ?? "index";
+            set => _action = value;
+        }
         private string _action;
 
         public string Dances { get; set; }
