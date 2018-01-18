@@ -113,7 +113,9 @@ namespace m4dModels
             SearchString = raw.SearchText;
             Dances = raw.ODataFilter;
             SortOrder = raw.Sort;
+            Purchase = raw.Description;
             Page = raw.Page;
+            Level = raw.CruftFilter;
         }
 
         public string Action {
@@ -134,6 +136,8 @@ namespace m4dModels
         public int? Level { get; set; }
 
         public string TargetAction => IsAzure ? "azuresearch" : Action;
+
+        public bool DescriptionOverride => IsRaw && !string.IsNullOrWhiteSpace(Purchase);
 
         public DanceQuery DanceQuery => new DanceQuery(Dances);
         public UserQuery UserQuery => new UserQuery(User);
@@ -361,7 +365,7 @@ namespace m4dModels
 
                 if (IsRaw)
                 {
-                    return new RawSearch(this).ToString();
+                    return string.IsNullOrWhiteSpace(Purchase) ? new RawSearch(this).ToString() : Purchase;
                 }
 
                 var separator = " ";

@@ -151,7 +151,7 @@ namespace m4d.Controllers
             return DoAzureSearch(filter);
         }
 
-        private ActionResult DoAzureSearch(SongFilter filter, string description = null)
+        private ActionResult DoAzureSearch(SongFilter filter)
         {
             HelpPage = filter.IsSimple ? "song-list" : "advanced-search";
 
@@ -175,7 +175,6 @@ namespace m4d.Controllers
             SetupLikes(results.Songs, dances.Count == 1 ? dances[0] : null);
 
             ReportSearch(filter);
-            ViewBag.Description = description;
 
             return View("azuresearch",songs);
         }
@@ -194,13 +193,12 @@ namespace m4d.Controllers
         //
         // GET: /Song/RawSearch
         [AllowAnonymous]
-        public ActionResult RawSearch([Bind(Include = "SearchText,ODataFilter,Sort,IsLucene")] RawSearch rawSearch, string description = null)
+        public ActionResult RawSearch([Bind(Include = "SearchText,ODataFilter,Sort,Description,IsLucene")] RawSearch rawSearch)
         {
             HelpPage = "advanced-search";
 
             ViewBag.AzureIndexInfo = Song.GetIndex(Database);
-            ViewBag.Description = description;
-            return ModelState.IsValid ? DoAzureSearch(new SongFilter(rawSearch), description) : View("RawSearchForm",rawSearch);
+            return ModelState.IsValid ? DoAzureSearch(new SongFilter(rawSearch)) : View("RawSearchForm",rawSearch);
         }
 
         //

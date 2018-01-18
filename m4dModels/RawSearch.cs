@@ -35,8 +35,12 @@ namespace m4dModels
         public string ODataFilter { get; set; }
         [Display(Name = @"Sort")]
         public string Sort { get; set; }
+        [Display(Name = @"Description")]
+        public string Description { get; set; }
         [Display(Name = @"Use Lucene Syntax")]
         public bool IsLucene { get; set; }
+        [Display(Name = @"CruftFilter")]
+        public int? CruftFilter { get; set; }
 
         public int? Page { get; set; }
 

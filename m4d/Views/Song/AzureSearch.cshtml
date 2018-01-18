@@ -4,10 +4,10 @@
 @{
     SongFilter filter = ViewData.ContainsKey("SongFilter") ? ViewBag.SongFilter : SongFilter.AzureSimple;
 
-    var description = ViewData.ContainsKey("Description") ? ViewBag.Description : null;
+    var descriptionOverride = filter.DescriptionOverride ? filter.Description : null;
 
     ViewBag.Title = "Songs for Dancing";
-    ViewBag.Description = "music4dance catalog: " + description??filter.Description;
+    ViewBag.Description = "music4dance catalog: " + filter.Description;
 
     var dances = (IList<DanceStats>)ViewBag.Dances;
 
@@ -17,7 +17,7 @@
 
 @Html.Partial("_SetupFilterScript")
 
-@SongHelper.SearchHeader(Html, filter, dances, userName, description)
+@SongHelper.SearchHeader(Html, filter, dances, userName, descriptionOverride)
 
 
 @if (User.IsInRole("dbAdmin"))
