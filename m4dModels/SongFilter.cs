@@ -115,7 +115,7 @@ namespace m4dModels
             SortOrder = raw.Sort;
             Purchase = raw.Description;
             Page = raw.Page;
-            Level = raw.CruftFilter;
+            Level = raw.CruftFilter == DanceMusicService.CruftFilter.NoCruft ? null : (int?) raw.CruftFilter;
         }
 
         public string Action {
@@ -142,6 +142,11 @@ namespace m4dModels
         public DanceQuery DanceQuery => new DanceQuery(Dances);
         public UserQuery UserQuery => new UserQuery(User);
         public SongSort SongSort => new SongSort(SortOrder);
+
+        public DanceMusicService.CruftFilter CruftFilter =>
+            !Action.StartsWith("merge",StringComparison.OrdinalIgnoreCase) && Level.HasValue 
+                ? (DanceMusicService.CruftFilter) Level.Value 
+                : DanceMusicService.CruftFilter.NoCruft;
 
         public IList<string> ODataSort
         {

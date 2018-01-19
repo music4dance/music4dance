@@ -45,9 +45,18 @@ namespace m4d.Controllers
 
             base.OnActionExecuting(filterContext);
         }
-        private DanceMusicService.CruftFilter DefaultCruftFilter => User.IsInRole(DanceMusicService.EditRole)
-            ? DanceMusicService.CruftFilter.AllCruft
-            : DanceMusicService.CruftFilter.NoCruft;
+
+        private DanceMusicService.CruftFilter DefaultCruftFilter(SongFilter filter = null)
+        {
+            if (filter == null || filter.CruftFilter == DanceMusicService.CruftFilter.NoCruft)
+            {
+                return User.IsInRole(DanceMusicService.DiagRole)
+                    ? DanceMusicService.CruftFilter.AllCruft
+                    : DanceMusicService.CruftFilter.NoCruft;
+            }
+
+            return filter.CruftFilter;
+        }
 
         #region Commands
 
@@ -165,7 +174,7 @@ namespace m4d.Controllers
 
             ViewBag.RawSearch = p;
 
-            var results = Database.AzureSearch(filter.SearchString, p, DefaultCruftFilter, "default", Database.DanceStats);
+            var results = Database.AzureSearch(filter.SearchString, p, DefaultCruftFilter(filter), "default", Database.DanceStats);
             BuildDanceList();
             ViewBag.SongFilter = filter;
 
@@ -193,7 +202,7 @@ namespace m4d.Controllers
         //
         // GET: /Song/RawSearch
         [AllowAnonymous]
-        public ActionResult RawSearch([Bind(Include = "SearchText,ODataFilter,Sort,Description,IsLucene")] RawSearch rawSearch)
+        public ActionResult RawSearch([Bind(Include = "SearchText,ODataFilter,Sort,Description,IsLucene,CruftFilter")] RawSearch rawSearch)
         {
             HelpPage = "advanced-search";
 
@@ -477,7 +486,7 @@ namespace m4d.Controllers
 
             if (!string.IsNullOrWhiteSpace(title))
             {
-                model = AlbumViewModel.Create(title, DefaultCruftFilter, Database);
+                model = AlbumViewModel.Create(title, DefaultCruftFilter(), Database);
             }
             else
             {
@@ -499,7 +508,7 @@ namespace m4d.Controllers
             if (!string.IsNullOrWhiteSpace(name))
             {
                 
-                model = ArtistViewModel.Create(name, DefaultCruftFilter, Database);
+                model = ArtistViewModel.Create(name, DefaultCruftFilter(), Database);
             }
 
             if (model == null)

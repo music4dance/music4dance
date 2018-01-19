@@ -40,7 +40,7 @@ namespace m4dModels
         [Display(Name = @"Use Lucene Syntax")]
         public bool IsLucene { get; set; }
         [Display(Name = @"CruftFilter")]
-        public int? CruftFilter { get; set; }
+        public DanceMusicService.CruftFilter CruftFilter { get; set; }
 
         public int? Page { get; set; }
 

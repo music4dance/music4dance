@@ -1979,6 +1979,10 @@ namespace m4dModels
 
         public SearchResults AzureSearch(SongFilter filter, int? pageSize = null, CruftFilter cruft = CruftFilter.NoCruft, string id = "default")
         {
+            if (filter.CruftFilter != CruftFilter.NoCruft)
+            {
+                cruft = filter.CruftFilter;
+            }
             return AzureSearch(filter.SearchString, AzureParmsFromFilter(filter, pageSize), cruft, id, DanceStats);
         }
 
