@@ -202,7 +202,7 @@ namespace m4d.Controllers
         //
         // GET: /Song/RawSearch
         [AllowAnonymous]
-        public ActionResult RawSearch([Bind(Include = "SearchText,ODataFilter,Sort,Description,IsLucene,CruftFilter")] RawSearch rawSearch)
+        public ActionResult RawSearch([Bind(Include = "SearchText,ODataFilter,SortFields,SearchFields,Description,IsLucene,CruftFilter")] RawSearch rawSearch)
         {
             HelpPage = "advanced-search";
 

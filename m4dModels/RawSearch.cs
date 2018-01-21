@@ -55,7 +55,7 @@ namespace m4dModels
         public SearchParameters GetAzureSearchParams(int? pageSize)
         {
             var order = string.IsNullOrEmpty(SortFields) ? null : SortFields.Split('|').ToList();
-            var fields = string.IsNullOrEmpty(SearchFields) ? null : SortFields.Split('|').ToList();
+            var fields = string.IsNullOrEmpty(SearchFields) ? null : SearchFields.Split('|').ToList();
             return new SearchParameters
             {
                 QueryType = IsLucene ? QueryType.Full : QueryType.Simple,
