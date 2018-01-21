@@ -112,8 +112,9 @@ namespace m4dModels
             Action = "azure+raw+" + (raw.IsLucene ? "lucene" : "");
             SearchString = raw.SearchText;
             Dances = raw.ODataFilter;
-            SortOrder = raw.Sort;
+            SortOrder = raw.SortFields;
             Purchase = raw.Description;
+            User = raw.SearchFields;
             Page = raw.Page;
             Level = raw.CruftFilter == DanceMusicService.CruftFilter.NoCruft ? null : (int?) raw.CruftFilter;
         }

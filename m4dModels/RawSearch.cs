@@ -2,6 +2,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Security.Principal;
+using System.Text;
 using Microsoft.Azure.Search.Models;
 
 namespace m4dModels
@@ -19,8 +20,13 @@ namespace m4dModels
 
             SearchText = songFilter.SearchString;
             ODataFilter = songFilter.Dances;
-            Sort = songFilter.SortOrder;
+            SortFields = songFilter.SortOrder;
+            SearchFields = songFilter.User;
+            Description = songFilter.Description;
             IsLucene = songFilter.IsLucene;
+            CruftFilter = songFilter.Level.HasValue ? 
+                (DanceMusicService.CruftFilter) songFilter.Level.Value : 
+                DanceMusicService.CruftFilter.NoCruft;
 
             Page = songFilter.Page;
         }
@@ -33,8 +39,10 @@ namespace m4dModels
         public string SearchText { get; set; }
         [Display(Name = @"OData Filter")]
         public string ODataFilter { get; set; }
-        [Display(Name = @"Sort")]
-        public string Sort { get; set; }
+        [Display(Name = @"Sort Fields")]
+        public string SortFields { get; set; }
+        [Display(Name = @"Search Fields")]
+        public string SearchFields { get; set; }
         [Display(Name = @"Description")]
         public string Description { get; set; }
         [Display(Name = @"Use Lucene Syntax")]
@@ -46,11 +54,12 @@ namespace m4dModels
 
         public SearchParameters GetAzureSearchParams(int? pageSize)
         {
-            var order = string.IsNullOrEmpty(Sort) ? null : Sort.Split('|').ToList();
-
+            var order = string.IsNullOrEmpty(SortFields) ? null : SortFields.Split('|').ToList();
+            var fields = string.IsNullOrEmpty(SearchFields) ? null : SortFields.Split('|').ToList();
             return new SearchParameters
             {
                 QueryType = IsLucene ? QueryType.Full : QueryType.Simple,
+                SearchFields = fields,
                 Filter = ODataFilter,
                 IncludeTotalResultCount = true,
                 Skip = ((Page ?? 1) - 1) * pageSize,
@@ -59,9 +68,41 @@ namespace m4dModels
             };
         }
 
+        public string QueryString()
+        {
+            var sb = new StringBuilder("");
+
+            if (!string.IsNullOrWhiteSpace(SearchText))
+            {
+                sb.Append($"SearchText={SearchText}&");
+            }
+            if (!string.IsNullOrWhiteSpace(ODataFilter))
+            {
+                sb.Append($"ODataFilter={ODataFilter}&");
+            }
+            if (!string.IsNullOrWhiteSpace(SearchFields))
+            {
+                sb.Append($"SearchFields={SearchFields}&");
+            }
+            if (!string.IsNullOrWhiteSpace(Description))
+            {
+                sb.Append($"Description={Description}&");
+            }
+            if (IsLucene)
+            {
+                sb.Append("IsLucene=true&");
+            }
+            if (CruftFilter != DanceMusicService.CruftFilter.NoCruft)
+            {
+                sb.Append($"CruftFilter={CruftFilter}&");
+            }
+
+            return "?" + sb;
+        }
+
         public override string ToString()
         {
-            return $"Raw Azure Search: Search String = \"{SearchText}\", Filter=\"{ODataFilter}\" Sort = \"{Sort}\" Lucene = {IsLucene}";
+            return $"Raw Azure Search: Search String = \"{SearchText}\", Filter=\"{ODataFilter}\" Sort Fields = \"{SortFields}\" Search Fields = \"{SearchFields}\" Description = \"{Description}\" Lucene = {IsLucene}";
         }
     }
 }
