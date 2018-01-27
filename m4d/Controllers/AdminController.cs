@@ -1104,7 +1104,10 @@ namespace m4d.Controllers
                     return View("Results");
                 }
 
-                separator = "\t";
+                if (string.IsNullOrWhiteSpace(separator))
+                {
+                    separator = "\t";
+                }
             }
 
             var appuser = Database.FindUser(user);

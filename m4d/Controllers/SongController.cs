@@ -536,7 +536,7 @@ namespace m4d.Controllers
                 var strack = MusicServiceManager.GetMusicServiceTrack(purchase, MusicService.GetService(service[0]));
                 sd = Song.CreateFromTrack(user,strack,null,null,null,Database.DanceStats);
                 sd.EditLike(user, true);
-                UpdateSongAndServices(sd,user);
+                UpdateSongAndServices(sd,user,false,Database);
                 MusicServiceManager.GetEchoData(Database, sd,user);
                 MusicServiceManager.GetSampleData(Database, sd,user);
                 sd.SetupSerialization(user, Database.DanceStats);
