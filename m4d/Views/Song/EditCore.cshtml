@@ -109,7 +109,7 @@
     <div class="row">
         <div class="col-md-2">Tempo: </div>
         <div class="col-md-10">
-            <input @(isDiag ? "" : "readonly") class="text-box single-line" data-val="true" data-val-number="The field Tempo must be a number." data-val-range="The field Tempo must be between 5 and 500." data-val-range-max="500" data-val-range-min="5" id="Tempo" name="Tempo" type="text" value="@Model.Tempo" />
+            <input @(isDiag || !Model.Tempo.HasValue ? "" : "readonly") class="text-box single-line" data-val="true" data-val-number="The field Tempo must be a number." data-val-range="The field Tempo must be between 5 and 500." data-val-range-max="500" data-val-range-min="5" id="Tempo" name="Tempo" type="text" value="@Model.Tempo" />
             @*@Html.ValidationMessageFor(model => model.Tempo)*@
             <a href="#" id="toggle-count" class="btn btn-sm btn-default"><span id="toggle-count-display" class="glyphicon glyphicon-arrow-down"></span></a>
 

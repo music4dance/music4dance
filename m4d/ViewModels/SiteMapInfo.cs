@@ -124,10 +124,11 @@ namespace m4d.ViewModels
                     {
                         new SiteMapEntry
                         {
-                            Title =  "Song Library", Reference="song/azuresearch",
+                            Title =  "Song Library", Reference="song",
                             Children = new List<SiteMapEntry>
                             {
-                                new SiteMapEntry {Title = "Advanced Search", Reference = "song/advancedsearchform?filter=azure+advanced"},
+                                new SiteMapEntry {Title = "Advanced Search", Reference = "song/advancedsearchform"},
+                                new SiteMapEntry {Title = "Add Songs", Reference = "song/augment"},
                                 new SiteMapEntry {Title = "Saved Searches", Reference = "searches/index"},
                             }
                         },

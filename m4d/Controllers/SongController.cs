@@ -520,6 +520,7 @@ namespace m4d.Controllers
 
         //
         // GET: /Song/Add
+        [AllowAnonymous]
         public ActionResult Augment(SongFilter filter = null)
         {
             return View();
@@ -527,6 +528,7 @@ namespace m4d.Controllers
 
         //
         // GET: /Song/Create
+        [Authorize(Roles = "canTag")]
         public ActionResult Create(string title=null, string artist=null, decimal? tempo = null, int? length=null, string album=null, int? track=null, string service = null, string purchase = null, SongFilter filter = null)
         {
             Song sd;
@@ -577,6 +579,8 @@ namespace m4d.Controllers
         // POST: /Song/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "canTag")]
+
         public ActionResult Create(Song song, string userTags, SongFilter filter = null)
         {
             if (ModelState.IsValid)
@@ -636,10 +640,12 @@ namespace m4d.Controllers
 
             BuildDanceList(DanceBags.Stats | DanceBags.Single, true);
         }
+
         //
         // POST: /Song/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "canTag")]
         public ActionResult Edit(Song song, string userTags, SongFilter filter = null)
         {
             if (ModelState.IsValid)
