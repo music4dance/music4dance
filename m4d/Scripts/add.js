@@ -11,8 +11,7 @@
     self.services = [
         { id: 'i', name: 'itunes', rgx: /[0-9]*/i, idm: /[0-9]*/i },
         { id: 'a', name: 'amazon', rgx: /\/(B[a-z0-9]{9})/i, idm: /B[a-z0-9]{9}/i },
-        { id: 'x', name: 'microsoft', rgx: /[a-f0-9\-]*$/i, idm: /[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}/i },
-        { id: 's', name: 'spotify', rgx: /[a-z0-9]*$/i, idm: /[a-z0-9]{22}/i }
+        { id: 's', name: 'spotify', rgx: /([a-z0-9]+)(?:\?si=[a-z0-9 ]*)?$/i, idm: /[a-z0-9]{22}/i }
     ];
 
     self.serviceFromId = function (id) {
