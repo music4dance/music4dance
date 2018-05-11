@@ -166,7 +166,7 @@
         var listUrl = purchaseUri + 's?songs=' + ids + '&fulllink=false'; //.substring(0,16);
         $.getJSON(listUrl)
             .done(function(data) {
-                var player = '<iframe  src="https://embed.spotify.com/?uri=spotify:trackset:' + name + ':' + data + '" frameborder="0" allowtransparency="true"></iframe>';
+                var player = '<iframe  src="https://open.spotify.com/embed?uri=spotify:trackset:' + name + ':' + data + '" frameborder="0" allowtransparency="true" allow="encrypted-media"></iframe>';
                 button.replaceWith(player);
             })
             .fail(function () {
