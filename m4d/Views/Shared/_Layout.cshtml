@@ -85,6 +85,25 @@
         ga('send', 'pageview');
     </script>
     @Scripts.Render("~/bundles/modernizr")
+    <link rel="stylesheet" type="text/css" href="//cdnjs.cloudflare.com/ajax/libs/cookieconsent2/3.0.3/cookieconsent.min.css" />
+    <script src="//cdnjs.cloudflare.com/ajax/libs/cookieconsent2/3.0.3/cookieconsent.min.js"></script>
+    <script>
+        window.addEventListener("load", function(){
+            window.cookieconsent.initialise({
+                "palette": {
+                    "popup": {
+                        "background": "#1d8a8a"
+                    },
+                    "button": {
+                        "background": "#62ffaa"
+                    }
+                },
+                "theme": "classic",
+                "content": {
+                    "href": "www.music4dance.net/home/privacypolicy#GDPR"
+                }
+            })});
+    </script>
 </head>
 <body>
     <div class="navbar navbar-default navbar-custom navbar-fixed-top" role="navigation">
@@ -141,6 +160,7 @@
                             <li>@Html.ActionLink("FAQ", "FAQ", "Home")</li>
                             <li>@Html.ActionLink("About Us", "About", "Home")</li>
                             <li>@Html.ActionLink("Site Map", "sitemap", "Home")</li>
+                            <li>@Html.ActionLink("Privacy Policy", "privacypolicy","Home")</li>
                             <li>@Html.ActionLink("Credits", "credits", "Home")</li>
                         </ul>
                     </li>
