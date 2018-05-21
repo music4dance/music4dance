@@ -1,14 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Data.Entity.ModelConfiguration.Configuration;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net;
 using System.Reflection;
-using System.Reflection.Emit;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Json;
 using System.Text;
@@ -1242,7 +1240,7 @@ namespace m4dModels
             return true;
         }
 
-        internal bool AdminEdit(string properties, DanceStatsInstance stats)
+        internal bool AdminEdit(ICollection<SongProperty> properties, DanceStatsInstance stats)
         {
             DanceRatings.Clear();
             ModifiedBy.Clear();
@@ -1251,11 +1249,18 @@ namespace m4dModels
 
             ClearValues();
 
-            Load(properties,stats);
+            Load(properties, stats);
 
             Modified = DateTime.Now;
 
             return true;
+        }
+
+        internal bool AdminEdit(string properties, DanceStatsInstance stats)
+        {
+            var props = new List<SongProperty>();
+            SongProperty.Load(properties, props);
+            return AdminEdit(props, stats);
         }
 
         internal bool AdminAppend(string user, string newProperties, DanceStatsInstance stats)

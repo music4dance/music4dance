@@ -139,6 +139,7 @@ namespace m4dModels
             song.Load(song.SongId,song.SongProperties,DanceStats);
             return true;
         }
+
         public bool AdminEditSong(Song edit, string properties)
         {
             return edit.AdminEdit(properties,DanceStats);
@@ -151,8 +152,7 @@ namespace m4dModels
 
         public bool AdminEditSong(string properties)
         {
-            Guid id;
-            if (Song.TryParseId(properties, out id) == 0) return false;
+            if (Song.TryParseId(properties, out var id) == 0) return false;
 
             var song = FindSong(id);
             return song != null && AdminEditSong(song, properties);
@@ -517,12 +517,13 @@ namespace m4dModels
             return result.Results.Select(d => new Song(d.Document, DanceStats, user));
         }
 
-        private IEnumerable<Song> FindUserSongs(string user, string id = "default")
+        private IEnumerable<Song> FindUserSongs(string user, bool includeHate=false, string id = "default")
         {
             const int max = 250;
 
             var filter = SongFilter.AzureSimple;
             filter.User = user;
+            if (includeHate) filter.User += "|A";
 
             var afilter = AzureParmsFromFilter(filter);
             afilter.Top = max;
@@ -2351,25 +2352,25 @@ namespace m4dModels
             return user;
         }
 
-        //public void ChangeUserName(string oldUserName, string userName)
-        //{
-            // DBKILL: Do we want to enable this in the new universe?
-            //var user = UserManager.FindByName(oldUserName);
-            //if (user == null)
-            //{
-            //    throw new ArgumentOutOfRangeException($"User {0} doesn't exist",oldUserName);
-            //}
+        // TODONEXT: Why doesn't this work???
+        public void ChangeUserName(string oldUserName, string userName)
+        {
+            var songs = FindUserSongs(oldUserName,includeHate:true).ToList();
 
-            //Context.TrackChanges(false);
-            //Context.LazyLoadingEnabled = false;
+            foreach (var song in songs)
+            {
+                var props = new List<SongProperty>(song.SongProperties);
+                foreach (var prop in props.Where(p =>
+                    (p.Name == Song.UserField || p.Name == Song.UserProxy) && p.Value == oldUserName))
+                {
+                    prop.Value = userName;
+                }
 
-            //foreach (var prop in SongProperties.Where(p => (p.Name == Song.UserField || p.Name == Song.UserProxy) && p.Value == oldUserName))
-            //{
-            //    prop.Value = userName;
-            //}
+                song.AdminEdit(props,DanceStats);
+            }
 
-            //Context.TrackChanges(true);
-        //}
+            SaveSongs(songs);
+        }
 
         private void AddRole(string id, string role)
         {

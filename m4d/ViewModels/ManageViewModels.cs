@@ -109,6 +109,11 @@ namespace m4d.ViewModels
         public List<byte> ContactSelection { get; set; }
         public List<KeyValuePair<char,string>> ServiceOptions { get; set; }
         public List<char> ServiceSelection { get; set; }
+    }
 
+    public class DeleteUserViewModel
+    {
+        public string Id { get; set; }
+        public string UserName { get; set; }
     }
 }

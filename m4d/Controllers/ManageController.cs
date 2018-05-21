@@ -378,9 +378,9 @@ namespace m4d.Controllers
             return View(profile);
         }
 
-        
+
         //
-        // POST: /Manage/LinkLogin
+        // POST: /Manage/EditProfile
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> EditProfile(ProfileViewModel profile, string returnUrl)
@@ -424,7 +424,83 @@ namespace m4d.Controllers
                 MusicService.GetProfileServices().Select(s => new KeyValuePair<char, string>(s.CID, s.Name)).ToList();
         }
 
-#region Helpers
+        //
+        // GET: /Manage/Delete
+        public async Task<ActionResult> DeleteUser()
+        {
+            var user = await UserManager.FindByIdAsync(User.Identity.GetUserId());
+            if (user == null)
+            {
+                return View("Error");
+            }
+
+            var model = new DeleteUserViewModel
+            {
+                UserName = user.UserName,
+                Id = user.Id
+            };
+
+            return View(model);
+        }
+
+        //
+        // POST: /Manage/Delete
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<ActionResult> DeleteUser(string userName, string id)
+        {
+            var user = await UserManager.FindByIdAsync(User.Identity.GetUserId());
+            if (user == null || 
+                !string.Equals(user.Id,id,StringComparison.InvariantCultureIgnoreCase) ||
+                !string.Equals(user.UserName, userName, StringComparison.InvariantCultureIgnoreCase))
+            {
+                return View("Error");
+            }
+
+            var logins = user.Logins;
+            var rolesForUser = await UserManager.GetRolesAsync(id);
+
+            foreach (var login in logins.ToList())
+            {
+                await UserManager.RemoveLoginAsync(login.UserId, new UserLoginInfo(login.LoginProvider, login.ProviderKey));
+            }
+
+            if (rolesForUser.Any())
+            {
+                foreach (var item in rolesForUser.ToList())
+                {
+                    // item should be the name of the role
+                    await UserManager.RemoveFromRoleAsync(user.Id, item);
+                }
+            }
+
+            // Rather than deleting, we're going to set username & email to guids + null out all fields.
+            //await UserManager.DeleteAsync(user);
+
+            user.LastActive = DateTime.Now;
+            user.Region = null;
+            user.Privacy = 0;
+            user.CanContact = ContactStatus.None;
+            user.ServicePreference = null;
+
+            var guid = Guid.NewGuid().ToString("N").ToUpper();
+            var oldName = user.UserName;
+            user.UserName = $"DEL:{guid}";
+            user.Email = $"{guid}@music4dance.net";
+            user.PasswordHash = null;
+
+            Database.ChangeUserName(oldName,user.UserName);
+
+            // TODONEXT: Figure out how to actually sign the user out before we finish trouncing the account
+            AuthenticationManager.SignOut(DefaultAuthenticationTypes.ExternalCookie, DefaultAuthenticationTypes.TwoFactorCookie);
+
+            await Context.SaveChangesAsync();
+
+            return RedirectToAction("Index");
+        }
+
+
+        #region Helpers
         // Used for XSRF protection when adding external logins
         private const string XsrfKey = "XsrfId";
 
@@ -447,30 +523,18 @@ namespace m4d.Controllers
         private DateTime GetStartDate()
         {
             var user = UserManager.FindById(User.Identity.GetUserId());
-            if (user != null)
-            {
-                return user.StartDate;
-            }
-            return DateTime.Now;
+            return user?.StartDate ?? DateTime.Now;
         }
         private bool HasPassword()
         {
             var user = UserManager.FindById(User.Identity.GetUserId());
-            if (user != null)
-            {
-                return user.PasswordHash != null;
-            }
-            return false;
+            return user?.PasswordHash != null;
         }
 
         private bool HasPhoneNumber()
         {
             var user = UserManager.FindById(User.Identity.GetUserId());
-            if (user != null)
-            {
-                return user.PhoneNumber != null;
-            }
-            return false;
+            return user?.PhoneNumber != null;
         }
 
         public enum ManageMessageId

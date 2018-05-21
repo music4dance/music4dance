@@ -104,8 +104,7 @@ namespace m4d.Controllers
                 {
                     if (!string.Equals(oldUserName, applicationUser.UserName))
                     {
-                        throw new NotImplementedException("Enable change user name in Azure Search");
-                        //Database.ChangeUserName(oldUserName, applicationUser.UserName);
+                        Database.ChangeUserName(oldUserName, applicationUser.UserName);
                     }
                     Context.SaveChanges();
                 }

@@ -595,15 +595,15 @@ namespace m4d.Controllers
 
         #region Users
 
-        static public bool IsUserActive(string userName)
+        public static bool IsUserActive(string userName)
         {
             return s_activeUsers.Contains(userName);
         }
 
-        static public IEnumerable<string> ActiveUsers => s_activeUsers.ToList();
+        public static IEnumerable<string> ActiveUsers => s_activeUsers.ToList();
 
         // ReSharper disable once InconsistentNaming
-        static private readonly HashSet<string> s_activeUsers = new HashSet<string>();
+        private static readonly HashSet<string> s_activeUsers = new HashSet<string>();
         #endregion
     }
 }

@@ -96,9 +96,10 @@ namespace m4dModels
         public bool IsEmpty => string.IsNullOrWhiteSpace(Query) || IsNull;
         public bool IsInclude => !IsEmpty && Query[0] == '+';
         public bool IsExclude => !IsEmpty && Query[0] == '-';
-        public bool HasOpinion => !IsEmpty && !Query.EndsWith("|");
-        public bool IsLike => Query.EndsWith("|l") || Query.EndsWith("|L");
-        public bool IsHate => Query.EndsWith("|h") || Query.EndsWith("|H");
+        public bool HasOpinion => !IsEmpty && IsLike || IsHate || IsAny;
+        public bool IsLike => Query.EndsWith("|l", StringComparison.OrdinalIgnoreCase);
+        public bool IsHate => Query.EndsWith("|h", StringComparison.OrdinalIgnoreCase);
+        public bool IsAny => Query.EndsWith("|a", StringComparison.OrdinalIgnoreCase);
         public string UserName => IsEmpty ? null : Query.Substring(1, Query.IndexOf('|') - 1);
         public bool IsAnonymous => string.Equals(AnonymousUser, UserName,StringComparison.OrdinalIgnoreCase);
 
@@ -155,7 +156,7 @@ namespace m4dModels
                 var c = MakeOneOdata(userName, inc, cmp, false);
 
                 // For the include case, explicitly drop the false case
-                return IsInclude ? $"({a} or {b})" : $"!({a} and {b} and {c})";
+                return IsInclude ? (IsAny ? $"({a} or {b} or {c})" : $"({a} or {b})") : $"!({a} and {b} and {c})";
             }
         }
 
