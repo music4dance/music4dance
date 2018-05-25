@@ -510,7 +510,7 @@ namespace m4d.Controllers
             var name = User.Identity.GetUserName();
             if (!string.IsNullOrEmpty(name)) s_activeUsers.Remove(name);
 
-            AuthenticationManager.SignOut();
+            AuthenticationManager.SignOut(DefaultAuthenticationTypes.ApplicationCookie, DefaultAuthenticationTypes.ExternalCookie, DefaultAuthenticationTypes.TwoFactorCookie);
             return RedirectToAction("Index", "Home");
         }
 

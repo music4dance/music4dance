@@ -491,8 +491,8 @@ namespace m4d.Controllers
 
             Database.ChangeUserName(oldName,user.UserName);
 
-            // TODONEXT: Figure out how to actually sign the user out before we finish trouncing the account
-            AuthenticationManager.SignOut(DefaultAuthenticationTypes.ExternalCookie, DefaultAuthenticationTypes.TwoFactorCookie);
+            // TODONEXT: Check all signouts for these parameters
+            AuthenticationManager.SignOut(DefaultAuthenticationTypes.ApplicationCookie, DefaultAuthenticationTypes.ExternalCookie, DefaultAuthenticationTypes.TwoFactorCookie);
 
             await Context.SaveChangesAsync();
 

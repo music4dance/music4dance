@@ -2352,10 +2352,9 @@ namespace m4dModels
             return user;
         }
 
-        // TODONEXT: Why doesn't this work???
         public void ChangeUserName(string oldUserName, string userName)
         {
-            var songs = FindUserSongs(oldUserName,includeHate:true).ToList();
+            var songs = FindUserSongs(oldUserName, includeHate:true).ToList();
 
             foreach (var song in songs)
             {
