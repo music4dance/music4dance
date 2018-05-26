@@ -85,12 +85,6 @@
         <th>
             SVC
         </th>
-        <th>
-            Roles
-        </th>
-        <th>
-            Logins
-        </th>
         <th></th>
     </tr>
 
@@ -147,12 +141,6 @@
         </td>
         <td>
             @Html.DisplayFor(modelItem => item.ServicePreference)
-        </td>
-        <td>
-            @Html.Raw(string.Join("<br/>",Model.GetRoles(item.Id)))
-        </td>
-        <td>
-            @Html.Raw(string.Join("<br/>", Model.GetLogins(item.Id).Select(l => l.LoginProvider)))
         </td>
         <td>
             @Html.ActionLink("List Songs", "FilterUser", "Song", new { user = item.UserName }, null),

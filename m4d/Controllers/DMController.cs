@@ -26,8 +26,8 @@ namespace m4d.Controllers
 
         public string ThemeName 
         {
-            get { return _themeName ?? DefaultTheme; }
-            set { _themeName = value; }
+            get => _themeName ?? DefaultTheme;
+            set => _themeName = value;
         }
         private string _themeName;
 
@@ -71,14 +71,8 @@ namespace m4d.Controllers
 
         public ApplicationUserManager UserManager
         {
-            get
-            {
-                return _userManager ?? HttpContext.GetOwinContext().GetUserManager<ApplicationUserManager>();
-            }
-            protected set
-            {
-                _userManager = value;
-            }
+            get => _userManager ?? HttpContext.GetOwinContext().GetUserManager<ApplicationUserManager>();
+            protected set => _userManager = value;
         }
         private ApplicationUserManager _userManager;
 
