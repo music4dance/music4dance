@@ -134,10 +134,13 @@
                             <li>
                                 @Html.ActionLink("Song Library", "index", "song")
                                 <ul style="list-style-type: none" role="menu">
-                                    <li>@Html.ActionLink("Advanced Search", "advancedsearchform", "song", new {filter = new SongFilter("azure+advanced")}, null)</li>
+                                    <li>@Html.ActionLink("Advanced Search", "advancedsearchform", "song", new { filter = new SongFilter("azure+advanced") }, null)</li>
                                 </ul>
                                 <ul style="list-style-type: none" role="menu">
                                     <li>@Html.ActionLink("Add Song", "augment", "song")</li>
+                                </ul>
+                                <ul style="list-style-type: none" role="menu">
+                                    @Html.ActionLink("New Music", "newmusic", "song", new { type = "Created" }, null)
                                 </ul>
                             </li>
                             <li>@Html.ActionLink("Wedding", "wedding-music", "dances")</li>

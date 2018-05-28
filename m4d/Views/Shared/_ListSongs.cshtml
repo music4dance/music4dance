@@ -6,7 +6,7 @@
     var action = "index";
 
     var canSort = ViewData.ContainsKey("NoSort") ? !ViewBag.NoSort : true;
-    var showDate = canSort;
+    var showDate = canSort || (ViewData.ContainsKey("ShowDate") ? ViewBag.ShowDate : false);
     var hideDances = ViewData.ContainsKey("HideDances") ? ViewBag.HideDances : false;
     string albumName = ViewData.ContainsKey("AlbumName") ? ViewBag.AlbumName : null;
     var hideArtist = ViewData.ContainsKey("HideArtist") ? ViewBag.HideArtist : false;
@@ -266,8 +266,15 @@
         {
             var created = (songOrder.Id == "Created");
             var dateId = created ? "Created" : "Modified";
-            <th class="hidden-xs" style="min-width:50px" data-toggle="tooltip" data-placement="bottom" data-container="body" title="@(dateId + (canSort ? ": Click to sort by date " + dateId : string.Empty))">
-                <a href="@Url.Action("sort", "song", new {sortOrder = dateId, filter})"><span class='glyphicon @(created ? "glyphicon-plus" : "glyphicon-pencil")'></span></a>
+            <th class="hidden-xs" style="min-width: 50px" data-toggle="tooltip" data-placement="bottom" data-container="body" title="@(dateId + (canSort ? ": Click to sort by date " + dateId : string.Empty))">
+                @if (canSort)
+                {
+                    <a href="@Url.Action("sort", "song", new {sortOrder = dateId, filter})"><span class='glyphicon @(created ? "glyphicon-plus" : "glyphicon-pencil")'></span></a>
+                }
+                else
+                {
+                    <span class='glyphicon @(created ? "glyphicon-plus" : "glyphicon-pencil")'></span>
+                }
                 @Html.Raw(songOrder.GetSortGlyph(dateId))
             </th>
         }

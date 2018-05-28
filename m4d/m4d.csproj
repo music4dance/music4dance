@@ -1279,6 +1279,7 @@
     <Content Include="Views\PlayList\Index.cshtml" />
     <Content Include="Views\Dance\holidaydancemusic.cshtml" />
     <Content Include="Views\Manage\DeleteUser.cshtml" />
+    <Content Include="Views\Song\NewMusic.cshtml" />
     <None Include="Web.m4d.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

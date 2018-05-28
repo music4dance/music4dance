@@ -5,10 +5,11 @@
 @{
     ViewBag.Title = "Index";
     var users = Model.Users.ToList();
-    var activeUsers = string.Join(",",AccountController.ActiveUsers);
+    var activeUsers = string.Join(",", AccountController.ActiveUsers);
     var registeredUsers = users.Count(u => !(u.Email.EndsWith("@music4dance.net") ||
                 u.Email.EndsWith("@spotify.com") ||
                 u.Email.EndsWith("@thegray.com")));
+    var deletedUsers = users.Count(u => u.UserName.StartsWith("DEL:"));
     var hasServicePreference = users.Count(u => !string.IsNullOrEmpty(u.ServicePreference));
 }
 
@@ -20,11 +21,12 @@
     </p>
 *@
 
-<hr/>
+<hr />
 
 <p><strong>Active Users:</strong> @activeUsers</p>
 <p><strong>Total Users:</strong> @users.Count</p>
 <p><strong>Registered Users:</strong> @registeredUsers</p>
+<p><strong>Deleted Users:</strong> @deletedUsers</p>
 <p>@Html.ActionLink("New Pseudo User", "Create", null, new { @class = "btn btn-default", role = "button" })</p>
 
 <table class="table table-striped">
@@ -48,21 +50,21 @@
 <table class="table table-striped">
     <tr>
         @*
-    <th>
-        @Html.DisplayNameFor(model => model.PasswordHash)
-    </th>
-    <th>
-        @Html.DisplayNameFor(model => model.SecurityStamp)
-    </th>
-    <th>
-        @Html.DisplayNameFor(model => model.PhoneNumber)
-    </th>
-    <th>
-        @Html.DisplayNameFor(model => model.PhoneNumberConfirmed)
-    </th>
-    <th>
-        @Html.DisplayNameFor(model => model.TwoFactorEnabled)
-    </th>
+            <th>
+                @Html.DisplayNameFor(model => model.PasswordHash)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.SecurityStamp)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.PhoneNumber)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.PhoneNumberConfirmed)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.TwoFactorEnabled)
+            </th>
         *@
         <th>
             LOS
@@ -88,72 +90,72 @@
         <th></th>
     </tr>
 
-@foreach (var item in users.OrderByDescending(u => u.LastActive > u.StartDate ? u.LastActive : u.StartDate).ToList())
-{
-    var pseudoClass = ApplicationUserManager.IsPseudoUser(item.Email) ? "pseudo-user" : "";
-    <tr>
-        @*
-        <td>
-            @Html.DisplayFor(modelItem => item.PasswordHash)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.SecurityStamp)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.PhoneNumber)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.PhoneNumberConfirmed)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.TwoFactorEnabled)
-        </td>
-            *@
-        <td>
-            @Html.DisplayFor(modelItem => item.LockoutEnabled)
-        </td>
-        <td>
-            @Html.ActionLink(item.UserName, "Details", new {id = item.Id}, new {@class=pseudoClass})
-            @if (AccountController.IsUserActive(item.UserName))
-            {
-                @: *
-            }
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.Email)
-        </td>
-        <td>
-            @item.StartDate.ToString("d")
-        </td>
-        <td>
-            @if (item.LastActive == DateTime.Parse("1/1/1900"))
-            {
-                @:Never
-            }
-            else
-            {
-                @item.LastActive.ToString("d")
-            }
-
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.CanContact)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.ServicePreference)
-        </td>
-        <td>
-            @Html.ActionLink("List Songs", "FilterUser", "Song", new { user = item.UserName }, null),
-            @Html.ActionLink("List Searches", "Index", "Searches", new { user = item.UserName, showDetails = true, sort = "recent" }, null) <br/>
-            @Html.ActionLink("Change Roles", "ChangeRoles", new { id = item.Id }) <br/>
-            @Html.ActionLink("Delete", "Delete", new { id = item.Id }),
-            @Html.ActionLink("Edit", "Edit", new { id = item.Id })
+    @foreach (var item in users.OrderByDescending(u => u.LastActive > u.StartDate ? u.LastActive : u.StartDate).ToList())
+    {
+        var pseudoClass = ApplicationUserManager.IsPseudoUser(item.Email) ? "pseudo-user" : "";
+        <tr>
             @*
-            @Html.ActionLink("Edit", "Edit", new { id=item.Id }) |
-            @Html.ActionLink("Details", "Details", new { id=item.Id }) |
+                <td>
+                    @Html.DisplayFor(modelItem => item.PasswordHash)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.SecurityStamp)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.PhoneNumber)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.PhoneNumberConfirmed)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.TwoFactorEnabled)
+                </td>
             *@
-        </td>
-    </tr>
-}
+            <td>
+                @Html.DisplayFor(modelItem => item.LockoutEnabled)
+            </td>
+            <td>
+                @Html.ActionLink(item.UserName, "Details", new { id = item.Id }, new { @class = pseudoClass })
+                @if (AccountController.IsUserActive(item.UserName))
+                {
+                    @: *
+                }
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Email)
+            </td>
+            <td>
+                @item.StartDate.ToString("d")
+            </td>
+            <td>
+                @if (item.LastActive == DateTime.Parse("1/1/1900"))
+                {
+                    @:Never
+                }
+                else
+                {
+                    @item.LastActive.ToString("d")
+                }
+
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.CanContact)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.ServicePreference)
+            </td>
+            <td>
+                @Html.ActionLink("List Songs", "FilterUser", "Song", new { user = item.UserName }, null),
+                @Html.ActionLink("List Searches", "Index", "Searches", new { user = item.UserName, showDetails = true, sort = "recent" }, null) <br />
+                @Html.ActionLink("Change Roles", "ChangeRoles", new { id = item.Id }) <br />
+                @Html.ActionLink("Delete", "Delete", new { id = item.Id }),
+                @Html.ActionLink("Edit", "Edit", new { id = item.Id })
+                @*
+                    @Html.ActionLink("Edit", "Edit", new { id=item.Id }) |
+                    @Html.ActionLink("Details", "Details", new { id=item.Id }) |
+                *@
+            </td>
+        </tr>
+    }
 </table>
 

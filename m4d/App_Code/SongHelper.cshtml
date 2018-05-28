@@ -100,7 +100,7 @@
     @(string.IsNullOrWhiteSpace(description) ? (filter.IsAdvanced ? AdvancedHeader(html, filter) : SimpleHeader(html, filter, dances, userName)) : CustomHeader(html,description))
 }
 
-@helper Footer(System.Web.Mvc.HtmlHelper html, UrlHelper urlHelp, PagedList.IPagedList<Song> songs, SongFilter filter)
+@helper Footer(System.Web.Mvc.HtmlHelper html, UrlHelper urlHelp, PagedList.IPagedList<Song> songs, SongFilter filter, bool hideInferred = false)
 {
     var danceQuery = filter.DanceQuery;
 
@@ -129,7 +129,7 @@
             }
         </div>
     </div>
-    if (!danceQuery.IncludeInferred && !filter.IsRaw)
+    if (!danceQuery.IncludeInferred && !filter.IsRaw && !hideInferred)
     {
         var newFilter = filter.ToggleInferred();
         <div class="row">

@@ -121,6 +121,22 @@ namespace m4d.Controllers
         }
 
         [AllowAnonymous]
+        public ActionResult NewMusic(string type = "Created", int page = 1)
+        {
+            var filter = new SongFilter {Action = "newmusic", SortOrder = type, Page = page};
+
+            if (User.Identity.IsAuthenticated && filter.IsEmpty)
+            {
+                filter.User = new UserQuery(User.Identity.Name, false, false).Query;
+            }
+            ViewBag.NoSort = true;
+            ViewBag.ShowDate = true;
+
+            return DoAzureSearch(filter,"newmusic");
+        }
+
+
+        [AllowAnonymous]
         public ActionResult AzureSearch(string searchString, int page=1, string dances=null, SongFilter filter=null)
         {
             if (filter == null || filter.IsEmpty)
@@ -160,7 +176,7 @@ namespace m4d.Controllers
             return DoAzureSearch(filter);
         }
 
-        private ActionResult DoAzureSearch(SongFilter filter)
+        private ActionResult DoAzureSearch(SongFilter filter, string page = "azuresearch")
         {
             HelpPage = filter.IsSimple ? "song-list" : "advanced-search";
 
@@ -185,7 +201,7 @@ namespace m4d.Controllers
 
             ReportSearch(filter);
 
-            return View("azuresearch",songs);
+            return View(page,songs);
         }
 
         //

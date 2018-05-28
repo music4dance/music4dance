@@ -1,0 +1,66 @@
+﻿@model PagedList.IPagedList<Song>
+
+@{
+    SongFilter filter = ViewData.ContainsKey("SongFilter") ? ViewBag.SongFilter : SongFilter.AzureSimple;
+
+    ViewBag.Title = "New Music for Dancing";
+    ViewBag.Description = "music4dance catalog: " + filter.Description;
+    const string recentlyAdded = @"Most Recently Added Songs";
+    const string recentlyChanged = @"Most Recently Changed Songs";
+}
+
+@Html.Partial("_SetupFilterScript")
+
+<H1>New Music</H1>
+
+<H2>
+    @if (string.Equals(filter.SongSort.Id, "Created", StringComparison.OrdinalIgnoreCase))
+    {
+        <span>@recentlyAdded | @Html.ActionLink(recentlyChanged,"NewMusic",new {type="Modified"})</span>
+    }
+    else
+    {
+        <span>@Html.ActionLink(recentlyAdded, "NewMusic", new { type = "Created" }) | @recentlyChanged</span>
+    }
+</H2>
+
+@{
+    Html.RenderPartial("_ListSongs", Model, ViewData);
+}
+
+@SongHelper.Footer(Html, Url, Model, filter, true)
+
+<p class="big-text">If you would like to find recent additions/changes for specific styles of dance (like Swing or Foxtrot): visit the @Html.ActionLink("advanced search page","AdvancedSearchForm") , choose the "Sort By" option of "When Added" or "Last Modified" as well as the Dance style, or styles you would like to see. More information on advanced search is available on the <a href="https://www.music4dance.net/blog/music4dance-help/advanced-search/">advanced search help page</a>.</p>
+
+@if (User.IsInRole("showDiagnostics") && ViewData.ContainsKey("RawSearch"))
+{
+    <div class="row">
+        <div class="col-md-12">
+            <b>Raw Search: </b>@WebUtility.UrlDecode(ViewBag.RawSearch.ToString())<br />
+        </div>
+    </div>
+}
+
+@if (User.IsInRole("showDiagnostics") && filter.IsRaw)
+{
+    <div class="row">
+        <div class="col-md-12">
+            <b>Query String: </b>@(new RawSearch(filter).QueryString())
+        </div>
+    </div>
+}
+
+@section Scripts
+{
+    @Scripts.Render("~/bundles/jqueryval")
+    @Scripts.Render("~/bundles/jqueryautocomplete")
+    @Scripts.Render("~/bundles/knockout")
+    @Scripts.Render("~/bundles/knockout-mapping")
+    @Scripts.Render("~/bundles/tools-script")
+    @Scripts.Render("~/bundles/musicservice")
+    @Scripts.Render("~/bundles/tagchooser")
+    @Scripts.Render("~/bundles/catalog")
+    @Scripts.Render("~/bundles/azuresearch")
+
+    @Styles.Render("~/bundles/tools-style")
+}
