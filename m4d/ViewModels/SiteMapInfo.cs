@@ -129,6 +129,7 @@ namespace m4d.ViewModels
                             {
                                 new SiteMapEntry {Title = "Advanced Search", Reference = "song/advancedsearchform"},
                                 new SiteMapEntry {Title = "Add Songs", Reference = "song/augment"},
+                                new SiteMapEntry {Title = "New Music", Reference = "song/newmusic"},
                                 new SiteMapEntry {Title = "Saved Searches", Reference = "searches/index"},
                             }
                         },
