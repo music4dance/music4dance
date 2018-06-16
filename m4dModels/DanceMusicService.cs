@@ -1461,22 +1461,23 @@ namespace m4dModels
 
                 var cells = s.Split('\t');
 
-
                 if (cells.Length < 4) continue;
 
                 var created = now;
                 DateTime? modified = null;
                 var deleted = false;
 
+                // m4dId
                 var user = cells[0];
-                PlayListType type;
-                Enum.TryParse(cells[1], out type);
+                // Type
+                Enum.TryParse(cells[1], out PlayListType type);
+                // Dance/tags
                 var tags = cells[2];
+                // Spotify Playlist Id
                 var id = cells[3];
 
                 if (cells.Length > 4) DateTime.TryParse(cells[4], out created);
-                DateTime mod;
-                if (cells.Length > 5 && DateTime.TryParse(cells[5], out mod)) modified = mod;
+                if (cells.Length > 5 && DateTime.TryParse(cells[5], out DateTime mod)) modified = mod;
                 if (cells.Length > 6) bool.TryParse(cells[6], out deleted);
 
                 var playlist = PlayLists.Find(id);
