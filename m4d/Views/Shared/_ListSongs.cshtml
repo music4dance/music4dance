@@ -346,7 +346,7 @@
                     @Html.ActionLink(item.Title, "details", "song", new { id = item.SongId, filter }, null)
                     @if (tempoString != null)
                     {
-                            <small class="hidden-sm hidden-md hidden-lg">(@Html.Raw(tempoString) BPM)</small>
+                        <small class="hidden-sm hidden-md hidden-lg">(@Html.Raw(tempoString) BPM)</small>
                     }
                     <span class="visible-xs"> - @Artist(item)</span>
                 </td>
@@ -426,11 +426,10 @@
                                 {
                                     filterT.Action = "advanced";
                                 }
-
                                 var urlFiltered = string.Empty;
                                 var urlDance = string.Empty;
-                                var baseUrl = "/song/" + (azureSearch ? "azure" : "") + "search?dances=";
-                                var url = baseUrl + ditem.DanceId;
+                                var baseUrl = "/song/search?dances=";
+                                var url = baseUrl + ditem.DanceId + "&filter=" + new SongFilter { Action = filter.Action, SortOrder = filter.SortOrder };
 
                                 if (!filter.IsEmptyPaged && !hasDance)
                                 {

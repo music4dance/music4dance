@@ -1,5 +1,4 @@
 ﻿@using m4dModels
-@using DanceLibrary;
 
 @* ReSharper disable once InvertIf *@
 @helper TagModalButton(TagCount tag, SongFilter filter, Song song, float cloudSize = 0.0f)
@@ -20,7 +19,6 @@
         size = "cloud-" + bucket;
         iconSize = sizes[bucket];
     }
-
 
     var urlBase = "/song/addtags?tags={0}" + WebUtility.UrlEncode(tag.TagValue) + ":" + WebUtility.UrlEncode(tag.TagClass);
     var url = urlBase;
@@ -49,10 +47,9 @@
     {
         filter = new SongFilter();
     }
-    if (filter.IsAzure)
-    {
-        url += "&filter=" + WebUtility.UrlEncode(filter.Action);
-    }
+
+    var simpleFilter = new SongFilter {Action = filter.Action, SortOrder = filter.SortOrder};
+    url += "&filter=" + WebUtility.UrlEncode(simpleFilter.ToString());
 
     var tc = tag.TagClass;
     tc = tc?.ToLower() ?? "other";
