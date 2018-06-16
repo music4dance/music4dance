@@ -22,7 +22,6 @@ namespace m4dModels
             ODataFilter = songFilter.Dances;
             SortFields = songFilter.SortOrder;
             SearchFields = songFilter.User;
-            Description = songFilter.Description;
             IsLucene = songFilter.IsLucene;
             CruftFilter = songFilter.Level.HasValue ? 
                 (DanceMusicService.CruftFilter) songFilter.Level.Value : 
