@@ -1466,6 +1466,7 @@ namespace m4dModels
                 var created = now;
                 DateTime? modified = null;
                 var deleted = false;
+                string songIds = null;
 
                 // m4dId
                 var user = cells[0];
@@ -1479,6 +1480,7 @@ namespace m4dModels
                 if (cells.Length > 4) DateTime.TryParse(cells[4], out created);
                 if (cells.Length > 5 && DateTime.TryParse(cells[5], out DateTime mod)) modified = mod;
                 if (cells.Length > 6) bool.TryParse(cells[6], out deleted);
+                if (cells.Length > 7) songIds = cells[7];
 
                 var playlist = PlayLists.Find(id);
                 var isNew = playlist == null;
@@ -1491,6 +1493,7 @@ namespace m4dModels
                 playlist.Created = created;
                 playlist.Updated = modified;
                 playlist.Deleted = deleted;
+                playlist.SongIds = songIds;
 
                 if (isNew) PlayLists.Add(playlist);
             }
@@ -1759,7 +1762,7 @@ namespace m4dModels
             var lines = new List<string> ();
             foreach (var p in playlists)
             {
-                lines.Add($"{p.User}\t{p.Type}\t{p.Tags}\t{p.Id}\t{p.Created}\t{p.Updated}\t{p.Deleted}");
+                lines.Add($"{p.User}\t{p.Type}\t{p.Tags}\t{p.Id}\t{p.Created}\t{p.Updated}\t{p.Deleted}\t{p.SongIds}");
             }
 
             if (withHeader && lines.Count > 0)
