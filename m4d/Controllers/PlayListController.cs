@@ -122,29 +122,53 @@ namespace m4d.Controllers
             return View("Error");
         }
 
-        // GET: Update
-        public ActionResult Update(string id)
+        private PlayList SafeLoadPlaylist(string id, out ActionResult error)
         {
+            error = null;
             // Load the playlist obect
             if (id == null)
             {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+                error =  new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
             var playList = Database.PlayLists.Find(id);
             if (playList == null)
             {
-                return HttpNotFound();
+                error =  HttpNotFound();
             }
+            return playList;
+        }
 
-            // Load the playlist from spotify
+        IList<ServiceTrack> LoadTracks(PlayList playList, out ActionResult error)
+        {
+            error = null;
+
             var service = MusicService.FromPlayList(playList.Type);
             var user = Database.FindUser(playList.User);
             var url = service?.BuildPlayListLink(playList, user);
+
             if (url == null)
             {
                 ViewBag.errorMessage = $"Playlists of type ${playList.Type} not not yet supported.";
-                return View("Error");
+                error = View("Error");
             }
+
+            try
+            {
+                return MusicServiceManager.LookupServiceTracks(service, url, User);
+            }
+            catch (Exception e)
+            {
+                AdminMonitor.CompleteTask(false, $"Update Playlist failed: {e.Message}");
+                error = View("Error", new HandleErrorInfo(e, "PlayListController", "Update"));
+                return null;
+            }
+        }
+
+        // GET: Update
+        public ActionResult Update(string id)
+        {
+            var playList = SafeLoadPlaylist(id, out var error);
+            if (playList == null) return error;
 
             if (!AdminMonitor.StartTask("UpdatePlayList"))
             {
@@ -155,7 +179,8 @@ namespace m4d.Controllers
             IList<Song> newSongs;
             try
             {
-                var tracks = MusicServiceManager.LookupServiceTracks(service, url, User);
+                var tracks = LoadTracks(playList, out error);
+                if (tracks == null) return error;
 
                 var oldTrackIds = playList.SongIds;
                 if (oldTrackIds != null)
@@ -180,7 +205,6 @@ namespace m4d.Controllers
                 return View("Error", new HandleErrorInfo(e,"PlayListController", "Update"));
             }
 
-
             // Match songs & update
             Task.Run(() =>
             {
@@ -201,6 +225,11 @@ namespace m4d.Controllers
             return RedirectToAction("AdminStatus", "Admin", AdminMonitor.Status);
         }
 
+        //// GET: Restore
+        //public ActionResult Restore(string id)
+        //{
+        //    // TODONEXT: Get restore working
+        //}
 
         protected override void Dispose(bool disposing)
         {
