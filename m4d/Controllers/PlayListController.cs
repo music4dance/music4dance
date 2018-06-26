@@ -225,11 +225,70 @@ namespace m4d.Controllers
             return RedirectToAction("AdminStatus", "Admin", AdminMonitor.Status);
         }
 
-        //// GET: Restore
-        //public ActionResult Restore(string id)
-        //{
-        //    // TODONEXT: Get restore working
-        //}
+        // GET: Restore
+        public ActionResult Restore(string id)
+        {
+            var playList = SafeLoadPlaylist(id, out var error);
+            if (playList == null) return error;
+
+            if (!AdminMonitor.StartTask("RestorePlayList"))
+            {
+                throw new AdminTaskException(
+                    "RestorePlaylist failed to start because there is already an admin task running");
+            }
+
+            IList<ServiceTrack> tracks = null;
+            try
+            {
+                tracks = LoadTracks(playList, out error);
+                if (tracks == null) return error;
+
+                if (tracks.Count == 0)
+                {
+                    ViewBag.Title = "RestorePlaylist";
+                    ViewBag.Message = $"No new tracks for playlist {playList.Id}";
+
+                    return View("Info");
+                }
+            }
+            catch (Exception e)
+            {
+                AdminMonitor.CompleteTask(false, $"RestorePlaylist failed: {e.Message}");
+                return View("Error", new HandleErrorInfo(e, "PlayListController", "Restore"));
+            }
+
+            // Match songs & update
+            Task.Run(() =>
+            {
+                try
+                {
+                    var dms = DanceMusicService.GetService();
+                    var songs = new List<Song>();
+                    var service = MusicService.GetService(ServiceType.Spotify);
+                    foreach (var track in tracks)
+                    {
+                        var song = dms.GetSongFromService(service, track.TrackId);
+                        if (song.FindModified(playList.User) != null)
+                        {
+                            songs.Add(song);
+                        }
+                    }
+
+                    // TODONEXT: Strip region off of purchaseID, check if we're including region elsewhere may have to do a broader cleanup
+                    //  Then figure out how to refactor this and update to do them each in batch mode.
+                    playList.AddSongs(songs.Select(s => s.GetPurchaseId(service.Id)));
+                    dms.SaveChanges();
+
+                    AdminMonitor.CompleteTask(true, $"Restore PlayList {playList.Id} with {songs.Count} songs.");
+                }
+                catch (Exception e)
+                {
+                    AdminMonitor.CompleteTask(false, $"Re Merge: Failed={e.Message}");
+                }
+            });
+
+            return RedirectToAction("AdminStatus", "Admin", AdminMonitor.Status);
+        }
 
         protected override void Dispose(bool disposing)
         {
