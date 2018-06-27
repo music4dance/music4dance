@@ -42,6 +42,15 @@ namespace m4dModels
             return fields[0];
         }
 
+        public static string ParseId(string value)
+        {
+            if (value == null || !value.EndsWith("]")) return value;
+
+            var fields = value.Split('[');
+
+            return fields[0];
+        }
+
         public static string FixRegionInfo(string value)
         {
             return value.Contains('[')?value.Substring(0, value.LastIndexOf('[')) : null;

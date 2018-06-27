@@ -133,8 +133,7 @@ namespace m4d.Utilities
             EchoTrack track = null;
             foreach (var id in ids)
             {
-                string[] regions;
-                var idt = PurchaseRegion.ParseIdAndRegionInfo(id, out regions);
+                var idt = PurchaseRegion.ParseId(id);
                 track = LookupEchoTrack(idt, service);
                 if (track != null)
                     break;
@@ -189,8 +188,7 @@ namespace m4d.Utilities
             var ids = edit.GetPurchaseIds(spotify);
             foreach (var id in ids)
             {
-                string[] regions;
-                var idt = PurchaseRegion.ParseIdAndRegionInfo(id, out regions);
+                var idt = PurchaseRegion.ParseId(id);
                 track = GetMusicServiceTrack(idt, spotify);
                 if (track?.SampleUrl != null)
                     break;

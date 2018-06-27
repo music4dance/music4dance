@@ -274,7 +274,7 @@ namespace m4d.Controllers
                         }
                     }
 
-                    // TODONEXT: Strip region off of purchaseID, check if we're including region elsewhere may have to do a broader cleanup
+                    // TODONEXT: Figure out why savechanges doesn't feel like it needs to do anything here
                     //  Then figure out how to refactor this and update to do them each in batch mode.
                     playList.AddSongs(songs.Select(s => s.GetPurchaseId(service.Id)));
                     dms.SaveChanges();

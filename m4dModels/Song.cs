@@ -2854,7 +2854,7 @@ namespace m4dModels
             string ret = null;
             foreach (var album in Albums)
             {
-                ret = album.GetPurchaseIdentifier(service, PurchaseType.Song);
+                ret = PurchaseRegion.ParseId(album.GetPurchaseIdentifier(service, PurchaseType.Song));
                 if (ret != null)
                     break;
             }
