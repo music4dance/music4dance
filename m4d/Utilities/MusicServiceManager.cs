@@ -77,7 +77,7 @@ namespace m4d.Utilities
 
         private static readonly Dictionary<string, ServiceTrack> s_trackCache = new Dictionary<string, ServiceTrack>();
 
-        public IList<ServiceTrack> LookupServiceTracks(MusicService service, string url, IPrincipal principal)
+        public IList<ServiceTrack> LookupServiceTracks(MusicService service, string url, IPrincipal principal = null)
         {
             dynamic results = GetMusicServiceResults(service.BuildLookupRequest(url), service, principal);
             IList<ServiceTrack> tracks = service.ParseSearchResults(results);

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using System.Web.Mvc;
+using m4d.Utilities;
 using m4dModels;
 using EntityState = System.Data.Entity.EntityState;
 
@@ -122,65 +123,29 @@ namespace m4d.Controllers
             return View("Error");
         }
 
-        private PlayList SafeLoadPlaylist(string id, out ActionResult error)
-        {
-            error = null;
-            // Load the playlist obect
-            if (id == null)
-            {
-                error =  new HttpStatusCodeResult(HttpStatusCode.BadRequest);
-            }
-            var playList = Database.PlayLists.Find(id);
-            if (playList == null)
-            {
-                error =  HttpNotFound();
-            }
-            return playList;
-        }
-
-        IList<ServiceTrack> LoadTracks(PlayList playList, out ActionResult error)
-        {
-            error = null;
-
-            var service = MusicService.FromPlayList(playList.Type);
-            var user = Database.FindUser(playList.User);
-            var url = service?.BuildPlayListLink(playList, user);
-
-            if (url == null)
-            {
-                ViewBag.errorMessage = $"Playlists of type ${playList.Type} not not yet supported.";
-                error = View("Error");
-            }
-
-            try
-            {
-                return MusicServiceManager.LookupServiceTracks(service, url, User);
-            }
-            catch (Exception e)
-            {
-                AdminMonitor.CompleteTask(false, $"Update Playlist failed: {e.Message}");
-                error = View("Error", new HandleErrorInfo(e, "PlayListController", "Update"));
-                return null;
-            }
-        }
-
         // GET: Update
         public ActionResult Update(string id)
         {
-            var playList = SafeLoadPlaylist(id, out var error);
-            if (playList == null) return error;
-
             if (!AdminMonitor.StartTask("UpdatePlayList"))
             {
                 throw new AdminTaskException(
                     "UpdatePlaylist failed to start because there is already an admin task running");
             }
 
-            IList<Song> newSongs;
+            // Match songs & update
+            Task.Run(() => DoUpdate(id));
+
+            return RedirectToAction("AdminStatus", "Admin", AdminMonitor.Status);
+        }
+
+        private static void DoUpdate(string id)
+        {
             try
             {
-                var tracks = LoadTracks(playList, out error);
-                if (tracks == null) return error;
+                var dms = DanceMusicService.GetService();
+                var playList = SafeLoadPlaylist(id, dms);
+
+                var tracks = LoadTracks(playList, dms);
 
                 var oldTrackIds = playList.SongIds;
                 if (oldTrackIds != null)
@@ -190,105 +155,112 @@ namespace m4d.Controllers
 
                 if (tracks.Count == 0)
                 {
-                    ViewBag.Title = "Update Playlist";
-                    ViewBag.Message = $"No new tracks for playlist {playList.Id}";
-
-                    return View("Info");
+                    AdminMonitor.CompleteTask(false, $"No new tracks for playlist {playList.Id}");
                 }
+                else
+                {
+                    var tags = playList.Tags.Split(new[] { "|||" }, 2, StringSplitOptions.None);
+                    var newSongs = dms.SongsFromTracks(playList.User, tracks, tags[0], tags.Length > 1 ? tags[1] : string.Empty);
 
-                var tags = playList.Tags.Split(new [] { "|||" },2,StringSplitOptions.None);
-                newSongs = Database.SongsFromTracks(playList.User, tracks, tags[0], tags.Length > 1 ? tags[1] : string.Empty);
+                    AdminMonitor.UpdateTask("Starting Merge");
+                    var results = DanceMusicService.GetService().MatchSongs(newSongs, DanceMusicService.MatchMethod.Merge);
+                    var succeeded = CommitCatalog(dms, new Review { PlayList = playList.Id, Merge = results }, playList.User);
+                    AdminMonitor.CompleteTask(true, $"Updated PlayList {playList.Id} with {succeeded} songs.");
+                }
             }
             catch (Exception e)
             {
-                AdminMonitor.CompleteTask(false,$"Update Playlist failed: {e.Message}");
-                return View("Error", new HandleErrorInfo(e,"PlayListController", "Update"));
+                AdminMonitor.CompleteTask(false, $"Restore Playlist: Failed={e.Message}");
             }
-
-            // Match songs & update
-            Task.Run(() =>
-            {
-                try
-                {
-                    var dms = DanceMusicService.GetService();
-                    AdminMonitor.UpdateTask("Starting Merge");
-                    var results = DanceMusicService.GetService().MatchSongs(newSongs, DanceMusicService.MatchMethod.Merge);
-                    var succeeded = CommitCatalog(dms, new Review {PlayList = playList.Id, Merge = results}, playList.User);
-                    AdminMonitor.CompleteTask(true, $"Updated PlayList {playList.Id} with {succeeded} songs.");
-                }
-                catch (Exception e)
-                {
-                    AdminMonitor.CompleteTask(false, $"Playlist Merge: Failed={e.Message}");
-                }
-            });
-
-            return RedirectToAction("AdminStatus", "Admin", AdminMonitor.Status);
         }
 
         // GET: Restore
         public ActionResult Restore(string id)
         {
-            var playList = SafeLoadPlaylist(id, out var error);
-            if (playList == null) return error;
-
             if (!AdminMonitor.StartTask("RestorePlayList"))
             {
                 throw new AdminTaskException(
                     "RestorePlaylist failed to start because there is already an admin task running");
             }
 
-            IList<ServiceTrack> tracks = null;
+            // Match songs & update
+            Task.Run(() => DoRestore(id));
+
+            return RedirectToAction("AdminStatus", "Admin", AdminMonitor.Status);
+        }
+
+        private static void DoRestore(string id)
+        {
             try
             {
-                tracks = LoadTracks(playList, out error);
-                if (tracks == null) return error;
+                var dms = DanceMusicService.GetService();
+                var playList = SafeLoadPlaylist(id, dms);
+
+                var tracks = LoadTracks(playList, dms);
 
                 if (tracks.Count == 0)
                 {
-                    ViewBag.Title = "RestorePlaylist";
-                    ViewBag.Message = $"No new tracks for playlist {playList.Id}";
-
-                    return View("Info");
+                    AdminMonitor.CompleteTask(true, $"No new tracks for playlist {playList.Id}");
                 }
-            }
-            catch (Exception e)
-            {
-                AdminMonitor.CompleteTask(false, $"RestorePlaylist failed: {e.Message}");
-                return View("Error", new HandleErrorInfo(e, "PlayListController", "Restore"));
-            }
-
-            // Match songs & update
-            Task.Run(() =>
-            {
-                try
+                else
                 {
-                    var dms = DanceMusicService.GetService();
                     var songs = new List<Song>();
                     var service = MusicService.GetService(ServiceType.Spotify);
                     foreach (var track in tracks)
                     {
                         var song = dms.GetSongFromService(service, track.TrackId);
-                        if (song.FindModified(playList.User) != null)
+                        if (song?.FindModified(playList.User) != null)
                         {
                             songs.Add(song);
                         }
                     }
 
-                    // TODONEXT: Figure out why savechanges doesn't feel like it needs to do anything here
-                    //  Then figure out how to refactor this and update to do them each in batch mode.
+                    playList = dms.PlayLists.Find(id);
+                    if (playList == null)
+                    {
+                        throw new Exception($"Playlist {id} disappeared!");
+                    }
                     playList.AddSongs(songs.Select(s => s.GetPurchaseId(service.Id)));
                     dms.SaveChanges();
 
                     AdminMonitor.CompleteTask(true, $"Restore PlayList {playList.Id} with {songs.Count} songs.");
                 }
-                catch (Exception e)
-                {
-                    AdminMonitor.CompleteTask(false, $"Re Merge: Failed={e.Message}");
-                }
-            });
-
-            return RedirectToAction("AdminStatus", "Admin", AdminMonitor.Status);
+            }
+            catch (Exception e)
+            {
+                AdminMonitor.CompleteTask(false, $"Restore Playlist: Failed={e.Message}");
+            }
         }
+
+        private static PlayList SafeLoadPlaylist(string id, DanceMusicService dms)
+        {
+            // Load the playlist obect
+            if (id == null)
+            {
+                throw new ArgumentNullException(nameof(id));
+            }
+            var playList = dms.PlayLists.Find(id);
+            if (playList == null)
+            {
+                throw new ArgumentOutOfRangeException(nameof(id));
+            }
+            return playList;
+        }
+
+        private static IList<ServiceTrack> LoadTracks(PlayList playList, DanceMusicService dms)
+        {
+            var service = MusicService.FromPlayList(playList.Type);
+            var user = dms.FindUser(playList.User);
+            var url = service?.BuildPlayListLink(playList, user);
+
+            if (url == null)
+            {
+                throw new ArgumentOutOfRangeException(nameof(playList.Type), $@"Playlists of type ${playList.Type} not not yet supported.");
+            }
+
+            return new MusicServiceManager().LookupServiceTracks(service, url);
+        }
+
 
         protected override void Dispose(bool disposing)
         {
