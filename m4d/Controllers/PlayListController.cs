@@ -133,16 +133,34 @@ namespace m4d.Controllers
             }
 
             // Match songs & update
-            Task.Run(() => DoUpdate(id));
+            Task.Run(() => DoUpdate(id, DanceMusicService.GetService()));
 
             return RedirectToAction("AdminStatus", "Admin", AdminMonitor.Status);
         }
 
-        private static void DoUpdate(string id)
+        // GET: Restore
+        public ActionResult UpdateAll()
+        {
+            if (!AdminMonitor.StartTask("UpdateAllPlayLists"))
+            {
+                throw new AdminTaskException(
+                    "UpdateAllPlayLists failed to start because there is already an admin task running");
+            }
+            Task.Run(() =>
+            {
+                foreach (var id in Database.PlayLists.Where(p => p.SongIdList == null && p.Updated != null).Select(p => p.Id))
+                {
+                    DoUpdate(id, DanceMusicService.GetService());
+                }
+            });
+
+            return RedirectToAction("AdminStatus", "Admin", AdminMonitor.Status);
+        }
+
+        private static void DoUpdate(string id, DanceMusicService dms)
         {
             try
             {
-                var dms = DanceMusicService.GetService();
                 var playList = SafeLoadPlaylist(id, dms);
 
                 var tracks = LoadTracks(playList, dms);
@@ -184,16 +202,34 @@ namespace m4d.Controllers
             }
 
             // Match songs & update
-            Task.Run(() => DoRestore(id));
+            Task.Run(() => DoRestore(id, DanceMusicService.GetService()));
 
             return RedirectToAction("AdminStatus", "Admin", AdminMonitor.Status);
         }
 
-        private static void DoRestore(string id)
+        // GET: Restore
+        public ActionResult RestoreAll()
+        {
+            if (!AdminMonitor.StartTask("RestoreAllPlayLists"))
+            {
+                throw new AdminTaskException(
+                    "RestoreAllPlayLists failed to start because there is already an admin task running");
+            }
+            Task.Run(() =>
+            {
+                foreach (var id in Database.PlayLists.Where(p => p.SongIdList == null && p.Updated != null).Select(p => p.Id))
+                {
+                    DoRestore(id, DanceMusicService.GetService());
+                }
+            });
+
+            return RedirectToAction("AdminStatus", "Admin", AdminMonitor.Status);
+        }
+
+        private static void DoRestore(string id, DanceMusicService dms)
         {
             try
             {
-                var dms = DanceMusicService.GetService();
                 var playList = SafeLoadPlaylist(id, dms);
 
                 var tracks = LoadTracks(playList, dms);
