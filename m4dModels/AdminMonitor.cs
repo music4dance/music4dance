@@ -82,7 +82,7 @@ namespace m4dModels
                         message = _lastTaskName != null ?
                             string.Format(_lastTaskCompleted ? "AdminMonitor: TaskCompleted - {0} \"{1}\"" :
                                 "AdminMonitor: TaskFailed - {0} \"{1}\"", _lastTaskName, _lastTaskMessage) :
-                                "AdminMonitor: No task running or completed.";                        
+                                "AdminMonitor: No task running or completed.";
                     }
 
                     return new AdminStatus

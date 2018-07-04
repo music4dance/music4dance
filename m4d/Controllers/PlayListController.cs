@@ -133,12 +133,16 @@ namespace m4d.Controllers
             }
 
             // Match songs & update
-            Task.Run(() => DoUpdate(id, DanceMusicService.GetService()));
+            Task.Run(() =>
+            {
+                var success =  DoUpdate(id, DanceMusicService.GetService(), out var result);
+                AdminMonitor.CompleteTask(success, result);
+            });
 
             return RedirectToAction("AdminStatus", "Admin", AdminMonitor.Status);
         }
 
-        // GET: Restore
+        // GET: UpdateAll
         public ActionResult UpdateAll()
         {
             if (!AdminMonitor.StartTask("UpdateAllPlayLists"))
@@ -148,16 +152,31 @@ namespace m4d.Controllers
             }
             Task.Run(() =>
             {
-                foreach (var id in Database.PlayLists.Where(p => p.SongIdList == null && p.Updated != null).Select(p => p.Id))
+                try
                 {
-                    DoUpdate(id, DanceMusicService.GetService());
+                    var dms = DanceMusicService.GetService();
+                    var results = new List<string>();
+                    var i = 0;
+                    foreach (var id in dms.PlayLists.Where(p => p.SongIds == null && p.Updated != null)
+                        .Select(p => p.Id))
+                    {
+                        DoUpdate(id, dms, out var result);
+                        AdminMonitor.UpdateTask($"Playlist {id}", i);
+                        results.Add(result);
+                        i += 1;
+                    }
+                    AdminMonitor.CompleteTask(true, string.Join("\t", results));
+                }
+                catch (Exception e)
+                {
+                    AdminMonitor.CompleteTask(false, $"UpdateAll Playlists failed: {e.Message}");
                 }
             });
 
             return RedirectToAction("AdminStatus", "Admin", AdminMonitor.Status);
         }
 
-        private static void DoUpdate(string id, DanceMusicService dms)
+        private static bool DoUpdate(string id, DanceMusicService dms, out string result)
         {
             try
             {
@@ -173,22 +192,22 @@ namespace m4d.Controllers
 
                 if (tracks.Count == 0)
                 {
-                    AdminMonitor.CompleteTask(false, $"No new tracks for playlist {playList.Id}");
+                    result =  $"No new tracks for playlist {playList.Id}";
+                    return true;
                 }
-                else
-                {
-                    var tags = playList.Tags.Split(new[] { "|||" }, 2, StringSplitOptions.None);
-                    var newSongs = dms.SongsFromTracks(playList.User, tracks, tags[0], tags.Length > 1 ? tags[1] : string.Empty);
+                var tags = playList.Tags.Split(new[] { "|||" }, 2, StringSplitOptions.None);
+                var newSongs = dms.SongsFromTracks(playList.User, tracks, tags[0], tags.Length > 1 ? tags[1] : string.Empty);
 
-                    AdminMonitor.UpdateTask("Starting Merge");
-                    var results = DanceMusicService.GetService().MatchSongs(newSongs, DanceMusicService.MatchMethod.Merge);
-                    var succeeded = CommitCatalog(dms, new Review { PlayList = playList.Id, Merge = results }, playList.User);
-                    AdminMonitor.CompleteTask(true, $"Updated PlayList {playList.Id} with {succeeded} songs.");
-                }
+                AdminMonitor.UpdateTask("Starting Merge");
+                var results = DanceMusicService.GetService().MatchSongs(newSongs, DanceMusicService.MatchMethod.Merge);
+                var succeeded = CommitCatalog(dms, new Review { PlayList = playList.Id, Merge = results }, playList.User);
+                result =  $"Updated PlayList {playList.Id} with {succeeded} songs.";
+                return true;
             }
             catch (Exception e)
             {
-                AdminMonitor.CompleteTask(false, $"Restore Playlist: Failed={e.Message}");
+                result = $"Restore Playlist: Failed={e.Message}";
+                return false;
             }
         }
 
@@ -202,12 +221,16 @@ namespace m4d.Controllers
             }
 
             // Match songs & update
-            Task.Run(() => DoRestore(id, DanceMusicService.GetService()));
+            Task.Run(() =>
+            {
+                var success =  DoRestore(id, DanceMusicService.GetService(), out var result);
+                AdminMonitor.CompleteTask(success,result);
+            });
 
             return RedirectToAction("AdminStatus", "Admin", AdminMonitor.Status);
         }
 
-        // GET: Restore
+        // GET: RestoreAll
         public ActionResult RestoreAll()
         {
             if (!AdminMonitor.StartTask("RestoreAllPlayLists"))
@@ -217,16 +240,31 @@ namespace m4d.Controllers
             }
             Task.Run(() =>
             {
-                foreach (var id in Database.PlayLists.Where(p => p.SongIdList == null && p.Updated != null).Select(p => p.Id))
+                try
                 {
-                    DoRestore(id, DanceMusicService.GetService());
+                    var dms = DanceMusicService.GetService();
+                    var results = new List<string>();
+                    var i = 0;
+                    foreach (var id in dms.PlayLists.Where(p => p.SongIds == null && p.Updated != null)
+                        .Select(p => p.Id))
+                    {
+                        DoRestore(id, dms, out var result);
+                        AdminMonitor.UpdateTask($"Playlist {id}", i);
+                        results.Add(result);
+                        i += 1;
+                    }
+                    AdminMonitor.CompleteTask(true, string.Join("\t", results));
+                }
+                catch (Exception e)
+                {
+                    AdminMonitor.CompleteTask(false, $"RestoreAll Playlists failed: {e.Message}");
                 }
             });
 
             return RedirectToAction("AdminStatus", "Admin", AdminMonitor.Status);
         }
 
-        private static void DoRestore(string id, DanceMusicService dms)
+        private static bool DoRestore(string id, DanceMusicService dms, out string result)
         {
             try
             {
@@ -236,35 +274,36 @@ namespace m4d.Controllers
 
                 if (tracks.Count == 0)
                 {
-                    AdminMonitor.CompleteTask(true, $"No new tracks for playlist {playList.Id}");
+                    result = $"No new tracks for playlist {playList.Id}";
+                    return true;
                 }
-                else
+
+                var songs = new List<Song>();
+                var service = MusicService.GetService(ServiceType.Spotify);
+                foreach (var track in tracks)
                 {
-                    var songs = new List<Song>();
-                    var service = MusicService.GetService(ServiceType.Spotify);
-                    foreach (var track in tracks)
+                    var song = dms.GetSongFromService(service, track.TrackId);
+                    if (song?.FindModified(playList.User) != null)
                     {
-                        var song = dms.GetSongFromService(service, track.TrackId);
-                        if (song?.FindModified(playList.User) != null)
-                        {
-                            songs.Add(song);
-                        }
+                        songs.Add(song);
                     }
-
-                    playList = dms.PlayLists.Find(id);
-                    if (playList == null)
-                    {
-                        throw new Exception($"Playlist {id} disappeared!");
-                    }
-                    playList.AddSongs(songs.Select(s => s.GetPurchaseId(service.Id)));
-                    dms.SaveChanges();
-
-                    AdminMonitor.CompleteTask(true, $"Restore PlayList {playList.Id} with {songs.Count} songs.");
                 }
+
+                playList = dms.PlayLists.Find(id);
+                if (playList == null)
+                {
+                    throw new Exception($"Playlist {id} disappeared!");
+                }
+                playList.AddSongs(songs.Select(s => s.GetPurchaseId(service.Id)));
+                dms.SaveChanges();
+
+                result = $"Restore PlayList {playList.Id} with {songs.Count} songs.  ";
+                return true;
             }
             catch (Exception e)
             {
-                AdminMonitor.CompleteTask(false, $"Restore Playlist: Failed={e.Message}");
+                result = $"Restore Playlist {id}: Failed={e.Message}";
+                return false;
             }
         }
 
