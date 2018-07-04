@@ -157,7 +157,7 @@ namespace m4d.Controllers
                     var dms = DanceMusicService.GetService();
                     var results = new List<string>();
                     var i = 0;
-                    foreach (var id in dms.PlayLists.Where(p => p.SongIds == null && p.Updated != null)
+                    foreach (var id in dms.PlayLists.Where(p => string.IsNullOrEmpty(p.SongIds) && p.Updated != null)
                         .Select(p => p.Id))
                     {
                         DoUpdate(id, dms, out var result);
@@ -245,8 +245,7 @@ namespace m4d.Controllers
                     var dms = DanceMusicService.GetService();
                     var results = new List<string>();
                     var i = 0;
-                    foreach (var id in dms.PlayLists.Where(p => p.SongIds == null && p.Updated != null)
-                        .Select(p => p.Id))
+                    foreach (var id in dms.PlayLists.Where(p => string.IsNullOrEmpty(p.SongIds) && p.Updated != null).Select(p => p.Id))
                     {
                         DoRestore(id, dms, out var result);
                         AdminMonitor.UpdateTask($"Playlist {id}", i);
