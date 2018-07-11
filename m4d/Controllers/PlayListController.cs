@@ -157,7 +157,7 @@ namespace m4d.Controllers
                     var dms = DanceMusicService.GetService();
                     var results = new List<string>();
                     var i = 0;
-                    foreach (var id in dms.PlayLists.Where(p => string.IsNullOrEmpty(p.SongIds) && p.Updated != null)
+                    foreach (var id in dms.PlayLists.Where(p => p.Updated != null)
                         .Select(p => p.Id))
                     {
                         DoUpdate(id, dms, out var result);
@@ -187,7 +187,7 @@ namespace m4d.Controllers
                 var oldTrackIds = playList.SongIds;
                 if (oldTrackIds != null)
                 {
-                    tracks = tracks.Where(t => !oldTrackIds.Contains(t.TrackId)).ToList();
+                    tracks = tracks.Where(t => t.TrackId != null && !oldTrackIds.Contains(t.TrackId)).ToList();
                 }
 
                 if (tracks.Count == 0)

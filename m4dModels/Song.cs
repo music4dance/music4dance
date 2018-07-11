@@ -1475,7 +1475,7 @@ namespace m4dModels
                 modified |= TagsFromProperties(user, edit.SongProperties, stats, this);
 
                 // Handle Dance Ratings
-                CreateDanceRatings(edit.DanceRatings, stats);
+                modified |= CreateDanceRatings(edit.DanceRatings, stats);
 
                 modified |= DanceTagsFromProperties(user, edit.SongProperties, stats, this);
             }
