@@ -219,7 +219,9 @@ namespace m4dModels
             foreach (var t in filtered.StripType())
             {
                 if (sb.Length > 0) sb.Append(" and ");
-                sb.AppendFormat(format, tagName, t.ToLower());
+                var tt = t.Replace(@"'", @"''");
+
+                sb.AppendFormat(format, tagName, tt.ToLower());
             }
         }
 
