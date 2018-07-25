@@ -311,6 +311,20 @@ namespace m4dModels.Tests
             Assert.AreEqual(expected, actual);
         }
 
+        [TestMethod]
+        public void AdminModifyMga()
+        {
+            const string init = @".Create=	User=dwgray	Time=06/11/2017 17:17:51	Title=El distinguido ciudadano (The Distinguished Citizen) [1940]	Artist=Edgardo Donato & his orchestra	Length=149	Album:00=The best of Argentine Tango Vol. 2 / 78 rpm recordings 1927 - 1957	Track:00=17	Tag+=Argentine Tango:Dance	DanceRating=ATN+2	Purchase:00:SS=0ns4CpHDRcexy62FEQP0Fh	DanceRating=TNG+1	.Edit=	User=batch-a	Time=06/11/2017 17:23:40	Purchase:00:AS=D:B001VL341Y	Purchase:00:AA=D:B001VL4RKQ	Tag+=Latin:Music	.Edit=	User=batch-i	Time=06/11/2017 17:23:40	Album:01=The Best of Argentine Tango, Vol. 2 - 78 Rpm Recordings 1927-1957	Track:01=17	Purchase:01:IS=307599641	Purchase:01:IA=307599529	Tag+=Raíces:Music	.Edit=	User=batch-s	Time=06/11/2017 17:23:40	Purchase:00:SS=0ns4CpHDRcexy62FEQP0Fh[AD,AT,AU,BE,BG,BO,BR,CA,CH,CL,CO,CR,CY,CZ,DE,DK,DO,EC,EE,ES,FI,FR,GB,GR,GT,HK,HN,HU,ID,IE,IS,IT,JP,LI,LT,LU,LV,MC,MT,MX,MY,NI,NL,NO,NZ,PA,PE,PH,PL,PT,PY,SE,SG,SK,SV,TR,TW,US,UY]	Purchase:00:SA=1MCPFcQJSIrQ45lTjfxkYn	.Edit=	User=batch	Time=06/11/2017 17:28:52	Tempo=134.4	Danceability=0.717	Energy=0.378	Valence=0.693	Tag+=4/4:Tempo	.Edit=	User=batch-s	Time=06/11/2017 17:29:13	Sample=https://p.scdn.co/mp3-preview/92d2fe46e92d1040da43258f03f971225a7330ee?cid\<EQ>\***REMOVED***	.Edit=	User=batch	Time=07/23/2017 16:43:48	DanceRating=MGA+1";
+            var song = new Song();
+            song.Load(init,Service.DanceStats);
+            song.AdminModify(
+                @"[{Name:'Tag+',Value:'Argentine Tango:Dance',Replace:'Tango Vals:Dance'},{Name:'DanceRating',Value:'ATN+2',Replace:'MGA+2'},{Name:'DanceRating',Value:'MGA+1',Replace:null}]",
+                Service.DanceStats);
+
+            Assert.AreEqual(2,song.DanceRatings.Count);
+            Assert.AreEqual("",song.TagSummary);
+        }
+
         //// TODO: Consider if this is a useful test (didn't end up using this code path for what it was testing and it's currently failing
         //[TestMethod]
         //public void DanceRatingMerge()

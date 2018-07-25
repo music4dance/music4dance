@@ -209,6 +209,12 @@ namespace m4dModels
             SongProperties.AddRange(props);
         }
 
+        public void Reload(ICollection<SongProperty> properties, DanceStatsInstance stats)
+        {
+            SongProperties.Clear();
+            Load(properties, stats);
+        }
+
         public void Load(ICollection<SongProperty> properties, DanceStatsInstance stats)
         {
             var id = SongId;
@@ -226,6 +232,14 @@ namespace m4dModels
         public void Load(string properties, DanceStatsInstance stats)
         {
             var props = new List<SongProperty>();
+            SongProperty.Load(properties, props);
+            Load(SongId, props, stats);
+        }
+
+        public void Reload(string properties, DanceStatsInstance stats)
+        {
+            var props = new List<SongProperty>();
+            SongProperties.Clear();
             SongProperty.Load(properties, props);
             Load(SongId, props, stats);
         }
@@ -1242,14 +1256,9 @@ namespace m4dModels
 
         internal bool AdminEdit(ICollection<SongProperty> properties, DanceStatsInstance stats)
         {
-            DanceRatings.Clear();
-            ModifiedBy.Clear();
-
-            SongProperties.Clear();
-
             ClearValues();
 
-            Load(properties, stats);
+            Reload(properties, stats);
 
             Modified = DateTime.Now;
 
@@ -1269,20 +1278,42 @@ namespace m4dModels
 
             var oldProperties = Serialize(new[] { NoSongId });
 
-            DanceRatings.Clear();
-            ModifiedBy.Clear();
-
-            SongProperties.Clear();
-
-            ClearValues();
-
-            Load($"{oldProperties}\t{newProperties}", stats);
+            Reload($"{oldProperties}\t{newProperties}", stats);
 
             Modified = DateTime.Now;
 
             return true;
         }
 
+        public bool AdminModify(string modInfo, DanceStatsInstance stats)
+        {
+            var modifiers = JsonConvert.DeserializeObject<List<SongModifier>>(modInfo);
+            foreach (var modifier in modifiers)
+            {
+                var modList = SongProperties.Where(p =>
+                    string.Equals(p.Name, modifier.Name, StringComparison.OrdinalIgnoreCase) &&
+                    string.Equals(p.Value, modifier.Value, StringComparison.OrdinalIgnoreCase));
+                //var delList = new List<SongProperty>();
+
+                foreach (var prop in modList)
+                {
+                    if (modifier.Replace == null)
+                    {
+                        // TODONEXT: Figure out why this is throwing and then finish off the test
+                        // then add the Vals test, propagate this up to SongController
+                        SongProperties.Remove(prop);
+                    }
+                    else
+                    {
+                        prop.Value = modifier.Replace;
+                    }
+                }
+            }
+
+            Reload(Serialize(new[] { NoSongId }), stats);
+
+            return true;
+        }
 
         // Edit 'this' based on SongBase + extras
         public bool Edit(string user, Song edit, IEnumerable<UserTag> tags, DanceStatsInstance stats)
@@ -3599,24 +3630,6 @@ namespace m4dModels
             TagSummary.Clean();
             DanceRatings?.Clear();
             ModifiedBy?.Clear();
-
-            //if (DanceRatings != null)
-            //{
-            //    var drs = DanceRatings.ToList();
-            //    foreach (var dr in drs)
-            //    {
-            //        DanceRatings.Remove(dr);
-            //    }
-            //}
-
-            //if (ModifiedBy != null)
-            //{
-            //    var us = ModifiedBy.ToList();
-            //    foreach (var u in us)
-            //    {
-            //        ModifiedBy.Remove(u);
-            //    }
-            //}
 
             _albums = null;
         }

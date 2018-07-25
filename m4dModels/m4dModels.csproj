@@ -128,6 +128,7 @@
     <Compile Include="DanceStatsManager.cs" />
     <Compile Include="SmartLock.cs" />
     <Compile Include="SongFilterConverter.cs" />
+    <Compile Include="SongModifier.cs" />
     <Compile Include="SongPropertyMerge.cs" />
     <Compile Include="SongSort.cs" />
     <Compile Include="SpotifyService.cs" />
