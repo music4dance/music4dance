@@ -1285,6 +1285,7 @@ namespace m4dModels
             return true;
         }
 
+        // TODONEXT:  propagate this up to SongController
         public bool AdminModify(string modInfo, DanceStatsInstance stats)
         {
             var modifiers = JsonConvert.DeserializeObject<List<SongModifier>>(modInfo);
@@ -1292,15 +1293,13 @@ namespace m4dModels
             {
                 var modList = SongProperties.Where(p =>
                     string.Equals(p.Name, modifier.Name, StringComparison.OrdinalIgnoreCase) &&
-                    string.Equals(p.Value, modifier.Value, StringComparison.OrdinalIgnoreCase));
+                    string.Equals(p.Value, modifier.Value, StringComparison.OrdinalIgnoreCase)).ToList();
                 //var delList = new List<SongProperty>();
 
                 foreach (var prop in modList)
                 {
                     if (modifier.Replace == null)
                     {
-                        // TODONEXT: Figure out why this is throwing and then finish off the test
-                        // then add the Vals test, propagate this up to SongController
                         SongProperties.Remove(prop);
                     }
                     else
