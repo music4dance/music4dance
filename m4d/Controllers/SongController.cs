@@ -765,20 +765,37 @@ namespace m4d.Controllers
             return View("details", sd);
         }
 
+
         //
-        // POST: /Song/AdminEdit/5
+        // POST: /Song/BatchAdminEdit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "dbAdmin")]
         public ActionResult BatchAdminEdit(string properties, string user = null, int pageSize = 100, SongFilter filter = null)
         {
+            return BatchAdminExecute((dms,song) => dms.AdminAppendSong(song,user,properties), "BatchAdminEdit", pageSize, filter);
+        }
+
+        //
+        // POST: /Song/AdminEdit/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Authorize(Roles = "dbAdmin")]
+        public ActionResult BatchAdminModify(string properties, string user = null, int pageSize = 100, SongFilter filter = null)
+        {
+            return BatchAdminExecute((dms, song) => dms.AdminModifySong(song, properties), "BatchAdminModify", pageSize, filter);
+        }
+
+        private ActionResult BatchAdminExecute(Func<DanceMusicService, Song, bool> act, string name, int pageSize = 100, SongFilter filter = null)
+        {
+
             if (!ModelState.IsValid || filter == null)
                 return RedirectToAction("Index", new { filter });
 
             try
             {
-                StartAdminTask("BatchAdminEdit");
-                AdminMonitor.UpdateTask("BatchAdminEdit");
+                StartAdminTask(name);
+                AdminMonitor.UpdateTask(name);
                 var tried = 0;
 
                 var failed = new List<Guid>();
@@ -786,11 +803,6 @@ namespace m4d.Controllers
 
                 var page = 0;
                 var done = false;
-
-                if (string.IsNullOrWhiteSpace(user))
-                {
-                    user = User.Identity.Name;
-                }
 
                 var parameters = DanceMusicService.AddCruftInfo(Database.AzureParmsFromFilter(filter), DanceMusicService.CruftFilter.AllCruft);
 
@@ -813,7 +825,7 @@ namespace m4d.Controllers
                             tried += 1;
                             processed += 1;
 
-                            if (dms.AdminAppendSong(song,user,properties))
+                            if (act(dms,song))
                             {
                                 stemp.Add(song);
                             }
@@ -839,17 +851,16 @@ namespace m4d.Controllers
                     }
 
                     AdminMonitor.CompleteTask(true,
-                        $"BatchAdminEdit: Completed={true}, Succeeded={succeeded.Count} - ({string.Join(",", succeeded)}), Failed={failed.Count} - ({string.Join(",", failed)})");
+                        $"{name}: Completed={true}, Succeeded={succeeded.Count} - ({string.Join(",", succeeded)}), Failed={failed.Count} - ({string.Join(",", failed)})");
                 });
 
                 return RedirectToAction("AdminStatus", "Admin", AdminMonitor.Status);
             }
             catch (Exception e)
             {
-                return FailAdminTask($"BatchAdminEdit: {e.Message}", e);
+                return FailAdminTask($"{name}: {e.Message}", e);
             }
         }
-
 
         public ActionResult CleanupAlbums(Guid id, SongFilter filter = null)
         {

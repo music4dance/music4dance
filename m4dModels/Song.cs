@@ -1037,11 +1037,8 @@ namespace m4dModels
         [DataMember]
         public List<AlbumDetails> Albums
         {
-            get { return _albums ?? (_albums = new List<AlbumDetails>()); }
-            set
-            {
-                _albums = value;
-            }
+            get => _albums ?? (_albums = new List<AlbumDetails>());
+            set => _albums = value;
         }
         private List<AlbumDetails> _albums;
 
@@ -1050,8 +1047,8 @@ namespace m4dModels
         [DataMember]
         public bool? CurrentUserLike
         {
-            get { return _currentUserLike; }
-            set { throw new NotImplementedException("Shouldn't hit the setter for this."); }
+            get => _currentUserLike;
+            set => throw new NotImplementedException("Shouldn't hit the setter for this.");
         }
 
         private bool? _currentUserLike;
@@ -1285,16 +1282,16 @@ namespace m4dModels
             return true;
         }
 
-        // TODONEXT:  propagate this up to SongController
         public bool AdminModify(string modInfo, DanceStatsInstance stats)
         {
-            var modifiers = JsonConvert.DeserializeObject<List<SongModifier>>(modInfo);
-            foreach (var modifier in modifiers)
+            var songMod = JsonConvert.DeserializeObject<SongModifier>(modInfo);
+
+            var props = FilteredProperties(songMod.ExcludeUsers).ToList();
+            foreach (var modifier in songMod.Properties)
             {
-                var modList = SongProperties.Where(p =>
+                var modList = props.Where(p =>
                     string.Equals(p.Name, modifier.Name, StringComparison.OrdinalIgnoreCase) &&
                     string.Equals(p.Value, modifier.Value, StringComparison.OrdinalIgnoreCase)).ToList();
-                //var delList = new List<SongProperty>();
 
                 foreach (var prop in modList)
                 {
@@ -3590,10 +3587,10 @@ namespace m4dModels
 
         public IEnumerable<SongProperty> FilteredProperties(IEnumerable<string> excludeUsers = null, IEnumerable<string> includeUsers = null)
         {
-            if (excludeUsers == null && includeUsers == null) return SongProperties;
-
             var eu = (excludeUsers == null) ? null : (excludeUsers as HashSet<string> ?? new HashSet<string>(excludeUsers));
             var iu = (includeUsers == null) ? null : (includeUsers as HashSet<string> ?? new HashSet<string>(includeUsers));
+
+            if ((eu == null || eu.Count == 0) && (iu == null || iu.Count == 0)) return SongProperties;
 
             var ret = new List<SongProperty>();
 

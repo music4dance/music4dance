@@ -1,9 +1,10 @@
-﻿namespace m4dModels
+﻿using System.Collections.Generic;
+
+namespace m4dModels
 {
     public class SongModifier
     {
-        public string Name { get; set; }
-        public string Value { get; set; }
-        public string Replace { get; set; }
+        public List<string> ExcludeUsers { get; set; }
+        public List<PropertyModifier> Properties { get; set; }
     }
 }

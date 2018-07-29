@@ -77,6 +77,7 @@ else
 
 @if (User.IsInRole("dbAdmin"))
 {
+    <hr/>
     using (Html.BeginForm("BatchAdminEdit", "Song", FormMethod.Post, new { enctype = "multipart/form-data" }))
     {
         @Html.AntiForgeryToken();
@@ -85,6 +86,15 @@ else
         <span>Properties:</span> <input type="text" name="properties" />
         <input type="hidden" name="filter" value="@filter" />
         <input type="submit" name="BatchAdminEdit" id="Submit" value="Upload" />
+    }
+
+    <hr/>
+    using (Html.BeginForm("BatchAdminModify", "Song", FormMethod.Post, new { enctype = "multipart/form-data" }))
+    {
+        @Html.AntiForgeryToken();
+        <span>SongModifier:</span> <input type="text" name="properties" />
+        <input type="hidden" name="filter" value="@filter" />
+        <input type="submit" name="BatchAdminModify" id="Submit" value="Upload" />
     }
 
 }

@@ -158,6 +158,11 @@ namespace m4dModels
             return song != null && AdminEditSong(song, properties);
         }
 
+        public bool AdminModifySong(Song edit, string songModifier)
+        {
+            return edit.AdminModify(songModifier, DanceStats);
+        }
+
         public Song UpdateSong(ApplicationUser user, Song song, Song edit)
         {
             if (!song.Update(user.UserName, edit, DanceStats)) return null;
