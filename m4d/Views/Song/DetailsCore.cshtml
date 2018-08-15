@@ -56,13 +56,13 @@
         <span class="hidden-xs">
             @{
                 ViewBag.UseLogo = false;
-                @Html.Partial("_PurchaseLinks", Model.GetPurchaseLinks("AISX",region))
+                @Html.Partial("_PurchaseLinks", Model.GetPurchaseLinks("AIS",region))
             }
         </span>
         <span class="visible-xs">
             @{
                 ViewBag.UseLogo = true;
-                @Html.Partial("_PurchaseLinks", Model.GetPurchaseLinks("AISX", region))
+                @Html.Partial("_PurchaseLinks", Model.GetPurchaseLinks("AIS", region))
             }
         </span>
         @Actions(filter)

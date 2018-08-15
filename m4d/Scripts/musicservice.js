@@ -62,11 +62,11 @@
         $('.play-link').click(function () {
             $.getJSON(purchaseUri + this.id[0] + '?songs=' + this.id.substring(1))
                 .done(function (data) {
-                    //if (data[0].Target == null) {
+                    if (data[0].Target == null) {
                     window.location = data[0].Link;
-                    //} else {
-                    //    window.open(data[0].Link, data[0].Target);
-                    //}
+                    } else {
+                        window.open(data[0].Link, data[0].Target);
+                    }
                 })
                 .fail(function () {
                     window.alert('Unable to fetch data from ' + this.id + 'please try again later.  If this issue persists, please report it to us at info@music4dance.net');
