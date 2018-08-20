@@ -3,11 +3,23 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace m4dModels
 {
-    public class Search
+    public sealed class Search
     {
+        public void Update(ApplicationUser user, string name, string query, bool favorite, int count, DateTime created,
+            DateTime modified)
+        {
+            ApplicationUser = user;
+            Name = name;
+            Query = query;
+            Favorite = favorite;
+            Count = count;
+            Created = created;
+            Modified = modified;
+        }
+
         public long Id { get; set; }
         public string ApplicationUserId { get; set; }
-        public virtual ApplicationUser ApplicationUser { get; set; }
+        public ApplicationUser ApplicationUser { get; set; }
 
         public string Name { get; set; }
         public string Query { get; set; }

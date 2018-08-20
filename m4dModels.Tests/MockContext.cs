@@ -98,6 +98,8 @@ namespace m4dModels.Tests
             return 1;
         }
 
+        public bool AutoDetectChangesEnabled { get; set; }
+
         public void TrackChanges(bool track)
         {
             // NOOP?

@@ -864,7 +864,7 @@ namespace m4d.Controllers
                     if (dances != null) Database.LoadDances(dances);
                     if (tags != null) Database.LoadTags(tags);
                     if (playlists != null) Database.LoadPlaylists(playlists);
-                    if (searches != null) Database.LoadSearches(searches);
+                    if (searches != null) Database.LoadSearches(searches,reload);
                     if (songs != null)
                     {
                         if (reload)

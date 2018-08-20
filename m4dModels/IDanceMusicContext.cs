@@ -20,6 +20,8 @@ namespace m4dModels
         IDbSet<IdentityRole> Roles { get; }
         int SaveChanges();
 
+        bool AutoDetectChangesEnabled { get; set; }
+
         void LoadDances();
     }
 

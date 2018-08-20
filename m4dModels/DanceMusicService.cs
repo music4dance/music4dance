@@ -1268,7 +1268,7 @@ namespace m4dModels
             Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Exiting LoadUsers");
         }
 
-        public void LoadSearches(IList<string> lines)
+        public void LoadSearches(IList<string> lines, bool reload=false)
         {
             Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Entering LoadSearches");
 
@@ -1277,11 +1277,30 @@ namespace m4dModels
                 throw new ArgumentOutOfRangeException();
             }
 
-            if (lines.Count > 1 && IsSearchBreak(lines[0]))
+            if (lines.Count > 0 && IsSearchBreak(lines[0]))
             {
                 lines.RemoveAt(0);
             }
 
+            if (lines.Count > 0)
+            {
+                if (reload)
+                {
+                    LoadSearchesBulk(lines);
+                }
+                else
+                {
+                    LoadSearchesIncremental(lines);
+                }
+            }
+
+            Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Saving Changes");
+            SaveChanges();
+            Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Exiting LoadSearches");
+        }
+
+        private void LoadSearchesIncremental(IList<string> lines)
+        {
             var fieldCount = lines[0].Split('\t').Length;
             for (var i = 0; i < lines.Count; i++)
             {
@@ -1293,43 +1312,89 @@ namespace m4dModels
                     break;
                 }
 
-                var cells = s.Split('\t');
-                if (cells.Length != fieldCount) continue;
+                if (!ParseSearchEntry(s, fieldCount, out var user, out string name, out var query, 
+                    out var favorite, out var count, out var created, out var modified))
+                {
+                    continue;
+                }
 
-                var userName = cells[0];
-                var name = cells[1];
-                var query = cells[2];
-                var favorite = string.Equals(cells[3], "true", StringComparison.OrdinalIgnoreCase);
-                int count;
-                int.TryParse(cells[4], out count);
-                DateTime created;
-                DateTime.TryParse(cells[5], out created);
-                DateTime modified;
-                DateTime.TryParse(cells[6], out modified);
-
-                var user = string.IsNullOrWhiteSpace(userName) ? null : FindUser(userName);
-
-                var search = user == null ? Searches.FirstOrDefault(x => x.ApplicationUser == null && x.Query == query) : 
-                    Searches.FirstOrDefault(x => x.ApplicationUser != null && x.ApplicationUser.Id == user.Id && x.Query == query);
+                var search = user == null
+                        ? Searches.FirstOrDefault(x => x.ApplicationUser == null && x.Query == query)
+                        : Searches.FirstOrDefault(x =>
+                            x.ApplicationUser != null && x.ApplicationUser.Id == user.Id && x.Query == query);
 
                 if (search == null)
                 {
                     search = Searches.Create();
-                    search.ApplicationUser = user;
-                    search.Query = query;
                     Searches.Add(search);
                 }
 
-                search.Name = name;
-                search.Favorite = favorite;
-                search.Count = count;
-                search.Created = created;
-                search.Modified = modified;
+                search.Update(user, name, query, favorite, count, created, modified);
             }
+        }
 
-            Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Saving Changes");
-            SaveChanges();
-            Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Exiting LoadSearches");
+        private void LoadSearchesBulk(IList<string> lines)
+        {
+            try
+            {
+                Context.AutoDetectChangesEnabled = false;
+
+                var fieldCount = lines[0].Split('\t').Length;
+                for (var i = 0; i < lines.Count; i++)
+                {
+                    AdminMonitor.UpdateTask("LoadSearches", i);
+                    var s = lines[i];
+
+                    if (string.Equals(s, TagBreak, StringComparison.InvariantCultureIgnoreCase))
+                    {
+                        break;
+                    }
+
+                    if (!ParseSearchEntry(s, fieldCount, out var user, out string name, out var query,
+                        out var favorite, out var count, out var created, out var modified))
+                    {
+                        continue;
+                    }
+
+                    var search = Searches.Create();
+                    Searches.Add(search);
+
+                    search.Update(user, name, query, favorite, count, created, modified);
+                }
+            }
+            finally
+            {
+                Context.AutoDetectChangesEnabled = true;
+            }
+        }
+
+
+        private bool ParseSearchEntry(
+            string line, int fieldCount, out ApplicationUser user, out string name, out string query, 
+            out bool favorite, out int count, out DateTime created, out DateTime modified)
+        {
+            user = null;
+            name = null;
+            query = null;
+            favorite = false;
+            count = 0;
+            created = DateTime.MinValue;
+            modified = DateTime.MaxValue;
+
+            var cells = line.Split('\t');
+            if (cells.Length != fieldCount) return false;
+
+            var userName = cells[0];
+            name = cells[1];
+            query = cells[2];
+            favorite = string.Equals(cells[3], "true", StringComparison.OrdinalIgnoreCase);
+            int.TryParse(cells[4], out count);
+            DateTime.TryParse(cells[5], out created);
+            DateTime.TryParse(cells[6], out modified);
+
+            user = string.IsNullOrWhiteSpace(userName) ? null : FindUser(userName);
+
+            return true;
         }
 
         public void LoadDances(IList<string> lines)
@@ -2324,8 +2389,7 @@ namespace m4dModels
         #region User
         public ApplicationUser FindUser(string name)
         {
-            ApplicationUser user;
-            if (_userCache.TryGetValue(name,out user))
+            if (_userCache.TryGetValue(name,out var user))
                 return user;
 
             user = UserManager.FindByName(name);

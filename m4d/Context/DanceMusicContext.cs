@@ -151,6 +151,11 @@ namespace m4d.Context
             return ret;
         }
 
+        public bool AutoDetectChangesEnabled
+        {
+            get => Configuration.AutoDetectChangesEnabled;
+            set => Configuration.AutoDetectChangesEnabled = value;
+        }
         public void LoadDances()
         {
             Configuration.LazyLoadingEnabled = false;
