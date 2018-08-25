@@ -524,7 +524,7 @@ namespace m4dModels
 
         private IEnumerable<Song> FindUserSongs(string user, bool includeHate=false, string id = "default")
         {
-            const int max = 250;
+            const int max = 10000;
 
             var filter = SongFilter.AzureSimple;
             filter.User = user;
