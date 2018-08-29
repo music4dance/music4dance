@@ -142,11 +142,14 @@ namespace m4dModels
             {
                 Description = Description,
                 SongCount = SongCount,
+                SongCountImplicit = SongCountImplicit,
+                SongCountExplicit = SongCountExplicit,
                 MaxWeight = MaxWeight,
                 SongTags = SongTags,
                 DanceObject = DanceObject,
                 Parent = Parent,
                 Children = Children,
+                DanceLinks = DanceLinks,
                 TopSongs = TopSongs?.Select(s => new Song(s.SongId, s.Serialize(null), danceStats, userName)).ToList()
             };
         }

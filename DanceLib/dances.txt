@@ -651,6 +651,7 @@
   {
     "Name": "Samba",
     "Id": "SMB",
+    "BlogTag" : "samba",
     "Meter": {
       "Numerator": 2,
       "Denominator": 4
@@ -929,6 +930,7 @@
   {
     "Name": "Tango Vals",
     "Id": "TGV",
+    "BlogTag" : "tango-vals",
     "Meter": {
       "Numerator": 3,
       "Denominator": 4
@@ -966,6 +968,7 @@
   {
     "Name": "Milonga",
     "Id": "MGA",
+    "BlogTag" : "milonga",
     "Meter": {
       "Numerator": 4,
       "Denominator": 4
@@ -984,6 +987,7 @@
   {
     "Name": "Bossa Nova",
     "Id": "BSN",
+    "BlogTag" : "bossa-nova"
     "Meter": {
       "Numerator": 4,
       "Denominator": 4
