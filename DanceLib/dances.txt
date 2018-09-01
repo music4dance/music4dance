@@ -987,7 +987,7 @@
   {
     "Name": "Bossa Nova",
     "Id": "BSN",
-    "BlogTag" : "bossa-nova"
+    "BlogTag" : "bossa-nova",
     "Meter": {
       "Numerator": 4,
       "Denominator": 4
