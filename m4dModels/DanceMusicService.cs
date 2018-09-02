@@ -1526,8 +1526,10 @@ namespace m4dModels
 
             for (var index = 0; index < lines.Count; index++)
             {
-                var s = lines[index];
+                var s = lines[index].Trim();
                 AdminMonitor.UpdateTask("LoadPlaylists", index + 1);
+
+                if (string.Equals(PlaylistBreak, s)) continue;
 
                 var cells = s.Split('\t');
 
