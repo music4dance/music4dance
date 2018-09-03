@@ -13,10 +13,16 @@
         <!-- Google Adsense Verifier -->
         <script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
         <script>
+            (adsbygoogle = window.adsbygoogle || []).pauseAdRequests = 1;
+            //console.log("Ads are paused");
             (adsbygoogle = window.adsbygoogle || []).push({
                 google_ad_client: "ca-pub-8181165353763371",
                 enable_page_level_ads: true
             });
+            if (document.cookie.indexOf("cookieconsent_status=dismiss") !== -1) {
+                //console.log("Ads are running");
+                (adsbygoogle = window.adsbygoogle || []).pauseAdRequests = 0;
+            }
         </script>
     }
     <!-- TradeDoubler site verification 2516966 -->
@@ -45,40 +51,6 @@
     @Styles.Render(themeBundle)
     @Styles.Render("~/content/site.css")
     @RenderSection("styles", false)
-    <script type="text/javascript">
-        var appInsights = window.appInsights ||
-            function(config) {
-                function r(config) {
-                    t[config] = function() {
-                        var i = arguments;
-                        t.queue.push(function() { t[config].apply(t, i) })
-                    }
-                }
-
-                var t = { config: config }, u = document, e = window, o = "script", s = u.createElement(o), i, f;
-                for (s.src =
-                        config.url || "//az416426.vo.msecnd.net/scripts/a/ai.0.js",
-                    u.getElementsByTagName(o)[0].parentNode.appendChild(s), t.cookie = u.cookie, t.queue = [], i =
-                        ["Event", "Exception", "Metric", "PageView", "Trace"];
-                    i.length;
-                ) r("track" + i.pop());
-                return r("setAuthenticatedUserContext"), r("clearAuthenticatedUserContext"),
-                    config.disableExceptionTracking ||
-                    (i = "onerror", r("_" + i), f = e[i], e[i] = function(config, r, u, e, o) {
-                        var s = f && f(config, r, u, e, o);
-                        return s !== !0 && t["_" + i](config, r, u, e, o), s
-                    }), t
-            }({
-                instrumentationKey: "aada2f48-d93c-4778-a71f-7781952cc47b"
-            });
-
-        window.appInsights = appInsights;
-        appInsights.trackPageView();
-        @if (Request.IsAuthenticated)
-        {
-            @:appInsights.setAuthenticatedUserContext("@User.Identity.Name".replace(/[,;=| ]+/g, "_"));
-        }
-    </script>
     <script>
         (function(i, s, o, g, r, a, m) {
             i['GoogleAnalyticsObject'] = r;
@@ -96,14 +68,13 @@
         ga('create', 'UA-54250212-1', 'auto');
         ga('send', 'pageview');
     </script>
-    @Scripts.Render("~/bundles/modernizr")
     <link rel="stylesheet" type="text/css" href="//cdnjs.cloudflare.com/ajax/libs/cookieconsent2/3.0.3/cookieconsent.min.css"/>
     <script src="//cdnjs.cloudflare.com/ajax/libs/cookieconsent2/3.0.3/cookieconsent.min.js"></script>
     <script>
         window.addEventListener("load",
             function() {
                 window.cookieconsent.initialise({
-                    "palette": {
+                    palette: {
                         "popup": {
                             "background": "#1d8a8a"
                         },
@@ -111,11 +82,18 @@
                             "background": "#62ffaa"
                         }
                     },
-                    "theme": "classic",
-                    "content": {
+                    onStatusChange: function(status) {
+                        //console.log('Status Changed to: ' + status);
+                        if (status === "dismiss" || status === "allow") {
+                            //console.log("Ads are running");
+                            (window.adsbygoogle = window.adsbygoogle || []).pauseAdRequests = 1;
+                        }
+                    },
+                    theme: "classic",
+                    content: {
                         "href": "home/privacypolicy#GDPR"
                     }
-                })
+                });
             });
     </script>
 </head>
@@ -227,7 +205,9 @@
     </div>
 
     @Scripts.Render("~/bundles/jquery")
+    @Scripts.Render("~/bundles/js-cookie")
     @Scripts.Render("~/bundles/bootstrap")
+    @Scripts.Render("~/bundles/modernizr")
     @RenderSection("scripts", required: false)
 </body>
 </html>
