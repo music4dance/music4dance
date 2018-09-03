@@ -32,7 +32,7 @@ namespace m4d.Migrations
             var rmanager = new RoleManager<IdentityRole>(rstore);
 
             // ReSharper disable once LoopCanBePartlyConvertedToQuery
-            foreach (var roleName in s_roles)
+            foreach (var roleName in DanceMusicService.Roles)
             {
                 if (context.Roles.Any(r => r.Name == roleName)) continue;
 
@@ -67,7 +67,6 @@ namespace m4d.Migrations
             }
         }
 
-        private static readonly string[] s_roles = { DanceMusicService.DiagRole, DanceMusicService.EditRole, DanceMusicService.DbaRole, DanceMusicService.TagRole };
         private static readonly string[] s_adminUsers = {"administrator"}; //, "dwgray", "batch"};
         //private static string[] _diagUsers = new string[] { "lukim", "glennn" };
         //private static string[] _editUsers = new string[] { "ajy", "SalsaSwingBallroom", "SandiegoDJ", "UsaSwingNet", "LetsDanceDenver", "SteveThatDJ", "JohnCrossan", "WaltersDanceCenter", "breanna", "buzzle", "michelleds", "shawntrautman", "danceforums", "Century", "bdlist", "DWTS", "SYTYCD" };

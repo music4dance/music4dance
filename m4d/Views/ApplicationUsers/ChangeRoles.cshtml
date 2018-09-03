@@ -3,11 +3,7 @@
 @{
     ViewBag.Title = "ChangeRoles";
 
-    var roles = @Model.GetRoles(ViewBag.Roles);
-    var editCheck = roles.Contains(DanceMusicService.EditRole) ? "checked" : string.Empty;
-    var tagCheck = roles.Contains(DanceMusicService.TagRole) ? "checked" : string.Empty;
-    var diagCheck = roles.Contains(DanceMusicService.DiagRole) ? "checked" : string.Empty;
-    var dbaCheck = roles.Contains(DanceMusicService.DbaRole) ? "checked" : string.Empty;
+    var roles = Model.GetRoles(ViewBag.Roles);
 }
 
 <h2>ChangeRoles for @Model.UserName</h2>
@@ -23,22 +19,14 @@
         <div class="form-group">
             <div class="col-md-12">
                 <div class="checkbox">
-                    <label>
-                        <input type="checkbox" name="roles" value="@DanceMusicService.TagRole" @tagCheck>
-                        Tagger
-                    </label>
-                    <label>
-                        <input type="checkbox" name="roles" value="@DanceMusicService.EditRole" @editCheck>
-                        Editor
-                    </label>
-                    <label>
-                        <input type="checkbox" name="roles" value="@DanceMusicService.DiagRole" @diagCheck>
-                        Diagnostics
-                    </label>
-                    <label>
-                        <input type="checkbox" name="roles" value="@DanceMusicService.DbaRole" @dbaCheck>
-                        Database Administrator
-                    </label>
+                    @foreach (var role in DanceMusicService.Roles)
+                    {
+                        var isChecked = roles.Contains(role) ? "checked" : string.Empty;
+                        <label>
+                            <input type="checkbox" name="roles" value="@role" @isChecked>
+                            @role
+                        </label>
+                    }
                 </div>
             </div>
         </div>

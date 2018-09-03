@@ -10,6 +10,14 @@ using Microsoft.AspNet.Identity.EntityFramework;
 
 namespace m4dModels
 {
+    public enum SubscriptionLevel
+    {
+        None = 0,
+        Silver = 1,
+        Gold = 2,
+        Platinum = 3
+    }
+
     // You can add profile data for the user by adding more properties to your ApplicationUser class, please visit http://go.microsoft.com/fwlink/?LinkID=317594 to learn more.
     public sealed class ApplicationUser : IdentityUser
     {
@@ -34,6 +42,12 @@ namespace m4dModels
         public int? RowCountDefault { get; set; }
         public string ColumnDefaults { get; set; }
 
+        public DateTime? SubscriptionStart { get; set; }
+        public DateTime? SubscriptionEnd { get; set; }
+
+        public SubscriptionLevel SubscriptionLevel { get; set; }
+
+        // Everyting below here are computed properties
         public string RegionName => CountryCodes.TranslateCode(Region);
 
         public string PrivacyDescription => string.Format(PrivacyMessage, (Privacy == 0) ? "Don't" : "Do");
