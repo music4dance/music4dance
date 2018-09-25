@@ -310,6 +310,7 @@ namespace m4d.Utilities
 
         private static dynamic GetMusicServiceResults(string request, MusicService service = null, IPrincipal principal = null)
         {
+            var retries = 2;
             while (true)
             {
                 string responseString = null;
@@ -336,7 +337,7 @@ namespace m4d.Utilities
 
                 try
                 {
-                    using (var response = (HttpWebResponse)req.GetResponse())
+                    using (var response = (HttpWebResponse) req.GetResponse())
                     {
                         if (response.StatusCode == HttpStatusCode.OK)
                         {
@@ -358,7 +359,7 @@ namespace m4d.Utilities
                                 }
                             }
                         }
-                        else if ((int)response.StatusCode == 429 /*HttpStatusCode.TooManyRequests*/)
+                        else if ((int) response.StatusCode == 429 /*HttpStatusCode.TooManyRequests*/)
                         {
                             // Wait algorithm failed, paus for 15 seconds
                             Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Excedeed EchoNest Limits: Caught");
@@ -373,12 +374,29 @@ namespace m4d.Utilities
                 }
                 catch (WebException we)
                 {
-                    var r = we.Response as HttpWebResponse;
-                    if (r == null || (int)r.StatusCode != 429) throw;
+                    if (we.Response is HttpWebResponse r)
+                    {
+                        var statusCode = (int) r.StatusCode;
+                        if (statusCode == 429)
+                        {
+                            Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Excedeed EchoNest Limits: Caught");
+                            System.Threading.Thread.Sleep(15 * 1000);
+                            continue;
+                        }
 
-                    Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Excedeed EchoNest Limits: Caught");
-                    System.Threading.Thread.Sleep(15 * 1000);
-                    continue;
+                        if (statusCode == 403 && service?.Id == ServiceType.ITunes)
+                        {
+                            if (retries-- > 0)
+                            {
+                                Trace.WriteLineIf(TraceLevels.General.TraceInfo, $"Excedeed Itunes Limits: {2-retries} {req.Address}");
+                                System.Threading.Thread.Sleep(15 * 1000);
+                                continue;
+                            }
+                            Trace.WriteLineIf(TraceLevels.General.TraceInfo, $"Excedeed Itunes Limits: Giving Up {req.Address}");
+                        }
+
+                        throw;
+                    }
                 }
 
                 if (service != null)

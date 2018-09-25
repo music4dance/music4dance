@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.EntityFramework;
 using Microsoft.Azure.Search;
@@ -398,7 +399,7 @@ namespace m4dModels
 
         public IList<Song> SongsFromTracks(string user, IEnumerable<ServiceTrack> tracks, string multiDance, string songTags)
         {
-            return tracks.Where(track => !String.IsNullOrEmpty(track.Artist)).Select(track => Song.CreateFromTrack(user, track, multiDance, songTags, DanceStats)).ToList();
+            return tracks.Where(track => !string.IsNullOrEmpty(track.Artist)).Select(track => Song.CreateFromTrack(user, track, multiDance, songTags, DanceStats)).ToList();
         }
 
         public IList<Song> SongsFromFile(string user, IList<string> lines)
@@ -1535,30 +1536,52 @@ namespace m4dModels
                 var s = lines[index].Trim();
                 AdminMonitor.UpdateTask("LoadPlaylists", index + 1);
 
-                if (String.Equals(PlaylistBreak, s)) continue;
+                if (string.Equals(PlaylistBreak, s)) continue;
 
                 var cells = s.Split('\t');
-
-                if (cells.Length < 4) continue;
 
                 var created = now;
                 DateTime? modified = null;
                 var deleted = false;
                 string songIds = null;
+                string tags;
+                string id;
+                var type = PlayListType.Spotify;
 
                 // m4dId
-                var user = cells[0];
-                // Type
-                Enum.TryParse(cells[1], out PlayListType type);
-                // Dance/tags
-                var tags = cells[2];
-                // Spotify Playlist Id
-                var id = cells[3];
+                var userId = cells[0];
 
-                if (cells.Length > 4) DateTime.TryParse(cells[4], out created);
-                if (cells.Length > 5 && DateTime.TryParse(cells[5], out DateTime mod)) modified = mod;
-                if (cells.Length > 6) Boolean.TryParse(cells[6], out deleted);
-                if (cells.Length > 7) songIds = cells[7];
+                if (cells.Length == 3)
+                {
+                    var r = new Regex(@"https://open.spotify.com/user/(?<user>[a-z0-9]*)/playlist/(?<id>[a-z0-9]*)",
+                        RegexOptions.IgnoreCase, TimeSpan.FromSeconds(5));
+                    var m = r.Match(cells[2]);
+                    if (!m.Success) continue;
+
+                    id = m.Groups["id"].Value;
+                    var email = m.Groups["user"].Value;
+
+                    FindOrAddUser(userId, PseudoRole, email + "@spotify.com");
+                    tags = cells[1];
+                }
+                else
+                {
+                    if (cells.Length < 4) continue;
+
+                    // Type
+                    Enum.TryParse(cells[1], out type);
+
+                    // Dance/tags
+                    tags = cells[2];
+
+                    // Spotify Playlist Id
+                    id = cells[3];
+
+                    if (cells.Length > 4) DateTime.TryParse(cells[4], out created);
+                    if (cells.Length > 5 && DateTime.TryParse(cells[5], out var mod)) modified = mod;
+                    if (cells.Length > 6) bool.TryParse(cells[6], out deleted);
+                    if (cells.Length > 7) songIds = cells[7];
+                }
 
                 var playlist = PlayLists.Find(id);
                 var isNew = playlist == null;
@@ -1567,7 +1590,7 @@ namespace m4dModels
                 playlist.Id = id;
                 playlist.Type = type;
                 playlist.Tags = tags;
-                playlist.User = user;
+                playlist.User = userId;
                 playlist.Created = created;
                 playlist.Updated = modified;
                 playlist.Deleted = deleted;
@@ -2406,13 +2429,17 @@ namespace m4dModels
 
             return user;
         }
-        public ApplicationUser FindOrAddUser(string name, string role)
+        public ApplicationUser FindOrAddUser(string name, string role, string email = null)
         {
             var user = FindUser(name);
 
             if (user == null)
             {
-                user = new ApplicationUser { UserName = name, Email = name + "@music4dance.net", EmailConfirmed = true, StartDate = DateTime.Now };
+                if (email == null)
+                {
+                    email = name + "@music4dance.net";
+                }
+                user = new ApplicationUser { UserName = name, Email = email, EmailConfirmed = true, StartDate = DateTime.Now };
                 var res = UserManager.Create(user, "_This_Is_@_placeh0lder_");
                 if (res.Succeeded)
                 {
@@ -2422,7 +2449,7 @@ namespace m4dModels
 
             }
 
-            if (String.Equals(role, PseudoRole))
+            if (string.Equals(role, PseudoRole))
             {
                 user.LockoutEnabled = true;
             }
