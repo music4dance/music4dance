@@ -115,8 +115,7 @@ namespace m4d
                             var claimType = $"urn:spotify:{x.Key}";
                             var claimValue = x.Value.ToString();
                             if (!context.Identity.HasClaim(claimType, claimValue))
-                                context.Identity.AddClaim(new Claim(claimType, claimValue, xmlSchemaString, "Facebook"));
-
+                                context.Identity.AddClaim(new Claim(claimType, claimValue, xmlSchemaString, "Spotify"));
                         }
 
                         return Task.FromResult(0);
@@ -124,6 +123,7 @@ namespace m4d
                 }
             };
             sp.Scope.Add("user-read-email");
+            sp.Scope.Add("playlist-modify-public");
             app.UseSpotifyAuthentication(sp);
         }
     }
