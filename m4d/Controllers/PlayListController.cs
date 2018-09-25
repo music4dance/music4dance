@@ -176,7 +176,7 @@ namespace m4d.Controllers
             return RedirectToAction("AdminStatus", "Admin", AdminMonitor.Status);
         }
 
-        private static bool DoUpdate(string id, DanceMusicService dms, out string result)
+        private bool DoUpdate(string id, DanceMusicService dms, out string result)
         {
             try
             {
