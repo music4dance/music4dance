@@ -770,9 +770,9 @@ namespace m4d.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "dbAdmin")]
-        public ActionResult BatchAdminEdit(string properties, string user = null, int pageSize = 100, SongFilter filter = null)
+        public ActionResult BatchAdminEdit(string properties, string user = null, int max = 1000, SongFilter filter = null)
         {
-            return BatchAdminExecute((dms,song) => dms.AdminAppendSong(song,user,properties), "BatchAdminEdit", pageSize, filter);
+            return BatchAdminExecute((dms,song) => dms.AdminAppendSong(song,user,properties), "BatchAdminEdit", max, filter);
         }
 
         //
@@ -780,12 +780,12 @@ namespace m4d.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "dbAdmin")]
-        public ActionResult BatchAdminModify(string properties, string user = null, int pageSize = 100, SongFilter filter = null)
+        public ActionResult BatchAdminModify(string properties, string user = null, int max = 1000, SongFilter filter = null)
         {
-            return BatchAdminExecute((dms, song) => dms.AdminModifySong(song, properties), "BatchAdminModify", pageSize, filter);
+            return BatchAdminExecute((dms, song) => dms.AdminModifySong(song, properties), "BatchAdminModify", max, filter);
         }
 
-        private ActionResult BatchAdminExecute(Func<DanceMusicService, Song, bool> act, string name, int pageSize = 100, SongFilter filter = null)
+        private ActionResult BatchAdminExecute(Func<DanceMusicService, Song, bool> act, string name, int max, SongFilter filter = null)
         {
 
             if (!ModelState.IsValid || filter == null)
@@ -797,60 +797,41 @@ namespace m4d.Controllers
                 AdminMonitor.UpdateTask(name);
                 var tried = 0;
 
-                var failed = new List<Guid>();
-                var succeeded = new List<Guid>();
-
-                var page = 0;
-                var done = false;
-
-                var parameters = DanceMusicService.AddCruftInfo(Database.AzureParmsFromFilter(filter), DanceMusicService.CruftFilter.AllCruft);
-
                 Task.Run(() =>
                 {
                     var dms = DanceMusicService.GetService();
-                    while (!done)
+                    var songs = dms.TakeTail(filter, max, null, DanceMusicService.CruftFilter.AllCruft);
+
+                    var processed = 0;
+
+                    var succeeded = new List<Song>();
+                    var failed = new List<Song>();
+                    foreach (var song in songs)
                     {
-                        AdminMonitor.UpdateTask("BuildPage", page);
+                        AdminMonitor.UpdateTask($"Processing ({succeeded.Count})", processed);
 
-                        var songs = dms.TakeTail(filter.SearchString, parameters, pageSize);
-                        var processed = 0;
+                        tried += 1;
+                        processed += 1;
 
-                        var stemp = new List<Song>();
-                        var ftemp = new List<Song>();
-                        foreach (var song in songs)
+                        if (act(dms,song))
                         {
-                            AdminMonitor.UpdateTask($"Processing ({succeeded.Count})", processed);
-
-                            tried += 1;
-                            processed += 1;
-
-                            if (act(dms,song))
-                            {
-                                stemp.Add(song);
-                            }
-                            else
-                            {
-                                ftemp.Add(song);
-                            }
-
-                            if ((tried + 1) % 100 != 0) continue;
-
-                            Trace.WriteLineIf(TraceLevels.General.TraceInfo, $"{tried} songs tried.");
+                            succeeded.Add(song);
+                        }
+                        else
+                        {
+                            failed.Add(song);
                         }
 
-                        dms.UpdateAzureIndex(stemp.Concat(ftemp));
-                        succeeded.AddRange(stemp.Select(s => s.SongId));
-                        failed.AddRange(ftemp.Select(s => s.SongId));
+                        if ((tried + 1) % 100 != 0) continue;
 
-                        page += 1;
-                        if (processed < pageSize)
-                        {
-                            done = true;
-                        }
+                        Trace.WriteLineIf(TraceLevels.General.TraceInfo, $"{tried} songs tried.");
                     }
 
+                    dms.UpdateAzureIndex(succeeded.Concat(failed));
+
+
                     AdminMonitor.CompleteTask(true,
-                        $"{name}: Completed={true}, Succeeded={succeeded.Count} - ({string.Join(",", succeeded)}), Failed={failed.Count} - ({string.Join(",", failed)})");
+                        $"{name}: Completed={true}, Succeeded={succeeded.Count} - ({string.Join(",", succeeded.Select(s => s.SongId))}), Failed={failed.Count} - ({string.Join(",", failed.Select(s => s.SongId))})");
                 });
 
                 return RedirectToAction("AdminStatus", "Admin", AdminMonitor.Status);

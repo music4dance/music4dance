@@ -128,11 +128,9 @@ namespace m4dModels
         public void AggregateSongCounts(IReadOnlyDictionary<string, long> tags, IReadOnlyDictionary<string, long> inferred)
         {
             // SongCount
-            long expl;
-            long impl;
 
-            SongCountExplicit = tags.TryGetValue(DanceId, out expl) ? expl : 0;
-            SongCountImplicit = inferred.TryGetValue(DanceId, out impl) ? impl : 0;
+            SongCountExplicit = tags.TryGetValue(DanceId, out var expl) ? expl : 0;
+            SongCountImplicit = inferred.TryGetValue(DanceId, out long impl) ? impl : 0;
             SongCount = SongCountImplicit + SongCountExplicit;
         }
 
