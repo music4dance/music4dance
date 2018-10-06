@@ -116,8 +116,7 @@
 
 @helper LikeHelper(Song song, LikeDictionary likes, string img, string modifier, string danceId, string tipNull, string tipTrue, string tipFalse)
 {
-    bool? like;
-    if (likes == null || !likes.TryGetValue(song.SongId, out like))
+    if (likes == null || !likes.TryGetValue(song.SongId, out var like))
     {
         like = null;
     }
@@ -152,7 +151,7 @@
 
     var type = danceId ?? "like";
     <a id = "@type.@song.SongId" class="btn btn-sm btn-info @(likes == null ? string.Empty : "toggle-like")" style="padding:3px" role="button" href="@href" data-like="@state" data-toggle="tooltip" data-placement="right" title="@string.Format(heartTip,modifier)">
-        <img src='@Url.Content(string.Format("~/Content/{0}-{1}icon.png",img, heart))' alt="@heartAlt" />
+        <img src='@Url.Content($"~/Content/{img}-{heart}icon.png")' alt="@heartAlt" />
     </a>
 }
 

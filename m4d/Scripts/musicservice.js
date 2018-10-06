@@ -25,17 +25,15 @@
     var purchaseInfo = {
         A: { id: 'A', logo: 'amazon', title: 'Amazon', help: 'Available at Amazon' },
         I: { id: 'I', logo: 'itunes', title: 'ITunes', help: 'Available on ITunes' },
-        S: { id: 'S', logo: 'spotify', title: 'Spotify', help: 'Available on Spotify' },
-        X: { id: 'X', logo: 'xbox', title: 'Groove', help: 'Available on Groove Music' }
+        S: { id: 'S', logo: 'spotify', title: 'Spotify', help: 'Available on Spotify' }
     };
 
-    var setupModal = function(event)
-    {
+    var setupModal = function(event) {
         var t = $(event.relatedTarget);
         viewModel.artist(t.data('artist'));
         viewModel.title(t.data('title'));
         return t;
-    }
+    };
 
     $('#playModal').on('show.bs.modal', function (event) {
         var t = setupModal(event);
@@ -62,7 +60,7 @@
         $('.play-link').click(function () {
             $.getJSON(purchaseUri + this.id[0] + '?songs=' + this.id.substring(1))
                 .done(function (data) {
-                    if (data[0].Target == null) {
+                    if (data[0].Target === null) {
                     window.location = data[0].Link;
                     } else {
                         window.open(data[0].Link, data[0].Target);
@@ -91,7 +89,7 @@
         viewModel.danceUrl(t.data('dance-url'));
 
         return t;
-    }
+    };
 
     // Handling for tag filter
     $('#filterModal').on('show.bs.modal', function (event) {
@@ -137,7 +135,7 @@
         $.getJSON(t)
             .done(function () {
                 var img = $this.find('img');
-                var str = (like === null) ? 'null' : (like ? 'true' : 'false');
+                var str = like === null ? 'null' : like ? 'true' : 'false';
                 var voteOpts = window.VoteOptions[str];
 
                 $this.data('like', like);

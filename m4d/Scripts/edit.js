@@ -15,7 +15,7 @@ var helpers = function () {
     var formatDuration = function(seconds) {
         var m = Math.floor(seconds / 60);
         var s = seconds % 60;
-        var sec = (s < 10) ? ('0' + s.toString()) : s.toString();
+        var sec = s < 10 ? '0' + s.toString() : s.toString();
 
         return m.toString() + ':' + sec;
     };
@@ -74,10 +74,10 @@ var editor = function () {
 
     var purchaseLinksFromTrack = function (track) {
         var ret = null;
-        if (track.SongLink != null) {
+        if (track.SongLink !== null) {
             ret = track.SongLink;
         }
-        else if (track.AlbumLink != null) {
+        else if (track.AlbumLink !== null) {
             ret = track.AlbumLink;
         }
         return [ret];
@@ -99,7 +99,7 @@ var editor = function () {
     };
 
     var addValue = function (id, val) {
-        if (val == null) {
+        if (val === null) {
             return;
         }
 
@@ -109,7 +109,7 @@ var editor = function () {
         var oldVal = field.val();
         // We really want this to be approximately equal so number == string of same value
         // ReSharper disable once CoercedEqualsUsing
-        if (val == oldVal) {
+        if (val === oldVal) {
             return;
         }
 
@@ -130,7 +130,7 @@ var editor = function () {
     };
 
     var addPurchaseLink = function (link, olist) {
-        if (link != null) {
+        if (link !== null) {
             // TODO: Has to be a cleaner way to find existence ($.inArray isn't working
             //  possibly because we're mapped - may be that going back and figuring
             //  out how to get KO Mapping to mapp the PurchaseLink array but not
@@ -149,11 +149,11 @@ var editor = function () {
         }
     };
 
-    var normalizeName = function (name) {
+    var normalizeName = function(name) {
         name = name.toLowerCase();
         name = name.replace(/[^a-z0-9]/g, '');
         return name;
-    }
+    };
 
     // Track object
     // ReSharper disable once InconsistentNaming
@@ -175,7 +175,7 @@ var editor = function () {
         }, this);
 
         this.MarketString = ko.pureComputed(function () {
-            return (self.AvailableMarkets === null) ? '' : '[' + self.AvailableMarkets.join() + ']';
+            return self.AvailableMarkets === null ? '' : '[' + self.AvailableMarkets.join() + ']';
         }, this);
 
         this.PurchaseInfoArray = ko.pureComputed(function () {
@@ -203,7 +203,7 @@ var editor = function () {
         self.song = parent;
         self.action = 'change';
 
-        if (data.CurrentUserTags == null) {
+        if (data.CurrentUserTags === null) {
             data.CurrentUserTags = { Summary: '', Tags: [] };
         }
 
@@ -306,7 +306,7 @@ var editor = function () {
         }, this);
 
         self.changed = changedHandler;
-        self.changeText = function() {return 'your list of tags.'}
+        self.changeText = function() { return 'your list of tags.'; }
     };
 
     // Album object
@@ -326,10 +326,10 @@ var editor = function () {
             // First do the string based purchase info
             var pi = self.PurchaseInfo();
 
-            if (pi == null) {
+            if (pi === null) {
                 self.PurchaseInfo(track.FullPurchaseInfo());
             }
-            else if (track != null) {
+            else if (track !== null) {
                 // get rid of possible terminal ;
                 if (pi[pi.length - 1] === ';') {
                     pi = pi.substring(0, pi.length - 1);
@@ -345,7 +345,7 @@ var editor = function () {
                 self.PurchaseInfo(pi);
             }
 
-            if (track == null)
+            if (track === null)
                 return;
 
             // Then add in the purchase links
@@ -353,14 +353,15 @@ var editor = function () {
             //addPurchaseLink(track.AlbumLink, self.PurchaseLinks());
 
             // Also add in track number if it wasn't there before
-            if (self.Track() == null) {
+            if (self.Track() === null) {
                 self.Track(track.TrackNumber);
             }
         };
 
-        self.matchTrack = function (track) {
-            return (self.Track() == null || self.Track() === track.TrackNumber) && normalizeName(self.Name()) === normalizeName(track.Album);
-        }
+        self.matchTrack = function(track) {
+            return (self.Track() === null || self.Track() === track.TrackNumber) &&
+                normalizeName(self.Name()) === normalizeName(track.Album);
+        };
     };
 
     // Song object
@@ -370,7 +371,7 @@ var editor = function () {
 
         self.action = 'change';
 
-        if (data.CurrentUserTags == null) {
+        if (data.CurrentUserTags === null) {
             data.CurrentUserTags = { Summary: '', Tags: [] };
         }
 
@@ -435,7 +436,7 @@ var editor = function () {
 
             var a = self.findAlbum(track);
 
-            if (a != null) {
+            if (a !== null) {
                 a.addPurchase(track);
             }
             else {
@@ -453,7 +454,7 @@ var editor = function () {
             addValue('alt-tempo', track.Tempo);
 
             // Finally handle genre
-            if (track.Genre != null) {
+            if (track.Genre !== null) {
                 self.TagSummary.addTag(track.Genre, 'Music');
             }
         };
@@ -477,35 +478,35 @@ var editor = function () {
 
         self.toggleVote = function() {
             switch (self.CurrentUserLike()) {
-                default:
-                    self.CurrentUserLike(true);
-                    break;
-                case true:
-                    self.CurrentUserLike(false);
-                    break;
-                case false:
-                    self.CurrentUserLike(null);
-                    break;
+            default:
+                self.CurrentUserLike(true);
+                break;
+            case true:
+                self.CurrentUserLike(false);
+                break;
+            case false:
+                self.CurrentUserLike(null);
+                break;
             }
             self.changed(true);
-        }
+        };
 
-        self.voteText = function () {
+        self.voteText = function() {
             var ret = 'null';
             switch (self.CurrentUserLike()) {
-                case true:
-                    ret = 'true';
-                    break;
-                case false:
-                    ret = 'false';
-                    break;
+            case true:
+                ret = 'true';
+                break;
+            case false:
+                ret = 'false';
+                break;
             }
             return ret + ':Like';
-        }
+        };
 
         self.serialize = function() {
             return self.voteText() + '|' + self.TagSummary.serializeUser();
-        }
+        };
 
         self.liketip = ko.pureComputed(function () {
             switch (self.CurrentUserLike()) {
@@ -590,7 +591,7 @@ var editor = function () {
         self.toggleVote = function() {
             //TODO: Take another run at figuring out why we can't do this inderection in the html
             self.song.toggleVote();
-        }
+        };
     };
 
     albumMapping = {
@@ -673,13 +674,13 @@ var editor = function () {
 
     var hasDanceRatings = function() {
         return viewModel.song.DanceRatings().length > 0;
-    }
+    };
 
     var updateUserTags = function() {
         var t = JSON.stringify(viewModel.getRatings());
         $('#userTags').val(t);
         viewModel.changed(false);
-    }
+    };
 
     var danceAction = function (id) {
         var option = $('#addDance > option[value=' + id + ']');
@@ -725,23 +726,24 @@ var editor = function () {
         return confirm('You are about to permanently undo all of your changes to this song.');
     };
 
-    var showTagModal = function (event) {
+    var showTagModal = function(event) {
         viewModel.showTagModal(event);
-    }
+    };
 
-    var init = function () {
+    var init = function() {
         var data = { tracks: [], song: song, changed: false };
         viewModel = ko.mapping.fromJS(data, pageMapping);
 
-        tagChooser.setupModal(viewModel.tagSuggestions, showTagModal, { width: '500px', create_option: true, persistent_create_option: true, skip_no_results: true });
+        tagChooser.setupModal(viewModel.tagSuggestions,
+            showTagModal,
+            { width: '500px', create_option: true, persistent_create_option: true, skip_no_results: true });
 
         ko.applyBindings(viewModel);
 
         addValue('alt-tempo', window.paramNewTempo);
         $('#toggle-count-display').removeClass('glyphicon-arrow-down');
         $('#toggle-count-display').addClass('glyphicon-arrow-up');
-    }
-
+    };
 
     return {
         init: init,
