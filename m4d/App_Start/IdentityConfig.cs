@@ -12,6 +12,7 @@ using Microsoft.AspNet.Identity.Owin;
 using Microsoft.Owin;
 using Microsoft.Owin.Security;
 using SendGrid;
+using SendGrid.Helpers.Mail;
 
 namespace m4d
 {
@@ -26,25 +27,20 @@ namespace m4d
         // Use NuGet to install SendGrid (Basic C# client lib) 
         private async Task configSendGridasync(IdentityMessage message)
         {
-            var myMessage = new SendGridMessage();
-            myMessage.AddTo(message.Destination);
-            myMessage.From = new MailAddress("david@music4dance.net", "music4dance");
-            myMessage.Subject = message.Subject;
-            myMessage.Text = message.Body;
-            myMessage.Html = message.Body;
+            const string apiKey = @"***REMOVED***";
 
-            var credentials = new NetworkCredential(
-                Environment.GetEnvironmentVariable("mailAccount"),
-                Environment.GetEnvironmentVariable("mailPassword")
-            );
+            var client = new SendGridClient(apiKey);
 
-            // Create a Web transport for sending email.
-            var transportWeb = new Web(credentials);
+            // Send a Single Email using the Mail Helper
+            var from = new EmailAddress("david@music4dance.net", "music4dance");
+            var subject = message.Subject;
+            var to = new EmailAddress(message.Destination);
+            var plainTextContent = message.Body;
+            var htmlContent = message.Body;
+            var msg = MailHelper.CreateSingleEmail(from, to, subject, plainTextContent, htmlContent);
 
-            // Send the email.
-            await transportWeb.DeliverAsync(myMessage);
+            await client.SendEmailAsync(msg); 
         }
-
     }
 
     public class SmsService : IIdentityMessageService

@@ -27,11 +27,7 @@ namespace DanceLibrary
             Validate();
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="minTempo"></param>
-        /// <param name="maxTempo"></param>
+
         [JsonConstructor]
         public TempoRange(decimal min, decimal max)
         {
@@ -47,37 +43,30 @@ namespace DanceLibrary
         private void Validate()
         {
             if (_minTempo <= 0M || _minTempo > 1000)
-                throw new ArgumentOutOfRangeException("min", PositiveDecimal);
+                // ReSharper disable once NotResolvedInText
+                throw new ArgumentOutOfRangeException("_minTempo", PositiveDecimal);
 
             if (_maxTempo <= 0M || _maxTempo > 1000)
-                throw new ArgumentOutOfRangeException("max", PositiveDecimal);
+                // ReSharper disable once NotResolvedInText
+                throw new ArgumentOutOfRangeException("_maxTempo", PositiveDecimal);
 
             if (_maxTempo < _minTempo)
-                throw new ArgumentException("min", RangeOrder);
+                // ReSharper disable once NotResolvedInText
+                // ReSharper disable once LocalizableElement
+                throw new ArgumentException("_minTempo", RangeOrder);
         }
 
         [JsonProperty]
-        public decimal Min
-        {
-            get { return _minTempo; }
-        }
+        public decimal Min => _minTempo;
 
         [JsonProperty]
-        public decimal Max
-        {
-            get { return _maxTempo; }
-        }
+        public decimal Max => _maxTempo;
 
-        public decimal Average
-        {
-            get { return _minTempo + (_maxTempo - _minTempo) / 2; }
-        }
+        public decimal Average => _minTempo + (_maxTempo - _minTempo) / 2;
 
         public override bool Equals(object obj)
         {
-            TempoRange other = obj as TempoRange;
-
-            if (other == null)
+            if (!(obj is TempoRange other))
                 return false;
 
             return other.Min == Min && other.Max == Max;
@@ -104,10 +93,9 @@ namespace DanceLibrary
 
         public TempoRange Include(TempoRange other)
         {
-            if (other == null)
-                return new TempoRange(this);
-            else
-                return new TempoRange(Math.Min(_minTempo, other._minTempo), Math.Max(_maxTempo, other._maxTempo));
+            return other == null ? 
+                new TempoRange(this) : 
+                new TempoRange(Math.Min(_minTempo, other._minTempo), Math.Max(_maxTempo, other._maxTempo));
         }
 
         public TempoRange ToBpm(Meter meter)
@@ -119,27 +107,15 @@ namespace DanceLibrary
         //  when the value is with .01 of an integer, in which case
         //  only the integer is displayed
 
-        public string MinString
-        {
-            get { return Format(_minTempo); }
-        }
+        public string MinString => Format(_minTempo);
 
-        public string MaxString
-        {
-            get { return Format(_maxTempo); }
-        }
+        public string MaxString => Format(_maxTempo);
 
-        public string AverageString
-        {
-            get { return Format(Average); }
-        }
+        public string AverageString => Format(Average);
 
         public override string ToString()
         {
-            if (_minTempo == _maxTempo)
-                return MinString;
-            else
-                return string.Format("{0}-{1}", MinString, MaxString);
+            return _minTempo == _maxTempo ? MinString : $"{MinString}-{MaxString}";
         }
 
         public bool Contains(decimal tempo)
@@ -149,7 +125,7 @@ namespace DanceLibrary
 
         private string Format(decimal d)
         {
-            decimal i = Math.Round(d);
+            var i = Math.Round(d);
             if (Math.Abs(i - d) < .01M)
             {
                 return i.ToString("F0");

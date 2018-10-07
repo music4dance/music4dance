@@ -157,8 +157,6 @@ namespace DanceLibrary
             TempoRange = tempoRange;
             Exceptions = new List<DanceException>(exceptions);
 
-            if (exceptions == null) return;
-
             foreach (var exception in exceptions)
             {
                 exception.DanceInstance = this;
@@ -226,41 +224,20 @@ namespace DanceLibrary
 
         public override string Id
         {
-            get
-            {
-                return DanceType.Id + StyleId;
-            }
-            set
-            {
-                Debug.WriteLine("Set Id to {0}", value);
-                //Debug.Assert(false);
-            }
+            get => DanceType.Id + StyleId;
+            set => Debug.WriteLine("Set Id to {0}", value);
         }
 
         public override Meter Meter
         {
-            get
-            {
-                return DanceType.Meter;
-            }
-            set
-            {
-                Debug.WriteLine("Set Meter to {0}", value);
-                //Debug.Assert(false);
-            }
+            get => DanceType.Meter;
+            set => Debug.WriteLine("Set Meter to {0}", value);
         }
 
         public override string Name
         {
-            get
-            {
-                return ShortStyle + ' ' + DanceType.Name;
-            }
-            set
-            {
-                Debug.WriteLine("Set Name to {0}", value);
-                //Debug.Assert(false);
-            }
+            get => ShortStyle + ' ' + DanceType.Name;
+            set => Debug.WriteLine("Set Name to {0}", value);
         }
 
         [JsonProperty]
