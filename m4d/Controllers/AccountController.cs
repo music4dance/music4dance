@@ -567,9 +567,13 @@ namespace m4d.Controllers
                 user.LastActive = DateTime.Now;
                 UserManager?.Update(user);
             }
-            return (user != null && string.IsNullOrWhiteSpace(user.Region))
-                ? RedirectToAction("EditProfile", "Manage", new { ReturnUrl = returnUrl })
-                : RedirectToLocal(returnUrl);
+
+            // Let's disable the survey form to make it easier to continue through to using the site
+            //return (user != null && string.IsNullOrWhiteSpace(user.Region))
+            //    ? RedirectToAction("EditProfile", "Manage", new { ReturnUrl = returnUrl })
+            //    : RedirectToLocal(returnUrl);
+
+            return RedirectToLocal(returnUrl);
         }
 
 
