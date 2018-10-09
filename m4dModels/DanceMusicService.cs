@@ -1546,7 +1546,7 @@ namespace m4dModels
                 string songIds = null;
                 string tags;
                 string id;
-                var type = PlayListType.Spotify;
+                var type = PlayListType.SongsFromSpotify;
 
                 // m4dId
                 var userId = cells[0];

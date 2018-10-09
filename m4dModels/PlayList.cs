@@ -8,7 +8,8 @@ namespace m4dModels
     {
         Undefined,
         Music4Dance,
-        Spotify
+        SongsFromSpotify,
+        SpotifyFromSearch
     }
     public class PlayList
     {
@@ -20,7 +21,8 @@ namespace m4dModels
         public DateTime? Updated { get; set; }
         public bool Deleted { get; set; }
         public string SongIds { get; set; }
-
+        public string Name { get; set; }
+        public string Description { get; set; }
         public IEnumerable<string> SongIdList => string.IsNullOrEmpty(SongIds)
             ? null
             : SongIds.Split(new[] {'|'}, StringSplitOptions.RemoveEmptyEntries);

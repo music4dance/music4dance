@@ -1,4 +1,12 @@
-﻿using System;
+﻿/* TODNEXT: 
+ *  Make Update/Restore check Type
+ *  Make Load/Backup handle both types
+ *  Make the M4D spotify account an admin
+ *  (semi) Manually create the dances playlists
+ *  Implement Update for SpotifyFromSearch
+ */
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -45,7 +53,7 @@ namespace m4d.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create([Bind(Include = "Id,User,Type,Tags")] PlayList playList)
+        public ActionResult Create([Bind(Include = "Id,User,Type,Tags,Name,Description")] PlayList playList)
         {
             if (ModelState.IsValid)
             {
@@ -80,7 +88,7 @@ namespace m4d.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit([Bind(Include = "Id,User,Type,Tags,SongIds")] PlayList playList)
+        public ActionResult Edit([Bind(Include = "Id,User,Type,Tags,SongIds,Name,Description")] PlayList playList)
         {
             if (ModelState.IsValid)
             {

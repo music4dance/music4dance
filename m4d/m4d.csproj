@@ -717,6 +717,10 @@
     <Compile Include="Migrations\201809031743041_PremiumRole.Designer.cs">
       <DependentUpon>201809031743041_PremiumRole.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201810090347569_SearchPlaylist.cs" />
+    <Compile Include="Migrations\201810090347569_SearchPlaylist.Designer.cs">
+      <DependentUpon>201810090347569_SearchPlaylist.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Context\DanceMusicConfiguration.cs" />
     <Compile Include="Context\DanceMusicContext.cs" />
@@ -1381,6 +1385,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201809031743041_PremiumRole.resx">
       <DependentUpon>201809031743041_PremiumRole.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201810090347569_SearchPlaylist.resx">
+      <DependentUpon>201810090347569_SearchPlaylist.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
