@@ -114,7 +114,7 @@ namespace m4dModels
         {
             if (sd != null)
             {
-                Trace.WriteLineIf(String.Equals(sd.Title, sd.Artist), $"Title and Artist are the same ({sd.Title})");
+                Trace.WriteLineIf(string.Equals(sd.Title, sd.Artist), $"Title and Artist are the same ({sd.Title})");
             }
 
             var song = CreateSong(sd?.SongId);
@@ -242,9 +242,9 @@ namespace m4dModels
             }
 
             var defIdx = -1;
-            if (!String.IsNullOrWhiteSpace(def))
+            if (!string.IsNullOrWhiteSpace(def))
             {
-                Int32.TryParse(def, out defIdx);
+                int.TryParse(def, out defIdx);
             }
 
             var idx = 0;
@@ -276,7 +276,7 @@ namespace m4dModels
         public Song MergeSongs(ApplicationUser user, List<Song> songs, string title, string artist, decimal? tempo, int? length, IList<AlbumDetails> albums)
         {
             var songIds = songs.Select(s => s.SongId).ToList();
-            var stringIds = String.Join(";", songIds.Select(id => id.ToString()));
+            var stringIds = string.Join(";", songIds.Select(id => id.ToString()));
 
             if (songs.Any(s => s.SongProperties == null))
             {
@@ -394,7 +394,7 @@ namespace m4dModels
 
         public  IList<Song> SongsFromTracks(string user, IEnumerable<ServiceTrack> tracks, string dances, string songTags, string danceTags)
         {
-            return tracks.Where(track => !String.IsNullOrEmpty(track.Artist)).Select(track => Song.CreateFromTrack(user, track, dances, songTags, danceTags, DanceStats)).ToList();
+            return tracks.Where(track => !string.IsNullOrEmpty(track.Artist)).Select(track => Song.CreateFromTrack(user, track, dances, songTags, danceTags, DanceStats)).ToList();
         }
 
         public IList<Song> SongsFromTracks(string user, IEnumerable<ServiceTrack> tracks, string multiDance, string songTags)
@@ -416,13 +416,13 @@ namespace m4dModels
 
         public void UpdateDanceRatingsAndTags(Song sd, ApplicationUser user, IEnumerable<string> dances, string songTags, string danceTags, int weight)
         {
-            if (!String.IsNullOrEmpty(songTags))
+            if (!string.IsNullOrEmpty(songTags))
             {
                 sd.AddTags(songTags, user.UserName, DanceStats, sd, false);
             }
             var danceList = dances as IList<string> ?? dances.ToList();
             sd.UpdateDanceRatingsAndTags(user.UserName, danceList, Song.DanceRatingIncrement,DanceStats);
-            if (!String.IsNullOrWhiteSpace(danceTags))
+            if (!string.IsNullOrWhiteSpace(danceTags))
             {
                 foreach (var id in danceList)
                 {
@@ -448,7 +448,7 @@ namespace m4dModels
             {
                 if (prop.Name == Song.UserField)
                 {
-                    collect = String.Equals(prop.Value, user.UserName, StringComparison.OrdinalIgnoreCase);
+                    collect = string.Equals(prop.Value, user.UserName, StringComparison.OrdinalIgnoreCase);
                 }
                 else if (!collect && prop.IsAction)
                 {
@@ -481,7 +481,7 @@ namespace m4dModels
 
         public Song FindSong(Guid id, string userName = null)
         {
-            if (String.IsNullOrEmpty(userName)) userName = null;
+            if (string.IsNullOrEmpty(userName)) userName = null;
 
             var info = SearchServiceInfo.GetInfo();
 
@@ -623,7 +623,7 @@ namespace m4dModels
 
         public LikeDictionary UserLikes(IEnumerable<Song> songs, string userName)
         {
-            if (String.IsNullOrWhiteSpace(userName)) return null;
+            if (string.IsNullOrWhiteSpace(userName)) return null;
 
             var likes = new LikeDictionary();
             foreach (var s in songs)
@@ -639,7 +639,7 @@ namespace m4dModels
 
         public LikeDictionary UserDanceLikes(IEnumerable<Song> songs, string danceId, string userName)
         {
-            if (String.IsNullOrWhiteSpace(userName)) return null;
+            if (string.IsNullOrWhiteSpace(userName)) return null;
 
             var likes = new LikeDictionary();
             foreach (var s in songs)
@@ -882,7 +882,7 @@ namespace m4dModels
         public static string PurchaseLinksToInfo(ICollection<ICollection<PurchaseLink>> songLinks, string region)
         {
             var results = (from links in songLinks select links.SingleOrDefault(l => l.AvailableMarkets == null || l.AvailableMarkets.Contains(region)) into link where link != null select link.SongId).ToList();
-            return String.Join(",",results);
+            return string.Join(",",results);
         }
 
         public static ICollection<PurchaseLink> ReducePurchaseLinks(ICollection<ICollection<PurchaseLink>> songLinks, string region)
@@ -891,7 +891,7 @@ namespace m4dModels
         }
         public Song GetSongFromService(MusicService service,string id,string userName=null, ISearchIndexClient client = null)
         {
-            if (String.IsNullOrWhiteSpace(id)) return null;
+            if (string.IsNullOrWhiteSpace(id)) return null;
 
             var sid = $"\"{service.CID}:{id}\"";
             var parameters = new SearchParameters {SearchFields = new [] {Song.ServiceIds} };
@@ -952,7 +952,7 @@ namespace m4dModels
             return DanceStatsManager.GetInstance(this).TagGroups;
         }
 
-        public IEnumerable<TagCount> GetTagSuggestions(Guid? user = null, char? targetType = null, string tagType = null, int count = Int32.MaxValue, bool normalized=false)
+        public IEnumerable<TagCount> GetTagSuggestions(Guid? user = null, char? targetType = null, string tagType = null, int count = int.MaxValue, bool normalized=false)
         {
             // from m in Modified where m.ApplicationUserId == user.Id && m.Song.TitleHash != 0 select m.Song;
 
@@ -964,14 +964,14 @@ namespace m4dModels
             {
                 lock (s_sugMap)
                 {
-                    if (tagType == null) tagType = String.Empty;
+                    if (tagType == null) tagType = string.Empty;
                     if (s_sugMap.ContainsKey(tagType))
                     {
                         ret = s_sugMap[tagType];
                     }
                     else
                     {
-                        var tts = (tagType == String.Empty) ? CachedTagGroups() : CachedTagGroups().Where(tt => tt.Category == tagType);
+                        var tts = (tagType == string.Empty) ? CachedTagGroups() : CachedTagGroups().Where(tt => tt.Category == tagType);
                         ret = TagGroup.ToTagCounts(tts).OrderByDescending(tc => tc.Count);
                         s_sugMap[tagType] = ret;
                     }
@@ -991,7 +991,7 @@ namespace m4dModels
                 if (tagType != null) ret = ret.Where(t => t.TagClass == tagType).OrderByDescending(tc => tc.Count);
             }
 
-            if (count < Int32.MaxValue)
+            if (count < int.MaxValue)
             {
                 ret = ret.Take(count).OrderByDescending(tc => tc.Count);
             }
@@ -1128,7 +1128,7 @@ namespace m4dModels
 
         static private bool IsBreak(string line, string brk)
         {
-            return String.Equals(line.Trim(), brk, StringComparison.InvariantCultureIgnoreCase);
+            return string.Equals(line.Trim(), brk, StringComparison.InvariantCultureIgnoreCase);
         }
 
         public void LoadUsers(IList<string> lines)
@@ -1148,7 +1148,7 @@ namespace m4dModels
                 var s = lines[i];
                 i += 1;
 
-                if (String.Equals(s, TagBreak, StringComparison.InvariantCultureIgnoreCase))
+                if (string.Equals(s, TagBreak, StringComparison.InvariantCultureIgnoreCase))
                 {
                     break;
                 }
@@ -1159,7 +1159,7 @@ namespace m4dModels
                 var userId = cells[0];
                 var userName = cells[1];
                 var roles = cells[2];
-                var hash = String.IsNullOrWhiteSpace(cells[3]) ? null : cells[3];
+                var hash = string.IsNullOrWhiteSpace(cells[3]) ? null : cells[3];
                 var stamp = cells[4];
                 var lockout = cells[5];
                 var providers = cells[6];
@@ -1178,21 +1178,21 @@ namespace m4dModels
                 if (extended)
                 {
                     email = cells[7];
-                    Boolean.TryParse(cells[8], out emailConfirmed);
+                    bool.TryParse(cells[8], out emailConfirmed);
                     DateTime.TryParse(cells[9], out date);
                     region = cells[10];
-                    Byte.TryParse(cells[11], out privacy);
+                    byte.TryParse(cells[11], out privacy);
                     byte canContactT;
-                    Byte.TryParse(cells[12], out canContactT);
+                    byte.TryParse(cells[12], out canContactT);
                     canContact = (ContactStatus)canContactT;
                     servicePreference = cells[13];
                     DateTime.TryParse(cells[14], out active);
                     int rcT;
-                    if (!String.IsNullOrWhiteSpace(cells[15]) && Int32.TryParse(cells[15], out rcT))
+                    if (!string.IsNullOrWhiteSpace(cells[15]) && int.TryParse(cells[15], out rcT))
                     {
                         rc = rcT;
                     }
-                    if (!String.IsNullOrWhiteSpace(cells[16]))
+                    if (!string.IsNullOrWhiteSpace(cells[16]))
                     {
                         col = cells[16];
                     }
@@ -1208,9 +1208,9 @@ namespace m4dModels
                     user.UserName = userName;
                     user.PasswordHash = hash;
                     user.SecurityStamp = stamp;
-                    user.LockoutEnabled = String.Equals(lockout, "TRUE", StringComparison.InvariantCultureIgnoreCase);
+                    user.LockoutEnabled = string.Equals(lockout, "TRUE", StringComparison.InvariantCultureIgnoreCase);
 
-                    if (!String.IsNullOrWhiteSpace(providers))
+                    if (!string.IsNullOrWhiteSpace(providers))
                     {
                         var entries = providers.Split(new[] { '|' }, StringSplitOptions.RemoveEmptyEntries);
                         for (var j = 0; j < entries.Length; j += 2)
@@ -1220,7 +1220,7 @@ namespace m4dModels
                         }
                     }
 
-                    if (!String.IsNullOrWhiteSpace(roles))
+                    if (!string.IsNullOrWhiteSpace(roles))
                     {
                         var roleNames = roles.Split(new[] { '|' }, StringSplitOptions.RemoveEmptyEntries);
                         foreach (var roleName in roleNames)
@@ -1251,12 +1251,12 @@ namespace m4dModels
                 }
                 else if (extended)
                 {
-                    if (String.IsNullOrWhiteSpace(user.Email) && !String.IsNullOrWhiteSpace(email))
+                    if (string.IsNullOrWhiteSpace(user.Email) && !string.IsNullOrWhiteSpace(email))
                     {
                         user.Email = email;
                         user.EmailConfirmed = emailConfirmed;
                     }
-                    if (String.IsNullOrWhiteSpace(user.Region) && !String.IsNullOrWhiteSpace(region))
+                    if (string.IsNullOrWhiteSpace(user.Region) && !string.IsNullOrWhiteSpace(region))
                     {
                         user.Region = region;
                         user.Privacy = privacy;
@@ -1314,7 +1314,7 @@ namespace m4dModels
                 AdminMonitor.UpdateTask("LoadSearches", i);
                 var s = lines[i];
 
-                if (String.Equals(s, TagBreak, StringComparison.InvariantCultureIgnoreCase))
+                if (string.Equals(s, TagBreak, StringComparison.InvariantCultureIgnoreCase))
                 {
                     break;
                 }
@@ -1352,7 +1352,7 @@ namespace m4dModels
                     AdminMonitor.UpdateTask("LoadSearches", i);
                     var s = lines[i];
 
-                    if (String.Equals(s, TagBreak, StringComparison.InvariantCultureIgnoreCase))
+                    if (string.Equals(s, TagBreak, StringComparison.InvariantCultureIgnoreCase))
                     {
                         break;
                     }
@@ -1394,12 +1394,12 @@ namespace m4dModels
             var userName = cells[0];
             name = cells[1];
             query = cells[2];
-            favorite = String.Equals(cells[3], "true", StringComparison.OrdinalIgnoreCase);
-            Int32.TryParse(cells[4], out count);
+            favorite = string.Equals(cells[3], "true", StringComparison.OrdinalIgnoreCase);
+            int.TryParse(cells[4], out count);
             DateTime.TryParse(cells[5], out created);
             DateTime.TryParse(cells[6], out modified);
 
-            user = String.IsNullOrWhiteSpace(userName) ? null : FindUser(userName);
+            user = string.IsNullOrWhiteSpace(userName) ? null : FindUser(userName);
 
             return true;
         }
@@ -1420,7 +1420,7 @@ namespace m4dModels
             {
                 var s = lines[index];
                 AdminMonitor.UpdateTask("LoadDances", index+1);
-                if (String.IsNullOrWhiteSpace(s))
+                if (string.IsNullOrWhiteSpace(s))
                     continue;
                 var cells = s.Split('\t').ToList();
                 var d = Dances.Find(cells[0]);
@@ -1479,7 +1479,7 @@ namespace m4dModels
                     }
                 }
 
-                if (tt != null && cells.Length >= 3 && !String.IsNullOrWhiteSpace(cells[2]))
+                if (tt != null && cells.Length >= 3 && !string.IsNullOrWhiteSpace(cells[2]))
                 {
                     tt.PrimaryId = cells[2];
                 }
@@ -1488,7 +1488,7 @@ namespace m4dModels
                 {
                     DateTime modified;
                     if (cells.Length >= 4 &&
-                        !String.IsNullOrWhiteSpace(cells[3]) &&
+                        !string.IsNullOrWhiteSpace(cells[3]) &&
                         DateTime.TryParse(cells[3], out modified))
                     {
                         tt.Modified = modified;
@@ -1507,7 +1507,7 @@ namespace m4dModels
 
             foreach (var tt in TagGroups)
             {
-                if (String.IsNullOrEmpty(tt.PrimaryId))
+                if (string.IsNullOrEmpty(tt.PrimaryId))
                 {
                     tt.Primary = null;
                 }
@@ -1766,15 +1766,15 @@ namespace m4dModels
             if (!from.HasValue) from = new DateTime(1,1,1);
             
             // ReSharper disable once LoopCanBeConvertedToQuery
-            foreach (var user in UserManager.Users.Where(u => u.LastActive >= from.Value).OrderByDescending(u => u.LastActive > u.StartDate ? u.LastActive : u.StartDate))
+            foreach (var user in UserManager.Users.Where(u => u.LastActive >= from.Value).OrderByDescending(u => u.LastActive > u.StartDate ? u.LastActive : u.StartDate).ToList())
             {
                 var userId = user.Id;
                 var username = user.UserName;
-                var roles = String.Join("|", UserManager.GetRoles(user.Id));
+                var roles = string.Join("|", UserManager.GetRoles(user.Id));
                 var hash = user.PasswordHash;
                 var stamp = user.SecurityStamp;
                 var lockout = user.LockoutEnabled.ToString();
-                var providers = String.Join("|", UserManager.GetLogins(user.Id).Select(l => l.LoginProvider + "|" + l.ProviderKey));
+                var providers = string.Join("|", UserManager.GetLogins(user.Id).Select(l => l.LoginProvider + "|" + l.ProviderKey));
                 var email = user.Email;
                 var emailConfirmed = user.EmailConfirmed;
                 var time = user.StartDate.ToString("g");
@@ -1827,7 +1827,7 @@ namespace m4dModels
             // ReSharper disable once LoopCanBeConvertedToQuery
             foreach (var search in Searches.Include(s => s.ApplicationUser).Where(s => s.Modified >= from.Value).OrderBy(s => s.Modified))
             {
-                var userName = (search.ApplicationUser != null) ? search.ApplicationUser.UserName : String.Empty;
+                var userName = (search.ApplicationUser != null) ? search.ApplicationUser.UserName : string.Empty;
                 searches.Add($"{userName}\t{search.Name}\t{search.Query}\t{search.Favorite}\t{search.Count}\t{search.Created.ToString("g")}\t{search.Modified.ToString("g")}");
             }
 
@@ -1879,12 +1879,12 @@ namespace m4dModels
 
             if (!from.HasValue) from = new DateTime(1, 1, 1);
 
-            var dancelist = Dances.Where(d => d.Modified >= from.Value).OrderBy(d => d.Modified);
+            var dancelist = Dances.Where(d => d.Modified >= from.Value).OrderBy(d => d.Modified).ToList();
             // ReSharper disable once LoopCanBeConvertedToQuery
             foreach (var dance in dancelist)
             {
                 var line = dance.Serialize();
-                if (!String.IsNullOrWhiteSpace(line))
+                if (!string.IsNullOrWhiteSpace(line))
                 {
                     dances.Add(line);
                 }
@@ -2229,7 +2229,7 @@ namespace m4dModels
             var parameters = new SearchParameters
             {
                 QueryType = QueryType.Simple,
-                Top = Int32.MaxValue,
+                Top = int.MaxValue,
                 Select = new[] { Song.SongIdField, Song.TitleField, Song.ArtistField, Song.LengthField, Song.TempoField }
             };
 
@@ -2251,7 +2251,7 @@ namespace m4dModels
                     {
                         var doc = res.Document;
                         var title = doc[Song.TitleField] as string;
-                        if (String.IsNullOrEmpty(title)) continue;
+                        if (string.IsNullOrEmpty(title)) continue;
 
                         var sid = doc[Song.SongIdField] as string;
                         var lobj = doc[Song.LengthField];
@@ -2387,7 +2387,7 @@ namespace m4dModels
             using (var indexClient = serviceClient.Indexes.GetClient(info.Index))
             {
                 SearchContinuationToken token = null;
-                var searchString = String.IsNullOrWhiteSpace(filter.SearchString) ? null : filter.SearchString;
+                var searchString = string.IsNullOrWhiteSpace(filter.SearchString) ? null : filter.SearchString;
                 var results = new List<string>();
                 do
                 {
@@ -2481,7 +2481,7 @@ namespace m4dModels
 
         private void AddRole(string id, string role)
         {
-            if (String.IsNullOrWhiteSpace(role))
+            if (string.IsNullOrWhiteSpace(role))
                 return;
 
             var key = id + ":" + role;
