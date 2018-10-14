@@ -16,22 +16,35 @@ namespace m4dModels
         public string User { get; set; }
         public PlayListType Type { get; set; }
         public string Id { get; set; }
-        public string Tags { get; set; }
+        public string Name { get; set; }
+        public string Description { get; set; }
+        public string Data1 { get; set; }
+        public string Data2 { get; set; }
         public DateTime Created { get; set; }
         public DateTime? Updated { get; set; }
         public bool Deleted { get; set; }
-        public string SongIds { get; set; }
-        public string Name { get; set; }
-        public string Description { get; set; }
+    }
+
+    public class SongsFromSpotify : PlayList {
+        public string Tags {
+            get => Data1;
+            set => Data1 = value;
+        }
+
+        public string SongIds
+        {
+            get => Data2;
+            set => Data2 = value;
+        }
         public IEnumerable<string> SongIdList => string.IsNullOrEmpty(SongIds)
             ? null
-            : SongIds.Split(new[] {'|'}, StringSplitOptions.RemoveEmptyEntries);
+            : SongIds.Split(new[] { '|' }, StringSplitOptions.RemoveEmptyEntries);
 
         public bool AddSongs(IEnumerable<string> songIds)
         {
             var existing = string.IsNullOrEmpty(SongIds)
-            ? new HashSet<string>()
-            : new HashSet<string>(SongIdList);
+                ? new HashSet<string>()
+                : new HashSet<string>(SongIdList);
 
             var initial = existing.Count;
             foreach (var id in songIds.Where(id => !existing.Contains(id)))

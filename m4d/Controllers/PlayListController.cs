@@ -1,5 +1,6 @@
-﻿/* TODNEXT: 
- *  Make Update/Restore check Type
+﻿/* TODONEXT: 
+ *  Get Name and Description for SongsFromSpotify
+ *  Add in the SpotifyFromSearch subclass
  *  Make Load/Backup handle both types
  *  Make the M4D spotify account an admin
  *  (semi) Manually create the dances playlists
@@ -186,13 +187,24 @@ namespace m4d.Controllers
 
         private bool DoUpdate(string id, DanceMusicService dms, out string result)
         {
+            var playlist = SafeLoadPlaylist(id, dms);
+            switch (playlist.Type)
+            {
+                case PlayListType.SongsFromSpotify:
+                    return DoUpdate((SongsFromSpotify)playlist, dms, out result);
+                default:
+                    result = $"Playlist {id} unsupport type - {playlist.Type}";
+                    return false;
+            }
+        }
+
+        private bool DoUpdate(SongsFromSpotify playlist, DanceMusicService dms, out string result)
+        {
             try
             {
-                var playList = SafeLoadPlaylist(id, dms);
+                var tracks = LoadTracks(playlist, dms);
 
-                var tracks = LoadTracks(playList, dms);
-
-                var oldTrackIds = playList.SongIds;
+                var oldTrackIds = playlist.SongIds;
                 if (oldTrackIds != null)
                 {
                     tracks = tracks.Where(t => t.TrackId != null && !oldTrackIds.Contains(t.TrackId)).ToList();
@@ -200,16 +212,16 @@ namespace m4d.Controllers
 
                 if (tracks.Count == 0)
                 {
-                    result =  $"No new tracks for playlist {playList.Id}";
+                    result =  $"No new tracks for playlist {playlist.Id}";
                     return true;
                 }
-                var tags = playList.Tags.Split(new[] { "|||" }, 2, StringSplitOptions.None);
-                var newSongs = dms.SongsFromTracks(playList.User, tracks, tags[0], tags.Length > 1 ? tags[1] : string.Empty);
+                var tags = playlist.Tags.Split(new[] { "|||" }, 2, StringSplitOptions.None);
+                var newSongs = dms.SongsFromTracks(playlist.User, tracks, tags[0], tags.Length > 1 ? tags[1] : string.Empty);
 
                 AdminMonitor.UpdateTask("Starting Merge");
                 var results = DanceMusicService.GetService().MatchSongs(newSongs, DanceMusicService.MatchMethod.Merge);
-                var succeeded = CommitCatalog(dms, new Review { PlayList = playList.Id, Merge = results }, playList.User);
-                result =  $"Updated PlayList {playList.Id} with {succeeded} songs.";
+                var succeeded = CommitCatalog(dms, new Review { PlayList = playlist.Id, Merge = results }, playlist.User);
+                result =  $"Updated PlayList {playlist.Id} with {succeeded} songs.";
                 return true;
             }
             catch (Exception e)
@@ -253,7 +265,7 @@ namespace m4d.Controllers
                     var dms = DanceMusicService.GetService();
                     var results = new List<string>();
                     var i = 0;
-                    foreach (var id in dms.PlayLists.Where(p => string.IsNullOrEmpty(p.SongIds) && p.Updated != null).Select(p => p.Id).ToList())
+                    foreach (var id in dms.PlayLists.Where(p => string.IsNullOrEmpty(p.Data2) && p.Updated != null).Select(p => p.Id).ToList())
                     {
                         DoRestore(id, dms, out var result);
                         AdminMonitor.UpdateTask($"Playlist {id}", i);
@@ -275,13 +287,19 @@ namespace m4d.Controllers
         {
             try
             {
-                var playList = SafeLoadPlaylist(id, dms);
+                var playlistT = SafeLoadPlaylist(id, dms);
+                if (playlistT.Type != PlayListType.SongsFromSpotify)
+                {
+                    result = $"Playlist {id} not restored: Unsupported type {playlistT.Type}";
+                    return false;
+                }
+                var playlist = (SongsFromSpotify) playlistT;
 
-                var tracks = LoadTracks(playList, dms);
+                var tracks = LoadTracks(playlist, dms);
 
                 if (tracks.Count == 0)
                 {
-                    result = $"No new tracks for playlist {playList.Id}";
+                    result = $"No new tracks for playlist {playlist.Id}";
                     return true;
                 }
 
@@ -290,21 +308,26 @@ namespace m4d.Controllers
                 foreach (var track in tracks)
                 {
                     var song = dms.GetSongFromService(service, track.TrackId);
-                    if (song?.FindModified(playList.User) != null)
+                    if (song?.FindModified(playlist.User) != null)
                     {
                         songs.Add(song);
                     }
                 }
 
-                playList = dms.PlayLists.Find(id);
-                if (playList == null)
+                playlistT = dms.PlayLists.Find(id);
+                if (playlistT == null)
                 {
                     throw new Exception($"Playlist {id} disappeared!");
                 }
-                playList.AddSongs(songs.Select(s => s.GetPurchaseId(service.Id)));
+                if (playlistT.Type != PlayListType.SongsFromSpotify)
+                {
+                    throw new Exception($"Playlist {id} change to unsupported type {playlistT.Type}");
+                }
+                playlist = (SongsFromSpotify) playlistT;
+                playlist.AddSongs(songs.Select(s => s.GetPurchaseId(service.Id)));
                 dms.SaveChanges();
 
-                result = $"Restore PlayList {playList.Id} with {songs.Count} songs.  ";
+                result = $"Restore PlayList {playlist.Id} with {songs.Count} songs.  ";
                 return true;
             }
             catch (Exception e)
@@ -329,9 +352,9 @@ namespace m4d.Controllers
             return playList;
         }
 
-        private static IList<ServiceTrack> LoadTracks(PlayList playList, DanceMusicService dms)
+        private static IList<ServiceTrack> LoadTracks(SongsFromSpotify playList, DanceMusicService dms)
         {
-            var service = MusicService.FromPlayList(playList.Type);
+            var service = MusicService.GetService(ServiceType.Spotify);
             var user = dms.FindUser(playList.User);
             var url = service?.BuildPlayListLink(playList, user);
 

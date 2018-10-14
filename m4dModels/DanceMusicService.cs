@@ -1589,12 +1589,12 @@ namespace m4dModels
 
                 playlist.Id = id;
                 playlist.Type = type;
-                playlist.Tags = tags;
+                playlist.Data1 = tags;
                 playlist.User = userId;
                 playlist.Created = created;
                 playlist.Updated = modified;
                 playlist.Deleted = deleted;
-                playlist.SongIds = songIds;
+                playlist.Data2 = songIds;
 
                 if (isNew) PlayLists.Add(playlist);
             }
@@ -1863,7 +1863,7 @@ namespace m4dModels
             var lines = new List<string>();
             foreach (var p in playlists)
             {
-                lines.Add($"{p.User}\t{p.Type}\t{p.Tags}\t{p.Id}\t{p.Created}\t{p.Updated}\t{p.Deleted}\t{p.SongIds}");
+                lines.Add($"{p.User}\t{p.Type}\t{p.Data1}\t{p.Id}\t{p.Created}\t{p.Updated}\t{p.Deleted}\t{p.Data2}");
             }
 
             if (withHeader && lines.Count > 0)
@@ -2522,14 +2522,16 @@ namespace m4dModels
 
         public void UpdatePlayList(string id, IEnumerable<Song> songs)
         {
-            var playList = PlayLists.Find(id);
-            if (playList == null) throw new ArgumentOutOfRangeException(nameof(id));
+            var playListT = PlayLists.Find(id);
+            if (playListT == null || playListT.Type != PlayListType.SongsFromSpotify) throw new ArgumentOutOfRangeException(nameof(id));
 
-            var service = MusicService.FromPlayList(playList.Type);
+            var playlist = (SongsFromSpotify) playListT;
+
+            var service = MusicService.GetService(ServiceType.Spotify);
             if (service == null) throw new ArgumentOutOfRangeException(nameof(id));
 
-            playList.AddSongs(songs.Select(s => s.GetPurchaseId(service.Id)));
-            playList.Updated = DateTime.Now;
+            playlist.AddSongs(songs.Select(s => s.GetPurchaseId(service.Id)));
+            playlist.Updated = DateTime.Now;
             SaveChanges();
         }
         #endregion

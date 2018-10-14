@@ -264,18 +264,6 @@ namespace m4dModels
             return GetService(type[0]);
         }
 
-        public PlayListType GetPlayListType()
-        {
-            var s = Id.ToString();
-            return Enum.TryParse(s, out PlayListType p) ? p : PlayListType.Undefined;
-        }
-
-        public static MusicService FromPlayList(PlayListType type)
-        {
-            var t = type.ToString();
-            return !Enum.TryParse(t, out ServiceType s) ? null : GetService(s);
-        }
-
         static MusicService()
         {
             IdMap = new Dictionary<ServiceType, MusicService>();
