@@ -52,11 +52,8 @@ namespace m4d.Controllers
 
         public ApplicationSignInManager SignInManager
         {
-            get
-            {
-                return _signInManager ?? HttpContext.GetOwinContext().Get<ApplicationSignInManager>();
-            }
-            private set { _signInManager = value; }
+            get => _signInManager ?? HttpContext.GetOwinContext().Get<ApplicationSignInManager>();
+            private set => _signInManager = value;
         }
 
         private async Task<ApplicationUser> FindByNameOrEmail(string s)

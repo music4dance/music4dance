@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 
 namespace m4dModels
@@ -25,6 +26,7 @@ namespace m4dModels
         public bool Deleted { get; set; }
     }
 
+    [NotMapped]
     public class SongsFromSpotify : PlayList {
         public string Tags {
             get => Data1;

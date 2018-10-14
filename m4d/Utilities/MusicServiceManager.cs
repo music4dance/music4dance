@@ -50,8 +50,7 @@ namespace m4d.Utilities
         public ServiceTrack GetMusicServiceTrack(string id, MusicService service, string region = null)
         {
             var sid = $"\"{service.CID}:{id}\"";
-            ServiceTrack ret;
-            if (s_trackCache.TryGetValue(sid, out ret))
+            if (s_trackCache.TryGetValue(sid, out var ret))
             {
                 return ret;
             }
@@ -94,6 +93,7 @@ namespace m4d.Utilities
 
             return tracks;
         }
+
 
         public ServiceTrack CoerceTrackRegion(string id, MusicService service, string region)
         {
@@ -304,8 +304,7 @@ namespace m4d.Utilities
                 return -1;
 
             Trace.WriteLineIf(TraceLevels.General.TraceVerbose, $"{type}: {s}");
-            int info;
-            return int.TryParse(s, out info) ? info : -1;
+            return int.TryParse(s, out var info) ? info : -1;
         }
 
         private static dynamic GetMusicServiceResults(string request, MusicService service = null, IPrincipal principal = null)
@@ -361,7 +360,7 @@ namespace m4d.Utilities
                         }
                         else if ((int) response.StatusCode == 429 /*HttpStatusCode.TooManyRequests*/)
                         {
-                            // Wait algorithm failed, paus for 15 seconds
+                            // Wait algorithm failed, pause for 15 seconds
                             Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Excedeed EchoNest Limits: Caught");
                             System.Threading.Thread.Sleep(15 * 1000);
                             continue;

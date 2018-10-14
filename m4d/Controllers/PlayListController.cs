@@ -13,6 +13,7 @@ using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using System.Web.Mvc;
+using AutoMapper;
 using m4d.Utilities;
 using m4dModels;
 using EntityState = System.Data.Entity.EntityState;
@@ -191,7 +192,7 @@ namespace m4d.Controllers
             switch (playlist.Type)
             {
                 case PlayListType.SongsFromSpotify:
-                    return DoUpdate((SongsFromSpotify)playlist, dms, out result);
+                    return DoUpdate(Mapper.Map<SongsFromSpotify>(playlist), dms, out result);
                 default:
                     result = $"Playlist {id} unsupport type - {playlist.Type}";
                     return false;
@@ -293,7 +294,7 @@ namespace m4d.Controllers
                     result = $"Playlist {id} not restored: Unsupported type {playlistT.Type}";
                     return false;
                 }
-                var playlist = (SongsFromSpotify) playlistT;
+                var playlist = Mapper.Map<SongsFromSpotify>(playlistT);
 
                 var tracks = LoadTracks(playlist, dms);
 
@@ -323,7 +324,7 @@ namespace m4d.Controllers
                 {
                     throw new Exception($"Playlist {id} change to unsupported type {playlistT.Type}");
                 }
-                playlist = (SongsFromSpotify) playlistT;
+                playlist = Mapper.Map<SongsFromSpotify>(playlistT);
                 playlist.AddSongs(songs.Select(s => s.GetPurchaseId(service.Id)));
                 dms.SaveChanges();
 
