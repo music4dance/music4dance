@@ -62,7 +62,7 @@ namespace m4d.Utilities
             else
             {
                 var request = service.BuildTrackRequest(id, region);
-                dynamic results = GetMusicServiceResults(request, service);
+                var results = GetMusicServiceResults(request, service);
                 ret = service.ParseTrackResults(results);
             }
 
@@ -76,9 +76,12 @@ namespace m4d.Utilities
 
         private static readonly Dictionary<string, ServiceTrack> s_trackCache = new Dictionary<string, ServiceTrack>();
 
-        public IList<ServiceTrack> LookupServiceTracks(MusicService service, string url, IPrincipal principal = null)
+        public GenericPlaylist LookupPlaylist(MusicService service, string url, IPrincipal principal = null)
         {
-            dynamic results = GetMusicServiceResults(service.BuildLookupRequest(url), service, principal);
+            var results = GetMusicServiceResults(service.BuildLookupRequest(url), service, principal);
+            var name = results.name;
+            var description = results.description;
+
             IList<ServiceTrack> tracks = service.ParseSearchResults(results);
             while ((results = NextMusicServiceResults(results, service, principal)) != null)
             {
@@ -91,9 +94,13 @@ namespace m4d.Utilities
 
             ComputeTrackPurchaseInfo(service, tracks);
 
-            return tracks;
+            return new GenericPlaylist
+            {
+                Name = name,
+                Description = description,
+                Tracks = tracks
+            };
         }
-
 
         public ServiceTrack CoerceTrackRegion(string id, MusicService service, string region)
         {

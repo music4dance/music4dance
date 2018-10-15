@@ -61,4 +61,12 @@ namespace m4dModels
             return true;
         }
     }
+
+    public class GenericPlaylist
+    {
+        public string Name { get; set; }
+        public string Description { get; set; }
+        public IList<ServiceTrack> Tracks { get; set; }
+
+    }
 }

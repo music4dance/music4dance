@@ -192,18 +192,22 @@ namespace m4d.Controllers
             switch (playlist.Type)
             {
                 case PlayListType.SongsFromSpotify:
-                    return DoUpdate(Mapper.Map<SongsFromSpotify>(playlist), dms, out result);
+                    return UpdateSongsFromSpotify(playlist, dms, out result);
                 default:
                     result = $"Playlist {id} unsupport type - {playlist.Type}";
                     return false;
             }
         }
 
-        private bool DoUpdate(SongsFromSpotify playlist, DanceMusicService dms, out string result)
+        private bool UpdateSongsFromSpotify(PlayList playlistIn, DanceMusicService dms, out string result)
         {
             try
             {
-                var tracks = LoadTracks(playlist, dms);
+                var playlist = Mapper.Map<SongsFromSpotify>(playlistIn);
+                var spl = LoadServicePlaylist(playlist, dms);
+                var tracks = spl.Tracks;
+                playlist.Name = spl.Name;
+                playlist.Description = spl.Description;
 
                 var oldTrackIds = playlist.SongIds;
                 if (oldTrackIds != null)
@@ -296,7 +300,8 @@ namespace m4d.Controllers
                 }
                 var playlist = Mapper.Map<SongsFromSpotify>(playlistT);
 
-                var tracks = LoadTracks(playlist, dms);
+                var spl = LoadServicePlaylist(playlist, dms);
+                var tracks = spl.Tracks;
 
                 if (tracks.Count == 0)
                 {
@@ -315,17 +320,8 @@ namespace m4d.Controllers
                     }
                 }
 
-                playlistT = dms.PlayLists.Find(id);
-                if (playlistT == null)
-                {
-                    throw new Exception($"Playlist {id} disappeared!");
-                }
-                if (playlistT.Type != PlayListType.SongsFromSpotify)
-                {
-                    throw new Exception($"Playlist {id} change to unsupported type {playlistT.Type}");
-                }
-                playlist = Mapper.Map<SongsFromSpotify>(playlistT);
                 playlist.AddSongs(songs.Select(s => s.GetPurchaseId(service.Id)));
+                Mapper.Map(playlist, playlistT);
                 dms.SaveChanges();
 
                 result = $"Restore PlayList {playlist.Id} with {songs.Count} songs.  ";
@@ -353,7 +349,8 @@ namespace m4d.Controllers
             return playList;
         }
 
-        private static IList<ServiceTrack> LoadTracks(SongsFromSpotify playList, DanceMusicService dms)
+
+        private static GenericPlaylist LoadServicePlaylist(SongsFromSpotify playList, DanceMusicService dms)
         {
             var service = MusicService.GetService(ServiceType.Spotify);
             var user = dms.FindUser(playList.User);
@@ -364,7 +361,7 @@ namespace m4d.Controllers
                 throw new ArgumentOutOfRangeException(nameof(playList.Type), $@"Playlists of type ${playList.Type} not not yet supported.");
             }
 
-            return new MusicServiceManager().LookupServiceTracks(service, url);
+            return new MusicServiceManager().LookupPlaylist(service, url);
         }
 
 

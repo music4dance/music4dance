@@ -157,8 +157,7 @@ namespace m4dModels
                     var marketList = new List<string>();
                     foreach (object o in track.available_markets)
                     {
-                        var s = o as string;
-                        if (s != null) marketList.Add(s);
+                        if (o is string s) marketList.Add(s);
                     }
                     availableMarkets = marketList.ToArray();
                 }

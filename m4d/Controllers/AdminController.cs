@@ -1234,7 +1234,7 @@ namespace m4d.Controllers
 
             var service = MusicService.GetService(ServiceType.Spotify);
 
-            var tracks = MusicServiceManager.LookupServiceTracks(service, url, User);
+            var tracks = MusicServiceManager.LookupPlaylist(service, url, User).Tracks;
 
             var newSongs = Database.SongsFromTracks(appuser.UserName,tracks,dances,songTags,danceTags);
 

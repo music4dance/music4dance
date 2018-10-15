@@ -2533,6 +2533,8 @@ namespace m4dModels
 
             playlist.AddSongs(songs.Select(s => s.GetPurchaseId(service.Id)));
             playlist.Updated = DateTime.Now;
+
+            Mapper.Map(playlist, playListT);
             SaveChanges();
         }
         #endregion
