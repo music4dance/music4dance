@@ -1,5 +1,5 @@
 ﻿/* TODONEXT: 
- *  Get Name and Description for SongsFromSpotify
+ *  Get Name and Description for SongsFromSpotify: Confrim that we didn't break playlist update
  *  Add in the SpotifyFromSearch subclass
  *  Make Load/Backup handle both types
  *  Make the M4D spotify account an admin
@@ -9,6 +9,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
@@ -201,10 +202,13 @@ namespace m4d.Controllers
 
         private bool UpdateSongsFromSpotify(PlayList playlistIn, DanceMusicService dms, out string result)
         {
+            result = string.Empty;
             try
             {
                 var playlist = Mapper.Map<SongsFromSpotify>(playlistIn);
                 var spl = LoadServicePlaylist(playlist, dms);
+                if (spl == null) return false;
+
                 var tracks = spl.Tracks;
                 playlist.Name = spl.Name;
                 playlist.Description = spl.Description;
@@ -290,6 +294,7 @@ namespace m4d.Controllers
 
         private static bool DoRestore(string id, DanceMusicService dms, out string result)
         {
+            result = string.Empty;
             try
             {
                 var playlistT = SafeLoadPlaylist(id, dms);
@@ -301,6 +306,8 @@ namespace m4d.Controllers
                 var playlist = Mapper.Map<SongsFromSpotify>(playlistT);
 
                 var spl = LoadServicePlaylist(playlist, dms);
+                if (spl == null) return false;
+
                 var tracks = spl.Tracks;
 
                 if (tracks.Count == 0)
@@ -354,6 +361,12 @@ namespace m4d.Controllers
         {
             var service = MusicService.GetService(ServiceType.Spotify);
             var user = dms.FindUser(playList.User);
+            if (user == null)
+            {
+                Trace.WriteLine($"Updating playlist:  User {playList.User} doesn't exist");
+                return null;
+            }
+
             var url = service?.BuildPlayListLink(playList, user);
 
             if (url == null)
