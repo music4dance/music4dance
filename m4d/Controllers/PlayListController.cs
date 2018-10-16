@@ -1,5 +1,4 @@
 ﻿/* TODONEXT: 
- *  Get Name and Description for SongsFromSpotify: Confrim that we didn't break playlist update
  *  Add in the SpotifyFromSearch subclass
  *  Make Load/Backup handle both types
  *  Make the M4D spotify account an admin
@@ -14,7 +13,6 @@ using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using System.Web.Mvc;
-using AutoMapper;
 using m4d.Utilities;
 using m4dModels;
 using EntityState = System.Data.Entity.EntityState;
@@ -200,12 +198,11 @@ namespace m4d.Controllers
             }
         }
 
-        private bool UpdateSongsFromSpotify(PlayList playlistIn, DanceMusicService dms, out string result)
+        private bool UpdateSongsFromSpotify(PlayList playlist, DanceMusicService dms, out string result)
         {
             result = string.Empty;
             try
             {
-                var playlist = Mapper.Map<SongsFromSpotify>(playlistIn);
                 var spl = LoadServicePlaylist(playlist, dms);
                 if (spl == null) return false;
 
@@ -297,13 +294,12 @@ namespace m4d.Controllers
             result = string.Empty;
             try
             {
-                var playlistT = SafeLoadPlaylist(id, dms);
-                if (playlistT.Type != PlayListType.SongsFromSpotify)
+                var playlist = SafeLoadPlaylist(id, dms);
+                if (playlist.Type != PlayListType.SongsFromSpotify)
                 {
-                    result = $"Playlist {id} not restored: Unsupported type {playlistT.Type}";
+                    result = $"Playlist {id} not restored: Unsupported type {playlist.Type}";
                     return false;
                 }
-                var playlist = Mapper.Map<SongsFromSpotify>(playlistT);
 
                 var spl = LoadServicePlaylist(playlist, dms);
                 if (spl == null) return false;
@@ -328,7 +324,6 @@ namespace m4d.Controllers
                 }
 
                 playlist.AddSongs(songs.Select(s => s.GetPurchaseId(service.Id)));
-                Mapper.Map(playlist, playlistT);
                 dms.SaveChanges();
 
                 result = $"Restore PlayList {playlist.Id} with {songs.Count} songs.  ";
@@ -357,7 +352,7 @@ namespace m4d.Controllers
         }
 
 
-        private static GenericPlaylist LoadServicePlaylist(SongsFromSpotify playList, DanceMusicService dms)
+        private static GenericPlaylist LoadServicePlaylist(PlayList playList, DanceMusicService dms)
         {
             var service = MusicService.GetService(ServiceType.Spotify);
             var user = dms.FindUser(playList.User);

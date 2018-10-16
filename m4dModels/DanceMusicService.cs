@@ -6,7 +6,6 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
-using AutoMapper;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.EntityFramework;
 using Microsoft.Azure.Search;
@@ -2523,10 +2522,9 @@ namespace m4dModels
 
         public void UpdatePlayList(string id, IEnumerable<Song> songs)
         {
-            var playListT = PlayLists.Find(id);
-            if (playListT == null || playListT.Type != PlayListType.SongsFromSpotify) throw new ArgumentOutOfRangeException(nameof(id));
+            var playlist = PlayLists.Find(id);
+            if (playlist == null || playlist.Type != PlayListType.SongsFromSpotify) throw new ArgumentOutOfRangeException(nameof(id));
 
-            var playlist = Mapper.Map<SongsFromSpotify>(playListT);
 
             var service = MusicService.GetService(ServiceType.Spotify);
             if (service == null) throw new ArgumentOutOfRangeException(nameof(id));
@@ -2534,7 +2532,6 @@ namespace m4dModels
             playlist.AddSongs(songs.Select(s => s.GetPurchaseId(service.Id)));
             playlist.Updated = DateTime.Now;
 
-            Mapper.Map(playlist, playListT);
             SaveChanges();
         }
         #endregion

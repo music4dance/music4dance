@@ -24,15 +24,17 @@ namespace m4dModels
         public DateTime Created { get; set; }
         public DateTime? Updated { get; set; }
         public bool Deleted { get; set; }
-    }
 
-    [NotMapped]
-    public class SongsFromSpotify : PlayList {
-        public string Tags {
+        /* SongsFromSpotify: The following members are valid when Type == SongsFromSpotify */
+
+        [NotMapped]
+        public string Tags
+        {
             get => Data1;
             set => Data1 = value;
         }
 
+        [NotMapped]
         public string SongIds
         {
             get => Data2;
@@ -61,6 +63,7 @@ namespace m4dModels
             return true;
         }
     }
+
 
     public class GenericPlaylist
     {

@@ -5,7 +5,6 @@ using System.Web.Http;
 using System.Web.Mvc;
 using System.Web.Optimization;
 using System.Web.Routing;
-using AutoMapper;
 using m4d.Context;
 using m4d.Controllers;
 using m4d.Utilities;
@@ -27,8 +26,6 @@ namespace m4d
             BundleConfig.RegisterBundles(BundleTable.Bundles);
 
             ModelBinders.Binders[typeof(Song)] = new SongBinder();
-
-            Mapper.Initialize(cfg => cfg.CreateMap<PlayList, SongsFromSpotify>());
 
             DanceStatsManager.AppData = System.Web.Hosting.HostingEnvironment.MapPath("~/app_data");
             DanceMusicService.Factory = new DanceMusicFactory();
