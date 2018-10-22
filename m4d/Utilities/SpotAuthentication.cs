@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
-using System.Runtime.Serialization;
 using System.Security.Claims;
 using System.Security.Principal;
 using System.Threading;
@@ -19,11 +17,9 @@ namespace m4d.Utilities
 
     public class SpotUserAuthentication : SpotAuthentication
     {
-        static public SpotUserAuthentication TryCreate(IPrincipal principal)
+        public static SpotUserAuthentication TryCreate(IPrincipal principal)
         {
-            var claimsPrincipal = principal as ClaimsPrincipal;
-
-            if (claimsPrincipal == null)
+            if (!(principal is ClaimsPrincipal claimsPrincipal))
                 return null;
 
             var token = new AccessToken();

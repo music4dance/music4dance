@@ -1,4 +1,4 @@
-﻿@model m4dModels.PlayList
+﻿@model PlayList
 
 @{
     ViewBag.Title = "Details";
@@ -34,14 +34,6 @@
         </dd>
 
         <dt>
-            @Html.DisplayNameFor(model => model.Data1)
-        </dt>
-
-        <dd>
-            @Html.DisplayFor(model => model.Data1)
-        </dd>
-
-        <dt>
             @Html.DisplayNameFor(model => model.Name)
         </dt>
 
@@ -52,6 +44,22 @@
         <dt>
             @Html.DisplayNameFor(model => model.Description)
         </dt>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Data1)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Data1)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Data2)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Data2)
+        </dd>
 
         <dd>
             @Html.DisplayFor(model => model.Description)
@@ -71,14 +79,6 @@
 
         <dd>
             @Html.DisplayFor(model => model.Updated)
-        </dd>
-
-        <dt>
-            @Html.DisplayNameFor(model => model.Data2)
-        </dt>
-
-        <dd>
-            @Html.DisplayFor(model => model.Data2)
         </dd>
     </dl>
 

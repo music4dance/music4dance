@@ -1,5 +1,6 @@
 ﻿/* TODONEXT: 
- *  Add in the SpotifyFromSearch subclass
+ *  Get Update/UpdateAll working for SpotifyFromSeach
+ *  Test BulkCreate/UpdateAll
  *  Make Load/Backup handle both types
  *  Make the M4D spotify account an admin
  *  (semi) Manually create the dances playlists
@@ -23,9 +24,9 @@ namespace m4d.Controllers
     public class PlayListController : DMController
     {
         // GET: PlayLists
-        public ActionResult Index()
+        public ActionResult Index(PlayListType type = PlayListType.SongsFromSpotify)
         {
-            return View(Database.PlayLists.OrderBy(p => p.User).ToList());
+            return View(GetIndex(type));
         }
 
         // GET: PlayLists/Details/5
@@ -63,7 +64,7 @@ namespace m4d.Controllers
                 playList.Deleted = false;
                 Database.PlayLists.Add(playList);
                 Database.SaveChanges();
-                return RedirectToAction("Index");
+                return RedirectToAction("Index",new {playList.Type});
             }
 
             return View(playList);
@@ -95,7 +96,7 @@ namespace m4d.Controllers
             {
                 Context.Entry(playList).State = EntityState.Modified;
                 Database.SaveChanges();
-                return RedirectToAction("Index");
+                return RedirectToAction("Index", new { playList.Type });
             }
             return View(playList);
         }
@@ -125,7 +126,7 @@ namespace m4d.Controllers
             {
                 Database.PlayLists.Remove(playList);
                 Database.SaveChanges();
-                return RedirectToAction("Index");
+                return RedirectToAction("Index", new { playList.Type });
             }
 
             ViewBag.errorMessage = $"Playlist ${id} not found.";
@@ -152,7 +153,7 @@ namespace m4d.Controllers
         }
 
         // GET: UpdateAll
-        public ActionResult UpdateAll()
+        public ActionResult UpdateAll(PlayListType type = PlayListType.SongsFromSpotify)
         {
             if (!AdminMonitor.StartTask("UpdateAllPlayLists"))
             {
@@ -166,7 +167,7 @@ namespace m4d.Controllers
                     var dms = DanceMusicService.GetService();
                     var results = new List<string>();
                     var i = 0;
-                    foreach (var id in dms.PlayLists.Where(p => p.Updated != null)
+                    foreach (var id in dms.PlayLists.Where(p => p.Type == type)
                         .Select(p => p.Id).ToList())
                     {
                         DoUpdate(id, dms, out var result);
@@ -185,6 +186,62 @@ namespace m4d.Controllers
             return RedirectToAction("AdminStatus", "Admin", AdminMonitor.Status);
         }
 
+        // GET: UpdateAll
+        public ActionResult BulkCreate(PlayListType type, string flavor = null)
+        {
+            // Get a list of existing playlists so that we don't add duplicates?
+            var spotify = MusicService.GetService(ServiceType.Spotify);
+            var oldS = MusicServiceManager.GetPlaylists(spotify, User).ToDictionary(p => p.Name, p => p);
+            var oldM = Database.PlayLists.Where(p => p.Type == PlayListType.SpotifyFromSearch).ToDictionary(p => p.Name, p => p);
+
+            foreach (var ds in Database.DanceStats.List)
+            {
+                var dt = ds.DanceType;
+                if (dt == null || ds.SongCountExplicit < 25) continue;
+                if (oldS.ContainsKey(ds.DanceName) || oldM.ContainsKey(ds.DanceName)) continue;
+
+                // Build name and description
+                var name = ds.DanceName;
+                var count = 100;
+
+                if (ds.SongCountExplicit < 25)
+                    count = 25;
+                else if (ds.SongCountExplicit < 50)
+                    count = 50;
+
+                var description = $"{count} most popular {name} songs from music4dance.net";
+
+                var search = new SongFilter
+                {
+                    Dances = ds.DanceId,
+                    SortOrder = "Dances",
+                    Tags = "-Fake:Tempo"
+                };
+
+                Trace.WriteLine($"{name}, {description}, {search}");
+
+                var metadata = MusicServiceManager.CreatePlaylist(spotify, User, name, description);
+                if (metadata == null)
+                {
+                    Trace.WriteLine($"Unable to create playlist {name}");
+                    continue;
+                }
+
+                var playlist = Database.PlayLists.Create();
+                playlist.Type = PlayListType.SpotifyFromSearch;
+                playlist.Id = metadata.Id;
+                playlist.Name = name;
+                playlist.Description = description;
+                playlist.Search = search.ToString();
+                playlist.Count = count;
+                playlist.Created = DateTime.Now;
+                playlist.Updated = DateTime.Now;
+                playlist.User = User.Identity.Name;
+            }
+
+            return View("Index", GetIndex(PlayListType.SpotifyFromSearch));
+        }
+
         private bool DoUpdate(string id, DanceMusicService dms, out string result)
         {
             var playlist = SafeLoadPlaylist(id, dms);
@@ -192,6 +249,8 @@ namespace m4d.Controllers
             {
                 case PlayListType.SongsFromSpotify:
                     return UpdateSongsFromSpotify(playlist, dms, out result);
+                case PlayListType.SpotifyFromSearch:
+                    return UpdateSpotifyFromSearch(playlist, dms, out result);
                 default:
                     result = $"Playlist {id} unsupport type - {playlist.Type}";
                     return false;
@@ -236,6 +295,25 @@ namespace m4d.Controllers
                 return false;
             }
         }
+
+        private bool UpdateSpotifyFromSearch(PlayList playlist, DanceMusicService dms, out string result)
+        {
+            result = string.Empty;
+            try
+            {
+                var sr = Database.AzureSearch(new SongFilter(playlist.Search), playlist.Count);
+                if (sr.Count != playlist.Count) return false;
+
+                var tracks = sr.Songs.Select(s => s.GetPurchaseId(ServiceType.Spotify));
+                return (MusicServiceManager.SetPlaylistTracks(MusicService.GetService(ServiceType.Spotify), User, playlist.Id, tracks))
+            }
+            catch (Exception e)
+            {
+                result = $"UpdateSpotifyFromSearch ({playlist.Id}: Failed={e.Message}";
+                return false;
+            }
+        }
+
 
         // GET: Restore
         public ActionResult Restore(string id)
@@ -287,6 +365,15 @@ namespace m4d.Controllers
             });
 
             return RedirectToAction("AdminStatus", "Admin", AdminMonitor.Status);
+        }
+
+        private PlayListIndex GetIndex(PlayListType type)
+        {
+            return new PlayListIndex
+            {
+                Type = type,
+                PlayLists = Database.PlayLists.Where(p => p.Type == type).OrderBy(p => p.User).ToList()
+            };
         }
 
         private static bool DoRestore(string id, DanceMusicService dms, out string result)

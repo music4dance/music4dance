@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Security.Principal;
+using System.Text;
 using System.Web.Helpers;
 
 namespace m4d.Utilities
@@ -100,6 +101,40 @@ namespace m4d.Utilities
                 Description = description,
                 Tracks = tracks
             };
+        }
+
+        // TODO: Handle services other than spotify
+        public List<PlaylistMetadata> GetPlaylists(MusicService service, IPrincipal principal)
+        {
+            if (service.Id != ServiceType.Spotify) throw new ArgumentOutOfRangeException(nameof(service), "GetPlaylists currently only supports Spotify");
+
+            var results = GetMusicServiceResults("https://api.spotify.com/v1/me/playlists", service, principal);
+
+            List<PlaylistMetadata> playlists = ParsePlaylistResults(results);
+            while ((results = NextMusicServiceResults(results, service, principal)) != null)
+            {
+                playlists.AddRange(ParsePlaylistResults(results));
+            }
+
+            return playlists;
+        }
+
+        private List<PlaylistMetadata> ParsePlaylistResults(dynamic results)
+        {
+            if (results == null) return null;
+
+            var ret = new List<PlaylistMetadata>();
+
+            foreach (var playlist in results.items)
+            {
+                ret.Add(new PlaylistMetadata
+                {
+                    Id = playlist.id,
+                    Name = playlist.name
+                });
+            }
+
+            return ret;
         }
 
         public ServiceTrack CoerceTrackRegion(string id, MusicService service, string region)
@@ -217,6 +252,32 @@ namespace m4d.Utilities
             edit.Sample = track?.SampleUrl ?? @".";
             return dms.EditSong(user, song, edit);
         }
+        #endregion
+
+        #region Edit
+        // TODO: Handle services other than spotify
+        public PlaylistMetadata CreatePlaylist(MusicService service, IPrincipal principal, string name, string description)
+        {
+            var response = MusicServiceAction("https://api.spotify.com/v1/playlists", $"{{'name':'{name}','description':{description}}}", WebRequestMethods.Http.Post, service, principal );
+
+            if (response == null) return null;
+
+            return new PlaylistMetadata
+            {
+                Id = response.id,
+                Name = response.name
+            };
+        }
+
+        public bool SetPlaylistTracks(MusicService service, IPrincipal principal, string id, IEnumerable<string> tracks)
+        {
+            var tracklist = string.Join(",", tracks.Select(t => $"'spotify:track:{t}"));
+            var response = MusicServiceAction($"https://api.spotify.com/v1/playlists/{id}/tracks", $"[{tracklist}]", WebRequestMethods.Http.Put, service, principal);
+
+            return (response != null && string.Equals("Created", response, StringComparison.OrdinalIgnoreCase));
+        }
+
+
         #endregion
 
         #region Utilities
@@ -400,9 +461,9 @@ namespace m4d.Utilities
                             }
                             Trace.WriteLineIf(TraceLevels.General.TraceInfo, $"Excedeed Itunes Limits: Giving Up {req.Address}");
                         }
-
-                        throw;
                     }
+
+                    throw;
                 }
 
                 if (service != null)
@@ -413,6 +474,62 @@ namespace m4d.Utilities
                 return Json.Decode(responseString);
             }
         }
+
+        // TODO Handle services other than spotify.
+        // This method requires a valid principal
+        private static dynamic MusicServiceAction(string request, string input, string method, MusicService service, IPrincipal principal)
+        {
+            string responseString = null;
+
+            if (request == null)
+            {
+                return null;
+            }
+
+            var req = (HttpWebRequest)WebRequest.Create(request);
+            req.Method = method;
+            req.Accept = "application/json";
+            req.ContentType = "application/json";
+
+            req.Headers.Add("Authorization", AdmAuthentication.GetServiceAuthorization(service.Id, principal));
+
+            try
+            {
+                using (var body = req.GetRequestStream())
+                {
+                    var data = Encoding.UTF8.GetBytes(input);
+                    body.Write(data, 0, data.Length);
+                    body.Close();
+                }
+
+                using (var response = (HttpWebResponse)req.GetResponse())
+                {
+                    if (response.StatusCode == HttpStatusCode.OK)
+                    {
+                        var stream = response.GetResponseStream();
+                        if (stream != null)
+                        {
+                            using (var sr = new StreamReader(stream))
+                            {
+                                responseString = sr.ReadToEnd();
+                            }
+                        }
+                    }
+                    if (responseString == null)
+                    {
+                        throw new WebException(response.StatusDescription);
+                    }
+                }
+            }
+            catch (WebException we)
+            {
+                Trace.WriteLine(we.Message);
+                return null;
+            }
+
+            return Json.Decode(responseString);
+        }
+
 
         private static dynamic NextMusicServiceResults(dynamic last, MusicService service, IPrincipal principal = null)
         {

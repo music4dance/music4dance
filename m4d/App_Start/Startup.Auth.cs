@@ -124,6 +124,8 @@ namespace m4d
             };
             sp.Scope.Add("user-read-email");
             sp.Scope.Add("playlist-modify-public");
+            sp.Scope.Add("playlist-read-private");
+            sp.Scope.Add("playlist-read-collaborative");
             app.UseSpotifyAuthentication(sp);
         }
     }

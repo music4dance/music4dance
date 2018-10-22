@@ -25,6 +25,29 @@ namespace m4dModels
         public DateTime? Updated { get; set; }
         public bool Deleted { get; set; }
 
+        public string Data1Name => GetData1Name(Type);
+
+        public static string GetData1Name(PlayListType type)
+        {
+            switch (type)
+            {
+                case PlayListType.SongsFromSpotify: return "Tags";
+                case PlayListType.SpotifyFromSearch: return "Search";
+                default: return "Data1";
+            }
+        }
+
+        public string Data2Name => GetData2Name(Type);
+
+        public static string GetData2Name(PlayListType type)
+        {
+            switch (type)
+            {
+                case PlayListType.SongsFromSpotify: return "SongIds";
+                default: return "Data2";
+            }
+        }
+
         /* SongsFromSpotify: The following members are valid when Type == SongsFromSpotify */
 
         [NotMapped]
@@ -40,6 +63,7 @@ namespace m4dModels
             get => Data2;
             set => Data2 = value;
         }
+
         public IEnumerable<string> SongIdList => string.IsNullOrEmpty(SongIds)
             ? null
             : SongIds.Split(new[] { '|' }, StringSplitOptions.RemoveEmptyEntries);
@@ -62,6 +86,21 @@ namespace m4dModels
             Updated = DateTime.Now;
             return true;
         }
+
+        /* SpotifyFromSearch: The following members are valid when Type == SpotifyFromSearch */
+        [NotMapped]
+        public string Search
+        {
+            get => Data1;
+            set => Data1 = value;
+        }
+
+        [NotMapped]
+        public int Count
+        {
+            get => int.TryParse(Data2, out var c) ? c : -1;
+            set => Data2 = value.ToString();
+        }
     }
 
 
@@ -70,6 +109,24 @@ namespace m4dModels
         public string Name { get; set; }
         public string Description { get; set; }
         public IList<ServiceTrack> Tracks { get; set; }
+    }
 
+    public class PlaylistMetadata
+    {
+        public string Id { get; set; }
+        public string Name { get; set; }
+    }
+
+    public class PlayListIndex
+    {
+        public PlayListType Type;
+        public List<PlayList> PlayLists;
+
+        public string Data1Name => PlayList.GetData1Name(Type);
+        public string Data2Name => PlayList.GetData2Name(Type);
+
+        public bool HasData1 => !string.Equals(Data1Name, "Data1");
+
+        public bool HasData2 => !string.Equals(Data2Name, "Data2");
     }
 }

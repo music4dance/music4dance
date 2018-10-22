@@ -154,7 +154,7 @@ namespace m4d.Controllers
 
             var newRoles = roles == null ? new List<string>() : new List<string>(roles);
 
-            foreach (var role in Context.Roles)
+            foreach (var role in Context.Roles.ToList())
             {
                 // New Role
                 if (newRoles.Contains(role.Name))

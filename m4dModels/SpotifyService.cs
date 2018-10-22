@@ -74,7 +74,7 @@ namespace m4dModels
 
             foreach (var track in items)
             {
-                dynamic trackT = track;
+                var trackT = track;
                 try
                 {
                     if (track.track != null)

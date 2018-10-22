@@ -64,6 +64,11 @@ else
             <b>Raw Search: </b>@WebUtility.UrlDecode(ViewBag.RawSearch.ToString())<br />
         </div>
     </div>
+    <div class="row">
+        <div class="col-md-12">
+            <b>m4d Search: </b>@WebUtility.UrlDecode(filter.ToString())<br />
+        </div>
+    </div>
 }
 
 @if (User.IsInRole("showDiagnostics") && filter.IsRaw)
@@ -77,7 +82,7 @@ else
 
 @if (User.IsInRole("dbAdmin"))
 {
-    <hr/>
+    <hr />
     using (Html.BeginForm("BatchAdminEdit", "Song", FormMethod.Post, new { enctype = "multipart/form-data" }))
     {
         @Html.AntiForgeryToken();
@@ -88,7 +93,7 @@ else
         <input type="submit" name="BatchAdminEdit" id="Submit" value="Upload" />
     }
 
-    <hr/>
+    <hr />
     using (Html.BeginForm("BatchAdminModify", "Song", FormMethod.Post, new { enctype = "multipart/form-data" }))
     {
         @Html.AntiForgeryToken();
