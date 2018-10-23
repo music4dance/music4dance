@@ -1,10 +1,6 @@
 ﻿/* TODONEXT: 
- *  Get Update/UpdateAll working for SpotifyFromSeach
- *  Test BulkCreate/UpdateAll
- *  Make Load/Backup handle both types
- *  Make the M4D spotify account an admin
- *  (semi) Manually create the dances playlists
- *  Implement Update for SpotifyFromSearch
+ *  Figure out how to get spotify user id
+ *  Test BulkCreate/UpdateAll for SpotifyFromSearch
  */
 
 using System;
@@ -239,6 +235,8 @@ namespace m4d.Controllers
                 playlist.User = User.Identity.Name;
             }
 
+            Database.SaveChanges();
+
             return View("Index", GetIndex(PlayListType.SpotifyFromSearch));
         }
 
@@ -305,7 +303,7 @@ namespace m4d.Controllers
                 if (sr.Count != playlist.Count) return false;
 
                 var tracks = sr.Songs.Select(s => s.GetPurchaseId(ServiceType.Spotify));
-                return (MusicServiceManager.SetPlaylistTracks(MusicService.GetService(ServiceType.Spotify), User, playlist.Id, tracks))
+                return MusicServiceManager.SetPlaylistTracks(MusicService.GetService(ServiceType.Spotify), User, playlist.Id, tracks);
             }
             catch (Exception e)
             {

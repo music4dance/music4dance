@@ -1543,15 +1543,19 @@ namespace m4dModels
                 var created = now;
                 DateTime? modified = null;
                 var deleted = false;
-                string songIds = null;
-                string tags;
+                string data2 = null;
+                string data1;
                 string id;
                 var type = PlayListType.SongsFromSpotify;
+
+                if (cells.Length < 3) continue;
 
                 // m4dId
                 var userId = cells[0];
 
-                if (cells.Length == 3)
+
+                // This is a special case for SongFromSpotify [m4did,DanceTags,url]
+                if (cells.Length == 3 && type == PlayListType.SongsFromSpotify)
                 {
                     var r = new Regex(@"https://open.spotify.com/user/(?<user>[a-z0-9]*)/playlist/(?<id>[a-z0-9]*)",
                         RegexOptions.IgnoreCase, TimeSpan.FromSeconds(5));
@@ -1562,17 +1566,21 @@ namespace m4dModels
                     var email = m.Groups["user"].Value;
 
                     FindOrAddUser(userId, PseudoRole, email + "@spotify.com");
-                    tags = cells[1];
+                    data1 = cells[1];
                 }
                 else
                 {
                     if (cells.Length < 4) continue;
 
                     // Type
-                    Enum.TryParse(cells[1], out type);
+                    // TODO: Once this is published to the server, we can get rid of this check for legacy type "Spotify"
+                    if (!string.Equals(cells[1], "Spotify"))
+                    {
+                        Enum.TryParse(cells[1], out type);
+                    }
 
                     // Dance/tags
-                    tags = cells[2];
+                    data1 = cells[2];
 
                     // Spotify Playlist Id
                     id = cells[3];
@@ -1580,7 +1588,7 @@ namespace m4dModels
                     if (cells.Length > 4) DateTime.TryParse(cells[4], out created);
                     if (cells.Length > 5 && DateTime.TryParse(cells[5], out var mod)) modified = mod;
                     if (cells.Length > 6) bool.TryParse(cells[6], out deleted);
-                    if (cells.Length > 7) songIds = cells[7];
+                    if (cells.Length > 7) data2 = cells[7];
                 }
 
                 var playlist = PlayLists.Find(id);
@@ -1589,12 +1597,12 @@ namespace m4dModels
 
                 playlist.Id = id;
                 playlist.Type = type;
-                playlist.Data1 = tags;
+                playlist.Data1 = data1;
                 playlist.User = userId;
                 playlist.Created = created;
                 playlist.Updated = modified;
                 playlist.Deleted = deleted;
-                playlist.Data2 = songIds;
+                playlist.Data2 = data2;
 
                 if (isNew) PlayLists.Add(playlist);
             }
