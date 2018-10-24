@@ -9,7 +9,6 @@ using System.Runtime.Serialization.Json;
 using System.Security.Principal;
 using System.Text;
 using System.Threading;
-using System.Web;
 using m4dModels;
 
 namespace m4d.Utilities
@@ -114,12 +113,30 @@ namespace m4d.Utilities
             }
         }
 
+        protected virtual string GetServiceId(IPrincipal principal)
+        {
+            throw new NotImplementedException();
+        }
+
         public void Dispose()
         {
             AccessTokenRenewer.Dispose();
         }
 
         public static string GetServiceAuthorization(ServiceType serviceType, IPrincipal principal = null)
+        {
+            return SetupService(serviceType, principal).GetAccessString();
+        }
+
+        public static string GetServiceId(ServiceType serviceType, IPrincipal principal)
+        {
+            if (serviceType != ServiceType.Spotify)
+                throw new ArgumentOutOfRangeException(nameof(serviceType), "Currently only Spotify is supported.");
+
+            return SetupService(serviceType, principal).GetServiceId(principal);
+        }
+
+        private static AdmAuthentication SetupService(ServiceType serviceType, IPrincipal principal = null)
         {
             AdmAuthentication auth = null;
 
@@ -128,7 +145,7 @@ namespace m4d.Utilities
                 var userName = principal.Identity.Name;
                 if (s_users.TryGetValue(userName, out auth))
                 {
-                    return auth.GetAccessString();
+                    return auth;
                 }
 
                 if (serviceType == ServiceType.Spotify)
@@ -137,7 +154,7 @@ namespace m4d.Utilities
                     if (auth != null)
                     {
                         s_users[userName] = auth;
-                        return auth.GetAccessString();
+                        return auth;
                     }
                 }
             }
@@ -152,7 +169,7 @@ namespace m4d.Utilities
                     break;
             }
 
-            return auth?.GetAccessString();
+            return auth;
         }
 
         private static AdmAuthentication s_xbox;

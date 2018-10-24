@@ -1,5 +1,5 @@
 ﻿/* TODONEXT: 
- *  Figure out how to get spotify user id
+ *  Figure out why create playlist is returning 400 (bad request)
  *  Test BulkCreate/UpdateAll for SpotifyFromSearch
  */
 

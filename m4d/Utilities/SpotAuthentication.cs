@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Linq;
 using System.Security.Claims;
 using System.Security.Principal;
 using System.Threading;
@@ -13,6 +14,16 @@ namespace m4d.Utilities
 
         protected override string RequestFormat => "grant_type=client_credentials&client_id={0}&client_secret={1}";
         protected override string RequestUrl => "https://accounts.spotify.com/api/token";
+
+        protected override string GetServiceId(IPrincipal principal)
+        {
+            if (!(principal is ClaimsPrincipal claimsPrincipal)) return null;
+
+            var idClaim = claimsPrincipal.Claims.FirstOrDefault(c => c.Type == "urn:spotify:id");
+
+            return idClaim?.Value;
+        }
+
     }
 
     public class SpotUserAuthentication : SpotAuthentication

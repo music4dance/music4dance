@@ -258,7 +258,10 @@ namespace m4d.Utilities
         // TODO: Handle services other than spotify
         public PlaylistMetadata CreatePlaylist(MusicService service, IPrincipal principal, string name, string description)
         {
-            var response = MusicServiceAction($"https://api.spotify.com/v1/users/me/playlists", $"{{'name':'{name}','description':'{description}'}}", WebRequestMethods.Http.Post, service, principal );
+            var id = AdmAuthentication.GetServiceId(service.Id, principal);
+            if (id == null) throw new ArgumentException(nameof(principal), "Principal must have a valid id");
+
+            var response = MusicServiceAction($"https://api.spotify.com/v1/users/{id}/playlists", $"{{'name':'{name}','description':'{description}'}}", WebRequestMethods.Http.Post, service, principal );
 
             if (response == null) return null;
 
