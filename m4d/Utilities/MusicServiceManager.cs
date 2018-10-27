@@ -258,10 +258,7 @@ namespace m4d.Utilities
         // TODO: Handle services other than spotify
         public PlaylistMetadata CreatePlaylist(MusicService service, IPrincipal principal, string name, string description)
         {
-            var id = AdmAuthentication.GetServiceId(service.Id, principal);
-            if (id == null) throw new ArgumentException(nameof(principal), "Principal must have a valid id");
-
-            var response = MusicServiceAction($"https://api.spotify.com/v1/users/{id}/playlists", $"{{'name':'{name}','description':'{description}'}}", WebRequestMethods.Http.Post, service, principal );
+            var response = MusicServiceAction("https://api.spotify.com/v1/me/playlists", $"{{\"name\":\"{name}\",\"description\":\"{description}\"}}", WebRequestMethods.Http.Post, service, principal );
 
             if (response == null) return null;
 
@@ -274,10 +271,10 @@ namespace m4d.Utilities
 
         public bool SetPlaylistTracks(MusicService service, IPrincipal principal, string id, IEnumerable<string> tracks)
         {
-            var tracklist = string.Join(",", tracks.Select(t => $"'spotify:track:{t}"));
-            var response = MusicServiceAction($"https://api.spotify.com/v1/playlists/{id}/tracks", $"[{tracklist}]", WebRequestMethods.Http.Put, service, principal);
+            var tracklist = string.Join(",", tracks.Select(t => $"\"spotify:track:{t}\""));
+            var response = MusicServiceAction($"https://api.spotify.com/v1/playlists/{id}/tracks", $"{{\"uris\":[{tracklist}]}}", WebRequestMethods.Http.Put, service, principal);
 
-            return (response != null && string.Equals("Created", response, StringComparison.OrdinalIgnoreCase));
+            return response != null && response.snapshot_id != null;
         }
 
 
@@ -507,7 +504,7 @@ namespace m4d.Utilities
 
                 using (var response = (HttpWebResponse)req.GetResponse())
                 {
-                    if (response.StatusCode == HttpStatusCode.OK)
+                    if (response.StatusCode == HttpStatusCode.Created)
                     {
                         var stream = response.GetResponseStream();
                         if (stream != null)

@@ -1,13 +1,18 @@
 ﻿/* TODONEXT: 
- *  Figure out why create playlist is returning 400 (bad request)
- *  Test BulkCreate/UpdateAll for SpotifyFromSearch
+ * 
+ * Check update time is getting set on update
+ * Upload new playlists to cloud
+ * Get playlist links working for dance types
+ * 
  */
 
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Net;
+using System.Security.Principal;
 using System.Threading.Tasks;
 using System.Web.Mvc;
 using m4d.Utilities;
@@ -138,10 +143,11 @@ namespace m4d.Controllers
                     "UpdatePlaylist failed to start because there is already an admin task running");
             }
 
+            var user = User;
             // Match songs & update
             Task.Run(() =>
             {
-                var success =  DoUpdate(id, DanceMusicService.GetService(), out var result);
+                var success =  DoUpdate(id, DanceMusicService.GetService(), user,  out var result);
                 AdminMonitor.CompleteTask(success, result);
             });
 
@@ -156,6 +162,8 @@ namespace m4d.Controllers
                 throw new AdminTaskException(
                     "UpdateAllPlayLists failed to start because there is already an admin task running");
             }
+            var user = User;
+
             Task.Run(() =>
             {
                 try
@@ -166,7 +174,7 @@ namespace m4d.Controllers
                     foreach (var id in dms.PlayLists.Where(p => p.Type == type)
                         .Select(p => p.Id).ToList())
                     {
-                        DoUpdate(id, dms, out var result);
+                        DoUpdate(id, dms, user, out var result);
                         AdminMonitor.UpdateTask($"Playlist {id}", i);
                         results.Add(result);
                         i += 1;
@@ -183,18 +191,22 @@ namespace m4d.Controllers
         }
 
         // GET: UpdateAll
+        [SuppressMessage("ReSharper", "InconsistentNaming")]
         public ActionResult BulkCreate(PlayListType type, string flavor = null)
         {
             // Get a list of existing playlists so that we don't add duplicates?
             var spotify = MusicService.GetService(ServiceType.Spotify);
-            var oldS = MusicServiceManager.GetPlaylists(spotify, User).ToDictionary(p => p.Name, p => p);
+            var oldS = MusicServiceManager.GetPlaylists(spotify, User).ToDictionary(p => p.Name, p => new PlaylistMetadata{Id = p.Id, Name= p.Name});
             var oldM = Database.PlayLists.Where(p => p.Type == PlayListType.SpotifyFromSearch).ToDictionary(p => p.Name, p => p);
 
             foreach (var ds in Database.DanceStats.List)
             {
                 var dt = ds.DanceType;
                 if (dt == null || ds.SongCountExplicit < 25) continue;
-                if (oldS.ContainsKey(ds.DanceName) || oldM.ContainsKey(ds.DanceName)) continue;
+                if (!oldS.TryGetValue(ds.DanceName, out var metadata)) metadata = null;
+                var m4dExists = oldM.ContainsKey(ds.DanceName);
+
+                if (metadata != null && m4dExists) continue;
 
                 // Build name and description
                 var name = ds.DanceName;
@@ -216,12 +228,18 @@ namespace m4d.Controllers
 
                 Trace.WriteLine($"{name}, {description}, {search}");
 
-                var metadata = MusicServiceManager.CreatePlaylist(spotify, User, name, description);
+                if (metadata == null)
+                {
+                    metadata = MusicServiceManager.CreatePlaylist(spotify, User, name, description);
+                }
+
                 if (metadata == null)
                 {
                     Trace.WriteLine($"Unable to create playlist {name}");
                     continue;
                 }
+
+                if (m4dExists) continue;
 
                 var playlist = Database.PlayLists.Create();
                 playlist.Type = PlayListType.SpotifyFromSearch;
@@ -233,6 +251,8 @@ namespace m4d.Controllers
                 playlist.Created = DateTime.Now;
                 playlist.Updated = DateTime.Now;
                 playlist.User = User.Identity.Name;
+
+                Database.PlayLists.Add(playlist);
             }
 
             Database.SaveChanges();
@@ -240,7 +260,7 @@ namespace m4d.Controllers
             return View("Index", GetIndex(PlayListType.SpotifyFromSearch));
         }
 
-        private bool DoUpdate(string id, DanceMusicService dms, out string result)
+        private bool DoUpdate(string id, DanceMusicService dms, IPrincipal principal, out string result)
         {
             var playlist = SafeLoadPlaylist(id, dms);
             switch (playlist.Type)
@@ -248,7 +268,7 @@ namespace m4d.Controllers
                 case PlayListType.SongsFromSpotify:
                     return UpdateSongsFromSpotify(playlist, dms, out result);
                 case PlayListType.SpotifyFromSearch:
-                    return UpdateSpotifyFromSearch(playlist, dms, out result);
+                    return UpdateSpotifyFromSearch(playlist, dms, principal, out result);
                 default:
                     result = $"Playlist {id} unsupport type - {playlist.Type}";
                     return false;
@@ -294,16 +314,21 @@ namespace m4d.Controllers
             }
         }
 
-        private bool UpdateSpotifyFromSearch(PlayList playlist, DanceMusicService dms, out string result)
+        private bool UpdateSpotifyFromSearch(PlayList playlist, DanceMusicService dms, IPrincipal principal, out string result)
         {
             result = string.Empty;
             try
             {
-                var sr = Database.AzureSearch(new SongFilter(playlist.Search), playlist.Count);
+                var spotify = MusicService.GetService(ServiceType.Spotify);
+                var filter = new SongFilter(playlist.Search)
+                {
+                    Purchase = spotify.CID.ToString()
+                };
+                var sr = dms.AzureSearch(filter, playlist.Count);
                 if (sr.Count != playlist.Count) return false;
 
                 var tracks = sr.Songs.Select(s => s.GetPurchaseId(ServiceType.Spotify));
-                return MusicServiceManager.SetPlaylistTracks(MusicService.GetService(ServiceType.Spotify), User, playlist.Id, tracks);
+                return MusicServiceManager.SetPlaylistTracks(spotify, principal, playlist.Id, tracks);
             }
             catch (Exception e)
             {
