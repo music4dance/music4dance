@@ -33,6 +33,14 @@ namespace m4dModels
             }
             Map = List.ToDictionary(ds => ds.DanceId);
 
+            Dictionary<string, PlaylistMetadata> playlists = null;
+            if (dms != null)
+            {
+                playlists = dms.PlayLists.Where(p => p.Type == PlayListType.SpotifyFromSearch)
+                    .Select(p => new PlaylistMetadata {Id = p.Id, Name = p.Name}).
+                    ToDictionary(m => m.Name, m => m);
+            }
+
             var newDances = new List<string>();
             foreach (var ds in List)
             {
@@ -54,9 +62,14 @@ namespace m4dModels
                     if (dr != null) ds.MaxWeight = dr.Weight;
 
                     // SongTags
-                    ds.SongTags = (results.FacetResults == null)
+                    ds.SongTags = results.FacetResults == null
                         ? new TagSummary()
                         : new TagSummary(results.FacetResults, TagManager.TagMap);
+
+                    if (playlists.TryGetValue(ds.DanceName, out var metadata))
+                    {
+                        ds.SpotifyPlaylist = metadata.Id;
+                    }
                 }
                 else
                 {

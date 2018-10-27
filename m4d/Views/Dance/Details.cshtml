@@ -24,7 +24,6 @@
         description = md.Transform(description);
     }
 
-    var topSpotify = @DanceMusicService.PurchaseLinksToInfo(@Model.TopSpotify, User.Region());
     var tags = Model.AggregateSongTags?.Tags;
 
     DanceStatsInstance stats = ViewBag.DanceStats;
@@ -35,7 +34,7 @@
 <ol class="breadcrumb">
     <li><a href="/">Music4Dance</a></li>
     <li><a href="/dances">Dances</a></li>
-    @if (@Model.Parent != null && @Model.Parent.DanceId != "All")
+    @if (Model.Parent != null && Model.Parent.DanceId != "All")
     {
     <li><a href="/dances/@Model.Parent.SeoName">@Model.Parent.DanceName</a></li>
     }
@@ -52,30 +51,33 @@
         </div>
         @if (Model.Parent != null && Model.DanceObject.Meter.Numerator != 1)
         {
-        <a href="#tempo-info" class="list-group-item">Tempo Info</a>
+            <a href="#tempo-info" class="list-group-item">Tempo Info</a>
         }
         @if (Model.TopSongs.Any())
         {
-        <a href="#top-ten" class="list-group-item">Top Ten Songs</a>
-        <a href="#spotify-player" class="list-group-item">Spotify Player</a>
+            <a href="#top-ten" class="list-group-item">Top Ten Songs</a>
+        }
+        @if (!string.IsNullOrWhiteSpace(Model.SpotifyPlaylist))
+        {
+            <a href="#spotify-player" class="list-group-item">Spotify Player</a>
         }
         @if (Model.Parent == null)
         {
-        <a href="#dance-styles" class="list-group-item">Dance Styles</a>
+            <a href="#dance-styles" class="list-group-item">Dance Styles</a>
         }
         @if (Model.DanceLinks != null && Model.DanceLinks.Count > 0)
         {
-        <a href="#references" class="list-group-item">References</a>
+            <a href="#references" class="list-group-item">References</a>
         }
-        @Html.ActionLink("All " + @Model.DanceName + " Songs", "index", "song", new { filter = @danceFilter }, new {@class="list-group-item"})
+        @Html.ActionLink("All " + @Model.DanceName + " Songs", "index", "song", new { filter = @danceFilter }, new { @class = "list-group-item" })
         @if (tags?.Count > 0)
         {
-        <a href="#tags" class="list-group-item">Tags</a>
+            <a href="#tags" class="list-group-item">Tags</a>
         }
         @if (!string.IsNullOrWhiteSpace(Model.BlogTag))
         {
-        var blogref = string.Format("https://www.music4dance.net/blog/tag/{0}/", Model.BlogTag);
-        <a href="@blogref" class="list-group-item">Blog</a>
+            var blogref = string.Format("https://www.music4dance.net/blog/tag/{0}/", Model.BlogTag);
+            <a href="@blogref" class="list-group-item">Blog</a>
         }
     </div>
         <div class="col-sm-8 col-sm-pull-3">
@@ -121,10 +123,13 @@
     </section>
 
 
-    <section id="spotify-player">
-        Spotify has deprecated the feature that we were using to display the player, we are working on a solution and hope to have a replacement working soon.
-        @*<iframe src="https://open.spotify.com/embed?uri=spotify:trackset:@Model.DanceName:@topSpotify" frameborder="0" allowtransparency="true" allow="encrypted-media"></iframe>*@
-    </section>
+    if (!string.IsNullOrWhiteSpace(Model.SpotifyPlaylist))
+    {
+        <section id="spotify-player">
+            @*Spotify has deprecated the feature that we were using to display the player, we are working on a solution and hope to have a replacement working soon.*@
+            <iframe src="https://open.spotify.com/embed/user/ebo1rk39vp51kkyjps45eobph/playlist/@Model.SpotifyPlaylist" frameborder="0" width="300" height="80" allowtransparency="true" allow="encrypted-media" allow="encrypted-media"></iframe>
+        </section>
+    }
 
     <div>
         <p class="big-text">@Html.ActionLink("Browse", "index", "song", new { filter = @danceFilter }, null) all <b>@Model.SongCount</b> @Model.DanceName songs in the music4dance @Html.ActionLink("catalog", "index", "song" , new {filter=@defaultFilter}, null).</p>

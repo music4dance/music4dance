@@ -83,15 +83,15 @@
         </td>
         @if (Model.HasData1)
         {
-            <td>
-                @Html.DisplayFor(modelItem => item.Data1)
-            </td>
+        <td>
+            @(string.IsNullOrEmpty(item.Data1) ? "" : item.Data1.Substring(0, Math.Min(item.Data1.Length,50)))
+        </td>
         }
         @if (Model.HasData2)
         {
-            <td>
-                @Html.DisplayFor(modelItem => item.Data2)
-            </td>
+        <td>
+            @(string.IsNullOrEmpty(item.Data2) ? "" : item.Data2.Substring(0, Math.Min(item.Data2.Length, 50)))
+        </td>
         }
         <td>
             @Html.DisplayFor(modelItem => item.Created)

@@ -1,8 +1,8 @@
 ﻿/* TODONEXT: 
  * 
- * Check update time is getting set on update
+ * Check update time is getting set on update (should work, but verify)
  * Upload new playlists to cloud
- * Get playlist links working for dance types
+ * Write Blog Post!
  * 
  */
 
@@ -328,13 +328,18 @@ namespace m4d.Controllers
                 if (sr.Count != playlist.Count) return false;
 
                 var tracks = sr.Songs.Select(s => s.GetPurchaseId(ServiceType.Spotify));
-                return MusicServiceManager.SetPlaylistTracks(spotify, principal, playlist.Id, tracks);
+                if (MusicServiceManager.SetPlaylistTracks(spotify, principal, playlist.Id, tracks))
+                {
+                    playlist.Updated = DateTime.Now;
+                    dms.SaveChanges();
+                    return true;
+                }
             }
             catch (Exception e)
             {
                 result = $"UpdateSpotifyFromSearch ({playlist.Id}: Failed={e.Message}";
-                return false;
             }
+            return false;
         }
 
 

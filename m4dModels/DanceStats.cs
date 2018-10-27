@@ -59,8 +59,10 @@ namespace m4dModels
         public int MaxWeight { get; set; }
         [JsonProperty]
         public TagSummary SongTags { get; set; }
+        [JsonProperty]
+        public string SpotifyPlaylist { get; set; }
 
-        public TagSummary AggregateSongTags => (Children == null) ? 
+        public TagSummary AggregateSongTags => Children == null ? 
             SongTags :
             TagAccumulator.MergeSummaries(Children.Select(c => c.SongTags).Concat(Enumerable.Repeat(SongTags,1)));
 
@@ -68,8 +70,6 @@ namespace m4dModels
         public virtual ICollection<DanceLink> DanceLinks { get; set; }
         [JsonProperty]
         public IEnumerable<Song> TopSongs { get; set; }
-
-        public ICollection<ICollection<PurchaseLink>> TopSpotify => DanceMusicService.GetPurchaseLinks(ServiceType.Spotify, TopSongs);
 
         // Structural properties
         public DanceStats Parent { get; set; }
