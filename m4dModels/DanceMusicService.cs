@@ -1546,6 +1546,9 @@ namespace m4dModels
                 string data2 = null;
                 string data1;
                 string id;
+                string name = null;
+                string description = null;
+
                 var type = PlayListType.SongsFromSpotify;
 
                 if (cells.Length < 3) continue;
@@ -1589,6 +1592,8 @@ namespace m4dModels
                     if (cells.Length > 5 && DateTime.TryParse(cells[5], out var mod)) modified = mod;
                     if (cells.Length > 6) bool.TryParse(cells[6], out deleted);
                     if (cells.Length > 7) data2 = cells[7];
+                    if (cells.Length > 8) name = cells[8];
+                    if (cells.Length > 9) description = cells[8];
                 }
 
                 var playlist = PlayLists.Find(id);
@@ -1603,6 +1608,8 @@ namespace m4dModels
                 playlist.Updated = modified;
                 playlist.Deleted = deleted;
                 playlist.Data2 = data2;
+                playlist.Name = name;
+                playlist.Description = description;
 
                 if (isNew) PlayLists.Add(playlist);
             }
@@ -1871,7 +1878,7 @@ namespace m4dModels
             var lines = new List<string>();
             foreach (var p in playlists)
             {
-                lines.Add($"{p.User}\t{p.Type}\t{p.Data1}\t{p.Id}\t{p.Created}\t{p.Updated}\t{p.Deleted}\t{p.Data2}");
+                lines.Add($"{p.User}\t{p.Type}\t{p.Data1}\t{p.Id}\t{p.Created}\t{p.Updated}\t{p.Deleted}\t{p.Data2}\t{p.Name}\t{p.Description}");
             }
 
             if (withHeader && lines.Count > 0)

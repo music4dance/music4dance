@@ -197,13 +197,13 @@ namespace m4d.Controllers
             // Get a list of existing playlists so that we don't add duplicates?
             var spotify = MusicService.GetService(ServiceType.Spotify);
             var oldS = MusicServiceManager.GetPlaylists(spotify, User).ToDictionary(p => p.Name, p => new PlaylistMetadata{Id = p.Id, Name= p.Name});
-            var oldM = Database.PlayLists.Where(p => p.Type == PlayListType.SpotifyFromSearch).ToDictionary(p => p.Name, p => p);
+            var oldM = Database.PlayLists.Where(p => p.Type == PlayListType.SpotifyFromSearch).Where(p => p.Name != null).ToDictionary(p => p.Name, p => p);
 
             foreach (var ds in Database.DanceStats.List)
             {
                 var dt = ds.DanceType;
                 if (dt == null || ds.SongCountExplicit < 25) continue;
-                if (!oldS.TryGetValue(ds.DanceName, out var metadata)) metadata = null;
+                oldS.TryGetValue(ds.DanceName, out var metadata);
                 var m4dExists = oldM.ContainsKey(ds.DanceName);
 
                 if (metadata != null && m4dExists) continue;
@@ -241,7 +241,15 @@ namespace m4d.Controllers
 
                 if (m4dExists) continue;
 
-                var playlist = Database.PlayLists.Create();
+                var playlist = Database.PlayLists.Find(metadata.Id);
+                var exists = playlist != null;
+
+                if (!exists)
+                {
+                    playlist = Database.PlayLists.Create();
+                    Database.PlayLists.Add(playlist);
+                }
+
                 playlist.Type = PlayListType.SpotifyFromSearch;
                 playlist.Id = metadata.Id;
                 playlist.Name = name;
@@ -251,8 +259,6 @@ namespace m4d.Controllers
                 playlist.Created = DateTime.Now;
                 playlist.Updated = DateTime.Now;
                 playlist.User = User.Identity.Name;
-
-                Database.PlayLists.Add(playlist);
             }
 
             Database.SaveChanges();

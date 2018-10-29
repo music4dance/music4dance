@@ -37,8 +37,9 @@ namespace m4dModels
             if (dms != null)
             {
                 playlists = dms.PlayLists.Where(p => p.Type == PlayListType.SpotifyFromSearch)
-                    .Select(p => new PlaylistMetadata {Id = p.Id, Name = p.Name}).
-                    ToDictionary(m => m.Name, m => m);
+                    .Where(p => p.Name != null)
+                    .Select(p => new PlaylistMetadata {Id = p.Id, Name = p.Name})
+                    .ToDictionary(m => m.Name, m => m);
             }
 
             var newDances = new List<string>();
