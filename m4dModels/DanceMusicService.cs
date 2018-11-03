@@ -100,7 +100,7 @@ namespace m4dModels
         public static readonly string BetaRole = "beta";
         public static readonly string TrialRole = "trial";
 
-        public static readonly string[] Roles = { DiagRole, EditRole, DbaRole, TagRole, PremiumRole, TrialRole, PremiumRole };
+        public static readonly string[] Roles = { DiagRole, EditRole, DbaRole, TagRole, PremiumRole, TrialRole, BetaRole };
 
         #endregion
 

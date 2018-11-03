@@ -125,7 +125,7 @@ namespace m4d.Utilities
 
         public static string GetServiceAuthorization(ServiceType serviceType, IPrincipal principal = null)
         {
-            return SetupService(serviceType, principal).GetAccessString();
+            return SetupService(serviceType, principal)?.GetAccessString();
         }
 
         public static string GetServiceId(ServiceType serviceType, IPrincipal principal)
