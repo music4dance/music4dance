@@ -39,21 +39,7 @@ namespace m4d.Controllers
 
             if (string.Equals(dance, "holiday-music", StringComparison.OrdinalIgnoreCase))
             {
-                HelpPage = "dance-styles";
-
-                var filter = new SongFilter(
-                    new RawSearch
-                        {ODataFilter = "(OtherTags/any(t: t eq 'holiday') or GenreTags/any(t: t eq 'christmas' or t eq 'holiday'))"}
-                    );
-
-                var p = Database.AzureParmsFromFilter(filter, 1000);
-                p.IncludeTotalResultCount = true;
-
-                ViewBag.RawSearch = p;
-
-                var results = Database.AzureSearch(filter.SearchString, p, DanceMusicService.CruftFilter.NoCruft, "default", stats);
-
-                return View("holidaydancemusic", results.Songs);
+                return RedirectToActionPermanent("HolidayMusic", "Song");
             }
 
             var category = CompetitionCategory.GetCategory(dance);

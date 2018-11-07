@@ -1,6 +1,8 @@
-﻿@model IEnumerable<Song>
+﻿@model PagedList.IPagedList<Song>
 
 @{
+    SongFilter filter = ViewData.ContainsKey("SongFilter") ? ViewBag.SongFilter : SongFilter.AzureSimple;
+
     ViewBag.Title = "Holiday Dance Music";
     ViewBag.Description = "Help finding holdiay dance music for partner dancing - Foxtrot, Waltz, Swing and others.";
 }
@@ -16,7 +18,7 @@
 
 @{Html.RenderPartial("_ListSongs", Model, ViewData);}
 
-<p>@Model.Count() songs.</p>
+@SongHelper.Footer(Html, Url, Model, filter, true)
 
 <div class="row">
     <div class="col-sm-10 col-sm-offset-1">
@@ -25,3 +27,18 @@
         </p>
     </div>
 </div>
+
+@section Scripts
+{
+    @Scripts.Render("~/bundles/jqueryval")
+    @Scripts.Render("~/bundles/jqueryautocomplete")
+    @Scripts.Render("~/bundles/knockout")
+    @Scripts.Render("~/bundles/knockout-mapping")
+    @Scripts.Render("~/bundles/tools-script")
+    @Scripts.Render("~/bundles/musicservice")
+    @Scripts.Render("~/bundles/tagchooser")
+    @Scripts.Render("~/bundles/catalog")
+    @Scripts.Render("~/bundles/azuresearch")
+
+    @Styles.Render("~/bundles/tools-style")
+}

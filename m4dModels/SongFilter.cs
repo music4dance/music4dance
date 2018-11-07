@@ -119,6 +119,12 @@ namespace m4dModels
             Level = raw.CruftFilter == DanceMusicService.CruftFilter.NoCruft ? null : (int?) raw.CruftFilter;
         }
 
+        public SongFilter(string action, RawSearch raw) : this(raw)
+        {
+            Action = action;
+        }
+
+
         public string Action {
             get => _action ?? "index";
             set => _action = value;
@@ -140,7 +146,7 @@ namespace m4dModels
 
         public bool DescriptionOverride => IsRaw && !string.IsNullOrWhiteSpace(Purchase);
 
-        public DanceQuery DanceQuery => new DanceQuery(Dances);
+        public DanceQuery DanceQuery => new DanceQuery(IsRaw ? null : Dances);
         public UserQuery UserQuery => new UserQuery(User);
         public SongSort SongSort => new SongSort(SortOrder);
 
@@ -233,7 +239,16 @@ namespace m4dModels
             string.Equals(Action,"advanced", StringComparison.OrdinalIgnoreCase) ||
             IsRaw;
         public bool IsLucene => Action.ToLower().Replace(' ', '+').EndsWith("+lucene", StringComparison.OrdinalIgnoreCase);
-        public bool IsRaw => Action.ToLower().Replace(' ', '+').StartsWith("azure+raw", StringComparison.OrdinalIgnoreCase);
+        public bool IsRaw
+        {
+            get
+            {
+                var action = Action.ToLower().Replace(' ', '+');
+                return action.StartsWith("azure+raw", StringComparison.OrdinalIgnoreCase) || 
+                    string.Equals(action,"holidaymusic",StringComparison.OrdinalIgnoreCase);
+            }
+        }
+
         public bool IsAzure => Action.ToLower().StartsWith("azure",StringComparison.OrdinalIgnoreCase);
 
         //public bool Advanced => !string.IsNullOrWhiteSpace(Purchase) ||

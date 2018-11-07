@@ -134,6 +134,22 @@ namespace m4d.Controllers
             return DoAzureSearch(filter,"newmusic");
         }
 
+        [AllowAnonymous]
+        public ActionResult HolidayMusic(int page = 1)
+        {
+            // TODONEXT: Get Dance and Tag filtering either disabled or working
+            var filter = new SongFilter(
+                "holidaymusic",
+                new RawSearch
+                    { ODataFilter = "(OtherTags/any(t: t eq 'holiday') or GenreTags/any(t: t eq 'christmas' or t eq 'holiday'))", Page = page}
+            );
+
+            ViewBag.NoSort = true;
+            ViewBag.ShowDate = true;
+
+            return DoAzureSearch(filter, "holidaymusic");
+        }
+
 
         [AllowAnonymous]
         public ActionResult AzureSearch(string searchString, int page=1, string dances=null, SongFilter filter=null)

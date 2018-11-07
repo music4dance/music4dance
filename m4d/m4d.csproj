@@ -1249,7 +1249,7 @@
     <Content Include="Views\PlayList\Details.cshtml" />
     <Content Include="Views\PlayList\Edit.cshtml" />
     <Content Include="Views\PlayList\Index.cshtml" />
-    <Content Include="Views\Dance\holidaydancemusic.cshtml" />
+    <Content Include="Views\Song\HolidayMusic.cshtml" />
     <Content Include="Views\Manage\DeleteUser.cshtml" />
     <Content Include="Views\Song\NewMusic.cshtml" />
     <Content Include="Views\Home\Index.cshtml" />
