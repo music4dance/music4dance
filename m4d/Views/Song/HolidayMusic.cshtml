@@ -5,6 +5,9 @@
 
     ViewBag.Title = "Holiday Dance Music";
     ViewBag.Description = "Help finding holdiay dance music for partner dancing - Foxtrot, Waltz, Swing and others.";
+
+    DanceStatsInstance stats = ViewBag.Stats;
+    DanceStats currentDance = ViewBag.Dance;
 }
 
 <ol class="breadcrumb">
@@ -14,14 +17,39 @@
 </ol>
 
 <h1>@ViewBag.Title</h1>
-<p>This page includes a list of all of the Ballroom and other partner dance music on the site that has been tagged as "Holiday" or "Christmas" music.</p>
+@if (currentDance == null)
+{
+    <p class="big-text">This page includes a list of all of the Ballroom and other partner dance music on the site that has been tagged as "Holiday" or "Christmas" music.</p>
+}
+else
+{
+    <p class="big-text">This page includes a list of all of @Html.ActionLink(currentDance.DanceName, currentDance.DanceObject.CleanName, "dances") music on the site that has been tagged as "Holiday" or "Christmas" music.  To see all of the holiday music on the site click @Html.ActionLink("here", "HolidayMusic")</p>
+}
+
 
 @{Html.RenderPartial("_ListSongs", Model, ViewData);}
 
 @SongHelper.Footer(Html, Url, Model, filter, true)
 
+<div style="height:10px"></div>
+
 <div class="row">
-    <div class="col-sm-10 col-sm-offset-1">
+    <div class="col-sm-12">
+        <p class="big-text">Choose a dance style to filter the holiday music to just that style: </p>
+        <div width="100%">
+            @foreach (var dance in stats.List.Where(d => d.SongCountExplicit > 10))
+            {
+            <span style="line-height: 5">@Html.ActionLink(dance.DanceName, "HolidayMusic", "Song", new { dance = dance.DanceName }, new { @class = "label tag-label label-music big-text" })</span>
+            }
+        </div>
+    </div>
+</div>
+
+
+<div style="height:10px"></div>
+
+<div class="row">
+    <div class="col-sm-10">
         <p class="big-text">
             <img src="~/Content/info.png" alt="tools" width="24" height="24" />Read the <a href="https://www.music4dance.net/blog">music4dance blog</a> entries about <a href="https://www.music4dance.net/blog/tag/holiday">Holiday Music</a>.
         </p>

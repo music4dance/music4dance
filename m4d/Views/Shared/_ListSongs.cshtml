@@ -427,10 +427,15 @@
                                 }
                                 var urlFiltered = string.Empty;
                                 var urlDance = string.Empty;
-                                var baseUrl = "/song/search?dances=";
-                                var url = baseUrl + ditem.DanceId + "&filter=" + new SongFilter { Action = filter.Action, SortOrder = filter.SortOrder };
+                                const string baseUrl = "/song/search?dances=";
+                                var url = baseUrl + ditem.DanceId;
 
-                                if (!filter.IsEmptyPaged && !hasDance)
+                                if (!filter.IsRaw)
+                                {
+                                    url += "&filter=" + new SongFilter { Action = filter.Action, SortOrder = filter.SortOrder };
+                                }
+
+                                if (!filter.IsRaw && !filter.IsEmptyPaged && !hasDance)
                                 {
                                     var dq = danceQuery.AddDance(ditem.DanceId);
                                     if (isExclusive)

@@ -135,17 +135,25 @@ namespace m4d.Controllers
         }
 
         [AllowAnonymous]
-        public ActionResult HolidayMusic(int page = 1)
+        public ActionResult HolidayMusic(string dance = null, int page = 1)
         {
-            // TODONEXT: Get Dance and Tag filtering either disabled or working
+            // TODONEXT: Test, Handle dances with 0 holiday songs (message to ask for help), add dance to breadcrumbs
+            const string holidayFilter =
+                "(OtherTags/any(t: t eq 'holiday') or GenreTags/any(t: t eq 'christmas' or t eq 'holiday'))";
+
+            var odata = string.IsNullOrWhiteSpace(dance) ? holidayFilter : $"DanceTags/any(t: t eq '{dance.ToLower()}') and {holidayFilter}";
+
             var filter = new SongFilter(
                 "holidaymusic",
                 new RawSearch
-                    { ODataFilter = "(OtherTags/any(t: t eq 'holiday') or GenreTags/any(t: t eq 'christmas' or t eq 'holiday'))", Page = page}
+                    { ODataFilter = odata, Page = page}
             );
 
             ViewBag.NoSort = true;
             ViewBag.ShowDate = true;
+
+            ViewBag.Stats = Database.DanceStats;
+            ViewBag.Dance = string.IsNullOrWhiteSpace(dance) ? null : Database.DanceStats.FromName(dance);
 
             return DoAzureSearch(filter, "holidaymusic");
         }

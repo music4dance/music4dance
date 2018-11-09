@@ -25,7 +25,7 @@
     string danceName = null;
     string urlDance = null;
     string urlFiltered = null;
-    if (filter != null)
+    if (filter != null && !filter.IsRaw)
     {
         var dq = filter.DanceQuery;
         var dances = dq.Dances.ToList();
