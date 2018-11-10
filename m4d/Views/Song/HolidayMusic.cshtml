@@ -10,10 +10,26 @@
     DanceStats currentDance = ViewBag.Dance;
 }
 
+@helper HowToHelp(DanceStats dance)
+{
+    <ul>
+        <li>Sign up for our @Html.ActionLink("add song beta", "augment") and add holiday songs.</li>
+        <li>Browse our catalog of @Html.ActionLink(dance.DanceName, dance.DanceObject.CleanName, "dances") music and <a href="">tag</a> songs as Holiday when you find them.</li>
+        <li>If you have a list of holdiay @dance.DanceName that you are willing to share, please send us email at <a href="mailto:info@music4dance.net">info@music4dance.net</a> or contact us through our <a href="https://www.music4dance.net/blog/feedback/">feedback form.</a></li>
+    </ul>
+}
+
 <ol class="breadcrumb">
     <li><a href="/">Music4Dance</a></li>
-    <li><a href="/dances">Dances</a></li>
-    <li class="active">Holiday Music</li>
+    @if (currentDance == null)
+    {
+        <li class="active">Holiday Music</li>
+    }
+    else
+    {
+        <li><a href="/song/holidaymusic">Holiday Music</a></li>
+        <li class="active">@currentDance.DanceName</li>
+    }
 </ol>
 
 <h1>@ViewBag.Title</h1>
@@ -21,17 +37,35 @@
 {
     <p class="big-text">This page includes a list of all of the Ballroom and other partner dance music on the site that has been tagged as "Holiday" or "Christmas" music.</p>
 }
+else if (Model.Count > 0)
+{
+    <p class="big-text">This page includes a list of all of @Html.ActionLink(currentDance.DanceName, currentDance.DanceObject.CleanName, "dances") music on the site that has been tagged as "Holiday" or "Christmas" music. To see all of the holiday music on the site click @Html.ActionLink("here", "HolidayMusic")</p>
+}
 else
 {
-    <p class="big-text">This page includes a list of all of @Html.ActionLink(currentDance.DanceName, currentDance.DanceObject.CleanName, "dances") music on the site that has been tagged as "Holiday" or "Christmas" music.  To see all of the holiday music on the site click @Html.ActionLink("here", "HolidayMusic")</p>
+    <p class="big-text">We haven't cataloged any @currentDance.DanceName holiday music yet.  If this is a dance that you're familiar with, here are a couple of ways that you can help.</p>
+    @HowToHelp(currentDance)
 }
 
+@if (Model.Count > 0)
+{
+    Html.RenderPartial("_ListSongs", Model, ViewData);
 
-@{Html.RenderPartial("_ListSongs", Model, ViewData);}
-
-@SongHelper.Footer(Html, Url, Model, filter, true)
+    @SongHelper.Footer(Html, Url, Model, filter, true)
+}
 
 <div style="height:10px"></div>
+
+@if (currentDance != null && Model.Count < 15)
+{
+    <div style="height:10px"></div>
+    <div class="row">
+        <div class="col-sm-12">
+            <p class="big-text">Not seeing as much @currentDance.DanceName holiday music as you would like?  If this is a dance that you're familiar with, here are a couple of ways that you can help.</p>
+            @HowToHelp(currentDance)
+        </div>
+    </div>
+}
 
 <div class="row">
     <div class="col-sm-12">
@@ -39,7 +73,7 @@ else
         <div width="100%">
             @foreach (var dance in stats.List.Where(d => d.SongCountExplicit > 10))
             {
-            <span style="line-height: 5">@Html.ActionLink(dance.DanceName, "HolidayMusic", "Song", new { dance = dance.DanceName }, new { @class = "label tag-label label-music big-text" })</span>
+                <span style="line-height: 3">@Html.ActionLink(dance.DanceName, "HolidayMusic", "Song", new { dance = dance.DanceName }, new { @class = "label tag-label label-music big-text" })</span>
             }
         </div>
     </div>

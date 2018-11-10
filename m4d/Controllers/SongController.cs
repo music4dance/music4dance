@@ -137,7 +137,6 @@ namespace m4d.Controllers
         [AllowAnonymous]
         public ActionResult HolidayMusic(string dance = null, int page = 1)
         {
-            // TODONEXT: Test, Handle dances with 0 holiday songs (message to ask for help), add dance to breadcrumbs
             const string holidayFilter =
                 "(OtherTags/any(t: t eq 'holiday') or GenreTags/any(t: t eq 'christmas' or t eq 'holiday'))";
 
