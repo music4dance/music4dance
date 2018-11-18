@@ -126,7 +126,6 @@
     if (!string.IsNullOrWhiteSpace(Model.SpotifyPlaylist))
     {
         <section id="spotify-player">
-            @*Spotify has deprecated the feature that we were using to display the player, we are working on a solution and hope to have a replacement working soon.*@
             <iframe src="https://open.spotify.com/embed/user/ebo1rk39vp51kkyjps45eobph/playlist/@Model.SpotifyPlaylist" frameborder="0" width="300" height="80" allowtransparency="true" allow="encrypted-media" allow="encrypted-media"></iframe>
         </section>
     }

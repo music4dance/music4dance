@@ -124,6 +124,19 @@ namespace m4dModels
             Action = action;
         }
 
+        public static SongFilter CreateHolidayFilter(string dance = null, int page = 1)
+        {
+            const string holidayFilter =
+                "(OtherTags/any(t: t eq 'holiday') or GenreTags/any(t: t eq 'christmas' or t eq 'holiday'))";
+
+            var odata = string.IsNullOrWhiteSpace(dance) ? holidayFilter : $"DanceTags/any(t: t eq '{dance.ToLower()}') and {holidayFilter}";
+
+            return new SongFilter(
+                "holidaymusic",
+                new RawSearch
+                    { ODataFilter = odata, Page = page }
+            );
+        }
 
         public string Action {
             get => _action ?? "index";

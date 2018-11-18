@@ -165,7 +165,7 @@
         $.getJSON(listUrl)
             .done(function(data) {
                 //var player = '<iframe  src="https://open.spotify.com/embed?uri=spotify:trackset:' + name + ':' + data + '" frameborder="0" allowtransparency="true" allow="encrypted-media"></iframe>';
-                var player = '<span>Spotify has deprecated the feature that we were using to display the player, we are working on a solution and hope to have a replacement working soon.</span>';
+                var player = '<span>Spotify has deprecated the feature that we were using to display the player, we have a partial solution in place, but have not found a solution that covers this search.  More details are available <a href="https://www.music4dance.net//blog/playing-songs-from-music4dance/">here</a>.</span>';
                 button.replaceWith(player);
             })
             .fail(function () {

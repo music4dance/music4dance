@@ -100,7 +100,7 @@
     @(string.IsNullOrWhiteSpace(description) ? (filter.IsAdvanced ? AdvancedHeader(html, filter) : SimpleHeader(html, filter, dances, userName)) : CustomHeader(html,description))
 }
 
-@helper Footer(System.Web.Mvc.HtmlHelper html, UrlHelper urlHelp, PagedList.IPagedList<Song> songs, SongFilter filter, bool hideInferred = false)
+@helper Footer(System.Web.Mvc.HtmlHelper html, UrlHelper urlHelp, PagedList.IPagedList<Song> songs, SongFilter filter, bool hideInferred = false, bool hideSpotify=false)
 {
     var danceQuery = filter.DanceQuery;
 
@@ -146,14 +146,20 @@
 
     if (filter.IsAdvanced)
     {
-        <div class="row">
-            @Spotify(songs)
-        </div>
+        if (!hideSpotify)
+        {
+            <div class="row">
+                @Spotify(songs)
+            </div>
+        }
     }
     else
     {
         <div class="row">
-            @Spotify(songs)
+            @if (!hideSpotify)
+            {
+                @Spotify(songs)
+            }
             <div class="col-md-6"><h4>@filter.Description</h4></div>
         </div>
     }

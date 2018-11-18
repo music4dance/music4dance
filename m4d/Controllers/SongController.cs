@@ -137,22 +137,21 @@ namespace m4d.Controllers
         [AllowAnonymous]
         public ActionResult HolidayMusic(string dance = null, int page = 1)
         {
-            const string holidayFilter =
-                "(OtherTags/any(t: t eq 'holiday') or GenreTags/any(t: t eq 'christmas' or t eq 'holiday'))";
-
-            var odata = string.IsNullOrWhiteSpace(dance) ? holidayFilter : $"DanceTags/any(t: t eq '{dance.ToLower()}') and {holidayFilter}";
-
-            var filter = new SongFilter(
-                "holidaymusic",
-                new RawSearch
-                    { ODataFilter = odata, Page = page}
-            );
+            var filter = SongFilter.CreateHolidayFilter(dance, page);
 
             ViewBag.NoSort = true;
             ViewBag.ShowDate = true;
 
             ViewBag.Stats = Database.DanceStats;
-            ViewBag.Dance = string.IsNullOrWhiteSpace(dance) ? null : Database.DanceStats.FromName(dance);
+            ViewBag.Dance = null;
+            if (!string.IsNullOrWhiteSpace(dance))
+            {
+                var ds = Database.DanceStats.FromName(dance);
+                ViewBag.Dance = ds;
+                var name = $"Holiday {ds.DanceName}";
+                var playlist = Database.PlayLists.FirstOrDefault(p => p.Name == name);
+                ViewBag.PlayList = playlist?.Id;
+            }
 
             return DoAzureSearch(filter, "holidaymusic");
         }

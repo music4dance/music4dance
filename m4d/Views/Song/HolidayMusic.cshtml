@@ -51,7 +51,7 @@ else
 {
     Html.RenderPartial("_ListSongs", Model, ViewData);
 
-    @SongHelper.Footer(Html, Url, Model, filter, true)
+    @SongHelper.Footer(Html, Url, Model, filter, true, true)
 }
 
 <div style="height:10px"></div>
@@ -65,6 +65,13 @@ else
             @HowToHelp(currentDance)
         </div>
     </div>
+}
+
+@if (currentDance != null && Model.Count > 0)
+{
+    <section id="spotify-player">
+        <iframe src="https://open.spotify.com/embed/user/ebo1rk39vp51kkyjps45eobph/playlist/@ViewBag.PlayList" frameborder="0" width="300" height="80" allowtransparency="true" allow="encrypted-media" allow="encrypted-media"></iframe>
+    </section>
 }
 
 <div class="row">
