@@ -171,7 +171,7 @@ namespace m4d.Controllers
                     var dms = DanceMusicService.GetService();
                     var results = new List<string>();
                     var i = 0;
-                    foreach (var id in dms.PlayLists.Where(p => p.Type == type && p.Name.StartsWith("Holiday"))
+                    foreach (var id in dms.PlayLists.Where(p => p.Type == type)
                         .Select(p => p.Id).ToList())
                     {
                         DoUpdate(id, dms, user, out var result);
