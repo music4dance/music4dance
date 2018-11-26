@@ -131,6 +131,9 @@
             type = 'dance';
             tipText = 'dancing to this song';
         }
+        // TODONEXT: change updatelike controller to likecontroller, this call should be the
+        //  put verb.  Then we can implement a get verb to get the dance-like state of an
+        //  arbitrary dance for the dance modal
         var t = '/api/updatelike/' + fields[1] + '?dance=' + dance + '&like=' + like;
         $.getJSON(t)
             .done(function () {

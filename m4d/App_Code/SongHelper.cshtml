@@ -23,9 +23,11 @@
 }
 
 // Advanced search header
-@helper AdvancedHeader(System.Web.Mvc.HtmlHelper html, SongFilter filter){
+@helper AdvancedHeader(System.Web.Mvc.HtmlHelper html, SongFilter filter)
+{
     var url = "/song/" + (filter.IsRaw ? "raw" : "advanced") + "searchform?filter=" + filter;
-    <h1>Search Results
+    <h1>
+        Search Results
         @if (filter.IsRaw)
         {
             <text> (RAW)</text>
@@ -34,7 +36,7 @@
     <div class="row">
         <div class="col-sm-6"><h4>@filter.Description</h4></div>
         <div class="col-sm-2 col-sm-offset-2">
-            <a href="@url" class = "btn btn-default">Change Search <span class="glyphicon glyphicon-search"></span></a>
+            <a href="@url" class="btn btn-default">Change Search <span class="glyphicon glyphicon-search"></span></a>
         </div>
     </div>
 }
@@ -45,7 +47,7 @@
     var danceQuery = filter.DanceQuery;
     var isAzure = filter.IsAzure;
 
-    using (html.BeginForm(isAzure? "AzureSearch": "Search", "Song", FormMethod.Get, new { id = "search" }))
+    using (html.BeginForm(isAzure ? "AzureSearch" : "Search", "Song", FormMethod.Get, new { id = "search" }))
     {
         var danceName = (danceQuery.All || danceQuery.Advanced) ? "All Dances" : danceQuery.Dances.First().Name;
 
@@ -97,16 +99,16 @@
 
 @helper SearchHeader(System.Web.Mvc.HtmlHelper html, SongFilter filter, IList<DanceStats> dances, string userName, string description)
 {
-    @(string.IsNullOrWhiteSpace(description) ? (filter.IsAdvanced ? AdvancedHeader(html, filter) : SimpleHeader(html, filter, dances, userName)) : CustomHeader(html,description))
+    @(string.IsNullOrWhiteSpace(description) ? (filter.IsAdvanced ? AdvancedHeader(html, filter) : SimpleHeader(html, filter, dances, userName)) : CustomHeader(html, description))
 }
 
-@helper Footer(System.Web.Mvc.HtmlHelper html, UrlHelper urlHelp, PagedList.IPagedList<Song> songs, SongFilter filter, bool hideInferred = false, bool hideSpotify=false)
+@helper Footer(System.Web.Mvc.HtmlHelper html, UrlHelper urlHelp, PagedList.IPagedList<Song> songs, SongFilter filter, bool hideInferred = false, bool hideSpotify = false)
 {
     var danceQuery = filter.DanceQuery;
 
     <div class="row">
         <div class="col-md-6">
-            @html.PagedListPager(songs, page => urlHelp.Action(filter.TargetAction, new {page, filter}))
+            @html.PagedListPager(songs, page => urlHelp.Action(filter.TargetAction, new { page, filter }))
         </div>
         <div class="col-md-2 pagination-align">
             Page @(songs.PageCount < songs.PageNumber ? 0 : songs.PageNumber) of @songs.PageCount
@@ -117,14 +119,14 @@
             {
                 foreach (var dance in danceQuery.Dances)
                 {
-                    @html.ActionLink(dance.Name + " Page", dance.Name, "dances", new {filter, type = "I", count = 1}, new {@class = "btn btn-default", role = "button"})
+                    @html.ActionLink(dance.Name + " Page", dance.Name, "dances", new { filter, type = "I", count = 1 }, new { @class = "btn btn-default", role = "button" })
                 }
             }
             @if (!filter.IsAdvanced)
             {
                 if (!filter.IsEmpty)
                 {
-                    @html.ActionLink("New Search", string.Empty, "song", new {@class = "btn btn-default", role = "button"})
+                    @html.ActionLink("New Search", string.Empty, "song", new { @class = "btn btn-default", role = "button" })
                 }
             }
         </div>
@@ -137,12 +139,12 @@
                 <p class="big-text">
                     Not seeing as many songs as you expect in this list?
                     You are currently seeing only songs that someone has explicitly tagged as @(danceQuery.ToString()).
-                    You can widen the search by choosing to include songs inferred by tempo on the @html.ActionLink("Advanced Search page", "AdvancedSearchForm", "Song", new {filter = newFilter}, null)
-                    or just @html.ActionLink("clicking here", filter.TargetAction, "Song", new {filter = newFilter}, null).
+                    You can widen the search by choosing to include songs inferred by tempo on the @html.ActionLink("Advanced Search page", "AdvancedSearchForm", "Song", new { filter = newFilter }, null)
+                    or just @html.ActionLink("clicking here", filter.TargetAction, "Song", new { filter = newFilter }, null).
                 </p>
             </div>
         </div>
-     }
+    }
 
     if (filter.IsAdvanced)
     {
@@ -163,4 +165,45 @@
             <div class="col-md-6"><h4>@filter.Description</h4></div>
         </div>
     }
+}
+
+@helper LikeHelper(WebViewPage page, Song song, LikeDictionary likes, string img, string modifier, string danceId, string tipNull, string tipTrue, string tipFalse)
+{
+    if (likes == null || !likes.TryGetValue(song.SongId, out var like))
+    {
+        like = null;
+    }
+    var heart = "outline-";
+    var heartAlt = "No Opinion";
+    var heartTip = string.Format(tipNull, modifier);
+    var href = "#";
+    var state = "null";
+
+    if (likes == null)
+    {
+        heartTip = "Sign In to like/dislike {0}.";
+        href = "/account/signin?ReturnUrl=" + Request.Url;
+    }
+    else if (like.HasValue)
+    {
+        if (like.Value)
+        {
+            heart = string.Empty;
+            state = "true";
+            heartAlt = "Like";
+            heartTip = tipTrue;
+        }
+        else
+        {
+            heart = "broken-";
+            state = "false";
+            heartAlt = "Dislike";
+            heartTip = tipFalse;
+        }
+    }
+
+    var type = danceId ?? "like";
+    <a id="@type.@song.SongId" class="btn btn-sm btn-info @(likes == null ? string.Empty : "toggle-like")" style="padding:3px" role="button" href="@href" data-like="@state" data-toggle="tooltip" data-placement="right" title="@string.Format(heartTip,modifier)">
+        <img src='@page.Url.Content($"~/Content/{img}-{heart}icon.png")' alt="@heartAlt" />
+    </a>
 }

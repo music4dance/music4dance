@@ -110,50 +110,10 @@
     var timeMessage = prefix + " on " + time.ToString("g") + " (" + delta + " ago)";
 
     <td class="hidden-xs" data-toggle="tooltip" data-placement="left" title="@timeMessage">
-        @(created? @song.CreatedOrder : @song.ModifiedOrder)
+        @(created? song.CreatedOrder : song.ModifiedOrder)
     </td>
 }
 
-@helper LikeHelper(Song song, LikeDictionary likes, string img, string modifier, string danceId, string tipNull, string tipTrue, string tipFalse)
-{
-    if (likes == null || !likes.TryGetValue(song.SongId, out var like))
-    {
-        like = null;
-    }
-    var heart = "outline-";
-    var heartAlt = "No Opinion";
-    var heartTip = string.Format(tipNull, modifier);
-    var href = "#";
-    var state = "null";
-
-    if (likes == null)
-    {
-        heartTip = "Sign In to like/dislike {0}.";
-        href = "/account/signin?ReturnUrl=" + Request.Url;
-    }
-    else if (like.HasValue)
-    {
-        if (like.Value)
-        {
-            heart = string.Empty;
-            state = "true";
-            heartAlt = "Like";
-            heartTip = tipTrue;
-        }
-        else
-        {
-            heart = "broken-";
-            state = "false";
-            heartAlt = "Dislike";
-            heartTip = tipFalse;
-        }
-    }
-
-    var type = danceId ?? "like";
-    <a id = "@type.@song.SongId" class="btn btn-sm btn-info @(likes == null ? string.Empty : "toggle-like")" style="padding:3px" role="button" href="@href" data-like="@state" data-toggle="tooltip" data-placement="right" title="@string.Format(heartTip,modifier)">
-        <img src='@Url.Content($"~/Content/{img}-{heart}icon.png")' alt="@heartAlt" />
-    </a>
-}
 
 <script>
     window.VoteOptions = {
@@ -314,9 +274,9 @@
                     @{
                         if (danceId != null)
                         {
-                            @LikeHelper(item, danceLikes, "dance", "dancing " + danceName + " to this song", danceId, likeTipNull, likeTipTrue, likeTipFalse)
+                            @SongHelper.LikeHelper(this, item, danceLikes, "dance", "dancing " + danceName + " to this song", danceId, likeTipNull, likeTipTrue, likeTipFalse)
                         }
-                        @LikeHelper(item, likes, "heart", "this song", "like", likeTipNull, likeTipTrue, likeTipFalse)
+                        @SongHelper.LikeHelper(this, item, likes, "heart", "this song", "like", likeTipNull, likeTipTrue, likeTipFalse)
                         if (!string.IsNullOrWhiteSpace(item.Purchase))
                         {
                             var id = "Play" + item.SongId;
