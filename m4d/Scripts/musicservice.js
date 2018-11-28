@@ -13,7 +13,8 @@
         url: ko.observable(''),
         filteredUrl: ko.observable(''),
         danceUrl: ko.observable(''),
-        tagText: ko.observable('')
+        tagText: ko.observable(''),
+        danceLike: ko.observable(null)
     };
 
     ko.applyBindings(viewModel);
@@ -102,6 +103,23 @@
     $('#danceModal').on('show.bs.modal', function (event) {
         var t = setupTagModal(event);
         viewModel.tagText(t.data('tags'));
+        // TODONEXT: Figure out how to get songId & danceId (or Name)
+        if (window.isAuthenticated) {
+            $.ajax({
+                    method: 'GET',
+                    url: '/api/like/' + viewModel.songId(),
+                    data: { 'dance': viewModel.danceName() }
+                })
+                .done(function (data) {
+                    window.alert(data);
+                })
+                .fail(function (jqxhr, textStatus, err) {
+                    window.alert(err);
+                    //$('#product').text('Error: ' + err);
+                });
+
+            viewModel.danceLike();
+        }
     });
 
     // Handle like links
@@ -131,12 +149,10 @@
             type = 'dance';
             tipText = 'dancing to this song';
         }
-        // TODONEXT: change updatelike controller to likecontroller, this call should be the
-        //  put verb.  Then we can implement a get verb to get the dance-like state of an
-        //  arbitrary dance for the dance modal.
+
         $.ajax({
             method: 'PUT',
-            url: '/api/updatelike/' + fields[1],
+            url: '/api/like/' + fields[1],
             data: {'dance': dance, 'like' : like}
             })
             .done(function () {
@@ -152,23 +168,6 @@
                 window.alert(err);
                 //$('#product').text('Error: ' + err);
             });
-
-
-        //var t = '/api/updatelike/' + fields[1] + '?dance=' + dance + '&like=' + like;
-        //$.getJSON(t)
-        //    .done(function () {
-        //        var img = $this.find('img');
-        //        var str = like === null ? 'null' : like ? 'true' : 'false';
-        //        var voteOpts = window.VoteOptions[str];
-
-        //        $this.data('like', like);
-        //        $this.attr('title', voteOpts.tip.replace('{0}',tipText));
-        //        img.prop('src', '/content/' + type + voteOpts.img + '-icon.png');
-        //    })
-        //    .fail(function (jqxhr, textStatus, err) {
-        //        window.alert(err);
-        //        //$('#product').text('Error: ' + err);
-        //    });
     });
 
     // Handle the spotify control

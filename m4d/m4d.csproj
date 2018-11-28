@@ -547,7 +547,7 @@
     <Compile Include="APIControllers\ServiceTrackController.cs" />
     <Compile Include="APIControllers\SuggestionController.cs" />
     <Compile Include="APIControllers\TagSuggestionController.cs" />
-    <Compile Include="APIControllers\UpdateLikeController.cs" />
+    <Compile Include="APIControllers\LikeController.cs" />
     <Compile Include="APIControllers\UpdateRatingsController.cs" />
     <Compile Include="App_Start\BundleConfig.cs" />
     <Compile Include="App_Start\FilterConfig.cs" />

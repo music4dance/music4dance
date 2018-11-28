@@ -1354,12 +1354,18 @@ namespace m4dModels
             return true;
         }
 
+        public bool? GetLike(string user)
+        {
+            var modrec = FindModified(user);
+            return modrec?.Like;
+        }
+
         public bool EditDanceLike(string user, bool? like, string danceId, DanceStatsInstance stats)
         {
             var r = UserDanceRating(user, danceId);
 
             // If the existing like value is in line with the current rating, do nothing
-            if ((like.HasValue && (like.Value && r > 0 || !like.Value && r < 0)) || (!like.HasValue && r == 0))
+            if (like.HasValue && (like.Value && r > 0 || !like.Value && r < 0) || !like.HasValue && r == 0)
             {
                 return false;
             }
@@ -1393,6 +1399,14 @@ namespace m4dModels
 
             UpdateDanceRating(new DanceRatingDelta { DanceId = danceId, Delta = delta }, true);
             return true;
+        }
+
+        public bool? GetDanceLike(string user, string danceId, DanceStatsInstance stats)
+        {
+            var rating = UserDanceRating(user, danceId);
+
+            if (rating == 0) return null;
+            return rating > 0;
         }
 
         public bool Update(string user, Song update, DanceStatsInstance stats)
@@ -2617,10 +2631,9 @@ namespace m4dModels
             var ratings = FilteredProperties(DanceRatingField, null, new HashSet<string>(new[] {user}));
             foreach (var rating in ratings.Where(p => p.Value.StartsWith(danceId)))
             {
-                int t;
                 var v = rating.Value;
                 var i = v.IndexOfAny(new[] { '+', '-' });
-                if (i == -1 || !int.TryParse(v.Substring(i), out t)) continue;
+                if (i == -1 || !int.TryParse(v.Substring(i), out var t)) continue;
 
                 level += t;
             }

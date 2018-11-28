@@ -8,10 +8,12 @@
         serializer.WriteObject(stream, ViewBag.SongFilter);
         filterString = System.Text.Encoding.UTF8.GetString(stream.ToArray());
     }
+    var isAuthenticated = User.Identity.IsAuthenticated;
 }
 
 <script>
     window.songFilter = @(filterString == null ? null : Html.Raw(filterString));
+    window.isAuthenticated = @(isAuthenticated ? "true" : "false");
     if (window.songFilter != null) {
         window.songFilter.raw = '@ViewBag.SongFilter.ToString()';
     }

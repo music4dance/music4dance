@@ -218,6 +218,13 @@ namespace m4dModels
             return true;
         }
 
+        public bool? GetLike(ApplicationUser user, Guid songId, string danceId = null)
+        {
+            var song = FindSong(songId);
+
+            return danceId == null ? song.GetLike(user.UserName) : song.GetDanceLike(user.UserName, danceId, DanceStats);
+        }
+
         public int CleanupAlbums(ApplicationUser user, Song song)
         {
             var albums = AlbumDetails.MergeAlbums(song.Albums, song.Artist, true);
