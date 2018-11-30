@@ -9,12 +9,20 @@
         purchase: ko.observableArray(),
         sample: ko.observable(''),
         tagValue: ko.observable(''),
+        danceId: ko.observable(''),
         danceName: ko.observable(''),
         url: ko.observable(''),
         filteredUrl: ko.observable(''),
         danceUrl: ko.observable(''),
         tagText: ko.observable(''),
-        danceLike: ko.observable(null)
+        danceLike: ko.observable(null),
+        likeUrl: ko.pureComputed(function () {
+            // TODONEXT: figure out how to mak this work
+            //var like = this.danceLike();
+            //var type = like === null ? 'outline' : like === false ? 'broken' : '';
+            //return '/Content/dance-' + type + '-icon.png';
+            return '/Content/dance-outline-icon.png';
+        })
     };
 
     ko.applyBindings(viewModel);
@@ -102,16 +110,18 @@
     // Handling for dance filter
     $('#danceModal').on('show.bs.modal', function (event) {
         var t = setupTagModal(event);
+        viewModel.songId(t.data('song-id'));
+        viewModel.danceId(t.data('dance-id'));
         viewModel.tagText(t.data('tags'));
-        // TODONEXT: Figure out how to get songId & danceId (or Name)
         if (window.isAuthenticated) {
             $.ajax({
                     method: 'GET',
                     url: '/api/like/' + viewModel.songId(),
-                    data: { 'dance': viewModel.danceName() }
+                    data: { 'dance': viewModel.danceId() }
                 })
                 .done(function (data) {
-                    window.alert(data);
+                    viewModel.danceLike(data.like);
+                    //window.alert(data.like);
                 })
                 .fail(function (jqxhr, textStatus, err) {
                     window.alert(err);

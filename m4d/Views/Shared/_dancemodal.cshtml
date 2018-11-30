@@ -20,7 +20,8 @@
                     <a class="list-group-item list-group-item-info" href="https://www.music4dance.net/blog/tag-filtering"><span class="glyphicon glyphicon-question-sign"></span> Help</a>
                 </div>
                 <div data-bind="if:tagText"><span data-bind="html:tagText"></span></div>
-                @*TODONEXT: Add reference to LikeHelper, figure out paremeters, verify, then figure out how to get more useful test*@
+                <div style="margin-top:10px"><img data-bind="attr:{src:likeUrl}" /></div>
+                @*TODONEXT: Add reference to LikeHelper, figure out parameters, verify, then figure out how to get more useful test*@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>

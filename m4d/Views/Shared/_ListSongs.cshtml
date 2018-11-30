@@ -410,7 +410,8 @@
 
                                 <a href='#' class='rating @badge label label-music' role='button'
                                     data-toggle='modal' data-target='#danceModal' aria-expanded='false'
-                                    data-title='@item.Title' data-artist='@item.Artist' data-dance-name='@name'
+                                    data-title='@item.Title' data-artist='@item.Artist' data-song-id='@item.SongId'
+                                    data-dance-name='@name' data-dance-id='@ditem.DanceId'
                                     data-filtered-url="@urlFiltered" data-dance-url='@urlDance' data-url='@url'
                                     data-tags='@MvcHtmlString.Create(tags)'
                                     >@Html.Raw(label)</a>
