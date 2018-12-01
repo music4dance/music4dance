@@ -14,49 +14,53 @@
         { id: 's', name: 'spotify', rgx: /([a-z0-9]+)(?:\?si=[a-z0-9 ]*)?$/i, idm: /[a-z0-9]{22}/i }
     ];
 
-    self.serviceFromId = function (id) {
+    self.serviceFromId = function(id) {
         var ret = '0';
-        $.each(self.services, function (i, value) {
-            if (id.indexOf(value.name) !== -1) {
-                ret = value.id;
-                return false;
-            }
-            return true;
-        });
+        $.each(self.services,
+            function(i, value) {
+                if (id.indexOf(value.name) !== -1) {
+                    ret = value.id;
+                    return false;
+                }
+                return true;
+            });
         return ret;
-    }
+    };
 
-    self.parseId = function (id, rgx) {
+    self.parseId = function(id, rgx) {
         // Our regexes are either full match or with a specified substring
         //  returning the last element should handle both cases.
         var m = rgx.exec(id);
         return m ? m[m.length - 1] : null;
-    }
+    };
 
-    self.matchId = function (id, idm) {
+    self.matchId = function(id, idm) {
         var m = id.match(idm);
         return m && m[0] === id;
-    }
+    };
 
-    self.getService = function (sid) {
+    self.getService = function(sid) {
         var ret = null;
-        $.each(self.services, function (i, value) {
-            if (sid === value.id) {
-                ret = value;
-                return false;
-            }
-            return true;
-        });
+        $.each(self.services,
+            function(i, value) {
+                if (sid === value.id) {
+                    ret = value;
+                    return false;
+                }
+                return true;
+            });
         return ret;
-    }
+    };
 
-    self.getServiceTrack = function (action) {
+    self.getServiceTrack = function(action) {
         this.viewModel.error(null);
         this.viewModel.song(null);
         this.viewModel.track(null);
 
         var idControl = $('#idString');
-        if (!idControl) { return; }
+        if (!idControl) {
+            return;
+        }
 
         var buttonId = action.attr('id');
         var service;
@@ -81,13 +85,14 @@
         if (inferred === '0') {
             if (service === '0') {
                 // Loop through the services to see if the actual id matches
-                $.each(self.services, function (i, value) {
-                    if (self.matchId(id, value.idm)) {
-                        service = value.id;
-                        return false;
-                    }
-                    return true;
-                });
+                $.each(self.services,
+                    function(i, value) {
+                        if (self.matchId(id, value.idm)) {
+                            service = value.id;
+                            return false;
+                        }
+                        return true;
+                    });
                 if (service === '0') {
                     this.viewModel.error('We did not recognize this as a valid id for any supported service.');
                     return;
@@ -130,7 +135,7 @@
 
         $.ajax({
             cache: true,
-            success: function (data) {
+            success: function(data) {
                 if (data.hasOwnProperty('TrackId')) {
                     self.viewModel.track(data);
                     self.viewModel.song(null);
@@ -144,33 +149,33 @@
                     $('#edit').submit();
                 }
             },
-            error: function (/*jqXhr, textStatus ,err*/) {
+            error: function(/*jqXhr, textStatus ,err*/) {
                 self.viewModel.error('Sorry, we couldn\'t find that song');
             },
             url: '/api/servicetrack/' + service + id
         });
-    }
+    };
 
-    self.init = function () {
+    self.init = function() {
         var lookup = $('#lookup-by-id');
         if (lookup.length) {
 
-            $('.service-lookup').click(function () {
+            $('.service-lookup').click(function() {
                 self.getServiceTrack($(this));
             });
 
             ko.applyBindings(self.viewModel);
         }
-    }
+    };
 
-    self.setTempo = function (tempo) {
+    self.setTempo = function(tempo) {
         self.viewModel.tempo(tempo);
-    }
+    };
 
     return {
         init: self.init,
         setTempo: self.setTempo
-    }
+    };
 }();
 
 $(document).ready(function () {

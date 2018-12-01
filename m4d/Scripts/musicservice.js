@@ -1,29 +1,47 @@
 ﻿$(document).ready(function () {
     var purchaseUri = '/api/purchaseinfo/';
 
-    // setup the viewmodel for modals
-    var viewModel = {
-        songId: ko.observable(''),
-        title: ko.observable(''),
-        artist: ko.observable(''),
-        purchase: ko.observableArray(),
-        sample: ko.observable(''),
-        tagValue: ko.observable(''),
-        danceId: ko.observable(''),
-        danceName: ko.observable(''),
-        url: ko.observable(''),
-        filteredUrl: ko.observable(''),
-        danceUrl: ko.observable(''),
-        tagText: ko.observable(''),
-        danceLike: ko.observable(null),
-        likeUrl: ko.pureComputed(function () {
-            // TODONEXT: figure out how to mak this work
-            //var like = this.danceLike();
-            //var type = like === null ? 'outline' : like === false ? 'broken' : '';
-            //return '/Content/dance-' + type + '-icon.png';
-            return '/Content/dance-outline-icon.png';
-        })
+    var MusicService = function() {
+        var self = this;
+
+        self.songId = ko.observable('');
+        self.title = ko.observable('');
+        self.artist = ko.observable('');
+        self.purchase = ko.observableArray();
+        self.sample = ko.observable('');
+        self.tagValue = ko.observable('');
+        self.danceId = ko.observable('');
+        self.danceName = ko.observable('');
+        self.url = ko.observable('');
+        self.filteredUrl = ko.observable('');
+        self.danceUrl = ko.observable('');
+        self.tagText = ko.observable('');
+        self.danceLike = ko.observable(null);
+        self.likeUrl = ko.pureComputed(function() {
+            var like = self.danceLike();
+            var type = like === null ? 'outline-' : like === false ? 'broken-' : '';
+            return '/Content/dance-' + type + 'icon.png';
+        });
+        self.likeNullText = ko.pureComputed(function() {
+            return 'Click to like/dislike dancing ' + self.danceName() + ' to ' + self.title();
+        });
+        self.likePosText = ko.pureComputed(function () {
+            return 'You have liked dancing ' + self.danceName() + ' to ' + self.title() + '. Click to dislike.';
+        });
+        self.likeNegText = ko.pureComputed(function () {
+            return 'You have disliked dancing ' + self.danceName() + ' to ' + self.title() + '. Click to reset your vote.';
+        });
+
+        self.likeText = ko.pureComputed(function () {
+            if (!window.isAuthenticated) {
+                return 'Sign in to vote';
+            }
+            var like = self.danceLike();
+            return like === null ? self.likeNullText() : like === false ? self.likeNegText() : self.likePosText();
+        });
     };
+
+    var viewModel = new MusicService();
 
     ko.applyBindings(viewModel);
 

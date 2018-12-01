@@ -27,10 +27,10 @@
             // TODO: implement this if we need to track changed.
         }
 
-        self.clear = function () {
+        self.clear = function() {
             self.CurrentUserTags.Tags.removeAll();
             self.TagSummary.Tags.removeAll();
-        }
+        };
     };
 
     var filterMapping = {
