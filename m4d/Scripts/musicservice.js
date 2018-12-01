@@ -45,6 +45,17 @@
 
     ko.applyBindings(viewModel);
 
+    var rotateLike = function(like) {
+        switch (like) {
+        default:
+            return true;
+        case true:
+            return false;
+        case false:
+            return null;
+        }
+    }
+
     // Setup tool-tips
     $('[data-toggle="tooltip"]').tooltip();
 
@@ -150,24 +161,33 @@
         }
     });
 
+    // Handle dance modal likes
+    $('#dance-modal-like').click(function(event) {
+        event.preventDefault();
+        var like = rotateLike(viewModel.danceLike());
+
+        $.ajax({
+                method: 'PUT',
+                url: '/api/like/' + viewModel.songId(),
+                data: { 'dance': viewModel.danceId(), 'like': like }
+            })
+            .done(function () {
+                viewModel.danceLike(like);
+            })
+            .fail(function (jqxhr, textStatus, err) {
+                window.alert(err);
+                //$('#product').text('Error: ' + err);
+            });
+
+    });
+
     // Handle like links
     $('.toggle-like').click(function (event) {
         event.preventDefault();
         //window.alert("You clicked me!(" + this.id + ")");
         var $this = $(this);
         var fields = $this.attr('id').split('.');
-        var like = $this.data('like');
-        switch (like) {
-            default:
-                like = true;
-                break;
-            case true:
-                like = false;
-                break;
-            case false:
-                like = null;
-                break;
-        }
+        var like = rotateLike($this.data('like'));
 
         var dance = '';
         var type = 'heart';
