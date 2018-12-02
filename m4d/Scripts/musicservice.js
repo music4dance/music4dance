@@ -54,7 +54,7 @@
         case false:
             return null;
         }
-    }
+    };
 
     // Setup tool-tips
     $('[data-toggle="tooltip"]').tooltip();
@@ -148,7 +148,8 @@
                     url: '/api/like/' + viewModel.songId(),
                     data: { 'dance': viewModel.danceId() }
                 })
-                .done(function (data) {
+                .done(function (dawta) {
+                    // TODONEXT: figure out why this sometimes doesn't match with vote in like/play column
                     viewModel.danceLike(data.like);
                     //window.alert(data.like);
                 })
@@ -179,6 +180,12 @@
     // Handle dance modal likes
     $('#dance-modal-like').click(function(event) {
         event.preventDefault();
+
+        if (!window.isAuthenticated) {
+            window.location.href = '/account/signin?returnUrl=' + window.location.href;
+            return;
+        }
+
         var like = rotateLike(viewModel.danceLike());
 
         $.ajax({
