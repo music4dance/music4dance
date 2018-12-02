@@ -161,6 +161,21 @@
         }
     });
 
+    var updateLike = function (item, like, type) {
+        var tipText = 'this song';
+        if (type !== 'heart') {
+            tipText = 'dancing to this song';
+        }
+
+        var img = item.find('img');
+        var str = like === null ? 'null' : like ? 'true' : 'false';
+        var voteOpts = window.VoteOptions[str];
+
+        item.data('like', like);
+        item.attr('title', voteOpts.tip.replace('{0}', tipText));
+        img.prop('src', '/content/' + type + voteOpts.img + '-icon.png');
+    };
+
     // Handle dance modal likes
     $('#dance-modal-like').click(function(event) {
         event.preventDefault();
@@ -173,12 +188,14 @@
             })
             .done(function () {
                 viewModel.danceLike(like);
+                var id = '#' + viewModel.danceId() + '\\.' + viewModel.songId();
+                var item = $(id);
+                updateLike(item, like, 'dance');
             })
             .fail(function (jqxhr, textStatus, err) {
                 window.alert(err);
                 //$('#product').text('Error: ' + err);
             });
-
     });
 
     // Handle like links
@@ -191,11 +208,9 @@
 
         var dance = '';
         var type = 'heart';
-        var tipText = 'this song';
         if (fields[0] !== 'like') {
             dance = fields[0];
             type = 'dance';
-            tipText = 'dancing to this song';
         }
 
         $.ajax({
@@ -204,13 +219,7 @@
             data: {'dance': dance, 'like' : like}
             })
             .done(function () {
-                var img = $this.find('img');
-                var str = like === null ? 'null' : like ? 'true' : 'false';
-                var voteOpts = window.VoteOptions[str];
-
-                $this.data('like', like);
-                $this.attr('title', voteOpts.tip.replace('{0}', tipText));
-                img.prop('src', '/content/' + type + voteOpts.img + '-icon.png');
+                updateLike($this, like, type);
             })
             .fail(function (jqxhr, textStatus, err) {
                 window.alert(err);
