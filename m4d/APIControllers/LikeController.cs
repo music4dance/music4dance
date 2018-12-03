@@ -33,15 +33,5 @@ namespace m4d.APIControllers
 
             return Ok(new { changed = changed ? 1 : 0 });
         }
-
-        //[HttpPut]
-        //public IHttpActionResult Put(Guid id, bool? like, string dance = null)
-        //{
-        //    var user = Database.FindUser(HttpContext.Current.User.Identity.GetUserName());
-
-        //    var changed = Database.EditLike(user, id, like, string.IsNullOrWhiteSpace(dance) || dance == "null" ? null : dance);
-
-        //    return Ok(new { changed = changed ? 1 : 0 });
-        //}
     }
 }
