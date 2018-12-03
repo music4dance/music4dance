@@ -149,7 +149,6 @@
                     data: { 'dance': viewModel.danceId() }
                 })
                 .done(function (data) {
-                    // TODONEXT: figure out why this sometimes doesn't match with vote in like/play column
                     viewModel.danceLike(data.like);
                     //window.alert(data.like);
                 })
