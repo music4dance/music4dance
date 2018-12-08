@@ -52,8 +52,7 @@ namespace m4dModels
 
             if (data == null) return;
 
-            var song = data as Song;
-            if (song == null)
+            if (!(data is Song song))
             {
                 Trace.WriteLineIf(TraceLevels.General.TraceError, "Bad Song");
                 return;

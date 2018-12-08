@@ -17,6 +17,9 @@
         self.danceUrl = ko.observable('');
         self.tagText = ko.observable('');
         self.danceLike = ko.observable(null);
+        self.danceWeight = ko.observable(0);
+        self.danceWeightMax = ko.observable(0);
+
         self.likeUrl = ko.pureComputed(function() {
             var like = self.danceLike();
             var type = like === null ? 'outline-' : like === false ? 'broken-' : '';
@@ -142,6 +145,8 @@
         viewModel.songId(t.data('song-id'));
         viewModel.danceId(t.data('dance-id'));
         viewModel.tagText(t.data('tags'));
+        viewModel.danceWeight(t.data('dance-weight'));
+        viewModel.danceWeightMax(t.data('dance-max-weight'));
         if (window.isAuthenticated) {
             $.ajax({
                     method: 'GET',
@@ -171,6 +176,32 @@
         var str = like === null ? 'null' : like ? 'true' : 'false';
         var voteOpts = window.VoteOptions[str];
 
+        var modalId = '#' + item.attr('id') + '.modal';
+        var modal = $(modalId.replace(/\./g,'\\.'));
+        var weight = modal.data('dance-weight');
+        var maxWeight = modal.data('dance-max-weight');
+
+        switch (like) {
+            case true:
+                weight += 2;
+                break;
+            case false:
+                if (weight === maxWeight) {
+                    maxWeight = weight;
+                }
+                weight -= 3;
+                break;
+            default:
+                weight += 1;
+                break;
+        }
+
+        if (maxWeight < weight) {
+            maxWeight = weight;
+        }
+
+        modal.data('dance-weight', weight);
+        modal.data('dance-max-weight', maxWeight);
         item.data('like', like);
         item.attr('title', voteOpts.tip.replace('{0}', tipText));
         img.prop('src', '/content/' + type + voteOpts.img + '-icon.png');
@@ -197,6 +228,10 @@
                 var id = '#' + viewModel.danceId() + '\\.' + viewModel.songId();
                 var item = $(id);
                 updateLike(item, like, 'dance');
+                var modalId = '#' + item.attr('id') + '.modal';
+                var modal = $(modalId.replace(/\./g, '\\.'));
+                viewModel.danceWeight(modal.data('dance-weight'));
+                viewModel.danceWeightMax(modal.data('dance-max-weight'));
             })
             .fail(function (jqxhr, textStatus, err) {
                 window.alert(err);
