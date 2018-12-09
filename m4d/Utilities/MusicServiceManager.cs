@@ -271,7 +271,7 @@ namespace m4d.Utilities
 
         public bool SetPlaylistTracks(MusicService service, IPrincipal principal, string id, IEnumerable<string> tracks)
         {
-            var tracklist = string.Join(",", tracks.Select(t => $"\"spotify:track:{t}\""));
+            var tracklist = string.Join(",", tracks.Where(t => t != null).Select(t => $"\"spotify:track:{t}\""));
             var response = MusicServiceAction($"https://api.spotify.com/v1/playlists/{id}/tracks", $"{{\"uris\":[{tracklist}]}}", WebRequestMethods.Http.Put, service, principal);
 
             return response != null && response.snapshot_id != null;
