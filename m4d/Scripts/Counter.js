@@ -33,7 +33,7 @@
     self.tempoId = '#Tempo';
     self.mpmId = '#MPM';
 
-    self.danceAction = function (id) {
+    self.danceAction = function(id) {
         var name = null;
 
         for (var i = 0; i < dances.length; i++) {
@@ -44,18 +44,18 @@
 
         if (name)
             window.location.href = '/dances/' + name;
-    }
+    };
 
-    self.roundTempo = function (t) {
+    self.roundTempo = function(t) {
         if ($.isNumeric(t)) {
             var r = Math.round(t * 10) / 10;
             return Number(r.toFixed(1));
         } else {
             return 0.0;
         }
-    }
+    };
 
-    self.formatTempo = function (range, meter) {
+    self.formatTempo = function(range, meter) {
         if (!self.showMPM && !self.showBPM)
             return '';
 
@@ -83,9 +83,9 @@
 
         ret += ')<small>';
         return ret;
-    }
+    };
 
-    self.display = function () {
+    self.display = function() {
         $('#total').text(counter);
         var t = new Date().getTime();
         var dt = t - start;
@@ -114,9 +114,12 @@
             if (tempoDelta === 0) {
                 text += ' list-group-item-info\'>';
             } else {
-                var type = (tempoDelta < 0) ? 'list-group-item-danger' : 'list-group-item-success';
-                text += type + '\'>' +
-                    '<span class=\'badge\'>' + dances[i].TempoDelta + 'MPM</span>';
+                var type = tempoDelta < 0 ? 'list-group-item-danger' : 'list-group-item-success';
+                text += type +
+                    '\'>' +
+                    '<span class=\'badge\'>' +
+                    dances[i].TempoDelta +
+                    'MPM</span>';
                 // The above version of tempoDelta is explicitly the formatted string version
             }
             var strong = self.numerator === 1 || numerator === dance.Meter.Numerator;
@@ -127,7 +130,7 @@
 
             $('#dances').append(text);
 
-            if (typeof window.danceAction == 'function') {
+            if (typeof window.danceAction === 'function') {
                 $('#add-dance-' + dance.Id).click(function() {
                     var id = $(this).attr('id');
                     id = id.substring(idpfx.length);
@@ -137,9 +140,9 @@
         }
 
         $('#help').toggle(dances.length === 0);
-    }
+    };
 
-    self.timerReset = function (noRefresh) {
+    self.timerReset = function(noRefresh) {
         self.start = new Date().getTime();
         self.counter = 0;
         self.average = 0;
@@ -149,9 +152,9 @@
         if (!noRefresh) {
             self.display();
         }
-    }
+    };
 
-    self.doReset = function () {
+    self.doReset = function() {
         var rate = 0;
         self.dances = [];
         self.rate = rate.toFixed(1);
@@ -160,15 +163,15 @@
         self.epsVisible = self.defVisible;
 
         $('#epsilon').val(epsVisible * 100);
-    }
+    };
 
-    self.getRate = function () {
+    self.getRate = function() {
         var ret = 0;
         if (self.average !== 0)
             ret = 60 * 1000 / self.average;
 
         return self.roundTempo(ret);
-    }
+    };
 
     self.updateDances = function() {
         self.dances = [];
@@ -178,8 +181,10 @@
         for (var i = 0; i < self.danceIndex.length; i++) {
             var dance = self.danceIndex[i];
 
-            if (numerator === 1 || dance.Meter.Numerator === numerator ||
-                (numerator === 2 && dance.Meter.Numerator === 4) || (numerator === 4 && dance.Meter.Numerator === 2)) {
+            if (numerator === 1 ||
+                dance.Meter.Numerator === numerator ||
+                (numerator === 2 && dance.Meter.Numerator === 4) ||
+                (numerator === 4 && dance.Meter.Numerator === 2)) {
 
                 var delta = 0;
 
@@ -208,9 +213,9 @@
         });
 
         self.display();
-    }
+    };
 
-    self.updateRate = function (newRate) {
+    self.updateRate = function(newRate) {
         console.log('Rate=' + newRate);
         if (self.rate === newRate) {
             return;
@@ -221,9 +226,9 @@
         self.updateDances();
 
         serviceLookup.setTempo(newRate);
-    }
+    };
 
-    self.doClick = function () {
+    self.doClick = function() {
         if (timeout) {
             window.clearTimeout(timeout);
         }
@@ -263,15 +268,15 @@
             }
         }
 
-        self.timeout = window.setTimeout(function () { timerReset(); }, maxWait);
-    }
+        self.timeout = window.setTimeout(function() { timerReset(); }, maxWait);
+    };
 
     self.rateFromText = function(text) {
         var r = Number(text);
         return roundTempo(r);
-    }
+    };
 
-    self.setupDances=function(data) {
+    self.setupDances = function(data) {
         self.danceIndex = data;
 
         var tempoT = rateFromText($(self.tempoId).val());
@@ -282,23 +287,23 @@
         } else if (tempoT !== 0) {
             self.updateRate(roundTempo(tempoT / numerator));
         }
-    }
+    };
 
-    self.setNumeratorControl=function(num,force) {
+    self.setNumeratorControl = function(num, force) {
         if (force || self.numerator !== num) {
             $('#mt').empty();
             $('#mt').append(labels[num - 1]);
             $('#mt').append('<span class=\'caret\'></span>');
             self.numerator = num;
         }
-    }
+    };
 
-    self.setNumerator=function(num) {
+    self.setNumerator = function(num) {
         if (self.numerator !== num) {
             var old = self.numerator;
             self.setNumeratorControl(num);
 
-            var r = (old * self.rate) / num;
+            var r = old * self.rate / num;
             r = self.roundTempo(r);
 
             self.timerReset(self.rate !== 0);
@@ -306,15 +311,15 @@
                 self.updateRate(r);
             }
         }
-    }
+    };
 
-    self.setEpsilon = function (newEpsI) {
+    self.setEpsilon = function(newEpsI) {
         var newEps = newEpsI / 100;
         if (newEps !== self.epsVisible) {
             self.epsVisible = newEps;
             self.updateDances();
         }
-    }
+    };
 
     self.setParameter = function (name, type) {
         var id = 'param' + name;
@@ -323,7 +328,7 @@
         }
     };
 
-    self.init = function () {
+    self.init = function() {
         self.setParameter('ShowBPM', 'boolean');
         self.setParameter('ShowMPM', 'boolean');
         self.setParameter('Numerator', 'number');
@@ -332,67 +337,69 @@
 
         $('#epsilon').val(self.epsVisible * 100);
 
-        $('#reset').click(function () { self.doReset() });
-        $('#count').click(function () { self.doClick() });
+        $('#reset').click(function() { self.doReset(); });
+        $('#count').click(function() { self.doClick(); });
 
-        $('#mt1').click(function () { self.setNumerator(1) });
-        $('#mt2').click(function () { self.setNumerator(2) });
-        $('#mt3').click(function () { self.setNumerator(3) });
-        $('#mt4').click(function () { self.setNumerator(4) });
+        $('#mt1').click(function() { self.setNumerator(1); });
+        $('#mt2').click(function() { self.setNumerator(2); });
+        $('#mt3').click(function() { self.setNumerator(3); });
+        $('#mt4').click(function() { self.setNumerator(4); });
 
         self.setNumeratorControl(self.numerator, true);
 
-        $('#epsilon').change(function () {
+        $('#epsilon').change(function() {
             self.setEpsilon($(this).val());
         });
 
         var uri = '/api/dance';
         $.getJSON(uri)
-            .done(function (data) {
+            .done(function(data) {
                 self.setupDances(data);
             })
-            .fail(function (jqxhr, textStatus, err) {
+            .fail(function(jqxhr, textStatus, err) {
                 window.alert(err);
             });
 
-        $(self.mpmId).each(function () {
+        $(self.mpmId).each(function() {
             // Save current value of element
             $(this).data('oldVal', $(this));
 
             // Look for changes in the value
-            $(this).bind('propertychange keyup input paste', function () {
-                // If value has changed...
-                if ($(this).data('oldVal') !== $(this).val()) {
-                    // Updated stored value
-                    $(this).data('oldVal', $(this).val());
+            $(this).bind('propertychange keyup input paste',
+                function() {
+                    // If value has changed...
+                    if ($(this).data('oldVal') !== $(this).val()) {
+                        // Updated stored value
+                        $(this).data('oldVal', $(this).val());
 
-                    var newRate = rateFromText($(this).val());
-                    if ($.isNumeric(newRate)) {
-                        self.updateRate(newRate);
+                        var newRate = rateFromText($(this).val());
+                        if ($.isNumeric(newRate)) {
+                            self.updateRate(newRate);
+                        }
+                        // Else user error here
                     }
-                    // Else user error here
-                }
-            });
+                });
         });
 
-        $(self.tempoId).each(function () {
+        $(self.tempoId).each(function() {
             // Save current value of element
             $(this).data('oldVal', $(this));
 
             // Look for changes in the value
-            $(this).bind('propertychange keyup input paste', function () {
-                // If value has changed...
-                if ($(this).data('oldVal') !== $(this).val()) {
-                    // Updated stored value
-                    $(this).data('oldVal', $(this).val());
+            $(this).bind('propertychange keyup input paste',
+                function() {
+                    // If value has changed...
+                    if ($(this).data('oldVal') !== $(this).val()) {
+                        // Updated stored value
+                        $(this).data('oldVal', $(this).val());
 
-                    var newRate = rateFromText($(this).val());
-                    if ($.isNumeric(newRate)) {
-                        self.updateRate(roundTempo(newRate / numerator));
+                        var newRate = rateFromText($(this).val());
+                        if ($.isNumeric(newRate)) {
+                            self.updateRate(roundTempo(newRate / numerator));
+                        }
+                        // Else user error here
                     }
-                    // Else user error here
-                }
-            });
+                });
         });
 
         var epsilon = $('#epsilon');
@@ -409,16 +416,16 @@
             $(self.tempoId).val(self.tempo);
         }
         //$('#tempo').focus(function () { setFocus(true);});
-    }
+    };
 
     self.getTempo = function() {
         return $(self.tempoId).val();
-    }
+    };
 
     return {
         init: init,
         getTempo: getTempo
-    }
+    };
 }();
 
 var serviceLookup = function () {
@@ -434,57 +441,60 @@ var serviceLookup = function () {
     self.services = [
         { id: 'i', name: 'itun', rgx: /[0-9]*/i, idm: /[0-9]*/i },
         { id: 'a', name: 'amazon', rgx: /\/(B[a-z0-9]{9})/i, idm: /B[a-z0-9]{9}/i },
-        { id: 'x', name: 'microsoft', rgx: /[a-f0-9\-]*$/i, idm: /[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}/i},
         { id: 's', name: 'spotify', rgx: /[a-z0-9]*$/i, idm: /[a-z0-9]{22}/i }
-];
+    ];
 
     self.serviceFromId = function(id) {
         var ret = '0';
-        $.each(self.services, function(i, value) {
-            if (id.indexOf(value.name) !== -1) {
-                ret = value.id;
-                return false;
-            }
-            return true;
-        });
+        $.each(self.services,
+            function(i, value) {
+                if (id.indexOf(value.name) !== -1) {
+                    ret = value.id;
+                    return false;
+                }
+                return true;
+            });
         return ret;
-    }
+    };
 
-    self.parseId = function (id, rgx) {
+    self.parseId = function(id, rgx) {
         // Our regexes are either full match or with a specified substring
         //  returning the last element should handle both cases.
         var m = rgx.exec(id);
-        return m ? m[m.length-1] : null;
-    }
-    
+        return m ? m[m.length - 1] : null;
+    };
+
     self.matchId = function(id, idm) {
         var m = id.match(idm);
         return m && m[0] === id;
-    }
+    };
 
-    self.getService = function (sid) {
+    self.getService = function(sid) {
         var ret = null;
-        $.each(self.services, function (i, value) {
-            if (sid === value.id) {
-                ret = value;
-                return false;
-            }
-            return true;
-        });
+        $.each(self.services,
+            function(i, value) {
+                if (sid === value.id) {
+                    ret = value;
+                    return false;
+                }
+                return true;
+            });
         return ret;
-    }
+    };
 
-    self.getServiceTrack = function (action) {
+    self.getServiceTrack = function(action) {
         this.viewModel.error(null);
         this.viewModel.song(null);
         this.viewModel.track(null);
 
         var idControl = $('#idString');
-        if (!idControl) { return; }
+        if (!idControl) {
+            return;
+        }
 
         var buttonId = action.attr('id');
         var service;
-        if (buttonId ==='service') {
+        if (buttonId === 'service') {
             service = action.val();
         } else {
             // Chose something from the dropdown
@@ -505,13 +515,14 @@ var serviceLookup = function () {
         if (inferred === '0') {
             if (service === '0') {
                 // Loop through the services to see if the actual id matches
-                $.each(self.services, function(i, value) {
-                    if (self.matchId(id, value.idm)) {
-                        service = value.id;
-                        return false;
-                    }
-                    return true;
-                });
+                $.each(self.services,
+                    function(i, value) {
+                        if (self.matchId(id, value.idm)) {
+                            service = value.id;
+                            return false;
+                        }
+                        return true;
+                    });
                 if (service === '0') {
                     this.viewModel.error("Didn't recognize this as a valid id for any supported service.");
                     return;
@@ -523,7 +534,7 @@ var serviceLookup = function () {
                     return;
                 }
             }
-        }  else {
+        } else {
             // There was both an inferred and an explicit service, error out if the don't match
             if (service !== '0' && service !== inferred) {
                 this.viewModel.error("Id/Url format doesn't match selected service");
@@ -552,7 +563,7 @@ var serviceLookup = function () {
         }
 
         $.getJSON('/api/servicetrack/' + service + id)
-            .done(function (data) {
+            .done(function(data) {
                 console.log(data);
                 if (data.hasOwnProperty('TrackId')) {
                     self.viewModel.track(data);
@@ -562,16 +573,16 @@ var serviceLookup = function () {
                     self.viewModel.song(data);
                 }
             })
-            .fail(function (jqXhr, textStatus /*,err*/) {
+            .fail(function(jqXhr, textStatus /*,err*/) {
                 self.viewModel.error("Sorry, we couldn't find that song");
             });
-    }
+    };
 
     self.init = function() {
         var lookup = $('#lookup-by-id');
         if (lookup.length) {
 
-            $('.service-lookup').click(function () {
+            $('.service-lookup').click(function() {
                 self.getServiceTrack($(this));
             });
 
@@ -581,16 +592,16 @@ var serviceLookup = function () {
 
             ko.applyBindings(self.viewModel);
         }
-    }
+    };
 
     self.setTempo = function(tempo) {
         self.viewModel.tempo(tempo);
-    }
+    };
 
     return {
         init: self.init,
         setTempo: self.setTempo
-    }
+    };
 }();
 
 $(document).ready(function () {

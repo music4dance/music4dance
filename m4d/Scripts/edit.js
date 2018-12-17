@@ -65,8 +65,6 @@ var editor = function () {
                 break;
             case 3: ret = '/Content/spotify-logo.png';
                 break;
-            case 4: ret = '/Content/xbox-logo.png';
-                break;
         }
 
         return ret;
@@ -782,7 +780,6 @@ $(document).ready(function () {
 
     $('body').tooltip({ selector: '[data-show=tooltip]' });
 
-    $('#load-xbox').click(function () { editor.getServiceInfo('X'); });
     $('#load-itunes').click(function () { editor.getServiceInfo('I'); });
     $('#load-spotify').click(function () { editor.getServiceInfo('S'); });
     $('#load-amazon').click(function () { editor.getServiceInfo('A'); });
