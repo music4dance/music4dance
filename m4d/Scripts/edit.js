@@ -738,7 +738,11 @@ var editor = function () {
 
         ko.applyBindings(viewModel);
 
-        addValue('alt-tempo', window.paramNewTempo);
+
+        if (window.paramNewTempo) {
+            addValue('alt-tempo', window.paramNewTempo);
+        }
+
         $('#toggle-count-display').removeClass('glyphicon-arrow-down');
         $('#toggle-count-display').addClass('glyphicon-arrow-up');
     };

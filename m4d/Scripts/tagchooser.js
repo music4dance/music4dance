@@ -509,10 +509,12 @@ var tagChooser = function () {
         self.serializeUser = function () {
             var s = '';
             var sep = '';
-            for (var i = 0; i < self.userTags().Tags().length; i++) {
-                var tag = self.userTags().Tags()[i];
-                s += sep + tag;
-                sep = '|';
+            if (self.userTags()) {
+                for (var i = 0; i < self.userTags().Tags().length; i++) {
+                    var tag = self.userTags().Tags()[i];
+                    s += sep + tag;
+                    sep = '|';
+                }
             }
             return s;
         };
