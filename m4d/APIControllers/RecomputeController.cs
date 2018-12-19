@@ -1,10 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web.Http;
-using m4d.Context;
 using m4d.Utilities;
 using m4dModels;
 
@@ -17,7 +14,7 @@ namespace m4d.APIControllers
     //}
     public class RecomputeController : DMApiController
     {
-        // id should be the type to update - currently danceinfo, songstats
+        // id should be the type to update - currently songstats, propertycleanup
         //   future tags, purchase, spotify, albums, tagtypes, tagsummaries, 
         //   timesfromproperties, compressregions, spotifyregions, rebuildusertags, rebuildtags
         public IHttpActionResult Get(string id, bool force = false, bool sync = false)
@@ -49,29 +46,16 @@ namespace m4d.APIControllers
 
             var rgid = id.Split('-');
 
-            // DBKILL: Do we need the commented out functions...
             switch (rgid[0])
             {
                 case "songstats":
                     recompute= DoHandleSongStats;
                     message = "Updated song stats.";
                     break;
-                //case "danceinfo":
-                //    recompute = DoHandleDanceInfo;
-                //    message = "Rebuilt Dances, Dance Tags, and updated Song Counts.";
-                //    break;
                 case "propertycleanup":
                     recompute = DoHandlePropertyCleanup;
                     message = "Cleaned up properties";
                     break;
-                //case "indexsongs":
-                //    recompute = DoHandleSongIndex;
-                //    message = "Updated song index";
-                //    break;
-                //case "tagtypes":
-                //    recompute = DoHandleTagTypes;
-                //    message = "Updated {0} tag types";
-                //    break;
                 default:
                     AdminMonitor.CompleteTask(false, $"Bad Id: {id}");
                     return BadRequest();
@@ -132,34 +116,6 @@ namespace m4d.APIControllers
             return true;
         }
 
-        //private static bool DoHandleDanceInfo(DanceMusicService dms, string id, string message, int iteration, bool force)
-        //{
-        //    try
-        //    {
-        //        dms.RebuildDanceInfo();
-        //        Complete(id, message);
-        //    }
-        //    catch (Exception e)
-        //    {
-        //        Fail(e);
-        //    }
-        //    return true;
-        //}
-
-        //private static bool DoHandleTagTypes(DanceMusicService dms, string id, string message, int iteration, bool force)
-        //{
-        //    try
-        //    {
-        //        var count = dms.RebuildTagTypes(true);
-        //        Complete(id, string.Format(message,count));
-        //    }
-        //    catch (Exception e)
-        //    {
-        //        Fail(e);
-        //    }
-        //    return true;
-        //}
-
         private static bool DoHandlePropertyCleanup(DanceMusicService dms, string id, string message, int iteration, bool force)
         {
             try
@@ -190,45 +146,6 @@ namespace m4d.APIControllers
             }
         }
 
-        //private static bool DoHandleSongIndex(DanceMusicService dms, string id, string message, int iteration, bool force)
-        //{
-        //    try
-        //    {
-        //        var rgid = id.Split('-');
-        //        var name = rgid.Length > 1 ? rgid[1] : "default";
-
-        //        if (force && iteration == 0)
-        //        {
-        //            dms.ResetIndex(name);
-        //        }
-
-        //        var from = RecomputeMarker.GetMarker(id);
-
-        //        var info = dms.IndexSongs(250, from, force, new SongFilter(), name);
-
-        //        if (info.Succeeded > 0 || info.Failed > 0)
-        //        {
-        //            RecomputeMarker.SetMarker(id, info.LastTime);
-        //        }
-
-        //        if (info.Complete)
-        //        {
-        //            Complete(id, message);
-        //        }
-        //        else
-        //        {
-        //            AdminMonitor.CompleteTask(true, message);
-        //            TelemetryClient.TrackEvent("Recompute",
-        //                new Dictionary<string, string> { { "Id", id }, { "Phase", "Intermediate" }, { "Code", "Success" }, { "Message", AdminMonitor.Status.ToString() }, { "Time", AdminMonitor.Duration.ToString() } });
-        //        }
-        //        return info.Complete;
-        //    }
-        //    catch (Exception e)
-        //    {
-        //        Fail(e);
-        //        return true;
-        //    }
-        //}
 
         private static void Complete(string id, string message)
         {
