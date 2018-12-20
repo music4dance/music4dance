@@ -1,6 +1,9 @@
-﻿using System.Linq;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Web.Mvc;
 using m4dModels;
+using Stripe;
 
 namespace m4d.Controllers
 {
@@ -111,6 +114,72 @@ namespace m4d.Controllers
         public ActionResult CounterHelp()
         {
             return RedirectPermanent("/blog/music4dance-help/tempo-counter/");
+        }
+
+        [AllowAnonymous]
+        public ActionResult Contribute()
+        {
+            return View();
+        }
+
+        // TODONEXT:
+        //  Wire up purchase to ad-free experience
+        //  Look at confirmation code ID better than Guid
+        //  Look at error handling
+        //  Fill out the other contributions with links
+        [AllowAnonymous]
+        public ActionResult Purchase(decimal amount, PurchaseKind kind)
+        {
+            var user = User.Identity.IsAuthenticated ? User.Identity.Name : null;
+            var purchase = new PurchaseModel
+            {
+                Key = Environment.GetEnvironmentVariable("STRIPE_PK"),
+                Kind = kind,
+                Amount = amount,
+                User = user
+            };
+            return View(purchase);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [AllowAnonymous]
+        public ActionResult ConfirmPurchase(string stripeToken, PurchaseKind kind, decimal amount)
+        {
+            // Do the stripy things
+            var user = User.Identity.IsAuthenticated ? User.Identity.Name : null;
+            var conf = Guid.NewGuid();
+
+            var purchase = new PurchaseModel
+            {
+                Kind = kind,
+                Amount = amount,
+                User = user,
+                Confirmation = conf
+            };
+
+            // TODO: Can this be done once per session?
+            StripeConfiguration.SetApiKey(Environment.GetEnvironmentVariable("STRIPE_SK"));
+
+            var metaData = new Dictionary<string, string> { {"confirmation-code", conf.ToString()}};
+            if (user != null)
+            {
+                metaData.Add("user-id",user); 
+            }
+
+            var options = new ChargeCreateOptions
+            {
+                Amount = purchase.Pennies,
+                Currency = "usd",
+                Description = purchase.Description,
+                SourceId = stripeToken,
+                Metadata = metaData
+            };
+
+            var service = new ChargeService();
+            var charge = service.Create(options);
+
+            return View("ConfirmPurchase", purchase);
         }
     }
 }

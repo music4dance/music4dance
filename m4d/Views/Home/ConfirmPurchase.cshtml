@@ -1,0 +1,30 @@
+﻿@model PurchaseModel
+
+@{
+    ViewBag.Title = "Thank You!";
+}
+
+<h1>Thank You!</h1>
+
+@if (Model.Kind == PurchaseKind.Purchase)
+{
+    <p class="big-text">Thank you for purchasing an annual subscription to music4dance.net.  This entitles you to a one year subscription with an ad free experience.</p>
+    if (Model.Amount > 10)
+    {
+        <p class="big-text">Also, thank you for the generous additional donation of $@((Model.Amount-10).ToString("F2"))</p>
+    }
+}
+else
+{
+    <p class="big-text">Thank you for donating $@(Model.Amount.ToString("F2")) to music4dance.net.</p>
+}
+
+<p class="big-text">Your confirmation code is <b>@Model.Confirmation.ToString()</b></p>
+
+@if (Model.Kind == PurchaseKind.Donation || Model.Amount > 10)
+{
+    <p class="big-text">Your donation will help us continue to improve the web site and catalog.</p>
+}
+
+<p class="big-text">Please feel free to <a href="https://www.music4dance.net/blog/feedback/">contact us</a> if you have suggestions for improvements to the site or would like to contribute to the catalog.</p>
+

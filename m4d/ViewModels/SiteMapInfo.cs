@@ -157,6 +157,7 @@ namespace m4d.ViewModels
                     Entries = new List<SiteMapEntry>
                     {
                         new SiteMapEntry {Title =  "Home Page", Reference=""},
+                        new SiteMapEntry {Title =  "Contribute", Reference="home/contribute"},
                         new SiteMapEntry {Title =  "About Us", Reference="home/about"},
                         new SiteMapEntry {Title =  "FAQ", Reference="home/faq"},
                         new SiteMapEntry {Title =  "Privacy Policy", Reference="home/privacypolicy"},
