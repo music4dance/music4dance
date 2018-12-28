@@ -127,6 +127,7 @@
     <Compile Include="SearchServiceInfo.cs" />
     <Compile Include="ServiceType.cs" />
     <Compile Include="DanceStatsManager.cs" />
+    <Compile Include="ShortGuid.cs" />
     <Compile Include="SmartLock.cs" />
     <Compile Include="SongFilterConverter.cs" />
     <Compile Include="PropertyModifier.cs" />

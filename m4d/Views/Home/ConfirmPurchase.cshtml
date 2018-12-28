@@ -8,7 +8,7 @@
 
 @if (Model.Kind == PurchaseKind.Purchase)
 {
-    <p class="big-text">Thank you for purchasing an annual subscription to music4dance.net.  This entitles you to a one year subscription with an ad free experience.</p>
+    <p class="big-text">Thank you for purchasing an annual subscription to music4dance.net.  This entitles you to a one year subscription with an ad free experience.  Remember that you must sign in as @Model.User in order to turn off the advertisements.</p>
     if (Model.Amount > 10)
     {
         <p class="big-text">Also, thank you for the generous additional donation of $@((Model.Amount-10).ToString("F2"))</p>
@@ -19,7 +19,7 @@ else
     <p class="big-text">Thank you for donating $@(Model.Amount.ToString("F2")) to music4dance.net.</p>
 }
 
-<p class="big-text">Your confirmation code is <b>@Model.Confirmation.ToString()</b></p>
+<p class="big-text">Your confirmation code is <b>@Model.Confirmation</b></p>
 
 @if (Model.Kind == PurchaseKind.Donation || Model.Amount > 10)
 {

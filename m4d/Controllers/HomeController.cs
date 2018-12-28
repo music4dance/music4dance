@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web.Mvc;
 using m4dModels;
+using Microsoft.AspNet.Identity;
 using Stripe;
 
 namespace m4d.Controllers
@@ -124,19 +125,29 @@ namespace m4d.Controllers
 
         // TODONEXT:
         //  Wire up purchase to ad-free experience
-        //  Look at confirmation code ID better than Guid
-        //  Look at error handling
+        //  More verification of error handling
+        //  Verify that anonymous donations still work
+        //  Turn off full address verification?
         //  Fill out the other contributions with links
         [AllowAnonymous]
         public ActionResult Purchase(decimal amount, PurchaseKind kind)
         {
-            var user = User.Identity.IsAuthenticated ? User.Identity.Name : null;
+            string user = null;
+            string email = null;
+
+            if (User.Identity.IsAuthenticated)
+            {
+                user = User.Identity.Name;
+                email = UserManager.GetEmail(User.Identity.GetUserId());
+            }
+
             var purchase = new PurchaseModel
             {
                 Key = Environment.GetEnvironmentVariable("STRIPE_PK"),
                 Kind = kind,
                 Amount = amount,
-                User = user
+                User = user,
+                Email = email
             };
             return View(purchase);
         }
@@ -148,7 +159,7 @@ namespace m4d.Controllers
         {
             // Do the stripy things
             var user = User.Identity.IsAuthenticated ? User.Identity.Name : null;
-            var conf = Guid.NewGuid();
+            var conf = new ShortGuid(Guid.NewGuid()).ToString();
 
             var purchase = new PurchaseModel
             {
@@ -158,28 +169,42 @@ namespace m4d.Controllers
                 Confirmation = conf
             };
 
-            // TODO: Can this be done once per session?
-            StripeConfiguration.SetApiKey(Environment.GetEnvironmentVariable("STRIPE_SK"));
-
-            var metaData = new Dictionary<string, string> { {"confirmation-code", conf.ToString()}};
-            if (user != null)
+            try
             {
-                metaData.Add("user-id",user); 
+                // TODO: Can this be done once per session?
+                StripeConfiguration.SetApiKey(Environment.GetEnvironmentVariable("STRIPE_SK"));
+
+                var metaData = new Dictionary<string, string> {{"confirmation-code", conf}};
+                if (user != null)
+                {
+                    metaData.Add("user-id", user);
+                }
+
+                var options = new ChargeCreateOptions
+                {
+                    Amount = purchase.Pennies,
+                    Currency = "usd",
+                    Description = purchase.Description,
+                    SourceId = stripeToken,
+                    Metadata = metaData
+                };
+
+                var service = new ChargeService();
+                var charge = service.Create(options);
+
+                return View("ConfirmPurchase", purchase);
             }
-
-            var options = new ChargeCreateOptions
+            catch (StripeException e)
             {
-                Amount = purchase.Pennies,
-                Currency = "usd",
-                Description = purchase.Description,
-                SourceId = stripeToken,
-                Metadata = metaData
-            };
+                purchase.Error = new PurchaseError
+                {
+                    ErrorType = e.StripeError.ErrorType,
+                    ErrorCode = e.StripeError.Code,
+                    ErrorMessage = e.StripeError.Message
+                };
 
-            var service = new ChargeService();
-            var charge = service.Create(options);
-
-            return View("ConfirmPurchase", purchase);
+                return View("PurchaseError", purchase);
+            }
         }
     }
 }

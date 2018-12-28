@@ -15,10 +15,21 @@ namespace m4dModels
         public decimal Amount { get; set; }
         public PurchaseKind Kind { get; set; }
         public string User { get; set; }
-        public Guid Confirmation { get; set; }
+        public string Email { get; set; }
+        public string Confirmation { get; set; }
+
         public string Description => Kind == PurchaseKind.Purchase ? "Premium Subscription" : "Donation";
 
         public int Pennies => (int) (Amount* 100);
 
+        public PurchaseError Error { get; set; }
+
+    }
+
+    public class PurchaseError
+    {
+        public string ErrorType { get; set; }
+        public string ErrorCode { get; set; }
+        public string ErrorMessage { get; set; }
     }
 }
