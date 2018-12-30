@@ -158,14 +158,14 @@ namespace m4d.Controllers
         public ActionResult ConfirmPurchase(string stripeToken, PurchaseKind kind, decimal amount)
         {
             // Do the stripy things
-            var user = User.Identity.IsAuthenticated ? User.Identity.Name : null;
+            var userName = User.Identity.IsAuthenticated ? User.Identity.Name : null;
             var conf = new ShortGuid(Guid.NewGuid()).ToString();
 
             var purchase = new PurchaseModel
             {
                 Kind = kind,
                 Amount = amount,
-                User = user,
+                User = userName,
                 Confirmation = conf
             };
 
@@ -175,9 +175,17 @@ namespace m4d.Controllers
                 StripeConfiguration.SetApiKey(Environment.GetEnvironmentVariable("STRIPE_SK"));
 
                 var metaData = new Dictionary<string, string> {{"confirmation-code", conf}};
-                if (user != null)
+                if (userName != null)
                 {
-                    metaData.Add("user-id", user);
+                    metaData.Add("user-id", userName);
+                }
+
+                ApplicationUser user = null;
+                string email = null;
+                if (kind == PurchaseKind.Purchase && userName != null)
+                {
+                    user = Database.UserManager.FindById(User.Identity.GetUserId());
+                    email = user.Email;
                 }
 
                 var options = new ChargeCreateOptions
@@ -186,13 +194,37 @@ namespace m4d.Controllers
                     Currency = "usd",
                     Description = purchase.Description,
                     SourceId = stripeToken,
-                    Metadata = metaData
+                    Metadata = metaData,
+                    ReceiptEmail = email
                 };
 
                 var service = new ChargeService();
                 var charge = service.Create(options);
+                if (charge.Paid)
+                {
+                    if (user != null)
+                    {
+                        DateTime? start = DateTime.Now;
+                        if (user.SubscriptionEnd != null && user.SubscriptionEnd < start)
+                        {
+                            start = user.SubscriptionEnd;
+                        }
+                        user.SubscriptionStart = start;
+                        user.SubscriptionEnd = start.Value.AddYears(1);
+                        user.SubscriptionLevel = SubscriptionLevel.Silver;
+                        Database.SaveChanges();
 
-                return View("ConfirmPurchase", purchase);
+                        UserManager.AddToRoles(user.Id, DanceMusicService.PremiumRole);
+                        UserManager.Update(user);
+                    }
+
+                    return View("ConfirmPurchase", purchase);
+                }
+
+                purchase.Error = new PurchaseError
+                {
+                    ErrorType = "internal_error"
+                };
             }
             catch (StripeException e)
             {
@@ -202,9 +234,8 @@ namespace m4d.Controllers
                     ErrorCode = e.StripeError.Code,
                     ErrorMessage = e.StripeError.Message
                 };
-
-                return View("PurchaseError", purchase);
             }
+            return View("PurchaseError", purchase);
         }
     }
 }

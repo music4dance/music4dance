@@ -10,7 +10,12 @@
 </ol>
 
 <h3>Welcome @Model.Name</h3>
-<p>You have been a member of the music4dance community since @Model.MemberSince.ToString("d")</p>
+<p class="big-text">You have been a member of the music4dance community since @Model.MemberSince.ToString("d")</p>
+@if (Model.SubscriptionLevel != SubscriptionLevel.None)
+{
+<p class="big-text">You have been a premium subscriber to musci4dance since @Model.SubscriptionStart.Value.ToString("d").  Your current subscription ends on @Model.SubscriptionEnd.Value.ToString("d")</p>
+}
+
 <p class="text-success">@ViewBag.StatusMessage</p>
 
 <hr />
