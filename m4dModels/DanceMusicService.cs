@@ -1107,7 +1107,7 @@ namespace m4dModels
         private const string SearchBreak = "+++++SEARCHES+++++";
         private const string DanceBreak = "+++++DANCES+++++";
         private const string PlaylistBreak = "+++++PLAYLISTS+++++";
-        private const string UserHeader = "UserId\tUserName\tRoles\tPWHash\tSecStamp\tLockout\tProviders\tEmail\tEmailConfirmed\tStartDate\tRegion\tPrivacy\tCanContact\tServicePreference\tLastActive\tRowCount\tColumns";
+        private const string UserHeader = "UserId\tUserName\tRoles\tPWHash\tSecStamp\tLockout\tProviders\tEmail\tEmailConfirmed\tStartDate\tRegion\tPrivacy\tCanContact\tServicePreference\tLastActive\tRowCount\tColumns\tSubscriptionLevel\tSubscriptionStart\tSubscriptionEnd";
 
         static public bool IsSongBreak(string line) {
             return IsBreak(line, SongBreak);
@@ -1180,8 +1180,11 @@ namespace m4dModels
                 var active = new DateTime();
                 int? rc = null;
                 string col = null;
+                SubscriptionLevel subscriptionLevel = SubscriptionLevel.None;
+                DateTime? subscriptionStart = null;
+                DateTime? subscriptionEnd = null;
 
-                var extended = cells.Length >= 13;
+                var extended = cells.Length >= 17;
                 if (extended)
                 {
                     email = cells[7];
@@ -1189,13 +1192,11 @@ namespace m4dModels
                     DateTime.TryParse(cells[9], out date);
                     region = cells[10];
                     byte.TryParse(cells[11], out privacy);
-                    byte canContactT;
-                    byte.TryParse(cells[12], out canContactT);
+                    byte.TryParse(cells[12], out var canContactT);
                     canContact = (ContactStatus)canContactT;
                     servicePreference = cells[13];
                     DateTime.TryParse(cells[14], out active);
-                    int rcT;
-                    if (!string.IsNullOrWhiteSpace(cells[15]) && int.TryParse(cells[15], out rcT))
+                    if (!string.IsNullOrWhiteSpace(cells[15]) && int.TryParse(cells[15], out var rcT))
                     {
                         rc = rcT;
                     }
@@ -1203,6 +1204,12 @@ namespace m4dModels
                     {
                         col = cells[16];
                     }
+                }
+
+                if (cells.Length >= 20 && Enum.TryParse(cells[17], out subscriptionLevel) && subscriptionLevel != SubscriptionLevel.None)
+                {
+                    if (DateTime.TryParse(cells[18], out var start)) subscriptionStart = start;
+                    if (DateTime.TryParse(cells[18], out var end)) subscriptionEnd = start;
                 }
 
                 var user = FindUser(userName);
@@ -1235,7 +1242,7 @@ namespace m4dModels
                             var role = Context.Roles.FirstOrDefault(r => r.Name == roleName.Trim());
                             if (role == null) continue;
 
-                            var iur = new IdentityUserRole() { UserId = user.Id, RoleId = role.Id };
+                            var iur = new IdentityUserRole { UserId = user.Id, RoleId = role.Id };
                             user.Roles.Add(iur);
                         }
                     }
@@ -1252,6 +1259,9 @@ namespace m4dModels
                         user.LastActive = active;
                         user.RowCountDefault = rc;
                         user.ColumnDefaults = col;
+                        user.SubscriptionLevel = subscriptionLevel;
+                        user.SubscriptionStart = subscriptionStart;
+                        user.SubscriptionEnd = subscriptionEnd;
                     }
 
                     Context.Users.Add(user);
@@ -1807,9 +1817,12 @@ namespace m4dModels
                 var lastActive = user.LastActive.ToString("g");
                 var rc = user.RowCountDefault;
                 var col = user.ColumnDefaults;
+                var sl = user.SubscriptionLevel;
+                var ss = user.SubscriptionStart;
+                var se = user.SubscriptionEnd;
 
                 users.Add(
-                    $"{userId}\t{username}\t{roles}\t{hash}\t{stamp}\t{lockout}\t{providers}\t{email}\t{emailConfirmed}\t{time}\t{region}\t{privacy}\t{canContact}\t{servicePreference}\t{lastActive}\t{rc}\t{col}");
+                    $"{userId}\t{username}\t{roles}\t{hash}\t{stamp}\t{lockout}\t{providers}\t{email}\t{emailConfirmed}\t{time}\t{region}\t{privacy}\t{canContact}\t{servicePreference}\t{lastActive}\t{rc}\t{col}\t{sl}\t{ss}\t{se}");
             }
 
             if (withHeader && users.Count > 0)

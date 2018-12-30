@@ -14,13 +14,13 @@
         <script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
         <script>
             (adsbygoogle = window.adsbygoogle || []).pauseAdRequests = 1;
-            //console.log("Ads are paused");
+            console.log("Ads are paused");
             (adsbygoogle = window.adsbygoogle || []).push({
                 google_ad_client: "ca-pub-8181165353763371",
                 enable_page_level_ads: true
             });
             if (document.cookie.indexOf("cookieconsent_status=dismiss") !== -1) {
-                //console.log("Ads are running");
+                console.log("Ads are running");
                 (adsbygoogle = window.adsbygoogle || []).pauseAdRequests = 0;
             }
         </script>
@@ -83,9 +83,9 @@
                         }
                     },
                     onStatusChange: function(status) {
-                        //console.log('Status Changed to: ' + status);
+                        console.log('Status Changed to: ' + status);
                         if (status === "dismiss" || status === "allow") {
-                            //console.log("Ads are running");
+                            console.log("Ads are running");
                             (window.adsbygoogle = window.adsbygoogle || []).pauseAdRequests = 1;
                         }
                     },
@@ -115,73 +115,76 @@
                     <li class="dropdown">
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown">Music <span class="caret"></span></a>
                         <ul class="dropdown-menu" role="menu">
-                            <li>@Html.ActionLink("Dances", "index", "dances")
-                                <ul style="list-style-type: none" role="menu">
-                                    <li>@Html.ActionLink("Ballroom", "ballroom-competition-categories", "dances")</li>
-                                    <li>@Html.ActionLink("Latin", "latin", "dances")</li>
-                                    <li>@Html.ActionLink("Swing", "swing", "dances")</li>
-                                    <li>@Html.ActionLink("Tango", "tango", "dances")</li>
-                                </ul>
-                            </li>
                             <li>
-                                @Html.ActionLink("Song Library", "index", "song")
-                                <ul style="list-style-type: none" role="menu">
-                                    <li>@Html.ActionLink("Advanced Search", "advancedsearchform", "song", new { filter = new SongFilter("azure+advanced") }, null)</li>
-                                </ul>
-                                <ul style="list-style-type: none" role="menu">
-                                    <li>@Html.ActionLink("Add Song", "augment", "song")</li>
-                                </ul>
-                                <ul style="list-style-type: none" role="menu">
-                                    @Html.ActionLink("New Music", "newmusic", "song", new { type = "Created" }, null)
-                                </ul>
-                            </li>
-                            <li>@Html.ActionLink("Wedding", "wedding-music", "dances")</li>
-                            <li>@Html.ActionLink("Holiday", "holiday-music", "dances")</li>
-                            <li>@Html.ActionLink("Tags", "index", "tag")</li>
-                        </ul>
-                    </li>
-                    <li class="dropdown">
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">Tools <span class="caret"></span></a>
-                        <ul class="dropdown-menu" role="menu">
-                            <li>@Html.ActionLink("Tempo Counter", "counter", "Home")</li>
-                            <li>@Html.ActionLink("Tempi (Tempos)", "tempi", "Home")</li>
-                        </ul>
-                    </li>
-                    <li class="dropdown">
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">Info <span class="caret"></span></a>
-                        <ul class="dropdown-menu" role="menu">
-                            <li><a href="@help">Help</a></li>
-                            <li>@Html.ActionLink("Contribute", "Contribute", "Home")</li>
-                            <li><a href="https://www.music4dance.net/blog">Blog</a></li>
-                            <li>@Html.ActionLink("FAQ", "FAQ", "Home")</li>
-                            <li>@Html.ActionLink("About Us", "About", "Home")</li>
-                            <li><a href="https://www.music4dance.net/blog/reading-list/">Reading List</a></li>
-                            <li>@Html.ActionLink("Site Map", "sitemap", "Home")</li>
-                            <li>@Html.ActionLink("Privacy Policy", "privacypolicy", "Home")</li>
-                            <li>@Html.ActionLink("Credits", "credits", "Home")</li>
-                        </ul>
-                    </li>
-
-                    @*<li>@Html.ActionLink("Contact", "Contact", "Home")</li>*@
-                    @if (User.IsInRole("showDiagnostics"))
-                    {
-                        <li class="dropdown">
-                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">Admin <span class="caret"></span></a>
-                            <ul class="dropdown-menu" role="menu">
-                                <li>@Html.ActionLink("Index", "Index", "Admin")</li>
-                                <li>@Html.ActionLink("Users", "Index", "ApplicationUsers")</li>  
-                                <li>@Html.ActionLink("Tags", "Tags", "Admin")</li>
-                                <li>@Html.ActionLink("Diagnostics", "Diagnostics", "Admin")</li>
-                                <li>@Html.ActionLink("Initialization and Cleanup", "InitializationTasks", "Admin")</li>
-                                <li>@Html.ActionLink("Song Scrapers", "Scraping", "Admin")</li>
-                                <li>@Html.ActionLink("PlayLists", "Index", "PlayList")</li>
-                                @if (User.IsInRole("dbAdmin"))
-                                {
-                                    <li>@Html.ActionLink("Uploads and Backups", "UploadBackup", "Admin")</li>
-                                }
+                                @Html.ActionLink("Dances", "index", "dances")
+                            <ul style="list-style-type: none" role="menu">
+                                <li>@Html.ActionLink("Ballroom", "ballroom-competition-categories", "dances")</li>
+                                <li>@Html.ActionLink("Latin", "latin", "dances")</li>
+                                <li>@Html.ActionLink("Swing", "swing", "dances")</li>
+                                <li>@Html.ActionLink("Tango", "tango", "dances")</li>
                             </ul>
                         </li>
-                    }
+                        <li>
+                            @Html.ActionLink("Song Library", "index", "song")
+                            <ul style="list-style-type: none" role="menu">
+                                <li>@Html.ActionLink("Advanced Search", "advancedsearchform", "song", new { filter = new SongFilter("azure+advanced") }, null)</li>
+                            </ul>
+                            <ul style="list-style-type: none" role="menu">
+                                <li>@Html.ActionLink("Add Song", "augment", "song")</li>
+                            </ul>
+                            <ul style="list-style-type: none" role="menu">
+                                @Html.ActionLink("New Music", "newmusic", "song", new { type = "Created" }, null)
+                            </ul>
+                        </li>
+                        <li>@Html.ActionLink("Wedding", "wedding-music", "dances")</li>
+                        <li>@Html.ActionLink("Holiday", "holiday-music", "dances")</li>
+                        <li>@Html.ActionLink("Tags", "index", "tag")</li>
+                    </ul>
+                </li>
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">Tools <span class="caret"></span></a>
+                    <ul class="dropdown-menu" role="menu">
+                        <li>@Html.ActionLink("Tempo Counter", "counter", "Home")</li>
+                        <li>@Html.ActionLink("Tempi (Tempos)", "tempi", "Home")</li>
+                    </ul>
+                </li>
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">Info <span class="caret"></span></a>
+                    <ul class="dropdown-menu" role="menu">
+                        <li><a href="@help">Help</a></li>
+                        <li><a href="https://www.music4dance.net/blog">Blog</a></li>
+                        <li>@Html.ActionLink("FAQ", "FAQ", "Home")</li>
+                        <li>@Html.ActionLink("About Us", "About", "Home")</li>
+                        <li><a href="https://www.music4dance.net/blog/reading-list/">Reading List</a></li>
+                        <li>@Html.ActionLink("Site Map", "sitemap", "Home")</li>
+                        <li>@Html.ActionLink("Privacy Policy", "privacypolicy", "Home")</li>
+                        <li>@Html.ActionLink("Credits", "credits", "Home")</li>
+                    </ul>
+                </li>
+                <li>
+                <li>@Html.ActionLink("Contribute", "Contribute", "Home")</li>
+                </li>
+
+                @*<li>@Html.ActionLink("Contact", "Contact", "Home")</li>*@
+                @if (User.IsInRole("showDiagnostics"))
+                {
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">Admin <span class="caret"></span></a>
+                        <ul class="dropdown-menu" role="menu">
+                            <li>@Html.ActionLink("Index", "Index", "Admin")</li>
+                            <li>@Html.ActionLink("Users", "Index", "ApplicationUsers")</li>
+                            <li>@Html.ActionLink("Tags", "Tags", "Admin")</li>
+                            <li>@Html.ActionLink("Diagnostics", "Diagnostics", "Admin")</li>
+                            <li>@Html.ActionLink("Initialization and Cleanup", "InitializationTasks", "Admin")</li>
+                            <li>@Html.ActionLink("Song Scrapers", "Scraping", "Admin")</li>
+                            <li>@Html.ActionLink("PlayLists", "Index", "PlayList")</li>
+                            @if (User.IsInRole("dbAdmin"))
+                            {
+                                <li>@Html.ActionLink("Uploads and Backups", "UploadBackup", "Admin")</li>
+                            }
+                        </ul>
+                    </li>
+                }
                 </ul>
                 @Html.Partial("_LoginPartial")
             </div>

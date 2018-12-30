@@ -1,9 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
+using System.Web;
 using System.Web.Mvc;
 using m4dModels;
 using Microsoft.AspNet.Identity;
+using Microsoft.Owin.Security;
 using Stripe;
 
 namespace m4d.Controllers
@@ -120,18 +123,18 @@ namespace m4d.Controllers
         [AllowAnonymous]
         public ActionResult Contribute()
         {
+            ThemeName = BlogTheme;
             return View();
         }
 
         // TODONEXT:
-        //  Wire up purchase to ad-free experience
-        //  More verification of error handling
-        //  Verify that anonymous donations still work
-        //  Turn off full address verification?
-        //  Fill out the other contributions with links
+        //  Implement backup/restore for extended user table (verify)
+
         [AllowAnonymous]
         public ActionResult Purchase(decimal amount, PurchaseKind kind)
         {
+            ThemeName = BlogTheme;
+
             string user = null;
             string email = null;
 
@@ -155,8 +158,10 @@ namespace m4d.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [AllowAnonymous]
-        public ActionResult ConfirmPurchase(string stripeToken, PurchaseKind kind, decimal amount)
+        public ActionResult ConfirmPurchase(string stripeToken, string stripeEmail, PurchaseKind kind, decimal amount)
         {
+            ThemeName = BlogTheme;
+
             // Do the stripy things
             var userName = User.Identity.IsAuthenticated ? User.Identity.Name : null;
             var conf = new ShortGuid(Guid.NewGuid()).ToString();
@@ -181,11 +186,9 @@ namespace m4d.Controllers
                 }
 
                 ApplicationUser user = null;
-                string email = null;
                 if (kind == PurchaseKind.Purchase && userName != null)
                 {
                     user = Database.UserManager.FindById(User.Identity.GetUserId());
-                    email = user.Email;
                 }
 
                 var options = new ChargeCreateOptions
@@ -195,14 +198,14 @@ namespace m4d.Controllers
                     Description = purchase.Description,
                     SourceId = stripeToken,
                     Metadata = metaData,
-                    ReceiptEmail = email
+                    ReceiptEmail = stripeEmail
                 };
 
                 var service = new ChargeService();
                 var charge = service.Create(options);
                 if (charge.Paid)
                 {
-                    if (user != null)
+                    if (user != null && kind == PurchaseKind.Purchase)
                     {
                         DateTime? start = DateTime.Now;
                         if (user.SubscriptionEnd != null && user.SubscriptionEnd < start)
@@ -216,6 +219,10 @@ namespace m4d.Controllers
 
                         UserManager.AddToRoles(user.Id, DanceMusicService.PremiumRole);
                         UserManager.Update(user);
+
+                        Request.GetOwinContext().Authentication.SignOut(DefaultAuthenticationTypes.ExternalCookie);
+                        var identity = UserManager.CreateIdentity(user, DefaultAuthenticationTypes.ApplicationCookie);
+                        Request.GetOwinContext().Authentication.SignIn(new AuthenticationProperties { IsPersistent = true }, identity);
                     }
 
                     return View("ConfirmPurchase", purchase);
