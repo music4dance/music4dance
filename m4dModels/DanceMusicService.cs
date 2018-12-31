@@ -1209,10 +1209,10 @@ namespace m4dModels
                 if (cells.Length >= 20 && Enum.TryParse(cells[17], out subscriptionLevel) && subscriptionLevel != SubscriptionLevel.None)
                 {
                     if (DateTime.TryParse(cells[18], out var start)) subscriptionStart = start;
-                    if (DateTime.TryParse(cells[18], out var end)) subscriptionEnd = start;
+                    if (DateTime.TryParse(cells[18], out var end)) subscriptionEnd = end;
                 }
 
-                var user = FindUser(userName);
+                var user = UserManager.FindById(userId);
                 var create = user == null;
 
                 if (create)

@@ -1,50 +1,57 @@
 ﻿@{
+    var enableCommerce = string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("DISABLE_COMMERCE"));
     ViewBag.Title = "Contribute";
 }
 <H1>Contribute to music4dance.net</H1>
 
-<h2>Purchase a Subscription</h2>
-<p class="big-text">
-    We appreciate any amount that you're willing to contribute to the music4dance effort.  Any contribution of $10 or more contributes to a year of our "premium" subscription, which gives you an ad-free experience.
-</p>
-
-
-@if (User.Identity.IsAuthenticated)
+@if (enableCommerce)
 {
-    using (Html.BeginForm("Purchase", "Home", FormMethod.Post, new { id = "purchase", @class = "form-inline" }))
-    {
-        @Html.AntiForgeryToken()
-        <input type="hidden" name="kind" value="Purchase" />
+    <h2>Purchase a Subscription</h2>
+    <p class="big-text">
+        We appreciate any amount that you're willing to contribute to the music4dance effort. Any contribution of $10 or more contributes to a year of our "premium" subscription, which gives you an ad-free experience.
+    </p>
 
-        <div class="form-group">
-            <label for="purchase-amount">Amount:</label>
-            $<input type="number" name="amount" min="10" max="9999" step="0.01" value="10.00" class="form-control" id="purchase-amount" />
-            <button type="submit" class="btn btn-default">Purchase Subscription</button>
-        </div>
-    }
+    if (User.Identity.IsAuthenticated)
+    {
+        using (Html.BeginForm("Purchase", "Home", FormMethod.Post, new {id = "purchase", @class = "form-inline"}))
+        {
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="kind" value="Purchase"/>
+            <div class="form-group">
+                 <label for="purchase-amount">Amount:</label>
+                 $<input type="number" name="amount" min="10" max="9999" step="0.01" value="10.00" class="form-control" id="purchase-amount"/>
+                 <button type="submit" class="btn btn-default">Purchase Subscription</button>
+             </div>
+         }
+     }
+     else
+     {
+         <p class="big-text">You must be logged in to purchase a subscription, please @Html.ActionLink("Sign In", "signin", "account", new {ReturnUrl = Request?.Url?.AbsoluteUri}, null) or @Html.ActionLink("Sign Up", "signup", "account", new {ReturnUrl = Request?.Url?.AbsoluteUri}, null) .</p>
+         <p class="big-text">If you would like to donate without creating an account, please choose donate below.</p>
+     }
+
+    <h2>Donate</h2>
+    using (Html.BeginForm("Purchase", "Home", FormMethod.Post, new {id = "contribute", @class = "form-inline"}))
+     {
+         @Html.AntiForgeryToken()
+
+         <input type="hidden" name="kind" value="Donation"/>
+         <div class="form-group">
+             <label for="purchase-amount">Amount:</label>
+             $<input type="text" name="amount" min="0" max="9999" step="0.01" value="5.00" class="form-control" id="donate-amount"/>
+             <button type="submit" class="btn btn-default">Donate</button>
+         </div>
+     }
+
+    <h2>Other ways to help</h2>
+
+    <p class="big-text">If you're not ready to help out monetarily, there are many ways that you can support music4dance.net</p>
 }
 else
 {
-    <p class="big-text">You must be logged in to purchase a subscription, please @Html.ActionLink("Sign In", "signin", "account", new { ReturnUrl = Request?.Url?.AbsoluteUri }, null) or @Html.ActionLink("Sign Up", "signup", "account", new { ReturnUrl = Request?.Url?.AbsoluteUri }, null) .</p>
-    <p class="big-text">If you would like to donate without creating an account, please choose donate below.</p>
+    <p class="big-text">We're currently working on implementing both a premium subscription and donation.  In the meantime, there are many other ways that you can support music4dance.net</p>
 }
 
-<h2>Donate</h2>
-@using (Html.BeginForm("Purchase", "Home", FormMethod.Post, new { id = "contribute", @class = "form-inline" }))
-{
-    @Html.AntiForgeryToken()
-
-    <input type="hidden" name="kind" value="Donation" />
-    <div class="form-group">
-        <label for="purchase-amount">Amount:</label>
-        $<input type="text" name="amount" min="0" max="9999" step="0.01" value="5.00" class="form-control" id="donate-amount" />
-        <button type="submit" class="btn btn-default">Donate</button>
-    </div>
-}
-
-<h2>Other ways to help</h2>
-
-<p class="big-text">If you're not ready to help out monetarily, there are many ways that you can support music4dance.net</p>
 <ul class="big-text">
     <li>Tell your friends!</li>
     <li>Vote on the <a href="https://www.music4dance.net/blog/music4dance-help/dance-tags/">dancability of songs</a> and <a href="https://www.music4dance.net/blog/music4dance-help/tag-editing/">tag songs</a></li>
