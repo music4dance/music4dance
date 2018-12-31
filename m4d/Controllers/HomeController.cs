@@ -127,9 +127,6 @@ namespace m4d.Controllers
             return View();
         }
 
-        // TODONEXT:
-        //  Implement backup/restore for extended user table (verify)
-
         [AllowAnonymous]
         public ActionResult Purchase(decimal amount, PurchaseKind kind)
         {
