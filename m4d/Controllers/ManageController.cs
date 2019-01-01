@@ -30,41 +30,13 @@ namespace m4d.Controllers
         // GET: /Manage/Index
         public async Task<ActionResult> Index ()
         {
-            var id = User.Identity.GetUserId();
-            var au = UserManager.FindById(id);
-            var model = new IndexViewModel
-            {
-                Name = User.Identity.GetUserName(),
-                HasPassword = HasPassword(),
-                Logins = await UserManager.GetLoginsAsync(id),
-                //BrowserRemembered = await AuthenticationManager.TwoFactorBrowserRememberedAsync(User.Identity.GetUserId()),
-                MemberSince = GetStartDate(),
-                Region = au.RegionName,
-                Privacy = au.PrivacyDescription,
-                CanContact = au.ContactDescription,
-                ServicePreference = au.ServicePreferenceDescription
-            };
-            return View(model);
+            return View(await BuildViewModel());
         }
 
         // GET: /Manage/UserProfile
         public async Task<ActionResult> UserProfile()
         {
-            var id = User.Identity.GetUserId();
-            var au = UserManager.FindById(id);
-            var model = new IndexViewModel
-            {
-                Name = User.Identity.GetUserName(),
-                HasPassword = HasPassword(),
-                Logins = await UserManager.GetLoginsAsync(id),
-                //BrowserRemembered = await AuthenticationManager.TwoFactorBrowserRememberedAsync(User.Identity.GetUserId()),
-                MemberSince = GetStartDate(),
-                Region = au.RegionName,
-                Privacy = au.PrivacyDescription,
-                CanContact = au.ContactDescription,
-                ServicePreference = au.ServicePreferenceDescription
-            };
-            return View(model);
+            return View(await BuildViewModel());
         }
         // GET /Manage/Settings
         public async Task<ActionResult> Settings(ManageMessageId? message)
@@ -78,23 +50,7 @@ namespace m4d.Controllers
                 : message == ManageMessageId.RemovePhoneSuccess ? "Your phone number was removed."
                 : "";
 
-            var id = User.Identity.GetUserId();
-            var au = UserManager.FindById(id);
-            var model = new IndexViewModel
-            {
-                Name = User.Identity.GetUserName(),
-                HasPassword = HasPassword(),
-                //PhoneNumber = await UserManager.GetPhoneNumberAsync(User.Identity.GetUserId()),
-                //TwoFactor = await UserManager.GetTwoFactorEnabledAsync(User.Identity.GetUserId()),
-                Logins = await UserManager.GetLoginsAsync(id),
-                //BrowserRemembered = await AuthenticationManager.TwoFactorBrowserRememberedAsync(User.Identity.GetUserId()),
-                MemberSince = GetStartDate(),
-                Region = au.RegionName,
-                Privacy = au.PrivacyDescription,
-                CanContact = au.ContactDescription,
-                ServicePreference = au.ServicePreferenceDescription
-            };
-            return View(model);
+            return View(await BuildViewModel());
         }
 
         //
@@ -537,6 +493,29 @@ namespace m4d.Controllers
             return user?.PhoneNumber != null;
         }
 
+        private async Task<IndexViewModel> BuildViewModel()
+        {
+            var id = User.Identity.GetUserId();
+            var au = UserManager.FindById(id);
+            return new IndexViewModel
+            {
+                Name = au.UserName,
+                HasPassword = HasPassword(),
+                //PhoneNumber = await UserManager.GetPhoneNumberAsync(User.Identity.GetUserId()),
+                //TwoFactor = await UserManager.GetTwoFactorEnabledAsync(User.Identity.GetUserId()),
+                Logins = await UserManager.GetLoginsAsync(id),
+                //BrowserRemembered = await AuthenticationManager.TwoFactorBrowserRememberedAsync(User.Identity.GetUserId()),
+                MemberSince = au.StartDate,
+                SubscriptionLevel = au.SubscriptionLevel,
+                SubscriptionStart = au.SubscriptionStart,
+                SubscriptionEnd = au.SubscriptionEnd,
+                Region = au.RegionName,
+                Privacy = au.PrivacyDescription,
+                CanContact = au.ContactDescription,
+                ServicePreference = au.ServicePreferenceDescription
+            };
+
+        }
         public enum ManageMessageId
         {
             AddPhoneSuccess,

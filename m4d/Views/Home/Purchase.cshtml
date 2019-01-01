@@ -1,0 +1,37 @@
+﻿@model PurchaseModel
+
+@{
+    ViewBag.Title = Model.Kind == PurchaseKind.Purchase ? "Purchase a Subscription  music4dance.net" : "Donate to music4dance.net";
+}
+
+<h1>@(Model.Kind == PurchaseKind.Purchase ? "Purchase" : "Donate")</h1>
+
+@if (Model.Kind == PurchaseKind.Purchase)
+{
+    <p class="big-text">Thank you for purchasing an annual subscription to music4dance.net.</p>
+}
+else
+{
+    <p class="big-text">Thank you for donating $@(Model.Amount.ToString("F2")) to music4dance.net.</p>
+}
+
+<p class="big-text">Please click the button below to complete your transaction using <a href="https://stripe.com/" target="_blank">STRIPE</a></p>
+
+@using (Html.BeginForm("ConfirmPurchase", "Home", FormMethod.Post, new { id = "confirm" }))
+{
+    @Html.AntiForgeryToken()
+
+    <input type="hidden" name="amount" value="@Model.Amount" />
+    <input type="hidden" name="kind" value="@Model.Kind" />
+
+    <script src="https://checkout.stripe.com/checkout.js" class="stripe-button"
+            data-key="@Model.Key"
+            data-amount="@Model.Pennies"
+            data-name="music4dance.net"
+            data-description="@Model.Description"
+            data-image="https://stripe.com/img/documentation/checkout/marketplace.png"
+            data-zip-code="true"
+            data-email="@Model.Email"
+            data-locale="auto">
+    </script>
+}

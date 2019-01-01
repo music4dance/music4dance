@@ -544,7 +544,6 @@ namespace m4d.Controllers
 
             if (!string.IsNullOrWhiteSpace(name))
             {
-                
                 model = ArtistViewModel.Create(name, DefaultCruftFilter(), Database);
             }
 
@@ -560,6 +559,7 @@ namespace m4d.Controllers
         [AllowAnonymous]
         public ActionResult Augment(SongFilter filter = null)
         {
+            HelpPage = "add-songs";
             return View();
         }
 
@@ -568,6 +568,7 @@ namespace m4d.Controllers
         [Authorize(Roles = "canTag")]
         public ActionResult Create(string title=null, string artist=null, decimal? tempo = null, int? length=null, string album=null, int? track=null, string service = null, string purchase = null, SongFilter filter = null)
         {
+            HelpPage = "add-songs";
             Song sd;
             if (title == null && service != null && purchase != null)
             {
@@ -620,6 +621,7 @@ namespace m4d.Controllers
 
         public ActionResult Create(Song song, string userTags, SongFilter filter = null)
         {
+            HelpPage = "add-songs";
             if (ModelState.IsValid)
             {
                 var user = Database.FindUser(User.Identity.Name);
@@ -655,6 +657,7 @@ namespace m4d.Controllers
         // GET: /Song/Edit/5
         public ActionResult Edit(Guid? id = null, decimal? tempo = null, SongFilter filter = null)
         {
+            HelpPage = "add-songs";
             var song = Database.FindSong(id ?? Guid.Empty, User.Identity.Name);
             if (song == null)
             {
@@ -685,6 +688,7 @@ namespace m4d.Controllers
         [Authorize(Roles = "canTag")]
         public ActionResult Edit(Song song, string userTags, SongFilter filter = null)
         {
+            HelpPage = "add-songs";
             if (ModelState.IsValid)
             {
                 var user = Database.FindUser(User.Identity.Name);

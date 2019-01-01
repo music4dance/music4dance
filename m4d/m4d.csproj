@@ -436,9 +436,13 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\dotNETSpotifyWebAPI.1.0.2\lib\SpotifyWebAPI.dll</HintPath>
     </Reference>
+    <Reference Include="Stripe.net, Version=21.7.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Stripe.net.21.7.0\lib\net45\Stripe.net.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.Data.Linq" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Net" />
     <Reference Include="System.Net.Http, Version=4.1.1.2, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
@@ -1253,6 +1257,10 @@
     <Content Include="Views\Manage\DeleteUser.cshtml" />
     <Content Include="Views\Song\NewMusic.cshtml" />
     <Content Include="Views\Home\Index.cshtml" />
+    <Content Include="Views\Home\Purchase.cshtml" />
+    <Content Include="Views\Home\Contribute.cshtml" />
+    <Content Include="Views\Home\ConfirmPurchase.cshtml" />
+    <Content Include="Views\Home\PurchaseError.cshtml" />
     <None Include="Web.m4d.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

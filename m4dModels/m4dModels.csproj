@@ -117,6 +117,7 @@
     <Compile Include="MergeCluster.cs" />
     <Compile Include="MusicServiceStub.cs" />
     <Compile Include="PlayList.cs" />
+    <Compile Include="PurchaseModel.cs" />
     <Compile Include="PurchaseRegion.cs" />
     <Compile Include="PurchaseType.cs" />
     <Compile Include="QuickTimer.cs" />
@@ -126,6 +127,7 @@
     <Compile Include="SearchServiceInfo.cs" />
     <Compile Include="ServiceType.cs" />
     <Compile Include="DanceStatsManager.cs" />
+    <Compile Include="ShortGuid.cs" />
     <Compile Include="SmartLock.cs" />
     <Compile Include="SongFilterConverter.cs" />
     <Compile Include="PropertyModifier.cs" />

@@ -4,6 +4,7 @@ using Microsoft.AspNet.Identity;
 using Microsoft.Owin.Security;
 using System;
 using System.Web.Mvc;
+using m4dModels;
 
 namespace m4d.ViewModels
 {
@@ -16,6 +17,9 @@ namespace m4d.ViewModels
         public bool TwoFactor { get; set; }
         public bool BrowserRemembered { get; set; }
         public DateTime MemberSince { get; set; }
+        public SubscriptionLevel SubscriptionLevel { get; set; }
+        public DateTime? SubscriptionStart { get; set; }
+        public DateTime? SubscriptionEnd { get; set; }
 
         // These are user readable strings/enumerable strings
         public string Region { get; set; }
