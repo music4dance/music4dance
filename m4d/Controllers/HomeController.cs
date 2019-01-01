@@ -124,6 +124,7 @@ namespace m4d.Controllers
         public ActionResult Contribute()
         {
             ThemeName = BlogTheme;
+            HelpPage = "subscriptions";
             return View();
         }
 
@@ -131,6 +132,7 @@ namespace m4d.Controllers
         public ActionResult Purchase(decimal amount, PurchaseKind kind)
         {
             ThemeName = BlogTheme;
+            HelpPage = "subscriptions";
 
             string user = null;
             string email = null;
@@ -158,6 +160,7 @@ namespace m4d.Controllers
         public ActionResult ConfirmPurchase(string stripeToken, string stripeEmail, PurchaseKind kind, decimal amount)
         {
             ThemeName = BlogTheme;
+            HelpPage = "subscriptions";
 
             // Do the stripy things
             var userName = User.Identity.IsAuthenticated ? User.Identity.Name : null;

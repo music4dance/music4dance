@@ -1226,29 +1226,6 @@ namespace m4dModels
                     user.SecurityStamp = stamp;
                     user.LockoutEnabled = string.Equals(lockout, "TRUE", StringComparison.InvariantCultureIgnoreCase);
 
-                    if (!string.IsNullOrWhiteSpace(providers))
-                    {
-                        var entries = providers.Split(new[] { '|' }, StringSplitOptions.RemoveEmptyEntries);
-                        for (var j = 0; j < entries.Length; j += 2)
-                        {
-                            var login = new IdentityUserLogin() { LoginProvider = entries[j], ProviderKey = entries[j + 1], UserId = userId };
-                            user.Logins.Add(login);
-                        }
-                    }
-
-                    if (!string.IsNullOrWhiteSpace(roles))
-                    {
-                        var roleNames = roles.Split(new[] { '|' }, StringSplitOptions.RemoveEmptyEntries);
-                        foreach (var roleName in roleNames)
-                        {
-                            var role = Context.Roles.FirstOrDefault(r => r.Name == roleName.Trim());
-                            if (role == null) continue;
-
-                            var iur = new IdentityUserRole { UserId = user.Id, RoleId = role.Id };
-                            user.Roles.Add(iur);
-                        }
-                    }
-
                     if (extended)
                     {
                         user.StartDate = date;
@@ -1258,12 +1235,6 @@ namespace m4dModels
                         user.Privacy = privacy;
                         user.CanContact = canContact;
                         user.ServicePreference = servicePreference;
-                        user.LastActive = active;
-                        user.RowCountDefault = rc;
-                        user.ColumnDefaults = col;
-                        user.SubscriptionLevel = subscriptionLevel;
-                        user.SubscriptionStart = subscriptionStart;
-                        user.SubscriptionEnd = subscriptionEnd;
                     }
 
                     Context.Users.Add(user);
@@ -1283,9 +1254,38 @@ namespace m4dModels
                         user.ServicePreference = servicePreference;
                     }
 
-                    user.LastActive = active;
-                    user.RowCountDefault = rc;
-                    user.ColumnDefaults = col;
+                    user.Logins.Clear();
+                    user.Roles.Clear();
+                }
+
+                user.LastActive = active;
+                user.RowCountDefault = rc;
+                user.ColumnDefaults = col;
+                user.SubscriptionLevel = subscriptionLevel;
+                user.SubscriptionStart = subscriptionStart;
+                user.SubscriptionEnd = subscriptionEnd;
+
+                if (!string.IsNullOrWhiteSpace(providers))
+                {
+                    var entries = providers.Split(new[] { '|' }, StringSplitOptions.RemoveEmptyEntries);
+                    for (var j = 0; j < entries.Length; j += 2)
+                    {
+                        var login = new IdentityUserLogin { LoginProvider = entries[j], ProviderKey = entries[j + 1], UserId = userId };
+                        user.Logins.Add(login);
+                    }
+                }
+
+                if (!string.IsNullOrWhiteSpace(roles))
+                {
+                    var roleNames = roles.Split(new[] { '|' }, StringSplitOptions.RemoveEmptyEntries);
+                    foreach (var roleName in roleNames)
+                    {
+                        var role = Context.Roles.FirstOrDefault(r => r.Name == roleName.Trim());
+                        if (role == null) continue;
+
+                        var iur = new IdentityUserRole { UserId = user.Id, RoleId = role.Id };
+                        user.Roles.Add(iur);
+                    }
                 }
             }
 
