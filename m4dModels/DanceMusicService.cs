@@ -587,13 +587,13 @@ namespace m4dModels
                     r => new Song(r.Document, DanceStats, userName)).FirstOrDefault(s => !s.IsNull);
         }
 
-        public DateTime GetLastModified(ISearchIndexClient client = null)
+        public DateTimeOffset GetLastModified(ISearchIndexClient client = null)
         {
             var ret = DoAzureSearch(null, new SearchParameters {OrderBy=new [] { "Modified desc" }, Top=1,Select=new[] {Song.ModifiedField} }, CruftFilter.AllCruft, client);
             if (ret.Results.Count == 0) return DateTime.MinValue;
 
             var d = ret.Results[0].Document[Song.ModifiedField];
-            return (DateTime) d;
+            return (DateTimeOffset) d;
         }
 
         private IEnumerable<Song> SongsFromList(string list)
