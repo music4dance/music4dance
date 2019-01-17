@@ -1213,10 +1213,13 @@ namespace m4dModels
                 }
 
                 var user = UserManager.FindById(userId);
+                if (user == null)
+                {
+                    user = UserManager.FindByName(userName);
+                }
+
                 var create = user == null;
 
-                // TODONEXT:  Roles and all extended attributes should be overriden in the !create case, this includes removing
-                //  roles that may have previously existed.
                 if (create)
                 {
                     user = _context.Users.Create();

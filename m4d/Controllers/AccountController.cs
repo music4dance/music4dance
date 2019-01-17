@@ -235,6 +235,18 @@ namespace m4d.Controllers
                           @"</ul>" +
                           @"<h4>Please consider purchasing a premium subscription or donating to the site by visiting our <a href='https://www.music4dance.net/home/contribute'>contribute page</a>.</h4>";
 
+            string name = null;
+            var user = UserManager.FindById(userId);
+            if (user != null)
+            {
+                name = user.UserName;
+            }
+
+            if (name != null && name.EndsWith("axinna"))
+            {
+                return callbackUrl;
+            }
+
             await UserManager.SendEmailAsync(userId, subject,message);
 
             return callbackUrl;
