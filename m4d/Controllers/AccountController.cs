@@ -180,6 +180,7 @@ namespace m4d.Controllers
         [HttpPost]
         [AllowAnonymous]
         [ValidateAntiForgeryToken]
+        [CaptchaMvc.Attributes.CaptchaVerify("Captcha is not valid")]
         public async Task<ActionResult> SignUp(RegisterViewModel model)
         {
             if (ModelState.IsValid)
