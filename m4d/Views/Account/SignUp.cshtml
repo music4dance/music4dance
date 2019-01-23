@@ -1,6 +1,6 @@
 ﻿@using m4d.ViewModels;
 @using CaptchaMvc.HtmlHelpers;
-@using CaptchaMvc.Interface;
+@using CaptchaMvc.Interface
 
 @model RegisterViewModel
 @{
@@ -8,7 +8,19 @@
     //  What other pages require captcha
     //  More testing - is email getting registered before captcha step?
     ViewBag.Title = "Sign Up";
-    var captcha = Html.Captcha(5);
+
+    ICaptcha captcha = null;
+
+    var lenStr = Environment.GetEnvironmentVariable("CAPTCHA_LENGTH");
+    if (!int.TryParse(lenStr, out var len))
+    {
+        len = 0;
+    }
+
+    if (len > 0)
+    {
+        captcha = Html.Captcha(5);
+    }
 }
 
 
@@ -57,7 +69,10 @@
                 </div>
                 <div class="form-group">
                     <div class="col-md-10 col-md-offset-2">
-                        @captcha.RenderMarkup()
+                        @if (captcha != null)
+                        {
+                            @captcha.RenderMarkup()
+                        }
                     </div>
                 </div>
                 <div class="form-group">
@@ -88,5 +103,8 @@
 
 @section Scripts {
     @Scripts.Render("~/bundles/jqueryval")
-    @captcha.RenderScript()
+    @if (captcha != null)
+    {
+        @captcha.RenderScript()
+    }
 }
