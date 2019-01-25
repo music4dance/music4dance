@@ -1,26 +1,14 @@
 ﻿@using m4d.ViewModels;
 @using CaptchaMvc.HtmlHelpers;
-@using CaptchaMvc.Interface
+@using m4d.Controllers
 
 @model RegisterViewModel
 @{
-    // TODONEXT: Why don'te we need CaptchMVc.Interface
-    //  What other pages require captcha
-    //  More testing - is email getting registered before captcha step?
     ViewBag.Title = "Sign Up";
 
-    ICaptcha captcha = null;
-
-    var lenStr = Environment.GetEnvironmentVariable("CAPTCHA_LENGTH");
-    if (!int.TryParse(lenStr, out var len))
-    {
-        len = 0;
-    }
-
-    if (len > 0)
-    {
-        captcha = Html.Captcha(5);
-    }
+    var len = AccountController.CaptchaLength();
+    var captcha = len > 0 ? Html.Captcha(len) : null;
+    var action = len > 0 ? "SignUpCaptcha" : "SignUp";
 }
 
 
@@ -29,7 +17,7 @@
 <div class="row">
     <div class="col-md-5">
         <section id="registerForm">
-            @using (Html.BeginForm("SignUp", "Account", FormMethod.Post, new { @class = "form-horizontal", role = "form" }))
+            @using (Html.BeginForm(action, "Account", FormMethod.Post, new { @class = "form-horizontal", role = "form" }))
             {
                 @Html.AntiForgeryToken()
                 <h4>Create a new account.</h4>

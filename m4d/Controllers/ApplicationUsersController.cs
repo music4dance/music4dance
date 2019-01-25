@@ -22,9 +22,10 @@ namespace m4d.Controllers
         //}
 
         // GET: ApplicationUsers
-        public ActionResult Index()
+        public ActionResult Index(bool showUnconfirmed = false)
         {
             //ViewBag.Roles = Context.Roles;
+            ViewBag.ShowUnconfirmed = showUnconfirmed;
             return View(UserManager);
         }
 

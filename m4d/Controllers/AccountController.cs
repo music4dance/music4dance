@@ -181,7 +181,28 @@ namespace m4d.Controllers
         [AllowAnonymous]
         [ValidateAntiForgeryToken]
         [CaptchaMvc.Attributes.CaptchaVerify("Captcha is not valid")]
+        public async Task<ActionResult> SignUpCaptcha(RegisterViewModel model)
+        {
+            return await SignUpInternal(model);
+        }
+
+        //
+        // POST: /Account/SignUp
+        [HttpPost]
+        [AllowAnonymous]
+        [ValidateAntiForgeryToken]
         public async Task<ActionResult> SignUp(RegisterViewModel model)
+        {
+            // Captcha is turned on, this endpoint is invalid
+            if (CaptchaLength() > 0)
+            {
+                throw new InvalidOperationException();
+            }
+
+            return await SignUpInternal(model);
+        }
+
+        private async Task<ActionResult> SignUpInternal(RegisterViewModel model)
         {
             if (ModelState.IsValid)
             {
@@ -213,7 +234,7 @@ namespace m4d.Controllers
             }
 
             // If we got this far, something failed, redisplay form
-            return View(model);
+            return View("SignUp",model);
         }
 
         private async Task<string> SendEmailConfirmationTokenAsync(string userId, string subject)
@@ -628,6 +649,16 @@ namespace m4d.Controllers
         }
 
         public static IEnumerable<string> ActiveUsers => s_activeUsers.ToList();
+
+        public static int CaptchaLength()
+        {
+            var lenStr = Environment.GetEnvironmentVariable("CAPTCHA_LENGTH");
+            if (!int.TryParse(lenStr, out var len))
+            {
+                len = 0;
+            }
+            return len;
+        }
 
         // ReSharper disable once InconsistentNaming
         private static readonly HashSet<string> s_activeUsers = new HashSet<string>();

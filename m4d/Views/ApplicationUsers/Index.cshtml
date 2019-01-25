@@ -4,12 +4,20 @@
 @{
     ViewBag.Title = "Index";
     var users = Model.Users.ToList();
+
     var activeUsers = string.Join(",", AccountController.ActiveUsers);
     var registeredUsers = users.Count(u => !(u.Email.EndsWith("@music4dance.net") ||
                 u.Email.EndsWith("@spotify.com") ||
                 u.Email.EndsWith("@thegray.com")));
+    var confirmedUsers = users.Count(u => u.EmailConfirmed &&
+                                           !(u.Email.EndsWith("@music4dance.net") ||
+                                             u.Email.EndsWith("@spotify.com") ||
+                                             u.Email.EndsWith("@thegray.com")));
+
     var deletedUsers = users.Count(u => u.UserName.StartsWith("DEL:"));
     var hasServicePreference = users.Count(u => !string.IsNullOrEmpty(u.ServicePreference));
+
+    var filteredUsers = ViewBag.ShowUnconfirmed ? users : users.Where(u => u.EmailConfirmed).ToList();
 }
 
 <h2>User Administrator</h2>
@@ -25,6 +33,7 @@
 <p><strong>Active Users:</strong> @activeUsers</p>
 <p><strong>Total Users:</strong> @users.Count</p>
 <p><strong>Registered Users:</strong> @registeredUsers</p>
+<p><strong>Confirmed Users:</strong> @confirmedUsers</p>
 <p><strong>Deleted Users:</strong> @deletedUsers</p>
 <p>@Html.ActionLink("New Pseudo User", "Create", null, new { @class = "btn btn-default", role = "button" })</p>
 
@@ -89,7 +98,7 @@
         <th></th>
     </tr>
 
-    @foreach (var item in users.OrderByDescending(u => u.LastActive > u.StartDate ? u.LastActive : u.StartDate).ToList())
+    @foreach (var item in filteredUsers.OrderByDescending(u => u.LastActive > u.StartDate ? u.LastActive : u.StartDate).ToList())
     {
         var pseudoClass = ApplicationUserManager.IsPseudoUser(item.Email) ? "pseudo-user" : "";
         <tr>
