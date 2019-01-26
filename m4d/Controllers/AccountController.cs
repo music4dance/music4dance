@@ -224,11 +224,7 @@ namespace m4d.Controllers
                     // Uncomment to debug locally 
                     //TempData["ViewBagLink"] = callbackUrl;
 
-                     ViewBag.Message = "Please check your email and confirm your account, your email must be confirmed "
-                                     + "before you can sign in. "
-                                     + "If you don't see the email right away, check your junk or spam inbox to see if it ended up in there instead.";
-
-                     return View("Info");
+                     return View("CheckEmail");
                 }
                 AddErrors(result);
             }

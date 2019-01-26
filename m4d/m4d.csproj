@@ -1265,6 +1265,7 @@
     <Content Include="Views\Home\Contribute.cshtml" />
     <Content Include="Views\Home\ConfirmPurchase.cshtml" />
     <Content Include="Views\Home\PurchaseError.cshtml" />
+    <Content Include="Views\Account\CheckEmail.cshtml" />
     <None Include="Web.m4d.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
