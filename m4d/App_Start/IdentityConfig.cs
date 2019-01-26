@@ -5,6 +5,7 @@ using System.Net.Mail;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using m4d.Context;
+using m4d.Controllers;
 using m4dModels;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.EntityFramework;
@@ -153,6 +154,14 @@ namespace m4d
         public static ApplicationSignInManager Create(IdentityFactoryOptions<ApplicationSignInManager> options, IOwinContext context)
         {
             return new ApplicationSignInManager(context.GetUserManager<ApplicationUserManager>(), context.Authentication);
+        }
+
+        public override async Task SignInAsync(ApplicationUser user, bool isPersistent, bool rememberBrowser)
+        {
+            await base.SignInAsync(user, isPersistent, rememberBrowser);
+            user.LastActive = DateTime.Now;
+            UserManager.Update(user);
+            AccountController.AddActiveUser(user.UserName);
         }
     }
 }

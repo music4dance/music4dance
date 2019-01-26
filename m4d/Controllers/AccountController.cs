@@ -591,13 +591,6 @@ namespace m4d.Controllers
 
         private ActionResult ProfileRedirect(string returnUrl, ApplicationUser user)
         {
-            if (user != null)
-            {
-                s_activeUsers.Add(user.UserName);
-                user.LastActive = DateTime.Now;
-                UserManager?.Update(user);
-            }
-
             // Let's disable the survey form to make it easier to continue through to using the site
             //return (user != null && string.IsNullOrWhiteSpace(user.Region))
             //    ? RedirectToAction("EditProfile", "Manage", new { ReturnUrl = returnUrl })
@@ -654,6 +647,11 @@ namespace m4d.Controllers
                 len = 0;
             }
             return len;
+        }
+
+        public static void AddActiveUser(string name)
+        {
+            s_activeUsers.Add(name);
         }
 
         // ReSharper disable once InconsistentNaming
