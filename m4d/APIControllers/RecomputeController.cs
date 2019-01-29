@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web.Http;
@@ -28,6 +29,7 @@ namespace m4d.APIControllers
 
             if (!force && !HasChanged(id))
             {
+                Trace.WriteLine($"RecomputeController: id = {id}, changed = false");
                 return Ok(new {changed = false, message = "No updates."});
             }
 
@@ -71,6 +73,7 @@ namespace m4d.APIControllers
                 HandleRecompute(recompute, id, message, force);
             }
 
+            Trace.WriteLine($"RecomputeController: id = {id}, changed = true, message = {message}");
             return Ok(new {changed = true, message});
         }
 
