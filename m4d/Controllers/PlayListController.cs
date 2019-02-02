@@ -13,16 +13,17 @@ using EntityState = System.Data.Entity.EntityState;
 
 namespace m4d.Controllers
 {
-    [Authorize(Roles="dbAdmin")]
     public class PlayListController : DMController
     {
         // GET: PlayLists
+        [Authorize(Roles = "dbAdmin")]
         public ActionResult Index(PlayListType type = PlayListType.SongsFromSpotify)
         {
             return View(GetIndex(type));
         }
 
         // GET: PlayLists/Details/5
+        [Authorize(Roles = "dbAdmin")]
         public ActionResult Details(string id)
         {
             if (id == null)
@@ -38,6 +39,7 @@ namespace m4d.Controllers
         }
 
         // GET: PlayLists/Create
+        [Authorize(Roles = "dbAdmin")]
         public ActionResult Create()
         {
             return View();
@@ -48,6 +50,7 @@ namespace m4d.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "dbAdmin")]
         public ActionResult Create([Bind(Include = "Id,User,Type,Tags,Name,Description")] PlayList playList)
         {
             if (ModelState.IsValid)
@@ -64,6 +67,7 @@ namespace m4d.Controllers
         }
 
         // GET: PlayLists/Edit/5
+        [Authorize(Roles = "dbAdmin")]
         public ActionResult Edit(string id)
         {
             if (id == null)
@@ -83,6 +87,7 @@ namespace m4d.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "dbAdmin")]
         public ActionResult Edit([Bind(Include = "Id,User,Type,Data1,Data2,Name,Description")] PlayList playList)
         {
             if (ModelState.IsValid)
@@ -95,6 +100,7 @@ namespace m4d.Controllers
         }
 
         // GET: PlayLists/Delete/5
+        [Authorize(Roles = "dbAdmin")]
         public ActionResult Delete(string id)
         {
             if (id == null)
@@ -112,6 +118,7 @@ namespace m4d.Controllers
         // POST: PlayLists/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "dbAdmin")]
         public ActionResult DeleteConfirmed(string id)
         {
             var playList = Database.PlayLists.Find(id);
@@ -127,6 +134,7 @@ namespace m4d.Controllers
         }
 
         // GET: Update
+        [Authorize(Roles = "dbAdmin")]
         public ActionResult Update(string id)
         {
             if (!AdminMonitor.StartTask("UpdatePlayList"))
@@ -147,6 +155,7 @@ namespace m4d.Controllers
         }
 
         // GET: UpdateAll
+        [Authorize(Roles = "dbAdmin")]
         public ActionResult UpdateAll(PlayListType type = PlayListType.SongsFromSpotify)
         {
             if (!AdminMonitor.StartTask("UpdateAllPlayLists"))
@@ -154,8 +163,60 @@ namespace m4d.Controllers
                 throw new AdminTaskException(
                     "UpdateAllPlayLists failed to start because there is already an admin task running");
             }
-            var user = User;
 
+            UpdateAllBase(type, User);
+
+            return RedirectToAction("AdminStatus", "Admin", AdminMonitor.Status);
+        }
+
+        // TODONEXT: Verify that authorize works and that updateall works in both api mode and interactive mode.
+        //  Consider logging or otherwise doing better reporting on what is actually updated
+
+        [AllowAnonymous]
+        public ContentResult UpdateBatch(PlayListType type = PlayListType.SongsFromSpotify)
+        {
+            if (!TokenAuthorizeAttribute.Authorize(Request))
+            {
+                throw new Exception("Unauthorized access.");
+            }
+
+            if (!AdminMonitor.StartTask("UpdateAllPlayLists"))
+            {
+                return Content("{success:false, reason='Another Admin Task is already running'}");
+            }
+
+            UpdateAllBase(type);
+
+            return Content("{success:true, reason='Kicked off Update Batch'}");
+        }
+
+        // GET: UpdateAll
+        [SuppressMessage("ReSharper", "InconsistentNaming")]
+        [Authorize(Roles = "dbAdmin")]
+        public ActionResult BulkCreate(PlayListType type, string flavor = "TopN")
+        {
+            // Get a list of existing playlists so that we don't add duplicates?
+            var spotify = MusicService.GetService(ServiceType.Spotify);
+            var oldS = MusicServiceManager.GetPlaylists(spotify, User).ToDictionary(p => p.Name, p => new PlaylistMetadata{Id = p.Id, Name= p.Name});
+            var oldM = Database.PlayLists.Where(p => p.Type == PlayListType.SpotifyFromSearch).Where(p => p.Name != null).ToDictionary(p => p.Name, p => p);
+
+            switch (flavor)
+            {
+                case "TopN":
+                    BulkCreateTopN(oldS, oldM);
+                    break;
+                case "Holiday":
+                    BulkCreateHoliday(oldS, oldM);
+                    break;
+            }
+
+            Database.SaveChanges();
+
+            return View("Index", GetIndex(PlayListType.SpotifyFromSearch));
+        }
+
+        private void UpdateAllBase(PlayListType type, IPrincipal user = null)
+        {
             Task.Run(() =>
             {
                 try
@@ -178,34 +239,6 @@ namespace m4d.Controllers
                     AdminMonitor.CompleteTask(false, $"UpdateAll Playlists failed: {e.Message}");
                 }
             });
-
-            return RedirectToAction("AdminStatus", "Admin", AdminMonitor.Status);
-        }
-
-        // GET: UpdateAll
-        [SuppressMessage("ReSharper", "InconsistentNaming")]
-        public ActionResult BulkCreate(PlayListType type, string flavor = "TopN")
-        {
-            // Get a list of existing playlists so that we don't add duplicates?
-            var spotify = MusicService.GetService(ServiceType.Spotify);
-            var oldS = MusicServiceManager.GetPlaylists(spotify, User).ToDictionary(p => p.Name, p => new PlaylistMetadata{Id = p.Id, Name= p.Name});
-            var oldM = Database.PlayLists.Where(p => p.Type == PlayListType.SpotifyFromSearch).Where(p => p.Name != null).ToDictionary(p => p.Name, p => p);
-
-            switch (flavor)
-            {
-                case "TopN":
-                    BulkCreateTopN(oldS, oldM);
-                    break;
-                case "Holiday":
-                    BulkCreateHoliday(oldS, oldM);
-                    break;
-            }
-
-
-
-            Database.SaveChanges();
-
-            return View("Index", GetIndex(PlayListType.SpotifyFromSearch));
         }
 
         private void BulkCreateTopN(IReadOnlyDictionary<string, PlaylistMetadata> oldS, IReadOnlyDictionary<string, PlayList> oldM)

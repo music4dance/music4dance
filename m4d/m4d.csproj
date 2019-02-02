@@ -729,6 +729,7 @@
     <Compile Include="Utilities\HtmlExtensions.cs" />
     <Compile Include="Utilities\LowerCaseRoute.cs" />
     <Compile Include="Utilities\SongBinder.cs" />
+    <Compile Include="Utilities\TokenAuthorizeAttribute.cs" />
     <Compile Include="Utilities\XboxAuthentication.cs" />
     <Compile Include="ViewModels\AlbumViewModel.cs" />
     <Compile Include="ViewModels\ArtistViewModel.cs" />

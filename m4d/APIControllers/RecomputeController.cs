@@ -20,9 +20,7 @@ namespace m4d.APIControllers
         //   timesfromproperties, compressregions, spotifyregions, rebuildusertags, rebuildtags
         public IHttpActionResult Get(string id, bool force = false, bool sync = false)
         {
-            var authenticationHeader = Request.Headers.Authorization;
-            var token = Encoding.UTF8.GetString(Convert.FromBase64String(authenticationHeader.Parameter));
-            if (authenticationHeader.Scheme != "Token" || token != SecurityToken)
+            if (!TokenAuthorizeAttribute.Authorize(Request))
             {
                 return Unauthorized();
             }
@@ -161,9 +159,5 @@ namespace m4d.APIControllers
         {
             AdminMonitor.CompleteTask(false, e.Message, e);
         }
-
-        private string SecurityToken => _securityToken ?? (_securityToken = Environment.GetEnvironmentVariable("RECOMPUTEJOB_KEY"));
-
-        private string _securityToken;
     }
 }
