@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 
@@ -124,7 +123,7 @@ namespace m4dModels
 
         private static readonly string[] s_commonRegions =
         {
-            "AD,AR,AT,AU,BE,BG,BO,BR,CA,CH,CL,CO,CR,CY,CZ,DE,DK,DO,EC,EE,ES,FI,FR,GB,GR,GT,HK,HN,HU,IE,IS,IT,LI,LT,LU,LV,MC,MT,MX,MY,NI,NL,NO,NZ,PA,PE,PH,PL,PT,PY,RO,SE,SG,SI,SK,SV,TR,TW,US,UY",
+            "AD,AE,AR,AT,AU,BE,BG,BH,BO,BR,CA,CH,CL,CO,CR,CY,CZ,DE,DK,DO,DZ,EC,EE,EG,ES,FI,FR,GB,GR,GT,HK,HN,HU,ID,IE,IL,IS,IT,JO,JP,KW,LB,LI,LT,LU,LV,MA,MC,MT,MX,MY,NI,NL,NO,NZ,OM,PA,PE,PH,PL,PS,PT,PY,QA,RO,SA,SE,SG,SK,SV,TH,TN,TR,TW,US,UY,VN,ZA",
             "CA,MX,US",
             "CA,GB,IE,US",
             "AT,CA,CH,DE,MX,US",
@@ -144,7 +143,7 @@ namespace m4dModels
             "AD,AR,AU,BE,BG,BO,BR,CA,CH,CL,CO,CR,CY,CZ,DK,DO,EC,EE,ES,FI,FR,GB,GR,GT,HK,HN,HU,IE,IS,IT,LI,LT,LU,LV,MC,MT,MX,MY,NI,NL,NO,NZ,PA,PE,PH,PL,PT,PY,RO,SE,SG,SI,SK,SV,TR,TW,US,UY",
             "AR,BO,BR,CA,CL,CO,CR,DO,EC,GT,HK,HN,MX,MY,NI,PA,PE,PH,PY,SG,SV,TW,US,UY",
             "AD,AR,AT,AU,BE,BG,BO,BR,CA,CH,CL,CO,CR,CY,CZ,DE,DK,DO,EC,EE,ES,FI,FR,GB,GR,GT,HN,HU,IE,IS,IT,LI,LT,LU,LV,MC,MT,MX,NI,NL,NO,NZ,PA,PE,PL,PT,PY,RO,SE,SI,SK,SV,TR,US,UY",
-            "AD,AR,AT,BE,BG,BO,BR,CH,CL,CO,CR,CY,CZ,DE,DK,DO,EC,EE,ES,FI,FR,GB,GR,GT,HK,HN,HU,IE,IS,IT,LI,LT,LU,LV,MC,MT,MX,MY,NI,NL,NO,PA,PE,PH,PL,PT,PY,RO,SE,SG,SI,SK,SV,TR,TW,US,UY"
+            "AD,AR,AT,BE,BG,BO,BR,CH,CL,CO,CR,CY,CZ,DE,DK,DO,EC,EE,ES,FI,FR,GB,GR,GT,HK,HN,HU,IE,IS,IT,LI,LT,LU,LV,MC,MT,MX,MY,NI,NL,NO,PA,PE,PH,PL,PT,PY,RO,SE,SG,SI,SK,SV,TR,TW,US,UY",
         };
 
         // Common Region
