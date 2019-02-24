@@ -206,6 +206,19 @@ namespace m4d.Controllers
                 return View("BotFilter", filter);
             }
 
+            if (filter.Level != null && filter.Level != 0 && !(User.IsInRole(DanceMusicService.PremiumRole) || User.IsInRole(DanceMusicService.DiagRole)))
+            {
+                var u = new UrlHelper(ControllerContext.RequestContext);
+                filter.Level = null;
+                return View("RequiresPremium", new PremiumRedirect
+                {
+                    FeatureType = "search",
+                    FeatureName = "bonus content",
+                    InfoUrl = "https://www.music4dance.net/blog/?page_id=8217",
+                    RedirectUrl = u.Action("AdvancedSearchForm",new {filter})
+                });
+            }
+            
             var p = Database.AzureParmsFromFilter(filter, 25);
             p.IncludeTotalResultCount = true;
 
@@ -257,7 +270,11 @@ namespace m4d.Controllers
             return View();
         }
 
-        //
+
+        // TODONEXT: BonusContent
+        //  Redirect to soft error page if the user is not premium (or admin) that encourages them to sign up for premium
+        //  Figure out where lower in the search stack to throw an error if someone tries to do this without being registered
+        //  Document
         // Get: /Song/AdvancedSearch
         [AllowAnonymous]
         public ActionResult AdvancedSearch(string searchString = null, string dances = null, string tags = null, ICollection<string> services = null, decimal? tempoMin = null, decimal? tempoMax = null, string user=null, string sortOrder = null, string sortDirection = null, ICollection<int> bonusContent = null, SongFilter filter = null)

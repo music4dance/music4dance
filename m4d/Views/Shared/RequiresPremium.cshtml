@@ -1,0 +1,12 @@
+﻿@model PremiumRedirect
+@{
+    ViewBag.Title = $"The {Model.FeatureType} you selected requires a premium membership";
+}
+
+<h1>@ViewBag.Title</h1>
+
+<p class="big-text">@Html.ActionLink("Click here", "Contribute", "Home") to purchase a premium membership.</p>
+
+<p class="big-text"><a href="@Model.InfoUrl">Click here</a> learn more about @Model.FeatureName.</p>
+
+<p class="big-text"><a href="@Model.RedirectUrl">Click here</a> to go back to your @Model.FeatureType.</p>

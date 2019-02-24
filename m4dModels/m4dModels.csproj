@@ -117,6 +117,7 @@
     <Compile Include="MergeCluster.cs" />
     <Compile Include="MusicServiceStub.cs" />
     <Compile Include="PlayList.cs" />
+    <Compile Include="PremiumRedirect.cs" />
     <Compile Include="PurchaseModel.cs" />
     <Compile Include="PurchaseRegion.cs" />
     <Compile Include="PurchaseType.cs" />
