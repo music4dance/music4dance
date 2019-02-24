@@ -23,9 +23,9 @@
 
         ko.mapping.fromJS(data, tagMapping, this);
 
-        self.changed = function () {
+        self.changed = function() {
             // TODO: implement this if we need to track changed.
-        }
+        };
 
         self.clear = function() {
             self.CurrentUserTags.Tags.removeAll();
@@ -47,32 +47,33 @@
     };
 
     // ReSharper disable once InconsistentNaming
-    var FilterPage = function (data) {
+    var FilterPage = function(data) {
         var self = this;
 
         ko.mapping.fromJS(data, filterMapping, this);
 
-        self.tagSuggestions = ko.observable(tagChooser.tagSuggestions('song-list', [tagChooser.currentSuggestion('Include'), tagChooser.currentSuggestion('Exclude')]));
+        self.tagSuggestions = ko.observable(tagChooser.tagSuggestions('song-list',
+            [tagChooser.currentSuggestion('Include'), tagChooser.currentSuggestion('Exclude')]));
 
         self.canTag = ko.observable(true);
         self.showTag = ko.observable(false);
 
-        self.buildList = function (direction, tags) {
+        self.buildList = function(direction, tags) {
             if (!tags) return null;
 
             var decorated = [];
-            $.each(tags, function (idx, val) { decorated.push(direction + val); });
+            $.each(tags, function(idx, val) { decorated.push(direction + val); });
             return decorated.join('|');
-        }
+        };
 
-        self.results = function () {
+        self.results = function() {
             var inc = self.buildList('+', self.includeTags.CurrentUserTags.Tags());
             var exc = self.buildList('-', self.excludeTags.CurrentUserTags.Tags());
 
             return [inc, exc].join('|');
         };
 
-        self.showTagModal = function (event) {
+        self.showTagModal = function(event) {
             var ts = self.tagSuggestions();
 
             var button = $(event.relatedTarget);
@@ -81,13 +82,13 @@
             var obj = this[direction + 'Tags'];
 
             tagChooser.bindModal(ts, obj, button, $(event.currentTarget));
-        }
+        };
 
-        self.clear = function () {
+        self.clear = function() {
             self.includeTags.clear();
             self.excludeTags.clear();
-        }
-    }
+        };
+    };
 
     var pageMapping = {
         create: function (options) {
@@ -99,7 +100,7 @@
         viewModel.showTagModal(event);
     };
 
-    var init = function () {
+    var init = function() {
         var filterTags = window.songFilter ? window.songFilter.Tags : null;
         // TODO: This is a kludge to work around the fact that somewhere upstream there are spaces
         //  being inserted into the taglist - figure out where and then we can get rid of this...
@@ -115,24 +116,30 @@
         //  As a corollary, it appears that even if the will mirror each other, making them the same object fails, so failing the above,
         //    it may be worth checking to see if we can clone rather than rebuilding each object twice.
         var data = {
-            includeTags: { CurrentUserTags: tagChooser.buildUserTags(true, filterTags), TagSummary: tagChooser.buildUserTags(true, filterTags) },
-            excludeTags: { CurrentUserTags: tagChooser.buildUserTags(false, filterTags), TagSummary: tagChooser.buildUserTags(false, filterTags) },
+            includeTags: {
+                CurrentUserTags: tagChooser.buildUserTags(true, filterTags),
+                TagSummary: tagChooser.buildUserTags(true, filterTags)
+            },
+            excludeTags: {
+                CurrentUserTags: tagChooser.buildUserTags(false, filterTags),
+                TagSummary: tagChooser.buildUserTags(false, filterTags)
+            },
             changed: false
         };
 
         viewModel = ko.mapping.fromJS(data, pageMapping);
         tagChooser.setupModal(viewModel.tagSuggestions, showTagModal, { width: '500px' });
         ko.applyBindings(viewModel);
-    }
+    };
 
-    var update = function (event) {
+    var update = function(event) {
         if (event.target.id === 'search') {
             var results = viewModel.results();
             $('#tags').val(results);
         } else {
             console.log('reset');
         }
-    }
+    };
 
     var updateDances = function () {
         var dances = $('#dances').val();
@@ -156,7 +163,7 @@
         window.danceInferred = inf;
     }
 
-    var reset = function (event) {
+    var reset = function(event) {
         event.preventDefault();
 
         // Uncheck all of the checkboxes and sets all of the hidden and text fields to empty strings
@@ -184,14 +191,14 @@
 
         // Clear all of the tags 
         viewModel.clear();
-    }
+    };
 
     return {
         init: init,
         update: update,
         updateDances: updateDances,
         reset: reset
-    }
+    };
 }();
 
 

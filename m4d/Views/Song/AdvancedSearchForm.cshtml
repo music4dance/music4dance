@@ -17,13 +17,13 @@
     var dances = (IList<DanceStats>)ViewBag.Dances;
 
     var userQuery = filter.UserQuery;
-    if (userQuery.IsAnonymous && !string.IsNullOrWhiteSpace(User.Identity.Name)) { userQuery = new UserQuery(userQuery, User.Identity.Name);}
+    if (userQuery.IsAnonymous && !string.IsNullOrWhiteSpace(User.Identity.Name)) { userQuery = new UserQuery(userQuery, User.Identity.Name); }
 
     var userName = (userQuery.IsEmpty || userQuery.IsAnonymous) ? User.Identity.Name : userQuery.UserName;
 
     if (string.IsNullOrWhiteSpace(userName))
     {
-        userQuery = userQuery.IsEmpty ? new UserQuery("null") : new UserQuery(userQuery,User.Identity.Name);
+        userQuery = userQuery.IsEmpty ? new UserQuery("null") : new UserQuery(userQuery, User.Identity.Name);
         userName = userQuery.UserName;
     }
     else if (userQuery.IsEmpty && !userQuery.IsNull)
@@ -40,10 +40,17 @@
     </label>
 }
 
-@*@helper UserOption(string queryString, string text, UserQuery query)
+@helper Bonus(int id, string name, int? cruft)
 {
-    <option value="@queryString" @(string.Equals(queryString,query.Query,StringComparison.OrdinalIgnoreCase) ? "selected" : string.Empty)>@text</option>
-}*@
+    <label class="checkbox-inline">
+        <input type="checkbox" name="bonusContent" id="@("service" + id)" value=@id @(cruft == null || (cruft & id) == 0 ? string.Empty : "checked") />
+        <span>@name</span>
+    </label>
+}
+@*@helper UserOption(string queryString, string text, UserQuery query)
+    {
+        <option value="@queryString" @(string.Equals(queryString,query.Query,StringComparison.OrdinalIgnoreCase) ? "selected" : string.Empty)>@text</option>
+    }*@
 
 @helper UserOption(UserQuery query, string userName, bool? include, bool? like)
 {
@@ -54,7 +61,7 @@
 }
 
 
-@helper SortOrder(string name, string order, string label=null)
+@helper SortOrder(string name, string order, string label = null)
 {
     var sort = new SongSort(order);
     if (label == null)
@@ -75,25 +82,25 @@
     </h1>
 </div>
 <div class="row">
-    <p class="col-sm-4 col-sm-offset-2">@Html.ActionLink("Saved Searches", "index", "searches", new {user=@userName,filter} , new { id = "saved-search" })</p>
+    <p class="col-sm-4 col-sm-offset-2">@Html.ActionLink("Saved Searches", "index", "searches", new { user = @userName, filter }, new { id = "saved-search" })</p>
     <p class="col-sm-4" style="text-align: right">
-        @(isAzure ? Html.ActionLink("Simple Search", "AzureSearch", "song", null, new {id = "basic-search", data_type="azure+simple" }) : Html.ActionLink("Basic Search", "index", "song", null, new {id = "basic-search", data_type = "index" }))
+        @(isAzure ? Html.ActionLink("Simple Search", "AzureSearch", "song", null, new { id = "basic-search", data_type = "azure+simple" }) : Html.ActionLink("Basic Search", "index", "song", null, new { id = "basic-search", data_type = "index" }))
     </p>
 </div>
 <div class="row">
     <div class="col-sm-10 col-sm-offset-1 col-md-8 col-md-offset-2" style="font-size: 16px; border: 40px solid;">
-        @using (Html.BeginForm("advancedsearch", "Song", FormMethod.Get, new {id = "search", @class = "form-horizontal"}))
+        @using (Html.BeginForm("advancedsearch", "Song", FormMethod.Get, new { id = "search", @class = "form-horizontal" }))
         {
             <div class="form-group" style="margin-top: 1em; margin-bottom: 1em">
                 <div class="col-sm-2">
                     <label for="search-text" class="control-label search-label">Keywords:</label>
                 </div>
                 <div class="col-sm-9 col-md-10">
-                    @Html.TextBox("SearchString", filter.SearchString, new {id = "search-text", @class = "form-control search-text", placeholder = isAzure ? "search string" : "Artist, Title, or Album"})
+                    @Html.TextBox("SearchString", filter.SearchString, new { id = "search-text", @class = "form-control search-text", placeholder = isAzure ? "search string" : "Artist, Title, or Album" })
                 </div>
-                <input type="hidden" name="dances" id="dances" value="@filter.Dances"/>
-                <input type="hidden" name="filter" id="filter" value="@filter.ToString()"/>
-                <input type="hidden" name="tags" id="tags"/>
+                <input type="hidden" name="dances" id="dances" value="@filter.Dances" />
+                <input type="hidden" name="filter" id="filter" value="@filter.ToString()" />
+                <input type="hidden" name="tags" id="tags" />
             </div>
 
             <div class="form-group">
@@ -116,15 +123,15 @@
                 </div>
                 <div id="dance-boolean" class="col-sm-2" style="padding-left: 15px">
                     <label class="inline">
-                        <input type="radio" name="db" id="db-any" value="any" @(danceQuery.IsExclusive ? string.Empty : "checked")/>Any
+                        <input type="radio" name="db" id="db-any" value="any" @(danceQuery.IsExclusive ? string.Empty : "checked") />Any
                     </label>&nbsp;&nbsp;
                     <label class="inline">
-                        <input type="radio" name="db" id="db-all" value="all" @(danceQuery.IsExclusive ? "checked" : string.Empty)/>All
+                        <input type="radio" name="db" id="db-all" value="all" @(danceQuery.IsExclusive ? "checked" : string.Empty) />All
                     </label>
                 </div>
                 <div id="dance-inferred" class="col-sm-3" style="padding-left: 15px">
                     <label class="inline">
-                        <input type="checkbox" name="dx" id="inferred" @(danceQuery.IncludeInferred ? "checked" : string.Empty)/>Include Inferred
+                        <input type="checkbox" name="dx" id="inferred" @(danceQuery.IncludeInferred ? "checked" : string.Empty) />Include Inferred
                     </label>
                 </div>
             </div>
@@ -134,8 +141,8 @@
                     <label class="control-label search-label">Tempo range (BPM):</label>
                 </div>
                 <div class="col-sm-9">
-                    @Html.TextBox("TempoMin", filter.TempoMin, new {@class = "input-sm"})&nbsp;to&nbsp;
-                    @Html.TextBox("TempoMax", filter.TempoMax, new {@class = "input-sm"})
+                    @Html.TextBox("TempoMin", filter.TempoMin, new { @class = "input-sm" })&nbsp;to&nbsp;
+                    @Html.TextBox("TempoMax", filter.TempoMax, new { @class = "input-sm" })
                 </div>
             </div>
 
@@ -208,7 +215,16 @@
                         <input type="radio" name="sortDirection" value="Descending" @(filter.SortOrder.EndsWith("_desc", StringComparison.OrdinalIgnoreCase) ? "checked" : string.Empty)> Descending (Z-A, Fast-Slow, Oldest-Newest)
                     </label>
                 </div>
+            </div>
 
+            <div class="form-group">
+                <div class="col-sm-2">
+                    <label for="bonusContent" class="control-label search-label">Bonus Content:</label>
+                </div>
+                <div class="col-sm-9">
+                    @Bonus(1, "Not found in any publisher catalog", filter.Level)
+                    @Bonus(2, "Not categorized by dance", filter.Level)
+                </div>
             </div>
 
             <div class="form-group">

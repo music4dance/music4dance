@@ -260,7 +260,7 @@ namespace m4d.Controllers
         //
         // Get: /Song/AdvancedSearch
         [AllowAnonymous]
-        public ActionResult AdvancedSearch(string searchString = null, string dances = null, string tags = null, ICollection<string> services = null, decimal? tempoMin = null, decimal? tempoMax = null, string user=null, string sortOrder = null, string sortDirection = null, SongFilter filter = null)
+        public ActionResult AdvancedSearch(string searchString = null, string dances = null, string tags = null, ICollection<string> services = null, decimal? tempoMin = null, decimal? tempoMax = null, string user=null, string sortOrder = null, string sortDirection = null, ICollection<int> bonusContent = null, SongFilter filter = null)
         {
             if (filter == null)
             {
@@ -345,6 +345,22 @@ namespace m4d.Controllers
             {
                 filter.TempoMin = tempoMin;
                 filter.TempoMax = tempoMax;
+                filter.Page = 1;
+            }
+
+            int? level = null;
+            if (bonusContent != null)
+            {
+                level = 0;
+                foreach (var x in bonusContent)
+                {
+                    level |= x;
+                }
+            }
+
+            if (filter.Level != level)
+            {
+                filter.Level = level;
                 filter.Page = 1;
             }
 
