@@ -447,7 +447,6 @@ namespace m4d.Controllers
 
             Database.ChangeUserName(oldName,user.UserName);
 
-            // TODONEXT: Check all signouts for these parameters
             AuthenticationManager.SignOut(DefaultAuthenticationTypes.ApplicationCookie, DefaultAuthenticationTypes.ExternalCookie, DefaultAuthenticationTypes.TwoFactorCookie);
 
             await Context.SaveChangesAsync();

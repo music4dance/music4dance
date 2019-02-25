@@ -45,16 +45,11 @@ namespace m4d.Controllers
             base.OnActionExecuting(filterContext);
         }
 
-        private DanceMusicService.CruftFilter DefaultCruftFilter(SongFilter filter = null)
+        private DanceMusicService.CruftFilter DefaultCruftFilter()
         {
-            if (filter == null || filter.CruftFilter == DanceMusicService.CruftFilter.NoCruft)
-            {
-                return User.IsInRole(DanceMusicService.DiagRole)
+            return User.IsInRole(DanceMusicService.DiagRole) || User.IsInRole(DanceMusicService.PremiumRole)
                     ? DanceMusicService.CruftFilter.AllCruft
                     : DanceMusicService.CruftFilter.NoCruft;
-            }
-
-            return filter.CruftFilter;
         }
 
         #region Commands
@@ -224,7 +219,7 @@ namespace m4d.Controllers
 
             ViewBag.RawSearch = p;
 
-            var results = Database.AzureSearch(filter.SearchString, p, DefaultCruftFilter(filter), "default", Database.DanceStats);
+            var results = Database.AzureSearch(filter.SearchString, p, filter.CruftFilter, "default", Database.DanceStats);
             BuildDanceList();
             ViewBag.SongFilter = filter;
 
@@ -270,11 +265,6 @@ namespace m4d.Controllers
             return View();
         }
 
-
-        // TODONEXT: BonusContent
-        //  Redirect to soft error page if the user is not premium (or admin) that encourages them to sign up for premium
-        //  Figure out where lower in the search stack to throw an error if someone tries to do this without being registered
-        //  Document
         // Get: /Song/AdvancedSearch
         [AllowAnonymous]
         public ActionResult AdvancedSearch(string searchString = null, string dances = null, string tags = null, ICollection<string> services = null, decimal? tempoMin = null, decimal? tempoMax = null, string user=null, string sortOrder = null, string sortDirection = null, ICollection<int> bonusContent = null, SongFilter filter = null)

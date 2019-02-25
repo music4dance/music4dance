@@ -169,9 +169,6 @@ namespace m4d.Controllers
             return RedirectToAction("AdminStatus", "Admin", AdminMonitor.Status);
         }
 
-        // TODONEXT: Verify that authorize works and that updateall works in both api mode and interactive mode.
-        //  Consider logging or otherwise doing better reporting on what is actually updated
-
         [AllowAnonymous]
         public ContentResult UpdateBatch(PlayListType type = PlayListType.SongsFromSpotify)
         {
