@@ -317,8 +317,11 @@ namespace m4d.Utilities
             };
 
             ItemSearchResponse r = null;
-            while (r == null)
-            {
+            // TODO: Amazon is throttling in a big way, may have to give up on them or figure out a way to 
+            //  handle them in the background.  Is there a way to figure out that they're in full throttling
+            //  mode and stop using them for a while?
+            //while (r == null)
+            //{
                 try
                 {
                     r = _client.ItemSearch(itemSearch);
@@ -328,7 +331,7 @@ namespace m4d.Utilities
                     Trace.WriteLine("FindTrack: " + e.Message);
                     Thread.Sleep(5000);
                 }
-            }
+            //}
             return r;
         }
 
