@@ -13,8 +13,8 @@ namespace m4dModels.Tests
         private static readonly string[] Verbose = {
                 "7HbgRyO1uUqkBhYXsGHGyb",
                 null,
-                "5QbgRyO1uUqkBhYXsGHGyb[AD,AR,AT,AU,BE,BG,BO,BR,CA,CH,CL,CO,CR,CY,CZ,DE,DK,DO,EC,EE,ES,FI,FR,GB,GR,GT,HK,HN,HU,IE,IS,IT,LI,LT,LU,LV,MC,MT,MX,MY,NI,NL,NO,NZ,PA,PE,PH,PL,PT,PY,RO,SE,SG,SI,SK,SV,TR,TW,US,UY]",
-                "4FjkmQ9JYaIeh1NxeLEO80[,AD,AR,AT,AU,BE,BG,BO,BR,CA,CH,CL,CO,CR,CY,CZ,DE,DK,DO,EC,EE,ES,FI,FR,GB,GR,GT,HK,HN,HU,IE,IS,IT,LI,LT,LU,LV,MC,MT,MX,MY,NI,NL,NO,NZ,PA,PE,PH,PL,PT,PY,RO,SE,SG,SI,SK,SV,TR,TW,US,UY]",
+                "5QbgRyO1uUqkBhYXsGHGyb[AD,AE,AR,AT,AU,BE,BG,BH,BO,BR,CA,CH,CL,CO,CR,CY,CZ,DE,DK,DO,DZ,EC,EE,EG,ES,FI,FR,GB,GR,GT,HK,HN,HU,ID,IE,IL,IS,IT,JO,JP,KW,LB,LI,LT,LU,LV,MA,MC,MT,MX,MY,NI,NL,NO,NZ,OM,PA,PE,PH,PL,PS,PT,PY,QA,RO,SA,SE,SG,SI,SK,SV,TH,TN,TR,TW,US,UY,VN,ZA]",
+                "4FjkmQ9JYaIeh1NxeLEO80[,AD,AE,AR,AT,AU,BE,BG,BH,BO,BR,CA,CH,CL,CO,CR,CY,CZ,DE,DK,DO,DZ,EC,EE,EG,ES,FI,FR,GB,GR,GT,HK,HN,HU,ID,IE,IL,IS,IT,JO,JP,KW,LB,LI,LT,LU,LV,MA,MC,MT,MX,MY,NI,NL,NO,NZ,OM,PA,PE,PH,PL,PS,PT,PY,QA,RO,SA,SE,SG,SI,SK,SV,TH,TN,TR,TW,US,UY,VN,ZA]",
                 "3tVkq0eSCvfVAE3OVZHnrK[AD,AT,BE,BG,BR,CA,CH,CL,CO,CR,CY,CZ,DE,DK,DO,EC,EE,ES,FI,FR,GR,GT,HK,HN,HU,IS,IT,LI,LT,LU,LV,MC,MT,MX,MY,NI,NL,NO,NZ,PA,PE,PH,PL,PT,RO,SE,SG,SI,SK,SV,TR,TW,US]",
                 "6h8W9kvyEOhyoRYocyH7lf[AT,CA,CH,DE,MX,US]",
                 "0SBqz12IrQJFYLmXAWsrFt[AD,AR,AT,AU,BE,BG,BO,BR,CA,CH,CL,CO,CR,CY,CZ,DE,DK,DO,EC,EE,ES,FI,FR,GB,GR,GT,HK,HN,HU,IE,IS,IT,LI,LT,LU,LV,MC,MT,MX,MY,NI,NL,NO,NZ,PA,PE,PH,PL,PT,PY,RO,SE,SG,SI,SK,SV,TW,US,UY]"
@@ -25,7 +25,7 @@ namespace m4dModels.Tests
             null,
             "5QbgRyO1uUqkBhYXsGHGyb[0]",
             "4FjkmQ9JYaIeh1NxeLEO80[0]",
-            "3tVkq0eSCvfVAE3OVZHnrK[0-AR,AU,BO,GB,IE,PY,UY]",
+            "3tVkq0eSCvfVAE3OVZHnrK[0-AE,AR,AU,BH,BO,DZ,EG,GB,ID,IE,IL,JO,JP,KW,LB,MA,OM,PS,PY,QA,SA,TH,TN,UY,VN,ZA]",
             "6h8W9kvyEOhyoRYocyH7lf[3]",
             "0SBqz12IrQJFYLmXAWsrFt[11]"
         };
@@ -83,8 +83,7 @@ namespace m4dModels.Tests
             for (var index = 0; index < Verbose.Length; index++)
             {
                 var s = Verbose[index];
-                string[] rgs;
-                var id = PurchaseRegion.ParseIdAndRegionInfo(s, out rgs);
+                var id = PurchaseRegion.ParseIdAndRegionInfo(s, out var rgs);
                 var act = PurchaseRegion.FormatIdAndRegionInfo(id, rgs);
 
                 //Trace.WriteLine(act);
@@ -98,10 +97,8 @@ namespace m4dModels.Tests
         {
             for (var index = 0; index < Verbose.Length; index++)
             {
-                string[] vrb;
-                string[] cmp;
-                PurchaseRegion.ParseIdAndRegionInfo(Verbose[index], out vrb);
-                PurchaseRegion.ParseIdAndRegionInfo(Compact[index], out cmp);
+                PurchaseRegion.ParseIdAndRegionInfo(Verbose[index], out var vrb);
+                PurchaseRegion.ParseIdAndRegionInfo(Compact[index], out var cmp);
 
                 if (vrb == null)
                 {
