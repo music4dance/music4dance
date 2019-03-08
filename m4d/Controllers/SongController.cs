@@ -47,7 +47,7 @@ namespace m4d.Controllers
 
         private DanceMusicService.CruftFilter DefaultCruftFilter()
         {
-            return User.IsInRole(DanceMusicService.DiagRole) || User.IsInRole(DanceMusicService.PremiumRole)
+            return User.IsInRole(DanceMusicService.DiagRole) || User.IsInRole(DanceMusicService.PremiumRole) || User.IsInRole(DanceMusicService.TrialRole)
                     ? DanceMusicService.CruftFilter.AllCruft
                     : DanceMusicService.CruftFilter.NoCruft;
         }
@@ -201,7 +201,7 @@ namespace m4d.Controllers
                 return View("BotFilter", filter);
             }
 
-            if (filter.Level != null && filter.Level != 0 && !(User.IsInRole(DanceMusicService.PremiumRole) || User.IsInRole(DanceMusicService.DiagRole)))
+            if (filter.Level != null && filter.Level != 0 && !(User.IsInRole(DanceMusicService.PremiumRole) || User.IsInRole(DanceMusicService.TrialRole) || User.IsInRole(DanceMusicService.DiagRole)))
             {
                 var u = new UrlHelper(ControllerContext.RequestContext);
                 filter.Level = null;
