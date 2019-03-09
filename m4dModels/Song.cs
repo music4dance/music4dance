@@ -1006,7 +1006,9 @@ namespace m4dModels
         public int? Length { get; set; }
 
         [DataMember]
-        public string Purchase { get { return GetPurchaseTags(); } set {} }
+        public string Purchase { get { return GetPurchaseTags(); } set { } }
+
+        public IEnumerable<PurchaseInfo> PurchaseInfo => GetPurchaseLinks().Select(p => new PurchaseInfo(p, true));
 
         [DataMember]
         public string Sample { get; set; }
@@ -2857,7 +2859,7 @@ namespace m4dModels
             Array.Sort(a);
             return new string(a);
         }
-        public ICollection<PurchaseLink> GetPurchaseLinks(string service = "AIXS", string region = null)
+        public ICollection<PurchaseLink> GetPurchaseLinks(string service = "AIS", string region = null)
         {
             var links = new List<PurchaseLink>();
             service = service.ToUpper();

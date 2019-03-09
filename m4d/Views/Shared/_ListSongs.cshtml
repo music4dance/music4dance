@@ -1,4 +1,5 @@
 ﻿@using DanceLibrary
+@using Newtonsoft.Json
 @model IEnumerable<Song>
 
 @{
@@ -280,11 +281,12 @@
                         if (!string.IsNullOrWhiteSpace(item.Purchase))
                         {
                             var id = "Play" + item.SongId;
-                            <a href="#" id="@id" role="button" class="btn play-button" style="padding: 0"
-                               data-toggle="modal" data-target="#playModal" aria-expanded="false"
-                               data-song-id ="@item.SongId"
-                               data-title="@item.Title" data-artist="@item.Artist"
-                               data-purchase="@item.Purchase" data-sample="@item.Sample"
+                            var purchase = JsonConvert.SerializeObject(item.PurchaseInfo);
+                            <a href='#' id='@id' role='button' class='btn play-button' style='padding: 0'
+                               data-toggle='modal' data-target='#playModal' aria-expanded='false'
+                               data-song-id ='@item.SongId'
+                               data-title='@item.Title' data-artist='@item.Artist'
+                               data-purchase='@purchase' data-sample='@item.Sample'
                                >
                                 <img src="@Url.Content("~/Content/playbutton.png")" alt="Play" width="20" height="20"/>
                             </a>

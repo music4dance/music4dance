@@ -87,31 +87,16 @@
         var p = t.data('purchase');
 
         for (var i = 0; i < p.length; i++) {
-            var info = purchaseInfo[p[i]];
+            var info = purchaseInfo[p[i].Id];
             if (info) {
-                viewModel.purchase.push(info);
+                p[i].Title = info.title;
+                p[i].Help = info.help;
+                viewModel.purchase.push(p[i]);
             }
-        }
 
         if (s !== null) {
             $('#sample-player').attr('src',s).trigger('play');
         }
-
-        // Handling for purchase links
-        $('.play-link').click(function () {
-            $.getJSON(purchaseUri + this.id[0] + '?songs=' + this.id.substring(1))
-                .done(function (data) {
-                    if (data[0].Target === null) {
-                    window.location = data[0].Link;
-                    } else {
-                        window.open(data[0].Link, data[0].Target);
-                    }
-                })
-                .fail(function () {
-                    window.alert('Unable to fetch data from ' + this.id + 'please try again later.  If this issue persists, please report it to us at info@music4dance.net');
-                    //$('#product').text('Error: ' + err);
-                });
-        });
     });
 
     $('#playModal').on('hide.bs.modal', function () {

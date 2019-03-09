@@ -40,6 +40,7 @@ namespace m4dModels
 
                 ret = new PurchaseLink
                 {
+                    ServiceType = Id,
                     Link = link,
                     AlbumId = album,
                     SongId = id,
