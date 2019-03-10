@@ -93,6 +93,7 @@
                 p[i].Help = info.help;
                 viewModel.purchase.push(p[i]);
             }
+        }
 
         if (s !== null) {
             $('#sample-player').attr('src',s).trigger('play');
