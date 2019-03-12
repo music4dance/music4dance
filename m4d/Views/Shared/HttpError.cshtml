@@ -18,7 +18,7 @@
                     message = string.Concat("The following server error was encountered:<br /> ", Model.Exception.Message);
                     if (Model.Exception.InnerException != null)
                     {
-                        message += string.Format(" ({0})", Model.Exception.InnerException.Message);
+                        message += $" ({Model.Exception.InnerException.Message})";
                     }
                     break;
             }
@@ -31,16 +31,18 @@
 <div>
     <h3>Here are a few things to try:</h3>
     <ul>
-        <li>Try our <a href="https://www.music4dance.net/dances">dances page</a> if you're looking for information about a particular dance style.</li>
-        <li>Try our <a href="https://www.music4dance.net/song">songs page</a> if you're looking for dance information about a particular song or artist.</li>
-        <li>Try our <a href="https://www.music4dance.net/blog">blog</a> if you're looking for information about relating music to dance.</li>
-        <li>Try our <a href="https://www.music4dance.net/home/sitemap">site map</a> or our <a href="https://www.music4dance.net/home">home page</a> if you want to see what we have to offer.</li>
-        <li>If all else fails please Contact us at <a href="mailto:info@music4dance.net">info@music4dance.net</a> or through our <a href="https://www.music4dance.net/blog/feedback/">feedback form</a> and let us know what went wrong.</li>
+        <li class="big-text">Try our <a href="https://www.music4dance.net/dances">dances page</a> if you're looking for information about a particular dance style.</li>
+        <li class="big-text">Try our <a href="https://www.music4dance.net/song">songs page</a> if you're looking for dance information about a particular song or artist.</li>
+        <li class="big-text">Try our <a href="https://www.music4dance.net/blog">blog</a> if you're looking for information about relating music to dance.</li>
+        <li class="big-text">Try our <a href="https://www.music4dance.net/home/sitemap">site map</a> or our <a href="https://www.music4dance.net/home">home page</a> if you want to see what we have to offer.</li>
+        <li class="big-text">If all else fails please Contact us at <a href="mailto:info@music4dance.net">info@music4dance.net</a> or through our <a href="https://www.music4dance.net/blog/feedback/">feedback form</a> and let us know what went wrong.</li>
     </ul>
+    <h3>Would you like a reward for finding a bug?</h3>
+    <p>We have established a bug bounty.  If you've found a bug and would like a reward, please see <a href="https://www.music4dance.net/blog/bug-report/">here</a> for details.</p>
 </div>
 
 
-@if ((TraceLevels.General.TraceVerbose || User.IsInRole("showDiagnostics")) && Model != null  && Model.Exception != null)
+@if ((TraceLevels.General.TraceVerbose || User.IsInRole("showDiagnostics")) && Model?.Exception != null)
 {
     string hresult = "0x" + Model.Exception.HResult.ToString("X8");
     <p><b>Exception:</b>@Model.Exception.Message (@hresult)</p>

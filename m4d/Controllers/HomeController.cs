@@ -93,7 +93,8 @@ namespace m4d.Controllers
         }
 
         [AllowAnonymous]
-        public ActionResult Counter(bool showMPM=true, bool showBPM=false, bool showEpsilon=true, int? numerator=null, decimal? tempo= null)
+        public ActionResult Counter(bool showMPM = true, bool showBPM = false, bool showEpsilon = true,
+            int? numerator = null, decimal? tempo = null)
         {
             ThemeName = ToolTheme;
             ViewBag.paramShowMPM = showMPM;
@@ -222,7 +223,8 @@ namespace m4d.Controllers
 
                         Request.GetOwinContext().Authentication.SignOut(DefaultAuthenticationTypes.ExternalCookie);
                         var identity = UserManager.CreateIdentity(user, DefaultAuthenticationTypes.ApplicationCookie);
-                        Request.GetOwinContext().Authentication.SignIn(new AuthenticationProperties { IsPersistent = true }, identity);
+                        Request.GetOwinContext().Authentication
+                            .SignIn(new AuthenticationProperties {IsPersistent = true}, identity);
                     }
 
                     return View("ConfirmPurchase", purchase);
@@ -243,6 +245,12 @@ namespace m4d.Controllers
                 };
             }
             return View("PurchaseError", purchase);
+        }
+
+        [AllowAnonymous]
+        public ActionResult IntentionalError(string message)
+        {
+            throw new Exception(message ?? "This is an error");
         }
     }
 }
