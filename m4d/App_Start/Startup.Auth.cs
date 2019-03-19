@@ -64,8 +64,8 @@ namespace m4d
                 ClientId = msenv.ClientId,
                 ClientSecret = msenv.ClientSecret
             };
-            ms.Scope.Add("wl.basic");
-            ms.Scope.Add("wl.emails");
+            //ms.Scope.Add("wl.basic");
+            ms.Scope.Add("https://graph.microsoft.com/.default");
             app.UseMicrosoftAccountAuthentication(ms);
 
 
