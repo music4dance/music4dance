@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Globalization;
+using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using m4d.Context;
@@ -98,27 +99,31 @@ namespace m4d
                 ClientSecret = spenv.ClientSecret,
                 Provider = new SpotifyAuthenticationProvider
                 {
-                    OnAuthenticated = context =>
+                    OnAuthenticated = async context =>
                     {
                         const string xmlSchemaString = "http://www.w3.org/2001/XMLSchema#string";
+
+                        var userManager = ApplicationUserManager.Create(null, DanceMusicContext.Create());
+                        var user = await userManager.FindByNameAsync(context.Name);
 
                         var accessToken = context.AccessToken;
                         var refreshToken = context.RefreshToken;
                         var timeout = context.ExpiresIn;
-                        context.Identity.AddClaim(new Claim("urn:spotify:access_token", accessToken,xmlSchemaString,"Spotify"));
-                        context.Identity.AddClaim(new Claim("urn:spotify:refresh_token", refreshToken,xmlSchemaString,"Spotify"));
-                        context.Identity.AddClaim(new Claim("urn:spotify:expires_in", timeout.ToString(), xmlSchemaString, "Spotify"));
-                        context.Identity.AddClaim(new Claim("urn:spotify:start_time", DateTime.Now.ToString(CultureInfo.InvariantCulture), xmlSchemaString, "Spotify"));
+
+                        await AddClaimToUser(userManager, user, "urn:spotify:access_token", accessToken, xmlSchemaString, "Spotify");
+                        await AddClaimToUser(userManager, user, "urn:spotify:refresh_token", refreshToken, xmlSchemaString, "Spotify");
+                        await AddClaimToUser(userManager, user, "urn:spotify:expires_in", timeout.ToString(), xmlSchemaString, "Spotify");
+                        await AddClaimToUser(userManager, user, "urn:spotify:start_time", DateTime.Now.ToString(CultureInfo.InvariantCulture), xmlSchemaString, "Spotify");
 
                         foreach (var x in context.User)
                         {
                             var claimType = $"urn:spotify:{x.Key}";
                             var claimValue = x.Value.ToString();
                             if (!context.Identity.HasClaim(claimType, claimValue))
-                                context.Identity.AddClaim(new Claim(claimType, claimValue, xmlSchemaString, "Spotify"));
+                            {
+                                await AddClaimToUser(userManager, user, claimType, claimValue, xmlSchemaString, "Spotify");
+                            }
                         }
-
-                        return Task.FromResult(0);
                     }
                 }
             };
@@ -127,6 +132,17 @@ namespace m4d
             //sp.Scope.Add("playlist-read-private");
             //sp.Scope.Add("playlist-read-collaborative");
             app.UseSpotifyAuthentication(sp);
+        }
+
+        private static async Task AddClaimToUser(ApplicationUserManager manager, ApplicationUser user, string claimType, string claimValue, string schema, string issuer)
+        {
+            var claim = new Claim(claimType, claimValue, schema, issuer);
+            if (user.Claims.Any(c => c.ClaimType == claimType))
+            {
+                await manager.RemoveClaimAsync(user.Id, claim);
+            }
+
+            await manager.AddClaimAsync(user.Id, claim);
         }
     }
 }
