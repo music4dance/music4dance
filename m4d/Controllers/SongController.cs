@@ -4,6 +4,7 @@ using System.Collections.Specialized;
 using System.Diagnostics;
 using System.Linq;
 using System.Net;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
@@ -925,6 +926,51 @@ namespace m4d.Controllers
             var user = Database.FindUser(userName);
             Database.UndoUserChanges(user, id);
             return RedirectToAction("Details", new { id, filter });
+        }
+
+        [Authorize(Roles = "canEdit,dbAdmin")]
+        public ActionResult CreateSpotify(SongFilter filter, string title)
+        {
+            if (!(User is ClaimsPrincipal claimsPrincipal))
+            {
+                throw new Exception("Invalid Principal");
+            }
+
+            if (claimsPrincipal.Claims.FirstOrDefault(c => c.Type == "urn:spotify:access_token") == null)
+            {
+                // TODO: Link to better help (or possibly custom error page with details)
+                ViewBag.StatusMessage = "You must have a Spotify account associated with your music4dance account.";
+                return View("Error");
+            }
+
+            // TODONEXT: test this fucker
+            try
+            {
+                var p = Database.AzureParmsFromFilter(filter, 50);
+                p.IncludeTotalResultCount = true;
+                var results = Database.AzureSearch(filter.SearchString, p, filter.CruftFilter, "default", Database.DanceStats);
+                var tracks = results.Songs.Select(s => s.GetPurchaseId(ServiceType.Spotify));
+
+                var service = MusicService.GetService(ServiceType.Spotify);
+                var metadata = MusicServiceManager.CreatePlaylist(service, User, title,
+                    $"This playlist was created with information from music4dance.net: {filter.Description}");
+                if (!MusicServiceManager.SetPlaylistTracks(service, User, metadata.Id, tracks))
+                {
+                    // TODO: Link to better help (or possibly custom error page with details)
+                    ViewBag.StatusMessage = "Unable to set the playlist tracks.";
+                    return View("Error");
+                }
+            }
+            catch (Exception)
+            {
+                ViewBag.StatusMessage = "Unable to create a playlist at this time.  Please report the issue.";
+                return View("Error");
+            }
+
+            // TODO: Create a success page
+            ViewBag.StatusMessage = "Not an error, need to create a success page.";
+            return View("Error");
+
         }
 
         //

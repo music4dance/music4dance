@@ -55,7 +55,7 @@ else
     Html.RenderPartial("_ListSongs", @Model, ViewData);
 }
 
-@SongHelper.Footer(Html, Url, Model, filter)
+@SongHelper.SearchFooter(Html, Url, Model, filter)
 
 @if (User.IsInRole("showDiagnostics") && ViewData.ContainsKey("RawSearch"))
 {
