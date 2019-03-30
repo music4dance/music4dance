@@ -90,6 +90,10 @@ namespace m4d.Utilities
             var webRequest = WebRequest.Create(RequestUrl);
             webRequest.ContentType = "application/x-www-form-urlencoded";
             webRequest.Method = "POST";
+
+            var svcCredentials = Convert.ToBase64String(Encoding.ASCII.GetBytes(ClientId + ":" + ClientSecret));
+            webRequest.Headers.Add("Authorization", "Basic " + svcCredentials);
+
             var request = _request ?? (_request = string.Format(RequestFormat, Uri.EscapeDataString(ClientId), Uri.EscapeDataString(ClientSecret))) + RequestExtra;
             var bytes = Encoding.ASCII.GetBytes(request);
             webRequest.ContentLength = bytes.Length;
@@ -161,9 +165,6 @@ namespace m4d.Utilities
 
             switch (serviceType)
             {
-                case ServiceType.XBox:
-                    auth = s_xbox ?? (s_xbox = new XboxAuthentication());
-                    break;
                 case ServiceType.Spotify:
                     auth = s_spotify ?? (s_spotify = new SpotAuthentication());
                     break;
@@ -172,7 +173,6 @@ namespace m4d.Utilities
             return auth;
         }
 
-        private static AdmAuthentication s_xbox;
         private static AdmAuthentication s_spotify;
 
         private static readonly Dictionary<string, AdmAuthentication> s_users = new Dictionary<string, AdmAuthentication>();

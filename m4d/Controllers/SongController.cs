@@ -946,6 +946,7 @@ namespace m4d.Controllers
             // TODONEXT: test this fucker
             try
             {
+                filter.Purchase = "S";
                 var p = Database.AzureParmsFromFilter(filter, 50);
                 p.IncludeTotalResultCount = true;
                 var results = Database.AzureSearch(filter.SearchString, p, filter.CruftFilter, "default", Database.DanceStats);

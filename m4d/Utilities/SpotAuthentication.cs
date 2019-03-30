@@ -12,7 +12,7 @@ namespace m4d.Utilities
     {
         protected override string Client => "spot";
 
-        protected override string RequestFormat => "grant_type=client_credentials&client_id={0}&client_secret={1}";
+        protected override string RequestFormat => "grant_type=client_credentials";
         protected override string RequestUrl => "https://accounts.spotify.com/api/token";
 
         protected override string GetServiceId(IPrincipal principal)
@@ -64,7 +64,6 @@ namespace m4d.Utilities
                 _refreshToken = refreshToken, 
             };
 
-            // TODO: Handle the case when this codepath gets called well after the intial access token is isssued
             var delta = DateTime.Now - start;
             if (delta < token.ExpiresIn)
             {
@@ -75,8 +74,8 @@ namespace m4d.Utilities
             return auth;
         }
 
-        protected override string RequestExtra => "&refreshToken=" + HttpUtility.UrlEncode(_refreshToken);
-        protected override string RequestFormat => "grant_type=refresh_token&refresh_token={0}&client_secret={1}";
+        protected override string RequestExtra => "&refresh_token=" + HttpUtility.UrlEncode(_refreshToken);
+        protected override string RequestFormat => "grant_type=refresh_token";
 
         private string _refreshToken;
     }

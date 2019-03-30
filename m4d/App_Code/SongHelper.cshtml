@@ -172,13 +172,13 @@
             <div class="col-md-12">
                 <h4>Create a Spotify Playlist with the results of this search:</h4>
                 <p>If you are signed in have a premium account and have associated a Spotify account with your music4dance account, this will create a spotify playlist in your account with the top 50 results of the above search.</p>
-                @using (html.BeginForm("Song", "CreateSpotify", new { filter }, FormMethod.Post, new {id = "create-playlist", @class = "form-inline"}}))
+                @using (html.BeginForm("CreateSpotify", "Song", new { filter }, FormMethod.Post, new {id = "create-playlist", @class = "form-inline"}))
                 {
                 @html.AntiForgeryToken()
 
                 <div class="form-group">
                     <label for="playlist-title">Title:</label>
-                    <input type="text" name="title" class="form-control" id="playlist-title"/>
+                    <input type="text" name="title" class="form-control" value="@filter.Description" style="width:300em" id="playlist-title"/>
                     <button type="submit" class="btn btn-default">Create</button>
                 </div>
                 }
