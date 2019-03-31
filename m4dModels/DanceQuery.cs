@@ -156,6 +156,8 @@ namespace m4dModels
             }
         }
 
+        public string ShortDescription => string.Join(", ", Dances.Select(n => n.Name));
+
         private bool StartsWith(string qualifier)
         {
             return Query.StartsWith(qualifier + ",", StringComparison.InvariantCultureIgnoreCase);

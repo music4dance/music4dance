@@ -14,6 +14,7 @@ using Microsoft.Owin.Security.Cookies;
 using Microsoft.Owin.Security.Facebook;
 using Microsoft.Owin.Security.Google;
 using Microsoft.Owin.Security.MicrosoftAccount;
+using Newtonsoft.Json.Linq;
 using Owin;
 using Owin.Security.Providers.Spotify;
 using Owin.Security.Providers.Spotify.Provider;
@@ -104,7 +105,19 @@ namespace m4d
                         const string xmlSchemaString = "http://www.w3.org/2001/XMLSchema#string";
 
                         var userManager = ApplicationUserManager.Create(null, DanceMusicContext.Create());
-                        var user = await userManager.FindByNameAsync(context.Name);
+                        var user = await userManager.FindByNameAsync(context.Name) ?? await userManager.FindByNameAsync(context.Name.Replace(" ", ""));
+
+                        if (user == null)
+                        {
+                            var emailClaim = context.User["email"];
+                            var email = emailClaim.Value<string>();
+                            user = await userManager.FindByEmailAsync(email);
+                        }
+
+                        if (user == null)
+                        {
+                            return;
+                        }
 
                         var accessToken = context.AccessToken;
                         var refreshToken = context.RefreshToken;

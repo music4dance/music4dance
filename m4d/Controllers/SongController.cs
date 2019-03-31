@@ -938,12 +938,11 @@ namespace m4d.Controllers
 
             if (claimsPrincipal.Claims.FirstOrDefault(c => c.Type == "urn:spotify:access_token") == null)
             {
-                // TODO: Link to better help (or possibly custom error page with details)
-                ViewBag.StatusMessage = "You must have a Spotify account associated with your music4dance account.";
-                return View("Error");
+                ViewBag.Title = "Connect your account to Spotify";
+                ViewBag.Message = "You must have a Spotify account associated with your music4dance account in order to use this feature. More instruction on adding an exteral account are available <a href='https://www.music4dance.net/blog/music4dance-help/account-management/#add-external-account'>here</a>.";
+                return View("Info");
             }
 
-            // TODONEXT: test this fucker
             try
             {
                 filter.Purchase = "S";
@@ -957,7 +956,6 @@ namespace m4d.Controllers
                     $"This playlist was created with information from music4dance.net: {filter.Description}");
                 if (!MusicServiceManager.SetPlaylistTracks(service, User, metadata.Id, tracks))
                 {
-                    // TODO: Link to better help (or possibly custom error page with details)
                     ViewBag.StatusMessage = "Unable to set the playlist tracks.";
                     return View("Error");
                 }
@@ -968,7 +966,10 @@ namespace m4d.Controllers
                 return View("Error");
             }
 
-            // TODO: Create a success page
+            // TODONEXT: Create a success page (link to the spotify playlist just created)?
+            // Figure out Spotify Login:
+            //  Move things to ExternalLoginCallback
+            //  How to handle email?  Can we do an extra call to get email?  Or should we require email verification?
             ViewBag.StatusMessage = "Not an error, need to create a success page.";
             return View("Error");
 

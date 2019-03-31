@@ -1,6 +1,9 @@
 ﻿@{
-    ViewBag.Title = "Info";
+    if (string.IsNullOrWhiteSpace(ViewBag.Title))
+    {
+        ViewBag.Title = "Info";
+    }
 }
 
 <h2>@ViewBag.Title:</h2>
-<p>@ViewBag.Message</p>
+<p class="big-text">@Html.Raw(ViewBag.Message)</p>

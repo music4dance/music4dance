@@ -407,19 +407,19 @@ namespace m4dModels
                 var separator = " ";
 
                 var danceQuery = DanceQuery;
-                var prefix = "All "+ danceQuery.ToString();
+                var prefix = "All " + danceQuery.ToString();
 
                 var sb = new StringBuilder(prefix);
 
                 if (!string.IsNullOrWhiteSpace(SearchString))
                 {
-                    sb.AppendFormat(" containing the text \"{0}\"",SearchString);
+                    sb.AppendFormat(" containing the text \"{0}\"", SearchString);
                     separator = CommaSeparator;
                 }
 
                 if (!string.IsNullOrWhiteSpace(Purchase))
                 {
-                    sb.AppendFormat("{0}available on {1}",separator,MusicService.FormatPurchaseFilter(Purchase, " or "));
+                    sb.AppendFormat("{0}available on {1}", separator, MusicService.FormatPurchaseFilter(Purchase, " or "));
                     separator = CommaSeparator;
                 }
 
@@ -441,11 +441,56 @@ namespace m4dModels
                     sb.AppendFormat("{0}having tempo less than {1} beats per minute", separator, TempoMax.Value);
                 }
 
-                var noUserFilter = new SongFilter(ToString()) {Action="Index", User = null, Page = null};
+                var noUserFilter = new SongFilter(ToString()) { Action = "Index", User = null, Page = null };
                 var trivialUser = noUserFilter.IsEmpty;
 
                 sb.Append(UserQuery.Description(trivialUser));
                 sb.Append(".");
+
+                sb.Append(SongSort.Description);
+
+                return sb.ToString().Trim();
+            }
+        }
+
+        public string ShortDescription
+        {
+            get
+            {
+                if (IsRaw)
+                {
+                    return string.IsNullOrWhiteSpace(Purchase) ? new RawSearch(this).ToString() : Purchase;
+                }
+
+                var sb = new StringBuilder();
+                var dances = DanceQuery.ShortDescription;
+                if (!string.IsNullOrWhiteSpace(dances))
+                {
+                    sb.AppendFormat("{0}: ", dances);
+                }
+
+                if (!string.IsNullOrWhiteSpace(SearchString))
+                {
+                    sb.AppendFormat("\"{0}\" ", SearchString);
+                }
+
+                if (TempoMin.HasValue && TempoMax.HasValue)
+                {
+                    sb.AppendFormat("Between {0} and {1} beats per minute", TempoMin.Value, TempoMax.Value);
+                }
+                else if (TempoMin.HasValue)
+                {
+                    sb.AppendFormat("Tempo > {0} beats per minute", TempoMin.Value);
+                }
+                else if (TempoMax.HasValue)
+                {
+                    sb.AppendFormat("Tempo < {0} beats per minute", TempoMax.Value);
+                }
+
+                if (sb.Length > 0)
+                {
+                    sb.Append(". ");
+                }
 
                 sb.Append(SongSort.Description);
 
