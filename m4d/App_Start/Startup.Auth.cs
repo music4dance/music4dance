@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
@@ -102,31 +103,51 @@ namespace m4d
                 {
                     OnAuthenticated = async context =>
                     {
-                        const string xmlSchemaString = "http://www.w3.org/2001/XMLSchema#string";
+                        var dmc = DanceMusicContext.Create();
+                        var userManager = ApplicationUserManager.Create(null, dmc);
 
-                        var userManager = ApplicationUserManager.Create(null, DanceMusicContext.Create());
-                        var user = await userManager.FindByNameAsync(context.Name) ?? await userManager.FindByNameAsync(context.Name.Replace(" ", ""));
+                        var id = GetClaimValue(context.User, "id");
+                        if (string.IsNullOrWhiteSpace(id)) return;
+                        var email = GetClaimValue(context.User, "email");
 
-                        if (user == null)
-                        {
-                            var emailClaim = context.User["email"];
-                            var email = emailClaim.Value<string>();
-                            user = await userManager.FindByEmailAsync(email);
-                        }
+                        var user = dmc.Users.FirstOrDefault(u => u.Logins.Any(l => l.LoginProvider == "Spotify" && l.ProviderKey == id)) ??
+                                   await userManager.FindByEmailAsync(email);
 
                         if (user == null)
                         {
-                            return;
+                            var userName = $"{id}@spotify.music4dance.net";
+                            var result = await userManager.CreateAsync(new ApplicationUser
+                            {
+                                UserName = userName,
+                                Email = email,
+                                EmailConfirmed = true,
+                                CanContact = ContactStatus.Default
+                            });
+
+                            if (!result.Succeeded)
+                            {
+                                Trace.WriteLine($"Failed to create spotify user {userName}");
+                                return;
+                            }
+
+                            user = await userManager.FindByNameAsync(userName);
+                            if (user == null)
+                            {
+                                Trace.WriteLine($"Failed to find spotify user {userName}");
+                                return;
+                            }
                         }
 
                         var accessToken = context.AccessToken;
                         var refreshToken = context.RefreshToken;
                         var timeout = context.ExpiresIn;
 
-                        await AddClaimToUser(userManager, user, "urn:spotify:access_token", accessToken, xmlSchemaString, "Spotify");
-                        await AddClaimToUser(userManager, user, "urn:spotify:refresh_token", refreshToken, xmlSchemaString, "Spotify");
-                        await AddClaimToUser(userManager, user, "urn:spotify:expires_in", timeout.ToString(), xmlSchemaString, "Spotify");
-                        await AddClaimToUser(userManager, user, "urn:spotify:start_time", DateTime.Now.ToString(CultureInfo.InvariantCulture), xmlSchemaString, "Spotify");
+                        var oldClaims = await userManager.GetClaimsAsync(user.Id);
+
+                        await AddClaimToUser(userManager, user, "urn:spotify:access_token", accessToken, "Spotify", oldClaims);
+                        await AddClaimToUser(userManager, user, "urn:spotify:refresh_token", refreshToken, "Spotify", oldClaims);
+                        await AddClaimToUser(userManager, user, "urn:spotify:expires_in", timeout.ToString(), "Spotify", oldClaims);
+                        await AddClaimToUser(userManager, user, "urn:spotify:start_time", DateTime.Now.ToString(CultureInfo.InvariantCulture), "Spotify", oldClaims);
 
                         foreach (var x in context.User)
                         {
@@ -134,7 +155,7 @@ namespace m4d
                             var claimValue = x.Value.ToString();
                             if (!context.Identity.HasClaim(claimType, claimValue))
                             {
-                                await AddClaimToUser(userManager, user, claimType, claimValue, xmlSchemaString, "Spotify");
+                                await AddClaimToUser(userManager, user, claimType, claimValue, "Spotify", oldClaims);
                             }
                         }
                     }
@@ -147,11 +168,25 @@ namespace m4d
             app.UseSpotifyAuthentication(sp);
         }
 
-        private static async Task AddClaimToUser(ApplicationUserManager manager, ApplicationUser user, string claimType, string claimValue, string schema, string issuer)
+        private static string GetClaimValue(JObject user, string key)
         {
+            return !user.TryGetValue(key, out var tok) ? null : tok.ToString();
+        }
+
+        private static async Task AddClaimToUser(ApplicationUserManager manager, ApplicationUser user, string claimType, string claimValue, string issuer, IEnumerable<Claim> oldClaims)
+        {
+            const string schema = "http://www.w3.org/2001/XMLSchema#string";
+
+            var oldClaim = oldClaims.FirstOrDefault(c => c.Type == claimType);
+
             var claim = new Claim(claimType, claimValue, schema, issuer);
-            if (user.Claims.Any(c => c.ClaimType == claimType))
+
+            if (oldClaim != null)
             {
+                if (oldClaim.Value == claimValue)
+                {
+                    return;
+                }
                 await manager.RemoveClaimAsync(user.Id, claim);
             }
 

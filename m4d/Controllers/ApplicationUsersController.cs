@@ -218,10 +218,16 @@ namespace m4d.Controllers
         public ActionResult DeleteConfirmed(string id)
         {
             var applicationUser = UserManager.FindById(id);
+
+            var searches = Context.Searches.Where(s => s.ApplicationUserId == applicationUser.Id);
+            foreach (var search in searches)
+            {
+                Context.Searches.Remove(search);
+            }
             Context.Users.Remove(applicationUser);
             Context.SaveChanges();
             return RedirectToAction("Index");
-        }        
+        }
 
         protected override void Dispose(bool disposing)
         {

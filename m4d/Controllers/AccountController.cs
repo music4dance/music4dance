@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
@@ -447,17 +448,44 @@ namespace m4d.Controllers
             // Sign in the user with this external login provider if the user already has a login
             var result = await SignInManager.ExternalSignInAsync(loginInfo, isPersistent: false);
 
+            if (result == SignInStatus.Failure)
+            {
+                var userName = $"{loginInfo.Login.ProviderKey}@{loginInfo.Login.LoginProvider.ToLower()}.music4dance.net";
+                var user = await UserManager.FindByNameAsync(userName);
+
+                var newName = user?.Claims.FirstOrDefault(c => c.ClaimType == "urn:spotify:display_name")?.ClaimValue
+                    .Replace(" ", "");
+
+                if (newName != null)
+                {
+                    var otherUser = await UserManager.FindByNameAsync(newName);
+                    var n = 1;
+                    var newNameT = newName;
+                    while (otherUser != null)
+                    {
+                        newNameT = $"{newName}{n}";
+                        otherUser = await UserManager.FindByNameAsync(newName);
+                        n += 1;
+                    }
+
+                    user.UserName = newNameT;
+
+                    var r = await UserManager.AddLoginAsync(user.Id, loginInfo.Login);
+                    if (r.Succeeded)
+                    {
+                        await SignInManager.ExternalSignInAsync(loginInfo, isPersistent: false);
+
+                        return ProfileRedirect(returnUrl, user);
+                    }
+                }
+            }
+
             var email = loginInfo.Email;
             string userid = null;
             if (string.IsNullOrWhiteSpace(email))
             {
                 var ext = await AuthenticationManager.GetExternalIdentityAsync(DefaultAuthenticationTypes.ExternalCookie);
-                var claim = ext.Claims.FirstOrDefault(x => x.Type.Contains("emailaddress"));
-
-                if (claim == null)
-                {
-                    claim = ext.Claims.FirstOrDefault(x => x.Type.Contains("email"));
-                }
+                var claim = ext.Claims.FirstOrDefault(x => x.Type.Contains("emailaddress")) ?? ext.Claims.FirstOrDefault(x => x.Type.Contains("email"));
 
                 if (claim != null)
                 {
@@ -531,6 +559,20 @@ namespace m4d.Controllers
                     if (result.Succeeded)
                     {
                         await SignInManager.ExternalSignInAsync(info, isPersistent: false);
+
+                        //foreach (var claim in info.ExternalIdentity.FindAll(c => true))
+                        //{
+                        //    Trace.WriteLine("Claims from Claim Identity");
+                        //    Trace.WriteLine($"Type {claim.Type}, Value {claim.Value}, Issuer={claim.Issuer}");
+                        //}
+                        //var principal = AuthenticationManager.User;
+                        //foreach (var claim in principal.Claims)
+                        //{
+                        //    Trace.WriteLine("Claims from Claim Principal");
+                        //    Trace.WriteLine($"Type {claim.Type}, Value {claim.Value}, Issuer={claim.Issuer}");
+                        //    //await AddClaimToUser(UserManager, user, claim.Type, claim.Value, "Spotify");
+                        //}
+
                         return ProfileRedirect(returnUrl, user);
                     }
                 }
