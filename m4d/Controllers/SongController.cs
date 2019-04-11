@@ -943,6 +943,8 @@ namespace m4d.Controllers
                 return View("Info");
             }
 
+            PlaylistMetadata metadata;
+
             try
             {
                 filter.Purchase = "S";
@@ -952,7 +954,7 @@ namespace m4d.Controllers
                 var tracks = results.Songs.Select(s => s.GetPurchaseId(ServiceType.Spotify));
 
                 var service = MusicService.GetService(ServiceType.Spotify);
-                var metadata = MusicServiceManager.CreatePlaylist(service, User, title,
+                metadata = MusicServiceManager.CreatePlaylist(service, User, title,
                     $"This playlist was created with information from music4dance.net: {filter.Description}");
                 if (!MusicServiceManager.SetPlaylistTracks(service, User, metadata.Id, tracks))
                 {
@@ -966,12 +968,9 @@ namespace m4d.Controllers
                 return View("Error");
             }
 
-            // TODONEXT: Create a success page (link to the spotify playlist just created)?
-            // Figure out Spotify Login:
-            //  Move things to ExternalLoginCallback
-            //  How to handle email?  Can we do an extra call to get email?  Or should we require email verification?
+
             ViewBag.StatusMessage = "Not an error, need to create a success page.";
-            return View("Error");
+            return View(metadata);
 
         }
 

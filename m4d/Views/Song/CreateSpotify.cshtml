@@ -1,0 +1,19 @@
+﻿@model PlaylistMetadata
+
+@{
+    ViewBag.Title = "New Spotify Playlist";
+    var playUrl = "https://open.spotify.com/embed/user/12162827414/playlist/" + Model.Id;
+}
+
+<div class="row"><h1 class="col-sm-12">@ViewBag.Title</h1></div>
+
+<div class="row"><p class="big-text col-sm-12">You've created a spotify playlist based on your search.  You can find it in your public playlists as "@Model.Name"</p></div>
+
+
+<div class="row">
+    <div class="col-sm-6"><iframe src="@playUrl" width="300" height="380" frameborder="0" allowtransparency="true" allow="encrypted-media"></iframe></div>
+    <div class="col-sm-6 big-text">Follow music4dance on Spotify<iframe src="https://open.spotify.com/follow/1/?uri=spotify:user:ebo1rk39vp51kkyjps45eobph&size=basic&theme=light" width="200" height="25" scrolling="no" frameborder="0" style="border: none; overflow: hidden;" allowtransparency="true"></iframe></div>
+</div>
+
+
+
