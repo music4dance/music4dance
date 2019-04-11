@@ -102,7 +102,7 @@
     @(string.IsNullOrWhiteSpace(description) ? (filter.IsAdvanced ? AdvancedHeader(html, filter) : SimpleHeader(html, filter, dances, userName)) : CustomHeader(html, description))
 }
 
-@helper SearchFooter(System.Web.Mvc.HtmlHelper html, UrlHelper urlHelp, PagedList.IPagedList<Song> songs, SongFilter filter, bool hideInferred = false, bool hideSpotify = false)
+@helper SearchFooter(System.Web.Mvc.HtmlHelper html, UrlHelper urlHelp, PagedList.IPagedList<Song> songs, SongFilter filter, bool hideInferred = false, bool hideSpotify = false, bool showExport = false)
 {
     var danceQuery = filter.DanceQuery;
 
@@ -166,7 +166,7 @@
         </div>
 }
 
-    if (!hideSpotify)
+    if (!hideSpotify && showExport)
     {
         <div class="row">
             <div class="col-md-12">

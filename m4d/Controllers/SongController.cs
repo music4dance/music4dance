@@ -928,7 +928,7 @@ namespace m4d.Controllers
             return RedirectToAction("Details", new { id, filter });
         }
 
-        [Authorize(Roles = "canEdit,dbAdmin")]
+        [Authorize(Roles = "canEdit,dbAdmin,premium,trial")]
         public ActionResult CreateSpotify(SongFilter filter, string title)
         {
             if (!(User is ClaimsPrincipal claimsPrincipal))
