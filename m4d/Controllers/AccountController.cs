@@ -445,6 +445,41 @@ namespace m4d.Controllers
             var userT = AuthenticationManager.User;
             Trace.WriteLineIf(TraceLevels.General.TraceInfo, userT.Identity.Name);
 
+            // Sign in the user with this external login provider if the user already has a login
+            var result = await SignInManager.ExternalSignInAsync(loginInfo, isPersistent: false);
+
+            if (result == SignInStatus.Failure)
+            {
+                var userName = $"{loginInfo.Login.ProviderKey}@{loginInfo.Login.LoginProvider.ToLower()}.music4dance.net";
+                var user = await UserManager.FindByNameAsync(userName);
+
+                var newName = user?.Claims.FirstOrDefault(c => c.ClaimType == "urn:spotify:display_name")?.ClaimValue
+                    .Replace(" ", "");
+
+                if (newName != null)
+                {
+                    var otherUser = await UserManager.FindByNameAsync(newName);
+                    var n = 1;
+                    var newNameT = newName;
+                    while (otherUser != null)
+                    {
+                        newNameT = $"{newName}{n}";
+                        otherUser = await UserManager.FindByNameAsync(newName);
+                        n += 1;
+                    }
+
+                    user.UserName = newNameT;
+
+                    var r = await UserManager.AddLoginAsync(user.Id, loginInfo.Login);
+                    if (r.Succeeded)
+                    {
+                        await SignInManager.ExternalSignInAsync(loginInfo, isPersistent: false);
+
+                        return ProfileRedirect(returnUrl, user);
+                    }
+                }
+            }
+
             var email = loginInfo.Email;
             string userid = null;
             if (string.IsNullOrWhiteSpace(email))
@@ -474,58 +509,13 @@ namespace m4d.Controllers
                 }
             }
 
-
-            // Sign in the user with this external login provider if the user already has a login
-            var result = await SignInManager.ExternalSignInAsync(loginInfo, isPersistent: false);
-
-            if (result == SignInStatus.Failure)
-            {
-                var userName = $"{loginInfo.Login.ProviderKey}@{loginInfo.Login.LoginProvider.ToLower()}.music4dance.net";
-                var user = await UserManager.FindByNameAsync(userName);
-
-                var newName = user?.Claims.FirstOrDefault(c => c.ClaimType == "urn:spotify:display_name")?.ClaimValue
-                                  .Replace(" ", "") ?? userid;
-
-                if (newName == null && !string.IsNullOrWhiteSpace(email))
-                {
-                    var parts = email.Split('@');
-                    newName = parts[0];
-                }
-
-                if (user != null)
-                {
-                    var otherUser = await UserManager.FindByNameAsync(newName);
-                    var n = 1;
-                    var newNameT = newName;
-                    while (otherUser != null)
-                    {
-                        newNameT = $"{newName}{n}";
-                        otherUser = await UserManager.FindByNameAsync(newName);
-                        n += 1;
-                    }
-
-                    user.UserName = newNameT;
-
-                    var r = await UserManager.AddLoginAsync(user.Id, loginInfo.Login);
-                    if (r.Succeeded)
-                    {
-                        await SignInManager.ExternalSignInAsync(loginInfo, isPersistent: false);
-
-                        return ProfileRedirect(returnUrl, user);
-                    }
-                }
-            }
-
             switch (result)
             {
                 case SignInStatus.Success:
                 {
-                    var user = Database.Context.Users.FirstOrDefault(u => u.Logins.Any(
-                                   l => l.LoginProvider == loginInfo.Login.LoginProvider && l.ProviderKey == loginInfo.Login.ProviderKey)) ??
-                               (email != null
-                                   ? await UserManager.FindByEmailAsync(email)
-                                   : await UserManager.FindByIdAsync(userid));
-
+                    var user = (email != null)
+                        ? await UserManager.FindByEmailAsync(email)
+                        : await UserManager.FindByIdAsync(userid);
                     return ProfileRedirect(returnUrl, user);
                 }
                 case SignInStatus.LockedOut:
