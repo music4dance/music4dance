@@ -443,7 +443,7 @@ namespace m4d.Controllers
                 return RedirectToAction("SignIn");
             }
             var userT = AuthenticationManager.User;
-            Trace.WriteLine($"userT = {userT.Identity.Name}, userName = {loginInfo.DefaultUserName}, email = {loginInfo.Email}");
+            Trace.TraceInformation($"ExternalLoginCallback: userT = {userT.Identity.Name}, userName = {loginInfo.DefaultUserName}, email = {loginInfo.Email}");
 
             var email = loginInfo.Email;
             string userid = null;
@@ -474,12 +474,12 @@ namespace m4d.Controllers
                 }
             }
 
-            Trace.WriteLine($"email = {email}, userid = {userid}");
+            Trace.TraceInformation($"ExternalLoginCallback: email = {email}, userid = {userid}");
 
             // Sign in the user with this external login provider if the user already has a login
             var result = await SignInManager.ExternalSignInAsync(loginInfo, isPersistent: false);
 
-            Trace.WriteLine($"SingInStatus = {result}");
+            Trace.TraceInformation($"ExternalLoginCallback: SignInStatus = {result}");
 
             if (result == SignInStatus.Failure)
             {
@@ -489,7 +489,7 @@ namespace m4d.Controllers
                 var newName = user?.Claims.FirstOrDefault(c => c.ClaimType == "urn:spotify:display_name")?.ClaimValue
                     .Replace(" ", "");
 
-                Trace.WriteLine($"NewName = {newName}");
+                Trace.TraceInformation($"ExternalLoginCallback: NewName = {newName}");
 
                 if (newName != null)
                 {
@@ -503,6 +503,8 @@ namespace m4d.Controllers
                         n += 1;
                     }
 
+                    Trace.TraceInformation($"ExternalLoginCallback: Rename {user.UserName} to NewName {newName}");
+
                     user.UserName = newNameT;
 
                     var r = await UserManager.AddLoginAsync(user.Id, loginInfo.Login);
@@ -510,6 +512,7 @@ namespace m4d.Controllers
                     {
                         await SignInManager.ExternalSignInAsync(loginInfo, isPersistent: false);
 
+                        Trace.TraceInformation($"ExternalLoginCallBack: Initial login successful for {user.UserName}");
                         return ProfileRedirect(returnUrl, user);
                     }
                 }
@@ -524,19 +527,23 @@ namespace m4d.Controllers
                                (email != null
                                    ? await UserManager.FindByEmailAsync(email)
                                    : await UserManager.FindByIdAsync(userid));
-                    Trace.WriteLine($"user = {user.UserName}");
+
+                    Trace.TraceInformation($"ExternalLoginCallBack: Repeated login successful for {user.UserName}");
+
                     return ProfileRedirect(returnUrl, user);
                 }
                 case SignInStatus.LockedOut:
+                    Trace.TraceInformation($"ExternalLoginCallBack: Locked Out");
                     return View("Lockout");
                 case SignInStatus.RequiresVerification:
+                    Trace.TraceInformation($"ExternalLoginCallBack: RequiresVerification");
                     return RedirectToAction("SendCode", new { ReturnUrl = returnUrl, RememberMe = false });
                 //case SignInStatus.Failure:
                 default:
                     // If the user does not have an account, then prompt the user to create an account
                     ViewBag.ReturnUrl = returnUrl;
                     ViewBag.LoginProvider = loginInfo.Login.LoginProvider;
-                    Trace.WriteLine($"Prompt for account: userName = {loginInfo.DefaultUserName}, email = {loginInfo.Email}");
+                    Trace.TraceInformation($"ExternalLoginCallBack: Prompt for account: userName = {loginInfo.DefaultUserName}, email = {loginInfo.Email}");
                     return View("ExternalLoginConfirmation", new ExternalLoginConfirmationViewModel { UserName=loginInfo.DefaultUserName, Email = loginInfo.Email });
             }
         }

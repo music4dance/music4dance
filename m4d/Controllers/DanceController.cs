@@ -122,7 +122,7 @@ namespace m4d.Controllers
             var errors = ModelState.SelectMany(x => x.Value.Errors.Select(z => z.Exception));
             foreach (var error in errors.Where(error => error != null))
             {
-                Trace.WriteLineIf(TraceLevels.General.TraceError,error.ToString());
+                Trace.TraceError(error.ToString());
             }
 
             return View(dance);

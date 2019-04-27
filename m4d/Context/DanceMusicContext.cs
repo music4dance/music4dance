@@ -108,7 +108,7 @@ namespace m4d.Context
                 if (res.Succeeded)
                 {
                     var user2 = uman.FindByName(name);
-                    Trace.WriteLineIf(TraceLevels.General.TraceInfo, $"{user2.UserName}:{user2.Id}");
+                    Trace.TraceInformation($"{user2.UserName}:{user2.Id}");
                 }
                 
             }
@@ -140,7 +140,7 @@ namespace m4d.Context
                 {
                     foreach (var ve in err.ValidationErrors)
                     {
-                        Trace.WriteLineIf(TraceLevels.General.TraceError, ve.ErrorMessage);
+                        Trace.TraceError(ve.ErrorMessage);
                     }
                 }
 

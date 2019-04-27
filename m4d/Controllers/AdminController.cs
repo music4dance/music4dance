@@ -1568,7 +1568,7 @@ namespace m4d.Controllers
         [AllowAnonymous]
         public ActionResult UpdateDatabase(string state=null)
         {
-            Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Updating Database");
+            Trace.TraceInformation("Updating Database");
             var configuration = new Configuration();
             var migrator = new DbMigrator(configuration);
             migrator.Update(state);
@@ -1736,13 +1736,13 @@ namespace m4d.Controllers
             // Roll back to a specific migration or zero
             if (state != null)
             {
-                Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Rolling Back Database");
+                Trace.TraceInformation( "Rolling Back Database");
                 migrator = BuildMigrator();
                 migrator.Update(state);
             }
             else
             {
-                Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Wiping Database");
+                Trace.TraceInformation("Wiping Database");
                 var objectContextAdapter = Context as IObjectContextAdapter;
                 if (objectContextAdapter != null)
                 {
@@ -1752,11 +1752,11 @@ namespace m4d.Controllers
                 migrator = BuildMigrator();
             }
 
-            Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Starting Migrator Update");
+            Trace.TraceInformation("Starting Migrator Update");
             // Apply all migrations up to a specific migration
             migrator.Update();
 
-            Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Exiting RestoreDB");
+            Trace.TraceInformation("Exiting RestoreDB");
         }
         private void ReseedDb()
         {

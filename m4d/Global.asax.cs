@@ -17,7 +17,7 @@ namespace m4d
     {
         protected void Application_Start()
         {
-            Trace.WriteLine("Enter Application Start");
+            Trace.TraceInformation("Enter Application Start");
             AreaRegistration.RegisterAllAreas();
             GlobalConfiguration.Configure(WebApiConfig.Register);
             FilterConfig.RegisterGlobalFilters(GlobalFilters.Filters);
@@ -29,11 +29,11 @@ namespace m4d
 
             DanceStatsManager.AppData = System.Web.Hosting.HostingEnvironment.MapPath("~/app_data");
             DanceMusicService.Factory = new DanceMusicFactory();
-            Trace.WriteLine("Exit Application Start");
+            Trace.TraceInformation("Exit Application Start");
         }
         protected void Application_Error(object sender, EventArgs e)
         {
-            Trace.WriteLine("Enter Application Error");
+            Trace.TraceInformation("Enter Application Error");
             var lastError = Server.GetLastError();
             Server.ClearError();
 
@@ -42,12 +42,12 @@ namespace m4d
             // ReSharper disable once ConvertIfStatementToConditionalTernaryExpression
             if ((lastError != null) && (lastError.GetType() == typeof(HttpException)))
             {
-                Trace.WriteLine("Get Error code from application request");
+                Trace.TraceError("Get Error code from application request");
                 statusCode = ((HttpException)lastError).GetHttpCode();
             }
             else
             {
-                Trace.WriteLine($"{lastError.Message}\r\n{lastError.TargetSite}\r\n{lastError.StackTrace}");
+                Trace.TraceError($"{lastError.Message}\r\n{lastError.TargetSite}\r\n{lastError.StackTrace}");
                 // Not an HTTP related error so this is a problem in our code, set status to
                 // 500 (internal server error)
                 statusCode = 500;

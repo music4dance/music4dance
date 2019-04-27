@@ -426,7 +426,7 @@ namespace m4dModels
                         else
                         {
                             // TODO: Figure out a clean way to propagate errors
-                            Trace.WriteLineIf(TraceLevels.General.TraceError, $"Invalid TitleArtist: {cell}");
+                            Trace.TraceError( $"Invalid TitleArtist: {cell}");
                             return null;
                         }
                         cell = null;
@@ -694,7 +694,7 @@ namespace m4dModels
 
             foreach (var line in rows)
             {
-                Trace.WriteLineIf(TraceLevels.General.TraceVerbose, "Create Song From Row:" + line);
+                Trace.TraceInformation("Create Song From Row:" + line);
                 List<string> cells;
 
                 if (itc || itcd)
@@ -734,10 +734,10 @@ namespace m4dModels
                         var ta = sd.TitleArtistAlbumString;
                         if (string.Equals(sd.Title, sd.Artist))
                         {
-                            Trace.WriteLine($"Title and Artist are the same ({sd.Title})");
+                            Trace.TraceInformation($"Title and Artist are the same ({sd.Title})");
                         }
-                        Song old;
-                        if (songs.TryGetValue(ta, out old))
+
+                        if (songs.TryGetValue(ta, out var old))
                         {
                             old.MergeRow(sd);
                         }
@@ -749,8 +749,7 @@ namespace m4dModels
                 }
                 else
                 {
-                    Trace.WriteLineIf(TraceLevels.General.TraceInfo,
-                        $"Bad cell count {cells.Count} != {headers.Count}: {line}");
+                    Trace.TraceInformation($"Bad cell count {cells.Count} != {headers.Count}: {line}");
                 }
             }
 
@@ -908,7 +907,7 @@ namespace m4dModels
                     case AddedTags:
                         if (user == null)
                         {
-                            Trace.WriteLineIf(TraceLevels.General.TraceError,$"Null User when attempting to ad tag {prop.Value} to song {SongId}");
+                            Trace.TraceError($"Null User when attempting to ad tag {prop.Value} to song {SongId}");
                         }
                         else
                         {
@@ -918,7 +917,7 @@ namespace m4dModels
                     case RemovedTags:
                         if (user == null)
                         {
-                            Trace.WriteLineIf(TraceLevels.General.TraceError, $"Null User when attempting to ad tag {prop.Value} to song {SongId}");
+                            Trace.TraceError( $"Null User when attempting to ad tag {prop.Value} to song {SongId}");
                         }
                         else
                         {
@@ -1421,7 +1420,7 @@ namespace m4dModels
             {
                 if (upd.Count >= i && string.Equals(old[i].Name, upd[i].Name)) continue;
 
-                Trace.WriteLine($"Unexpected Update: {SongId}");
+                Trace.TraceWarning($"Unexpected Update: {SongId}");
                 return false;
             }
 
@@ -1464,7 +1463,7 @@ namespace m4dModels
                 var drDelta = delta.DanceRatings.FirstOrDefault(drd => drd.DanceId == dr.DanceId);
                 if (drDelta == null)
                 {
-                    Trace.WriteLine($"Bad Comparison: {SongId}:{dr.DanceId}");
+                    Trace.TraceWarning($"Bad Comparison: {SongId}:{dr.DanceId}");
                     continue;
                 }
 
@@ -2322,11 +2321,11 @@ namespace m4dModels
                         var qual = prop.DanceQualifier ?? string.Empty;
                         if (currentEdits == null)
                         {
-                            Trace.WriteLine($"Tag property {prop} comes before user.");
+                            Trace.TraceWarning($"Tag property {prop} comes before user.");
                             break;
                         }
-                        TagTracker acc;
-                        if (!currentEdits.UserTags.TryGetValue(qual, out acc))
+
+                        if (!currentEdits.UserTags.TryGetValue(qual, out var acc))
                         {
                             acc = new TagTracker { Property = prop };
                             currentEdits.UserTags[qual] = acc;
@@ -2342,7 +2341,7 @@ namespace m4dModels
                     case DanceRatingField:
                         if (currentEdits == null)
                         {
-                            Trace.WriteLine($"DanceRating property {prop} comes before user.");
+                            Trace.TraceWarning($"DanceRating property {prop} comes before user.");
                             break;
                         }
                         var drd = new DanceRatingDelta(prop.Value);
@@ -2673,7 +2672,7 @@ namespace m4dModels
             }
             else
             {
-                Trace.WriteLineIf(TraceLevels.General.TraceError, $"Undefined DanceRating {SongId.ToString()}:{danceId}");
+                Trace.TraceError( $"Undefined DanceRating {SongId.ToString()}:{danceId}");
             }
         }
 
@@ -3668,11 +3667,11 @@ namespace m4dModels
             if (!((a1.Count == 1 && a2.Contains(a1.First()) || a2.Count == 1 && a1.Contains(a2.First())) ||
                   a1.Count(s => a2.Contains(s)) > 1))
             {
-                Trace.WriteLineIf(TraceLevels.General.TraceVerbose, $"AFAIL '{string.Join(",", a1)}' - '{string.Join(",", a2)}'");
+                Trace.TraceError($"AFAIL '{string.Join(",", a1)}' - '{string.Join(",", a2)}'");
                 return false;
             }
 
-            Trace.WriteLineIf(TraceLevels.General.TraceVerbose, $"ASUCC '{string.Join(",", a1)}' - '{string.Join(",", a2)}'");
+            Trace.TraceWarning($"ASUCC '{string.Join(",", a1)}' - '{string.Join(",", a2)}'");
             return true;
         }
 
@@ -3687,7 +3686,7 @@ namespace m4dModels
         {
             var ret = string.Equals(s1, s2, StringComparison.OrdinalIgnoreCase);
             var rv = ret ? "==" : "!=";
-            Trace.WriteLineIf(TraceLevels.General.TraceVerbose,$"{rv}{s1}{s2}");
+            Trace.TraceWarning($"{rv}{s1}{s2}");
             return ret;
         }
         public string TitleArtistString => CreateNormalForm(Title) + "+" + CreateNormalForm(Artist);
@@ -4063,7 +4062,7 @@ namespace m4dModels
             {
                 return $"{parts[1].Trim()} {parts[0].Trim()}";
             }
-            Trace.WriteLine($"Unusual Sort: {name}");
+            Trace.TraceWarning($"Unusual Sort: {name}");
             return name;
         }
 

@@ -32,7 +32,7 @@ namespace m4dModels
         {
             if (Parse(serialized)) return;
 
-            Trace.WriteLine($"Invalid TagCount: {serialized}");
+            Trace.TraceError($"Invalid TagCount: {serialized}");
             throw new ArgumentOutOfRangeException();
         }
         #endregion

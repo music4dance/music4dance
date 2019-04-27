@@ -84,7 +84,7 @@ namespace m4dModels
                     ds.TopSongs = new List<Song>();
                     ds.SongTags = new TagSummary();
 
-                    Trace.WriteLine(ds.DanceId);
+                    Trace.TraceInformation(ds.DanceId);
                 }
             }
 
@@ -112,7 +112,7 @@ namespace m4dModels
 
             if (TraceLevels.General.TraceVerbose && (weight > max || ret < 0))
             {
-                Trace.WriteLine($"{danceId}: {weight} ? {max}");
+                Trace.TraceInformation($"{danceId}: {weight} ? {max}");
             }
 
             return Math.Max(0, Math.Min(ret, scale));
@@ -134,10 +134,10 @@ namespace m4dModels
 
             if (Dances.Instance.DanceFromId(danceId.ToUpper()) == null) return null;
 
-            Trace.WriteLineIf(TraceLevels.General.TraceError, $"Failed to find danceId {danceId}");
+            Trace.TraceError( $"Failed to find danceId {danceId}");
             // Clear out the cache to force a reload: workaround for possible cache corruption.
             // TODO: Put in the infrastructure to send app insights events when this happens
-            Trace.WriteLineIf(TraceLevels.General.TraceError, "Attempting to rebuild cache");
+            Trace.TraceError("Attempting to rebuild cache");
 
             DanceStatsManager.ClearCache(null, true);
             return null;

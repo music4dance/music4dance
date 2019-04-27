@@ -267,7 +267,7 @@ namespace m4d.Controllers
                     Tags = "-Fake:Tempo"
                 };
 
-                Trace.WriteLine($"{name}, {description}, {search}");
+                Trace.TraceInformation($"BulkCreateTopN: {name}, {description}, {search}");
 
                 if (metadata == null)
                 {
@@ -276,7 +276,7 @@ namespace m4d.Controllers
 
                 if (metadata == null)
                 {
-                    Trace.WriteLine($"Unable to create playlist {name}");
+                    Trace.TraceError($"BulkCreateTopN:Unable to create playlist {name}");
                     continue;
                 }
 
@@ -321,7 +321,7 @@ namespace m4d.Controllers
 
                 var search = SongFilter.CreateHolidayFilter(ds.DanceName);
 
-                Trace.WriteLine($"{name}, {description}, {search}");
+                Trace.TraceInformation($"BulkCreateHolidy: {name}, {description}, {search}");
 
                 if (metadata == null)
                 {
@@ -330,7 +330,7 @@ namespace m4d.Controllers
 
                 if (metadata == null)
                 {
-                    Trace.WriteLine($"Unable to create playlist {name}");
+                    Trace.TraceError($"BulkCreateHolidy:Unable to create playlist {name}");
                     continue;
                 }
 
@@ -571,7 +571,7 @@ namespace m4d.Controllers
             var user = dms.FindUser(playList.User);
             if (user == null)
             {
-                Trace.WriteLine($"Updating playlist:  User {playList.User} doesn't exist");
+                Trace.TraceInformation($"LoadServicePlaylist: Updating playlist:  User {playList.User} doesn't exist");
                 return null;
             }
 

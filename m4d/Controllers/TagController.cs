@@ -171,10 +171,9 @@ namespace m4d.Controllers
 
                 var parameters = new SearchParameters {Filter=filter};
 
-                var stats = Database.DanceStats;
                 while (Database.UpdateAzureIndex(Database.TakeTail(parameters, 1000)) != 0)
                 {
-                    Trace.WriteLine("Updated another batch of tags");
+                    Trace.TraceInformation("Updated another batch of tags");
                 };
             }
 

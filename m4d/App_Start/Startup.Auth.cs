@@ -27,7 +27,7 @@ namespace m4d
         // For more information on configuring authentication, please visit http://go.microsoft.com/fwlink/?LinkId=301864
         public void ConfigureAuth(IAppBuilder app)
         {
-            Trace.WriteLine($"Start Time = {SpiderManager.StartTime}");
+            Trace.TraceInformation($"Start Time = {SpiderManager.StartTime}");
             // Configure the db context, user manager and signin manager to use a single instance per request
             app.CreatePerOwinContext(DanceMusicContext.Create);
             app.CreatePerOwinContext<ApplicationUserManager>(ApplicationUserManager.Create);
@@ -107,6 +107,9 @@ namespace m4d
                         var userManager = ApplicationUserManager.Create(null, dmc);
 
                         var id = GetClaimValue(context.User, "id");
+
+                        Trace.TraceInformation($"Spotify Authentication for {id}: Enter");
+
                         if (string.IsNullOrWhiteSpace(id)) return;
                         var email = GetClaimValue(context.User, "email");
 
@@ -116,6 +119,9 @@ namespace m4d
                         if (user == null)
                         {
                             var userName = $"{id}@spotify.music4dance.net";
+
+                            Trace.TraceInformation($"Spotify Authentication for {id}: Creating Temporary User {userName}");
+
                             var result = await userManager.CreateAsync(new ApplicationUser
                             {
                                 UserName = userName,
@@ -126,16 +132,20 @@ namespace m4d
 
                             if (!result.Succeeded)
                             {
-                                Trace.WriteLine($"Failed to create spotify user {userName}");
+                                Trace.TraceError($"Failed to create Spotify user {userName}");
                                 return;
                             }
 
                             user = await userManager.FindByNameAsync(userName);
                             if (user == null)
                             {
-                                Trace.WriteLine($"Failed to find spotify user {userName}");
+                                Trace.TraceError($"Failed to find spotify user {userName}");
                                 return;
                             }
+                        }
+                        else
+                        {
+                            Trace.TraceInformation($"Spotify Authentication for {id}: Existing User {user.UserName}");
                         }
 
                         var accessToken = context.AccessToken;
@@ -158,6 +168,8 @@ namespace m4d
                                 await AddClaimToUser(userManager, user, claimType, claimValue, "Spotify", oldClaims);
                             }
                         }
+
+                        Trace.TraceInformation($"Spotify Authentication for {id}: Exit");
                     }
                 }
             };
