@@ -83,8 +83,6 @@ namespace m4dModels
                     newDances.Add(ds.DanceId);
                     ds.TopSongs = new List<Song>();
                     ds.SongTags = new TagSummary();
-
-                    Trace.WriteLineIf(TraceLevels.General.TraceInfo,ds.DanceId);
                 }
             }
 
@@ -109,11 +107,6 @@ namespace m4dModels
 
             float max = sc.MaxWeight;
             var ret = (int)(Math.Ceiling(weight * scale / max));
-
-            if (TraceLevels.General.TraceVerbose && (weight > max || ret < 0))
-            {
-                Trace.WriteLineIf(TraceLevels.General.TraceInfo,$"{danceId}: {weight} ? {max}");
-            }
 
             return Math.Max(0, Math.Min(ret, scale));
         }
