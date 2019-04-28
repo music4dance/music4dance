@@ -202,7 +202,7 @@ namespace m4dModels
             // Then handle ungrouped types
             foreach (var dt in Dances.Instance.AllDanceTypes.Where(dt => !used.Contains(dt.Id)))
             {
-                Trace.TraceInformation("Ungrouped Dance: {0}", dt.Id);
+                Trace.WriteLineIf(TraceLevels.General.TraceInfo,"Ungrouped Dance: {0}", dt.Id);
             }
 
             return stats.OrderByDescending(x => x.Children.Count).ToList();

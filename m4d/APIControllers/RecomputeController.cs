@@ -27,7 +27,7 @@ namespace m4d.APIControllers
 
             if (!force && !HasChanged(id))
             {
-                Trace.TraceInformation($"RecomputeController: id = {id}, changed = false");
+                Trace.WriteLineIf(TraceLevels.General.TraceInfo, $"RecomputeController: id = {id}, changed = false");
                 return Ok(new {changed = false, message = "No updates."});
             }
 
@@ -71,7 +71,7 @@ namespace m4d.APIControllers
                 HandleRecompute(recompute, id, message, force);
             }
 
-            Trace.TraceInformation($"RecomputeController: id = {id}, changed = true, message = {message}");
+            Trace.WriteLineIf(TraceLevels.General.TraceInfo,$"RecomputeController: id = {id}, changed = true, message = {message}");
             return Ok(new {changed = true, message});
         }
 

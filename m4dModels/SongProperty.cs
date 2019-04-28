@@ -244,7 +244,7 @@ namespace m4dModels
                 }
                 else
                 {
-                    Trace.TraceError("Bad SongProperty: {0}", cell);
+                    Trace.WriteLineIf(TraceLevels.General.TraceError,"Bad SongProperty: {0}", cell);
                 }
             }
         }

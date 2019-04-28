@@ -57,10 +57,11 @@ namespace m4d.APIControllers
             }
             catch (WebException e)
             {
-                Trace.TraceError($"GetServiceTracks Failed: {e.Message}");
+                Trace.WriteLineIf(TraceLevels.General.TraceError, $"GetServiceTracks Failed: {e.Message}");
+
                 if (e.Message.Contains("Unauthorized"))
                 {
-                    Trace.TraceError("!!!!!AUTHORIZATION FAILED!!!!!");
+                    Trace.WriteLineIf(TraceLevels.General.TraceError,"!!!!!AUTHORIZATION FAILED!!!!!");
                 }
             }
 

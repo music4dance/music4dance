@@ -301,7 +301,7 @@ namespace m4d.Controllers
             {
                 ViewBag.Error = true;
                 ViewBag.Status = we.Message;
-                Trace.TraceError($"Failed '{we.Message}' on Song '{song}");
+                Trace.WriteLineIf(TraceLevels.General.TraceError,$"Failed '{we.Message}' on Song '{song}");
             }
 
             return tracks;

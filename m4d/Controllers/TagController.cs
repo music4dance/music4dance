@@ -173,7 +173,7 @@ namespace m4d.Controllers
 
                 while (Database.UpdateAzureIndex(Database.TakeTail(parameters, 1000)) != 0)
                 {
-                    Trace.TraceInformation("Updated another batch of tags");
+                    Trace.WriteLineIf(TraceLevels.General.TraceInfo,"Updated another batch of tags");
                 };
             }
 

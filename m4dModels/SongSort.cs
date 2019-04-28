@@ -56,7 +56,7 @@ namespace m4dModels
             {
                 if (!int.TryParse(list[0], out count))
                 {
-                    Trace.TraceError($"Bad Sort: {sort}");
+                    Trace.WriteLineIf(TraceLevels.General.TraceError,$"Bad Sort: {sort}");
                 }
             }
             Count = count;

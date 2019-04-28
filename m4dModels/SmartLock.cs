@@ -20,7 +20,7 @@ namespace m4dModels
             }
             catch (Exception ex)
             {
-                Trace.TraceError($"SmartLock Lock action: {ex.Message}");
+                Trace.WriteLineIf(TraceLevels.General.TraceError,$"SmartLock Lock action: {ex.Message}");
             }
             finally
             {
@@ -38,7 +38,7 @@ namespace m4dModels
             }
             catch (Exception ex)
             {
-                Trace.TraceError($"SmartLock Lock action: {ex.Message}");
+                Trace.WriteLineIf(TraceLevels.General.TraceError,$"SmartLock Lock action: {ex.Message}");
                 return default(TResult);
             }
             finally
@@ -60,7 +60,7 @@ namespace m4dModels
                     if (!locked)
                     {
                         timeoutMs += WARN_TIMEOUT_MS;
-                        Trace.TraceError("Lock held: " + (timeoutMs / 1000) + " secs by " + _holdingTrace + " requested by " + GetStackTrace());
+                        Trace.WriteLineIf(TraceLevels.General.TraceError,"Lock held: " + (timeoutMs / 1000) + " secs by " + _holdingTrace + " requested by " + GetStackTrace());
                     }
                 }
 
@@ -69,7 +69,7 @@ namespace m4dModels
             }
             catch (Exception ex)
             {
-                Trace.TraceError($"SmartLock Enter: {ex.Message}");
+                Trace.WriteLineIf(TraceLevels.General.TraceError,$"SmartLock Enter: {ex.Message}");
             }
         }
 
@@ -89,7 +89,7 @@ namespace m4dModels
             }
             catch (Exception ex)
             {
-                Trace.TraceError($"SmartLock Exit: {ex.Message}");
+                Trace.WriteLineIf(TraceLevels.General.TraceError,$"SmartLock Exit: {ex.Message}");
             }
         }
     }

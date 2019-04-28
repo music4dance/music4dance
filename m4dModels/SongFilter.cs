@@ -98,7 +98,7 @@ namespace m4dModels
                         }
                         catch (Exception e)
                         {
-                            Trace.TraceError($"SongFilter: {e.Message}");
+                            Trace.WriteLineIf(TraceLevels.General.TraceError,$"SongFilter: {e.Message}");
                         }
                     }
                 }
