@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text.RegularExpressions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -10,6 +11,19 @@ namespace m4dModels.Tests
 {
     public class DanceMusicTester
     {
+        private static List<string> ReadResource(string name)
+        {
+            var assembly = Assembly.GetExecutingAssembly();
+            var resourceName = assembly.GetManifestResourceNames()
+                .Single(str => str.EndsWith(name));
+
+            using (var stream = assembly.GetManifestResourceStream(resourceName))
+            using (var reader = new StreamReader(stream))
+            {
+                return reader.ReadToEnd().Split(Environment.NewLine.ToCharArray(), StringSplitOptions.RemoveEmptyEntries).ToList();
+            }
+        }
+
         public DanceMusicTester(List<string> songs = null)
         {
             Dms = MockContext.CreateService(false);
@@ -18,10 +32,10 @@ namespace m4dModels.Tests
 
             var dir = Environment.CurrentDirectory;
             Trace.WriteLine(dir);
-            Users = File.ReadAllLines(@".\TestData\test-users.txt").ToList();
-            Dances = File.ReadAllLines(@".\TestData\test-dances.txt").ToList();
-            Tags = File.ReadAllLines(@".\TestData\test-tags.txt").ToList();
-            Searches = File.ReadAllLines(@".\TestData\test-searches.txt").ToList();
+            Users = ReadResource("test-users.txt");
+            Dances = ReadResource(@"test-dances.txt");
+            Tags = ReadResource(@"test-tags.txt");
+            Searches = ReadResource(@"test-searches.txt");
 
             Dms.LoadUsers(Users);
             Dms.LoadDances(Dances);

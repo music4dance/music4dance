@@ -212,7 +212,7 @@ namespace m4dModels.Tests
             Assert.IsFalse(map.ContainsKey("dwgray"));
         }
 
-        static private void ValidateLoadingRowDetails(string header, string[] rows, string[] expected, int dups = 0, string tags=null)
+        private static void ValidateLoadingRowDetails(string header, string[] rows, string[] expected, int dups = 0, string tags=null)
         {
             if (expected == null) throw new ArgumentNullException(nameof(expected));
 

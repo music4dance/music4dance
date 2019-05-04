@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Data.Entity;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.EntityFramework;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -16,7 +18,16 @@ namespace m4dModels.Tests
             var umanager = new UserManager<ApplicationUser>(new MockUserStore(context));
             var service = new DanceMusicService(context, umanager);
 
-            var json = File.ReadAllText(@".\TestData\dancestatistics.txt");
+            var assembly = Assembly.GetExecutingAssembly();
+            var resourceName = assembly.GetManifestResourceNames()
+                .Single(str => str.EndsWith("dancestatistics.txt"));
+
+            string json;
+            using (var stream = assembly.GetManifestResourceStream(resourceName))
+            using (var reader = new StreamReader(stream))
+            {
+                json = reader.ReadToEnd();
+            }
             var instance = DanceStatsInstance.LoadFromJson(json);
             Assert.IsNotNull(instance);
             DanceStatsManager.SetInstance(instance);
