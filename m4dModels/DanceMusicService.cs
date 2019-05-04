@@ -1,4 +1,9 @@
-﻿using System;
+﻿using Microsoft.AspNet.Identity;
+using Microsoft.AspNet.Identity.EntityFramework;
+using Microsoft.Azure.Search;
+using Microsoft.Azure.Search.Models;
+using Microsoft.Rest.Azure;
+using System;
 using System.Collections.Generic;
 using System.Data.Entity;
 using System.Diagnostics;
@@ -6,11 +11,6 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
-using Microsoft.AspNet.Identity;
-using Microsoft.AspNet.Identity.EntityFramework;
-using Microsoft.Azure.Search;
-using Microsoft.Azure.Search.Models;
-using Microsoft.Rest.Azure;
 
 namespace m4dModels
 {
@@ -662,29 +662,37 @@ namespace m4dModels
         // TODO: Think about aggregating annonymous & users to show most searched, most recent, etc.
         public void UpdateSearches(ApplicationUser user, SongFilter filter)
         {
-            var f = new SongFilter(filter.ToString()) {Page = null};
-            if (user != null)
-                f.Anonymize(user.UserName);
-            if (!f.IsAzure)
-                f.Action = null;
-            var userId = user?.Id;
-            var q = f.ToString();
-            var search = Searches.FirstOrDefault(s => s.ApplicationUserId == userId && s.Query == q);
-            var now = DateTime.Now;
-            if (search == null)
+            try
             {
-                search = Searches.Create();
-                search.ApplicationUserId = userId;
-                search.Created = now;
-                search.Query = q;
-                search.Count = 0;
-                search.Name = null;
-                Searches.Add(search);
-            }
-            search.Modified = now;
-            search.Count += 1;
+                var f = new SongFilter(filter.ToString()) {Page = null};
+                if (user != null)
+                    f.Anonymize(user.UserName);
+                if (!f.IsAzure)
+                    f.Action = null;
+                var userId = user?.Id;
+                var q = f.ToString();
+                var search = Searches.FirstOrDefault(s => s.ApplicationUserId == userId && s.Query == q);
+                var now = DateTime.Now;
+                if (search == null)
+                {
+                    search = Searches.Create();
+                    search.ApplicationUserId = userId;
+                    search.Created = now;
+                    search.Query = q;
+                    search.Count = 0;
+                    search.Name = null;
+                    Searches.Add(search);
+                }
 
-            SaveChanges();
+                search.Modified = now;
+                search.Count += 1;
+
+                SaveChanges();
+            }
+            catch (Exception e)
+            {
+                Trace.WriteLineIf(TraceLevels.General.TraceWarning, $"UpdateSearches: Failed with {e.Message}");
+            }
         }
 
         public enum MatchMethod { None, Tempo, Merge };

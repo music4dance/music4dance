@@ -1733,11 +1733,6 @@ namespace m4d.Controllers
 
         private void ReportSearch(SongFilter filter)
         {
-            var properties = new Dictionary<string, string>
-            {
-                {"Filter", filter.ToString()},
-                {"User", User.Identity.Name}
-            };
 
             Database.UpdateSearches(User.Identity.IsAuthenticated ? Database.FindUser(User.Identity.Name) : null, filter);
         }
