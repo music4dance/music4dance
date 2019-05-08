@@ -5,7 +5,7 @@ namespace m4d
 {
     public class JsEngineSwitcherConfig
     {
-        public static void Configure(JsEngineSwitcher engineSwitcher)
+        public static void Configure(IJsEngineSwitcher engineSwitcher)
         {
             engineSwitcher.EngineFactories
                 .AddMsie(new MsieSettings

@@ -22,7 +22,7 @@ namespace m4d
             GlobalConfiguration.Configure(WebApiConfig.Register);
             FilterConfig.RegisterGlobalFilters(GlobalFilters.Filters);
             RouteConfig.RegisterRoutes(RouteTable.Routes);
-            JsEngineSwitcherConfig.Configure(JsEngineSwitcher.Instance);
+            JsEngineSwitcherConfig.Configure(JsEngineSwitcher.Current);
             BundleConfig.RegisterBundles(BundleTable.Bundles);
 
             ModelBinders.Binders[typeof(Song)] = new SongBinder();
