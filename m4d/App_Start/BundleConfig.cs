@@ -12,11 +12,11 @@ namespace m4d
             bundles.UseCdn = true;   //enable CDN support
 
             bundles.Add(AjaxBundle("jquery",
-                "jQuery/jquery-2.1.4.min.js", "window.jQuery",
+                "jQuery/jquery-3.4.1.min.js", "window.jQuery",
                 "jquery-{version}.js"));
 
             bundles.Add(AjaxBundle("jqueryval",
-                "jquery.validate/1.14.0/jquery.validate.min.js", "window.jQuery().validate",
+                "jquery.validate/1.17.0/jquery.validate.min.js", "window.jQuery().validate",
                 "jquery.validate*"));
 
             bundles.Add(new ScriptBundle("~/bundles/jqueryautocomplete").Include(
@@ -33,8 +33,8 @@ namespace m4d
                 "bootstrap.js","respond.js"));
 
             bundles.Add(AjaxBundle("knockout",
-                "knockout/knockout-3.4.2.js", "window.ko",
-                "knockout-3.4.2.js"));
+                "knockout/knockout-3.5.0.js", "window.ko",
+                "knockout-3.5.0.js"));
 
             bundles.Add(new ScriptBundle("~/bundles/knockout-mapping").Include(
                 "~/Scripts/knockout.mapping-latest.js"));
