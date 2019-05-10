@@ -63,7 +63,7 @@
         new MvcCoreAssemblyInfo() { Version = "5.2.20627.0", Name = "ASP.NET MVC 5.2.0 RTM" },
         new MvcCoreAssemblyInfo() { Version = "5.2.20822.0", Name = "ASP.NET MVC 5.2.2 RC" },
         new MvcCoreAssemblyInfo() { Version = "5.2.20826.0", Name = "ASP.NET MVC 5.2.2 RTM" },
-        new MvcCoreAssemblyInfo() { Version = "5.2.30128.0", Name = "ASP.NET MVC 5.2.3 RTM" },
+        new MvcCoreAssemblyInfo() { Version = "5.2.61128.0", Name = "ASP.NET MVC 5.2.7 RTM" },
     };
 
     private static readonly MvcFuturesAssemblyInfo[] _mvcFuturesAssemblyHistory = new MvcFuturesAssemblyInfo[] {
