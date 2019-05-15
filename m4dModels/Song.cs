@@ -3342,7 +3342,7 @@ namespace m4dModels
                 Fields = fields.ToArray(),
                 Suggesters = new[]
                 {
-                    new Suggester("songs",SuggesterSearchMode.AnalyzingInfixMatching, TitleField, ArtistField, AlbumsField, DanceTags, PurchaseField, GenreTags, TempoTags, StyleTags, OtherTags)
+                    new Suggester("songs",TitleField, ArtistField, AlbumsField, DanceTags, PurchaseField, GenreTags, TempoTags, StyleTags, OtherTags)
                 }
             };
 
