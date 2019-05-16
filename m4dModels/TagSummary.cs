@@ -2,8 +2,10 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
-using Microsoft.Azure.Search.Models;
 using Newtonsoft.Json;
+
+using FacetResults = System.Collections.Generic.IDictionary<string, System.Collections.Generic.IList<Microsoft.Azure.Search.Models.FacetResult>>;
+
 
 namespace m4dModels
 {

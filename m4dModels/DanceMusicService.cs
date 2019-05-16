@@ -12,6 +12,8 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 
+using FacetResults = System.Collections.Generic.IDictionary<string, System.Collections.Generic.IList<Microsoft.Azure.Search.Models.FacetResult>>;
+
 namespace m4dModels
 {
     public class DanceMusicService : IDisposable
@@ -531,7 +533,7 @@ namespace m4dModels
             }
         }
 
-        private IEnumerable<Song> SongsFromAzureResult(DocumentSearchResult result, string user = null)
+        private IEnumerable<Song> SongsFromAzureResult(DocumentSearchResult<Document> result, string user = null)
         {
             return result.Results.Select(d => new Song(d.Document, DanceStats, user));
         }
@@ -2147,7 +2149,7 @@ namespace m4dModels
             var pageSize = parameters.Top ?? 25;
             var page = ((parameters.Skip ?? 0)/pageSize) + 1;
             var facets = response.Facets;
-            return new SearchResults(search, songs.Count,response.Count ?? -1,page,pageSize,songs,facets);
+            return new SearchResults(search, songs.Count,response.Count ?? -1,page, pageSize, songs, facets);
         }
 
         public FacetResults GetTagFacets(string categories, int count, string id = "default")
@@ -2232,13 +2234,14 @@ namespace m4dModels
                         ? indexClient.Documents.Search(search, parameters)
                         : indexClient.Documents.ContinueSearch(token);
 
+                    token = response.ContinuationToken;
                     foreach (var doc in response.Results)
                     {
                         var m = doc.Document["Modified"];
                         var modified = (DateTimeOffset)m;
                         if (from != null && modified < from)
                         {
-                            response.ContinuationToken = null;
+                            token = null;
                             break;
                         }
 
@@ -2246,7 +2249,6 @@ namespace m4dModels
 
                         if (results.Count >= max) break;
                     }
-                    token = response.ContinuationToken;
                 } while (token != null && results.Count < max);
 
                 return results;
@@ -2322,16 +2324,21 @@ namespace m4dModels
             }
         }
 
-        private static DocumentSearchResult DoAzureSearch(string search, SearchParameters parameters, CruftFilter cruft = CruftFilter.NoCruft, ISearchIndexClient client = null)
+        private static DocumentSearchResult<Document> DoAzureSearch(string search, SearchParameters parameters, CruftFilter cruft = CruftFilter.NoCruft, ISearchIndexClient client = null)
         {
             if (client == null)
                 return DoAzureSearch(search, parameters, cruft,"default");
 
             parameters = AddCruftInfo(parameters, cruft);
+            if (string.IsNullOrWhiteSpace(search))
+            {
+                search = "*";
+            }
+
             return client.Documents.Search(search, parameters);
         }
 
-        private static DocumentSearchResult DoAzureSearch(string search, SearchParameters parameters, CruftFilter cruft = CruftFilter.NoCruft, string id = "default")
+        private static DocumentSearchResult<Document> DoAzureSearch(string search, SearchParameters parameters, CruftFilter cruft = CruftFilter.NoCruft, string id = "default")
         {
             var info = SearchServiceInfo.GetInfo(id);
 
@@ -2443,20 +2450,20 @@ namespace m4dModels
                         ? indexClient.Documents.Search(searchString, parameters)
                         : indexClient.Documents.ContinueSearch(token);
 
+                    token = response.ContinuationToken;
                     foreach (var doc in response.Results)
                     {
                         var m = doc.Document["Modified"];
                         var modified = (DateTimeOffset)m;
                         if (from != null && modified < from)
                         {
-                            response.ContinuationToken = null;
+                            token = null;
                             break;
                         }
 
                         results.Add(Song.Serialize(doc.Document[Song.SongIdField] as string, doc.Document[Song.PropertiesField] as string));
                         AdminMonitor.UpdateTask("readSongs", results.Count);
                     }
-                    token = response.ContinuationToken;
                 } while (token != null);
 
                 return results;
