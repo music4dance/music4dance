@@ -2403,26 +2403,37 @@ namespace m4dModels
         {
             var info = SearchServiceInfo.GetInfo(id);
 
-            using (var serviceClient = new SearchServiceClient(info.Name, new SearchCredentials(info.QueryKey)))
-            using (var indexClient = serviceClient.Indexes.GetClient(info.Index))
+            try
             {
-                var sp = new SuggestParameters {Top=50};
-          
-                var response = indexClient.Documents.Suggest(query, "songs", sp);
-
-                var comp = new SuggestionComparer();
-                //var ret = new SuggestionList {Query = "query", Suggestions = new List<Suggestion>()};
-                var ret = response.Results.Select(result => new Suggestion
+                using (var serviceClient = new SearchServiceClient(info.Name, new SearchCredentials(info.QueryKey)))
+                using (var indexClient = serviceClient.Indexes.GetClient(info.Index))
                 {
-                    Value = result.Text,
-                    Data = result.Document["SongId"] as string
-                }).Distinct(comp).Take(10).ToList();
+                    var sp = new SuggestParameters {Top = 50};
 
-               return new SuggestionList
-                {
-                    Query = query,
-                    Suggestions = ret
-                };
+                    if (query.Length > 100) query = query.Substring(0,100);
+
+                    var response = indexClient.Documents.Suggest(query, "songs", sp);
+
+                    var comp = new SuggestionComparer();
+                    //var ret = new SuggestionList {Query = "query", Suggestions = new List<Suggestion>()};
+                    var ret = response.Results.Select(result => new Suggestion
+                    {
+                        Value = result.Text,
+                        Data = result.Document["SongId"] as string
+                    }).Distinct(comp).Take(10).ToList();
+
+                    return new SuggestionList
+                    {
+                        Query = query,
+                        Suggestions = ret
+                    };
+                }
+            }
+            catch (Exception e)
+            {
+
+                Trace.WriteLineIf(TraceLevels.General.TraceWarning, $"Azure Search Suggestion Failed on '{query}' with '{e.Message}'");
+                return null;
             }
         }
 
