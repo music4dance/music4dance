@@ -10,6 +10,7 @@ using m4d.Controllers;
 using m4d.Utilities;
 using m4dModels;
 using JavaScriptEngineSwitcher.Core;
+using Microsoft.ApplicationInsights.Extensibility;
 
 namespace m4d
 {
@@ -17,6 +18,8 @@ namespace m4d
     {
         protected void Application_Start()
         {
+            TelemetryConfiguration.Active.DisableTelemetry = true;
+
             Trace.WriteLineIf(TraceLevels.General.TraceInfo,"Enter Application Start");
             AreaRegistration.RegisterAllAreas();
             GlobalConfiguration.Configure(WebApiConfig.Register);
