@@ -18,8 +18,6 @@ namespace m4d
     {
         protected void Application_Start()
         {
-            TelemetryConfiguration.Active.DisableTelemetry = true;
-
             Trace.WriteLineIf(TraceLevels.General.TraceInfo,"Enter Application Start");
             AreaRegistration.RegisterAllAreas();
             GlobalConfiguration.Configure(WebApiConfig.Register);
