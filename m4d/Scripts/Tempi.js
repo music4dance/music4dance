@@ -338,7 +338,9 @@ function setupDances(data) {
         var idT = evt.target.id;
         var idx = idT.lastIndexOf('-');
         var base = idT.substring(0, idx);
-        $('#' + base).html($(evt.target).text() + ' <span class=\'caret\'></span>');
+        if (base) {
+            $('#' + base).html($(evt.target).text() + ' <span class=\'caret\'></span>');
+        }
         filter(evt.data);
     }
     var i;

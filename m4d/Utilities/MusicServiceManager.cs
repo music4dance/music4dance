@@ -67,7 +67,7 @@ namespace m4d.Utilities
                 ret = service.ParseTrackResults(results);
             }
 
-            if (s_trackCache.Count > 1000)
+            if (s_trackCache.Count > 10000)
             {
                 s_trackCache.Clear();
             }

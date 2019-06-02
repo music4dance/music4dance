@@ -15,7 +15,7 @@
 
 <div class="row">
     <div class="dropdown col-md-3">
-        <a id="filter-style" role="button" data-toggle="dropdown" data-target="#" href="/home/tempi" class="btn btn-info btn-block filter-button">
+        <a id="filter-style" role="button" data-toggle="dropdown" href="/home/tempi" class="btn btn-info btn-block filter-button">
             @Model.Styles[paramStyle].Value <span class="caret"></span>
         </a>
         <ul class="dropdown-menu" role="menu" aria-labelledby="filter-style">
@@ -27,7 +27,7 @@
         </ul>
     </div>
     <div class="dropdown col-md-3">
-        <a id="filter-meter" role="button" data-toggle="dropdown" data-target="#" href="/home/tempi" class="btn btn-info btn-block filter-button">
+        <a id="filter-meter" role="button" data-toggle="dropdown" href="/home/tempi" class="btn btn-info btn-block filter-button">
             @(paramMeter == 1 ? "All Meters" : paramMeter.ToString() + "/4 MPM") <span class=" caret"></span>
         </a>
         <ul class="dropdown-menu" role="menu" aria-labelledby="filter-meter">
@@ -38,7 +38,7 @@
         </ul>
     </div>
     <div class="dropdown col-md-3">
-        <a id="filter-type" role="button" data-toggle="dropdown" data-target="#" href="/home/tempi" class="btn btn-info btn-block filter-button">
+        <a id="filter-type" role="button" data-toggle="dropdown" href="/home/tempi" class="btn btn-info btn-block filter-button">
             @(paramType==0?"All Types":danceGroups[paramType-1].Name) <span class=" caret"></span>
         </a>
         <ul class="dropdown-menu" role="menu" aria-labelledby="filter-type">
@@ -52,7 +52,7 @@
         </ul>
     </div>
     <div class="dropdown col-md-3">
-        <a id="filter-org" role="button" data-toggle="dropdown" data-target="#" href="/home/tempi" class="btn btn-info btn-block filter-button">
+        <a id="filter-org" role="button" data-toggle="dropdown" href="/home/tempi" class="btn btn-info btn-block filter-button">
             @Model.Organizations[paramOrg].Title <span class=" caret"></span>
         </a>
         <ul class="dropdown-menu" role="menu" aria-labelledby="filter-meter">
@@ -90,7 +90,7 @@
 
 <div class="row">
     <div class="col-md-6">
-        <a id="reset" role="button" data-target="#" href="/Home/Tempi" class="btn btn-info btn-block">Reset</a>
+        <a id="reset" role="button" href="/Home/Tempi" class="btn btn-info btn-block">Reset</a>
     </div>
     <div class="checkbox col-md-6">
         <label>
