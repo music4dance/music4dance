@@ -72,10 +72,10 @@ var editor = function () {
 
     var purchaseLinksFromTrack = function (track) {
         var ret = null;
-        if (track.SongLink !== null) {
+        if (track.SongLink) {
             ret = track.SongLink;
         }
-        else if (track.AlbumLink !== null) {
+        else if (track.AlbumLink) {
             ret = track.AlbumLink;
         }
         return [ret];
@@ -97,7 +97,7 @@ var editor = function () {
     };
 
     var addValue = function (id, val) {
-        if (val === null) {
+        if (!val) {
             return;
         }
 
@@ -128,7 +128,7 @@ var editor = function () {
     };
 
     var addPurchaseLink = function (link, olist) {
-        if (link !== null) {
+        if (link) {
             // TODO: Has to be a cleaner way to find existence ($.inArray isn't working
             //  possibly because we're mapped - may be that going back and figuring
             //  out how to get KO Mapping to mapp the PurchaseLink array but not
@@ -173,7 +173,7 @@ var editor = function () {
         }, this);
 
         this.MarketString = ko.pureComputed(function () {
-            return self.AvailableMarkets === null ? '' : '[' + self.AvailableMarkets.join() + ']';
+            return !self.AvailableMarkets ? '' : '[' + self.AvailableMarkets.join() + ']';
         }, this);
 
         this.PurchaseInfoArray = ko.pureComputed(function () {
@@ -201,7 +201,7 @@ var editor = function () {
         self.song = parent;
         self.action = 'change';
 
-        if (data.CurrentUserTags === null) {
+        if (!data.CurrentUserTags) {
             data.CurrentUserTags = { Summary: '', Tags: [] };
         }
 
@@ -324,10 +324,10 @@ var editor = function () {
             // First do the string based purchase info
             var pi = self.PurchaseInfo();
 
-            if (pi === null) {
+            if (!pi) {
                 self.PurchaseInfo(track.FullPurchaseInfo());
             }
-            else if (track !== null) {
+            else if (track) {
                 // get rid of possible terminal ;
                 if (pi[pi.length - 1] === ';') {
                     pi = pi.substring(0, pi.length - 1);
@@ -343,7 +343,7 @@ var editor = function () {
                 self.PurchaseInfo(pi);
             }
 
-            if (track === null)
+            if (!track)
                 return;
 
             // Then add in the purchase links
@@ -351,13 +351,13 @@ var editor = function () {
             //addPurchaseLink(track.AlbumLink, self.PurchaseLinks());
 
             // Also add in track number if it wasn't there before
-            if (self.Track() === null) {
+            if (!self.Track()) {
                 self.Track(track.TrackNumber);
             }
         };
 
         self.matchTrack = function(track) {
-            return (self.Track() === null || self.Track() === track.TrackNumber) &&
+            return (!self.Track() || self.Track() === track.TrackNumber) &&
                 normalizeName(self.Name()) === normalizeName(track.Album);
         };
     };
@@ -369,7 +369,7 @@ var editor = function () {
 
         self.action = 'change';
 
-        if (data.CurrentUserTags === null) {
+        if (!data.CurrentUserTags) {
             data.CurrentUserTags = { Summary: '', Tags: [] };
         }
 
@@ -424,7 +424,7 @@ var editor = function () {
             return null;
         };
 
-        // Track Managementget
+        // Track Management
         self.chooseTrack = function (track, event) {
             event.preventDefault();
 
@@ -434,7 +434,7 @@ var editor = function () {
 
             var a = self.findAlbum(track);
 
-            if (a !== null) {
+            if (a) {
                 a.addPurchase(track);
             }
             else {
@@ -452,7 +452,7 @@ var editor = function () {
             addValue('alt-tempo', track.Tempo);
 
             // Finally handle genre
-            if (track.Genre !== null) {
+            if (track.Genre) {
                 self.TagSummary.addTag(track.Genre, 'Music');
             }
         };
@@ -515,7 +515,7 @@ var editor = function () {
         }, this);
 
         self.changed = changedHandler;
-        self.changeText = function () { return 'your list of tags.' }
+        self.changeText = function () { return 'your list of tags.'; }
     };
 
     // EditPage object

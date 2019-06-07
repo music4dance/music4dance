@@ -88,7 +88,7 @@ var tagChooser = function () {
 
         self.addTag = function (val) {
             var tag = self.findSuggestion(val);
-            self.chosen.push(tag === null ? { value: val } : tag);
+            self.chosen.push(!tag ? { value: val } : tag);
             $('#chosen').trigger('chosen:updated');
         }
 
@@ -98,7 +98,7 @@ var tagChooser = function () {
 
         self.removeTag = function (val) {
             var tag = findSuggestion(val);
-            if (tag !== null) {
+            if (tag) {
                 self.chosen.remove(tag);
                 $('#chosen').trigger('chosen:updated');
             }
@@ -128,7 +128,7 @@ var tagChooser = function () {
 
         self.massageTags = function (data, array) {
             array.removeAll();
-            if (data != null) {
+            if (data) {
                 for (var i = 0; i < data.length; i++) {
                     var ts = new TagSuggestion(data[i].Value, data[i].Count);
                     array.push(ts);
@@ -209,22 +209,22 @@ var tagChooser = function () {
                 self.current().type(type);
                 self.current().all.removeAll();
 
-                if (sug.user === null) {
+                if (!sug.user) {
                     deferred = true;
                     self.getSuggestions(obj, type, window.userId ? window.userId : 'ANONYMOUS');
                 } else {
                     self.massageTags(sug.user, self.current().user);
                 }
 
-                if (sug.popular === null) {
+                if (!sug.popular) {
                     self.getSuggestions(obj, type);
                 } else {
                     self.massageTags(sug.popular, self.current().popular);
                 }
             }
 
-            if (sug.user !== null) $('#user-message').hide();
-            if (sug.popular !== null) $('#popular-message').hide();
+            if (sug.user) $('#user-message').hide();
+            if (sug.popular) $('#popular-message').hide();
             if (!deferred) self.updateChosen(obj, type);
         }
 
