@@ -437,9 +437,11 @@ namespace m4d.Controllers
         [AllowAnonymous]
         public async Task<ActionResult> ExternalLoginCallback(string returnUrl)
         {
+            Trace.WriteLineIf(TraceLevels.General.TraceInfo, "ExternalLoginCallback: Enter");
             var loginInfo = await AuthenticationManager.GetExternalLoginInfoAsync();
             if (loginInfo == null)
             {
+                Trace.WriteLineIf(TraceLevels.General.TraceInfo, "ExternalLoginCallback: Failed to retrieve login info");
                 return RedirectToAction("SignIn");
             }
             var userT = AuthenticationManager.User;
