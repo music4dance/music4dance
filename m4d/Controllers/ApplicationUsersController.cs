@@ -93,11 +93,12 @@ namespace m4d.Controllers
             var applicationUser = Context.Users.Find(id);
 
             var oldUserName = applicationUser.UserName;
+            var oldSubscriptionLevel = applicationUser.SubscriptionLevel;
 
             var fields = new[]
             {
                 "UserName", "Email", "EmailConfirmed", "PhoneNumber", "PhoneNumberConfirmed", "TwoFactorEnabled",
-                "LockoutEndDateUtc", "LockoutEnabled", "AccessFailedCount"
+                "LockoutEndDateUtc", "LockoutEnabled", "AccessFailedCount", "SubscriptionLevel", "SubscriptionStart", "SubscriptionEnd"
             };
             if (TryUpdateModel(applicationUser, string.Empty, fields))
             {
@@ -107,6 +108,9 @@ namespace m4d.Controllers
                     {
                         Database.ChangeUserName(oldUserName, applicationUser.UserName);
                     }
+
+                    UpdateSubscriptionRole(applicationUser.Id, oldSubscriptionLevel, applicationUser.SubscriptionLevel);
+
                     Context.SaveChanges();
                 }
                 catch (Exception ex)
@@ -236,6 +240,55 @@ namespace m4d.Controllers
                 Context.Dispose();
             }
             base.Dispose(disposing);
+        }
+
+        private void UpdateSubscriptionRole(string userId, SubscriptionLevel oldLevel, SubscriptionLevel newLevel)
+        {
+            switch (oldLevel)
+            {
+                case SubscriptionLevel.None:
+                    switch (newLevel)
+                    {
+                        case SubscriptionLevel.None:
+                            break;
+                        case SubscriptionLevel.Trial:
+                            UserManager.AddToRole(userId, DanceMusicService.TrialRole);
+                            break;
+                        default:
+                            UserManager.AddToRole(userId, DanceMusicService.PremiumRole);
+                            break;
+                    }
+                    break;
+                case SubscriptionLevel.Trial:
+                    switch (newLevel)
+                    {
+                        case SubscriptionLevel.None:
+                            UserManager.RemoveFromRole(userId, DanceMusicService.TrialRole);
+                            break;
+                        case SubscriptionLevel.Trial:                            
+                            break;
+                        default:
+                            UserManager.AddToRole(userId, DanceMusicService.PremiumRole);
+                            UserManager.RemoveFromRole(userId, DanceMusicService.TrialRole);
+                            break;
+                    }
+                    break;
+                default:
+                    switch (newLevel)
+                    {
+                        case SubscriptionLevel.None:
+                            UserManager.RemoveFromRole(userId, DanceMusicService.PremiumRole);
+                            break;
+                        case SubscriptionLevel.Trial:
+                            UserManager.AddToRole(userId, DanceMusicService.TrialRole);
+                            UserManager.RemoveFromRole(userId, DanceMusicService.PremiumRole);
+                            break;
+                        default:
+                            break;
+                    }
+                    break;
+
+            }
         }
     }
 }

@@ -13,9 +13,10 @@ namespace m4dModels
     public enum SubscriptionLevel
     {
         None = 0,
-        Silver = 1,
-        Gold = 2,
-        Platinum = 3
+        Trial = 1,
+        Silver = 2,
+        Gold = 3,
+        Platinum = 4
     }
 
     // You can add profile data for the user by adding more properties to your ApplicationUser class, please visit http://go.microsoft.com/fwlink/?LinkID=317594 to learn more.
