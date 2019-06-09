@@ -939,7 +939,7 @@ namespace m4d.Controllers
             if (claimsPrincipal.Claims.FirstOrDefault(c => c.Type == "urn:spotify:access_token") == null)
             {
                 ViewBag.Title = "Connect your account to Spotify";
-                ViewBag.Message = "You must have a Spotify account associated with your music4dance account in order to use this feature. More instruction on adding an exteral account are available <a href='https://www.music4dance.net/blog/music4dance-help/account-management/#add-external-account'>here</a>.";
+                ViewBag.Message = "You must have a Spotify account associated with your music4dance account in order to use this feature. More instruction on adding an external account are available <a href='https://www.music4dance.net/blog/music4dance-help/account-management/#add-external-account'>here</a>.";
                 return View("Info");
             }
 
