@@ -7,6 +7,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net.Mime;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web.Mvc;
@@ -17,6 +18,7 @@ using m4d.ViewModels;
 using m4dModels;
 using Microsoft.Azure.Search.Models;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 using Configuration = m4d.Migrations.Configuration;
 
 namespace m4d.Controllers
@@ -1309,7 +1311,7 @@ namespace m4d.Controllers
         //
         // Get: //DanceStatistics
         [Authorize(Roles = "showDiagnostics")]
-        public ActionResult DanceStatistics(string source = null, bool save=true, bool noDances=false)
+        public ActionResult DanceStatistics(string source = null, bool save=true, bool noDances=false, bool noSongs=false, bool jsFriendly=true)
         {
             DanceStatsInstance instance;
             source = string.IsNullOrWhiteSpace(source) ? null : source;
@@ -1323,12 +1325,15 @@ namespace m4d.Controllers
                     break;
             }
 
+
+
             return new JsonNetResult(
                 instance.Tree,
                 new JsonSerializerSettings
                 {
                     NullValueHandling = NullValueHandling.Ignore,
-                    DefaultValueHandling = DefaultValueHandling.IgnoreAndPopulate
+                    DefaultValueHandling = DefaultValueHandling.IgnoreAndPopulate,
+                    ContractResolver = new StatsContractResolver(jsFriendly, noSongs)
                 },
                 Formatting.Indented);
         }
@@ -1867,5 +1872,31 @@ namespace m4d.Controllers
         static readonly IList<Review> Reviews = new List<Review>();
 
         #endregion
+    }
+
+    public class StatsContractResolver : DefaultContractResolver
+    {
+        public StatsContractResolver(bool camelCase, bool hideSongs)
+        {
+            if (camelCase)
+            {
+                NamingStrategy = new CamelCaseNamingStrategy();
+            }
+
+            _hideSongs = hideSongs;
+        }
+
+        protected override JsonProperty CreateProperty(MemberInfo member, MemberSerialization memberSerialization)
+        {
+            var property = base.CreateProperty(member, memberSerialization);
+
+            if (property.DeclaringType == typeof(DanceStats) && property.PropertyName == "topSongs")
+            {
+                property.ShouldSerialize = instance => !_hideSongs;
+            }
+
+            return property;
+        }
+        private readonly bool _hideSongs;
     }
 }
