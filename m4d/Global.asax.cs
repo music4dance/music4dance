@@ -30,6 +30,9 @@ namespace m4d
 
             DanceStatsManager.AppData = System.Web.Hosting.HostingEnvironment.MapPath("~/app_data");
             DanceMusicService.Factory = new DanceMusicFactory();
+
+            TraceLevels.SetGeneralLevel(TraceLevel.Info);
+
             Trace.WriteLineIf(TraceLevels.General.TraceInfo,"Exit Application Start");
         }
         protected void Application_Error(object sender, EventArgs e)
