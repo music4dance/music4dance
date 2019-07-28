@@ -17,6 +17,8 @@
 
     var canEdit = User.IsInRole(DanceMusicService.EditRole) ? "true" : "false";
     var canTag = User.Identity.IsAuthenticated ? "true" : "false";
+    var isPremium = User.IsInRole(DanceMusicService.PremiumRole) ? "true" : "false";
+
     var userId = User.Identity.GetUserId();
 }
 
@@ -27,6 +29,7 @@
     var paramEpsVisible = 0.1;
     var canEdit = @canEdit;
     var canTag = @canTag;
+    var isPremium = @isPremium;
     var song = @Html.Raw(songString);
     var songFilter = @(filterString == null ? null : Html.Raw(filterString));
     var userId = '@userId';

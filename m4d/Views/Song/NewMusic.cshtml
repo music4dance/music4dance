@@ -7,6 +7,7 @@
     ViewBag.Description = "music4dance catalog: " + filter.Description;
     const string recentlyAdded = @"Most Recently Added Songs";
     const string recentlyChanged = @"Most Recently Changed Songs";
+    const string catalog = @"Songs to Catalog";
 }
 
 @Html.Partial("_SetupFilterScript")
@@ -22,11 +23,30 @@
 <H2>
     @if (string.Equals(filter.SongSort.Id, "Created", StringComparison.OrdinalIgnoreCase))
     {
-        <span>@recentlyAdded | @Html.ActionLink(recentlyChanged,"NewMusic",new {type="Modified"})</span>
+        if (filter.Level == 0)
+        {
+            <span>
+                @Html.ActionLink(recentlyAdded, "NewMusic", new {type = "Created"}) |
+                @recentlyChanged |
+                @Html.ActionLink(catalog, "NewMusic", new {type = "Catalog"})
+            </span>
+        }
+        else
+        {
+            <span>
+                @Html.ActionLink(recentlyAdded, "NewMusic", new { type = "Created" }) |
+                @Html.ActionLink(recentlyChanged, "NewMusic", new { type = "Modified" }) | 
+                @catalog
+            </span>
+        }
     }
     else
     {
-        <span>@Html.ActionLink(recentlyAdded, "NewMusic", new { type = "Created" }) | @recentlyChanged</span>
+        <span>
+            @Html.ActionLink(recentlyAdded, "NewMusic", new {type = "Created"}) |
+            @Html.ActionLink(recentlyChanged, "NewMusic", new {type = "Modified"}) |
+            @catalog
+        </span>
     }
 </H2>
 

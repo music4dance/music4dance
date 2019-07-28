@@ -825,7 +825,7 @@ $(document).ready(function () {
 
     $('#song').submit(function(event) {
         editor.updateUserTags();
-        if (!editor.hasDanceRatings()) {
+        if (!editor.hasDanceRatings() && !window.isPremium) {
             $('#dance-error').show();
             event.preventDefault();
         }
