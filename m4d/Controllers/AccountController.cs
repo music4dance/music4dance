@@ -245,12 +245,12 @@ namespace m4d.Controllers
                           @">here</a><h4><p></p>" +
                           @"<h4>Once you've confirmed your email and signed in, please explore these features that you now have access to:</h4>" +
                           @"<ul>" +
-                          @"<li><a href='https://www.music4dance.net/blog/music4dance-help/dance-tags/'>Help us categorize songs by dance style</a></li>" +
-                          @"<li><a href='https://www.music4dance.net/blog/music4dance-help/tag-editing/'>Tag songs</a></li>" +
-                          @"<li><a href='https://www.music4dance.net/blog/music4dance-help/advanced-search/'>Search on songs you've tagged</a></li>" +
-                          @"<li><a href='https://www.music4dance.net/blog/are-there-songs-that-you-never-want-to-dance-to-again/'>Like and unlike songs</a></li>" +
-                          @"<li><a href='https://www.music4dance.net/blog/are-there-songs-that-you-never-want-to-dance-to-again/'>Hide songs you've 'unliked'</a></li>" +
-                          @"<li><a href='https://www.music4dance.net/blog/music4dance-help/saved-searches/'>Save your searches</a></li>" +
+                          @"<li><a href='https://music4dance.blog/music4dance-help/dance-tags/'>Help us categorize songs by dance style</a></li>" +
+                          @"<li><a href='https://music4dance.blog/music4dance-help/tag-editing/'>Tag songs</a></li>" +
+                          @"<li><a href='https://music4dance.blog/music4dance-help/advanced-search/'>Search on songs you've tagged</a></li>" +
+                          @"<li><a href='https://music4dance.blog/are-there-songs-that-you-never-want-to-dance-to-again/'>Like and unlike songs</a></li>" +
+                          @"<li><a href='https://music4dance.blog/are-there-songs-that-you-never-want-to-dance-to-again/'>Hide songs you've 'unliked'</a></li>" +
+                          @"<li><a href='https://music4dance.blog/music4dance-help/saved-searches/'>Save your searches</a></li>" +
                           @"</ul>" +
                           @"<h4>Please consider purchasing a premium subscription or donating to the site by visiting our <a href='https://www.music4dance.net/home/contribute'>contribute page</a>.</h4>";
 

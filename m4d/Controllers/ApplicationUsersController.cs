@@ -116,7 +116,7 @@ namespace m4d.Controllers
                 catch (Exception ex)
                 {
                     Trace.WriteLine(ex.Message);
-                    ModelState.AddModelError("", @"Unable to save changes. Try again, and if the problem persists, please <a href='https://www.music4dance.net/blog/feedback/'>report the issue</a>.");
+                    ModelState.AddModelError("", @"Unable to save changes. Try again, and if the problem persists, please <a href='https://music4dance.blog/feedback/'>report the issue</a>.");
                 }
             }
 

@@ -118,7 +118,7 @@ namespace m4d.Controllers
         [AllowAnonymous]
         public ActionResult CounterHelp()
         {
-            return RedirectPermanent("/blog/music4dance-help/tempo-counter/");
+            return RedirectPermanent("https://music4dance.blog/music4dance-help/tempo-counter/");
         }
 
         [AllowAnonymous]

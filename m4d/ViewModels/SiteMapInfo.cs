@@ -17,9 +17,23 @@ namespace m4d.ViewModels
 
         public string FullPath => MakeFullPath(Reference);
 
+        // TODONEXT: Verify that mapping works
         protected string MakeFullPath(string rel)
         {
-            return (rel == null) ? string.Empty : $"https://www.music4dance.net/{rel}";
+            const string blogPrefix = "blog/";
+            if (rel == null)
+            {
+                return string.Empty;
+            }
+            if (rel == "blog")
+            {
+                return "https://music4dance.blog/";
+            }
+            if (rel.StartsWith(blogPrefix))
+            {
+                return $"https://music4dance.blog/{rel.Substring(blogPrefix.Length)}";
+            }
+            return $"https://www.music4dance.net/{rel}";
         }
     }
 
