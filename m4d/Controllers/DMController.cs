@@ -5,6 +5,7 @@ using System.Linq;
 using System.Net;
 using System.Web;
 using System.Web.Mvc;
+using System.Web.Routing;
 using DanceLibrary;
 using m4d.Context;
 using m4d.Utilities;
@@ -23,6 +24,11 @@ namespace m4d.Controllers
         public readonly string ToolTheme = "tools";
         public readonly string BlogTheme = "blog";
         public readonly string AdminTheme = "admin";
+
+        protected override void OnActionExecuting(System.Web.Mvc.ActionExecutingContext filterContext)
+        {
+            filterContext.HttpContext.Session["Workaround"] = 0;
+        }
 
         public virtual string DefaultTheme => BlogTheme;
 

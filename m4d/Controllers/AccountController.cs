@@ -6,6 +6,7 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
+using CsQuery.ExtensionMethods;
 using m4d.ViewModels;
 using m4dModels;
 using Microsoft.AspNet.Identity;
@@ -439,9 +440,14 @@ namespace m4d.Controllers
         {
             Trace.WriteLineIf(TraceLevels.General.TraceInfo, "ExternalLoginCallback: Enter");
             var loginInfo = await AuthenticationManager.GetExternalLoginInfoAsync();
+
+            Trace.WriteLineIf(TraceLevels.General.TraceInfo, $"ExternalLoginCallback: OWIN Cookies - {HttpContext.GetOwinContext().Request.Cookies.ToJSON()}");
+            Trace.WriteLineIf(TraceLevels.General.TraceInfo, $"ExternalLoginCallback: ASPN Cookies - {HttpContext.Request.Cookies.ToJSON()}");
+
             if (loginInfo == null)
             {
                 Trace.WriteLineIf(TraceLevels.General.TraceInfo, "ExternalLoginCallback: Failed to retrieve login info");
+                
                 return RedirectToAction("SignIn");
             }
             var userT = AuthenticationManager.User;
