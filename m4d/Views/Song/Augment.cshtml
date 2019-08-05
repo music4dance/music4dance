@@ -4,7 +4,7 @@
     ViewBag.Title = "Add Song";
     ViewBag.Action = "Add";
     ViewBag.Submit = "Add";
-    var canTag = User.IsInRole("canTag");
+    var canAugment = User.IsInRole("canTag") || User.IsInRole("premium");
 }
 
 <h2>Add Song</h2>
@@ -13,7 +13,7 @@
 </p>
 <br />
 
-@if (canTag)
+@if (canAugment)
 {
     <form id="lookup-by-id" class="form-inline">
         <div class="form-group">
