@@ -1,6 +1,7 @@
 ﻿@using System.Web.Mvc
 @using System.Web.Mvc.Html
 @using m4dModels
+@using Microsoft.Azure.Search.Models
 @using PagedList.Mvc;
 
 @helper Spotify(IEnumerable<Song> songs)
@@ -164,7 +165,7 @@
             }
             <div class="col-md-6"><h4>@filter.Description</h4></div>
         </div>
-}
+    }
 
     if (!hideSpotify && showExport)
     {
@@ -172,20 +173,37 @@
             <div class="col-md-12">
                 <h4>Create a Spotify Playlist with the results of this search:</h4>
                 <p text="big-text">If you are <a href="https://www.music4dance.net/blog/music4dance-help/account-management/">signed in</a>, have a <a href="https://www.music4dance.net/blog/music4dance-help/subscriptions/">premium subsription</a> and have <a href="https://www.music4dance.net/blog/music4dance-help/account-management/#add-external-account">associated a Spotify account with your music4dance account</a>, this will create a spotify playlist in your account with the top 50 results of the above search.</p>
-                @using (html.BeginForm("CreateSpotify", "Song", new { filter }, FormMethod.Post, new {id = "create-playlist", @class = "form-inline"}))
+                @using (html.BeginForm("CreateSpotify", "Song", new { filter }, FormMethod.Post, new { id = "create-playlist", @class = "form-inline" }))
                 {
-                @html.AntiForgeryToken()
+                    @html.AntiForgeryToken()
 
-                <div class="form-group">
-                    <label for="playlist-title">Title:</label>
-                    <input type="text" name="title" class="form-control" value="@(string.IsNullOrWhiteSpace(filter.ShortDescription) ? "music4dance playlist" : filter.ShortDescription)" style="width:300em" id="playlist-title"/>
-                    <button type="submit" class="btn btn-default">Create</button>
-                </div>
+                    <div class="form-group">
+                        <label for="playlist-title">Title:</label>
+                        <input type="text" name="title" class="form-control" value="@(string.IsNullOrWhiteSpace(filter.ShortDescription) ? "music4dance playlist" : filter.ShortDescription)" style="width:300em" id="playlist-title" />
+                        <button type="submit" class="btn btn-default">Create</button>
+                    </div>
                 }
 
             </div>
         </div>
     }
+}
+
+@helper ShowRawSearch(SearchParameters raw)
+{
+    <div class="row">
+        <div class="col-md-12">
+            <b>Raw Search: </b>@WebUtility.UrlDecode(raw.ToString())<br />
+            @if (raw.Filter != null)
+            {
+                <b>Raw Search Filter: </b>@WebUtility.UrlDecode(raw.Filter)<br />
+            }
+            @if (raw.OrderBy != null && raw.OrderBy.Count > 0)
+            {
+                <b>Raw Search OrderBy: </b>@WebUtility.UrlDecode(string.Join(",", raw.OrderBy))<br />
+            }
+        </div>
+    </div>
 }
 
 @helper LikeHelper(WebViewPage page, Song song, LikeDictionary likes, string img, string modifier, string danceId, string tipNull, string tipTrue, string tipFalse)

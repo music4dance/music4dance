@@ -60,13 +60,7 @@ else
 
 @if (User.IsInRole("showDiagnostics") && ViewData.ContainsKey("RawSearch"))
 {
-    <div class="row">
-        <div class="col-md-12">
-            <b>Raw Search: </b>@WebUtility.UrlDecode(ViewBag.RawSearch.ToString())<br />
-            <b>Raw Search Filter: </b>@WebUtility.UrlDecode(ViewBag.RawSearch.Filter.ToString())<br />
-            <b>Raw Search OrderBy: </b>@WebUtility.UrlDecode(string.Join(",",ViewBag.RawSearch.OrderBy))<br />
-        </div>
-    </div>
+    @SongHelper.ShowRawSearch(ViewBag.RawSearch)
     <div class="row">
         <div class="col-md-12">
             <b>m4d Search: </b>@WebUtility.UrlDecode(filter.ToString())<br />
