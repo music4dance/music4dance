@@ -172,8 +172,8 @@
         <div class="row">
             <div class="col-md-12">
                 <h4>Create a Spotify Playlist with the results of this search:</h4>
-                <p text="big-text">If you are <a href="https://www.music4dance.net/blog/music4dance-help/account-management/">signed in</a>, have a <a href="https://www.music4dance.net/blog/music4dance-help/subscriptions/">premium subsription</a> and have <a href="https://www.music4dance.net/blog/music4dance-help/account-management/#add-external-account">associated a Spotify account with your music4dance account</a>, this will create a spotify playlist in your account with the top 50 results of the above search.</p>
-                @using (html.BeginForm("CreateSpotify", "Song", new { filter }, FormMethod.Post, new { id = "create-playlist", @class = "form-inline" }))
+                <p text="big-text">If you are <a href="https://music4dance.blog/music4dance-help/account-management/">signed in</a>, have a <a href="https://music4dance.blog/music4dance-help/subscriptions/">premium subsription</a> and have <a href="https://music4dance.blog/music4dance-help/account-management/#add-external-account">associated a Spotify account with your music4dance account</a>, this will create a spotify playlist in your account with the top 50 results of the above search.</p>
+                @using (html.BeginForm("CreateSpotify", "Song", new { filter }, FormMethod.Post, new {id = "create-playlist", @class = "form-inline"}))
                 {
                     @html.AntiForgeryToken()
 

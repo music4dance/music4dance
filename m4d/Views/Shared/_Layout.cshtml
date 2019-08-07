@@ -1,9 +1,9 @@
 ﻿<!DOCTYPE html>
 @{
-    var help = "https://www.music4dance.net/blog/music4dance-help/";
+    var help = "https://music4dance.blog/music4dance-help/";
     if (ViewData.ContainsKey("Help") && !string.IsNullOrWhiteSpace(ViewBag.Help))
     {
-        help = string.Format("https://www.music4dance.net/blog/music4dance-help/{0}/",ViewBag.Help);
+        help = string.Format("https://music4dance.blog/music4dance-help/{0}/",ViewBag.Help);
     }
 }
 <html>
@@ -164,10 +164,10 @@
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown">Info <span class="caret"></span></a>
                     <ul class="dropdown-menu" role="menu">
                         <li><a href="@help">Help</a></li>
-                        <li><a href="https://www.music4dance.net/blog">Blog</a></li>
+                        <li><a href="https://music4dance.blog">Blog</a></li>
                         <li>@Html.ActionLink("FAQ", "FAQ", "Home")</li>
                         <li>@Html.ActionLink("About Us", "About", "Home")</li>
-                        <li><a href="https://www.music4dance.net/blog/reading-list/">Reading List</a></li>
+                        <li><a href="https://music4dance.blog/reading-list/">Reading List</a></li>
                         <li>@Html.ActionLink("Site Map", "sitemap", "Home")</li>
                         <li>@Html.ActionLink("Privacy Policy", "privacypolicy", "Home")</li>
                         <li>@Html.ActionLink("Credits", "credits", "Home")</li>

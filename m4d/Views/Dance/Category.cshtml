@@ -7,7 +7,7 @@
     ViewBag.Title = @Model.Name;
     ViewBag.Description = "A description of the competition dance category " + @Model.Name + " along with tempo ranges and song lists.";
     var catType = @Model.CategoryType;
-    var blogName = "https://www.music4dance.net/blog/tag/" + @Model.Name.ToLowerInvariant().Replace(' ', '-') + "/";
+    var blogName = "https://music4dance.blog/tag/" + @Model.Name.ToLowerInvariant().Replace(' ', '-') + "/";
 }
 
 <ol class="breadcrumb">
@@ -42,4 +42,4 @@
     @SmartLink.TempiTool()
 </dl>
 
-<p class="big-text">Read the <a href="https://www.music4dance.net/blog">music4dance blog</a> entries about <a href="https://www.music4dance.net/blog/tag/ballroom">Ballroom</a> in general and <a href="@blogName">@Model.Name</a> more specifically.</p>
+<p class="big-text">Read the <a href="https://music4dance.blog">music4dance blog</a> entries about <a href="https://music4dance.blog/tag/ballroom">Ballroom</a> in general and <a href="@blogName">@Model.Name</a> more specifically.</p>

@@ -40,7 +40,7 @@
     var dec = (int)Math.Floor(value.Value * 10) + 1;
     var img = "/content/" + @type + "-" + dec + ".png";
     var alt = type;
-    var href = "https://www.music4dance.net/blog/music4dance-help/playing-or-purchasing-songs/echonest/#" + type.ToLower();
+    var href = "https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#" + type.ToLower();
     <a href="@href">
         <img src="@img" width="@(size.ToString())" height="@(size.ToString())" alt="@alt" title="@string.Format(tips[type], value)"/>
     </a>
