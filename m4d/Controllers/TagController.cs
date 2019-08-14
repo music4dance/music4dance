@@ -106,6 +106,8 @@ namespace m4d.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult Edit([Bind(Include = "Key,PrimaryId")] TagGroup tagGroup, string newKey)
         {
+            // The tagGroup coming in is the original tagGroup with a possibly edited Primary Key
+            //  newKey is the key typed into the key field
             if (!ModelState.IsValid)
             {
                 var pid = tagGroup.PrimaryId ?? tagGroup.Key;
@@ -114,71 +116,71 @@ namespace m4d.Controllers
                 return View(tagGroup);
             }
 
-            //  Rename an existing tag (change in place or add/delete? - do we chance all user instances) - rebuild all tag summaries if primary
-            //  Change a tag to not be primary (rebuild all tag summaries - search on old primary)
-            //  Change a tag to be primary (rebuild all tag summaries - search on old primary)
-
-            var changed = false;
+            //  Rename an existing tag: (oldTag.Key != tagGroup.Key), don't care about primary
+            //   - Create tag of new name
+            //   - Point this tag to new tag as primary
+            //  Change a tag to not be primary: tagGroup.PrimaryId != tagGroup.Key
+            //  Change a tag to be primary: tagGroup.PrimaryId == tagGroup.Key
+            //
+            //  In all cases we want to search on the old primary key for the songs to fix up
 
             var oldTag = Database.TagGroups.Find(tagGroup.Key);
+            if (oldTag == null)
+            {
+                throw new ArgumentOutOfRangeException(nameof(newKey));
+            }
             tagGroup.Key = newKey;
 
-            if (string.Equals(oldTag.Key, tagGroup.PrimaryId))
+            // Before doing anything else, we're going to get the filter for the
+            //  potentially affected songs
+            var filter = FilterFromTag(oldTag.Key);
+
+            // If the tagGroup's key is now the same as the primary key,
+            //  we set the primary key to null (self-referenced)
+            if (string.Equals(tagGroup.Key, tagGroup.PrimaryId))
             {
                 tagGroup.PrimaryId = null;
                 tagGroup.Primary = null;
             }
 
+            // Nothing Changed, just return
+            if (string.Equals(tagGroup.Key, oldTag.Key) && string.Equals(tagGroup.PrimaryId, oldTag.PrimaryId))
+            {
+                return View(tagGroup);
+            }
+
+            // Create tag group with new name and point old tag group to it
             if (!string.Equals(oldTag.Key, tagGroup.Key))
             {
-                Database.DanceStats.TagManager.ChangeTagName(oldTag.Key, tagGroup.Key);
-                Database.TagGroups.Remove(oldTag);
                 var newTag = Database.TagGroups.Create();
                 newTag.Key = tagGroup.Key;
-                newTag.PrimaryId = tagGroup.PrimaryId;
+                newTag.PrimaryId = null;
                 Database.TagGroups.Add(newTag);
-                changed = true;
+                oldTag.PrimaryId = newTag.Key;
+                oldTag.Primary = newTag;
+                oldTag.Modified = DateTime.Now;
+
+                Database.DanceStats.TagManager.AddTagGroup(newTag);
             }
-
-            if (tagGroup.PrimaryId != oldTag.PrimaryId)
+            // Reset the primary key of the old tag group
+            else 
             {
-                changed = true;
-                string filter = null;
-                // Removed this tag from an existing ring
-                if (tagGroup.PrimaryId == null)
-                {
-                    var primary = oldTag.GetPrimary();
-                    filter = FilterFromTag(primary.Key);
-                }
-                // Added this type to a ring
-                else if (oldTag.PrimaryId == null)
-                {
-                    var primary = tagGroup.GetPrimary();
-                    filter = FilterFromTag(primary.Key);
-                }
-                // Moved this from one ring to another
-                else
-                {
-                    var primaryA = oldTag.GetPrimary();
-                    var primaryB = tagGroup.GetPrimary();
-
-                    filter = $"{FilterFromTag(primaryA.Key)} or {FilterFromTag(primaryB.Key)}";
-                }
-
                 oldTag.PrimaryId = tagGroup.PrimaryId;
                 oldTag.Modified = DateTime.Now;
-                Database.DanceStats.TagManager.UpdateTagRing(oldTag.Key, oldTag.PrimaryId);
-
-                var parameters = new SearchParameters {Filter=filter};
-
-                while (Database.UpdateAzureIndex(Database.TakeTail(parameters, 1000)) != 0)
-                {
-                    Trace.WriteLineIf(TraceLevels.General.TraceInfo,"Updated another batch of tags");
-                };
             }
 
-            if (changed)
-                Database.SaveChanges();
+            Database.DanceStats.TagManager.UpdateTagRing(oldTag.Key, oldTag.PrimaryId);
+
+            var parameters = new SearchParameters { Filter = filter };
+
+            SearchContinuationToken tok = null;
+            do
+            {
+                Database.UpdateAzureIndex(Database.TakePage(parameters, 1000, ref tok));
+                Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Updated another batch of tags");
+            } while (tok != null);
+
+            Database.SaveChanges();
 
             return RedirectToAction("Index");
         }

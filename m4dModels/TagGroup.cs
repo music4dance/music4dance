@@ -71,8 +71,7 @@ namespace m4dModels
             foreach (var tt in ttl)
             {
                 var p = tt.GetPrimary();
-                TagCount tc;
-                if (!d.TryGetValue(p.Key, out tc))
+                if (!d.TryGetValue(p.Key, out var tc))
                 {
                     tc = new TagCount(p.Key,0);
                     d[p.Key] = tc;
@@ -131,7 +130,7 @@ namespace m4dModels
                         sb.Append("-s"); //Slash
                         break;
                     case ' ':
-                        sb.Append("-w"); //Slash
+                        sb.Append("-w"); //whitespace
                         break;
                     default:
                         int i = c;
@@ -150,7 +149,7 @@ namespace m4dModels
             return sb.ToString();
         }
 
-        static private bool IsHexDigit(char c)
+        private static bool IsHexDigit(char c)
         {
             if (char.IsDigit(c))
             {
@@ -160,7 +159,7 @@ namespace m4dModels
             return c >= 'a' && c <= 'f';
         }
 
-        static private int ConvertHexDigit(char c)
+        private static int ConvertHexDigit(char c)
         {
             return char.IsDigit(c) ? c - '0' : (char.ToLower(c) - 'a') + 10;
         }

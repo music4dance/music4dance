@@ -2184,6 +2184,7 @@ namespace m4dModels
 
         public IEnumerable<Song> TakePage(SearchParameters parameters, int pageSize, ref SearchContinuationToken token, string id = "default")
         {
+            // Note: if pageSize is not a multiple of 50 we'll potentially return pageSize % 50 additional results
             parameters.IncludeTotalResultCount = false;
             parameters.Top = null;
 
@@ -2201,8 +2202,6 @@ namespace m4dModels
                     foreach (var doc in response.Results)
                     {
                         results.Add(new Song(doc.Document, DanceStats));
-
-                        if (results.Count >= pageSize) break;
                     }
                     token = response.ContinuationToken;
                 } while (token != null && results.Count < pageSize);
