@@ -21,33 +21,50 @@
 <H1>New Music</H1>
 
 <H2>
-    @if (string.Equals(filter.SongSort.Id, "Created", StringComparison.OrdinalIgnoreCase))
+    @*@if (string.Equals(filter.SongSort.Id, "Created", StringComparison.OrdinalIgnoreCase))
     {
+        TODO: Figure out how to make new music that has no dances associated with it
+          bubble to the top of this lise
         if (filter.Level == 0)
         {
             <span>
                 @Html.ActionLink(recentlyAdded, "NewMusic", new {type = "Created"}) |
-                @recentlyChanged |
-                @Html.ActionLink(catalog, "NewMusic", new {type = "Catalog"})
+                @Html.ActionLink(recentlyChanged, "NewMusic", new { type = "Modified" }) |
+                @catalog
             </span>
         }
         else
         {
-            <span>
-                @Html.ActionLink(recentlyAdded, "NewMusic", new { type = "Created" }) |
-                @Html.ActionLink(recentlyChanged, "NewMusic", new { type = "Modified" }) | 
-                @catalog
-            </span>
+        <span>
+            @recentlyAdded |
+            @Html.ActionLink(recentlyChanged, "NewMusic", new { type = "Modified" }) |
+            @Html.ActionLink(catalog, "NewMusic", new {type = "Catalog"})
+        </span>
         }
     }
     else
     {
         <span>
-            @Html.ActionLink(recentlyAdded, "NewMusic", new {type = "Created"}) |
-            @Html.ActionLink(recentlyChanged, "NewMusic", new {type = "Modified"}) |
-            @catalog
+            @Html.ActionLink(recentlyAdded, "NewMusic", new { type = "Created" }) |
+            @recentlyChanged |
+            @Html.ActionLink(catalog, "NewMusic", new {type = "Catalog"})
+        </span>
+    }*@
+    @if (string.Equals(filter.SongSort.Id, "Created", StringComparison.OrdinalIgnoreCase))
+    {
+        <span>
+            @recentlyAdded |
+            @Html.ActionLink(recentlyChanged, "NewMusic", new { type = "Modified" })
         </span>
     }
+    else
+    {
+        <span>
+            @Html.ActionLink(recentlyAdded, "NewMusic", new { type = "Created" }) |
+            @recentlyChanged
+        </span>
+    }
+
 </H2>
 
 @{
