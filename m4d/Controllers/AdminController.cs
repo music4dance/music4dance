@@ -4,6 +4,7 @@ using System.Configuration;
 using System.Data.Entity.Infrastructure;
 using System.Data.Entity.Migrations;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net.Mime;
@@ -11,6 +12,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web.Mvc;
+using BundleTransformer.Core.Utilities;
 using DanceLibrary;
 using m4d.Scrapers;
 using m4d.Utilities;
@@ -1577,6 +1579,46 @@ namespace m4d.Controllers
             var configuration = new Configuration();
             var migrator = new DbMigrator(configuration);
             migrator.Update(state);
+
+            ViewBag.Name = "Update Database";
+            ViewBag.Success = true;
+            ViewBag.Message = "Database was successfully updated.";
+
+            return View("Results");
+        }
+
+        //
+        // Get: //CleanTempi
+        [Authorize(Roles = "dbAdmin")]
+        public ActionResult CleanTags()
+        {
+            var ti = CultureInfo.CurrentCulture.TextInfo;
+            var tagMap = Database.DanceStats.TagManager.TagMap;
+            foreach (var key in tagMap.Keys)
+            {
+                if (key.Contains('!') || (!key.Contains('-') && !key.Any(c => c.IsAlphaNumeric())))
+                {
+                    continue;
+                }
+
+                var newKey = ti.ToTitleCase(key.Replace('-', ' '));
+
+                if (newKey == key)
+                {
+                    continue;
+                }
+
+                // TODONEXT: What happens with casing of tag type?  other == Other?
+                if (tagMap.ContainsKey(newKey))
+                {
+                    Debug.WriteLine($"Existing: {key} => {newKey}");
+                }
+                else
+                {
+                    Debug.WriteLine($"New: {key} => {newKey}");
+                }
+
+            }
 
             ViewBag.Name = "Update Database";
             ViewBag.Success = true;
