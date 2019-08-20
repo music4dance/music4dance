@@ -959,9 +959,75 @@ namespace m4dModels
             return new TagList(result).ToString();
         }
 
-        public IEnumerable<TagGroup> GetTagTypes(string value)
+        //  Rename an existing tag: (tagGroup.Key != newKey), don't care about primary
+        //   - Create tag of new name
+        //   - Point this tag to new tag as primary
+        //  Change a tag to not be primary: newPrimaryKey != tagGroup.Key
+        //  Change a tag to be primary: newPrimaryKey == tagGroup.Key
+        //
+        //  In all cases we want to search on the old primary key for the songs to fix up
+
+        public bool UpdateTag(TagGroup tagGroup, string newKey, string newPrimaryKey)
         {
-            return TagGroups.Where(t => t.Key.StartsWith(value + ":"));
+            // Before doing anything else, we're going to get the filter for the
+            //  potentially affected songs
+            var filter = FilterFromTag(tagGroup.Key);
+
+
+            // Nothing Changed, just return
+            if (string.Equals(tagGroup.Key, newKey) && (string.Equals(tagGroup.PrimaryId, newPrimaryKey) || tagGroup.PrimaryId == null && newPrimaryKey == newKey))
+            {
+                return false;
+            }
+
+            // Create tag group with new name and point old tag group to it
+            if (!string.Equals(tagGroup.Key, newKey))
+            {
+                var newTag = TagGroups.Create();
+                newTag.Key = newKey;
+                newTag.PrimaryId = null;
+                TagGroups.Add(newTag);
+                tagGroup.PrimaryId = newTag.Key;
+                tagGroup.Primary = newTag;
+                tagGroup.Modified = DateTime.Now;
+
+                DanceStats.TagManager.AddTagGroup(newTag);
+            }
+            // Reset the primary key of the old tag group
+            else if (tagGroup.PrimaryId != newPrimaryKey)
+            {
+                tagGroup.PrimaryId = newPrimaryKey;
+                tagGroup.Modified = DateTime.Now;
+            }
+
+            if (tagGroup.PrimaryId == tagGroup.Key)
+            {
+                tagGroup.PrimaryId = null;
+                tagGroup.Primary = null;
+            }
+
+            DanceStats.TagManager.UpdateTagRing(tagGroup.Key, tagGroup.PrimaryId);
+
+            var parameters = new SearchParameters { Filter = filter };
+
+            SearchContinuationToken tok = null;
+            do
+            {
+                UpdateAzureIndex(TakePage(parameters, 1000, ref tok));
+                Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Updated another batch of tags");
+            } while (tok != null);
+
+            SaveChanges();
+
+            return true;
+        }
+
+        private string FilterFromTag(string key)
+        {
+            var filter = SongFilter.Default;
+            filter.Tags = key;
+            var parameters = AzureParmsFromFilter(filter);
+            return parameters.Filter;
         }
 
         public IReadOnlyList<TagGroup> CachedTagGroups()
@@ -1119,31 +1185,31 @@ namespace m4dModels
         private const string PlaylistBreak = "+++++PLAYLISTS+++++";
         private const string UserHeader = "UserId\tUserName\tRoles\tPWHash\tSecStamp\tLockout\tProviders\tEmail\tEmailConfirmed\tStartDate\tRegion\tPrivacy\tCanContact\tServicePreference\tLastActive\tRowCount\tColumns\tSubscriptionLevel\tSubscriptionStart\tSubscriptionEnd";
 
-        static public bool IsSongBreak(string line) {
+        public static bool IsSongBreak(string line) {
             return IsBreak(line, SongBreak);
         }
-        static public bool IsTagBreak(string line)
+        public static bool IsTagBreak(string line)
         {
             return IsBreak(line, TagBreak);
         }
-        static public bool IsPlaylistBreak(string line)
+        public static bool IsPlaylistBreak(string line)
         {
             return IsBreak(line, PlaylistBreak);
         }
-        static public bool IsUserBreak(string line)
+        public static bool IsUserBreak(string line)
         {
             return UserHeader.StartsWith(line.Trim());
         }
-        static public bool IsDanceBreak(string line)
+        public static bool IsDanceBreak(string line)
         {
             return IsBreak(line, DanceBreak);
         }
-        static public bool IsSearchBreak(string line)
+        public static bool IsSearchBreak(string line)
         {
             return IsBreak(line, SearchBreak);
         }
 
-        static private bool IsBreak(string line, string brk)
+        private static bool IsBreak(string line, string brk)
         {
             return string.Equals(line.Trim(), brk, StringComparison.InvariantCultureIgnoreCase);
         }

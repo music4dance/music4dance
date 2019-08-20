@@ -1594,30 +1594,41 @@ namespace m4d.Controllers
         {
             var ti = CultureInfo.CurrentCulture.TextInfo;
             var tagMap = Database.DanceStats.TagManager.TagMap;
-            foreach (var key in tagMap.Keys)
+            foreach (var tg in Database.TagGroups)
             {
+                if (tg.PrimaryId != null)
+                {
+                    continue;
+                }
+
+                var key = tg.Key;
                 if (key.Contains('!') || (!key.Contains('-') && !key.Any(c => c.IsAlphaNumeric())))
                 {
                     continue;
                 }
 
-                var newKey = ti.ToTitleCase(key.Replace('-', ' '));
+                var tag = new TagCount(key);
 
-                if (newKey == key)
+                var newValue = ti.ToTitleCase(tag.TagValue.Replace('-', ' '));
+
+                if (newValue == tag.TagValue)
                 {
                     continue;
                 }
 
-                // TODONEXT: What happens with casing of tag type?  other == Other?
-                if (tagMap.ContainsKey(newKey))
+                var newKey = $"{newValue}:{tag.TagClass}";
+
+                var isNew = !tagMap.ContainsKey(newKey.ToLower());
+                var type =  isNew ? "New" : "Existing";
+                Debug.WriteLine($"{type}: {key} => {newKey}");
+
+                if (!isNew)
                 {
-                    Debug.WriteLine($"Existing: {key} => {newKey}");
-                }
-                else
-                {
-                    Debug.WriteLine($"New: {key} => {newKey}");
+                    continue;
                 }
 
+                // TODONEXT:  Validate that this works
+                Database.UpdateTag(tg, newKey, tg.PrimaryId);
             }
 
             ViewBag.Name = "Update Database";

@@ -165,7 +165,7 @@ namespace m4dModels
 
             return service + " " + type;
         }
-        static public bool TryParsePurchaseInfo(string pi, out PurchaseType pt, out ServiceType ms, out string id)
+        public static bool TryParsePurchaseInfo(string pi, out PurchaseType pt, out ServiceType ms, out string id)
         {
             pt = PurchaseType.None;
             ms = ServiceType.None;
@@ -181,7 +181,7 @@ namespace m4dModels
 
             return true;
         }
-        static public bool TryParsePurchaseType(string abbrv, out PurchaseType pt, out ServiceType ms)
+        public static bool TryParsePurchaseType(string abbrv, out PurchaseType pt, out ServiceType ms)
         {
             if (abbrv == null)
             {

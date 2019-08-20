@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.Linq;
 using System.Runtime.Serialization;
+using Microsoft.Rest;
 
 namespace m4dModels
 {
@@ -76,7 +77,7 @@ namespace m4dModels
         }
         #endregion
 
-        public bool Parse(string s)
+        private bool Parse(string s)
         {
             var ret = true;
             var list = s.Split(new[] { ':' }, StringSplitOptions.RemoveEmptyEntries).ToList();
@@ -93,9 +94,10 @@ namespace m4dModels
             }
             Count = c;
             Value = list[0].Trim();
-            if (list.Count > 2)
+            if (list.Count > 2 || ret == false)
             {
                 Value += ":" + list[1];
+                ret = true;
             }
             return ret;
         }

@@ -6,7 +6,7 @@ namespace m4dModels
     [DataContract]
     public class EchoTrack
     {
-        static public EchoTrack BuildEchoTrack(dynamic response)
+        public static EchoTrack BuildEchoTrack(dynamic response)
         {
             try
             {

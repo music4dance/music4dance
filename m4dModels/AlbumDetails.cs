@@ -158,12 +158,12 @@ namespace m4dModels
             Purchase[BuildPurchaseKey(pt,ms)] = value;
         }
 
-        static public string BuildPurchaseInfo(PurchaseType pt, ServiceType ms, string value)
+        public static string BuildPurchaseInfo(PurchaseType pt, ServiceType ms, string value)
         {
             return $"{BuildPurchaseKey(pt, ms)}={value}";
         }
 
-        static public string BuildPurchaseInfo(ServiceType ms, string collection, string track, string[] availableMarkets=null)
+        public static string BuildPurchaseInfo(ServiceType ms, string collection, string track, string[] availableMarkets=null)
         {
             var sb = new StringBuilder();
 
