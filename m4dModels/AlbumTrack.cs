@@ -56,12 +56,12 @@ namespace m4dModels
         public TrackNumber Track => new TrackNumber(Split()[1]);
 
         #region Operators
-        static public implicit operator string(AlbumTrack at)
+        public static implicit operator string(AlbumTrack at)
         {
             return at._val;
         }
 
-        static public implicit operator AlbumTrack(string val)
+        public static implicit operator AlbumTrack(string val)
         {
             return new AlbumTrack(val);
         }

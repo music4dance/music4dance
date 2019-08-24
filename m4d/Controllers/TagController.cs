@@ -1,11 +1,9 @@
 ﻿using System;
-using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Web.Mvc;
 using m4d.ViewModels;
 using m4dModels;
-using Microsoft.Azure.Search.Models;
 
 namespace m4d.Controllers
 {
@@ -106,6 +104,8 @@ namespace m4d.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult Edit([Bind(Include = "Key,PrimaryId")] TagGroup tagGroup, string newKey)
         {
+            // The tagGroup coming in is the original tagGroup with a possibly edited Primary Key
+            //  newKey is the key typed into the key field
             if (!ModelState.IsValid)
             {
                 var pid = tagGroup.PrimaryId ?? tagGroup.Key;
@@ -114,82 +114,17 @@ namespace m4d.Controllers
                 return View(tagGroup);
             }
 
-            //  Rename an existing tag (change in place or add/delete? - do we chance all user instances) - rebuild all tag summaries if primary
-            //  Change a tag to not be primary (rebuild all tag summaries - search on old primary)
-            //  Change a tag to be primary (rebuild all tag summaries - search on old primary)
-
-            var changed = false;
-
             var oldTag = Database.TagGroups.Find(tagGroup.Key);
-            tagGroup.Key = newKey;
-
-            if (string.Equals(oldTag.Key, tagGroup.PrimaryId))
+            if (oldTag == null)
             {
-                tagGroup.PrimaryId = null;
-                tagGroup.Primary = null;
+                throw new ArgumentOutOfRangeException(nameof(newKey));
             }
 
-            if (!string.Equals(oldTag.Key, tagGroup.Key))
-            {
-                Database.DanceStats.TagManager.ChangeTagName(oldTag.Key, tagGroup.Key);
-                Database.TagGroups.Remove(oldTag);
-                var newTag = Database.TagGroups.Create();
-                newTag.Key = tagGroup.Key;
-                newTag.PrimaryId = tagGroup.PrimaryId;
-                Database.TagGroups.Add(newTag);
-                changed = true;
-            }
-
-            if (tagGroup.PrimaryId != oldTag.PrimaryId)
-            {
-                changed = true;
-                string filter = null;
-                // Removed this tag from an existing ring
-                if (tagGroup.PrimaryId == null)
-                {
-                    var primary = oldTag.GetPrimary();
-                    filter = FilterFromTag(primary.Key);
-                }
-                // Added this type to a ring
-                else if (oldTag.PrimaryId == null)
-                {
-                    var primary = tagGroup.GetPrimary();
-                    filter = FilterFromTag(primary.Key);
-                }
-                // Moved this from one ring to another
-                else
-                {
-                    var primaryA = oldTag.GetPrimary();
-                    var primaryB = tagGroup.GetPrimary();
-
-                    filter = $"{FilterFromTag(primaryA.Key)} or {FilterFromTag(primaryB.Key)}";
-                }
-
-                oldTag.PrimaryId = tagGroup.PrimaryId;
-                oldTag.Modified = DateTime.Now;
-                Database.DanceStats.TagManager.UpdateTagRing(oldTag.Key, oldTag.PrimaryId);
-
-                var parameters = new SearchParameters {Filter=filter};
-
-                while (Database.UpdateAzureIndex(Database.TakeTail(parameters, 1000)) != 0)
-                {
-                    Trace.WriteLineIf(TraceLevels.General.TraceInfo,"Updated another batch of tags");
-                };
-            }
-
-            if (changed)
-                Database.SaveChanges();
-
-            return RedirectToAction("Index");
+            return Database.UpdateTag(oldTag, newKey, tagGroup.PrimaryId) ?
+                RedirectToAction("Index") as ActionResult :            
+                View(tagGroup);
         }
 
-        private string FilterFromTag(string key)
-        {
-            var filter = SongFilter.Default;
-            filter.Tags = key;
-            var parameters = Database.AzureParmsFromFilter(filter);
-            return parameters.Filter;
-        }
 
         // GET: Tag/Delete/5
         public ActionResult Delete(string id)

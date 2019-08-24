@@ -32,10 +32,11 @@
 <ul>
     <li>@Html.ActionLink("Cleanup Properties", "CleanupProperties", new { count = 100 }, null)</li>
     <li>@Html.ActionLink("Clean up Tempi", "CleanTempi")</li>
+    <li>@Html.ActionLink("Clean up Tags", "CleanTags")</li>
     <li>@Html.ActionLink("Update Albums", "UpdateAlbums")</li>
     <li>@Html.ActionLink("Times from Properties", "TimesFromProperties")</li>
     <li>@Html.ActionLink("Times from Properties: Batch", "TimesFromProperties", new { exclude = "batch|batch-i|batch-s|batch-a|batch-x|batch-e" }, null)</li>
-    <li>@Html.ActionLink("Times from Properties: Recent Batch", "TimesFromProperties", new {exclude="batch|batch-i|batch-s|batch-a|batch-x|batch-e", from= (DateTime.Now - new TimeSpan(1, 0, 0, 0)).ToShortDateString()}, null)</li>
+    <li>@Html.ActionLink("Times from Properties: Recent Batch", "TimesFromProperties", new { exclude = "batch|batch-i|batch-s|batch-a|batch-x|batch-e", from = (DateTime.Now - new TimeSpan(1, 0, 0, 0)).ToShortDateString() }, null)</li>
     <li>Infer Dance Types: @Html.ActionLink("Foxtrot", "InferDanceTypes", new { group = "FXT" }, null), @Html.ActionLink("Swing", "InferDanceTypes", new { group = "SWG" }, null), @Html.ActionLink("Tango", "InferDanceTypes", new { group = "TNG" }, null), @Html.ActionLink("Waltz", "InferDanceTypes", new { group = "WLZ" }, null)</li>
     <li>@Html.ActionLink("Region Stats", "RegionStats", "Admin")</li>
 </ul>

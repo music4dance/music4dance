@@ -45,9 +45,7 @@ namespace m4dModels
             var ts = new TagSummary(tags);
             foreach (var tc in ts.Tags)
             {
-                int c;
-
-                if (Tags.TryGetValue(tc.Value, out c))
+                if (Tags.TryGetValue(tc.Value, out _))
                 {
                     Tags[tc.Value] += tc.Count;
                 }

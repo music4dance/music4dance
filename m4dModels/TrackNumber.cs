@@ -126,12 +126,12 @@ namespace m4dModels
         #endregion
 
         #region Operators
-        static public implicit operator int(TrackNumber track)
+        public static implicit operator int(TrackNumber track)
         {
             return track._val;
         }
 
-        static public implicit operator TrackNumber(int val)
+        public static implicit operator TrackNumber(int val)
         {
             return new TrackNumber(val);
         }

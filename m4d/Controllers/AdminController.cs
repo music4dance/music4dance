@@ -4,6 +4,7 @@ using System.Configuration;
 using System.Data.Entity.Infrastructure;
 using System.Data.Entity.Migrations;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net.Mime;
@@ -11,6 +12,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web.Mvc;
+using BundleTransformer.Core.Utilities;
 using DanceLibrary;
 using m4d.Scrapers;
 using m4d.Utilities;
@@ -1583,6 +1585,80 @@ namespace m4d.Controllers
             ViewBag.Message = "Database was successfully updated.";
 
             return View("Results");
+        }
+
+        //
+        // Get: //CleanTempi
+        [Authorize(Roles = "dbAdmin")]
+        public ActionResult CleanTags()
+        {
+            StartAdminTask("CleanTags");
+            AdminMonitor.UpdateTask("CleanTags");
+
+            var ti = CultureInfo.CurrentCulture.TextInfo;
+            var tagMap = Database.DanceStats.TagManager.TagMap;
+
+            var dms = DanceMusicService.GetService();
+
+            Task.Run(() =>
+            {
+                try
+                {
+                    var tagList = dms.TagGroups.ToList();
+                    var changes = new List<string>();
+
+                    foreach (var tg in tagList)
+                    {
+                        if (tg.PrimaryId != null)
+                        {
+                            continue;
+                        }
+
+                        var key = tg.Key;
+                        if (key.Contains('!') || (!key.Contains('-') && !key.Any(c => c.IsAlphaNumeric())))
+                        {
+                            continue;
+                        }
+
+                        var tag = new TagCount(key);
+                        if (!string.Equals(tag.TagClass, "Music", StringComparison.CurrentCultureIgnoreCase))
+                        {
+                            continue;
+                        }
+
+                        var newValue = ti.ToTitleCase(tag.TagValue.Replace('-', ' '))
+                            .Replace(" And ", " and ")
+                            .Replace(" Or ", " or ");
+
+                        if (string.Equals(newValue, tag.TagValue, StringComparison.OrdinalIgnoreCase))
+                        {
+                            continue;
+                        }
+
+                        var newKey = $"{newValue}:{tag.TagClass}";
+
+                        var isNew = !tagMap.ContainsKey(newKey.ToLower());
+                        var type = isNew ? "New" : "Existing";
+                        var message = $"{type}\t{key}\t{newKey}";
+                        Trace.WriteLine(message);
+                        changes.Add(message);
+
+                        AdminMonitor.UpdateTask(message, changes.Count);
+
+                        dms.UpdateTag(tg, newKey, newKey);
+                    }
+
+                    AdminMonitor.CompleteTask(true,
+                        $"InferDanceTypes: Completed=true, Changed={changes.Count} - {string.Join(",", changes)}");
+                }
+                catch (Exception e)
+                {
+                    FailAdminTask($"CleanTags: {e.Message}", e);
+                }
+
+            });
+
+            return RedirectToAction("AdminStatus", "Admin", AdminMonitor.Status);
         }
 
         //

@@ -4,7 +4,7 @@ namespace m4dModels
 {
     public class TraceLevels
     {
-        static private TraceSwitch _general;
+        private static TraceSwitch _general;
 
         public static TraceSwitch General
         {

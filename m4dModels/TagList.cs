@@ -193,7 +193,7 @@ namespace m4dModels
         #endregion
 
         #region Implementation
-        static private List<string> Parse(string serialized)
+        private static List<string> Parse(string serialized)
         {
             var tags = new List<string>();
 
@@ -209,12 +209,12 @@ namespace m4dModels
             return tags;
         }
 
-        static private string Serialize(IEnumerable<string> tags)
+        private static string Serialize(IEnumerable<string> tags)
         {
             return string.Join("|", tags.Select(t => t.Trim()));
         }
 
-        static private string TrimQualifier(string tag)
+        private static string TrimQualifier(string tag)
         {
             if (string.IsNullOrWhiteSpace(tag)) return tag;
 

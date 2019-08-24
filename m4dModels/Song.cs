@@ -3289,7 +3289,7 @@ namespace m4dModels
             return !Length.HasValue ? null : DurationFilter(tracks, Length.Value, epsilon);
         }
 
-        static public IList<ServiceTrack> DurationFilter(IList<ServiceTrack> tracks, int duration, int epsilon)
+        public static IList<ServiceTrack> DurationFilter(IList<ServiceTrack> tracks, int duration, int epsilon)
         {
             return tracks.Where(track => track.Duration.HasValue && Math.Abs(track.Duration.Value - duration) < epsilon).ToList();
         }
@@ -3975,7 +3975,7 @@ namespace m4dModels
         #endregion
 
         #region String Cleanup
-        static public string CleanDanceName(string name)
+        public static string CleanDanceName(string name)
         {
             var up = name.ToUpper();
 
@@ -4002,7 +4002,7 @@ namespace m4dModels
             return ret;
         }
 
-        static public string CleanText(string text)
+        public static string CleanText(string text)
         {
             text = WebUtility.HtmlDecode(text);
             text = text.Replace("\r", " ");
@@ -4037,12 +4037,12 @@ namespace m4dModels
             return text;
         }
 
-        static public string CleanQuotes(string name)
+        public static string CleanQuotes(string name)
         {
             return CustomTrim(CustomTrim(name,'"'),'\'');
         }
 
-        static public string CustomTrim(string name, char quote)
+        public static string CustomTrim(string name, char quote)
         {
             if ((name.Length > 0) && (name[0] == quote) && (name[name.Length - 1] == quote))
             {
@@ -4051,7 +4051,7 @@ namespace m4dModels
             return name;
         }
 
-        static public string Unsort(string name)
+        public static string Unsort(string name)
         {
             var parts = name.Split(',');
             if (parts.Length == 1 || parts.Any(s => s.All(c => !IsLetter(c))))
@@ -4066,7 +4066,7 @@ namespace m4dModels
             return name;
         }
 
-        static public string CleanArtistString(string name)
+        public static string CleanArtistString(string name)
         {
             if (name.IndexOf(',') == -1) return name;
 
@@ -4091,7 +4091,7 @@ namespace m4dModels
             return name;
         }
 
-        static public string CleanName(string name)
+        public static string CleanName(string name)
         {
             var up = name.ToUpper();
 
