@@ -972,6 +972,10 @@ namespace m4dModels
             // Before doing anything else, we're going to get the filter for the
             //  potentially affected songs
             var filter = FilterFromTag(tagGroup.Key);
+            if (string.IsNullOrWhiteSpace(filter))
+            {
+                throw new ArgumentOutOfRangeException(nameof(tagGroup), $"Attempted to UpdateTag {tagGroup.Key}");
+            }
 
 
             // Nothing Changed, just return
@@ -980,9 +984,15 @@ namespace m4dModels
                 return false;
             }
 
-            // Create tag group with new name and point old tag group to it
-            if (!string.Equals(tagGroup.Key, newKey))
+            var existing = TagGroups.Find(newKey);
+            if (existing != null)
             {
+                tagGroup.PrimaryId = existing.Key;
+                tagGroup.Primary = existing;
+            }
+            else if (!string.Equals(tagGroup.Key, newKey))
+            {
+                // Create tag group with new name and point old tag group to it
                 var newTag = TagGroups.Create();
                 newTag.Key = newKey;
                 newTag.PrimaryId = null;
@@ -1114,15 +1124,19 @@ namespace m4dModels
             // ReSharper disable once LoopCanBePartlyConvertedToQuery
             foreach (var tag in tags.Tags)
             {
-                TagGroup tt;
-                if (!tagCache.TryGetValue(tag.ToLower(), out tt))
-                    continue;
-
-                tt = tt.GetPrimary();
-                if (!map.ContainsKey(tt.Key))
+                if (tagCache.TryGetValue(tag.ToLower(), out var tt))
                 {
-                    map.Add(tt.Key, tt);
+                    tt = tt.GetPrimary();
+                    if (!map.ContainsKey(tt.Key))
+                    {
+                        map.Add(tt.Key, tt);
+                    }
                 }
+                else
+                {
+                    map.Add(tag, new TagGroup(tag));
+                }
+
             }
 
             return map.Values;

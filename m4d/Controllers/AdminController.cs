@@ -1592,50 +1592,73 @@ namespace m4d.Controllers
         [Authorize(Roles = "dbAdmin")]
         public ActionResult CleanTags()
         {
+            StartAdminTask("CleanTags");
+            AdminMonitor.UpdateTask("CleanTags");
+
             var ti = CultureInfo.CurrentCulture.TextInfo;
             var tagMap = Database.DanceStats.TagManager.TagMap;
-            foreach (var tg in Database.TagGroups)
+
+            var dms = DanceMusicService.GetService();
+
+            Task.Run(() =>
             {
-                if (tg.PrimaryId != null)
+                try
                 {
-                    continue;
+                    var tagList = dms.TagGroups.ToList();
+                    var changes = new List<string>();
+
+                    foreach (var tg in tagList)
+                    {
+                        if (tg.PrimaryId != null)
+                        {
+                            continue;
+                        }
+
+                        var key = tg.Key;
+                        if (key.Contains('!') || (!key.Contains('-') && !key.Any(c => c.IsAlphaNumeric())))
+                        {
+                            continue;
+                        }
+
+                        var tag = new TagCount(key);
+                        if (!string.Equals(tag.TagClass, "Music", StringComparison.CurrentCultureIgnoreCase))
+                        {
+                            continue;
+                        }
+
+                        var newValue = ti.ToTitleCase(tag.TagValue.Replace('-', ' '))
+                            .Replace(" And ", " and ")
+                            .Replace(" Or ", " or ");
+
+                        if (string.Equals(newValue, tag.TagValue, StringComparison.OrdinalIgnoreCase))
+                        {
+                            continue;
+                        }
+
+                        var newKey = $"{newValue}:{tag.TagClass}";
+
+                        var isNew = !tagMap.ContainsKey(newKey.ToLower());
+                        var type = isNew ? "New" : "Existing";
+                        var message = $"{type}\t{key}\t{newKey}";
+                        Trace.WriteLine(message);
+                        changes.Add(message);
+
+                        AdminMonitor.UpdateTask(message, changes.Count);
+
+                        dms.UpdateTag(tg, newKey, newKey);
+                    }
+
+                    AdminMonitor.CompleteTask(true,
+                        $"InferDanceTypes: Completed=true, Changed={changes.Count} - {string.Join(",", changes)}");
+                }
+                catch (Exception e)
+                {
+                    FailAdminTask($"CleanTags: {e.Message}", e);
                 }
 
-                var key = tg.Key;
-                if (key.Contains('!') || (!key.Contains('-') && !key.Any(c => c.IsAlphaNumeric())))
-                {
-                    continue;
-                }
+            });
 
-                var tag = new TagCount(key);
-
-                var newValue = ti.ToTitleCase(tag.TagValue.Replace('-', ' '));
-
-                if (newValue == tag.TagValue)
-                {
-                    continue;
-                }
-
-                var newKey = $"{newValue}:{tag.TagClass}";
-
-                var isNew = !tagMap.ContainsKey(newKey.ToLower());
-                var type =  isNew ? "New" : "Existing";
-                Debug.WriteLine($"{type}: {key} => {newKey}");
-
-                if (!isNew)
-                {
-                    continue;
-                }
-
-                // TODONEXT:  Validate that this works
-                Database.UpdateTag(tg, newKey, tg.PrimaryId);
-            }
-
-            ViewBag.Name = "Update Database";
-            ViewBag.Success = true;
-            ViewBag.Message = "Database was successfully updated.";
-
-            return View("Results");
+            return RedirectToAction("AdminStatus", "Admin", AdminMonitor.Status);
         }
 
         //
