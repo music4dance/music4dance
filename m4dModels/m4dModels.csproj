@@ -186,7 +186,6 @@
     <Compile Include="UndoAction.cs" />
     <Compile Include="UserQuery.cs" />
     <Compile Include="UserTag.cs" />
-    <Compile Include="XboxService.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

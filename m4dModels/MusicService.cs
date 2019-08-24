@@ -274,7 +274,6 @@ namespace m4dModels
             AddService(new AmazonService());
             AddService(new ITunesService());
             AddService(new SpotifyService());
-            AddService(new XboxService());
             AddService(new MusicServiceStub(ServiceType.Emusic, 'E', "EMusic"));
             AddService(new MusicServiceStub(ServiceType.Pandora, 'P', "Pandora"));
             AddService(new MusicServiceStub(ServiceType.AMG,'M',"American Music Group",false));

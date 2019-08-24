@@ -1393,7 +1393,7 @@ namespace m4d.Controllers
         // B= Broken
         // S= Spotify Region
         [Authorize(Roles = "dbAdmin")]
-        public ActionResult BatchCleanService(SongFilter filter = null, string type="ABS",int count = 100)
+        public ActionResult BatchCleanService(SongFilter filter = null, string type="S",int count = 100)
         {
             try
             {
@@ -1762,7 +1762,7 @@ namespace m4d.Controllers
 
         #region MusicService
 
-        private Song CleanMusicServiceSong(Song song, DanceMusicService dms, string type="ABS", string region = "US")
+        private Song CleanMusicServiceSong(Song song, DanceMusicService dms, string type="S", string region = "US")
         {
             var props = new List<SongProperty>(song.SongProperties);
 
@@ -1792,8 +1792,7 @@ namespace m4d.Controllers
 
             foreach (var prop in props.Where(p => p.Name.StartsWith("Purchase") && p.Name.EndsWith(":SS")))
             {
-                string[] regions;
-                var id = PurchaseRegion.ParseIdAndRegionInfo(prop.Value, out regions);
+                var id = PurchaseRegion.ParseIdAndRegionInfo(prop.Value, out var regions);
 
                 if (null == regions)
                 {

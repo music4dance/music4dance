@@ -32,6 +32,8 @@ namespace m4dModels
         [DataMember]
         public string Genre { get; set; }
         [DataMember]
+        public string[] Genres { get; set; }
+        [DataMember]
         public int? Duration { get; set; }
         [DataMember]
         public int? TrackNumber { get; set; }

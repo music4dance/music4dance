@@ -274,7 +274,13 @@ namespace m4d.Controllers
             {
                 var trackId = PurchaseRegion.FormatIdAndRegionInfo(foundTrack.TrackId, foundTrack.AvailableMarkets);
                 UpdateMusicService(edit, MusicService.GetService(foundTrack.Service), foundTrack.Name, foundTrack.Album, foundTrack.Artist, trackId, foundTrack.CollectionId, foundTrack.AltId, foundTrack.Duration.ToString(), foundTrack.TrackNumber);
-                tags = tags.Add(new TagList(dms.NormalizeTags(foundTrack.Genre, "Music", true)));
+                if (foundTrack.Genres != null)
+                {
+                    foreach (var genre in foundTrack.Genres)
+                    {
+                        tags = tags.Add(new TagList(dms.NormalizeTags(genre, "Music", true)));
+                    }
+                }
             }
 
             if (user != null)

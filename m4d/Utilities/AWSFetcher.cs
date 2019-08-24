@@ -287,7 +287,7 @@ namespace m4d.Utilities
                 TrackNumber = ntrackNum,
                 Duration = duration,
                 ReleaseDate = item.ItemAttributes.ReleaseDate,
-                Genre = genre,
+                Genres = new [] { genre },
                 CollectionId = "D:" + collectionId,
                 Album = albumTitle
             };

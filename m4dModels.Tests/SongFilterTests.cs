@@ -27,7 +27,7 @@ namespace m4dModels.Tests
         [TestMethod]
         public void FilterDescription()
         {
-            var f1 = new SongFilter(@"Index-FXT-.-.-XI-.-100-120-1-+Instrumental:Music");
+            var f1 = new SongFilter(@"Index-FXT-.-.-I-.-100-120-1-+Instrumental:Music");
             var f2 = new SongFilter(@"Index-ALL-Dances-Funk-.-.-.-.-.-+Rock & Roll:Music|\-Jazz:Music|\-Pop:Music");
             var f3 = new SongFilter(@"Index-ALL-.-.--.-100-.-1");
             var f4 = new SongFilter(@"Index-ALL-Title-.--.-.-150-1");
@@ -53,7 +53,7 @@ namespace m4dModels.Tests
             Trace.WriteLine(f11.Description);
             Trace.WriteLine(f12.Description);
 
-            Assert.AreEqual(@"All Foxtrot songs available on Groove or ITunes, including tag Instrumental, having tempo between 100 and 120 beats per minute.", f1.Description);
+            Assert.AreEqual(@"All Foxtrot songs available on ITunes, including tag Instrumental, having tempo between 100 and 120 beats per minute.", f1.Description);
             Assert.AreEqual(@"All songs containing the text ""Funk"", including tag Rock & Roll, excluding tags Jazz or Pop. Sorted by Dance Rating from most popular to least popular.", f2.Description);
             Assert.AreEqual(@"All songs having tempo greater than 100 beats per minute.", f3.Description);
             Assert.AreEqual(@"All songs having tempo less than 150 beats per minute. Sorted by Title from A to Z.", f4.Description);

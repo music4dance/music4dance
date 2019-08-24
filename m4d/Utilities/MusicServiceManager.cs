@@ -64,6 +64,7 @@ namespace m4d.Utilities
             {
                 var request = service.BuildTrackRequest(id, region);
                 var results = GetMusicServiceResults(request, service);
+                // TODONEXT: Figure out how to lookup album and artist(s) and send down here???
                 ret = service.ParseTrackResults(results);
             }
 
