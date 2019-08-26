@@ -276,10 +276,7 @@ namespace m4d.Controllers
                 UpdateMusicService(edit, MusicService.GetService(foundTrack.Service), foundTrack.Name, foundTrack.Album, foundTrack.Artist, trackId, foundTrack.CollectionId, foundTrack.AltId, foundTrack.Duration.ToString(), foundTrack.TrackNumber);
                 if (foundTrack.Genres != null)
                 {
-                    foreach (var genre in foundTrack.Genres)
-                    {
-                        tags = tags.Add(new TagList(dms.NormalizeTags(genre, "Music", true)));
-                    }
+                    tags.Add(new TagList(dms.NormalizeTags(string.Join("|", foundTrack.Genres), "Music", true)));
                 }
             }
 
@@ -289,11 +286,12 @@ namespace m4d.Controllers
             }
             else
             {
-                user = $"batch-{service.CID.ToString().ToLower()}";
+                user = service.User;
             }
 
             return dms.EditSong(user, sd, edit, new[] { new UserTag { Id = string.Empty, Tags = tags } });
         }
+
 
         protected IList<ServiceTrack> FindMusicServiceSong(Song song, MusicService service, bool clean = false, string title = null, string artist = null)
         {

@@ -1532,7 +1532,18 @@ namespace m4dModels
         {
             CreateEditProperties(user, EditCommand);
 
-            return InternalEditTags(user, tags, stats);
+            var changed = InternalEditTags(user, tags, stats);
+            if (!changed)
+            {
+                RemoveEditProperties(user, EditCommand);
+            }
+
+            return changed;
+        }
+
+        public bool EditSongTags(string user, TagList tags, DanceStatsInstance stats)
+        {
+            return EditTags(user, new List<UserTag> { new UserTag {Tags = tags}}, stats);
         }
 
         public bool AddLookupFail()
@@ -1559,7 +1570,7 @@ namespace m4dModels
             var hash = new Dictionary<string, TagList>();
             foreach (var tag in tags)
             {
-                hash[tag.Id] = tag.Tags;
+                hash[tag.Id ?? ""] = tag.Tags;
             }
 
             // Possibly a bit of a kludge, but we're going to handle vote (Like/Hate) as a top level tag up to this point

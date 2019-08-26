@@ -1,7 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
+using System.Linq;
+using Microsoft.Azure.Search.Models;
 using Microsoft.CSharp.RuntimeBinder;
+using Microsoft.Rest.Serialization;
+using Exception = System.Exception;
 
 namespace m4dModels
 {
@@ -109,7 +114,7 @@ namespace m4dModels
             return ret;
         }
 
-        public override ServiceTrack ParseTrackResults(dynamic track)
+        public override ServiceTrack ParseTrackResults(dynamic track, Func<string, dynamic> getResult = null)
         {
             string imageUrl = null;
             if (track.images != null)
@@ -128,7 +133,6 @@ namespace m4dModels
             var artist = (track.artists.Length > 0) ? track.artists[0] : null;
             var album = track.album;
 
-            // TODO: Genre appears to be broken????
             if (TraceLevels.General.TraceVerbose)
             {
                 Trace.WriteLine($"TrackId={(string) track.id}");
@@ -137,7 +141,6 @@ namespace m4dModels
                 Trace.WriteLine($"Album={(string) (album == null ? null : album.name)}");
                 Trace.WriteLine($"CollectionId={(string) (album == null ? null : album.id)}");
                 Trace.WriteLine($"ImageUrl={imageUrl}");
-                //                Trace.WriteLine(string.Format("Genre={0}", (string)((artist == null || artist.genres.Length == 0) ? null : artist.genres[0])));
                 Trace.WriteLine($"Duration={(string) ((track.duration_ms + 500)/1000).ToString()}");
                 Trace.WriteLine($"DiscNumber={(string) track.disc_number.ToString()}");
                 Trace.WriteLine($"TrackNumber={(string) track.track_number.ToString()}");
@@ -193,7 +196,7 @@ namespace m4dModels
                 CollectionId = album == null ? null : album.id,
                 ImageUrl = imageUrl,
                 //ReleaseDate = track.ReleaseDate,
-                //Genre = (artist == null || artist.genres.Length == 0) ? null : artist.genres[0],
+                Genres = BuildGenres(track, getResult),
                 Duration = (track.duration_ms + 500) / 1000,
                 TrackNumber = trackNum,
                 IsPlayable = isPlayable,
@@ -203,11 +206,94 @@ namespace m4dModels
 
             return st;
         }
+
         public override string BuildPlayListLink(PlayList playList, ApplicationUser user)
         {
             var alias = user.Email.Split('@')[0];
             return $"https://open.spotify.com/user/{alias}/playlist/{playList.Id}";
         }
 
+        private string[] BuildGenres(dynamic track, Func<string, dynamic> getResult)
+        {
+            var genres = new HashSet<string>();
+
+            genres.UnionWith(GenresFromReference(track.album, getResult));
+
+            if (track?.artists.Length > 0)
+            {
+                foreach (var a in track.artists)
+                {
+                    genres.UnionWith(GenresFromReference(a, getResult));
+                }
+            }
+
+            return genres.Count > 0 ? genres.ToArray() : null;
+        }
+
+        private List<string> GenresFromReference(dynamic field, Func<string, dynamic> getResult)
+        {
+            if (field?.href == null)
+            {
+                return new List<string>();
+            }
+
+            var t = GetResults(field.href, getResult);
+            return t != null ? (List<string>) GenresFromObject(t) : new List<string>();
+        }
+
+        private List<string> GenresFromObject(dynamic obj)
+        {
+            var list = new List<string>();
+            try
+            {
+                if (obj?.genres == null || obj.genres.Length == 0)
+                {
+                    return list;
+                }
+
+                foreach (var genre in obj.genres)
+                {
+                    list.Add(CleanupGenre(genre));
+                }
+            }
+            catch (Exception e)
+            {
+                Debug.WriteLine(e.Message);
+            }
+            return list;
+        }
+
+        private dynamic GetResults(string url, Func<string, dynamic> getResult)
+        {
+            if (s_results.TryGetValue(url, out var result))
+            {
+                return result;
+            }
+
+            if (getResult == null)
+            {
+                return null;
+            }
+
+            try
+            {
+                return getResult(url);
+            }
+            catch (Exception e)
+            {
+                Trace.WriteLineIf(TraceLevels.General.TraceError, $"Error attempting to call Spotify: {e.Message}");
+                return null;
+            }
+        }
+
+        private static string CleanupGenre(string genre)
+        {
+            return s_textInfo.ToTitleCase(genre.Replace('-', ' '))
+                .Replace(" And ", " and ")
+                .Replace(" Or ", " or ");
+        }
+
+        private static readonly Dictionary<string, dynamic> s_results = new Dictionary<string, dynamic>();
+        private static readonly TextInfo s_textInfo = CultureInfo.CurrentCulture.TextInfo;
     }
 }

@@ -8,11 +8,13 @@ namespace m4dModels
     public class MusicService
     {
         #region Properties
-        public ServiceType Id { get; private set; }
-        public char CID { get; private set; }
-        public string Name { get; private set; }
-        public string Target { get; private set; }
-        public string Description { get; private set; }
+        public ServiceType Id { get; }
+        public char CID { get; }
+        public string Name { get; }
+        public string Target { get; }
+        public string Description { get; }
+
+        public string User => $"batch-{CID.ToString().ToLower()}";
 
         // This is pretty kludgy but until I implement
         // a second service that requires a key I don't
@@ -124,7 +126,7 @@ namespace m4dModels
             throw new NotImplementedException();
         }
 
-        public virtual ServiceTrack ParseTrackResults(dynamic results)
+        public virtual ServiceTrack ParseTrackResults(dynamic results, Func<string, dynamic> getResult = null)
         {
             throw new NotImplementedException();
         }

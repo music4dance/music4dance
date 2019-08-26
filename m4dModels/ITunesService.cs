@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace m4dModels
 {
@@ -42,7 +43,7 @@ namespace m4dModels
             return ret;
         }
 
-        public override ServiceTrack ParseTrackResults(dynamic results)
+        public override ServiceTrack ParseTrackResults(dynamic results, Func<string, dynamic> getResult = null)
         {
             var tracks = results.results;
             return tracks.Length > 0 ? InternalParseTrackResults(tracks[0]) : null;

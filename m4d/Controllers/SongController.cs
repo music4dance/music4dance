@@ -1370,7 +1370,7 @@ namespace m4d.Controllers
 
         // CleanMusicServices: /Song/CleanMusicServices
         [Authorize(Roles = "dbAdmin")]
-        public ActionResult CleanMusicServices(Guid id, string type = "ABS", SongFilter filter = null)
+        public ActionResult CleanMusicServices(Guid id, string type = "SG", SongFilter filter = null)
         {
             var song = Database.FindSong(id);
             if (song == null)
@@ -1378,7 +1378,7 @@ namespace m4d.Controllers
                 return ReturnError(HttpStatusCode.NotFound, $"The song with id = {id} has been deleted.");
             }
 
-            var newSong = CleanMusicServiceSong(song,Database,type);
+            var newSong = CleanMusicServiceSong(song, Database, type);
             if (newSong != null)
             {
                 Database.SaveSong(newSong);
@@ -1392,8 +1392,9 @@ namespace m4d.Controllers
         // A= Album
         // B= Broken
         // S= Spotify Region
+        // G= Spotify Genre
         [Authorize(Roles = "dbAdmin")]
-        public ActionResult BatchCleanService(SongFilter filter = null, string type="S",int count = 100)
+        public ActionResult BatchCleanService(SongFilter filter = null, string type="SG",int count = 100)
         {
             try
             {
@@ -1482,7 +1483,6 @@ namespace m4d.Controllers
                 return FailAdminTask($"BatchCleanService: {e.Message}", e);
             }
         }
-
 
         [Authorize(Roles = "dbAdmin")]
         public ActionResult BatchSamples(string options = null, SongFilter filter = null, int count = 1, int pageSize = 1000)
@@ -1762,24 +1762,51 @@ namespace m4d.Controllers
 
         #region MusicService
 
-        private Song CleanMusicServiceSong(Song song, DanceMusicService dms, string type="S", string region = "US")
+        private Song CleanMusicServiceSong(Song song, DanceMusicService dms, string type="SG", string region = "US")
         {
             var props = new List<SongProperty>(song.SongProperties);
 
             var changed = false;
+
             if (type.IndexOf('X') != -1) {changed |= CleanDeletedServices(song.SongId,props);}
             if (type.IndexOf('B') != -1) {changed |= CleanBrokenServices(props);}
             if (type.IndexOf('S') != -1) {changed |= CleanSpotify(props, region);}
             if (type.IndexOf('A') != -1) {changed |= CleanOrphanedAlbums(props);}
 
-            Song newSong = null;
+            var updateGenre = type.IndexOf('G') != -1;
 
-            if (changed)
+            Song newSong = null;
+            if (changed || updateGenre)
             {
-                newSong = new Song(song.SongId,props,dms.DanceStats);
+                newSong = new Song(song.SongId, props, dms.DanceStats);
             }
 
-            return newSong;
+            if (!updateGenre)
+            {
+                return newSong;
+            }
+
+            return UpdateSpotifyGenre(newSong, dms) || changed ? newSong : null;
+        }
+
+        private bool UpdateSpotifyGenre(Song song, DanceMusicService dms)
+        {
+            var spotify = MusicService.GetService(ServiceType.Spotify);
+            var tags = song.GetUserTags(spotify.User);
+
+            foreach (var prop in SpotifySongProperties(song.SongProperties))
+            {
+                var id = PurchaseRegion.ParseIdAndRegionInfo(prop.Value, out _);
+                var track = MusicServiceManager.GetMusicServiceTrack(id, spotify);
+                if (track.Genres != null && track.Genres.Length > 0)
+                {
+                    tags = tags.Add(new TagList(dms.NormalizeTags(string.Join("|", track.Genres), "Music", true)));
+                }
+            }
+
+            Trace.Write($"Tags={tags}\r\n");
+
+            return song.EditSongTags(spotify.User, tags, dms.DanceStats);
         }
 
         private bool CleanSpotify(IEnumerable<SongProperty> props, string region = "US")
@@ -1790,7 +1817,7 @@ namespace m4d.Controllers
             var skipped = 0;
             var failed = 0;
 
-            foreach (var prop in props.Where(p => p.Name.StartsWith("Purchase") && p.Name.EndsWith(":SS")))
+            foreach (var prop in SpotifySongProperties(props))
             {
                 var id = PurchaseRegion.ParseIdAndRegionInfo(prop.Value, out var regions);
 
@@ -1852,6 +1879,13 @@ namespace m4d.Controllers
             return updated > 0;
         }
 
+        IEnumerable<SongProperty> SpotifySongProperties(IEnumerable<SongProperty> props)
+        {
+            foreach (var prop in props.Where(p => p.Name.StartsWith("Purchase") && p.Name.EndsWith(":SS")))
+            {
+                yield return prop;
+            }
+        }
 
         private bool CleanBrokenServices(ICollection<SongProperty> props, string region = "US")
         {
