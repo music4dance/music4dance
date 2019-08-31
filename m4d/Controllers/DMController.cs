@@ -241,6 +241,8 @@ namespace m4d.Controllers
 
         protected bool UpdateSongAndServices(DanceMusicService dms, Song sd, string user = null, bool crossRetry = false)
         {
+            // TODONEXT: Music service search doesn't handle patching the genre, also revisit if we can guarantee that the 
+            //  service ID that comes in is added to the list...
             var changed = false;
             // ReSharper disable once LoopCanBeConvertedToQuery
             foreach (var service in MusicService.GetSearchableServices())
