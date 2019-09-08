@@ -241,8 +241,6 @@ namespace m4d.Controllers
 
         protected bool UpdateSongAndServices(DanceMusicService dms, Song sd, string user = null, bool crossRetry = false)
         {
-            // TODONEXT: Music service search doesn't handle patching the genre, also revisit if we can guarantee that the 
-            //  service ID that comes in is added to the list...
             var changed = false;
             // ReSharper disable once LoopCanBeConvertedToQuery
             foreach (var service in MusicService.GetSearchableServices())
@@ -278,7 +276,7 @@ namespace m4d.Controllers
                 UpdateMusicService(edit, MusicService.GetService(foundTrack.Service), foundTrack.Name, foundTrack.Album, foundTrack.Artist, trackId, foundTrack.CollectionId, foundTrack.AltId, foundTrack.Duration.ToString(), foundTrack.TrackNumber);
                 if (foundTrack.Genres != null)
                 {
-                    tags.Add(new TagList(dms.NormalizeTags(string.Join("|", foundTrack.Genres), "Music", true)));
+                    tags = tags.Add(new TagList(dms.NormalizeTags(string.Join("|", foundTrack.Genres), "Music", true)));
                 }
             }
 
@@ -363,11 +361,22 @@ namespace m4d.Controllers
             }
 
             // If no album name or length match, choose the 'dominant' version of the title/artist match by clustering lengths
-            //  Note that this degenerates to chosing a single album if that is what is available
+            //  Note that this degenerates to choosing a single album if that is what is available
             if (found.Count == 0 && !sd.HasRealAblums)
             {
                 var track = Song.FindDominantTrack(tracks);
                 if (track.Duration != null) found = Song.DurationFilter(tracks, track.Duration.Value, 6);
+            }
+
+            // Add back in any existing tracks for this service
+            var existingIds = sd.GetPurchaseIds(service);
+            foreach (var track in existingIds.Where(id => found.All(f => f.TrackId != id)))
+            {
+                var t = MusicServiceManager.GetMusicServiceTrack(track, service);
+                if (t != null)
+                {
+                    found.Add(t);
+                }
             }
 
             return found;

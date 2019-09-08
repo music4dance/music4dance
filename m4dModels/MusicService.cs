@@ -121,12 +121,12 @@ namespace m4dModels
             return response;
         }
 
-        public virtual IList<ServiceTrack> ParseSearchResults(dynamic results)
+        public virtual IList<ServiceTrack> ParseSearchResults(dynamic results, Func<string, dynamic> getResult)
         {
             throw new NotImplementedException();
         }
 
-        public virtual ServiceTrack ParseTrackResults(dynamic results, Func<string, dynamic> getResult = null)
+        public virtual ServiceTrack ParseTrackResults(dynamic results, Func<string, dynamic> getResult)
         {
             throw new NotImplementedException();
         }

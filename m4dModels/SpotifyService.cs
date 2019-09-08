@@ -69,7 +69,7 @@ namespace m4dModels
         }
 
 
-        public override IList<ServiceTrack> ParseSearchResults(dynamic results)
+        public override IList<ServiceTrack> ParseSearchResults(dynamic results, Func<string, dynamic> getResult)
         {
             if (results == null) return null;
 
@@ -89,7 +89,7 @@ namespace m4dModels
                 {
                     
                 }
-                ret.Add(ParseTrackResults(trackT));
+                ret.Add(ParseTrackResults(trackT, getResult));
             }
 
             try
@@ -114,7 +114,7 @@ namespace m4dModels
             return ret;
         }
 
-        public override ServiceTrack ParseTrackResults(dynamic track, Func<string, dynamic> getResult = null)
+        public override ServiceTrack ParseTrackResults(dynamic track, Func<string, dynamic> getResult)
         {
             string imageUrl = null;
             if (track.images != null)

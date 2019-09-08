@@ -28,7 +28,7 @@ namespace m4dModels
             return null;
         }
 
-        public override IList<ServiceTrack> ParseSearchResults(dynamic results)
+        public override IList<ServiceTrack> ParseSearchResults(dynamic results, Func<string, dynamic> getResult)
         {
             var ret = new List<ServiceTrack>();
 
@@ -43,7 +43,7 @@ namespace m4dModels
             return ret;
         }
 
-        public override ServiceTrack ParseTrackResults(dynamic results, Func<string, dynamic> getResult = null)
+        public override ServiceTrack ParseTrackResults(dynamic results, Func<string, dynamic> getResult)
         {
             var tracks = results.results;
             return tracks.Length > 0 ? InternalParseTrackResults(tracks[0]) : null;

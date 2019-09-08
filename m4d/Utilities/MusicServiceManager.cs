@@ -85,11 +85,13 @@ namespace m4d.Utilities
             var name = results.name;
             var description = results.description;
 
-            IList<ServiceTrack> tracks = service.ParseSearchResults(results);
+            IList<ServiceTrack> tracks = service.ParseSearchResults(results,
+                (Func<string, dynamic>)(req => GetMusicServiceResults(req, service, null)));
             while ((results = NextMusicServiceResults(results, service, principal)) != null)
             {
                 var t = (tracks as List<ServiceTrack>) ?? tracks.ToList();
-                t.AddRange(service.ParseSearchResults(results));
+                t.AddRange(service.ParseSearchResults(results,
+                    (Func<string, dynamic>)(req => GetMusicServiceResults(req, service, null))));
                 tracks = t;
             }
 
@@ -364,7 +366,8 @@ namespace m4d.Utilities
         private static IList<ServiceTrack> FindMSSongGeneral(MusicService service, string title = null, string artist = null)
         {
             dynamic results = GetMusicServiceResults(service.BuildSearchRequest(artist, title), service);
-            return service.ParseSearchResults(results);
+            return service.ParseSearchResults(results,
+                (Func<string, dynamic>)(req => GetMusicServiceResults(req, service, null)));
         }
 
         private static int GetRateInfo(WebHeaderCollection headers, string type)
