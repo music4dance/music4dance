@@ -50,6 +50,12 @@ namespace m4d.Utilities
 
         public ServiceTrack GetMusicServiceTrack(string id, MusicService service, string region = null)
         {
+            int extra = id.IndexOf('[');
+            if (extra != -1)
+            {
+                id = id.Substring(0, extra);
+            }
+
             var sid = $"\"{service.CID}:{id}\"";
             if (s_trackCache.TryGetValue(sid, out var ret))
             {
