@@ -26,7 +26,7 @@ namespace m4d.Controllers
         {
             //ViewBag.Roles = Context.Roles;
             ViewBag.ShowUnconfirmed = showUnconfirmed;
-            return View(UserManager);
+            return View("Index", UserManager);
         }
 
         // GET: ApplicationUsers/Details/5
