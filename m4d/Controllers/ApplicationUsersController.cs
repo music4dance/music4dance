@@ -216,6 +216,14 @@ namespace m4d.Controllers
             return View(applicationUser);
         }
 
+        // GET: ApplicationUsers/Create
+        public ActionResult ClearCache()
+        {
+            ApplicationUserManager.ClearUserCache();
+            return Index();
+        }
+
+
         // POST: ApplicationUsers/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]

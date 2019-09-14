@@ -1,9 +1,10 @@
 ﻿using System;
-using System.Configuration;
-using System.Net;
-using System.Net.Mail;
+using System.Collections.Generic;
+using System.Data.Entity;
+using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using System.Web;
 using m4d.Context;
 using m4d.Controllers;
 using m4dModels;
@@ -112,6 +113,7 @@ namespace m4d
             }
             return manager;
         }
+
         public static bool IsPseudoUser(string email)
         {
             return email.EndsWith("@music4dance.net", StringComparison.OrdinalIgnoreCase) ||
@@ -119,6 +121,50 @@ namespace m4d
                 email.EndsWith("@theGray.com", StringComparison.OrdinalIgnoreCase);
         }
 
+        public static IReadOnlyDictionary<string, ApplicationUser> UserDictionary
+        {
+            get
+            {
+                if (s_cachedUsers == null)
+                {
+                    using (var cxt = DanceMusicContext.Create())
+                    {
+                        s_cachedUsers = cxt.Users.AsNoTracking().Include(u => u.Roles).Include(u => u.Logins).ToList().ToDictionary(u => u.UserName);
+                        CacheTime = DateTime.Now;
+                    }
+                }
+
+                return s_cachedUsers;
+            }
+        }
+
+        public static void ClearUserCache()
+        {
+            s_cachedUsers = null;
+            s_roles = null;
+            CacheTime = DateTime.MinValue;
+        }
+        private static Dictionary<string, ApplicationUser> s_cachedUsers;
+
+        public static IReadOnlyList<IdentityRole> Roles
+        {
+            get
+            {
+                if (s_roles == null)
+                {
+                    using (var cxt = DanceMusicContext.Create())
+                    {
+                        s_roles = cxt.Roles.AsNoTracking().ToList();
+                    }
+                }
+
+                return s_roles;
+            }
+        }
+
+        private static List<IdentityRole> s_roles = null;
+
+        public static DateTime CacheTime { get; private set; }
     }
 
     // Configure the application sign-in manager which is used in this application.

@@ -1,9 +1,10 @@
-﻿@using m4d.Controllers
+﻿@using System.Activities.Expressions
+@using m4d.Controllers
 @model ApplicationUserManager
 
 @{
     ViewBag.Title = "Index";
-    var users = Model.Users.ToList();
+    var users = ApplicationUserManager.UserDictionary.Values.ToList();
 
     var activeUsers = string.Join(",", AccountController.ActiveUsers);
     var registeredUsers = users.Count(u => !(u.Email.EndsWith("@music4dance.net") ||
@@ -18,32 +19,50 @@
     var hasServicePreference = users.Count(u => !string.IsNullOrEmpty(u.ServicePreference));
 
     var filteredUsers = ViewBag.ShowUnconfirmed ? users : users.Where(u => u.EmailConfirmed).ToList();
+
 }
 
 <h2>User Administrator</h2>
 
-@*
-    <p>
-        @Html.ActionLink("Create New", "Create")
-    </p>
-*@
-
 <hr />
 
-<p><strong>Active Users:</strong> @activeUsers</p>
-<p><strong>Total Users:</strong> @users.Count</p>
-<p><strong>Registered Users:</strong> @registeredUsers</p>
-<p><strong>Confirmed Users:</strong> @confirmedUsers</p>
-<p><strong>Deleted Users:</strong> @deletedUsers</p>
-<p>@Html.ActionLink("New Pseudo User", "Create", null, new { @class = "btn btn-default", role = "button" })</p>
-@if (ViewBag.ShowUnconfirmed)
-{
-    <p>@Html.ActionLink("Hide Unconfirmed", "Index", new { showUnconfirmed = false }, new { @class = "btn btn-default", role = "button" })</p>
-}
-else
-{
-    <p>@Html.ActionLink("Show Unconfirmed", "Index", new { showUnconfirmed = true }, new { @class = "btn btn-default", role = "button" })</p>
-}
+<div class="row">
+    <div class="col-md-3">
+        <p><strong>Active Users:</strong> @activeUsers</p>
+        <p><strong>Total Users:</strong> @users.Count</p>
+        <p><strong>Registered Users:</strong> @registeredUsers</p>
+        <p><strong>Confirmed Users:</strong> @confirmedUsers</p>
+        <p><strong>Deleted Users:</strong> @deletedUsers</p>
+    </div>
+
+    <div class="col-md-3">
+        @foreach (var role in ApplicationUserManager.Roles)
+        {
+            <p><b>@role.Name</b>: @ApplicationUserManager.UserDictionary.Values.Count(u => u.Roles.Any(r => r.RoleId == role.Id))</p>
+        }
+    </div>
+
+    <div class="col-md-3">
+        @foreach (var logIn in new List<string>() {"Microsoft", "Spotify", "Facebook", "Google"})
+        {
+            <p><b>@logIn</b>: @ApplicationUserManager.UserDictionary.Values.Count(u => u.Logins.Any(l => l.LoginProvider == logIn))</p>
+        }
+    </div>
+
+    <div class="col-md-3">
+        <p>@Html.ActionLink("New Pseudo User", "Create", null, new { @class = "btn btn-default", role = "button" })</p>
+        @if (ViewBag.ShowUnconfirmed)
+        {
+            <p>@Html.ActionLink("Hide Unconfirmed", "Index", new { showUnconfirmed = false }, new { @class = "btn btn-default", role = "button" })</p>
+        }
+        else
+        {
+            <p>@Html.ActionLink("Show Unconfirmed", "Index", new { showUnconfirmed = true }, new { @class = "btn btn-default", role = "button" })</p>
+        }
+        <p>@Html.ActionLink("Clear Cache", "ClearCache", null, new { @class = "btn btn-default", role = "button" })</p>
+    </div>
+
+</div>
 
 <table class="table table-striped">
     <tr><th>Service</th><th>Users</th><th>%u</th><th>%p</th></tr>
@@ -66,35 +85,31 @@ else
 <table class="table table-striped">
     <tr>
         @*
-            <th>
-                @Html.DisplayNameFor(model => model.PasswordHash)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.SecurityStamp)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.PhoneNumber)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.PhoneNumberConfirmed)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.TwoFactorEnabled)
-            </th>
+        <th>
+            @Html.DisplayNameFor(model => model.PasswordHash)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.SecurityStamp)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.PhoneNumber)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.PhoneNumberConfirmed)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.TwoFactorEnabled)
+        </th>
         *@
         <th>
             EC
         </th>
-        <th>
-            UserName
-        </th>
-        <th>
+        <th style="width:100px">
+            UserName<br />
             Email
         </th>
         <th>
-            Signed Up
-        </th>
-        <th>
+            Signed Up<br />
             Signed In
         </th>
         <th>
@@ -103,76 +118,90 @@ else
         <th>
             SVC
         </th>
+        <th>Roles</th>
+        <th>Logins</th>
         <th></th>
     </tr>
 
     @foreach (var item in filteredUsers.OrderByDescending(u => u.LastActive > u.StartDate ? u.LastActive : u.StartDate).ToList())
     {
         var pseudoClass = ApplicationUserManager.IsPseudoUser(item.Email) ? "pseudo-user" : "";
-        <tr>
-            @*
-                <td>
-                    @Html.DisplayFor(modelItem => item.PasswordHash)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.SecurityStamp)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.PhoneNumber)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.PhoneNumberConfirmed)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.TwoFactorEnabled)
-                </td>
-            *@
-            <td>
-                @Html.DisplayFor(modelItem => item.EmailConfirmed)
-            </td>
-            <td>
-                @Html.ActionLink(item.UserName, "Details", new { id = item.Id }, new { @class = pseudoClass })
-                @if (AccountController.IsUserActive(item.UserName))
-                {
-                    @: *
-                }
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Email)
-            </td>
-            <td>
-                @item.StartDate.ToString("d")
-            </td>
-            <td>
-                @if (item.LastActive == DateTime.Parse("1/1/1900"))
-                {
-                    @:Never
-                }
-                else
-                {
-                    @item.LastActive.ToString("d")
-                }
+        var roles = new List<string>();
+        foreach (var role in item.Roles)
+        {
+            var r = ApplicationUserManager.Roles.FirstOrDefault(x => x.Id == role.RoleId);
+            if (r != null)
+            {
+                roles.Add(r.Name);
+            }
+        }
 
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.CanContact)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.ServicePreference)
-            </td>
-            <td>
-                @Html.ActionLink("List Songs", "FilterUser", "Song", new { user = item.UserName }, null),
-                @Html.ActionLink("List Searches", "Index", "Searches", new { user = item.UserName, showDetails = true, sort = "recent" }, null) <br />
-                @Html.ActionLink("Change Roles", "ChangeRoles", new { id = item.Id }) <br />
-                @Html.ActionLink("Delete", "Delete", new { id = item.Id }),
-                @Html.ActionLink("Edit", "Edit", new { id = item.Id })
+        var logIns = item.Logins.Select(logIn => logIn.LoginProvider);
 
-                @*
-        @Html.ActionLink("Edit", "Edit", new { id=item.Id }) |
-        @Html.ActionLink("Details", "Details", new { id=item.Id }) |
-                *@
-            </td>
-        </tr>
+<tr>
+    @*
+        <td>
+            @Html.DisplayFor(modelItem => item.PasswordHash)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.SecurityStamp)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.PhoneNumber)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.PhoneNumberConfirmed)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.TwoFactorEnabled)
+        </td>
+    *@
+    <td>
+        @Html.DisplayFor(modelItem => item.EmailConfirmed)
+    </td>
+    <td>
+        @Html.ActionLink(item.UserName, "Details", new { id = item.Id }, new { @class = pseudoClass })
+        @if (AccountController.IsUserActive(item.UserName))
+        {
+            @: *
+        }
+        <br />
+        @Html.DisplayFor(modelItem => item.Email)
+    </td>
+    <td>
+        @item.StartDate.ToString("d")
+        <br />
+        @if (item.LastActive == DateTime.Parse("1/1/1900"))
+        {
+            @:Never
+        }
+        else
+        {
+            @item.LastActive.ToString("d")
+        }
+
+    </td>
+    <td>
+        @Html.DisplayFor(modelItem => item.CanContact)
+    </td>
+    <td>
+        @Html.DisplayFor(modelItem => item.ServicePreference)
+    </td>
+    <td>@Html.Raw(string.Join("<br />",roles))</td>
+    <td>@Html.Raw(string.Join("<br />",logIns))</td>
+    <td>
+        @Html.ActionLink("List Songs", "FilterUser", "Song", new { user = item.UserName }, null),
+        @Html.ActionLink("List Searches", "Index", "Searches", new { user = item.UserName, showDetails = true, sort = "recent" }, null) <br />
+        @Html.ActionLink("Change Roles", "ChangeRoles", new { id = item.Id }) <br />
+        @Html.ActionLink("Delete", "Delete", new { id = item.Id }),
+        @Html.ActionLink("Edit", "Edit", new { id = item.Id })
+
+        @*
+            @Html.ActionLink("Edit", "Edit", new { id=item.Id }) |
+            @Html.ActionLink("Details", "Details", new { id=item.Id }) |
+        *@
+    </td>
+</tr>
     }
 </table>
 
