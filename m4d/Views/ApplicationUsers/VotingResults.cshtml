@@ -1,0 +1,57 @@
+﻿@using m4d.Controllers
+@model IReadOnlyList<VotingRecord>
+
+@{
+    ViewBag.Title = "UsageIndex";
+}
+
+<h2>Song Voting Records</h2>
+
+<hr />
+
+<table class="table table-striped">
+    <tr>
+        <th>
+            User
+        </th>
+        <th>
+            Votes
+        </th>
+        <th>
+            Likes
+        </th>
+        <th>
+            Hates
+        </th>
+    </tr>
+
+    @foreach (var item in Model)
+    {
+    <tr>
+        <td>
+            @if (item.User == null)
+            {
+                <b>@Html.DisplayFor(modelItem => item.UserId) (invalid)</b>
+            }
+            else if (item.User.IsPseudo)
+            {
+                <i>@Html.ActionLink(item.UserId, "FilterUser", "Song", new { user = item.UserId }, null)</i>
+            }
+            else
+            {
+                @Html.ActionLink(item.UserId, "FilterUser", "Song", new {user = item.UserId}, null)
+            }
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.Votes)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.Likes)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.Hates)
+        </td>
+    </tr>
+    }
+</table>
+

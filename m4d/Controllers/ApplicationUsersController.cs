@@ -223,6 +223,18 @@ namespace m4d.Controllers
             return Index();
         }
 
+        // GET: ApplicationUsers
+        public ActionResult VotingResults()
+        {
+            var records = Database.GetVotingRecords().OrderByDescending(r => r.Total).ToList();
+            foreach (var record in records)
+            {
+                record.User = ApplicationUserManager.UserDictionary.GetValueOrDefault(record.UserId);
+            }
+
+            return View(records);
+        }
+
 
         // POST: ApplicationUsers/Delete/5
         [HttpPost, ActionName("Delete")]

@@ -2516,6 +2516,66 @@ namespace m4dModels
             }
         }
 
+        public IReadOnlyList<VotingRecord> GetVotingRecords(string name = "default")
+        {
+            var results = GetTagFacets("Users", 100, name);
+
+            var facets = results["Users"];
+
+            var users = new Dictionary<string, VotingRecord>();
+
+            foreach (var facet in facets)
+            {
+                var value = (string)facet.Value;
+                if (value == null || !facet.Count.HasValue) continue;
+
+                var fields = value.Split('|');
+
+                var userId = fields[0];
+
+                if (userId.StartsWith("batch-") || userId == "batch")
+                {
+                    continue;
+                }
+
+                var user = users.GetValueOrDefault(userId);
+                var count = (int)facet.Count.Value;
+
+                if (user == null)
+                {
+                    user = new VotingRecord {UserId = userId};
+                    users[userId] = user;
+                }
+
+                if (fields.Length == 1)
+                {
+                    user.Votes = count;
+                }
+                else if (fields.Length == 2)
+                {
+                    if (fields[1] == "l")
+                    {
+                        user.Likes = count;
+                    }
+                    else if (fields[1] == "h")
+                    {
+                        user.Hates = count;
+                    }
+                    else
+                    {
+                        Trace.WriteLine($"User {userId} has invalid modifier '{fields[1]}'");
+
+                    }
+                }
+                else
+                {
+                    Trace.WriteLine($"User {userId} has invalid number of fields 'value'");
+                }
+            }
+
+            return users.Values.ToList();
+        }
+
         public IEnumerable<string> BackupIndex(string name = "default", int count = -1, DateTime? from = null, SongFilter filter = null)
         {
             var info = SearchServiceInfo.GetInfo(name);

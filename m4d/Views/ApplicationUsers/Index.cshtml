@@ -7,13 +7,8 @@
     var users = ApplicationUserManager.UserDictionary.Values.ToList();
 
     var activeUsers = string.Join(",", AccountController.ActiveUsers);
-    var registeredUsers = users.Count(u => !(u.Email.EndsWith("@music4dance.net") ||
-                u.Email.EndsWith("@spotify.com") ||
-                u.Email.EndsWith("@thegray.com")));
-    var confirmedUsers = users.Count(u => u.EmailConfirmed &&
-                                           !(u.Email.EndsWith("@music4dance.net") ||
-                                             u.Email.EndsWith("@spotify.com") ||
-                                             u.Email.EndsWith("@thegray.com")));
+    var registeredUsers = users.Count(u => !u.IsPseudo);
+    var confirmedUsers = users.Count(u => u.IsConfirmed);
 
     var deletedUsers = users.Count(u => u.UserName.StartsWith("DEL:"));
     var hasServicePreference = users.Count(u => !string.IsNullOrEmpty(u.ServicePreference));
@@ -60,6 +55,7 @@
             <p>@Html.ActionLink("Show Unconfirmed", "Index", new { showUnconfirmed = true }, new { @class = "btn btn-default", role = "button" })</p>
         }
         <p>@Html.ActionLink("Clear Cache", "ClearCache", null, new { @class = "btn btn-default", role = "button" })</p>
+        <p>@Html.ActionLink("Voting Results", "VotingResults")</p>
     </div>
 
 </div>

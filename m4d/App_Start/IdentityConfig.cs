@@ -129,7 +129,7 @@ namespace m4d
                 {
                     using (var cxt = DanceMusicContext.Create())
                     {
-                        s_cachedUsers = cxt.Users.AsNoTracking().Include(u => u.Roles).Include(u => u.Logins).ToList().ToDictionary(u => u.UserName);
+                        s_cachedUsers = cxt.Users.AsNoTracking().Include(u => u.Roles).Include(u => u.Logins).ToList().ToDictionary(u => u.UserName, StringComparer.OrdinalIgnoreCase);
                         CacheTime = DateTime.Now;
                     }
                 }

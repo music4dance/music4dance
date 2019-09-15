@@ -144,6 +144,12 @@ namespace m4dModels
 
         public bool IsPlaceholder => StartDate == DateTime.MinValue;
 
+        public bool IsPseudo => Email.EndsWith("@music4dance.net") ||
+                                 Email.EndsWith("@spotify.com") ||
+                                 Email.EndsWith("@thegray.com");
+
+        public bool IsConfirmed => EmailConfirmed && !IsPseudo;
+
         public async Task<ClaimsIdentity> GenerateUserIdentityAsync(UserManager<ApplicationUser> manager)
         {
             // Note the authenticationType must match the one defined in CookieAuthenticationOptions.AuthenticationType
