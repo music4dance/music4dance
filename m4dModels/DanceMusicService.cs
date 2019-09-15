@@ -2518,7 +2518,7 @@ namespace m4dModels
 
         public IReadOnlyList<VotingRecord> GetVotingRecords(string name = "default")
         {
-            var results = GetTagFacets("Users", 100, name);
+            var results = GetTagFacets("Users", 10000, name);
 
             var facets = results["Users"];
 

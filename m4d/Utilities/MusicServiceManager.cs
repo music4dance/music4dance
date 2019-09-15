@@ -7,7 +7,10 @@ using System.Linq;
 using System.Net;
 using System.Security.Principal;
 using System.Text;
+using System.Web;
 using System.Web.Helpers;
+using System.Web.Mvc;
+using BundleTransformer.Core.Resources;
 
 namespace m4d.Utilities
 {
@@ -272,11 +275,28 @@ namespace m4d.Utilities
 
             if (response == null) return null;
 
+            MusicServiceAction($"https://api.spotify.com/v1/playlists/{response.id}/images", GetEncodedImage("~/Content/color-logo.jpg"), WebRequestMethods.Http.Put, service, principal, "image/jpeg");
+
             return new PlaylistMetadata
             {
                 Id = response.id,
                 Name = response.name
             };
+        }
+
+        private string GetEncodedImage(string path)
+        {
+            var fullPath = HttpContext.Current.Server.MapPath(path);
+            using (System.Drawing.Image image = System.Drawing.Image.FromFile(fullPath))
+            {
+                using (var m = new MemoryStream())
+                {
+                    image.Save(m, image.RawFormat);
+                    var imageBytes = m.ToArray();
+                    var base64String = Convert.ToBase64String(imageBytes);
+                    return base64String;
+                }
+            }
         }
 
         public bool SetPlaylistTracks(MusicService service, IPrincipal principal, string id, IEnumerable<string> tracks)
@@ -488,7 +508,7 @@ namespace m4d.Utilities
 
         // TODO Handle services other than spotify.
         // This method requires a valid principal
-        private static dynamic MusicServiceAction(string request, string input, string method, MusicService service, IPrincipal principal)
+        private static dynamic MusicServiceAction(string request, string input, string method, MusicService service, IPrincipal principal, string contentType = "application/json")
         {
             string responseString = null;
 
@@ -500,7 +520,7 @@ namespace m4d.Utilities
             var req = (HttpWebRequest)WebRequest.Create(request);
             req.Method = method;
             req.Accept = "application/json";
-            req.ContentType = "application/json";
+            req.ContentType = contentType;
 
             req.Headers.Add("Authorization", AdmAuthentication.GetServiceAuthorization(service.Id, principal));
 

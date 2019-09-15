@@ -766,6 +766,7 @@
     <Content Include="Content\chosen-sprite%402x.png" />
     <Content Include="Content\chosen-sprite.png" />
     <Content Include="Content\chosen.css" />
+    <Content Include="Content\color-logo.jpg" />
     <Content Include="Content\contribute.png" />
     <Content Include="Content\dance-50.png" />
     <Content Include="Content\dance-broken-icon.png" />
