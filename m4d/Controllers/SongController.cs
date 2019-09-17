@@ -928,9 +928,30 @@ namespace m4d.Controllers
             return RedirectToAction("Details", new { id, filter });
         }
 
-        [Authorize(Roles = "canEdit,dbAdmin,premium,trial")]
-        public ActionResult CreateSpotify(SongFilter filter, string title)
+
+        [HttpGet]
+        public ActionResult CreateSpotify(SongFilter filter)
         {
+
+            return View(new PlaylistCreateInfo
+            {
+                Title = string.IsNullOrWhiteSpace(filter.ShortDescription) ? "music4dance playlist" : filter.ShortDescription,
+                DescriptionPrefix = "This playlist was created with information from music4dance.net: ",
+                Description = filter.Description,
+                Count = 25,
+                Filter = filter.ToString()
+            });
+        }
+
+        /* TODONEXT: Verify that count works, consider better count control, figure out what I want to do about evenly distributed
+         numeric lists, also if there is a way to randomize/subsort based on dance rating within numeric or other lists. */
+        [HttpPost]
+        [Authorize(Roles = "canEdit,dbAdmin,premium,trial")]
+        [ValidateAntiForgeryToken]
+        public ActionResult CreateSpotify([Bind(Include = "Title,DescriptionPrefix,Description,Count,Filter")] PlaylistCreateInfo info)
+        {
+            if (!ModelState.IsValid) return View(info);
+
             if (!(User is ClaimsPrincipal claimsPrincipal))
             {
                 throw new Exception("Invalid Principal");
@@ -944,6 +965,7 @@ namespace m4d.Controllers
             }
 
             PlaylistMetadata metadata;
+            var filter = new SongFilter(info.Filter);
 
             try
             {
@@ -954,8 +976,8 @@ namespace m4d.Controllers
                 var tracks = results.Songs.Select(s => s.GetPurchaseId(ServiceType.Spotify));
 
                 var service = MusicService.GetService(ServiceType.Spotify);
-                metadata = MusicServiceManager.CreatePlaylist(service, User, title,
-                    $"This playlist was created with information from music4dance.net: {filter.Description}");
+                metadata = MusicServiceManager.CreatePlaylist(service, User, info.Title,$"{info.DescriptionPrefix} {filter.Description}");
+
                 if (!MusicServiceManager.SetPlaylistTracks(service, User, metadata.Id, tracks))
                 {
                     ViewBag.StatusMessage = "Unable to set the playlist tracks.";
@@ -968,10 +990,7 @@ namespace m4d.Controllers
                 return View("Error");
             }
 
-
-            ViewBag.StatusMessage = "Not an error, need to create a success page.";
-            return View(metadata);
-
+            return View("SpotifyCreated", metadata);
         }
 
         //

@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 
@@ -115,6 +117,20 @@ namespace m4dModels
     {
         public string Id { get; set; }
         public string Name { get; set; }
+    }
+
+    public class PlaylistCreateInfo
+    {
+        [Required(ErrorMessage = "Title is Required")]
+        public string Title { get; set; }
+        public string DescriptionPrefix { get; set; }
+        [StringLength(225, ErrorMessage = "Description must be less than 225 characters.")]
+        public string Description { get; set; }
+        public string Filter { get; set; }
+
+        [Range(5,50, ErrorMessage = "A playlist may have between 5 and 50 songs")]
+        [Description("Number of Songs")]
+        public int Count { get; set; }
     }
 
     public class PlayListIndex

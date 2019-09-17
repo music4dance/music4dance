@@ -1,19 +1,64 @@
-﻿@model PlaylistMetadata
+﻿@model PlaylistCreateInfo
 
 @{
     ViewBag.Title = "New Spotify Playlist";
-    var playUrl = "https://open.spotify.com/embed/user/12162827414/playlist/" + Model.Id;
+    var filter = new SongFilter(Model.Filter);
 }
 
 <div class="row"><h1 class="col-sm-12">@ViewBag.Title</h1></div>
 
-<div class="row"><p class="big-text col-sm-12">You've created a spotify playlist based on your search.  You can find it in your public playlists as "@Model.Name"</p></div>
+<h4>Create a Spotify Playlist with the results of this search: <b>@filter.Description</b></h4>
 
-
-<div class="row">
-    <div class="col-sm-6"><iframe src="@playUrl" width="300" height="380" frameborder="0" allowtransparency="true" allow="encrypted-media"></iframe></div>
-    <div class="col-sm-6 big-text">Follow music4dance on Spotify<iframe src="https://open.spotify.com/follow/1/?uri=spotify:user:ebo1rk39vp51kkyjps45eobph&size=basic&theme=light" width="200" height="25" scrolling="no" frameborder="0" style="border: none; overflow: hidden;" allowtransparency="true"></iframe></div>
+<div text="big-text">In order to successfully create a Spotify Playlist from a music4dance search you must meet the following conditions:
+    <ol>
+        <li>Be <a href="https://music4dance.blog/music4dance-help/account-management/">signed in</a></li>
+        <li>Have a <a href="https://music4dance.blog/music4dance-help/subscriptions/">premium subsription</a></li>
+        <li>Have <a href="https://music4dance.blog/music4dance-help/account-management/#add-external-account">associated a Spotify account with your music4dance account</a></li>
+    </ol>
 </div>
 
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+<div class="form-horizontal">
+
+    <div class="form-group">
+        @Html.LabelFor(model => model.Title, htmlAttributes: new { @class = "control-label col-md-2" })
+        <div class="col-md-10">
+            @Html.EditorFor(model => model.Title, new { htmlAttributes = new { @class = "form-control" } })
+            @Html.ValidationMessageFor(model => model.Title, "", new { @class = "text-danger" })
+        </div>
+    </div>
+
+    <div class="form-group">
+        <div class="col-md-offset-2 col-md-10">@Model.DescriptionPrefix</div>
+        @Html.LabelFor(model => model.Description, htmlAttributes: new { @class = "control-label col-md-2" })
+        <div class="col-md-10">
+            @Html.TextAreaFor(model => model.Description, new { @class = "form-control", cols = "50", rows = "6" })
+            @Html.ValidationMessageFor(model => model.Description, "", new { @class = "text-danger" })
+        </div>
+    </div>
+
+    <div class="form-group">
+        @Html.LabelFor(model => model.Count, htmlAttributes: new { @class = "control-label col-md-2" })
+        <div class="col-md-10">
+            @Html.EditorFor(model => model.Count, new { htmlAttributes = new { @class = "form-control" } })
+            @Html.ValidationMessageFor(model => model.Count, "", new {@class = "text-danger"})
+        </div>
+    </div>
+
+    <input type="hidden" name="filter" id="filter" value="@Model.Filter" />
+    <input type="hidden" name="DescriptionPrefix" id="DescriptionPrefix" value="@Model.DescriptionPrefix" />
+
+    <div class="form-group">
+        <div class="col-md-offset-2 col-md-10">
+            <input type="submit" value="Create" class="btn btn-default" />
+        </div>
+    </div>
+</div>
+}
 
 
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}

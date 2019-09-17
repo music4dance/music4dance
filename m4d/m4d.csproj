@@ -1266,6 +1266,7 @@
     <Content Include="Views\Shared\RequiresPremium.cshtml" />
     <Content Include="Views\Song\CreateSpotify.cshtml" />
     <Content Include="Views\ApplicationUsers\VotingResults.cshtml" />
+    <Content Include="Views\Song\SpotifyCreated.cshtml" />
     <None Include="Web.m4d.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

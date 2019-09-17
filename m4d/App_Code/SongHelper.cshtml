@@ -4,13 +4,6 @@
 @using Microsoft.Azure.Search.Models
 @using PagedList.Mvc;
 
-@helper Spotify(IEnumerable<Song> songs)
-{
-    <div id="spotify-player" class="col-md-6" data-trackset-name="music4dance" data-trackset-songs="@string.Join(",", songs.Select(s => s.SongId))">
-        <button class="btn-default btn-block btn-lg">Show Spotify Player</button>
-    </div>
-}
-
 @helper CustomHeader(System.Web.Mvc.HtmlHelper html, string description)
 {
     var parts = description.Split('|');
@@ -147,43 +140,11 @@
         </div>
     }
 
-    if (filter.IsAdvanced)
-    {
-        if (!hideSpotify)
-        {
-            <div class="row">
-                @Spotify(songs)
-            </div>
-        }
-    }
-    else
-    {
-        <div class="row">
-            @if (!hideSpotify)
-            {
-                @Spotify(songs)
-            }
-            <div class="col-md-6"><h4>@filter.Description</h4></div>
-        </div>
-    }
-
     if (!hideSpotify && showExport)
     {
         <div class="row">
             <div class="col-md-12">
-                <h4>Create a Spotify Playlist with the results of this search:</h4>
-                <p text="big-text">If you are <a href="https://music4dance.blog/music4dance-help/account-management/">signed in</a>, have a <a href="https://music4dance.blog/music4dance-help/subscriptions/">premium subsription</a> and have <a href="https://music4dance.blog/music4dance-help/account-management/#add-external-account">associated a Spotify account with your music4dance account</a>, this will create a spotify playlist in your account with the top 50 results of the above search.</p>
-                @using (html.BeginForm("CreateSpotify", "Song", new { filter }, FormMethod.Post, new {id = "create-playlist", @class = "form-inline"}))
-                {
-                    @html.AntiForgeryToken()
-
-                    <div class="form-group">
-                        <label for="playlist-title">Title:</label>
-                        <input type="text" name="title" class="form-control" value="@(string.IsNullOrWhiteSpace(filter.ShortDescription) ? "music4dance playlist" : filter.ShortDescription)" style="width:300em" id="playlist-title" />
-                        <button type="submit" class="btn btn-default">Create</button>
-                    </div>
-                }
-
+                @html.ActionLink("Create Spotify Playlist", "CreateSpotify", "Song", new { filter }, new { @class = "btn btn-default", role = "button" })
             </div>
         </div>
     }
