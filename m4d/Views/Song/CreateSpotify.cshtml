@@ -3,59 +3,74 @@
 @{
     ViewBag.Title = "New Spotify Playlist";
     var filter = new SongFilter(Model.Filter);
+    var canCreate = User.IsInRole("premium") || User.IsInRole("trial");
 }
 
 <div class="row"><h1 class="col-sm-12">@ViewBag.Title</h1></div>
 
-<h4>Create a Spotify Playlist with the results of this search: <b>@filter.Description</b></h4>
+<div class="hr-music"></div>
 
-<div text="big-text">In order to successfully create a Spotify Playlist from a music4dance search you must meet the following conditions:
-    <ol>
-        <li>Be <a href="https://music4dance.blog/music4dance-help/account-management/">signed in</a></li>
-        <li>Have a <a href="https://music4dance.blog/music4dance-help/subscriptions/">premium subsription</a></li>
-        <li>Have <a href="https://music4dance.blog/music4dance-help/account-management/#add-external-account">associated a Spotify account with your music4dance account</a></li>
-    </ol>
+<div class="row">
+    <h4 class="col-sm-12">Create a Spotify Playlist with the results of this search: <b>@filter.Description</b></h4>
 </div>
 
-@using (Html.BeginForm())
+<div class="row spaced-row">
+    <div text="big-text" class="col-sm-6">
+        In order to successfully create a Spotify Playlist from a music4dance search you must meet the following conditions:
+        <ol>
+            <li>Be <a href="https://music4dance.blog/music4dance-help/account-management/">signed in</a></li>
+            <li>Have a <a href="https://music4dance.blog/music4dance-help/subscriptions/">premium subsription</a></li>
+            <li>Have <a href="https://music4dance.blog/music4dance-help/account-management/#add-external-account">associated a Spotify account with your music4dance account</a></li>
+        </ol>
+    </div>
+
+    <div class="col-sm-6">
+        @Html.ActionLink("Back to Search Results", ((SongFilter)ViewBag.SongFilter).TargetAction, new { filter = ViewBag.SongFilter }, new { @class = "btn btn-small btn-primary", role = "button" })
+    </div>
+</div>
+
+@if (canCreate)
 {
-    @Html.AntiForgeryToken()
-<div class="form-horizontal">
+    using (Html.BeginForm())
+    {
+        @Html.AntiForgeryToken()
+        <div class="form-horizontal spaced-row">
 
-    <div class="form-group">
-        @Html.LabelFor(model => model.Title, htmlAttributes: new { @class = "control-label col-md-2" })
-        <div class="col-md-10">
-            @Html.EditorFor(model => model.Title, new { htmlAttributes = new { @class = "form-control" } })
-            @Html.ValidationMessageFor(model => model.Title, "", new { @class = "text-danger" })
+            <div class="form-group">
+                @Html.LabelFor(model => model.Title, htmlAttributes: new { @class = "control-label col-md-2" })
+                <div class="col-md-10">
+                    @Html.EditorFor(model => model.Title, new { htmlAttributes = new { @class = "form-control" } })
+                    @Html.ValidationMessageFor(model => model.Title, "", new { @class = "text-danger" })
+                </div>
+            </div>
+
+            <div class="form-group">
+                <div class="col-md-offset-2 col-md-10">@Model.DescriptionPrefix</div>
+                @Html.LabelFor(model => model.Description, htmlAttributes: new { @class = "control-label col-md-2" })
+                <div class="col-md-10">
+                    @Html.TextAreaFor(model => model.Description, new { @class = "form-control", cols = "50", rows = "6" })
+                    @Html.ValidationMessageFor(model => model.Description, "", new { @class = "text-danger" })
+                </div>
+            </div>
+
+            <div class="form-group">
+                @Html.LabelFor(model => model.Count, htmlAttributes: new { @class = "control-label col-md-2" })
+                <div class="col-md-10">
+                    @Html.EditorFor(model => model.Count, new { htmlAttributes = new { @class = "form-control" } })
+                    @Html.ValidationMessageFor(model => model.Count, "", new { @class = "text-danger" })
+                </div>
+            </div>
+
+            <input type="hidden" name="filter" id="filter" value="@Model.Filter" />
+            <input type="hidden" name="DescriptionPrefix" id="DescriptionPrefix" value="@Model.DescriptionPrefix" />
+
+            <div class="form-group">
+                <div class="col-md-offset-2 col-md-10">
+                    <input type="submit" value="Create" class="btn btn-default" />
+                </div>
+            </div>
         </div>
-    </div>
-
-    <div class="form-group">
-        <div class="col-md-offset-2 col-md-10">@Model.DescriptionPrefix</div>
-        @Html.LabelFor(model => model.Description, htmlAttributes: new { @class = "control-label col-md-2" })
-        <div class="col-md-10">
-            @Html.TextAreaFor(model => model.Description, new { @class = "form-control", cols = "50", rows = "6" })
-            @Html.ValidationMessageFor(model => model.Description, "", new { @class = "text-danger" })
-        </div>
-    </div>
-
-    <div class="form-group">
-        @Html.LabelFor(model => model.Count, htmlAttributes: new { @class = "control-label col-md-2" })
-        <div class="col-md-10">
-            @Html.EditorFor(model => model.Count, new { htmlAttributes = new { @class = "form-control" } })
-            @Html.ValidationMessageFor(model => model.Count, "", new {@class = "text-danger"})
-        </div>
-    </div>
-
-    <input type="hidden" name="filter" id="filter" value="@Model.Filter" />
-    <input type="hidden" name="DescriptionPrefix" id="DescriptionPrefix" value="@Model.DescriptionPrefix" />
-
-    <div class="form-group">
-        <div class="col-md-offset-2 col-md-10">
-            <input type="submit" value="Create" class="btn btn-default" />
-        </div>
-    </div>
-</div>
+    }
 }
 
 

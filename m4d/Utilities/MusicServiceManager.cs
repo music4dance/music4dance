@@ -535,7 +535,7 @@ namespace m4d.Utilities
 
                 using (var response = (HttpWebResponse)req.GetResponse())
                 {
-                    if (response.StatusCode == HttpStatusCode.Created)
+                    if (response.StatusCode == HttpStatusCode.Created || response.StatusCode == HttpStatusCode.Accepted)
                     {
                         var stream = response.GetResponseStream();
                         if (stream != null)

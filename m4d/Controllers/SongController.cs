@@ -943,14 +943,17 @@ namespace m4d.Controllers
             });
         }
 
-        /* TODONEXT: Verify that count works, consider better count control, figure out what I want to do about evenly distributed
-         numeric lists, also if there is a way to randomize/subsort based on dance rating within numeric or other lists. */
         [HttpPost]
-        [Authorize(Roles = "canEdit,dbAdmin,premium,trial")]
         [ValidateAntiForgeryToken]
         public ActionResult CreateSpotify([Bind(Include = "Title,DescriptionPrefix,Description,Count,Filter")] PlaylistCreateInfo info)
         {
             if (!ModelState.IsValid) return View(info);
+
+            if (info.Count > 100)
+            {
+                ViewBag.StatusMessage = "Please stop trying to hack the site.";
+                return View("Error");
+            }
 
             if (!(User is ClaimsPrincipal claimsPrincipal))
             {
@@ -970,7 +973,7 @@ namespace m4d.Controllers
             try
             {
                 filter.Purchase = "S";
-                var p = Database.AzureParmsFromFilter(filter, 50);
+                var p = Database.AzureParmsFromFilter(filter, info.Count);
                 p.IncludeTotalResultCount = true;
                 var results = Database.AzureSearch(filter.SearchString, p, filter.CruftFilter, "default", Database.DanceStats);
                 var tracks = results.Songs.Select(s => s.GetPurchaseId(ServiceType.Spotify));
@@ -990,6 +993,7 @@ namespace m4d.Controllers
                 return View("Error");
             }
 
+            ViewBag.SongFilter = filter;
             return View("SpotifyCreated", metadata);
         }
 

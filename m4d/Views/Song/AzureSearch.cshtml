@@ -12,8 +12,6 @@
     var dances = (IList<DanceStats>)ViewBag.Dances;
 
     var userName = filter.UserQuery.IsEmpty ? User.Identity.Name : filter.UserQuery.UserName;
-
-    bool showExport = User.IsInRole("canEdit") || User.IsInRole("trial");
 }
 
 @Html.Partial("_SetupFilterScript")
@@ -57,7 +55,7 @@ else
     Html.RenderPartial("_ListSongs", @Model, ViewData);
 }
 
-@SongHelper.SearchFooter(Html, Url, Model, filter, false, false, showExport)
+@SongHelper.SearchFooter(Html, Url, Model, filter, false, false, true)
 
 @if (User.IsInRole("showDiagnostics") && ViewData.ContainsKey("RawSearch"))
 {

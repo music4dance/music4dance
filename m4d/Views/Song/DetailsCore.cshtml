@@ -10,7 +10,7 @@
 @helper Actions(SongFilter filter)
 {
     <a class="btn btn-ml btn-help" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/" role="button"><span class="glyphicon glyphicon-question-sign"></span></a>
-    @Html.ActionLink("Back to List", filter.TargetAction, new { filter }, new { @class = "btn btn-ml btn-primary", role = "button" })
+    @Html.ActionLink("Back to Search Results", filter.TargetAction, new { filter }, new { @class = "btn btn-ml btn-primary", role = "button" })
     <a href="#" role="button" class="btn btn-ml btn-primary" data-bind="visible:changed, click:saveRatings">Save</a>
 }
 
