@@ -1,7 +1,7 @@
 ﻿@model PlaylistMetadata
 
 @{
-    ViewBag.Title = "New Spotify Playlist";
+    ViewBag.Title = "Spotify Playlist";
     var playUrl = "https://open.spotify.com/embed/user/12162827414/playlist/" + Model.Id;
 }
 
@@ -17,6 +17,10 @@
         <p>@Html.ActionLink("Back to Search Results", ((SongFilter)ViewBag.SongFilter).TargetAction, new { filter = ViewBag.SongFilter }, new { @class = "btn btn-small btn-primary", role = "button" })</p>
     </div>
 </div>
+
+<div class="row"><p class="big-text col-sm-12">Please be considerate and keep the text reading "This playlist was created with information from music4dance.net" in the playlist description.  This will help spread the word and build the community.</p></div>
+
+
 
 
 

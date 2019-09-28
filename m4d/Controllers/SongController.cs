@@ -932,6 +932,7 @@ namespace m4d.Controllers
         [HttpGet]
         public ActionResult CreateSpotify(SongFilter filter)
         {
+            HelpPage = "spotify-playlist";
 
             return View(new PlaylistCreateInfo
             {
@@ -969,6 +970,8 @@ namespace m4d.Controllers
 
             PlaylistMetadata metadata;
             var filter = new SongFilter(info.Filter);
+
+            HelpPage = "spotify-playlist";
 
             try
             {
