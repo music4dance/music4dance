@@ -389,9 +389,9 @@ var tagChooser = function () {
         });
 
         self.hasTag = function (value, kind) {
-            var s = value + ':' + kind;
+            var s = (value + ':' + kind).toLowerCase();
             for (var i = 0; i < self.Tags().length; i++) {
-                if (self.Tags()[i].value() === s) {
+                if (self.Tags()[i].value().toLowerCase() === s) {
                     return true;
                 }
             }

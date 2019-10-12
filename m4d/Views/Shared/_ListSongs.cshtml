@@ -1,4 +1,5 @@
-﻿@using DanceLibrary
+﻿@using System.Linq
+@using DanceLibrary
 @using Newtonsoft.Json
 @model IEnumerable<Song>
 
@@ -251,7 +252,7 @@
             List<DanceRating> scaledDances = null;
             if (item.DanceRatings != null)
             {
-                scaledDances = item.DanceRatings.OrderByDescending(dr => danceStats.GetScaledRating(dr.DanceId, dr.Weight)).ToList();
+                scaledDances = item.DanceRatings.Where(dr => item.TagSummary.Tags.Any(t => string.Equals(t.Value, $"{dr.DanceName}:Dance", StringComparison.OrdinalIgnoreCase))).OrderByDescending(dr => danceStats.GetScaledRating(dr.DanceId, dr.Weight)).ToList();
             }
             string tempoString = null;
             if (item.Tempo.HasValue)
