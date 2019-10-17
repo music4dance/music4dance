@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using Antlr.Runtime.Misc;
+using System.Web;
 using DanceLibrary;
 
 namespace m4d.ViewModels
@@ -58,7 +58,7 @@ namespace m4d.ViewModels
     {
         public SiteMapFile(string filename)
         {
-            var path = Path.Combine(System.Web.Hosting.HostingEnvironment.MapPath("~/Content")??"",$"{filename}.txt");
+            var path = Path.Combine(HttpContext.Current.Server.MapPath("~/Content")??"",$"{filename}.txt");
             var lines = File.ReadAllLines(path);
             var family = new Stack<List<SiteMapEntry>>();
             family.Push(new List<SiteMapEntry>());
@@ -82,7 +82,7 @@ namespace m4d.ViewModels
 
                 if (curdepth > depth)
                 {
-                    family.Push(new ListStack<SiteMapEntry>());
+                    family.Push(new List<SiteMapEntry>());
                 }
                 else if (curdepth < depth)
                 {
