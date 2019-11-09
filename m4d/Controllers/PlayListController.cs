@@ -423,7 +423,7 @@ namespace m4d.Controllers
                     Purchase = spotify.CID.ToString()
                 };
                 var sr = dms.AzureSearch(filter, playlist.Count == -1 ? 100 : playlist.Count);
-                if (sr.Count == 0 || (playlist.Count != -1 && sr.Count != playlist.Count)) return false;
+                if (sr.Count == 0) return false;
 
                 var tracks = sr.Songs.Select(s => s.GetPurchaseId(ServiceType.Spotify));
                 if (MusicServiceManager.SetPlaylistTracks(spotify, principal, playlist.Id, tracks))
