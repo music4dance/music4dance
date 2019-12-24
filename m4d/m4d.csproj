@@ -735,6 +735,7 @@
     <Compile Include="ViewModels\TagGroupView.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="ads.txt" />
     <Content Include="BingSiteAuth.xml" />
     <Content Include="Content\ajax-loader.gif" />
     <Content Include="Content\amazon-charm.png" />
@@ -920,6 +921,7 @@
     <Content Include="App_Code\SongHelper.cshtml" />
     <Content Include="MvcDiagnostics.aspx" />
     <Content Include="pinterest-885c1.html" />
+    <Content Include="robots.txt" />
     <Content Include="Scripts\add.js" />
     <Content Include="Scripts\advancedsearch.js" />
     <Content Include="Scripts\bootstrap.js" />
