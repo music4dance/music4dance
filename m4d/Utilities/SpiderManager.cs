@@ -1,13 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Web;
-using System.Web.Mvc;
-using System.Web.UI.WebControls;
-using m4d.AWSReference;
 using m4d.ViewModels;
 
 namespace m4d.Utilities
@@ -41,8 +34,7 @@ namespace m4d.Utilities
 
             lock (s_botHits)
             {
-                long count;
-                if (!s_botHits.TryGetValue(agent, out count))
+                if (!s_botHits.TryGetValue(agent, out var count))
                 {
                     count = 0;
                 }

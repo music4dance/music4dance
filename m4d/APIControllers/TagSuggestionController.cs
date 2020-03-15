@@ -1,20 +1,40 @@
 ﻿using System;
-using System.Web.Http;
+using m4dModels;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 
 namespace m4d.APIControllers
 {
-    public class TagSuggestionController : DMApiController
+    [ApiController]
+    [Route("api/[controller]")]
+    public class TagSuggestionController : DanceMusicApiController
     {
-        public IHttpActionResult GetTagSuggestions(Guid? user = null, char? targetType = null, string tagType = null, int count = int.MaxValue, bool normalized = false)
+        public TagSuggestionController(DanceMusicContext context, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, ISearchServiceManager searchService, IDanceStatsManager danceStatsManager) :
+            base(context, userManager, roleManager, searchService, danceStatsManager)
+        {
+        }
+
+
+        [HttpGet]
+
+        public IActionResult GetTagSuggestions(string user = null, char? targetType = null, int count = int.MaxValue, bool normalized = false)
+        {
+            return GetTagSuggestions(null, user, targetType, count, normalized);
+        }
+
+
+        [HttpGet("{id}")]
+
+        public IActionResult GetTagSuggestions(string id, string user = null, char? targetType = null, int count = int.MaxValue, bool normalized = false)
         {
             //var test = false;
             try
             {
-                var tags = Database.GetTagSuggestions(user, targetType, tagType, count, normalized);
+                var tags = Database.GetTagSuggestions(user, targetType, id, count, normalized);
                 //if (test)
                 //    return NotFound();
                 //else
-                    return Ok(tags);
+                    return JsonCamelCase(tags);
             }
             catch (Exception)
             {

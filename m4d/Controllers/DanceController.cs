@@ -1,16 +1,21 @@
 ﻿using System;
-using System.Data.Entity;
 using System.Diagnostics;
 using System.Linq;
 using System.Net;
-using System.Web.Mvc;
 using DanceLibrary;
 using m4dModels;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 
 namespace m4d.Controllers
 {
     public class DanceController : ContentController
     {
+        public DanceController(DanceMusicContext context, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, ISearchServiceManager searchService, IDanceStatsManager danceStatsManager) :
+            base(context, userManager, roleManager, searchService, danceStatsManager)
+        { }
+
         public override string DefaultTheme => MusicTheme;
 
         // GET: Dances/{dance}
@@ -85,9 +90,7 @@ namespace m4d.Controllers
 
         //
         // POST: /Dances/Edit/5
-        [HttpPost, ValidateInput(false)]
-        [ValidateAntiForgeryToken]
-        [Authorize(Roles = "canEdit")]
+        [HttpPost, ValidateAntiForgeryToken, Authorize(Roles = "canEdit")]
         public ActionResult Edit(Dance dance)
         {
             if (ModelState.IsValid && dance.Info != null)
@@ -102,16 +105,16 @@ namespace m4d.Controllers
                         if (link.Id == Guid.Empty)
                         {
                             link.Id = Guid.NewGuid();
-                            Context.Entry(link).State = EntityState.Added;
+                            // CORETODO: Does this just work? Context.Entry(link).State = EntityState.Added;
                         }
                         else
                         {
-                            Context.Entry(link).State = EntityState.Modified;
+                            // CORETODO: Does this just work? //Context.Entry(link).State = EntityState.Modified;
                         }
                     }
                 }
 
-                Context.Entry(dance).State = EntityState.Modified;
+                // CORETODO: Does this just work? Context.Entry(dance).State = EntityState.Modified;
                 Database.SaveChanges();
 
                 DanceStatsManager.ReloadDances(Database);

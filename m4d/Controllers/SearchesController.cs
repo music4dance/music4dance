@@ -1,15 +1,17 @@
 ﻿using System;
-using System.Data.Entity;
 using System.Linq;
 using System.Net;
-using System.Web.Mvc;
 using m4dModels;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace m4d.Controllers
 {
-    public class SearchesController : DMController
+    public class SearchesController : DanceMusicController
     {
-        public SearchesController()
+        public SearchesController(DanceMusicContext context, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, ISearchServiceManager searchService, IDanceStatsManager danceStatsManager) :
+            base(context, userManager, roleManager, searchService, danceStatsManager)
         {
             HelpPage = "song-list";
         }
@@ -17,7 +19,7 @@ namespace m4d.Controllers
         public override string DefaultTheme => MusicTheme;
 
         // GET: Searches
-        public ActionResult Index(string user, string sort=null, SongFilter filter=null, bool showDetails=false)
+        public IActionResult Index(string user, string sort=null, SongFilter filter=null, bool showDetails=false)
         {
             if (string.IsNullOrWhiteSpace(user) || user.Equals(UserQuery.AnonymousUser, StringComparison.OrdinalIgnoreCase))
             {
@@ -25,7 +27,7 @@ namespace m4d.Controllers
             }
 
             var appUser = Database.FindUser(user??User.Identity.Name);
-            var searches = Database.Searches.Include(s => s.ApplicationUser);
+            IQueryable<Search> searches = Database.Searches.Include(s => s.ApplicationUser);
             if (appUser != null)
                 searches = searches.Where(s => s.ApplicationUserId == appUser.Id);
 
@@ -37,16 +39,16 @@ namespace m4d.Controllers
         }
 
         // GET: Searches/Details/5
-        public ActionResult Details(long? id)
+        public IActionResult Details(long? id)
         {
             if (id == null)
             {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+                return StatusCode((int) HttpStatusCode.BadRequest);
             }
             var search = Database.Searches.Find(id);
             if (search == null)
             {
-                return HttpNotFound();
+                return StatusCode((int)HttpStatusCode.NotFound);
             }
             return View(search);
         }

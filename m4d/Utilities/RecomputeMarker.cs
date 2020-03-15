@@ -3,21 +3,40 @@ using System.Collections.Generic;
 
 namespace m4d.Utilities
 {
-    internal class RecomputeMarker
+    public class RecomputeMarkerService
     {
-        public static DateTime GetMarker(string name)
+        public RecomputeMarkerService(string appData)
+        {
+            _appData = appData;
+        }
+
+        private static readonly Dictionary<string, RecomputeMarker> Markers = new Dictionary<string, RecomputeMarker>();
+
+        private readonly string _appData;
+
+        private string ComputePath(string name)
+        {
+            return ComputePath(_appData, name);
+        }
+
+        public static string ComputePath(string dir, string name)
+        {
+            return System.IO.Path.Combine(dir, "marker." + name + ".txt");
+        }
+
+        public DateTime GetMarker(string name)
         {
             var marker = CreateMarker(name);
             return marker.GetTime();
         }
 
-        public static Guid GetGuid(string name)
+        public Guid GetGuid(string name)
         {
             var marker = CreateMarker(name);
             return marker.GetGuid();
         }
 
-        public static void SetMarker(string name, DateTime? time = null)
+        public void SetMarker(string name, DateTime? time = null)
         {
             var marker = CreateMarker(name);
             if (time.HasValue)
@@ -30,13 +49,13 @@ namespace m4d.Utilities
             }
         }
 
-        public static void SetMarker(string name, Guid guid)
+        public void SetMarker(string name, Guid guid)
         {
             var marker = CreateMarker(name);
             marker.SetGuid(guid);
         }
 
-        public static void ResetMarker(string name)
+        public void ResetMarker(string name)
         {
             if (Markers.ContainsKey(name))
             {
@@ -44,35 +63,48 @@ namespace m4d.Utilities
             }
             System.IO.File.Delete(ComputePath(name));
         }
-        private RecomputeMarker(string name)
+
+        private RecomputeMarker CreateMarker(string name)
+        {
+            if (Markers.TryGetValue(name, out var marker)) return marker;
+
+            marker = new RecomputeMarker(_appData, name);
+            Markers[name] = marker;
+            return marker;
+        }
+    }
+
+    public class RecomputeMarker
+    {
+        public RecomputeMarker(string dir, string name)
         {
             _name = name;
+            _dir = dir;
         }
 
         private readonly string  _name;
+        private readonly string _dir;
 
-        private DateTime GetTime()
+        public DateTime GetTime()
         {
             if (!System.IO.File.Exists(Path)) return DateTime.MinValue;
 
             var s = System.IO.File.ReadAllText(Path);
-            DateTime time;
-            return DateTime.TryParse(s, out time) ? time : System.IO.File.GetLastWriteTime(Path);
+            return DateTime.TryParse(s, out var time) ? time : System.IO.File.GetLastWriteTime(Path);
         }
 
-        private Guid GetGuid()
+        public Guid GetGuid()
         {
             var s = System.IO.File.ReadAllText(Path);
-            Guid guid;
-            return Guid.TryParse(s, out guid) ? guid : Guid.Empty;
+            return Guid.TryParse(s, out var guid) ? guid : Guid.Empty;
         }
 
-        private void SetTime()
+        public void SetTime()
         {
             System.IO.File.WriteAllText(Path,@"Semaphore");
         }
 
-        private void SetTime(DateTime time)
+        public void SetTime(DateTime time)
         {
             System.IO.File.WriteAllText(Path, time.ToString("G"));
         }
@@ -82,26 +114,7 @@ namespace m4d.Utilities
             System.IO.File.WriteAllText(Path, guid.ToString());
         }
 
-        private static RecomputeMarker CreateMarker(string name)
-        {
-            RecomputeMarker marker;
+        private string Path => RecomputeMarkerService.ComputePath(_dir, _name);
 
-            if (Markers.TryGetValue(name, out marker)) return marker;
-
-            marker = new RecomputeMarker(name);
-            Markers[name] = marker;
-            return marker;
-        }
-
-        private string Path => ComputePath(_name);
-
-        private static readonly Dictionary<string,RecomputeMarker> Markers = new Dictionary<string, RecomputeMarker>();
-
-        private static readonly string AppData = System.Web.Hosting.HostingEnvironment.MapPath("~/app_data");
-
-        private static string ComputePath(string name)
-        {
-            return System.IO.Path.Combine(AppData, "marker." + name + ".txt");
-        }
     }
 }

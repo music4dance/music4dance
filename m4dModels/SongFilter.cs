@@ -116,7 +116,7 @@ namespace m4dModels
             Purchase = raw.Description;
             User = raw.SearchFields;
             Page = raw.Page;
-            Level = raw.CruftFilter == DanceMusicService.CruftFilter.NoCruft ? null : (int?) raw.CruftFilter;
+            Level = raw.CruftFilter == DanceMusicCoreService.CruftFilter.NoCruft ? null : (int?) raw.CruftFilter;
         }
 
         public SongFilter(string action, RawSearch raw) : this(raw)
@@ -163,10 +163,10 @@ namespace m4dModels
         public UserQuery UserQuery => new UserQuery(User);
         public SongSort SongSort => new SongSort(SortOrder);
 
-        public DanceMusicService.CruftFilter CruftFilter =>
+        public DanceMusicCoreService.CruftFilter CruftFilter =>
             !Action.StartsWith("merge",StringComparison.OrdinalIgnoreCase) && Level.HasValue 
-                ? (DanceMusicService.CruftFilter) Level.Value 
-                : DanceMusicService.CruftFilter.NoCruft;
+                ? (DanceMusicCoreService.CruftFilter) Level.Value 
+                : DanceMusicCoreService.CruftFilter.NoCruft;
 
         public IList<string> ODataSort
         {
@@ -186,7 +186,7 @@ namespace m4dModels
             }
         }
 
-        public string GetTagFilter(DanceMusicService dms)
+        public string GetTagFilter(DanceMusicCoreService dms)
         {
             var tags = new TagList(Tags);
 
@@ -277,7 +277,7 @@ namespace m4dModels
             return SwapUser(user, UserQuery.AnonymousUser);
         }
 
-        public string GetOdataFilter(DanceMusicService dms)
+        public string GetOdataFilter(DanceMusicCoreService dms)
         {
             var odata = SongSort.Numeric ? $"({SongSort.Id} ne null) and ({SongSort.Id} ne 0)" : null;
             var danceFilter = DanceQuery.ODataFilter;

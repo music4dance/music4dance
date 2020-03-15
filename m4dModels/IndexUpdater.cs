@@ -6,20 +6,18 @@ namespace m4dModels
 {
     public class IndexUpdater
     {
-        public static void Enqueue(string index)
+        public static void Enqueue(DanceMusicCoreService dms, SearchServiceInfo info)
         {
             // This turns "default" into a real id
-            index = SearchServiceInfo.GetInfo(index).Id;
             lock (s_updaters)
             {
-                IndexUpdater updater;
-                if (!s_updaters.TryGetValue(index, out updater))
+                if (!s_updaters.TryGetValue(info.Id, out var updater))
                 {
-                    updater = new IndexUpdater(index);
-                    s_updaters[index] = updater;
+                    updater = new IndexUpdater(info.Id);
+                    s_updaters[info.Id] = updater;
                 }
 
-                updater.Enqueue();
+                updater.Enqueue(dms);
             }
         }
 
@@ -28,7 +26,7 @@ namespace m4dModels
             _index = index;
         }
 
-        private void Enqueue()
+        private void Enqueue(DanceMusicCoreService dms)
         {
             Trace.WriteLine("Entering Enque");
             lock (_lock)
@@ -36,7 +34,7 @@ namespace m4dModels
                 if (_task == null || _task.IsFaulted)
                 {
                     Trace.WriteLine("Setting up task");
-                    _task = Task.Delay(100*60).ContinueWith(_ => DoUpdate());
+                    _task = Task.Delay(100*60).ContinueWith(_ => DoUpdate(dms.GetTransientService()));
                 }
                 else if (_task.Status == TaskStatus.Running)
                 {
@@ -47,14 +45,12 @@ namespace m4dModels
             Trace.WriteLine("Exiting Enque");
         }
 
-        private void DoUpdate()
+        private void DoUpdate(DanceMusicCoreService dms)
         {
             Trace.WriteLine("Entering DoUpdate");
-            using (var dms = DanceMusicService.GetService())
-            {
-                var count = dms.UpdateAzureIndex(_index);
-                Trace.WriteLine($"Updated {count} songs.");
-            }
+
+            var count = dms.UpdateAzureIndex(_index);
+            Trace.WriteLine($"Updated {count} songs.");
 
             // In the case where things have been enqueud 
             lock (_lock)
@@ -63,7 +59,11 @@ namespace m4dModels
                 if (_continue)
                 {
                     _continue = false;
-                    Enqueue();
+                    Enqueue(dms);
+                }
+                else
+                {
+                    dms.Dispose();
                 }
             }
             Trace.WriteLine("Exiting DoUpdate");

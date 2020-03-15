@@ -1,33 +1,45 @@
-﻿using Microsoft.AspNet.Identity.Owin;
-
-using System.Web;
-using System.Web.Http;
-
+﻿using m4d.Utilities;
 using m4dModels;
-using m4d.Context;
-using m4d.Controllers;
-using m4d.Utilities;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 
 namespace m4d.APIControllers
 {
     // ReSharper disable once InconsistentNaming
-    public class DMApiController : ApiController
+    public class DanceMusicApiController : ControllerBase
     {
-        protected DanceMusicService Database => _database ??
-                                                (_database =
-                                                    new DanceMusicService(HttpContext.Current.GetOwinContext().Get<DanceMusicContext>(),
-                                                        HttpContext.Current.GetOwinContext().GetUserManager<ApplicationUserManager>()));
+        public DanceMusicApiController(DanceMusicContext context, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, ISearchServiceManager searchService, IDanceStatsManager danceStatsManager)
+        {
+            Database = new DanceMusicService(context, userManager, searchService, danceStatsManager);
+            DanceStatsManager = danceStatsManager;
+        }
 
-        private DanceMusicService _database;
-        protected MusicServiceManager MusicServiceManager => _musicServiceManager ?? (_musicServiceManager = new MusicServiceManager());
+        protected readonly DanceMusicService Database;
+        protected MusicServiceManager MusicServiceManager => _musicServiceManager ??= new MusicServiceManager();
 
         private MusicServiceManager _musicServiceManager;
 
         protected DanceMusicContext Context => Database.Context as DanceMusicContext;
 
-        protected void DetachDatabase()
+        protected UserManager<ApplicationUser> UserManager => Database.UserManager;
+
+        public IDanceStatsManager DanceStatsManager { get; }
+
+        protected IActionResult JsonCamelCase(object json)
         {
-            _database = null;
+            return new JsonResult(json, CamelCaseSerializer);
         }
+
+        private static readonly DefaultContractResolver ContractResolver = new DefaultContractResolver
+        {
+            NamingStrategy = new CamelCaseNamingStrategy()
+        };
+
+        private static readonly JsonSerializerSettings CamelCaseSerializer = new JsonSerializerSettings
+        {
+            ContractResolver = ContractResolver
+        };
     }
 }

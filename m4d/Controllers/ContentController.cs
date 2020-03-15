@@ -1,14 +1,19 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using m4dModels;
+using Microsoft.AspNetCore.Identity;
 
 namespace m4d.Controllers
 {
-    public class ContentController : DMController
+    public class ContentController : DanceMusicController
     {
+        public ContentController(DanceMusicContext context, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, ISearchServiceManager searchService, IDanceStatsManager danceStatsManager) :
+            base(context, userManager, roleManager, searchService, danceStatsManager) { }
+
         protected void SetupLikes(IEnumerable<Song> songs, string danceId)
         {
-            var userName = HttpContext.User.Identity.Name;
+            var user = Database.UserManager.GetUserAsync(HttpContext.User).Result;
+            var userName =  user?.UserName;
             var list = songs.ToList();
             var likes = Database.UserLikes(list, userName);
             if (likes != null)

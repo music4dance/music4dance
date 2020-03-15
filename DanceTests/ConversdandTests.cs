@@ -5,7 +5,6 @@ using System.Diagnostics.CodeAnalysis;
 namespace DanceTests
 {
     [TestClass]
-    [ExcludeFromCodeCoverage]
     public class ConversdandTests
     {
         [TestMethod]

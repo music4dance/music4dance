@@ -7,7 +7,7 @@
             </div>
             <div class="modal-body">
                 <div class="list-group" data-bind="foreach: purchase">
-                    <a class="list-group-item" data-bind="attr:{href:Link,target:Target,id:Id + $parent.songId()}"><img data-bind="attr:{src:'/content/' + Image, alt:Title}" width="32" height="32" /><span style="padding-left: 8px" data-bind="text:Help"></span></a>
+                    <a class="list-group-item" data-bind="attr:{href:Link,target:Target,id:Id + $parent.songId()}"><img data-bind="attr:{src:'/images/icons/' + Image, alt:Title}" width="32" height="32" /><span style="padding-left: 8px" data-bind="text:Help"></span></a>
                 </div>
                 <div data-bind="if: sample">
                     @*<span data-bind="text:sample"></span>*@

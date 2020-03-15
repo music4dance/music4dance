@@ -1,10 +1,11 @@
-﻿@using System
-@using System.Collections.Generic
-@using System.Linq
+﻿@using System.Linq
 @using System.Net
 @using DanceLibrary
+@using m4dModels
+@using m4d.ViewModels
+@using Microsoft.AspNetCore.Html
 @using Newtonsoft.Json
-@model System.Collections.Generic.IEnumerable<Song>
+@model IEnumerable<Song>
 
 @{
     var isAdmin = User.IsInRole("dbAdmin");
@@ -41,82 +42,85 @@
     const string likeTipNull = "Click to like/dislike {0}.";
     const string likeTipTrue = "You have liked {0}, click to dislike";
     const string likeTipFalse = "You have disliked {0}, click to reset";
-}
 
-@helper ArtistHeader(bool canSort, SongSort songOrder, SongFilter filter)
-{
-    if (canSort)
-    {
-        @Html.ActionLink("Artist", "Sort", "Song", new { sortOrder = "Artist", filter }, null)
-        @Html.Raw(songOrder.GetSortGlyph("Artist"))
-    }
-    else
-    {
-        <text> Artist </text>
-    }
-}
-
-@helper Artist(Song song)
-{
-    if (!string.IsNullOrWhiteSpace(song.Artist))
-    {
-        @Html.ActionLink(song.Artist, "artist", "song", new { name = song.Artist }, null)
-    }
-}
-
-@helper TagHeader(SongFilter filter)
-{
-    <text>Tags</text>
-    if (!string.IsNullOrWhiteSpace(filter.Tags))
-    {
-        var tags = new TagList(filter.Tags);
-        var inc = tags.ExtractAdd();
-        var exc = tags.ExtractRemove();
-        if (!inc.IsEmpty)
-        {
-            <br /><span> Included:</span>
-            foreach (var tag in inc.Tags)
+    Func<dynamic, IHtmlContent> artistHeader = 
+        @<text>
+            @if (canSort)
             {
-                if (!tag.Contains(':')) { continue; }
-
-                var rg = tag.Split(':');
-                var url = "/song/removetags?tags=" + WebUtility.UrlEncode(tag) + "&filter=" + WebUtility.UrlEncode(filter.ToString());
-                var img = "/Content/" + TagGroup.ClassToName(rg.Length > 0 ? rg[1] : "tag") + "-50.png";
-                <span class="label label-@rg[1].ToLower()" style="margin-right: 5px"><a role="button" class="tag-text" href="@url"><img src="@img" height="12" width="12" />@rg[0] <span class="glyphicon glyphicon-remove-sign"></span></a></span>
+                @Html.ActionLink("Artist", "Sort", "Song", new { sortOrder = "Artist", filter }, null)
+                @Html.Raw(songOrder.GetSortGlyph("Artist"))
             }
-        }
-        if (!exc.IsEmpty)
-        {
-            <br /><span>Excluded:</span>
-            foreach (var tag in exc.Tags)
+            else
             {
-                var rg = tag.Split(':');
-                var url = "/song/removetags?tags=" + WebUtility.UrlEncode(tag) + "&filter=" + WebUtility.UrlEncode(filter.ToString());
-                <span class="label label-@rg[1].ToLower()" style="margin-right: 5px"><a role="button" class="tag-text" href="@url">@rg[0] <span class="glyphicon glyphicon-remove-sign"></span></a></span>
+                <text> Artist </text>
             }
-        }
-    }
-}
+         </text>;
 
-@helper Tags(Song song, SongFilter filter)
-{
-    foreach (var titem in song.TagSummary.Tags.Where(t => !string.Equals(t.TagClass, "dance", StringComparison.OrdinalIgnoreCase)))
-    {
-        @TagHelpers.TagModalButton(titem, filter, song)
-    }
-}
+    Func<Song, IHtmlContent> artist = 
+        @<text>
+            @if (!string.IsNullOrWhiteSpace(item.Artist))
+            {
+                @Html.ActionLink(item.Artist, "artist", "song", new { name = item.Artist }, null)
+            }
+         </text>;
 
-@helper TimeHelper(Song song, SongSort order)
-{
-    var created = order.Id == "Created";
-    var prefix = created ? "Created" : "Last modified";
-    var time = created ? song.Created : song.Modified;
-    var delta = created ? song.CreatedOrderVerbose : song.ModifiedOrderVerbose;
-    var timeMessage = prefix + " on " + time.ToString("g") + " (" + delta + " ago)";
+    Func<dynamic, IHtmlContent> tagHeader =
+        @<text>
+            <text>Tags</text>
+            @if (!string.IsNullOrWhiteSpace(filter.Tags))
+            {
+                var tags = new TagList(filter.Tags);
+                var inc = tags.ExtractAdd();
+                var exc = tags.ExtractRemove();
+                if (!inc.IsEmpty)
+                {
+                    <br /><span> Included:</span>
+                    foreach (var tag in inc.Tags)
+                    {
+                        if (!tag.Contains(':')) { continue; }
 
-    <td class="hidden-xs" data-toggle="tooltip" data-placement="left" title="@timeMessage">
-        @(created? song.CreatedOrder : song.ModifiedOrder)
-    </td>
+                        var rg = tag.Split(':');
+                        var url = "/song/removetags?tags=" + WebUtility.UrlEncode(tag) + "&filter=" + WebUtility.UrlEncode(filter.ToString());
+                        var img = "/images/icons/" + TagGroup.ClassToName(rg.Length > 0 ? rg[1] : "tag") + "-50.png";
+                        <span class="label label-@rg[1].ToLower()" style="margin-right: 5px"><a role="button" class="tag-text" href="@url"><img src="@img" height="12" width="12" />@rg[0] <span class="glyphicon glyphicon-remove-sign"></span></a></span>
+                    }
+                }
+                if (!exc.IsEmpty)
+                {
+                    <br /><span>Excluded:</span>
+                    foreach (var tag in exc.Tags)
+                    {
+                        var rg = tag.Split(':');
+                        var url = "/song/removetags?tags=" + WebUtility.UrlEncode(tag) + "&filter=" + WebUtility.UrlEncode(filter.ToString());
+                        <span class="label label-@rg[1].ToLower()" style="margin-right: 5px"><a role="button" class="tag-text" href="@url">@rg[0] <span class="glyphicon glyphicon-remove-sign"></span></a></span>
+                    }
+                }
+            }
+         </text>;
+
+    Func<Song, IHtmlContent> tagList =
+        @<text>
+            @foreach (var tagItem in item.TagSummary.Tags.Where(t => !string.Equals(t.TagClass, "dance", StringComparison.OrdinalIgnoreCase)))
+            {
+                <partial name="_TagModalButton" model="@new TagModalModel { Tag = tagItem, Filter = filter, Song = item }"/>
+            }
+         </text>;
+
+    Func<Song, IHtmlContent> time = 
+        @<text>
+            @{
+                var created = songOrder.Id == "Created";
+                var prefix = created ? "Created" : "Last modified";
+                var time = created ? item.Created : item.Modified;
+                var delta = created ? item.CreatedOrderVerbose : item.ModifiedOrderVerbose;
+                var timeMessage = prefix + " on " + time.ToString("g") + " (" + delta + " ago)";
+            }
+
+            <td class="hidden-xs" data-toggle="tooltip" data-placement="left" title="@timeMessage">
+                @(created? item.CreatedOrder : item.ModifiedOrder)
+            </td>
+
+         </text>;
 }
 
 
@@ -153,13 +157,13 @@
             }
             @if (!hideArtist)
             {
-                <span class="visible-xs"> - @ArtistHeader(canSort, songOrder, filter)</span>
+                <span class="visible-xs"> - @artistHeader(null)</span>
             }
         </th>
         @if (!hideArtist)
         {
             <th class="hidden-xs" style="min-width:75px" data-toggle="tooltip" data-placement="bottom" data-container="body" title="@("Artist" + (canSort ? ": Click to sort alphabetically by Artist" : string.Empty))">
-                @ArtistHeader(canSort, songOrder, filter)
+                @artistHeader(null)
             </th>
         }
         @if (albumName == null)
@@ -202,10 +206,16 @@
         }
 
         <th style="min-width: 100px" class="hidden-xs">
-            @EchoHelper.EchoHeader("Beat",canSort,filter.SongSort,filter)
-            @EchoHelper.EchoHeader("Energy", canSort, filter.SongSort, filter)
-            @EchoHelper.EchoHeader("Mood", canSort, filter.SongSort, filter)
+            @{
+                var beatModel = new EchoHeaderModel { Type = "Beat", CanSort = canSort, SongOrder = filter.SongSort, Filter = filter };
+                var energyModel = new EchoHeaderModel { Type = "Energy", CanSort = canSort, SongOrder = filter.SongSort, Filter = filter };
+                var moodModel = new EchoHeaderModel { Type = "Mood", CanSort = canSort, SongOrder = filter.SongSort, Filter = filter };
+            }
+            <partial name="_EchoHeader" model="@beatModel" />
+            <partial name="_EchoHeader" model="@energyModel" />
+            <partial name="_EchoHeader" model="@moodModel"/>
         </th>
+
         @if (!hideDances)
         {
             <th style="max-width:200px" data-toggle="tooltip" data-placement="bottom" data-container="body" title="@("Dance Style Tags" + (canSort ? ": Click to sort by most voted on dance style." : string.Empty))">
@@ -218,10 +228,10 @@
                 {
                     <text>Dances</text>
                 }
-                <span class="visible-xs"> - @TagHeader(filter)</span>
+                <span class="visible-xs"> -@tagHeader(null)</span>
             </th>
         }
-        <th style="max-width:200px" class="@(hideDances ? string.Empty : "hidden-xs")">@TagHeader(filter)</th>
+        <th style="max-width:200px" class="@(hideDances ? string.Empty : "hidden-xs")">@tagHeader(null)</th>
         @if (isAdmin)
         {
             <th></th>
@@ -279,10 +289,20 @@
                     @{
                         if (danceId != null)
                         {
-                            @SongHelper.LikeHelper(this, item, danceLikes, "dance", "dancing " + danceName + " to this song", danceId, likeTipNull, likeTipTrue, likeTipFalse)
+                            var danceLike = new LikeHelperModel
+                            {
+                                Song = item, Likes = danceLikes, Image = "dance", Modifier = $"dancing {danceName} to this song", DanceId = danceId, TipNull = likeTipNull, TipTrue = likeTipTrue, TipFalse = likeTipFalse
+                            };
+                            <partial name="_LikeHelper" model="@danceLike"/>
                         }
-                        @SongHelper.LikeHelper(this, item, likes, "heart", "this song", "like", likeTipNull, likeTipTrue, likeTipFalse)
-                        if (!string.IsNullOrWhiteSpace(item.Purchase))
+
+                        var songLike = new LikeHelperModel
+                        {
+                            Song = item, Likes = likes, Image = "heart", Modifier = "this song", DanceId = "like", TipNull = likeTipNull, TipTrue = likeTipTrue, TipFalse = likeTipFalse
+                        };
+                        <partial name="_LikeHelper" model="@songLike"/>
+                        
+                        @if (!string.IsNullOrWhiteSpace(item.Purchase))
                         {
                             var id = "Play" + item.SongId;
                             var purchase = JsonConvert.SerializeObject(item.PurchaseInfo);
@@ -292,7 +312,7 @@
                                data-title='@item.Title' data-artist='@item.Artist'
                                data-purchase='@purchase' data-sample='@item.Sample'
                                >
-                                <img src="@Url.Content("~/Content/playbutton.png")" alt="Play" width="20" height="20"/>
+                                <img src="@Url.Content("~/images/icons/playbutton.png")" alt="Play" width="20" height="20"/>
                             </a>
                         }
                     }
@@ -313,12 +333,12 @@
                     {
                         <small class="hidden-sm hidden-md hidden-lg">(@Html.Raw(tempoString) BPM)</small>
                     }
-                    <span class="visible-xs"> - @Artist(item)</span>
+                    <span class="visible-xs"> - @artist(item)</span>
                 </td>
 
                 @if (!hideArtist)
                 {
-                    <td class="hidden-xs">@Artist(item)</td>
+                    <td class="hidden-xs">@artist(item)</td>
                 }
 
                 @if (albumName == null)
@@ -358,13 +378,13 @@
                     </td>
                 }
                 <td class="hidden-xs">
-                    @EchoHelper.EchoValues(item)
+                    <partial name="_EchoValues" model="new EchoValuesModel {Song=@item}"/>
                 </td>
                 @if (!hideDances)
                 {
                     <td>
                         <span class="visible-xs">
-                            @EchoHelper.EchoValues(item)
+                            <partial name="_EchoValues" model="new EchoValuesModel {Song=@item}" />
                         </span>
                         @* ReSharper disable once LoopCanBeConvertedToQuery *@
                         @if (scaledDances != null)
@@ -378,15 +398,26 @@
                                 var name = stats.DanceName;
                                 var maxWeight = stats.MaxWeight;
                                 var label = name;
+                                var tagModels = new List<TagModalModel>();
                                 var tags = string.Empty;
                                 var modalId = $"{ditem.DanceId}.{item.SongId}.modal";
 
                                 if (!string.IsNullOrWhiteSpace(ditem.TagSummary.Summary))
                                 {
+                                    var idx = 0;
                                     label = label + " <span class='glyphicon glyphicon-asterisk' aria-hidden='true'></span>";
                                     foreach (var dtitem in ditem.TagSummary.Tags)
                                     {
-                                        tags += TagHelpers.TagModalButton(dtitem, filter, item); //"<span class=\"label label-" + dtitem.TagClass.ToLower() + "\">" + dtitem.TagValue + "</span> ";
+                                        tagModels.Add(new TagModalModel
+                                        {
+                                            Tag = dtitem,
+                                            Filter = filter,
+                                            Song = item
+                                        });
+                                        /* CORETODO: Did TagModalBUtton as a partial, can we load a partial here? Pretty sure this kludge won't work, but try first */
+                                        // TagHelpers.TagModalButton(dtitem, filter, item); 
+                                        tags += $"<partial name='_TagModalButton' model='modalId[{idx}]' />";
+                                        idx += 1;
                                     }
                                 }
                                 var hasDance = danceQuery.HasDance(ditem.DanceId);
@@ -424,19 +455,19 @@
                                     data-title='@item.Title' data-artist='@item.Artist' data-song-id='@item.SongId'
                                     data-dance-name='@name' data-dance-id='@ditem.DanceId' data-dance-weight="@ditem.Weight" data-dance-max-weight="@maxWeight"
                                     data-filtered-url="@urlFiltered" data-dance-url='@urlDance' data-url='@url'
-                                    data-tags='@MvcHtmlString.Create(tags)'
+                                    data-tags='@tags'
                                     >@Html.Raw(label)</a>
                             }
                         }
-                        <span class="visible-xs">@Tags(item, filter)</span>
+                        <span class="visible-xs">@tagList(item)</span>
                     </td>
                 }
-                <td class="hidden-xs">@Tags(item, filter)</td>
+                <td class="hidden-xs">@tagList(item)</td>
                 @if (hideDances)
                 {
                     <td class="visible-xs">
-                        @EchoHelper.EchoValues(item)
-                        @Tags(item, filter)
+                        <partial name ="_EchoValues" model="new EchoValuesModel { Song = item }"/>
+                        @tagList(item)
                     </td>
                 }
 
@@ -449,7 +480,7 @@
 
                 @if (showDate)
                 {
-                    @TimeHelper(item,songOrder)
+                    @time(item)
                 }
             </tr>
             }
@@ -457,6 +488,6 @@
     </tbody>
 </table>
 
-@Html.Partial("_playmodal")
-@Html.Partial("_filtermodal")
-@Html.Partial("_dancemodal")
+<partial name="_playmodal"/>
+<partial name="_filtermodal"/>
+<partial name="_dancemodal"/>

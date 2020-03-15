@@ -1,0 +1,77 @@
+﻿@using DanceLibrary
+@using Microsoft.AspNetCore.Html
+@model m4d.ViewModels.CategoryTableModel;
+
+@{
+    // CORETODO: Figure out if this works
+    Func<Tuple<TempoRange, Meter, string>, IHtmlContent> showTempo =
+        @<text>
+            @{
+                var bpm = item.Item1.ToBpm(item.Item2);
+                var danceId = item.Item3;
+            }
+            @Html.ActionLink(bpm.ToString(), "advancedsearch", "song", new {dances = danceId, tempomin = bpm.Min, tempomax = bpm.Max}, null)
+         </text>;
+
+    var dctIn = Model.DanceCategoryType;
+    var danceList = Model.Dances;
+    if (Model.DanceCategoryType == DanceCategoryType.Both && danceList.All(cd => cd.StyleId == danceList[0].StyleId))
+    {
+        Model.DanceCategoryType = (danceList[0].StyleId == 'I') ? DanceCategoryType.International : DanceCategoryType.American;
+    }
+    string ndcaTitleA = null;
+    string ndcaTitleB = null;
+    switch (Model.DanceCategoryType)
+    {
+        case DanceCategoryType.Both:
+            ndcaTitleA = "A (*)";
+            ndcaTitleB = "B (*)";
+            break;
+        case DanceCategoryType.American:
+            ndcaTitleA = "Pro/Am";
+            ndcaTitleB = "Bronze";
+            break;
+        case DanceCategoryType.International:
+            ndcaTitleA = "Professional or Amateur";
+            ndcaTitleB = "Silver/Gold";
+            break;
+    }
+}
+
+<table class="table table-striped table-bordered">
+    <thead>@Model.Title</thead>
+    <tr>
+        <th>Name</th>
+        <th>Meter</th>
+        <th>MPM</th>
+        <th>DanceSport</th>
+        <th class="hidden-xs">NDCA @ndcaTitleA</th>
+        <th class="hidden-xs">NDCA @ndcaTitleB</th>
+        <th class="visible-xs">NDCA @ndcaTitleA<br />NDCA @ndcaTitleB</th>
+        <th class="hidden-xs">BPM</th>
+    </tr>
+    @foreach (var d in danceList)
+    {
+        var danceStats = Model.DanceStats.Map[d.Id.Substring(0, 3)];
+
+        var name = dctIn == DanceCategoryType.Both ? d.Style : danceStats.DanceName;
+        var link = dctIn == DanceCategoryType.Both ? DanceObject.SeoFriendly(d.Style) : danceStats.SeoName;
+        <tr>
+            <td>@Html.ActionLink(name, link, "dances") </td>
+            <td>@d.Meter</td>
+            <td>@showTempo(new Tuple<TempoRange, Meter, string>(d.TempoRange, d.Meter, danceStats.DanceId))</td>
+            <td>@showTempo(new Tuple<TempoRange, Meter, string>(d.DanceSportTempo, d.Meter, danceStats.DanceId))</td>
+            <td class="hidden-xs">@showTempo(new Tuple<TempoRange, Meter, string>( d.NDCATempoA, d.Meter, danceStats.DanceId))</td>
+            <td class="hidden-xs">@showTempo(new Tuple<TempoRange, Meter, string>( d.NDCATempoB, d.Meter, danceStats.DanceId))</td>
+            <td class="visible-xs">
+                @showTempo(new Tuple<TempoRange, Meter, string>(d.NDCATempoA, d.Meter, danceStats.DanceId))<br />
+                @showTempo(new Tuple<TempoRange, Meter, string>( d.NDCATempoB, d.Meter, danceStats.DanceId))
+            </td>
+            <td class="hidden-xs">@d.TempoRange.ToBpm(d.Meter)</td>
+        </tr>
+    }
+</table>
+@if (Model.DanceCategoryType == DanceCategoryType.Both)
+{
+    <p>(*) A short explanation of the NDCA (National Dance Council of America) columns: For American style dances the "A" column contains Tempi for Silver and Gold levels while the "B" column contains Tempi for Bronze level. For International style dances the "A" column contains Tempi for Professional and Amateur couples while the "B" column contains Tempi for Pro/Am couples. </p>
+}

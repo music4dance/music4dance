@@ -1,0 +1,249 @@
+[
+  {
+    "outputFileName": "wwwroot/scripts/add.min.js",
+    "inputFiles": [
+      "JavaScript/add.js"
+    ],
+    "minify": {
+      "enabled": true,
+      "renameLocals": true
+    },
+    "sourceMap": true
+  },
+  {
+    "outputFileName": "wwwroot/scripts/add.js",
+    "inputFiles": [
+      "JavaScript/add.js"
+    ]
+  },
+  {
+    "outputFileName": "wwwroot/scripts/advancedsearch.min.js",
+    "inputFiles": [
+      "JavaScript/tagchooser.js",
+      "JavaScript/advancedsearch.js"
+    ],
+    "minify": {
+      "enabled": true,
+      "renameLocals": true
+    },
+    "sourceMap": true
+  },
+  {
+    "outputFileName": "wwwroot/scripts/advancedsearch.js",
+    "inputFiles": [
+      "JavaScript/tagchooser.js",
+      "JavaScript/advancedsearch.js"
+    ]
+  },
+  {
+    "outputFileName": "wwwroot/scripts/counter.min.js",
+    "inputFiles": [
+      "JavaScript/Libraries/jquery.nouislider.full.min.js",
+      "JavaScript/Libraries/chosen.jquery.js",
+      "JavaScript/counter.js"
+    ],
+    "minify": {
+      "enabled": true,
+      "renameLocals": true
+    },
+    "sourceMap": true
+  },
+  {
+    "outputFileName": "wwwroot/scripts/counter.js",
+    "inputFiles": [
+      "JavaScript/Libraries/jquery.nouislider.full.min.js",
+      "JavaScript/Libraries/chosen.jquery.js",
+      "JavaScript/counter.js"
+    ]
+  },
+  {
+    "outputFileName": "wwwroot/scripts/dancedetails.min.js",
+    "inputFiles": [
+      "JavaScript/musicservice.js",
+      "JavaScript/showdance.js"
+    ],
+    "minify": {
+      "enabled": true,
+      "renameLocals": true
+    },
+    "sourceMap": true
+  },
+  {
+    "outputFileName": "wwwroot/scripts/dancedetails.js",
+    "inputFiles": [
+      "JavaScript/musicservice.js",
+      "JavaScript/showdance.js"
+    ]
+  },
+  {
+    "outputFileName": "wwwroot/scripts/danceedit.min.js",
+    "inputFiles": [
+      "JavaScript/editdance.js"
+    ],
+    "minify": {
+      "enabled": true,
+      "renameLocals": true
+    },
+    "sourceMap": true
+  },
+  {
+    "outputFileName": "wwwroot/scripts/danceedit.js",
+    "inputFiles": [
+      "JavaScript/editdance.js"
+    ]
+  },
+  {
+    "outputFileName": "wwwroot/scripts/merge.min.js",
+    "inputFiles": [
+      "JavaScript/merge.js"
+    ],
+    "minify": {
+      "enabled": true,
+      "renameLocals": true
+    },
+    "sourceMap": true
+  },
+  {
+    "outputFileName": "wwwroot/scripts/merge.js",
+    "inputFiles": [
+      "JavaScript/merge.js"
+    ]
+  },
+  {
+    "outputFileName": "wwwroot/scripts/musicservice.min.js",
+    "inputFiles": [
+      "JavaScript/musicservice.js"
+    ],
+    "minify": {
+      "enabled": true,
+      "renameLocals": true
+    },
+    "sourceMap": true
+  },
+  {
+    "outputFileName": "wwwroot/scripts/musicservice.js",
+    "inputFiles": [
+      "JavaScript/musicservice.js"
+    ]
+  },
+  {
+    "outputFileName": "wwwroot/scripts/search.min.js",
+    "inputFiles": [
+      "JavaScript/Libraries/jquery.autocomplete.js",
+      "JavaScript/musicservice.js",
+      "JavaScript/tagchooser.js",
+      "JavaScript/catalog.js",
+      "JavaScript/azuresearch.js"
+    ],
+    "minify": {
+      "enabled": true,
+      "renameLocals": true
+    },
+    "sourceMap": true
+  },
+  {
+    "outputFileName": "wwwroot/scripts/search.js",
+    "inputFiles": [
+      "JavaScript/Libraries/jquery.autocomplete.js",
+      "JavaScript/musicservice.js",
+      "JavaScript/tagchooser.js",
+      "JavaScript/catalog.js",
+      "JavaScript/azuresearch.js"
+    ]
+  },
+  {
+    "outputFileName": "wwwroot/scripts/songdetails.min.js",
+    "inputFiles": [
+      "JavaScript/counter.js",
+      "JavaScript/tagchooser.js",
+      "JavaScript/edit.js"
+    ],
+    "minify": {
+      "enabled": true,
+      "renameLocals": true
+    },
+    "sourceMap": true
+  },
+  {
+    "outputFileName": "wwwroot/scripts/songdetails.js",
+    "inputFiles": [
+      "JavaScript/counter.js",
+      "JavaScript/tagchooser.js",
+      "JavaScript/edit.js"
+    ]
+  },
+  {
+    "outputFileName": "wwwroot/scripts/tempi.min.js",
+    "inputFiles": [
+      "JavaScript/tempi.js"
+    ],
+    "minify": {
+      "enabled": true,
+      "renameLocals": true
+    },
+    "sourceMap": true
+  },
+  {
+    "outputFileName": "wwwroot/scripts/tempi.js",
+    "inputFiles": [
+      "JavaScript/tempi.js"
+    ]
+  },
+  {
+    "outputFileName": "wwwroot/scripts/tools-script.min.js",
+    "inputFiles": [
+      "JavaScript/Libraries/jquery.nouislider.full.min.js",
+      "JavaScript/Libraries/chosen.jquery.js"
+    ],
+    "minify": {
+      "enabled": true,
+      "renameLocals": true
+    },
+    "sourceMap": true
+  },
+  {
+    "outputFileName": "wwwroot/scripts/tools-script.js",
+    "inputFiles": [
+      "JavaScript/Libraries/jquery.nouislider.full.min.js",
+      "JavaScript/Libraries/chosen.jquery.js"
+    ]
+  },
+  {
+    "outputFileName": "wwwroot/css/tools-styles.min.css",
+    "inputFiles": [
+      "Styles/Libraries/jquery.nouislider.css",
+      "Styles/Libraries/jquery.nouislider.pip.css",
+      "Styles/Libraries/chosen.css"
+    ],
+    "minify": {
+      "enabled": true,
+      "commentMode": "all"
+    }
+  },
+  {
+    "outputFileName": "wwwroot/css/tools-styles.css",
+    "inputFiles": [
+      "Styles/Libraries/jquery.nouislider.css",
+      "Styles/Libraries/jquery.nouislider.pip.css",
+      "Styles/Libraries/chosen.css"
+    ]
+  },
+  {
+    "outputFileName": "wwwroot/css/auth-buttons.min.css",
+    "inputFiles": [
+      "Styles/Libraries/auth-buttons.less"
+    ],
+    "minify": {
+      "enabled": true,
+      "commentMode": "all"
+    }
+  },
+  {
+    "outputFileName": "wwwroot/css/auth-buttons.css",
+    "inputFiles": [
+      "Styles/Libraries/auth-buttons.less"
+    ]
+  }
+
+
+]

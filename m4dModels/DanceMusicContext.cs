@@ -1,0 +1,121 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal;
+
+namespace m4dModels
+{
+
+    public class DanceMusicContext : IdentityDbContext<ApplicationUser>
+    {
+        public DanceMusicContext(DbContextOptions<DanceMusicContext> options)
+            : base(options)
+        {
+            ConnectionString = options.FindExtension<SqlServerOptionsExtension>()?.ConnectionString;
+        }
+
+        public DanceMusicContext CreateTransientContext()
+        {
+            if (ConnectionString == null)
+            {
+                throw new Exception("Cannot create a new dbcontext from a test context");
+            }
+
+            var builder = new DbContextOptionsBuilder<DanceMusicContext>();
+            builder.UseSqlServer(ConnectionString);
+
+            return new DanceMusicContext(builder.Options);
+        }
+
+        protected override void OnModelCreating(ModelBuilder builder)
+        {
+            base.OnModelCreating(builder);
+
+            // CORETODO: Confirm that this is the default
+            //builder.Properties<DateTime>().Configure(c => c.HasColumnType("datetime2"));
+
+            builder.Entity<Dance>().ToTable("Dances");
+            builder.Entity<DanceLink>().ToTable("DanceLink");
+            builder.Entity<PlayList>().ToTable("Playlists");
+            builder.Entity<Search>().ToTable("Searches");
+            builder.Entity<TagGroup>().ToTable("TagGroups");
+
+            builder.Entity<Dance>().Property(dance => dance.Id).HasMaxLength(5);
+            builder.Entity<Dance>().Ignore(dance => dance.Info);
+
+            builder.Entity<TagGroup>().HasKey(tt => tt.Key);
+            builder.Entity<TagGroup>().Ignore(tt => tt.Count);
+            builder.Entity<TagGroup>().Ignore(tt => tt.Value);
+            builder.Entity<TagGroup>().Ignore(tt => tt.Category);
+            builder.Entity<TagGroup>().Ignore(tt => tt.Children);
+
+            // CORETODO: Not sure what this does...
+            //builder.Entity<TagGroup>().HasOptional(x => x.Primary).WithMany().HasForeignKey(x => x.PrimaryId);
+
+            builder.Entity<DanceLink>().HasKey(dl => dl.Id);
+            builder.Entity<DanceLink>().Property(dl => dl.Id).ValueGeneratedNever();
+
+            builder.Entity<ApplicationUser>().Property(u => u.Region).HasMaxLength(2);
+            builder.Entity<ApplicationUser>().Property(u => u.ServicePreference).HasMaxLength(10);
+
+            builder.Entity<Search>().Property(u => u.Query).IsRequired();
+            builder.Entity<Search>().Ignore(u => u.Filter);
+
+            // Customize the ASP.NET Identity model and override the defaults if needed.
+            // For example, you can rename the ASP.NET Identity table names and more.
+            // Add your customizations after calling base.OnModelCreating(builder);
+        }
+
+        #region Properties
+        public DbSet<Dance> Dances { get; set; }
+        public DbSet<TagGroup> TagGroups { get; set; }
+        public DbSet<Search> Searches { get; set; }
+        public DbSet<PlayList> PlayLists { get; set; }
+        #endregion
+
+
+        public override int SaveChanges()
+        {
+            int ret;
+            try
+            {
+                ret = base.SaveChanges();
+            }
+            catch (Exception e) /* DbEntityValidationException */
+            {
+                // CORETODO: Figure out if we can get to better error handling
+                Trace.WriteLineIf(TraceLevels.General.TraceError,$"Failed on SaveChanges {e.Message}" );
+
+                //foreach (var err in e.EntityValidationErrors)
+                //{
+                //    foreach (var ve in err.ValidationErrors)
+                //    {
+                //        Trace.WriteLineIf(TraceLevels.General.TraceError, ve.ErrorMessage);
+                //    }
+                //}
+
+                Debug.Assert(false);
+                throw;
+            }
+
+            return ret;
+        }
+
+        public bool AutoDetectChangesEnabled
+        {
+            get => ChangeTracker.AutoDetectChangesEnabled;
+            set => ChangeTracker.AutoDetectChangesEnabled = value;
+        }
+        public List<Dance> LoadDances()
+        {
+            var dances = Dances.Include(d => d.DanceLinks);
+
+            return dances.ToList();
+        }
+
+        private string ConnectionString { get; }
+    }
+}

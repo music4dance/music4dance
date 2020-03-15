@@ -1,4 +1,7 @@
-﻿@model ApplicationUser
+﻿@using m4dModels
+@using Microsoft.AspNetCore.Identity
+@model m4dModels.ApplicationUser
+@inject UserManager<ApplicationUser> UserManager;
 
 @{
     ViewBag.Title = "Details";
@@ -31,7 +34,7 @@
         </dt>
 
         <dd>
-            @Model.GetRoles(ViewBag.Roles)
+            @string.Join(',', await UserManager.GetRolesAsync(Model))
         </dd>
 
         <dt>
@@ -39,7 +42,7 @@
         </dt>
 
         <dd>
-            @Model.GetProviders()
+            @string.Join(',', await UserManager.GetLoginsAsync(Model))
         </dd>
 
         <dt>
@@ -99,12 +102,13 @@
         </dd>
 
         <dt>
-            @Html.DisplayNameFor(model => model.LockoutEndDateUtc)
+            @Html.DisplayNameFor(model => model.LockoutEnd)
         </dt>
 
         <dd>
-            @Html.DisplayFor(model => model.LockoutEndDateUtc)
+            @Html.DisplayFor(model => model.LockoutEnd)
         </dd>
+
 
         <dt>
             @Html.DisplayNameFor(model => model.LockoutEnabled)
@@ -190,6 +194,6 @@
 </div>
 <p>
     @*@Html.ActionLink("Edit", "Edit", new { id = Model.Id }) |*@
-    @Html.ActionLink("AutoLike", "AutoLike", new {id = Model.Id}) | 
+    @Html.ActionLink("AutoLike", "AutoLike", new { id = Model.Id }) |
     @Html.ActionLink("Back to List", "Index")
 </p>

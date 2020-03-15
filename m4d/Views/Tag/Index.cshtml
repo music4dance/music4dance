@@ -1,4 +1,5 @@
-﻿@model IEnumerable<TagGroup>
+﻿@using m4dModels
+@model IEnumerable<m4dModels.TagGroup>
 
 @{
     ViewBag.Title = "Tag Cloud";
@@ -7,7 +8,7 @@
 }
 <h1>Tag Cloud</h1>
 
-@Html.Partial("_TagCloud",TagGroup.ToTagCounts(Model))
+<partial name="_TagCloud" model="TagGroup.ToTagCounts(Model)" />
 
 @if (User.IsInRole("showDiagnostics"))
 {
@@ -36,7 +37,7 @@
             var item1 = item;
             <tr>
                 <td>
-                    @Html.ActionLink(item.Key, "tags", "song", new {tags = item.Key}, null)
+                    @Html.ActionLink(item.Key, "tags", "song", new { tags = item.Key }, null)
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item1.Count)
@@ -58,16 +59,22 @@
                 </td>
 
                 <td>
-                    @Html.ActionLink("Edit", "Edit", new {id = item.EncodedKey}) |
-                    @Html.ActionLink("Details", "Details", new {id = item.EncodedKey}) |
-                    @Html.ActionLink("Delete", "Delete", new {id = item.EncodedKey})
+                    @Html.ActionLink("Edit", "Edit", new { id = item.EncodedKey }) |
+                    @Html.ActionLink("Details", "Details", new { id = item.EncodedKey }) |
+                    @Html.ActionLink("Delete", "Delete", new { id = item.EncodedKey })
                 </td>
             </tr>
         }
     </table>
 }
 
-@section Scripts {
-    @Scripts.Render("~/bundles/knockout")
-    @Scripts.Render("~/bundles/musicservice")
+@section Scripts
+{
+    <environment include="Development">
+        <script src="~/scripts/musicservice.js"></script>
+    </environment>
+    <environment exclude="Development">
+        <script src="scripts/musicservice.min.js"></script>
+    </environment>
 }
+

@@ -10,7 +10,7 @@ namespace m4dModels
     [JsonObject(MemberSerialization.OptIn)]
     public class DanceStatsInstance
     {
-        public DanceStatsInstance(TagManager tagManager, IEnumerable<DanceStats> tree, DanceMusicService dms, string source)
+        public DanceStatsInstance(TagManager tagManager, IEnumerable<DanceStats> tree, DanceMusicCoreService dms, string source)
         {
             TagManager = tagManager;
             Tree = (tree as List<DanceStats>)?.ToList();
@@ -25,7 +25,7 @@ namespace m4dModels
             FixupStats();
         }
 
-        public void FixupStats(DanceMusicService dms = null, string source = "default")
+        public void FixupStats(DanceMusicCoreService dms = null, string source = "default")
         {
             foreach (var d in Tree)
             {
@@ -54,8 +54,8 @@ namespace m4dModels
                     // TopN and MaxWeight
                     var filter =
                         dms.AzureParmsFromFilter(new SongFilter {Dances = ds.DanceId, SortOrder = "Dances"}, 10);
-                    DanceMusicService.AddAzureCategories(filter, "GenreTags,StyleTags,TempoTags,OtherTags", 100);
-                    var results = dms.AzureSearch(null, filter, DanceMusicService.CruftFilter.NoCruft, source, this);
+                    DanceMusicCoreService.AddAzureCategories(filter, "GenreTags,StyleTags,TempoTags,OtherTags", 100);
+                    var results = dms.AzureSearch(null, filter, DanceMusicCoreService.CruftFilter.NoCruft, source, this);
                     ds.TopSongs = results.Songs;
                     var song = ds.TopSongs.FirstOrDefault();
                     var dr = song?.DanceRatings.FirstOrDefault(d => d.DanceId == ds.DanceId);
@@ -132,7 +132,7 @@ namespace m4dModels
             // TODO: Put in the infrastructure to send app insights events when this happens
             Trace.WriteLineIf(TraceLevels.General.TraceError,"Attempting to rebuild cache");
 
-            DanceStatsManager.ClearCache(null, true);
+            //DanceStatsManager.ClearCache(null, true);
             return null;
         }
 
@@ -170,7 +170,7 @@ namespace m4dModels
         }
 
 
-        public void UpdateSong(Song song, DanceMusicService dms)
+        public void UpdateSong(Song song, DanceMusicCoreService dms)
         {
             lock (_queuedSongs)
             {

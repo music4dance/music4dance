@@ -7,7 +7,6 @@ using System.Diagnostics.CodeAnalysis;
 namespace DanceTests
 {
     [TestClass]
-    [ExcludeFromCodeCoverage]
     public class TimerTests
     {
         private SongTimer PrimeTimer(int delay = 100)

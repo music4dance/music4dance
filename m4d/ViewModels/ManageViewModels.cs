@@ -1,10 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using Microsoft.AspNet.Identity;
-using Microsoft.Owin.Security;
 using System;
-using System.Web.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using m4dModels;
+using Microsoft.AspNetCore.Identity;
 
 namespace m4d.ViewModels
 {
@@ -29,11 +28,12 @@ namespace m4d.ViewModels
 
     }
 
-    public class ManageLoginsViewModel
-    {
-        public IList<UserLoginInfo> CurrentLogins { get; set; }
-        public IList<AuthenticationDescription> OtherLogins { get; set; }
-    }
+    // CORETODO: Figure out how manage logins works in core
+    //public class ManageLoginsViewModel
+    //{
+    //    public IList<UserLoginInfo> CurrentLogins { get; set; }
+    //    public IList<AuthenticationDescription> OtherLogins { get; set; }
+    //}
 
     public class FactorViewModel
     {

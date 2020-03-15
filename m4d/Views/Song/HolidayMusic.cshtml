@@ -1,4 +1,7 @@
-﻿@model PagedList.IPagedList<Song>
+﻿@using m4d.ViewModels
+@using m4dModels
+@using Microsoft.AspNetCore.Html
+@model X.PagedList.IPagedList<Song>
 
 @{
     SongFilter filter = ViewData.ContainsKey("SongFilter") ? ViewBag.SongFilter : SongFilter.AzureSimple;
@@ -8,15 +11,15 @@
 
     DanceStatsInstance stats = ViewBag.Stats;
     DanceStats currentDance = ViewBag.Dance;
-}
 
-@helper HowToHelp(DanceStats dance)
-{
-    <ul>
-        <li>Sign up for our @Html.ActionLink("add song beta", "augment") and add holiday songs.</li>
-        <li>Browse our catalog of @Html.ActionLink(dance.DanceName, dance.DanceObject.CleanName, "dances") music and <a href="">tag</a> songs as Holiday when you find them.</li>
-        <li>If you have a list of holdiay @dance.DanceName that you are willing to share, please send us email at <a href="mailto:info@music4dance.net">info@music4dance.net</a> or contact us through our <a href="https://music4dance.blog/feedback/">feedback form.</a></li>
-    </ul>
+    Func<DanceStats, IHtmlContent> howToHelp =
+    @<text>
+        <ul>
+            <li>Sign up for our @Html.ActionLink("add song beta", "augment") and add holiday songs.</li>
+            <li>Browse our catalog of @Html.ActionLink(item.DanceName, item.DanceObject.CleanName, "dances") music and <a href="">tag</a> songs as Holiday when you find them.</li>
+            <li>If you have a list of holiday @item.DanceName that you are willing to share, please send us email at <a href="mailto:info@music4dance.net">info@music4dance.net</a> or contact us through our <a href="https://music4dance.blog/feedback/">feedback form.</a></li>
+        </ul>
+    </text>;
 }
 
 <ol class="breadcrumb">
@@ -44,14 +47,14 @@ else if (Model.Count > 0)
 else
 {
     <p class="big-text">We haven't cataloged any @currentDance.DanceName holiday music yet.  If this is a dance that you're familiar with, here are a couple of ways that you can help.</p>
-    @HowToHelp(currentDance)
+    @howToHelp(currentDance)
 }
 
 @if (Model.Count > 0)
 {
-    Html.RenderPartial("_ListSongs", Model, ViewData);
+    <partial name="_ListSongs" model="Model" />
 
-    @SongHelper.SearchFooter(Html, Url, Model, filter, true, true)
+    <partial name="_SearchFooter" model="new SearchFooterModel {Songs=Model, Filter=filter, HideInferred=true, HideSpotify=true}" />
 }
 
 <div style="height:10px"></div>
@@ -62,7 +65,7 @@ else
     <div class="row">
         <div class="col-sm-12">
             <p class="big-text">Not seeing as much @currentDance.DanceName holiday music as you would like?  If this is a dance that you're familiar with, here are a couple of ways that you can help.</p>
-            @HowToHelp(currentDance)
+            @howToHelp(currentDance)
         </div>
     </div>
 }
@@ -92,22 +95,28 @@ else
 <div class="row">
     <div class="col-sm-10">
         <p class="big-text">
-            <img src="~/Content/info.png" alt="tools" width="24" height="24" />Read the <a href="https://music4dance.blog">music4dance blog</a> entries about <a href="https://music4dance.blog/tag/holiday">Holiday Music</a>.
+            <img src="~/images/icons/info.png" alt="tools" width="24" height="24" />Read the <a href="https://music4dance.blog">music4dance blog</a> entries about <a href="https://music4dance.blog/tag/holiday">Holiday Music</a>.
         </p>
     </div>
 </div>
 
-@section Scripts
-{
-    @Scripts.Render("~/bundles/jqueryval")
-    @Scripts.Render("~/bundles/jqueryautocomplete")
-    @Scripts.Render("~/bundles/knockout")
-    @Scripts.Render("~/bundles/knockout-mapping")
-    @Scripts.Render("~/bundles/tools-script")
-    @Scripts.Render("~/bundles/musicservice")
-    @Scripts.Render("~/bundles/tagchooser")
-    @Scripts.Render("~/bundles/catalog")
-    @Scripts.Render("~/bundles/azuresearch")
-
-    @Styles.Render("~/bundles/tools-style")
+@section Scripts {
+    <environment include="Development">
+        <script src="~/scripts/tools-script.js"></script>
+        <script src="~/scripts/search.js"></script>
+    </environment>
+    <environment exclude="Development">
+        <script src="scripts/tools-script.min.js"></script>
+        <script src="~/scripts/search.min.js"></script>
+    </environment>
 }
+
+@section Styles {
+    <environment include="Development">
+        <link rel="stylesheet" href="~/css/tools-styles.min.css" asp-append-version="true" />
+    </environment>
+    <environment exclude="Development">
+        <link rel="stylesheet" href="~/css/tools-styles.css" asp-append-version="true" />
+    </environment>
+}
+

@@ -1,14 +1,23 @@
-﻿using System.Web;
-using System.Web.Http;
+﻿using System.Threading.Tasks;
 using m4dModels;
-using Microsoft.AspNet.Identity;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 
 namespace m4d.APIControllers
 {
-    public class ServiceTrackController : DMApiController
+    [ApiController]
+    [Route("api/[controller]")]
+
+    public class ServiceTrackController : DanceMusicApiController
     {
+        public ServiceTrackController(DanceMusicContext context, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, ISearchServiceManager searchService, IDanceStatsManager danceStatsManager) :
+            base(context, userManager, roleManager, searchService, danceStatsManager)
+        {
+        }
+
         // GET api/<controller>
-        public IHttpActionResult Get(string id)
+        [HttpGet("{id}")]
+        public async Task<IActionResult> Get(string id)
         {
             if (string.IsNullOrWhiteSpace(id) || id.Length < 2)
             {
@@ -18,8 +27,10 @@ namespace m4d.APIControllers
             var service = MusicService.GetService(id[0]);
             id = service.NormalizeId(id.Substring(1));
 
-            // Find a song associate with the serice id
-            var song = Database.GetSongFromService(service,id, HttpContext.Current.User.Identity.GetUserName());
+            var user = await Database.UserManager.GetUserAsync(User);
+
+            // Find a song associate with the service id
+            var song = Database.GetSongFromService(service, id, user.UserName);
 
             if (song != null)
             {
@@ -30,7 +41,7 @@ namespace m4d.APIControllers
             var track = MusicServiceManager.GetMusicServiceTrack(id, service);
             if (track != null) return Ok(track);
 
-            // If that failes, the ID is bad.
+            // If that fails, the ID is bad.
 
             return NotFound();
         }

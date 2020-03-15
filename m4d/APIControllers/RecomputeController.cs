@@ -1,10 +1,13 @@
 ﻿using System;
 using System.Diagnostics;
-using System.Text;
 using System.Threading.Tasks;
-using System.Web.Http;
 using m4d.Utilities;
 using m4dModels;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
+
+// TODONEXT:  Pipe through recompute marker service to static functions...
 
 namespace m4d.APIControllers
 {
@@ -13,14 +16,24 @@ namespace m4d.APIControllers
     //    public bool Changed { get; set; }
     //    public string Message { get; set; }
     //}
-    public class RecomputeController : DMApiController
+    [ApiController]
+    [Route("api/[controller]")]
+    public class RecomputeController : DanceMusicApiController
     {
+        public RecomputeController(DanceMusicContext context, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, ISearchServiceManager searchService, IDanceStatsManager danceStatsManager, RecomputeMarkerService recomputeMarkerService) :
+            base(context, userManager, roleManager, searchService, danceStatsManager)
+        {
+            _markerService = recomputeMarkerService;
+        }
+
+        private readonly RecomputeMarkerService _markerService;
+
         // id should be the type to update - currently songstats, propertycleanup
         //   future tags, purchase, spotify, albums, tagtypes, tagsummaries, 
         //   timesfromproperties, compressregions, spotifyregions, rebuildusertags, rebuildtags
-        public IHttpActionResult Get(string id, bool force = false, bool sync = false)
+        public IActionResult Get([FromServices] IConfiguration configuration, string id, bool force = false, bool sync = false)
         {
-            if (!TokenAuthorizeAttribute.Authorize(Request))
+            if (!TokenRequirement.Authorize(Request, configuration))
             {
                 return Unauthorized();
             }
@@ -38,7 +51,7 @@ namespace m4d.APIControllers
 
             if (force)
             {
-                RecomputeMarker.ResetMarker(id);
+                _markerService.ResetMarker(id);
             }
 
             string message;
@@ -77,22 +90,24 @@ namespace m4d.APIControllers
 
         private bool HasChanged(string id)
         {
-            var updated = RecomputeMarker.GetMarker(id);
+            var updated = _markerService.GetMarker(id);
             var changed = Database.GetLastModified();
             return changed > updated;
         }
 
-        private delegate bool DoHandleRecompute(DanceMusicService dms, string id, string message, int iteration, bool force);
+        private delegate bool DoHandleRecompute(RecomputeMarkerService markerService, DanceMusicCoreService dms, IDanceStatsManager dsm, string id, string message, int iteration, bool force);
 
-        private static void HandleRecompute(DoHandleRecompute recompute, string id, string message, bool force)
+        private void HandleRecompute(DoHandleRecompute recompute, string id, string message, bool force)
         {
-            Task.Run(() => recompute.Invoke(DanceMusicService.GetService(),id,message,0,force));
+            var dms = Database.GetTransientService();
+            Task.Run(() => recompute.Invoke(_markerService, dms, DanceStatsManager, id, message, 0, force));
         }
 
-        private static void HandleSyncRecompute(DoHandleRecompute recompute, string id, string message, bool force)
+        private void HandleSyncRecompute(DoHandleRecompute recompute,string id, string message, bool force)
         {
+            var dms = Database.GetTransientService();
             int[] i = {0};
-            while (!Task.Run(() => recompute.Invoke(DanceMusicService.GetService(), id,message,i[0],force)).Result)
+            while (!Task.Run(() => recompute.Invoke(_markerService, dms, DanceStatsManager, id,message,i[0],force)).Result)
             {
                 if (!AdminMonitor.StartTask(id))
                 {
@@ -103,12 +118,12 @@ namespace m4d.APIControllers
             }
         }
 
-        private static bool DoHandleSongStats(DanceMusicService dms, string id, string message, int iteration, bool force)
+        private static bool DoHandleSongStats(RecomputeMarkerService markerService, DanceMusicCoreService dms, IDanceStatsManager dsm, string id, string message, int iteration, bool force)
         {
             try
             {
-                DanceStatsManager.ClearCache(dms);
-                Complete(id,message);
+                dsm.ClearCache(dms);
+                Complete(markerService, id, message);
             }
             catch (Exception e)
             {
@@ -117,22 +132,22 @@ namespace m4d.APIControllers
             return true;
         }
 
-        private static bool DoHandlePropertyCleanup(DanceMusicService dms, string id, string message, int iteration, bool force)
+        private static bool DoHandlePropertyCleanup(RecomputeMarkerService markerService, DanceMusicCoreService dms, IDanceStatsManager dsm, string id, string message, int iteration, bool force)
         {
             try
             {
-                var from = RecomputeMarker.GetMarker(id);
+                var from = markerService.GetMarker(id);
 
                 var info = dms.CleanupProperties(250, from, new SongFilter());
 
                 if (info.Succeeded > 0 || info.Failed > 0)
                 {
-                    RecomputeMarker.SetMarker(id, info.LastTime);
+                    markerService.SetMarker(id, info.LastTime);
                 }
 
                 if (info.Complete)
                 {
-                    Complete(id, message);
+                    Complete(markerService, id, message);
                 }
                 else
                 {
@@ -148,9 +163,9 @@ namespace m4d.APIControllers
         }
 
 
-        private static void Complete(string id, string message)
+        private static void Complete(RecomputeMarkerService markerService, string id, string message)
         {
-            RecomputeMarker.SetMarker(id);
+            markerService.SetMarker(id);
             AdminMonitor.CompleteTask(true, message);
 
         }

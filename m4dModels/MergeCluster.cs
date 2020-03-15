@@ -23,7 +23,7 @@ namespace m4dModels
             s_mergeCandidateCache = null;
         }
 
-        public static List<Song> GetMergeCandidates(DanceMusicService dms, int n, int level)
+        public static List<Song> GetMergeCandidates(DanceMusicCoreService dms, int n, int level)
         {
             if (level == s_mergeCandidateLevel && s_mergeCandidateCache != null)
             {

@@ -1,6 +1,7 @@
 ﻿@using System.Globalization
-@using m4d.Controllers
 @using m4d.Utilities
+@using m4dModels
+@inject ISearchServiceManager SearchService;
 
 @{
     ViewBag.Title = "Logging";
@@ -42,12 +43,12 @@
 <h3>Search Index: @ViewBag.SearchIdx</h3>
 <p>Source = @ViewBag.StatsUpdateSource, Time=@ViewBag.StatsUpdateTime</p>
 <ul>
-    @foreach (var id in SearchServiceInfo.GetAvailableIds())
+    @foreach (var id in SearchService.GetAvailableIds())
     {
-        if (SearchServiceInfo.DefaultId == id) { continue; }
+        if (SearchService.DefaultId == id) { continue; }
         <li>@Html.ActionLink(id, "SetSearchIdx", "Admin", new { id }, null)</li>
     }
-    <li>Enviroment: @SearchServiceInfo.RawEnvironment</li>
+    <li>Enviroment: @SearchService.RawEnvironment</li>
 </ul>
 
 
@@ -61,4 +62,5 @@
 
 <hr />
 <h3>Bot Stats</h3>
-@{Html.RenderPartial("_botreport", (object)ViewBag.BotReport);}
+<partial name="_botreport" model="ViewBag.BotReport" />
+

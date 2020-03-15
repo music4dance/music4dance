@@ -1,7 +1,8 @@
-﻿@model HandleErrorInfo
+﻿@using m4dModels
 
 @{
     ViewBag.Title = "Error";
+    Exception exception = ViewBag.Exception;
 }
 
 <h2 class="text-danger">Error:</h2>
@@ -20,18 +21,18 @@
     }
 }
 
-@if ((TraceLevels.General.TraceVerbose || User.IsInRole("showDiagnostics")) && Model != null)
+@if ((TraceLevels.General.TraceVerbose || User.IsInRole("showDiagnostics")) && exception != null)
 {
-    string hresult = "0x" + Model.Exception.HResult.ToString("X8");
-    <p><b>Exception:</b>@Model.Exception.Message (@hresult)</p>
-    if (Model.Exception.InnerException != null)
+    string hresult = "0x" + exception.HResult.ToString("X8");
+    <p><b>Exception:</b>@exception.Message (@hresult)</p>
+    if (exception.InnerException != null)
     {
-        <p><b>Inner Exception:</b>@Model.Exception.InnerException.Message</p>
+        <p><b>Inner Exception:</b>@exception.InnerException.Message</p>
     }
-    <p><b>Target Site:</b>@Model.Exception.TargetSite</p>
+    <p><b>Target Site:</b>@exception.TargetSite</p>
     
     <h3>Stack Trace:</h3>
-    string[] frames = Model.Exception.StackTrace.Split(new[] { '\n' }, StringSplitOptions.RemoveEmptyEntries);
+    string[] frames = exception.StackTrace.Split(new[] { '\n' }, StringSplitOptions.RemoveEmptyEntries);
     <ul>
         @foreach (string s in frames)
         {

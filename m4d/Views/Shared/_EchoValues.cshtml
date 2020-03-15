@@ -1,0 +1,14 @@
+﻿@using m4d.ViewModels;
+@model m4d.ViewModels.EchoValuesModel
+
+@{
+    var beatModel = new EchoValueModel { Type = "Beat", Value = Model.Song.Danceability, Size = Model.Size, Description = Model.Description };
+    var energyModel = new EchoValueModel { Type = "Energy", Value = Model.Song.Energy, Size = Model.Size, Description = Model.Description };
+    var moodModel = new EchoValueModel { Type = "Mood", Value = Model.Song.Valence, Size = Model.Size, Description = Model.Description };
+}
+
+<partial name="_EchoValue" model="@beatModel" />
+<partial name="_EchoValue" model="@energyModel" />
+<partial name="_EchoValue" model="@moodModel" />
+
+

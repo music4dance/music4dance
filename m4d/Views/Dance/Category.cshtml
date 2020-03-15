@@ -1,4 +1,6 @@
 ﻿@using DanceLibrary
+@using m4dModels
+@using ViewModels
 @model CompetitionCategory
 
 @{
@@ -21,14 +23,31 @@
 
 <div class="big-text">
     <p>@Model.Name is a category of @Html.ActionLink("competition ballroom dancing","ballroom-competition-categories","dances") that is defined by the <a href="http://www.worlddancesport.org/Rule/Athlete/Competition">World Dance Council</a> and <a href="http://ndca.org/education/dances-and-tempi/">National Dance Council of America</a>.</p>
-    @DanceHelper.BallroomList(Html)
+    <partial name="_BallroomList"/>
 </div>
 
-@DanceHelper.CategoryTable(Html, stats, Model.Round, "An " + @DanceHelper.FullRoundName(Model) + "dance round consists of the following:", catType)
+@{var table = new CategoryTableModel
+  {
+      Title = $"An {Model.FullRoundName} round consists of the following:",
+      DanceStats = stats,
+      Dances = Model.Round,
+      DanceCategoryType = catType
+  };
+}
 
-@if (@Model.Extras != null && @Model.Extras.Count > 0)
+<partial name="_CategoryTable" model ="@table"/>
+
+@if (Model.Extras != null && Model.Extras.Count > 0)
 {
-    @DanceHelper.CategoryTable(Html, stats, Model.Extras, "Other dances categorized as " + @Model.Name + ", although they aren't part of the competition round, are:", catType)
+    var subTable = new CategoryTableModel
+    {
+        Title = $"Other dances categorized as {Model.Name}, although they aren't part of the competition round, are:",
+        DanceStats = stats,
+        Dances = Model.Round,
+        DanceCategoryType = catType
+    };
+
+    <partial name="_CategoryTable" model="@subTable"/>
 }
 
 @{
@@ -36,10 +55,10 @@
     cats.Remove(Model.Name);
 }
 
-<p class="big-text">Other categories of @Html.ActionLink("competition ballroom dancing","ballroom-competition-categories","dances") are @DanceHelper.LinkCategory(Html, cats[0]), @DanceHelper.LinkCategory(Html,cats[1]) and @DanceHelper.LinkCategory(Html,cats[2]).</p>
+<p class="big-text">Other categories of @Html.ActionLink("competition ballroom dancing","ballroom-competition-categories","dances") are <partial name="_LinkCategory" model="cats[0]"/>, <partial name="_LinkCategory" model="cats[1]" /> and <partial name="_LinkCategory" model="cats[2]" />.</p>
 
 <dl class="big-text">
-    @SmartLink.TempiTool()
+    <partial name="_TempiToolLink" />
 </dl>
 
 <p class="big-text">Read the <a href="https://music4dance.blog">music4dance blog</a> entries about <a href="https://music4dance.blog/tag/ballroom">Ballroom</a> in general and <a href="@blogName">@Model.Name</a> more specifically.</p>

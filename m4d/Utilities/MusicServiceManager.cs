@@ -7,10 +7,8 @@ using System.Linq;
 using System.Net;
 using System.Security.Principal;
 using System.Text;
-using System.Web;
-using System.Web.Helpers;
-using System.Web.Mvc;
-using BundleTransformer.Core.Resources;
+using Microsoft.Extensions.FileProviders;
+using Newtonsoft.Json;
 
 namespace m4d.Utilities
 {
@@ -75,7 +73,7 @@ namespace m4d.Utilities
                 var results = GetMusicServiceResults(request, service);
                 ret = service.ParseTrackResults(
                     results,
-                    (Func<string, dynamic>) (req => GetMusicServiceResults(req, service, null)));
+                    (Func<string, dynamic>) (req => GetMusicServiceResults(req, service)));
             }
 
             if (s_trackCache.Count > 10000)
@@ -95,12 +93,12 @@ namespace m4d.Utilities
             var description = results.description;
 
             IList<ServiceTrack> tracks = service.ParseSearchResults(results,
-                (Func<string, dynamic>)(req => GetMusicServiceResults(req, service, null)));
+                (Func<string, dynamic>)(req => GetMusicServiceResults(req, service)));
             while ((results = NextMusicServiceResults(results, service, principal)) != null)
             {
                 var t = (tracks as List<ServiceTrack>) ?? tracks.ToList();
                 t.AddRange(service.ParseSearchResults(results,
-                    (Func<string, dynamic>)(req => GetMusicServiceResults(req, service, null))));
+                    (Func<string, dynamic>)(req => GetMusicServiceResults(req, service))));
                 tracks = t;
             }
 
@@ -110,8 +108,8 @@ namespace m4d.Utilities
 
             return new GenericPlaylist
             {
-                Name = name,
-                Description = description,
+                Name = name.ToString(),
+                Description = description.ToString(),
                 Tracks = tracks
             };
         }
@@ -123,7 +121,7 @@ namespace m4d.Utilities
 
             var results = GetMusicServiceResults("https://api.spotify.com/v1/me/playlists", service, principal);
 
-            List<PlaylistMetadata> playlists = ParsePlaylistResults(results);
+            var playlists = ParsePlaylistResults(results);
             while ((results = NextMusicServiceResults(results, service, principal)) != null)
             {
                 playlists.AddRange(ParsePlaylistResults(results));
@@ -178,7 +176,7 @@ namespace m4d.Utilities
         #endregion
 
         #region Update
-        public bool GetEchoData(DanceMusicService dms, Song song, string user = null)
+        public bool GetEchoData(DanceMusicCoreService dms, Song song, string user = null)
         {
             var service = MusicService.GetService(ServiceType.Spotify);
             var ids = song.GetPurchaseIds(service);
@@ -233,7 +231,7 @@ namespace m4d.Utilities
             return true;
         }
 
-        public bool GetSampleData(DanceMusicService dms, Song song, string user)
+        public bool GetSampleData(DanceMusicCoreService dms, Song song, string user)
         {
             var spotify = MusicService.GetService(ServiceType.Spotify);
             var edit = new Song(song, dms.DanceStats);
@@ -269,13 +267,16 @@ namespace m4d.Utilities
 
         #region Edit
         // TODO: Handle services other than spotify
-        public PlaylistMetadata CreatePlaylist(MusicService service, IPrincipal principal, string name, string description)
+        public PlaylistMetadata CreatePlaylist(MusicService service, IPrincipal principal, string name, string description, IFileProvider fileProvider)
         {
-            var response = MusicServiceAction("https://api.spotify.com/v1/me/playlists", $"{{\"name\":\"{name}\",\"description\":\"{description}\"}}", WebRequestMethods.Http.Post, service, principal );
+
+            dynamic obj = new {name = name, description = description};
+            var inputs = Newtonsoft.Json.JsonConvert.SerializeObject(obj);
+            var response = MusicServiceAction("https://api.spotify.com/v1/me/playlists", inputs, WebRequestMethods.Http.Post, service, principal );
 
             if (response == null) return null;
 
-            MusicServiceAction($"https://api.spotify.com/v1/playlists/{response.id}/images", GetEncodedImage("~/Content/color-logo.jpg"), WebRequestMethods.Http.Put, service, principal, "image/jpeg");
+            MusicServiceAction($"https://api.spotify.com/v1/playlists/{response.id}/images", GetEncodedImage(fileProvider, "/wwwroot/images/icons/color-logo.jpg"), WebRequestMethods.Http.Put, service, principal, "image/jpeg");
 
             return new PlaylistMetadata
             {
@@ -284,19 +285,18 @@ namespace m4d.Utilities
             };
         }
 
-        private string GetEncodedImage(string path)
+        private string GetEncodedImage(IFileProvider fileProvider, string path)
         {
-            var fullPath = HttpContext.Current.Server.MapPath(path);
-            using (System.Drawing.Image image = System.Drawing.Image.FromFile(fullPath))
-            {
-                using (var m = new MemoryStream())
-                {
-                    image.Save(m, image.RawFormat);
-                    var imageBytes = m.ToArray();
-                    var base64String = Convert.ToBase64String(imageBytes);
-                    return base64String;
-                }
-            }
+            var fullPath =  fileProvider.GetFileInfo(path).PhysicalPath;
+
+            using System.Drawing.Image image = System.Drawing.Image.FromFile(fullPath);
+            using var m = new MemoryStream();
+            image.Save(m, image.RawFormat);
+            var imageBytes = m.ToArray();
+            var base64String = Convert.ToBase64String(imageBytes);
+            return base64String;
+
+            throw new NotImplementedException();
         }
 
         public bool SetPlaylistTracks(MusicService service, IPrincipal principal, string id, IEnumerable<string> tracks)
@@ -406,7 +406,7 @@ namespace m4d.Utilities
             return int.TryParse(s, out var info) ? info : -1;
         }
 
-        private static dynamic GetMusicServiceResults(string request, MusicService service = null, IPrincipal principal = null)
+        private static dynamic GetMusicServiceResults(string request, MusicService service, IPrincipal principal = null)
         {
             var retries = 2;
             while (true)
@@ -435,39 +435,37 @@ namespace m4d.Utilities
 
                 try
                 {
-                    using (var response = (HttpWebResponse) req.GetResponse())
+                    using var response = (HttpWebResponse) req.GetResponse();
+                    if (response.StatusCode == HttpStatusCode.OK)
                     {
-                        if (response.StatusCode == HttpStatusCode.OK)
+                        var stream = response.GetResponseStream();
+                        if (stream != null)
                         {
-                            var stream = response.GetResponseStream();
-                            if (stream != null)
+                            using (var sr = new StreamReader(stream))
                             {
-                                using (var sr = new StreamReader(stream))
-                                {
-                                    responseString = sr.ReadToEnd();
-                                }
+                                responseString = sr.ReadToEnd();
+                            }
 
-                                var remaining = GetRateInfo(response.Headers, "X-RateLimit-Remaining");
+                            var remaining = GetRateInfo(response.Headers, "X-RateLimit-Remaining");
 
-                                if (remaining > 0 && remaining < 20)
-                                {
-                                    Trace.WriteLineIf(TraceLevels.General.TraceInfo,
-                                        $"Excedeed EchoNest Limits: Pre-emptive {remaining} - used = {GetRateInfo(response.Headers, "X-RateLimit-Used")} - limit = {GetRateInfo(response.Headers, "X-RateLimit-Limit")}");
-                                    System.Threading.Thread.Sleep(3 * 1000);
-                                }
+                            if (remaining > 0 && remaining < 20)
+                            {
+                                Trace.WriteLineIf(TraceLevels.General.TraceInfo,
+                                    $"Excedeed EchoNest Limits: Pre-emptive {remaining} - used = {GetRateInfo(response.Headers, "X-RateLimit-Used")} - limit = {GetRateInfo(response.Headers, "X-RateLimit-Limit")}");
+                                System.Threading.Thread.Sleep(3 * 1000);
                             }
                         }
-                        else if ((int) response.StatusCode == 429 /*HttpStatusCode.TooManyRequests*/)
-                        {
-                            // Wait algorithm failed, pause for 15 seconds
-                            Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Excedeed EchoNest Limits: Caught");
-                            System.Threading.Thread.Sleep(15 * 1000);
-                            continue;
-                        }
-                        if (responseString == null)
-                        {
-                            throw new WebException(response.StatusDescription);
-                        }
+                    }
+                    else if ((int) response.StatusCode == 429 /*HttpStatusCode.TooManyRequests*/)
+                    {
+                        // Wait algorithm failed, pause for 15 seconds
+                        Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Excedeed EchoNest Limits: Caught");
+                        System.Threading.Thread.Sleep(15 * 1000);
+                        continue;
+                    }
+                    if (responseString == null)
+                    {
+                        throw new WebException(response.StatusDescription);
                     }
                 }
                 catch (WebException we)
@@ -502,7 +500,8 @@ namespace m4d.Utilities
                     responseString = service.PreprocessResponse(responseString);
                 }
 
-                return Json.Decode(responseString);
+                // TODONEXT: verify other spotify endpoints
+                return JsonConvert.DeserializeObject(responseString);
             }
         }
 
@@ -533,23 +532,19 @@ namespace m4d.Utilities
                     body.Close();
                 }
 
-                using (var response = (HttpWebResponse)req.GetResponse())
+                using var response = (HttpWebResponse)req.GetResponse();
+                if (response.StatusCode == HttpStatusCode.Created || response.StatusCode == HttpStatusCode.Accepted)
                 {
-                    if (response.StatusCode == HttpStatusCode.Created || response.StatusCode == HttpStatusCode.Accepted)
+                    var stream = response.GetResponseStream();
+                    if (stream != null)
                     {
-                        var stream = response.GetResponseStream();
-                        if (stream != null)
-                        {
-                            using (var sr = new StreamReader(stream))
-                            {
-                                responseString = sr.ReadToEnd();
-                            }
-                        }
+                        using var sr = new StreamReader(stream);
+                        responseString = sr.ReadToEnd();
                     }
-                    if (responseString == null)
-                    {
-                        throw new WebException(response.StatusDescription);
-                    }
+                }
+                if (responseString == null)
+                {
+                    throw new WebException(response.StatusDescription);
                 }
             }
             catch (WebException we)
@@ -558,7 +553,7 @@ namespace m4d.Utilities
                 return null;
             }
 
-            return Json.Decode(responseString);
+            return JsonConvert.DeserializeObject(responseString);
         }
 
 
@@ -568,7 +563,7 @@ namespace m4d.Utilities
             return request == null ? null : GetMusicServiceResults(request, service, principal);
         }
 
-        private AWSFetcher AmazonFetcher => _awsFetcher ?? (_awsFetcher = new AWSFetcher());
+        private AWSFetcher AmazonFetcher => _awsFetcher ??= new AWSFetcher();
         private AWSFetcher _awsFetcher;
         #endregion
 

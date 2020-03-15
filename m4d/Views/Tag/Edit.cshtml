@@ -1,11 +1,10 @@
-﻿@model TagGroup
+﻿@model m4dModels.TagGroup
 
 @{
     ViewBag.Title = "Edit";
 }
 
 <h2>Edit</h2>
-
 
 @using (Html.BeginForm())
 {
@@ -18,9 +17,10 @@
         @Html.HiddenFor(model => model.Key)
 
         <div class="form-group">
-            @Html.Label("Key", new { @class = "control-label col-md-2" })
+            <label asp-for="Key" class = "control-label col-md-2"></label>
+            
             <div class="col-md-10">
-                @Html.Editor("NewKey", new { htmlAttributes = new { @class = "form-control" } })
+                @Html.Editor("NewKey", new {htmlAttributes = new {@class = "form-control"}})
             </div>
         </div>
 
@@ -44,6 +44,3 @@
     @Html.ActionLink("Back to List", "Index")
 </div>
 
-@section Scripts {
-    @Scripts.Render("~/bundles/jqueryval")
-}

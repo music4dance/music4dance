@@ -3,13 +3,13 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Net;
-using System.Runtime.InteropServices;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Json;
 using System.Security.Principal;
 using System.Text;
 using System.Threading;
 using m4dModels;
+using Microsoft.AspNetCore.Authentication;
 
 namespace m4d.Utilities
 {
@@ -30,8 +30,8 @@ namespace m4d.Utilities
     public abstract class CoreAuthentication
     {
         protected abstract string Client { get; }
-        public string ClientId => _clientId ?? (_clientId = Environment.GetEnvironmentVariable(Client + "-client-id"));
-        public string ClientSecret => _clientSecret ?? (_clientSecret = Environment.GetEnvironmentVariable(Client + "-client-secret"));
+        public string ClientId => _clientId ??= Environment.GetEnvironmentVariable(Client + "-client-id");
+        public string ClientSecret => _clientSecret ??= Environment.GetEnvironmentVariable(Client + "-client-secret");
 
         private string _clientId;
         private string _clientSecret;
@@ -103,12 +103,10 @@ namespace m4d.Utilities
             }
             try
             {
-                using (var webResponse = webRequest.GetResponse())
-                {
-                    var serializer = new DataContractJsonSerializer(typeof (AccessToken));
-                    //Get deserialized object from JSON stream
-                    return (AccessToken)serializer.ReadObject(webResponse.GetResponseStream());
-                }
+                using var webResponse = webRequest.GetResponse();
+                var serializer = new DataContractJsonSerializer(typeof (AccessToken));
+                //Get deserialized object from JSON stream
+                return (AccessToken)serializer.ReadObject(webResponse.GetResponseStream());
             }
             catch (Exception e)
             {
@@ -127,20 +125,12 @@ namespace m4d.Utilities
             AccessTokenRenewer.Dispose();
         }
 
-        public static string GetServiceAuthorization(ServiceType serviceType, IPrincipal principal = null)
+        public static string GetServiceAuthorization(ServiceType serviceType, IPrincipal principal = null, AuthenticateResult authResult = null)
         {
-            return SetupService(serviceType, principal)?.GetAccessString();
+            return SetupService(serviceType, principal, authResult)?.GetAccessString();
         }
 
-        public static string GetServiceId(ServiceType serviceType, IPrincipal principal)
-        {
-            if (serviceType != ServiceType.Spotify)
-                throw new ArgumentOutOfRangeException(nameof(serviceType), "Currently only Spotify is supported.");
-
-            return SetupService(serviceType, principal).GetServiceId(principal);
-        }
-
-        private static AdmAuthentication SetupService(ServiceType serviceType, IPrincipal principal = null)
+        private static AdmAuthentication SetupService(ServiceType serviceType, IPrincipal principal = null, AuthenticateResult authResult = null)
         {
             AdmAuthentication auth = null;
 
@@ -152,26 +142,69 @@ namespace m4d.Utilities
                     return auth;
                 }
 
-                if (serviceType == ServiceType.Spotify)
+                if (authResult != null)
                 {
-                    auth = SpotUserAuthentication.TryCreate(principal);
+                    auth = TryCreate(serviceType, authResult);
                     if (auth != null)
                     {
                         s_users[userName] = auth;
                         return auth;
                     }
                 }
+
             }
 
             switch (serviceType)
             {
                 case ServiceType.Spotify:
-                    auth = s_spotify ?? (s_spotify = new SpotAuthentication());
+                    auth = s_spotify ??= new SpotAuthentication();
                     break;
             }
 
             return auth;
         }
+
+        public static AdmAuthentication TryCreate(ServiceType serviceType, AuthenticateResult authResult)
+        {
+            var accessToken = authResult.Properties.GetTokenValue("access_token");
+            var now = DateTime.Now;
+            var expiresAt = authResult.Properties.GetTokenValue("expires_at");
+            var expiresIn = DateTime.Parse(expiresAt) - now;
+
+            var token = new AccessToken
+            {
+                access_token = accessToken,
+                expires_in = (int)expiresIn.TotalSeconds
+            };
+
+            var refreshToken = authResult.Properties.GetTokenValue("refresh_token");
+
+            if (refreshToken == null)
+                return null;
+
+            AdmAuthentication auth = null;
+            if  (serviceType == ServiceType.Spotify)
+            {
+                auth = new SpotUserAuthentication
+                {
+                    RefreshToken = refreshToken,
+                };
+            }
+            else
+            {
+                return null;
+            }
+
+            // TODO: Figure out if there is a way to get the expiresPeriod programmatically
+            var expirePeriod = new TimeSpan(0, 59, 0);
+            auth.Token = token;
+            auth.AccessTokenRenewer = new Timer(auth.OnTokenExpiredCallback, auth, token.ExpiresIn, expirePeriod);
+
+            return auth;
+        }
+
+        protected string RefreshToken;
+
 
         private static AdmAuthentication s_spotify;
 

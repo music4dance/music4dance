@@ -1,35 +1,59 @@
-﻿@using Microsoft.AspNet.Identity
-@if (Request.IsAuthenticated)
-{
-    var modifier = "";
-    if (User.IsInRole("showDiagnostics"))
-    {
-        modifier = "(" + SearchServiceInfo.DefaultId.Last() + ")";
-    }
-    using (Html.BeginForm("LogOff", "Account", FormMethod.Post, new { id = "logoutForm", @class = "navbar-right" }))
-    {
-        @Html.AntiForgeryToken()
+﻿@using Microsoft.AspNetCore.Identity
+@using m4dModels
 
-        <ul class="nav navbar-nav navbar-right">
-            <li class="dropdown">
-                <a href="#" class="dropdown-toggle" data-toggle="dropdown"> @(User.Identity.GetUserName() + modifier) <img src="~/Content/swing-ui.png" alt="User Icon" height="30" width="30" />
-                    &nbsp;&nbsp;&nbsp;&nbsp;
-                </a>
-                <ul class="dropdown-menu" role="menu">
-                    <li>@Html.ActionLink("My Profile", "UserProfile", "Manage")</li>
-                    <li>@Html.ActionLink("Account Settings", "Settings", "Manage")</li>
-                    <li>@Html.ActionLink("My Songs", "FilterUser", "Song", new { user = @User.Identity.GetUserName() }, null)</li>
-                    <li>@Html.ActionLink("My Searches", "Index", "Searches", new { user = @User.Identity.GetUserName() }, null)</li>
-                    <li><a href="javascript:document.getElementById('logoutForm').submit()">Sign off</a></li>
-                </ul>
+@inject SignInManager<ApplicationUser> SignInManager
+@inject UserManager<ApplicationUser> UserManager
+@inject ISearchServiceManager SearchService;
+
+<ul class="nav navbar-nav navbar-right">
+    @if (SignInManager.IsSignedIn(User))
+    {
+        var modifier = "";
+        if (User.IsInRole("showDiagnostics"))
+        {
+            modifier = "(" + SearchService.DefaultId.Last() + ")";
+        }
+
+        <li class="dropdown">
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                @(UserManager.GetUserName(User) + modifier) <img src="~/images/swing-ui.png" alt="User Icon" height="30" width="30" />
+                &nbsp;&nbsp;&nbsp;&nbsp;
+            </a>
+            <ul class="dropdown-menu" role="menu">
+                <li><a id="manage" class="nav-link text-dark" asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">My Profile</a></li>
+                <li>@Html.ActionLink("My Songs", "FilterUser", "Song", new { user = UserManager.GetUserName(User) }, null)</li>
+                <li>@Html.ActionLink("My Searches", "Index", "Searches", new { user = UserManager.GetUserName(User) }, null)</li>
+                <li><a href="javascript:document.getElementById('logoutForm').submit()">Log out</a></li>
+            </ul>
+        </li>
+
+        @*<li class="nav-item">
+                <a id="manage" class="nav-link text-dark" asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">Hello @UserManager.GetUserName(User)!</a>
             </li>
-          </ul>
+            <li class="nav-item">
+                <form id="logoutForm" class="form-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })">
+                    <button id="logout" type="submit" class="nav-link btn btn-link text-dark">Logout</button>
+                </form>
+            </li>*@
     }
-}
-else
-{
-    <ul class="nav navbar-nav navbar-right">
-         <li>@Html.ActionLink("Sign In", "SignIn", "Account", routeValues: null, htmlAttributes: new { id = "loginLink" })</li>
-         <li class="bg-primary">@Html.ActionLink("Sign Up", "SignUp", "Account", routeValues: null, htmlAttributes: new { id = "registerLink" })</li>
-    </ul>
-}
+    else
+    {
+        <li>
+            <a id="register" asp-area="Identity" asp-page="/Account/Register">Register</a>
+        </li>
+        <li>
+            <a id="login" asp-area="Identity" asp-page="/Account/Login">Login</a>
+        </li>
+
+        @*<li>
+                <a class="nav-link text-dark" id="register" asp-area="Identity" asp-page="/Account/Register">Register</a>
+            </li>
+            <li>
+                <a class="nav-link text-dark" id="login" asp-area="Identity" asp-page="/Account/Login">Login</a>
+            </li>*@
+    }
+</ul>
+
+<form id="logoutForm" class="form-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new {area = ""})">
+    <button style="visibility: hidden" id="logout" type="submit" class="btn btn-link"></button>
+</form>

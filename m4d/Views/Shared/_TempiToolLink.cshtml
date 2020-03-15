@@ -1,0 +1,14 @@
+﻿@using System
+@using Microsoft.AspNetCore.Html
+
+@* CORETODO: need to figure out how to get these included globally (may be candidates for tag helpers) *@
+
+@{
+    Func<string, IHtmlContent> tryItLink = @<a class="label label-music" href="@item"><span class="glyphicon glyphicon-play-circle"></span> Try It!</a>;
+    Func<string, IHtmlContent> docsLink = @<a class="label label-style" href="@item"><span class="glyphicon glyphicon-file"></span> Documentation</a>;
+    Func<string, IHtmlContent> postsLink = @<a class="label label-other" href="@item"><span class="glyphicon glyphicon-pencil"></span> Blog Posts</a>;
+
+}
+
+<dt><img src="~/images/icons/tools.png" alt="tools" width="24" height="24" />Explore relationships between the meter and tempi of different dance styles and find songs that match.</dt>
+<dd style="margin-left: 4em">@tryItLink("https://www.music4dance.net/home/tempi") @docsLink("https://music4dance.blog/music4dance-help/dance-tempi/") @postsLink("https://music4dance.blog/tag/tempo/")</dd>

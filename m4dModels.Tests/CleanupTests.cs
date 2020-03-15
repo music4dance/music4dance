@@ -39,12 +39,12 @@ namespace m4dModels.Tests
         [TestMethod]
         public void CleanEmpties()
         {
-            var service = new DanceMusicTester();
+            var stats = DanceMusicTester.GetDanceStats();
 
             var songs = new List<Song>
             {
-                new Song(SongA,service.Dms.DanceStats),
-                new Song(SongD, service.Dms.DanceStats)
+                new Song(SongA, stats),
+                new Song(SongD, stats)
             };
 
             var deltas = new List<int> { 13, 4 };
@@ -67,13 +67,13 @@ namespace m4dModels.Tests
         [TestMethod]
         public void CleanRatings()
         {
-            var service = new DanceMusicTester();
+            var stats = DanceMusicTester.GetDanceStats();
 
             var songs = new List<Song>
             {
-                new Song(SongB,service.Dms.DanceStats),
-                new Song(SongC, service.Dms.DanceStats),
-                new Song(SongE, service.Dms.DanceStats)
+                new Song(SongB, stats),
+                new Song(SongC, stats),
+                new Song(SongE, stats)
             };
 
             var deltas = new List<int> {17, 11, 3};
@@ -88,7 +88,7 @@ namespace m4dModels.Tests
                 Trace.WriteLineIf(General.TraceInfo, $"{song.SongId}:{song.SongProperties.Count - c}");
                 Assert.AreEqual(c - deltas[index], song.SongProperties.Count);
 
-                var sd = new Song(song.SongId, song.SongProperties,service.Dms.DanceStats);
+                var sd = new Song(song.SongId, song.SongProperties, stats);
                 Assert.AreEqual(song.DanceRatings.Count,sd.DanceRatings.Count);
                 foreach (var dr in song.DanceRatings)
                 {
@@ -105,12 +105,12 @@ namespace m4dModels.Tests
         [TestMethod]
         public void CleanDurations()
         {
-            var service = new DanceMusicTester();
+            var stats = DanceMusicTester.GetDanceStats();
 
             var songs = new List<Song>
             {
-                new Song(SongB,service.Dms.DanceStats),
-                new Song(SongC, service.Dms.DanceStats)
+                new Song(SongB, stats),
+                new Song(SongC, stats)
             };
 
             var deltas = new List<int> {17, 2};
@@ -133,9 +133,9 @@ namespace m4dModels.Tests
         [TestMethod]
         public void CleanAlbums()
         {
-            var service = new DanceMusicTester();
+            var stats = DanceMusicTester.GetDanceStats();
 
-            var song = new Song(SongB,service.Dms.DanceStats);
+            var song = new Song(SongB, stats);
 
             Trace.WriteLine(General.TraceInfo, $"---------------Predump for Song {song.SongId}");
             DanceMusicTester.DumpSongProperties(song);
@@ -153,15 +153,15 @@ namespace m4dModels.Tests
         [TestMethod]
         public void CleanAll()
         {
-            var service = new DanceMusicTester();
+            var stats = DanceMusicTester.GetDanceStats();
 
             var songs = new List<Song>
             {
-                new Song(SongA,service.Dms.DanceStats),
-                new Song(SongB,service.Dms.DanceStats),
-                new Song(SongC,service.Dms.DanceStats),
-                new Song(SongD,service.Dms.DanceStats),
-                new Song(SongE,service.Dms.DanceStats),
+                new Song(SongA,stats),
+                new Song(SongB,stats),
+                new Song(SongC,stats),
+                new Song(SongD,stats),
+                new Song(SongE,stats),
             };
 
             var deltas = new List<List<int>>
@@ -200,7 +200,7 @@ namespace m4dModels.Tests
                 DanceMusicTester.DumpSongProperties(song, General.TraceInfo);
 
                 // May be worth doing some verification on this, but for now just want to make sure it loads...
-                var sd = new Song(song.SongId, song.SongProperties,service.Dms.DanceStats);
+                var sd = new Song(song.SongId, song.SongProperties, stats);
                 Assert.IsNotNull(sd);
             }
         }

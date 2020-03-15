@@ -1,35 +1,20 @@
-﻿@using m4d.Utilities
+﻿@using m4dModels
+@using m4d.ViewModels
+@using Microsoft.AspNetCore.Identity
 @model Song
+@inject UserManager<ApplicationUser> UserManager
 
-@Html.Partial("SetupSongScript")
+<partial name="SetupSongScript" />
 
 @{
     SongFilter filter = ViewData.ContainsKey("SongFilter") ? ViewBag.SongFilter : new SongFilter();
+    var isAuthenticated = User.Identity.IsAuthenticated;
+    var user = isAuthenticated ? UserManager.FindByNameAsync(UserManager.GetUserName(User)).Result : null;
 }
-
-@helper Actions(SongFilter filter)
-{
-    <a class="btn btn-ml btn-help" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/" role="button"><span class="glyphicon glyphicon-question-sign"></span></a>
-    @Html.ActionLink("Back to Search Results", filter.TargetAction, new { filter }, new { @class = "btn btn-ml btn-primary", role = "button" })
-    <a href="#" role="button" class="btn btn-ml btn-primary" data-bind="visible:changed, click:saveRatings">Save</a>
-}
-
-@helper EchoValue(string type, float? value)
-{
-    if (!value.HasValue)
-    {
-        return;
-    }
-    var dec = (int)Math.Floor(value.Value * 10) + 1;
-    var img = "/content/" + @type + "-" + dec + ".png";
-    <img src="@img" width="35" height="35"/>
-    <span>@type = @value.Value.ToString("F3")</span>
-}
-
 
 <div class="page-header">
     <h1>
-        @if (User.Identity.IsAuthenticated)
+        @if (isAuthenticated)
         {
             <a class="btn btn-sm btn-info" role="button" data-show="tooltip" data-placement="right" data-bind="attr: {'data-original-title':song.liketip},click:toggleVote">
                 <img data-bind="attr: {src:song.voteImage}" />
@@ -43,29 +28,31 @@
     </h1>
 </div>
 @{
-    var region = User.Region();
+    var region = user?.Region;
     if (string.IsNullOrWhiteSpace(region))
     {
         region = "US";
     }
 }
-@Html.Partial("ItemTags")
+<partial name="ItemTags" />
 
 <div class="row">
     <div class="col-md-12">
         <span class="hidden-xs">
             @{
                 ViewBag.UseLogo = false;
-                @Html.Partial("_PurchaseLinks", Model.GetPurchaseLinks("AIS",region))
+                <partial name="_PurchaseLinks" model="@Model.GetPurchaseLinks("AIS", region)"/>
             }
         </span>
         <span class="visible-xs">
             @{
                 ViewBag.UseLogo = true;
-                @Html.Partial("_PurchaseLinks", Model.GetPurchaseLinks("AIS", region))
+                <partial name="_PurchaseLinks" model="@Model.GetPurchaseLinks("AIS", region)"/>
             }
         </span>
-        @Actions(filter)
+        <a class="btn btn-ml btn-help" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/" role="button"><span class="glyphicon glyphicon-question-sign"></span></a>
+        @Html.ActionLink("Back to Search Results", filter.TargetAction, new { filter }, new { @class = "btn btn-ml btn-primary", role = "button" })
+        <a href="#" role="button" class="btn btn-ml btn-primary" data-bind="visible:changed, click:saveRatings">Save</a>
     </div>
 </div>
 
@@ -113,7 +100,7 @@
 {
     <div class="row">
         <div class="col-md-12">
-            @EchoHelper.EchoValues(Model, 35, true)
+            <partial name="_EchoValues" model="new EchoValuesModel {Song = Model, Size = 35, Description = true}"/>
         </div>
     </div>
 }
@@ -121,7 +108,7 @@
 @if (Model.DanceRatings != null)
 {
     <div class="row" style="padding-top: 5px">
-        @Html.Partial("Dances")
+        <partial name="Dances"/>
     </div>
 }
 
@@ -147,7 +134,7 @@
                 <ul class="panel-body list-group">
                     @foreach (var album in Model.Albums)
                     {
-                        <li class="list-group-item">@Html.Partial("AlbumDetails", album)</li>
+                        <li class="list-group-item"><partial name="AlbumDetails" model="album"/></li>
                     }
                 </ul>
             </div>
@@ -174,14 +161,8 @@
                 @Html.DisplayFor(model => model.Modified)
             </div>
         </div>
-        @if (Model.Tempo.HasValue)
-        {
-            <div class="col-sm-3">
-                <a href="http://the.echonest.com"><img src="~/Content/echonest.png" alt="EchoNest" title="Some information on this page provided by EchoNest" /></a>
-            </div>
-        }
     </fieldset>
 </div>
 
-@Html.Partial("_TagEditor")
+<partial name="_TagEditor"/>
 

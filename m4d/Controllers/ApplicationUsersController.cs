@@ -3,17 +3,23 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Net;
-using System.Web.Mvc;
+using System.Threading.Tasks;
 using m4dModels;
-using Microsoft.AspNet.Identity;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 
 namespace m4d.Controllers
 {
     [Authorize(Roles = "dbAdmin")]
     //[RequireHttps]
-    public class ApplicationUsersController : DMController
+    public class ApplicationUsersController : DanceMusicController
     {
         public override string DefaultTheme => AdminTheme;
+
+        public ApplicationUsersController(DanceMusicContext context, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, ISearchServiceManager searchService, IDanceStatsManager danceStatsManager) :
+            base(context, userManager, roleManager, searchService, danceStatsManager)
+        { }
 
         //public ApplicationUsersController()
         //{
@@ -22,24 +28,25 @@ namespace m4d.Controllers
         //}
 
         // GET: ApplicationUsers
-        public ActionResult Index(bool showUnconfirmed = false)
+        public async Task<ActionResult> Index(bool showUnconfirmed = false)
         {
             //ViewBag.Roles = Context.Roles;
             ViewBag.ShowUnconfirmed = showUnconfirmed;
-            return View("Index", UserManager);
+            return View("Index", await GetUserDictionary(Database.UserManager));
         }
 
         // GET: ApplicationUsers/Details/5
-        public ActionResult Details(string id)
+        public async Task<ActionResult> Details(string id)
         {
             if (id == null)
             {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+                return StatusCode((int)HttpStatusCode.BadRequest);
             }
 
             //TODO: Figure out how to get user details (login & roles) down to view
-            ViewBag.Roles = Context.Roles;
-            return View(UserManager.FindById(id));
+            ViewBag.Roles = Database.Context.Roles;
+            
+            return View(await UserManager.FindByIdAsync(id));
         }
 
         // GET: ApplicationUsers/Create
@@ -53,11 +60,11 @@ namespace m4d.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create([Bind(Include = "UserName,Email")] ApplicationUser applicationUser)
+        public ActionResult Create([Bind("UserName,Email")] ApplicationUser applicationUser)
         {
             if (!ModelState.IsValid) return View(applicationUser);
 
-            var user = Database.FindOrAddUser(applicationUser.UserName, DanceMusicService.PseudoRole);
+            var user = Database.FindOrAddUser(applicationUser.UserName, DanceMusicCoreService.PseudoRole);
             user.Email = applicationUser.Email;
             user.EmailConfirmed = true;
             user.Privacy = 255;
@@ -68,12 +75,15 @@ namespace m4d.Controllers
         // GET: Users/Edit/5
         public ActionResult Edit(string id)
         {
-            if (id == null) return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+            if (id == null)
+            {
+                return StatusCode((int)HttpStatusCode.BadRequest);
+            }
 
             var applicationUser = Context.Users.Find(id);
             if (applicationUser == null)
             {
-                return HttpNotFound();
+                return StatusCode((int) HttpStatusCode.NotFound);
             }
             return View(applicationUser);
         }
@@ -83,11 +93,11 @@ namespace m4d.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost, ActionName("Edit")]
         [ValidateAntiForgeryToken]
-        public ActionResult EditPost(string id)
+        public async Task<ActionResult> EditPost(string id)
         {
             if (id == null)
             {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+                return StatusCode((int)HttpStatusCode.BadRequest);
             }
 
             var applicationUser = Context.Users.Find(id);
@@ -95,12 +105,13 @@ namespace m4d.Controllers
             var oldUserName = applicationUser.UserName;
             var oldSubscriptionLevel = applicationUser.SubscriptionLevel;
 
-            var fields = new[]
-            {
-                "UserName", "Email", "EmailConfirmed", "PhoneNumber", "PhoneNumberConfirmed", "TwoFactorEnabled",
-                "LockoutEndDateUtc", "LockoutEnabled", "AccessFailedCount", "SubscriptionLevel", "SubscriptionStart", "SubscriptionEnd"
-            };
-            if (TryUpdateModel(applicationUser, string.Empty, fields))
+            // TODO: Verify that this works
+            //var fields = new[]
+            //{
+            //    "UserName", "Email", "EmailConfirmed", "PhoneNumber", "PhoneNumberConfirmed", "TwoFactorEnabled",
+            //    "LockoutEndDateUtc", "LockoutEnabled", "AccessFailedCount", "SubscriptionLevel", "SubscriptionStart", "SubscriptionEnd"
+            //};
+            if (await TryUpdateModelAsync(applicationUser, string.Empty))
             {
                 try
                 {
@@ -109,7 +120,7 @@ namespace m4d.Controllers
                         Database.ChangeUserName(oldUserName, applicationUser.UserName);
                     }
 
-                    UpdateSubscriptionRole(applicationUser.Id, oldSubscriptionLevel, applicationUser.SubscriptionLevel);
+                    await UpdateSubscriptionRole(applicationUser.Id, oldSubscriptionLevel, applicationUser.SubscriptionLevel);
 
                     Context.SaveChanges();
                 }
@@ -124,16 +135,16 @@ namespace m4d.Controllers
         }
 
         // GET: Users/ChangeRoles/5
-        public ActionResult ChangeRoles(string id)
+        public async Task<ActionResult> ChangeRoles(string id)
         {
             if (id == null)
             {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+                return StatusCode((int)HttpStatusCode.BadRequest);
             }
-            var applicationUser = UserManager.FindById(id);
+            var applicationUser = await UserManager.FindByIdAsync(id);
             if (applicationUser == null)
             {
-                return HttpNotFound();
+                return StatusCode((int)HttpStatusCode.NotFound);
             }
             ViewBag.Roles = Context.Roles;
             return View(applicationUser);
@@ -144,17 +155,17 @@ namespace m4d.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult ChangeRoles(string id, string[] roles)
+        public async Task<ActionResult> ChangeRoles(string id, string[] roles)
         {
             if (id == null)
             {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+                return StatusCode((int)HttpStatusCode.BadRequest);
             }
 
-            var user = UserManager.FindById(id);
+            var user = await UserManager.FindByIdAsync(id);
             if (user == null)
             {
-                return HttpNotFound();
+                return StatusCode((int)HttpStatusCode.NotFound);
             }
 
             var newRoles = roles == null ? new List<string>() : new List<string>(roles);
@@ -164,16 +175,17 @@ namespace m4d.Controllers
                 // New Role
                 if (newRoles.Contains(role.Name))
                 {
-                    if (user.Roles.All(iur => iur.RoleId != role.Id))
+                    
+                    if (!await UserManager.IsInRoleAsync(user, role.Name))
                     {
-                        UserManager.AddToRole(user.Id, role.Name);
+                        await UserManager.AddToRoleAsync(user, role.Name);
                     }
                 }
                 else 
                 { 
-                    if (user.Roles.Any(iur => iur.RoleId == role.Id))
+                    if (await UserManager.IsInRoleAsync(user, role.Name))
                     {
-                        UserManager.RemoveFromRole(user.Id, role.Name);
+                        await UserManager.RemoveFromRoleAsync(user, role.Name);
                     }
                 }
             }
@@ -189,7 +201,7 @@ namespace m4d.Controllers
             return RestoreBatch();
             //if (id == null)
             //{
-            //    return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+            //    return StatusCode((int)HttpStatusCode.BadRequest);
             //}
 
             //var user = UserManager.FindById(id);
@@ -202,34 +214,34 @@ namespace m4d.Controllers
         }
 
         // GET: ApplicationUsers/Delete/5
-        public ActionResult Delete(string id)
+        public async Task<ActionResult> Delete(string id)
         {
             if (id == null)
             {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+                return StatusCode((int)HttpStatusCode.BadRequest);
             }
-            var applicationUser = UserManager.FindById(id);
+            var applicationUser = await UserManager.FindByIdAsync(id);
             if (applicationUser == null)
             {
-                return HttpNotFound();
+                return StatusCode((int)HttpStatusCode.NotFound);
             }
             return View(applicationUser);
         }
 
         // GET: ApplicationUsers/Create
-        public ActionResult ClearCache()
+        public async Task<ActionResult> ClearCache()
         {
-            ApplicationUserManager.ClearUserCache();
-            return Index();
+            ClearUserCache();
+            return await Index();
         }
 
         // GET: ApplicationUsers
-        public ActionResult VotingResults()
+        public async Task<ActionResult> VotingResults()
         {
             var records = Database.GetVotingRecords().OrderByDescending(r => r.Total).ToList();
             foreach (var record in records)
             {
-                record.User = ApplicationUserManager.UserDictionary.GetValueOrDefault(record.UserId);
+                record.User = (await GetUserDictionary(Database.UserManager)).GetValueOrDefault(record.UserId).User;
             }
 
             return View(records);
@@ -239,9 +251,9 @@ namespace m4d.Controllers
         // POST: ApplicationUsers/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public ActionResult DeleteConfirmed(string id)
+        public async Task<ActionResult> DeleteConfirmed(string id)
         {
-            var applicationUser = UserManager.FindById(id);
+            var applicationUser = await UserManager.FindByIdAsync(id);
 
             var searches = Context.Searches.Where(s => s.ApplicationUserId == applicationUser.Id);
             foreach (var search in searches)
@@ -262,8 +274,10 @@ namespace m4d.Controllers
             base.Dispose(disposing);
         }
 
-        private void UpdateSubscriptionRole(string userId, SubscriptionLevel oldLevel, SubscriptionLevel newLevel)
+        private async Task UpdateSubscriptionRole(string userId, SubscriptionLevel oldLevel, SubscriptionLevel newLevel)
         {
+            var applicationUser = await UserManager.FindByIdAsync(userId);
+
             switch (oldLevel)
             {
                 case SubscriptionLevel.None:
@@ -272,10 +286,10 @@ namespace m4d.Controllers
                         case SubscriptionLevel.None:
                             break;
                         case SubscriptionLevel.Trial:
-                            UserManager.AddToRole(userId, DanceMusicService.TrialRole);
+                            await UserManager.AddToRoleAsync(applicationUser, DanceMusicCoreService.TrialRole);
                             break;
                         default:
-                            UserManager.AddToRole(userId, DanceMusicService.PremiumRole);
+                            await UserManager.AddToRoleAsync(applicationUser, DanceMusicCoreService.PremiumRole);
                             break;
                     }
                     break;
@@ -283,13 +297,13 @@ namespace m4d.Controllers
                     switch (newLevel)
                     {
                         case SubscriptionLevel.None:
-                            UserManager.RemoveFromRole(userId, DanceMusicService.TrialRole);
+                            await UserManager.RemoveFromRoleAsync(applicationUser, DanceMusicCoreService.TrialRole);
                             break;
                         case SubscriptionLevel.Trial:                            
                             break;
                         default:
-                            UserManager.AddToRole(userId, DanceMusicService.PremiumRole);
-                            UserManager.RemoveFromRole(userId, DanceMusicService.TrialRole);
+                            await UserManager.AddToRoleAsync(applicationUser, DanceMusicCoreService.PremiumRole);
+                            await UserManager.RemoveFromRoleAsync(applicationUser, DanceMusicCoreService.TrialRole);
                             break;
                     }
                     break;
@@ -297,11 +311,11 @@ namespace m4d.Controllers
                     switch (newLevel)
                     {
                         case SubscriptionLevel.None:
-                            UserManager.RemoveFromRole(userId, DanceMusicService.PremiumRole);
+                            await UserManager.RemoveFromRoleAsync(applicationUser, DanceMusicCoreService.PremiumRole);
                             break;
                         case SubscriptionLevel.Trial:
-                            UserManager.AddToRole(userId, DanceMusicService.TrialRole);
-                            UserManager.RemoveFromRole(userId, DanceMusicService.PremiumRole);
+                            await UserManager.AddToRoleAsync(applicationUser, DanceMusicCoreService.TrialRole);
+                            await UserManager.RemoveFromRoleAsync(applicationUser, DanceMusicCoreService.PremiumRole);
                             break;
                         default:
                             break;
@@ -310,5 +324,39 @@ namespace m4d.Controllers
 
             }
         }
+
+        public static async Task<IReadOnlyDictionary<string, UserInfo>> GetUserDictionary(UserManager<ApplicationUser> userManager)
+        {
+            if (s_cachedUsers.Count == 0)
+            {
+                foreach (var user in userManager.Users)
+                {
+                    var roles = await userManager.GetRolesAsync(user);
+                    var logins = await userManager.GetLoginsAsync(user);
+
+                    var userInfo = new UserInfo
+                    {
+                        User = user,
+                        Roles = roles.ToList(),
+                        Logins = logins.Select(l => l.LoginProvider).ToList()
+                    };
+
+                    s_cachedUsers.Add(user.UserName, userInfo);
+                }
+
+                CacheTime = DateTime.Now;
+            }
+
+            return s_cachedUsers;
+        }
+
+        private static void ClearUserCache()
+        {
+            s_cachedUsers.Clear();
+            CacheTime = DateTime.MinValue;
+        }
+        private static readonly Dictionary<string, UserInfo> s_cachedUsers = new Dictionary<string, UserInfo>(StringComparer.OrdinalIgnoreCase);
+
+        private static DateTime CacheTime { get; set; }
     }
 }

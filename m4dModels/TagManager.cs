@@ -13,7 +13,7 @@ namespace m4dModels
             FixupTags();
         }
 
-        public TagManager(DanceMusicService dms, string source = "default")
+        public TagManager(DanceMusicCoreService dms, string source = "default")
         {
             TagGroups = dms.TagGroups.OrderBy(t => t.Key).ToList();
 

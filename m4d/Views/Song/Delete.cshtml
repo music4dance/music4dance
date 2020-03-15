@@ -1,4 +1,5 @@
-﻿@model Song
+﻿@using m4dModels
+@model m4dModels.Song
 
 @{
     ViewBag.Title = "Delete";
@@ -27,29 +28,8 @@
     <br />
 
     <div class="display-label">
-        @Html.DisplayNameFor(model => model.Album):
-    </div>
-    <div class="display-field">
-        @Html.DisplayFor(model => model.Album)
-    </div>
-    <br />
-
-    <div class="display-label">
         Dance(s):
     </div>
-    <div class="display-field">
-        @{ var separator = ""; }
-        @if (Model.DanceRatings != null)
-        {
-            foreach (var item in Model.DanceRatings)
-            {
-                @separator;
-                @Html.DisplayFor(model => item.Dance.Info.Name)
-                separator = ", ";
-            }
-        }
-    </div>
-    <br />
 
     <div class="display-label">
         @Html.DisplayNameFor(model => model.Length):

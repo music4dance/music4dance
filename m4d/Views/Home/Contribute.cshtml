@@ -1,4 +1,6 @@
-﻿@{
+﻿@using Microsoft.AspNetCore.Http.Extensions;
+
+@{
     var enableCommerce = string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("DISABLE_COMMERCE"));
     ViewBag.Title = "Contribute";
 }
@@ -26,7 +28,7 @@
      }
      else
      {
-         <p class="big-text">You must be logged in to purchase a subscription, please @Html.ActionLink("Sign In", "signin", "account", new {ReturnUrl = Request?.Url?.AbsoluteUri}, null) or @Html.ActionLink("Sign Up", "signup", "account", new {ReturnUrl = Request?.Url?.AbsoluteUri}, null) .</p>
+         <p class="big-text">You must be logged in to purchase a subscription, please @Html.ActionLink("Log in", "login", "account", new {area="Identity", ReturnUrl = Context.Request.GetEncodedUrl()}, null) or @Html.ActionLink("Register", "register", "account", new {area="Identity", ReturnUrl = Context.Request.GetEncodedUrl()}, null) .</p>
          <p class="big-text">If you would like to donate without creating an account, please choose donate below.</p>
      }
 

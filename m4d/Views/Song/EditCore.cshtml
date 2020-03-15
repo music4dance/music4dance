@@ -1,4 +1,5 @@
-﻿@model Song
+﻿@using m4dModels
+@model m4dModels.Song
 
 @{
     var isDiag = User.IsInRole("showDiagnostics");
@@ -6,15 +7,15 @@
     ViewBag.UseLogo = true;
 }
 
-@Html.Partial("SetupSongScript")
-@Html.Partial("ItemTags")
+<partial name ="SetupSongScript"/>
+<partial name ="ItemTags"/>
 
 @if (isDiag)
 {
     <h1>@ViewBag.Title</h1>
 }
 
-@using (Html.BeginForm((string)ViewBag.Action, "Song", null, FormMethod.Post, new { id="song", @class="form-horizontal"}))
+@using (Html.BeginForm((string)ViewBag.Action, "Song",  FormMethod.Post, new { id="song", @class="form-horizontal"}))
 {
     @Html.AntiForgeryToken()
     @Html.ValidationSummary(true)
@@ -133,7 +134,7 @@
                 {
                     <button id='count' type=button class="btn btn-lg btn-primary btn-block">Count</button>
                 }
-                <div>@Html.Partial("_MeterChooser")</div>
+                <div><partial name="_MeterChooser"/></div>
             </div>
         </div>
         <div class="row">
@@ -153,7 +154,7 @@
     </div>
 
     <div class="row" style="padding-top: 5px">
-        @Html.Partial("Dances")
+        <partial name="Dances"/>
     </div>
 
     <div class="row col-md-12">
@@ -209,7 +210,7 @@
                 }
                 <td>
                     <div data-bind="foreach: PurchaseLinks">
-                        <a data-bind="attr: {href:Link, target:Target}"><img data-bind="attr: {src:'/Content/' + Logo(), alt: AltText}"/></a>
+                        <a data-bind="attr: {href:Link, target:Target}"><img data-bind="attr: {src:'/images/icons/' + Logo(), alt: AltText}"/></a>
                     </div>
                 </td>
             </tr>
@@ -259,7 +260,7 @@
             </tbody>
         </table>
 
-        <img src="~/Content/ajax-loader.gif" id="loading-indicator" style="display: none"/>
+        <img src="~/images/icons/ajax-loader.gif" id="loading-indicator" style="display: none"/>
 
         <hr class="row col-md-12"/>
         <div class="row col-md-12">
@@ -307,4 +308,4 @@
     </p>
 }
 
-@Html.Partial("_TagEditor")
+<partial name="_TagEditor"/>

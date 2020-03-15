@@ -1,0 +1,9 @@
+﻿@model m4d.ViewModels.WeddingDanceHeaderModel;
+
+<tr>
+    <th>@(Model.ShowStyle ? "Dance Style" : string.Empty)</th>
+    @foreach (var tag in Model.Columns)
+    {
+        <th class="center-cell">@Html.ActionLink(tag.Contains("Dance") ? tag : tag.Replace(' ', '/'),"addtags","song", new {tags = tag + ":Other"}, null)</th>
+    }
+</tr>

@@ -1,13 +1,31 @@
-﻿@{
+﻿@using System
+@using Microsoft.AspNetCore.Html
+@using Microsoft.AspNetCore.Mvc.Rendering
+@{
     ViewBag.Title = "Counter";
     ViewBag.Description = "A web application to measure the tempo of a song and match it with styles of dance.";
+
+    Func<string, IHtmlContent> parameter =
+    @<script>
+            @{
+                var id = "param" + item;
+                if (ViewData.TryGetValue(id, out var o))
+                {
+                    if (o is bool)
+                    {
+                        o = ((o as bool?).Value ? "true" : "false");
+                    }
+                    <text>window.id = @o</text>;
+                }
+             }
+    </script>;
 }
 
-@Html.Partial("_Counter")
+<partial name="_Counter" />
 
 @if (User.IsInRole("canEdit"))
 {
-    <hr/>
+    <hr />
     <form id="lookup-by-id" class="form-inline">
         <div class="form-group">
             <label for="idString">ID/URL</label>
@@ -38,21 +56,19 @@
     <div data-bind="text: error"></div>
 }
 
+
 @section Scripts {
-    @{
-        @ScriptHelper.Parameter(ViewData,"Numerator");
-        @ScriptHelper.Parameter(ViewData, "Tempo");
-        @ScriptHelper.Parameter(ViewData, "ShowMPM");
-        @ScriptHelper.Parameter(ViewData, "ShowBPM");
+    @parameter("Numerator")
+    @parameter("Tempo")
+    @parameter("showBPM")
+    @parameter("showMPM")
 
-        @Scripts.Render("~/bundles/jqueryval")
-        @Scripts.Render("~/bundles/knockout")
-        @Scripts.Render("~/bundles/knockout-mapping")
-        @Scripts.Render("~/bundles/tools-script")
-        @Scripts.Render("~/bundles/counter")
-
-        @Styles.Render("~/bundles/tools-style")
-    }
-
+    <environment include="Development">
+        <script src="~/scripts/counter.js"></script>
+    </environment>
+    <environment exclude="Development">
+        <script src="scripts/counter.min.js"></script>
+    </environment>
 }
+
 

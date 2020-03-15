@@ -117,34 +117,35 @@ namespace m4dModels
         public override ServiceTrack ParseTrackResults(dynamic track, Func<string, dynamic> getResult)
         {
             string imageUrl = null;
-            if (track.images != null)
-            {
-                var width = int.MaxValue;
-                foreach (var image in track.images)
-                {
-                    if (image.width >= width) continue;
+            //if (track.images != null)
+            //{
+            //    var width = int.MaxValue;
+            //    foreach (var image in track.images)
+            //    {
+            //        if (image.width >= width) continue;
 
-                    imageUrl = image.url;
-                    width = image.width;
-                }
-            }
+            //        imageUrl = image.url;
+            //        width = image.width;
+            //    }
+            //}
 
 
-            var artist = (track.artists.Length > 0) ? track.artists[0] : null;
+            var artist = (track.artists.Count > 0) ? track.artists[0] : null;
             var album = track.album;
 
-            if (TraceLevels.General.TraceVerbose)
-            {
-                Trace.WriteLine($"TrackId={(string) track.id}");
-                Trace.WriteLine($"Name={(string) track.name}");
-                Trace.WriteLine($"Artist={(string) (artist == null ? null : artist.name)}");
-                Trace.WriteLine($"Album={(string) (album == null ? null : album.name)}");
-                Trace.WriteLine($"CollectionId={(string) (album == null ? null : album.id)}");
-                Trace.WriteLine($"ImageUrl={imageUrl}");
-                Trace.WriteLine($"Duration={(string) ((track.duration_ms + 500)/1000).ToString()}");
-                Trace.WriteLine($"DiscNumber={(string) track.disc_number.ToString()}");
-                Trace.WriteLine($"TrackNumber={(string) track.track_number.ToString()}");
-            }
+            //if (TraceLevels.General.TraceVerbose)
+            //{
+            //    Trace.WriteLine($"TrackId={(string) track.id}");
+            //    Trace.WriteLine($"Name={(string) track.name}");
+            //    Trace.WriteLine($"Artist={(string) (artist == null ? null : artist.name)}");
+            //    Trace.WriteLine($"Album={(string) (album == null ? null : album.name)}");
+            //    Trace.WriteLine($"CollectionId={(string) (album == null ? null : album.id)}");
+            //    Trace.WriteLine($"ImageUrl={imageUrl}");
+            //    Trace.WriteLine($"ImageUrl={imageUrl}");
+            //    Trace.WriteLine($"Duration={(string) ((track.duration_ms + 500)/1000).ToString()}");
+            //    Trace.WriteLine($"DiscNumber={(string) track.disc_number.ToString()}");
+            //    Trace.WriteLine($"TrackNumber={(string) track.track_number.ToString()}");
+            //}
 
             int trackNum = track.track_number;
             if (track.disc_number > 1)
@@ -158,9 +159,9 @@ namespace m4dModels
                 if (track.available_markets != null)
                 {
                     var marketList = new List<string>();
-                    foreach (object o in track.available_markets)
+                    foreach (dynamic o in track.available_markets)
                     {
-                        if (o is string s) marketList.Add(s);
+                        marketList.Add(o.ToString());
                     }
                     availableMarkets = marketList.ToArray();
                 }
@@ -207,9 +208,9 @@ namespace m4dModels
             return st;
         }
 
-        public override string BuildPlayListLink(PlayList playList, ApplicationUser user)
+        public override string BuildPlayListLink(PlayList playList, string user, string email)
         {
-            var alias = user.Email.Split('@')[0];
+            var alias = email.Split('@')[0];
             return $"https://open.spotify.com/user/{alias}/playlist/{playList.Id}";
         }
 
@@ -219,7 +220,7 @@ namespace m4dModels
 
             genres.UnionWith(GenresFromReference(track.album, getResult));
 
-            if (track?.artists.Length > 0)
+            if (track?.artists.Count > 0)
             {
                 foreach (var a in track.artists)
                 {
@@ -237,7 +238,7 @@ namespace m4dModels
                 return new List<string>();
             }
 
-            var t = GetResults(field.href, getResult);
+            var t = GetResults(field.href.ToString(), getResult);
             return t != null ? (List<string>) GenresFromObject(t) : new List<string>();
         }
 
@@ -246,14 +247,14 @@ namespace m4dModels
             var list = new List<string>();
             try
             {
-                if (obj?.genres == null || obj.genres.Length == 0)
+                if (obj?.genres == null || obj.genres.Count == 0)
                 {
                     return list;
                 }
 
                 foreach (var genre in obj.genres)
                 {
-                    list.Add(CleanupGenre(genre));
+                    list.Add(CleanupGenre(genre.ToString()));
                 }
             }
             catch (Exception e)

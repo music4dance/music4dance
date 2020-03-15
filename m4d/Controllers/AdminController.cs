@@ -1,27 +1,33 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Configuration;
-using System.Data.Entity.Infrastructure;
-using System.Data.Entity.Migrations;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net.Mime;
 using System.Reflection;
+using System.Runtime.InteropServices.WindowsRuntime;
 using System.Text;
 using System.Threading.Tasks;
-using System.Web.Mvc;
-using BundleTransformer.Core.Utilities;
 using DanceLibrary;
-using m4d.Scrapers;
+using m4d.Areas.Identity;
 using m4d.Utilities;
 using m4d.ViewModels;
 using m4dModels;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Azure.Search.Models;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.FileProviders;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
-using Configuration = m4d.Migrations.Configuration;
+using NUglify.Html;
 
 namespace m4d.Controllers
 {
@@ -31,17 +37,31 @@ namespace m4d.Controllers
         public IList<LocalMerger> Merge { get; set; }
     }
 
-    [Authorize]
-    public class AdminController : DMController
+    public class SetupDiagnosticsAttribute : ActionFilterAttribute
     {
-        public override string DefaultTheme => AdminTheme;
-
-        protected override void OnActionExecuting(ActionExecutingContext filterContext)
+        public override void OnActionExecuting(ActionExecutingContext context)
         {
-            SetupDiagnostics();
-
-            base.OnActionExecuting(filterContext);
+            // Do something before the action executes.
+            if (context.Controller is DanceMusicController controller)
+            {
+                controller.ViewBag.TraceLevel = TraceLevels.General.Level.ToString();
+                controller.ViewBag.BotReport = SpiderManager.CreateBotReport();
+                controller.ViewBag.SearchIdx = controller.SearchService.DefaultId;
+                controller.ViewBag.StatsUpdateTime = controller.DanceStatsManager.LastUpdate;
+                controller.ViewBag.StatsUpdateSource = controller.DanceStatsManager.Source;
+            }
         }
+    }
+
+    [Authorize, SetupDiagnostics]
+    public class AdminController : DanceMusicController
+    {
+        public AdminController(DanceMusicContext context, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, ISearchServiceManager searchService, IDanceStatsManager danceStatsManager) : 
+            base(context, userManager, roleManager, searchService, danceStatsManager)
+        {
+        }
+
+        public override string DefaultTheme => AdminTheme;
 
         #region Commands
 
@@ -60,7 +80,7 @@ namespace m4d.Controllers
         {
             return View();
         }
-        
+
         //
         // GET: /Admin/Diagnostics
         [Authorize(Roles = "showDiagnostics")]
@@ -69,21 +89,12 @@ namespace m4d.Controllers
             return View();
         }
 
-        private void SetupDiagnostics()
-        {
-            ViewBag.TraceLevel = TraceLevels.General.Level.ToString();
-            ViewBag.BotReport = SpiderManager.CreateBotReport();
-            ViewBag.SearchIdx = SearchServiceInfo.DefaultId;
-            ViewBag.StatsUpdateTime = DanceStatsManager.LastUpdate;
-            ViewBag.StatsUpdateSource = DanceStatsManager.Source;
-        }
-
         //
         // GET: /Admin/ResetAdmin
         [Authorize(Roles = "showDiagnostics")]
         public ActionResult ResetAdmin()
         {
-            AdminMonitor.CompleteTask(false,"Force Reset");
+            AdminMonitor.CompleteTask(false, "Force Reset");
             return View("Diagnostics");
         }
 
@@ -99,13 +110,13 @@ namespace m4d.Controllers
         //
         // Get: //UpdateSitemap
         [Authorize(Roles = "dbAdmin")]
-        public ActionResult UpdateSitemap()
+        public ActionResult UpdateSitemap([FromServices] IFileProvider fileProvider)
         {
             ViewBag.Name = "Update Sitemap";
 
-            SiteMapInfo.LoadCategories();
+            SiteMapInfo.ReloadCategories(fileProvider);
 
-            return RedirectToAction("SiteMap","Home");
+            return RedirectToAction("SiteMap", "Home");
         }
 
         //
@@ -128,10 +139,10 @@ namespace m4d.Controllers
         // Get: //Reseed
         //[Authorize(Roles = "dbAdmin")]
         [AllowAnonymous]
-        public ActionResult Reseed()
+        public ActionResult Reseed([FromServices] UserManager<ApplicationUser> userManager, [FromServices] RoleManager<IdentityRole> roleManager)
         {
             ViewBag.Name = "Reseed Database";
-            ReseedDb();
+            ReseedDb(userManager, roleManager);
             ViewBag.Success = true;
             ViewBag.Message = "Database was successfully reseeded";
 
@@ -323,7 +334,7 @@ namespace m4d.Controllers
                     Filter = $"(DanceTags/any(t: t eq '{name}') or DanceTagsInferred/any(t: t eq '{name}')) and (Tempo ne null)"
                 };
 
-                var dms = DanceMusicService.GetService();
+                var dms = Database.GetTransientService();
                 Task.Run(() =>
                 {
                     try
@@ -354,7 +365,7 @@ namespace m4d.Controllers
                                     ftemp.Add(song);
                                 }
 
-                                if ((tried + 1)%100 != 0) continue;
+                                if ((tried + 1) % 100 != 0) continue;
 
                                 Trace.WriteLineIf(TraceLevels.General.TraceInfo, $"{tried} songs tried.");
                             }
@@ -369,12 +380,17 @@ namespace m4d.Controllers
                                 done = true;
                             }
                         }
+
                         AdminMonitor.CompleteTask(true,
                             $"InferDanceTypes: Completed=true, Succeeded={succeeded.Count} - ({string.Join(",", succeeded)}), Failed={failed.Count} - ({string.Join(",", failed)}), Skipped={skipped}");
                     }
                     catch (Exception e)
                     {
                         FailAdminTask($"InferDanceTypes: {e.Message}", e);
+                    }
+                    finally
+                    {
+                        dms.Dispose();
                     }
                 });
 
@@ -389,7 +405,7 @@ namespace m4d.Controllers
         //
         // Get: // TimesFromProperties
         [Authorize(Roles = "dbAdmin")]
-        public ActionResult TimesFromProperties(DateTime? from = null, string exclude=null)
+        public ActionResult TimesFromProperties(DateTime? from = null, string exclude = null)
         {
             // DBKILL: Restore Cleanup when Necessary
             return RestoreBatch();
@@ -444,7 +460,7 @@ namespace m4d.Controllers
         //
         // Get: //ClearSongCache
         [Authorize(Roles = "showDiagnostics")]
-        public ActionResult ClearSongCache(bool reloadFromStore=false, bool reloadFromFile = false)
+        public ActionResult ClearSongCache(bool reloadFromStore = false, bool reloadFromFile = false)
         {
             ViewBag.Name = "ClearSongCache";
 
@@ -463,7 +479,7 @@ namespace m4d.Controllers
         {
             ViewBag.Name = "Set Trace Level";
 
-            var tl = (TraceLevel) level;
+            var tl = (TraceLevel)level;
 
             TraceLevels.SetGeneralLevel(tl);
 
@@ -493,7 +509,7 @@ namespace m4d.Controllers
         public ActionResult SetSearchIdx(string id)
         {
             Trace.WriteLineIf(TraceLevels.General.TraceInfo, $"Set Search Index: '{id}'");
-            SearchServiceInfo.DefaultId = id;
+            SearchService.DefaultId = id;
 
             DanceStatsManager.LoadFromAzure(Database, id, true);
 
@@ -609,32 +625,32 @@ namespace m4d.Controllers
             //return View("Results");
         }
 
-        //
-        // Get: //ScrapeDances
-        [Authorize(Roles = "showDiagnostics")]
-        public ActionResult ScrapeDances(string id, string parameter=null)
-        {
-            var scraper = DanceScraper.FromName(id);
-            string extra = string.Empty;
-            if (!string.IsNullOrEmpty(parameter))
-            {
-                scraper.Parameter = parameter;
-                extra = "-" + parameter.ToLower().Replace(' ', '-');
-            }
-            var lines = scraper.Scrape();
+        ////
+        //// Get: //ScrapeDances
+        //[Authorize(Roles = "showDiagnostics")]
+        //public ActionResult ScrapeDances(string id, string parameter = null)
+        //{
+        //    var scraper = DanceScraper.FromName(id);
+        //    string extra = string.Empty;
+        //    if (!string.IsNullOrEmpty(parameter))
+        //    {
+        //        scraper.Parameter = parameter;
+        //        extra = "-" + parameter.ToLower().Replace(' ', '-');
+        //    }
+        //    var lines = scraper.Scrape();
 
-            var sb = new StringBuilder();
-            foreach (var line in lines.Where(line => !string.IsNullOrWhiteSpace(line)))
-            {
-                sb.AppendFormat("{0}\r\n", line);
-            }
+        //    var sb = new StringBuilder();
+        //    foreach (var line in lines.Where(line => !string.IsNullOrWhiteSpace(line)))
+        //    {
+        //        sb.AppendFormat("{0}\r\n", line);
+        //    }
 
-            var s = sb.ToString();
-            var bytes = Encoding.UTF8.GetBytes(s);
-            var stream = new MemoryStream(bytes);
+        //    var s = sb.ToString();
+        //    var bytes = Encoding.UTF8.GetBytes(s);
+        //    var stream = new MemoryStream(bytes);
 
-            return File(stream, "text/plain", scraper.Name + extra + ".csv");
-        }
+        //    return File(stream, "text/plain", scraper.Name + extra + ".csv");
+        //}
 
         //
         // Get: //UpdateUsernames
@@ -777,14 +793,14 @@ namespace m4d.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "dbAdmin")]
-        public ActionResult LoadIdx(string idxName = "default", bool reset = true)
+        public ActionResult LoadIdx(IFormFile file, string idxName = "default", bool reset = true)
         {
             try
             {
                 StartAdminTask("LoadIndex");
                 AdminMonitor.UpdateTask("UploadFile");
 
-                var lines = UploadFile();
+                var lines = UploadFile(file);
 
                 AdminMonitor.UpdateTask("LoadIndex");
 
@@ -792,7 +808,7 @@ namespace m4d.Controllers
 
                 var c = Database.UploadIndex(lines, !reset, idxName);
 
-                if (SearchServiceInfo.GetInfo(idxName).Id == SearchServiceInfo.GetInfo("default").Id)
+                if (SearchService.GetInfo(idxName).Id == SearchService.GetInfo("default").Id)
                 {
                     DanceStatsManager.LoadFromAzure(Database, idxName, true);
                 }
@@ -832,20 +848,22 @@ namespace m4d.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "dbAdmin")]
-        public ActionResult ReloadDatabase(string reloadDatabase, bool? batch)
+        public ActionResult ReloadDatabase(
+            [FromServices] UserManager<ApplicationUser> userManager, [FromServices] RoleManager<IdentityRole> roleManager,
+            IFormFile fileUpload, string reloadDatabase, bool? batch)
         {
             try
             {
                 StartAdminTask("ReloadDatabase");
                 AdminMonitor.UpdateTask("UploadFile");
 
-                var lines = UploadFile();
+                var lines = UploadFile(fileUpload);
 
                 AdminMonitor.UpdateTask("Compute Type");
 
                 if (lines.Count > 0)
                 {
-                    var users = TryGetSection(lines,DanceMusicService.IsUserBreak);
+                    var users = TryGetSection(lines, DanceMusicService.IsUserBreak);
                     var dances = TryGetSection(lines, DanceMusicService.IsDanceBreak);
                     var tags = TryGetSection(lines, DanceMusicService.IsTagBreak);
                     var playlists = TryGetSection(lines, DanceMusicService.IsPlaylistBreak);
@@ -860,7 +878,7 @@ namespace m4d.Controllers
                         if (users != null && dances != null && tags != null)
                         {
                             AdminMonitor.UpdateTask("Wipe Database");
-                            RestoreDb(null);
+                            RestoreDb(userManager, roleManager, null, true);
                         }
                     }
 
@@ -868,7 +886,7 @@ namespace m4d.Controllers
                     if (dances != null) Database.LoadDances(dances);
                     if (tags != null) Database.LoadTags(tags);
                     if (playlists != null) Database.LoadPlaylists(playlists);
-                    if (searches != null) Database.LoadSearches(searches,reload);
+                    if (searches != null) Database.LoadSearches(searches, reload);
                     if (songs != null)
                     {
                         if (reload)
@@ -893,7 +911,7 @@ namespace m4d.Controllers
 
         private static List<string> TryGetSection(List<string> lines, Predicate<string> start)
         {
-            var breaks = new Predicate<string>[] {DanceMusicService.IsDanceBreak, DanceMusicService.IsTagBreak, DanceMusicService.IsPlaylistBreak, DanceMusicService.IsSearchBreak, DanceMusicService.IsSongBreak};
+            var breaks = new Predicate<string>[] { DanceMusicService.IsDanceBreak, DanceMusicService.IsTagBreak, DanceMusicService.IsPlaylistBreak, DanceMusicService.IsSearchBreak, DanceMusicService.IsSongBreak };
 
             if (!start(lines[0])) return null;
 
@@ -940,9 +958,9 @@ namespace m4d.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "dbAdmin")]
-        public ActionResult UploadTempi()
+        public ActionResult UploadTempi(IFormFile file)
         {
-            var lines = UploadFile();
+            var lines = UploadFile(file);
 
             ViewBag.Name = "Upload Tempi";
             ViewBag.FileId = -1;
@@ -951,8 +969,8 @@ namespace m4d.Controllers
             if (lines.Count <= 0) return View("Error");
 
             var songs = Database.SongsFromFile(User.Identity.Name, lines);
-            var results = Database.MatchSongs(songs,DanceMusicService.MatchMethod.Tempo);
-            var review = new Review {Merge = results};
+            var results = Database.MatchSongs(songs, DanceMusicService.MatchMethod.Tempo);
+            var review = new Review { Merge = results };
             ViewBag.FileId = CacheReview(review);
 
             return View("ReviewBatch", review.Merge);
@@ -982,12 +1000,12 @@ namespace m4d.Controllers
             //if (initial.Count <= 0) return View("Error");
 
             //IList<LocalMerger> results = new List<LocalMerger>();
-                
+
             //foreach (var m in initial)
             //{
             //    var sd = m.Left;
             //    // If there is an existing song
-                    
+
             //    if (m.Right != null)
             //    {
             //        var add = Database.AdditiveMerge(user, m.Right.SongId, sd, null);
@@ -1028,7 +1046,7 @@ namespace m4d.Controllers
         // Get: //ReviewBatch
         [HttpGet]
         [Authorize(Roles = "dbAdmin")]
-        public ActionResult ReviewBatch(string commit, string title, int fileId, string user = null, string dances  = null, string tags = null, string headers = null)
+        public ActionResult ReviewBatch(string commit, string title, int fileId, string user = null, string dances = null, string tags = null, string headers = null)
         {
             var review = GetReviewById(fileId);
 
@@ -1050,7 +1068,7 @@ namespace m4d.Controllers
         // Get: //UploadCatalog
         [HttpGet]
         [Authorize(Roles = "dbAdmin")]
-        public ActionResult UploadCatalog(string separator=null, string headers=null, string dances=null, string artist=null, string album=null, string user=null, string tags=null)
+        public ActionResult UploadCatalog(string separator = null, string headers = null, string dances = null, string artist = null, string album = null, string user = null, string tags = null)
         {
             // TODO:  This is probably a case where creating a viewmodel would be the right things to do...
             if (!string.IsNullOrEmpty(separator))
@@ -1089,7 +1107,7 @@ namespace m4d.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "dbAdmin")]
-        public ActionResult UploadCatalog(string songs, string separator, string headers, string user, string dances, string artist, string album, string tags)
+        public ActionResult UploadCatalog(IFormFile file, string songs, string separator, string headers, string user, string dances, string artist, string album, string tags)
         {
             ViewBag.Name = "Upload Catalog";
 
@@ -1097,7 +1115,7 @@ namespace m4d.Controllers
 
             if (string.IsNullOrWhiteSpace(songs) || string.IsNullOrWhiteSpace(separator))
             {
-                lines = UploadFile();
+                lines = UploadFile(file);
 
                 if (lines == null || lines.Count < 2)
                 {
@@ -1167,7 +1185,7 @@ namespace m4d.Controllers
                     }
                     if (tagList != null)
                     {
-                        sd.AddTags(tagList,appuser.UserName,Database.DanceStats,sd,false);
+                        sd.AddTags(tagList, appuser.UserName, Database.DanceStats, sd, false);
                     }
                 }
             }
@@ -1183,7 +1201,7 @@ namespace m4d.Controllers
             // ReSharper disable once InvertIf
             if (newSongs.Count > 0)
             {
-                var results = Database.MatchSongs(newSongs,DanceMusicService.MatchMethod.Merge);
+                var results = Database.MatchSongs(newSongs, DanceMusicService.MatchMethod.Merge);
                 var review = new Review { Merge = results };
                 ViewBag.FileId = CacheReview(review);
                 return View("ReviewBatch", review.Merge);
@@ -1200,7 +1218,7 @@ namespace m4d.Controllers
         [Authorize(Roles = "dbAdmin")]
         public ActionResult CommitUploadCatalog(int fileId, string userName, string danceIds, string headers, string separator)
         {
-            var initial =  GetReviewById(fileId);
+            var initial = GetReviewById(fileId);
 
             ViewBag.Name = "Upload Catalog";
             ViewBag.FileId = fileId;
@@ -1214,14 +1232,15 @@ namespace m4d.Controllers
                 userName = User.Identity.Name;
             }
 
-            return View(CommitCatalog(Database,initial,userName,danceIds) == 0 ? "Error" : "UploadCatalog");
+            // CORETODO:  Can we pull in this stuff from DM Controller, or should be comment out for the next phase?
+            return View(CommitCatalog(Database, initial, userName, danceIds) == 0 ? "Error" : "UploadCatalog");
         }
 
         //
         // Get: //ScrapeSpotify
         [HttpGet]
         [Authorize(Roles = "dbAdmin")]
-        public ActionResult ScrapeSpotify(string url, string user, string dances, string songTags=null, string danceTags=null)
+        public ActionResult ScrapeSpotify(string url, string user, string dances, string songTags = null, string danceTags = null)
         {
             ViewBag.Name = "Scrape Spotify";
 
@@ -1240,21 +1259,34 @@ namespace m4d.Controllers
 
             var tracks = MusicServiceManager.LookupPlaylist(service, url, User).Tracks;
 
-            var newSongs = Database.SongsFromTracks(appuser.UserName,tracks,dances,songTags,danceTags);
+            var newSongs = Database.SongsFromTracks(appuser.UserName, tracks, dances, songTags, danceTags);
 
             if (newSongs.Count == 0) return View("Error");
 
+            var dms = Database.GetTransientService();
             Task.Run(() =>
             {
-                AdminMonitor.UpdateTask("Starting Merge");
-                var results = DanceMusicService.GetService().MatchSongs(newSongs, DanceMusicService.MatchMethod.Merge);
-                var tags = songTags ?? "" + danceTags;
-                var link = $"/admin/reviewbatch?title=Scrape Spotify&commit=CommitUploadCatalog&fileId={CacheReview(new Review {Merge = results})}&user={user}" +
-                          (string.IsNullOrWhiteSpace(tags) ? "" : tags);
-                AdminMonitor.CompleteTask(true,$"<a href='{link}'>{link}</a>");
+                try
+                {
+                    AdminMonitor.UpdateTask("Starting Merge");
+                    var results = dms.MatchSongs(newSongs, DanceMusicService.MatchMethod.Merge);
+                    var tags = songTags ?? "" + danceTags;
+                    var link = $"/admin/reviewbatch?title=Scrape Spotify&commit=CommitUploadCatalog&fileId={CacheReview(new Review { Merge = results })}&user={user}" +
+                               (string.IsNullOrWhiteSpace(tags) ? "" : tags);
+                    AdminMonitor.CompleteTask(true, $"<a href='{link}'>{link}</a>");
+                }
+                catch (Exception e)
+                {
+                    AdminMonitor.CompleteTask(false, $"ScrapeSpotify: Failed={e.Message}");
+                }
+                finally
+                {
+                    dms.Dispose();
+                }
+
             });
 
-            return View("AdminStatus",AdminMonitor.Status);
+            return View("AdminStatus", AdminMonitor.Status);
         }
 
 
@@ -1278,7 +1310,7 @@ namespace m4d.Controllers
         //
         // Get: //IndexBackup
         [Authorize(Roles = "showDiagnostics")]
-        public ActionResult IndexBackup(string name="default", int count = -1, DateTime? from = null, string filter = null)
+        public ActionResult IndexBackup([FromServices] IFileProvider fileProvider, string name = "default", int count = -1, DateTime? from = null, string filter = null)
         {
             try
             {
@@ -1286,12 +1318,13 @@ namespace m4d.Controllers
 
                 var dt = DateTime.Now;
                 var fname = $"index-{dt.Year:d4}-{dt.Month:d2}-{dt.Day:d2}.txt";
-                var path = Path.Combine(Server.MapPath("~/App_Data"), fname);
+                // CORETODO: Not sure this will work
+                var path = fileProvider.GetFileInfo($"~/AppData/{fname}").PhysicalPath;
 
                 var n = 0;
                 using (var file = System.IO.File.CreateText(path))
                 {
-                    var lines = Database.BackupIndex(name,count,from, (filter == null) ? null : new SongFilter(filter));
+                    var lines = Database.BackupIndex(name, count, from, (filter == null) ? null : new SongFilter(filter));
                     foreach (var line in lines)
                     {
                         file.WriteLine(line);
@@ -1301,7 +1334,7 @@ namespace m4d.Controllers
                 }
 
                 AdminMonitor.CompleteTask(true, $"Backup ({n} songs) complete to: {path}");
-                return File("~/app_data/" + fname, MediaTypeNames.Text.Plain, fname);
+                return File("~/AppData/" + fname, MediaTypeNames.Text.Plain, fname);
             }
             catch (Exception e)
             {
@@ -1313,7 +1346,7 @@ namespace m4d.Controllers
         //
         // Get: //DanceStatistics
         [Authorize(Roles = "showDiagnostics")]
-        public ActionResult DanceStatistics(string source = null, bool save=true, bool noDances=false, bool noSongs=false, bool jsFriendly=true)
+        public ActionResult DanceStatistics(string source = null, bool save = true, bool noDances = false, bool noSongs = false, bool jsFriendly = true)
         {
             DanceStatsInstance instance;
             source = string.IsNullOrWhiteSpace(source) ? null : source;
@@ -1327,8 +1360,7 @@ namespace m4d.Controllers
                     break;
             }
 
-
-
+            // CORETODO: Need to figure out how to make this work in .net core
             return new JsonNetResult(
                 instance.Tree,
                 new JsonSerializerSettings
@@ -1340,10 +1372,21 @@ namespace m4d.Controllers
                 Formatting.Indented);
         }
 
+        private string EnsureAppData(IWebHostEnvironment environment)
+        {
+            var path = Path.Combine(environment.WebRootPath, "AppData");
+            if (!Directory.Exists(path))
+            {
+                Directory.CreateDirectory(path);
+            }
+
+            return path;
+        }
+
         //
         // Get: //BackupDatabase
         [Authorize(Roles = "showDiagnostics")]
-        public ActionResult BackupDatabase(bool users = true, bool tags = true, bool dances = true, bool playlists = true, bool searches=true, bool songs = true, string useLookupHistory = null)
+        public ActionResult BackupDatabase([FromServices] IWebHostEnvironment environment, bool users = true, bool tags = true, bool dances = true, bool playlists = true, bool searches = true, bool songs = true, string useLookupHistory = null)
         {
             try
             {
@@ -1354,7 +1397,7 @@ namespace m4d.Controllers
                 var dt = DateTime.Now;
                 var h = history ? "-lookup" : string.Empty;
                 var fname = $"backup-{dt.Year:d4}-{dt.Month:d2}-{dt.Day:d2}{h}.txt";
-                var path = Path.Combine(Server.MapPath("~/App_Data"),fname);
+                var path = Path.Combine(EnsureAppData(environment), fname);
 
                 using (var file = System.IO.File.CreateText(path))
                 {
@@ -1431,7 +1474,7 @@ namespace m4d.Controllers
                 }
 
                 AdminMonitor.CompleteTask(true, "Backup complete to: " + path);
-                return File("~/app_data/" + fname, MediaTypeNames.Text.Plain,fname);
+                return File("~/AppData/" + fname, MediaTypeNames.Text.Plain, fname);
                 //AdminMonitor.CompleteTask(true, "Backup complete to: " + path);
                 //var res = new FilePathResult("~/content/" + fname,System.Net.Mime.MediaTypeNames.Text.Plain);
                 //res.FileDownloadName = fname;
@@ -1455,7 +1498,7 @@ namespace m4d.Controllers
         [Authorize(Roles = "showDiagnostics")]
         public ActionResult BackupTail(int count = 100, DateTime? from = null, string filter = null)
         {
-            var users = Database.SerializeUsers(true,from);
+            var users = Database.SerializeUsers(true, from);
             var dances = Database.SerializeDances(true, from);
             var tags = Database.SerializeTags(true, from);
             var playlists = Database.SerializeTags(true, from);
@@ -1472,7 +1515,7 @@ namespace m4d.Controllers
             var s = string.Empty;
             if (users.Count > 0)
             {
-                s += string.Join("\r\n", users) + "\r\n"; 
+                s += string.Join("\r\n", users) + "\r\n";
             }
             if (dances.Count > 0)
             {
@@ -1530,9 +1573,9 @@ namespace m4d.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "showDiagnostics")]
-        public ActionResult BackupDelta()
+        public ActionResult BackupDelta(IFormFile file)
         {
-            var lines = UploadFile();
+            var lines = UploadFile(file);
 
             var exclusions = new HashSet<Guid>();
             foreach (var line in lines)
@@ -1559,9 +1602,9 @@ namespace m4d.Controllers
         // Get: //RestoreDatabase
         //[Authorize(Roles = "dbAdmin")]
         [AllowAnonymous]
-        public ActionResult RestoreDatabase()
+        public ActionResult RestoreDatabase([FromServices] UserManager<ApplicationUser> userManager, [FromServices] RoleManager<IdentityRole> roleManager)
         {
-            RestoreDb();
+            RestoreDb(userManager, roleManager);
 
             ViewBag.Name = "Restore Database";
             ViewBag.Success = true;
@@ -1573,16 +1616,17 @@ namespace m4d.Controllers
         //
         // Get: //UpdateDatabase
         [AllowAnonymous]
-        public ActionResult UpdateDatabase(string state=null)
+        public ActionResult UpdateDatabase(string state = null)
         {
-            Trace.WriteLineIf(TraceLevels.General.TraceInfo,"Updating Database");
-            var configuration = new Configuration();
-            var migrator = new DbMigrator(configuration);
-            migrator.Update(state);
+            // CORETODO: Do we need this?
+            Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Updating Database");
+            //var configuration = new Configuration();
+            //var migrator = new DbMigrator(configuration);
+            //migrator.Update(state);
 
-            ViewBag.Name = "Update Database";
-            ViewBag.Success = true;
-            ViewBag.Message = "Database was successfully updated.";
+            //ViewBag.Name = "Update Database";
+            //ViewBag.Success = true;
+            //ViewBag.Message = "Database was successfully updated.";
 
             return View("Results");
         }
@@ -1598,8 +1642,7 @@ namespace m4d.Controllers
             var ti = CultureInfo.CurrentCulture.TextInfo;
             var tagMap = Database.DanceStats.TagManager.TagMap;
 
-            var dms = DanceMusicService.GetService();
-
+            var dms = Database.GetTransientService();
             Task.Run(() =>
             {
                 try
@@ -1655,7 +1698,10 @@ namespace m4d.Controllers
                 {
                     FailAdminTask($"CleanTags: {e.Message}", e);
                 }
-
+                finally
+                {
+                    dms.Dispose();
+                }
             });
 
             return RedirectToAction("AdminStatus", "Admin", AdminMonitor.Status);
@@ -1754,8 +1800,9 @@ namespace m4d.Controllers
 
                 var success = Database.ResetIndex(id);
 
-                if (success)
-                    RecomputeMarker.SetMarker("indexsongs", DateTime.MinValue);
+                // CORETODO: Figure this out
+                //if (success)
+                //    RecomputeMarker.SetMarker("indexsongs", DateTime.MinValue);
 
                 ViewBag.Name = "Reset Index";
                 ViewBag.Success = success;
@@ -1774,96 +1821,71 @@ namespace m4d.Controllers
         [Authorize(Roles = "showDiagnostics")]
         public ActionResult CleanupProperties(int count = 100, string filter = null)
         {
-            try
-            {
-                StartAdminTask("CleanupProperties");
+            // CORETODO: Do this in .net core or try something else?
+            //try
+            //{
+            //    StartAdminTask("CleanupProperties");
 
-                SongFilter songFilter = null;
-                if (!string.IsNullOrWhiteSpace(filter))
-                {
-                    songFilter = new SongFilter(filter);
-                }
+            //    SongFilter songFilter = null;
+            //    if (!string.IsNullOrWhiteSpace(filter))
+            //    {
+            //        songFilter = new SongFilter(filter);
+            //    }
 
-                var from = RecomputeMarker.GetMarker("propertycleanup");
+            //    var from = RecomputeMarker.GetMarker("propertycleanup");
 
-                var info = Database.CleanupProperties(count, from, songFilter);
+            //    var info = Database.CleanupProperties(count, from, songFilter);
 
-                if (info.Succeeded > 0)
-                {
-                    RecomputeMarker.SetMarker("propertycleanup", info.LastTime);
-                }
+            //    if (info.Succeeded > 0)
+            //    {
+            //        RecomputeMarker.SetMarker("propertycleanup", info.LastTime);
+            //    }
 
-                ViewBag.Name = "Cleaned up Properties";
-                ViewBag.Success = true;
+            //    ViewBag.Name = "Cleaned up Properties";
+            //    ViewBag.Success = true;
 
-                ViewBag.Message = $"{info.Succeeded} songs cleanded, {info.Failed} failed.";
+            //    ViewBag.Message = $"{info.Succeeded} songs cleanded, {info.Failed} failed.";
 
-                return CompleteAdminTask(true, $"{info.Succeeded} songs cleaned up. {info.Message}");
-            }
-            catch (Exception e)
-            {
-                return FailAdminTask($"CleanupProperties: {e.Message}", e);
-            }
+            //    return CompleteAdminTask(true, $"{info.Succeeded} songs cleaned up. {info.Message}");
+            //}
+            //catch (Exception e)
+            //{
+            //    return FailAdminTask($"CleanupProperties: {e.Message}", e);
+            //}
+
+            ViewBag.Success = false;
+            ViewBag.Message = "Not implemented for .net core";
+            return View("Results");
         }
 
         #endregion
 
         #region Migration-Restore
 
-        private void RestoreDb(string state = "InitialCreate")
+        private void RestoreDb([FromServices] UserManager<ApplicationUser> userManager, [FromServices] RoleManager<IdentityRole> roleManager, string targetMigration = null, bool delete = false)
         {
-            DbMigrator migrator;
+            var context = Database.Context as DanceMusicContext;
+            var migrator = context.Database.GetService<IMigrator>();
 
-            // Roll back to a specific migration or zero
-            if (state != null)
+            if (delete)
             {
-                Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Rolling Back Database");
-                migrator = BuildMigrator();
-                migrator.Update(state);
-            }
-            else
-            {
-                Trace.WriteLineIf(TraceLevels.General.TraceInfo,"Wiping Database");
-                var objectContextAdapter = Context as IObjectContextAdapter;
-                if (objectContextAdapter != null)
-                {
-                    var objectContext = objectContextAdapter.ObjectContext;
-                    objectContext.DeleteDatabase();
-                }
-                migrator = BuildMigrator();
+                Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Deleting Database");
+                context.Database.EnsureDeleted();
             }
 
-            Trace.WriteLineIf(TraceLevels.General.TraceInfo,"Starting Migrator Update");
-            // Apply all migrations up to a specific migration
-            migrator.Update();
+            Trace.WriteLineIf(TraceLevels.General.TraceInfo, $"Migrating to {targetMigration}");
+            migrator.Migrate(targetMigration);
 
-            Trace.WriteLineIf(TraceLevels.General.TraceInfo,"Exiting RestoreDB");
+            ReseedDb(userManager, roleManager);
+
+            Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Exiting RestoreDB");
         }
-        private void ReseedDb()
+
+        private void ReseedDb(UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager)
         {
-            Configuration.DoSeed(Context);
+            IdentityHostingStartup.SeedData(userManager, roleManager);
         }
 
-        private DbMigrator BuildMigrator()
-        {
-            var configuration = BuildConfiguration();
-
-            return new DbMigrator(configuration);
-        }
-
-        private static Configuration BuildConfiguration()
-        {
-            var sqlConnectionString = ConfigurationManager.ConnectionStrings["DefaultConnection"].ConnectionString;
-            var connectionInfo = new DbConnectionInfo(sqlConnectionString, "System.Data.SqlClient");
-
-            var configuration = new Configuration
-            {
-                TargetDatabase = connectionInfo,
-                AutomaticMigrationsEnabled = false
-            };
-
-            return configuration;
-        }
         #endregion
 
         #region Utilities
@@ -1890,24 +1912,18 @@ namespace m4d.Controllers
             return file.Split(Environment.NewLine.ToCharArray(), StringSplitOptions.RemoveEmptyEntries).ToList();
         }
 
-        List<string> UploadFile() 
+        List<string> UploadFile(IFormFile file)
         {
             var lines = new List<string>();
 
-            var files = Request.Files;
-            if (files.Count != 1) return lines;
-
-            var key = files.AllKeys[0];
-            ViewBag.Key = key;
+            ViewBag.Key = file.Name;
             // ReSharper disable once PossibleNullReferenceException
-            ViewBag.Size = files[key].ContentLength;
-            ViewBag.ContentType = files[key].ContentType;
+            ViewBag.Size = file.Length;
+            ViewBag.ContentType = file.ContentType;
 
-            var file = Request.Files.Get(0);
             // ReSharper disable once PossibleNullReferenceException
-            var stream = file.InputStream;
-
-            TextReader tr = new StreamReader(stream);
+            using var stream = file.OpenReadStream();
+            using var tr = new StreamReader(stream);
 
             string s;
             while ((s = tr.ReadLine()) != null)

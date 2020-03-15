@@ -14,6 +14,6 @@
     
     var image = useLogo ? link.Logo : link.Charm;
 
-    <a href='@link.Link' @Html.Raw(target)><img src='@Url.Content("~/Content/" + image)' alt='@link.AltText' /></a>
+    <a href='@link.Link' @Html.Raw(target)><img src='@Url.Content("~/images/icons/" + image)' alt='@link.AltText' /></a>
 }
 

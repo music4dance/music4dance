@@ -1,30 +1,4 @@
-﻿@helper Suggestions(string type, string header)
-{
-    <div id="@type-suggestions" data-bind="with: $root.tagSuggestions().current()">
-        <hr data-bind="css: $root.tagSuggestions().current().hrClass" />
-        <div class="row">
-            <h4 class="col-md-8">@header</h4>
-            <div class="btn-group col-md-4" role="radiogroup">
-                <a href="#!" role="button" data-bind="click: sortBy('@type','alpha'), css: sortButton('@type','alpha')" class="btn btn-sm"><span class="glyphicon glyphicon-sort-by-alphabet"></span></a>
-                <a href="#!" role="button" data-bind="click: sortBy('@type','weight'), css: sortButton('@type','weight')" class="btn btn-sm"><span class="glyphicon glyphicon-sort-by-attributes-alt"></span></a>
-            </div>
-        </div>
-        <div id="@type-message" class="row">
-            <div class="col-md-12">
-                <p>Waiting for server...</p>
-            </div>
-        </div>
-        <div id="@type-list" class="row">
-            <div class="col-md-12">
-                <!-- ko foreach: @type -->
-                <a data-bind="text: value, click: $root.tagSuggestions().current().addTagLink, css:$root.tagSuggestions().current().typeClass"></a><span>@*(<span data-bind="text:count"></span>)*@ &nbsp; </span>
-                <!-- /ko -->
-            </div>
-        </div>
-    </div>
-}
-
-<div class="modal fade" id="addTags" tabindex="-1" role="dialog" data-backdrop="static" aria-hidden="true">
+﻿<div class="modal fade" id="addTags" tabindex="-1" role="dialog" data-backdrop="static" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content" data-bind="css: tagSuggestions().current().typeClass">
             <div class="modal-header">
@@ -33,14 +7,14 @@
             </div>
             <div class="modal-body">
                 <div class="container-fluid">
-                     <div class="row">
-                         <div class="col-md-12">
-                             <b>Tags: </b>
-                             <select id="chosen" class="chosen" multiple data-bind="options: tagSuggestions().current().all, optionsText: 'value', selectedOptions: tagSuggestions().current().chosen, chosen: true"></select>
-                         </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <b>Tags: </b>
+                            <select id="chosen" class="chosen" multiple data-bind="options: tagSuggestions().current().all, optionsText: 'value', selectedOptions: tagSuggestions().current().chosen, chosen: true"></select>
+                        </div>
                     </div>
-                    @Suggestions("user", "Tags that you've used:")
-                    @Suggestions("popular", "Tags that others have used:")
+                    <partial name='_Suggestions' model='new Tuple<string,string>("user","Tags that you have used:")' />
+                    <partial name='_Suggestions' model='new Tuple<string,string>("popular","Tags that others have used:")' />
                 </div>
             </div>
             <div class="modal-footer">

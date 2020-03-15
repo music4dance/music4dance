@@ -3,35 +3,45 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Net;
-using System.Web;
-using System.Web.Mvc;
 using DanceLibrary;
-using m4d.Context;
 using m4d.Utilities;
 using m4dModels;
-using Microsoft.AspNet.Identity.Owin;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Net.Http.Headers;
 
 namespace m4d.Controllers
 {
-    /// <summary>
-    /// Base controller for dance music
-    /// </summary>
-    // ReSharper disable once InconsistentNaming
-    public class DMController : Controller
+    public class DanceMusicController : Controller
     {
-        public readonly string MusicTheme = "music";
-        public readonly string ToolTheme = "tools";
-        public readonly string BlogTheme = "blog";
-        public readonly string AdminTheme = "admin";
+        protected readonly string MusicTheme = "music";
+        protected readonly string ToolTheme = "tools";
+        protected readonly string BlogTheme = "blog";
+        protected readonly string AdminTheme = "admin";
 
-        protected override void OnActionExecuting(System.Web.Mvc.ActionExecutingContext filterContext)
+        public DanceMusicController(DanceMusicContext context, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, ISearchServiceManager searchService, IDanceStatsManager danceStatsManager)
         {
-            filterContext.HttpContext.Session["Workaround"] = 0;
+            Database = new DanceMusicService(context, userManager, searchService, danceStatsManager);
+            SearchService = searchService;
+            DanceStatsManager = danceStatsManager;
         }
 
-        public virtual string DefaultTheme => BlogTheme;
+        public DanceMusicService Database { get; set; }
 
-        public string ThemeName 
+        protected MusicServiceManager MusicServiceManager => _musicServiceManager ??= new MusicServiceManager();
+
+        private MusicServiceManager _musicServiceManager;
+
+        public ISearchServiceManager SearchService { get; }
+
+        public IDanceStatsManager DanceStatsManager { get; }
+
+        public UserManager<ApplicationUser> UserManager => Database.UserManager;
+
+        public DanceMusicContext Context => Database.Context;
+
+        public virtual string DefaultTheme => BlogTheme;
+        public string ThemeName
         {
             get => _themeName ?? DefaultTheme;
             set => _themeName = value;
@@ -42,117 +52,24 @@ namespace m4d.Controllers
 
         public ActionResult ReturnError(HttpStatusCode statusCode = HttpStatusCode.InternalServerError, string message = null, Exception exception = null)
         {
-            var model = new ErrorModel { HttpStatusCode = (int)statusCode, Message=message, Exception = exception };
+            var model = new ErrorModel { HttpStatusCode = (int)statusCode, Message = message, Exception = exception };
 
             Response.StatusCode = (int)statusCode;
-            Response.TrySkipIisCustomErrors = true;
+            // Response.TrySkipIisCustomErrors = true;
 
-            return View("HttpError",model);
+            return View("HttpError", model);
         }
-        protected override ViewResult View(string viewName, string masterName, object model)
+
+        public override ViewResult View(string viewName, object model)
         {
             ViewBag.Theme = ThemeName;
             ViewBag.Help = HelpPage;
-            return base.View(viewName, masterName, model);
+            return base.View(viewName,  model);
         }
-
-        protected DanceMusicService Database => _database ??
-                                                (_database =
-                                                    new DanceMusicService(HttpContext.GetOwinContext().Get<DanceMusicContext>(),
-                                                        HttpContext.GetOwinContext().GetUserManager<ApplicationUserManager>()));
-
-        private DanceMusicService _database;
-
-        protected MusicServiceManager MusicServiceManager => _musicServiceManager ?? (_musicServiceManager = new MusicServiceManager());
-
-        private MusicServiceManager _musicServiceManager;
-
-        protected void ResetContext()
-        {
-            var temp = _database;
-            _database = null;
-            temp.Dispose();
-        }
-
-        protected DanceMusicContext Context => Database.Context as DanceMusicContext;
-
-        public ApplicationUserManager UserManager
-        {
-            get => _userManager ?? HttpContext.GetOwinContext().GetUserManager<ApplicationUserManager>();
-            protected set => _userManager = value;
-        }
-        private ApplicationUserManager _userManager;
-
-        public static bool VerboseTelemetry { get; set; } = false;
-
-        //// Used for XSRF protection when adding external logins
-        //protected const string XsrfKey = "XsrfId";
-
-        //protected IAuthenticationManager AuthenticationManager
-        //{
-        //    get
-        //    {
-        //        return HttpContext.GetOwinContext().Authentication;
-        //    }
-        //}
-
-        //protected async Task<ExternalLoginInfo> GetExternalLoginInfoAsync()
-        //{
-        //    var userId = User.Identity.GetUserId();
-        //    var loginInfo = await AuthenticationManager.GetExternalLoginInfoAsync(XsrfKey, userId);
-        //    if (loginInfo == null)
-        //    {
-        //        return null;
-        //    }
-
-        //    if (loginInfo.Email == null)
-        //    {
-        //        var authResult = await AuthenticationManager.AuthenticateAsync(DefaultAuthenticationTypes.ExternalCookie);
-
-        //        if (authResult != null && authResult.Identity != null && authResult.Identity.IsAuthenticated)
-        //        {
-        //            var claimsIdentity = authResult.Identity;
-        //            var providerKeyClaim = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier);
-
-        //            var providerKey = providerKeyClaim.Value;
-        //            var issuer = providerKeyClaim.Issuer;
-        //            var name = claimsIdentity.FindFirstValue(ClaimTypes.Name);
-        //            var emailAddress = claimsIdentity.FindFirstValue(ClaimTypes.Email);
-
-        //            Trace.WriteLineIf(TraceLevels.General.TraceError,string.Format("providerKey={0};issuer={1};name={2};emailAddress={3}", providerKey, issuer, name, emailAddress));
-
-        //            loginInfo.Email = emailAddress;
-        //        }
-        //    }
-
-        //    if (loginInfo.Email == null)
-        //    {
-        //        loginInfo.Email = await UserManager.GetEmailAsync(userId);
-        //    }
-
-        //    return loginInfo;
-        //}
-
-        //protected void AddErrors(IdentityResult result)
-        //{
-        //    foreach (var error in result.Errors)
-        //    {
-        //        ModelState.AddModelError("", error);
-        //    }
-        //}
-
-        //protected ActionResult RedirectToLocal(string returnUrl)
-        //{
-        //    if (Url.IsLocalUrl(returnUrl))
-        //    {
-        //        return Redirect(returnUrl);
-        //    }
-        //    return RedirectToAction("Index", "Home");
-        //}
 
         public ActionResult CheckSpiders()
         {
-            return SpiderManager.CheckBadSpiders(Request.UserAgent) ? View("BotWarning") : null;
+            return SpiderManager.CheckBadSpiders(Request.Headers[HeaderNames.UserAgent]) ? View("BotWarning") : null;
         }
 
         protected void SaveSong(Song song)
@@ -206,8 +123,7 @@ namespace m4d.Controllers
         }
         #endregion
 
-
-        public int CommitCatalog(DanceMusicService dms, Review review, string userName, string danceIds=null)
+        protected int CommitCatalog(DanceMusicCoreService dms, Review review, string userName, string danceIds = null)
         {
             List<string> dances = null;
             if (!string.IsNullOrWhiteSpace(danceIds))
@@ -238,7 +154,7 @@ namespace m4d.Controllers
             return modified.Count;
         }
 
-        protected bool UpdateSongAndServices(DanceMusicService dms, Song sd, string user = null, bool crossRetry = false)
+        protected bool UpdateSongAndServices(DanceMusicCoreService dms, Song sd, string user = null, bool crossRetry = false)
         {
             var changed = false;
             // ReSharper disable once LoopCanBeConvertedToQuery
@@ -261,7 +177,7 @@ namespace m4d.Controllers
             return changed;
         }
 
-        protected bool UpdateSongAndService(DanceMusicService dms, Song sd, MusicService service, string user = null)
+        protected bool UpdateSongAndService(DanceMusicCoreService dms, Song sd, MusicService service, string user = null)
         {
             var found = MatchSongAndService(sd, service);
             if (found.Count <= 0) return false;
@@ -310,7 +226,7 @@ namespace m4d.Controllers
             {
                 ViewBag.Error = true;
                 ViewBag.Status = we.Message;
-                Trace.WriteLineIf(TraceLevels.General.TraceError,$"Failed '{we.Message}' on Song '{song}");
+                Trace.WriteLineIf(TraceLevels.General.TraceError, $"Failed '{we.Message}' on Song '{song}");
             }
 
             return tracks;
@@ -496,10 +412,5 @@ namespace m4d.Controllers
             }
         }
 
-        protected override void Dispose(bool disposing)
-        {
-            _database?.Dispose();
-            base.Dispose(disposing);
-        }
     }
 }

@@ -1,4 +1,6 @@
-﻿@model IEnumerable<TagCount>
+﻿@using m4dModels
+@using m4d.ViewModels
+@model IEnumerable<m4dModels.TagCount>
 
 @{
     var tags = Model as List<TagCount> ?? Model.ToList();
@@ -29,7 +31,7 @@
 
         shown += 1;
 
-        @TagHelpers.TagModalButton(titem, ViewBag.SongFilter, null, inc)
+        <partial name="_TagModalButton" model="@new TagModalModel { Tag = titem, Filter = ViewBag.SongFilter, CloudSize = inc }" />
     }
     @if (User.IsInRole("showDiagnostics"))
     {
@@ -37,7 +39,7 @@
     }
 </div>
 
-@Html.Partial("_filtermodal")
+<partial name="_filterModal" />
 
 
 

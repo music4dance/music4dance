@@ -6,7 +6,6 @@ using System.Diagnostics.CodeAnalysis;
 namespace DanceTests
 {
     [TestClass]
-    [ExcludeFromCodeCoverage]
     public class TimingTests
     {
         [TestMethod]

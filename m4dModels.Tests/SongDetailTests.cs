@@ -216,16 +216,16 @@ namespace m4dModels.Tests
         {
             if (expected == null) throw new ArgumentNullException(nameof(expected));
 
-            var service = MockContext.CreateService(true);
+            var stats = DanceMusicTester.GetDanceStats();
 
-            var songs = LoadRows(header, rows, service, dups);
+            var songs = LoadRows(header, rows, stats, dups);
 
             for (var i = 0; i < expected.Length; i++)
             {
                 var song = songs[i];
                 if (tags != null)
                 {
-                    song.AddTags(tags, "dwgray", service.DanceStats, song);
+                    song.AddTags(tags, "dwgray", stats, song);
                 }
                 var r = DanceMusicTester.ReplaceTime(song.Serialize(new[] { Song.NoSongId }));
                 Trace.WriteLine(r);
@@ -256,12 +256,12 @@ namespace m4dModels.Tests
             return SongData.Select(str => new Song(str,null)).ToList();
         }
 
-        static IList<Song> LoadRows(string header, IReadOnlyCollection<string> rows, DanceMusicService service, int dups = 0)
+        static IList<Song> LoadRows(string header, IReadOnlyCollection<string> rows, DanceStatsInstance stats, int dups = 0)
         {
             if (rows == null) throw new ArgumentNullException(nameof(rows));
 
             IList<string> headers = Song.BuildHeaderMap(header);
-            var ret = Song.CreateFromRows("dwgray","\t",headers,rows,service.DanceStats,5);
+            var ret = Song.CreateFromRows("dwgray", "\t", headers, rows, stats, 5);
 
             Assert.AreEqual(rows.Count, ret.Count+dups);
             return ret;

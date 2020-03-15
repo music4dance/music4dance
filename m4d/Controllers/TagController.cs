@@ -1,15 +1,19 @@
 ﻿using System;
 using System.Linq;
 using System.Net;
-using System.Web.Mvc;
 using m4d.ViewModels;
 using m4dModels;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace m4d.Controllers
 {
-    public class TagController : DMController
+    public class TagController : DanceMusicController
     {
-        public TagController()
+        public TagController(DanceMusicContext context, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, ISearchServiceManager searchService, IDanceStatsManager danceStatsManager) :
+            base(context, userManager, roleManager, searchService, danceStatsManager)
         {
             HelpPage = "tag-cloud";
         }
@@ -17,23 +21,19 @@ namespace m4d.Controllers
 
         // GET: Tag
         [AllowAnonymous]
-        public ActionResult Index()
+        public IActionResult Index()
         {
             var model = Database.OrderedTagGroups;
             return View(model);
         }
 
         // GET: Tag/Details/5
-        public ActionResult Details(string id)
+        public IActionResult Details(string id)
         {
-            if (id == null)
+            var code = GetTag(id, out var tagGroup);
+            if (HttpStatusCode.OK != code)
             {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
-            }
-            var tagGroup = Database.TagGroups.Find(TagGroup.TagDecode(id));
-            if (tagGroup == null)
-            {
-                return HttpNotFound();
+                return StatusCode((int)code);
             }
             return View(tagGroup);
         }
@@ -50,7 +50,7 @@ namespace m4d.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create([Bind(Include = "Key,PrimaryId")] TagGroup tagGroup)
+        public IActionResult Create([Bind("Key,PrimaryId")] TagGroup tagGroup)
         {
             if (ModelState.IsValid)
             {
@@ -79,18 +79,14 @@ namespace m4d.Controllers
         }
 
         // GET: Tag/Edit/5
-        public ActionResult Edit(string id)
+        public IActionResult Edit(string id)
         {
-            if (id == null)
+            var code = GetTag(id, out var tagGroup);
+            if (HttpStatusCode.OK != code)
             {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+                return StatusCode((int)code);
             }
 
-            var tagGroup = Database.TagGroups.Find(TagGroup.TagDecode(id));
-            if (tagGroup == null)
-            {
-                return HttpNotFound();
-            }
             var pid = tagGroup.PrimaryId ?? tagGroup.Key;
 
             ViewBag.PrimaryId = new SelectList(Database.TagGroups, "Key", "Key", pid);
@@ -102,7 +98,7 @@ namespace m4d.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit([Bind(Include = "Key,PrimaryId")] TagGroup tagGroup, string newKey)
+        public ActionResult Edit([Bind("Key,PrimaryId")] TagGroup tagGroup, string newKey)
         {
             // The tagGroup coming in is the original tagGroup with a possibly edited Primary Key
             //  newKey is the key typed into the key field
@@ -129,15 +125,12 @@ namespace m4d.Controllers
         // GET: Tag/Delete/5
         public ActionResult Delete(string id)
         {
-            if (id == null)
+            var code = GetTag(id, out var tagGroup);
+            if (HttpStatusCode.OK != code)
             {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+                return StatusCode((int)code);
             }
-            var tagGroup = Database.TagGroups.Find(TagGroup.TagDecode(id));
-            if (tagGroup == null)
-            {
-                return HttpNotFound();
-            }
+
             return View(tagGroup);
         }
 
@@ -155,6 +148,23 @@ namespace m4d.Controllers
             DanceMusicService.BlowTagCache();
 
             return RedirectToAction("Index");
+        }
+
+        private HttpStatusCode GetTag(string id, out TagGroup tag)
+        {
+            tag = null;
+
+            if (id == null)
+            {
+                return HttpStatusCode.BadRequest;
+            }
+            var tagGroup = Database.TagGroups.Find(TagGroup.TagDecode(id));
+            if (tagGroup == null)
+            {
+                return HttpStatusCode.NotFound;
+            }
+
+            return HttpStatusCode.OK;
         }
     }
 }

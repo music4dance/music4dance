@@ -1,0 +1,79 @@
+﻿@using System.Net
+@using m4dModels
+@model m4d.ViewModels.TagModalModel
+
+@{
+    var cloudSize = Model.CloudSize;
+    var tag = Model.Tag;
+    var filter = Model.Filter;
+    var song = Model.Song;
+
+    var buckets = new[] {.25F,.5F,.75F,1,5,10,20,25,50,100};
+    var sizes = new[] {14,16,18,20,22,24,26,28,30,32};
+    var iconSize = 14;
+
+    var size = string.Empty;
+    if (cloudSize > 0)
+    {
+        var perc = tag.Count / cloudSize;
+        var bucket = 0;
+        while (bucket < buckets.Length-1 && buckets[bucket] < perc)
+        {
+            bucket += 1;
+        }
+        size = "cloud-" + bucket;
+        iconSize = sizes[bucket];
+    }
+
+    var urlBase = "/song/addtags?tags={0}" + WebUtility.UrlEncode(tag.TagValue) + ":" + WebUtility.UrlEncode(tag.TagClass);
+    var url = urlBase;
+    string danceName = null;
+    string urlDance = null;
+    string urlFiltered = null;
+    if (filter != null && !filter.IsRaw)
+    {
+        var dq = filter.DanceQuery;
+        var dances = dq.Dances.ToList();
+        if (dances.Count == 1)
+        {
+            var dance = dances[0];
+
+            var filterDance = new SongFilter {Action=filter.Action, Dances = filter.Dances};
+            danceName = dance.Name;
+            urlDance = urlBase + "&filter=" + WebUtility.UrlEncode(filterDance.ToString());
+        }
+
+        if (!filter.IsEmptyDance)
+        {
+            urlFiltered = urlBase + "&filter=" + WebUtility.UrlEncode(filter.ToString());
+        }
+    }
+    else
+    {
+        filter = new SongFilter();
+    }
+
+    var simpleFilter = new SongFilter {Action = filter.Action, SortOrder = filter.SortOrder};
+    url += "&filter=" + WebUtility.UrlEncode(simpleFilter.ToString());
+
+    var tc = tag.TagClass;
+    tc = tc?.ToLower() ?? "other";
+
+    var img = "/images/icons/" + TagGroup.ClassToName(tc) + "-50.png";
+    var title = (song == null) ? string.Empty : song.Title;
+    var artist = (song == null) ? string.Empty : song.Artist;
+
+    var label = "label tag-label";
+    if (Math.Abs(cloudSize) > .01)
+    {
+        label = "btn tag-text tag-cloud " + size;
+    }
+}
+
+<a href="#" role="button" class="@label label-@tc tag-label" 
+   data-toggle="modal" data-target="#filterModal" aria-expanded="false"
+   data-title="@title" data-artist="@artist"
+   data-tag-value="@tag.TagValue" data-dance-name="@danceName"
+   data-url="@url" data-filtered-url="@(urlFiltered ?? string.Empty)" data-dance-url="@(urlDance ?? string.Empty)">
+    <!img src="@img" height="@iconSize.ToString()" width="@iconSize.ToString()"/> @tag.TagValue
+</a>

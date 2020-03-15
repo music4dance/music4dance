@@ -1,0 +1,33 @@
+﻿@model m4d.ViewModels.UndoUserModel
+
+@{
+    var userName = Model.UserName;
+    var filter = Model.Filter;
+    var song = Model.Song;
+
+    var title = userName;
+    var toggle = string.Empty;
+    var id = "userUndo";
+
+    if (userName == null && User.Identity.IsAuthenticated && song.ModifiedBy.Any(mr => mr.UserName == User.Identity.Name))
+    {
+        userName = User.Identity.Name;
+        title = "Undo My Changes";
+        toggle = "visible:!changed()";
+    }
+    else if (userName != null)
+    {
+        id = "userUndo-" + userName;
+    }
+}
+
+@if (userName != null)
+{
+    using (Html.BeginForm("UndoUserChanges", "Song", FormMethod.Post, new { @class = "form-inline", role = "form" }))
+    {
+        @Html.AntiForgeryToken()
+        <input type="hidden" name="filter" value="@filter" />
+        <input type="hidden" name="id" value="@song.SongId" />
+        <input type="submit" id="@id" name="undo" value="@title" class="btn" data-bind="@toggle" />
+    }
+}

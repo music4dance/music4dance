@@ -1,0 +1,56 @@
+﻿@model m4d.ViewModels.WeddingDanceRowModel;
+
+@{
+    var columns = Model.Columns.ToList();
+    var action = "index";
+    var filterAction = "index";
+
+    var counts = new int[columns.Count];
+    var show = false;
+
+    for (var i = 0; i < columns.Count; i++)
+    {
+        var column = columns[i];
+
+        var tag = column + ":Other";
+        counts[i] = Model.Stats.AggregateSongTags?.TagCount(tag) ?? 0;
+        if (counts[i] != 0)
+        {
+            show = true;
+        }
+    }
+
+    @if (show || Model.IsGroup)
+    {
+        <tr>
+            <td>
+                @if (Model.IsGroup)
+                {
+                    <b>@Html.ActionLink(Model.Stats.DanceName,Model.Stats.SeoName, "dances")</b>
+                }
+                else
+                {
+                    <span style="margin-left: 10px">@Html.ActionLink(Model.Stats.DanceName, Model.Stats.SeoName, "dances")</span>
+                }
+            </td>
+
+            @for (var i = 0; i < columns.Count; i++)
+            {
+                <td class="center-cell">
+                    @if (counts[i] != 0)
+                    {
+                        <span class='label label-info'>
+                            @Html.ActionLink(counts[i].ToString(), action, "Song", 
+                                new { filter = $"{filterAction}-{Model.Stats.DanceId}-Dances-.-.-.-.-.-1-+{columns[i]}:Other"}, new {@class= "tag-text" })
+                        </span>
+                    }
+                    else
+                    {
+                        @:&nbsp;
+                    }
+                </td>
+            }
+        </tr>
+
+    }
+}

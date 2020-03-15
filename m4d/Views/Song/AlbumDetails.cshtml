@@ -1,4 +1,4 @@
-﻿@model AlbumDetails
+﻿@model m4dModels.AlbumDetails
 
 <div class="display-field">
     @if (!string.IsNullOrWhiteSpace(Model.Name))
@@ -21,7 +21,8 @@
         @Model.Publisher
     </div>
 }
-@Html.Partial("_PurchaseLinks",Model.PurchaseLinks)
+
+<partial name="_PurchaseLinks" model="Model.PurchaseLinks"/>
 
 @if (User.IsInRole("showDiagnostics") && Model.HasPurchaseInfo)
 {

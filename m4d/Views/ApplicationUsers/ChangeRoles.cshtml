@@ -1,9 +1,12 @@
-﻿@model ApplicationUser
+﻿@using m4dModels
+@using Microsoft.AspNetCore.Identity
+@model m4dModels.ApplicationUser
+@inject UserManager<ApplicationUser> UserManager;
 
 @{
     ViewBag.Title = "ChangeRoles";
 
-    var roles = Model.GetRoles(ViewBag.Roles);
+    var roles = await UserManager.GetRolesAsync(Model);
 }
 
 <h2>ChangeRoles for @Model.UserName</h2>
@@ -19,7 +22,7 @@
         <div class="form-group">
             <div class="col-md-12">
                 <div class="checkbox">
-                    @foreach (var role in DanceMusicService.Roles)
+                    @foreach (var role in DanceMusicCoreService.Roles)
                     {
                         var isChecked = roles.Contains(role) ? "checked" : string.Empty;
                         <label>
@@ -42,11 +45,6 @@
 <div>
     @Html.ActionLink("Back to List", "Index")
 </div>
-
-@section Scripts {
-    @Scripts.Render("~/bundles/jqueryval")
-}
-
 
 
 

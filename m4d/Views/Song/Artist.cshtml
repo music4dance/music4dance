@@ -1,4 +1,5 @@
-﻿@model m4d.ViewModels.ArtistViewModel
+﻿@using m4dModels
+@model m4d.ViewModels.ArtistViewModel
 
 @{
     ViewBag.Title = Model.Name;
@@ -7,18 +8,22 @@
     ViewBag.SongFilter = new SongFilter { SortOrder = "Album" };
 }
 
-@Html.Partial("_SetupFilterScript")
+<partial name="_SetupFilterScript"/>
 
 <h2>Artist: @Model.Name</h2>
 
 <div class="row col-xs-12">
-    @{Html.RenderPartial("_ListSongs", @Model.Songs, ViewData);}
+    <partial name="_ListSongs" model="Model.Songs" />
 </div>
 
 
 @section Scripts
 {
-    @Scripts.Render("~/bundles/knockout")
-    @Scripts.Render("~/bundles/musicservice")
+    <environment include="Development">
+        <script src="~/scripts/musicservice.js"></script>
+    </environment>
+    <environment exclude="Development">
+        <script src="scripts/musicservice.min.js"></script>
+    </environment>
 }
 

@@ -1,0 +1,13 @@
+﻿@model string
+
+@{
+    var id = "param" + Model;
+    if (!ViewData.TryGetValue(id, out object o))
+    {
+        return;
+    }
+    if (o is bool)
+    {
+        o = ((o as bool?).Value ? "true" : "false");
+    }
+}

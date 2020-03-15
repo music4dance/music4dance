@@ -1,8 +1,9 @@
 ﻿@using System.Globalization
 @using DanceLibrary
+@using m4d.ViewModels
+@using m4dModels
 @using MarkdownDeep
-@using m4d.Utilities
-@model DanceStats
+@model m4dModels.DanceStats
 
 @{
     var defaultFilter = SongFilter.Default;
@@ -29,7 +30,7 @@
     DanceStatsInstance stats = ViewBag.DanceStats;
 }
 
-@Html.Partial("_SetupFilterScript")
+<partial name="_SetupFilterScript"/>
 
 <ol class="breadcrumb">
     <li><a href="/">Music4Dance</a></li>
@@ -103,7 +104,7 @@
                     . @Html.ActionLink("Click here", "advancedsearch", "song", new {dances = @Model.DanceId, tempomin = @bpmMin, tempomax = @bpmMax, filter=@defaultFilter}, null) to see a list of @Model.DanceName songs @rangeText @bpmText.
                 </p>
                 <dl>
-                    @SmartLink.TempiTool()
+                    <partial name="_TempiToolLink" />
                 </dl>
                 }
             </section>
@@ -118,7 +119,7 @@
             <h3>@Html.ActionLink("music4dance's", "Index", "Home") top 10 songs for dancing @Html.ActionLink(@Model.DanceName, "index", "song", new {filter = @danceFilter}, null)</h3>
         </div>
         <div>
-            @{Html.RenderPartial("_ListSongs", Model.TopSongs.Take(10), ViewData);}
+            <partial name="_ListSongs" model="@Model.TopSongs.Take(10)"/>
         </div>
     </section>
 
@@ -127,7 +128,7 @@
     {
         <section id="spotify-player">
             <H4>@Model.DanceName Spotify Playlist</H4>
-            <iframe src="https://open.spotify.com/embed/user/ebo1rk39vp51kkyjps45eobph/playlist/@Model.SpotifyPlaylist" frameborder="0" width="300" height="80" allowtransparency="true" allow="encrypted-media" allow="encrypted-media"></iframe>
+            <iframe src="https://open.spotify.com/embed/user/ebo1rk39vp51kkyjps45eobph/playlist/@Model.SpotifyPlaylist" frameborder="0" width="300" height="80" allowtransparency="true" allow="encrypted-media"></iframe>
         </section>
     }
 
@@ -136,11 +137,20 @@
     </div>
 }
 
-@if (@Model.CompetitionDances != null)
+@if (Model.CompetitionDances != null)
 {
-<section id="category-info">
-    @DanceHelper.CategoryTable(Html,stats,Model.CompetitionDances,"Competition Tempo information:",DanceCategoryType.Both)
-</section>
+    <section id="category-info">
+        @{var table = new CategoryTableModel
+          {
+              Title = "Competition Tempo information:",
+              DanceStats = stats,
+              Dances = Model.CompetitionDances.ToList(),
+              DanceCategoryType = DanceCategoryType.Both
+          };
+        }
+
+        <partial name="_CategoryTable" model ="@table"/>
+    </section>
 }
 
 @if (@Model.Parent == null)
@@ -149,7 +159,7 @@
 <section id="dance-styles">
     <h4>Dances that are grouped into the @Model.DanceName category.</h4>
     <div class="list-group">
-        @{Html.RenderPartial("_DanceList", @Model.Children);}
+        <partial name="_DanceList" model="@Model.Children" />
     </div>
 </section>
 }
@@ -173,7 +183,7 @@
     <hr/>
     <section id="tags"></section>
     <h4>Tags</h4>
-    Html.RenderPartial("_TagCloud", tags);
+    <partial name="_TagCloud" model="@tags"/>
 }
 
 <p>
@@ -185,13 +195,15 @@
 
 @if (User.IsInRole("showDiagnostics"))
 {
-    @DanceHelper.ShowAdmin(Model)
+    <partial name="_adminInfo" model="Model"/>
 }
 
 @section Scripts {
-    @Scripts.Render("~/bundles/jqueryval")
-    @Scripts.Render("~/bundles/knockout")
-    @Scripts.Render("~/bundles/musicservice")
-    @Scripts.Render("~/bundles/showdance")
+    <environment include="Development">
+        <script src="~/scripts/dancedetails.js"></script>
+    </environment>
+    <environment exclude="Development">
+        <script src="scripts/dancedetails.min.js"></script>
+    </environment>
 }
 

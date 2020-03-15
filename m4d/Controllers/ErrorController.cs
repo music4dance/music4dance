@@ -1,6 +1,7 @@
 ﻿using System;
-using System.Web.Mvc;
 using m4dModels;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 
 namespace m4d.Controllers
 {
@@ -16,7 +17,6 @@ namespace m4d.Controllers
                 var model = new ErrorModel { HttpStatusCode = statusCode, Exception = exception };
 
                 Response.StatusCode = statusCode; 
-                Response.TrySkipIisCustomErrors = true;
 
                 return View("HttpError",model);
             }
@@ -24,7 +24,7 @@ namespace m4d.Controllers
             {
                 // Otherwise, if it was an AJAX request, return an anon type with the message from the exception
                 var errorObject = new { message = (exception == null) ? "Really Bad Error" : exception.Message };
-                return Json(errorObject, JsonRequestBehavior.AllowGet);
+                return Json(errorObject);
             }
         }
     }

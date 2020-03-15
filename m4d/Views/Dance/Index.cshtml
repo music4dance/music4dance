@@ -1,5 +1,5 @@
 ﻿@using DanceLibrary
-@model DanceStatsInstance
+@model m4dModels.DanceStatsInstance
 
 @{
     ViewBag.Title = "Dance Style Index";
@@ -7,12 +7,6 @@
     ViewBag.ShowTempo = false;
     string[] boxes = { "LTN", "SWG", "FXT", "TNG", "MSC", "WLZ" };
 }
-
-@helper LinkCategory(string name)
-{
-    @Html.ActionLink(name, DanceObject.SeoFriendly(name), "dances")
-}
-
 
 <ol class="breadcrumb">
     <li><a href="/">Music4Dance</a></li>
@@ -27,7 +21,7 @@
 
         <div class="list-group col-sm-3">
             <h4><span id="@item.SeoName" class="btn btn-info btn-lg dance">@item.DanceName <span id="@item.DanceId" class="badge">@item.SongCount</span></span></h4>
-            @{Html.RenderPartial("_DanceList", item.Children);}
+            <partial name="_DanceList" model="item.Children" />
         </div>
     }
 </div>
@@ -38,8 +32,12 @@
 <p class="big-text">Don't agree with how we've organized dance styles? Well, we're not convinced there is a "right way" but we're doing some research to see if we can find a better way (or maybe multiple ways).  Please help us out by <a href="https://music4dance.blog/feedback/">sending us feedback</a> so that we can include your ideas about how to organize dance styles in the future.</p>
 
 @section Scripts {
-    @Scripts.Render("~/bundles/jqueryval")
-    @Scripts.Render("~/bundles/showdance")
+    <environment include="Development">
+        <script src="~/scripts/dancedetails.js"></script>
+    </environment>
+    <environment exclude="Development">
+        <script src="scripts/dancedetails.min.js"></script>
+    </environment>
 }
 
 

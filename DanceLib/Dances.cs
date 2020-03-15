@@ -655,6 +655,8 @@ namespace DanceLibrary
         public DanceCategoryType CategoryType => Name.StartsWith("International") ? DanceCategoryType.International : DanceCategoryType.American;
         public string CanonicalName => BuildCanonicalName(Name);
         //TODO:  Should be IReadOnlyList, but not enabled in Portable library?
+        public string FullRoundName => $"{Name} {(Round.Count == 4 ? "four" : "five")} dance round";
+
         public IList<DanceInstance> Round => _round;
         public IList<DanceInstance> Extras => _extra;
 

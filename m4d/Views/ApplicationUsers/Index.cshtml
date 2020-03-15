@@ -1,22 +1,20 @@
-﻿@using System
-@using System.Activities.Expressions
-@using System.Collections.Generic
-@using System.Linq
-@using m4d.Controllers
-@model ApplicationUserManager
+﻿@using m4dModels
+@using Microsoft.AspNetCore.Identity
+@model IReadOnlyDictionary<string, UserInfo>
+@inject UserManager<ApplicationUser> UserManager
+@inject RoleManager<IdentityRole> RoleManager
 
 @{
     ViewBag.Title = "Index";
-    var users = ApplicationUserManager.UserDictionary.Values.ToList();
+    var users = Model.Values.ToList();
 
-    var activeUsers = string.Join(",", AccountController.ActiveUsers);
     var registeredUsers = users.Count(u => !u.IsPseudo);
     var confirmedUsers = users.Count(u => u.IsConfirmed);
 
-    var deletedUsers = users.Count(u => u.UserName.StartsWith("DEL:"));
-    var hasServicePreference = users.Count(u => !string.IsNullOrEmpty(u.ServicePreference));
+    var deletedUsers = users.Count(u => u.User.UserName.StartsWith("DEL:"));
+    var hasServicePreference = users.Count(u => !string.IsNullOrEmpty(u.User.ServicePreference));
 
-    var filteredUsers = ViewBag.ShowUnconfirmed ? users : users.Where(u => u.EmailConfirmed).ToList();
+    var filteredUsers = ViewBag.ShowUnconfirmed ? users : users.Where(u => u.User.EmailConfirmed).ToList();
 
 }
 
@@ -26,7 +24,6 @@
 
 <div class="row">
     <div class="col-md-3">
-        <p><strong>Active Users:</strong> @activeUsers</p>
         <p><strong>Total Users:</strong> @users.Count</p>
         <p><strong>Registered Users:</strong> @registeredUsers</p>
         <p><strong>Confirmed Users:</strong> @confirmedUsers</p>
@@ -34,21 +31,21 @@
     </div>
 
     <div class="col-md-3">
-        @foreach (var role in ApplicationUserManager.Roles)
+        @foreach (var role in RoleManager.Roles)
         {
-            <p><b>@role.Name</b>: @ApplicationUserManager.UserDictionary.Values.Count(u => u.Roles.Any(r => r.RoleId == role.Id))</p>
+            <p><b>@role.Name</b>: @users.Count(u => u.Roles.Any(r => r == role.Name))</p>
         }
     </div>
 
     <div class="col-md-3">
-        @foreach (var logIn in new List<string>() {"Microsoft", "Spotify", "Facebook", "Google"})
+        @foreach (var logIn in new List<string> {"Microsoft", "Spotify", "Facebook", "Google"})
         {
-            <p><b>@logIn</b>: @ApplicationUserManager.UserDictionary.Values.Count(u => u.Logins.Any(l => l.LoginProvider == logIn))</p>
+            <p><b>@logIn</b>: @users.Count(u => u.Logins.Any(l => l == logIn))</p>
         }
     </div>
 
     <div class="col-md-3">
-        <p>@Html.ActionLink("New Pseudo User", "Create", null, new { @class = "btn btn-default", role = "button" })</p>
+        <p>@Html.ActionLink("New Pseudo User", "Create", "ApplicationUsers", null,  htmlAttributes: new { @class = "btn btn-default", role = "button" })</p>
         @if (ViewBag.ShowUnconfirmed)
         {
             <p>@Html.ActionLink("Hide Unconfirmed", "Index", new { showUnconfirmed = false }, new { @class = "btn btn-default", role = "button" })</p>
@@ -57,7 +54,7 @@
         {
             <p>@Html.ActionLink("Show Unconfirmed", "Index", new { showUnconfirmed = true }, new { @class = "btn btn-default", role = "button" })</p>
         }
-        <p>@Html.ActionLink("Clear Cache", "ClearCache", null, new { @class = "btn btn-default", role = "button" })</p>
+        <p>@Html.ActionLink("Clear Cache", "ClearCache", "ApplicationUsers", null, new { @class = "btn btn-default", role = "button" })</p>
         <p>@Html.ActionLink("Voting Results", "VotingResults")</p>
     </div>
 
@@ -68,7 +65,7 @@
     @foreach (var service in MusicService.GetServices())
     {
         var sid = new string(service.CID, 1);
-        var c = users.Count(u => u.ServicePreference != null && u.ServicePreference.Contains(sid));
+        var c = users.Count(u => u.User.ServicePreference != null && u.User.ServicePreference.Contains(sid));
         if (c == 0)
         {
             continue;
@@ -122,22 +119,10 @@
         <th></th>
     </tr>
 
-    @foreach (var item in filteredUsers.OrderByDescending(u => u.LastActive > u.StartDate ? u.LastActive : u.StartDate).ToList())
+    @foreach (var item in filteredUsers.OrderByDescending(u => u.User.LastActive > u.User.StartDate ? u.User.LastActive : u.User.StartDate).ToList())
     {
-        var pseudoClass = ApplicationUserManager.IsPseudoUser(item.Email) ? "pseudo-user" : "";
-        var roles = new List<string>();
-        foreach (var role in item.Roles)
-        {
-            var r = ApplicationUserManager.Roles.FirstOrDefault(x => x.Id == role.RoleId);
-            if (r != null)
-            {
-                roles.Add(r.Name);
-            }
-        }
-
-        var logIns = item.Logins.Select(logIn => logIn.LoginProvider);
-
-<tr>
+        var pseudoClass = item.IsPseudo ? "pseudo-user" : "";
+        <tr>
     @*
         <td>
             @Html.DisplayFor(modelItem => item.PasswordHash)
@@ -156,44 +141,40 @@
         </td>
     *@
     <td>
-        @Html.DisplayFor(modelItem => item.EmailConfirmed)
+        @Html.DisplayFor(modelItem => item.User.EmailConfirmed)
     </td>
     <td>
-        @Html.ActionLink(item.UserName, "Details", new { id = item.Id }, new { @class = pseudoClass })
-        @if (AccountController.IsUserActive(item.UserName))
-        {
-            @: *
-        }
+        @Html.ActionLink(item.User.UserName, "Details", new { id = item.User.Id }, new { @class = pseudoClass })
         <br />
-        @Html.DisplayFor(modelItem => item.Email)
+        @Html.DisplayFor(modelItem => item.User.Email)
     </td>
     <td>
-        @item.StartDate.ToString("d")
+        @item.User.StartDate.ToString("d")
         <br />
-        @if (item.LastActive == DateTime.Parse("1/1/1900"))
+        @if (item.User.LastActive == DateTime.Parse("1/1/1900"))
         {
             @:Never
         }
         else
         {
-            @item.LastActive.ToString("d")
+            @item.User.LastActive.ToString("d")
         }
 
     </td>
     <td>
-        @Html.DisplayFor(modelItem => item.CanContact)
+        @Html.DisplayFor(modelItem => item.User.CanContact)
     </td>
     <td>
-        @Html.DisplayFor(modelItem => item.ServicePreference)
+        @Html.DisplayFor(modelItem => item.User.ServicePreference)
     </td>
-    <td>@Html.Raw(string.Join("<br />",roles))</td>
-    <td>@Html.Raw(string.Join("<br />",logIns))</td>
+    <td>@Html.Raw(string.Join("<br />", item.Roles))</td>
+    <td>@Html.Raw(string.Join("<br />", item.Logins))</td>
     <td>
-        @Html.ActionLink("List Songs", "FilterUser", "Song", new { user = item.UserName }, null),
-        @Html.ActionLink("List Searches", "Index", "Searches", new { user = item.UserName, showDetails = true, sort = "recent" }, null) <br />
-        @Html.ActionLink("Change Roles", "ChangeRoles", new { id = item.Id }) <br />
-        @Html.ActionLink("Delete", "Delete", new { id = item.Id }),
-        @Html.ActionLink("Edit", "Edit", new { id = item.Id })
+        @Html.ActionLink("List Songs", "FilterUser", "Song", new { user = item.User.UserName }, null),
+        @Html.ActionLink("List Searches", "Index", "Searches", new { user = item.User.UserName, showDetails = true, sort = "recent" }, null) <br />
+        @Html.ActionLink("Change Roles", "ChangeRoles", new { id = item.User.Id }) <br />
+        @Html.ActionLink("Delete", "Delete", new { id = item.User.Id }),
+        @Html.ActionLink("Edit", "Edit", new { id = item.User.Id })
 
         @*
             @Html.ActionLink("Edit", "Edit", new { id=item.Id }) |

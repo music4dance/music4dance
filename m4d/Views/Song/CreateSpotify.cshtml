@@ -1,4 +1,5 @@
-﻿@model PlaylistCreateInfo
+﻿@using m4dModels
+@model m4dModels.PlaylistCreateInfo
 
 @{
     ViewBag.Title = "New Spotify Playlist";
@@ -71,9 +72,4 @@
             </div>
         </div>
     }
-}
-
-
-@section Scripts {
-    @Scripts.Render("~/bundles/jqueryval")
 }

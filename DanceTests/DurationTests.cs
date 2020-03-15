@@ -1,12 +1,10 @@
 ﻿using DanceLibrary;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
-using System.Diagnostics.CodeAnalysis;
 
 namespace DanceTests
 {
     [TestClass]
-    [ExcludeFromCodeCoverage]
     public class DurationTests
     {
         [TestMethod]

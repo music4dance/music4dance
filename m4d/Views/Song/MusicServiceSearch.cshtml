@@ -1,11 +1,12 @@
-﻿@model m4d.ViewModels.ServiceSearchResults
+﻿@using m4dModels
+@model m4d.ViewModels.ServiceSearchResults
 
 <h2>Music Service Search: @Model.Song.Title</h2>
 
 <div>
     <h4>Status = @ViewBag.Status</h4>
-
-    @Html.Partial("DetailsCore",Model.Song)
+    
+    <partial name="DetailsCore" model="Model.Song"/>
 </div>
 
 @using (Html.BeginForm("MusicServiceSearch","Song",FormMethod.Get))
@@ -58,12 +59,13 @@
             <b>ReleaseDate:</b> @track.ReleaseDate<br />
             <b>Duration:</b> @length<br />
             <b>TrackNumber:</b> @track.TrackNumber<br />
-            @if (track.Genre != null)
+            @if (track.Genres != null)
             {
-                <b>Genre:</b>@track.Genre<br />
+                <b>Genres:</b>@string.Join(',',track.Genres)<br />
             }
 
-            @using (Html.BeginForm("ChooseMusicService","Song",new { type=@Model.ServiceType, songId = Model.Song.SongId, name = track.Name, album = track.Album, artist = track.Artist, trackId = track.TrackId, collectionId = track.CollectionId, alternateId = track.AltId, duration = track.Duration, trackNum = track.TrackNumber, genre=track.Genre, filter=ViewBag.SongFilter }))
+            @* CORETODO: Genre wasn't working before here, put it back in if we use this *@
+            @using (Html.BeginForm("ChooseMusicService","Song",new { type=@Model.ServiceType, songId = Model.Song.SongId, name = track.Name, album = track.Album, artist = track.Artist, trackId = track.TrackId, collectionId = track.CollectionId, alternateId = track.AltId, duration = track.Duration, trackNum = track.TrackNumber, filter=ViewBag.SongFilter }))
             {
                 @Html.AntiForgeryToken()
                 <input type="submit" value="CHOOSE" />

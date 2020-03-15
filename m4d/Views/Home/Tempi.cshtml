@@ -1,14 +1,15 @@
-﻿@model DanceLibrary.Dances
+﻿@using System.Linq
+@model DanceLibrary.Dances
 
 @{
     ViewBag.Title = "Tempi";
     ViewBag.Description = "A web application that catalogs dance styles by the tempo to which they can be danced both socially and by the standards of several organizers of dance competitions.";
 
     var paramDetailed = (ViewData.ContainsKey("paramDetailed")) ? ViewBag.paramDetailed : false;
-    var paramStyle = (ViewData.ContainsKey("paramStyle")) ? @ViewBag.paramStyle : 0;
-    var paramMeter = (ViewData.ContainsKey("paramMeter")) ? @ViewBag.paramMeter : 1;
-    var paramType = (ViewData.ContainsKey("paramType")) ? @ViewBag.paramType : 0;
-    var paramOrg = (ViewData.ContainsKey("paramOrg")) ? @ViewBag.paramOrg : 0;
+    var paramStyle = (ViewData.ContainsKey("paramStyle")) ? ViewBag.paramStyle : 0;
+    var paramMeter = (ViewData.ContainsKey("paramMeter")) ? ViewBag.paramMeter : 1;
+    var paramType = (ViewData.ContainsKey("paramType")) ? ViewBag.paramType : 0;
+    var paramOrg = (ViewData.ContainsKey("paramOrg")) ? ViewBag.paramOrg : 0;
 
     var danceGroups = Model.AllDanceGroups.ToList();
 }
@@ -106,38 +107,41 @@
     <p>If there are other organizations that you would like to see included in this list, please <a href="https://music4dance.blog/feedback/">contact us</a> and we'll be happy to take a look.</p>
 </div>
 
+<script>
+    var danceTypes = [
+        {id: 'ALL', name: 'All Types'},
+        @foreach (var item in Model.AllDanceGroups)
+        {
+            <text>{id:"@item.Id",name:"@item.Name"},</text>
+        }
+    ];
+    var danceStyles = [
+        @foreach (var item in Model.Styles)
+        {
+            <text>{ id: "@item.Key", name: "@item.Value" },</text>
+        }
+    ];
+    var danceOrgs = [
+        @foreach (var item in Model.Organizations)
+        {
+            <text>{ title: "@item.Title", name: "@item.Name", category:"@item.Category", qualifier:"@item.Qualifier"},</text>
+        }
+    ];
+
+    var paramDetailed = @(paramDetailed ? "true" : "false");
+    var paramStyle = @paramStyle;
+    var paramMeter = @paramMeter;
+    var paramType = @paramType;
+    var paramOrg = @paramOrg;
+
+    var dances = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model.NonPerformanceDanceTypes));
+</script>
+
 @section Scripts {
-    <script>
-        var danceTypes = [
-            {id: 'ALL', name: 'All Types'},
-            @foreach (var item in Model.AllDanceGroups)
-            {
-                <text>{id:"@item.Id",name:"@item.Name"},</text>
-            }
-        ];
-        var danceStyles = [
-            @foreach (var item in Model.Styles)
-            {
-                <text>{ id: "@item.Key", name: "@item.Value" },</text>
-            }
-        ];
-        var danceOrgs = [
-            @foreach (var item in Model.Organizations)
-            {
-                <text>{ title: "@item.Title", name: "@item.Name", category:"@item.Category", qualifier:"@item.Qualifier"},</text>
-            }
-        ];
-
-        var paramDetailed = @(paramDetailed ? "true" : "false");
-        var paramStyle = @paramStyle;
-        var paramMeter = @paramMeter;
-        var paramType = @paramType;
-        var paramOrg = @paramOrg;
-
-        var dances = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model.NonPerformanceDanceTypes));
-    </script>
-    @Scripts.Render("~/bundles/jqueryval")
-    @Scripts.Render("~/bundles/knockout")
-    @Scripts.Render("~/bundles/knockout-mapping")
-    @Scripts.Render("~/bundles/tempi")
+    <environment include="Development">
+        <script src="~/scripts/tempi.js"></script>
+    </environment>
+    <environment exclude="Development">
+        <script src="scripts/tempi.min.js"></script>
+    </environment>
 }

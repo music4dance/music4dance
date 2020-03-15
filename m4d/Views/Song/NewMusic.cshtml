@@ -1,4 +1,6 @@
-﻿@model PagedList.IPagedList<Song>
+﻿@using m4dModels
+@using m4d.ViewModels
+@model X.PagedList.IPagedList<Song>
 
 @{
     SongFilter filter = ViewData.ContainsKey("SongFilter") ? ViewBag.SongFilter : SongFilter.AzureSimple;
@@ -7,10 +9,9 @@
     ViewBag.Description = "music4dance catalog: " + filter.Description;
     const string recentlyAdded = @"Most Recently Added Songs";
     const string recentlyChanged = @"Most Recently Changed Songs";
-    const string catalog = @"Songs to Catalog";
 }
 
-@Html.Partial("_SetupFilterScript")
+<partial name="_SetupFilterScript" />
 
 <ol class="breadcrumb">
     <li><a href="/">Music4Dance</a></li>
@@ -22,34 +23,34 @@
 
 <H2>
     @*@if (string.Equals(filter.SongSort.Id, "Created", StringComparison.OrdinalIgnoreCase))
-    {
-        TODO: Figure out how to make new music that has no dances associated with it
-          bubble to the top of this lise
-        if (filter.Level == 0)
         {
+            TODO: Figure out how to make new music that has no dances associated with it
+              bubble to the top of this lise
+            if (filter.Level == 0)
+            {
+                <span>
+                    @Html.ActionLink(recentlyAdded, "NewMusic", new {type = "Created"}) |
+                    @Html.ActionLink(recentlyChanged, "NewMusic", new { type = "Modified" }) |
+                    @catalog
+                </span>
+            }
+            else
+            {
             <span>
-                @Html.ActionLink(recentlyAdded, "NewMusic", new {type = "Created"}) |
+                @recentlyAdded |
                 @Html.ActionLink(recentlyChanged, "NewMusic", new { type = "Modified" }) |
-                @catalog
+                @Html.ActionLink(catalog, "NewMusic", new {type = "Catalog"})
             </span>
+            }
         }
         else
         {
-        <span>
-            @recentlyAdded |
-            @Html.ActionLink(recentlyChanged, "NewMusic", new { type = "Modified" }) |
-            @Html.ActionLink(catalog, "NewMusic", new {type = "Catalog"})
-        </span>
-        }
-    }
-    else
-    {
-        <span>
-            @Html.ActionLink(recentlyAdded, "NewMusic", new { type = "Created" }) |
-            @recentlyChanged |
-            @Html.ActionLink(catalog, "NewMusic", new {type = "Catalog"})
-        </span>
-    }*@
+            <span>
+                @Html.ActionLink(recentlyAdded, "NewMusic", new { type = "Created" }) |
+                @recentlyChanged |
+                @Html.ActionLink(catalog, "NewMusic", new {type = "Catalog"})
+            </span>
+        }*@
     @if (string.Equals(filter.SongSort.Id, "Created", StringComparison.OrdinalIgnoreCase))
     {
         <span>
@@ -67,17 +68,15 @@
 
 </H2>
 
-@{
-    Html.RenderPartial("_ListSongs", Model, ViewData);
-}
+<partial name="_ListSongs" model="Model" />
 
-@SongHelper.SearchFooter(Html, Url, Model, filter, true)
+<partial name="_SearchFooter" model="new SearchFooterModel {Songs=Model, Filter=filter, HideInferred=true}"/>
 
-<p class="big-text">If you would like to find recent additions/changes for specific styles of dance (like Swing or Foxtrot): visit the @Html.ActionLink("advanced search page","AdvancedSearchForm") , choose the "Sort By" option of "When Added" or "Last Modified" as well as the Dance style, or styles you would like to see. More information on advanced search is available on the <a href="https://music4dance.blog/music4dance-help/advanced-search/">advanced search help page</a>.</p>
+<p class="big-text">If you would like to find recent additions/changes for specific styles of dance (like Swing or Foxtrot): visit the @Html.ActionLink("advanced search page", "AdvancedSearchForm") , choose the "Sort By" option of "When Added" or "Last Modified" as well as the Dance style, or styles you would like to see. More information on advanced search is available on the <a href="https://music4dance.blog/music4dance-help/advanced-search/">advanced search help page</a>.</p>
 
 @if (User.IsInRole("showDiagnostics") && ViewData.ContainsKey("RawSearch"))
 {
-    @SongHelper.ShowRawSearch(ViewBag.RawSearch)
+    <partial name="_ShowRawSearch" model="ViewBag.RawSearch"/>
 }
 
 @if (User.IsInRole("showDiagnostics") && filter.IsRaw)
@@ -89,17 +88,22 @@
     </div>
 }
 
-@section Scripts
-{
-    @Scripts.Render("~/bundles/jqueryval")
-    @Scripts.Render("~/bundles/jqueryautocomplete")
-    @Scripts.Render("~/bundles/knockout")
-    @Scripts.Render("~/bundles/knockout-mapping")
-    @Scripts.Render("~/bundles/tools-script")
-    @Scripts.Render("~/bundles/musicservice")
-    @Scripts.Render("~/bundles/tagchooser")
-    @Scripts.Render("~/bundles/catalog")
-    @Scripts.Render("~/bundles/azuresearch")
+@section Scripts {
+    <environment include="Development">
+        <script src="~/scripts/tools-script.js"></script>
+        <script src="~/scripts/search.js"></script>
+    </environment>
+    <environment exclude="Development">
+        <script src="scripts/tools-script.min.js"></script>
+        <script src="~/scripts/search.min.js"></script>
+    </environment>
+}
 
-    @Styles.Render("~/bundles/tools-style")
+@section Styles {
+    <environment include="Development">
+        <link rel="stylesheet" href="~/css/tools-styles.min.css" asp-append-version="true" />
+    </environment>
+    <environment exclude="Development">
+        <link rel="stylesheet" href="~/css/tools-styles.css" asp-append-version="true" />
+    </environment>
 }

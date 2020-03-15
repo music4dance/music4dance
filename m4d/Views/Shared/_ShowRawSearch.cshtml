@@ -1,0 +1,17 @@
+﻿@using System.Net
+@model Microsoft.Azure.Search.Models.SearchParameters
+
+<div class="row">
+    <div class="col-md-12">
+        <b>Raw Search: </b>@WebUtility.UrlDecode(Model.ToString())<br />
+        @if (Model.Filter != null)
+        {
+            <b>Raw Search Filter: </b>@WebUtility.UrlDecode(Model.Filter)<br />
+        }
+        @if (Model.OrderBy != null && Model.OrderBy.Count > 0)
+        {
+            <b>Raw Search OrderBy: </b>@WebUtility.UrlDecode(string.Join(",", Model.OrderBy))<br />
+        }
+    </div>
+</div>
+

@@ -1,4 +1,7 @@
-﻿@model PagedList.IPagedList<Song>
+﻿@using System.Net
+@using m4dModels
+@using m4d.ViewModels
+@model X.PagedList.IPagedList<Song>
 @*@using System.Runtime.Serialization.Json*@
 
 @{
@@ -14,52 +17,52 @@
     var userName = filter.UserQuery.IsEmpty ? User.Identity.Name : filter.UserQuery.UserName;
 }
 
-@Html.Partial("_SetupFilterScript")
+<partial name="_SetupFilterScript" />
 
-@SongHelper.SearchHeader(Html, filter, dances, userName, descriptionOverride)
-
+<partial name="_SearchHeader" model="new SearchHeaderModel {Filter = filter, Dances = dances, UserName = userName, Description = descriptionOverride}" />
 
 @if (User.IsInRole("dbAdmin"))
 {
     using (Html.BeginForm("BulkEdit", "Song"))
     {
         @Html.AntiForgeryToken()
-        Html.RenderPartial("_ListSongs", @Model, ViewData);
-    <div class="row col-xs-12">
-        <input type="hidden" name="filter" value="@filter" />
-        <input type="submit" name="action" value="Merge" class="btn btn-" />
-        <input type="submit" name="action" value="Delete" class="btn" />
-        <input type="submit" name="action" value="CleanupAlbums" class="btn" />
-        @Html.ActionLink("Add New Song", "Create", null, new { @class = "btn btn-default", role = "button" })
-        @Html.ActionLink("ITunes Batch", "BatchMusicService", new { filter, type = "I", count = 50 }, new { @class = "btn btn-success", role = "button" })
-        @Html.ActionLink("Spotify Batch", "BatchMusicService", new { filter, type = "S", count = 50 }, new { @class = "btn btn-success", role = "button" })
-        @Html.ActionLink("Amazon Batch", "BatchMusicService", new { filter, type = "A", count = 50 }, new { @class = "btn btn-success", role = "button" })
-        @Html.ActionLink("Canonical Batch", "BatchMusicService", new { filter, type = "-", count = 50 }, new { @class = "btn btn-success", role = "button" })
-        @Html.ActionLink("Canonical (S)", "BatchMusicService", new { filter, type = "-", count = 50, options = "S" }, new { @class = "btn btn-success", role = "button" })
-        @Html.ActionLink("Canonical (R)", "BatchMusicService", new { filter, type = "-", count = 50, options = "R" }, new { @class = "btn btn-success", role = "button" })
-        @Html.ActionLink("Clean Services", "BatchCleanService", new { filter, count = -1 }, new { @class = "btn btn-success", role = "button" })
-        @Html.ActionLink("Clean Spotify", "BatchCleanService", new { filter, type="SG", count = -1 }, new { @class = "btn btn-success", role = "button" })
-        @Html.ActionLink("Clear Update", "BatchClearUpdate", new { filter, count = -1 }, new { @class = "btn btn-success", role = "button" })
-        @Html.ActionLink("Backup List", "BackupTail", "Admin", new { filter, count = -1 }, new { @class = "btn btn-default", role = "button" })
-        @Html.ActionLink("JSON", "BackupJson", "Admin", new { filter }, new { @class = "btn btn-default", role = "button" })
-        @Html.ActionLink("Update User Tags", "RebuildUserTags", "Admin", new { filter, update = true }, new { @class = "btn btn-default", role = "button" })
-        @Html.ActionLink("Update Tags", "RebuildTags", "Admin", new { filter }, new { @class = "btn btn-default", role = "button" })
-        @Html.ActionLink("Update Tag Summaries", "UpdateTagSummaries", "Admin", new { filter }, new { @class = "btn btn-default", role = "button" })
-        @Html.ActionLink("Echo Batch", "BatchEchoNest", new { filter, count = 1000 }, new { @class = "btn btn-warning", role = "button" })
-        @Html.ActionLink("Sample Batch", "BatchSamples", new { filter, count = 1000 }, new { @class = "btn btn-warning", role = "button" })
-    </div>
+        <partial name="_ListSongs" model="Model" />
+
+        <div class="row col-xs-12">
+            <input type="hidden" name="filter" value="@filter" />
+            <input type="submit" name="action" value="Merge" class="btn btn-" />
+            <input type="submit" name="action" value="Delete" class="btn" />
+            <input type="submit" name="action" value="CleanupAlbums" class="btn" />
+            @Html.ActionLink("Add New Song", "Create", null, new { @class = "btn btn-default", role = "button" })
+            @Html.ActionLink("ITunes Batch", "BatchMusicService", new { filter, type = "I", count = 50 }, new { @class = "btn btn-success", role = "button" })
+            @Html.ActionLink("Spotify Batch", "BatchMusicService", new { filter, type = "S", count = 50 }, new { @class = "btn btn-success", role = "button" })
+            @Html.ActionLink("Amazon Batch", "BatchMusicService", new { filter, type = "A", count = 50 }, new { @class = "btn btn-success", role = "button" })
+            @Html.ActionLink("Canonical Batch", "BatchMusicService", new { filter, type = "-", count = 50 }, new { @class = "btn btn-success", role = "button" })
+            @Html.ActionLink("Canonical (S)", "BatchMusicService", new { filter, type = "-", count = 50, options = "S" }, new { @class = "btn btn-success", role = "button" })
+            @Html.ActionLink("Canonical (R)", "BatchMusicService", new { filter, type = "-", count = 50, options = "R" }, new { @class = "btn btn-success", role = "button" })
+            @Html.ActionLink("Clean Services", "BatchCleanService", new { filter, count = -1 }, new { @class = "btn btn-success", role = "button" })
+            @Html.ActionLink("Clean Spotify", "BatchCleanService", new { filter, type = "SG", count = -1 }, new { @class = "btn btn-success", role = "button" })
+            @Html.ActionLink("Clear Update", "BatchClearUpdate", new { filter, count = -1 }, new { @class = "btn btn-success", role = "button" })
+            @Html.ActionLink("Backup List", "BackupTail", "Admin", new { filter, count = -1 }, new { @class = "btn btn-default", role = "button" })
+            @Html.ActionLink("JSON", "BackupJson", "Admin", new { filter }, new { @class = "btn btn-default", role = "button" })
+            @Html.ActionLink("Update User Tags", "RebuildUserTags", "Admin", new { filter, update = true }, new { @class = "btn btn-default", role = "button" })
+            @Html.ActionLink("Update Tags", "RebuildTags", "Admin", new { filter }, new { @class = "btn btn-default", role = "button" })
+            @Html.ActionLink("Update Tag Summaries", "UpdateTagSummaries", "Admin", new { filter }, new { @class = "btn btn-default", role = "button" })
+            @Html.ActionLink("Echo Batch", "BatchEchoNest", new { filter, count = 1000 }, new { @class = "btn btn-warning", role = "button" })
+            @Html.ActionLink("Sample Batch", "BatchSamples", new { filter, count = 1000 }, new { @class = "btn btn-warning", role = "button" })
+        </div>
     }
 }
 else
 {
-    Html.RenderPartial("_ListSongs", @Model, ViewData);
+    <partial name="_ListSongs" model="Model" />
 }
 
-@SongHelper.SearchFooter(Html, Url, Model, filter, false, false, true)
+<partial name="_SearchFooter" model="new SearchFooterModel {Songs=Model, Filter=filter, ShowExport=true}" />
 
 @if (User.IsInRole("showDiagnostics") && ViewData.ContainsKey("RawSearch"))
 {
-    @SongHelper.ShowRawSearch(ViewBag.RawSearch)
+    <partial name="_ShowRawSearch" model="ViewBag.RawSearch" />
     <div class="row">
         <div class="col-md-12">
             <b>m4d Search: </b>@WebUtility.UrlDecode(filter.ToString())<br />
@@ -82,9 +85,11 @@ else
     using (Html.BeginForm("BatchAdminEdit", "Song", FormMethod.Post, new { enctype = "multipart/form-data" }))
     {
         @Html.AntiForgeryToken();
-        <span>User:</span> <input type="text" name="user" />
+        <span>User:</span>
+        <input type="text" name="user" />
         <br />
-        <span>Properties:</span> <input type="text" name="properties" />
+        <span>Properties:</span>
+        <input type="text" name="properties" />
         <input type="hidden" name="filter" value="@filter" />
         <input type="submit" name="BatchAdminEdit" id="Submit" value="Upload" />
     }
@@ -93,24 +98,31 @@ else
     using (Html.BeginForm("BatchAdminModify", "Song", FormMethod.Post, new { enctype = "multipart/form-data" }))
     {
         @Html.AntiForgeryToken();
-        <span>SongModifier:</span> <input type="text" name="properties" />
+        <span>SongModifier:</span>
+        <input type="text" name="properties" />
         <input type="hidden" name="filter" value="@filter" />
         <input type="submit" name="BatchAdminModify" id="Submit" value="Upload" />
     }
 
 }
 
-@section Scripts
-{
-    @Scripts.Render("~/bundles/jqueryval")
-    @Scripts.Render("~/bundles/jqueryautocomplete")
-    @Scripts.Render("~/bundles/knockout")
-    @Scripts.Render("~/bundles/knockout-mapping")
-    @Scripts.Render("~/bundles/tools-script")
-    @Scripts.Render("~/bundles/musicservice")
-    @Scripts.Render("~/bundles/tagchooser")
-    @Scripts.Render("~/bundles/catalog")
-    @Scripts.Render("~/bundles/azuresearch")
-
-    @Styles.Render("~/bundles/tools-style")
+@section Scripts {
+    <environment include="Development">
+        <script src="~/scripts/tools-script.js"></script>
+        <script src="~/scripts/search.js"></script>
+    </environment>
+    <environment exclude="Development">
+        <script src="scripts/tools-script.min.js"></script>
+        <script src="~/scripts/search.js"></script>
+    </environment>
 }
+
+@section Styles {
+    <environment include="Development">
+        <link rel="stylesheet" href="~/css/tools-styles.min.css" asp-append-version="true" />
+    </environment>
+    <environment exclude="Development">
+        <link rel="stylesheet" href="~/css/tools-styles.css" asp-append-version="true" />
+    </environment>
+}
+

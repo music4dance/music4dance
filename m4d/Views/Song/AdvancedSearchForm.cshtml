@@ -1,4 +1,8 @@
-﻿@using System.Runtime.Serialization.Json
+﻿@using System.IO
+@using m4d.ViewModels
+@using m4dModels
+@using Microsoft.AspNetCore.Html
+@using Newtonsoft.Json
 
 @{
     SongFilter filter = ViewData.ContainsKey("SongFilter") ? ViewBag.SongFilter : SongFilter.Default;
@@ -17,7 +21,10 @@
     var dances = (IList<DanceStats>)ViewBag.Dances;
 
     var userQuery = filter.UserQuery;
-    if (userQuery.IsAnonymous && !string.IsNullOrWhiteSpace(User.Identity.Name)) { userQuery = new UserQuery(userQuery, User.Identity.Name); }
+    if (userQuery.IsAnonymous && !string.IsNullOrWhiteSpace(User.Identity.Name))
+    {
+        userQuery = new UserQuery(userQuery, User.Identity.Name);
+    }
 
     var userName = (userQuery.IsEmpty || userQuery.IsAnonymous) ? User.Identity.Name : userQuery.UserName;
 
@@ -30,51 +37,60 @@
     {
         userQuery = new UserQuery(User.Identity.Name, false, false);
     }
-}
 
-@helper Service(string id, string name, string purchase)
-{
-    <label class="checkbox-inline">
-        <input type="checkbox" name="services" id="@("service" + id)" value=@id @(purchase == null || !purchase.Contains(id) ? string.Empty : "checked") />
-        <span>@name</span>
-    </label>
-}
+    Func<ServiceInfo, IHtmlContent> service =
+    @<label class="checkbox-inline">
+        <input type="checkbox" name="services" id="@( "service" + item.Id)" value=@item.Id @(item.Purchase == null || !item.Purchase.Contains(item.Id) ? string.Empty : "checked") />
+        <span>@item.Name</span>
+    </label>;
 
-@helper Bonus(int id, string name, int? cruft)
-{
-    <label class="checkbox-inline">
-        <input type="checkbox" name="bonusContent" id="@("service" + id)" value=@id @(cruft == null || (cruft & id) == 0 ? string.Empty : "checked") />
-        <span>@name</span>
-    </label>
-}
-@*@helper UserOption(string queryString, string text, UserQuery query)
-    {
-        <option value="@queryString" @(string.Equals(queryString,query.Query,StringComparison.OrdinalIgnoreCase) ? "selected" : string.Empty)>@text</option>
-    }*@
+Func<BonusInfo, IHtmlContent> bonus =
+@<label class="checkbox-inline">
+    <input type="checkbox" name="bonusContent" id="@("service" + item.Id)" value=@item.Id @(item.Cruft == null || (item.Cruft & @item.Id) == 0 ? string.Empty : "checked") />
+    <span>@item.Name</span>
+</label>;
 
-@helper UserOption(UserQuery query, string userName, bool? include, bool? like)
-{
-    var u = userName ?? UserQuery.AnonymousUser;
-    var nq = include.HasValue ? new UserQuery(u, include.Value, like) : new UserQuery("null");
-
-    <option value="@nq.Query" @(string.Equals(nq.Query, query.Query, StringComparison.OrdinalIgnoreCase) ? "selected" : string.Empty)>@nq.ActionDescription</option>
-}
-
-
-@helper SortOrder(string name, string order, string label = null)
-{
-    var sort = new SongSort(order);
-    if (label == null)
-    {
-        label = name;
+Func<UserOptions, IHtmlContent> userOption =
+@<text>
+    @{
+    var u = item.UserName ?? UserQuery.AnonymousUser;
+    var nq = item.Include.HasValue ? new UserQuery(u, item.Include.Value, item.Like) : new UserQuery("null");
     }
-    <label class="form-inline" style="font-weight:normal; margin-right:1.5em">
-        <input type="radio" name="sortOrder" value="@name" @(string.Equals(sort.Id, name, StringComparison.OrdinalIgnoreCase) || (name == "Closest Match" && string.IsNullOrWhiteSpace(sort.Id)) ? "checked" : string.Empty)> @label
+    @if (string.Equals(nq.Query, item.Query.Query, StringComparison.OrdinalIgnoreCase))
+    {
+        <option value="@nq.Query" selected>@nq.ActionDescription</option>
+    }
+    else
+    {
+        <option value="@nq.Query">>@nq.ActionDescription</option>
+    }
+</text>;
+
+Func<SortOptions, IHtmlContent> sortOrder =
+@<text>
+    @{
+    var sort = new SongSort(item.Order);
+    if (item.Label == null)
+    {
+        item.Label = item.Name;
+    }
+    }
+    <label class="form-inline" style="font-weight: normal; margin-right: 1.5em">
+        @if (string.Equals(sort.Id, item.Name, StringComparison.OrdinalIgnoreCase) || (item.Name == "Closest Match" && string.IsNullOrWhiteSpace(sort.Id)))
+        {
+            <input type="radio" name="sortOrder" value="@item.Name" checked>
+        }
+        else
+        {
+            <input type="radio" name="sortOrder" value="@item.Name">
+        }
+        <text>@item.Label</text>
     </label>
+
+</text>;
 }
 
-
-@Html.Partial("ItemTags")
+<partial name="ItemTags" />
 
 <div class="row">
     <h1 class="col-sm-12" style="font-size: 22px; text-align: center">
@@ -82,7 +98,7 @@
     </h1>
 </div>
 <div class="row">
-    <p class="col-sm-4 col-sm-offset-2">@Html.ActionLink("Saved Searches", "index", "searches", new { user = @userName, filter }, new { id = "saved-search" })</p>
+    <p class="col-sm-4 col-sm-offset-2">@Html.ActionLink("Saved Searches", "Index", "searches", new { user = @userName, filter }, new { id = "saved-search" })</p>
     <p class="col-sm-4" style="text-align: right">
         @(isAzure ? Html.ActionLink("Simple Search", "AzureSearch", "song", null, new { id = "basic-search", data_type = "azure+simple" }) : Html.ActionLink("Basic Search", "index", "song", null, new { id = "basic-search", data_type = "index" }))
     </p>
@@ -111,12 +127,12 @@
                     <select id="chosen-dances" class="chosen-select" style="padding-right: 15px" multiple data-placeholder="Choose some dance styles...">
                         @foreach (var d in dances)
                         {
-                            var set = danceQuery.HasDance(d.DanceId) ? "selected" : "";
-                            <option value="@d.DanceId" @set>@d.DanceName</option>
+                            var set = danceQuery.HasDance(d.DanceId) ? "selected" : null;
+                            <!option value="@d.DanceId" @set>@d.DanceName</!option>
                             foreach (var ds in d.Children)
                             {
                                 set = danceQuery.HasDance(ds.DanceId) ? "selected" : "";
-                                <option value="@ds.DanceId" @set>@ds.DanceName</option>
+                                <!option value="@ds.DanceId" @set>@ds.DanceName</!option>
                             }
                         }
                     </select>
@@ -169,13 +185,13 @@
                 </div>
                 <div class="col-sm-9">
                     <select id="user" name="user">
-                        @UserOption(userQuery, userName, null, null)
-                        @UserOption(userQuery, userName, false, true)
-                        @UserOption(userQuery, userName, false, false)
-                        @UserOption(userQuery, userName, false, null)
-                        @UserOption(userQuery, userName, true, true)
-                        @UserOption(userQuery, userName, true, false)
-                        @UserOption(userQuery, userName, true, null)
+                        @userOption(new UserOptions { Query = userQuery, UserName = userName })
+                        @userOption(new UserOptions { Query = userQuery, UserName = userName, Include = false, Like = true })
+                        @userOption(new UserOptions { Query = userQuery, UserName = userName, Include = false, Like = false })
+                        @userOption(new UserOptions { Query = userQuery, UserName = userName, Include = false })
+                        @userOption(new UserOptions { Query = userQuery, UserName = userName, Include = true, Like = true })
+                        @userOption(new UserOptions { Query = userQuery, UserName = userName, Include = true, Like = false })
+                        @userOption(new UserOptions { Query = userQuery, UserName = userName, Include = true })
                     </select>
                 </div>
             </div>
@@ -185,9 +201,9 @@
                     <label for="services" class="control-label search-label">Available on:</label>
                 </div>
                 <div class="col-sm-9">
-                    @Service("A", "Amazon", filter.Purchase)
-                    @Service("I", "Itunes", filter.Purchase)
-                    @Service("S", "Spotify", filter.Purchase)
+                    @service(new ServiceInfo { Id = "A", Name = "Amazon", Purchase = filter.Purchase })
+                    @service(new ServiceInfo { Id = "I", Name = "Itunes", Purchase = filter.Purchase })
+                    @service(new ServiceInfo { Id = "S", Name = "Spotify", Purchase = filter.Purchase })
                 </div>
             </div>
 
@@ -196,16 +212,16 @@
                     <label for="sortOrder" class="control-label search-label">Sort By:</label>
                 </div>
                 <div class="col-sm-9">
-                    @SortOrder("Title", filter.SortOrder)
-                    @SortOrder("Artist", filter.SortOrder)
-                    @SortOrder("Tempo", filter.SortOrder)
-                    @SortOrder("Dances", filter.SortOrder, "Dance Rating")
-                    @SortOrder("Modified", filter.SortOrder, "Last Modified")
-                    @SortOrder("Created", filter.SortOrder, "When Added")
-                    @SortOrder("Energy", filter.SortOrder)
-                    @SortOrder("Mood", filter.SortOrder)
-                    @SortOrder("Beat", filter.SortOrder, "Strength of Beat")
-                    @SortOrder("Closest Match", filter.SortOrder)
+                    @sortOrder(new SortOptions { Name = "Title", Order = filter.SortOrder })
+                    @sortOrder(new SortOptions { Name = "Artist", Order = filter.SortOrder })
+                    @sortOrder(new SortOptions { Name = "Tempo", Order = filter.SortOrder })
+                    @sortOrder(new SortOptions { Name = "Dances", Order = filter.SortOrder, Label = "Dance Rating" })
+                    @sortOrder(new SortOptions { Name = "Modified", Order = filter.SortOrder, Label = "Last Modified" })
+                    @sortOrder(new SortOptions { Name = "Created", Order = filter.SortOrder, Label = "When Added" })
+                    @sortOrder(new SortOptions { Name = "Energy", Order = filter.SortOrder })
+                    @sortOrder(new SortOptions { Name = "Mood", Order = filter.SortOrder })
+                    @sortOrder(new SortOptions { Name = "Beat", Order = filter.SortOrder, Label = "Strength of Beat" })
+                    @sortOrder(new SortOptions { Name = "Closest Match", Order = filter.SortOrder })
                 </div>
                 <div class="col-sm-offset-2 col-sm-9">
                     <label class="form-inline" style="font-weight: normal; margin-right: 1.5em">
@@ -222,8 +238,8 @@
                     <label for="bonusContent" class="control-label search-label">Bonus Content:</label>
                 </div>
                 <div class="col-sm-9">
-                    @Bonus(1, "Not found in any publisher catalog", filter.Level)
-                    @Bonus(2, "Not categorized by dance", filter.Level)
+                    @bonus(new BonusInfo { Id = 1, Name = "Not found in any publisher catalog", Cruft = filter.Level })
+                    @bonus(new BonusInfo { Id = 2, Name = "Not categorized by dance", Cruft = filter.Level })
                     <label class="checkbox-inline">
                         <a href="https://music4dance.blog/music4dance-help/subscriptions/">(Premium Feature)</a>
                     </label>
@@ -248,54 +264,55 @@
         }
     </div>
 </div>
+
 <div class="row">
     <p class="col-sm-8 col-sm-offset-2" style="text-align: center; margin-top: 10px">Try <a href="https://www.crowdnote.org">crowdnote.org</a> for a different browsing experience.</p>
 </div>
 
-@Html.Partial("_TagEditor")
+<partial name="_TagEditor" />
 
 @section Scripts
 {
     @{
-        <script>var userName = '@userName'</script>
+        <script>var userName = '@userName';</script>
         if (danceQuery.IsExclusive)
         {
-            <script>var danceOr = false</script>
+            <script>var danceOr = false;</script>
         }
         else
         {
-            <script>var danceOr = true</script>
+            <script>var danceOr = true;</script>
         }
 
         if (danceQuery.IncludeInferred)
         {
-            <script>var danceInferred = true</script>
+            <script>var danceInferred = true;</script>
         }
         else
         {
-            <script>var danceInferred = false</script>
+            <script>var danceInferred = false;</script>
         }
 
-        string filterString = null;
-        if (ViewData.ContainsKey("SongFilter"))
-        {
-            var stream = new MemoryStream();
-            var serializer = new DataContractJsonSerializer(typeof(SongFilter));
-            serializer.WriteObject(stream, ViewBag.SongFilter);
-            filterString = System.Text.Encoding.UTF8.GetString(stream.ToArray());
-        }
-        <script>window.songFilter = @(filterString == null ? null : Html.Raw(filterString));</script>
+        <script>window.songFilter = @Html.Raw(JsonConvert.SerializeObject(ViewBag.Filter as SongFilter));</script>
     }
-    @*External Libraries*@
-    @Scripts.Render("~/bundles/jqueryval")
-    @Scripts.Render("~/bundles/knockout")
-    @Scripts.Render("~/bundles/knockout-mapping")
-    @Scripts.Render("~/bundles/tools-script")
 
-    @*Local Scripts*@
-    @Scripts.Render("~/bundles/tagchooser")
-    @Scripts.Render("~/bundles/advancedsearch")
+    <environment include="Development">
+        <script src="~/scripts/tools-script.js"></script>
+        <script src="~/scripts/advancedsearch.js"></script>
+    </environment>
+    <environment exclude="Development">
+        <script src="scripts/tools-script.min.js"></script>
+        <script src="~/scripts/advancedsearch.min.js"></script>
+    </environment>
+}
 
-    @*Style Sheets for external libraries*@
-    @Styles.Render("~/bundles/tools-style")
+@section Styles {
+    <environment include="Development">
+        <link rel="stylesheet" href="~/css/tools-styles.min.css" asp-append-version="true" />
+    </environment>
+    <environment exclude="Development">
+        <link rel="stylesheet" href="~/css/tools-styles.css" asp-append-version="true" />
+    </environment>
+}
+
 }

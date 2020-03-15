@@ -1,8 +1,4 @@
-﻿@using System.Globalization
-@using DanceLibrary
-@using MarkdownDeep
-@using m4d.Utilities
-@model DanceStats
+﻿@model m4dModels.DanceStats
 
 <h1>@Model.DanceName</h1>
 
@@ -32,5 +28,5 @@
 
 @if (User.IsInRole("showDiagnostics"))
 {
-    @DanceHelper.ShowAdmin(Model)
+    <partial name="_adminInfo" model="Model"/>
 }

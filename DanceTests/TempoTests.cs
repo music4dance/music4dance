@@ -6,7 +6,6 @@ using System.Diagnostics.CodeAnalysis;
 namespace DanceTests
 {
     [TestClass]
-    [ExcludeFromCodeCoverage]
     public class TempoTests
     {
         private Tempo _bps = new Tempo(1.81M, new TempoType(TempoKind.BPS));

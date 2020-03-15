@@ -1,24 +1,108 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.Extensions.Configuration;
 
 namespace m4dModels
 {
-    public class SearchAuth
+    public interface ISearchServiceManager
     {
-        public SearchAuth(string name)
+        SearchServiceInfo GetInfo(string id = null);
+        string DefaultId { get; set; }
+        IEnumerable<string> GetAvailableIds();
+        string RawEnvironment { get; }
+    }
+
+    public class SearchServiceManager : ISearchServiceManager
+    {
+        public SearchServiceManager(IConfiguration configuration)
         {
-            Name = name;
+            var basicAuth = new SearchAuth("basic", configuration);
+            var backupAuth = new SearchAuth("backup", configuration);
+            _info = new Dictionary<string, SearchServiceInfo>
+            {
+                {
+                    "basica",
+                    new SearchServiceInfo("basica", "msc4dnc", "songs-a", basicAuth.AdminKey, basicAuth.QueryKey)
+                },
+                {
+                    "basicb",
+                    new SearchServiceInfo("basicb", "msc4dnc", "songs-b", basicAuth.AdminKey, basicAuth.QueryKey)
+                },
+                {
+                    "basicc",
+                    new SearchServiceInfo("basicc", "msc4dnc", "songs-c", basicAuth.AdminKey, basicAuth.QueryKey)
+                },
+                {
+                    "backup",
+                    new SearchServiceInfo("backup", "m4d-backup", "songs", backupAuth.AdminKey, backupAuth.QueryKey)
+                },
+            };
+
+            var env = configuration["SEARCHINDEX"];
+            if (string.IsNullOrEmpty(env))
+            {
+                DefaultId = "basica";
+            }
+            else
+            {
+                DefaultId = env;
+                RawEnvironment = env;
+            }
         }
 
-        public string AdminKey => _adminKey ?? (_adminKey = Environment.GetEnvironmentVariable(Name + "-admin"));
-        public string QueryKey => _queryKey ?? (_queryKey = Environment.GetEnvironmentVariable(Name + "-query"));
+        public SearchServiceInfo GetInfo(string id = null)
+        {
+            if (id == null || id == "default")
+            {
+                id = DefaultId;
+            }
+
+            return _info[id];
+        }
+
+        public IEnumerable<string> GetAvailableIds()
+        {
+            return _info.Keys.ToList();
+        }
+
+
+        public string DefaultId { get; set; }
+
+        public string RawEnvironment { get; }
+
+        private readonly Dictionary<string, SearchServiceInfo> _info;
+    }
+
+    public class SearchAuth
+    {
+        public SearchAuth(string name, IConfiguration configuration)
+        {
+            Name = name;
+            _configuration = configuration;
+        }
+
+        public string AdminKey => _adminKey ??= Environment.GetEnvironmentVariable(Name + "-admin");
+        public string QueryKey => _queryKey ??= Environment.GetEnvironmentVariable(Name + "-query");
+
+        private string GetConfigurationKey(string type)
+        {
+            return _configuration[GetKeyName(type)];
+        }
+
+        private string GetKeyName(string type)
+        {
+            return $"Authentication:AzureSearch:{Name}-{type}";
+        }
 
         private string _adminKey;
         private string _queryKey;
 
+        private readonly IConfiguration _configuration;
+
         protected string Name { get; }
     }
+
 
     public class SearchServiceInfo
     {
@@ -28,7 +112,7 @@ namespace m4dModels
         public string AdminKey { get; }
         public string QueryKey { get; }
 
-        private SearchServiceInfo(string id, string name, string index, string adminKey, string queryKey)
+        public SearchServiceInfo(string id, string name, string index, string adminKey, string queryKey)
         {
             Id = id;
             Name = name;
@@ -36,88 +120,5 @@ namespace m4dModels
             AdminKey = adminKey;
             QueryKey = queryKey;
         }
-
-        public static SearchServiceInfo GetInfo(string id=null)
-        {
-            if (id == null || id == "default")
-            {
-                id = DefaultId;
-            }
-
-            return s_info[id];
-        }
-
-        public static IEnumerable<string> GetAvailableIds()
-        {
-            return s_info.Keys.ToList();
-        }
-
-
-
-        public static string DefaultId
-        {
-            get
-            {
-                return LoadDefault();
-            }
-            set
-            {
-                s_defaultId = value;
-            }
-        }
-
-        private static string LoadDefault()
-        {
-            if (s_defaultId != null) return s_defaultId;
-
-            var env = Environment.GetEnvironmentVariable("SEARCHINDEX");
-            if (env == null)
-            {
-                return s_defaultId = "basicb";
-            }
-
-            s_env = env;
-            return s_defaultId = s_env;
-        }
-
-        public static string RawEnvironment
-        {
-            get
-            {
-                LoadDefault();
-                return s_env;
-            }
-        }
-
-        static SearchServiceInfo()
-        {
-            var basicAuth = new SearchAuth("basic");
-            var backupAuth = new SearchAuth("backup");
-            s_info = new Dictionary<string, SearchServiceInfo>
-                        {
-            {
-                "basica",
-                new SearchServiceInfo("basica", "msc4dnc", "songs-a", basicAuth.AdminKey, basicAuth.QueryKey)
-            },
-            {
-                "basicb",
-                new SearchServiceInfo("basicb", "msc4dnc", "songs-b", basicAuth.AdminKey, basicAuth.QueryKey)
-            },
-            {
-                "basicc",
-                new SearchServiceInfo("basicc", "msc4dnc", "songs-c", basicAuth.AdminKey, basicAuth.QueryKey)
-            },
-            {
-                "backup",
-                new SearchServiceInfo("backup", "m4d-backup", "songs", backupAuth.AdminKey, backupAuth.QueryKey)
-            },
-        };
-
-        }
-
-        private static string s_defaultId;
-        private static string s_env = "(EMPTY)";
-
-        private static readonly Dictionary<string, SearchServiceInfo> s_info;
     }
 }

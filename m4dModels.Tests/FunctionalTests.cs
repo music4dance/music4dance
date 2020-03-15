@@ -9,23 +9,20 @@ namespace m4dModels.Tests
     [TestClass]
     public class FunctionalTests
     {
-        private static readonly DanceMusicTester s_tester = new DanceMusicTester();
-
         [TestMethod]
         public void LoadDatabase()
         {
-            var users = from u in s_tester.Dms.Context.Users select u;
-            Assert.AreEqual(s_tester.Users.Count - 1, users.Count(),"Count of Users");
-            var dances = from d in s_tester.Dms.Context.Dances select d;
-            Assert.AreEqual(s_tester.Dances.Count, dances.Count(), "Count of Dances");
-            foreach (var s in s_tester.Dms.SerializeTags())
-            {
-                Trace.WriteLine(s);
-            }
-            var tts = from tt in s_tester.Dms.Context.TagGroups select tt;
-            Assert.AreEqual(s_tester.Tags.Count, tts.Count(), "Count of Tag Types");
-            var searches = from ss in s_tester.Dms.Context.Searches select ss;
-            Assert.AreEqual(s_tester.Searches.Count, searches.Count(), "Count of Searches");
+            using var service = DanceMusicTester.CreatePopulatedService("LoadDatabase");
+
+            var users = from u in service.Context.Users select u;
+
+            Assert.AreEqual(69, users.Count(),"Count of Users");
+            var dances = from d in service.Context.Dances select d;
+            Assert.AreEqual(107, dances.Count(), "Count of Dances");
+            var tts = from tt in service.Context.TagGroups select tt;
+            Assert.AreEqual(494, tts.Count(), "Count of Tag Types");
+            var searches = from ss in service.Context.Searches select ss;
+            Assert.AreEqual(16, searches.Count(), "Count of Searches");
         }
 
         //[TestMethod]

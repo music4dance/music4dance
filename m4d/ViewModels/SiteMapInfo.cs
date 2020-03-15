@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Web;
 using DanceLibrary;
+using Microsoft.Extensions.FileProviders;
 
 namespace m4d.ViewModels
 {
@@ -17,7 +17,6 @@ namespace m4d.ViewModels
 
         public string FullPath => MakeFullPath(Reference);
 
-        // TODONEXT: Verify that mapping works
         protected string MakeFullPath(string rel)
         {
             const string blogPrefix = "blog/";
@@ -54,11 +53,12 @@ namespace m4d.ViewModels
         private readonly DanceObject _dance;
     }
 
+    // https://stackoverflow.com/questions/43992261/how-to-get-absolute-path-in-asp-net-core-alternative-way-for-server-mappath
     public sealed class SiteMapFile : SiteMapEntry
     {
-        public SiteMapFile(string filename)
+        public SiteMapFile(string filename, IFileProvider fileProvider)
         {
-            var path = Path.Combine(HttpContext.Current.Server.MapPath("~/Content")??"",$"{filename}.txt");
+            var path = fileProvider.GetFileInfo($"/wwwroot/content/{filename}.txt").PhysicalPath;
             var lines = File.ReadAllLines(path);
             var family = new Stack<List<SiteMapEntry>>();
             family.Push(new List<SiteMapEntry>());
@@ -118,16 +118,21 @@ namespace m4d.ViewModels
 
     public static class SiteMapInfo
     {
-        static SiteMapInfo()
+        public static void ReloadCategories(IFileProvider fileProvider)
         {
-            LoadCategories();
+            Categories = LoadCategories(fileProvider);
         }
 
-        public static IEnumerable<SiteMapCategory> Categories { get; private set; }
-
-        public static void LoadCategories()
+        public static IEnumerable<SiteMapCategory> GetCategories(IFileProvider fileProvider)
         {
-            Categories = new List<SiteMapCategory>
+            return Categories ??= LoadCategories(fileProvider);
+        }
+
+        private static IEnumerable<SiteMapCategory> Categories { get; set; } = null;
+
+        private static IEnumerable<SiteMapCategory> LoadCategories(IFileProvider fileProvider)
+        {
+            return new List<SiteMapCategory>
             {
                 new SiteMapCategory
                 {
@@ -177,8 +182,8 @@ namespace m4d.ViewModels
                         new SiteMapEntry {Title =  "Terms of Service", Reference="home/termsofservice"},
                         new SiteMapEntry {Title =  "Credits", Reference="home/credits"},
                         new SiteMapEntry {Title =  "Reading List", Reference="blog/reading-list"},
-                        new SiteMapFile("blogmap") {Title =  "Blog", Reference="blog"},
-                        new SiteMapFile("helpmap") {Title =  "Help", Reference="blog/music4dance-help"},
+                        new SiteMapFile("blogmap", fileProvider) {Title =  "Blog", Reference="blog"},
+                        new SiteMapFile("helpmap", fileProvider) {Title =  "Help", Reference="blog/music4dance-help"},
                     }
                 },
                 new SiteMapCategory
@@ -199,8 +204,8 @@ namespace m4d.ViewModels
                     {
                         new SiteMapEntry {Title =  "Profile", Reference="manage/userprofile"},
                         new SiteMapEntry {Title =  "Settings", Reference="manage/settings"},
-                        new SiteMapEntry {Title =  "Sign In", Reference="account/signin"},
-                        new SiteMapEntry {Title =  "Sign Up", Reference="account/signup"},
+                        new SiteMapEntry {Title =  "Log In", Reference="identity/account/login"},
+                        new SiteMapEntry {Title =  "Register", Reference="identity/account/register"},
                     }
                 },
             };

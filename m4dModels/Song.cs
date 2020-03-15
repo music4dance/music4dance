@@ -1024,15 +1024,15 @@ namespace m4dModels
         public DateTime Modified { get; set; }
 
         [DataMember]
-        public List<DanceRating> DanceRatings => _danceRatings ?? (_danceRatings = new List<DanceRating>());
+        public List<DanceRating> DanceRatings => _danceRatings ??= new List<DanceRating>();
         private List<DanceRating> _danceRatings;
 
         [DataMember]
-        public List<ModifiedRecord> ModifiedBy => _modifiedBy ?? (_modifiedBy = new List<ModifiedRecord>());
+        public List<ModifiedRecord> ModifiedBy => _modifiedBy ??= new List<ModifiedRecord>();
         private List<ModifiedRecord> _modifiedBy;
 
         [DataMember]
-        public List<SongProperty> SongProperties => _properties ?? (_properties = new List<SongProperty>());
+        public List<SongProperty> SongProperties => _properties ??= new List<SongProperty>();
         private List<SongProperty> _properties;
 
         [DataMember]
@@ -3308,7 +3308,7 @@ namespace m4dModels
         #endregion
 
         #region Index
-        public static Index GetIndex(DanceMusicService dms)
+        public static Microsoft.Azure.Search.Models.Index GetIndex(DanceMusicCoreService dms, IDanceStatsManager danceStatsManager)
         {
             if (s_index != null) return s_index;
 
@@ -3341,13 +3341,13 @@ namespace m4dModels
                 new Field(PropertiesField, Microsoft.Azure.Search.Models.DataType.String) {IsSearchable = false, IsSortable = false, IsFilterable = false, IsFacetable = false, IsRetrievable = true},
             };
 
-            var fsc = DanceStatsManager.GetFlatDanceStats(dms);
+            var fsc = danceStatsManager.GetFlatDanceStats(dms);
             fields.AddRange(
                 from sc in fsc
                 where sc.SongCount != 0 && sc.DanceId != "ALL"
                 select IndexFieldFromDanceId(sc.DanceId));
 
-            s_index = new Index
+            s_index = new Microsoft.Azure.Search.Models.Index
             {
                 Name = "songs",
                 Fields = fields.ToArray(),
@@ -3369,7 +3369,7 @@ namespace m4dModels
         {
             s_index = null;
         }
-        private static Index s_index;
+        private static Microsoft.Azure.Search.Models.Index s_index;
 
         public Document GetIndexDocument()
         {

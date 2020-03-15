@@ -1,0 +1,26 @@
+﻿@using m4d.ViewModels;
+@model System.Tuple<SiteMapEntry, string>
+
+@{
+    var entry = Model.Item1;
+    var type = Model.Item2;
+
+    if (string.IsNullOrWhiteSpace(entry.FullPath))
+    {
+        <b class="@type">@entry.Title</b>
+    }
+    else
+    {
+        <a href="@entry.FullPath" class="@type">@entry.Title</a>
+    }
+    if (entry.Children != null)
+    {
+        <ul>
+            @foreach (var child in entry.Children)
+            {
+                <li><partial name="_SiteMapEntry" model="new Tuple<SiteMapEntry,string>(child,type)"/></li>
+            }
+        </ul>
+    }
+
+}

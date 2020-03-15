@@ -1,9 +1,6 @@
-﻿using System;
-using System.Diagnostics;
-using System.Linq;
+﻿using System.Linq;
 using System.Security.Claims;
 using System.Security.Principal;
-using System.Threading;
 using System.Web;
 
 namespace m4d.Utilities
@@ -23,60 +20,11 @@ namespace m4d.Utilities
 
             return idClaim?.Value;
         }
-
     }
 
     public class SpotUserAuthentication : SpotAuthentication
     {
-        public static SpotUserAuthentication TryCreate(IPrincipal principal)
-        {
-            if (!(principal is ClaimsPrincipal claimsPrincipal))
-                return null;
-
-            var token = new AccessToken();
-            string refreshToken = null;
-            var start = DateTime.Now;
-            foreach (var claim in claimsPrincipal.Claims)
-            {
-                Trace.WriteLine($"{claim.Issuer}: {claim.Type}: {claim.Value}");
-                switch (claim.Type)
-                {
-                    case "urn:spotify:access_token":
-                        token.access_token = claim.Value;
-                        break;
-                    case "urn:spotify:refresh_token":
-                        refreshToken = claim.Value;
-                        break;
-                    case "urn:spotify:expires_in":
-                        token.expires_in = (int)(TimeSpan.Parse(claim.Value).TotalMilliseconds / 1000);
-                        break;
-                    case "urn:spotify:start_time":
-                        start = DateTime.Parse(claim.Value);
-                        break;
-                }
-            }
-            
-            if (refreshToken == null)
-                return null;
-
-            var auth = new SpotUserAuthentication
-            {
-                _refreshToken = refreshToken, 
-            };
-
-            var delta = DateTime.Now - start;
-            if (delta < token.ExpiresIn)
-            {
-                auth.Token = token;
-                auth.AccessTokenRenewer = new Timer(auth.OnTokenExpiredCallback, auth, token.ExpiresIn - delta, token.ExpiresIn);
-            }
-
-            return auth;
-        }
-
-        protected override string RequestExtra => "&refresh_token=" + HttpUtility.UrlEncode(_refreshToken);
+        protected override string RequestExtra => "&refresh_token=" + HttpUtility.UrlEncode(RefreshToken);
         protected override string RequestFormat => "grant_type=refresh_token";
-
-        private string _refreshToken;
     }
 }

@@ -11,9 +11,8 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Xml;
-using m4d.AWSReference;
+using AmazonCommerce;
 using m4dModels;
-//using AWSReference.com.amazonaws.ecs;
 
 namespace m4d.Utilities
 {
@@ -94,7 +93,7 @@ namespace m4d.Utilities
         #region IEndpointBehavior Members
         public void ApplyClientBehavior(ServiceEndpoint serviceEndpoint, ClientRuntime clientRuntime)
         {
-            clientRuntime.MessageInspectors.Add(new AmazonSigningMessageInspector(_accessKeyId, _secretKey));
+            clientRuntime.ClientMessageInspectors.Add(new AmazonSigningMessageInspector(_accessKeyId, _secretKey));
         }
 
         public void ApplyDispatchBehavior(ServiceEndpoint serviceEndpoint, EndpointDispatcher endpointDispatcher)
@@ -129,7 +128,7 @@ namespace m4d.Utilities
             _client = new AWSECommerceServicePortTypeClient(binding, new EndpointAddress(EndPointAddress));
 
             // add authentication to the ECS client
-            _client.ChannelFactory.Endpoint.Behaviors.Add(new AmazonSigningEndpointBehavior(ClientId, ClientSecret));
+            _client.ChannelFactory.Endpoint.EndpointBehaviors.Add(new AmazonSigningEndpointBehavior(ClientId, ClientSecret));
         }
 
         public IList<ServiceTrack> FetchTracks(string title, string artist)

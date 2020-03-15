@@ -1,23 +1,26 @@
-﻿@model Song
+﻿@using m4dModels
+@using m4d.ViewModels
+@model m4dModels.Song
 
 @{
     ViewBag.Title = Model.Title;
     var filter = ViewData.ContainsKey("SongFilter") ? ViewBag.SongFilter : new SongFilter();
 }
 
-@Html.Partial("DetailsCore")
+<partial name="DetailsCore"/>
 
 <div class="row">
     <div id="songDetails" class="col-md-12">
-        @UserHelper.UndoUser(Html, Model, filter)
+        <partial name="_UndoUser" model="new UndoUserModel {Song=Model, Filter=filter}" />
+
         @if (User.IsInRole("showDiagnostics"))
         {
-            @Html.ActionLink("Edit", "Edit", new { id = Model.SongId, filter }, new { @class = "btn btn-small btn-default", role = "button" })
-            @Html.ActionLink("Delete", "Delete", new { id = Model.SongId, filter }, new { @class = "btn btn-small btn-default", role = "button" })
-            @Html.ActionLink("Cleanup Albums", "CleanupAlbums", new { id = Model.SongId, filter }, new { @class = "btn btn-small btn-default", role = "button" })
-            @Html.ActionLink("Cleanup Purchase", "CleanMusicServices", new { id = Model.SongId, filter }, new { @class = "btn btn-small btn-default", role = "button" })
-            @Html.ActionLink("Cleanup Spotify", "CleanMusicServices", new { id = Model.SongId, type="SG", filter }, new { @class = "btn btn-small btn-default", role = "button" })
-            @Html.ActionLink("Rebuild Ratings", "UpdateRatings", new { id = Model.SongId, filter }, new { @class = "btn btn-small btn-default", role = "button" })
+            @Html.ActionLink("Edit", "Edit", new {id = Model.SongId, filter}, new {@class = "btn btn-small btn-default", role = "button"})
+            @Html.ActionLink("Delete", "Delete", new {id = Model.SongId, filter}, new {@class = "btn btn-small btn-default", role = "button"})
+            @Html.ActionLink("Cleanup Albums", "CleanupAlbums", new {id = Model.SongId, filter}, new {@class = "btn btn-small btn-default", role = "button"})
+            @Html.ActionLink("Cleanup Purchase", "CleanMusicServices", new {id = Model.SongId, filter}, new {@class = "btn btn-small btn-default", role = "button"})
+            @Html.ActionLink("Cleanup Spotify", "CleanMusicServices", new {id = Model.SongId, type = "SG", filter}, new {@class = "btn btn-small btn-default", role = "button"})
+            @Html.ActionLink("Rebuild Ratings", "UpdateRatings", new {id = Model.SongId, filter}, new {@class = "btn btn-small btn-default", role = "button"})
         }
     </div>
 </div>
@@ -28,21 +31,21 @@
     <div class="row">
         <div id="songLog" class="col-md-12">
             <br />
-            @Html.Partial("SongItems", Model.SongProperties)
+            <partial name="SongItems" model="Model.SongProperties" />
         </div>
     </div>
 
     <hr />
     <div class="row">
         <div id="songDump" class="col-md-12">
-        @using (Html.BeginForm("AdminEdit", "Song", null, FormMethod.Post, new {@class = "form-horizontal"}))
-        {
-            @Html.AntiForgeryToken()
-            <input type="hidden" name="songId" value="@Model.SongId"/>
-            <input type="hidden" name="filter" value="@filter.ToString()" />
-            <input type="text" name="properties" value="@Model.ToString()"/>
-            <button type="submit">AdminEdit</button>
-        }
+            @using (Html.BeginForm("AdminEdit", "Song",  FormMethod.Post, new { @class = "form-horizontal" }))
+            {
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="songId" value="@Model.SongId" />
+                <input type="hidden" name="filter" value="@filter.ToString()" />
+                <input type="text" name="properties" value="@Model.ToString()" />
+                <button type="submit">AdminEdit</button>
+            }
         </div>
     </div>
 
@@ -50,38 +53,38 @@
     <div class="row">
         <div id="users" class="col-md-6">
             @*@if (Model.ModifiedBy != null)
-            {
-                var tags = new List<Tag>();
-                if (Model.Tags != null)
                 {
-                    tags.AddRange(Model.Tags);
-                }
-                <b>Undo Changes for:</b>
-                foreach (var mr in Model.ModifiedBy)
-                {
-                    var utags = tags.Where(t => t.UserId == mr.ApplicationUserId).ToList();
-                    @UserHelper.UndoUser(Html, Model, filter, mr.UserName)
-                    if (utags.Any())
+                    var tags = new List<Tag>();
+                    if (Model.Tags != null)
+                    {
+                        tags.AddRange(Model.Tags);
+                    }
+                    <b>Undo Changes for:</b>
+                    foreach (var mr in Model.ModifiedBy)
+                    {
+                        var utags = tags.Where(t => t.UserId == mr.ApplicationUserId).ToList();
+                        @UserHelper.UndoUser(Html, Model, filter, mr.UserName)
+                        if (utags.Any())
+                        {
+                            <ul>
+                                @foreach (var tag in utags)
+                                {
+                                    tags.Remove(tag);
+                                    <li>@tag.Id <b>@tag.Tags.ToString()</b></li>
+                                }
+                            </ul>
+                        }
+                    }
+                    if (tags.Any())
                     {
                         <ul>
-                            @foreach (var tag in utags)
+                            @foreach (var tag in tags)
                             {
-                                tags.Remove(tag);
                                 <li>@tag.Id <b>@tag.Tags.ToString()</b></li>
                             }
                         </ul>
                     }
-                }
-                if (tags.Any())
-                {
-                    <ul>
-                        @foreach (var tag in tags)
-                        {
-                            <li>@tag.Id <b>@tag.Tags.ToString()</b></li>
-                        }
-                    </ul>
-                }
-            }*@
+                }*@
         </div>
         <div id="sample" class="col-md-6">
             @if (Model.Sample != null)
@@ -93,15 +96,22 @@
 }
 
 @section Scripts {
-    @Scripts.Render("~/bundles/jqueryval")
-    @Scripts.Render("~/bundles/tools-script")
-    @Scripts.Render("~/bundles/knockout")
-    @Scripts.Render("~/bundles/knockout-mapping")
-    @Scripts.Render("~/bundles/counter")
-    @Scripts.Render("~/bundles/tagchooser")
-    @Scripts.Render("~/bundles/edit")
+    <environment include="Development">
+        <script src="~/scripts/tools-script.js"></script>
+        <script src="~/scripts/songdetails.js"></script>
+    </environment>
+    <environment exclude="Development">
+        <script src="scripts/tools-script.min.js"></script>
+        <script src="~/scripts/songdetails.js"></script>
+    </environment>
+}
 
-
-    @Styles.Render("~/bundles/tools-style")
+@section Styles {
+    <environment include="Development">
+        <link rel="stylesheet" href="~/css/tools-styles.min.css" asp-append-version="true" />
+    </environment>
+    <environment exclude="Development">
+        <link rel="stylesheet" href="~/css/tools-styles.css" asp-append-version="true" />
+    </environment>
 }
 

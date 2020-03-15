@@ -1,12 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data.Entity;
 using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
-using Microsoft.AspNet.Identity;
-using Microsoft.AspNet.Identity.EntityFramework;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 
 namespace m4dModels
 {
@@ -30,9 +29,9 @@ namespace m4dModels
 
         // Two character country code based on ISO 3166-1 alpha-2 country codes.
         public string Region { get; set; }
-        // Privacy level 0-255 (inital states are only 0 & 255)
+        // Privacy level 0-255 (initial states are only 0 & 255)
         public byte Privacy { get; set; }
-        // Conctact bitfield
+        // Contact bitfield
         public ContactStatus CanContact { get; set; }
         // Services in order of preference?
         // Or actively use, interested, not interested
@@ -48,7 +47,7 @@ namespace m4dModels
 
         public SubscriptionLevel SubscriptionLevel { get; set; }
 
-        // Everyting below here are computed properties
+        // Everything below here are computed properties
         public string RegionName => CountryCodes.TranslateCode(Region);
 
         public string PrivacyDescription => string.Format(PrivacyMessage, (Privacy == 0) ? "Don't" : "Do");
@@ -150,44 +149,47 @@ namespace m4dModels
 
         public bool IsConfirmed => EmailConfirmed && !IsPseudo;
 
-        public async Task<ClaimsIdentity> GenerateUserIdentityAsync(UserManager<ApplicationUser> manager)
-        {
-            // Note the authenticationType must match the one defined in CookieAuthenticationOptions.AuthenticationType
-            var userIdentity = await manager.CreateIdentityAsync(this, DefaultAuthenticationTypes.ApplicationCookie);
-            // Add custom user claims here
-            return userIdentity;
-        }
+        // CORETODO: Need to figure out how to get access to an IUserClaimsPrincipalFactory (may need substantial refactor).
+        //public async Task<ClaimsIdentity> GenerateUserIdentityAsync(UserManager<ApplicationUser> manager)
+        //{
+        //    // Note the authenticationType must match the one defined in CookieAuthenticationOptions.AuthenticationType
+        //    var userIdentity = await manager.CreateIdentityAsync(this, DefaultAuthenticationTypes.ApplicationCookie);
+        //    // Add custom user claims here
+        //    return userIdentity;
+        //}
 
-        public string GetRoles(IDbSet<IdentityRole> roles, string separator=", ")
-        {
-            // TODO: Can we do this w/o sending in roleMap?
+        // CORETODO: We are using this for the user details page
+        //public string GetRoles(DbSet<IdentityRole> roles, string separator=", ")
+        //{
+        //    // TODO: Can we do this w/o sending in roleMap?
 
-            var sb = new StringBuilder();
-            var sp = string.Empty;
-            // ReSharper disable once LoopCanBePartlyConvertedToQuery
-            foreach (var idRole in Roles)
-            {
-                var role = roles.Find(idRole.RoleId);
-                sb.Append(sp + role.Name);
-                sp = separator;
-            }
+        //    var sb = new StringBuilder();
+        //    var sp = string.Empty;
+        //    // ReSharper disable once LoopCanBePartlyConvertedToQuery
+        //    foreach (var idRole in Roles)
+        //    {
+        //        var role = roles.Find(idRole.RoleId);
+        //        sb.Append(sp + role.Name);
+        //        sp = separator;
+        //    }
 
-            return sb.ToString();
-        }
+        //    return sb.ToString();
+        //}
 
-        public string GetProviders()
-        {
-            var sb = new StringBuilder();
-            var sp = string.Empty;
-            foreach (var provider in Logins)
-            {
-                var name = provider.LoginProvider;
-                var key = provider.ProviderKey;
-                sb.Append($"{sp}{name}|{key}");
-                sp = "|";
-            }
-            return sb.ToString();
-        }
+        // CORETODO: We are using this for the user details page
+        //public string GetProviders()
+        //{
+        //    var sb = new StringBuilder();
+        //    var sp = string.Empty;
+        //    foreach (var provider in Logins)
+        //    {
+        //        var name = provider.LoginProvider;
+        //        var key = provider.ProviderKey;
+        //        sb.Append($"{sp}{name}|{key}");
+        //        sp = "|";
+        //    }
+        //    return sb.ToString();
+        //}
 
         public static string SerializeProviders(IEnumerable<UserLoginInfo> logins)
         {

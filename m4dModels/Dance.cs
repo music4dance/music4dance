@@ -14,7 +14,7 @@ namespace m4dModels
         public string Description { get; set; }
         public DateTime Modified { get; set; }
 
-        public virtual ICollection<DanceLink> DanceLinks { get; set; }
+        public List<DanceLink> DanceLinks { get; set; }
 
         public string SmartLinks()
         {
@@ -146,9 +146,8 @@ namespace m4dModels
                     $"/dances/{DanceObject.SeoFriendly(cat)}");
             }
 
-            string link;
             d = d.ToLower();
-            if (Links.TryGetValue(d, out link)) return new KeyValuePair<string, string>(d.Replace(" ", ""), link);
+            if (Links.TryGetValue(d, out var link)) return new KeyValuePair<string, string>(d.Replace(" ", ""), link);
 
             Trace.WriteLineIf(TraceLevels.General.TraceError, $"Link not found: {d}");
             return null;
@@ -161,6 +160,7 @@ namespace m4dModels
             {"swing music", "http://en.wikipedia.org/wiki/Swing_music"},
             {"tango music", "http://en.wikipedia.org/wiki/Tango"},
         };
+
         public bool Update(IList<string> cells)
         {
             var modified = false;
@@ -178,21 +178,17 @@ namespace m4dModels
 
             if (cells.Count > 0)
             {
-                DateTime modTime;
                 if (!string.IsNullOrWhiteSpace(cells[0]) &&
-                    DateTime.TryParse(cells[0], out modTime))
+                    DateTime.TryParse(cells[0], out var modTime))
                 {
                     Modified = modTime;
                 }
                 cells.RemoveAt(0);
             }
 
-            if (cells.Count > 0)
+            if (cells.Count > 0 && DanceLinks == null)
             {
-                if (DanceLinks == null)
-                {
-                    DanceLinks = new List<DanceLink>();
-                }
+                DanceLinks = new List<DanceLink>();
             }
 
             for (var i = 0; i < cells.Count; i += 3)
@@ -201,7 +197,7 @@ namespace m4dModels
                 var dl = DanceLinks.FirstOrDefault(l => l.Id == id);
                 if (dl != null)
                 {
-                    if (!string.Equals(cells[i+1],dl.Description,StringComparison.Ordinal))
+                    if (!string.Equals(cells[i + 1], dl.Description, StringComparison.Ordinal))
                     {
                         dl.Description = cells[i + 1];
                         modified = true;
@@ -214,14 +210,15 @@ namespace m4dModels
                 }
                 else
                 {
-                    DanceLinks.Add(new DanceLink { Id = id, Description = cells[i + 1], Link = cells[i + 2] });
+                    DanceLinks.Add(new DanceLink { Id = id, DanceId = Id, Description = cells[i + 1], Link = cells[i + 2] });
+                    modified = true;
                 }
             }
 
             return modified;
         }
 
-        public DanceObject Info => _info ?? (_info = DanceLibrary.DanceFromId(Id));
+        public DanceObject Info => _info ??= DanceLibrary.DanceFromId(Id);
 
         public string Name => Info.Name;
 

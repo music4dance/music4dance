@@ -96,7 +96,7 @@ namespace m4dModels
             return id;
         }
 
-        public virtual string BuildPlayListLink(PlayList playlist, ApplicationUser user)
+        public virtual string BuildPlayListLink(PlayList playlist, string user, string email)
         {
             return null;
         }

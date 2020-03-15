@@ -67,7 +67,7 @@ namespace m4dModels
             TagAccumulator.MergeSummaries(Children.Select(c => c.SongTags).Concat(Enumerable.Repeat(SongTags,1)));
 
         [JsonProperty]
-        public virtual ICollection<DanceLink> DanceLinks { get; set; }
+        public List<DanceLink> DanceLinks { get; set; }
         [JsonProperty]
         public IEnumerable<Song> TopSongs { get; set; }
 
@@ -96,7 +96,7 @@ namespace m4dModels
 
         public IEnumerable<DanceInstance> CompetitionDances { get; private set; }
 
-        public void CopyDanceInfo(Dance dance, bool includeStats, DanceMusicService dms)
+        public void CopyDanceInfo(Dance dance, bool includeStats, DanceMusicCoreService dms)
         {
             if (dance == null) return;
 

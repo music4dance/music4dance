@@ -1,5 +1,5 @@
-﻿@using Microsoft.AspNet.Identity
-@model IEnumerable<Search>
+﻿@using m4dModels
+@model IEnumerable<m4dModels.Search>
 
 @{
     ViewBag.Title = "My Searches";
@@ -26,8 +26,8 @@
 
 <div class="row" style="margin-bottom:10px">
     <div class="btn-group btn-group-justified col-xs-12" role="group" aria-label="...">
-        @Html.ActionLink("Most Popular", "Index", "Searches", new { showDetails, user = @User.Identity.GetUserName(), filter }, new {role="button", @class= "btn btn-default " + recentActive})
-        @Html.ActionLink("Most Recent", "Index", "Searches", new { showDetails, user = @User.Identity.GetUserName(), sort="recent", filter }, new { role = "button", @class = "btn btn-default " + popularActive})
+        @Html.ActionLink("Most Popular", "Index", "Searches", new { showDetails, user = userName, filter }, new {role="button", @class= "btn btn-default " + recentActive})
+        @Html.ActionLink("Most Recent", "Index", "Searches", new { showDetails, user = userName, sort="recent", filter }, new { role = "button", @class = "btn btn-default " + popularActive})
     </div>
 </div>
 
@@ -94,5 +94,5 @@
 
 @if (admin)
 {
-    @Html.ActionLink("Toggle Details","Index","Searches",new {showDetails = !showDetails, user=@User.Identity.GetUserName(),sort}, null)
+    @Html.ActionLink("Toggle Details","Index","Searches",new {showDetails = !showDetails, user=userName, sort}, null)
 }
