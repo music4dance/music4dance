@@ -1,5 +1,6 @@
 using System;
 using System.Diagnostics;
+using Azure.Identity;
 using m4d.Areas.Identity;
 using m4dModels;
 using Microsoft.AspNetCore.Hosting;
@@ -40,10 +41,29 @@ namespace m4d
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args)
-                .ConfigureWebHostDefaults(webBuilder =>
+                .ConfigureWebHostDefaults(webBuilder => webBuilder
+                .ConfigureAppConfiguration((hostingContext, config) =>
                 {
-                    webBuilder.UseStartup<Startup>();
-                }).ConfigureAppConfiguration((hostingContext, config) => 
-                    config.AddEnvironmentVariables());
+                    var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
+                    var isDevelopment = environment == Environments.Development;
+
+                    if (!isDevelopment)
+                    {
+                        var settings = config.Build();
+                        var credentials = new ManagedIdentityCredential();
+
+                        config.AddAzureAppConfiguration(options =>
+                            options.Connect(new Uri(settings["ConnectionStrings:AppConfig"]), credentials)
+                                .ConfigureKeyVault(kv => { kv.SetCredential(credentials); }));
+                    }
+
+                    // Working version of app config/keyvault for dev environment 
+                    //var settings = config.Build();
+                    //config.AddAzureAppConfiguration(options =>
+                    //    options.Connect(settings["ConnectionStrings:AppConfig"])
+                    //        .ConfigureKeyVault(kv => { kv.SetCredential(new DefaultAzureCredential()); }));
+
+                })
+                .UseStartup<Startup>());
     }
 }
