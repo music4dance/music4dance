@@ -118,9 +118,6 @@ namespace m4d
                     };
                 });
 
-            // CORETODO: Figure out how to do the equivalent of what we were doing with SpotifyAuthenticationProvider.OnAuthenticated
-            // might be options.Events.CreatingTicket()
-
             var appData = Path.Combine(Environment.WebRootPath, "AppData");
 
             services.AddSingleton<ISearchServiceManager>(new SearchServiceManager(Configuration));

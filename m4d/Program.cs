@@ -5,7 +5,6 @@ using m4d.Areas.Identity;
 using m4dModels;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -24,8 +23,8 @@ namespace m4d
                 try
                 {
                     // CORETODO: Probably don't want to do this unconditionally in production
-                    using var context = scope.ServiceProvider.GetService<DanceMusicContext>();
-                    context.Database.Migrate();
+                    //using var context = scope.ServiceProvider.GetService<DanceMusicContext>();
+                    //context.Database.Migrate();
 
                     var userManager = serviceProvider.GetRequiredService<UserManager<ApplicationUser>>();
                     var roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
@@ -47,13 +46,13 @@ namespace m4d
                     var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
                     var isDevelopment = environment == Environments.Development;
 
-                    if (!isDevelopment)
+                    if (!isDevelopment) 
                     {
                         var settings = config.Build();
                         var credentials = new ManagedIdentityCredential();
 
                         config.AddAzureAppConfiguration(options =>
-                            options.Connect(new Uri(settings["ConnectionStrings:AppConfig"]), credentials)
+                            options.Connect(new Uri(settings["AppConfig:Endpoint"]), credentials)
                                 .ConfigureKeyVault(kv => { kv.SetCredential(credentials); }));
                     }
 

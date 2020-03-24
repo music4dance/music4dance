@@ -14,7 +14,6 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Net.Http.Headers;
@@ -49,7 +48,7 @@ namespace m4d.Controllers
                 filterContext.ActionArguments["filter"] = o;
             }
 
-            ViewBag.SongFilter = o is SongFilter?  (SongFilter) o : new SongFilter();
+            ViewBag.SongFilter = o is SongFilter filter?  filter : new SongFilter();
 
             base.OnActionExecuting(filterContext);
         }
@@ -72,6 +71,8 @@ namespace m4d.Controllers
         [AllowAnonymous]
         public ActionResult Search(string searchString, string dances, SongFilter filter)
         {
+            filter ??= new SongFilter();
+
             if (string.IsNullOrWhiteSpace(searchString))
             {
                 searchString = null;

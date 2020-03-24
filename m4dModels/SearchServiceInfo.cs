@@ -82,8 +82,8 @@ namespace m4dModels
             _configuration = configuration;
         }
 
-        public string AdminKey => _adminKey ??= Environment.GetEnvironmentVariable(Name + "-admin");
-        public string QueryKey => _queryKey ??= Environment.GetEnvironmentVariable(Name + "-query");
+        public string AdminKey => _adminKey ??= GetConfigurationKey("admin");
+        public string QueryKey => _queryKey ??= GetConfigurationKey("query");
 
         private string GetConfigurationKey(string type)
         {
