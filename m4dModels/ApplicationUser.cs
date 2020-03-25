@@ -149,48 +149,6 @@ namespace m4dModels
 
         public bool IsConfirmed => EmailConfirmed && !IsPseudo;
 
-        // CORETODO: Need to figure out how to get access to an IUserClaimsPrincipalFactory (may need substantial refactor).
-        //public async Task<ClaimsIdentity> GenerateUserIdentityAsync(UserManager<ApplicationUser> manager)
-        //{
-        //    // Note the authenticationType must match the one defined in CookieAuthenticationOptions.AuthenticationType
-        //    var userIdentity = await manager.CreateIdentityAsync(this, DefaultAuthenticationTypes.ApplicationCookie);
-        //    // Add custom user claims here
-        //    return userIdentity;
-        //}
-
-        // CORETODO: We are using this for the user details page
-        //public string GetRoles(DbSet<IdentityRole> roles, string separator=", ")
-        //{
-        //    // TODO: Can we do this w/o sending in roleMap?
-
-        //    var sb = new StringBuilder();
-        //    var sp = string.Empty;
-        //    // ReSharper disable once LoopCanBePartlyConvertedToQuery
-        //    foreach (var idRole in Roles)
-        //    {
-        //        var role = roles.Find(idRole.RoleId);
-        //        sb.Append(sp + role.Name);
-        //        sp = separator;
-        //    }
-
-        //    return sb.ToString();
-        //}
-
-        // CORETODO: We are using this for the user details page
-        //public string GetProviders()
-        //{
-        //    var sb = new StringBuilder();
-        //    var sp = string.Empty;
-        //    foreach (var provider in Logins)
-        //    {
-        //        var name = provider.LoginProvider;
-        //        var key = provider.ProviderKey;
-        //        sb.Append($"{sp}{name}|{key}");
-        //        sp = "|";
-        //    }
-        //    return sb.ToString();
-        //}
-
         public static string SerializeProviders(IEnumerable<UserLoginInfo> logins)
         {
             var sb = new StringBuilder();

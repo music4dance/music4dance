@@ -2357,7 +2357,7 @@ namespace m4dModels
                     if (cells.Length > 6) bool.TryParse(cells[6], out deleted);
                     if (cells.Length > 7) data2 = cells[7];
                     if (cells.Length > 8) name = cells[8];
-                    if (cells.Length > 9) description = cells[8];
+                    if (cells.Length > 9) description = cells[9];
                 }
 
                 var playlist = PlayLists.Find(id);
@@ -2661,7 +2661,7 @@ namespace m4dModels
 
             if (!from.HasValue) from = new DateTime(1, 1, 1);
 
-            var dancelist = Dances.Where(d => d.Modified >= from.Value).OrderBy(d => d.Modified).ToList();
+            var dancelist = Dances.Where(d => d.Modified >= from.Value).Include(dance => dance.DanceLinks).OrderBy(d => d.Modified).ToList();
             // ReSharper disable once LoopCanBeConvertedToQuery
             foreach (var dance in dancelist)
             {

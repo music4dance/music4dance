@@ -78,6 +78,7 @@ namespace m4d.Areas.Identity.Pages.Account
         public async Task<IActionResult> OnPostAsync(string returnUrl = null)
         {
             returnUrl ??= Url.Content("~/");
+            ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
 
             if (ModelState.IsValid)
             {
@@ -114,10 +115,10 @@ namespace m4d.Areas.Identity.Pages.Account
             return Page();
         }
 
-        // CORETODO: Not sure when this gets invoked but need to understand since default UserName/Email handling
-        //  is to make them the same, and that's not what I do.
         public async Task<IActionResult> OnPostSendVerificationEmailAsync()
         {
+            ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
+
             if (!ModelState.IsValid)
             {
                 return Page();

@@ -28,13 +28,6 @@ namespace m4d.ViewModels
 
     }
 
-    // CORETODO: Figure out how manage logins works in core
-    //public class ManageLoginsViewModel
-    //{
-    //    public IList<UserLoginInfo> CurrentLogins { get; set; }
-    //    public IList<AuthenticationDescription> OtherLogins { get; set; }
-    //}
-
     public class FactorViewModel
     {
         public string Purpose { get; set; }

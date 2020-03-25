@@ -1318,7 +1318,6 @@ namespace m4d.Controllers
 
                 var dt = DateTime.Now;
                 var fname = $"index-{dt.Year:d4}-{dt.Month:d2}-{dt.Day:d2}.txt";
-                // CORETODO: Not sure this will work
                 var path = fileProvider.GetFileInfo($"~/AppData/{fname}").PhysicalPath;
 
                 var n = 0;
@@ -1792,7 +1791,7 @@ namespace m4d.Controllers
         //
         // Get: //ResetSearchIdx
         [Authorize(Roles = "showDiagnostics")]
-        public ActionResult ResetSearchIdx(string id = "default")
+        public ActionResult ResetSearchIdx([FromServices] RecomputeMarkerService recomputeMarkerService, string id = "default")
         {
             try
             {
@@ -1800,9 +1799,8 @@ namespace m4d.Controllers
 
                 var success = Database.ResetIndex(id);
 
-                // CORETODO: Figure this out
-                //if (success)
-                //    RecomputeMarker.SetMarker("indexsongs", DateTime.MinValue);
+                if (success)
+                    recomputeMarkerService.SetMarker("indexsongs", DateTime.MinValue);
 
                 ViewBag.Name = "Reset Index";
                 ViewBag.Success = success;
@@ -1819,39 +1817,38 @@ namespace m4d.Controllers
         //
         // Get: //CleanupProperties
         [Authorize(Roles = "showDiagnostics")]
-        public ActionResult CleanupProperties(int count = 100, string filter = null)
+        public ActionResult CleanupProperties([FromServices] RecomputeMarkerService markerService, int count = 100, string filter = null)
         {
-            // CORETODO: Do this in .net core or try something else?
-            //try
-            //{
-            //    StartAdminTask("CleanupProperties");
+            try
+            {
+                StartAdminTask("CleanupProperties");
 
-            //    SongFilter songFilter = null;
-            //    if (!string.IsNullOrWhiteSpace(filter))
-            //    {
-            //        songFilter = new SongFilter(filter);
-            //    }
+                SongFilter songFilter = null;
+                if (!string.IsNullOrWhiteSpace(filter))
+                {
+                    songFilter = new SongFilter(filter);
+                }
 
-            //    var from = RecomputeMarker.GetMarker("propertycleanup");
+                var from = markerService.GetMarker("propertycleanup");
 
-            //    var info = Database.CleanupProperties(count, from, songFilter);
+                var info = Database.CleanupProperties(count, from, songFilter);
 
-            //    if (info.Succeeded > 0)
-            //    {
-            //        RecomputeMarker.SetMarker("propertycleanup", info.LastTime);
-            //    }
+                if (info.Succeeded > 0)
+                {
+                    markerService.SetMarker("propertycleanup", info.LastTime);
+                }
 
-            //    ViewBag.Name = "Cleaned up Properties";
-            //    ViewBag.Success = true;
+                ViewBag.Name = "Cleaned up Properties";
+                ViewBag.Success = true;
 
-            //    ViewBag.Message = $"{info.Succeeded} songs cleanded, {info.Failed} failed.";
+                ViewBag.Message = $"{info.Succeeded} songs cleanded, {info.Failed} failed.";
 
-            //    return CompleteAdminTask(true, $"{info.Succeeded} songs cleaned up. {info.Message}");
-            //}
-            //catch (Exception e)
-            //{
-            //    return FailAdminTask($"CleanupProperties: {e.Message}", e);
-            //}
+                return CompleteAdminTask(true, $"{info.Succeeded} songs cleaned up. {info.Message}");
+            }
+            catch (Exception e)
+            {
+                return FailAdminTask($"CleanupProperties: {e.Message}", e);
+            }
 
             ViewBag.Success = false;
             ViewBag.Message = "Not implemented for .net core";
