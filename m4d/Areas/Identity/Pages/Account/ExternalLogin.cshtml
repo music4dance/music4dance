@@ -23,11 +23,18 @@
                 <input asp-for="Input.UserName" class="form-control" />
                 <span asp-validation-for="Input.UserName" class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <label asp-for="Input.Email"></label>
-                <input asp-for="Input.Email" class="form-control" />
-                <span asp-validation-for="Input.Email" class="text-danger"></span>
-            </div>
+            @if (string.IsNullOrEmpty(Model.Input.Email) || Model.Input.Email.IndexOf('@') == -1)
+            {
+                <div class="form-group">
+                    <label asp-for="Input.Email"></label>
+                    <input asp-for="Input.Email" class="form-control" />
+                    <span asp-validation-for="Input.Email" class="text-danger"></span>
+                </div>
+            }
+            else
+            {
+                <input id="Input_Email" name="Input.Email" type="hidden" value="@Model.Input.Email"/>
+            }
             <button type="submit" class="btn btn-primary">Register</button>
         </form>
     </div>

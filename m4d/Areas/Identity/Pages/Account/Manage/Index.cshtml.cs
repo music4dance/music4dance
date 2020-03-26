@@ -7,6 +7,7 @@ using m4dModels;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace m4d.Areas.Identity.Pages.Account.Manage
 {
@@ -30,11 +31,10 @@ namespace m4d.Areas.Identity.Pages.Account.Manage
         public DateTime? SubscriptionStart { get; set; }
         public DateTime? SubscriptionEnd { get; set; }
 
-        public string Region { get; set; }
-        public string Privacy { get; set; }
-        public List<string> ContactOptions { get; set; }
-        public List<string> ServiceOptions { get; set; }
+        public List<KeyValuePair<byte, string>> ContactOptions { get; set; }
+        public List<KeyValuePair<char, string>> ServiceOptions { get; set; }
 
+        public IEnumerable<SelectListItem> RegionItems { get; set; }
 
         [TempData]
         public string StatusMessage { get; set; }
@@ -44,9 +44,12 @@ namespace m4d.Areas.Identity.Pages.Account.Manage
 
         public class InputModel
         {
-            [Phone]
-            [Display(Name = "Phone number")]
-            public string PhoneNumber { get; set; }
+            public string Region { get; set; }
+
+            [Display(Name = "Share my profile or tags with other members.")]
+            public bool PublicProfile { get; set; }
+            public List<byte> ContactSelection { get; set; }
+            public List<char> ServiceSelection { get; set; }
         }
 
         private async Task LoadAsync(ApplicationUser user)
@@ -61,14 +64,16 @@ namespace m4d.Areas.Identity.Pages.Account.Manage
             SubscriptionStart = user.SubscriptionStart;
             SubscriptionEnd = user.SubscriptionEnd;
 
-            Region = user.Region;
-            Privacy = user.PrivacyDescription;
-            ContactOptions = user.ContactDescription.ToList();
-            ServiceOptions = user.ServicePreferenceDescription.ToList();
+            ContactOptions = ApplicationUser.ContactOptions;
+            ServiceOptions = MusicService.GetProfileServices().Select(s => new KeyValuePair<char, string>(s.CID, s.Name)).ToList();
+            RegionItems = CountryCodes.Codes.Select(code => new SelectListItem { Text = code.Value, Value = code.Key }).OrderBy(cc => cc.Text).ToList();
 
             Input = new InputModel
             {
-                PhoneNumber = phoneNumber
+                PublicProfile = user.Privacy > 0,
+                ContactSelection = user.ContactSelection,
+                ServiceSelection = (user.ServicePreference == null) ? new List<char>() : (user.ServicePreference.Select(c => c).ToList()),
+                Region = string.IsNullOrWhiteSpace(user.Region) ? "US" : user.Region
             };
         }
 
@@ -98,14 +103,53 @@ namespace m4d.Areas.Identity.Pages.Account.Manage
                 return Page();
             }
 
-            var phoneNumber = await _userManager.GetPhoneNumberAsync(user);
-            if (Input.PhoneNumber != phoneNumber)
+            bool modified = false;
+            byte privacy = (byte) (Input.PublicProfile ? 255 : 0);
+            if (user.Privacy != privacy)
             {
-                var setPhoneResult = await _userManager.SetPhoneNumberAsync(user, Input.PhoneNumber);
-                if (!setPhoneResult.Succeeded)
+                user.Privacy = privacy;
+                modified = true;
+            }
+
+            var canContact = (Input.ContactSelection == null) 
+                ? ContactStatus.None 
+                : (ContactStatus)Input.ContactSelection.Aggregate<byte, byte>(0, (current, cnt) => (byte)(current | cnt));
+            if (user.CanContact != canContact)
+            {
+                user.CanContact = canContact;
+                modified = true;
+            }
+
+            var servicePreference = (Input.ServiceSelection == null) ? string.Empty : new string(Input.ServiceSelection.ToArray());
+            if (user.ServicePreference != servicePreference)
+            {
+                user.ServicePreference = servicePreference;
+                modified = true;
+            }
+
+            if (Input.Region != user.Region)
+            {
+                user.Region = Input.Region;
+                modified = true;
+            }
+
+            //var phoneNumber = await _userManager.GetPhoneNumberAsync(user);
+            //if (Input.PhoneNumber != phoneNumber)
+            //{
+            //    var setPhoneResult = await _userManager.SetPhoneNumberAsync(user, Input.PhoneNumber);
+            //    if (!setPhoneResult.Succeeded)
+            //    {
+            //        var userId = await _userManager.GetUserIdAsync(user);
+            //        throw new InvalidOperationException($"Unexpected error occurred setting phone number for user with ID '{userId}'.");
+            //    }
+            //}
+
+            if (modified)
+            {
+                var result = await _userManager.UpdateAsync(user);
+                if (!result.Succeeded)
                 {
-                    var userId = await _userManager.GetUserIdAsync(user);
-                    throw new InvalidOperationException($"Unexpected error occurred setting phone number for user with ID '{userId}'.");
+                    throw new InvalidOperationException($"Unexpected error occurred updating user '{user.UserName}' profile.");
                 }
             }
 
