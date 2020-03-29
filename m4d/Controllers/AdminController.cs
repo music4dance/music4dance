@@ -1232,7 +1232,6 @@ namespace m4d.Controllers
                 userName = User.Identity.Name;
             }
 
-            // CORETODO:  Can we pull in this stuff from DM Controller, or should be comment out for the next phase?
             return View(CommitCatalog(Database, initial, userName, danceIds) == 0 ? "Error" : "UploadCatalog");
         }
 
@@ -1359,7 +1358,6 @@ namespace m4d.Controllers
                     break;
             }
 
-            // CORETODO: Need to figure out how to make this work in .net core
             return new JsonNetResult(
                 instance.Tree,
                 new JsonSerializerSettings
@@ -1849,10 +1847,6 @@ namespace m4d.Controllers
             {
                 return FailAdminTask($"CleanupProperties: {e.Message}", e);
             }
-
-            ViewBag.Success = false;
-            ViewBag.Message = "Not implemented for .net core";
-            return View("Results");
         }
 
         #endregion
