@@ -27,6 +27,7 @@ namespace m4d.Utilities
         public virtual TimeSpan ExpiresIn => TimeSpan.FromSeconds(expires_in - 60);
     }
 
+    // CORETODO: Get these working with configuration
     public abstract class CoreAuthentication
     {
         protected abstract string Client { get; }

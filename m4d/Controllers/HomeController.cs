@@ -140,7 +140,7 @@ namespace m4d.Controllers
         }
 
         [AllowAnonymous]
-        public async Task<IActionResult> Purchase(decimal amount, PurchaseKind kind)
+        public async Task<IActionResult> Purchase([FromServices] IConfiguration configuration, decimal amount, PurchaseKind kind)
         {
             ThemeName = BlogTheme;
             HelpPage = "subscriptions";
@@ -157,7 +157,7 @@ namespace m4d.Controllers
 
             var purchase = new PurchaseModel
             {
-                Key = Environment.GetEnvironmentVariable("STRIPE_PK"),
+                Key = configuration["Authentication:Stripe:PublicKey"],
                 Kind = kind,
                 Amount = amount,
                 User = userName,
@@ -190,6 +190,7 @@ namespace m4d.Controllers
             {
                 // TODO: Can this be done once per session?
                 StripeConfiguration.ApiKey = configuration["Authentication:Stripe:SecretKey"];
+                
 
                 var metaData = new Dictionary<string, string> { { "confirmation-code", conf } };
                 if (userName != null)
