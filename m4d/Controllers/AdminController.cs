@@ -23,7 +23,6 @@ using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Azure.Search.Models;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
@@ -1358,15 +1357,14 @@ namespace m4d.Controllers
                     break;
             }
 
-            return new JsonNetResult(
+            return new JsonResult(
                 instance.Tree,
                 new JsonSerializerSettings
                 {
                     NullValueHandling = NullValueHandling.Ignore,
                     DefaultValueHandling = DefaultValueHandling.IgnoreAndPopulate,
                     ContractResolver = new StatsContractResolver(jsFriendly, noSongs)
-                },
-                Formatting.Indented);
+                });
         }
 
         private string EnsureAppData(IWebHostEnvironment environment)
