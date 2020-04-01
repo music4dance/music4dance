@@ -41,11 +41,9 @@
         </form>
     </div>
     <div class="col-md-3">
-        <section>
-            <h4>Use another service to register.</h4>
-            <hr />
-            <partial name="_ExternalLoginsListPartial" model="@new m4d.Areas.Identity.ViewModels.ExternalLoginListViewModel { ExternalLogins = Model.ExternalLogins, ReturnUrl = Model.ReturnUrl }" />
-        </section>
+        <h4>Use another service to register.</h4>
+        <hr />
+        <partial name="_ExternalLoginsListPartial" model="@new m4d.Areas.Identity.ViewModels.ExternalLoginListViewModel { ExternalLogins = Model.ExternalLogins, ReturnUrl = Model.ReturnUrl }" />
     </div>
     <div class="col-md-4">
         @{ string prefix = "When you have registered";}
