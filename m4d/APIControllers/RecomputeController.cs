@@ -20,8 +20,8 @@ namespace m4d.APIControllers
     [Route("api/[controller]")]
     public class RecomputeController : DanceMusicApiController
     {
-        public RecomputeController(DanceMusicContext context, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, ISearchServiceManager searchService, IDanceStatsManager danceStatsManager, RecomputeMarkerService recomputeMarkerService) :
-            base(context, userManager, roleManager, searchService, danceStatsManager)
+        public RecomputeController(DanceMusicContext context, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, ISearchServiceManager searchService, IDanceStatsManager danceStatsManager, RecomputeMarkerService recomputeMarkerService, IConfiguration configuration) :
+            base(context, userManager, roleManager, searchService, danceStatsManager, configuration)
         {
             _markerService = recomputeMarkerService;
         }

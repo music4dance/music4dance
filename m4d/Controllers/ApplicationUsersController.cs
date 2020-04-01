@@ -8,6 +8,7 @@ using m4dModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 
 namespace m4d.Controllers
 {
@@ -17,8 +18,8 @@ namespace m4d.Controllers
     {
         public override string DefaultTheme => AdminTheme;
 
-        public ApplicationUsersController(DanceMusicContext context, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, ISearchServiceManager searchService, IDanceStatsManager danceStatsManager) :
-            base(context, userManager, roleManager, searchService, danceStatsManager)
+        public ApplicationUsersController(DanceMusicContext context, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, ISearchServiceManager searchService, IDanceStatsManager danceStatsManager, IConfiguration configuration) :
+            base(context, userManager, roleManager, searchService, danceStatsManager, configuration)
         { }
 
         //public ApplicationUsersController()

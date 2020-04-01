@@ -2,6 +2,7 @@
 using m4dModels;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 
 namespace m4d.APIControllers
 {
@@ -9,8 +10,8 @@ namespace m4d.APIControllers
     [Route("api/[controller]")]
     public class SuggestionController : DanceMusicApiController
     {
-        public SuggestionController(DanceMusicContext context, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, ISearchServiceManager searchService, IDanceStatsManager danceStatsManager) :
-            base(context, userManager, roleManager, searchService, danceStatsManager)
+        public SuggestionController(DanceMusicContext context, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, ISearchServiceManager searchService, IDanceStatsManager danceStatsManager, IConfiguration configuration) :
+            base(context, userManager, roleManager, searchService, danceStatsManager, configuration)
         {
         }
 

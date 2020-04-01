@@ -21,8 +21,8 @@ namespace m4d.Controllers
 {
     public class PlayListController : DanceMusicController
     {
-        public PlayListController(DanceMusicContext context, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, ISearchServiceManager searchService, IDanceStatsManager danceStatsManager) :
-                base(context, userManager, roleManager, searchService, danceStatsManager)
+        public PlayListController(DanceMusicContext context, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, ISearchServiceManager searchService, IDanceStatsManager danceStatsManager, IConfiguration configuration) :
+                base(context, userManager, roleManager, searchService, danceStatsManager, configuration)
         {
         }
 
@@ -411,7 +411,7 @@ namespace m4d.Controllers
             result = string.Empty;
             try
             {
-                var spl = LoadServicePlaylist(playlist, email, dms);
+                var spl = LoadServicePlaylist(playlist, email, dms, MusicServiceManager);
                 if (spl == null) return false;
 
                 var tracks = spl.Tracks;
@@ -493,7 +493,7 @@ namespace m4d.Controllers
             {
                 try
                 {
-                    var success = DoRestore(id, email, dms, out var result);
+                    var success = DoRestore(id, email, dms, MusicServiceManager, out var result);
                     AdminMonitor.CompleteTask(success, result);
                 }
                 catch (Exception e)
@@ -536,7 +536,7 @@ namespace m4d.Controllers
                         var id = playlist.Id;
                         if (emailMap.TryGetValue(playlist.User, out var email))
                         {
-                            DoRestore(id, email, dms,  out var result);
+                            DoRestore(id, email, dms, MusicServiceManager, out var result);
                             AdminMonitor.UpdateTask($"Playlist {id}", i);
                             results.Add(result);
                         }
@@ -587,7 +587,7 @@ namespace m4d.Controllers
             };
         }
 
-        private static bool DoRestore(string id, string email, DanceMusicCoreService dms, out string result)
+        private static bool DoRestore(string id, string email, DanceMusicCoreService dms, MusicServiceManager serviceManager, out string result)
         {
             result = string.Empty;
             try
@@ -599,7 +599,7 @@ namespace m4d.Controllers
                     return false;
                 }
 
-                var spl = LoadServicePlaylist(playlist, email, dms);
+                var spl = LoadServicePlaylist(playlist, email, dms, serviceManager);
                 if (spl == null) return false;
 
                 var tracks = spl.Tracks;
@@ -650,7 +650,7 @@ namespace m4d.Controllers
         }
 
 
-        private static GenericPlaylist LoadServicePlaylist(PlayList playList, string email, DanceMusicCoreService dms)
+        private static GenericPlaylist LoadServicePlaylist(PlayList playList, string email, DanceMusicCoreService dms, MusicServiceManager serviceManager)
         {
             var service = MusicService.GetService(ServiceType.Spotify);
 
@@ -661,7 +661,7 @@ namespace m4d.Controllers
                 throw new ArgumentOutOfRangeException(nameof(playList.Type), $@"Playlists of type ${playList.Type} not not yet supported.");
             }
 
-            return new MusicServiceManager().LookupPlaylist(service, url);
+            return serviceManager.LookupPlaylist(service, url);
         }
 
         private HttpStatusCode GetPlaylist(string id, out PlayList playList)

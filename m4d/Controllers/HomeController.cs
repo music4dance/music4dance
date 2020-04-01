@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Threading.Tasks;
 using m4d.ViewModels;
 using m4dModels;
@@ -20,8 +21,8 @@ namespace m4d.Controllers
 {
     public class HomeController : DanceMusicController
     {
-        public HomeController(DanceMusicContext context, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, ISearchServiceManager searchService, IDanceStatsManager danceStatsManager) : 
-            base (context, userManager, roleManager, searchService, danceStatsManager)
+        public HomeController(DanceMusicContext context, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, ISearchServiceManager searchService, IDanceStatsManager danceStatsManager, IConfiguration configuration) : 
+            base (context, userManager, roleManager, searchService, danceStatsManager, configuration)
         {
         }
 

@@ -23,6 +23,7 @@ using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Azure.Search.Models;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.FileProviders;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
@@ -55,8 +56,8 @@ namespace m4d.Controllers
     [Authorize, SetupDiagnostics]
     public class AdminController : DanceMusicController
     {
-        public AdminController(DanceMusicContext context, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, ISearchServiceManager searchService, IDanceStatsManager danceStatsManager) : 
-            base(context, userManager, roleManager, searchService, danceStatsManager)
+        public AdminController(DanceMusicContext context, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, ISearchServiceManager searchService, IDanceStatsManager danceStatsManager, IConfiguration configuration) : 
+            base(context, userManager, roleManager, searchService, danceStatsManager, configuration)
         {
         }
 

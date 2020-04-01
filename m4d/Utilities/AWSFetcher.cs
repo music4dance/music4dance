@@ -13,6 +13,7 @@ using System.Threading;
 using System.Xml;
 using AmazonCommerce;
 using m4dModels;
+using Microsoft.Extensions.Configuration;
 
 namespace m4d.Utilities
 {
@@ -121,7 +122,7 @@ namespace m4d.Utilities
 
         readonly AWSECommerceServicePortTypeClient _client;
 
-        public AWSFetcher()
+        public AWSFetcher(IConfiguration configuration) :  base(configuration)
         {
             // create a WCF Amazon ECS client
             var binding = new BasicHttpBinding(BasicHttpSecurityMode.Transport) {MaxReceivedMessageSize = int.MaxValue};

@@ -22,7 +22,6 @@ namespace m4d
                 var serviceProvider = scope.ServiceProvider;
                 try
                 {
-                    // CORETODO: Probably don't want to do this unconditionally in production
                     //using var context = scope.ServiceProvider.GetService<DanceMusicContext>();
                     //context.Database.Migrate();
 

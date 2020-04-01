@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
+using System.Drawing;
 using System.Net;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Json;
@@ -10,6 +11,7 @@ using System.Text;
 using System.Threading;
 using m4dModels;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.Extensions.Configuration;
 
 namespace m4d.Utilities
 {
@@ -27,29 +29,23 @@ namespace m4d.Utilities
         public virtual TimeSpan ExpiresIn => TimeSpan.FromSeconds(expires_in - 60);
     }
 
-    // CORETODO: Get these working with configuration
     public abstract class CoreAuthentication
     {
-        protected abstract string Client { get; }
-        public string ClientId => _clientId ??= Environment.GetEnvironmentVariable(Client + "-client-id");
-        public string ClientSecret => _clientSecret ??= Environment.GetEnvironmentVariable(Client + "-client-secret");
-
-        private string _clientId;
-        private string _clientSecret;
-    }
-
-    public class EnvAuthentication : CoreAuthentication
-    {
-        public EnvAuthentication(string client)
+        protected CoreAuthentication(IConfiguration configuration)
         {
-            Client = client;
+            ClientId = configuration["Authentication:{Client}:ClientId"];
+            ClientSecret = configuration["Authentication:{Client}:ClientSecret"];
         }
 
-        protected override string Client { get; }
+        protected abstract string Client { get; }
+        public string ClientId { get; }
+        public string ClientSecret { get; }
     }
 
     public abstract class AdmAuthentication : CoreAuthentication, IDisposable
     {
+        protected AdmAuthentication(IConfiguration configuration) : base(configuration) { }
+
         protected abstract string RequestFormat { get; }
         protected virtual string RequestExtra => string.Empty;
         protected abstract string RequestUrl { get; }
@@ -126,12 +122,12 @@ namespace m4d.Utilities
             AccessTokenRenewer.Dispose();
         }
 
-        public static string GetServiceAuthorization(ServiceType serviceType, IPrincipal principal = null, AuthenticateResult authResult = null)
+        public static string GetServiceAuthorization(IConfiguration configuration, ServiceType serviceType, IPrincipal principal = null, AuthenticateResult authResult = null)
         {
-            return SetupService(serviceType, principal, authResult)?.GetAccessString();
+            return SetupService(configuration, serviceType, principal, authResult)?.GetAccessString();
         }
 
-        private static AdmAuthentication SetupService(ServiceType serviceType, IPrincipal principal = null, AuthenticateResult authResult = null)
+        private static AdmAuthentication SetupService(IConfiguration configuration, ServiceType serviceType, IPrincipal principal = null, AuthenticateResult authResult = null)
         {
             AdmAuthentication auth = null;
 
@@ -145,7 +141,7 @@ namespace m4d.Utilities
 
                 if (authResult != null)
                 {
-                    auth = TryCreate(serviceType, authResult);
+                    auth = TryCreate(configuration, serviceType, authResult);
                     if (auth != null)
                     {
                         s_users[userName] = auth;
@@ -158,14 +154,14 @@ namespace m4d.Utilities
             switch (serviceType)
             {
                 case ServiceType.Spotify:
-                    auth = s_spotify ??= new SpotAuthentication();
+                    auth = s_spotify ??= new SpotAuthentication(configuration);
                     break;
             }
 
             return auth;
         }
 
-        public static AdmAuthentication TryCreate(ServiceType serviceType, AuthenticateResult authResult)
+        public static AdmAuthentication TryCreate(IConfiguration configuration, ServiceType serviceType, AuthenticateResult authResult)
         {
             var accessToken = authResult.Properties.GetTokenValue("access_token");
             var now = DateTime.Now;
@@ -186,7 +182,7 @@ namespace m4d.Utilities
             AdmAuthentication auth = null;
             if  (serviceType == ServiceType.Spotify)
             {
-                auth = new SpotUserAuthentication
+                auth = new SpotUserAuthentication(configuration)
                 {
                     RefreshToken = refreshToken,
                 };

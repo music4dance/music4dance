@@ -2,11 +2,13 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Net;
 using System.Security.Principal;
 using System.Text;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.FileProviders;
 using Newtonsoft.Json;
 
@@ -17,6 +19,12 @@ namespace m4d.Utilities
         // Obviously not the clean abstraction, but Amazon is different enough that my abstraction
         //  between itunes and groove doesn't work.   So I'm going to shoe-horn this in to get it working
         //  and refactor later.
+        public MusicServiceManager(IConfiguration configuration)
+        {
+            Configuration = configuration;
+        }
+
+        private IConfiguration Configuration { get; }
 
         #region Search
         public IList<ServiceTrack> FindMusicServiceSong(Song song, MusicService service, bool clean = false, string title = null, string artist = null, string album = null, string region = null)
@@ -389,7 +397,7 @@ namespace m4d.Utilities
         }
 
         // ReSharper disable once InconsistentNaming
-        private static IList<ServiceTrack> FindMSSongGeneral(MusicService service, string title = null, string artist = null)
+        private IList<ServiceTrack> FindMSSongGeneral(MusicService service, string title = null, string artist = null)
         {
             dynamic results = GetMusicServiceResults(service.BuildSearchRequest(artist, title), service);
             return service.ParseSearchResults(results,
@@ -406,7 +414,7 @@ namespace m4d.Utilities
             return int.TryParse(s, out var info) ? info : -1;
         }
 
-        private static dynamic GetMusicServiceResults(string request, MusicService service, IPrincipal principal = null)
+        private dynamic GetMusicServiceResults(string request, MusicService service, IPrincipal principal = null)
         {
             var retries = 2;
             while (true)
@@ -425,7 +433,7 @@ namespace m4d.Utilities
                 string auth = null;
                 if (service != null)
                 {
-                    auth = AdmAuthentication.GetServiceAuthorization(service.Id, principal);
+                    auth = AdmAuthentication.GetServiceAuthorization(Configuration, service.Id, principal);
                 }
 
                 if (auth != null)
@@ -500,14 +508,13 @@ namespace m4d.Utilities
                     responseString = service.PreprocessResponse(responseString);
                 }
 
-                // TODONEXT: verify other spotify endpoints
                 return JsonConvert.DeserializeObject(responseString);
             }
         }
 
         // TODO Handle services other than spotify.
         // This method requires a valid principal
-        private static dynamic MusicServiceAction(string request, string input, string method, MusicService service, IPrincipal principal, string contentType = "application/json")
+        private dynamic MusicServiceAction(string request, string input, string method, MusicService service, IPrincipal principal, string contentType = "application/json")
         {
             string responseString = null;
 
@@ -521,7 +528,7 @@ namespace m4d.Utilities
             req.Accept = "application/json";
             req.ContentType = contentType;
 
-            req.Headers.Add("Authorization", AdmAuthentication.GetServiceAuthorization(service.Id, principal));
+            req.Headers.Add("Authorization", AdmAuthentication.GetServiceAuthorization(Configuration, service.Id, principal));
 
             try
             {
@@ -557,13 +564,13 @@ namespace m4d.Utilities
         }
 
 
-        private static dynamic NextMusicServiceResults(dynamic last, MusicService service, IPrincipal principal = null)
+        private dynamic NextMusicServiceResults(dynamic last, MusicService service, IPrincipal principal = null)
         {
             var request = service.GetNextRequest(last);
             return request == null ? null : GetMusicServiceResults(request, service, principal);
         }
 
-        private AWSFetcher AmazonFetcher => _awsFetcher ??= new AWSFetcher();
+        private AWSFetcher AmazonFetcher => _awsFetcher ??= new AWSFetcher(Configuration);
         private AWSFetcher _awsFetcher;
         #endregion
 

@@ -2,11 +2,14 @@
 using System.Security.Claims;
 using System.Security.Principal;
 using System.Web;
+using Microsoft.Extensions.Configuration;
 
 namespace m4d.Utilities
 {
     public class SpotAuthentication : AdmAuthentication
     {
+        public SpotAuthentication(IConfiguration configuration) : base(configuration) { }
+
         protected override string Client => "spot";
 
         protected override string RequestFormat => "grant_type=client_credentials";
@@ -24,6 +27,7 @@ namespace m4d.Utilities
 
     public class SpotUserAuthentication : SpotAuthentication
     {
+        public SpotUserAuthentication(IConfiguration configuration) : base(configuration) { }
         protected override string RequestExtra => "&refresh_token=" + HttpUtility.UrlEncode(RefreshToken);
         protected override string RequestFormat => "grant_type=refresh_token";
     }

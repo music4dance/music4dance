@@ -5,6 +5,7 @@ using System.Net;
 using m4dModels;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 
 namespace m4d.APIControllers
 {
@@ -12,8 +13,8 @@ namespace m4d.APIControllers
     [Route("api/[controller]")]
     public class MusicServiceController : DanceMusicApiController
     {
-        public MusicServiceController(DanceMusicContext context, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, ISearchServiceManager searchService, IDanceStatsManager danceStatsManager) :
-            base(context, userManager, roleManager, searchService, danceStatsManager)
+        public MusicServiceController(DanceMusicContext context, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, ISearchServiceManager searchService, IDanceStatsManager danceStatsManager, IConfiguration configuration) :
+            base(context, userManager, roleManager, searchService, danceStatsManager, configuration)
         {
         }
 

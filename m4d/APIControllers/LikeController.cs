@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using m4dModels;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 
 namespace m4d.APIControllers
 {
@@ -17,8 +18,8 @@ namespace m4d.APIControllers
 
     public class LikeController : DanceMusicApiController
     {
-        public LikeController(DanceMusicContext context, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, ISearchServiceManager searchService, IDanceStatsManager danceStatsManager) :
-            base(context, userManager, roleManager, searchService, danceStatsManager)
+        public LikeController(DanceMusicContext context, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, ISearchServiceManager searchService, IDanceStatsManager danceStatsManager, IConfiguration configuration) :
+            base(context, userManager, roleManager, searchService, danceStatsManager, configuration)
         {
         }
 

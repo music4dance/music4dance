@@ -8,6 +8,7 @@ using m4d.Utilities;
 using m4dModels;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Net.Http.Headers;
 
 namespace m4d.Controllers
@@ -19,18 +20,20 @@ namespace m4d.Controllers
         protected readonly string BlogTheme = "blog";
         protected readonly string AdminTheme = "admin";
 
-        public DanceMusicController(DanceMusicContext context, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, ISearchServiceManager searchService, IDanceStatsManager danceStatsManager)
+        public DanceMusicController(DanceMusicContext context, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, ISearchServiceManager searchService, IDanceStatsManager danceStatsManager, IConfiguration configuration)
         {
             Database = new DanceMusicService(context, userManager, searchService, danceStatsManager);
             SearchService = searchService;
             DanceStatsManager = danceStatsManager;
+            _configuration = configuration;
         }
 
         public DanceMusicService Database { get; set; }
 
-        protected MusicServiceManager MusicServiceManager => _musicServiceManager ??= new MusicServiceManager();
+        protected MusicServiceManager MusicServiceManager => _musicServiceManager ??= new MusicServiceManager(_configuration);
 
         private MusicServiceManager _musicServiceManager;
+        private IConfiguration _configuration;
 
         public ISearchServiceManager SearchService { get; }
 

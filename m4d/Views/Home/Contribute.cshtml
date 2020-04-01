@@ -1,8 +1,14 @@
 ﻿@using Microsoft.AspNetCore.Http.Extensions;
+@using Microsoft.Extensions.Configuration
+
+@inject IConfiguration Configuration;
 
 @{
-    // CORETODO: Verify that this works and/of see if we can get dynamic configuration working
-    var enableCommerce = string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("DISABLE_COMMERCE"));
+    var ecString = Configuration["Configuration:Commerce:Enabled"];
+    if (!bool.TryParse(ecString, out var enableCommerce))
+    {
+        enableCommerce = true;
+    }
     ViewBag.Title = "Contribute";
 }
 <H1>Contribute to music4dance.net</H1>

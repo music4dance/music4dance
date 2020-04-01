@@ -15,6 +15,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Routing;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Net.Http.Headers;
 using X.PagedList;
@@ -29,8 +30,8 @@ namespace m4d.Controllers
 
     public class SongController : ContentController
     {
-        public SongController(DanceMusicContext context, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, ISearchServiceManager searchService, IDanceStatsManager danceStatsManager, LinkGenerator linkGenerator) :
-            base(context, userManager, roleManager, searchService, danceStatsManager)
+        public SongController(DanceMusicContext context, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, ISearchServiceManager searchService, IDanceStatsManager danceStatsManager, LinkGenerator linkGenerator, IConfiguration configuration) :
+            base(context, userManager, roleManager, searchService, danceStatsManager, configuration)
         {
             HelpPage = "song-list";
             _linkGenerator = linkGenerator;
@@ -971,7 +972,7 @@ namespace m4d.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> CreateSpotify([FromServices] IFileProvider fileProvider, [Bind("Title,DescriptionPrefix,Description,Count,Filter")] PlaylistCreateInfo info)
+        public async Task<ActionResult> CreateSpotify([FromServices] IFileProvider fileProvider, [FromServices] IConfiguration configuration, [Bind("Title,DescriptionPrefix,Description,Count,Filter")] PlaylistCreateInfo info)
         {
             if (!ModelState.IsValid) return View(info);
 
@@ -990,7 +991,7 @@ namespace m4d.Controllers
 
             var authResult = await HttpContext.AuthenticateAsync();
 
-            AdmAuthentication.GetServiceAuthorization(ServiceType.Spotify, User, authResult);
+            AdmAuthentication.GetServiceAuthorization(configuration, ServiceType.Spotify, User, authResult);
 
             PlaylistMetadata metadata;
             var filter = new SongFilter(info.Filter);
