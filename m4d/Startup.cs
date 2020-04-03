@@ -21,6 +21,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Hosting;
 using Newtonsoft.Json.Serialization;
+using reCAPTCHA;
 
 namespace m4d
 {
@@ -117,6 +118,12 @@ namespace m4d
                         return Task.CompletedTask;
                     };
                 });
+
+            services.AddreCAPTCHAV2(x =>
+            {
+                x.SiteKey = Configuration["Authentication:reCAPTCHA:SiteKey"];
+                x.SiteSecret = Configuration["Authentication:reCAPTCHA:SecretKey"];
+            });
 
             var appData = Path.Combine(Environment.WebRootPath, "AppData");
 

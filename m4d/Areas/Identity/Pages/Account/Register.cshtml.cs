@@ -11,7 +11,10 @@ using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using reCAPTCHA;
+using reCAPTCHA.v2;
 
 namespace m4d.Areas.Identity.Pages.Account
 {
@@ -22,6 +25,7 @@ namespace m4d.Areas.Identity.Pages.Account
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly ILogger<RegisterModel> _logger;
         private readonly IEmailSender _emailSender;
+        private readonly IreCAPTCHASiteVerifyV2 _siteVerify;
 
         public static string BuildConfirmMessage(string callbackUrl) =>
             @"<h4>Please confirm your email account by clicking <a href=" + callbackUrl +
@@ -41,12 +45,19 @@ namespace m4d.Areas.Identity.Pages.Account
             UserManager<ApplicationUser> userManager,
             SignInManager<ApplicationUser> signInManager,
             ILogger<RegisterModel> logger,
-            IEmailSender emailSender)
+            IEmailSender emailSender,
+            IreCAPTCHASiteVerifyV2 siteVerify,
+            IConfiguration configuration)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _logger = logger;
             _emailSender = emailSender;
+            var captcha = configuration["Configuration:Registration:CaptchaEnabled"];
+            if (!string.IsNullOrEmpty(captcha) && bool.TryParse(captcha, out var enabled) && enabled)
+            {
+                _siteVerify = siteVerify;
+            }
         }
 
         [BindProperty]
@@ -55,6 +66,8 @@ namespace m4d.Areas.Identity.Pages.Account
         public string ReturnUrl { get; set; }
 
         public IList<AuthenticationScheme> ExternalLogins { get; set; }
+
+        public bool UseCaptcha => _siteVerify != null;
 
         public class InputModel
         {
@@ -81,6 +94,8 @@ namespace m4d.Areas.Identity.Pages.Account
             [Display(Name = "Confirm password")]
             [Compare("Password", ErrorMessage = "The password and confirmation password do not match.")]
             public string ConfirmPassword { get; set; }
+
+            public string RecaptchaToken { get; set; }
         }
 
         public async Task OnGetAsync(string returnUrl = null)
@@ -93,6 +108,21 @@ namespace m4d.Areas.Identity.Pages.Account
         {
             returnUrl ??= Url.Content("~/");
             ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
+
+            if (UseCaptcha)
+            {
+                var response = await _siteVerify.Verify(new reCAPTCHASiteVerifyRequest
+                {
+                    Response = Input.RecaptchaToken,
+                    RemoteIp = HttpContext.Connection.RemoteIpAddress.ToString()
+                });
+
+                if (!response.Success)
+                {
+                    ModelState.AddModelError(string.Empty, @"Please check the ""I'm not a Robot'"" box");
+                }
+            }
+
             if (ModelState.IsValid)
             {
                 var user = new ApplicationUser { UserName = Input.UserName, Email = Input.Email };
