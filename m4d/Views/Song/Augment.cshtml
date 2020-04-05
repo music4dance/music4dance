@@ -92,15 +92,17 @@ else
     <p>If you've already signed up for the beta and are <a href="https://www.music4dance.net/identity/account/login">signed in</a> but still seeing this message, we are still evaluting your request, please be patient.</p>
 }
 
-@{
-    var scripts = new ScriptModel
-    {
-        IncludeTools = true,
-        DevelopmentFiles = new[] { "add" },
-    };
-}
+@section Scripts {
+    @{
+        var scripts = new ScriptModel
+        {
+            IncludeTools = true,
+            DevelopmentFiles = new[] { "add" },
+        };
+    }
 
-<partial name="_scriptInclude" model="@scripts" />
+    <partial name="_scriptInclude" model="@scripts" />
+}
 
 @section Styles {
     <partial name="_toolsStyles" />
