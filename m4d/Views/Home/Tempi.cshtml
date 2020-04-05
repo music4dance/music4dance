@@ -1,4 +1,5 @@
 ﻿@using System.Linq
+@using m4d.ViewModels
 @model DanceLibrary.Dances
 
 @{
@@ -40,14 +41,14 @@
     </div>
     <div class="dropdown col-md-3">
         <a id="filter-type" role="button" data-toggle="dropdown" href="/home/tempi" class="btn btn-info btn-block filter-button">
-            @(paramType==0?"All Types":danceGroups[paramType-1].Name) <span class=" caret"></span>
+            @(paramType == 0 ? "All Types" : danceGroups[paramType - 1].Name) <span class=" caret"></span>
         </a>
         <ul class="dropdown-menu" role="menu" aria-labelledby="filter-type">
             <li><a id="filter-type-ALL" href="#">All Types</a></li>
             @foreach (var item in danceGroups)
             {
-                if (item.CleanName == "performance") { continue;}
-                    var id = "filter-type-" + item.Id;
+                if (item.CleanName == "performance") { continue; }
+                var id = "filter-type-" + item.Id;
                 <li><a id="@id" href="#">@item.Name</a></li>
             }
         </ul>
@@ -95,12 +96,12 @@
     </div>
     <div class="checkbox col-md-6">
         <label>
-            <input id="details" type="checkbox" data-bind="checked: showDetails"/> Show Details
+            <input id="details" type="checkbox" data-bind="checked: showDetails" /> Show Details
         </label>
     </div>
 </div>
 
-<div class="row" data-bind="visible: showDetails"> 
+<div class="row" data-bind="visible: showDetails">
     <p>(*) A short explanation of the NDCA (National Dance Council of America) columns: For American style dances the "A" column contains Tempi for Silver and Gold levels while the "B" column contains Tempi for Bronze level.  For International style dances the "A" column contains Tempi for Professional and Amateur couples while the "B" column contains Tempi for Pro/Am couples. </p>
     <p>Dancesport Tempi are pulled from here: <a href="http://www.worlddancesport.org/Rule/Athlete/Competition">http://www.worlddancesport.org/Rule/Athlete/Competition</a></p>
     <p>NDCA (National Dance Council of America) Tempi are pulled from here: <a href="http://ndca.org/education/dances-and-tempi/">http://ndca.org/education/dances-and-tempi/</a></p>
@@ -138,10 +139,12 @@
 </script>
 
 @section Scripts {
-    <environment include="Development">
-        <script src="~/scripts/tempi.js"></script>
-    </environment>
-    <environment exclude="Development">
-        <script src="~/scripts/tempi.min.js"></script>
-    </environment>
+    @{
+        var scripts = new ScriptModel
+        {
+            DevelopmentFiles = new[] { "tempi" },
+        };
+    }
+
+    <partial name="_scriptInclude" model="@scripts" />
 }

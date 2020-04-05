@@ -11,13 +11,21 @@
     <None Remove="wwwroot\styles\**" />
   </ItemGroup>
   <ItemGroup>
+    <Content Remove="wwwroot\scripts\tagchooser.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <_ContentIncludedByDefault Remove="wwwroot\scripts\tagchooser.js" />
+  </ItemGroup>
+  <ItemGroup>
     <Folder Include="Views\Admin\" />
     <Folder Include="wwwroot\content\" />
     <Folder Include="wwwroot\css\" />
     <Folder Include="wwwroot\fonts\" />
     <Folder Include="wwwroot\AppData\" />
-    <Folder Include="wwwroot\scripts\" />
     <Folder Include="wwwroot\images\" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="wwwroot\scripts\tagchooser.js" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="AspNet.Security.OAuth.Spotify" Version="3.0.0" />

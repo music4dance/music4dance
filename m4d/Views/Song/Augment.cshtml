@@ -1,4 +1,5 @@
-﻿@model m4dModels.Song
+﻿@using m4d.ViewModels
+@model m4dModels.Song
 
 @{
     ViewBag.Title = "Add Song";
@@ -37,24 +38,26 @@
     </form>
 
     <div data-bind="with: song">Found song <em data-bind="text:Title"></em> by <strong data-bind="text:Artist"></strong> in the Music4DanceCatalog.  You should see the edit page shortly...</div>
-    <div data-bind="with: track">Creating an entry for <em data-bind="text:Name"></em> by <strong data-bind="text:Artist"></strong> on <span data-bind="text:Album"></span> (<span data-bind="text:TrackNumber"></span>)
-    in the Music4DanceCatalog.  You should see the edit page shortly...</div>
+    <div data-bind="with: track">
+        Creating an entry for <em data-bind="text:Name"></em> by <strong data-bind="text:Artist"></strong> on <span data-bind="text:Album"></span> (<span data-bind="text:TrackNumber"></span>)
+        in the Music4DanceCatalog.  You should see the edit page shortly...
+    </div>
     <div data-bind="text: error" class="field-validation-error big-text"></div>
 
-    using (Html.BeginForm("Create", "Song", FormMethod.Get, new {id = "create"}))
+    using (Html.BeginForm("Create", "Song", FormMethod.Get, new { id = "create" }))
     {
         @*@Html.AntiForgeryToken()*@
-        <input type="hidden" name="service" id="service"/>
-        <input type="hidden" name="purchase" id="purchase"/>
+        <input type="hidden" name="service" id="service" />
+        <input type="hidden" name="purchase" id="purchase" />
     }
 
-    using (Html.BeginForm("Edit", "Song", FormMethod.Get, new {id = "edit"}))
-     {
+    using (Html.BeginForm("Edit", "Song", FormMethod.Get, new { id = "edit" }))
+    {
         @*@Html.AntiForgeryToken()*@
-        <input type="hidden" name="id" id="id"/>
-     }
+        <input type="hidden" name="id" id="id" />
+    }
 
-    <br/>
+    <br />
     <p class="big-text">
         Each source of music has a different way of identifying songs, in general you can copy whatever sharing link they provide and paste it into the box above.
         Below are some samples of the recognized formats of each type.
@@ -89,24 +92,16 @@ else
     <p>If you've already signed up for the beta and are <a href="https://www.music4dance.net/identity/account/login">signed in</a> but still seeing this message, we are still evaluting your request, please be patient.</p>
 }
 
-
-@section Scripts {
-    <environment include="Development">
-        <script src="~/scripts/tools-script.js"></script>
-        <script src="~/scripts/add.js"></script>
-    </environment>
-    <environment exclude="Development">
-        <script src="~/scripts/tools-script.min.js"></script>
-        <script src="~/scripts/add.js"></script>
-    </environment>
+@{
+    var scripts = new ScriptModel
+    {
+        IncludeTools = true,
+        DevelopmentFiles = new[] { "add" },
+    };
 }
+
+<partial name="_scriptInclude" model="@scripts" />
 
 @section Styles {
-    <environment include="Development">
-        <link rel="stylesheet" href="~/css/tools-styles.min.css" asp-append-version="true" />
-    </environment>
-    <environment exclude="Development">
-        <link rel="stylesheet" href="~/css/tools-styles.css" asp-append-version="true" />
-    </environment>
+    <partial name="_toolsStyles" />
 }
-

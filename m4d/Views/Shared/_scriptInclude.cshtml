@@ -1,0 +1,24 @@
+﻿@model m4d.ViewModels.ScriptModel
+
+<environment include="Development">
+    @if (Model.IncludeTools)
+    {
+        <script src="/scripts/tools-script.js"></script>
+    }
+    @foreach (var file in Model.DevelopmentFiles)
+    {
+        var path = $"/scripts/{file}.js";
+        <script src="@path"></script>
+    }
+</environment>
+<environment exclude="Development">
+    @if (Model.IncludeTools)
+    {
+        <script src="/scripts/tools-script.min.js"></script>
+    }
+    @foreach (var file in Model.ReleaseFiles ?? Model.DevelopmentFiles)
+    {
+        var path = $"/scripts/{file}.min.js";
+        <script src="@path"></script>
+    }
+</environment>

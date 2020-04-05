@@ -1,4 +1,5 @@
 ﻿@using System
+@using m4d.ViewModels
 @using Microsoft.AspNetCore.Html
 @using Microsoft.AspNetCore.Mvc.Rendering
 @{
@@ -63,12 +64,15 @@
     @parameter("showBPM")
     @parameter("showMPM")
 
-    <environment include="Development">
-        <script src="~/scripts/counter.js"></script>
-    </environment>
-    <environment exclude="Development">
-        <script src="~/scripts/counter.min.js"></script>
-    </environment>
+    @{
+        var scripts = new ScriptModel
+        {
+            IncludeTools = true,
+            DevelopmentFiles = new[] { "counter" },
+        };
+    }
+
+    <partial name="_scriptInclude" model="@scripts" />
 }
 
 

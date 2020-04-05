@@ -1,4 +1,5 @@
-﻿@using m4dModels
+﻿@using m4d.ViewModels
+@using m4dModels
 @model m4d.ViewModels.ArtistViewModel
 
 @{
@@ -8,7 +9,7 @@
     ViewBag.SongFilter = new SongFilter { SortOrder = "Album" };
 }
 
-<partial name="_SetupFilterScript"/>
+<partial name="_SetupFilterScript" />
 
 <h2>Artist: @Model.Name</h2>
 
@@ -19,11 +20,14 @@
 
 @section Scripts
 {
-    <environment include="Development">
-        <script src="~/scripts/musicservice.js"></script>
-    </environment>
-    <environment exclude="Development">
-        <script src="~/scripts/musicservice.min.js"></script>
-    </environment>
+    @{
+        var scripts = new ScriptModel
+        {
+            IncludeTools = true,
+            DevelopmentFiles = new[] { "musicservice" }
+        };
+    }
+
+    <partial name="_scriptInclude" model="@scripts" />
 }
 

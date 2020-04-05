@@ -7,7 +7,7 @@
     var filter = ViewData.ContainsKey("SongFilter") ? ViewBag.SongFilter : new SongFilter();
 }
 
-<partial name="DetailsCore"/>
+<partial name="DetailsCore" />
 
 <div class="row">
     <div id="songDetails" class="col-md-12">
@@ -15,12 +15,12 @@
 
         @if (User.IsInRole("showDiagnostics"))
         {
-            @Html.ActionLink("Edit", "Edit", new {id = Model.SongId, filter}, new {@class = "btn btn-small btn-default", role = "button"})
-            @Html.ActionLink("Delete", "Delete", new {id = Model.SongId, filter}, new {@class = "btn btn-small btn-default", role = "button"})
-            @Html.ActionLink("Cleanup Albums", "CleanupAlbums", new {id = Model.SongId, filter}, new {@class = "btn btn-small btn-default", role = "button"})
-            @Html.ActionLink("Cleanup Purchase", "CleanMusicServices", new {id = Model.SongId, filter}, new {@class = "btn btn-small btn-default", role = "button"})
-            @Html.ActionLink("Cleanup Spotify", "CleanMusicServices", new {id = Model.SongId, type = "SG", filter}, new {@class = "btn btn-small btn-default", role = "button"})
-            @Html.ActionLink("Rebuild Ratings", "UpdateRatings", new {id = Model.SongId, filter}, new {@class = "btn btn-small btn-default", role = "button"})
+            @Html.ActionLink("Edit", "Edit", new { id = Model.SongId, filter }, new { @class = "btn btn-small btn-default", role = "button" })
+            @Html.ActionLink("Delete", "Delete", new { id = Model.SongId, filter }, new { @class = "btn btn-small btn-default", role = "button" })
+            @Html.ActionLink("Cleanup Albums", "CleanupAlbums", new { id = Model.SongId, filter }, new { @class = "btn btn-small btn-default", role = "button" })
+            @Html.ActionLink("Cleanup Purchase", "CleanMusicServices", new { id = Model.SongId, filter }, new { @class = "btn btn-small btn-default", role = "button" })
+            @Html.ActionLink("Cleanup Spotify", "CleanMusicServices", new { id = Model.SongId, type = "SG", filter }, new { @class = "btn btn-small btn-default", role = "button" })
+            @Html.ActionLink("Rebuild Ratings", "UpdateRatings", new { id = Model.SongId, filter }, new { @class = "btn btn-small btn-default", role = "button" })
         }
     </div>
 </div>
@@ -38,7 +38,7 @@
     <hr />
     <div class="row">
         <div id="songDump" class="col-md-12">
-            @using (Html.BeginForm("AdminEdit", "Song",  FormMethod.Post, new { @class = "form-horizontal" }))
+            @using (Html.BeginForm("AdminEdit", "Song", FormMethod.Post, new { @class = "form-horizontal" }))
             {
                 @Html.AntiForgeryToken()
                 <input type="hidden" name="songId" value="@Model.SongId" />
@@ -96,22 +96,18 @@
 }
 
 @section Scripts {
-    <environment include="Development">
-        <script src="~/scripts/tools-script.js"></script>
-        <script src="~/scripts/songdetails.js"></script>
-    </environment>
-    <environment exclude="Development">
-        <script src="~/scripts/tools-script.min.js"></script>
-        <script src="~/scripts/songdetails.js"></script>
-    </environment>
+    @{
+        var scripts = new ScriptModel
+        {
+            IncludeTools = true,
+            DevelopmentFiles = new[] { "counter", "tagchooser", "edit" },
+            ReleaseFiles = new[] { "search", },
+        };
+    }
+
+    <partial name="_scriptInclude" model="@scripts" />
 }
 
 @section Styles {
-    <environment include="Development">
-        <link rel="stylesheet" href="~/css/tools-styles.min.css" asp-append-version="true" />
-    </environment>
-    <environment exclude="Development">
-        <link rel="stylesheet" href="~/css/tools-styles.css" asp-append-version="true" />
-    </environment>
+    <partial name="_toolsStyles" />
 }
-

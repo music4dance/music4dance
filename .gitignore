@@ -34,6 +34,7 @@ AppData/
 **/wwwroot/scripts/*.js
 **/wwwroot/scripts/*.min.map
 **/wwwroot/scripts/*.js.map
+**/wwwroot/vendor/**/*
 
 # MSTest test Results
 [Tt]est[Rr]esult*/
