@@ -34,9 +34,6 @@ namespace m4dModels
         {
             base.OnModelCreating(builder);
 
-            // CORETODO: Confirm that this is the default
-            //builder.Properties<DateTime>().Configure(c => c.HasColumnType("datetime2"));
-
             builder.Entity<Dance>().ToTable("Dances");
             builder.Entity<DanceLink>().ToTable("DanceLink");
             builder.Entity<PlayList>().ToTable("Playlists");
@@ -51,9 +48,6 @@ namespace m4dModels
             builder.Entity<TagGroup>().Ignore(tt => tt.Value);
             builder.Entity<TagGroup>().Ignore(tt => tt.Category);
             builder.Entity<TagGroup>().Ignore(tt => tt.Children);
-
-            // CORETODO: Not sure what this does...
-            //builder.Entity<TagGroup>().HasOptional(x => x.Primary).WithMany().HasForeignKey(x => x.PrimaryId);
 
             builder.Entity<DanceLink>().HasKey(dl => dl.Id);
             builder.Entity<DanceLink>().Property(dl => dl.Id).ValueGeneratedNever();
@@ -71,6 +65,7 @@ namespace m4dModels
 
         #region Properties
         public DbSet<Dance> Dances { get; set; }
+        public DbSet<DanceLink> DanceLinks { get; set; }
         public DbSet<TagGroup> TagGroups { get; set; }
         public DbSet<Search> Searches { get; set; }
         public DbSet<PlayList> PlayLists { get; set; }

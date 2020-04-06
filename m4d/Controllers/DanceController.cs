@@ -1,13 +1,18 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Net;
+using System.Threading.Tasks;
 using DanceLibrary;
 using m4dModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Scaffolding.Metadata;
 using Microsoft.Extensions.Configuration;
+using Newtonsoft.Json.Converters;
 
 namespace m4d.Controllers
 {
@@ -82,9 +87,9 @@ namespace m4d.Controllers
         //
         // GET: /Dances/Edit/5
         [Authorize(Roles = "canEdit")]
-        public ActionResult Edit(string id)
+        public async Task<ActionResult> Edit(string id)
         {
-            var dance = Database.Dances.Find(id);
+            var dance = await Database.Dances.Where(d => d.Id == id).Include(d => d.DanceLinks).FirstOrDefaultAsync();
 
             return dance != null ? View(dance) : ReturnError(HttpStatusCode.NotFound,$"The dance with id = {id} isn't defined.");
         }
@@ -96,26 +101,41 @@ namespace m4d.Controllers
         {
             if (ModelState.IsValid && dance.Info != null)
             {
-                //TODO: This is a kludge - should figure out a better way to load this while preserving the case of the ID
-                dance.Id = dance.Id.ToUpper();
+                var newIds = new List<Guid>();
+
                 if (dance.DanceLinks != null)
                 {
                     foreach (var link in dance.DanceLinks)
                     {
-                        link.DanceId = dance.Id.ToUpper();
+
                         if (link.Id == Guid.Empty)
                         {
-                            link.Id = Guid.NewGuid();
-                            // CORETODO: Does this just work? Context.Entry(link).State = EntityState.Added;
-                        }
-                        else
-                        {
-                            // CORETODO: Does this just work? //Context.Entry(link).State = EntityState.Modified;
+                            var guid = Guid.NewGuid();
+                            link.Id = guid;
+                            newIds.Add(guid);
                         }
                     }
                 }
 
-                // CORETODO: Does this just work? Context.Entry(dance).State = EntityState.Modified;
+                var context = Database.Context;
+                context.Update(dance);
+
+                // Change new state to added
+                foreach (var link in dance.DanceLinks.Where(d => newIds.Contains(d.Id)))
+                {
+                    context.Entry(link).State = EntityState.Added;
+                }
+
+                // Find the deleted links (if any)
+                var curIds = dance.DanceLinks.Select(dl => dl.Id).ToList();
+                var oldLinks = context.DanceLinks.Where(dl => dl.DanceId == dance.Id).ToList();
+                foreach (var link in oldLinks)
+                {
+                    if (curIds.All(id => id != link.Id))
+                    {
+                        context.Entry(link).State = EntityState.Deleted;
+                    }
+                }
                 Database.SaveChanges();
 
                 DanceStatsManager.ReloadDances(Database);

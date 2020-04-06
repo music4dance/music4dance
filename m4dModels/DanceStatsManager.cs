@@ -112,8 +112,7 @@ namespace m4dModels
         {
             _lock.Lock(() =>
             {
-                dms.Context.LoadDances();
-                foreach (var dance in dms.Dances)
+                foreach (var dance in dms.Context.LoadDances())
                 {
                     if (_instance.Map.TryGetValue(dance.Id, out var danceStats))
                     {

@@ -100,14 +100,19 @@ namespace m4dModels
         {
             if (dance == null) return;
 
+            //var dbDance = dms.Context.Dances.FirstOrDefault(d => d.Id == dance.Id);
+
+            //Description = (dbDance??dance).Description;
+            //DanceLinks = (dbDance??dance).DanceLinks;
+
             Description = dance.Description;
             DanceLinks = dance.DanceLinks;
 
             var dt = DanceObject as DanceType;
             if (dt == null) return;
 
-            var competion = dt.Instances.Where(di => !string.IsNullOrWhiteSpace(di.CompetitionGroup)).ToList();
-            if (competion.Any()) CompetitionDances = competion;
+            var competition = dt.Instances.Where(di => !string.IsNullOrWhiteSpace(di.CompetitionGroup)).ToList();
+            if (competition.Any()) CompetitionDances = competition;
         }
 
         public void SetParents()

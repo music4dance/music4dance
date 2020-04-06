@@ -72,7 +72,7 @@ $(document).ready(function () {
     ko.applyBindings(viewModel);
 
     $('textarea.mdd_editor').MarkdownDeep({
-        help_location: '~/Scripts/mdd_help.htm',
+        help_location: './mdd_help.htm',
         disableTabHandling: true,
         resizebar: true
     });

@@ -32,6 +32,9 @@ var deps = {
     },
     "knockout-mapping": {
         "dist/*": ""
+    },
+    "markdowndeep": {
+        "clientSide/*": ""
     }
 };
 
