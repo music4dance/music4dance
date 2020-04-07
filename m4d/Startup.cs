@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -21,6 +20,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Hosting;
 using Newtonsoft.Json.Serialization;
+using Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation;
 using reCAPTCHA;
 
 namespace m4d
@@ -62,7 +62,11 @@ namespace m4d
             services.Configure<PasswordHasherOptions>(option =>
                 option.CompatibilityMode = PasswordHasherCompatibilityMode.IdentityV2);
 
-            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
+            var builder = services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
+
+#if DEBUG
+            builder.AddRazorRuntimeCompilation();
+#endif
 
             var physicalProvider = Environment.ContentRootFileProvider;
             var embeddedProvider = new EmbeddedFileProvider(Assembly.GetEntryAssembly());
