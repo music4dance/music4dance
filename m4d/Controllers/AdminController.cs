@@ -1309,7 +1309,7 @@ namespace m4d.Controllers
         //
         // Get: //IndexBackup
         [Authorize(Roles = "showDiagnostics")]
-        public ActionResult IndexBackup([FromServices] IFileProvider fileProvider, string name = "default", int count = -1, DateTime? from = null, string filter = null)
+        public ActionResult IndexBackup([FromServices] IWebHostEnvironment environment, string name = "default", int count = -1, DateTime? from = null, string filter = null)
         {
             try
             {
@@ -1317,7 +1317,7 @@ namespace m4d.Controllers
 
                 var dt = DateTime.Now;
                 var fname = $"index-{dt.Year:d4}-{dt.Month:d2}-{dt.Day:d2}.txt";
-                var path = fileProvider.GetFileInfo($"~/AppData/{fname}").PhysicalPath;
+                var path = Path.Combine(EnsureAppData(environment), fname);
 
                 var n = 0;
                 using (var file = System.IO.File.CreateText(path))

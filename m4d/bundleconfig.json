@@ -1,23 +1,12 @@
 [
   {
-    "outputFileName": "wwwroot/scripts/add.min.js",
-    "inputFiles": [
-      "JavaScript/add.js"
-    ],
-    "minify": {
-      "enabled": true,
-      "renameLocals": true
-    },
-    "sourceMap": true
-  },
-  {
     "outputFileName": "wwwroot/scripts/add.js",
     "inputFiles": [
       "JavaScript/add.js"
     ]
   },
   {
-    "outputFileName": "wwwroot/scripts/advancedsearch.min.js",
+    "outputFileName": "wwwroot/scripts/advancedsearchbundle.min.js",
     "inputFiles": [
       "JavaScript/tagchooser.js",
       "JavaScript/advancedsearch.js"
@@ -47,24 +36,13 @@
     ]
   },
   {
-    "outputFileName": "wwwroot/scripts/counter.min.js",
-    "inputFiles": [
-      "JavaScript/counter.js"
-    ],
-    "minify": {
-      "enabled": true,
-      "renameLocals": true
-    },
-    "sourceMap": true
-  },
-  {
     "outputFileName": "wwwroot/scripts/counter.js",
     "inputFiles": [
       "JavaScript/counter.js"
     ]
   },
   {
-    "outputFileName": "wwwroot/scripts/dancedetails.min.js",
+    "outputFileName": "wwwroot/scripts/dancedetailsbundle.min.js",
     "inputFiles": [
       "JavaScript/musicservice.js",
       "JavaScript/showdance.js"
@@ -80,17 +58,6 @@
     "inputFiles": [
       "JavaScript/showdance.js"
     ]
-  },
-  {
-    "outputFileName": "wwwroot/scripts/editdance.min.js",
-    "inputFiles": [
-      "JavaScript/editdance.js"
-    ],
-    "minify": {
-      "enabled": true,
-      "renameLocals": true
-    },
-    "sourceMap": true
   },
   {
     "outputFileName": "wwwroot/scripts/edit.js",
@@ -111,32 +78,10 @@
     ]
   },
   {
-    "outputFileName": "wwwroot/scripts/merge.min.js",
-    "inputFiles": [
-      "JavaScript/merge.js"
-    ],
-    "minify": {
-      "enabled": true,
-      "renameLocals": true
-    },
-    "sourceMap": true
-  },
-  {
     "outputFileName": "wwwroot/scripts/merge.js",
     "inputFiles": [
       "JavaScript/merge.js"
     ]
-  },
-  {
-    "outputFileName": "wwwroot/scripts/musicservice.min.js",
-    "inputFiles": [
-      "JavaScript/musicservice.js"
-    ],
-    "minify": {
-      "enabled": true,
-      "renameLocals": true
-    },
-    "sourceMap": true
   },
   {
     "outputFileName": "wwwroot/scripts/musicservice.js",
@@ -179,33 +124,10 @@
     ]
   },
   {
-    "outputFileName": "wwwroot/scripts/tempi.min.js",
-    "inputFiles": [
-      "JavaScript/tempi.js"
-    ],
-    "minify": {
-      "enabled": true,
-      "renameLocals": true
-    },
-    "sourceMap": true
-  },
-  {
     "outputFileName": "wwwroot/scripts/tempi.js",
     "inputFiles": [
       "JavaScript/tempi.js"
     ]
-  },
-  {
-    "outputFileName": "wwwroot/scripts/tools-script.min.js",
-    "inputFiles": [
-      "JavaScript/Libraries/jquery.nouislider.full.min.js",
-      "JavaScript/Libraries/chosen.jquery.js"
-    ],
-    "minify": {
-      "enabled": true,
-      "renameLocals": true
-    },
-    "sourceMap": true
   },
   {
     "outputFileName": "wwwroot/scripts/tools-script.js",
