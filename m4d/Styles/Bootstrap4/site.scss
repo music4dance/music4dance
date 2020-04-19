@@ -1,0 +1,17 @@
+﻿$dance-primary: #001671;
+$dance-light: lighten($dance-primary, 40%);
+
+$theme-colors: (primary: $dance-primary, info: $dance-light);
+
+$navbar-dark-color: rgba(white, 1);
+$navbar-dark-hover-color: rgba(white, 0.75);
+$navbar-dark-active-color: rgba(white, .5);
+
+$fa-font-path: "/fonts";
+@import "fontawesome.scss";
+@import "solid.scss";
+@import "bootstrap.scss";
+
+li {
+    list-style-type: none
+}

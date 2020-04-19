@@ -7,19 +7,20 @@
     ViewBag.Description = "A web application to measure the tempo of a song and match it with styles of dance.";
 
     Func<string, IHtmlContent> parameter =
-    @<script>
-            @{
-                var id = "param" + item;
-                if (ViewData.TryGetValue(id, out var o))
-                {
-                    if (o is bool)
-                    {
-                        o = ((o as bool?).Value ? "true" : "false");
-                    }
-                    <text>window.id = @o</text>;
-                }
-             }
-    </script>;
+    @<text>
+        @{
+        var id = "param" + item;
+        if (ViewData.TryGetValue(id, out var o))
+        {
+            if (o is bool)
+            {
+                o = ((o as bool?).Value ? "true" : "false");
+            }
+            var variable = $"window.param{item[0]}{item.Substring(1)}";
+            <script>@variable = @o</script>
+        }
+        }
+    </text>;
 }
 
 <partial name="_Counter" />
@@ -75,4 +76,7 @@
     <partial name="_scriptInclude" model="@scripts" />
 }
 
+@section Styles {
+    <partial name="_toolsStyles" />
+}
 

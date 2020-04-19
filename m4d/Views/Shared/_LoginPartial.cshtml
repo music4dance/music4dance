@@ -5,7 +5,16 @@
 @inject UserManager<ApplicationUser> UserManager
 @inject ISearchServiceManager SearchService;
 
-<ul class="nav navbar-nav navbar-right">
+@{
+    var bootstrap4 = ViewBag.BootstrapVersion == 4;
+    var mainClass = bootstrap4 ? "navbar-nav ml-auto" : "nav navbar-nav navbar-right";
+    var itemClass = bootstrap4 ? "nav-link" : "";
+    var dropDownClass = "dropdown" + (bootstrap4 ? " nav-item" : "");
+    var dropDownItem = bootstrap4 ? "dropdown-item" : "";
+    var dropDownToggle = "dropdown-toggle" + (bootstrap4 ? " nav-link" : "");
+}
+
+<ul class="@mainClass">
     @if (SignInManager.IsSignedIn(User))
     {
         var modifier = "";
@@ -14,16 +23,16 @@
             modifier = "(" + SearchService.DefaultId.Last() + ")";
         }
 
-        <li class="dropdown">
-            <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+        <li class="@dropDownClass">
+            <a href="#" class="@dropDownToggle" data-toggle="dropdown">
                 @(UserManager.GetUserName(User) + modifier) <img src="~/images/swing-ui.png" alt="User Icon" height="30" width="30" />
                 &nbsp;&nbsp;&nbsp;&nbsp;
             </a>
             <ul class="dropdown-menu" role="menu">
-                <li><a id="manage" class="nav-link text-dark" asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">My Profile</a></li>
-                <li>@Html.ActionLink("My Songs", "FilterUser", "Song", new { user = UserManager.GetUserName(User) }, null)</li>
-                <li>@Html.ActionLink("My Searches", "Index", "Searches", new { user = UserManager.GetUserName(User) }, null)</li>
-                <li><a href="javascript:document.getElementById('logoutForm').submit()">Log out</a></li>
+                <li><a id="manage" class="@dropDownItem" asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">My Profile</a></li>
+                <li>@Html.ActionLink("My Songs", "FilterUser", "Song", new { user = UserManager.GetUserName(User) }, new { @class = @dropDownItem})</li>
+                <li>@Html.ActionLink("My Searches", "Index", "Searches", new { user = UserManager.GetUserName(User) }, new { @class = @dropDownItem})</li>
+                <li><a href="javascript:document.getElementById('logoutForm').submit()" class="@dropDownItem">Log out</a></li>
             </ul>
         </li>
 
@@ -39,18 +48,11 @@
     else
     {
         <li>
-            <a id="register" asp-area="Identity" asp-page="/Account/Register">Register</a>
-        </li>
-        <li>
-            <a id="login" asp-area="Identity" asp-page="/Account/Login">Login</a>
-        </li>
-
-        @*<li>
-                <a class="nav-link text-dark" id="register" asp-area="Identity" asp-page="/Account/Register">Register</a>
-            </li>
-            <li>
-                <a class="nav-link text-dark" id="login" asp-area="Identity" asp-page="/Account/Login">Login</a>
-            </li>*@
+            <a class="@itemClass" id="register" asp-area="Identity" asp-page="/Account/Register">Register</a>
+         </li>
+         <li>
+             <a class="@itemClass" id="login" asp-area="Identity" asp-page="/Account/Login">Login</a>
+         </li>
     }
 </ul>
 

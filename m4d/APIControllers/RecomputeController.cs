@@ -7,8 +7,6 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 
-// TODONEXT:  Pipe through recompute marker service to static functions...
-
 namespace m4d.APIControllers
 {
     //public class RecomputeInfo
