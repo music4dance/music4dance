@@ -20,8 +20,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Hosting;
 using Newtonsoft.Json.Serialization;
-using Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation;
-using reCAPTCHA;
+using Owl.reCAPTCHA;
 
 namespace m4d
 {

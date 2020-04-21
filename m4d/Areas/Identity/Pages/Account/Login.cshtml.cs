@@ -140,7 +140,7 @@ namespace m4d.Areas.Identity.Pages.Account
                 values: new { userId = userId, code = code },
                 protocol: Request.Scheme);
             await _emailSender.SendEmailAsync(
-                Input.UserName,
+                user.Email,
                 "Confirm your email",
                 RegisterModel.BuildConfirmMessage(HtmlEncoder.Default.Encode(callbackUrl)));
 

@@ -13,8 +13,8 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using reCAPTCHA;
-using reCAPTCHA.v2;
+using Owl.reCAPTCHA;
+using Owl.reCAPTCHA.v2;
 
 namespace m4d.Areas.Identity.Pages.Account
 {
