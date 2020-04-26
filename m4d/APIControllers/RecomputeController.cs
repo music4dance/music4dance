@@ -29,6 +29,7 @@ namespace m4d.APIControllers
         // id should be the type to update - currently songstats, propertycleanup
         //   future tags, purchase, spotify, albums, tagtypes, tagsummaries, 
         //   timesfromproperties, compressregions, spotifyregions, rebuildusertags, rebuildtags
+        [HttpGet("{id}")]
         public IActionResult Get([FromServices] IConfiguration configuration, string id, bool force = false, bool sync = false)
         {
             if (!TokenRequirement.Authorize(Request, configuration))

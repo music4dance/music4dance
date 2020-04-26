@@ -231,7 +231,7 @@ namespace m4d.Controllers
 
         private void UpdateAllBase(PlayListType type, IPrincipal user = null)
         {
-            var playlists = Database.PlayLists.Where(p => p.Type == type);
+            var playlists = Database.PlayLists.Where(p => p.Type == type).ToList();
             var emailMap = UserEmail(playlists);
 
             var dms = Database.GetTransientService();

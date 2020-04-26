@@ -33,8 +33,8 @@ namespace m4d.Utilities
     {
         protected CoreAuthentication(IConfiguration configuration)
         {
-            ClientId = configuration["Authentication:{Client}:ClientId"];
-            ClientSecret = configuration["Authentication:{Client}:ClientSecret"];
+            ClientId = configuration[$"Authentication:{Client}:ClientId"];
+            ClientSecret = configuration[$"Authentication:{Client}:ClientSecret"];
         }
 
         protected abstract string Client { get; }

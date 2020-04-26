@@ -10,7 +10,7 @@ namespace m4d.Utilities
     {
         public SpotAuthentication(IConfiguration configuration) : base(configuration) { }
 
-        protected override string Client => "spot";
+        protected override string Client => "spotify";
 
         protected override string RequestFormat => "grant_type=client_credentials";
         protected override string RequestUrl => "https://accounts.spotify.com/api/token";
