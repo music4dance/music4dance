@@ -154,7 +154,8 @@ namespace m4dModels
                 Children = Children,
                 DanceLinks = DanceLinks,
                 TopSongs = TopSongs?.Select(s => new Song(s.SongId, s.Serialize(null), danceStats, userName)).ToList(),
-                SpotifyPlaylist = SpotifyPlaylist
+                SpotifyPlaylist = SpotifyPlaylist,
+                CompetitionDances = CompetitionDances
             };
         }
     }

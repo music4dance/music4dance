@@ -70,7 +70,11 @@
         {
             <a href="#references" class="list-group-item">References</a>
         }
-        @Html.ActionLink("All " + @Model.DanceName + " Songs", "index", "song", new { filter = @danceFilter }, new { @class = "list-group-item" })
+        @if (Model.CompetitionDances != null)
+        {
+            <a href="#category-info" class="list-group-item">Competition Info</a>
+        }
+        @Html.ActionLink("All " + Model.DanceName + " Songs", "index", "song", new { filter = @danceFilter }, new { @class = "list-group-item" })
         @if (tags?.Count > 0)
         {
             <a href="#tags" class="list-group-item">Tags</a>

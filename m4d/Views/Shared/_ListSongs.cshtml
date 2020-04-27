@@ -1,5 +1,7 @@
-﻿@using System.Linq
+﻿@using System.IO
+@using System.Linq
 @using System.Net
+@using System.Text.Encodings.Web
 @using DanceLibrary
 @using m4dModels
 @using m4d.ViewModels
@@ -398,28 +400,27 @@
                                 var name = stats.DanceName;
                                 var maxWeight = stats.MaxWeight;
                                 var label = name;
-                                var tagModels = new List<TagModalModel>();
+                                var tagWriter = new StringWriter();
                                 var tags = string.Empty;
                                 var modalId = $"{ditem.DanceId}.{item.SongId}.modal";
 
                                 if (!string.IsNullOrWhiteSpace(ditem.TagSummary.Summary))
                                 {
-                                    var idx = 0;
-                                    label = label + " <span class='glyphicon glyphicon-asterisk' aria-hidden='true'></span>";
+                                    label += " <span class='glyphicon glyphicon-asterisk' aria-hidden='true'></span>";
                                     foreach (var dtitem in ditem.TagSummary.Tags)
                                     {
-                                        tagModels.Add(new TagModalModel
+                                        var model = new TagModalModel
                                         {
                                             Tag = dtitem,
                                             Filter = filter,
                                             Song = item
-                                        });
-                                        /* CORETODO: Did TagModalBUtton as a partial, can we load a partial here? Pretty sure this kludge won't work, but try first */
-                                        // TagHelpers.TagModalButton(dtitem, filter, item); 
-                                        tags += $"<partial name='_TagModalButton' model='modalId[{idx}]' />";
-                                        idx += 1;
+                                        };
+                                        var html = await Html.PartialAsync("_TagModalButton", model);
+                                        html.WriteTo(tagWriter, HtmlEncoder.Default);
                                     }
                                 }
+                                tags = tagWriter.ToString();
+
                                 var hasDance = danceQuery.HasDance(ditem.DanceId);
                                 var filterT = new SongFilter(filter.ToString());
                                 if (hasDance ? (numDances > 1) : (numDances > 0))
