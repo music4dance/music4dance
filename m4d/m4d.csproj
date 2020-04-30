@@ -10,6 +10,10 @@
     <EmbeddedResource Remove="wwwroot\styles\**" />
     <None Remove="wwwroot\styles\**" />
   </ItemGroup>
+  <PropertyGroup>
+    <!-- Makes the TypeScript compilation task a no-op -->
+    <TypeScriptCompileBlocked>true</TypeScriptCompileBlocked>
+  </PropertyGroup>
   <ItemGroup>
     <Folder Include="Views\Admin\" />
     <Folder Include="wwwroot\content\" />
@@ -60,4 +64,8 @@
   <ItemGroup>
     <WCFMetadata Include="Connected Services" />
   </ItemGroup>
+  <Target Name="tempo-counter" BeforeTargets="ComputeFilesToPublish">
+    <Exec Command="yarn" WorkingDirectory="TempoCounter"></Exec>
+    <Exec Command="yarn run build" WorkingDirectory="TempoCounter"></Exec>
+  </Target>
 </Project>

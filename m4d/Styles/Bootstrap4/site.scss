@@ -11,6 +11,7 @@ $fa-font-path: "/fonts";
 @import "fontawesome.scss";
 @import "solid.scss";
 @import "bootstrap.scss";
+@import "../../node_modules/bootstrap-vue/src/index.scss";
 
 li {
     list-style-type: none

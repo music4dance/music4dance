@@ -36,6 +36,7 @@ AppData/
 **/wwwroot/scripts/*.js.map
 **/wwwroot/vendor/**/*
 **/wwwroot/fonts/*
+**/wwwroot/tempo-counter/*
 
 # MSTest test Results
 [Tt]est[Rr]esult*/

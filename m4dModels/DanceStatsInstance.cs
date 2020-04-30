@@ -155,6 +155,11 @@ namespace m4dModels
 
             Dances.Reset(Dances.Load(instance.GetDanceTypes(), instance.GetDanceGroups()));
 
+            foreach (var dance in instance.List)
+            {
+                dance.UpdateCompetitionDances();
+            }
+
             return instance;
         }
 

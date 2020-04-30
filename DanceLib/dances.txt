@@ -789,8 +789,8 @@
       {
         "Style": "Social",
         "TempoRange": {
-          "Min": 34.0,
-          "Max": 39.0
+          "Min": 12.5,
+          "Max": 23.0
         },
         "Exceptions": []
       }

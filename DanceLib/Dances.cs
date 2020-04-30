@@ -988,6 +988,7 @@ namespace DanceLibrary
         {
             return s_instance = instance??Load();
         }
+
         public static Dances Instance => s_instance ?? (s_instance = Load());
 
         private static Dances s_instance;

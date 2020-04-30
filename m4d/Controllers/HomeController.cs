@@ -1,16 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Configuration;
 using System.Threading.Tasks;
+using m4d.Utilities;
 using m4d.ViewModels;
 using m4dModels;
-using Microsoft.AspNetCore.Authentication;
-//using m4dModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.FileProviders;
+using Newtonsoft.Json;
 using Stripe;
 using PurchaseKind = m4d.ViewModels.PurchaseKind;
 using PurchaseModel = m4d.ViewModels.PurchaseModel;
@@ -104,7 +103,7 @@ namespace m4d.Controllers
         }
 
         [AllowAnonymous]
-        public IActionResult Counter(bool showMPM = true, bool showBPM = false, bool showEpsilon = true,
+        public IActionResult OldCounter(bool showMPM = true, bool showBPM = false, bool showEpsilon = true,
             int? numerator = null, decimal? tempo = null)
         {
             ThemeName = ToolTheme;
@@ -123,8 +122,40 @@ namespace m4d.Controllers
             }
 
             HelpPage = "tempo-counter";
-            return View();
+            return View("Counter");
         }
+
+        [AllowAnonymous]
+        public IActionResult Counter(int? numerator = null, decimal? tempo = null)
+        {
+            ThemeName = ToolTheme;
+            ViewBag.Tempo = tempo;
+            ViewBag.Numerator = numerator;
+
+            if (numerator.HasValue && numerator != 0)
+            {
+                ViewBag.paramNumerator = numerator.Value;
+            }
+
+            if (tempo.HasValue)
+            {
+                ViewBag.paramTempo = tempo.Value;
+            }
+
+            ViewBag.DanceStats = JsonConvert.SerializeObject(
+                DanceStatsManager.GetInstance(Database),
+                s_camelCaseSerializerSettings);
+
+            HelpPage = "tempo-counter";
+            return View("TempoCounter");
+        }
+
+        private static readonly JsonSerializerSettings s_camelCaseSerializerSettings = new JsonSerializerSettings
+        {
+            NullValueHandling = NullValueHandling.Ignore,
+            DefaultValueHandling = DefaultValueHandling.IgnoreAndPopulate,
+            ContractResolver = new StatsContractResolver(true, true)
+        };
 
         [AllowAnonymous]
         public IActionResult CounterHelp()

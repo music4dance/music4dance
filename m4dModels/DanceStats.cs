@@ -100,14 +100,14 @@ namespace m4dModels
         {
             if (dance == null) return;
 
-            //var dbDance = dms.Context.Dances.FirstOrDefault(d => d.Id == dance.Id);
-
-            //Description = (dbDance??dance).Description;
-            //DanceLinks = (dbDance??dance).DanceLinks;
-
             Description = dance.Description;
             DanceLinks = dance.DanceLinks;
 
+            UpdateCompetitionDances();
+        }
+
+        public void UpdateCompetitionDances()
+        {
             var dt = DanceObject as DanceType;
             if (dt == null) return;
 
