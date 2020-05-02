@@ -71,11 +71,7 @@ namespace m4d.Utilities
                 return ret;
             }
 
-            if (service.Id == ServiceType.Amazon)
-            {
-                ret = AmazonFetcher.LookupTrack(id);
-            }
-            else
+            if (service.Id != ServiceType.Amazon)
             {
                 var request = service.BuildTrackRequest(id, region);
                 var results = GetMusicServiceResults(request, service);
@@ -338,7 +334,7 @@ namespace m4d.Utilities
             switch (service.Id)
             {
                 case ServiceType.Amazon:
-                    tracks = FindMSSongAmazon(song, clean, title, artist);
+                    tracks = null; // FindMSSongAmazon(song, clean, title, artist);
                     break;
                 default:
                     tracks = FindMSSongGeneral(service, title, artist);
@@ -387,13 +383,6 @@ namespace m4d.Utilities
                 track.SongLink = service.GetPurchaseLink(PurchaseType.Song, track.CollectionId, track.TrackId);
                 track.PurchaseInfo = AlbumDetails.BuildPurchaseInfo(service.Id, track.CollectionId, track.TrackId, track.AvailableMarkets);
             }
-        }
-        // ReSharper disable once InconsistentNaming
-        private IList<ServiceTrack> FindMSSongAmazon(Song song, bool clean = false, string title = null, string artist = null)
-        {
-            var custom = !string.IsNullOrWhiteSpace(title) || !string.IsNullOrWhiteSpace(artist);
-
-            return custom ? AmazonFetcher.FetchTracks(title, artist) : AmazonFetcher.FetchTracks(song, clean);
         }
 
         // ReSharper disable once InconsistentNaming
@@ -569,10 +558,6 @@ namespace m4d.Utilities
             var request = service.GetNextRequest(last);
             return request == null ? null : GetMusicServiceResults(request, service, principal);
         }
-
-        private AWSFetcher AmazonFetcher => _awsFetcher ??= new AWSFetcher(Configuration);
-        private AWSFetcher _awsFetcher;
         #endregion
-
     }
 }
