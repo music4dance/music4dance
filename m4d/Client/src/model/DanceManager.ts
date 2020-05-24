@@ -6,7 +6,7 @@ import danceJson from '../assets/danceStats.json';
 const danceStats = TypedJSON.parseAsArray(danceJson, DanceStats);
 let loaded: DanceStats[] | undefined;
 
-function FetchStats(): DanceStats[] {
+export function fetchStats(): DanceStats[] {
     if (!loaded) {
         let statsString = danceJson;
         if  ((window as any).statsString) {
@@ -43,11 +43,11 @@ export class DanceOrder {
     }
 
     public get rangeMpmFormatted(): string {
-        return this.rangeMpm.format + ' MPM (' + this.numerator + '/4)';
+        return this.rangeMpm.toString() + ' MPM (' + this.numerator + '/4)';
     }
 
     public get rangeBpmFormatted() {
-        return this.rangeBpm.format + ' BPM';
+        return this.rangeBpm.toString() + ' BPM';
     }
 
     private get numerator() {
@@ -64,7 +64,7 @@ export function dancesForTempo(
 
     // return danceStats.flatMap((group: DanceStats) => group.children);  TODO: See if we can find a general polyfill
 
-    const stats = FetchStats();
+    const stats = fetchStats();
 
     return stats
         .map((group: DanceStats) => group.children)
@@ -76,3 +76,20 @@ export function dancesForTempo(
 }
 
 
+export function flatStats() {
+  return fetchStats().flatMap((group) => group.children);
+}
+
+function flatInstances() {
+  return flatStats().flatMap((d) => d.danceType!.instances);
+}
+
+export function getStyles(): string[] {
+    const styles = flatInstances()
+        .map((inst) => inst.style);
+    return [... new Set(styles)].sort();
+}
+
+export function getTypes(): string [] {
+    return fetchStats().map((s) => s.danceName);
+}

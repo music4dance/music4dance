@@ -38,7 +38,7 @@ import BeatsPerMinute from './BeatsPerMinute.vue';
 import MeasuresPerMinute from './MeasuresPerMinute.vue';
 import Strictness from './Strictness.vue';
 
-const maxWait = 3000;
+const maxWait = 5000;
 
 const average = (list: number[]) =>
     list.length === 0 ? 0 :  list.reduce((prev, curr) => prev + curr) / list.length;

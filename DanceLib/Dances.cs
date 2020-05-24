@@ -633,8 +633,7 @@ namespace DanceLibrary
 
         public static IEnumerable<CompetitionCategory> GetGroup(string name)
         {
-            List<CompetitionCategory> categories;
-            if (s_mapGroups.TryGetValue(name, out categories)) return categories;
+            if (s_mapGroups.TryGetValue(name, out var categories)) return categories;
 
             categories = new List<CompetitionCategory>();
             s_mapGroups[name] = (categories);
@@ -643,8 +642,7 @@ namespace DanceLibrary
 
         public static CompetitionCategory GetCategory(string name)
         {
-            CompetitionCategory category;
-            return (s_mapCategories.TryGetValue(BuildCanonicalName(name), out category)) ? category : null;
+            return (s_mapCategories.TryGetValue(BuildCanonicalName(name), out var category)) ? category : null;
         }
 
         private static readonly Dictionary<string, List<CompetitionCategory>> s_mapGroups = new Dictionary<string, List<CompetitionCategory>>();

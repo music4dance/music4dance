@@ -1,0 +1,30 @@
+﻿@{
+    Layout = "/Views/Shared/_bs4-Layout.cshtml";
+    ViewBag.Title = "Tempos";
+    ViewBag.Description = "A web application to show the relationship between different dance tempos.";
+}
+
+<div id="app"></div>
+
+@section Scripts {
+    @if (ViewBag.Styles != null)
+    {
+        <script>window.initialStyles = @Html.Raw(ViewBag.Styles);</script>
+    }
+    @if (ViewBag.Types != null)
+    {
+        <script>window.initialTypes = @Html.Raw(ViewBag.Types);</script>
+    }
+    @if (ViewBag.Organizations != null)
+    {
+        <script>window.initialOrganizations = @Html.Raw(ViewBag.Organizations);</script>
+    }
+    @if (ViewBag.Meters != null)
+    {
+        <script>window.initialMeters = @Html.Raw(ViewBag.Meters);</script>
+    }
+    <script>window.statsString = @Html.Raw(ViewBag.DanceStats);</script>
+    <script src="/client/js/chunk-vendors.js"></script>
+    <script src="/client/js/chunk-common.js"></script>
+    <script src="/client/js/tempo-list.js"></script>
+}

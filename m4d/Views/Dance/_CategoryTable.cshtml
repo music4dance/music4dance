@@ -9,7 +9,7 @@
                 var bpm = item.Item1.ToBpm(item.Item2);
                 var danceId = item.Item3;
             }
-            @Html.ActionLink(bpm.ToString(), "advancedsearch", "song", new {dances = danceId, tempomin = bpm.Min, tempomax = bpm.Max}, null)
+            @Html.ActionLink(item.Item1.ToString(), "advancedsearch", "song", new {dances = danceId, tempomin = bpm.Min, tempomax = bpm.Max}, null)
          </text>;
 
     var dctIn = Model.DanceCategoryType;
@@ -27,12 +27,12 @@
             ndcaTitleB = "B (*)";
             break;
         case DanceCategoryType.American:
-            ndcaTitleA = "Pro/Am";
+            ndcaTitleA = "Silver/Gold";
             ndcaTitleB = "Bronze";
             break;
         case DanceCategoryType.International:
             ndcaTitleA = "Professional or Amateur";
-            ndcaTitleB = "Silver/Gold";
+            ndcaTitleB = "Pro/Am";
             break;
     }
 }

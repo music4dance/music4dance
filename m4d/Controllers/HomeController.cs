@@ -7,6 +7,7 @@ using m4dModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.FileProviders;
 using Newtonsoft.Json;
@@ -57,20 +58,6 @@ namespace m4d.Controllers
         public IActionResult SiteMap([FromServices] IFileProvider fileProvider)
         {
             return View(SiteMapInfo.GetCategories(fileProvider));
-        }
-
-        [AllowAnonymous]
-        public IActionResult Tempi(bool detailed = false, int style = 0, int meter = 1, int type = 0, int org = 0)
-        {
-            ThemeName = ToolTheme;
-            ViewBag.paramDetailed = detailed;
-            ViewBag.paramStyle = style;
-            ViewBag.paramMeter = meter;
-            ViewBag.paramType = type;
-            ViewBag.paramOrg = org;
-            ViewBag.DanceStyles = Dance.DanceLibrary.AllDanceGroups;
-            HelpPage = "dance-tempi";
-            return View(Dance.DanceLibrary);
         }
 
         [AllowAnonymous]
@@ -149,6 +136,45 @@ namespace m4d.Controllers
             HelpPage = "tempo-counter";
             return View("TempoCounter");
         }
+
+        [AllowAnonymous]
+        public IActionResult Tempi(List<string> styles, List<string> types, List<string> organizations, List<string> meters)
+        {
+            ThemeName = ToolTheme;
+
+            ViewBag.DanceStats = JsonConvert.SerializeObject(
+                DanceStatsManager.GetInstance(Database),
+                s_camelCaseSerializerSettings);
+
+            ViewBag.Styles = ConvertParameter(styles);
+            ViewBag.Types = ConvertParameter(types);
+            ViewBag.Organizations = ConvertParameter(organizations);
+            ViewBag.Meters = ConvertParameter(meters);
+
+            HelpPage = "tempo-list";
+            return View("TempoList");
+        }
+
+        private static string ConvertParameter(List<string> parameter)
+        {
+            return (parameter != null && parameter.Count > 0) ? 
+                JsonConvert.SerializeObject(parameter, s_camelCaseSerializerSettings) : null;
+        }
+
+        [AllowAnonymous]
+        public IActionResult OldTempi(bool detailed = false, int style = 0, int meter = 1, int type = 0, int org = 0)
+        {
+            ThemeName = ToolTheme;
+            ViewBag.paramDetailed = detailed;
+            ViewBag.paramStyle = style;
+            ViewBag.paramMeter = meter;
+            ViewBag.paramType = type;
+            ViewBag.paramOrg = org;
+            ViewBag.DanceStyles = Dance.DanceLibrary.AllDanceGroups;
+            HelpPage = "dance-tempi";
+            return View("Tempi", Dance.DanceLibrary);
+        }
+
 
         private static readonly JsonSerializerSettings s_camelCaseSerializerSettings = new JsonSerializerSettings
         {

@@ -2371,14 +2371,14 @@
             "denominator": 4
           },
           "tempoRange": {
-            "min": 34.0,
-            "max": 39.0
+            "min": 12.5,
+            "max": 23.0
           },
           "instances": [
             {
               "tempoRange": {
-                "min": 34.0,
-                "max": 39.0
+                "min": 12.5,
+                "max": 23.0
               },
               "id": "NC2S",
               "meter": {

@@ -6,8 +6,8 @@
 </template>
 
 <script lang='ts'>
-import { DanceStats } from '../model/DanceStats';
-import { dancesForTempo, DanceOrder } from '../model/DanceManager';
+import { DanceStats } from '../../model/DanceStats';
+import { dancesForTempo, DanceOrder } from '../../model/DanceManager';
 import { Component, Vue, Prop } from 'vue-property-decorator';
 import { Getter } from 'vuex-class';
 

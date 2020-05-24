@@ -4,7 +4,7 @@
     ViewBag.Description = "A web application to measure the tempo of a song and match it with styles of dance.";
 }
 
-    <div id="app"></div>
+<div id="app"></div>
 
 @section Scripts {
     @if (ViewBag.Tempo != null)
@@ -16,11 +16,7 @@
         <script>window.initialNumerator = @ViewBag.Numerator;</script>
     }
     <script>window.statsString = @Html.Raw(ViewBag.DanceStats);</script>
-    <environment include="Development">
-        <script src="/tempo-counter/app.js"></script>
-    </environment>
-    <environment exclude="Development">
-        <script src="/tempo-counter/js/chunk-vendors.js"></script>
-        <script src="/tempo-counter/js/app.js"></script>
-    </environment>
+    <script src="/client/js/chunk-vendors.js"></script>
+    <script src="/client/js/chunk-common.js"></script>
+    <script src="/client/js/tempo-counter.js"></script>
 }

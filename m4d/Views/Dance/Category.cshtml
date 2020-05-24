@@ -6,9 +6,9 @@
 @{
     DanceStatsInstance stats = ViewBag.DanceStats;
 
-    ViewBag.Title = @Model.Name;
-    ViewBag.Description = "A description of the competition dance category " + @Model.Name + " along with tempo ranges and song lists.";
-    var catType = @Model.CategoryType;
+    ViewBag.Title = Model.Name;
+    ViewBag.Description = "A description of the competition dance category " + Model.Name + " along with tempo ranges and song lists.";
+    var catType = Model.CategoryType;
     var blogName = "https://music4dance.blog/tag/" + @Model.Name.ToLowerInvariant().Replace(' ', '-') + "/";
 }
 
@@ -43,7 +43,7 @@
     {
         Title = $"Other dances categorized as {Model.Name}, although they aren't part of the competition round, are:",
         DanceStats = stats,
-        Dances = Model.Round,
+        Dances = Model.Extras,
         DanceCategoryType = catType
     };
 

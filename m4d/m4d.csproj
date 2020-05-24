@@ -64,8 +64,8 @@
   <ItemGroup>
     <WCFMetadata Include="Connected Services" />
   </ItemGroup>
-  <Target Name="tempo-counter" BeforeTargets="ComputeFilesToPublish">
-    <Exec Command="yarn" WorkingDirectory="TempoCounter"></Exec>
-    <Exec Command="yarn run build" WorkingDirectory="TempoCounter"></Exec>
+  <Target Name="client" BeforeTargets="ComputeFilesToPublish">
+    <Exec Command="yarn" WorkingDirectory="Client"></Exec>
+    <Exec Command="yarn run build" WorkingDirectory="Client"></Exec>
   </Target>
 </Project>
