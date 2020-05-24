@@ -501,8 +501,9 @@ namespace m4d.Controllers
         }
 
         [AllowAnonymous]
-        public ActionResult AddTags(string tags, SongFilter filter)
+        public ActionResult AddTags(string tags, SongFilter filter = null)
         {
+            filter ??= new SongFilter();
             var add = new TagList(tags);
             var old = new TagList(filter.Tags);
 
@@ -516,8 +517,9 @@ namespace m4d.Controllers
         }
 
         [AllowAnonymous]
-        public ActionResult RemoveTags(string tags, SongFilter filter)
+        public ActionResult RemoveTags(string tags, SongFilter filter = null)
         {
+            filter ??= new SongFilter();
             var sub = new TagList(tags);
             var old = new TagList(filter.Tags);
             var ret = old.Subtract(sub);
@@ -811,8 +813,9 @@ namespace m4d.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "dbAdmin")]
-        public ActionResult AdminEdit(Guid songId, string properties, SongFilter filter=null)
+        public ActionResult AdminEdit(Guid songId, string properties, SongFilter filter = null)
         {
+            filter ??= new SongFilter();
             var song = Database.FindSong(songId);
 
             if (!ModelState.IsValid || !Database.AdminEditSong(song, properties))
@@ -1029,8 +1032,9 @@ namespace m4d.Controllers
         //
         // Merge: /Song/MergeCandidates
         [Authorize(Roles = "dbAdmin")]
-        public ActionResult MergeCandidates(int? page, int? level, bool? autoCommit, SongFilter filter)
+        public ActionResult MergeCandidates(int? page, int? level, bool? autoCommit, SongFilter filter = null)
         {
+            filter ??= new SongFilter();
             filter.Action = "MergeCandidates";
 
             BuildDanceList();
