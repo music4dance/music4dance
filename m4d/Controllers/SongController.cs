@@ -388,7 +388,7 @@ namespace m4d.Controllers
             var uq = filter.UserQuery;
             if (!uq.IsEmpty && uq.IsAnonymous)
             {
-                return RedirectToAction("Login", "Account", new { area="Identity", ReturnUrl = "/song/advancedsearchform?filter="+filter });
+                return LoginRedirect(filter);
             }
 
             return DoAzureSearch(filter);
@@ -1812,6 +1812,11 @@ namespace m4d.Controllers
         #endregion
 
         #region General Utilities
+        private ActionResult LoginRedirect(SongFilter filter)
+        {
+            return Redirect($"/Identity/Account/Login/?ReturnUrl=/song/advancedsearchform?filter={filter}");
+        }
+
         public IEnumerable<SelectListItem> GetDancesSingle(DanceMusicCoreService dms, bool includeEmpty=false)
         {
             var counts = DanceStatsManager.GetFlatDanceStats(dms);

@@ -496,7 +496,7 @@
         "CompetitionGroup": "Ballroom",
         "CompetitionOrder": "3",
         "TempoRange": {
-          "Min": 26.0,
+          "Min": 25.0,
           "Max": 27.0
         },
         "Exceptions": [

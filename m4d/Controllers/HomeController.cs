@@ -7,7 +7,6 @@ using m4dModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.FileProviders;
 using Newtonsoft.Json;
@@ -151,7 +150,7 @@ namespace m4d.Controllers
             ViewBag.Organizations = ConvertParameter(organizations);
             ViewBag.Meters = ConvertParameter(meters);
 
-            HelpPage = "tempo-list";
+            HelpPage = "dance-tempi";
             return View("TempoList");
         }
 

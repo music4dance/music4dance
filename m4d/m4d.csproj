@@ -16,6 +16,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Folder Include="Views\Admin\" />
+    <Folder Include="wwwroot\client\" />
     <Folder Include="wwwroot\content\" />
     <Folder Include="wwwroot\css\" />
     <Folder Include="wwwroot\fonts\" />
