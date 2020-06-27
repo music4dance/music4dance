@@ -304,7 +304,7 @@ namespace m4d.Controllers
             {
                 purchase.Error = new PurchaseError
                 {
-                    ErrorType = e.StripeError.ErrorType,
+                    ErrorType = e.StripeError.Type,
                     ErrorCode = e.StripeError.Code,
                     ErrorMessage = e.StripeError.Message
                 };

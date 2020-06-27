@@ -8,9 +8,17 @@
 <h4>Associate your @Model.LoginProvider account.</h4>
 <hr />
 
+@{
+    var needEmail = string.IsNullOrEmpty(Model.Input.Email) || Model.Input.Email.IndexOf('@') == -1;
+}
 <p class="text-info">
     You've successfully authenticated with <strong>@Model.LoginProvider</strong>.
-    Please enter an email address for this site below and click the Register button to finish
+    Please enter a user name
+    @if (needEmail)
+    {
+        <text>and email</text>
+    }
+    for this site below and click the Register button to finish
     logging in.
 </p>
 
@@ -23,7 +31,7 @@
                 <input asp-for="Input.UserName" class="form-control" />
                 <span asp-validation-for="Input.UserName" class="text-danger"></span>
             </div>
-            @if (string.IsNullOrEmpty(Model.Input.Email) || Model.Input.Email.IndexOf('@') == -1)
+            @if (needEmail)
             {
                 <div class="form-group">
                     <label asp-for="Input.Email"></label>
