@@ -1055,7 +1055,7 @@ namespace m4dModels
             return DanceStatsManager.GetInstance(this).TagGroups;
         }
 
-        public IEnumerable<TagCount> GetTagSuggestions(string user = null, char? targetType = null, string tagType = null, int count = int.MaxValue, bool normalized=false)
+        public IEnumerable<TagCount> GetTagSuggestions(string user = null, char? targetType = null, string tagType = null, int count = int.MaxValue)
         {
             // from m in Modified where m.ApplicationUserId == user.Id && m.Song.TitleHash != 0 select m.Song;
 

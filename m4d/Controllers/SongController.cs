@@ -4,6 +4,8 @@ using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
+using AutoMapper;
+using DanceLibrary;
 using m4d.Utilities;
 using m4d.ViewModels;
 using m4dModels;
@@ -18,6 +20,7 @@ using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Net.Http.Headers;
+using Newtonsoft.Json;
 using X.PagedList;
 
 namespace m4d.Controllers
@@ -227,7 +230,21 @@ namespace m4d.Controllers
                 };
                 return View("RequiresPremium", premiumRedirect);
             }
-            
+
+            var userQuery = filter.UserQuery;
+            if (!userQuery.IsEmpty && userQuery.IsAnonymous)
+            {
+                if (User.Identity.IsAuthenticated)
+                {
+                    var userName = User.Identity.Name;
+                    filter.User = new UserQuery(userQuery, userName).Query;
+                }
+                else
+                {
+                    return LoginRedirect(filter);
+                }
+            }
+
             var p = Database.AzureParmsFromFilter(filter, 25);
             p.IncludeTotalResultCount = true;
 
@@ -272,11 +289,44 @@ namespace m4d.Controllers
         //
         // GET: /Song/AdvancedSearchForm
         [AllowAnonymous]
-        public ActionResult AdvancedSearchForm(SongFilter filter = null)
+        public ActionResult AdvancedSearchForm([FromServices] IMapper mapper, SongFilter filter = null)
+        {
+            HelpPage = "advanced-search";
+
+            if (_searchModel == null)
+            {
+                var dances = new List<DanceObject>(Dances.Instance.AllDanceTypes);
+                dances.AddRange(Dances.Instance.AllDanceGroups);
+
+                var tags = Database.GetTagSuggestions().Select(mapper.Map<TagModel>).ToList();
+                var model = new SearchModel
+                {
+                    Filter = mapper.Map<SongFilterSparse>(filter),
+                    Dances = dances,
+                    Tags = tags
+                };
+                _searchModel = JsonConvert.SerializeObject(model, CamelCaseSerializerSettings);
+            }
+
+            return View("AdvancedSearchForm", _searchModel);
+        }
+
+        private static string _searchModel;
+
+        //
+        // GET: /Song/AdvancedSearchForm
+        [AllowAnonymous]
+        public ActionResult OldSearchForm(SongFilter filter = null)
         {
             HelpPage = "advanced-search";
             BuildDanceList();
             return View();
+        }
+
+        [AllowAnonymous]
+        public ActionResult FilterSearch(SongFilter filter)
+        {
+            return DoAzureSearch(filter);
         }
 
         // Get: /Song/AdvancedSearch
@@ -394,6 +444,7 @@ namespace m4d.Controllers
             return DoAzureSearch(filter);
         }
 
+
         [AllowAnonymous]
         public ActionResult Sort(string sortOrder, SongFilter filter)
         {
@@ -479,6 +530,7 @@ namespace m4d.Controllers
 
         //
         // GET: /AdvancedIndex/
+        // TODO: Figure out if this ever gets called
         [AllowAnonymous]
         public ActionResult Advanced(int? page, string purchase, SongFilter filter)
         {
@@ -1817,7 +1869,7 @@ namespace m4d.Controllers
             return Redirect($"/Identity/Account/Login/?ReturnUrl=/song/advancedsearchform?filter={filter}");
         }
 
-        public IEnumerable<SelectListItem> GetDancesSingle(DanceMusicCoreService dms, bool includeEmpty=false)
+        private IEnumerable<SelectListItem> GetDancesSingle(DanceMusicCoreService dms, bool includeEmpty=false)
         {
             var counts = DanceStatsManager.GetFlatDanceStats(dms);
 

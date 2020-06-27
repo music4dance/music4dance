@@ -7,7 +7,7 @@ using Microsoft.Rest;
 namespace m4dModels
 {
 
-    // TagCount is a helper class to covert betwee a Tag+Count structure and a string of the form Tag[:Count]
+    // TagCount is a helper class to covert between a Tag+Count structure and a string of the form Tag[:Count]
     [DataContract]
     public class TagCount
     {
@@ -90,16 +90,15 @@ namespace m4dModels
 
             if (list.Count > 1)
             {
-                ret = int.TryParse(list[list.Count-1], out c);
+                ret = int.TryParse(list[^1], out c);
             }
             Count = c;
             Value = list[0].Trim();
             if (list.Count > 2 || ret == false)
             {
                 Value += ":" + list[1];
-                ret = true;
             }
-            return ret;
+            return true;
         }
 
         public string Serialize()

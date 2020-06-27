@@ -7,9 +7,32 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.Serialization.Json;
 using System.Text;
+using AutoMapper;
 
 namespace m4dModels
 {
+    public class SongFilterProfile : Profile
+    {
+        public SongFilterProfile()
+        {
+            CreateMap<SongFilter, SongFilterSparse>();
+            CreateMap<SongFilterSparse, SongFilter>();
+        }
+    }
+
+    public class SongFilterSparse {
+        public string Action { get; set; }
+        public string SearchString { get; set; }
+        public string Dances { get; set; }
+        public string SortOrder { get; set; }
+        public string Purchase { get; set; }
+        public string User { get; set; }
+        public decimal? TempoMin { get; set; }
+        public decimal? TempoMax { get; set; }
+        public string Tags { get; set; }
+        public int? Level { get; set; }
+    }
+
     [TypeConverter(typeof(SongFilterConverter))]
     public class SongFilter
     {
@@ -379,7 +402,7 @@ namespace m4dModels
             var stream = new MemoryStream();
             var serializer = new DataContractJsonSerializer(typeof(SongFilter));
             serializer.WriteObject(stream, this);
-             return Encoding.UTF8.GetString(stream.ToArray());
+            return Encoding.UTF8.GetString(stream.ToArray());
         }
         public bool IsEmpty => EmptyExcept(new[] { "SortOrder" });
 

@@ -61,11 +61,10 @@ namespace m4dModels
             }
             Count = count;
         }
-            
 
         public string Id { get; private set; }
         public bool Descending { get; private set; }
-        public int Count { get; private set; }
+        public int Count { get; }
 
         public bool Numeric => s_intrinsic.Contains(Id) || Id == "Tempo";
         public bool Directional => s_directional.Contains(Id);

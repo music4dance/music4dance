@@ -4,6 +4,7 @@ var gulp = require("gulp"),
     cleanCss = require("gulp-clean-css"),
     less = require("gulp-less"),
     sass = require("gulp-sass"),
+    autoprfixer = require("gulp-autoprefixer"),
     merge = require('merge2');
 
 gulp.task("bootstrap3", function () {
@@ -16,6 +17,7 @@ gulp.task("bootstrap3", function () {
 gulp.task("bootstrap4", function () {
     return gulp.src('Styles/bootstrap4/*.scss')
         .pipe(sass({ includePaths: ['./node_modules/bootstrap/scss', './node_modules/@fortawesome/fontawesome-free/scss'] }))
+        .pipe(autoprfixer())
         .pipe(cleanCss())
         .pipe(gulp.dest('wwwroot/css'));
 });

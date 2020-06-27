@@ -31,7 +31,7 @@ namespace m4d.APIControllers
             //var test = false;
             try
             {
-                var tags = Database.GetTagSuggestions(user, targetType, id, count, normalized);
+                var tags = Database.GetTagSuggestions(user, targetType, id, count );
                 //if (test)
                 //    return NotFound();
                 //else

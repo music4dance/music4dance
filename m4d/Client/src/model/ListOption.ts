@@ -10,6 +10,5 @@ export function valuesFromOptions(options: ListOption[]): string[] {
 }
 
 export function optionsFromText(text: string[]): ListOption[] {
-    const test: ListOption = {text: 't', value: 'v'};
     return text.map((t) => ({ text: t, value: wordsToKebab(t) }));
 }

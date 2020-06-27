@@ -5,6 +5,8 @@
 
 <h1>@ViewBag.Title</h1>
 
+<p class="big-text"><a id="login" asp-area="Identity" asp-page="/Account/Login" asp-route-ReturnUrl="/Home/Contribute">Click here</a> to log in.</p>
+
 <p class="big-text">@Html.ActionLink("Click here", "Contribute", "Home") to purchase a premium membership.</p>
 
 <p class="big-text"><a href="@Model.InfoUrl">Click here</a> learn more about @Model.FeatureName.</p>

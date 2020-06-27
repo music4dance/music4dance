@@ -1,7 +1,14 @@
 ﻿$dance-primary: #001671;
 $dance-light: lighten($dance-primary, 40%);
 
-$theme-colors: (primary: $dance-primary, info: $dance-light);
+$theme-colors: (
+    primary: $dance-primary, 
+    info: $dance-light, 
+    music: #18685D, 
+    tempo: #001671, 
+    style: #E25828, 
+    other: #995600
+);
 
 $navbar-dark-color: rgba(white, 1);
 $navbar-dark-hover-color: rgba(white, 0.75);
@@ -15,4 +22,9 @@ $fa-font-path: "/fonts";
 
 li {
     list-style-type: none
+}
+
+.tag-dropdown .dropdown-menu {
+    max-height: 250px;
+    overflow-y: auto;
 }

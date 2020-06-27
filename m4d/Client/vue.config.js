@@ -3,6 +3,10 @@ module.exports = {
     outputDir: "../wwwroot/client/",
     filenameHashing: false,
     pages: {
+      "advanced-search": {
+        entry: "src/advanced-search/main.ts",
+        filename: "advanced-search.html"
+      },
       "tempo-counter": {
         entry: "src/tempo-counter/main.ts",
         filename: "tempo-counter.html"

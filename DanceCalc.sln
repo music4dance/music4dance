@@ -5,6 +5,7 @@ VisualStudioVersion = 16.0.29306.81
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{69ADF94E-AE63-4954-BD58-BD56BFE93656}"
 	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
 		DanceCalc.vsmdi = DanceCalc.vsmdi
 	EndProjectSection
 EndProject
@@ -21,7 +22,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DanceTests", "DanceTests\Da
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "m4dModels", "m4dModels\m4dModels.csproj", "{5E8ADCF3-C6DA-482D-B4A7-3F266F4AF20E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "m4dModels.Tests", "m4dModels.Tests\m4dModels.Tests.csproj", "{F5F4E269-036A-4E92-AABD-84BB21E942B5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "m4dModels.Tests", "m4dModels.Tests\m4dModels.Tests.csproj", "{F5F4E269-036A-4E92-AABD-84BB21E942B5}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

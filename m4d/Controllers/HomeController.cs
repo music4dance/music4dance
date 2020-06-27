@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using m4d.Utilities;
 using m4d.ViewModels;
 using m4dModels;
 using Microsoft.AspNetCore.Authorization;
@@ -130,7 +129,7 @@ namespace m4d.Controllers
 
             ViewBag.DanceStats = JsonConvert.SerializeObject(
                 DanceStatsManager.GetInstance(Database),
-                s_camelCaseSerializerSettings);
+                CamelCaseSerializerSettings);
 
             HelpPage = "tempo-counter";
             return View("TempoCounter");
@@ -143,7 +142,7 @@ namespace m4d.Controllers
 
             ViewBag.DanceStats = JsonConvert.SerializeObject(
                 DanceStatsManager.GetInstance(Database),
-                s_camelCaseSerializerSettings);
+                CamelCaseSerializerSettings);
 
             ViewBag.Styles = ConvertParameter(styles);
             ViewBag.Types = ConvertParameter(types);
@@ -157,7 +156,7 @@ namespace m4d.Controllers
         private static string ConvertParameter(List<string> parameter)
         {
             return (parameter != null && parameter.Count > 0) ? 
-                JsonConvert.SerializeObject(parameter, s_camelCaseSerializerSettings) : null;
+                JsonConvert.SerializeObject(parameter, CamelCaseSerializerSettings) : null;
         }
 
         [AllowAnonymous]
@@ -173,14 +172,6 @@ namespace m4d.Controllers
             HelpPage = "dance-tempi";
             return View("Tempi", Dance.DanceLibrary);
         }
-
-
-        private static readonly JsonSerializerSettings s_camelCaseSerializerSettings = new JsonSerializerSettings
-        {
-            NullValueHandling = NullValueHandling.Ignore,
-            DefaultValueHandling = DefaultValueHandling.IgnoreAndPopulate,
-            ContractResolver = new StatsContractResolver(true, true)
-        };
 
         [AllowAnonymous]
         public IActionResult CounterHelp()

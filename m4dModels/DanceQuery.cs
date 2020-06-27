@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using DanceLibrary;
@@ -9,7 +8,7 @@ namespace m4dModels
 {
     public class DanceQuery
     {
-        private const string AllRef = "ALL";
+        private const string AllRef = "ALL"; // Special 'All dances' value
         private const string And = "AND"; // Exclusive + Explicit
         private const string AndX = "ADX"; // Exclusive + Inferred
         //private const string OneOf = ""; // Inclusive + Explicit

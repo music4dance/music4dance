@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Net.Http.Headers;
+using Newtonsoft.Json;
 
 namespace m4d.Controllers
 {
@@ -79,6 +80,14 @@ namespace m4d.Controllers
         {
             Database.SaveSong(song);
         }
+
+        protected static readonly JsonSerializerSettings CamelCaseSerializerSettings = new JsonSerializerSettings
+        {
+            NullValueHandling = NullValueHandling.Ignore,
+            DefaultValueHandling = DefaultValueHandling.IgnoreAndPopulate,
+            ContractResolver = new StatsContractResolver(true, true)
+        };
+
 
         protected void SaveSongs(IEnumerable<Song> songs = null)
         {

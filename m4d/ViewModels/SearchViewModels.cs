@@ -1,7 +1,33 @@
-﻿using m4dModels;
+﻿using System.Collections.Generic;
+using AutoMapper;
+using DanceLibrary;
+using m4dModels;
 
 namespace m4d.ViewModels
 {
+    public class TagModel
+    {
+        public string Value { get; set; }
+        public string Category { get; set; }
+        public string Count { get; set; }
+    }
+
+    public class TagProfile : Profile
+    {
+        public TagProfile()
+        {
+            CreateMap<TagCount, TagModel>()
+                .ForMember(dest => dest.Value, opt => opt.MapFrom(src => src.TagValue))
+                .ForMember(dest => dest.Category, opt => opt.MapFrom(src => src.TagClass));
+        }
+    }
+    public class SearchModel
+    {
+        public SongFilterSparse Filter { get; set; }
+        public List<DanceObject> Dances { get; set; }
+        public List<TagModel> Tags { get; set; }
+    }
+
     public class ServiceInfo
     {
         public string Id { get; set; }

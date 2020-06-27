@@ -3,7 +3,6 @@
 ## TodoNext
 - Optimize how we're loading third party components
 - Refactor?  Can we put stuff further down in the dance heirarchy
-- Get tempo info dynamically from the server
 - Make click action on dance configurable (use a slot?)
 - Manual tempo entry: Consider making MPM/BMP symetrical + enable mini-phrase/other phrases?
 - Should we enable all (or some of) the parameters we had in the old control

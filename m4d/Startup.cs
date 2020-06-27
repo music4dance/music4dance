@@ -3,8 +3,10 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
+using AutoMapper;
 using m4d.Services;
 using m4d.Utilities;
+using m4d.ViewModels;
 using m4dModels;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -141,7 +143,9 @@ namespace m4d
                         new DefaultContractResolver();
                 });
 
-
+            services.AddAutoMapper(
+                typeof(SongFilterProfile), 
+                typeof(TagProfile));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
