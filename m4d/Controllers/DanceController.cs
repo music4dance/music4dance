@@ -118,14 +118,15 @@ namespace m4d.Controllers
                 var context = Database.Context;
                 context.Update(dance);
 
+                var danceLinks = dance.DanceLinks ?? new List<DanceLink>();
                 // Change new state to added
-                foreach (var link in dance.DanceLinks.Where(d => newIds.Contains(d.Id)))
+                foreach (var link in danceLinks.Where(d => newIds.Contains(d.Id)))
                 {
                     context.Entry(link).State = EntityState.Added;
                 }
 
                 // Find the deleted links (if any)
-                var curIds = dance.DanceLinks.Select(dl => dl.Id).ToList();
+                var curIds = danceLinks.Select(dl => dl.Id).ToList();
                 var oldLinks = context.DanceLinks.Where(dl => dl.DanceId == dance.Id).ToList();
                 foreach (var link in oldLinks)
                 {
