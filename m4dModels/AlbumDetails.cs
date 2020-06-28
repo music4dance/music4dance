@@ -59,9 +59,8 @@ namespace m4dModels
         [DataMember]
         public string PurchaseInfo
         {
-            get { return SerializePurchaseInfo(); }
-            set { SetPurchaseInfo(value); }
-
+            get => SerializePurchaseInfo();
+            set => SetPurchaseInfo(value);
         }
 
         [DataMember]
@@ -71,7 +70,7 @@ namespace m4dModels
             //  faking a r/w property that is redundant with PurchaseInfo
             //  in order to get more easily consumable information
             //  into json
-            get { return GetPurchaseLinks();}
+            get => GetPurchaseLinks();
             // ReSharper disable once ValueParameterNotUsed
             set {  }
         }
@@ -207,11 +206,7 @@ namespace m4dModels
 
             foreach (var value in values)
             {
-                PurchaseType pt;
-                ServiceType ms;
-                string pi;
-
-                if (MusicService.TryParsePurchaseInfo(value, out pt, out ms, out pi))
+                if (MusicService.TryParsePurchaseInfo(value, out var pt, out var ms, out var pi))
                 {
                     SetPurchaseInfo(pt, ms, pi);
                 }
@@ -230,24 +225,21 @@ namespace m4dModels
 
         public IList<string> GetExtendedPurchaseIds(PurchaseType pt)
         {
-            string[] regions;
-            return (from service in MusicService.GetSearchableServices() let id = GetPurchaseIdentifier(service.Id, pt) where id != null select $"{service.CID}:{PurchaseRegion.ParseIdAndRegionInfo(id,out regions)}").ToList();
+            return (from service in MusicService.GetSearchableServices() let id = GetPurchaseIdentifier(service.Id, pt) where id != null select $"{service.CID}:{PurchaseRegion.ParseIdAndRegionInfo(id,out _)}").ToList();
         }
 
         public PurchaseLink GetPurchaseLink(ServiceType ms, PurchaseType pt, string region=null)
         {
-            // Short-circuit if there is no purchase info for this ablum
+            // Short-circuit if there is no purchase info for this album
             if (Purchase == null)
                 return null;
             
             var service = MusicService.GetService(ms);
             var albumKey = service.BuildPurchaseKey(PurchaseType.Album);
             var songKey = service.BuildPurchaseKey(PurchaseType.Song);
-            string albumInfo;
-            string songInfo;
 
-            Purchase.TryGetValue(albumKey, out albumInfo);
-            Purchase.TryGetValue(songKey, out songInfo);
+            Purchase.TryGetValue(albumKey, out var albumInfo);
+            Purchase.TryGetValue(songKey, out var songInfo);
 
             var link =  service.GetPurchaseLink(pt, albumInfo, songInfo);
             return link != null && !string.IsNullOrWhiteSpace(region) && link.AvailableMarkets != null && !link.AvailableMarkets.Contains(region)
@@ -255,14 +247,18 @@ namespace m4dModels
                 : link;
         }
 
-        public string GetPurchaseIdentifier(ServiceType ms, PurchaseType pt)
+        public string GetPurchaseIdentifier(ServiceType ms, PurchaseType pt, bool includeRegion = true)
         {
-            // Short-circuit if there is no purchase info for this ablum
+            // Short-circuit if there is no purchase info for this album
             if (Purchase == null)
                 return null;
 
-            string value;
-            return Purchase.TryGetValue(MusicService.GetService(ms).BuildPurchaseKey(pt), out value) ? value : null;
+            if (!Purchase.TryGetValue(MusicService.GetService(ms).BuildPurchaseKey(pt), out var value))
+            {
+                return null;
+            }
+
+            return includeRegion ? value : PurchaseRegion.ParseIdAndRegionInfo(value, out _);
         }
 
         public bool PurchaseDiff(Song song, AlbumDetails old)
@@ -324,8 +320,7 @@ namespace m4dModels
             foreach (var a in albums)
             {
                 var name = Song.CleanAlbum(a.Name,artist);
-                List<AlbumDetails> l;
-                if (dict.TryGetValue(name, out l))
+                if (dict.TryGetValue(name, out var l))
                 {
                     duplicate = true;
                 }
@@ -348,8 +343,7 @@ namespace m4dModels
             foreach (var a in albums)
             {
                 var name = Song.CleanAlbum(a.Name, artist);
-                List<AlbumDetails> l;
-                if (!dict.TryGetValue(name, out l)) continue;
+                if (!dict.TryGetValue(name, out var l)) continue;
 
                 dict.Remove(name);
                 merge.AddRange(MergeList(l));
@@ -394,9 +388,8 @@ namespace m4dModels
 
             foreach (var a in albums)
             {
-                List<AlbumDetails> l;
                 var t = a.TrackNumber.Track ?? 0;
-                if (!dict.TryGetValue(t, out l))
+                if (!dict.TryGetValue(t, out var l))
                 {
                     l = new List<AlbumDetails>();
                     dict.Add(t, l);

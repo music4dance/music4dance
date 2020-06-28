@@ -115,9 +115,8 @@ namespace m4dModels
                             break;
                         }
 
-                        MergeCluster lump;
                         var hash = Song.CreateTitleHash(s.Artist);
-                        if (!lumps.TryGetValue(hash, out lump))
+                        if (!lumps.TryGetValue(hash, out var lump))
                         {
 
                             lump = new MergeCluster(hash);

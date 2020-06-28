@@ -25,12 +25,6 @@ using X.PagedList;
 
 namespace m4d.Controllers
 {
-    public class SimpleDance
-    {
-        public string Id { get; set; }
-        public string Name { get; set; }
-    };
-
     public class SongController : ContentController
     {
         public SongController(DanceMusicContext context, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, ISearchServiceManager searchService, IDanceStatsManager danceStatsManager, LinkGenerator linkGenerator, IConfiguration configuration) :
@@ -1109,6 +1103,7 @@ namespace m4d.Controllers
             }
 
             ViewBag.ShowLength = true;
+            ViewBag.SongFilter = filter;
 
             return View("AzureSearch", songs.ToPagedList(filter.Page ?? 1, 25));
         }
@@ -1200,7 +1195,6 @@ namespace m4d.Controllers
         /// <summary>
         /// Batch up searching a music service
         /// </summary>
-        /// <param name="context">A transient context that can be used to build a service that exists outside of the execution context of this action</param>
         /// <param name="type">Music service type (currently A=Amazon,S=Spotify,I=ITunes)</param>
         /// <param name="options">May be more complex in future - currently Rn where n is retry level</param>
         /// <param name="filter">Standard filter for song list</param>
@@ -2217,7 +2211,9 @@ namespace m4d.Controllers
                     {
                         cluster = new List<Song> {song};
                     }
-                    else if ((level == 0 && song.Equivalent(cluster[0])) || ((level == 1 && song.WeakEquivalent(cluster[0])) || (level == 3) && song.TitleArtistEquivalent(cluster[0])))
+                    else if ((level == 0 && song.Equivalent(cluster[0])) 
+                          || (level == 1 && song.WeakEquivalent(cluster[0])) 
+                          || (level == 3 && song.TitleArtistEquivalent(cluster[0])))
                     {
                         cluster.Add(song);
                     }
@@ -2264,7 +2260,7 @@ namespace m4d.Controllers
         }
         private ActionResult Merge(IEnumerable<Song> songs)
         {
-            var sm = new SongMerge(songs.ToList(),Database.DanceStats);
+            var sm = new SongMerge(songs.ToList(), Database.DanceStats);
 
             return View("Merge", sm);
         }

@@ -768,14 +768,16 @@ namespace m4dModels
             // ReSharper disable once LoopCanBeConvertedToQuery
             foreach (var service in MusicService.GetSearchableServices())
             {
-                var id = song.GetPurchaseId(service.Id);
+                var ids = song.GetPurchaseIds(service);
 
-                if (id == null) continue;
-
-                var match = GetSongFromService(service, id, null, client);
-                if (match != null)
+                foreach (var id in ids)
                 {
-                    return new LocalMerger { Left = song, Right = match, MatchType = MatchType.Exact, Conflict = false };
+                    var match = GetSongFromService(service, id, null, client);
+                    if (match != null)
+                    {
+                        return new LocalMerger { Left = song, Right = match, MatchType = MatchType.Exact, Conflict = false };
+                    }
+
                 }
             }
             return null;

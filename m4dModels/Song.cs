@@ -2893,7 +2893,10 @@ namespace m4dModels
 
         public ICollection<string> GetPurchaseIds(MusicService service)
         {
-            return Albums.Select(album => album.GetPurchaseIdentifier(service.Id, PurchaseType.Song)).Where(id => id != null).ToList();
+            return Albums.Select(
+                album => album.GetPurchaseIdentifier(service.Id, PurchaseType.Song, false))
+                    .Where(id => id != null)
+                    .ToList();
         }
 
         public ICollection<string> GetExtendedPurchaseIds()
@@ -2906,7 +2909,7 @@ namespace m4dModels
             string ret = null;
             foreach (var album in Albums)
             {
-                ret = PurchaseRegion.ParseId(album.GetPurchaseIdentifier(service, PurchaseType.Song));
+                ret = album.GetPurchaseIdentifier(service, PurchaseType.Song, false);
                 if (ret != null)
                     break;
             }
