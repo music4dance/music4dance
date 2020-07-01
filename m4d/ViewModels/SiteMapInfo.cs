@@ -202,8 +202,7 @@ namespace m4d.ViewModels
                     Type = "tools",
                     Entries = new List<SiteMapEntry>
                     {
-                        new SiteMapEntry {Title =  "Profile", Reference="manage/userprofile"},
-                        new SiteMapEntry {Title =  "Settings", Reference="manage/settings"},
+                        new SiteMapEntry {Title =  "Profile", Reference="identity/Account/Manage"},
                         new SiteMapEntry {Title =  "Log In", Reference="identity/account/login"},
                         new SiteMapEntry {Title =  "Register", Reference="identity/account/register"},
                     }

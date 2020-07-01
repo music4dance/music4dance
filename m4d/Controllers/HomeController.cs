@@ -40,6 +40,13 @@ namespace m4d.Controllers
         }
 
         [AllowAnonymous]
+        public IActionResult Info()
+        {
+            ThemeName = BlogTheme;
+            return View();
+        }
+
+        [AllowAnonymous]
         public IActionResult Credits()
         {
             ThemeName = BlogTheme;

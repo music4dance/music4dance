@@ -1,28 +1,39 @@
-﻿@using Microsoft.AspNetCore.Http.Extensions;
-@using Microsoft.Extensions.Configuration
+﻿@using Microsoft.Extensions.Configuration
 
 @inject IConfiguration Configuration;
 
 @{
+    Layout = "/Views/Shared/_bs4-Layout.cshtml";
     var ecString = Configuration["Configuration:Commerce:Enabled"];
     if (!bool.TryParse(ecString, out var enableCommerce))
     {
         enableCommerce = true;
     }
     ViewBag.Title = "Contribute";
+    ViewBag.Description = "How to contribute to music4dance.net";
 }
+
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item">@Html.ActionLink("music4dance", "Index", "Home")</li>
+        <li class="breadcrumb-item">@Html.ActionLink("Info", "Info", "Home")</li>
+        <li class="breadcrumb-item active" aria-current="page">Contribute</li>
+    </ol>
+</nav>
+
 <H1>Contribute to music4dance.net</H1>
 
 @if (enableCommerce)
 {
     <h2>Purchase a Subscription</h2>
     <p class="big-text">
-        We appreciate any amount that you're willing to contribute to the music4dance effort. 
-        Anyone who contribes ten dollars or more receives a year of our 
-        <a href="https://music4dance.blog/music4dance-help/subscriptions/"></a>premium subscription, 
-        which always gives you an ad-free experience.  We will also be experimenting with specific 
+        We appreciate any amount that you're willing to contribute to the music4dance effort.
+        Anyone who contributes ten dollars or more receives a year of our
+        <a href="https://music4dance.blog/music4dance-help/subscriptions/"></a>premium subscription,
+        which always gives you an ad-free experience.  We will also be experimenting with specific
         premium features such as <a href="https://music4dance.blog/music4dance-help/bonus-content/">
-        bonus content.</a>
+            bonus content.
+        </a>
     </p>
 
     if (User.Identity.IsAuthenticated)
@@ -32,21 +43,21 @@
             @Html.AntiForgeryToken()
             <input type="hidden" name="kind" value="Purchase" />
             <div class="form-group">
-                 <label for="purchase-amount">Amount:</label>
-                 $<input type="number" name="amount" min="10" max="9999" step="0.01" value="10.00" class="form-control" id="purchase-amount"/>
-                 <button type="submit" class="btn btn-default">Purchase Subscription</button>
-             </div>
-         }
-     }
-     else
-     {
-         <p class="big-text">
-             You must be logged in to purchase a subscription, please 
-             <a id="login" asp-area="Identity" asp-page="/Account/Login" asp-route-ReturnUrl="/Home/Contribute">log in</a> or 
-             <a id="register" asp-area="Identity" asp-page="/Account/Register"  asp-route-ReturnUrl="/Home/Contribute">register</a>.
-         </p>
-         <p class="big-text">If you would like to donate without creating an account, please choose donate below.</p>
-     }
+                <label for="purchase-amount">Amount:</label>
+                $<input type="number" name="amount" min="10" max="9999" step="0.01" value="10.00" class="form-control" id="purchase-amount" />
+                <button type="submit" class="btn btn-default">Purchase Subscription</button>
+            </div>
+        }
+    }
+    else
+    {
+        <p class="big-text">
+            You must be logged in to purchase a subscription, please
+            <a id="login" asp-area="Identity" asp-page="/Account/Login" asp-route-ReturnUrl="/Home/Contribute">log in</a> or
+            <a id="register" asp-area="Identity" asp-page="/Account/Register" asp-route-ReturnUrl="/Home/Contribute">register</a>.
+        </p>
+        <p class="big-text">If you would like to donate without creating an account, please choose donate below.</p>
+    }
 
     <h2>Donate</h2>
     using (Html.BeginForm("Purchase", "Home", FormMethod.Post, new { id = "contribute", @class = "form-inline" }))

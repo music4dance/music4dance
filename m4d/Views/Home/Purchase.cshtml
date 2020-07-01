@@ -2,10 +2,18 @@
 @model PurchaseModel
 
 @{
-    ViewBag.Title = Model.Kind == PurchaseKind.Purchase ? "Purchase a Subscription  music4dance.net" : "Donate to music4dance.net";
+    Layout = "/Views/Shared/_bs4-Layout.cshtml";
+    ViewBag.Title = Model.Kind == PurchaseKind.Purchase ? "Purchase" : "Donate";
+    ViewBag.Description = Model.Kind == PurchaseKind.Purchase ? "Purchase a Subscription  music4dance.net" : "Donate to music4dance.net";
 }
 
-<h1>@(Model.Kind == PurchaseKind.Purchase ? "Purchase" : "Donate")</h1>
+<ol class="breadcrumb">
+    <li class="breadcrumb-item">@Html.ActionLink("music4dance", "Index", "Home")</li>
+    <li class="breadcrumb-item">@Html.ActionLink("Info", "Info", "Home")</li>
+    <li class="breadcrumb-item active" aria-current="page">@ViewBag.Title</li>
+</ol>
+
+<h1>@ViewBag.Description</h1>
 
 @if (Model.Kind == PurchaseKind.Purchase)
 {

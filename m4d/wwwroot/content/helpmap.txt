@@ -8,6 +8,7 @@ Dances
 	Dance Styles	blog/music4dance-help/dance-styles-help
 	Dance Categories	blog/music4dance-help/dance-category
 	Dance Details	blog/music4dance-help/dance-details
+	Dance Tags	blog/music4dance-help/dance-tags/
 Tags
 	Tag Cloud	blog/music4dance-help/tag-cloud
 	Tag Definition	blog/music4dance-help/tag-definitions
@@ -17,6 +18,8 @@ Tools
 	Tempo Counter	blog/music4dance-help/tempo-counter
 	Dance Tempi	blog/music4dance-help/dance-tempi
 Account Management	blog/music4dance-help/account-management
+Subscriptions	/blog/music4dance-help/subscriptions
+	Bonus Content	/blog/music4dance-help/bonus-content/
 Playing or Purchasing Songs	blog/music4dance-help/playing-or-purchasing-songs
 	ITunes	blog/music4dance-help/playing-or-purchasing-songs/itunes
 	Amazon	blog/music4dance-help/playing-or-purchasing-songs/amazon

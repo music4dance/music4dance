@@ -3,6 +3,7 @@
 @model System.Collections.Generic.IEnumerable<SiteMapCategory>
 
 @{
+    Layout = "/Views/Shared/_bs4-Layout.cshtml";
     ViewBag.Title = "SiteMap";
     ViewBag.Canonical = "https://www.music4dance.net/sitemap";
     ViewBag.Description = "music4dance site map";
@@ -22,9 +23,9 @@
                     @foreach (var entry in category.Entries)
                     {
                         <li>
-                            @if (entry is SiteMapDance)
+                            @if (entry is SiteMapDance dance)
                             {
-                                <span>@entry.Title: <a href="@entry.FullPath" class="@type">Info</a>, <a href="@((entry as SiteMapDance).CatalogFullPath)" class="@type">List</a></span>
+                                <span>@dance.Title: <a href="@dance.FullPath" class="@type">Info</a>, <a href="@dance.CatalogFullPath" class="@type">List</a></span>
                             }
                             else
                             {
