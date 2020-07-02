@@ -7,6 +7,10 @@ module.exports = {
         entry: "src/advanced-search/main.ts",
         filename: "advanced-search.html"
       },
+      "faq": {
+        entry: "src/faq/main.ts",
+        filename: "faq.html"
+      },
       "tempo-counter": {
         entry: "src/tempo-counter/main.ts",
         filename: "tempo-counter.html"
