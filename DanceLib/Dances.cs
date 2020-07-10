@@ -4,8 +4,11 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Dynamic;
 using System.Linq;
 using System.Text;
+using Newtonsoft.Json.Converters;
+
 // ReSharper disable NonReadonlyMemberInGetHashCode
 
 namespace DanceLibrary
@@ -592,6 +595,22 @@ namespace DanceLibrary
         International
     };
 
+    public class CompetitionGroup
+    {
+        public string Name { get; set; }
+
+        public List<CompetitionCategory> Categories { get; set; }
+
+        public static CompetitionGroup Get(string name)
+        {
+            return new CompetitionGroup
+            {
+                Name = name,
+                Categories = CompetitionCategory.GetCategoryList(name).ToList()
+            };
+        }
+    }
+
     public class CompetitionCategory
     {
         public const string Standard = "International Standard";
@@ -608,7 +627,7 @@ namespace DanceLibrary
             var category = GetCategory(name);
             if (category == null)
             {
-                var group = (List<CompetitionCategory>)GetGroup(dance.CompetitionGroup);
+                var group = (List<CompetitionCategory>)GetCategoryList(dance.CompetitionGroup);
                 category = new CompetitionCategory {Name=dance.Style,Group=dance.CompetitionGroup};
                 group.Add(category);
                 s_mapCategories[name] = category;
@@ -631,12 +650,12 @@ namespace DanceLibrary
             s_mapCategories.Clear();
         }
 
-        public static IEnumerable<CompetitionCategory> GetGroup(string name)
+        internal static IEnumerable<CompetitionCategory> GetCategoryList(string name)
         {
             if (s_mapGroups.TryGetValue(name, out var categories)) return categories;
 
             categories = new List<CompetitionCategory>();
-            s_mapGroups[name] = (categories);
+            s_mapGroups[name] = categories;
             return categories;
         }
 
@@ -650,9 +669,9 @@ namespace DanceLibrary
 
         public string Name { get; private set; }
         public string Group { get; private set; }
+        [JsonConverter(typeof(StringEnumConverter))]
         public DanceCategoryType CategoryType => Name.StartsWith("International") ? DanceCategoryType.International : DanceCategoryType.American;
         public string CanonicalName => BuildCanonicalName(Name);
-        //TODO:  Should be IReadOnlyList, but not enabled in Portable library?
         public string FullRoundName => $"{Name} {(Round.Count == 4 ? "four" : "five")} dance round";
 
         public IList<DanceInstance> Round => _round;
@@ -663,13 +682,7 @@ namespace DanceLibrary
 
         public static string BuildCanonicalName(string name)
         {
-            var sb = new StringBuilder();
-            foreach (var c in from char c in name where char.IsLetter(c) select c)
-            {
-                sb.Append(char.ToLower(c));
-            }
-
-            return sb.ToString();
+            return name.ToLowerInvariant().Replace(' ', '-');
         }
     }
 

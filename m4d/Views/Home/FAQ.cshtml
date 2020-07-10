@@ -5,6 +5,14 @@
     ViewBag.Description = "Frequently Asked Questions about Music4Dance and the answers.";
 }
 
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item">@Html.ActionLink("music4dance", "Index", "Home")</li>
+        <li class="breadcrumb-item">@Html.ActionLink("Info", "Info", "Home")</li>
+        <li class="breadcrumb-item active" aria-current="page">FAQ</li>
+    </ol>
+</nav>
+
 <div id="app"></div>
 
 @section Scripts {

@@ -160,23 +160,7 @@
 
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator';
-import { SongFilter } from '../model/SongFilter';
-import { DanceQuery } from '../model/DanceQuery';
-import { UserQuery } from '../model/UserQuery';
-import { SongSort } from '../model/SongSort';
-import { ListOption } from '../model/ListOption';
-import { DanceObject } from '../model/DanceStats';
-import { Tag } from '../model/Tag';
 
-import DanceSelector from '../components/DanceSelector.vue';
-import TagCategorySelector from '../components/TagCategorySelector.vue';
-import { TypedJSON } from 'typedjson';
-
-@Component({
-  components: {
-  },
-})
-export default class App extends Vue {
-
-}
+@Component
+export default class App extends Vue { }
 </script>

@@ -7,6 +7,14 @@ module.exports = {
         entry: "src/advanced-search/main.ts",
         filename: "advanced-search.html"
       },
+      "ballroom-index": {
+        entry: "src/ballroom-index/main.ts",
+        filename: "ballroom-index.html"
+      },
+      "competition-category": {
+        entry: "src/competition-category/main.ts",
+        filename: "competition-category.html"
+      },
       "faq": {
         entry: "src/faq/main.ts",
         filename: "faq.html"

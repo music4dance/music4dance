@@ -45,6 +45,10 @@ import { kebabToWords, wordsToKebab } from '@/helpers/StringHelpers';
         );
     }
 
+    public toBpm(numerator: number): TempoRange {
+        return new TempoRange(this.min * numerator, this.max * numerator);
+    }
+
     private formatTempo(tempo: number): string {
         return parseFloat(tempo.toFixed(1)).toString();
     }
@@ -64,6 +68,10 @@ import { kebabToWords, wordsToKebab } from '@/helpers/StringHelpers';
     @jsonMember public name!: string;
     @jsonMember public meter!: Meter;
     @jsonMember public tempoRange!: TempoRange;
+
+    public get baseId(): string {
+        return this.id.substr(0, 3);
+    }
 }
 
 @jsonObject export class DanceGroup extends DanceObject {
@@ -124,6 +132,10 @@ import { kebabToWords, wordsToKebab } from '@/helpers/StringHelpers';
             }
         }
         return ret;
+    }
+
+    public get styleFamily(): string {
+        return this.style.split(' ')[0];
     }
 
     private exceptionsFromOrganization(organizations: string[]): DanceException[] {

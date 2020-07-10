@@ -22,8 +22,13 @@ $fa-font-path: "/fonts";
 @import "bootstrap.scss";
 @import "../../node_modules/bootstrap-vue/src/index.scss";
 
-li {
-    list-style-type: none
+.list-clean {
+    list-style-type: none;
+}
+
+.list-clean-aligned {
+    list-style-type: none;
+    margin-left: -2em;
 }
 
 .tag-dropdown .dropdown-menu {

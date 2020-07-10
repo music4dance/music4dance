@@ -8,6 +8,5 @@ Vue.use(BootstrapVue);
 Vue.use(BootstrapVueIcons);
 
 new Vue({
-//  store,
   render: (h) => h(App),
 }).$mount('#app');

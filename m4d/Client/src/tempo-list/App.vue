@@ -45,7 +45,7 @@
           <a href="http://www.worlddancesport.org/Rule/Athlete/Competition">
           http://www.worlddancesport.org/Rule/Athlete/Competition</a> and the USADance rules:
           <a href="https://usadance.org/general/custom.asp?page=Rules">https://usadance.org/general/custom.asp?page=Rules</a></p>
-        <p>NDCA (National Dance Council of America) Tempi are pulled from here: <a href="https://www.ndca.org/pages/ndca_rule_book/Default.asp">http://ndca.org/education/dances-and-tempi/</a></p>
+        <p>NDCA (National Dance Council of America) Tempi are pulled from here: <a href="https://www.ndca.org/pages/ndca_rule_book/Default.asp">http://ndca.org/pages/ndca_rule_book/</a></p>
         <p>If there are other organizations that you would like to see included in this list, please <a href="https://music4dance.blog/feedback/">contact us</a> and we'll be happy to take a look.</p>
       </div>
     </div>

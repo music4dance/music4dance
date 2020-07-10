@@ -1,65 +1,26 @@
-﻿@using DanceLibrary
-@using m4d.ViewModels
-@using m4dModels
-@model IEnumerable<CompetitionCategory>
+﻿@using m4d.ViewModels
+@model DanceLibrary.CompetitionGroup
 @{
+    Layout = "/Views/Shared/_bs4-Layout.cshtml";
+
     ViewBag.Title = "Ballroom Competition Categories";
     ViewBag.Description = "An overview of competitive ballroom categories along with tempo ranges and song lists.";
-
-    DanceStatsInstance stats = ViewBag.DanceStats;
+    var converterModel = new ObjectConverterModel { Name = "model", Model = Model };
 }
 
-<ol class="breadcrumb">
-    <li><a href="/">Music4Dance</a></li>
-    <li><a href="/dances">Dances</a></li>
-    <li class="active">Ballroom</li>
-</ol>
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="/">Music4Dance</a></li>
+        <li class="breadcrumb-item"><a href="/dances">Dances</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Ballroom</li>
+    </ol>
+</nav>
 
-<h1>Competition Ballroom Dancing</h1>
+<div id="app"></div>
 
-<div class="row">
-    <div class="col-sm-2 col-sm-offset-1 col-sm-push-8 list-group">
-        <div class="visible-xs-inline">
-            <a href="#summary" class="list-group-item">Summary</a>
-        </div>
-        @foreach (var category in Model)
-        {
-            <a href="#@category.CanonicalName" class="list-group-item">@category.Name</a>
-        }
-    </div>
-    <section id="summary">
-        <div class="col-sm-8 big-text col-sm-pull-3 big-text">
-            <p>
-                One of the <a href="https://music4dance.blog/question-1-im-learning-to-cha-cha-where-is-some-great-music-for-practicing/">core ideas</a> behind @Html.ActionLink("music4dance", "Index", "Home") is to find interesting music to build playlists for competitions rounds.
-                This page is a central location to start a search for songs for your own playlists based on the tempo definitions of competition ballroom dance established by <a href="http://www.worlddancesport.org/Rule/Athlete/Competition">World Dance Council</a> and <a href="http://ndca.org/education/dances-and-tempi/">National Dance Council of America</a> and our database of songs.
-            </p>
-            <partial name="_BallroomList"/>
-        </div>
-    </section>
-</div>
-
-@foreach (var category in Model)
-{
-    var catType = category.Name.StartsWith("International") ? DanceCategoryType.International : DanceCategoryType.American;
-    <section id="@category.CanonicalName">
-        <h3><partial name="_LinkCategory" model="category.Name"/></h3>
-        @{var table = new CategoryTableModel
-          {
-              Title = $"An {category.FullRoundName} round consists of the following:",
-              DanceStats = stats,
-              Dances = category.Round,
-              DanceCategoryType = catType
-          };
-        }
-        <partial name="_CategoryTable" model ="@table"/>
-
-        <p>More about <partial name="_LinkCategory" model="category.Name"/> dances.</p>
-        <hr />
-    </section>
+@section Scripts {
+    <partial name="_jsonCamelCase" model="@converterModel" />
+    <script src="/client/js/chunk-vendors.js"></script>
+    <script src="/client/js/chunk-common.js"></script>
+    <script src="/client/js/ballroom-index.js"></script>
 }
-
-<dl class="big-text">
-    <partial name="_TempiToolLink" />
-</dl>
-
-<p class="big-text"><img src="~/images/icons/info.png" alt="tools" width="24" height="24" />Read the <a href="https://music4dance.blog">music4dance blog</a> entries about <a href="https://music4dance.blog/tag/ballroom">Ballroom</a>.</p>

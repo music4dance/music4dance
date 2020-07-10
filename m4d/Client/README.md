@@ -44,3 +44,9 @@ yarn run test:unit
 
 ### Customize configuration
 See [Configuration Reference](https://cli.vuejs.org/config/).
+
+
+### Turn off ts-lint log error
+```
+// tslint:disable-next-line:no-console
+```

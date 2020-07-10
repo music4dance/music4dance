@@ -14,6 +14,31 @@ using Microsoft.Extensions.Configuration;
 
 namespace m4d.Controllers
 {
+    public class CompetitionGroupModel
+    {
+        public string CurrentCategoryName { get; set; }
+        public CompetitionGroup Group { get; set; }
+
+        internal CompetitionCategory CurrentCategory =>
+            Group.Categories.FirstOrDefault(cat => cat.Name == CurrentCategoryName);
+
+        internal static CompetitionGroupModel Get(string group, string category)
+        {
+            var g = CompetitionGroup.Get(group);
+            var cat = g.Categories.FirstOrDefault(c => string.Equals(c.CanonicalName, category));
+            if (cat == null)
+            {
+                return null;
+            }
+
+            return new CompetitionGroupModel
+            {
+                CurrentCategoryName = cat.Name,
+                Group = g
+            };
+        }
+    }
+
     public class DanceController : ContentController
     {
         public DanceController(DanceMusicContext context, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, ISearchServiceManager searchService, IDanceStatsManager danceStatsManager, IConfiguration configuration) :
@@ -36,7 +61,8 @@ namespace m4d.Controllers
             ViewBag.DanceStats = stats;
             if (string.Equals(dance, "ballroom-competition-categories", StringComparison.OrdinalIgnoreCase))
             {
-                return View("BallroomCompetitionCategories", CompetitionCategory.GetGroup(CompetitionCategory.Ballroom));
+                return View("BallroomCompetitionCategories", 
+                    CompetitionGroup.Get(CompetitionCategory.Ballroom));
             }
 
             if (string.Equals(dance, "wedding-music", StringComparison.OrdinalIgnoreCase))
@@ -51,7 +77,7 @@ namespace m4d.Controllers
                 return RedirectToActionPermanent("HolidayMusic", "Song");
             }
 
-            var category = CompetitionCategory.GetCategory(dance);
+            var category = CompetitionGroupModel.Get(CompetitionCategory.Ballroom, dance);
             if (category != null)
             {
                 HelpPage = "dance-category";

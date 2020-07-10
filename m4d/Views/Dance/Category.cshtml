@@ -1,64 +1,29 @@
-﻿@using DanceLibrary
-@using m4dModels
-@using ViewModels
-@model CompetitionCategory
+﻿@using ViewModels
+
+@model m4d.Controllers.CompetitionGroupModel
 
 @{
-    DanceStatsInstance stats = ViewBag.DanceStats;
-
-    ViewBag.Title = Model.Name;
-    ViewBag.Description = "A description of the competition dance category " + Model.Name + " along with tempo ranges and song lists.";
-    var catType = Model.CategoryType;
-    var blogName = "https://music4dance.blog/tag/" + @Model.Name.ToLowerInvariant().Replace(' ', '-') + "/";
+    Layout = "/Views/Shared/_bs4-Layout.cshtml";
+    ViewBag.Title = Model.CurrentCategoryName;
+    ViewBag.Description = "A description of the competition dance category " + 
+                          Model.CurrentCategoryName + " along with tempo ranges and song lists.";
+    var converterModel = new ObjectConverterModel {Name = "model", Model = Model};
 }
 
-<ol class="breadcrumb">
-    <li><a href="/">Music4Dance</a></li>
-    <li><a href="/dances">Dances</a></li>
-    <li><a href="/dances/ballroom-competition-categories">Ballroom</a></li>
-    <li class="active">@Model.Name</li>
-</ol>
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="/">Music4Dance</a></li>
+        <li class="breadcrumb-item"><a href="/dances">Dances</a></li>
+        <li class="breadcrumb-item"><a href="/dances/ballroom-competition-categories">Ballroom</a></li>
+        <li class="breadcrumb-item active" aria-current="page">@Model.CurrentCategoryName</li>
+    </ol>
+</nav>
 
-<h1>@Model.Name</h1>
+<div id="app"></div>
 
-<div class="big-text">
-    <p>@Model.Name is a category of @Html.ActionLink("competition ballroom dancing","ballroom-competition-categories","dances") that is defined by the <a href="http://www.worlddancesport.org/Rule/Athlete/Competition">World Dance Council</a> and <a href="http://ndca.org/education/dances-and-tempi/">National Dance Council of America</a>.</p>
-    <partial name="_BallroomList"/>
-</div>
-
-@{var table = new CategoryTableModel
-  {
-      Title = $"An {Model.FullRoundName} round consists of the following:",
-      DanceStats = stats,
-      Dances = Model.Round,
-      DanceCategoryType = catType
-  };
+@section Scripts {
+    <partial name="_jsonCamelCase" model="@converterModel"/>
+    <script src="/client/js/chunk-vendors.js"></script>
+    <script src="/client/js/chunk-common.js"></script>
+    <script src="/client/js/competition-category.js"></script>
 }
-
-<partial name="_CategoryTable" model ="@table"/>
-
-@if (Model.Extras != null && Model.Extras.Count > 0)
-{
-    var subTable = new CategoryTableModel
-    {
-        Title = $"Other dances categorized as {Model.Name}, although they aren't part of the competition round, are:",
-        DanceStats = stats,
-        Dances = Model.Extras,
-        DanceCategoryType = catType
-    };
-
-    <partial name="_CategoryTable" model="@subTable"/>
-}
-
-@{
-    var cats = Dance.Categories.ToList();
-    cats.Remove(Model.Name);
-}
-
-<p class="big-text">Other categories of @Html.ActionLink("competition ballroom dancing","ballroom-competition-categories","dances") are <partial name="_LinkCategory" model="cats[0]"/>, <partial name="_LinkCategory" model="cats[1]" /> and <partial name="_LinkCategory" model="cats[2]" />.</p>
-
-<dl class="big-text">
-    <partial name="_TempiToolLink" />
-</dl>
-
-<p class="big-text">Read the <a href="https://music4dance.blog">music4dance blog</a> entries about <a href="https://music4dance.blog/tag/ballroom">Ballroom</a> in general and <a href="@blogName">@Model.Name</a> more specifically.</p>

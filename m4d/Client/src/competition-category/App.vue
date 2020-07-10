@@ -1,0 +1,79 @@
+<template>
+  <div id="app">
+    <h1>{{category.name}}</h1>
+    <ballroom-list :name="category.name"></ballroom-list>
+    <competition-category-table
+      :dances="category.round"
+      :title="category.fullRoundTitle"
+    ></competition-category-table>
+    <competition-category-table
+      v-if="category.extras"
+      :dances="category.extras"
+      :title="category.extraDancesTitle"
+    ></competition-category-table>
+    <div>
+      Other categories of <a :href="groupLink">{{groupTitle}}</a> are:
+      <ul>
+        <li v-for="category in groupModel.otherCategories" :key="category.name">
+          <link-category :name="category.name"></link-category>
+        </li>
+      </ul>
+    </div>
+    <dl>
+      <tempi-link></tempi-link>
+      <dd>
+        <img src="/images/icons/info.png" alt="tools" width="24" height="24" />
+          Read the <a href="https://music4dance.blog">music4dance blog</a> entries about
+          <a href="https://music4dance.blog/tag/ballroom">Ballroom</a>.
+      </dd>
+    </dl>
+  </div>
+</template>
+
+<script lang="ts">
+import { Component, Vue } from 'vue-property-decorator';
+import BallroomList from '../components/BallroomList.vue';
+import LinkCategory from '../components/LinkCategory.vue';
+import TempiLink from '../components/TempiLink.vue';
+import CompetitionCategoryTable from '../components/CompetitionCategoryTable.vue';
+import { CompetitionGroupModel, CompetitionCategory } from '../model/Competition';
+import { TypedJSON } from 'typedjson';
+
+declare const model: string;
+
+@Component({
+  components: {
+    BallroomList,
+    CompetitionCategoryTable,
+    LinkCategory,
+    TempiLink,
+  },
+})
+export default class App extends Vue {
+  private groupModel: CompetitionGroupModel;
+
+  constructor() {
+    super();
+
+    const serializer = new TypedJSON(CompetitionGroupModel);
+    const modelS = JSON.stringify(model);
+    const modelT = serializer.parse(modelS);
+    if (!modelT) {
+      throw new Error('Unable to parse model');
+    }
+    this.groupModel = modelT;
+  }
+
+  private get category(): CompetitionCategory {
+    return this.groupModel.currentCategory;
+  }
+
+  private get groupTitle(): string {
+    return `competition ${this.groupModel.group.name.toLowerCase()} dancing`;
+  }
+
+  private get groupLink(): string {
+    return `/dances/${this.groupModel.group.name.toLowerCase()}-competition-categories`;
+  }
+}
+</script>

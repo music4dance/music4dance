@@ -1,0 +1,10 @@
+﻿@using Newtonsoft.Json
+@using Newtonsoft.Json.Serialization
+@model m4d.ViewModels.ObjectConverterModel
+
+@{
+    var jsonSerializerSettings = new JsonSerializerSettings { ContractResolver = new CamelCasePropertyNamesContractResolver() };
+    var json = JsonConvert.SerializeObject(Model.Model, Formatting.Indented, jsonSerializerSettings);
+}
+
+<script>var @Model.Name = @Html.Raw(json);</script>
