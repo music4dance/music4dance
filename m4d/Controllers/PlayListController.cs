@@ -40,7 +40,7 @@ namespace m4d.Controllers
             var result = GetPlaylist(id, out var playList);
             if (HttpStatusCode.OK == result)
             {
-                return StatusCode((int) result);
+                return View(playList);
             }
             return View(playList);
         }
@@ -80,7 +80,7 @@ namespace m4d.Controllers
             var result = GetPlaylist(id, out var playList);
             if (HttpStatusCode.OK == result)
             {
-                return StatusCode((int)result);
+                return View(playList);
             }
 
             return View(playList);
@@ -108,7 +108,7 @@ namespace m4d.Controllers
             var result = GetPlaylist(id, out var playList);
             if (HttpStatusCode.OK == result)
             {
-                return StatusCode((int)result);
+                return View(playList);
             }
 
             return View(playList);

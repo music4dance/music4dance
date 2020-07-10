@@ -2324,22 +2324,23 @@ namespace m4dModels
 
 
                 // This is a special case for SongFromSpotify [m4did,DanceTags,url]
-                if (cells.Length == 3 && type == PlayListType.SongsFromSpotify)
+                if ((cells.Length == 3 || cells.Length == 4) && 
+                    type == PlayListType.SongsFromSpotify)
                 {
-                    var r = new Regex(@"https://open.spotify.com/user/(?<user>[a-z0-9-]*)/playlist/(?<id>[a-z0-9]*)",
+                    var r = new Regex(@"https://open.spotify.com/(user/(?<user>[a-z0-9-]*)/)?playlist/(?<id>[a-z0-9]*)",
                         RegexOptions.IgnoreCase, TimeSpan.FromSeconds(5));
                     var m = r.Match(cells[2]);
                     if (!m.Success) continue;
 
                     id = m.Groups["id"].Value;
-                    var email = m.Groups["user"].Value;
+                    var email = cells.Length == 4 ? cells[3] : m.Groups["user"].Value;
 
                     FindOrAddUser(userId, PseudoRole, email + "@spotify.com");
                     data1 = cells[1];
                 }
                 else
                 {
-                    if (cells.Length < 4) continue;
+                    if (cells.Length < 5) continue;
 
                     // Type
                     // TODO: Once this is published to the server, we can get rid of this check for legacy type "Spotify"
@@ -2354,7 +2355,7 @@ namespace m4dModels
                     // Spotify Playlist Id
                     id = cells[3];
 
-                    if (cells.Length > 4) DateTime.TryParse(cells[4], out created);
+                    DateTime.TryParse(cells[4], out created);
                     if (cells.Length > 5 && DateTime.TryParse(cells[5], out var mod)) modified = mod;
                     if (cells.Length > 6) bool.TryParse(cells[6], out deleted);
                     if (cells.Length > 7) data2 = cells[7];
