@@ -69,7 +69,7 @@ namespace m4d.Controllers
             {
                 // TODO: Wedding dance help page?
                 HelpPage = "dance-styles";
-                return View("weddingdancemusic", stats.List);
+                return View("weddingdancemusic", BuildWeddingTagMatrix(stats));
             }
 
             if (string.Equals(dance, "holiday-music", StringComparison.OrdinalIgnoreCase))
@@ -175,6 +175,58 @@ namespace m4d.Controllers
             }
 
             return View(dance);
+        }
+
+        private TagMatrix BuildWeddingTagMatrix(DanceStatsInstance stats)
+        {
+            var columns = new List<TagColumn>
+            {
+                new TagColumn {Title = "Wedding", Tag = "Wedding:Other"},
+                new TagColumn {Title = "First Dance", Tag = "First Dance:Other"},
+                new TagColumn {Title = "Mother/Son", Tag = "Mother Son:Other"},
+                new TagColumn {Title = "Father/Daughter", Tag = "Father Daughter:Other"},
+            };
+            var rows = new List<TagRowGroup>();
+
+            foreach (var group in stats.Tree)
+            {
+                var row = BuildTagRow(columns, group);
+                if (row != null)
+                {
+                    var groupRow = new TagRowGroup
+                    {
+                        Dance = row.Dance,
+                        Counts = row.Counts,
+                    };
+                    rows.Add(groupRow);
+
+                    var rowsT = new List<TagRow>();
+                    foreach (var dance in group.Children)
+                    {
+                        row = BuildTagRow(columns, dance);
+                        if (row != null)
+                        {
+                            rowsT.Add(row);
+                        }
+                    }
+
+                    groupRow.Children = rowsT;
+                }
+            }
+
+            return new TagMatrix {Columns = columns, Groups = rows};
+        }
+
+        private TagRow BuildTagRow(List<TagColumn> columns, DanceStats dance)
+        {
+            var counts = new List<int>();
+            foreach (var column in columns)
+            {
+                counts.Add(dance.AggregateSongTags?.TagCount(column.Tag) ?? 0);
+            }
+
+            return counts.Any(c => c > 0) ? 
+                new TagRow{Dance = dance.DanceObject, Counts = counts}: null;
         }
     }
 }

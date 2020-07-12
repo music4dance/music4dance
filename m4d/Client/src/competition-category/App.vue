@@ -21,11 +21,7 @@
     </div>
     <dl>
       <tempi-link></tempi-link>
-      <dd>
-        <img src="/images/icons/info.png" alt="tools" width="24" height="24" />
-          Read the <a href="https://music4dance.blog">music4dance blog</a> entries about
-          <a href="https://music4dance.blog/tag/ballroom">Ballroom</a>.
-      </dd>
+      <blog-tag-link title="Ballroom" tag="ballroom"></blog-tag-link>
     </dl>
   </div>
 </template>
@@ -35,6 +31,7 @@ import { Component, Vue } from 'vue-property-decorator';
 import BallroomList from '../components/BallroomList.vue';
 import LinkCategory from '../components/LinkCategory.vue';
 import TempiLink from '../components/TempiLink.vue';
+import BlogTagLink from '../components/BlogTagLink.vue';
 import CompetitionCategoryTable from '../components/CompetitionCategoryTable.vue';
 import { CompetitionGroupModel, CompetitionCategory } from '../model/Competition';
 import { TypedJSON } from 'typedjson';
@@ -44,6 +41,7 @@ declare const model: string;
 @Component({
   components: {
     BallroomList,
+    BlogTagLink,
     CompetitionCategoryTable,
     LinkCategory,
     TempiLink,
