@@ -1,43 +1,26 @@
-﻿@using DanceLibrary
-@model m4dModels.DanceStatsInstance
+﻿@using m4d.ViewModels
+@model IEnumerable<m4dModels.DanceStats>
 
 @{
+    Layout = "/Views/Shared/_bs4-Layout.cshtml";
+
     ViewBag.Title = "Dance Style Index";
     ViewBag.Description = "A list of partner dancing styles, including Ballroom, Salsa, Swing, and Tango.";
-    ViewBag.ShowTempo = false;
-    string[] boxes = { "LTN", "SWG", "FXT", "TNG", "MSC", "WLZ" };
+
+    var converterModel = new ObjectConverterModel { Name = "model", Model = Model };
 }
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="/">Music4Dance</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Dances</li>
+    </ol>
+</nav>
 
-<ol class="breadcrumb">
-    <li><a href="/">Music4Dance</a></li>
-    <li class="active">Dances</li>
-</ol>
-
-
-<div class="row">
-    @foreach (var box in boxes)
-    {
-        var item = Model.Tree.FirstOrDefault(m => m.DanceId == box);
-
-        <div class="list-group col-sm-3">
-            <h4><span id="@item.SeoName" class="btn btn-info btn-lg dance">@item.DanceName <span id="@item.DanceId" class="badge">@item.SongCount</span></span></h4>
-            <partial name="_DanceList" model="item.Children" />
-        </div>
-    }
-</div>
-
-<p id="competition" class="big-text">Or check out our more traditional ballroom competition categories including @Html.ActionLink("International Standard", "international-standard", "dances"), @Html.ActionLink("International Latin", "international-latin", "dances"), @Html.ActionLink("American Smooth", "american-smooth", "dances") and @Html.ActionLink("American Rhythm", "american-rhythm", "dances") by going to our @Html.ActionLink("Ballroom competition categories", "ballroom-competition-categories", "dances") page.</p>
-<p id="wedding" class="big-text">We also have songs cross-indexed by style of dance and type of wedding event on our @Html.ActionLink("Wedding Dance Music", "wedding-music", "dances") page.</p>
-<p class="big-text">Choose from the dances styles to get more information or click on the number next to the name to get a list of songs that are suitable to dance that dance to.</p>
-<p class="big-text">Don't agree with how we've organized dance styles? Well, we're not convinced there is a "right way" but we're doing some research to see if we can find a better way (or maybe multiple ways).  Please help us out by <a href="https://music4dance.blog/feedback/">sending us feedback</a> so that we can include your ideas about how to organize dance styles in the future.</p>
+<div id="app"></div>
 
 @section Scripts {
-    <environment include="Development">
-        <script src="~/scripts/dancedetails.js"></script>
-    </environment>
-    <environment exclude="Development">
-        <script src="~/scripts/dancedetails.min.js"></script>
-    </environment>
+    <partial name="_jsonCamelCase" model="@converterModel" />
+    <script src="/client/js/chunk-vendors.js"></script>
+    <script src="/client/js/chunk-common.js"></script>
+    <script src="/client/js/dance-index.js"></script>
 }
-
-

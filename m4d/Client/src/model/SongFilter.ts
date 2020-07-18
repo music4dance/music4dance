@@ -71,8 +71,8 @@ const scRegEx = new RegExp(subChar, 'g');
 
     private encode(s: string | undefined): string {
         const ret = s ? s.replace(/-/g, '\\-') : '';
-        // tslint:disable-next-line:no-console
-        console.log(ret);
+        // // tslint:disable-next-line:no-console
+        // console.log(ret);
         return ret;
     }
 

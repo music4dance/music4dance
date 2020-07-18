@@ -27,9 +27,7 @@
 import { Component, Prop, Vue } from 'vue-property-decorator';
 import { DanceInstance, Meter, TempoRange } from '../model/DanceStats';
 
-@Component({
-  components: {},
-})
+@Component
 export default class CompetitionCategoryTable extends Vue {
     @Prop() private dances!: DanceInstance[];
     @Prop() private title!: string;

@@ -15,6 +15,10 @@ module.exports = {
         entry: "src/competition-category/main.ts",
         filename: "competition-category.html"
       },
+      "dance-index": {
+        entry: "src/dance-index/main.ts",
+        filename: "dance-index.html"
+      },
       "faq": {
         entry: "src/faq/main.ts",
         filename: "faq.html"

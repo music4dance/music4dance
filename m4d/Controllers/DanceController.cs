@@ -55,7 +55,7 @@ namespace m4d.Controllers
             if (string.IsNullOrWhiteSpace(dance))
             {
                 HelpPage = "dance-styles";
-                return View(stats);
+                return View(stats.Tree);
             }
 
             ViewBag.DanceStats = stats;
