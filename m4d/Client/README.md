@@ -1,11 +1,16 @@
 # tempo-counter
 
 ## TodoNext
-- Optimize how we're loading third party components
-- Refactor?  Can we put stuff further down in the dance heirarchy
-- Make click action on dance configurable (use a slot?)
-- Manual tempo entry: Consider making MPM/BMP symetrical + enable mini-phrase/other phrases?
-- Should we enable all (or some of) the parameters we had in the old control
+- General
+    - Make tempo dance competition category table use a "short" name for dances
+        - Probably have to modify DanceInstance to do this
+    - Make the bs4 breadcrumbs style like the bsv ones
+    - Consider breadcrumbs for tools & search pages
+- Tempo Counter
+    - Refactor?  Can we put stuff further down in the dance heirarchy
+    - Make click action on dance configurable (use a slot?)
+    - Manual tempo entry: Consider making MPM/BMP symetrical + enable mini-phrase/other phrases?
+    - Should we enable all (or some of) the parameters we had in the old control
 
 ## Project setup
 ```

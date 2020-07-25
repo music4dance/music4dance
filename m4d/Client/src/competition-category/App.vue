@@ -1,6 +1,5 @@
 <template>
-  <div id="app">
-    <h1>{{category.name}}</h1>
+  <page id="app" :title="category.name" :breadcrumbs="breadcrumbs">
     <ballroom-list :name="category.name"></ballroom-list>
     <competition-category-table
       :dances="category.round"
@@ -23,11 +22,12 @@
       <tempi-link></tempi-link>
       <blog-tag-link title="Ballroom" tag="ballroom"></blog-tag-link>
     </dl>
-  </div>
+  </page>
 </template>
 
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator';
+import Page from '../components/Page.vue';
 import BallroomList from '../components/BallroomList.vue';
 import LinkCategory from '../components/LinkCategory.vue';
 import TempiLink from '../components/TempiLink.vue';
@@ -35,6 +35,7 @@ import BlogTagLink from '../components/BlogTagLink.vue';
 import CompetitionCategoryTable from '../components/CompetitionCategoryTable.vue';
 import { CompetitionGroupModel, CompetitionCategory } from '../model/Competition';
 import { TypedJSON } from 'typedjson';
+import { BreadCrumbItem, ballroomTrail } from '@/model/BreadCrumbItem';
 
 declare const model: string;
 
@@ -44,11 +45,13 @@ declare const model: string;
     BlogTagLink,
     CompetitionCategoryTable,
     LinkCategory,
+    Page,
     TempiLink,
   },
 })
 export default class App extends Vue {
   private groupModel: CompetitionGroupModel;
+  private breadcrumbs: BreadCrumbItem[];
 
   constructor() {
     super();
@@ -60,6 +63,10 @@ export default class App extends Vue {
       throw new Error('Unable to parse model');
     }
     this.groupModel = modelT;
+    this.breadcrumbs = [
+      ...ballroomTrail,
+      { text: this.category.name, active: true},
+    ];
   }
 
   private get category(): CompetitionCategory {

@@ -94,28 +94,6 @@ namespace m4d.Controllers
             return View();
         }
 
-        [AllowAnonymous]
-        public IActionResult OldCounter(bool showMPM = true, bool showBPM = false, bool showEpsilon = true,
-            int? numerator = null, decimal? tempo = null)
-        {
-            ThemeName = ToolTheme;
-            ViewBag.paramShowMPM = showMPM;
-            ViewBag.paramShowBPM = showBPM;
-            ViewBag.ShowEpsilon = showEpsilon;
-
-            if (numerator.HasValue && numerator != 0)
-            {
-                ViewBag.paramNumerator = numerator.Value;
-            }
-
-            if (tempo.HasValue)
-            {
-                ViewBag.paramTempo = tempo.Value;
-            }
-
-            HelpPage = "tempo-counter";
-            return View("Counter");
-        }
 
         [AllowAnonymous]
         public IActionResult Counter(int? numerator = null, decimal? tempo = null)
@@ -164,20 +142,6 @@ namespace m4d.Controllers
         {
             return (parameter != null && parameter.Count > 0) ? 
                 JsonConvert.SerializeObject(parameter, CamelCaseSerializerSettings) : null;
-        }
-
-        [AllowAnonymous]
-        public IActionResult OldTempi(bool detailed = false, int style = 0, int meter = 1, int type = 0, int org = 0)
-        {
-            ThemeName = ToolTheme;
-            ViewBag.paramDetailed = detailed;
-            ViewBag.paramStyle = style;
-            ViewBag.paramMeter = meter;
-            ViewBag.paramType = type;
-            ViewBag.paramOrg = org;
-            ViewBag.DanceStyles = Dance.DanceLibrary.AllDanceGroups;
-            HelpPage = "dance-tempi";
-            return View("Tempi", Dance.DanceLibrary);
         }
 
         [AllowAnonymous]

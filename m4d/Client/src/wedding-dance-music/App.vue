@@ -1,6 +1,5 @@
 <template>
-  <div id="app">
-    <h1>Wedding Dance Music</h1>
+  <page id="app" title="Wedding Dance Music" :breadcrumbs="breadcrumbs">
     <p>
       Are you getting married and trying to find the perfect song for your
       <a href="/Song/Index/?filter=Index-.-Title-.-.-.-.-.-1-+First Dance:Other">first dance</a>?
@@ -42,26 +41,33 @@
     </div>
 
     <dl><blog-tag-link title="Wedding Music" tag="wedding"></blog-tag-link></dl>
-  </div>
+  </page>
 </template>
 
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator';
+import Page from '../components/Page.vue';
 import BlogTagLink from '../components/BlogTagLink.vue';
 import { TagMatrix, TagRowGroup, TagRow, TagColumn } from '@/model/TagMatrix';
 import TagMatrixTable from '../components/TagMatrixTable.vue';
 import { TypedJSON } from 'typedjson';
+import { BreadCrumbItem, danceTrail } from '../model/BreadCrumbItem';
 
 declare const model: string;
 
 @Component({
   components: {
     BlogTagLink,
+    Page,
     TagMatrixTable,
   },
 })
 export default class App extends Vue {
   private model: TagMatrix;
+  private breadcrumbs: BreadCrumbItem[] = [
+    ...danceTrail,
+    { text: 'WeddingDanceMusic', active: true},
+  ];
 
   constructor() {
     super();

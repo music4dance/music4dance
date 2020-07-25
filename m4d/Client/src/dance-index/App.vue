@@ -1,7 +1,6 @@
 <template>
-  <div id="app">
-    <h1>Dance Styles</h1>
-      <b-card-group columns>
+  <page id="app" title="Dance Styles" :breadcrumbs="breadcrumbs">
+    <b-card-group columns>
         <dance-card v-for="group in orderedGroups" :key="group.danceId" :group="group"></dance-card>
       </b-card-group>
     <p id="competition">
@@ -26,26 +25,33 @@
        Please help us out by <a href="https://music4dance.blog/feedback/">sending us feedback</a> so
        that we can include your ideas about how to organize dance styles in the future.
     </p>
-  </div>
+  </page>
 </template>
 
 <script lang="ts">
 import 'reflect-metadata';
 import { Component, Vue } from 'vue-property-decorator';
+import Page from '../components/Page.vue';
 import DanceCard from './DanceCard.vue';
 import { TypedJSON } from 'typedjson';
 import { DanceStats } from '../model/DanceStats';
+import { BreadCrumbItem, danceCrumb, homeCrumb } from '@/model/BreadCrumbItem';
 
 declare const model: string;
 
 @Component({
   components: {
     DanceCard,
+    Page,
   },
 })
 export default class App extends Vue {
   private groups: DanceStats[];
   private order: string[] = ['LTN', 'WLZ', 'SWG', 'FXT', 'TNG', 'MSC', 'PRF'];
+  private breadcrumbs: BreadCrumbItem[] = [
+    homeCrumb,
+    { text: 'Dances', active: true},
+  ];
 
 constructor() {
     super();

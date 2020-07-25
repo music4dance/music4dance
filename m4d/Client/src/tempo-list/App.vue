@@ -1,6 +1,5 @@
 <template>
-  <div id="app" class='container-fluid'>
-    <h1 style="text-align:center">Partner Dancing Tempo List</h1>
+  <page id="app">
     <div class="row">
       <checked-list
         class="col-md"
@@ -49,11 +48,12 @@
         <p>If there are other organizations that you would like to see included in this list, please <a href="https://music4dance.blog/feedback/">contact us</a> and we'll be happy to take a look.</p>
       </div>
     </div>
-  </div>
+  </page>
 </template>
 
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator';
+import Page from '../components/Page.vue';
 import CheckedList from './components/CheckedList.vue';
 import DanceList from './components/DanceList.vue';
 import { ListOption, valuesFromOptions, optionsFromText } from '../model/ListOption';
@@ -63,6 +63,7 @@ import { getStyles, getTypes } from '../model/DanceManager';
   components: {
     CheckedList,
     DanceList,
+    Page,
   },
 })
 export default class App extends Vue {

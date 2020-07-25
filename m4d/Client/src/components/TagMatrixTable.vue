@@ -1,7 +1,7 @@
 <template>
   <div>
     <b-table striped hover
-        :items="rows" :fields="fields" responsive foot-clone=true
+        :items="rows" :fields="fields" responsive foot-clone
     >
         <template v-slot:head(dance)="data">{{data.label}}</template>
 

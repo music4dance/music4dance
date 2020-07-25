@@ -2,19 +2,13 @@
 @model IEnumerable<m4dModels.DanceStats>
 
 @{
-    Layout = "/Views/Shared/_bs4-Layout.cshtml";
+    Layout = "/Views/Shared/_bsv-Layout.cshtml";
 
     ViewBag.Title = "Dance Style Index";
     ViewBag.Description = "A list of partner dancing styles, including Ballroom, Salsa, Swing, and Tango.";
 
     var converterModel = new ObjectConverterModel { Name = "model", Model = Model };
 }
-<nav aria-label="breadcrumb">
-    <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a href="/">Music4Dance</a></li>
-        <li class="breadcrumb-item active" aria-current="page">Dances</li>
-    </ol>
-</nav>
 
 <div id="app"></div>
 

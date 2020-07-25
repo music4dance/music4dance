@@ -307,16 +307,6 @@ namespace m4d.Controllers
 
         private static string _searchModel;
 
-        //
-        // GET: /Song/AdvancedSearchForm
-        [AllowAnonymous]
-        public ActionResult OldSearchForm(SongFilter filter = null)
-        {
-            HelpPage = "advanced-search";
-            BuildDanceList();
-            return View();
-        }
-
         [AllowAnonymous]
         public ActionResult FilterSearch(SongFilter filter)
         {

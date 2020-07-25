@@ -1,6 +1,5 @@
 <template>
-  <div id="app">
-    <h1>Competition Ballroom Dancing</h1>
+  <page id="app" title="Competition Ballroom Dancing" :breadcrumbs="breadcrumbs">
     <ballroom-list>
         One of the
         <a href="https://music4dance.blog/question-1-im-learning-to-cha-cha-where-is-some-great-music-for-practicing/">
@@ -22,11 +21,12 @@
       <tempi-link></tempi-link>
       <blog-tag-link title="Ballroom" tag="ballroom"></blog-tag-link>
     </dl>
-  </div>
+  </page>
 </template>
 
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator';
+import Page from '../components/Page.vue';
 import BallroomList from '../components/BallroomList.vue';
 import LinkCategory from '../components/LinkCategory.vue';
 import TempiLink from '../components/TempiLink.vue';
@@ -34,6 +34,7 @@ import BlogTagLink from '../components/BlogTagLink.vue';
 import CompetitionCategoryTable from '../components/CompetitionCategoryTable.vue';
 import { CompetitionGroup, CompetitionCategory } from '../model/Competition';
 import { TypedJSON } from 'typedjson';
+import { BreadCrumbItem, danceTrail } from '@/model/BreadCrumbItem';
 
 declare const model: string;
 
@@ -43,11 +44,16 @@ declare const model: string;
     BlogTagLink,
     CompetitionCategoryTable,
     LinkCategory,
+    Page,
     TempiLink,
   },
 })
 export default class App extends Vue {
   private group: CompetitionGroup;
+  private breadcrumbs: BreadCrumbItem[] = [
+    ...danceTrail,
+    { text: 'Ballroom', active: true},
+  ];
 
   constructor() {
     super();

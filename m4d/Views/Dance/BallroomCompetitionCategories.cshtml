@@ -1,20 +1,13 @@
 ﻿@using m4d.ViewModels
 @model DanceLibrary.CompetitionGroup
+
 @{
-    Layout = "/Views/Shared/_bs4-Layout.cshtml";
+    Layout = "/Views/Shared/_bsv-Layout.cshtml";
 
     ViewBag.Title = "Ballroom Competition Categories";
     ViewBag.Description = "An overview of competitive ballroom categories along with tempo ranges and song lists.";
     var converterModel = new ObjectConverterModel { Name = "model", Model = Model };
 }
-
-<nav aria-label="breadcrumb">
-    <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a href="/">Music4Dance</a></li>
-        <li class="breadcrumb-item"><a href="/dances">Dances</a></li>
-        <li class="breadcrumb-item active" aria-current="page">Ballroom</li>
-    </ol>
-</nav>
 
 <div id="app"></div>
 

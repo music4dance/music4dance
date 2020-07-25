@@ -1,12 +1,13 @@
 <template>
-  <div id="app" class='container-fluid'>
+  <page id="app">
     <counter />
     <dance-list />
-  </div>
+  </page>
 </template>
 
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator';
+import Page from '../components/Page.vue';
 import Counter from './components/Counter.vue';
 import DanceList from './components/DanceList.vue';
 
@@ -14,6 +15,7 @@ import DanceList from './components/DanceList.vue';
   components: {
     Counter,
     DanceList,
+    Page,
   },
 })
 export default class App extends Vue {}

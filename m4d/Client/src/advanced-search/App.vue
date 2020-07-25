@@ -1,5 +1,9 @@
 <template>
-  <div id="app" class='container-fluid' style="max-width: 600px">
+  <page id="app">
+    <h1 class="col-sm-12" style="font-size: 22px; text-align: center">
+        Advanced Song Search
+    </h1>
+    <div  style="max-width: 600px; margin-left: auto; margin-right:auto">
     <b-form id="advanced-search" @submit="onSubmit" @reset="onReset" novalidate>
       <b-form-group
         id="searchStringGroup"
@@ -161,12 +165,14 @@ excludeTags = {{ excludeTags }}
 filter = {{ songFilter }}
       </pre>
     </b-card>
-  </div>
+    </div>
+  </page>
 </template>
 
 <script lang="ts">
 /* tslint:disable:no-bitwise */
 import { Component, Vue } from 'vue-property-decorator';
+import Page from '../components/Page.vue';
 import { SongFilter } from '../model/SongFilter';
 import { DanceQuery } from '../model/DanceQuery';
 import { UserQuery } from '../model/UserQuery';
@@ -185,6 +191,7 @@ declare const model: SearchModel;
 @Component({
   components: {
     DanceSelector,
+    Page,
     TagCategorySelector,
   },
 })

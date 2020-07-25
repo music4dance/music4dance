@@ -2,20 +2,20 @@
 @using m4dModels
 
 @{
-    Layout = "/Views/Shared/_bs4-Layout.cshtml";
+    Layout = "/Views/Shared/_bsv-Layout.cshtml";
     SongFilter filter = ViewData.ContainsKey("SongFilter") ? ViewBag.SongFilter : SongFilter.Default;
 
     ViewBag.Title = "Advanced Search";
     ViewBag.Description = "music4dance advanced song search form: " + filter.Description;
 }
 
-<div class="row">
+@*<div class="row">
     <h1 class="col-sm-12" style="font-size: 22px; text-align: center">
         Advanced Song Search
     </h1>
-</div>
+</div>*@
 
-<div id="app" style="max-width: 600px"></div>
+<div id="app"></div>
 
 @section Scripts {
     <script>window.model = @Html.Raw(Model);</script>

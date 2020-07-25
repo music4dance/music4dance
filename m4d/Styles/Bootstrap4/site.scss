@@ -36,7 +36,18 @@ $fa-font-path: "/fonts";
     overflow-y: auto;
 }
 
-/* Styles for tag matrix table*/
+/* Nav bar */
+
+.nav-subitem {
+    padding-left: 1rem;
+}
+
+#mainMenu {
+    padding: 0 1rem;
+}
+
+
+/* Styles for tag matrix table */
 .tag-matrix-group {
     font-weight: bold
 }
