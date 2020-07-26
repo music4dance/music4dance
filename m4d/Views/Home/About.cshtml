@@ -1,21 +1,15 @@
-﻿@{
+﻿@using m4d.ViewModels
+@{
     Layout = "/Views/Shared/_bs4-Layout.cshtml";
     ViewBag.Title = "About Us";
     ViewBag.Canonical = "https://www.music4dance.net/about";
     ViewBag.Description = "About the creators of music4dance.net";
+
+    ViewBag.BreadCrumbs = BreadCrumbItem.BuildInfoTrail(ViewBag.Title);
 }
-
-<nav aria-label="breadcrumb">
-    <ol class="breadcrumb">
-        <li class="breadcrumb-item">@Html.ActionLink("music4dance", "Index", "Home")</li>
-        <li class="breadcrumb-item">@Html.ActionLink("Info", "Info", "Home")</li>
-        <li class="breadcrumb-item active" aria-current="page">About Us</li>
-    </ol>
-</nav>
-
 <div class="row">
     <div class="col">
-        <h1>David</h1>
+        <h1>@ViewBag.Title: David</h1>
         <p class="neutral">
             I’m an amateur dancer and with some training in music who also happens to
             be a professional software engineer. I love dancing, and I particularly love dancing
@@ -33,7 +27,7 @@
         </p>
         <p class="neutral">
             The core of my initial idea is that I would like to be able to generate a playlist of
-            songs to dance a slow <a href="https://www.music4dance.net/dances/salsa">Salsa</a> or 
+            songs to dance a slow <a href="https://www.music4dance.net/dances/salsa">Salsa</a> or
             fast <a href="https://www.music4dance.net/dances/west-coast-swing">West Coast Swing</a>
             or a <a href="https://www.music4dance.net/dances/viennese-waltz">Viennese Waltz</a> to.
             I’d like to do this against my own library or against one of a multitude of streaming and

@@ -1,14 +1,15 @@
-﻿@{
+﻿@using m4d.ViewModels
+@{
     Layout = "/Views/Shared/_bs4-Layout.cshtml";
-}
 
-<nav aria-label="breadcrumb">
-    <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a href="/">Music4Dance</a></li>
-        <li class="breadcrumb-item"><a href="/Identity/Account/Manage">@ViewBag.UserName</a></li>
-        <li class="breadcrumb-item active" aria-current="page">@ViewBag.Title</li>
-    </ol>
-</nav>
+    ViewData["BreadCrumbs"] = new List<BreadCrumbItem>
+    {
+        BreadCrumbItem.HomeItem,
+        new BreadCrumbItem { Title = ViewBag.UserName, Link = "/Identity/Account/Manage" },
+        new BreadCrumbItem { Title = ViewBag.Title, Active = true }
+    };
+
+}
 
 <h1>Manage your account</h1>
 

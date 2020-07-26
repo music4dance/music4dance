@@ -1,15 +1,10 @@
-﻿@{
+﻿@using m4d.ViewModels
+@{
     Layout = "/Views/Shared/_bs4-Layout.cshtml";
-    ViewBag.Title = "PrivacyPolicy";
-}
+    ViewBag.Title = "Privacy Policy";
 
-<nav aria-label="breadcrumb">
-    <ol class="breadcrumb">
-        <li class="breadcrumb-item">@Html.ActionLink("music4dance", "Index", "Home")</li>
-        <li class="breadcrumb-item">@Html.ActionLink("Info", "Info", "Home")</li>
-        <li class="breadcrumb-item active" aria-current="page">Privacy Policy</li>
-    </ol>
-</nav>
+    ViewBag.BreadCrumbs = BreadCrumbItem.BuildInfoTrail(ViewBag.Title);
+}
 
 <h1>@ViewBag.Title</h1>
 

@@ -1,19 +1,14 @@
-﻿@{
+﻿@using m4d.ViewModels
+@{
     Layout = "/Views/Shared/_bs4-Layout.cshtml";
     ViewBag.Title = "Credits";
     ViewBag.Canonical = "https://www.music4dance.net/credits";
     ViewBag.Description = "music4dance credits page";
+
+    ViewBag.BreadCrumbs = BreadCrumbItem.BuildInfoTrail(ViewBag.Title);
 }
 
-<nav aria-label="breadcrumb">
-    <ol class="breadcrumb">
-        <li class="breadcrumb-item">@Html.ActionLink("music4dance", "Index", "Home")</li>
-        <li class="breadcrumb-item">@Html.ActionLink("Info", "Info", "Home")</li>
-        <li class="breadcrumb-item active" aria-current="page">Credits</li>
-    </ol>
-</nav>
-
-<h1>Credits</h1>
+<h1>@ViewBag.Title</h1>
 
 <h2>Code and Libraries</h2>
 

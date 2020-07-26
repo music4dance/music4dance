@@ -4,8 +4,10 @@
 - General
     - Make tempo dance competition category table use a "short" name for dances
         - Probably have to modify DanceInstance to do this
-    - Make the bs4 breadcrumbs style like the bsv ones
     - Consider breadcrumbs for tools & search pages
+    - Improve Breadcrumbs for accounts pages
+    - Look at remaining simple asp.net mvc pages with old layout 
+        - Error pages, others?
 - Tempo Counter
     - Refactor?  Can we put stuff further down in the dance heirarchy
     - Make click action on dance configurable (use a slot?)

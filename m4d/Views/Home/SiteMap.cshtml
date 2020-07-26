@@ -4,13 +4,15 @@
 
 @{
     Layout = "/Views/Shared/_bs4-Layout.cshtml";
-    ViewBag.Title = "SiteMap";
+    ViewBag.Title = "Site Map";
     ViewBag.Canonical = "https://www.music4dance.net/sitemap";
     ViewBag.Description = "music4dance site map";
+
+    ViewBag.BreadCrumbs = BreadCrumbItem.BuildInfoTrail(ViewBag.Title);
 }
 
 
-<h1>Site Map</h1>
+<h1>@ViewBag.Title</h1>
 
 <div class="row">
     @foreach (var type in new [] {"music", "info", "tools"})

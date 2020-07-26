@@ -4,7 +4,7 @@ export interface BreadCrumbItem {
     active?: boolean;
 }
 
-export const homeCrumb: BreadCrumbItem = { text: 'Music4dance', href: '/' };
+export const homeCrumb: BreadCrumbItem = { text: 'music4dance', href: '/' };
 
 export const danceCrumb: BreadCrumbItem = { text: 'Dances', href: '/dances' };
 
