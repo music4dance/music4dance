@@ -31,12 +31,14 @@ import { DanceInstance, Meter, TempoRange } from '../model/DanceStats';
 export default class CompetitionCategoryTable extends Vue {
     @Prop() private dances!: DanceInstance[];
     @Prop() private title!: string;
+    @Prop() private useFullName?: boolean;
 
     // TODO: Add in table caption explaining NCDCA headers for non-homogenous groups
 
     private fields = [
         {
             key: 'name',
+            formatter: (value: string, key: string, item: DanceInstance) => this.name(item),
         },
         {
             key: 'tempoRange',
@@ -112,6 +114,10 @@ export default class CompetitionCategoryTable extends Vue {
 
     private tempoLink(dance: DanceInstance, tempo: TempoRange): string {
         return `/song/advancedsearch?dances=${dance.baseId}&tempomin=${tempo.min}&tempomax=${tempo.max}`;
+    }
+
+    private name(dance: DanceInstance): string {
+        return this.useFullName ? dance.name : dance.shortName;
     }
 }
 </script>

@@ -141,6 +141,13 @@ import { kebabToWords, wordsToKebab } from '@/helpers/StringHelpers';
     private exceptionsFromOrganization(organizations: string[]): DanceException[] {
         return this.exceptions.filter((e) => organizations.find((o) => e.matchesFilter(o)));
     }
+
+    public get shortName(): string {
+        const styleFamily = this.styleFamily;
+        return (this.name.startsWith(styleFamily + ' ')) ?
+            this.name.substring(styleFamily.length + 1) :
+            this.name;
+    }
 }
 
 export interface DanceFilter {
