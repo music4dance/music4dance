@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Net;
+using AutoMapper;
 using m4d.ViewModels;
 using m4dModels;
 using Microsoft.AspNetCore.Authorization;
@@ -22,9 +23,14 @@ namespace m4d.Controllers
 
         // GET: Tag
         [AllowAnonymous]
-        public IActionResult Index()
+        public IActionResult Index([FromServices] IMapper mapper)
         {
-            var model = Database.OrderedTagGroups;
+            var model = Database.OrderedTagGroups
+                .Where(t => 
+                    !string.Equals(t.Category,"dance", StringComparison.InvariantCultureIgnoreCase) &&
+                    !t.Value.StartsWith("!") &&
+                    t.Count > 0)
+                .Select(mapper.Map<TagModel>);
             return View(model);
         }
 

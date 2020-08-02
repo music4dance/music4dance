@@ -33,12 +33,7 @@
 import { Component, Prop, Model, Watch, Vue } from 'vue-property-decorator';
 import TagSelector from '@/components/TagSelector.vue';
 import { ListOption } from '@/model/ListOption';
-import { Tag } from '@/model/Tag';
-
-interface TagInfo {
-  iconName: string;
-  description: string;
-}
+import { Tag, TagInfo } from '@/model/Tag';
 
 @Component({
   components: {
@@ -46,14 +41,8 @@ interface TagInfo {
   },
 })
 export default class TagCategorySelector extends Vue {
-    private static tagInfo = new Map<string, TagInfo>([
-      ['style', { iconName: 'briefcase', description: 'style'}],
-      ['tempo', { iconName: 'clock', description: 'tempo'}],
-      ['music', { iconName: 'music-note-list', description: 'musical genre'}],
-      ['other', { iconName: 'tag', description: 'other'}],
-    ]);
 
-    private static categories = new Set(TagCategorySelector.tagInfo.keys());
+    private static categories = new Set(Tag.TagInfo.keys());
 
     @Model('change') private readonly selected!: string[];
     @Prop() private readonly tagList!: Tag[];
@@ -94,13 +83,12 @@ export default class TagCategorySelector extends Vue {
     }
 
     private iconFromKey(key: string): string {
-      const ret = TagCategorySelector.tagInfo.get(this.variantFromKey(key))!.iconName;
-      return ret;
+      return Tag.TagInfo.get(this.variantFromKey(key))!.iconName;
     }
 
     private descriptionFromKey(key: string): string {
       const ret = `${this.titleFromKey(key)} ` +
-        `(${TagCategorySelector.tagInfo.get(this.variantFromKey(key))!.description})`;
+        `(${Tag.TagInfo.get(this.variantFromKey(key))!.description})`;
       return ret;
     }
 

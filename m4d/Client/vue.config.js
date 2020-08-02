@@ -23,6 +23,10 @@ module.exports = {
         entry: "src/faq/main.ts",
         filename: "faq.html"
       },
+      "tag-index": {
+        entry: "src/tag-index/main.ts",
+        filename: "tag-index.html"
+      },
       "tempo-counter": {
         entry: "src/tempo-counter/main.ts",
         filename: "tempo-counter.html"
