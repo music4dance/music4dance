@@ -9,15 +9,16 @@
 
 <h3>Tags</h3>
 <ul>
-    <li>@Html.ActionLink("Tag List", "index", "tag")</li>
-    <li>@Html.ActionLink("Update Tag Summaries", "UpdateTagSummaries")</li>
+    <li>@Html.ActionLink("Tag Cloud", "index", "tag")</li>
+    <li>@Html.ActionLink("Tag List", "list", "tag")</li>
+    @*<li>@Html.ActionLink("Update Tag Summaries", "UpdateTagSummaries")</li>*@
 </ul>
 
-<h3>Azure Tags</h3>
+@*<h3>Azure Tags</h3>
 <ul>
     <li>@Html.ActionLink("DanceTags", "AzureFacets", new { categories = "DanceTags", count = 100 }, null)</li>
     <li>@Html.ActionLink("DanceTagsInferred", "AzureFacets", new {categories = "DanceTagsInferred", count = 100}, null)</li>
 
     <li>@Html.ActionLink("Tags", "AzureFacets", new { categories = "GenreTags,StyleTags,TempoTags,OtherTags", count = 100 }, null)</li>
 
-</ul>
+</ul>*@

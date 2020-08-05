@@ -34,6 +34,12 @@ namespace m4d.Controllers
             return View(model);
         }
 
+        public IActionResult List()
+        {
+            var model = Database.OrderedTagGroups;
+            return View(model);
+        }
+
         // GET: Tag/Details/5
         public IActionResult Details(string id)
         {
@@ -70,7 +76,7 @@ namespace m4d.Controllers
 
                 Database.UpdateAzureIndex(null);
 
-                return RedirectToAction("Index");
+                return RedirectToAction("List");
             }
 
             SetupPrimary();
@@ -124,7 +130,7 @@ namespace m4d.Controllers
             }
 
             return Database.UpdateTag(oldTag, newKey, tagGroup.PrimaryId) ?
-                RedirectToAction("Index") as ActionResult :            
+                RedirectToAction("List") as ActionResult :            
                 View(tagGroup);
         }
 
@@ -154,7 +160,7 @@ namespace m4d.Controllers
 
             DanceMusicService.BlowTagCache();
 
-            return RedirectToAction("Index");
+            return RedirectToAction("List");
         }
 
         private HttpStatusCode GetTag(string id, out TagGroup tag)
@@ -165,8 +171,8 @@ namespace m4d.Controllers
             {
                 return HttpStatusCode.BadRequest;
             }
-            var tagGroup = Database.TagGroups.Find(TagGroup.TagDecode(id));
-            if (tagGroup == null)
+            tag = Database.TagGroups.Find(TagGroup.TagDecode(id));
+            if (tag == null)
             {
                 return HttpStatusCode.NotFound;
             }
