@@ -163,6 +163,23 @@ namespace m4d
             app.UseAuthentication();
             app.UseAuthorization();
 
+            app.Use(async (context, next) =>
+            {
+                var url = context.Request.Path.Value;
+                string blog = "/blog";
+                if (url != null)
+                {
+                    var idx = url.IndexOf(blog);
+                    if (idx != -1)
+                    {
+                        var path = url.Substring(idx + blog.Length);
+                        context.Response.Redirect($"https://music4dance.blog{path}");
+                        return;
+                    }
+                }
+
+                await next();
+            });
 
             app.UseEndpoints(endpoints =>
             {
