@@ -23,6 +23,33 @@ namespace m4d.ViewModels
                 new BreadCrumbItem { Title = title, Active = true}
             };
         }
+
+        public static BreadCrumbItem AdminItem =>
+            new BreadCrumbItem { Title = "Administration", Link = "/admin" };
+
+        public static List<BreadCrumbItem> BuildAdminTrail(string title)
+        {
+            return new List<BreadCrumbItem>
+            {
+                HomeItem,
+                AdminItem,
+                new BreadCrumbItem { Title = title, Active = true}
+            };
+        }
+
+        public static BreadCrumbItem ContributeItem =>
+            new BreadCrumbItem {Title = "Contribute", Link = "/Home/Contribute"};
+
+        public static List<BreadCrumbItem> BuildContributeTrail(string title)
+        {
+            return new List<BreadCrumbItem>
+            {
+                HomeItem,
+                InfoItem,
+                ContributeItem,
+                new BreadCrumbItem { Title = title, Active = true}
+            };
+        }
     }
 }
 

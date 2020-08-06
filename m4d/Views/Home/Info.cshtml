@@ -1,14 +1,13 @@
-﻿@{
+﻿@using m4d.ViewModels
+@{
     ViewBag.Title = "Info";
     Layout = "/Views/Shared/_bs4-Layout.cshtml";
+    ViewBag.BreadCrumbs = new List<BreadCrumbItem>
+    {
+        BreadCrumbItem.HomeItem,
+        new BreadCrumbItem {Title = ViewBag.Title, Active = true}
+    };
 }
-
-<nav aria-label="breadcrumb">
-    <ol class="breadcrumb">
-        <li class="breadcrumb-item">@Html.ActionLink("music4dance", "Index", "Home")</li>
-        <li class="breadcrumb-item active" aria-current="page">Info</li>
-    </ol>
-</nav>
 
 <h1>@ViewBag.Title</h1>
 

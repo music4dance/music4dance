@@ -1,10 +1,18 @@
-﻿@model m4d.ViewModels.PurchaseModel
+﻿@using m4d.ViewModels
+@model m4d.ViewModels.PurchaseModel
 
 @{
+    Layout = "/Views/Shared/_bs4-Layout.cshtml";
     ViewBag.Title = "Thank You!";
+    ViewBag.BreadCrumbs = new List<BreadCrumbItem>
+    {
+        BreadCrumbItem.HomeItem,
+        new BreadCrumbItem { Title = "Contribute", Link = "/Home/Contribute" },
+        new BreadCrumbItem { Title = ViewBag.Title, Active = true }
+    };
 }
 
-<h1>Thank You!</h1>
+<h1>@ViewBag.Title</h1>
 
 @if (Model.Kind == m4d.ViewModels.PurchaseKind.Purchase)
 {

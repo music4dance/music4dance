@@ -1,11 +1,15 @@
-﻿@{
-    ViewBag.Title = "Index";
+﻿@using m4d.ViewModels
+@{
+    Layout = "/Views/Shared/_bs4-Layout.cshtml";
+    ViewBag.Title = "Administration";
+    ViewBag.BreadCrumbs = new List<BreadCrumbItem>
+    {
+        BreadCrumbItem.HomeItem,
+        new BreadCrumbItem { Title = ViewBag.Title, Active = true }
+    };
 }
 
-<ol class="breadcrumb">
-    <li><a href="/">Music4Dance</a></li>
-    <li class="active">Admin Index</li>
-</ol>
+<h1>@ViewBag.Title</h1>
 
 <div>
     <h3>@Html.ActionLink("Users", "Index", "ApplicationUsers")</h3>

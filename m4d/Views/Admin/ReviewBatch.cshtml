@@ -1,13 +1,17 @@
-﻿@model IEnumerable<m4dModels.LocalMerger>
+﻿@using m4d.ViewModels
+@model IEnumerable<m4dModels.LocalMerger>
 
 @{
+    Layout = "/Views/Shared/_bs4-Layout.cshtml";
     ViewBag.Title = ViewBag.Name;
+    ViewBag.BreadCrumbs = BreadCrumbItem.BuildAdminTrail(ViewBag.Title);
+
     var matches = 0;
     var conflicts = 0;
 }
 
 
-<h2>@ViewBag.Title</h2>
+<h1>@ViewBag.Title</h1>
 
 @if (ViewData.ContainsKey("UserName"))
 {

@@ -1,16 +1,10 @@
-﻿
+﻿@using m4d.ViewModels
+
 @{
     Layout = "/Views/Shared/_bs4-Layout.cshtml";
     ViewBag.Title = "Terms of Service";
+    ViewBag.BreadCrumbs = BreadCrumbItem.BuildInfoTrail(ViewBag.Title);
 }
-
-<nav aria-label="breadcrumb">
-    <ol class="breadcrumb">
-        <li class="breadcrumb-item">@Html.ActionLink("music4dance", "Index", "Home")</li>
-        <li class="breadcrumb-item">@Html.ActionLink("Info", "Info", "Home")</li>
-        <li class="breadcrumb-item active" aria-current="page">@ViewBag.Title</li>
-    </ol>
-</nav>
 
 <h1>
     Web Site Terms and Conditions of Use

@@ -1,8 +1,11 @@
-﻿@using m4dModels
+﻿@using m4d.ViewModels
+@using m4dModels
 
 @{
+    Layout = "/Views/Shared/_bs4-Layout.cshtml";
     ViewBag.Title = "Error";
     Exception exception = ViewBag.Exception;
+    ViewBag.BreadCrumbs = BreadCrumbItem.BuildInfoTrail(ViewBag.Title);
 }
 
 <h2 class="text-danger">Error:</h2>

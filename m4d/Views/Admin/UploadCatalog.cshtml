@@ -1,6 +1,8 @@
-﻿
+﻿@using m4d.ViewModels
 @{
-    ViewBag.Title = "UploadCatalog";
+    Layout = "/Views/Shared/_bs4-Layout.cshtml";
+    ViewBag.Title = "Upload Catalog";
+    ViewBag.BreadCrumbs = BreadCrumbItem.BuildAdminTrail(ViewBag.Title);
 }
 
 <h2>Upload Catalog</h2>

@@ -1,16 +1,14 @@
 ﻿@using System.Globalization
 @using m4d.Utilities
+@using m4d.ViewModels
 @using m4dModels
 @inject ISearchServiceManager SearchService;
 
 @{
+    Layout = "/Views/Shared/_bs4-Layout.cshtml";
     ViewBag.Title = "Logging";
+    ViewBag.BreadCrumbs = BreadCrumbItem.BuildAdminTrail(ViewBag.Title);
 }
-<ol class="breadcrumb">
-    <li><a href="/">Music4Dance</a></li>
-    <li><a href="/admin">Admin Index</a></li>
-    <li class="active">Logging</li>
-</ol>
 
 <p>Start Time = <b>@SpiderManager.StartTime.ToString(CultureInfo.CurrentCulture)</b></p>
 <p>Up Time = <b>@SpiderManager.UpTime.ToString()</b></p>

@@ -1,15 +1,12 @@
-﻿@using m4dModels
+﻿@using m4d.ViewModels
+@using m4dModels
 @inject ISearchServiceManager SearchService;
 
 @{
+    Layout = "/Views/Shared/_bs4-Layout.cshtml";
     ViewBag.Title = "UploadBackup";
+    ViewBag.BreadCrumbs = BreadCrumbItem.BuildAdminTrail(ViewBag.Title);
 }
-
-<ol class="breadcrumb">
-    <li><a href="/">Music4Dance</a></li>
-    <li><a href="/admin">Admin Index</a></li>
-    <li class="active">Uploads and Backups</li>
-</ol>
 
 @if (User.IsInRole("dbAdmin"))
 {

@@ -1,10 +1,13 @@
-﻿@model m4dModels.AdminStatus
+﻿@using m4d.ViewModels
+@model m4dModels.AdminStatus
 
 @{
+    Layout = "/Views/Shared/_bs4-Layout.cshtml";
     ViewBag.Title = "Long Running Task Status";
+    ViewBag.BreadCrumbs = BreadCrumbItem.BuildAdminTrail(ViewBag.Title);
 }
 
-<h2>Long Running Task Status: @(Model.IsRunning ? "Running" : (Model.Succeeded ? "Succeeded" : "Failed"))</h2>
+<h1>@ViewBag.Title: @(Model.IsRunning ? "Running" : (Model.Succeeded ? "Succeeded" : "Failed"))</h1>
 
 <p>@Html.Raw(Model.Status)</p>
 

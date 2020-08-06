@@ -1,11 +1,9 @@
-﻿@{
+﻿@using m4d.ViewModels
+@{
+    Layout = "/Views/Shared/_bs4-Layout.cshtml";
     ViewBag.Title = "Tags";
+    ViewBag.BreadCrumbs = BreadCrumbItem.BuildAdminTrail(ViewBag.Title);
 }
-<ol class="breadcrumb">
-    <li><a href="/">Music4Dance</a></li>
-    <li><a href="/admin">Admin Index</a></li>
-    <li class="active">Tags</li>
-</ol>
 
 <h3>Tags</h3>
 <ul>
