@@ -1,10 +1,13 @@
-﻿@model m4dModels.ApplicationUser
+﻿@using m4d.ViewModels
+@model m4dModels.ApplicationUser
 
 @{
-    ViewBag.Title = "Edit";
+    Layout = "/Views/Shared/_bs4-Layout.cshtml";
+    ViewBag.Title = $"Edit: {Model.UserName}";
+    ViewBag.BreadCrumbs = BreadCrumbItem.BuildUsersTrail(ViewBag.Title);
 }
 
-<h2>Edit</h2>
+<h2>@ViewBag.Title</h2>
 
 
 @using (Html.BeginForm())
@@ -12,7 +15,6 @@
     @Html.AntiForgeryToken()
     
 <div class="form-horizontal">
-    <h4>ApplicationUser</h4>
     <hr />
     @Html.ValidationSummary(true, "", new { @class = "text-danger" })
     @Html.HiddenFor(model => model.Id)

@@ -195,25 +195,6 @@ namespace m4d.Controllers
             return View("Details", user);
         }
 
-        // GET: ApplicationUsers/Details/5
-        public ActionResult AutoLike(string id)
-        {
-            // DBKill: Do we need this?
-            return RestoreBatch();
-            //if (id == null)
-            //{
-            //    return StatusCode((int)HttpStatusCode.BadRequest);
-            //}
-
-            //var user = UserManager.FindById(id);
-
-            //ViewBag.Title = "AutoLike";
-            //var count = Database.BatchUserLike(user, true);
-            //ViewBag.Message = $"{count} songs liked.";
-
-            //return View("Info");
-        }
-
         // GET: ApplicationUsers/Delete/5
         public async Task<ActionResult> Delete(string id)
         {
@@ -242,7 +223,11 @@ namespace m4d.Controllers
             var records = Database.GetVotingRecords().OrderByDescending(r => r.Total).ToList();
             foreach (var record in records)
             {
-                record.User = (await GetUserDictionary(Database.UserManager)).GetValueOrDefault(record.UserId).User;
+                var user = (await GetUserDictionary(Database.UserManager)).GetValueOrDefault(record.UserId);
+                if (user != null)
+                {
+                    record.User = user.User;
+                }
             }
 
             return View(records);

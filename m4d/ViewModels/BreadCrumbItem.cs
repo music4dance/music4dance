@@ -50,6 +50,21 @@ namespace m4d.ViewModels
                 new BreadCrumbItem { Title = title, Active = true}
             };
         }
+
+        public static BreadCrumbItem UsersItem =>
+            new BreadCrumbItem { Title = "Users", Link = "/ApplicationUsers" };
+
+        public static List<BreadCrumbItem> BuildUsersTrail(string title)
+        {
+            return new List<BreadCrumbItem>
+            {
+                HomeItem,
+                AdminItem,
+                UsersItem,
+                new BreadCrumbItem { Title = title, Active = true}
+            };
+        }
+
     }
 }
 

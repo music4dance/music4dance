@@ -1,7 +1,10 @@
-﻿@model IReadOnlyList<m4dModels.VotingRecord>
+﻿@using m4d.ViewModels
+@model IReadOnlyList<m4dModels.VotingRecord>
 
 @{
+    Layout = "/Views/Shared/_bs4-Layout.cshtml";
     ViewBag.Title = "UsageIndex";
+    ViewBag.BreadCrumbs = BreadCrumbItem.BuildUsersTrail(ViewBag.Title);
 }
 
 <h2>Song Voting Records</h2>
