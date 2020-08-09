@@ -1,10 +1,13 @@
-﻿@model m4dModels.ApplicationUser
+﻿@using m4d.ViewModels
+@model m4dModels.ApplicationUser
 
 @{
-    ViewBag.Title = "Create";
+    Layout = "/Views/Shared/_bs4-Layout.cshtml";
+    ViewBag.Title = "New PseudoUser";
+    ViewBag.BreadCrumbs = BreadCrumbItem.BuildUsersTrail(ViewBag.Title);
 }
 
-<h2>Create</h2>
+<h2>@ViewBag.Title</h2>
 
 
 @using (Html.BeginForm()) 
@@ -12,7 +15,6 @@
     @Html.AntiForgeryToken()
     
     <div class="form-horizontal">
-        <h4>ApplicationUser</h4>
         <hr />
 
         <div class="form-group">
@@ -33,7 +35,7 @@
 
         <div class="form-group">
             <div class="col-md-offset-2 col-md-10">
-                <input type="submit" value="Create" class="btn btn-default" />
+                <input type="submit" value="Create" class="btn btn-primary" />
             </div>
         </div>
     </div>

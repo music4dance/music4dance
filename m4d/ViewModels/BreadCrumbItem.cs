@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 
 namespace m4d.ViewModels
 {
@@ -16,12 +17,7 @@ namespace m4d.ViewModels
 
         public static List<BreadCrumbItem> BuildInfoTrail(string title)
         {
-            return new List<BreadCrumbItem>
-            {
-                HomeItem,
-                InfoItem,
-                new BreadCrumbItem { Title = title, Active = true}
-            };
+            return BuildTrail(title, HomeItem, InfoItem);
         }
 
         public static BreadCrumbItem AdminItem =>
@@ -29,12 +25,7 @@ namespace m4d.ViewModels
 
         public static List<BreadCrumbItem> BuildAdminTrail(string title)
         {
-            return new List<BreadCrumbItem>
-            {
-                HomeItem,
-                AdminItem,
-                new BreadCrumbItem { Title = title, Active = true}
-            };
+            return BuildTrail(title, HomeItem, AdminItem);
         }
 
         public static BreadCrumbItem ContributeItem =>
@@ -42,13 +33,7 @@ namespace m4d.ViewModels
 
         public static List<BreadCrumbItem> BuildContributeTrail(string title)
         {
-            return new List<BreadCrumbItem>
-            {
-                HomeItem,
-                InfoItem,
-                ContributeItem,
-                new BreadCrumbItem { Title = title, Active = true}
-            };
+            return BuildTrail(title, HomeItem, InfoItem, ContributeItem);
         }
 
         public static BreadCrumbItem UsersItem =>
@@ -56,15 +41,21 @@ namespace m4d.ViewModels
 
         public static List<BreadCrumbItem> BuildUsersTrail(string title)
         {
-            return new List<BreadCrumbItem>
-            {
-                HomeItem,
-                AdminItem,
-                UsersItem,
-                new BreadCrumbItem { Title = title, Active = true}
-            };
+            return BuildTrail(title, HomeItem, AdminItem, UsersItem);
         }
 
+        public static BreadCrumbItem PlaylistItem =>
+            new BreadCrumbItem { Title = "Users", Link = "/Playlist" };
+
+        public static List<BreadCrumbItem> BuildPlaylistTrail(string title)
+        {
+            return BuildTrail(title, HomeItem, AdminItem, PlaylistItem);
+        }
+
+        private static List<BreadCrumbItem> BuildTrail(string title, params BreadCrumbItem[] items)
+        {
+            return items.Append(new BreadCrumbItem { Title = title, Active = true}).ToList();
+        }
     }
 }
 

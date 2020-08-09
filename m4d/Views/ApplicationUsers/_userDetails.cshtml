@@ -1,0 +1,187 @@
+﻿@using m4dModels
+@using Microsoft.AspNetCore.Identity
+@model m4dModels.ApplicationUser
+@inject UserManager<ApplicationUser> UserManager;
+
+<div class="row">
+    <div class="col-sm-3">
+        @Html.DisplayNameFor(model => model.UserName)
+    </div>
+    <div class="col-sm-9">
+        @Html.DisplayFor(model => model.UserName)
+    </div>
+</div>
+<div class="row">
+    <div class="col-sm-3">
+        @Html.DisplayNameFor(model => model.Id)
+    </div>
+    <div class="col-sm-9">
+        @Html.DisplayFor(model => model.Id)
+    </div>
+</div>
+<div class="row">
+    <div class="col-sm-3">
+        Role(s)
+    </div>
+    <div class="col-sm-9">
+        @string.Join(',', await UserManager.GetRolesAsync(Model))
+    </div>
+</div>
+<div class="row">
+    <div class="col-sm-3">
+        Login(s)
+    </div>
+    <div class="col-sm-9">
+        @string.Join(',', await UserManager.GetLoginsAsync(Model))
+    </div>
+</div>
+<div class="row">
+    <div class="col-sm-3">
+        @Html.DisplayNameFor(model => model.Email)
+    </div>
+    <div class="col-sm-9">
+        @Html.DisplayFor(model => model.Email)
+    </div>
+</div>
+<div class="row">
+    <div class="col-sm-3">
+        @Html.DisplayNameFor(model => model.EmailConfirmed)
+    </div>
+    <div class="col-sm-9">
+        @Html.DisplayFor(model => model.EmailConfirmed)
+    </div>
+</div>
+<div class="row">
+    <div class="col-sm-3">
+        @Html.DisplayNameFor(model => model.PasswordHash)
+    </div>
+    <div class="col-sm-9">
+        @Html.DisplayFor(model => model.PasswordHash)
+    </div>
+</div>
+<div class="row">
+    <div class="col-sm-3">
+        @Html.DisplayNameFor(model => model.SecurityStamp)
+    </div>
+    <div class="col-sm-9">
+        @Html.DisplayFor(model => model.SecurityStamp)
+    </div>
+</div>
+<div class="row">
+    <div class="col-sm-3">
+    </div>
+    <div class="col-sm-9">
+    </div>
+</div>
+<div class="row">
+    <div class="col-sm-3">
+        @Html.DisplayNameFor(model => model.StartDate)
+    </div>
+    <div class="col-sm-9">
+        @Html.DisplayFor(model => model.StartDate)
+    </div>
+</div>
+<div class="row">
+    <div class="col-sm-3">
+        @Html.DisplayNameFor(model => model.Region)
+    </div>
+    <div class="col-sm-9">
+        @Html.DisplayFor(model => model.RegionName)
+    </div>
+</div>
+<div class="row">
+    <div class="col-sm-3">
+        @Html.DisplayNameFor(model => model.Privacy)
+    </div>
+    <div class="col-sm-9">
+        @Html.DisplayFor(model => model.PrivacyDescription)
+    </div>
+</div>
+<div class="row">
+    <div class="col-sm-3">
+        @Html.DisplayNameFor(model => model.CanContact)
+    </div>
+    <div class="col-sm-9">
+        @Html.DisplayFor(model => model.ContactDescription)
+    </div>
+</div>
+<div class="row">
+    <div class="col-sm-3">
+        @Html.DisplayNameFor(model => model.ServicePreference)
+    </div>
+    <div class="col-sm-9">
+        @Html.DisplayFor(model => model.ServicePreferenceDescription)
+    </div>
+</div>
+<div class="row">
+    <div class="col-sm-3">
+        @Html.DisplayNameFor(model => model.SubscriptionLevel)
+    </div>
+    <div class="col-sm-9">
+        @Html.DisplayFor(model => model.SubscriptionLevel)
+    </div>
+</div>
+<div class="row">
+    <div class="col-sm-3">
+        @Html.DisplayNameFor(model => model.SubscriptionStart)
+    </div>
+    <div class="col-sm-9">
+        @Html.DisplayFor(model => model.SubscriptionStart)
+    </div>
+</div>
+<div class="row">
+    <div class="col-sm-3">
+        @Html.DisplayNameFor(model => model.SubscriptionEnd)
+    </div>
+    <div class="col-sm-9">
+        @Html.DisplayFor(model => model.SubscriptionEnd)
+    </div>
+</div>
+<div class="row">
+    <div class="col-sm-3">
+        @Html.DisplayNameFor(model => model.PhoneNumber)
+    </div>
+    <div class="col-sm-9">
+        @Html.DisplayFor(model => model.PhoneNumber)
+    </div>
+</div>
+<div class="row">
+    <div class="col-sm-3">
+        @Html.DisplayNameFor(model => model.PhoneNumberConfirmed)
+    </div>
+    <div class="col-sm-9">
+        @Html.DisplayFor(model => model.PhoneNumberConfirmed)
+    </div>
+</div>
+<div class="row">
+    <div class="col-sm-3">
+        @Html.DisplayNameFor(model => model.TwoFactorEnabled)
+    </div>
+    <div class="col-sm-9">
+        @Html.DisplayFor(model => model.TwoFactorEnabled)
+    </div>
+</div>
+<div class="row">
+    <div class="col-sm-3">
+        @Html.DisplayNameFor(model => model.LockoutEnd)
+    </div>
+    <div class="col-sm-9">
+        @Html.DisplayFor(model => model.LockoutEnd)
+    </div>
+</div>
+<div class="row">
+    <div class="col-sm-3">
+        @Html.DisplayNameFor(model => model.LockoutEnabled)
+    </div>
+    <div class="col-sm-9">
+        @Html.DisplayFor(model => model.LockoutEnabled)
+    </div>
+</div>
+<div class="row">
+    <div class="col-sm-3">
+        @Html.DisplayNameFor(model => model.AccessFailedCount)
+    </div>
+    <div class="col-sm-9">
+        @Html.DisplayFor(model => model.AccessFailedCount)
+    </div>
+</div>

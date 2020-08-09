@@ -1,10 +1,15 @@
-﻿@model m4dModels.PlayList
+﻿@using m4d.ViewModels
+@using m4dModels
+@model m4dModels.PlayList
 
 @{
-    ViewBag.Title = "Create";
+    Layout = "/Views/Shared/_bs4-Layout.cshtml";
+    ViewBag.Title = "New Playlist";
+    ViewBag.BreadCrumbs = BreadCrumbItem.BuildUsersTrail(ViewBag.Title);
 }
 
-<h2>Create</h2>
+<h1>@ViewBag.Title</h1>
+<hr />
 
 
 @using (Html.BeginForm()) 
@@ -12,8 +17,6 @@
     @Html.AntiForgeryToken()
     
 <div class="form-horizontal">
-    <h4>PlayList</h4>
-    <hr />
     @Html.ValidationSummary(true, "", new { @class = "text-danger" })
     <div class="form-group">
         @Html.LabelFor(model => model.Id, htmlAttributes: new { @class = "control-label col-md-2" })
@@ -34,7 +37,7 @@
     <div class="form-group">
         @Html.LabelFor(model => model.Type, htmlAttributes: new { @class = "control-label col-md-2" })
         <div class="col-md-10">
-            @Html.DropDownListFor(model => model.Type, Html.GetEnumSelectList(Model.GetType()), htmlAttributes: new { @class = "form-control" })
+            @Html.DropDownListFor(model => model.Type, Html.GetEnumSelectList(typeof(PlayListType)), htmlAttributes: new { @class = "form-control" })
             @Html.ValidationMessageFor(model => model.Type, "", new { @class = "text-danger" })
         </div>
     </div>
