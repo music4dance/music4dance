@@ -22,6 +22,7 @@ steps:
 
 - script: dotnet build --configuration $(buildConfiguration)
   displayName: 'dotnet build $(buildConfiguration)'
+
 - task: VSTest@2
   inputs:
     testSelector: 'testAssemblies'
@@ -30,3 +31,17 @@ steps:
       !**\*TestAdapter.dll
       !**\obj\**
     searchFolder: '$(System.DefaultWorkingDirectory)'
+
+- script: yarn install
+  displayName: 'Install Yarn'
+  workingDirectory: m4d/Client/
+
+- script: yarn run test:unit --reporters jest-junit
+  displayName: 'Run unit tests'
+  workingDirectory: m4d/Client/
+
+- task: PublishTestResults@2
+  condition: succeededOrFailed()
+  inputs:
+    testRunner: JUnit
+    testResultsFiles: '**/junit.xml'
