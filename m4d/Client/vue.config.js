@@ -23,6 +23,10 @@ module.exports = {
         entry: "src/faq/main.ts",
         filename: "faq.html"
       },
+      "home": {
+        entry: "src/home/main.ts",
+        filename: "home.html"
+      },
       "tag-index": {
         entry: "src/tag-index/main.ts",
         filename: "tag-index.html"

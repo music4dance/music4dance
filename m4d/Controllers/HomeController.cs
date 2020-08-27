@@ -29,7 +29,7 @@ namespace m4d.Controllers
         [AllowAnonymous]
         public IActionResult Index([FromServices] IFileProvider fileProvider)
         {
-            return View(SiteMapInfo.GetCategories(fileProvider));
+            return View(new HomeModel(SiteMapInfo.GetCategories(fileProvider)));
         }
 
         [AllowAnonymous]

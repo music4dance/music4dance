@@ -2,7 +2,7 @@
   <b-card
     no-body
     border-variant="primary"
-    style="margin-bottom:1rem min-width:15rem"
+    style="margin-bottom:1rem;min-width:15rem"
   >
     <b-card-header header-bg-variant="primary" header-text-variant="white">
       <dance-item :dance="group" variant="secondary" text-style="color:white"></dance-item>

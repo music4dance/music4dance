@@ -1,10 +1,10 @@
 <template>
     <b-button
         v-if="link"
-        variant="primary"
+        :variant="safeVariant"
         size="sm"
         style="margin-left: 1em"
-        :href="link">
+        :href="reference">
         <b-icon :icon="icon"></b-icon>&nbsp;{{title}}
     </b-button>
 </template>
@@ -18,24 +18,46 @@ export default class FeatureButton extends Vue {
     @Prop() private readonly title!: string;
     @Prop() private readonly type!: string;
     @Prop() private readonly link!: string;
-
+    @Prop() private readonly variant?: string;
 
     private get icon(): string {
-        let icon = '';
         switch (this.type) {
             case 'play':
-                icon = 'play';
-                break;
+                return 'play';
             case 'docs':
-                icon = 'file-text';
+                return 'file-text';
                 break;
             case 'blog':
-                icon = 'pencil-square';
+                return 'pencil-square';
             default:
-                throw new Error(`${this.type} is not a valid type for Feature Button`);
+                throw new Error(this.typeError);
+        }
+    }
+
+    private get reference(): string {
+        if (this.link.startsWith('https')) {
+            return this.link;
         }
 
-        return icon;
+        switch (this.type) {
+            case 'play':
+                return `https://www.music4dance.net${this.link}`;
+            case 'docs':
+                return `https://music4dance.blog/music4dance-help${this.link}`;
+            case 'blog':
+                return `https://music4dance.blog${this.link}`;
+                break;
+            default:
+                throw new Error(this.typeError);
+        }
+    }
+
+    private get safeVariant(): string {
+        return this.variant ? this.variant.toLowerCase() : 'primary';
+    }
+
+    private get typeError(): string {
+        return `${this.type} is not a valid type for Feature Button`;
     }
  }
 </script>

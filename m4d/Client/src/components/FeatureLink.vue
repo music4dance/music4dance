@@ -1,38 +1,27 @@
 <template>
     <div>
-        <dt><img :src="icon" :alt="type" width="24" height="24">{{title}}</dt>
-        <dd style="margin-left: 1em">            
-            <b-button
-                v-if="tryIt"
-                variant="primary"
-                size="sm"
-                style="margin-left: 1em"
-                :href="tryIt">
-                <b-icon icon="play"></b-icon>&nbsp;Try It!
-            </b-button>
-            <b-button
-                v-if="docs"
-                variant="primary"
-                size="sm"
-                style="margin-left: 1em"
-                :href="docs">
-                <b-icon icon="file-text"></b-icon>&nbsp;Documentation
-            </b-button>
-            <b-button
-                v-if="posts"
-                variant="primary"
-                size="sm"
-                style="margin-left: 1em"
-                :href="docs">
-                <b-icon icon="pencil-square"></b-icon>&nbsp;Blog Posts
-            </b-button>
-        </dd>
+        <div><img :src="icon" :alt="this.info.type" width="24" height="24"> {{info.title}}</div>
+        <div style="margin-left: 1em">
+            <feature-button
+                title="Try It!" type="play" :variant="info.type" :link="info.tryIt"
+                style="margin-bottom: .25em"
+            ></feature-button>
+            <feature-button
+                title="Documentation" type="docs" :variant="info.type" :link="info.docs"
+                style="margin-bottom: .25em"
+             ></feature-button>
+            <feature-button
+                title="Blog Posts" type="blog" :variant="info.type" :link="info.posts"
+                style="margin-bottom: .25em"
+            ></feature-button>
+        </div>
     </div>
 </template>
 
 <script lang="ts">
 import 'reflect-metadata';
 import { Component, Prop, Vue } from 'vue-property-decorator';
+import { FeatureInfo } from '../model/FeatureInfo';
 import FeatureButton from './FeatureButton.vue';
 
 @Component({
@@ -41,14 +30,10 @@ import FeatureButton from './FeatureButton.vue';
     },
 })
 export default class FeatureLink extends Vue {
-    @Prop() private readonly title!: string;
-    @Prop() private readonly type!: string;
-    @Prop() private readonly tryIt!: string;
-    @Prop() private readonly docs!: string;
-    @Prop() private readonly posts!: string;
+    @Prop() private readonly info!: FeatureInfo;
 
     private get icon(): string {
-        return `/images/icons/${this.type}.png`;
+        return `/images/icons/${this.info.type}.png`;
     }
  }
 </script>

@@ -57,9 +57,6 @@ constructor() {
     super();
 
     this.groups = TypedJSON.parseAsArray(model, DanceStats);
-
-    // tslint:disable-next-line:no-console
-    console.log(this.groups.length);
   }
 
   private get orderedGroups(): DanceStats[] {

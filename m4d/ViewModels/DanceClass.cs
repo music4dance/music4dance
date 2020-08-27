@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using DanceLibrary;
+using Newtonsoft.Json;
 
 namespace m4d.ViewModels
 {
@@ -15,7 +16,11 @@ namespace m4d.ViewModels
         public virtual string Title { get; }
 
         public virtual string Controller => "dances";
+
+        [JsonIgnore]
         public virtual dynamic Parameters => null;
+
+        public string QueryString => Parameters == null ? null : $"filter={Parameters}";
     }
     public class DanceClass
     {

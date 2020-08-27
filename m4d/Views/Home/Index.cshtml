@@ -1,217 +1,26 @@
-﻿@using System.Linq
-@using m4d.ViewModels;
-@using Microsoft.AspNetCore.Html
-@using Microsoft.AspNetCore.Mvc.Rendering;
-
-@model System.Collections.Generic.IEnumerable<SiteMapCategory>
+﻿@using m4d.ViewModels
+@model HomeModel
 
 @{
-    var blogEntries = Model.First(c => c.Name == "Info").Entries.First(e => e.Title == "Blog").Children.ToList();
-
-    var headEntries = new List<SiteMapEntry> { blogEntries[blogEntries.Count - 1] };
-    var rnd = new Random();
-    while (headEntries.Count < 3)
-    {
-        var r = rnd.Next(0, blogEntries.Count - 1);
-        var t = blogEntries[r];
-        if (!t.OneTime && headEntries.All(e => e.Reference != t.Reference))
-        {
-            headEntries.Add(t);
-        }
-    }
+    Layout = "/Views/Shared/_bsv-Layout.cshtml";
 
     ViewBag.Title = "Home Page";
     ViewBag.Canonical = "https://www.music4dance.net";
-    ViewBag.Description = "music4dance.net is an online music catalog, tool and educational resource to help Ballroom, Salsa, Swing, Tango and other dancers find fun and exiting music.";
+    ViewBag.Description = "music4dance.net is an online music catalog, tool and educational resource to help Ballroom, Salsa, Swing, Tango and other dancers find fun and exciting music.";
 
-    var dances = new[]
-    {
-        new DanceClass{Title="Ballroom",Image="ballroom",TopDance="ballroom-competition-categories",
-            Dances=new List<DanceMapping>
-            {
-                new DanceMapping("International Standard"),new DanceMapping("International Latin"),new DanceMapping("American Smooth"),new DanceMapping("American Rhythm")
-
-            }},
-        new DanceClass{Title="Swing",Image="swing",TopDance="swing",
-            Dances=new List<DanceMapping>
-            {new DanceMapping("Lindy Hop"),new DanceMapping("East Coast Swing"),new DanceMapping("West Coast Swing"),new DanceMapping("Hustle"),
-                new DanceMapping("Jive"),new DanceMapping("Jump Swing"), new DanceMapping("Carolina Shag"), new DanceMapping("Collegiate Shag"),
-            }},
-        new DanceClass{Title="Latin",Image="salsa",TopDance="latin",
-            Dances=new List<DanceMapping>
-            {
-                new DanceMapping("Salsa"),new DanceMapping("Bachata"),new DanceMapping("Cumbia"),new DanceMapping("Merengue"),
-                new DanceMapping("Mambo"),new DanceMapping("Cha Cha"),new DanceMapping("Rumba"),
-                new DanceMapping("Samba"),new DanceMapping("Bossa Nova")
-            }},
-        new DanceClass{Title="Tango",Image="tango",TopDance="tango",
-            Dances=new List<DanceMapping>
-{
-                new DanceMapping("Argentine Tango"),new DanceMapping("Neo Tango"),new DanceMapping("Milonga"),new DanceMapping("Ballroom Tango","tango-(ballroom)"),
-            }},
-        new WeddingDanceClass{Title="Wedding",Image="wedding",TopDance="wedding-music",
-            Dances=new List<DanceMapping>
-{
-                new WeddingDanceMapping("First Dance"),new WeddingDanceMapping("Mother Son"),new WeddingDanceMapping("Father Daughter"),new WeddingDanceMapping("Last Dance"),
-            }},
-    };
-
-Func<string, IHtmlContent> tryItLink = @<a class="label label-music" href="@item"><span class="glyphicon glyphicon-play-circle"></span> Try It!</a>;
-Func<string, IHtmlContent> docsLink = @<a class="label label-style" href="@item"><span class="glyphicon glyphicon-file"></span> Documentation</a>;
-Func<string, IHtmlContent> postsLink = @<a class="label label-other" href="@item"><span class="glyphicon glyphicon-pencil"></span> Blog Posts</a>;
+    var converterModel = new ObjectConverterModel { Name = "model", Model = Model };
 }
 
-<div id="danceCarousel" class="carousel slide row col-md-12" data-ride="carousel" style="padding-top: 10px; padding-bottom: 10px">
-    <!-- Carousel indicators -->
-    <ol id="danceCarouselIndicators" class="carousel-indicators">
-        @for (var i = 0; i < dances.Length + 1; i++)
-        {
-            <li data-target="#danceCarousel" data-slide-to="@i" class='@(i==0?"active":"")'></li>
-        }
-    </ol>
-    <!-- Carousel items -->
-    <div class="carousel-inner" role="listbox">
-        @for (var i = 0; i < dances.Length; i++)
-        {
-            var dance = dances[i];
-            var mainLink = dance.TopDance ?? "index";
-            <div class="item @(i == 0 ? "active" : string.Empty) @(dance.Image + "-image") row">
-                <div class="col-md-4 col-md-offset-2 col-xs-8 col-xs-offset-2">
-                    <div class="dance-title">@Html.ActionLink(dance.FullTitle, mainLink, "dances")</div>
-                    <ul class="dance-list">
-                        @foreach (var dm in dance.Dances)
-                        {
-                            <li><span class="glyphicon glyphicon-music" aria-hidden="true"></span> @Html.ActionLink(@dm.Title, @dm.Name, @dm.Controller, (object)@dm.Parameters, null)</li>
-                        }
-                    </ul>
-                </div>
-                <div class="col-md-4 hidden-xs hidden-sm hidden-md">
-                    <img src="~/images/shadows/@(dance.Image).png" alt=@dance.Title width="600" height="600" />
-                </div>
-                <div class="col-md-4 hidden-xs hidden-sm hidden-lg">
-                    <img src="~/images/shadows/@(dance.Image).png" alt=@dance.Title width="400" height="400" />
-                </div>
-            </div>
-        }
-        <div class="item fun-image row">
-            <div class="col-md-4 col-md-offset-2 col-xs-8 col-xs-offset-2">
-                <div class="dance-title"><a href="https://music4dance.blog/">Fun with Music for All Kinds of Dancers</a></div>
-                <ul class="dance-list">
-                    @foreach (var entry in headEntries)
-                    {
-                        <li><span class="glyphicon glyphicon-music" aria-hidden="true"></span><a href="@entry.FullPath">@entry.Title</a></li>
-                    }
-                    @if (rnd.Next(0, 2) == 1)
-                    {
-                        <li><span class="glyphicon glyphicon-music" aria-hidden="true"></span><a href="https://www.music4dance.net/home/counter">Check out our Tempo Counter Tool</a></li>
-                    }
-                    else
-                    {
-                        <li><span class="glyphicon glyphicon-music" aria-hidden="true"></span><a href="https://www.music4dance.net/home/tempi">Check out our Tempo Matrix Tool</a></li>
-                    }
-                </ul>
-                <iframe src="https://open.spotify.com/follow/1/?uri=spotify:user:ebo1rk39vp51kkyjps45eobph&size=basic&theme=light" width="200" height="25" scrolling="no" frameborder="0" style="border:none; overflow:hidden;" allowtransparency="true"></iframe>
-            </div>
-            <div class="col-md-4 hidden-xs hidden-sm hidden-md">
-                <img src="~/images/shadows/fun.png" alt="Fun Dancing" width="600" height="600" />
-            </div>
-            <div class="col-md-4 hidden-xs hidden-sm hidden-lg">
-                <img src="~/images/shadows/fun.png" alt="Fun Dancing" width="400" height="400" />
-            </div>
-        </div>
+<div id="fb-root"></div>
+<script async defer crossorigin="anonymous"
+        src="https://connect.facebook.net/en_US/sdk.js#xfbml=1&version=v8.0&appId=503791763032198&autoLogAppEvents=1" nonce="fuhOcdXs">
+</script>
 
+<div id="app"></div>
 
-    </div>
-    <!-- Carousel nav -->
-    <a class="small left carousel-control" href="#danceCarousel" role="button" data-slide="prev">
-        <span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>
-        <span class="sr-only">Previous</span>
-    </a>
-    <a class="small right carousel-control" href="#danceCarousel" role="button" data-slide="next">
-        <span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span>
-        <span class="sr-only">Next</span>
-    </a>
-</div>
-
-<div class="row col-xs-12"><hr /></div>
-<div class="row">
-    <div class="col-sm-3">
-        <a href="https://www.music4dance.net/home/contribute">
-            <img src="~/images/icons/contribute.png" alt="contribute" width="128" height="128" class="center-block" />
-            <h2 class="blog center-block" style="text-align: center">Contribute</h2>
-        </a>
-    </div>
-    <div class="col-sm-3">
-        <a href="#music">
-            <img src="~/images/icons/music.png" alt="music" width="128" height="128" class="center-block" />
-            <h2 class="music center-block" style="text-align: center">Music</h2>
-        </a>
-    </div>
-    <div class="col-sm-3">
-        <a href="#tools">
-            <img src="~/images/icons/tools.png" alt="tools" width="128" height="128" class="center-block" />
-            <h2 class="tools center-block" style="text-align: center">Tools</h2>
-        </a>
-    </div>
-    <div class="col-sm-3">
-        <a href="#info">
-            <img src="~/images/icons/info.png" alt="info" width="128" height="128" class="center-block" />
-            <h2 class="blog center-block" style="text-align: center">Info</h2>
-        </a>
-    </div>
-</div>
-
-<div class="row col-xs-12"><hr /></div>
-
-<div id="music" class="row col-md-12">
-    <h2 class="music"><img src="~/images/icons/music.png" alt="music" width="48" height="48" />Music</h2>
-    <iframe src="https://open.spotify.com/follow/1/?uri=spotify:user:ebo1rk39vp51kkyjps45eobph&size=basic&theme=light" width="200" height="25" scrolling="no" frameborder="0" style="border:none; overflow:hidden;" allowtransparency="true"></iframe>
-    <dl class="big-text">
-        <dt><img src="~/images/icons/music.png" alt="music" width="24" height="24" />Find songs to dance a specific dance style.</dt>
-        <dd style="margin-left: 4em">@tryItLink("https://www.music4dance.net/dance") @docsLink("https://music4dance.blog/music4dance-help/dance-styles-help/") @postsLink("https://music4dance.blog/question-1-im-learning-to-cha-cha-where-is-some-great-music-for-practicing/")</dd>
-        <dt><img src="~/images/icons/music.png" alt="music" width="24" height="24" />Find the most recently added songs.</dt>
-        <dd style="margin-left: 4em">@tryItLink("https://www.music4dance.net/song/newmusic?type=Created") @postsLink("https://music4dance.blog/tag/new-music/")</dd>
-        <dt><img src="~/images/icons/music.png" alt="music" width="24" height="24" />Find out what dance styles can be danced to a song.</dt>
-        <dd style="margin-left: 4em">@tryItLink("https://www.music4dance.net/song") @docsLink("https://music4dance.blog/music4dance-help/song-list/") @postsLink("https://music4dance.blog/wedding-music-part-i-can-we-dance-the-foxtrot-to-our-song/")</dd>
-        <dt><img src="~/images/icons/music.png" alt="music" width="24" height="24" />Start with a musical genre (or other tags) and find songs to dance a particular style.</dt>
-        <dd style="margin-left: 4em">@tryItLink("https://www.music4dance.net/tag") @docsLink("https://music4dance.blog/music4dance-help/tag-cloud/") @postsLink("https://music4dance.blog/tag/tag/")</dd>
-        <dt><img src="~/images/icons/music.png" alt="music" width="24" height="24" />Find wedding songs and match them with dance styles.</dt>
-        <dd style="margin-left: 4em">@tryItLink("https://www.music4dance.net/dances/wedding-music") @docsLink("https://music4dance.blog/music4dance-help/tag-cloud/") @postsLink("https://music4dance.blog/tag/wedding/")</dd>
-        <dt><img src="~/images/icons/music.png" alt="music" width="24" height="24" />Find songs that match competition tempo ranges.</dt>
-        <dd style="margin-left: 4em">@tryItLink("https://www.music4dance.net/dances/ballroom-competition-categories") @docsLink("https://music4dance.blog/music4dance-help/dance-category/") @postsLink("https://music4dance.blog/im-a-competition-ballroom-dancer-can-i-find-practice-songs-that-are-a-specific-tempo/")</dd>
-        <dt><img src="~/images/icons/music.png" alt="music" width="24" height="24" />Vote on what style you would dance to any song in our catalog.</dt>
-        <dd style="margin-left: 4em">@tryItLink("https://www.music4dance.net/identity/account/register") @docsLink("https://music4dance.blog/music4dance-help/dance-tags/") @postsLink("https://music4dance.blog/tag/vote/")</dd>
-        <dt><img src="~/images/icons/music.png" alt="music" width="24" height="24" />Tag songs to create your own ways of making song lists</dt>
-        <dd style="margin-left: 4em">@tryItLink("https://www.music4dance.net/identity/account/register") @docsLink("https://music4dance.blog/music4dance-help/tag-editing/") @postsLink("https://music4dance.blog/lets-tag-some-songs/")</dd>
-        <dt><img src="~/images/icons/music.png" alt="music" width="24" height="24" />Find holiday music to dance to.</dt>
-        <dd style="margin-left: 4em">@tryItLink("https://www.music4dance.net/dances/holiday-music") @postsLink("https://music4dance.blog/tag/holiday/")</dd>
-    </dl>
-    <p>Don't see your style of dance here? <a href="https://music4dance.blog/feedback/">Let us know</a> and we'll be happy to expand our catalog.</p>
-    <p>Do you use a different streaming provider or purchase your music from a different source? <a href="https://music4dance.blog/feedback/">Tell us about it</a> and we'll take a look into expanding our support.</p>
-</div>
-
-<div class="row col-xs-12"><hr /></div>
-
-<div id="tools" class="row col-md-12 tools">
-    <h2 class="tools"><img src="~/images/icons/tools.png" alt="music" width="48" height="48" />Tools</h2>
-    <dl class="big-text">
-        <dt class="tools"><img src="~/images/icons/tools.png" alt="tools" width="24" height="24" />Use our tempo counter tool to find the tempo of a song and match it to dance styles.</dt>
-        <dd style="margin-left: 4em">@tryItLink("https://www.music4dance.net/home/counter") @docsLink("https://music4dance.blog/music4dance-help/tempo-counter/") @postsLink("https://music4dance.blog/question-2-what-dance-styles-can-i-dance-to-my-favorite-songs/")</dd>
-        <partial name="_TempiToolLink" />
-    </dl>
-    <p class="neutral">
-        We have more useful tools for dancers coming soon. <a href="https://music4dance.blog/feedback/">Let us know</a> if you have an idea for a tool that could help match music to dances or otherwise help dancers find music.
-    </p>
-</div>
-
-<div class="row col-xs-12"><hr /></div>
-
-<div id="info" class="row col-md-12">
-    <h2 class="blog"><img src="~/images/icons/info.png" alt="music" width="48" height="48" />Info</h2>
-    <p class="neutral">Are you looking for more information on how music relates to dance? Then please follow our <a href="https://music4dance.blog">blog</a>.</p>
-    @foreach (var blog in blogEntries)
-    {
-        <h4 class="blog">@blog.Title</h4>
-        <p class="neutral">@Html.Raw(blog.Description) <a href="@blog.FullPath">[Read more]</a></p>
-    }
-</div>
+@section Scripts {
+    <partial name="_jsonCamelCase" model="@converterModel" />
+    <script src="/client/js/chunk-vendors.js"></script>
+    <script src="/client/js/chunk-common.js"></script>
+    <script src="/client/js/home.js"></script>
+}

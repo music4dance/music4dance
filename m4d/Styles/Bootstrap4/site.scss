@@ -4,11 +4,24 @@ $dance-light: lighten($dance-primary, 40%);
 $theme-colors: (
     primary: $dance-primary, 
     info: $dance-light, 
-    music: #18685D, 
+    music: #24A092, 
     tempo: #001671, 
     style: #E25828, 
-    other: #995600
+    other: #995600,
+    tools: #001671,
+    blog: #995600,
 );
+
+$contribute-color: #DF5930;
+$contribute-light: lighten($contribute-color,40%);
+$blog-color: #995600;
+$blog-light: lighten($blog-color,40%);
+$tools-color: #001671;
+$tools-light: lighten($tools-color,40%);
+$music-color: #24A092;
+$music-light: lighten($music-color,40%);
+$admin-color: #862A08;
+$admin-light: lighten($admin-color,40%);
 
 $link-color: blue;
 
@@ -46,6 +59,90 @@ $fa-font-path: "/fonts";
     padding: 0 1rem;
 }
 
+/* Home Page */
+.home-list {
+    list-style-type: none;
+    font-size: 1.5rem;
+}
+
+.home-card-background {
+    min-height: 30rem;
+    background-size: 25rem 30rem;
+    background-repeat: no-repeat;
+    background-position: center
+}
+
+.center-block {
+    display: block;
+    margin-right: auto;
+    margin-left: auto;
+}
+
+/* Cross theme styles*/
+
+.contribute {
+    color: $contribute-color;
+}
+
+a.contribute:hover {
+    color: $contribute-color;
+}
+
+a.contribute {
+    color: $contribute-light;
+}
+
+.music {
+    color: $music-color;
+}
+
+a.music:hover {
+    color: $music-color;
+}
+
+a.music {
+    color: $music-light;
+}
+
+.tools {
+    color: $tools-color;
+}
+
+a.tools:hover {
+    color: $tools-color;
+}
+
+a.tools {
+    color: $tools-light;
+}
+
+.info {
+    color: $blog-color;
+}
+
+a.info:hover {
+    color: $blog-color;
+}
+
+a.info {
+    color: $blog-light;
+}
+
+.admin {
+    color: $admin-color;
+}
+
+a.admin:hover {
+    color: $admin-color;
+}
+
+a.admin {
+    color: $admin-light;
+}
+
+.neutral {
+    color: black;
+}
 
 /* Styles for tag matrix table */
 .tag-matrix-group {
