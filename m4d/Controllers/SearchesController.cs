@@ -27,10 +27,16 @@ namespace m4d.Controllers
                 user = null;
             }
 
-            var appUser = Database.FindUser(user??User.Identity.Name);
+            user ??= User.Identity.Name;
             IQueryable<Search> searches = Database.Searches.Include(s => s.ApplicationUser);
-            if (appUser != null)
-                searches = searches.Where(s => s.ApplicationUserId == appUser.Id);
+            if (user != null)
+            {
+                var appUser = Database.FindUser(user);
+                if (appUser != null)
+                {
+                    searches = searches.Where(s => s.ApplicationUserId == appUser.Id);
+                }
+            }
 
             searches = (string.Equals(sort, "recent") ? searches.OrderByDescending(s => s.Modified) : searches.OrderByDescending(s => s.Count)).Take(100);
             ViewBag.Sort = sort;
