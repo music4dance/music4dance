@@ -64,7 +64,7 @@ const scRegEx = new RegExp(subChar, 'g');
         const level = this.level ? this.level : '';
 
         const ret = `${this.action}-${danceQuery.query}-${this.sortOrder}-${this.encode(this.searchString)}-` +
-        `${this.purchase}-${this.user}-${tempoMin}-${tempoMax}--${this.encode(this.tags)}-${level}`;
+        `${this.purchase}-${this.encode(this.user)}-${tempoMin}-${tempoMax}--${this.encode(this.tags)}-${level}`;
 
         return this.trimEnd(ret, '.-');
     }
