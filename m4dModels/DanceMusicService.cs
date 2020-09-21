@@ -707,17 +707,17 @@ namespace m4dModels
 
         public enum MatchMethod { None, Tempo, Merge };
 
-        private IEnumerable<Song> SongsFromHash(int hash, ISearchIndexClient client = null)
+        private IEnumerable<Song> SongsFromTitle(string title, ISearchIndexClient client = null)
         {
-            return DoAzureSearch(null, new SearchParameters { Filter = $"(TitleHash eq {hash})" }, CruftFilter.AllCruft, client)
+            return DoAzureSearch(title, new SearchParameters(), CruftFilter.AllCruft, client)
                     .Results.Select(
                         r => new Song(r.Document, DanceStats));
         }
         private LocalMerger MergeFromTitle(Song song, ISearchIndexClient client)
         {
-            var songs = SongsFromHash(song.TitleHash, client);
+            var songs = SongsFromTitle(song.Title, client);
 
-            var candidates = (from s in songs where Song.SoftArtistMatch(s.Artist, song.Artist) select s).ToList();
+            var candidates = (from s in songs where song.TitleArtistEquivalent(s) select s).ToList();
 
             if (candidates.Count <= 0)
                 return new LocalMerger {Left = song, Right = null, MatchType = MatchType.None, Conflict = false};

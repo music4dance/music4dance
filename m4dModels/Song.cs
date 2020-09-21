@@ -3665,8 +3665,8 @@ namespace m4dModels
             if (!SoftArtistMatch(artist, Artist))
                 return false;
 
-            return DoMatch(CreateNormalForm(title), CreateNormalForm(Title)) |
-                   DoMatch(NormalizeAlbumString(title), NormalizeAlbumString(Title)) |
+            return DoMatch(CreateNormalForm(title), CreateNormalForm(Title)) ||
+                   DoMatch(NormalizeAlbumString(title), NormalizeAlbumString(Title)) ||
                    DoMatch(CleanAlbum(title, artist), CleanAlbum(Title, Artist));
         }
 
