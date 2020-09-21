@@ -4,10 +4,10 @@
 @model X.PagedList.IPagedList<Song>
 
 @{
-    SongFilter filter = ViewData.ContainsKey("SongFilter") ? ViewBag.SongFilter : SongFilter.AzureSimple;
+    SongFilter filter = ViewBag.SongFilter;
 
     ViewBag.Title = "Holiday Dance Music";
-    ViewBag.Description = "Help finding holdiay dance music for partner dancing - Foxtrot, Waltz, Swing and others.";
+    ViewBag.Description = "Help finding holiday dance music for partner dancing - Foxtrot, Waltz, Swing and others.";
 
     DanceStatsInstance stats = ViewBag.Stats;
     DanceStats currentDance = ViewBag.Dance;

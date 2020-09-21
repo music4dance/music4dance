@@ -1,3 +1,8 @@
+import { DanceEnvironment } from './DanceEnvironmet';
+import { DanceStats } from './DanceStats';
+
+declare const environment: DanceEnvironment;
+
 const all: string  = 'ALL';
 const and: string = 'AND'; // Exclusive + Explicit
 const andX: string = 'ADX'; // Exclusive + Inferred
@@ -7,7 +12,7 @@ const oneOfX: string = 'OOX'; // Inclusive + Inferred
 const modifiers: string[] = [all, and, andX, oneOfX];
 
 export class DanceQuery {
-    public static fromParts(dances: string[], exclusive: boolean, inferred: boolean): DanceQuery {
+    public static fromParts(dances: string[], exclusive?: boolean, inferred?: boolean): DanceQuery {
         if (!dances || dances.length === 0) {
             return new DanceQuery();
         }
@@ -56,6 +61,38 @@ export class DanceQuery {
 
     public get includeInferred(): boolean {
         return this.startsWithAny([andX, oneOfX]);
+    }
+
+    private get dances(): DanceStats[]  {
+        return this.danceList.map((id) => environment.fromId(id)!);
+    }
+
+    private get danceNames(): string[] {
+        return this.dances.map((d) => d.danceName);
+    }
+
+    public get description(): string {
+        const prefix = this.isExclusive ? 'all' : 'any';
+        const connector = this.isExclusive ? 'and' : 'or';
+        const suffix = this.includeInferred ? ' (including inferred by tempo)' : '';
+        const dances = this.danceNames;
+
+        switch (dances.length) {
+            case 0:
+                return `songs${suffix}`;
+            case 1:
+                return `${dances[0]} songs${suffix}`;
+            case 2:
+                return `songs danceable to ${prefix} of ${dances[0]} ${connector} ${dances[1]}${suffix}`;
+            default:
+                const last = dances.pop();
+                return `songs danceable to ${prefix} of ${dances.join(', ')} ${connector} ${last}${suffix}`;
+        }
+        return '';
+    }
+
+    public get shortDescription(): string {
+        return this.danceNames.join(', ');
     }
 
     private startsWithAny(qualifiers: string[]): boolean {

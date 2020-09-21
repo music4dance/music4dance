@@ -1,0 +1,22 @@
+﻿@model m4d.ViewModels.SongListModel
+@using m4d.ViewModels
+@using m4dModels
+
+@{
+    Layout = "/Views/Shared/_bsv-Layout.cshtml";
+    SongFilter filter = ViewData.ContainsKey("SongFilter") ? 
+        ViewBag.SongFilter : SongFilter.GetDefault(User.Identity.Name);
+
+    ViewBag.Title = "Songs for Dancing";
+    ViewBag.Description = "music4dance catalog: " + filter.Description;
+    var converterModel = new ObjectConverterModel { Name = "model", Model = Model };
+}
+
+<div id="app"></div>
+
+@section Scripts {
+    <partial name="_jsonCamelCase" model="@converterModel" />
+    <script src="/client/js/chunk-vendors.js"></script>
+    <script src="/client/js/chunk-common.js"></script>
+    <script src="/client/js/song-index.js"></script>
+}

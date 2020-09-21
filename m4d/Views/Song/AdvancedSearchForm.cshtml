@@ -3,7 +3,7 @@
 
 @{
     Layout = "/Views/Shared/_bsv-Layout.cshtml";
-    SongFilter filter = ViewData.ContainsKey("SongFilter") ? ViewBag.SongFilter : SongFilter.Default;
+    SongFilter filter = ViewBag.SongFilter;
 
     ViewBag.Title = "Advanced Search";
     ViewBag.Description = "music4dance advanced song search form: " + filter.Description;

@@ -1,6 +1,10 @@
 import 'reflect-metadata';
 import { jsonMember, jsonObject, jsonArrayMember} from 'typedjson';
 import { DanceQuery } from './DanceQuery';
+import { PurchaseInfo } from './Purchase';
+import { SongSort } from './SongSort';
+import { TagList } from './TagList';
+import { UserQuery } from './UserQuery';
 
 const subChar = '\u001a';
 const scRegEx = new RegExp(subChar, 'g');
@@ -16,7 +20,7 @@ const scRegEx = new RegExp(subChar, 'g');
         filter.sortOrder = SongFilter.readCell(cells, 2);
         filter.searchString = SongFilter.readCell(cells, 3);
         filter.purchase = SongFilter.readCell(cells, 4);
-        filter.user = SongFilter. readCell(cells, 5);
+        filter.user = SongFilter.readCell(cells, 5);
         filter.tempoMin = SongFilter.readNumberCell(cells, 6);
         filter.tempoMax = SongFilter.readNumberCell(cells, 7);
         // Page
@@ -45,7 +49,6 @@ const scRegEx = new RegExp(subChar, 'g');
         return val ? Number.parseFloat(val) : undefined;
     }
 
-
     @jsonMember public action?: string;
     @jsonMember public searchString?: string;
     @jsonMember public dances?: string;
@@ -57,16 +60,134 @@ const scRegEx = new RegExp(subChar, 'g');
     @jsonMember public tags?: string;
     @jsonMember public level?: number;
 
+    public get encodedQuery(): string {
+        return encodeURIComponent(this.query);
+    }
+
     public get query(): string {
-        const danceQuery = new DanceQuery(this.dances);
         const tempoMin = this.tempoMin ? this.tempoMin.toString() : '';
         const tempoMax = this.tempoMax ? this.tempoMax.toString() : '';
         const level = this.level ? this.level : '';
 
-        const ret = `${this.action}-${danceQuery.query}-${this.sortOrder}-${this.encode(this.searchString)}-` +
-        `${this.purchase}-${this.encode(this.user)}-${tempoMin}-${tempoMax}--${this.encode(this.tags)}-${level}`;
+        const ret = `${this.action}-${this.danceQuery.query}-${this.encode(this.sortOrder)}-` +
+            `${this.encode(this.searchString)}-${this.encode(this.purchase)}-${this.encode(this.user)}-` +
+            `${tempoMin}-${tempoMax}--${this.encode(this.tags)}-${level}`;
 
         return this.trimEnd(ret, '.-');
+    }
+
+    public get danceQuery(): DanceQuery {
+        return new DanceQuery(this.dances);
+    }
+
+    public get userQuery(): UserQuery {
+        return new UserQuery(this.user);
+    }
+
+    public get sort(): SongSort {
+        return new SongSort(this.sortOrder);
+    }
+
+    public get tagList(): TagList {
+        return new TagList(this.tags);
+    }
+
+    public get isEmpty(): boolean {
+        return this.isEmptyExcept(['action', 'sortOrder']);
+    }
+
+    public isDefault(user?: string): boolean {
+        const empty = this.isEmptyExcept(['action', 'sortOrder', 'user']);
+        return empty && this.isDefaultUser(user);
+    }
+
+    public get description(): string {
+        // All [dance] songs [containing the text "<SearchString>] [Available on
+        //  [Amazon|ITunes|Spotify] [Including tags TI] [Excluding tags TX] [between Tempo Range]
+        //  [[not] (liked|disliked|edited) by user] sorted by [Sort Order] from [High|low] to [low|high]
+
+        return `All${this.describePart(this.danceQuery.description)}` +
+            `${this.describePart(this.describeKeywords)}` +
+            `${this.describePart(this.describePurchase)}` +
+            `${this.describePart(this.describeIncludedTags)}${this.describePart(this.describeExcludedTags)}` +
+            `${this.describePart(this.describeTempo)}` +
+            `${this.describePart(this.userQuery.description)}` +
+            `${this.describePart(this.describeSort)}.`;
+    }
+
+    public extractDefault(user?: string): SongFilter {
+        const filter = new SongFilter();
+        filter.action = this.action;
+        filter.sortOrder = this.sortOrder;
+        if (this.isDefaultUser(user)) {
+            filter.user = this.user;
+        }
+        return filter;
+    }
+
+    private describePart(part: string | undefined): string {
+        return part ? ` ${part}` : '';
+    }
+
+    private get describeKeywords(): string {
+        if (!this.searchString) {
+            return '';
+        }
+
+        return `containing the text "${this.searchString}"`;
+    }
+
+    private get describePurchase(): string {
+        const services = PurchaseInfo.NamesFromFilter(this.purchase);
+        if (!services.length) {
+            return '';
+        }
+
+        return `available on ${services.join(' or ')}`;
+    }
+
+    private get describeIncludedTags(): string {
+        return this.tagList.filterCategories(['Dances']).AddsDescription;
+    }
+
+    private get describeExcludedTags(): string {
+        return this.tagList.filterCategories(['Dances']).RemovesDescription;
+    }
+
+    private get describeTempo(): string {
+        if (this.tempoMin && this.tempoMax) {
+            return `having tempo between ${this.tempoMin} and ${this.tempoMax} beats per minute`;
+        } else if (this.tempoMin) {
+            return `having tempo greater than ${this.tempoMin} beats per minute`;
+        } else if (this.tempoMax) {
+            return `having tempo less than ${this.tempoMax} beats per minute`;
+        } else {
+            return '';
+        }
+    }
+
+    private get describeSort(): string {
+        return this.sort.description;
+    }
+
+    private isDefaultUser(user?: string): boolean {
+        return this.userQuery.isDefault(user);
+    }
+
+    public get isEmptyDance(): boolean {
+        return this.isEmptyExcept(['action', 'sortOrder', 'dances']);
+    }
+
+    private isEmptyExcept(properties: string[]): boolean {
+        for (const key in this) {
+            if (properties.includes(key)) {
+                continue;
+            }
+            if (this[key]) {
+                return false;
+            }
+        }
+        return true;
     }
 
     private encode(s: string | undefined): string {

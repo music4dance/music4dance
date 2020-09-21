@@ -24,9 +24,9 @@
         <div v-if="tagBuckets.length > 0">
             <b-badge v-for="tag in tagBuckets" :key="tag.key" :variant="tag.variant"
                 style="margin-inline-end: .25em; margin-bottom: .25em" :class="classesForTag(tag)"
-                href="#" @click="showModal(tag.key)">
+                href="#" @click="showModal(tag.key)" role="button">
                 <b-icon :icon="tag.icon"></b-icon>{{tag.value}}
-                <tag-modal :tag="tag"></tag-modal>
+                <tag-modal :tagHandler="tagHandler(tag)"></tag-modal>
             </b-badge>
         </div>
         <div v-else><h4>Please select one or more tag classes (style, tempo, musical genre, oother)</h4></div>
@@ -40,11 +40,12 @@ import 'reflect-metadata';
 import { Component, Prop, Vue } from 'vue-property-decorator';
 import TagModal from './TagModal.vue';
 import { Tag, TagBucket, TagInfo } from '@/model/Tag';
+import { TagHandler } from '@/model/TagHandler';
 
 class TagButton implements TagInfo {
     public static get buttons() {
         const tagInfo = Tag.TagInfo;
-        return [...tagInfo.keys()].map((t) => new TagButton(t, tagInfo.get(t)!));
+        return [...tagInfo.keys()].filter((t) => t !== 'dance').map((t) => new TagButton(t, tagInfo.get(t)!));
     }
 
     public key: string;
@@ -92,6 +93,10 @@ export default class TagCloud extends Vue {
 
     private get activeTags(): string[] {
         return this.tagButtons.filter((b) => b.state).map((b) => b.key);
+    }
+
+    private tagHandler(tag: Tag): TagHandler {
+        return new TagHandler(tag);
     }
  }
 </script>

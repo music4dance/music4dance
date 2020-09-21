@@ -176,7 +176,7 @@ import Page from '../components/Page.vue';
 import { SongFilter } from '../model/SongFilter';
 import { DanceQuery } from '../model/DanceQuery';
 import { UserQuery } from '../model/UserQuery';
-import { SongSort } from '../model/SongSort';
+import { SongSort, SortOrder } from '../model/SongSort';
 import { ListOption } from '../model/ListOption';
 import { DanceObject } from '../model/DanceStats';
 import { Tag } from '../model/Tag';
@@ -224,15 +224,15 @@ export default class App extends Vue {
     private services: string[] = [];
 
     private sortOptions = [
-      { text: 'Title', value: 'Title' },
-      { text: 'Artist', value: 'Artist' },
-      { text: 'Tempo', value: 'Tempo' },
-      { text: 'Dance Rating', value: 'Dances' },
-      { text: 'Last Modified', value: 'Modified' },
-      { text: 'When Added', value: 'Created' },
-      { text: 'Energy', value: 'Emergy' },
-      { text: 'Mood', value: 'Mood' },
-      { text: 'Strength of Beat', value: 'Beat' },
+      { text: 'Title', value: SortOrder.Title },
+      { text: 'Artist', value: SortOrder.Artist },
+      { text: 'Tempo', value: SortOrder.Tempo },
+      { text: 'Dance Rating', value: SortOrder.Dances },
+      { text: 'Last Modified', value: SortOrder.Modified },
+      { text: 'When Added', value: SortOrder.Created },
+      { text: 'Energy', value: SortOrder.Energy },
+      { text: 'Mood', value: SortOrder.Mood },
+      { text: 'Strength of Beat', value: SortOrder.Beat },
       { text: 'Closest Match', value: null },
     ];
     private sort: string | null = 'Dances';
@@ -242,7 +242,10 @@ export default class App extends Vue {
     constructor() {
       super();
 
-      const filter = this.getFilterIn();
+      let filter = this.getQueryFilter();
+      if (!filter) {
+        filter = model.filter;
+      }
       const danceQuery = new DanceQuery(filter.dances);
 
       this.keyWords = filter.searchString ?? '';
@@ -314,11 +317,11 @@ export default class App extends Vue {
       return filter;
     }
 
-    private getFilterIn(): SongFilter  {
+    private getQueryFilter(): SongFilter | undefined  {
       const params = new URLSearchParams(window.location.search);
       const filterString = params.get('filter');
 
-      return SongFilter.buildFilter(filterString ? filterString : '');
+      return filterString ?  SongFilter.buildFilter(filterString) : undefined;
     }
 
 
@@ -336,7 +339,7 @@ export default class App extends Vue {
         }
 
         const loc = window.location;
-        const query = encodeURIComponent(this.songFilter.query);
+        const query = this.songFilter.encodedQuery;
 
         window.location.href = `${loc.origin}/song/filtersearch?filter=${query}`;
       }

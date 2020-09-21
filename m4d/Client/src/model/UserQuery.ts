@@ -47,9 +47,57 @@ export class UserQuery {
         return this.data;
     }
 
-    public get parts(): string | null {
+    public get isEmpty(): boolean {
+        return !this.data;
+    }
+
+    public get include(): boolean {
+        return this.data[0] === '+';
+    }
+
+    public get like(): boolean {
+        return this.parts[1] === 'L';
+    }
+
+    public get hate(): boolean {
+        return this.parts[1] === 'H';
+    }
+
+    public get tag(): boolean {
+        return this.parts[1] === 'T';
+    }
+
+    public get userName(): string {
+        const idx = this.data.indexOf('|');
+        return this.data.substring(1, idx);
+    }
+
+    public isDefault(userName?: string): boolean {
+        const field = this.data?.toLowerCase();
+        return field ?
+            (field === '-me|h' || field === `-${userName?.toLowerCase()}|h`) :
+            !field;
+    }
+
+    public get description(): string {
+        if (this.isEmpty) {
+            return '';
+        }
+
+        const include = this.include ? 'including' : 'excluding';
+        let like = '';
+        switch (this.parts[1]) {
+            case 'L': like = 'liked'; break;
+            case 'H': like = 'disliked'; break;
+            case 'T': like = 'edited'; break;
+        }
+
+        return `${include} songs ${like} by ${this.userName}`;
+    }
+
+    public get parts(): string {
         if (!this.data) {
-            return null;
+            return 'IT';
         }
 
         let ret = this.data[0] === '-' ? 'X' : 'I';

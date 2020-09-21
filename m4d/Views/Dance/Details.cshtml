@@ -6,8 +6,9 @@
 @model m4dModels.DanceStats
 
 @{
-    var defaultFilter = SongFilter.Default;
-    var danceFilter = new SongFilter { Action = defaultFilter.Action, Dances = @Model.DanceId };
+    var defaultFilter = SongFilter.GetDefault(User.Identity.Name);
+    var danceFilter = SongFilter.GetDefault(User.Identity.Name);
+    danceFilter.Dances = Model.DanceId;
 
     ViewBag.Title = Model.DanceName + " Information, Top Ten List, and Resources.";
     ViewBag.Description = "General information about the dance" + Model.DanceName + " along with a top ten song list, preferred tempo details, and other resources.";

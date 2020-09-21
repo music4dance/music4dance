@@ -42,9 +42,12 @@ namespace m4dModels
         private const char Separator = '-';
         private readonly string _sepStr = new string(Separator, 1);
  
-        public static SongFilter Default => new SongFilter();
-        public static SongFilter AzureSimple => new SongFilter("azure+simple");
-        public static SongFilter AzureLucene => new SongFilter("azure+lucene");
+        public static SongFilter GetDefault(string userName)
+        {
+            return userName == null ? 
+                new SongFilter() : 
+                new SongFilter($"Index-----\\-{userName}|h");
+        }
 
         static SongFilter()
         {
@@ -419,7 +422,7 @@ namespace m4dModels
         {
             get
             {
-                // All [dance] songs [including the text "<SearchString>] [Available on [Groove|Amazon|ITunes|Spotify] [Including tags TI] [Excluding tags TX] [Tempo Range] [(liked|disliked|edited) by user] sorted by [Sort Order] from [High|low] to [low|high]
+                // All [dance] songs [including the text "<SearchString>] [Available on [Amazon|ITunes|Spotify] [Including tags TI] [Excluding tags TX] [between Tempo Range] [(liked|disliked|edited) by user] sorted by [Sort Order] from [High|low] to [low|high]
                 // TOOD: If we pass in context, we can have user name + we can do better stuff with the tags...
 
                 if (IsRaw)
@@ -430,7 +433,7 @@ namespace m4dModels
                 var separator = " ";
 
                 var danceQuery = DanceQuery;
-                var prefix = "All " + danceQuery.ToString();
+                var prefix = "All " + danceQuery;
 
                 var sb = new StringBuilder(prefix);
 

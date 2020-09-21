@@ -3,7 +3,7 @@
 @model X.PagedList.IPagedList<Song>
 
 @{
-    SongFilter filter = ViewData.ContainsKey("SongFilter") ? ViewBag.SongFilter : SongFilter.AzureSimple;
+    SongFilter filter = ViewBag.SongFilter;
 
     ViewBag.Title = "New Music for Dancing";
     ViewBag.Description = "music4dance catalog: " + filter.Description;

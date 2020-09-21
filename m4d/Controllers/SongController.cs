@@ -27,27 +27,33 @@ namespace m4d.Controllers
 {
     public class SongController : ContentController
     {
-        public SongController(DanceMusicContext context, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, ISearchServiceManager searchService, IDanceStatsManager danceStatsManager, LinkGenerator linkGenerator, IConfiguration configuration) :
+        public SongController(DanceMusicContext context, UserManager<ApplicationUser> userManager, 
+            RoleManager<IdentityRole> roleManager, ISearchServiceManager searchService, 
+            IDanceStatsManager danceStatsManager, LinkGenerator linkGenerator, IConfiguration configuration,
+            IMapper mapper) :
             base(context, userManager, roleManager, searchService, danceStatsManager, configuration)
         {
             HelpPage = "song-list";
             _linkGenerator = linkGenerator;
+            _mapper = mapper;
         }
 
         private readonly LinkGenerator _linkGenerator;
+        private readonly IMapper _mapper;
 
         public override string DefaultTheme => MusicTheme;
 
         public override void OnActionExecuting(ActionExecutingContext filterContext)
         {
+            var user = User.Identity.Name;
             filterContext.ActionArguments.TryGetValue("filter", out object o);
             if (o == null)
             {
-                o =  SongFilter.Default;
+                o =  SongFilter.GetDefault(user);
                 filterContext.ActionArguments["filter"] = o;
             }
 
-            ViewBag.SongFilter = o is SongFilter filter?  filter : new SongFilter();
+            ViewBag.SongFilter = o is SongFilter filter ? filter : SongFilter.GetDefault(user);
 
             base.OnActionExecuting(filterContext);
         }
@@ -70,8 +76,6 @@ namespace m4d.Controllers
         [AllowAnonymous]
         public ActionResult Search(string searchString, string dances, SongFilter filter)
         {
-            filter ??= new SongFilter();
-
             if (string.IsNullOrWhiteSpace(searchString))
             {
                 searchString = null;
@@ -160,15 +164,9 @@ namespace m4d.Controllers
             return DoAzureSearch(filter, "holidaymusic");
         }
 
-
         [AllowAnonymous]
-        public ActionResult AzureSearch(string searchString, int page=1, string dances=null, SongFilter filter=null)
+        public ActionResult AzureSearch(string searchString, SongFilter filter, int page=1, string dances=null)
         {
-            if (filter == null || filter.IsEmpty)
-            {
-                filter = SongFilter.AzureSimple;
-            }
-
             if (User.Identity.IsAuthenticated && filter.IsEmpty)
             {
                 filter.User = new UserQuery(User.Identity.Name, false, false).Query;
@@ -246,6 +244,12 @@ namespace m4d.Controllers
             ViewBag.RawSearch = p;
 
             var results = Database.AzureSearch(filter.SearchString, p, filter.CruftFilter, "default", Database.DanceStats);
+
+            if (Request.Query.ContainsKey("vue"))
+            {
+                return VueAzureSearch(results, filter);
+            }
+
             BuildDanceList();
             ViewBag.SongFilter = filter;
 
@@ -256,7 +260,24 @@ namespace m4d.Controllers
 
             ReportSearch(filter);
 
-            return View(page,songs);
+            return View(page, songs);
+        }
+
+        private ActionResult VueAzureSearch(SearchResults results, SongFilter filter)
+        {
+            string user = User.Identity.Name;
+            if (user != null)
+            {
+                filter.Anonymize(user);
+            }
+
+            var songs = results.Songs.Select(s => _mapper.Map<SongSparse>(s)).ToList();
+            return View("Index", new SongListModel
+            {
+                Songs = songs,
+                Filter = _mapper.Map<SongFilterSparse>(filter),
+                UserName = User.Identity.Name
+            });
         }
 
         //
@@ -284,29 +305,23 @@ namespace m4d.Controllers
         //
         // GET: /Song/AdvancedSearchForm
         [AllowAnonymous]
-        public ActionResult AdvancedSearchForm([FromServices] IMapper mapper, SongFilter filter = null)
+        public ActionResult AdvancedSearchForm(SongFilter filter)
         {
             HelpPage = "advanced-search";
 
-            if (_searchModel == null)
+            var dances = new List<DanceObject>(Dances.Instance.AllDanceTypes);
+            dances.AddRange(Dances.Instance.AllDanceGroups);
+
+            var tags = Database.GetTagSuggestions().Select(_mapper.Map<TagModel>).ToList();
+            var model = new SearchModel
             {
-                var dances = new List<DanceObject>(Dances.Instance.AllDanceTypes);
-                dances.AddRange(Dances.Instance.AllDanceGroups);
+                Filter = _mapper.Map<SongFilterSparse>(filter),
+                Dances = dances,
+                Tags = tags
+            };
 
-                var tags = Database.GetTagSuggestions().Select(mapper.Map<TagModel>).ToList();
-                var model = new SearchModel
-                {
-                    Filter = mapper.Map<SongFilterSparse>(filter),
-                    Dances = dances,
-                    Tags = tags
-                };
-                _searchModel = JsonConvert.SerializeObject(model, CamelCaseSerializerSettings);
-            }
-
-            return View("AdvancedSearchForm", _searchModel);
+            return View("AdvancedSearchForm", JsonConvert.SerializeObject(model, CamelCaseSerializerSettings));
         }
-
-        private static string _searchModel;
 
         [AllowAnonymous]
         public ActionResult FilterSearch(SongFilter filter)
@@ -318,8 +333,6 @@ namespace m4d.Controllers
         [AllowAnonymous]
         public ActionResult AdvancedSearch(string searchString = null, string dances = null, string tags = null, ICollection<string> services = null, decimal? tempoMin = null, decimal? tempoMax = null, string user=null, string sortOrder = null, string sortDirection = null, ICollection<int> bonusContent = null, SongFilter filter = null)
         {
-            filter ??= SongFilter.Default;
-
             if (!filter.IsAdvanced)
             {
                 filter.Action = filter.IsAzure ? "azure+advanced" : "Advanced";
@@ -415,12 +428,6 @@ namespace m4d.Controllers
             {
                 filter.Level = level;
                 filter.Page = 1;
-            }
-
-            var uq = filter.UserQuery;
-            if (!uq.IsEmpty && uq.IsAnonymous)
-            {
-                return LoginRedirect(filter);
             }
 
             return DoAzureSearch(filter);
@@ -879,8 +886,7 @@ namespace m4d.Controllers
 
         private ActionResult BatchAdminExecute(SongFilter filter, Func<DanceMusicCoreService, Song, bool> act, string name, int max)
         {
-
-            if (!ModelState.IsValid || filter == SongFilter.Default)
+            if (!ModelState.IsValid || filter.IsEmpty)
                 return RedirectToAction("Index", new { filter });
 
             try

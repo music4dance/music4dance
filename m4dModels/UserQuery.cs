@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using System.Text;
 
 namespace m4dModels
@@ -11,7 +10,6 @@ namespace m4dModels
         {
             Query = Normalize(query);
         }
-
 
         public UserQuery(string userName, bool include, bool? like)
         {

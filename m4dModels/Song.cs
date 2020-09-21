@@ -11,6 +11,7 @@ using System.Runtime.Serialization;
 using System.Runtime.Serialization.Json;
 using System.Text;
 using System.Text.RegularExpressions;
+using AutoMapper;
 using DanceLibrary;
 using Microsoft.Azure.Search.Models;
 using Newtonsoft.Json;
@@ -542,7 +543,7 @@ namespace m4dModels
                                     numerator = d.Meter.Numerator;
                                 }
                             }
-                            tempo = tempo * numerator;
+                            tempo *= numerator;
                             cell = tempo.ToString(CultureInfo.InvariantCulture);
                             baseName = TempoField;
                         }
@@ -875,7 +876,6 @@ namespace m4dModels
             return Encoding.UTF8.GetString(stream.ToArray());
         }
 
-
         protected void LoadProperties(ICollection<SongProperty> properties, DanceStatsInstance stats) 
         {
             var created = SongProperties != null && SongProperties.Count > 0;
@@ -986,6 +986,15 @@ namespace m4dModels
                 ClearValues();
             }
         }
+
+        public SongHistory GetHistory(IMapper mapper)
+        {
+            return new SongHistory
+            {
+                Id = SongId,
+                Properties = SongProperties.Select(mapper.Map<SongPropertySparse>).ToList()
+            };
+        }
         #endregion
 
         #region Properties
@@ -1005,7 +1014,8 @@ namespace m4dModels
         public int? Length { get; set; }
 
         [DataMember]
-        public string Purchase { get { return GetPurchaseTags(); } set { } }
+        public string Purchase { get => GetPurchaseTags();
+            set { } }
 
         public IEnumerable<PurchaseInfo> PurchaseInfo => GetPurchaseLinks().Select(p => new PurchaseInfo(p, true));
 
@@ -1038,7 +1048,7 @@ namespace m4dModels
         [DataMember]
         public List<AlbumDetails> Albums
         {
-            get => _albums ?? (_albums = new List<AlbumDetails>());
+            get => _albums ??= new List<AlbumDetails>();
             set => _albums = value;
         }
         private List<AlbumDetails> _albums;
@@ -1780,12 +1790,12 @@ namespace m4dModels
         private bool UpdateProperty(Song edit, string name)
         {
             // TODO: This can be optimized
-            var eP = edit.GetType().GetProperty(name).GetValue(edit);
-            var oP = GetType().GetProperty(name).GetValue(this);
+            var eP = edit.GetType().GetProperty(name)?.GetValue(edit);
+            var oP = GetType().GetProperty(name)?.GetValue(this);
 
             if (Equals(eP, oP)) return false;
 
-            GetType().GetProperty(name).SetValue(this, eP);
+            GetType().GetProperty(name)?.SetValue(this, eP);
 
             CreateProperty(name, eP);
 
@@ -1795,14 +1805,14 @@ namespace m4dModels
         // Only update if the old song didn't have this property
         private bool AddProperty(Song edit, string name)
         {
-            var eP = edit.GetType().GetProperty(name).GetValue(edit);
-            var oP = GetType().GetProperty(name).GetValue(this);
+            var eP = edit.GetType().GetProperty(name)?.GetValue(edit);
+            var oP = GetType().GetProperty(name)?.GetValue(this);
 
             // Edit property is null or whitespace and Old property isn't null or whitespace
             if (NullIfWhitespace(eP) == null || NullIfWhitespace(oP) != null)
                 return false;
 
-            GetType().GetProperty(name).SetValue(this, eP);
+            GetType().GetProperty(name)?.SetValue(this, eP);
             CreateProperty(name, eP);
 
             return true;
@@ -1810,8 +1820,7 @@ namespace m4dModels
 
         private static object NullIfWhitespace(object o)
         {
-            var s = o as string;
-            if (s != null && string.IsNullOrWhiteSpace(s)) o = null;
+            if (o is string s && string.IsNullOrWhiteSpace(s)) o = null;
 
             return o;
         }
@@ -2855,7 +2864,7 @@ namespace m4dModels
             var oi = SortChars(pi);
             var ni = GetPurchaseTags();
 
-            ni = ni ?? string.Empty;
+            ni ??= string.Empty;
 
             var merged = oi.Union(ni);
             return SortChars(merged);
@@ -3734,8 +3743,8 @@ namespace m4dModels
 
         protected static string BuildSignature(string artist, string title)
         {
-            artist = artist ?? string.Empty;
-            title = title ?? string.Empty;
+            artist ??= string.Empty;
+            title ??= string.Empty;
 
             var ret = $"{CreateNormalForm(artist)} {CreateNormalForm(title)}";
 

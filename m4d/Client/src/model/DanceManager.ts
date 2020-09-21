@@ -1,20 +1,9 @@
 import 'reflect-metadata';
-import { TypedJSON } from 'typedjson';
 import { DanceStats, TempoRange } from './DanceStats';
-
-import danceJson from '../assets/danceStats.json';
-const danceStats = TypedJSON.parseAsArray(danceJson, DanceStats);
-let loaded: DanceStats[] | undefined;
+import { fetchEnvironment } from './DanceEnvironmet';
 
 export function fetchStats(): DanceStats[] {
-    if (!loaded) {
-        let statsString = danceJson;
-        if  ((window as any).statsString) {
-            statsString = (window as any).statsString.tree;
-        }
-        loaded = TypedJSON.parseAsArray(statsString, DanceStats);
-    }
-    return loaded;
+    return fetchEnvironment().stats!;
 }
 
 export class DanceOrder {

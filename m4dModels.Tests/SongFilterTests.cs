@@ -64,7 +64,7 @@ namespace m4dModels.Tests
             Assert.AreEqual(@"All songs danceable to any of Mambo, Rumba or Samba.", f9.Description);
             Assert.AreEqual(@"All songs danceable to all of East Coast Swing, Foxtrot and Tango (Ballroom) available on Amazon.", f10.Description);
             Assert.AreEqual(@"All Rumba songs available on Amazon. Sorted by Tempo from slowest to fastest.", f11.Description);
-            Assert.AreEqual(@"All songs dancable to all of Rumba and Bachata having tempo less than 180 beats per minute. Sorted by When Added from oldest to newest.",f12.Description);
+            Assert.AreEqual(@"All songs danceable to all of Rumba and Bachata having tempo less than 180 beats per minute. Sorted by When Added from oldest to newest.",f12.Description);
         }
 
         [TestMethod]

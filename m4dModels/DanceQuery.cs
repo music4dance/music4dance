@@ -147,7 +147,7 @@ namespace m4dModels
                 case 1:
                     return $"{dances[0]} songs{suffix}";
                 case 2:
-                    return $"songs dancable to {prefix} of {dances[0]} {connector} {dances[1]}{suffix}";
+                    return $"songs danceable to {prefix} of {dances[0]} {connector} {dances[1]}{suffix}";
                 default:
                     var last = dances[count - 1];
                     dances.RemoveAt(count - 1);

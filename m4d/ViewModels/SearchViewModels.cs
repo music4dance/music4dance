@@ -5,13 +5,6 @@ using m4dModels;
 
 namespace m4d.ViewModels
 {
-    public class TagModel
-    {
-        public string Value { get; set; }
-        public string Category { get; set; }
-        public int Count { get; set; }
-    }
-
     public class TagProfile : Profile
     {
         public TagProfile()

@@ -7,7 +7,7 @@
 
     ViewBag.Title = "Tag List";
     ViewBag.Description = "Explore songs based on musical genre, tempo, style and other tags.";
-    ViewBag.SongFilter = SongFilter.Default;
+    ViewBag.SongFilter = SongFilter.GetDefault(User.Identity.Name);
 }
 <h1>@ViewBag.Title</h1>
 

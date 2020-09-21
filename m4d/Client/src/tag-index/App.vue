@@ -14,10 +14,6 @@ import { Tag } from '../model/Tag';
 
 declare const model: string;
 
-// TODO:
-//  Get Icon in title, use tag variant for title bg?
-//  User filter on type?
-
 @Component({
   components: {
     Page,

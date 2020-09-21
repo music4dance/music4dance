@@ -163,7 +163,6 @@ export default class App extends Vue {
     },
   ];
 
-  // TODONEXT: get blogs in, also add blog to the bottom of each of the dance cards
   constructor() {
     super();
 

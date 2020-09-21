@@ -1,6 +1,8 @@
-﻿@using m4dModels
+﻿@using AutoMapper
+@using m4dModels
 @using m4d.ViewModels
 @model m4dModels.Song
+@inject IMapper Mapper;
 
 @{
     ViewBag.Title = Model.Title;
@@ -32,6 +34,12 @@
         <div id="songLog" class="col-md-12">
             <br />
             <partial name="SongItems" model="Model.SongProperties" />
+        </div>
+    </div>
+    <div class="row">
+        <br />
+        <div id="songHistory">
+            <code><partial name="_jsonRaw" model="@Model.GetHistory(Mapper)" /></code>
         </div>
     </div>
 

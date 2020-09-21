@@ -11,6 +11,7 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using Microsoft.Rest;
 using FacetResults = System.Collections.Generic.IDictionary<string, System.Collections.Generic.IList<Microsoft.Azure.Search.Models.FacetResult>>;
 
 namespace m4dModels
@@ -548,7 +549,7 @@ namespace m4dModels
         {
             const int max = 10000;
 
-            var filter = SongFilter.AzureSimple;
+            var filter = new SongFilter();
             filter.User = user;
             if (includeHate) filter.User += "|A";
 
@@ -1046,8 +1047,10 @@ namespace m4dModels
 
         private string FilterFromTag(string key)
         {
-            var filter = SongFilter.Default;
-            filter.Tags = key;
+            var filter = new SongFilter
+            {
+                Tags = key
+            };
             var parameters = AzureParmsFromFilter(filter);
             return parameters.Filter;
         }
@@ -1736,7 +1739,7 @@ namespace m4dModels
         public IEnumerable<string> BackupIndex(string name = "default", int count = -1, DateTime? from = null, SongFilter filter = null)
         {
             var info = SearchService.GetInfo(name);
-            if (filter == null) filter = SongFilter.AzureSimple;
+            if (filter == null) filter = new SongFilter();
 
             var parameters = AzureParmsFromFilter(filter);
             parameters.IncludeTotalResultCount = false;

@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
+using Newtonsoft.Json;
 
 namespace m4dModels
 {
@@ -25,9 +26,10 @@ namespace m4dModels
         public string UserName { get; set; }
 
         [NotMapped]
+        [JsonIgnore]
         public string LikeString {
-            get {return Like?.ToString() ?? "null";}
-            set { ParseLike(value); }
+            get => Like?.ToString() ?? "null";
+            set => ParseLike(value);
         }
 
         public static bool? ParseLike(string likeString)

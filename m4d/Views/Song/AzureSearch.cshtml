@@ -5,7 +5,7 @@
 @*@using System.Runtime.Serialization.Json*@
 
 @{
-    SongFilter filter = ViewData.ContainsKey("SongFilter") ? ViewBag.SongFilter : SongFilter.AzureSimple;
+    SongFilter filter = ViewBag.SongFilter;
 
     var descriptionOverride = filter.DescriptionOverride ? filter.Description : null;
 

@@ -10,7 +10,7 @@ namespace m4dModels
     public class SongProperty
     {
         // Name Syntax: BaseName[:idx[:qual]]
-        // idx is zeros based indes for multi-value fields (only album at this point?)
+        // idx is zeros based index for multi-value fields (only album at this point?)
         // qual is a qualifier for purchase type (may generalize?)
         //
         // Not implementing this yet, but for artist might allow artist type after the colon
@@ -86,8 +86,7 @@ namespace m4dModels
                     case Song.SongIdField:
                         if (!string.IsNullOrEmpty(Value))
                         {
-                            Guid id;
-                            if (Guid.TryParse(Value, out id))
+                            if (Guid.TryParse(Value, out var id))
                             {
                                 ret = id;
                             }
@@ -97,8 +96,7 @@ namespace m4dModels
                         // decimal
                         if (!string.IsNullOrEmpty(Value))
                         {
-                            decimal v;
-                            decimal.TryParse(Value, out v);
+                            decimal.TryParse(Value, out var v);
                             ret = v;
                         }
                         break;
@@ -108,8 +106,7 @@ namespace m4dModels
                         // float
                         if (!string.IsNullOrEmpty(Value))
                         {
-                            float v;
-                            float.TryParse(Value, out v);
+                            float.TryParse(Value, out var v);
                             ret = v;
                         }
                         break;
@@ -119,22 +116,19 @@ namespace m4dModels
                         //int
                         if (!string.IsNullOrEmpty(Value))
                         {
-                            int v;
-                            int.TryParse(Value, out v);
+                            int.TryParse(Value, out var v);
                             ret = v;
                         }
                         break;
                     case Song.TimeField:
                         {
-                            DateTime v;
-                            DateTime.TryParse(Value, out v);
+                            DateTime.TryParse(Value, out var v);
                             ret = v;
                         }
                         break;
                     case Song.OwnerHash:
                         {
-                            int hash;
-                            if (int.TryParse(Value, NumberStyles.HexNumber, CultureInfo.CurrentCulture, out hash))
+                            if (int.TryParse(Value, NumberStyles.HexNumber, CultureInfo.CurrentCulture, out var hash))
                             {
                                 ret = hash;
                             }
@@ -142,8 +136,7 @@ namespace m4dModels
                         break;
                     case Song.LikeTag:
                         {
-                            bool like;
-                            if (bool.TryParse(Value, out like))
+                            if (bool.TryParse(Value, out var like))
                             {
                                 ret = like;
                             }
@@ -260,8 +253,7 @@ namespace m4dModels
 
         private static string FormatTempo(string value)
         {
-            decimal v;
-            if (decimal.TryParse(value, out v))
+            if (decimal.TryParse(value, out var v))
             {
                 value = v.ToString("F1");
             }
@@ -292,11 +284,10 @@ namespace m4dModels
             var part = ParsePart(name, 1);
             if (part != null)
             {
-                int val;
-                if (int.TryParse(part, out val))
+                if (int.TryParse(part, out var val))
                 {
                     idx = val;
-                }                
+                }
             }
 
             return idx;

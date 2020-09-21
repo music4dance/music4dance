@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using DanceLibrary;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 
 namespace m4dModels
 {
@@ -170,7 +171,11 @@ namespace m4dModels
                 new JsonSerializerSettings
                 {
                     NullValueHandling = NullValueHandling.Ignore,
-                    DefaultValueHandling = DefaultValueHandling.IgnoreAndPopulate
+                    DefaultValueHandling = DefaultValueHandling.IgnoreAndPopulate,
+                    ContractResolver = new DefaultContractResolver
+                    {
+                        NamingStrategy = new CamelCaseNamingStrategy()
+                    }
                 });
         }
 

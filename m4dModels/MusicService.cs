@@ -33,13 +33,11 @@ namespace m4dModels
         public PurchaseLink GetPurchaseLink(PurchaseType pt, string album, string song)
         {
             PurchaseLink ret = null;
-            string[] regions;
-            var id = PurchaseRegion.ParseIdAndRegionInfo(song, out regions);
+            var id = PurchaseRegion.ParseIdAndRegionInfo(song, out var regions);
             var link = BuildPurchaseLink(pt, album, id);
 
             if (link != null)
             {
-
                 ret = new PurchaseLink
                 {
                     ServiceType = Id,

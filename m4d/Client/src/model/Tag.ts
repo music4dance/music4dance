@@ -7,16 +7,6 @@ export interface TagInfo {
 }
 
 @jsonObject export class Tag {
-    private static tagInfo = new Map<string, TagInfo>([
-        ['style', { iconName: 'briefcase', description: 'style'}],
-        ['tempo', { iconName: 'clock', description: 'tempo'}],
-        ['music', { iconName: 'music-note-list', description: 'musical genre'}],
-        ['other', { iconName: 'tag', description: 'other'}],
-      ]);
-
-    @jsonMember public value!: string;
-    @jsonMember public category!: string;
-    @jsonMember public count!: number;
 
     public get key(): string {
         return `${this.value}:${this.category}`;
@@ -38,6 +28,28 @@ export interface TagInfo {
     public static get TagInfo() {
         return this.tagInfo;
     }
+
+    public static fromString(key: string): Tag {
+        const parts = key.split(':');
+        return new Tag({value: parts[0], category: parts[1]});
+    }
+
+    private static tagInfo = new Map<string, TagInfo>([
+        ['style', { iconName: 'briefcase', description: 'style'}],
+        ['tempo', { iconName: 'clock', description: 'tempo'}],
+        ['music', { iconName: 'music-note-list', description: 'musical genre'}],
+        ['other', { iconName: 'tag', description: 'other'}],
+        ['dance', { iconName: 'award', description: 'dance'}],
+      ]);
+
+    @jsonMember public value!: string;
+    @jsonMember public category!: string;
+    @jsonMember public count!: number;
+    @jsonMember public primaryId?: string;
+
+    public constructor(init?: Partial<Tag>) {
+        Object.assign(this, init);
+    }
 }
 
 @jsonObject export class TagBucket extends Tag {
@@ -46,8 +58,6 @@ export interface TagInfo {
 
         const bucketSize = ordered.length / bucketCount;
 
-        // TODONEXT: Figure out why the original method wasn't preserving order
-        //  consider something to bias the top buckets smaller
         const serializer = new TypedJSON(TagBucket);
         return ordered.map((t, idx) => {
             return serializer.parse({

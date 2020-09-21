@@ -6,7 +6,8 @@
     Layout = "/Views/Shared/_bs4-Layout.cshtml";
 
     ViewBag.Title = "My Searches";
-    SongFilter filter = ViewData.ContainsKey("SongFilter") ? ViewBag.SongFilter : SongFilter.Default;
+    SongFilter filter = ViewData.ContainsKey("SongFilter") ? 
+        ViewBag.SongFilter : SongFilter.GetDefault(User.Identity.Name);
     var admin = User.IsInRole("showDiagnostics");
     var showDetails = ViewData.ContainsKey("ShowDetails") ? ViewBag.ShowDetails : false;
     var sort = ViewData.ContainsKey("Sort") ? ViewBag.Sort : "";

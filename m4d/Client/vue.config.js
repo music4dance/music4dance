@@ -27,6 +27,10 @@ module.exports = {
         entry: "src/home/main.ts",
         filename: "home.html"
       },
+      "song-index": {
+        entry: "src/song-index/main.ts",
+        filename: "songi-index.html"
+      },
       "tag-index": {
         entry: "src/tag-index/main.ts",
         filename: "tag-index.html"

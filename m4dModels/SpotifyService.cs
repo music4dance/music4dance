@@ -3,9 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
-using Microsoft.Azure.Search.Models;
 using Microsoft.CSharp.RuntimeBinder;
-using Microsoft.Rest.Serialization;
 using Exception = System.Exception;
 
 namespace m4dModels
