@@ -209,10 +209,10 @@ export default class App extends Vue {
     private tempoMin: number = 0;
     private tempoMax: number = 250;
 
-    private activity: string | null = null;
+    private activity: string = 'NT';
 
     private activities = [
-      { text: 'Don\'t filter on my activity', value: null },
+      { text: 'Don\'t filter on my activity', value: 'NT' },
       { text: 'Include all songs I\'ve marked LIKE',  value: 'IL' },
       { text: 'Exclude all songs I\'ve marked LIKE', value: 'XL' },
       { text: 'Include all songs I\'ve tagged',  value: 'IT' },
@@ -358,7 +358,7 @@ export default class App extends Vue {
       this.excludeTags.splice(0);
       this.tempoMin = 0;
       this.tempoMax = 250;
-      this.activity = null;
+      this.activity = 'NT';
       this.services.splice(0);
       this.sort = 'Dances';
       this.order = 'asc';

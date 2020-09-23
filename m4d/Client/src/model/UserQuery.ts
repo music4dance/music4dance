@@ -2,7 +2,7 @@ const identity = 'me';
 
 export class UserQuery {
     public static fromParts(parts?: string): UserQuery {
-        if (!parts) {
+        if (!parts || parts === 'NT') {
             return new UserQuery('');
         }
 
@@ -97,7 +97,7 @@ export class UserQuery {
 
     public get parts(): string {
         if (!this.data) {
-            return 'IT';
+            return 'NT';
         }
 
         let ret = this.data[0] === '-' ? 'X' : 'I';
