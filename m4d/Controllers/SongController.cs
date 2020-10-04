@@ -68,6 +68,26 @@ namespace m4d.Controllers
         #region Commands
 
         [AllowAnonymous]
+        public ActionResult Vue(SongFilter filter, bool? hideSort, List<string> hiddenColumns)
+        {
+            if (hideSort.HasValue || (hiddenColumns != null && hiddenColumns.Count > 0))
+            {
+                _hideSort = hideSort ?? false;
+                _hiddenColumns = hiddenColumns ?? new List<string>();
+                _vueMode = true;
+            }
+            else
+            {
+                _vueMode = !_vueMode;
+            }
+            return RedirectToAction("Index", new { filter });
+        }
+
+        private static bool _vueMode = false;
+        private static bool _hideSort = false;
+        private static List<string> _hiddenColumns = new List<string>();
+
+        [AllowAnonymous]
         public ActionResult Sample()
         {
             return View();
@@ -243,9 +263,9 @@ namespace m4d.Controllers
 
             ViewBag.RawSearch = p;
 
-            var results = Database.AzureSearch(filter.SearchString, p, filter.CruftFilter, "default", Database.DanceStats);
+            var results = Database.AzureSearch(filter.SearchString, p, filter.CruftFilter, User.Identity.Name, "default", Database.DanceStats);
 
-            if (Request.Query.ContainsKey("vue"))
+            if (_vueMode && !Request.Query.ContainsKey("vue") || !_vueMode && Request.Query.ContainsKey("vue"))
             {
                 return VueAzureSearch(results, filter);
             }
@@ -272,11 +292,15 @@ namespace m4d.Controllers
             }
 
             var songs = results.Songs.Select(s => _mapper.Map<SongSparse>(s)).ToList();
+            //var cols = new List<string> {"Artist", "Dances"};
             return View("Index", new SongListModel
             {
                 Songs = songs,
                 Filter = _mapper.Map<SongFilterSparse>(filter),
-                UserName = User.Identity.Name
+                UserName = User.Identity.Name,
+                Count = (int)results.TotalCount,
+                HideSort = _hideSort,
+                HiddenColumns = _hiddenColumns
             });
         }
 
@@ -1037,7 +1061,7 @@ namespace m4d.Controllers
                 filter.Purchase = "S";
                 var p = Database.AzureParmsFromFilter(filter, info.Count);
                 p.IncludeTotalResultCount = true;
-                var results = Database.AzureSearch(filter.SearchString, p, filter.CruftFilter, "default", Database.DanceStats);
+                var results = Database.AzureSearch(filter.SearchString, p, filter.CruftFilter, null,"default", Database.DanceStats);
                 var tracks = results.Songs.Select(s => s.GetPurchaseId(ServiceType.Spotify));
 
                 var service = MusicService.GetService(ServiceType.Spotify);

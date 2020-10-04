@@ -181,7 +181,6 @@ import { ListOption } from '../model/ListOption';
 import { DanceObject } from '../model/DanceStats';
 import { Tag } from '../model/Tag';
 import { SearchModel } from './searchModel';
-
 import DanceSelector from '../components/DanceSelector.vue';
 import TagCategorySelector from '../components/TagCategorySelector.vue';
 import { TypedJSON } from 'typedjson';
@@ -235,7 +234,7 @@ export default class App extends Vue {
       { text: 'Strength of Beat', value: SortOrder.Beat },
       { text: 'Closest Match', value: null },
     ];
-    private sort: string | null = 'Dances';
+    private sort: string | undefined = 'Dances';
     private order: string = 'asc';
     private bonuses: string[] = [];
 

@@ -122,8 +122,7 @@ namespace m4dModels
 
         public static readonly int DanceRatingCreate = 2;
         public static readonly int DanceRatingInitial = 2;
-        public static readonly int DanceRatingIncrement = 2;
-        public static readonly int DanceRatingAutoCreate = 1;
+        public static readonly int DanceRatingIncrement = 1;
         public static readonly int DanceRatingDecrement = -1;
 
         #endregion
@@ -3462,8 +3461,7 @@ namespace m4dModels
             var sid = d[SongIdField] as string;
             if (s == null || sid == null) throw new ArgumentOutOfRangeException(nameof(d));
 
-            Guid id;
-            if (!Guid.TryParse(sid, out id)) throw new ArgumentOutOfRangeException(nameof(d));
+            if (!Guid.TryParse(sid, out var id)) throw new ArgumentOutOfRangeException(nameof(d));
 
             Init(id, s, stats, userName, true);
         }

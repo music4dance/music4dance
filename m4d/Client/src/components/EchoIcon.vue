@@ -1,6 +1,6 @@
 <template>
     <a :href="link" target="_blank" v-if="value">
-        <img :src="image" v-b-tooltip.hover.click.left="tip" width="25" height="25">
+        <img :src="image" v-b-tooltip.hover.click.blur.left="tip" width="25" height="25">
     </a>
 </template>
 
@@ -25,7 +25,7 @@ export default class EchoIcon extends Vue {
     }
 
     private get level(): number {
-        return this.value ? Math.floor(this.value * 10) + 1 : 10;
+        return this.value ? Math.min(Math.floor(this.value * 10) + 1, 10) : 10;
     }
 
     private get tip(): string {

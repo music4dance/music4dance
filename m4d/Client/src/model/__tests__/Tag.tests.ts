@@ -20,6 +20,15 @@ describe('tags loading', () => {
         expect(bucketized).toBeDefined();
         expect(bucketized[0]).toBeInstanceOf(TagBucket);
         expect(bucketized.length).toEqual(tags.length);
-        expect(bucketized.reduce((max, t) => Math.max(max, t.count), 0) === 9);
+        expect(bucketized.reduce((max, t) => Math.max(max, t.count ?? 0), 0) === 9);
+    });
+
+    it ('should negate', () => {
+        const tag = new Tag({value: 'Rumba', category: 'Dance'});
+        expect(tag.key).toEqual('Rumba:Dance');
+        const neg = tag.negated;
+        expect(neg.key).toEqual('!Rumba:Dance');
+        const dneg = neg.negated;
+        expect(tag.key).toEqual('Rumba:Dance');
     });
 });

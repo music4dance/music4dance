@@ -7,7 +7,6 @@ export interface TagInfo {
 }
 
 @jsonObject export class Tag {
-
     public get key(): string {
         return `${this.value}:${this.category}`;
     }
@@ -44,17 +43,22 @@ export interface TagInfo {
 
     @jsonMember public value!: string;
     @jsonMember public category!: string;
-    @jsonMember public count!: number;
+    @jsonMember public count?: number;
     @jsonMember public primaryId?: string;
 
     public constructor(init?: Partial<Tag>) {
         Object.assign(this, init);
     }
+
+    public get negated(): Tag {
+        const value = this.value.startsWith('!') ? this.value.substring(1) : '!' + this.value;
+        return new Tag({value , category: this.category, count: this.count});
+    }
 }
 
 @jsonObject export class TagBucket extends Tag {
     public static bucketize(tags: Tag[], bucketCount: number = 10): TagBucket[] {
-        const ordered = tags.sort((a, b) => a.count - b.count);
+        const ordered = tags.sort((a, b) => (a.count ?? 0) - (b.count ?? 0));
 
         const bucketSize = ordered.length / bucketCount;
 

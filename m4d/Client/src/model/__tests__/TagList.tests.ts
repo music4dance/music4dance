@@ -1,8 +1,10 @@
 import 'reflect-metadata';
 import { Tag } from '@/model/Tag';
 import { TagList } from '../TagList';
+import { BIconFolder2Open } from 'bootstrap-vue';
 
 const qualified = '+Bolero:Dance|+Latin:Music|+Nontraditional:Tempo|-Rumba:Dance|-Pop:Music';
+const votes = 'Bolero:Dance|!Rumba:Dance';
 
 describe('tags loading', () => {
     it ('should load taglist', () => {
@@ -53,4 +55,14 @@ describe('tags loading', () => {
             .toEqual('excluding tag Pop');
     });
 
+    it ('should handle voting', () => {
+        const tagList = new TagList(votes);
+
+        const voteFor = tagList.voteFromTags(new Tag({value: 'Bolero', category: 'Dance'}));
+        expect(voteFor).toEqual(true);
+        const voteAgainst = tagList.voteFromTags(new Tag({value: 'Rumba', category: 'Dance'}));
+        expect(voteAgainst).toEqual(false);
+        const noVote  = tagList.voteFromTags(new Tag({value: 'Swing', category: 'Dance'}));
+        expect(noVote).toBeUndefined();
+    });
 });

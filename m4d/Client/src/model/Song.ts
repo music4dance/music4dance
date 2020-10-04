@@ -1,6 +1,7 @@
 /* tslint:disable:max-classes-per-file */
 import 'reflect-metadata';
 import { jsonMember, jsonObject, jsonArrayMember } from 'typedjson';
+import { DanceEnvironment } from './DanceEnvironmet';
 import { Tag } from './Tag';
 import { SongHistory } from './SongHistory';
 import { SongProperty, PropertyType } from './SongProperty';
@@ -9,13 +10,38 @@ import { PurchaseEncoded, ServiceType, PurchaseInfo } from './Purchase';
 import { enumKeys } from '@/helpers/enumKeys';
 import { timeOrder, timeOrderVerbose } from '@/helpers/timeHelpers';
 import { ITaggableObject } from './ITaggableObject';
+import { DanceStats } from './DanceStats';
 
-@jsonObject export class DanceRating {
+declare const environment: DanceEnvironment;
+
+@jsonObject export class DanceRating implements ITaggableObject {
     @jsonMember public danceId!: string;
     @jsonMember public weight!: number;
+    @jsonArrayMember(Tag) public tags!: Tag[];
+    @jsonArrayMember(Tag) public currentUserTags!: Tag[];
 
     public constructor(init?: Partial<DanceRating>) {
         Object.assign(this, init);
+    }
+
+    public get id(): string {
+        return this.danceId;
+    }
+
+    public get positiveTag(): Tag {
+        return new Tag({value: this.stats.danceName, category: 'Dance'});
+    }
+
+    public get negativeTag(): Tag {
+        return new Tag({value: '!' + this.stats.danceName, category: 'Dance'});
+    }
+
+    public get description(): string {
+        return environment.fromId(this.danceId)!.danceName;
+    }
+
+    public get stats(): DanceStats {
+        return environment.fromId(this.danceId)!;
     }
 }
 
@@ -59,6 +85,7 @@ import { ITaggableObject } from './ITaggableObject';
     @jsonMember public created!: Date;
     @jsonMember public modified!: Date;
     @jsonArrayMember(Tag) public tags!: Tag[];
+    @jsonArrayMember(Tag) public currentUserTags!: Tag[];
     @jsonArrayMember(DanceRating) public danceRatings!: DanceRating[];
     @jsonArrayMember(ModifiedRecord) public modifiedBy!: ModifiedRecord[];
     @jsonArrayMember(AlbumDetails) public albums!: AlbumDetails[];
@@ -88,6 +115,11 @@ import { ITaggableObject } from './ITaggableObject';
         return ret;
     }
 
+    public findDanceRatingByName(name: string): DanceRating | undefined {
+        const ds = environment!.fromName(name)!;
+        return this.danceRatings.find((r) => r.danceId === ds.danceId)!;
+    }
+
     public get createdOrder(): string {
         return timeOrder(this.created);
     }
@@ -109,7 +141,7 @@ import { ITaggableObject } from './ITaggableObject';
     }
 
     public get description(): string {
-        return `${this.title} by ${this.artist}`;
+        return `"${this.title}" by ${this.artist}`;
     }
 
     public getUserModified(userName?: string): ModifiedRecord | undefined {

@@ -64,7 +64,7 @@ export class DanceQuery {
     }
 
     private get dances(): DanceStats[]  {
-        return this.danceList.map((id) => environment.fromId(id)!);
+        return this.danceList.map((id) => environment!.fromId(id)!);
     }
 
     private get danceNames(): string[] {
@@ -93,6 +93,10 @@ export class DanceQuery {
 
     public get shortDescription(): string {
         return this.danceNames.join(', ');
+    }
+
+    public get singleDance(): boolean {
+        return this.danceList.length === 1;
     }
 
     private startsWithAny(qualifiers: string[]): boolean {

@@ -37,6 +37,31 @@ export class TagList {
         return TagList.build(this.tags.filter((t) => cats.indexOf(t.category.toLowerCase()) === -1));
     }
 
+    public find(tag: Tag): Tag | undefined {
+        const category = tag.category.toLowerCase();
+        const value = tag.value.toLowerCase();
+        return this.tags.find(
+            (t) => t.value.toLowerCase() === value && t.category.toLowerCase() === category);
+    }
+
+    public remove(tag: Tag): TagList {
+        const category = tag.category.toLowerCase();
+        const value = tag.value.toLowerCase();
+
+        return TagList.build(this.tags.filter(
+            (t) => t.value.toLowerCase() !== value && t.category.toLowerCase() !== category));
+    }
+
+    public voteFromTags(tag: Tag): boolean | undefined {
+        if (this.find(tag)) {
+            return true;
+        } else if (this.find(tag.negated)) {
+            return false;
+        } else {
+            return undefined;
+        }
+    }
+
     private extract(prefix: string): Tag[] {
         return this.tags.filter((t) => t.value[0] === prefix)
             .map((t) => new Tag({

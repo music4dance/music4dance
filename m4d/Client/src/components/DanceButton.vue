@@ -7,30 +7,37 @@
         @click="showModal()">
         <b-icon :icon="icon"></b-icon>
         {{ tag.value }}
-        <tag-modal :tagHandler="tagHandler"></tag-modal>
+        <b-badge variant='light'>{{ weight }}</b-badge>
+        <b-icon-tags-fill v-if="hasTags" style="margin-left:.25em"></b-icon-tags-fill>
+        <dance-modal :danceHandler="danceHandler"></dance-modal>
     </b-button>
 </template>
 
 <script lang="ts">
 import { Component, Prop, Vue } from 'vue-property-decorator';
-import TagModal from './TagModal.vue';
+import DanceModal from './DanceModal.vue';
 import { Tag } from '@/model/Tag';
-import { TagHandler } from '@/model/TagHandler';
+import { DanceHandler } from '@/model/DanceHandler';
+import { DanceRating } from '@/model/Song';
 
 @Component({
   components: {
-    TagModal,
+    DanceModal,
   },
 })
-export default class TagButton extends Vue {
-    @Prop() private readonly tagHandler!: TagHandler;
+export default class DanceButton extends Vue {
+    @Prop() private readonly danceHandler!: DanceHandler;
 
     private get variant(): string {
         return this.tag.category.toLowerCase();
     }
 
     private get tag(): Tag {
-        return this.tagHandler.tag;
+        return this.danceHandler.tag;
+    }
+
+    private get danceRating(): DanceRating {
+        return this.danceHandler.danceRating;
     }
 
     private get icon(): string {
@@ -46,8 +53,16 @@ export default class TagButton extends Vue {
         throw new Error(message);
     }
 
+    private get weight(): number {
+        return this.danceRating ? this.danceRating.weight : 0;
+    }
+
+    private get hasTags(): boolean {
+        return this.danceRating?.tags?.length > 0;
+    }
+
     private showModal(): void {
-        this.$bvModal.show(this.tagHandler.id);
+        this.$bvModal.show(this.danceHandler.id);
     }
 }
 </script>

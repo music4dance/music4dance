@@ -66,11 +66,15 @@ export function dancesForTempo(
 
 
 export function flatStats() {
-  return fetchStats().flatMap((group) => group.children);
+  return fetchStats().flatMap((group) => [group, ...group.children]);
+}
+
+function flatTypes() {
+    return fetchStats().flatMap((group) => group.children);
 }
 
 function flatInstances() {
-  return flatStats().flatMap((d) => d.danceType!.instances);
+  return flatTypes().flatMap((d) => d.danceType!.instances);
 }
 
 export function getStyles(): string[] {

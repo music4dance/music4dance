@@ -4,7 +4,7 @@
 
 @{
     Layout = "/Views/Shared/_bsv-Layout.cshtml";
-    SongFilter filter = ViewData.ContainsKey("SongFilter") ? 
+    SongFilter filter = ViewData.ContainsKey("SongFilter") ?
         ViewBag.SongFilter : SongFilter.GetDefault(User.Identity.Name);
 
     ViewBag.Title = "Songs for Dancing";
@@ -19,4 +19,10 @@
     <script src="/client/js/chunk-vendors.js"></script>
     <script src="/client/js/chunk-common.js"></script>
     <script src="/client/js/song-index.js"></script>
+}
+
+@section Styles {
+    <environment exclude="Development">
+        <link rel="stylesheet" href="/client/css/song-index.css" asp-append-version="true" />
+    </environment>
 }

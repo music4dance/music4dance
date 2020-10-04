@@ -16,7 +16,7 @@
             <b-list-group-item :href="excludeOnly" variant="danger">
                 List all songs <b>not</b> tagged as <em>{{tag.value}}</em>
             </b-list-group-item>
-            <b-list-group-item href="https://music4dance.blog/tag-filtering" variant="secondary" target="_blank">Help</b-list-group-item>
+            <b-list-group-item href="https://music4dance.blog/tag-filtering" variant="info" target="_blank">Help</b-list-group-item>
         </b-list-group>
     </b-modal>
 </template>

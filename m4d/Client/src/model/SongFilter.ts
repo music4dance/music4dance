@@ -23,7 +23,7 @@ const scRegEx = new RegExp(subChar, 'g');
         filter.user = SongFilter.readCell(cells, 5);
         filter.tempoMin = SongFilter.readNumberCell(cells, 6);
         filter.tempoMax = SongFilter.readNumberCell(cells, 7);
-        // Page
+        filter.page = SongFilter.readNumberCell(cells, 8);
         filter.tags = SongFilter.readCell(cells, 9);
         filter.level = SongFilter.readNumberCell(cells, 10);
 
@@ -57,8 +57,13 @@ const scRegEx = new RegExp(subChar, 'g');
     @jsonMember public user?: string;
     @jsonMember public tempoMin?: number;
     @jsonMember public tempoMax?: number;
+    @jsonMember public page?: number;
     @jsonMember public tags?: string;
     @jsonMember public level?: number;
+
+    public clone(): SongFilter {
+        return SongFilter.buildFilter(this.query);
+    }
 
     public get encodedQuery(): string {
         return encodeURIComponent(this.query);
@@ -71,7 +76,7 @@ const scRegEx = new RegExp(subChar, 'g');
 
         const ret = `${this.action}-${this.danceQuery.query}-${this.encode(this.sortOrder)}-` +
             `${this.encode(this.searchString)}-${this.encode(this.purchase)}-${this.encode(this.user)}-` +
-            `${tempoMin}-${tempoMax}--${this.encode(this.tags)}-${level}`;
+            `${tempoMin}-${tempoMax}-${this.cleanPage}-${this.encode(this.tags)}-${level}`;
 
         return this.trimEnd(ret, '.-');
     }
@@ -94,6 +99,14 @@ const scRegEx = new RegExp(subChar, 'g');
 
     public get isEmpty(): boolean {
         return this.isEmptyExcept(['action', 'sortOrder']);
+    }
+
+    public get cleanPage(): string {
+        return this.page && this.page > 1 ? this.page.toString() : '';
+    }
+
+    public get singleDance(): boolean {
+        return this.danceQuery.singleDance;
     }
 
     public isDefault(user?: string): boolean {
@@ -123,6 +136,16 @@ const scRegEx = new RegExp(subChar, 'g');
             filter.user = this.user;
         }
         return filter;
+    }
+
+    public changeSort(order: string): SongFilter {
+        const clone = this.clone();
+        clone.sortOrder = this.sort.change(order).query;
+        return clone;
+    }
+
+    public get url(): string {
+        return `/song/${this.action ?? 'index'}?filter=${this.encodedQuery}`;
     }
 
     private describePart(part: string | undefined): string {

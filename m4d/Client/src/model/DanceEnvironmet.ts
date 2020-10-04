@@ -60,8 +60,13 @@ TypedJSON.setGlobalConfig({
         return this.flatStats.find((d) => id === d.danceId);
     }
 
+    public fromName(name: string): DanceStats | undefined {
+        const n = name.toLowerCase();
+        return this.flatStats.find((d) => n === d.danceName.toLowerCase());
+    }
+
     public get flatStats(): DanceStats[] {
-        return this.stats!.flatMap((group) => group.children);
+        return this.stats!.flatMap((group) => [group, ...group.children]);
     }
 }
 

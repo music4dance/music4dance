@@ -1383,23 +1383,27 @@ namespace m4dModels
             }
         }
 
-        public SearchResults AzureSearch(SongFilter filter, int? pageSize = null, CruftFilter cruft = CruftFilter.NoCruft, string id = "default")
+        public SearchResults AzureSearch(
+            SongFilter filter, int? pageSize = null, CruftFilter cruft = CruftFilter.NoCruft, string id = "default")
         {
             if (filter.CruftFilter != CruftFilter.NoCruft)
             {
                 cruft = filter.CruftFilter;
             }
-            return AzureSearch(filter.SearchString, AzureParmsFromFilter(filter, pageSize), cruft, id, DanceStats);
+            return AzureSearch(filter.SearchString, AzureParmsFromFilter(filter, pageSize), 
+                cruft, null, id, DanceStats);
         }
 
-        public SearchResults AzureSearch(string search, SearchParameters parameters, CruftFilter cruft = CruftFilter.NoCruft, string id = "default", DanceStatsInstance stats = null)
+        public SearchResults AzureSearch(
+            string search, SearchParameters parameters, CruftFilter cruft = CruftFilter.NoCruft,
+            string userName = null, string id = "default", DanceStatsInstance stats = null)
         {
-            var response = DoAzureSearch(search,parameters,cruft,id);
-            var songs = response.Results.Select(d => new Song(d.Document,stats??DanceStats)).ToList();
+            var response = DoAzureSearch(search, parameters, cruft, id);
+            var songs = response.Results.Select(d => new Song(d.Document, stats ?? DanceStats, userName)).ToList();
             var pageSize = parameters.Top ?? 25;
-            var page = ((parameters.Skip ?? 0)/pageSize) + 1;
+            var page = ((parameters.Skip ?? 0) / pageSize) + 1;
             var facets = response.Facets;
-            return new SearchResults(search, songs.Count,response.Count ?? -1,page, pageSize, songs, facets);
+            return new SearchResults(search, songs.Count, response.Count ?? -1, page, pageSize, songs, facets);
         }
 
         public FacetResults GetTagFacets(string categories, int count, string id = "default")

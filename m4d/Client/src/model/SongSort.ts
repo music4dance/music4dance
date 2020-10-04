@@ -1,3 +1,6 @@
+import { toTitleCase } from '@/helpers/StringHelpers';
+import { Song } from './Song';
+
 /* tslint:disable:max-classes-per-file */
 export enum SortOrder {
     Title = 'Title',
@@ -13,8 +16,13 @@ export enum SortOrder {
 }
 
 export class SongSort {
-    public static fromParts(order: string | null, direction: string): SongSort {
-        return order ? new SongSort(order + '_' + direction) : new SongSort();
+    public static fromParts(order: string | undefined, direction: string | undefined): SongSort {
+        const dir = direction?.toLowerCase() === 'desc' ? 'desc' : undefined;
+        return order
+            ? direction
+                ? new SongSort(order + '_' + direction)
+                : new SongSort(order)
+            : new SongSort();
     }
 
     private data: string;
@@ -27,8 +35,8 @@ export class SongSort {
         return this.data;
     }
 
-    public get order(): string | null {
-        return this.data ? this.data.split('_')[0] : null;
+    public get order(): string | undefined {
+        return this.data ? this.data.split('_')[0] : undefined;
     }
 
     public get direction(): string {
@@ -43,11 +51,27 @@ export class SongSort {
                 return 'Last Modified';
             case SortOrder.Created:
                 return 'When Added';
-            case null:
+            case undefined:
             case '':
                 return 'Closest Match';
             default:
                 return this.order;
+        }
+    }
+
+    public get type(): string {
+        switch (this.order) {
+            case SortOrder.Tempo:
+            case SortOrder.Beat:
+            case SortOrder.Mood:
+            case SortOrder.Energy:
+                return 'numeric';
+            case SortOrder.Modified:
+            case SortOrder.Created:
+            case SortOrder.Dances:
+                return '';
+            default:
+                return 'alpha';
         }
     }
 
@@ -97,6 +121,16 @@ export class SongSort {
         }
     }
 
+    public change(order: string): SongSort {
+        const sorder = toTitleCase(order);
+        if (sorder === this.order) {
+            const direction = this.direction === 'desc' ? undefined : 'desc';
+            return SongSort.fromParts(this.order, direction);
+        } else {
+            return new SongSort(order);
+        }
+    }
+
     private normalize(query: string | undefined): string {
         if (!query) {
             return '';
@@ -104,7 +138,7 @@ export class SongSort {
 
         const parts = query.split('_').map((p) => p.trim());
         if (parts.length === 2 && parts[1].toLowerCase() === 'desc') {
-            return parts[0] + '_desc';
+            return toTitleCase(parts[0]) + '_desc';
         }
 
         return parts[0];

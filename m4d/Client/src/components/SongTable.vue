@@ -1,6 +1,8 @@
 <template>
     <div>
-        <b-table striped hover :items="songs" :fields="fields">
+        <b-table striped hover no-local-sorting sort-icon-left
+            :items="songs" 
+            :fields="fields">
             <template v-slot:cell(play)="data">
                 <like-button :song="data.item" :userName="userName" scale="1.75"></like-button>
                 &nbsp;
@@ -12,29 +14,63 @@
                 </a>
                 <play-modal :song="data.item"></play-modal>
             </template>
+            <template v-slot:head(title)>
+                <sortable-header 
+                    id="Title"
+                    :tip="titleHeaderTip"
+                    :enableSort="!hideSort"
+                    :filter="filter"
+                ></sortable-header>
+            </template>
             <template v-slot:cell(title)="data">
                 <a :href="songRef(data.item)">{{ data.item.title }}</a>
+            </template>
+            <template v-slot:head(artist)>
+                <sortable-header 
+                    id="Artist"
+                    :tip="titleHeaderTip"
+                    :enableSort="!hideSort"
+                    :filter="filter"
+                ></sortable-header>
             </template>
             <template v-slot:cell(artist)="data">
                 <a :href="artistRef(data.item)">{{ data.item.artist }}</a>
             </template>
+            <template v-slot:head(tempo)>
+                <sortable-header 
+                    id="Tempo"
+                    title="Tempo (BPM)"
+                    :tip="titleHeaderTip"
+                    :enableSort="!hideSort"
+                    :filter="filter"
+                ></sortable-header>
+            </template>
             <template v-slot:cell(tempo)="data">
                 <a :href="tempoRef(data.item)">{{ data.value }}</a>
             </template>
-            <template v-slot:head(echo)="data">
-                <div style="min-width:75px">
-                    <img
-                        src="/images/icons/beat-10.png"
-                        width="25" height="25"
-                        v-b-tooltip.hover.click.left="beatTip">
-                    <img
-                        src="/images/icons/energy-10.png"
-                        width="25" height="25"
-                        v-b-tooltip.hover.click.left="energyTip">
-                    <img
-                        src="/images/icons/mood-10.png"
-                        width="25" height="25"
-                        v-b-tooltip.hover.click.left="moodTip">
+            <template v-slot:head(echo)>
+                <div :class="echoClass">
+                    <sortable-header 
+                        id="Beat"
+                        :tip="beatTip"
+                        :enableSort="!hideSort"
+                        :filter="filter">
+                        <img src="/images/icons/beat-10.png" width="25" height="25">
+                    </sortable-header>
+                    <sortable-header 
+                        id="Energy"
+                        :tip="energyTip"
+                        :enableSort="!hideSort"
+                        :filter="filter">
+                        <img src="/images/icons/energy-10.png" width="25" height="25">
+                    </sortable-header>
+                    <sortable-header 
+                        id="Mood"
+                        :tip="moodTip"
+                        :enableSort="!hideSort"
+                        :filter="filter">
+                        <img src="/images/icons/mood-10.png" width="25" height="25">
+                    </sortable-header>
                 </div>
             </template>
             <template v-slot:cell(echo)="data" style="width:100px">
@@ -51,19 +87,35 @@
                     type="mood" label="mood level" maxLabel="happiest"
                 ></echo-icon>
             </template>
+            <template v-slot:head(dances)>
+                <sortable-header 
+                    id="Dances"
+                    :tip="titleHeaderTip"
+                    :enableSort="sortableDances"
+                    :filter="filter"
+                ></sortable-header>
+            </template>
             <template v-slot:cell(dances)="data">
-                <tag-button v-for="tag in dances(data.item)" :key="tag.key" 
-                    :tagHandler="tagHandler(tag)"></tag-button>
+                <dance-button v-for="tag in dances(data.item)" :key="tag.key" 
+                    :danceHandler="danceHandler(tag, filter, data.item)"></dance-button>
             </template>
             <template v-slot:cell(tags)="data">
                 <tag-button v-for="tag in tags(data.item)"
                     :key="tag.key" :tagHandler="tagHandler(tag, filter, data.item)"></tag-button>
             </template>
-            <template v-slot:head(order)="data">
-                <span v-b-tooltip.hover.click.left="orderHeaderTip"><b-icon :icon="orderIcon"></b-icon></span>
+            <template v-slot:head(order)>
+                <div class="orderHeader">
+                    <sortable-header 
+                        :id="orderType"
+                        :tip="beatTip"
+                        :enableSort="!hideSort"
+                        :filter="filter">
+                        <b-icon :icon="orderIcon"></b-icon>
+                    </sortable-header>
+                </div>
             </template>
             <template v-slot:cell(order)="data">
-                <span v-b-tooltip.hover.click.topleft="orderTip(data.item)">{{ data.item.modifiedOrder }}</span>
+                <span v-b-tooltip.hover.click.blur.topleft="orderTip(data.item)">{{ data.item.modifiedOrder }}</span>
             </template>
         </b-table>
     </div>
@@ -71,37 +123,44 @@
 
 <script lang="ts">
 import 'reflect-metadata';
+import DanceButton from './DanceButton.vue';
 import EchoIcon from './EchoIcon.vue';
 import LikeButton from './LikeButton.vue';
 import PlayModal from './PlayModal.vue';
+import SortableHeader from './SortableHeader.vue';
 import TagButton from './TagButton.vue';
 import { Component, Prop, Vue } from 'vue-property-decorator';
-import { Song } from '@/model/Song';
+import { DanceRating, Song } from '@/model/Song';
 import { Tag } from '@/model/Tag';
 import { DanceEnvironment } from '@/model/DanceEnvironmet';
 import { SongFilter } from '@/model/SongFilter';
+import { DanceHandler } from '@/model/DanceHandler';
 import { TagHandler } from '@/model/TagHandler';
 import { ITaggableObject } from '@/model/ITaggableObject';
+import { SongSort } from '@/model/SongSort';
 
 // TODONEXT:
-//  Add filter description to advanced search results
 //  Consider going to advanced search results once amything has been selected
 //   beyond a single dance
-//  Continue to unravel getting default user search to be persistent
 //  Show Temnpo == 0 as empty
-//  Figure out how to better handle the default filter (including don't like)
-//  Add in the vote count for dances
-//  Get the dance modal up and running
-//  Get dances working
+//  Finish up the dance modal:
+//    Think about the consequences of the 2 upvote rule (and removing it)
+//    Look at integrating dance/tag buttons and modals
+//  Get inline dance voting working
+//  Get options working (no-sort, showDate, hideDances, hideArtist, hideAlbum)
+//  Get simple dance header working
+//  Think about how we replace merge & other administrative functions
 //  Get this to be adaptive for smaller screens
-//  Get sorting working
-//  Get pagination working
+//  Look at what else we want to put in footer (the not as many songs as expected, for one...)
+//  https://localhost:5001/song/filtersearch?filter=Advanced--Modified---%2Bme%7Ca
 
 @Component({
   components: {
+    DanceButton,
     EchoIcon,
     LikeButton,
     PlayModal,
+    SortableHeader,
     TagButton,
   },
 })
@@ -110,44 +169,63 @@ export default class SongTable extends Vue {
     @Prop() private readonly filter!: SongFilter;
     @Prop() private readonly userName!: string;
     @Prop() private readonly environment!: DanceEnvironment;
+    @Prop() private readonly hideSort?: boolean;
+    @Prop() private readonly hiddenColumns?: string[];
 
-    private fields = [
-        {
-            key: 'play',
-            label: 'Like/Play',
-        },
-        {
-            key: 'title',
-        },
-        {
-            key: 'artist',
-        },
-        {
-            key: 'tempo',
-            label: 'Tempo (BPM)',
-            formatter: (value: number) => Math.round(value),
-        },
-        {
-            key: 'echo',
-        },
-        {
-            key: 'dances',
-        },
-        {
-            key: 'tags',
-        },
-        {
-            key: 'order',
-        },
+    private get fields() {
+        const fields = [
+            {
+                key: 'play',
+                label: 'Like/Play',
+            },
+            {
+                key: 'title',
+            },
+            {
+                key: 'artist',
+            },
+            {
+                key: 'tempo',
+                label: 'Tempo (BPM)',
+                formatter: (value: number) => Math.round(value),
+            },
+            {
+                key: 'echo',
+            },
+            {
+                key: 'dances',
+            },
+            {
+                key: 'tags',
+            },
+            {
+                key: 'order',
+            },
+        ];
+        const hidden = this.hiddenColumns;
+        return !!hidden
+            ? fields.filter((f) => !hidden.find((c) => c.toLowerCase() === f.key))
+            : fields;
+    }
 
-    ];
+    private get titleHeaderTip(): string {
+        return 'Song Title: Click to sort alphabetically by title';
+    }
 
     private songRef(song: Song): string {
-        return `/song/details/${song.songId}`; // TODO: Get filter parameter in here
+        return `/song/details/${song.songId}?filter=${this.filter.encodedQuery}`;
+    }
+
+    private get artistHeaderTip(): string {
+        return 'Artist: Click to sort alphabetically by artist';
     }
 
     private artistRef(song: Song): string {
-        return `/song/artist/?name=${song.artist}`; // TODO: Get filter parameter in here
+        return `/song/artist/?name=${song.artist}`;
+    }
+
+    private get tempoHeaderTip(): string {
+        return 'Tempo (Beats Per Minute): Click to sort numerically by tempo';
     }
 
     private tempoRef(song: Song): string {
@@ -166,9 +244,21 @@ export default class SongTable extends Vue {
         return 'Mood of the song (fuller icons represent a happier mood). Click to sort by mood.';
     }
 
+    private get echoClass(): string[] {
+        const order = this.filter.sort.order;
+        return (order === 'Mood' || order === 'Beat' || order === 'Energy')
+            ? ['sortedEchoHeader']
+            : ['echoHeader'];
+    }
+
     private echoLink(type: string): string {
         return `https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#${type}`;
     }
+
+    private get dancesHeaderTip(): string {
+        return 'Dance: Click to sort by dance rating';
+    }
+
 
     private dances(song: Song): Tag[] {
         return song.tags.filter((t) => !t.value.startsWith('!') && t.category.toLowerCase() === 'dance');
@@ -183,20 +273,40 @@ export default class SongTable extends Vue {
     }
 
     private get orderHeaderTip(): string {
-        return `${this.sortOrder}: Click to sort by date ${this.sortOrder}`;
+        return `Click to sort by date ${this.orderType.toLowerCase()}`;
+    }
+
+    private get orderType(): string {
+        return this.createdOrder ? 'Created' : 'Modified';
     }
 
     private get orderIcon(): string {
-        return (this.sortOrder.toLowerCase() === 'created') ?
+        return (this.createdOrder) ?
             'file-earmark-plus' : 'pencil';
+    }
+
+    private danceHandler(tag: Tag, filter: SongFilter, song: Song): DanceHandler {
+        return new DanceHandler(song.findDanceRatingByName(tag.value)!, tag, this.userName, filter, song);
     }
 
     private tagHandler(tag: Tag, filter?: SongFilter, parent?: ITaggableObject): TagHandler {
         return new TagHandler(tag, this.userName, filter, parent);
     }
 
-    private get sortOrder(): string {
-        return this?.filter?.sortOrder ?? 'Modified';
+    private get sortOrder(): SongSort {
+        return this?.filter?.sort ?? new SongSort('Modified');
+    }
+
+    private get createdOrder(): boolean {
+        return this.sortOrder.order === 'Created';
+    }
+
+    private get modifiedOrder(): boolean {
+        return this.sortOrder.order === 'Modified';
+    }
+
+    private get sortableDances(): boolean {
+        return !this.hideSort &&  this.filter.singleDance;
     }
 
     private showPlayModal(song: Song): void {
@@ -204,3 +314,15 @@ export default class SongTable extends Vue {
     }
  }
 </script>
+
+<style scoped lang='scss'>
+.echoHeader {
+    min-width:75px
+}
+.sortedEchoHeader {
+    min-width:100px
+}
+.orderHeader {
+    min-width:3em
+}
+</style>

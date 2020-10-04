@@ -1,5 +1,8 @@
 <template>
-    <a href="#" @click.prevent="onClick" role="button">
+    <a href="#" 
+        @click.prevent="onClick" 
+        v-b-tooltip.hover.right="likeTip"
+        role="button">
         <b-icon-heart-fill variant="danger" v-if="state" :font-scale="scale"></b-icon-heart-fill>
         <b-iconstack v-else-if="state===false" :font-scale="scale">
             <b-icon stacked icon="heart-fill" variant="secondary" scale="0.75" shift-v="-1"></b-icon>
@@ -39,6 +42,22 @@ export default class LikeButton extends Vue {
         return this.rotateLike(this.state);
     }
 
+    private get likeTip(): string {
+        if (!this.userName) {
+            return 'Log in to like/dislike this song.';
+        }
+
+        const modified = this.userModified;
+        const title = this.song.title;
+        if (!modified || modified.like === undefined) {
+            return `Click to like/dislike ${title}.`;
+        } else if (modified.like) {
+            return `You have liked ${title}, click to dislike.`;
+        } else {
+            return `You have disliked ${title}, click to reset.`;
+        }
+    }
+
     private setNextState(): void {
         let modified = this.userModified;
         if (modified) {
@@ -50,6 +69,14 @@ export default class LikeButton extends Vue {
     }
 
     private async onClick(song: Song): Promise<void> {
+        if (this.userName) {
+            await this.clickLike(song);
+        } else {
+            window.location.href = `/identity/account/login?returnUrl=${this.redirect}`;
+        }
+    }
+
+    private async clickLike(song: Song): Promise<void> {
         try {
             const newState = this.nextState;
             const response =  await axios.put(
@@ -62,6 +89,11 @@ export default class LikeButton extends Vue {
             console.log(e);
             throw e;
         }
+    }
+
+    private get redirect(): string {
+        const location = window.location;
+        return `${location.pathname}${location.search}${location.hash}`;
     }
 
     private rotateLike(like?: boolean): boolean | undefined {
