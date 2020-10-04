@@ -4,6 +4,9 @@
       <b-table striped hover
           :items="dances" :fields="fields" responsive
       >
+        <template v-slot:cell(name)="data">
+            <a :href="danceLink(data.item)">{{data.value}}</a>
+        </template>
         <template v-slot:cell(tempoRange)="data">
             <a :href="defaultTempoLink(data.item)">{{data.value}}</a>
         </template>
@@ -24,6 +27,7 @@
 </template>
 
 <script lang="ts">
+import { wordsToKebab } from '@/helpers/StringHelpers';
 import { Component, Prop, Vue } from 'vue-property-decorator';
 import { DanceInstance, Meter, TempoRange } from '../model/DanceStats';
 
@@ -102,6 +106,10 @@ export default class CompetitionCategoryTable extends Vue {
     private get styleFamily(): string {
         const family = this.dances[0].styleFamily;
         return this.dances.every((d) => d.styleFamily === family) ? family : 'Both';
+    }
+
+    private danceLink(dance: DanceInstance): string {
+        return wordsToKebab(dance.shortName);
     }
 
     private defaultTempoLink(dance: DanceInstance): string {
