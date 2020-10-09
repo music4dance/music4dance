@@ -115,9 +115,13 @@ declare const environment: DanceEnvironment;
         return ret;
     }
 
+    public findDanceRatingById(id: string): DanceRating | undefined {
+        return this.danceRatings.find((r) => r.danceId === id)!;
+    }
+
     public findDanceRatingByName(name: string): DanceRating | undefined {
         const ds = environment!.fromName(name)!;
-        return this.danceRatings.find((r) => r.danceId === ds.danceId)!;
+        return this.findDanceRatingById(ds.danceId);
     }
 
     public get createdOrder(): string {

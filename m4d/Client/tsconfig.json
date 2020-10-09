@@ -13,6 +13,10 @@
     "resolveJsonModule": true,
     "sourceMap": true,
     "baseUrl": ".",
+    "typeRoots": [
+      "src/customTypings",
+      "node_modules/@types"
+    ],
     "types": [
       "webpack-env",
       "jest"

@@ -234,7 +234,7 @@ export default class App extends Vue {
       { text: 'Strength of Beat', value: SortOrder.Beat },
       { text: 'Closest Match', value: null },
     ];
-    private sort: string | undefined = 'Dances';
+    private sort: string | null = 'Dances';
     private order: string = 'asc';
     private bonuses: string[] = [];
 
@@ -254,7 +254,7 @@ export default class App extends Vue {
       this.danceInferred = danceQuery.includeInferred;
 
       const sort = new SongSort(filter.sortOrder);
-      this.sort = sort.order;
+      this.sort = sort.order ?? null;
       this.order = sort.direction;
 
       this.services = filter.purchase ? filter.purchase.trim().split('') : [];
@@ -305,7 +305,7 @@ export default class App extends Vue {
       filter.action =  'Advanced';
       filter.searchString = this.keyWords;
       filter.dances =  danceQuery.query;
-      filter.sortOrder = SongSort.fromParts(this.sort, this.order).query;
+      filter.sortOrder = SongSort.fromParts(this.sort ?? undefined, this.order).query;
       filter.user = userQuery.query;
       filter.purchase = this.services.join('');
       filter.tempoMin = this.tempoMin === 0 ? undefined : this.tempoMin;
