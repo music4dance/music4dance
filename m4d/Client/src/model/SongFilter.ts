@@ -114,6 +114,11 @@ const scRegEx = new RegExp(subChar, 'g');
         return empty && this.isDefaultUser(user);
     }
 
+    public isSimple(user?: string): boolean {
+        return this.isEmptyExcept(['action', 'user', 'searchString', 'sortOrder', 'dances'])
+            && this.danceQuery.isSimple && this.userQuery.isDefault(user);
+    }
+
     public get description(): string {
         // All [dance] songs [containing the text "<SearchString>] [Available on
         //  [Amazon|ITunes|Spotify] [Including tags TI] [Excluding tags TX] [between Tempo Range]
@@ -195,10 +200,6 @@ const scRegEx = new RegExp(subChar, 'g');
 
     private isDefaultUser(user?: string): boolean {
         return this.userQuery.isDefault(user);
-    }
-
-    public get isEmptyDance(): boolean {
-        return this.isEmptyExcept(['action', 'sortOrder', 'dances']);
     }
 
     private isEmptyExcept(properties: string[]): boolean {

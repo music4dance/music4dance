@@ -68,6 +68,12 @@ TypedJSON.setGlobalConfig({
     public get flatStats(): DanceStats[] {
         return this.stats!.flatMap((group) => [group, ...group.children]);
     }
+
+    public get groupedStats(): DanceStats[] {
+        return this.stats!.sort((a, b) => a.danceName.localeCompare(b.danceName))
+            .flatMap((group) =>
+                [group, ...group.children.sort((a, b) => a.danceName.localeCompare(b.danceName))]);
+    }
 }
 
 import environmentJson from '../assets/dance-environment.json';

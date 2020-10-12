@@ -1,6 +1,6 @@
 <template>
     <div>
-        <b-table striped hover no-local-sorting sort-icon-left
+        <b-table striped hover no-local-sorting sort-icon-left borderless
             :items="songs" 
             :fields="fields">
             <template v-slot:head(play)>
@@ -191,9 +191,9 @@ import { SongSort } from '@/model/SongSort';
 //   beyond a single dance
 //  Finish up the dance modal:
 //    Look at integrating dance/tag buttons and modals
-//  Get simple dance header working
 //  Think about how we replace merge & other administrative functions
 //  Look at what else we want to put in footer (the not as many songs as expected, for one...)
+//  Figure out if there's a race condition when loading
 //  https://localhost:5001/song/filtersearch?filter=Advanced--Modified---%2Bme%7Ca
 
 interface IField {

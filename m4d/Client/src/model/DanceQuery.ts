@@ -99,6 +99,10 @@ export class DanceQuery {
         return this.danceList.length === 1;
     }
 
+    public get isSimple(): boolean {
+        return this.danceList.length < 2;
+    }
+
     private startsWithAny(qualifiers: string[]): boolean {
         return !!qualifiers.find((q) => this.startsWith(q));
     }

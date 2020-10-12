@@ -1,21 +1,24 @@
 <template>
   <page id="app">
-    <h1>Search Results</h1>
-    <h3>
-      {{ model.filter.description }}
-      <b-button :href="changeLink">Change</b-button>
-    </h3>
+    <song-library-header v-if="filter.isSimple(model.user)"
+      :filter="filter"
+      :user="model.user"
+    ></song-library-header>
+    <search-header v-else
+      :filter="filter"
+      :user="model.user"
+    ></search-header>
     <song-table 
       :v-if="loaded"
       :songs="songs"
       :environment="environment"
-      :filter="model.filter"
+      :filter="filter"
       :userName="model.userName"
       :hideSort="model.hideSort"
       :hiddenColumns="model.hiddenColumns"
     ></song-table>
     <song-footer
-      :filter="model.filter"
+      :filter="filter"
       :count="model.count"
     ></song-footer>
   </page>
@@ -25,7 +28,9 @@
 // tslint:disable: max-classes-per-file
 import 'reflect-metadata';
 import { Component, Vue } from 'vue-property-decorator';
+import SearchHeader from '../components/SearchHeader.vue';
 import SongFooter from '../components/SongFooter.vue';
+import SongLibraryHeader from '../components/SongLibraryHeader.vue';
 import SongTable from '../components/SongTable.vue';
 import Page from '../components/Page.vue';
 import { jsonObject, TypedJSON, jsonArrayMember, jsonMember } from 'typedjson';
@@ -49,7 +54,9 @@ declare const model: string;
 @Component({
   components: {
     Page,
+    SearchHeader,
     SongFooter,
+    SongLibraryHeader,
     SongTable,
   },
 })
@@ -85,10 +92,6 @@ export default class App extends Vue {
 
   private get filter(): SongFilter {
     return this.loaded ? this.model.filter : new SongFilter();
-  }
-
-  private get changeLink(): string {
-    return `/song/advancedsearchform?filter=${this.filter.encodedQuery}`;
   }
 
   private async created() {

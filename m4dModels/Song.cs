@@ -296,8 +296,19 @@ namespace m4dModels
             return Serialize(null);
         }
 
-        public static Song CreateFromRow(string user, IList<string> fields, IList<string> cells, DanceStatsInstance stats, int weight = 1)
+        public static Song CreateFromRow(
+            string user, IList<string> fields, IList<string> cells,
+            DanceStatsInstance stats, int weight = 1)
         {
+            return new Song(
+                Guid.NewGuid(),
+                CreatePropertiesFromRow(user, fields, cells, stats, weight),
+                stats);
+        }
+
+        private static List<SongProperty> CreatePropertiesFromRow(
+                string user, IList<string> fields, IList<string> cells,
+                DanceStatsInstance stats, int weight = 1) {
             var properties = new List<SongProperty>();
             var specifiedUser = false;
             var specifiedAction = false;
@@ -607,7 +618,7 @@ namespace m4dModels
                 }
             }
 
-            return new Song(Guid.NewGuid(), properties, stats);
+            return properties;
         }
 
         private static SongProperty UpdateTagProperty(ICollection<SongProperty> properties, SongProperty tagProperty, string extra)
@@ -791,7 +802,7 @@ namespace m4dModels
         //private static readonly List<string> s_trackFields = new List<string>(new string[] {""});
         public static Song CreateFromTrack(string user, ServiceTrack track, string multiDance, string songTags, DanceStatsInstance stats)
         {
-            // Title;Artist;Duration;Album;Track;MutliDance;PurchaseInfo;
+            // Title;Artist;Duration;Album;Track;multiDance;PurchaseInfo;
 
             var fields = new List<string>
             {
