@@ -53,14 +53,17 @@ export default class DanceChooser extends Vue {
     @Prop() private readonly danceId!: string;
 
     private get sortedDances(): DanceStats[] {
-        return environment.flatStats
-            .filter((d) => d.songCount > 0)
-            .sort((a, b) => a.danceName.localeCompare(b.danceName));
+        return environment
+            ? environment.flatStats
+                .filter((d) => d.songCount > 0)
+                .sort((a, b) => a.danceName.localeCompare(b.danceName))
+            : [];
     }
 
     private get groupedDances(): DanceStats[] {
-        return environment.groupedStats
-            .filter((d) => d.songCount > 0);
+        return environment
+            ? environment.groupedStats.filter((d) => d.songCount > 0)
+            : [];
     }
 
     private choose(danceId?: string): void {

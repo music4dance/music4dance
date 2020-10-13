@@ -1,11 +1,14 @@
 <template>
     <span>
-        <a  v-if="enableSort"
-            :href="sortLink" 
-            v-b-tooltip.hover.click.blur.left="tip">
-            <slot>{{ content }}</slot>
-            <b-icon v-if="sortIcon" :icon="sortIcon"></b-icon>
-        </a>
+        <span v-if="enableSort">
+            <a :href="sortLink" :id="id">
+                <slot>{{ content }}</slot>
+                <b-icon v-if="sortIcon" :icon="sortIcon"></b-icon>
+            </a>
+            <b-tooltip v-if="tip" :target="id" triggers="hover click blur" placement="left">
+                {{ tip }}
+            </b-tooltip>
+        </span>
         <span v-else><slot>{{ content }}</slot></span>
     </span>
 </template>
@@ -39,5 +42,9 @@ export default class SortableHeader extends Vue {
         const direction = sort.direction === 'asc' ? 'down' : 'down-alt';
         return type ? `sort-${type}-${direction}` : `sort-${direction}`;
     }
+
+    // private tipMessage(): string {
+    //     return this.tip ?? 'Empty ToolTip';
+    // }
 }
 </script>

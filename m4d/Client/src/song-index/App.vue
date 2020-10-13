@@ -76,9 +76,6 @@ export default class App extends Vue {
     });
 
     this.model = TypedJSON.parse(model, SongListModel)!;
-
-    // tslint:disable-next-line:no-console
-    console.log(this.model.songs.length);
   }
 
   private get loaded(): boolean {
@@ -98,7 +95,7 @@ export default class App extends Vue {
     this.environment = await getEnvironment();
 
     // tslint:disable-next-line:no-console
-    console.log(this.environment!.stats!.length);
+    // console.log(this.environment!.stats!.length);
   }
 }
 </script>
