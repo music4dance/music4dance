@@ -10,6 +10,7 @@
             </b-tooltip>
         </span>
         <span v-else><slot>{{ content }}</slot></span>
+        <b-icon v-if="sortIcon" :icon="sortIcon"></b-icon>
     </span>
 </template>
 

@@ -156,10 +156,8 @@ namespace m4d.Controllers
             {
                 filter.User = new UserQuery(User.Identity.Name, false, false).Query;
             }
-            ViewBag.NoSort = true;
-            ViewBag.ShowDate = true;
 
-            return DoAzureSearch(filter,"newmusic");
+            return VueAzureSearch(filter, hideSort: true);
         }
 
         [AllowAnonymous]
@@ -221,7 +219,33 @@ namespace m4d.Controllers
 
         private ActionResult DoAzureSearch(SongFilter filter, string page = "azuresearch")
         {
+            var ret = BuildAzureSearch(filter, out var results);
+            if (ret != null)
+            {
+                return ret;
+            }
+
+            if (_vueMode && !Request.Query.ContainsKey("vue") || !_vueMode && Request.Query.ContainsKey("vue"))
+            {
+                return VueAzureSearch(results, filter);
+            }
+
+            BuildDanceList();
+
+            var songs = new StaticPagedList<Song>(results.Songs, results.CurrentPage, results.PageSize, (int)results.TotalCount);
+
+            var dances = filter.DanceQuery.DanceIds.ToList();
+            SetupLikes(results.Songs, dances.Count == 1 ? dances[0] : null);
+
+            ReportSearch(filter);
+
+            return View(page, songs);
+        }
+
+        private ActionResult BuildAzureSearch(SongFilter filter, out SearchResults results)
+        {
             HelpPage = filter.IsSimple ? "song-list" : "advanced-search";
+            results = null;
 
             if (!filter.IsEmptyPaged && SpiderManager.CheckAnySpiders(Request.Headers[HeaderNames.UserAgent]))
             {
@@ -233,7 +257,7 @@ namespace m4d.Controllers
                 filter.Level = null;
                 //var redirectUrl = u.Action("AdvancedSearchForm", new {filter});
                 var redirectUrl =
-                    _linkGenerator.GetUriByAction(HttpContext, "AdvancedSearchForm", "Song", new {filter});
+                    _linkGenerator.GetUriByAction(HttpContext, "AdvancedSearchForm", "Song", new { filter });
                 var premiumRedirect = new PremiumRedirect
                 {
                     FeatureType = "search",
@@ -261,29 +285,27 @@ namespace m4d.Controllers
             var p = Database.AzureParmsFromFilter(filter, 25);
             p.IncludeTotalResultCount = true;
 
+            results = Database.AzureSearch(filter.SearchString, p, filter.CruftFilter, User.Identity.Name, "default", Database.DanceStats);
+
             ViewBag.RawSearch = p;
 
-            var results = Database.AzureSearch(filter.SearchString, p, filter.CruftFilter, User.Identity.Name, "default", Database.DanceStats);
-
-            if (_vueMode && !Request.Query.ContainsKey("vue") || !_vueMode && Request.Query.ContainsKey("vue"))
-            {
-                return VueAzureSearch(results, filter);
-            }
-
-            BuildDanceList();
-            ViewBag.SongFilter = filter;
-
-            var songs = new StaticPagedList<Song>(results.Songs, results.CurrentPage, results.PageSize, (int)results.TotalCount);
-
-            var dances = filter.DanceQuery.DanceIds.ToList();
-            SetupLikes(results.Songs, dances.Count == 1 ? dances[0] : null);
-
-            ReportSearch(filter);
-
-            return View(page, songs);
+            return null;
         }
 
-        private ActionResult VueAzureSearch(SearchResults results, SongFilter filter)
+        private ActionResult VueAzureSearch(SongFilter filter,
+            bool? hideSort = null, List<string> hiddenColumns = null)
+        {
+            var ret = BuildAzureSearch(filter, out var results);
+            if (ret != null)
+            {
+                return ret;
+            }
+
+            return VueAzureSearch(results, filter, hideSort, hiddenColumns);
+        }
+
+        private ActionResult VueAzureSearch(
+            SearchResults results, SongFilter filter, bool? hideSort = null, List<string> hiddenColumns = null)
         {
             string user = User.Identity.Name;
             if (user != null)
@@ -292,15 +314,14 @@ namespace m4d.Controllers
             }
 
             var songs = results.Songs.Select(s => _mapper.Map<SongSparse>(s)).ToList();
-            //var cols = new List<string> {"Artist", "Dances"};
-            return View("Index", new SongListModel
+            return View(filter.Action, new SongListModel
             {
                 Songs = songs,
                 Filter = _mapper.Map<SongFilterSparse>(filter),
                 UserName = User.Identity.Name,
                 Count = (int)results.TotalCount,
-                HideSort = _hideSort,
-                HiddenColumns = _hiddenColumns
+                HideSort = hideSort ?? _hideSort,
+                HiddenColumns = _hiddenColumns ?? _hiddenColumns
             });
         }
 

@@ -1,106 +1,25 @@
-﻿@using m4dModels
+﻿@model m4d.ViewModels.SongListModel
 @using m4d.ViewModels
-@model X.PagedList.IPagedList<Song>
 
 @{
-    SongFilter filter = ViewBag.SongFilter;
+    Layout = "/Views/Shared/_bsv-Layout.cshtml";
 
     ViewBag.Title = "New Music for Dancing";
-    ViewBag.Description = "music4dance catalog: " + filter.Description;
-    const string recentlyAdded = @"Most Recently Added Songs";
-    const string recentlyChanged = @"Most Recently Changed Songs";
+    ViewBag.Description = "music4dance catalog: " + ViewBag.SongFilter.Description;
+    var converterModel = new ObjectConverterModel { Name = "model", Model = Model };
 }
 
-<partial name="_SetupFilterScript" />
-
-<ol class="breadcrumb">
-    <li><a href="/">Music4Dance</a></li>
-    <li><a href="/dances">Songs</a></li>
-    <li class="active">New Music</li>
-</ol>
-
-<H1>New Music</H1>
-
-<H2>
-    @*@if (string.Equals(filter.SongSort.Id, "Created", StringComparison.OrdinalIgnoreCase))
-        {
-            TODO: Figure out how to make new music that has no dances associated with it
-              bubble to the top of this lise
-            if (filter.Level == 0)
-            {
-                <span>
-                    @Html.ActionLink(recentlyAdded, "NewMusic", new {type = "Created"}) |
-                    @Html.ActionLink(recentlyChanged, "NewMusic", new { type = "Modified" }) |
-                    @catalog
-                </span>
-            }
-            else
-            {
-            <span>
-                @recentlyAdded |
-                @Html.ActionLink(recentlyChanged, "NewMusic", new { type = "Modified" }) |
-                @Html.ActionLink(catalog, "NewMusic", new {type = "Catalog"})
-            </span>
-            }
-        }
-        else
-        {
-            <span>
-                @Html.ActionLink(recentlyAdded, "NewMusic", new { type = "Created" }) |
-                @recentlyChanged |
-                @Html.ActionLink(catalog, "NewMusic", new {type = "Catalog"})
-            </span>
-        }*@
-    @if (string.Equals(filter.SongSort.Id, "Created", StringComparison.OrdinalIgnoreCase))
-    {
-        <span>
-            @recentlyAdded |
-            @Html.ActionLink(recentlyChanged, "NewMusic", new { type = "Modified" })
-        </span>
-    }
-    else
-    {
-        <span>
-            @Html.ActionLink(recentlyAdded, "NewMusic", new { type = "Created" }) |
-            @recentlyChanged
-        </span>
-    }
-
-</H2>
-
-<partial name="_ListSongs" model="Model" />
-
-<partial name="_SearchFooter" model="new SearchFooterModel {Songs=Model, Filter=filter, HideInferred=true}" />
-
-<p class="big-text">If you would like to find recent additions/changes for specific styles of dance (like Swing or Foxtrot): visit the @Html.ActionLink("advanced search page", "AdvancedSearchForm") , choose the "Sort By" option of "When Added" or "Last Modified" as well as the Dance style, or styles you would like to see. More information on advanced search is available on the <a href="https://music4dance.blog/music4dance-help/advanced-search/">advanced search help page</a>.</p>
-
-@if (User.IsInRole("showDiagnostics") && ViewData.ContainsKey("RawSearch"))
-{
-    <partial name="_ShowRawSearch" model="ViewBag.RawSearch" />
-}
-
-@if (User.IsInRole("showDiagnostics") && filter.IsRaw)
-{
-    <div class="row">
-        <div class="col-md-12">
-            <b>Query String: </b>@(new RawSearch(filter).QueryString())
-        </div>
-    </div>
-}
+<div id="app"></div>
 
 @section Scripts {
-    @{
-        var scripts = new ScriptModel
-        {
-            IncludeTools = true,
-            DevelopmentFiles = new[] { "jquery.autocomplete", "musicservice", "tagchooser", "catalog", "azuresearch" },
-            ReleaseFiles = new[] { "search", },
-        };
-    }
-
-    <partial name="_scriptInclude" model="@scripts" />
+    <partial name="_jsonCamelCase" model="@converterModel" />
+    <script src="/client/js/chunk-vendors.js"></script>
+    <script src="/client/js/chunk-common.js"></script>
+    <script src="/client/js/new-music.js"></script>
 }
 
 @section Styles {
-    <partial name="_toolsStyles" />
+    <environment exclude="Development">
+        <link rel="stylesheet" href="/client/css/new-music.css" asp-append-version="true" />
+    </environment>
 }
