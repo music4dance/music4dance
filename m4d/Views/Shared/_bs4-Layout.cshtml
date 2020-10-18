@@ -137,7 +137,8 @@
                             </ul>
                         </li>
                         <li>@Html.ActionLink("Wedding", "wedding-music", "dances", null, htmlAttributes: new { @class = "dropdown-item" })</li>
-                        <li>@Html.ActionLink("Holiday", "holiday-music", "dances", null, htmlAttributes: new { @class = "dropdown-item" })</li>
+                        <li>@Html.ActionLink("Holiday", "holidaymusic", "song", null, htmlAttributes: new { @class = "dropdown-item" })</li>
+                        <li>@Html.ActionLink("Halloween", "addTags", "song", new { tags = "+Halloween:Other"}, htmlAttributes: new { @class = "dropdown-item" })</li>
                         <li>@Html.ActionLink("Tags", "index", "tag", null, htmlAttributes: new { @class = "dropdown-item" })</li>
                     </ul>
                 </li>

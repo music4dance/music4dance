@@ -42,7 +42,7 @@ import { Tag, TagInfo } from '@/model/Tag';
 })
 export default class TagCategorySelector extends Vue {
 
-    private static categories = new Set(Tag.TagInfo.keys());
+    private static categories = new Set(Tag.tagKeys.filter((k) => k !== 'dance'));
 
     @Model('change') private readonly selected!: string[];
     @Prop() private readonly tagList!: Tag[];

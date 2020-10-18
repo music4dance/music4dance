@@ -10,16 +10,17 @@
             <b-navbar-nav>
                 <b-nav-item-dropdown text="Music">
                     <b-dropdown-item href="/dances">Dances</b-dropdown-item>
-                        <b-dropdown-item href="/dances/ballroom-competition-categories" class="nav-subitem">Ballroom</b-dropdown-item>
-                        <b-dropdown-item href="/dances/latin" class="nav-subitem">Latin</b-dropdown-item>
-                        <b-dropdown-item href="/dances/swing" class="nav-subitem">Swing</b-dropdown-item>
-                        <b-dropdown-item href="/dances/tango" class="nav-subitem">Tango</b-dropdown-item>
+                    <b-dropdown-item href="/dances/ballroom-competition-categories" class="nav-subitem">Ballroom</b-dropdown-item>
+                    <b-dropdown-item href="/dances/latin" class="nav-subitem">Latin</b-dropdown-item>
+                    <b-dropdown-item href="/dances/swing" class="nav-subitem">Swing</b-dropdown-item>
+                    <b-dropdown-item href="/dances/tango" class="nav-subitem">Tango</b-dropdown-item>
                     <b-dropdown-item href="/song">Song Library</b-dropdown-item>
-                        <b-dropdown-item href="/song/advancedsearchform" class="nav-subitem">Advanced Search</b-dropdown-item>
-                        <b-dropdown-item href="/song/augment" class="nav-subitem">Add Song</b-dropdown-item>
-                        <b-dropdown-item href="/song/newmusic" class="nav-subitem">New Music</b-dropdown-item>
+                    <b-dropdown-item href="/song/advancedsearchform" class="nav-subitem">Advanced Search</b-dropdown-item>
+                    <b-dropdown-item href="/song/augment" class="nav-subitem">Add Song</b-dropdown-item>
+                    <b-dropdown-item href="/song/newmusic" class="nav-subitem">New Music</b-dropdown-item>
                     <b-dropdown-item href="/dances/wedding-music">Wedding</b-dropdown-item>
                     <b-dropdown-item href="/song/holidaymusic">Holiday</b-dropdown-item>
+                    <b-dropdown-item href="/song/addtags/?tags=%2BHalloween%3AOther">Halloween</b-dropdown-item>
                     <b-dropdown-item href="/tag">Tags</b-dropdown-item>
                 </b-nav-item-dropdown>
                 <b-nav-item-dropdown text="Tools">

@@ -140,8 +140,9 @@
                             </ul>
                         </li>
                         <li>@Html.ActionLink("Wedding", "wedding-music", "dances")</li>
-                        <li>@Html.ActionLink("Holiday", "holiday-music", "dances")</li>
-                        <li>@Html.ActionLink("Tags", "index", "tag")</li>
+                        <li>@Html.ActionLink("Holiday", "holidaymusic", "song")</li>
+                        <li>@Html.ActionLink("Halloween", "addTags", "song", new { tags = "+Halloween:Other"})</li>
+                            <li>@Html.ActionLink("Tags", "index", "tag")</li>
                     </ul>
                 </li>
                 <li class="dropdown">

@@ -47,7 +47,7 @@
                 <b-dropdown-text v-if="availableOptions.length === 0">
                     {{ emptyLabel }}
                 </b-dropdown-text>
-                <b-dropdown-text v-if="availableOptions.length > 200">
+                <b-dropdown-text v-if="!criteria">
                     Start typing to see a list of matching tags
                 </b-dropdown-text>
                 <template v-else>

@@ -33,6 +33,10 @@ export interface TagInfo {
         return new Tag({value: parts[0], category: parts[1]});
     }
 
+    public static get tagKeys(): string[] {
+        return [...Tag.tagInfo.keys()];
+    }
+
     private static tagInfo = new Map<string, TagInfo>([
         ['style', { iconName: 'briefcase', description: 'style'}],
         ['tempo', { iconName: 'clock', description: 'tempo'}],

@@ -44,8 +44,8 @@ import { TagHandler } from '@/model/TagHandler';
 
 class TagButton implements TagInfo {
     public static get buttons() {
-        const tagInfo = Tag.TagInfo;
-        return [...tagInfo.keys()].filter((t) => t !== 'dance').map((t) => new TagButton(t, tagInfo.get(t)!));
+        return Tag.tagKeys.filter((t) => t !== 'dance')
+            .map((t) => new TagButton(t, Tag.TagInfo.get(t)!));
     }
 
     public key: string;
