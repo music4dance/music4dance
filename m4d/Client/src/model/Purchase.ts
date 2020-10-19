@@ -1,7 +1,7 @@
 /* tslint:disable:max-classes-per-file */
 import 'reflect-metadata';
 import { jsonMember, jsonObject } from 'typedjson';
-import { enumKeys } from '../helpers/enumKeys';
+import { enumKeys } from '@/helpers/enumKeys';
 
 export enum ServiceType {
     Amazon = 'A',

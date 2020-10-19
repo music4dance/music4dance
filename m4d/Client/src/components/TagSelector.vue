@@ -72,7 +72,7 @@
 <script lang='ts'>
 import 'reflect-metadata';
 import { Component, Watch, Prop, Model, Vue } from 'vue-property-decorator';
-import { ListOption, valuesFromOptions } from '../model/ListOption';
+import { ListOption, valuesFromOptions } from '@/model/ListOption';
 
 @Component
 export default class TagSelector extends Vue {

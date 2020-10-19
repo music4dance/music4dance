@@ -29,7 +29,7 @@
 <script lang="ts">
 import { wordsToKebab } from '@/helpers/StringHelpers';
 import { Component, Prop, Vue } from 'vue-property-decorator';
-import { DanceInstance, Meter, TempoRange } from '../model/DanceStats';
+import { DanceInstance, Meter, TempoRange } from '@/model/DanceStats';
 
 @Component
 export default class CompetitionCategoryTable extends Vue {
