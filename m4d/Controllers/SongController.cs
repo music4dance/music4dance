@@ -156,6 +156,10 @@ namespace m4d.Controllers
             {
                 filter.SortOrder = type;
             }
+            if (string.IsNullOrWhiteSpace(filter.SortOrder))
+            {
+                filter.SortOrder = "Created";
+            }
             if (page != null)
             {
                 filter.Page = page;
