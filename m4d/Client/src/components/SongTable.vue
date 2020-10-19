@@ -189,6 +189,8 @@ import { SongSort } from '@/model/SongSort';
 // TODONEXT:
 //  Consider going to advanced search results once anything has been selected
 //   beyond a single dance
+//  Move artist page to vue
+//  Move dance pages to vue
 //  Finish up the dance modal:
 //    Look at integrating dance/tag buttons and modals
 //  Think about how we replace merge & other administrative functions

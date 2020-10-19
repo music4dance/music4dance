@@ -90,7 +90,7 @@ export default class App extends Vue {
   }
 
   private get filter(): SongFilter {
-    return this.loaded ? this.model.filter : new SongFilter();
+    return this.model ? this.model.filter : new SongFilter();
   }
 
   private clickAdded(): void {

@@ -29,6 +29,7 @@ namespace m4dModels
         public string User { get; set; }
         public decimal? TempoMin { get; set; }
         public decimal? TempoMax { get; set; }
+        public int? Page { get; set; }
         public string Tags { get; set; }
         public int? Level { get; set; }
     }

@@ -148,9 +148,18 @@ namespace m4d.Controllers
         }
 
         [AllowAnonymous]
-        public ActionResult NewMusic(string type = "Created", int page = 1)
+        public ActionResult NewMusic(string type = null, int? page = null, SongFilter filter = null)
         {
-            var filter = new SongFilter {Action = "newmusic", SortOrder = type, Page = page};
+            filter ??= new SongFilter();
+            filter.Action = "newmusic";
+            if (type != null)
+            {
+                filter.SortOrder = type;
+            }
+            if (page != null)
+            {
+                filter.Page = page;
+            }
 
             if (User.Identity.IsAuthenticated && filter.IsEmpty)
             {
