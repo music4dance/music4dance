@@ -179,7 +179,6 @@ import VoteButton from './VoteButton.vue';
 import { Component, Prop, Vue } from 'vue-property-decorator';
 import { DanceRating, Song } from '@/model/Song';
 import { Tag } from '@/model/Tag';
-import { DanceEnvironment } from '@/model/DanceEnvironmet';
 import { SongFilter } from '@/model/SongFilter';
 import { DanceHandler } from '@/model/DanceHandler';
 import { TagHandler } from '@/model/TagHandler';
@@ -189,6 +188,15 @@ import { SongSort } from '@/model/SongSort';
 // TODONEXT:
 //  Consider going to advanced search results once anything has been selected
 //   beyond a single dance
+//  Get all pages that use dancestatis to pull from the same place
+//    Get an async loading template working
+//    Rework pages that use this
+//       tempo-counter
+//       tempo-list
+//       new-music
+//       song-index
+//       dance-index
+//       tag-index
 //  Move artist page to vue
 //  Move dance pages to vue
 //  Finish up the dance modal:
@@ -229,7 +237,6 @@ export default class SongTable extends Vue {
     @Prop() private readonly songs!: Song[];
     @Prop() private readonly filter!: SongFilter;
     @Prop() private readonly userName!: string;
-    @Prop() private readonly environment!: DanceEnvironment;
     @Prop() private readonly hideSort?: boolean;
     @Prop() private readonly hiddenColumns?: string[];
 

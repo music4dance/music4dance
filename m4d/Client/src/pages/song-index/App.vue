@@ -1,5 +1,5 @@
 <template>
-  <page id="app">
+  <page id="app" :consumesEnvironment="true">
     <song-library-header v-if="filter.isSimple(model.user)"
       :filter="filter"
       :user="model.user"
@@ -9,9 +9,7 @@
       :user="model.user"
     ></search-header>
     <song-table 
-      :v-if="loaded"
       :songs="songs"
-      :environment="environment"
       :filter="filter"
       :userName="model.userName"
       :hideSort="model.hideSort"
@@ -62,40 +60,19 @@ declare const model: string;
 })
 export default class App extends Vue {
   private readonly model: SongListModel;
-  private environment: DanceEnvironment = new DanceEnvironment();
 
   constructor() {
     super();
 
-    TypedJSON.setGlobalConfig({
-        errorHandler: (e) => {
-            // tslint:disable-next-line:no-console
-            console.error(e);
-            throw e;
-        },
-    });
-
     this.model = TypedJSON.parse(model, SongListModel)!;
   }
 
-  private get loaded(): boolean {
-    const stats = this.environment?.stats;
-    return !!stats && stats.length > 0;
-  }
-
   private get songs(): Song[] {
-    return this.loaded ? this.model.songs : [];
+    return this.model.songs;
   }
 
   private get filter(): SongFilter {
-    return this.loaded ? this.model.filter : new SongFilter();
-  }
-
-  private async created() {
-    this.environment = await getEnvironment();
-
-    // tslint:disable-next-line:no-console
-    // console.log(this.environment!.stats!.length);
+    return this.model.filter;
   }
 }
 </script>
