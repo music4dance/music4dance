@@ -671,18 +671,13 @@ namespace m4d.Controllers
             var spider = CheckSpiders();
             if (spider != null) return spider;
 
-            ArtistViewModel model = null;
-
             if (!string.IsNullOrWhiteSpace(name))
             {
-                model = ArtistViewModel.Create(name, DefaultCruftFilter(), Database);
+                ArtistViewModel model = ArtistViewModel.Create(
+                    name, User.Identity.Name, _mapper, DefaultCruftFilter(), Database);
+                return View("Artist", model);
             }
-
-            if (model == null)
-                return ReturnError(HttpStatusCode.NotFound, $"Album '{name}' not found.");
-
-            BuildDanceList(DanceBags.Stats);
-            return View("Artist", model);
+            return ReturnError(HttpStatusCode.NotFound, $"Album '{name}' not found.");
         }
 
         //

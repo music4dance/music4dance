@@ -37,15 +37,7 @@ import { SongFilter } from '@/model/SongFilter';
 import { DanceStats } from '@/model/DanceStats';
 import { getEnvironment } from '@/helpers/DanceEnvironmentManager';
 import { DanceEnvironment } from '@/model/DanceEnvironmet';
-
-@jsonObject class SongListModel {
-    @jsonMember public filter!: SongFilter;
-    @jsonArrayMember(Song) public songs!: Song[];
-    @jsonMember public userName!: string;
-    @jsonMember public count!: number;
-    @jsonMember public hideSort!: boolean;
-    @jsonArrayMember(String) public hiddenColumns!: string[];
-}
+import { SongListModel } from '@/model/SongListModel';
 
 declare const model: string;
 

@@ -1,6 +1,5 @@
 <template>
-  <page id="app" :consumesEnvironment="true">
-    <h1>New Music</h1>
+  <page id="app" title="New Music" :consumesEnvironment="true">
     <b-button-group>
       <b-button variant="outline-primary" :pressed="added" @click="clickAdded">Recently Added</b-button>
       <b-button variant="outline-primary" :pressed="changed" @click="clickChanged">Recently Changed</b-button>
@@ -33,15 +32,7 @@ import { Song } from '@/model/Song';
 import { SongFilter } from '@/model/SongFilter';
 import { DanceStats } from '@/model/DanceStats';
 import { SortOrder } from '@/model/SongSort';
-
-@jsonObject class SongListModel {
-    @jsonMember public filter!: SongFilter;
-    @jsonArrayMember(Song) public songs!: Song[];
-    @jsonMember public userName!: string;
-    @jsonMember public count!: number;
-    @jsonMember public hideSort!: boolean;
-    @jsonArrayMember(String) public hiddenColumns!: string[];
-}
+import { SongListModel } from '@/model/SongListModel';
 
 declare const model: string;
 

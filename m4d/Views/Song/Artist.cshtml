@@ -3,31 +3,24 @@
 @model m4d.ViewModels.ArtistViewModel
 
 @{
-    ViewBag.Title = Model.Name;
-    ViewBag.NoSort = true;
-    ViewBag.HideArtist = true;
-    ViewBag.SongFilter = new SongFilter { SortOrder = "Album" };
+    Layout = "/Views/Shared/_bsv-Layout.cshtml";
+
+    ViewBag.Title = $"Artist: {Model.Artist}";
+    ViewBag.Description = $"Songs for dancing by {Model.Artist}";
+    var converterModel = new ObjectConverterModel { Name = "model", Model = Model };
 }
 
-<partial name="_SetupFilterScript" />
+<div id="app"></div>
 
-<h2>Artist: @Model.Name</h2>
-
-<div class="row col-xs-12">
-    <partial name="_ListSongs" model="Model.Songs" />
-</div>
-
-
-@section Scripts
-{
-    @{
-        var scripts = new ScriptModel
-        {
-            IncludeTools = false,
-            DevelopmentFiles = new[] { "musicservice" }
-        };
-    }
-
-    <partial name="_scriptInclude" model="@scripts" />
+@section Scripts {
+    <partial name="_jsonCamelCase" model="@converterModel" />
+    <script src="/client/js/chunk-vendors.js"></script>
+    <script src="/client/js/chunk-common.js"></script>
+    <script src="/client/js/artist.js"></script>
 }
 
+@section Styles {
+    <environment exclude="Development">
+        <link rel="stylesheet" href="/client/css/chunk-common.css" asp-append-version="true" />
+    </environment>
+}
