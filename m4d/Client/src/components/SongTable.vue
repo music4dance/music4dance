@@ -45,6 +45,9 @@
             <template v-slot:cell(artist)="data">
                 <a :href="artistRef(data.item)">{{ data.item.artist }}</a>
             </template>
+            <template v-slot:cell(track)="data">
+                {{ trackNumber(data.item) }}
+            </template>
             <template v-slot:head(tempo)>
                 <sortable-header 
                     id="Tempo"
@@ -193,11 +196,11 @@ import { SongSort } from '@/model/SongSort';
 //    Rework pages that use this
 //       tempo-counter
 //       tempo-list
-//       new-music
-//       song-index
 //       dance-index
 //       tag-index
-//  Move artist page to vue
+//  Move album page to vue
+//    Consider if we want track to show up in mobile
+//    Consider if we want an option of having an album column
 //  Move dance pages to vue
 //  Finish up the dance modal:
 //    Look at integrating dance/tag buttons and modals
@@ -211,9 +214,10 @@ interface IField {
     label?: string;
 }
 
-const playField = { key: 'play'};
-const titleField = { key: 'title'};
-const artistField = { key: 'artist'};
+const playField = { key: 'play' };
+const titleField = { key: 'title' };
+const artistField = { key: 'artist' };
+const trackField = { key: 'track' };
 const tempoField = { key: 'tempo', label: 'Tempo (BPM)' };
 const echoField = { key: 'echo'};
 const dancesField = { key: 'dances' };
@@ -247,6 +251,7 @@ export default class SongTable extends Vue {
             playField,
             titleField,
             artistField,
+            trackField,
             tempoField,
             echoField,
             dancesField,
@@ -299,6 +304,12 @@ export default class SongTable extends Vue {
 
     private artistRef(song: Song): string {
         return `/song/artist/?name=${song.artist}`;
+    }
+
+    private trackNumber(song: Song): string {
+        return (song.albums.length > 0 && song.albums[0].track)
+            ? song.albums[0].track.toString()
+            : '';
     }
 
     private get tempoHeaderTip(): string {

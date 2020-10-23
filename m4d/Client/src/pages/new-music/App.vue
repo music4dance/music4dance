@@ -9,7 +9,7 @@
       :filter="filter"
       :userName="model.userName"
       :hideSort="model.hideSort"
-      :hiddenColumns="model.hiddenColumns"
+      :hiddenColumns="['Track']"
     ></song-table>
     <song-footer
       :filter="filter"

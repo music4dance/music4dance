@@ -7,6 +7,10 @@ module.exports = {
         entry: "src/pages/advanced-search/main.ts",
         filename: "advanced-search.html"
       },
+      "album": {
+        entry: "src/pages/album/main.ts",
+        filename: "album.html"
+      },
       "artist": {
         entry: "src/pages/artist/main.ts",
         filename: "artist.html"

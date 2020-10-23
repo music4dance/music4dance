@@ -1,5 +1,4 @@
-import { jsonObject, jsonArrayMember, jsonMember } from 'typedjson';
-import { Song } from './Song';
+import { jsonObject, jsonMember } from 'typedjson';
 import { SongListModel } from './SongListModel';
 
 @jsonObject export class ArtistModel extends SongListModel {

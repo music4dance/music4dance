@@ -1,44 +1,25 @@
 ﻿@using m4d.ViewModels
-@using m4dModels
 @model m4d.ViewModels.AlbumViewModel
 
 @{
-    ViewBag.Title = Model.Title;
-    ViewBag.NoSort = true;
-    ViewBag.AlbumName = Model.Title;
-    ViewBag.HideArtist = !string.IsNullOrWhiteSpace(Model.Artist);
-    ViewBag.SongFilter = new SongFilter { SortOrder = "Album" };
+    Layout = "/Views/Shared/_bsv-Layout.cshtml";
+
+    ViewBag.Title = $"Artist: {Model.Title}";
+    ViewBag.Description = $"Songs for dancing on {Model.Title}";
+    var converterModel = new ObjectConverterModel { Name = "model", Model = Model };
 }
 
-<partial name="_SetupFilterScript" />
+<div id="app"></div>
 
-<h2>Album: @Model.Title</h2>
-@if (!string.IsNullOrWhiteSpace(Model.Artist))
-{
-    <h3>Artist: @Html.ActionLink(Model.Artist, "artist", "song", new { name = Model.Artist }, null)</h3>
+@section Scripts {
+    <partial name="_jsonCamelCase" model="@converterModel" />
+    <script src="/client/js/chunk-vendors.js"></script>
+    <script src="/client/js/chunk-common.js"></script>
+    <script src="/client/js/album.js"></script>
 }
 
-<div class="row col-xs-12">
-    @if (Model.Songs.Any())
-    {
-        <partial name="_ListSongs" model="Model.Songs" />
-    }
-    else
-    {
-        <p class="big-text">We don't have any songs from this album that have been associated with a dance style.  Please let us know if you have a list that includes songs from this album and associated dance styles and we'll be happy to add them.  We can be contacted via email at <a href="mailto:info@music4dance.net">info@music4dance.net</a> or through our <a href="https://music4dance.blog/feedback/">feedback form.</a></p>
-    }
-</div>
-
-
-@section Scripts
-{
-    @{
-        var scripts = new ScriptModel
-        {
-            DevelopmentFiles = new[] { "musicservice" }
-        };
-    }
-
-    <partial name="_scriptInclude" model="@scripts" />
+@section Styles {
+    <environment exclude="Development">
+        <link rel="stylesheet" href="/client/css/chunk-common.css" asp-append-version="true" />
+    </environment>
 }
-

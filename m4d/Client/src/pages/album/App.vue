@@ -1,11 +1,15 @@
 <template>
-  <page id="app" :title="title" :consumesEnvironment="true">
+  <page id="app" :consumesEnvironment="true">
+    <h1>
+      Album: {{ model.title }}
+      <span v-if="model.artist">by <a :href="artistRef">{{ model.artist }}</a></span>
+    </h1>
     <song-table 
       :songs="model.songs"
       :filter="model.filter"
       :userName="model.userName"
       :hideSort="true"
-      :hiddenColumns="['Artist', 'Track']"
+      :hiddenColumns="hidden"
     ></song-table>
   </page>
 </template>
@@ -17,7 +21,7 @@ import SongTable from '@/components/SongTable.vue';
 import Page from '@/components/Page.vue';
 import { TypedJSON } from 'typedjson';
 import { Song } from '@/model/Song';
-import { ArtistModel } from '@/model/ArtistModel';
+import { AlbumModel } from '@/model/AlbumModel';
 
 declare const model: string;
 
@@ -28,16 +32,20 @@ declare const model: string;
   },
 })
 export default class App extends Vue {
-  private readonly model: ArtistModel;
+  private readonly model: AlbumModel;
 
   constructor() {
     super();
 
-    this.model = TypedJSON.parse(model, ArtistModel)!;
+    this.model = TypedJSON.parse(model, AlbumModel)!;
   }
 
-  private get title(): string {
-    return `Artist: ${this.model.artist}`;
+  private get artistRef(): string {
+    return `/song/artist?name=${this.model.artist}`;
+  }
+
+  private get hidden(): string[] {
+    return this.model.artist ? ['Artist'] : [];
   }
 }
 </script>

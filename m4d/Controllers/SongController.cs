@@ -654,7 +654,8 @@ namespace m4d.Controllers
 
             if (!string.IsNullOrWhiteSpace(title))
             {
-                model = AlbumViewModel.Create(title, DefaultCruftFilter(), Database);
+                model = AlbumViewModel.Create(
+                    title, User.Identity.Name, _mapper, DefaultCruftFilter(), Database);
             }
             else
             {
