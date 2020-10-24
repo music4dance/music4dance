@@ -1,76 +1,83 @@
-import 'reflect-metadata';
-import { DanceStats, TempoRange } from './DanceStats';
-import { fetchEnvironment } from './DanceEnvironmet';
+import "reflect-metadata";
+import { DanceStats, TempoRange } from "./DanceStats";
+import { fetchEnvironment } from "./DanceEnvironmet";
 
 export function fetchStats(): DanceStats[] {
-    return fetchEnvironment().stats!;
+  return fetchEnvironment().stats!;
 }
 
 export class DanceOrder {
-    public dance: DanceStats;
-    public bpmDelta: number;
+  public dance: DanceStats;
+  public bpmDelta: number;
 
-    constructor(stats: DanceStats, target: number) {
-        this.dance = stats;
-        this.bpmDelta = this.computeDelta(target);
-    }
+  constructor(stats: DanceStats, target: number) {
+    this.dance = stats;
+    this.bpmDelta = this.computeDelta(target);
+  }
 
-    public get name(): string {
-        return this.dance.danceName;
-    }
+  public get name(): string {
+    return this.dance.danceName;
+  }
 
-    public get mpmDelta(): number {
-        return this.bpmDelta / this.numerator;
-    }
+  public get mpmDelta(): number {
+    return this.bpmDelta / this.numerator;
+  }
 
-    public get rangeMpm(): TempoRange {
-        return this.dance.danceType!.tempoRange;
-    }
+  public get rangeMpm(): TempoRange {
+    return this.dance.danceType!.tempoRange;
+  }
 
-    public get rangeBpm(): TempoRange {
-        return this.dance.tempoRange;
-    }
+  public get rangeBpm(): TempoRange {
+    return this.dance.tempoRange;
+  }
 
-    public get rangeMpmFormatted(): string {
-        return this.rangeMpm.toString() + ' MPM (' + this.numerator + '/4)';
-    }
+  public get rangeMpmFormatted(): string {
+    return this.rangeMpm.toString() + " MPM (" + this.numerator + "/4)";
+  }
 
-    public get rangeBpmFormatted() {
-        return this.rangeBpm.toString() + ' BPM';
-    }
+  public get rangeBpmFormatted() {
+    return this.rangeBpm.toString() + " BPM";
+  }
 
-    private get numerator() {
-        return this.dance.danceType!.meter.numerator;
-    }
+  private get numerator() {
+    return this.dance.danceType!.meter.numerator;
+  }
 
-    private computeDelta(target: number): number {
-        return this.dance.tempoRange.computeDelta(target);
-    }
+  private computeDelta(target: number): number {
+    return this.dance.tempoRange.computeDelta(target);
+  }
 }
 
 export function dancesForTempo(
-    beatsPerMinute: number, beatsPerMeasure: number, percentEpsilon: number = 5): DanceOrder[] {
+  beatsPerMinute: number,
+  beatsPerMeasure: number,
+  percentEpsilon: number = 5
+): DanceOrder[] {
+  // return danceStats.flatMap((group: DanceStats) => group.children);  TODO: See if we can find a general polyfill
 
-    // return danceStats.flatMap((group: DanceStats) => group.children);  TODO: See if we can find a general polyfill
+  const stats = fetchStats();
 
-    const stats = fetchStats();
-
-    return stats
-        .map((group: DanceStats) => group.children)
-        .reduce((acc: DanceStats[], val: DanceStats[]) =>
-            acc.concat(val))
-            .filter((d: DanceStats) => d.filterByTempo(beatsPerMinute, beatsPerMeasure, percentEpsilon), [])
-            .map((d: DanceStats)  => new DanceOrder(d, beatsPerMinute))
-            .sort((a: DanceOrder, b: DanceOrder) => Math.abs(a.bpmDelta) - Math.abs(b.bpmDelta));
+  return stats
+    .map((group: DanceStats) => group.children)
+    .reduce((acc: DanceStats[], val: DanceStats[]) => acc.concat(val))
+    .filter(
+      (d: DanceStats) =>
+        d.filterByTempo(beatsPerMinute, beatsPerMeasure, percentEpsilon),
+      []
+    )
+    .map((d: DanceStats) => new DanceOrder(d, beatsPerMinute))
+    .sort(
+      (a: DanceOrder, b: DanceOrder) =>
+        Math.abs(a.bpmDelta) - Math.abs(b.bpmDelta)
+    );
 }
-
 
 export function flatStats() {
   return fetchStats().flatMap((group) => [group, ...group.children]);
 }
 
 function flatTypes() {
-    return fetchStats().flatMap((group) => group.children);
+  return fetchStats().flatMap((group) => group.children);
 }
 
 function flatInstances() {
@@ -78,11 +85,10 @@ function flatInstances() {
 }
 
 export function getStyles(): string[] {
-    const styles = flatInstances()
-        .map((inst) => inst.style);
-    return [... new Set(styles)].sort();
+  const styles = flatInstances().map((inst) => inst.style);
+  return [...new Set(styles)].sort();
 }
 
-export function getTypes(): string [] {
-    return fetchStats().map((s) => s.danceName);
+export function getTypes(): string[] {
+  return fetchStats().map((s) => s.danceName);
 }

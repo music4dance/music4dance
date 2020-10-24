@@ -1,63 +1,63 @@
-import 'reflect-metadata';
-import { TypedJSON } from 'typedjson';
-import { PurchaseEncoded, ServiceType, PurchaseInfo } from '../Purchase';
+import "reflect-metadata";
+import { TypedJSON } from "typedjson";
+import { PurchaseEncoded, ServiceType, PurchaseInfo } from "../Purchase";
 
-const rhythmString = '{"name":"American Rhythm","group":"Ballroom","categoryType":"American","canonicalName":"american-rhythm","fullRoundName":"American Rhythm five dance round","round":[{"tempoRange":{"min":30,"max":30},"id":"CHAA","meter":{"numerator":4,"denominator":4},"name":"American Cha Cha","style":"American Rhythm","competitionGroup":"Ballroom","competitionOrder":1,"exceptions":[],"blogTag":null},{"tempoRange":{"min":30,"max":36},"id":"RMBA","meter":{"numerator":4,"denominator":4},"name":"American Rumba","style":"American Rhythm","competitionGroup":"Ballroom","competitionOrder":2,"exceptions":[{"organization":"NDCA","tempoRange":{"min":30,"max":32},"competitor":"All","level":"Bronze"},{"organization":"NDCA","tempoRange":{"min":32,"max":36},"competitor":"All","level":"Silver,Gold"},{"organization":"DanceSport","tempoRange":{"min":30,"max":34},"competitor":"All","level":"All"}],"blogTag":null},{"tempoRange":{"min":34,"max":36},"id":"ECSA","meter":{"numerator":4,"denominator":4},"name":"American East Coast Swing","style":"American Rhythm","competitionGroup":"Ballroom","competitionOrder":3,"exceptions":[{"organization":"NDCA","tempoRange":{"min":36,"max":36},"competitor":"All","level":"Silver,Gold"}],"blogTag":null},{"tempoRange":{"min":24,"max":26},"id":"BOLA","meter":{"numerator":4,"denominator":4},"name":"American Bolero","style":"American Rhythm","competitionGroup":"Ballroom","competitionOrder":4,"exceptions":[{"organization":"NDCA","tempoRange":{"min":24,"max":24},"competitor":"All","level":"Silver,Gold"}],"blogTag":null},{"tempoRange":{"min":47,"max":51},"id":"MBOA","meter":{"numerator":4,"denominator":4},"name":"American Mambo","style":"American Rhythm","competitionGroup":"Ballroom","competitionOrder":5,"exceptions":[{"organization":"NDCA","tempoRange":{"min":48,"max":51},"competitor":"All","level":"Bronze"},{"organization":"NDCA","tempoRange":{"min":47,"max":47},"competitor":"All","level":"Silver,Gold"},{"organization":"DanceSport","tempoRange":{"min":47,"max":51},"competitor":"All","level":"All"}],"blogTag":null}],"extras":[{"tempoRange":{"min":58,"max":60},"id":"PDLA","meter":{"numerator":2,"denominator":4},"name":"American Paso Doble","style":"American Rhythm","competitionGroup":"Ballroom","competitionOrder":0,"exceptions":[],"blogTag":null},{"tempoRange":{"min":48,"max":52},"id":"SMBA","meter":{"numerator":2,"denominator":4},"name":"American Samba","style":"American Rhythm","competitionGroup":"Ballroom","competitionOrder":0,"exceptions":[{"organization":"NDCA","tempoRange":{"min":52,"max":52},"competitor":"All","level":"All"},{"organization":"DanceSport","tempoRange":{"min":48,"max":48},"competitor":"All","level":"All"}],"blogTag":null},{"tempoRange":{"min":29,"max":32},"id":"MRGA","meter":{"numerator":2,"denominator":4},"name":"American Merengue","style":"American Rhythm","competitionGroup":"Ballroom","competitionOrder":0,"exceptions":[],"blogTag":null},{"tempoRange":{"min":28,"max":30},"id":"HSTA","meter":{"numerator":4,"denominator":4},"name":"American Hustle","style":"American Rhythm","competitionGroup":"Ballroom","competitionOrder":0,"exceptions":[],"blogTag":null},{"tempoRange":{"min":28,"max":32},"id":"WCSA","meter":{"numerator":4,"denominator":4},"name":"American West Coast Swing","style":"American Rhythm","competitionGroup":"Ballroom","competitionOrder":0,"exceptions":[],"blogTag":null},{"tempoRange":{"min":60,"max":62},"id":"PLKA","meter":{"numerator":2,"denominator":4},"name":"American Polka","style":"American Rhythm","competitionGroup":"Ballroom","competitionOrder":0,"exceptions":[],"blogTag":null}]}';
+const rhythmString =
+  '{"name":"American Rhythm","group":"Ballroom","categoryType":"American","canonicalName":"american-rhythm","fullRoundName":"American Rhythm five dance round","round":[{"tempoRange":{"min":30,"max":30},"id":"CHAA","meter":{"numerator":4,"denominator":4},"name":"American Cha Cha","style":"American Rhythm","competitionGroup":"Ballroom","competitionOrder":1,"exceptions":[],"blogTag":null},{"tempoRange":{"min":30,"max":36},"id":"RMBA","meter":{"numerator":4,"denominator":4},"name":"American Rumba","style":"American Rhythm","competitionGroup":"Ballroom","competitionOrder":2,"exceptions":[{"organization":"NDCA","tempoRange":{"min":30,"max":32},"competitor":"All","level":"Bronze"},{"organization":"NDCA","tempoRange":{"min":32,"max":36},"competitor":"All","level":"Silver,Gold"},{"organization":"DanceSport","tempoRange":{"min":30,"max":34},"competitor":"All","level":"All"}],"blogTag":null},{"tempoRange":{"min":34,"max":36},"id":"ECSA","meter":{"numerator":4,"denominator":4},"name":"American East Coast Swing","style":"American Rhythm","competitionGroup":"Ballroom","competitionOrder":3,"exceptions":[{"organization":"NDCA","tempoRange":{"min":36,"max":36},"competitor":"All","level":"Silver,Gold"}],"blogTag":null},{"tempoRange":{"min":24,"max":26},"id":"BOLA","meter":{"numerator":4,"denominator":4},"name":"American Bolero","style":"American Rhythm","competitionGroup":"Ballroom","competitionOrder":4,"exceptions":[{"organization":"NDCA","tempoRange":{"min":24,"max":24},"competitor":"All","level":"Silver,Gold"}],"blogTag":null},{"tempoRange":{"min":47,"max":51},"id":"MBOA","meter":{"numerator":4,"denominator":4},"name":"American Mambo","style":"American Rhythm","competitionGroup":"Ballroom","competitionOrder":5,"exceptions":[{"organization":"NDCA","tempoRange":{"min":48,"max":51},"competitor":"All","level":"Bronze"},{"organization":"NDCA","tempoRange":{"min":47,"max":47},"competitor":"All","level":"Silver,Gold"},{"organization":"DanceSport","tempoRange":{"min":47,"max":51},"competitor":"All","level":"All"}],"blogTag":null}],"extras":[{"tempoRange":{"min":58,"max":60},"id":"PDLA","meter":{"numerator":2,"denominator":4},"name":"American Paso Doble","style":"American Rhythm","competitionGroup":"Ballroom","competitionOrder":0,"exceptions":[],"blogTag":null},{"tempoRange":{"min":48,"max":52},"id":"SMBA","meter":{"numerator":2,"denominator":4},"name":"American Samba","style":"American Rhythm","competitionGroup":"Ballroom","competitionOrder":0,"exceptions":[{"organization":"NDCA","tempoRange":{"min":52,"max":52},"competitor":"All","level":"All"},{"organization":"DanceSport","tempoRange":{"min":48,"max":48},"competitor":"All","level":"All"}],"blogTag":null},{"tempoRange":{"min":29,"max":32},"id":"MRGA","meter":{"numerator":2,"denominator":4},"name":"American Merengue","style":"American Rhythm","competitionGroup":"Ballroom","competitionOrder":0,"exceptions":[],"blogTag":null},{"tempoRange":{"min":28,"max":30},"id":"HSTA","meter":{"numerator":4,"denominator":4},"name":"American Hustle","style":"American Rhythm","competitionGroup":"Ballroom","competitionOrder":0,"exceptions":[],"blogTag":null},{"tempoRange":{"min":28,"max":32},"id":"WCSA","meter":{"numerator":4,"denominator":4},"name":"American West Coast Swing","style":"American Rhythm","competitionGroup":"Ballroom","competitionOrder":0,"exceptions":[],"blogTag":null},{"tempoRange":{"min":60,"max":62},"id":"PLKA","meter":{"numerator":2,"denominator":4},"name":"American Polka","style":"American Rhythm","competitionGroup":"Ballroom","competitionOrder":0,"exceptions":[],"blogTag":null}]}';
 
 function getEncoded(): PurchaseEncoded {
-    const encoded = {
-        sa: '08nZoEXyWuk8PFLkUUBHY8',
-        ss: '0lhmmb5WRNwzz0mAZRMNgK[AD,AE,AR,AT,AU,BE,BG,BH,BO,BR,CA,CH,CL,CO,CR]',
-        as: 'D:B01BXHIVUY',
-        aa: 'D:B01BXHIQU4',
-        is: '1086781400',
-        ia: '1086781393',
-    };
+  const encoded = {
+    sa: "08nZoEXyWuk8PFLkUUBHY8",
+    ss: "0lhmmb5WRNwzz0mAZRMNgK[AD,AE,AR,AT,AU,BE,BG,BH,BO,BR,CA,CH,CL,CO,CR]",
+    as: "D:B01BXHIVUY",
+    aa: "D:B01BXHIQU4",
+    is: "1086781400",
+    ia: "1086781393",
+  };
 
-    return TypedJSON.parse(encoded, PurchaseEncoded)!;
+  return TypedJSON.parse(encoded, PurchaseEncoded)!;
 }
 
-describe('service type', () => {
-    it ('should load encoded', () => {
-        const encoded = getEncoded();
-        expect(encoded).toBeDefined();
-        expect(encoded).toBeInstanceOf(PurchaseEncoded);
-    });
+describe("service type", () => {
+  it("should load encoded", () => {
+    const encoded = getEncoded();
+    expect(encoded).toBeDefined();
+    expect(encoded).toBeInstanceOf(PurchaseEncoded);
+  });
 
-    it ('should decode amazon', () => {
-        const amazon = getEncoded().decodeService(ServiceType.Amazon);
+  it("should decode amazon", () => {
+    const amazon = getEncoded().decodeService(ServiceType.Amazon);
 
-        expect(amazon).toBeDefined();
-        expect(amazon).toBeInstanceOf(PurchaseInfo);
-        expect(amazon?.albumId).toEqual('D:B01BXHIQU4');
-        expect(amazon?.songId).toEqual('D:B01BXHIVUY');
-    });
+    expect(amazon).toBeDefined();
+    expect(amazon).toBeInstanceOf(PurchaseInfo);
+    expect(amazon?.albumId).toEqual("D:B01BXHIQU4");
+    expect(amazon?.songId).toEqual("D:B01BXHIVUY");
+  });
 
-    it ('should decode itunes', () => {
-        const itunes = getEncoded().decodeService(ServiceType.ITunes);
+  it("should decode itunes", () => {
+    const itunes = getEncoded().decodeService(ServiceType.ITunes);
 
-        expect(itunes).toBeDefined();
-        expect(itunes).toBeInstanceOf(PurchaseInfo);
-        expect(itunes?.albumId).toEqual('1086781393');
-        expect(itunes?.songId).toEqual('1086781400');
-    });
+    expect(itunes).toBeDefined();
+    expect(itunes).toBeInstanceOf(PurchaseInfo);
+    expect(itunes?.albumId).toEqual("1086781393");
+    expect(itunes?.songId).toEqual("1086781400");
+  });
 
-    it ('should decode spotify', () => {
-        const spotify = getEncoded().decodeService(ServiceType.Spotify);
+  it("should decode spotify", () => {
+    const spotify = getEncoded().decodeService(ServiceType.Spotify);
 
-        expect(spotify).toBeDefined();
-        expect(spotify).toBeInstanceOf(PurchaseInfo);
-        expect(spotify?.albumId).toEqual('08nZoEXyWuk8PFLkUUBHY8');
-        expect(spotify?.songId).toEqual('0lhmmb5WRNwzz0mAZRMNgK');
-    });
+    expect(spotify).toBeDefined();
+    expect(spotify).toBeInstanceOf(PurchaseInfo);
+    expect(spotify?.albumId).toEqual("08nZoEXyWuk8PFLkUUBHY8");
+    expect(spotify?.songId).toEqual("0lhmmb5WRNwzz0mAZRMNgK");
+  });
 
-    it ('should decode purchaseinfo', () => {
-        const pi = getEncoded().decode();
+  it("should decode purchaseinfo", () => {
+    const pi = getEncoded().decode();
 
-        expect(pi).toBeDefined();
-        expect(pi).toBeInstanceOf(Array);
-        expect(pi.length).toEqual(3);
-        expect (pi[0]).toBeInstanceOf(PurchaseInfo);
-    });
-
+    expect(pi).toBeDefined();
+    expect(pi).toBeInstanceOf(Array);
+    expect(pi.length).toEqual(3);
+    expect(pi[0]).toBeInstanceOf(PurchaseInfo);
+  });
 });

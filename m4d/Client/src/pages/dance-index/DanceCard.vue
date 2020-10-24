@@ -2,10 +2,14 @@
   <b-card
     no-body
     border-variant="primary"
-    style="margin-bottom:1rem;min-width:15rem"
+    style="margin-bottom: 1rem; min-width: 15rem"
   >
     <b-card-header header-bg-variant="primary" header-text-variant="white">
-      <dance-item :dance="group" variant="secondary" text-style="color:white"></dance-item>
+      <dance-item
+        :dance="group"
+        variant="secondary"
+        text-style="color:white"
+      ></dance-item>
     </b-card-header>
 
     <b-list-group flush>
@@ -17,9 +21,14 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue } from 'vue-property-decorator';
-import { DanceInstance, Meter, TempoRange, DanceStats } from '@/model/DanceStats';
-import DanceItem from './DanceItem.vue';
+import { Component, Prop, Vue } from "vue-property-decorator";
+import {
+  DanceInstance,
+  Meter,
+  TempoRange,
+  DanceStats,
+} from "@/model/DanceStats";
+import DanceItem from "./DanceItem.vue";
 
 @Component({
   components: {
@@ -27,10 +36,10 @@ import DanceItem from './DanceItem.vue';
   },
 })
 export default class DanceCard extends Vue {
-    @Prop() private group!: DanceStats;
+  @Prop() private group!: DanceStats;
 
-    private get dances(): DanceStats[] {
-      return this.group.children.filter((d) => d.songCount > 0);
-    }
+  private get dances(): DanceStats[] {
+    return this.group.children.filter((d) => d.songCount > 0);
+  }
 }
 </script>

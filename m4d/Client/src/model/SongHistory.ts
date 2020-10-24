@@ -1,8 +1,9 @@
-import 'reflect-metadata';
-import { jsonMember, jsonObject, TypedJSON, jsonArrayMember } from 'typedjson';
-import { SongProperty } from './SongProperty';
+import "reflect-metadata";
+import { jsonMember, jsonObject, TypedJSON, jsonArrayMember } from "typedjson";
+import { SongProperty } from "./SongProperty";
 
-@jsonObject export class SongHistory {
-    @jsonMember public id!: string; // GUID
-    @jsonArrayMember(SongProperty) public properties!: SongProperty[];
+@jsonObject
+export class SongHistory {
+  @jsonMember public id!: string; // GUID
+  @jsonArrayMember(SongProperty) public properties!: SongProperty[];
 }

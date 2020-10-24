@@ -11,7 +11,7 @@
       :title="category.extraDancesTitle"
     ></competition-category-table>
     <div>
-      Other categories of <a :href="groupLink">{{groupTitle}}</a> are:
+      Other categories of <a :href="groupLink">{{ groupTitle }}</a> are:
       <ul>
         <li v-for="category in groupModel.otherCategories" :key="category.name">
           <link-category :name="category.name"></link-category>
@@ -26,16 +26,19 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue } from 'vue-property-decorator';
-import Page from '@/components/Page.vue';
-import BallroomList from '@/components/BallroomList.vue';
-import LinkCategory from '@/components/LinkCategory.vue';
-import TempiLink from '@/components/TempiLink.vue';
-import BlogTagLink from '@/components/BlogTagLink.vue';
-import CompetitionCategoryTable from '@/components/CompetitionCategoryTable.vue';
-import { CompetitionGroupModel, CompetitionCategory } from '@/model/Competition';
-import { TypedJSON } from 'typedjson';
-import { BreadCrumbItem, ballroomTrail } from '@/model/BreadCrumbItem';
+import { Component, Vue } from "vue-property-decorator";
+import Page from "@/components/Page.vue";
+import BallroomList from "@/components/BallroomList.vue";
+import LinkCategory from "@/components/LinkCategory.vue";
+import TempiLink from "@/components/TempiLink.vue";
+import BlogTagLink from "@/components/BlogTagLink.vue";
+import CompetitionCategoryTable from "@/components/CompetitionCategoryTable.vue";
+import {
+  CompetitionGroupModel,
+  CompetitionCategory,
+} from "@/model/Competition";
+import { TypedJSON } from "typedjson";
+import { BreadCrumbItem, ballroomTrail } from "@/model/BreadCrumbItem";
 
 declare const model: string;
 
@@ -60,12 +63,12 @@ export default class App extends Vue {
     const modelS = JSON.stringify(model);
     const modelT = serializer.parse(modelS);
     if (!modelT) {
-      throw new Error('Unable to parse model');
+      throw new Error("Unable to parse model");
     }
     this.groupModel = modelT;
     this.breadcrumbs = [
       ...ballroomTrail,
-      { text: this.category.name, active: true},
+      { text: this.category.name, active: true },
     ];
   }
 

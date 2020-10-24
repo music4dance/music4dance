@@ -1,12 +1,18 @@
-import Vue from 'vue';
-import Vuex, { Store, ActionTree, ActionContext, GetterTree, MutationTree } from 'vuex';
+import Vue from "vue";
+import Vuex, {
+  Store,
+  ActionTree,
+  ActionContext,
+  GetterTree,
+  MutationTree,
+} from "vuex";
 
 Vue.use(Vuex);
 
 class State {
   public beatsPerMeasure: number = 4;
   public beatsPerMinute: number = 0;
-  public countMethod: string = 'measures';
+  public countMethod: string = "measures";
   public espilonPercent: number = 5;
 
   constructor() {

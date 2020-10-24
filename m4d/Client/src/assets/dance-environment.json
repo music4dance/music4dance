@@ -53,10 +53,7 @@
               "min": 24.0,
               "max": 26.0
             },
-            "organizations": [
-              "DanceSport",
-              "NDCA"
-            ],
+            "organizations": ["DanceSport", "NDCA"],
             "instances": [
               {
                 "tempoRange": {
@@ -170,10 +167,7 @@
               "min": 30.0,
               "max": 31.0
             },
-            "organizations": [
-              "DanceSport",
-              "NDCA"
-            ],
+            "organizations": ["DanceSport", "NDCA"],
             "instances": [
               {
                 "tempoRange": {
@@ -249,10 +243,7 @@
               "min": 47.0,
               "max": 51.0
             },
-            "organizations": [
-              "DanceSport",
-              "NDCA"
-            ],
+            "organizations": ["DanceSport", "NDCA"],
             "instances": [
               {
                 "tempoRange": {
@@ -328,10 +319,7 @@
               "min": 26.0,
               "max": 36.0
             },
-            "organizations": [
-              "DanceSport",
-              "NDCA"
-            ],
+            "organizations": ["DanceSport", "NDCA"],
             "instances": [
               {
                 "tempoRange": {
@@ -433,10 +421,7 @@
               "min": 58.0,
               "max": 62.0
             },
-            "organizations": [
-              "DanceSport",
-              "NDCA"
-            ],
+            "organizations": ["DanceSport", "NDCA"],
             "instances": [
               {
                 "tempoRange": {
@@ -496,10 +481,7 @@
               "min": 48.0,
               "max": 52.0
             },
-            "organizations": [
-              "DanceSport",
-              "NDCA"
-            ],
+            "organizations": ["DanceSport", "NDCA"],
             "instances": [
               {
                 "tempoRange": {
@@ -753,10 +735,7 @@
               "min": 29.0,
               "max": 32.0
             },
-            "organizations": [
-              "DanceSport",
-              "NDCA"
-            ],
+            "organizations": ["DanceSport", "NDCA"],
             "instances": [
               {
                 "tempoRange": {
@@ -1070,10 +1049,7 @@
               "min": 34.0,
               "max": 36.0
             },
-            "organizations": [
-              "DanceSport",
-              "NDCA"
-            ],
+            "organizations": ["DanceSport", "NDCA"],
             "instances": [
               {
                 "tempoRange": {
@@ -1141,10 +1117,7 @@
               "min": 28.0,
               "max": 30.0
             },
-            "organizations": [
-              "DanceSport",
-              "NDCA"
-            ],
+            "organizations": ["DanceSport", "NDCA"],
             "instances": [
               {
                 "tempoRange": {
@@ -1202,10 +1175,7 @@
               "min": 38.0,
               "max": 44.0
             },
-            "organizations": [
-              "DanceSport",
-              "NDCA"
-            ],
+            "organizations": ["DanceSport", "NDCA"],
             "instances": [
               {
                 "tempoRange": {
@@ -1322,10 +1292,7 @@
               "min": 28.0,
               "max": 32.0
             },
-            "organizations": [
-              "DanceSport",
-              "NDCA"
-            ],
+            "organizations": ["DanceSport", "NDCA"],
             "instances": [
               {
                 "tempoRange": {
@@ -1862,10 +1829,7 @@
               "min": 30.0,
               "max": 32.0
             },
-            "organizations": [
-              "DanceSport",
-              "NDCA"
-            ],
+            "organizations": ["DanceSport", "NDCA"],
             "instances": [
               {
                 "tempoRange": {
@@ -2176,13 +2140,7 @@
           "min": 15.0,
           "max": 80.0
         },
-        "danceIds": [
-          "TGO",
-          "ATN",
-          "NTN",
-          "MGA",
-          "TGV"
-        ],
+        "danceIds": ["TGO", "ATN", "NTN", "MGA", "TGV"],
         "blogTag": "tango"
       }
     },
@@ -2440,10 +2398,7 @@
               "min": 60.0,
               "max": 62.0
             },
-            "organizations": [
-              "DanceSport",
-              "NDCA"
-            ],
+            "organizations": ["DanceSport", "NDCA"],
             "instances": [
               {
                 "tempoRange": {
@@ -2477,13 +2432,7 @@
           "min": 10.0,
           "max": 100.0
         },
-        "danceIds": [
-          "BLU",
-          "C2S",
-          "MWT",
-          "NC2",
-          "PLK"
-        ]
+        "danceIds": ["BLU", "C2S", "MWT", "NC2", "PLK"]
       }
     },
     {
@@ -2578,10 +2527,7 @@
               "min": 28.0,
               "max": 34.0
             },
-            "organizations": [
-              "DanceSport",
-              "NDCA"
-            ],
+            "organizations": ["DanceSport", "NDCA"],
             "instances": [
               {
                 "tempoRange": {
@@ -2667,10 +2613,7 @@
               "min": 48.0,
               "max": 52.0
             },
-            "organizations": [
-              "DanceSport",
-              "NDCA"
-            ],
+            "organizations": ["DanceSport", "NDCA"],
             "instances": [
               {
                 "tempoRange": {
@@ -2731,10 +2674,7 @@
               "min": 60.0,
               "max": 62.0
             },
-            "organizations": [
-              "DanceSport",
-              "NDCA"
-            ],
+            "organizations": ["DanceSport", "NDCA"],
             "instances": [
               {
                 "tempoRange": {
@@ -2769,12 +2709,7 @@
           "min": 15.0,
           "max": 62.0
         },
-        "danceIds": [
-          "CFT",
-          "SFT",
-          "QST",
-          "PBD"
-        ],
+        "danceIds": ["CFT", "SFT", "QST", "PBD"],
         "blogTag": "foxtrot"
       }
     },
@@ -2889,10 +2824,7 @@
               "min": 28.0,
               "max": 30.0
             },
-            "organizations": [
-              "DanceSport",
-              "NDCA"
-            ],
+            "organizations": ["DanceSport", "NDCA"],
             "instances": [
               {
                 "tempoRange": {
@@ -2991,10 +2923,7 @@
               "min": 53.0,
               "max": 58.0
             },
-            "organizations": [
-              "DanceSport",
-              "NDCA"
-            ],
+            "organizations": ["DanceSport", "NDCA"],
             "instances": [
               {
                 "tempoRange": {
@@ -3063,11 +2992,7 @@
           "min": 28.0,
           "max": 58.0
         },
-        "danceIds": [
-          "CSW",
-          "SWZ",
-          "VWZ"
-        ],
+        "danceIds": ["CSW", "SWZ", "VWZ"],
         "blogTag": "waltz"
       }
     }

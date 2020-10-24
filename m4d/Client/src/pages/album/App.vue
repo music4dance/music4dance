@@ -2,9 +2,11 @@
   <page id="app" :consumesEnvironment="true">
     <h1>
       Album: {{ model.title }}
-      <span v-if="model.artist">by <a :href="artistRef">{{ model.artist }}</a></span>
+      <span v-if="model.artist"
+        >by <a :href="artistRef">{{ model.artist }}</a></span
+      >
     </h1>
-    <song-table 
+    <song-table
       :songs="model.songs"
       :filter="model.filter"
       :userName="model.userName"
@@ -15,13 +17,13 @@
 </template>
 
 <script lang="ts">
-import 'reflect-metadata';
-import { Component, Vue } from 'vue-property-decorator';
-import SongTable from '@/components/SongTable.vue';
-import Page from '@/components/Page.vue';
-import { TypedJSON } from 'typedjson';
-import { Song } from '@/model/Song';
-import { AlbumModel } from '@/model/AlbumModel';
+import "reflect-metadata";
+import { Component, Vue } from "vue-property-decorator";
+import SongTable from "@/components/SongTable.vue";
+import Page from "@/components/Page.vue";
+import { TypedJSON } from "typedjson";
+import { Song } from "@/model/Song";
+import { AlbumModel } from "@/model/AlbumModel";
 
 declare const model: string;
 
@@ -45,7 +47,7 @@ export default class App extends Vue {
   }
 
   private get hidden(): string[] {
-    return this.model.artist ? ['Artist'] : [];
+    return this.model.artist ? ["Artist"] : [];
   }
 }
 </script>

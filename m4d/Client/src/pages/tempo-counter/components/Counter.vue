@@ -1,11 +1,15 @@
 <template>
   <div>
-    <div class='row'>
-      <div class='col-sm'><button class='btn btn-primary btn-lg btn-block' @click='countClicked'>{{counterTitle}}</button></div>
+    <div class="row">
+      <div class="col-sm">
+        <button class="btn btn-primary btn-lg btn-block" @click="countClicked">
+          {{ counterTitle }}
+        </button>
+      </div>
     </div>
-    <div class='row my-2'></div>
-    <div class='row'>
-      <div class='col-sm'>
+    <div class="row my-2"></div>
+    <div class="row">
+      <div class="col-sm">
         <b-form-group>
           <b-form-radio-group
             id="countMethodInternal"
@@ -14,34 +18,37 @@
             buttons
             button-variant="outline-primary"
             size="md"
-            name="radio-btn-outline">
+            name="radio-btn-outline"
+          >
           </b-form-radio-group>
         </b-form-group>
       </div>
-      <div class='col-sm'>
-        <beats-per-minute @change-tempo='changeBeatsPerMintue'/>
+      <div class="col-sm">
+        <beats-per-minute @change-tempo="changeBeatsPerMintue" />
       </div>
-      <div class='col-sm'>
-        <measures-per-minute @change-tempo='changeMeasuresPerMintue'/>
+      <div class="col-sm">
+        <measures-per-minute @change-tempo="changeMeasuresPerMintue" />
       </div>
-      <div class='col-sm'>
-        <strictness/>
+      <div class="col-sm">
+        <strictness />
       </div>
     </div>
   </div>
 </template>
 
-<script lang='ts'>
-import { Component, Prop, Watch, Vue } from 'vue-property-decorator';
-import { Getter, Mutation } from 'vuex-class';
-import BeatsPerMinute from './BeatsPerMinute.vue';
-import MeasuresPerMinute from './MeasuresPerMinute.vue';
-import Strictness from './Strictness.vue';
+<script lang="ts">
+import { Component, Prop, Watch, Vue } from "vue-property-decorator";
+import { Getter, Mutation } from "vuex-class";
+import BeatsPerMinute from "./BeatsPerMinute.vue";
+import MeasuresPerMinute from "./MeasuresPerMinute.vue";
+import Strictness from "./Strictness.vue";
 
 const maxWait = 5000;
 
 const average = (list: number[]) =>
-    list.length === 0 ? 0 :  list.reduce((prev, curr) => prev + curr) / list.length;
+  list.length === 0
+    ? 0
+    : list.reduce((prev, curr) => prev + curr) / list.length;
 
 @Component({
   components: {
@@ -52,13 +59,13 @@ const average = (list: number[]) =>
 })
 export default class Counter extends Vue {
   // Data
-  private intervals: number[] = [];  // deltas between last n clicked
+  private intervals: number[] = []; // deltas between last n clicked
   private last: number | null = null; // Last type clicked (in tics)
   private timeout: number | null = null;
 
   private countOptions: any = [
-    { text: 'Count Measures', value: 'measures' },
-    { text: 'Count Beats', value: 'beats' },
+    { text: "Count Measures", value: "measures" },
+    { text: "Count Beats", value: "beats" },
   ];
 
   // Getters
@@ -74,17 +81,17 @@ export default class Counter extends Vue {
 
   // Computed
   private get countMeasures(): boolean {
-    return this.countMethod === 'measures';
+    return this.countMethod === "measures";
   }
 
   private get counterTitle(): string {
-    return this.last ? 'Again' : this.counterInitialTitle;
+    return this.last ? "Again" : this.counterInitialTitle;
   }
 
   private get counterInitialTitle(): string {
-    return !this.countMeasures  ?
-      'Click on each beat' :
-      'Click on Downbeat of measure ' + this.beatsPerMeasure + '/4';
+    return !this.countMeasures
+      ? "Click on each beat"
+      : "Click on Downbeat of measure " + this.beatsPerMeasure + "/4";
   }
 
   private get countMethodInternal(): string {
@@ -105,15 +112,15 @@ export default class Counter extends Vue {
     if (this.last == null) {
       this.resetIntervals();
     } else {
-        const delta = current - this.last;
-        if (delta > maxWait) {
-            this.resetIntervals();
-        } else {
-            this.intervals.push(delta);
-            if (this.intervals.length > 100) {
-                this.intervals.shift();
-            }
+      const delta = current - this.last;
+      if (delta > maxWait) {
+        this.resetIntervals();
+      } else {
+        this.intervals.push(delta);
+        if (this.intervals.length > 100) {
+          this.intervals.shift();
         }
+      }
     }
     this.last = current;
 
@@ -143,21 +150,23 @@ export default class Counter extends Vue {
   }
 
   // Watchers
-  @Watch('intervals')
+  @Watch("intervals")
   private onIntervalsUpdated() {
     const ms = average(this.intervals);
-    const countsPerMinute =  ms ? (60 * 1000) / ms : 0;
+    const countsPerMinute = ms ? (60 * 1000) / ms : 0;
 
-    this.updateBeatsPerMinute(this.countMeasures ? countsPerMinute * this.beatsPerMeasure : countsPerMinute);
+    this.updateBeatsPerMinute(
+      this.countMeasures
+        ? countsPerMinute * this.beatsPerMeasure
+        : countsPerMinute
+    );
   }
 
-  @Watch('countMethod')
+  @Watch("countMethod")
   private onTypeChange() {
     this.timerReset();
   }
 }
 </script>
 
-<style scoped lang='scss'>
-
-</style>
+<style scoped lang="scss"></style>

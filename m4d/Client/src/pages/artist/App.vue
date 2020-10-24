@@ -1,6 +1,6 @@
 <template>
   <page id="app" :title="title" :consumesEnvironment="true">
-    <song-table 
+    <song-table
       :songs="model.songs"
       :filter="model.filter"
       :userName="model.userName"
@@ -11,13 +11,13 @@
 </template>
 
 <script lang="ts">
-import 'reflect-metadata';
-import { Component, Vue } from 'vue-property-decorator';
-import SongTable from '@/components/SongTable.vue';
-import Page from '@/components/Page.vue';
-import { TypedJSON } from 'typedjson';
-import { Song } from '@/model/Song';
-import { ArtistModel } from '@/model/ArtistModel';
+import "reflect-metadata";
+import { Component, Vue } from "vue-property-decorator";
+import SongTable from "@/components/SongTable.vue";
+import Page from "@/components/Page.vue";
+import { TypedJSON } from "typedjson";
+import { Song } from "@/model/Song";
+import { ArtistModel } from "@/model/ArtistModel";
 
 declare const model: string;
 

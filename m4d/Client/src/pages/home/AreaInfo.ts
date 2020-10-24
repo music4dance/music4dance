@@ -1,4 +1,4 @@
 export interface AreaInfo {
-    name: string;
-    link?: string;
-  }
+  name: string;
+  link?: string;
+}

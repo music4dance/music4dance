@@ -1,27 +1,24 @@
 <template>
   <div>
     <b-modal
-      :id='identifier'
-      ref='modal'
-      title='Set Tempo'
-      size='sm'
-      @shown='initialize'
-      @ok='submit'
+      :id="identifier"
+      ref="modal"
+      title="Set Tempo"
+      size="sm"
+      @shown="initialize"
+      @ok="submit"
     >
-      <form ref='form' @submit.stop.prevent="handleSubmit">
-        <b-form-group
-          :label='label'
-          label-for='tempo-input'
-        >
+      <form ref="form" @submit.stop.prevent="handleSubmit">
+        <b-form-group :label="label" label-for="tempo-input">
           <b-form-input
-            id='tempo-input'
-            ref='input'
-            v-model='tempoInternal'
-            type='number'
-            step='.1'
-            min='0'
-            max='500'
-            @keydown.stop='logKeyDown'
+            id="tempo-input"
+            ref="input"
+            v-model="tempoInternal"
+            type="number"
+            step=".1"
+            min="0"
+            max="500"
+            @keydown.stop="logKeyDown"
           >
           </b-form-input>
         </b-form-group>
@@ -30,9 +27,9 @@
   </div>
 </template>
 
-<script lang='ts'>
-import { Component, Vue, Prop } from 'vue-property-decorator';
-import { Getter, Mutation } from 'vuex-class';
+<script lang="ts">
+import { Component, Vue, Prop } from "vue-property-decorator";
+import { Getter, Mutation } from "vuex-class";
 
 @Component
 export default class TempoModal extends Vue {
@@ -50,7 +47,7 @@ export default class TempoModal extends Vue {
   }
 
   private submit(): void {
-    this.$parent.$emit('change-tempo', Number(this.tempoInternal));
+    this.$parent.$emit("change-tempo", Number(this.tempoInternal));
   }
 
   private logKeyDown(e: KeyboardEvent): void {
@@ -59,10 +56,9 @@ export default class TempoModal extends Vue {
 
   private handleSubmit(): void {
     this.submit();
-    this.$root.$emit('bv::hide::modal', this.identifier);
+    this.$root.$emit("bv::hide::modal", this.identifier);
   }
 }
 </script>
 
-<style scoped lang='scss'>
-</style>
+<style scoped lang="scss"></style>

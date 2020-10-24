@@ -1,75 +1,85 @@
 <template>
-    <div>
-        <h1 style="text-align:center">Song Library</h1>
-        <b-input-group>
-            <b-input-group-prepend>
-                <b-button v-b-modal.danceChooser variant="outline-primary">{{ danceLabel }}</b-button>
-            </b-input-group-prepend>
+  <div>
+    <h1 style="text-align: center">Song Library</h1>
+    <b-input-group>
+      <b-input-group-prepend>
+        <b-button v-b-modal.danceChooser variant="outline-primary">{{
+          danceLabel
+        }}</b-button>
+      </b-input-group-prepend>
 
-            <label class="sr-only" for="keywords">Title, Artist, Album, Key Words</label>
-            <b-form-input type="text"
-                v-model="filter.searchString"
-                placeholder="Title, Artist, Album, Key Words"
-                @input="search"
-            ></b-form-input>
+      <label class="sr-only" for="keywords"
+        >Title, Artist, Album, Key Words</label
+      >
+      <b-form-input
+        type="text"
+        v-model="filter.searchString"
+        placeholder="Title, Artist, Album, Key Words"
+        @input="search"
+      ></b-form-input>
 
-            <b-input-group-append>
-                <b-button variant="outline-primary" @click="search">
-                    <b-icon-search></b-icon-search>
-                </b-button>
-            </b-input-group-append>
-        </b-input-group>
-        <b-row>
-            <b-col><a :href="searches">Saved Searches</a></b-col>
-            <b-col style="text-align:right">
-                <a :href="advancedSearch">Advanced Search</a>
-            </b-col>
-        </b-row>
-        <dance-chooser @chooseDance="chooseDance" :danceId="filter.dances"></dance-chooser>
-    </div>
+      <b-input-group-append>
+        <b-button variant="outline-primary" @click="search">
+          <b-icon-search></b-icon-search>
+        </b-button>
+      </b-input-group-append>
+    </b-input-group>
+    <b-row>
+      <b-col><a :href="searches">Saved Searches</a></b-col>
+      <b-col style="text-align: right">
+        <a :href="advancedSearch">Advanced Search</a>
+      </b-col>
+    </b-row>
+    <dance-chooser
+      @chooseDance="chooseDance"
+      :danceId="filter.dances"
+    ></dance-chooser>
+  </div>
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue } from 'vue-property-decorator';
-import { SongFilter } from '@/model/SongFilter';
-import DanceChooser from './DanceChooser.vue';
+import { Component, Prop, Vue } from "vue-property-decorator";
+import { SongFilter } from "@/model/SongFilter";
+import DanceChooser from "./DanceChooser.vue";
 
 @Component({
-    components: {
-        DanceChooser,
-    },
+  components: {
+    DanceChooser,
+  },
 })
 export default class SongLibrary extends Vue {
-    @Prop() private readonly filter!: SongFilter;
-    @Prop() private readonly user?: string;
+  @Prop() private readonly filter!: SongFilter;
+  @Prop() private readonly user?: string;
 
-    private get danceLabel(): string {
-        return !this.filter.dances ? 'All Dances' : this.filter.danceQuery.shortDescription;
-    }
+  private get danceLabel(): string {
+    return !this.filter.dances
+      ? "All Dances"
+      : this.filter.danceQuery.shortDescription;
+  }
 
-    private get advancedSearch(): string {
-        return `/song/advancedsearchform?filter=${this.filter.encodedQuery}`;
-    }
+  private get advancedSearch(): string {
+    return `/song/advancedsearchform?filter=${this.filter.encodedQuery}`;
+  }
 
-    private get searches(): string {
-        return this.user
-            ? '/searches'
-            : `/identity/account/login?returnUrl=${this.redirect}`;
-    }
+  private get searches(): string {
+    return this.user
+      ? "/searches"
+      : `/identity/account/login?returnUrl=${this.redirect}`;
+  }
 
-    private get redirect(): string {
-        const location = window.location;
-        return `${location.pathname}${location.search}${location.hash}`;
-    }
+  private get redirect(): string {
+    const location = window.location;
+    return `${location.pathname}${location.search}${location.hash}`;
+  }
 
-    private search(): void {
-        window.location.href = `/song/filterSearch?filter=${this.filter.encodedQuery}`;
-    }
+  private search(): void {
+    window.location.href = `/song/filterSearch?filter=${this.filter.encodedQuery}`;
+  }
 
-    private chooseDance(danceId?: string): void {
-        const filter = this.filter.clone();
-        filter.dances = danceId;
-        window.location.href = `/song/filterSearch?filter=${filter.encodedQuery}`;
-    }
+  private chooseDance(danceId?: string): void {
+    const filter = this.filter.clone();
+    filter.dances = danceId;
+    window.location.href = `/song/filterSearch?filter=${filter.encodedQuery}`;
+  }
 }
 </script>

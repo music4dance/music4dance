@@ -1,6 +1,6 @@
-import 'reflect-metadata';
-import { TypedJSON } from 'typedjson';
-import { Meter, DanceStats } from '../DanceStats';
+import "reflect-metadata";
+import { TypedJSON } from "typedjson";
+import { Meter, DanceStats } from "../DanceStats";
 
 const rumbaString = `{
     "danceId": "RMB",
@@ -259,8 +259,8 @@ function loadCha(): DanceStats | undefined {
   return loadDance(chaString);
 }
 
-describe ('dance stats loading', () => {
-  it('should load a meter', () => {
+describe("dance stats loading", () => {
+  it("should load a meter", () => {
     const serializer = new TypedJSON(Meter);
     const meter = serializer.parse('{"numerator": 4, "denominator": 4}');
 
@@ -270,34 +270,37 @@ describe ('dance stats loading', () => {
     expect(meter?.denominator).toEqual(4);
   });
 
-  it('should load a POJO dancestat', () => {
+  it("should load a POJO dancestat", () => {
     try {
-        const rumba = JSON.parse(rumbaString);
+      const rumba = JSON.parse(rumbaString);
 
-        expect(rumba).toBeDefined();
-        expect(rumba!.danceId).toEqual('RMB');
+      expect(rumba).toBeDefined();
+      expect(rumba!.danceId).toEqual("RMB");
     } catch (e) {
-        expect(e.name).toBeUndefined();
+      expect(e.name).toBeUndefined();
     }
   });
 
-  it('should load a dancestat object', () => {
+  it("should load a dancestat object", () => {
     const rumba = loadRumba();
 
     expect(rumba).toBeDefined();
     expect(rumba).toBeInstanceOf(DanceStats);
-    expect(rumba!.danceId).toEqual('RMB');
+    expect(rumba!.danceId).toEqual("RMB");
   });
 
-  it('should filter tempo by style', () => {
+  it("should filter tempo by style", () => {
     const rumba = loadRumba()!.danceType;
-    const americanRange = rumba!.filteredTempo(['american-rhythm'], []);
+    const americanRange = rumba!.filteredTempo(["american-rhythm"], []);
 
     expect(americanRange).toBeDefined();
     expect(americanRange!.min).toEqual(30);
     expect(americanRange!.max).toEqual(36);
 
-    const internationalRange = rumba!.filteredTempo(['international-latin'], []);
+    const internationalRange = rumba!.filteredTempo(
+      ["international-latin"],
+      []
+    );
     expect(internationalRange).toBeDefined();
     expect(internationalRange!.min).toEqual(26);
     expect(internationalRange!.max).toEqual(27);
@@ -307,42 +310,51 @@ describe ('dance stats loading', () => {
     expect(all!.min).toEqual(26);
     expect(all!.max).toEqual(36);
 
-    const several = rumba!.filteredTempo(['american-rhythm', 'international-latin', 'social'], []);
+    const several = rumba!.filteredTempo(
+      ["american-rhythm", "international-latin", "social"],
+      []
+    );
     expect(several).toBeDefined();
     expect(several!.min).toEqual(26);
     expect(several!.max).toEqual(36);
   });
 
-  it('should filter tempo by organization (rumba)', () => {
+  it("should filter tempo by organization (rumba)", () => {
     const rumba = loadRumba()!.danceType;
 
-    const americanNDCA1 = rumba!.filteredTempo(['american-rhythm'], ['ndca-1']);
+    const americanNDCA1 = rumba!.filteredTempo(["american-rhythm"], ["ndca-1"]);
     expect(americanNDCA1).toBeDefined();
     expect(americanNDCA1!.min).toEqual(30);
     expect(americanNDCA1!.max).toEqual(32);
 
-    const americanNDCA2 = rumba!.filteredTempo(['american-rhythm'], ['ndca-2']);
+    const americanNDCA2 = rumba!.filteredTempo(["american-rhythm"], ["ndca-2"]);
     expect(americanNDCA2).toBeDefined();
     expect(americanNDCA2!.min).toEqual(32);
     expect(americanNDCA2!.max).toEqual(36);
 
-    const americanDanceSport = rumba!.filteredTempo(['american-rhythm'], ['dancesport']);
+    const americanDanceSport = rumba!.filteredTempo(
+      ["american-rhythm"],
+      ["dancesport"]
+    );
     expect(americanDanceSport).toBeDefined();
     expect(americanDanceSport!.min).toEqual(30);
     expect(americanDanceSport!.max).toEqual(34);
 
-    const internationalDanceSport = rumba!.filteredTempo(['international-latin'], ['dancesport'] );
+    const internationalDanceSport = rumba!.filteredTempo(
+      ["international-latin"],
+      ["dancesport"]
+    );
     expect(internationalDanceSport).toBeDefined();
     expect(internationalDanceSport!.min).toEqual(26);
     expect(internationalDanceSport!.max).toEqual(27);
 
-    const danceSport = rumba!.filteredTempo([], ['dancesport']);
+    const danceSport = rumba!.filteredTempo([], ["dancesport"]);
     expect(danceSport).toBeDefined();
     expect(danceSport!.min).toEqual(26);
     expect(danceSport!.max).toEqual(34);
   });
 
-  it('should filter tempo by organization (bolero)', () => {
+  it("should filter tempo by organization (bolero)", () => {
     const bolero = loadBolero()!.danceType;
 
     const none = bolero!.filteredTempo([], []);
@@ -351,19 +363,20 @@ describe ('dance stats loading', () => {
     expect(none!.max).toEqual(26);
 
     const all = bolero!.filteredTempo(
-      ['american-rhythm', 'international-latin'],
-      ['DanceSport', 'ndca-1', 'ndca-2']);
+      ["american-rhythm", "international-latin"],
+      ["DanceSport", "ndca-1", "ndca-2"]
+    );
     expect(all).toBeDefined();
     expect(all!.min).toEqual(24);
     expect(all!.max).toEqual(26);
 
-    const ndca2 = bolero!.filteredTempo([], ['ndca-2']);
+    const ndca2 = bolero!.filteredTempo([], ["ndca-2"]);
     expect(ndca2).toBeDefined();
     expect(ndca2!.min).toEqual(24);
     expect(ndca2!.max).toEqual(24);
   });
 
-  it('should filter tempo by organization (cha)', () => {
+  it("should filter tempo by organization (cha)", () => {
     const cha = loadCha()!.danceType;
 
     const none = cha!.filteredTempo([], []);
@@ -372,17 +385,19 @@ describe ('dance stats loading', () => {
     expect(none!.max).toEqual(31);
 
     const all = cha!.filteredTempo(
-      ['american-rhythm', 'international-latin'],
-      ['DanceSport', 'ndca-1', 'ndca-2']);
+      ["american-rhythm", "international-latin"],
+      ["DanceSport", "ndca-1", "ndca-2"]
+    );
     expect(all).toBeDefined();
     expect(all!.min).toEqual(30);
     expect(all!.max).toEqual(31);
 
-    const danceSport = cha!.filteredTempo(['international-latin'], ['dancesport']);
+    const danceSport = cha!.filteredTempo(
+      ["international-latin"],
+      ["dancesport"]
+    );
     expect(danceSport).toBeDefined();
     expect(danceSport!.min).toEqual(30);
     expect(danceSport!.max).toEqual(32);
   });
 });
-
-

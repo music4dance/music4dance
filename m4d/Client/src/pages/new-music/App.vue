@@ -1,38 +1,42 @@
 <template>
   <page id="app" title="New Music" :consumesEnvironment="true">
     <b-button-group>
-      <b-button variant="outline-primary" :pressed="added" @click="clickAdded">Recently Added</b-button>
-      <b-button variant="outline-primary" :pressed="changed" @click="clickChanged">Recently Changed</b-button>
+      <b-button variant="outline-primary" :pressed="added" @click="clickAdded"
+        >Recently Added</b-button
+      >
+      <b-button
+        variant="outline-primary"
+        :pressed="changed"
+        @click="clickChanged"
+        >Recently Changed</b-button
+      >
     </b-button-group>
-    <song-table 
+    <song-table
       :songs="songs"
       :filter="filter"
       :userName="model.userName"
       :hideSort="model.hideSort"
       :hiddenColumns="['Track']"
     ></song-table>
-    <song-footer
-      :filter="filter"
-      :count="model.count"
-    ></song-footer>
+    <song-footer :filter="filter" :count="model.count"></song-footer>
   </page>
 </template>
 
 <script lang="ts">
 // tslint:disable: max-classes-per-file
-import 'reflect-metadata';
-import { Component, Vue } from 'vue-property-decorator';
-import SearchHeader from '@/components/SearchHeader.vue';
-import SongFooter from '@/components/SongFooter.vue';
-import SongLibraryHeader from '@/components/SongLibraryHeader.vue';
-import SongTable from '@/components/SongTable.vue';
-import Page from '@/components/Page.vue';
-import { jsonObject, TypedJSON, jsonArrayMember, jsonMember } from 'typedjson';
-import { Song } from '@/model/Song';
-import { SongFilter } from '@/model/SongFilter';
-import { DanceStats } from '@/model/DanceStats';
-import { SortOrder } from '@/model/SongSort';
-import { SongListModel } from '@/model/SongListModel';
+import "reflect-metadata";
+import { Component, Vue } from "vue-property-decorator";
+import SearchHeader from "@/components/SearchHeader.vue";
+import SongFooter from "@/components/SongFooter.vue";
+import SongLibraryHeader from "@/components/SongLibraryHeader.vue";
+import SongTable from "@/components/SongTable.vue";
+import Page from "@/components/Page.vue";
+import { jsonObject, TypedJSON, jsonArrayMember, jsonMember } from "typedjson";
+import { Song } from "@/model/Song";
+import { SongFilter } from "@/model/SongFilter";
+import { DanceStats } from "@/model/DanceStats";
+import { SortOrder } from "@/model/SongSort";
+import { SongListModel } from "@/model/SongListModel";
 
 declare const model: string;
 

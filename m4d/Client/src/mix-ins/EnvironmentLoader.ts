@@ -3,10 +3,10 @@
 //  for a bit both in case it's useful and as an example if I want to build
 //  other mixins
 
-import 'reflect-metadata';
-import { Component, Vue, Prop } from 'vue-property-decorator';
-import { getEnvironment } from '@/helpers/DanceEnvironmentManager';
-import { DanceEnvironment } from '@/model/DanceEnvironmet';
+import "reflect-metadata";
+import { Component, Vue, Prop } from "vue-property-decorator";
+import { getEnvironment } from "@/helpers/DanceEnvironmentManager";
+import { DanceEnvironment } from "@/model/DanceEnvironmet";
 
 @Component
 export default class EnvironmentLoader extends Vue {
@@ -22,6 +22,8 @@ export default class EnvironmentLoader extends Vue {
     this.environment = await getEnvironment();
 
     // tslint:disable-next-line:no-console
-    console.log(`Environment loaded: Stats = ${this.environment!.stats!.length}`);
+    console.log(
+      `Environment loaded: Stats = ${this.environment!.stats!.length}`
+    );
   }
 }

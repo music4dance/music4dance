@@ -1,68 +1,75 @@
-import 'reflect-metadata';
-import { Tag } from '@/model/Tag';
-import { TagList } from '../TagList';
-import { BIconFolder2Open } from 'bootstrap-vue';
+import "reflect-metadata";
+import { Tag } from "@/model/Tag";
+import { TagList } from "../TagList";
+import { BIconFolder2Open } from "bootstrap-vue";
 
-const qualified = '+Bolero:Dance|+Latin:Music|+Nontraditional:Tempo|-Rumba:Dance|-Pop:Music';
-const votes = 'Bolero:Dance|!Rumba:Dance';
+const qualified =
+  "+Bolero:Dance|+Latin:Music|+Nontraditional:Tempo|-Rumba:Dance|-Pop:Music";
+const votes = "Bolero:Dance|!Rumba:Dance";
 
-describe('tags loading', () => {
-    it ('should load taglist', () => {
-        const tagList = new TagList(qualified);
-        expect(tagList).toBeDefined();
-        expect(tagList).toBeInstanceOf(TagList);
-        expect(tagList.summary).toEqual(qualified);
+describe("tags loading", () => {
+  it("should load taglist", () => {
+    const tagList = new TagList(qualified);
+    expect(tagList).toBeDefined();
+    expect(tagList).toBeInstanceOf(TagList);
+    expect(tagList.summary).toEqual(qualified);
 
-        const tags = tagList.tags;
-        expect(tags).toBeDefined();
-        expect(tags.length).toEqual(5);
-        expect(tags[0]).toBeInstanceOf(Tag);
-    });
+    const tags = tagList.tags;
+    expect(tags).toBeDefined();
+    expect(tags.length).toEqual(5);
+    expect(tags[0]).toBeInstanceOf(Tag);
+  });
 
-    it ('should extract adds', () => {
-        const tagList = new TagList(qualified);
-        const adds = tagList.Adds;
+  it("should extract adds", () => {
+    const tagList = new TagList(qualified);
+    const adds = tagList.Adds;
 
-        expect(adds).toBeDefined();
-        expect(adds.length).toEqual(3);
-        expect(adds[0]).toBeInstanceOf(Tag);
-    });
+    expect(adds).toBeDefined();
+    expect(adds.length).toEqual(3);
+    expect(adds[0]).toBeInstanceOf(Tag);
+  });
 
-    it ('should extract removes', () => {
-        const tagList = new TagList(qualified);
-        const removes = tagList.Removes;
+  it("should extract removes", () => {
+    const tagList = new TagList(qualified);
+    const removes = tagList.Removes;
 
-        expect(removes).toBeDefined();
-        expect(removes.length).toEqual(2);
-        expect(removes[0]).toBeInstanceOf(Tag);
-    });
+    expect(removes).toBeDefined();
+    expect(removes.length).toEqual(2);
+    expect(removes[0]).toBeInstanceOf(Tag);
+  });
 
-    it ('should describe adds and removes', () => {
-        const tagList = new TagList(qualified);
+  it("should describe adds and removes", () => {
+    const tagList = new TagList(qualified);
 
-        expect(tagList.AddsDescription)
-            .toEqual('including tags Bolero, Latin and Nontraditional');
-        expect(tagList.RemovesDescription)
-            .toEqual('excluding tags Rumba or Pop');
-    });
+    expect(tagList.AddsDescription).toEqual(
+      "including tags Bolero, Latin and Nontraditional"
+    );
+    expect(tagList.RemovesDescription).toEqual("excluding tags Rumba or Pop");
+  });
 
-    it ('should describe filtered adds and removes', () => {
-        const tagList = new TagList(qualified).filterCategories(['dance']);
+  it("should describe filtered adds and removes", () => {
+    const tagList = new TagList(qualified).filterCategories(["dance"]);
 
-        expect(tagList.AddsDescription)
-            .toEqual('including tags Latin and Nontraditional');
-        expect(tagList.RemovesDescription)
-            .toEqual('excluding tag Pop');
-    });
+    expect(tagList.AddsDescription).toEqual(
+      "including tags Latin and Nontraditional"
+    );
+    expect(tagList.RemovesDescription).toEqual("excluding tag Pop");
+  });
 
-    it ('should handle voting', () => {
-        const tagList = new TagList(votes);
+  it("should handle voting", () => {
+    const tagList = new TagList(votes);
 
-        const voteFor = tagList.voteFromTags(new Tag({value: 'Bolero', category: 'Dance'}));
-        expect(voteFor).toEqual(true);
-        const voteAgainst = tagList.voteFromTags(new Tag({value: 'Rumba', category: 'Dance'}));
-        expect(voteAgainst).toEqual(false);
-        const noVote  = tagList.voteFromTags(new Tag({value: 'Swing', category: 'Dance'}));
-        expect(noVote).toBeUndefined();
-    });
+    const voteFor = tagList.voteFromTags(
+      new Tag({ value: "Bolero", category: "Dance" })
+    );
+    expect(voteFor).toEqual(true);
+    const voteAgainst = tagList.voteFromTags(
+      new Tag({ value: "Rumba", category: "Dance" })
+    );
+    expect(voteAgainst).toEqual(false);
+    const noVote = tagList.voteFromTags(
+      new Tag({ value: "Swing", category: "Dance" })
+    );
+    expect(noVote).toBeUndefined();
+  });
 });
