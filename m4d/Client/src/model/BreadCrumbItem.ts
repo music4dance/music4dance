@@ -8,6 +8,11 @@ export const homeCrumb: BreadCrumbItem = { text: "music4dance", href: "/" };
 
 export const danceCrumb: BreadCrumbItem = { text: "Dances", href: "/dances" };
 
+export const songCrumb: BreadCrumbItem = {
+  text: "Song Library",
+  href: "/song",
+};
+
 export const ballroomCrumb: BreadCrumbItem = {
   text: "Ballroom",
   href: "/dances/ballroom-competition-categories",

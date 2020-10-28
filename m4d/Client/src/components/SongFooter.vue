@@ -28,6 +28,7 @@ declare const environment: DanceEnvironment;
 export default class SongFooter extends Vue {
   @Prop() private readonly filter!: SongFilter;
   @Prop() private readonly count!: number;
+  @Prop() private readonly href?: string;
 
   private pageNumber: number;
 
@@ -37,11 +38,20 @@ export default class SongFooter extends Vue {
   }
 
   private linkGen(pageNum: number): string {
-    return `${this.filter.url}&page=${pageNum}`;
+    const href = this.href;
+    return href
+      ? this.pagedUrl(href, pageNum)
+      : this.pagedUrl(this.filter.url, pageNum);
   }
 
   private get pageCount(): number {
-    return Math.ceil(this.count / 25);
+    return Math.max(1, Math.ceil(this.count / 25));
+  }
+
+  private pagedUrl(url: string, pageNum: number): string {
+    return url.includes("?")
+      ? `${url}&page=${pageNum}`
+      : `${url}?page=${pageNum}`;
   }
 }
 </script>

@@ -178,21 +178,32 @@ namespace m4d.Controllers
         {
             var filter = SongFilter.CreateHolidayFilter(dance, page);
 
-            ViewBag.NoSort = true;
-            ViewBag.ShowDate = true;
+            var ret = BuildAzureSearch(filter, out var results);
+            if (ret != null)
+            {
+                return ret;
+            }
 
-            ViewBag.Stats = Database.DanceStats;
-            ViewBag.Dance = null;
+            string playListId = null;
+
             if (!string.IsNullOrWhiteSpace(dance))
             {
                 var ds = Database.DanceStats.FromName(dance);
-                ViewBag.Dance = ds;
                 var name = $"Holiday {ds.DanceName}";
                 var playlist = Database.PlayLists.FirstOrDefault(p => p.Name == name);
-                ViewBag.PlayList = playlist?.Id;
+                playListId = playlist?.Id;
             }
 
-            return DoAzureSearch(filter, "holidaymusic");
+            var songs = results.Songs.Select(s => _mapper.Map<SongSparse>(s)).ToList();
+            return View(filter.Action, new HolidaySongListModel
+            {
+                Songs = songs,
+                Filter = _mapper.Map<SongFilterSparse>(filter),
+                UserName = User.Identity.Name,
+                Count = (int)results.TotalCount,
+                Dance = dance,
+                playListId = playListId
+            });
         }
 
         [AllowAnonymous]
@@ -331,7 +342,7 @@ namespace m4d.Controllers
             {
                 Songs = songs,
                 Filter = _mapper.Map<SongFilterSparse>(filter),
-                UserName = User.Identity.Name,
+                UserName = user,
                 Count = (int)results.TotalCount,
                 HideSort = hideSort ?? _hideSort,
                 HiddenColumns = _hiddenColumns ?? _hiddenColumns

@@ -1,119 +1,25 @@
-﻿@using m4d.ViewModels
-@using m4dModels
-@using Microsoft.AspNetCore.Html
-@model X.PagedList.IPagedList<Song>
+﻿@model m4d.ViewModels.SongListModel
+@using m4d.ViewModels
 
 @{
-    SongFilter filter = ViewBag.SongFilter;
+    Layout = "/Views/Shared/_bsv-Layout.cshtml";
 
     ViewBag.Title = "Holiday Dance Music";
     ViewBag.Description = "Help finding holiday dance music for partner dancing - Foxtrot, Waltz, Swing and others.";
-
-    DanceStatsInstance stats = ViewBag.Stats;
-    DanceStats currentDance = ViewBag.Dance;
-
-    Func<DanceStats, IHtmlContent> howToHelp =
-    @<text>
-        <ul>
-            <li>Sign up for our @Html.ActionLink("add song beta", "augment") and add holiday songs.</li>
-            <li>Browse our catalog of @Html.ActionLink(item.DanceName, item.DanceObject.CleanName, "dances") music and <a href="">tag</a> songs as Holiday when you find them.</li>
-            <li>If you have a list of holiday @item.DanceName that you are willing to share, please send us email at <a href="mailto:info@music4dance.net">info@music4dance.net</a> or contact us through our <a href="https://music4dance.blog/feedback/">feedback form.</a></li>
-        </ul>
-    </text>;
+    var converterModel = new ObjectConverterModel { Name = "model", Model = Model };
 }
 
-<ol class="breadcrumb">
-    <li><a href="/">Music4Dance</a></li>
-    @if (currentDance == null)
-    {
-        <li class="active">Holiday Music</li>
-    }
-    else
-    {
-        <li><a href="/song/holidaymusic">Holiday Music</a></li>
-        <li class="active">@currentDance.DanceName</li>
-    }
-</ol>
-
-<h1>@ViewBag.Title</h1>
-@if (currentDance == null)
-{
-    <p class="big-text">This page includes a list of all of the Ballroom and other partner dance music on the site that has been tagged as "Holiday" or "Christmas" music.</p>
-}
-else if (Model.Count > 0)
-{
-    <p class="big-text">This page includes a list of all of @Html.ActionLink(currentDance.DanceName, currentDance.DanceObject.CleanName, "dances") music on the site that has been tagged as "Holiday" or "Christmas" music. To see all of the holiday music on the site click @Html.ActionLink("here", "HolidayMusic")</p>
-}
-else
-{
-    <p class="big-text">We haven't cataloged any @currentDance.DanceName holiday music yet.  If this is a dance that you're familiar with, here are a couple of ways that you can help.</p>
-    @howToHelp(currentDance)
-}
-
-@if (Model.Count > 0)
-{
-    <partial name="_ListSongs" model="Model" />
-
-    <partial name="_SearchFooter" model="new SearchFooterModel {Songs=Model, Filter=filter, HideInferred=true, HideSpotify=true}" />
-}
-
-<div style="height:10px"></div>
-
-@if (currentDance != null && Model.Count < 15)
-{
-    <div style="height:10px"></div>
-    <div class="row">
-        <div class="col-sm-12">
-            <p class="big-text">Not seeing as much @currentDance.DanceName holiday music as you would like?  If this is a dance that you're familiar with, here are a couple of ways that you can help.</p>
-            @howToHelp(currentDance)
-        </div>
-    </div>
-}
-
-@if (currentDance != null && Model.Count > 0)
-{
-    <section id="spotify-player">
-        <iframe src="https://open.spotify.com/embed/playlist/@ViewBag.PlayList" frameborder="0" width="300" height="80" allowtransparency="true" allow="encrypted-media" allow="encrypted-media"></iframe>
-    </section>
-}
-
-<div class="row">
-    <div class="col-sm-12">
-        <p class="big-text">Choose a dance style to filter the holiday music to just that style: </p>
-        <div width="100%">
-            @foreach (var dance in stats.List.Where(d => d.SongCountExplicit > 10))
-            {
-                <span style="line-height: 3">@Html.ActionLink(dance.DanceName, "HolidayMusic", "Song", new { dance = dance.DanceName }, new { @class = "label tag-label label-music big-text" })</span>
-            }
-        </div>
-    </div>
-</div>
-
-
-<div style="height:10px"></div>
-
-<div class="row">
-    <div class="col-sm-10">
-        <p class="big-text">
-            <img src="~/images/icons/info.png" alt="tools" width="24" height="24" />Read the <a href="https://music4dance.blog">music4dance blog</a> entries about <a href="https://music4dance.blog/tag/holiday">Holiday Music</a>.
-        </p>
-    </div>
-</div>
+<div id="app"></div>
 
 @section Scripts {
-    @{
-        var scripts = new ScriptModel
-        {
-            IncludeTools = true,
-            DevelopmentFiles = new[] { "jquery.autocomplete", "musicservice", "tagchooser", "catalog", "azuresearch" },
-            ReleaseFiles = new[] { "search", },
-        };
-    }
-
-    <partial name="_scriptInclude" model="@scripts" />
+    <partial name="_jsonCamelCase" model="@converterModel" />
+    <script src="/client/js/chunk-vendors.js"></script>
+    <script src="/client/js/chunk-common.js"></script>
+    <script src="/client/js/holiday-music.js"></script>
 }
 
 @section Styles {
-    <partial name="_toolsStyles" />
+    <environment exclude="Development">
+        <link rel="stylesheet" href="/client/css/chunk-common.css" asp-append-version="true" />
+    </environment>
 }
-

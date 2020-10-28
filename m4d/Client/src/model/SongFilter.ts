@@ -95,8 +95,13 @@ export class SongFilter {
     return this.trimEnd(ret, ".-");
   }
 
+  public get isRaw(): boolean {
+    const action = this.action ?? "".toLowerCase().replace(" ", "+");
+    return action.startsWith("azure+raw") || action === "holidaymusic";
+  }
+
   public get danceQuery(): DanceQuery {
-    return new DanceQuery(this.dances);
+    return new DanceQuery(this.isRaw ? "" : this.dances);
   }
 
   public get userQuery(): UserQuery {

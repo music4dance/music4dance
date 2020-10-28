@@ -12,4 +12,10 @@ namespace m4d.ViewModels
         public bool HideSort { get; set; }
         public List<string> HiddenColumns { get; set; }
     }
+
+    public class HolidaySongListModel : SongListModel
+    {
+        public string Dance { get; set; }
+        public string playListId { get; set; }
+    }
 }

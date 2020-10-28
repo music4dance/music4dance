@@ -26,9 +26,7 @@
 // tslint:disable: max-classes-per-file
 import "reflect-metadata";
 import { Component, Vue } from "vue-property-decorator";
-import SearchHeader from "@/components/SearchHeader.vue";
 import SongFooter from "@/components/SongFooter.vue";
-import SongLibraryHeader from "@/components/SongLibraryHeader.vue";
 import SongTable from "@/components/SongTable.vue";
 import Page from "@/components/Page.vue";
 import { jsonObject, TypedJSON, jsonArrayMember, jsonMember } from "typedjson";
@@ -43,9 +41,7 @@ declare const model: string;
 @Component({
   components: {
     Page,
-    SearchHeader,
     SongFooter,
-    SongLibraryHeader,
     SongTable,
   },
 })

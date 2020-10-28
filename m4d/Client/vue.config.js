@@ -31,6 +31,10 @@ module.exports = {
       entry: "src/pages/faq/main.ts",
       filename: "faq.html",
     },
+    "holiday-music": {
+      entry: "src/pages/holiday-music/main.ts",
+      filename: "holiday-music.html",
+    },
     home: {
       entry: "src/pages/home/main.ts",
       filename: "home.html",

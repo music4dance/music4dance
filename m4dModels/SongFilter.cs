@@ -8,6 +8,7 @@ using System.Reflection;
 using System.Runtime.Serialization.Json;
 using System.Text;
 using AutoMapper;
+using DanceLibrary;
 
 namespace m4dModels
 {
@@ -156,7 +157,17 @@ namespace m4dModels
             const string holidayFilter =
                 "((OtherTags/any(t: t eq 'holiday') or GenreTags/any(t: t eq 'christmas' or t eq 'holiday')) and OtherTags/all(t: t ne 'halloween'))";
 
-            var odata = string.IsNullOrWhiteSpace(dance) ? holidayFilter : $"DanceTags/any(t: t eq '{dance.ToLower()}') and {holidayFilter}";
+            string danceFilter = null;
+            if (!string.IsNullOrWhiteSpace(dance))
+            {
+                var d = DanceLibrary.Dances.Instance.DanceFromName(dance);
+                if (d != null)
+                {
+                    danceFilter = $"(DanceTags/any(t: t eq '{dance.ToLower()}')" +
+                                  (d is DanceGroup ? $" or  DanceTagsInferred/any(t: t eq '{dance.ToLower()}')" : "") + ")";
+                }
+            }
+            var odata = string.IsNullOrWhiteSpace(dance) ? holidayFilter : $"{danceFilter} and {holidayFilter}";
 
             return new SongFilter(
                 "holidaymusic",
