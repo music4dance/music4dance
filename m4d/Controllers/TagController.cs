@@ -25,13 +25,7 @@ namespace m4d.Controllers
         [AllowAnonymous]
         public IActionResult Index([FromServices] IMapper mapper)
         {
-            var model = Database.OrderedTagGroups
-                .Where(t => 
-                    !string.Equals(t.Category,"dance", StringComparison.InvariantCultureIgnoreCase) &&
-                    !t.Value.StartsWith("!") &&
-                    t.Count > 0)
-                .Select(mapper.Map<TagModel>);
-            return View(model);
+            return View();
         }
 
         public IActionResult List()

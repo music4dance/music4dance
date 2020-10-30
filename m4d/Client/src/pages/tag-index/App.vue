@@ -1,5 +1,10 @@
 <template>
-  <page id="app" title="Tag Cloud">
+  <page
+    id="app"
+    title="Tag Cloud"
+    :consumesEnvironment="true"
+    @environment-loaded="onEnvironmentLoaded"
+  >
     <tag-cloud :tags="tags"></tag-cloud>
   </page>
 </template>
@@ -11,8 +16,7 @@ import TagCloud from "@/components/TagCloud.vue";
 import Page from "@/components/Page.vue";
 import { TypedJSON } from "typedjson";
 import { Tag } from "@/model/Tag";
-
-declare const model: string;
+import { DanceEnvironment } from "@/model/DanceEnvironmet";
 
 @Component({
   components: {
@@ -21,12 +25,13 @@ declare const model: string;
   },
 })
 export default class App extends Vue {
-  private tags: Tag[];
+  private tags: Tag[] = [];
 
-  constructor() {
-    super();
-
-    this.tags = TypedJSON.parseAsArray(model, Tag).filter((t) => t.icon);
+  private onEnvironmentLoaded(environment: DanceEnvironment): void {
+    const tags = environment.tags;
+    if (tags) {
+      this.tags = tags;
+    }
   }
 }
 </script>

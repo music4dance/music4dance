@@ -1,20 +1,13 @@
-﻿@using m4d.ViewModels
-@model IEnumerable<m4dModels.DanceStats>
-
-@{
+﻿@{
     Layout = "/Views/Shared/_bsv-Layout.cshtml";
 
     ViewBag.Title = "Dance Style Index";
     ViewBag.Description = "A list of partner dancing styles, including Ballroom, Salsa, Swing, and Tango.";
-
-    var converterModel = new ObjectConverterModel { Name = "model", Model = Model };
 }
-
 
 <div id="app"></div>
 
 @section Scripts {
-    <partial name="_jsonCamelCase" model="@converterModel" />
     <script src="/client/js/chunk-vendors.js"></script>
     <script src="/client/js/chunk-common.js"></script>
     <script src="/client/js/dance-index.js"></script>

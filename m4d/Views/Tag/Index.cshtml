@@ -1,19 +1,15 @@
-﻿@using m4d.ViewModels
-@model IEnumerable<m4dModels.TagModel>
+﻿@model IEnumerable<m4dModels.TagModel>
 
 @{
     Layout = "/Views/Shared/_bsv-Layout.cshtml";
 
     ViewBag.Title = "Tag Cloud";
     ViewBag.Description = "Explore songs based on musical genre, tempo, style and other tags.";
-
-    var converterModel = new ObjectConverterModel { Name = "model", Model = Model };
 }
 
 <div id="app"></div>
 
 @section Scripts {
-    <partial name="_jsonCamelCase" model="@converterModel" />
     <script src="/client/js/chunk-vendors.js"></script>
     <script src="/client/js/chunk-common.js"></script>
     <script src="/client/js/tag-index.js"></script>

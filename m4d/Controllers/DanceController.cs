@@ -51,20 +51,19 @@ namespace m4d.Controllers
         [AllowAnonymous]
         public ActionResult Index(string dance)
         {
-            var stats = DanceStatsManager.GetInstance(Database);
             if (string.IsNullOrWhiteSpace(dance))
             {
                 HelpPage = "dance-styles";
-                return View(stats.Tree);
+                return View();
             }
 
-            ViewBag.DanceStats = stats;
             if (string.Equals(dance, "ballroom-competition-categories", StringComparison.OrdinalIgnoreCase))
             {
                 return View("BallroomCompetitionCategories", 
                     CompetitionGroup.Get(CompetitionCategory.Ballroom));
             }
 
+            var stats = DanceStatsManager.GetInstance(Database);
             if (string.Equals(dance, "wedding-music", StringComparison.OrdinalIgnoreCase))
             {
                 // TODO: Wedding dance help page?

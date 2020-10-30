@@ -1,12 +1,12 @@
 <template>
-  <page id="app" title="Dance Styles" :breadcrumbs="breadcrumbs">
-    <b-card-group columns>
-      <dance-card
-        v-for="group in orderedGroups"
-        :key="group.danceId"
-        :group="group"
-      ></dance-card>
-    </b-card-group>
+  <page
+    id="app"
+    title="Dance Styles"
+    :breadcrumbs="breadcrumbs"
+    :consumesEnvironment="true"
+    @environment-loaded="onEnvironmentLoaded"
+  >
+    <dance-table :groups="groups"></dance-table>
     <p id="competition">
       Or check out our more traditional ballroom competition categories
       including
@@ -45,35 +45,30 @@
 import "reflect-metadata";
 import { Component, Vue } from "vue-property-decorator";
 import Page from "@/components/Page.vue";
-import DanceCard from "./DanceCard.vue";
+import DanceTable from "./DanceTable.vue";
 import { TypedJSON } from "typedjson";
 import { DanceStats } from "@/model/DanceStats";
 import { BreadCrumbItem, danceCrumb, homeCrumb } from "@/model/BreadCrumbItem";
-
-declare const model: string;
+import { DanceEnvironment } from "@/model/DanceEnvironmet";
 
 @Component({
   components: {
-    DanceCard,
+    DanceTable,
     Page,
   },
 })
 export default class App extends Vue {
-  private groups: DanceStats[];
-  private order: string[] = ["LTN", "WLZ", "SWG", "FXT", "TNG", "MSC", "PRF"];
+  private groups: DanceStats[] = [];
   private breadcrumbs: BreadCrumbItem[] = [
     homeCrumb,
     { text: "Dances", active: true },
   ];
 
-  constructor() {
-    super();
-
-    this.groups = TypedJSON.parseAsArray(model, DanceStats);
-  }
-
-  private get orderedGroups(): DanceStats[] {
-    return this.order.map((id) => this.groups.find((g) => g.danceId === id)!);
+  private onEnvironmentLoaded(environment: DanceEnvironment): void {
+    const stats = environment.stats;
+    if (stats) {
+      this.groups = stats;
+    }
   }
 }
 </script>

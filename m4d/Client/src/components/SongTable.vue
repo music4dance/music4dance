@@ -227,16 +227,11 @@ import { SongSort } from "@/model/SongSort";
 // TODONEXT:
 //  Consider going to advanced search results once anything has been selected
 //   beyond a single dance
-//  Get all pages that use dancestatis to pull from the same place
+//  Get all pages that use dancestats to pull from the same place
 //    Get an async loading template working
 //    Rework pages that use this
 //       tempo-counter
 //       tempo-list
-//       dance-index
-//       tag-index
-//  Move album page to vue
-//    Consider if we want track to show up in mobile
-//    Consider if we want an option of having an album column
 //  Move dance pages to vue
 //  Finish up the dance modal:
 //    Look at integrating dance/tag buttons and modals
