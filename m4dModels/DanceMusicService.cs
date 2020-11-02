@@ -1394,6 +1394,18 @@ namespace m4dModels
                 cruft, null, id, DanceStats);
         }
 
+        public async Task<SearchResults> AzureSearchAsync(
+            string search, SearchParameters parameters, CruftFilter cruft = CruftFilter.NoCruft,
+            string userName = null, string id = "default", DanceStatsInstance stats = null)
+        {
+            var response = await DoAzureSearchAsync(search, parameters, cruft, id);
+            var songs = response.Results.Select(d => new Song(d.Document, stats ?? DanceStats, userName)).ToList();
+            var pageSize = parameters.Top ?? 25;
+            var page = ((parameters.Skip ?? 0) / pageSize) + 1;
+            var facets = response.Facets;
+            return new SearchResults(search, songs.Count, response.Count ?? -1, page, pageSize, songs, facets);
+        }
+
         public SearchResults AzureSearch(
             string search, SearchParameters parameters, CruftFilter cruft = CruftFilter.NoCruft,
             string userName = null, string id = "default", DanceStatsInstance stats = null)
@@ -1569,6 +1581,32 @@ namespace m4dModels
             } while (token != null);
 
             return results;
+        }
+
+        private async Task<DocumentSearchResult<Document>> DoAzureSearchAsync(
+            string search, SearchParameters parameters, 
+            CruftFilter cruft = CruftFilter.NoCruft, ISearchIndexClient client = null)
+        {
+            if (client == null)
+                return DoAzureSearch(search, parameters, cruft, "default");
+
+            parameters = AddCruftInfo(parameters, cruft);
+            if (string.IsNullOrWhiteSpace(search))
+            {
+                search = "*";
+            }
+
+            return await client.Documents.SearchAsync(search, parameters);
+        }
+
+        private async Task<DocumentSearchResult<Document>> DoAzureSearchAsync(
+            string search, SearchParameters parameters, CruftFilter cruft = CruftFilter.NoCruft, string id = "default")
+        {
+            var info = SearchService.GetInfo(id);
+
+            using var serviceClient = new SearchServiceClient(info.Name, new SearchCredentials(info.QueryKey));
+            using var indexClient = serviceClient.Indexes.GetClient(info.Index);
+            return await DoAzureSearchAsync(search, parameters, cruft, indexClient);
         }
 
         private DocumentSearchResult<Document> DoAzureSearch(string search, SearchParameters parameters, CruftFilter cruft = CruftFilter.NoCruft, ISearchIndexClient client = null)

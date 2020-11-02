@@ -199,7 +199,7 @@ namespace m4d.Controllers
             var tags = new TagList();
             foreach (var foundTrack in found)
             {
-                var trackId = PurchaseRegion.FormatIdAndRegionInfo(foundTrack.TrackId, foundTrack.AvailableMarkets);
+                var trackId = foundTrack.TrackId; //PurchaseRegion.FormatIdAndRegionInfo(foundTrack.TrackId, foundTrack.AvailableMarkets);
                 UpdateMusicService(edit, MusicService.GetService(foundTrack.Service), foundTrack.Name, foundTrack.Album, foundTrack.Artist, trackId, foundTrack.CollectionId, foundTrack.AltId, foundTrack.Duration.ToString(), foundTrack.TrackNumber);
                 if (foundTrack.Genres != null)
                 {

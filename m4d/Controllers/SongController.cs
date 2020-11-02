@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
 using System.Threading.Tasks;
 using AutoMapper;
 using DanceLibrary;
@@ -40,6 +41,8 @@ namespace m4d.Controllers
 
         private readonly LinkGenerator _linkGenerator;
         private readonly IMapper _mapper;
+
+        private static readonly HttpClient HttpClient = new HttpClient();
 
         public override string DefaultTheme => MusicTheme;
 
@@ -905,7 +908,6 @@ namespace m4d.Controllers
             return RedirectToAction("Index", new {filter });
         }
 
-
         //
         // POST: /Song/AdminEdit/5
         [HttpPost]
@@ -1536,7 +1538,7 @@ namespace m4d.Controllers
 
         // CleanMusicServices: /Song/CleanMusicServices
         [Authorize(Roles = "dbAdmin")]
-        public ActionResult CleanMusicServices(SongFilter filter, Guid id, string type = "SG")
+        public async Task<ActionResult> CleanMusicServices(SongFilter filter, Guid id, string type = "S")
         {
             var song = Database.FindSong(id);
             if (song == null)
@@ -1544,7 +1546,7 @@ namespace m4d.Controllers
                 return ReturnError(HttpStatusCode.NotFound, $"The song with id = {id} has been deleted.");
             }
 
-            var newSong = CleanMusicServiceSong(song, Database, type);
+            var newSong = await CleanMusicServiceSong(song, Database, type);
             if (newSong != null)
             {
                 Database.SaveSong(newSong);
@@ -1559,8 +1561,9 @@ namespace m4d.Controllers
         // B= Broken
         // S= Spotify Region
         // G= Spotify Genre
+        // P= Batch Process
         [Authorize(Roles = "dbAdmin")]
-        public ActionResult BatchCleanService(SongFilter filter, string type="SG",int count = 100)
+        public async Task<ActionResult> BatchCleanService(SongFilter filter, string type="S",int count = -1)
         {
             try
             {
@@ -1571,11 +1574,12 @@ namespace m4d.Controllers
 
                 var tried = 0;
                 var done = false;
+                var batch = -type.IndexOf("P", StringComparison.CurrentCultureIgnoreCase) != -1;
 
                 filter.Page = 1;
 
                 var dms = Database.GetTransientService();
-                Task.Run(() =>
+                await Task.Run(async () =>
                 {
                     try
                     {
@@ -1585,8 +1589,11 @@ namespace m4d.Controllers
 
                             var prms = dms.AzureParmsFromFilter(filter, 500);
                             prms.IncludeTotalResultCount = false;
-                            prms.Filter = ((prms.Filter == null) ? "" : prms.Filter + " and ") + "Purchase/all(t: t ne '---')";
-                            var res = dms.AzureSearch(filter.SearchString, prms, DanceMusicCoreService.CruftFilter.AllCruft);
+                            if (batch)
+                            {
+                                prms.Filter = ((prms.Filter == null) ? "" : prms.Filter + " and ") + "Purchase/all(t: t ne '---')";
+                            }
+                            var res = await dms.AzureSearchAsync(filter.SearchString, prms, DanceMusicCoreService.CruftFilter.AllCruft);
                             if (!res.Songs.Any()) break;
                             var save = new List<Song>();
 
@@ -1599,18 +1606,25 @@ namespace m4d.Controllers
 
                                     processed += 1;
                                     tried += 1;
-                                    var songT = CleanMusicServiceSong(song, dms, type);
+                                    var songT = await CleanMusicServiceSong(song, dms, type);
                                     if (songT != null)
                                     {
                                         changed.Add(songT.SongId);
                                     }
-                                    else
+                                    else if (batch)
                                     {
                                         songT = song;
                                     }
 
-                                    songT.BatchProcessed = true;
-                                    save.Add(songT);
+                                    if (batch)
+                                    {
+                                        songT.BatchProcessed = true;
+                                    }
+
+                                    if (songT != null)
+                                    {
+                                        save.Add(songT);
+                                    }
 
                                     if (count > 0 && tried > count)
                                         break;
@@ -1959,15 +1973,15 @@ namespace m4d.Controllers
 
         #region MusicService
 
-        private Song CleanMusicServiceSong(Song song, DanceMusicCoreService dms, string type="SG", string region = "US")
+        private async Task<Song> CleanMusicServiceSong(Song song, DanceMusicCoreService dms, string type="S", string region = "US")
         {
             var props = new List<SongProperty>(song.SongProperties);
 
             var changed = false;
 
-            if (type.IndexOf('X') != -1) {changed |= CleanDeletedServices(song.SongId,props);}
-            if (type.IndexOf('B') != -1) {changed |= CleanBrokenServices(props);}
-            if (type.IndexOf('S') != -1) {changed |= CleanSpotify(props, region);}
+            if (type.IndexOf('X') != -1) {changed |= CleanDeletedServices(song.SongId, props);}
+            if (type.IndexOf('B') != -1) {changed |= await CleanBrokenServices(song, props);}
+            if (type.IndexOf('S') != -1) {changed |= CleanSpotify(props);}
             if (type.IndexOf('A') != -1) {changed |= CleanOrphanedAlbums(props);}
 
             var updateGenre = type.IndexOf('G') != -1;
@@ -2006,74 +2020,30 @@ namespace m4d.Controllers
             return song.EditSongTags(spotify.User, tags, dms.DanceStats);
         }
 
-        private bool CleanSpotify(IEnumerable<SongProperty> props, string region = "US")
+        private bool CleanSpotify(IEnumerable<SongProperty> props)
         {
-            var spotify = MusicService.GetService(ServiceType.Spotify);
             var changed = 0;
-            var updated = 0;
             var skipped = 0;
-            var failed = 0;
 
             foreach (var prop in SpotifySongProperties(props))
             {
                 var id = PurchaseRegion.ParseIdAndRegionInfo(prop.Value, out var regions);
 
-                if (null == regions)
+                if (null != regions || prop.Value.EndsWith("[]"))
                 {
-                    // Not sure how we are getting duplicate region info, but this will fix it
-                    var fix = PurchaseRegion.FixRegionInfo(prop.Value);
-                    if (fix != null)
-                    {
-                        prop.Value = fix;
-                        changed += 1;
-                    }
-                    else
-                    {
-                        try
-                        {
-                            var track = MusicServiceManager.GetMusicServiceTrack(prop.Value, spotify);
-                            if (track.AvailableMarkets == null)
-                            {
-                                failed += 1;
-                            }
-                            else
-                            {
-                                prop.Value = PurchaseRegion.FormatIdAndRegionInfo(track.TrackId, track.AvailableMarkets);
-                                regions = track.AvailableMarkets;
-                                changed += 1;
-                            }
-                        }
-                        catch (WebException)
-                        {
-                            failed += 1;
-                        }
-                    }
+                    prop.Value = id;
+                    changed += 1;
                 }
-
-                if (regions == null || string.IsNullOrWhiteSpace(region) || regions.Contains(region))
+                else
                 {
                     skipped += 1;
                 }
-                else if (!string.IsNullOrWhiteSpace(region))
-                {
-                    var track = MusicServiceManager.CoerceTrackRegion(id, spotify, region);
-                    if (track != null)
-                    {
-                        prop.Value = PurchaseRegion.FormatIdAndRegionInfo(track.TrackId,
-                            PurchaseRegion.MergeRegions(regions, track.AvailableMarkets));
-                        updated += 1;
-
-                    }
-                    else
-                    {
-                        failed += 1;
-                    }
-                }
             }
 
-            Trace.WriteLineIf(TraceLevels.General.TraceInfo, $"Spotify: Changed = {changed}, Failed = {failed}, Updated = {updated}, Skipped = {skipped}");
+            Trace.WriteLineIf(TraceLevels.General.TraceInfo, 
+                $"Spotify: Changed = {changed}, Skipped = {skipped}");
 
-            return updated > 0;
+            return changed > 0;
         }
 
         IEnumerable<SongProperty> SpotifySongProperties(IEnumerable<SongProperty> props)
@@ -2084,33 +2054,39 @@ namespace m4d.Controllers
             }
         }
 
-        private bool CleanBrokenServices(ICollection<SongProperty> props, string region = "US")
+        private async Task<bool> CleanBrokenServices(Song song, ICollection<SongProperty> props)
         {
             var del = new List<SongProperty>();
-            // Check every purchase link and make sure it's still valid
-            foreach (var prop in props.Where(p => p.Name.StartsWith("Purchase") && p.Name.EndsWith("S")))
+
+            foreach (var link in song.GetPurchaseLinks())
             {
-                PurchaseType pt;
-                ServiceType ms;
-
-                if (!MusicService.TryParsePurchaseType(prop.Qualifier, out pt, out ms)) continue;
-
-                var service = MusicService.GetService(ms);
-                if (!service.IsSearchable) continue;
-
-                string[] regions;
-                var id = PurchaseRegion.ParseIdAndRegionInfo(prop.Value, out regions);
-                ServiceTrack track = null;
                 try
                 {
-                    track = MusicServiceManager.GetMusicServiceTrack(id, MusicService.GetService(ms));
-                }
-                catch (WebException)
-                {
-                }
-                if (track != null) continue;
+                    using var response = await HttpClient.GetAsync(link.Link);
+                    if (!response.IsSuccessStatusCode)
+                    {
+                        if (!string.IsNullOrWhiteSpace(link.SongId))
+                        {
+                            var t = props.FirstOrDefault(
+                                p => p.Name.StartsWith("Purchase") && p.Name.EndsWith("S") &&
+                                     p.Value.StartsWith(link.SongId));
+                            if (t != null) del.Add(t);
+                        }
+                        if (!string.IsNullOrWhiteSpace(link.AlbumId))
+                        {
+                            var t = props.FirstOrDefault(
+                                p => p.Name.StartsWith("Purchase") && p.Name.EndsWith("A") &&
+                                     p.Value.StartsWith(link.AlbumId));
+                            if (t != null) del.Add(t);
+                        }
 
-                del.Add(prop);
+                        Trace.WriteLine($"Removing: {link.Link}");
+                    }
+                }
+                catch (Exception e)
+                {
+                    Trace.WriteLine($"Link {link.Link} threw {e.Message}");
+                }
             }
 
             if (del.Count == 0) return false;
@@ -2124,6 +2100,7 @@ namespace m4d.Controllers
 
             return true;
         }
+
 
         //private bool CleanDeletedServices(Guid songId, ICollection<SongProperty> props)
         //{
