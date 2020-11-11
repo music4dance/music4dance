@@ -23,6 +23,17 @@
         <a :href="defaultTempoLink(data.item)">{{ data.value }}</a>
       </template>
     </b-table>
+    <p v-if="isMixed">
+      (*) A short explanation of the NDCA (<a
+        href="https://www.ndca.org/pages/ndca_rule_book/Default.asp"
+        >National Dance Council of America)</a
+      >
+      columns: For American style dances the "A" column contains Tempi for
+      Silver and Gold levels while the "B" column contains Tempi for Bronze
+      level. For International style dances the "A" column contains Tempi for
+      Professional and Amateur couples while the "B" column contains Tempi for
+      Pro/Am couples.
+    </p>
   </div>
 </template>
 
@@ -88,7 +99,7 @@ export default class CompetitionCategoryTable extends Vue {
       case "International":
         return "NDCA Professional or Amateur";
       default:
-        return "MDCA A(*)";
+        return "NDCA A(*)";
     }
   }
 
@@ -100,13 +111,17 @@ export default class CompetitionCategoryTable extends Vue {
       case "International":
         return "NDCA Pro/Am";
       default:
-        return "MDCA B(*)";
+        return "NDCA B(*)";
     }
   }
 
   private get styleFamily(): string {
     const family = this.dances[0].styleFamily;
     return this.dances.every((d) => d.styleFamily === family) ? family : "Both";
+  }
+
+  private get isMixed(): boolean {
+    return this.styleFamily === "Both";
   }
 
   private danceLink(dance: DanceInstance): string {

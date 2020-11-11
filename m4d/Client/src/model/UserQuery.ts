@@ -75,6 +75,9 @@ export class UserQuery {
   }
 
   public isDefault(userName?: string): boolean {
+    if (!userName && !this.data) {
+      return true;
+    }
     const field = this.data?.toLowerCase();
     return field
       ? field === "-me|h" || field === `-${userName?.toLowerCase()}|h`

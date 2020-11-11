@@ -56,7 +56,7 @@ export class SongFilter {
     return val ? Number.parseFloat(val) : undefined;
   }
 
-  @jsonMember public action?: string;
+  @jsonMember public action?: string = "index";
   @jsonMember public searchString?: string;
   @jsonMember public dances?: string;
   @jsonMember public sortOrder?: string;
@@ -129,8 +129,18 @@ export class SongFilter {
   }
 
   public isDefault(user?: string): boolean {
-    const empty = this.isEmptyExcept(["action", "sortOrder", "user"]);
-    return empty && this.isDefaultUser(user);
+    return (
+      this.isEmptyExcept(["action", "sortOrder", "user"]) &&
+      this.isDefaultUser(user)
+    );
+  }
+
+  public isDefaultDance(danceId: string, user?: string): boolean {
+    return (
+      this.isEmptyExcept(["action", "dance", "sortOrder", "user"]) &&
+      this.isDefaultUser(user) &&
+      danceId?.toLowerCase() === this.dances?.toLowerCase()
+    );
   }
 
   public isSimple(user?: string): boolean {

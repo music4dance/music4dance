@@ -4,7 +4,9 @@ using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
+using AutoMapper;
 using DanceLibrary;
+using m4d.ViewModels;
 using m4dModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -41,9 +43,15 @@ namespace m4d.Controllers
 
     public class DanceController : ContentController
     {
-        public DanceController(DanceMusicContext context, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, ISearchServiceManager searchService, IDanceStatsManager danceStatsManager, IConfiguration configuration) :
+        public DanceController(DanceMusicContext context, UserManager<ApplicationUser> userManager,
+            RoleManager<IdentityRole> roleManager, ISearchServiceManager searchService,
+            IDanceStatsManager danceStatsManager, IConfiguration configuration, IMapper mapper) :
             base(context, userManager, roleManager, searchService, danceStatsManager, configuration)
-        { }
+        {
+            _mapper = mapper;
+        }
+
+        private readonly IMapper _mapper;
 
         public override string DefaultTheme => MusicTheme;
 
@@ -86,19 +94,18 @@ namespace m4d.Controllers
 
             HelpPage = "dance-details";
 
-            ViewBag.DanceStats = stats;
-            var ds = stats.FromName(dance, User.Identity.Name);
+            var ds = stats.FromName(dance);
+            var dbDance = Database.Dances.FirstOrDefault(d => d.Id == ds.DanceId);
 
-            if (ds == null) return ReturnError(HttpStatusCode.NotFound, $"The dance with the name = {dance} isn't defined.");
+            if (dbDance == null) return ReturnError(HttpStatusCode.NotFound, $"The dance with the name = {dance} isn't defined.");
 
+            
             if (ds.SongCount == 0)
             {
                 return View("emptydance", ds);
             }
 
-            SetupLikes(ds.TopSongs,ds.DanceId);
-
-            return View("details", ds);
+            return View("details", new DanceModel(dbDance, User.Identity.Name, stats, _mapper));
         }
 
         // GET: GroupRedirect/group/dance

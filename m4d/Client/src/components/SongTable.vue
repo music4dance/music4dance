@@ -13,6 +13,13 @@
         <div :class="likeHeader">Like/Play</div>
       </template>
       <template v-slot:cell(play)="data">
+        <vote-button
+          v-if="filter.singleDance"
+          :song="data.item"
+          :danceRating="getDanceRating(data.item)"
+          :authenticated="!!userName"
+          style="margin-right: 0.25em"
+        ></vote-button>
         <like-button
           :song="data.item"
           :userName="userName"
@@ -25,13 +32,6 @@
             <b-icon stacked icon="play-fill" shift-h="1"></b-icon>
           </b-iconstack>
         </a>
-        <vote-button
-          v-if="filter.singleDance"
-          :song="data.item"
-          :danceRating="getDanceRating(data.item)"
-          :authenticated="!!userName"
-          style="margin-left: 0.25em"
-        ></vote-button>
         <play-modal :song="data.item"></play-modal>
       </template>
       <template v-slot:head(title)>
@@ -232,7 +232,9 @@ import { SongSort } from "@/model/SongSort";
 //    Rework pages that use this
 //       tempo-counter
 //       tempo-list
+//  Get holiday dance single dances to show voting buttons
 //  Move dance pages to vue
+//    Get competition category info in
 //  Finish up the dance modal:
 //    Look at integrating dance/tag buttons and modals
 //  Think about how we replace merge & other administrative functions
@@ -390,7 +392,10 @@ export default class SongTable extends Vue {
 
   private dances(song: Song): Tag[] {
     return song.tags.filter(
-      (t) => !t.value.startsWith("!") && t.category.toLowerCase() === "dance"
+      (t) =>
+        !t.value.startsWith("!") &&
+        !t.value.startsWith("-") &&
+        t.category.toLowerCase() === "dance"
     );
   }
 

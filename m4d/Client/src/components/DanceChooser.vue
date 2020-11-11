@@ -38,7 +38,7 @@
             :key="dance.danceId"
             button
             :variant="groupVariant(dance)"
-            :class="{ 'sub-item': !isGroup(dance) }"
+            :class="{ 'sub-item': !dance.isGroup }"
             :active="danceId === dance.danceId"
             @click="choose(dance.danceId)"
           >
@@ -81,13 +81,9 @@ export default class DanceChooser extends Vue {
   }
 
   private groupVariant(dance: DanceStats): string | undefined {
-    return this.isGroup(dance) && !(this.danceId === dance.danceId)
+    return dance.isGroup && !(this.danceId === dance.danceId)
       ? "dark"
       : undefined;
-  }
-
-  private isGroup(dance: DanceStats): boolean {
-    return !!dance.children;
   }
 }
 </script>

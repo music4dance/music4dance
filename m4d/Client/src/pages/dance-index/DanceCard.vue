@@ -12,11 +12,7 @@
       ></dance-item>
     </b-card-header>
 
-    <b-list-group flush>
-      <b-list-group-item v-for="dance in dances" :key="dance.danceId">
-        <dance-item :dance="dance" variant="primary"></dance-item>
-      </b-list-group-item>
-    </b-list-group>
+    <dance-list :group="group" :flush="true"></dance-list>
   </b-card>
 </template>
 
@@ -28,18 +24,16 @@ import {
   TempoRange,
   DanceStats,
 } from "@/model/DanceStats";
-import DanceItem from "./DanceItem.vue";
+import DanceItem from "@/components/DanceItem.vue";
+import DanceList from "@/components/DanceList.vue";
 
 @Component({
   components: {
     DanceItem,
+    DanceList,
   },
 })
 export default class DanceCard extends Vue {
   @Prop() private group!: DanceStats;
-
-  private get dances(): DanceStats[] {
-    return this.group.children.filter((d) => d.songCount > 0);
-  }
 }
 </script>

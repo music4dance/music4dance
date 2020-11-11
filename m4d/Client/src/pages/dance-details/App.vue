@@ -1,0 +1,155 @@
+<template>
+  <page
+    id="app"
+    :title="model.danceName"
+    :breadcrumbs="breadcrumbs"
+    :consumesEnvironment="true"
+    @environment-loaded="onEnvironmentLoaded"
+  >
+    <b-row>
+      <b-col md="2" order-md="2">
+        <dance-contents :model="model"></dance-contents>
+      </b-col>
+      <b-col md="10" order-md="1">
+        <dance-description
+          :description="model.description"
+          :danceId="model.danceId"
+        >
+        </dance-description>
+        <top-ten
+          :songs="model.songs"
+          :filter="model.filter"
+          :userName="model.userName"
+        ></top-ten>
+        <spotify-player :danceId="model.danceId"></spotify-player>
+        <dance-reference :danceId="model.danceId"></dance-reference>
+        <div v-if="isGroup">
+          <hr />
+          <h2 id="dance-styles">
+            Dances that ar grouped into the {{ model.danceName }} category:
+          </h2>
+          <dance-list :group="this.dance" :showTempo="true"></dance-list>
+        </div>
+      </b-col>
+    </b-row>
+    <b-row id="competition-info" v-if="competitionInfo.length > 0">
+      <b-col>
+        <hr />
+        <competition-category-table
+          title="Competition Tempo Information"
+          :dances="competitionInfo"
+          :useFullName="true"
+        ></competition-category-table>
+      </b-col>
+    </b-row>
+    <b-row v-if="hasReferences">
+      <b-col>
+        <dance-links :danceId="model.danceId"></dance-links>
+      </b-col>
+    </b-row>
+    <b-row>
+      <b-col>
+        <hr />
+        <h2 id="tags">Tags</h2>
+        <tag-cloud :tags="tags" :hideFilter="!showTagFilter"></tag-cloud>
+      </b-col>
+    </b-row>
+  </page>
+</template>
+
+<script lang="ts">
+import "reflect-metadata";
+import { Component, Vue } from "vue-property-decorator";
+import CompetitionCategoryTable from "@/components/CompetitionCategoryTable.vue";
+import DanceContents from "./components/DanceContents.vue";
+import DanceDescription from "./components/DanceDescription.vue";
+import DanceList from "@/components/DanceList.vue";
+import DanceLinks from "./components/DanceLinks.vue";
+import DanceReference from "@/components/DanceReference.vue";
+import SongTable from "@/components/SongTable.vue";
+import Page from "@/components/Page.vue";
+import SpotifyPlayer from "@/components/SpotifyPlayer.vue";
+import TagCloud from "@/components/TagCloud.vue";
+import TopTen from "./components/TopTen.vue";
+import { DanceModel } from "@/model/DanceModel";
+import { Song } from "@/model/Song";
+import { SongFilter } from "@/model/SongFilter";
+import { TypedJSON } from "typedjson";
+import { DanceEnvironment } from "@/model/DanceEnvironmet";
+import { BreadCrumbItem, danceTrail } from "@/model/BreadCrumbItem";
+import { DanceInstance, DanceStats } from "@/model/DanceStats";
+import { Tag } from "@/model/Tag";
+
+declare const model: string;
+
+@Component({
+  components: {
+    CompetitionCategoryTable,
+    DanceContents,
+    DanceDescription,
+    DanceList,
+    DanceLinks,
+    DanceReference,
+    Page,
+    SpotifyPlayer,
+    TagCloud,
+    TopTen,
+  },
+})
+export default class App extends Vue {
+  private readonly model: DanceModel;
+  private breadcrumbs: BreadCrumbItem[] = danceTrail;
+  private tags: Tag[] = [];
+  private isGroup: boolean = false;
+  private dance: DanceStats | null = null;
+
+  constructor() {
+    super();
+
+    this.model = TypedJSON.parse(model, DanceModel)!;
+    this.model.filter = new SongFilter();
+    this.model.filter.dances = this.model.danceId;
+  }
+
+  private onEnvironmentLoaded(environment: DanceEnvironment): void {
+    const dance = environment.fromId(this.model.danceId);
+    if (dance) {
+      this.dance = dance;
+      this.breadcrumbs = this.buildBreadCrumbs(dance);
+      this.tags = dance.tags;
+      this.isGroup = dance.isGroup;
+    }
+  }
+
+  private buildBreadCrumbs(dance: DanceStats): BreadCrumbItem[] {
+    return [...danceTrail, ...this.breadCrumbDetails(dance)];
+  }
+
+  private breadCrumbDetails(dance: DanceStats): BreadCrumbItem[] {
+    return dance.isGroup
+      ? [this.breadCrumbLeaf(dance)]
+      : [this.breadCrumbGroup(dance), this.breadCrumbLeaf(dance)];
+  }
+
+  private breadCrumbLeaf(dance: DanceStats): BreadCrumbItem {
+    return { text: dance.danceName, active: true };
+  }
+
+  private breadCrumbGroup(dance: DanceStats): BreadCrumbItem {
+    const groupName = dance.danceType!.groupName;
+    return { text: groupName, href: `/dances/${groupName}` };
+  }
+
+  private get showTagFilter(): boolean {
+    return this.tags.length > 20;
+  }
+
+  private get competitionInfo(): DanceInstance[] {
+    return this.dance?.danceType?.competitionDances ?? [];
+  }
+
+  private get hasReferences(): boolean {
+    return !!this.dance?.danceLinks && this.dance.danceLinks.length > 0;
+  }
+}
+</script>

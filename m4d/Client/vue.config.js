@@ -23,6 +23,10 @@ module.exports = {
       entry: "src/pages/competition-category/main.ts",
       filename: "competition-category.html",
     },
+    "dance-details": {
+      entry: "src/pages/dance-details/main.ts",
+      filename: "dance-details.html",
+    },
     "dance-index": {
       entry: "src/pages/dance-index/main.ts",
       filename: "dance-index.html",

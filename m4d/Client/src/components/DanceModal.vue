@@ -138,7 +138,13 @@ export default class DanceModal extends Vue {
 
   private get hasFilter(): boolean {
     const filter = this.danceHandler.filter;
-    return !!filter && !filter.isDefault(this.danceHandler.user);
+    return (
+      !!filter &&
+      !filter.isDefaultDance(
+        this.danceHandler.danceRating.id,
+        this.danceHandler.user
+      )
+    );
   }
 }
 </script>

@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="row" style="margin-bottom: 0.5rem">
+    <div v-if="!hideFilter" class="row" style="margin-bottom: 0.5rem">
       <b-button-group size="sm" class="col-sm">
         <b-button
           v-for="btn in tagButtons"
@@ -92,6 +92,7 @@ class TagButton implements TagInfo {
 })
 export default class TagCloud extends Vue {
   @Prop() private readonly tags!: Tag[];
+  @Prop() private readonly hideFilter?: boolean;
 
   private tagButtons: TagButton[] = TagButton.buttons;
   private filter: number = 10;

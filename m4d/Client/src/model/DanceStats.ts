@@ -2,6 +2,8 @@
 import "reflect-metadata";
 import { jsonMember, jsonObject, jsonArrayMember } from "typedjson";
 import { kebabToWords, wordsToKebab } from "@/helpers/StringHelpers";
+import { Tag } from "./Tag";
+import { TagList } from "./TagList";
 
 @jsonObject
 export class TempoRange {
@@ -13,28 +15,28 @@ export class TempoRange {
     this.max = max;
   }
 
-  public toString(): string {
+  public toString(separator: string = "-"): string {
     return (
       this.formatTempo(this.min) +
-      (this.min === this.max ? "" : "-" + this.formatTempo(this.max))
+      (this.min === this.max ? "" : separator + this.formatTempo(this.max))
     );
   }
 
-  public bpm(numerator: number): string {
+  public bpm(numerator: number, separator: string = "-"): string {
     return (
       this.formatTempo(this.min * numerator) +
       (this.min === this.max
         ? ""
-        : "-" + this.formatTempo(this.max * numerator))
+        : separator + this.formatTempo(this.max * numerator))
     );
   }
 
-  public mpm(numerator: number): string {
+  public mpm(numerator: number, separator: string = "-"): string {
     return (
       this.formatTempo(this.min / numerator) +
       (this.min === this.max
         ? ""
-        : "-" + this.formatTempo(this.max / numerator))
+        : separator + this.formatTempo(this.max / numerator))
     );
   }
 
@@ -201,6 +203,10 @@ export class DanceType extends DanceObject {
     return wordsToKebab(this.name);
   }
 
+  public get competitionDances(): DanceInstance[] {
+    return this.instances.filter((inst) => inst.competitionGroup);
+  }
+
   public filteredStyles(filter: string[]): string[] {
     return this.styles.filter((s) => filter.indexOf(wordsToKebab(s)) !== -1);
   }
@@ -259,6 +265,12 @@ export class DanceType extends DanceObject {
 }
 
 @jsonObject
+export class DanceLink {
+  @jsonMember public description!: string;
+  @jsonMember public link!: string;
+}
+
+@jsonObject
 export class DanceStats {
   @jsonMember public danceId!: string;
   @jsonMember public danceName!: string;
@@ -269,6 +281,9 @@ export class DanceStats {
   @jsonMember public songCountExplicit!: number;
   @jsonMember public songCountImplicit!: number;
   @jsonMember public maxWeight!: number;
+  @jsonMember public spotifyPlaylist!: string;
+  @jsonMember public songTags!: string;
+  @jsonArrayMember(DanceLink) public danceLinks!: DanceLink[];
   @jsonMember({ constructor: DanceType }) public danceType!: DanceType | null;
   @jsonMember({ constructor: DanceGroup })
   public danceGroup!: DanceGroup | null;
@@ -283,6 +298,18 @@ export class DanceStats {
 
   public get styles(): string[] {
     return this!.danceType!.styles;
+  }
+
+  public get isGroup(): boolean {
+    return !!this.children && this.children.length > 0;
+  }
+
+  public get dance(): DanceObject {
+    return this.isGroup ? this.danceGroup! : this.danceType!;
+  }
+
+  public get tags(): Tag[] {
+    return new TagList(this.songTags).tags;
   }
 
   public filterByTempo(

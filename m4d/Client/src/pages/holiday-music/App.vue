@@ -30,16 +30,7 @@
         :href="pageLink"
       ></song-footer>
     </div>
-    <section v-if="model.playListId" id="spotify-player">
-      <iframe
-        :src="spotifyLink"
-        frameborder="0"
-        width="300"
-        height="80"
-        allowtransparency="true"
-        allow="encrypted-media"
-      ></iframe>
-    </section>
+    <spotify-player :playlist="model.playListId"></spotify-player>
     <holiday-dance-chooser
       :dance="this.model.dance"
       :count="this.model.count"
@@ -54,6 +45,7 @@ import HolidayDanceChooser from "./HolidayDanceChooser.vue";
 import HolidayHelp from "./HolidayHelp.vue";
 import SongFooter from "@/components/SongFooter.vue";
 import SongTable from "@/components/SongTable.vue";
+import SpotifyPlayer from "@/components/SpotifyPlayer.vue";
 import Page from "@/components/Page.vue";
 import { jsonObject, TypedJSON, jsonArrayMember, jsonMember } from "typedjson";
 import { Song } from "@/model/Song";
@@ -73,6 +65,7 @@ declare const model: string;
     Page,
     SongFooter,
     SongTable,
+    SpotifyPlayer,
   },
 })
 export default class App extends Vue {
@@ -107,11 +100,6 @@ export default class App extends Vue {
   private get seoDanceName(): string | undefined {
     const dance = this.model.dance;
     return dance ? wordsToKebab(dance) : undefined;
-  }
-
-  private get spotifyLink(): string | undefined {
-    const id = this.model.playListId;
-    return id ? `https://open.spotify.com/embed/playlist/${id}` : undefined;
   }
 
   private get breadcrumbs(): BreadCrumbItem[] {

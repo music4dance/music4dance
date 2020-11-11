@@ -1,6 +1,9 @@
 <template>
   <div class="d-flex justify-content-between">
-    <a :href="danceLink" :style="safeStyle">{{ dance.danceName }}</a>
+    <span
+      ><a :href="danceLink" :style="safeStyle">{{ dance.danceName }}</a>
+      <span v-if="showTempo" style="font-size: 0.8rem"> ({{ tempoText }})</span>
+    </span>
     <b-badge
       :href="countLink"
       :variant="safeVariant"
@@ -17,8 +20,9 @@ import { DanceStats } from "@/model/DanceStats";
 @Component
 export default class DanceItem extends Vue {
   @Prop() private dance!: DanceStats;
-  @Prop() private variant: string | undefined;
-  @Prop() private textStyle: string | undefined;
+  @Prop() private variant?: string;
+  @Prop() private textStyle?: string;
+  @Prop() private showTempo?: boolean;
 
   private get danceLink(): string {
     return `/dances/${this.dance.seoName}`;
@@ -34,6 +38,13 @@ export default class DanceItem extends Vue {
 
   private get safeStyle(): string {
     return this.textStyle ?? "";
+  }
+
+  private get tempoText(): string {
+    const dance = this.dance;
+    return `${dance.tempoRange.toString()} BPM/${dance.tempoRange.mpm(
+      dance.dance.meter.numerator
+    )} MPM`;
   }
 }
 </script>

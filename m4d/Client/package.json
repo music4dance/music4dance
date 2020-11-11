@@ -10,6 +10,7 @@
     "watch": "vue-cli-service build --mode development --watch"
   },
   "dependencies": {
+    "@types/showdown": "^1.9.3",
     "axios": "^0.20.0",
     "bootstrap": "^4.5.2",
     "bootstrap-vue": "^2.16.0",
@@ -21,6 +22,7 @@
     "vue-class-component": "^7.2.5",
     "vue-mq": "^1.0.1",
     "vue-property-decorator": "^9.0.0",
+    "vue-showdown": "^2.4.1",
     "vuex": "^3.5.1",
     "vuex-class": "^0.3.2"
   },

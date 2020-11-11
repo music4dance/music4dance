@@ -153,10 +153,15 @@ namespace m4dModels
                 Parent = Parent,
                 Children = Children,
                 DanceLinks = DanceLinks,
-                TopSongs = TopSongs?.Select(s => new Song(s.SongId, s.Serialize(null), danceStats, userName)).ToList(),
+                TopSongs = TopSongsForUser(userName, danceStats),
                 SpotifyPlaylist = SpotifyPlaylist,
                 CompetitionDances = CompetitionDances
             };
+        }
+
+        public List<Song> TopSongsForUser(string userName, DanceStatsInstance danceStats)
+        {
+            return TopSongs?.Select(s => new Song(s.SongId, s.Serialize(null), danceStats, userName)).ToList();
         }
     }
 }

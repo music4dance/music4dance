@@ -31,7 +31,9 @@ export class Tag {
 
   public static fromString(key: string): Tag {
     const parts = key.split(":");
-    return new Tag({ value: parts[0], category: parts[1] });
+    const count = parts.length > 1 ? Number.parseInt(parts[2], 10) : undefined;
+
+    return new Tag({ value: parts[0], category: parts[1], count });
   }
 
   public static get tagKeys(): string[] {
