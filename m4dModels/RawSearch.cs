@@ -1,7 +1,6 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
-using System.Security.Principal;
 using System.Text;
 using Microsoft.Azure.Search.Models;
 
@@ -26,7 +25,7 @@ namespace m4dModels
             CruftFilter = songFilter.Level.HasValue ? 
                 (DanceMusicService.CruftFilter) songFilter.Level.Value : 
                 DanceMusicService.CruftFilter.NoCruft;
-
+            Flags = songFilter.Tags;
             Page = songFilter.Page;
         }
 
@@ -48,6 +47,8 @@ namespace m4dModels
         public bool IsLucene { get; set; }
         [Display(Name = @"CruftFilter")]
         public DanceMusicService.CruftFilter CruftFilter { get; set; }
+        public string Flags { get; set; }
+        [Display(Name = @"Flags")]
 
         public int? Page { get; set; }
 

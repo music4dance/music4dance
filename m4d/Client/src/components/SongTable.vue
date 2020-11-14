@@ -225,16 +225,16 @@ import { ITaggableObject } from "@/model/ITaggableObject";
 import { SongSort } from "@/model/SongSort";
 
 // TODONEXT:
+//  Figure out what is going on with Holiday Shag Music
 //  Consider going to advanced search results once anything has been selected
 //   beyond a single dance
+//  Look at mixin's again - particularly with respect to danceId->dance translations
 //  Get all pages that use dancestats to pull from the same place
 //    Get an async loading template working
 //    Rework pages that use this
 //       tempo-counter
 //       tempo-list
 //  Get holiday dance single dances to show voting buttons
-//  Move dance pages to vue
-//    Get competition category info in
 //  Finish up the dance modal:
 //    Look at integrating dance/tag buttons and modals
 //  Think about how we replace merge & other administrative functions
@@ -422,13 +422,8 @@ export default class SongTable extends Vue {
   }
 
   private danceHandler(tag: Tag, filter: SongFilter, song: Song): DanceHandler {
-    return new DanceHandler(
-      song.findDanceRatingByName(tag.value)!,
-      tag,
-      this.userName,
-      filter,
-      song
-    );
+    const danceRating = song.findDanceRatingByName(tag.value);
+    return new DanceHandler(danceRating!, tag, this.userName, filter, song);
   }
 
   private tagHandler(

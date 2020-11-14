@@ -140,7 +140,7 @@ export default class DanceModal extends Vue {
     const filter = this.danceHandler.filter;
     return (
       !!filter &&
-      !filter.isDefaultDance(
+      filter.isDefaultDance(
         this.danceHandler.danceRating.id,
         this.danceHandler.user
       )

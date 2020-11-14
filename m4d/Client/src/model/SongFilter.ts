@@ -1,7 +1,9 @@
 import "reflect-metadata";
 import { jsonMember, jsonObject, jsonArrayMember } from "typedjson";
 import { DanceQuery } from "./DanceQuery";
+import { DanceQueryBase } from "./DanceQueryBase";
 import { PurchaseInfo } from "./Purchase";
+import { RawDanceQuery } from "./RawDanceQuery";
 import { SongSort } from "./SongSort";
 import { TagList } from "./TagList";
 import { UserQuery } from "./UserQuery";
@@ -100,8 +102,10 @@ export class SongFilter {
     return action.startsWith("azure+raw") || action === "holidaymusic";
   }
 
-  public get danceQuery(): DanceQuery {
-    return new DanceQuery(this.isRaw ? "" : this.dances);
+  public get danceQuery(): DanceQueryBase {
+    return this.isRaw
+      ? new RawDanceQuery(this.dances, this.tags)
+      : new DanceQuery(this.dances);
   }
 
   public get userQuery(): UserQuery {
@@ -130,6 +134,7 @@ export class SongFilter {
 
   public isDefault(user?: string): boolean {
     return (
+      !this.isRaw &&
       this.isEmptyExcept(["action", "sortOrder", "user"]) &&
       this.isDefaultUser(user)
     );
@@ -137,6 +142,7 @@ export class SongFilter {
 
   public isDefaultDance(danceId: string, user?: string): boolean {
     return (
+      !this.isRaw &&
       this.isEmptyExcept(["action", "dance", "sortOrder", "user"]) &&
       this.isDefaultUser(user) &&
       danceId?.toLowerCase() === this.dances?.toLowerCase()
@@ -145,6 +151,7 @@ export class SongFilter {
 
   public isSimple(user?: string): boolean {
     return (
+      !this.isRaw &&
       this.isEmptyExcept([
         "action",
         "user",
@@ -162,17 +169,16 @@ export class SongFilter {
     //  [Amazon|ITunes|Spotify] [Including tags TI] [Excluding tags TX] [between Tempo Range]
     //  [[not] (liked|disliked|edited) by user] sorted by [Sort Order] from [High|low] to [low|high]
 
-    return (
-      `All${this.describePart(this.danceQuery.description)}` +
-      `${this.describePart(this.describeKeywords)}` +
-      `${this.describePart(this.describePurchase)}` +
-      `${this.describePart(this.describeIncludedTags)}${this.describePart(
-        this.describeExcludedTags
-      )}` +
-      `${this.describePart(this.describeTempo)}` +
-      `${this.describePart(this.userQuery.description)}` +
-      `${this.describePart(this.describeSort)}.`
-    );
+    return this.isRaw
+      ? this.purchase ?? "Raw Search"
+      : `All${this.describePart(this.danceQuery.description)}` +
+          `${this.describePart(this.describeKeywords)}` +
+          `${this.describePart(this.describePurchase)}` +
+          `${this.describePart(this.describeIncludedTags)}` +
+          `${this.describePart(this.describeExcludedTags)}` +
+          `${this.describePart(this.describeTempo)}` +
+          `${this.describePart(this.userQuery.description)}` +
+          `${this.describePart(this.describeSort)}.`;
   }
 
   public extractDefault(user?: string): SongFilter {

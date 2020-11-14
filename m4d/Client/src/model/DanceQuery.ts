@@ -1,7 +1,4 @@
-import { DanceEnvironment } from "./DanceEnvironmet";
-import { DanceStats } from "./DanceStats";
-
-declare const environment: DanceEnvironment;
+import { DanceQueryBase } from "./DanceQueryBase";
 
 const all: string = "ALL";
 const and: string = "AND"; // Exclusive + Explicit
@@ -11,7 +8,7 @@ const oneOfX: string = "OOX"; // Inclusive + Inferred
 
 const modifiers: string[] = [all, and, andX, oneOfX];
 
-export class DanceQuery {
+export class DanceQuery extends DanceQueryBase {
   public static fromParts(
     dances: string[],
     exclusive?: boolean,
@@ -35,6 +32,7 @@ export class DanceQuery {
   private data: string;
 
   public constructor(query?: string) {
+    super();
     this.data = query ? query : "";
     if (all === this.data.toUpperCase()) {
       this.data = "";
@@ -69,14 +67,6 @@ export class DanceQuery {
     return this.startsWithAny([andX, oneOfX]);
   }
 
-  private get dances(): DanceStats[] {
-    return this.danceList.map((id) => environment!.fromId(id)!);
-  }
-
-  private get danceNames(): string[] {
-    return this.dances.map((d) => d.danceName);
-  }
-
   public get description(): string {
     const prefix = this.isExclusive ? "all" : "any";
     const connector = this.isExclusive ? "and" : "or";
@@ -101,14 +91,6 @@ export class DanceQuery {
 
   public get shortDescription(): string {
     return this.danceNames.join(", ");
-  }
-
-  public get singleDance(): boolean {
-    return this.danceList.length === 1;
-  }
-
-  public get isSimple(): boolean {
-    return this.danceList.length < 2;
   }
 
   private startsWithAny(qualifiers: string[]): boolean {

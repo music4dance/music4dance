@@ -144,6 +144,7 @@ namespace m4dModels
             Purchase = raw.Description;
             User = raw.SearchFields;
             Page = raw.Page;
+            Tags = raw.Flags;
             Level = raw.CruftFilter == DanceMusicCoreService.CruftFilter.NoCruft ? null : (int?) raw.CruftFilter;
         }
 
@@ -172,7 +173,7 @@ namespace m4dModels
             return new SongFilter(
                 "holidaymusic",
                 new RawSearch
-                    { ODataFilter = odata, Page = page }
+                    { ODataFilter = odata, Page = page, Flags = danceFilter == null ? "" : "singleDance" }
             );
         }
 
@@ -425,6 +426,7 @@ namespace m4dModels
 
         public bool IsEmptyDance => EmptyExcept(new[] { "Page", "Action", "SortOrder", "Dances" }) && DanceQuery.Dances.Count() < 2;
 
+        public bool IsSingDance => IsEmptyDance && DanceQuery.Dances.Count() == 1;
         private bool EmptyExcept(IEnumerable<string> properties)
         {
             return !PropertyInfo.Where(pi => !properties.Contains(pi.Name)).Select(t => t.GetValue(this)).Where((o, i) => o != null && !IsAltDefault(o, i)).Any();

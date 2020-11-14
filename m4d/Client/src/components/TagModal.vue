@@ -86,7 +86,7 @@ export default class TagModal extends Vue {
 
   private get hasFilter(): boolean {
     const filter = this.tagHandler.filter;
-    return !!filter && !filter.isDefault(this.tagHandler.user);
+    return !!filter && !filter.isDefault(this.tagHandler.user) && !filter.isRaw;
   }
 }
 </script>

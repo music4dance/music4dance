@@ -85,7 +85,7 @@ export default class App extends Vue {
 
   private get pageLink(): string {
     const dance = this.model.dance;
-    return dance ? `/song/holidaymusic?dance=${dance}` : "/song/dolidaymsuic";
+    return dance ? `/song/holidaymusic?dance=${dance}` : "/song/holidaymusic";
   }
 
   private get danceLink(): string {
