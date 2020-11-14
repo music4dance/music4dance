@@ -34,6 +34,7 @@
 
 <script lang="ts">
 import "reflect-metadata";
+import TagModalBase from "./TagModalBase";
 import { Component, Prop, Vue } from "vue-property-decorator";
 import { Tag } from "@/model/Tag";
 import { Song } from "@/model/Song";
@@ -41,13 +42,7 @@ import { SongFilter } from "@/model/SongFilter";
 import { TagHandler } from "@/model/TagHandler";
 
 @Component
-export default class TagModal extends Vue {
-  @Prop() private readonly tagHandler!: TagHandler;
-
-  private get tag(): Tag {
-    return this.tagHandler.tag;
-  }
-
+export default class TagModal extends TagModalBase {
   private get includeOnly(): string {
     return this.getTagLink("+", true);
   }
@@ -77,11 +72,6 @@ export default class TagModal extends Vue {
         `&filter=${filter.extractDefault(this.tagHandler.user).encodedQuery}`;
     }
     return link;
-  }
-
-  private get title(): string {
-    const parent = this.tagHandler.parent;
-    return parent ? parent.description : this.tag.value;
   }
 
   private get hasFilter(): boolean {

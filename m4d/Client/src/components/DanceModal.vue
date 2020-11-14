@@ -33,7 +33,7 @@
       <tag-button
         v-for="tag in tags"
         :key="tag.key"
-        :tagHandler="tagHandler(tag)"
+        :tagHandler="subTagHandler(tag)"
       >
       </tag-button>
     </div>
@@ -55,6 +55,9 @@
 
 <script lang="ts">
 import "reflect-metadata";
+import TagModalBase from "./TagModalBase";
+import TagButton from "./TagButton.vue";
+import VoteButton from "./VoteButton.vue";
 import { Component, Prop, Vue } from "vue-property-decorator";
 import { Tag } from "@/model/Tag";
 import { Song } from "@/model/Song";
@@ -63,8 +66,6 @@ import { DanceHandler } from "@/model/DanceHandler";
 import { DanceEnvironment } from "@/model/DanceEnvironmet";
 import { DanceStats } from "@/model/DanceStats";
 import { TagHandler } from "@/model/TagHandler";
-import TagButton from "./TagButton.vue";
-import VoteButton from "./VoteButton.vue";
 import { TagList } from "@/model/TagList";
 
 declare const environment: DanceEnvironment;
@@ -75,11 +76,9 @@ declare const environment: DanceEnvironment;
     VoteButton,
   },
 })
-export default class DanceModal extends Vue {
-  @Prop() private readonly danceHandler!: DanceHandler;
-
-  private get tag(): Tag {
-    return this.danceHandler.tag;
+export default class DanceModal extends TagModalBase {
+  private get danceHandler(): DanceHandler {
+    return this.tagHandler as DanceHandler;
   }
 
   private get pageLink(): string {
@@ -113,7 +112,8 @@ export default class DanceModal extends Vue {
   private get tags(): Tag[] | undefined {
     return this.danceHandler?.danceRating?.tags;
   }
-  private tagHandler(tag: Tag): TagHandler {
+
+  private subTagHandler(tag: Tag): TagHandler {
     const handler = this.danceHandler;
     return new TagHandler(
       tag,
@@ -121,11 +121,6 @@ export default class DanceModal extends Vue {
       handler.filter,
       handler.danceRating
     );
-  }
-
-  private get title(): string {
-    const parent = this.danceHandler.parent;
-    return parent ? parent.description : this.tag.value;
   }
 
   private get spinTitle(): string {

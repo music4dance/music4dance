@@ -131,7 +131,7 @@
         <dance-button
           v-for="tag in dances(data.item)"
           :key="tag.key"
-          :danceHandler="danceHandler(tag, filter, data.item)"
+          :tagHandler="danceHandler(tag, filter, data.item)"
         ></dance-button>
       </template>
       <template v-slot:cell(tags)="data">
@@ -194,7 +194,7 @@
         <dance-button
           v-for="tag in dances(data.item)"
           :key="tag.key"
-          :danceHandler="danceHandler(tag, filter, data.item)"
+          :tagHandler="danceHandler(tag, filter, data.item)"
         ></dance-button>
         <tag-button
           v-for="tag in tags(data.item)"
@@ -234,9 +234,6 @@ import { SongSort } from "@/model/SongSort";
 //    Rework pages that use this
 //       tempo-counter
 //       tempo-list
-//  Get holiday dance single dances to show voting buttons
-//  Finish up the dance modal:
-//    Look at integrating dance/tag buttons and modals
 //  Think about how we replace merge & other administrative functions
 //  Look at what else we want to put in footer (the not as many songs as expected, for one...)
 //  Figure out if there's a race condition when loading
