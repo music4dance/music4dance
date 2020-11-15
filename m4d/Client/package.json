@@ -15,7 +15,6 @@
     "bootstrap": "^4.5.2",
     "bootstrap-vue": "^2.16.0",
     "core-js": "^3.6.5",
-    "prettier": "2.1.2",
     "reflect-metadata": "^0.1.13",
     "typedjson": "^1.6.0-rc2",
     "vue": "^2.6.10",
@@ -32,17 +31,34 @@
     "@vue/cli-plugin-typescript": "^4.4.6",
     "@vue/cli-plugin-unit-jest": "~4.4.6",
     "@vue/cli-service": "^4.4.6",
-    "@vue/test-utils": "1.0.3",
+    "@vue/test-utils": "^1.1.1",
     "husky": "^4.3.0",
     "jest-junit": "^11.1.0",
     "lint-staged": "^10.4.2",
     "node-sass": "^4.14.1",
+    "prettier": "2.1.2",
     "sass-loader": "^9.0.3",
+    "ts-jest": "^26.4.4",
     "tslint-config-prettier": "^1.18.0",
     "typescript": "^3.9.7",
+    "vue-jest": "^3.0.7",
     "vue-template-compiler": "^2.6.11"
   },
   "lint-staged": {
     "*": "prettier --write"
+  },
+  "jest": {
+    "moduleFileExtensions": [
+      "js",
+      "ts",
+      "json",
+      "vue"
+    ],
+    "transform": {
+      ".*\\.(vue)$": "vue-jest",
+      "^.+\\.tsx?$": "ts-jest"
+    },
+    "testURL": "http://localhost/",
+    "testRegex": "(/__tests__/.*|(\\.|/)(test|spec))\\.(jsx?|tsx?)$"
   }
 }
