@@ -1,6 +1,6 @@
 <template>
   <div>
-    <main-menu></main-menu>
+    <main-menu :context="context"></main-menu>
     <nav aria-label="breadcrumb" v-if="breadcrumbs">
       <b-breadcrumb
         :items="breadcrumbs"

@@ -112,11 +112,9 @@
 import { Component, Prop, Vue } from "vue-property-decorator";
 import { MenuContext } from "@/model/MenuContext";
 
-declare const menuContext: MenuContext;
-
 @Component
 export default class Page extends Vue {
-  private context = menuContext;
+  @Prop() private context!: MenuContext;
 
   private get profileHeader(): string {
     const context = this.context;
