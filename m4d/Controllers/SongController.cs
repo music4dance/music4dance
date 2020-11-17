@@ -26,21 +26,30 @@ using X.PagedList;
 
 namespace m4d.Controllers
 {
+    public class VueOptions
+    {
+        public bool Enabled { get; set; }
+        public  bool HideSort { get; set; }
+        public List<string> HiddenColumns { get; set; }
+    }
+
     public class SongController : ContentController
     {
         public SongController(DanceMusicContext context, UserManager<ApplicationUser> userManager, 
             RoleManager<IdentityRole> roleManager, ISearchServiceManager searchService, 
             IDanceStatsManager danceStatsManager, LinkGenerator linkGenerator, IConfiguration configuration,
-            IMapper mapper) :
+            IMapper mapper, IHttpContextAccessor contextAccessor) :
             base(context, userManager, roleManager, searchService, danceStatsManager, configuration)
         {
             HelpPage = "song-list";
             _linkGenerator = linkGenerator;
             _mapper = mapper;
+            _contextAccessor = contextAccessor;
         }
 
         private readonly LinkGenerator _linkGenerator;
         private readonly IMapper _mapper;
+        private readonly IHttpContextAccessor _contextAccessor;
 
         private static readonly HttpClient HttpClient = new HttpClient();
 
@@ -71,24 +80,33 @@ namespace m4d.Controllers
         #region Commands
 
         [AllowAnonymous]
-        public ActionResult Vue(SongFilter filter, bool? hideSort, List<string> hiddenColumns)
+        public ActionResult Vue(SongFilter filter, bool enable = true, bool hideSort = false, List<string> hiddenColumns = null)
         {
-            if (hideSort.HasValue || (hiddenColumns != null && hiddenColumns.Count > 0))
+            _contextAccessor.HttpContext.Response.Cookies.Append("vue", JsonConvert.SerializeObject(new VueOptions
             {
-                _hideSort = hideSort ?? false;
-                _hiddenColumns = hiddenColumns ?? new List<string>();
-                _vueMode = true;
-            }
-            else
-            {
-                _vueMode = !_vueMode;
-            }
+                Enabled = enable,
+                HideSort = hideSort,
+                HiddenColumns = hiddenColumns?.Count == 0 ? new List<string> {"track"} : hiddenColumns
+            }));
+
             return RedirectToAction("Index", new { filter });
         }
 
-        private static bool _vueMode = false;
-        private static bool _hideSort = false;
-        private static List<string> _hiddenColumns = new List<string>();
+        private bool VueMode => VueOptions.Enabled;
+        private bool HideSort => VueOptions.HideSort;
+        private List<string> HiddenColumns => VueOptions.HiddenColumns;
+
+        private VueOptions VueOptions
+        {
+            get
+            {
+                var cookie = _contextAccessor.HttpContext.Request.Cookies["vue"];
+                return string.IsNullOrWhiteSpace(cookie)
+                    ? new VueOptions()
+                    : JsonConvert.DeserializeObject<VueOptions>(cookie);
+            }
+        }
+
 
         [AllowAnonymous]
         public ActionResult Sample()
@@ -252,7 +270,7 @@ namespace m4d.Controllers
                 return ret;
             }
 
-            if (_vueMode && !Request.Query.ContainsKey("vue") || !_vueMode && Request.Query.ContainsKey("vue"))
+            if (VueMode && !Request.Query.ContainsKey("vue") || !VueMode && Request.Query.ContainsKey("vue"))
             {
                 return VueAzureSearch(results, filter);
             }
@@ -341,15 +359,17 @@ namespace m4d.Controllers
             }
 
             var songs = results.Songs.Select(s => _mapper.Map<SongSparse>(s)).ToList();
-            return View(filter.Action, new SongListModel
-            {
-                Songs = songs,
-                Filter = _mapper.Map<SongFilterSparse>(filter),
-                UserName = user,
-                Count = (int)results.TotalCount,
-                HideSort = hideSort ?? _hideSort,
-                HiddenColumns = _hiddenColumns ?? _hiddenColumns
-            });
+            return View(
+                filter.Action.Equals("Advanced", StringComparison.OrdinalIgnoreCase) ? "index" : filter.Action, 
+                new SongListModel
+                {
+                    Songs = songs,
+                    Filter = _mapper.Map<SongFilterSparse>(filter),
+                    UserName = user,
+                    Count = (int)results.TotalCount,
+                    HideSort = hideSort ?? HideSort,
+                    HiddenColumns = HiddenColumns ?? HiddenColumns
+                });
         }
 
         //
