@@ -1,4 +1,3 @@
-/* tslint:disable:max-classes-per-file */
 import "reflect-metadata";
 import { jsonMember, jsonObject, jsonArrayMember } from "typedjson";
 import { kebabToWords, wordsToKebab } from "@/helpers/StringHelpers";
@@ -151,7 +150,6 @@ export class DanceInstance extends DanceObject {
         continue;
       }
       const newRange = exc.tempoRange;
-      // tslint:disable-next-line: prefer-conditional-expression
       if (!ret) {
         ret = newRange;
       } else {

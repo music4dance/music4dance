@@ -46,6 +46,7 @@
 
 <script lang="ts">
 import "reflect-metadata";
+import { BvTableFieldArray } from "bootstrap-vue";
 import { Component, Prop, Vue } from "vue-property-decorator";
 import { flatStats } from "@/model/DanceManager";
 import { Meter, TempoRange, DanceType, DanceFilter } from "@/model/DanceStats";
@@ -66,7 +67,7 @@ export default class FormList extends Vue {
     .map((s) => s.danceType)
     .filter((dt) => dt && dt.groupName !== "Performance");
 
-  private fields = [
+  private fields: BvTableFieldArray = [
     {
       key: "name",
       sortable: true,
@@ -106,7 +107,7 @@ export default class FormList extends Vue {
     },
     {
       key: "styles",
-      sortable: "true",
+      sortable: true,
       formatter: (value: undefined, key: string, item: DanceType) =>
         item.filteredStyles(this.styles).join(", "),
     },

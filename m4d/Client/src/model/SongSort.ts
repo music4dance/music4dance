@@ -1,6 +1,5 @@
 import { toTitleCase } from "@/helpers/StringHelpers";
 
-/* tslint:disable:max-classes-per-file */
 export enum SortOrder {
   Title = "Title",
   Artist = "Artist",

@@ -1,4 +1,3 @@
-// tslint:disable: max-classes-per-file
 import { jsonMember, jsonObject, TypedJSON } from "typedjson";
 
 export interface TagInfo {

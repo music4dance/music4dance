@@ -1,5 +1,3 @@
-// tslint:disable: trailing-comma
-
 import "reflect-metadata";
 import { TypedJSON } from "typedjson";
 import { SongHistory } from "../SongHistory";

@@ -38,6 +38,7 @@
 </template>
 
 <script lang="ts">
+import { BvTableFieldArray } from "bootstrap-vue";
 import { wordsToKebab } from "@/helpers/StringHelpers";
 import { Component, Prop, Vue } from "vue-property-decorator";
 import { DanceInstance, Meter, TempoRange } from "@/model/DanceStats";
@@ -50,7 +51,7 @@ export default class CompetitionCategoryTable extends Vue {
 
   // TODO: Add in table caption explaining NCDCA headers for non-homogenous groups
 
-  private fields = [
+  private fields: BvTableFieldArray = [
     {
       key: "name",
       formatter: (value: string, key: string, item: DanceInstance) =>

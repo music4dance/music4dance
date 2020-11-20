@@ -29,7 +29,6 @@ async function loadStats(): Promise<DanceEnvironment> {
     window.environment = TypedJSON.parse(data, DanceEnvironment);
     return window.environment!;
   } catch (e) {
-    // tslint:disable-next-line:no-console
     console.log(e);
     throw e;
   }

@@ -90,7 +90,6 @@ export default class Page extends Vue {
 
       this.$emit("environment-loaded", this.environment);
 
-      // tslint:disable-next-line:no-console
       console.log(
         `Environment loaded: Stats = ${this.environment!.stats!.length}`
       );

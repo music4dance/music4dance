@@ -19,10 +19,7 @@
 
 <script lang="ts">
 import { Component, Prop, Vue } from "vue-property-decorator";
-import { DanceEnvironment } from "@/model/DanceEnvironmet";
 import { SongFilter } from "@/model/SongFilter";
-
-declare const environment: DanceEnvironment;
 
 @Component
 export default class SongFooter extends Vue {

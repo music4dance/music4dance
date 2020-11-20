@@ -40,10 +40,7 @@
 <script lang="ts">
 import "reflect-metadata";
 import { Component, Prop, Vue } from "vue-property-decorator";
-import { DanceEnvironment } from "@/model/DanceEnvironmet";
 import { toTitleCase, wordsToKebab } from "@/helpers/StringHelpers";
-
-declare const environment: DanceEnvironment;
 
 @Component
 export default class HolidayHelp extends Vue {

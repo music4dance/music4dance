@@ -57,8 +57,6 @@
 </template>
 
 <script lang="ts">
-// tslint:disable: max-classes-per-file
-
 import "reflect-metadata";
 import { Component, Prop, Vue } from "vue-property-decorator";
 import TagModal from "./TagModal.vue";

@@ -207,7 +207,6 @@ filter = {{ songFilter }}
 </template>
 
 <script lang="ts">
-/* tslint:disable:no-bitwise */
 import { Component, Vue } from "vue-property-decorator";
 import Page from "@/components/Page.vue";
 import { SongFilter } from "@/model/SongFilter";

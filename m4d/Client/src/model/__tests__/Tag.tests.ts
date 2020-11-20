@@ -2,7 +2,6 @@ import "reflect-metadata";
 import { TypedJSON } from "typedjson";
 import { Tag, TagBucket } from "@/model/Tag";
 
-// tslint:disable-next-line: max-line-length
 const tagsPojo = [
   { value: "1940S", category: "Other", count: 186 },
   { value: "1950S", category: "Other", count: 74 },

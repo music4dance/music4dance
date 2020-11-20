@@ -34,6 +34,7 @@ import { Component, Prop, Vue } from "vue-property-decorator";
 import { TagMatrix, TagRow } from "@/model/TagMatrix";
 import { DanceObject } from "@/model/DanceStats";
 import { wordsToKebab } from "@/helpers/StringHelpers";
+import { BvTableFieldArray } from "bootstrap-vue";
 
 @Component({
   components: {},
@@ -45,9 +46,8 @@ export default class TagMatrixTable extends Vue {
     return this.matrix.list;
   }
 
-  private get fields() {
-    /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
-    const fields: any[] = [
+  private get fields(): BvTableFieldArray {
+    const fields: BvTableFieldArray = [
       {
         key: "dance",
         label: "Dance Style",
@@ -89,8 +89,7 @@ export default class TagMatrixTable extends Vue {
     return `/dances/${wordsToKebab(row.dance.name)}`;
   }
 
-  /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
-  private danceTagLink(row: TagRow, field: any): string {
+  private danceTagLink(row: TagRow, field: { key: string }): string {
     return `/Song/?filter=Index-OOX,${row.dance.id}-Dances-.-.-.-.-.-.-+${field.key}`;
   }
 

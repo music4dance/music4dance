@@ -1,5 +1,3 @@
-/* tslint:disable:max-classes-per-file */
-
 import "reflect-metadata";
 import { jsonMember, jsonObject, TypedJSON, jsonArrayMember } from "typedjson";
 import { DanceStats } from "./DanceStats";
@@ -7,7 +5,6 @@ import { Tag } from "./Tag";
 
 TypedJSON.setGlobalConfig({
   errorHandler: (e) => {
-    // tslint:disable-next-line:no-console
     console.error(e);
     throw e;
   },

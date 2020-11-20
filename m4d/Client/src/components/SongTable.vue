@@ -208,6 +208,7 @@
 
 <script lang="ts">
 import "reflect-metadata";
+import { BvTableFieldArray } from "bootstrap-vue";
 import DanceButton from "./DanceButton.vue";
 import EchoIcon from "./EchoIcon.vue";
 import LikeButton from "./LikeButton.vue";
@@ -225,11 +226,10 @@ import { ITaggableObject } from "@/model/ITaggableObject";
 import { SongSort } from "@/model/SongSort";
 
 // TODONEXT:
-//  Figure out what is going on with Holiday Shag Music
 //  Consider going to advanced search results once anything has been selected
 //   beyond a single dance
 //  Look at mixin's again - particularly with respect to danceId->dance translations
-//  Go through and audit no-explicit-any, interface-name warning & get rid of tslint comments
+//  Go through and audit no-explicit-any, interface-name warning
 //  Get all pages that use dancestats to pull from the same place
 //    Get an async loading template working
 //    Rework pages that use this
@@ -240,8 +240,7 @@ import { SongSort } from "@/model/SongSort";
 //  Figure out if there's a race condition when loading
 //  https://localhost:5001/song/filtersearch?filter=Advanced--Modified---%2Bme%7Ca
 
-/* eslint-disable-next-line @typescript-eslint/interface-name-prefix */
-interface IField {
+interface Field {
   key: string;
   label?: string;
 }
@@ -276,7 +275,7 @@ export default class SongTable extends Vue {
   @Prop() private readonly hideSort?: boolean;
   @Prop() private readonly hiddenColumns?: string[];
 
-  private get fields() {
+  private get fields(): BvTableFieldArray {
     /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
     const mq = (this as any).$mq;
 
@@ -303,7 +302,7 @@ export default class SongTable extends Vue {
     }
   }
 
-  private filterSmallField(field: IField): IField {
+  private filterSmallField(field: Field): Field {
     if (field === textField && this.isHidden("artist")) {
       return titleField;
     } else if (field === infoField && this.isHidden("dances")) {

@@ -1,4 +1,3 @@
-/* tslint:disable:max-classes-per-file */
 import "reflect-metadata";
 import { jsonMember, jsonObject, jsonArrayMember } from "typedjson";
 import { DanceEnvironment } from "./DanceEnvironmet";

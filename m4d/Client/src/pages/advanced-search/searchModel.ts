@@ -1,4 +1,3 @@
-/* tslint:disable:max-classes-per-file */
 import "reflect-metadata";
 import { jsonObject, jsonArrayMember, jsonMember } from "typedjson";
 import { DanceObject } from "@/model/DanceStats";

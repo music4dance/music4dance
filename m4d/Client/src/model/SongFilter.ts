@@ -263,10 +263,7 @@ export class SongFilter {
   }
 
   private encode(s: string | undefined): string {
-    const ret = s ? s.replace(/-/g, "\\-") : "";
-    // // tslint:disable-next-line:no-console
-    // console.log(ret);
-    return ret;
+    return s ? s.replace(/-/g, "\\-") : "";
   }
 
   private trimEnd(s: string, charlist: string): string {

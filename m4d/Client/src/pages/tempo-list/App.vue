@@ -79,6 +79,15 @@ import {
 } from "@/model/ListOption";
 import { getStyles, getTypes } from "@/model/DanceManager";
 
+declare global {
+  interface Window {
+    initialStyles?: string[];
+    initialTypes?: string[];
+    initialMeters?: string[];
+    initialOrganizations?: string[];
+  }
+}
+
 @Component({
   components: {
     CheckedList,
@@ -107,15 +116,11 @@ export default class App extends Vue {
     super();
     this.styleOptions = optionsFromText(this.filterUnused(getStyles()));
     this.allStyles = valuesFromOptions(this.styleOptions);
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const styles = (window as any).initialStyles;
-    this.styles = styles ? styles : this.allStyles;
+    this.styles = this.filterValid(this.allStyles, window.initialStyles);
 
     this.typeOptions = optionsFromText(this.filterUnused(getTypes()));
     this.allTypes = valuesFromOptions(this.typeOptions);
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const types = (window as any).initialTypes;
-    this.types = types ? types : this.allTypes;
+    this.types = this.filterValid(this.allTypes, window.initialTypes);
 
     this.meterOptions = [
       { text: "2/4 MPM", value: "2-4" },
@@ -123,9 +128,7 @@ export default class App extends Vue {
       { text: "4/4 MPM", value: "4-4" },
     ];
     this.allMeters = valuesFromOptions(this.meterOptions);
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const meters = (window as any).initialMeters;
-    this.meters = meters ? meters : this.allMeters;
+    this.meters = this.filterValid(this.allMeters, window.initialMeters);
 
     this.organizationOptions = [
       { text: "DanceSport", value: "dancesport" },
@@ -133,21 +136,20 @@ export default class App extends Vue {
       { text: "NDCA (Bronze or ProAm)", value: "ndca-2" },
     ];
     this.allOrganizations = valuesFromOptions(this.organizationOptions);
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const organizations = (window as any).initialOrganizations;
+    this.organizations = this.filterValid(
+      this.allOrganizations,
+      window.initialOrganizations
+    );
+    const organizations = window.initialOrganizations;
     this.organizations = organizations ? organizations : this.allOrganizations;
   }
 
   private filterUnused(list: string[]): string[] {
     return list.filter((s) => s !== "Performance");
   }
+
+  private filterValid(all: string[], selected?: string[]): string[] {
+    return selected ? selected.filter((s) => all.find((a) => a === s)) : all;
+  }
 }
 </script>
-
-<style lang="scss">
-#app {
-  font-family: "Avenir", Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-</style>

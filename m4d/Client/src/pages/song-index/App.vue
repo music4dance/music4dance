@@ -18,7 +18,6 @@
 </template>
 
 <script lang="ts">
-// tslint:disable: max-classes-per-file
 import "reflect-metadata";
 import { Component, Vue } from "vue-property-decorator";
 import SearchHeader from "@/components/SearchHeader.vue";

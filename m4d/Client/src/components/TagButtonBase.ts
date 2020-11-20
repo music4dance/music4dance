@@ -27,7 +27,6 @@ export default class TagButtonBase extends Vue {
     }
 
     const message = `Couldn't find tagInfo for ${this.variant}`;
-    // tslint:disable-next-line:no-console
     console.log(message);
     throw new Error(message);
   }

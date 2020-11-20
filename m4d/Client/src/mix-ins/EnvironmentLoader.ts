@@ -21,7 +21,6 @@ export default class EnvironmentLoader extends Vue {
   private async created() {
     this.environment = await getEnvironment();
 
-    // tslint:disable-next-line:no-console
     console.log(
       `Environment loaded: Stats = ${this.environment!.stats!.length}`
     );

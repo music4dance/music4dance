@@ -152,7 +152,6 @@ export default class VoteButton extends Vue {
       });
       // const data = response.data;
     } catch (e) {
-      // tslint:disable-next-line:no-console
       console.log(e);
       throw e;
     }
