@@ -18,10 +18,9 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue } from "vue-property-decorator";
+import { Component } from "vue-property-decorator";
 import DanceModal from "./DanceModal.vue";
 import TagButtonBase from "./TagButtonBase";
-import { Tag } from "@/model/Tag";
 import { DanceHandler } from "@/model/DanceHandler";
 import { DanceRating } from "@/model/Song";
 

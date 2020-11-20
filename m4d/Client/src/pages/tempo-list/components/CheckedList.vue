@@ -58,7 +58,7 @@ export default class FormList extends Vue {
   }
 
   @Watch("selectedInternal")
-  private onSelectedChanged(newVal: string[], oldVal: string[]): void {
+  private onSelectedChanged(newVal: string[]): void {
     if (newVal.length === 0) {
       this.indeterminate = false;
       this.allSelected = false;

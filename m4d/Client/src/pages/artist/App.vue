@@ -16,7 +16,6 @@ import { Component, Vue } from "vue-property-decorator";
 import SongTable from "@/components/SongTable.vue";
 import Page from "@/components/Page.vue";
 import { TypedJSON } from "typedjson";
-import { Song } from "@/model/Song";
 import { ArtistModel } from "@/model/ArtistModel";
 
 declare const model: string;

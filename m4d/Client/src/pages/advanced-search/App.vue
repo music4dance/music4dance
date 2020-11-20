@@ -214,13 +214,11 @@ import { SongFilter } from "@/model/SongFilter";
 import { DanceQuery } from "@/model/DanceQuery";
 import { UserQuery } from "@/model/UserQuery";
 import { SongSort, SortOrder } from "@/model/SongSort";
-import { ListOption } from "@/model/ListOption";
 import { DanceObject } from "@/model/DanceStats";
 import { Tag } from "@/model/Tag";
 import { SearchModel } from "./searchModel";
 import DanceSelector from "@/components/DanceSelector.vue";
 import TagCategorySelector from "@/components/TagCategorySelector.vue";
-import { TypedJSON } from "typedjson";
 
 declare const model: SearchModel;
 
@@ -233,19 +231,19 @@ declare const model: SearchModel;
 })
 export default class App extends Vue {
   private showDiagnostics = false;
-  private keyWords: string = "";
+  private keyWords = "";
 
   private dances: string[] = [];
-  private danceConnector: string = "any";
-  private danceInferred: boolean = false;
+  private danceConnector = "any";
+  private danceInferred = false;
 
   private includeTags: string[] = [];
   private excludeTags: string[] = [];
 
-  private tempoMin: number = 0;
-  private tempoMax: number = 250;
+  private tempoMin = 0;
+  private tempoMax = 250;
 
-  private activity: string = "NT";
+  private activity = "NT";
 
   private activities = [
     { text: "Don't filter on my activity", value: "NT" },
@@ -272,7 +270,7 @@ export default class App extends Vue {
     { text: "Closest Match", value: null },
   ];
   private sort: string | null = "Dances";
-  private order: string = "asc";
+  private order = "asc";
   private bonuses: string[] = [];
 
   constructor() {

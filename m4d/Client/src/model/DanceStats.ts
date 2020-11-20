@@ -10,19 +10,19 @@ export class TempoRange {
   @jsonMember public min!: number;
   @jsonMember public max!: number;
 
-  constructor(min: number = 0, max: number = 0) {
+  constructor(min = 0, max = 0) {
     this.min = min;
     this.max = max;
   }
 
-  public toString(separator: string = "-"): string {
+  public toString(separator = "-"): string {
     return (
       this.formatTempo(this.min) +
       (this.min === this.max ? "" : separator + this.formatTempo(this.max))
     );
   }
 
-  public bpm(numerator: number, separator: string = "-"): string {
+  public bpm(numerator: number, separator = "-"): string {
     return (
       this.formatTempo(this.min * numerator) +
       (this.min === this.max
@@ -31,7 +31,7 @@ export class TempoRange {
     );
   }
 
-  public mpm(numerator: number, separator: string = "-"): string {
+  public mpm(numerator: number, separator = "-"): string {
     return (
       this.formatTempo(this.min / numerator) +
       (this.min === this.max

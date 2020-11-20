@@ -46,9 +46,8 @@ import "reflect-metadata";
 import { Component, Vue } from "vue-property-decorator";
 import Page from "@/components/Page.vue";
 import DanceTable from "./DanceTable.vue";
-import { TypedJSON } from "typedjson";
 import { DanceStats } from "@/model/DanceStats";
-import { BreadCrumbItem, danceCrumb, homeCrumb } from "@/model/BreadCrumbItem";
+import { BreadCrumbItem, homeCrumb } from "@/model/BreadCrumbItem";
 import { DanceEnvironment } from "@/model/DanceEnvironmet";
 
 @Component({

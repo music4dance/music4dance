@@ -145,11 +145,12 @@ export default class VoteButton extends Vue {
 
   private async submitVote(like?: boolean): Promise<void> {
     try {
-      const response = await axios.put(`/api/like/${this.song.songId}`, {
+      //const response =
+      await axios.put(`/api/like/${this.song.songId}`, {
         like,
         dance: this.danceRating.danceId,
       });
-      const data = response.data;
+      // const data = response.data;
     } catch (e) {
       // tslint:disable-next-line:no-console
       console.log(e);

@@ -26,12 +26,9 @@ import SongFooter from "@/components/SongFooter.vue";
 import SongLibraryHeader from "@/components/SongLibraryHeader.vue";
 import SongTable from "@/components/SongTable.vue";
 import Page from "@/components/Page.vue";
-import { jsonObject, TypedJSON, jsonArrayMember, jsonMember } from "typedjson";
+import { TypedJSON } from "typedjson";
 import { Song } from "@/model/Song";
 import { SongFilter } from "@/model/SongFilter";
-import { DanceStats } from "@/model/DanceStats";
-import { getEnvironment } from "@/helpers/DanceEnvironmentManager";
-import { DanceEnvironment } from "@/model/DanceEnvironmet";
 import { SongListModel } from "@/model/SongListModel";
 
 declare const model: string;

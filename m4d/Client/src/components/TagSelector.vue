@@ -79,7 +79,7 @@
 <script lang="ts">
 import "reflect-metadata";
 import { Component, Watch, Prop, Model, Vue } from "vue-property-decorator";
-import { ListOption, valuesFromOptions } from "@/model/ListOption";
+import { ListOption } from "@/model/ListOption";
 
 @Component
 export default class TagSelector extends Vue {
@@ -143,7 +143,7 @@ export default class TagSelector extends Vue {
   }
 
   @Watch("selectedInternal")
-  private onSelectedChanged(newVal: string[], oldVal: string[]): void {
+  private onSelectedChanged(newVal: string[]): void {
     this.$emit("change", newVal);
   }
 }

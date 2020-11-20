@@ -107,11 +107,13 @@ export default class App extends Vue {
     super();
     this.styleOptions = optionsFromText(this.filterUnused(getStyles()));
     this.allStyles = valuesFromOptions(this.styleOptions);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const styles = (window as any).initialStyles;
     this.styles = styles ? styles : this.allStyles;
 
     this.typeOptions = optionsFromText(this.filterUnused(getTypes()));
     this.allTypes = valuesFromOptions(this.typeOptions);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const types = (window as any).initialTypes;
     this.types = types ? types : this.allTypes;
 
@@ -121,6 +123,7 @@ export default class App extends Vue {
       { text: "4/4 MPM", value: "4-4" },
     ];
     this.allMeters = valuesFromOptions(this.meterOptions);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const meters = (window as any).initialMeters;
     this.meters = meters ? meters : this.allMeters;
 
@@ -130,6 +133,7 @@ export default class App extends Vue {
       { text: "NDCA (Bronze or ProAm)", value: "ndca-2" },
     ];
     this.allOrganizations = valuesFromOptions(this.organizationOptions);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const organizations = (window as any).initialOrganizations;
     this.organizations = organizations ? organizations : this.allOrganizations;
   }

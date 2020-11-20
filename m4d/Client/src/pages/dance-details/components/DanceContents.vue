@@ -35,10 +35,8 @@
 <script lang="ts">
 import "reflect-metadata";
 import { Component, Vue, Prop } from "vue-property-decorator";
-import { Song } from "@/model/Song";
-import { SongFilter } from "@/model/SongFilter";
 import { DanceEnvironment } from "@/model/DanceEnvironmet";
-import { DanceStats, TempoRange } from "@/model/DanceStats";
+import { DanceStats } from "@/model/DanceStats";
 import { DanceModel } from "@/model/DanceModel";
 
 declare const environment: DanceEnvironment;

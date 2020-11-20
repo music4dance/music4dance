@@ -4,7 +4,7 @@
 //  other mixins
 
 import "reflect-metadata";
-import { Component, Vue, Prop } from "vue-property-decorator";
+import { Component, Vue } from "vue-property-decorator";
 import { getEnvironment } from "@/helpers/DanceEnvironmentManager";
 import { DanceEnvironment } from "@/model/DanceEnvironmet";
 

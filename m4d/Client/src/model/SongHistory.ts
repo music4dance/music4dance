@@ -1,5 +1,5 @@
 import "reflect-metadata";
-import { jsonMember, jsonObject, TypedJSON, jsonArrayMember } from "typedjson";
+import { jsonMember, jsonObject, jsonArrayMember } from "typedjson";
 import { SongProperty } from "./SongProperty";
 
 @jsonObject

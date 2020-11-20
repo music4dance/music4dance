@@ -51,7 +51,7 @@ export class DanceOrder {
 export function dancesForTempo(
   beatsPerMinute: number,
   beatsPerMeasure: number,
-  percentEpsilon: number = 5
+  percentEpsilon = 5
 ): DanceOrder[] {
   // return danceStats.flatMap((group: DanceStats) => group.children);  TODO: See if we can find a general polyfill
 

@@ -13,11 +13,9 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue } from "vue-property-decorator";
+import { Component } from "vue-property-decorator";
 import TagButtonBase from "./TagButtonBase";
 import TagModal from "./TagModal.vue";
-import { Tag } from "@/model/Tag";
-import { TagHandler } from "@/model/TagHandler";
 
 @Component({
   components: {

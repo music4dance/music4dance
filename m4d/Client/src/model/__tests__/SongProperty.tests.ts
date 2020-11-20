@@ -38,7 +38,7 @@ describe("song property name tests", () => {
     const p = TypedJSON.parse(simpleName, SongProperty);
 
     expect(() => {
-      const x = p?.index;
+      p?.index;
     }).toThrow(/Attempted to retrieve part.*/);
   });
 
@@ -46,7 +46,7 @@ describe("song property name tests", () => {
     const p = TypedJSON.parse({ name: "name:t:ss" }, SongProperty);
 
     expect(() => {
-      const x = p?.index;
+      p?.index;
     }).toThrow(/Index must be a number.*/);
   });
 
@@ -54,7 +54,7 @@ describe("song property name tests", () => {
     const p = TypedJSON.parse({ name: "name:-1:ss" }, SongProperty);
 
     expect(() => {
-      const x = p?.index;
+      p?.index;
     }).toThrow(/Index must be a postitive integer.*/);
   });
 

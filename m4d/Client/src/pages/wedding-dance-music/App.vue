@@ -75,7 +75,7 @@
 import { Component, Vue } from "vue-property-decorator";
 import Page from "@/components/Page.vue";
 import BlogTagLink from "@/components/BlogTagLink.vue";
-import { TagMatrix, TagRowGroup, TagRow, TagColumn } from "@/model/TagMatrix";
+import { TagMatrix } from "@/model/TagMatrix";
 import TagMatrixTable from "@/components/TagMatrixTable.vue";
 import { TypedJSON } from "typedjson";
 import { BreadCrumbItem, danceTrail } from "@/model/BreadCrumbItem";

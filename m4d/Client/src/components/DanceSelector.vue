@@ -41,7 +41,7 @@ export default class DanceSelector extends Vue {
   }
 
   @Watch("selectedInternal")
-  private onSelectedChanged(newVal: string[], oldVal: string[]): void {
+  private onSelectedChanged(newVal: string[]): void {
     this.$emit("change", newVal);
   }
 }

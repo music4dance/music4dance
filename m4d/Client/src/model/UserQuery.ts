@@ -1,5 +1,3 @@
-const identity = "me";
-
 export class UserQuery {
   public static fromParts(parts?: string): UserQuery {
     if (!parts || parts === "NT") {

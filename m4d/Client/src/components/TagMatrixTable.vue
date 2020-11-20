@@ -31,7 +31,7 @@
 
 <script lang="ts">
 import { Component, Prop, Vue } from "vue-property-decorator";
-import { TagMatrix, TagRowGroup, TagRow, TagColumn } from "@/model/TagMatrix";
+import { TagMatrix, TagRow } from "@/model/TagMatrix";
 import { DanceObject } from "@/model/DanceStats";
 import { wordsToKebab } from "@/helpers/StringHelpers";
 
@@ -46,6 +46,7 @@ export default class TagMatrixTable extends Vue {
   }
 
   private get fields() {
+    /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
     const fields: any[] = [
       {
         key: "dance",
@@ -88,6 +89,7 @@ export default class TagMatrixTable extends Vue {
     return `/dances/${wordsToKebab(row.dance.name)}`;
   }
 
+  /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
   private danceTagLink(row: TagRow, field: any): string {
     return `/Song/?filter=Index-OOX,${row.dance.id}-Dances-.-.-.-.-.-.-+${field.key}`;
   }

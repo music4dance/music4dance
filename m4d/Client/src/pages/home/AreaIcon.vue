@@ -32,7 +32,7 @@ export default class AreaIcon extends Vue {
     return `/images/icons/${this.area.name}.png`;
   }
 
-  private get classes(): any {
+  private get classes(): string[] {
     return [this.area.name.toLowerCase()];
   }
 }

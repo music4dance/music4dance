@@ -36,7 +36,7 @@
 import { Component, Prop, Model, Watch, Vue } from "vue-property-decorator";
 import TagSelector from "@/components/TagSelector.vue";
 import { ListOption } from "@/model/ListOption";
-import { Tag, TagInfo } from "@/model/Tag";
+import { Tag } from "@/model/Tag";
 
 @Component({
   components: {
@@ -106,7 +106,7 @@ export default class TagCategorySelector extends Vue {
   }
 
   @Watch("selectedInternal")
-  private onSelectedChanged(newVal: string[], oldVal: string[]): void {
+  private onSelectedChanged(newVal: string[]): void {
     this.$emit("change", newVal);
   }
 }

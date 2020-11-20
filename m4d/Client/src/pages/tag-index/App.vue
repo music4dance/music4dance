@@ -14,7 +14,6 @@ import "reflect-metadata";
 import { Component, Vue } from "vue-property-decorator";
 import TagCloud from "@/components/TagCloud.vue";
 import Page from "@/components/Page.vue";
-import { TypedJSON } from "typedjson";
 import { Tag } from "@/model/Tag";
 import { DanceEnvironment } from "@/model/DanceEnvironmet";
 

@@ -2,7 +2,6 @@
 
 import "reflect-metadata";
 import { TypedJSON } from "typedjson";
-import { SongProperty } from "../SongProperty";
 import { SongHistory } from "../SongHistory";
 import { Song } from "../Song";
 import { ServiceType, PurchaseInfo } from "../Purchase";

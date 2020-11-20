@@ -233,7 +233,7 @@
 
 <script lang="ts">
 import { Component, Vue } from "vue-property-decorator";
-import { BreadCrumbItem, danceTrail, infoTrail } from "@/model/BreadCrumbItem";
+import { BreadCrumbItem, infoTrail } from "@/model/BreadCrumbItem";
 import Page from "@/components/Page.vue";
 
 @Component({

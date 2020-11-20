@@ -29,10 +29,9 @@ import { Component, Vue } from "vue-property-decorator";
 import SongFooter from "@/components/SongFooter.vue";
 import SongTable from "@/components/SongTable.vue";
 import Page from "@/components/Page.vue";
-import { jsonObject, TypedJSON, jsonArrayMember, jsonMember } from "typedjson";
+import { TypedJSON } from "typedjson";
 import { Song } from "@/model/Song";
 import { SongFilter } from "@/model/SongFilter";
-import { DanceStats } from "@/model/DanceStats";
 import { SortOrder } from "@/model/SongSort";
 import { SongListModel } from "@/model/SongListModel";
 

@@ -27,7 +27,6 @@ export default class FeatureButton extends Vue {
         return "play";
       case "docs":
         return "file-text";
-        break;
       case "blog":
         return "pencil-square";
       default:
@@ -47,7 +46,6 @@ export default class FeatureButton extends Vue {
         return `https://music4dance.blog/music4dance-help${this.link}`;
       case "blog":
         return `https://music4dance.blog${this.link}`;
-        break;
       default:
         throw new Error(this.typeError);
     }

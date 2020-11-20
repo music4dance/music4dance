@@ -1,8 +1,8 @@
 import "reflect-metadata";
 import { fetchEnvironment } from "../DanceEnvironmet";
-import { DanceQuery } from "../DanceQuery";
 import { RawDanceQuery } from "../RawDanceQuery";
 
+/* eslint-disable-next-line @typescript-eslint/no-explicit-any */
 declare const global: any;
 
 beforeAll(() => {

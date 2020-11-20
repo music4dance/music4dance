@@ -2,6 +2,7 @@ import "reflect-metadata";
 import { fetchEnvironment } from "../DanceEnvironmet";
 import { DanceQuery } from "../DanceQuery";
 
+/* eslint-disable-next-line @typescript-eslint/no-explicit-any */
 declare const global: any;
 
 beforeAll(() => {

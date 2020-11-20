@@ -20,10 +20,7 @@
 import "reflect-metadata";
 import { Component, Vue, Prop } from "vue-property-decorator";
 import SongTable from "@/components/SongTable.vue";
-import Page from "@/components/Page.vue";
-import { TypedJSON } from "typedjson";
 import { Song } from "@/model/Song";
-import { DanceModel } from "@/model/DanceModel";
 import { SongFilter } from "@/model/SongFilter";
 import { DanceEnvironment } from "@/model/DanceEnvironmet";
 import { DanceStats } from "@/model/DanceStats";

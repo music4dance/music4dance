@@ -95,7 +95,7 @@ export default class TagCloud extends Vue {
   @Prop() private readonly hideFilter?: boolean;
 
   private tagButtons: TagButton[] = TagButton.buttons;
-  private filter: number = 10;
+  private filter = 10;
 
   private classesForTag(tag: TagBucket): string[] {
     return ["cloud-" + tag.bucket];

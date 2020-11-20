@@ -37,7 +37,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Watch, Vue } from "vue-property-decorator";
+import { Component, Watch, Vue } from "vue-property-decorator";
 import { Getter, Mutation } from "vuex-class";
 import BeatsPerMinute from "./BeatsPerMinute.vue";
 import MeasuresPerMinute from "./MeasuresPerMinute.vue";
@@ -63,7 +63,7 @@ export default class Counter extends Vue {
   private last: number | null = null; // Last type clicked (in tics)
   private timeout: number | null = null;
 
-  private countOptions: any = [
+  private countOptions = [
     { text: "Count Measures", value: "measures" },
     { text: "Count Beats", value: "beats" },
   ];

@@ -1,10 +1,10 @@
 import { DanceQueryBase } from "./DanceQueryBase";
 
-const all: string = "ALL";
-const and: string = "AND"; // Exclusive + Explicit
-const andX: string = "ADX"; // Exclusive + Inferred
+const all = "ALL";
+const and = "AND"; // Exclusive + Explicit
+const andX = "ADX"; // Exclusive + Inferred
 // const oneOf:string  = ''; // Inclusive + Explicit
-const oneOfX: string = "OOX"; // Inclusive + Inferred
+const oneOfX = "OOX"; // Inclusive + Inferred
 
 const modifiers: string[] = [all, and, andX, oneOfX];
 
@@ -80,11 +80,12 @@ export class DanceQuery extends DanceQueryBase {
         return `${dances[0]} songs${suffix}`;
       case 2:
         return `songs danceable to ${prefix} of ${dances[0]} ${connector} ${dances[1]}${suffix}`;
-      default:
+      default: {
         const last = dances.pop();
         return `songs danceable to ${prefix} of ${dances.join(
           ", "
         )} ${connector} ${last}${suffix}`;
+      }
     }
     return "";
   }

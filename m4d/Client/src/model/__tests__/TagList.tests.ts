@@ -1,7 +1,6 @@
 import "reflect-metadata";
 import { Tag } from "@/model/Tag";
 import { TagList } from "../TagList";
-import { BIconFolder2Open } from "bootstrap-vue";
 
 const qualified =
   "+Bolero:Dance|+Latin:Music|+Nontraditional:Tempo|-Rumba:Dance|-Pop:Music";

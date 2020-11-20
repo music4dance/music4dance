@@ -1,7 +1,6 @@
 /* tslint:disable:max-classes-per-file */
 import "reflect-metadata";
 import { jsonMember, jsonObject, jsonArrayMember } from "typedjson";
-import { kebabToWords, wordsToKebab } from "@/helpers/StringHelpers";
 import { DanceInstance } from "@/model/DanceStats";
 
 @jsonObject

@@ -16,7 +16,7 @@
 
 <script lang="ts">
 import { Component, Vue } from "vue-property-decorator";
-import { Getter, Mutation } from "vuex-class";
+import { Getter } from "vuex-class";
 import TempoModal from "./TempoModal.vue";
 
 @Component({

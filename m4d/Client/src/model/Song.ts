@@ -161,10 +161,10 @@ export class Song implements ITaggableObject {
   }
 
   private loadProperties(properties: SongProperty[]): void {
-    let created: boolean = false;
+    let created = false;
     let user: string;
     let currentModified: ModifiedRecord;
-    let deleted: boolean = false;
+    // let deleted = false;
 
     properties.forEach((property) => {
       const baseName = property.baseName;
@@ -191,7 +191,7 @@ export class Song implements ITaggableObject {
           // All of these are taken care of with build album
           break;
         case PropertyType.deleteCommand:
-          deleted = true; // TODO: Some more login in the C# code to check
+          // deleted = true; // TODO: Some more login in the C# code to check
           break;
         case PropertyType.timeField:
           if (!created) {
@@ -212,6 +212,7 @@ export class Song implements ITaggableObject {
           break;
         default:
           if (!property.isAction) {
+            /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
             (this as any)[pascalToCamel(baseName)] = property.valueTyped;
           }
           break;

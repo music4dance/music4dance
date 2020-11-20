@@ -46,16 +46,10 @@
 
 <script lang="ts">
 import "reflect-metadata";
-import { Component, Watch, Prop, Vue } from "vue-property-decorator";
+import { Component, Prop, Vue } from "vue-property-decorator";
 import { flatStats } from "@/model/DanceManager";
-import {
-  DanceStats,
-  Meter,
-  TempoRange,
-  DanceType,
-  DanceFilter,
-} from "@/model/DanceStats";
-import { kebabToWords, wordsToKebab } from "@/helpers/StringHelpers";
+import { Meter, TempoRange, DanceType, DanceFilter } from "@/model/DanceStats";
+import { wordsToKebab } from "@/helpers/StringHelpers";
 
 @Component
 export default class FormList extends Vue {
@@ -113,12 +107,12 @@ export default class FormList extends Vue {
     {
       key: "styles",
       sortable: "true",
-      formatter: (value: any, key: string, item: DanceType) =>
+      formatter: (value: undefined, key: string, item: DanceType) =>
         item.filteredStyles(this.styles).join(", "),
     },
   ];
 
-  private emptyTable: string = "";
+  private emptyTable = "";
 
   private get unfiltered(): string {
     const filter = {

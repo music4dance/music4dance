@@ -29,7 +29,6 @@
 
 <script lang="ts">
 import { Component, Vue, Prop } from "vue-property-decorator";
-import { Getter, Mutation } from "vuex-class";
 
 @Component
 export default class TempoModal extends Vue {
@@ -37,7 +36,7 @@ export default class TempoModal extends Vue {
   @Prop() private readonly tempo!: number;
   @Prop() private readonly label!: string;
 
-  private tempoInternal: number = 0;
+  private tempoInternal = 0;
 
   private initialize(): void {
     this.tempoInternal = Number(this.tempo.toFixed(1));
@@ -50,7 +49,7 @@ export default class TempoModal extends Vue {
     this.$parent.$emit("change-tempo", Number(this.tempoInternal));
   }
 
-  private logKeyDown(e: KeyboardEvent): void {
+  private logKeyDown(): void {
     // This is a kludge to prevent lastpass from screaming
   }
 

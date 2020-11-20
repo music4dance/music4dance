@@ -35,11 +35,7 @@
 <script lang="ts">
 import "reflect-metadata";
 import TagModalBase from "./TagModalBase";
-import { Component, Prop, Vue } from "vue-property-decorator";
-import { Tag } from "@/model/Tag";
-import { Song } from "@/model/Song";
-import { SongFilter } from "@/model/SongFilter";
-import { TagHandler } from "@/model/TagHandler";
+import { Component } from "vue-property-decorator";
 
 @Component
 export default class TagModal extends TagModalBase {

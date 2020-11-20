@@ -143,6 +143,7 @@ export class PurchaseEncoded {
     obj: ServiceObjectType
   ): string | undefined {
     return this.cleanId(
+      /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
       (this as any)[service.toLowerCase() + obj.toLowerCase()]
     );
   }

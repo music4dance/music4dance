@@ -80,21 +80,20 @@ export default class LikeButton extends Vue {
     }
   }
 
-  private async onClick(song: Song): Promise<void> {
+  private async onClick(): Promise<void> {
     if (this.userName) {
-      await this.clickLike(song);
+      await this.clickLike();
     } else {
       window.location.href = `/identity/account/login?returnUrl=${this.redirect}`;
     }
   }
 
-  private async clickLike(song: Song): Promise<void> {
+  private async clickLike(): Promise<void> {
     try {
       const newState = this.nextState;
-      const response = await axios.put(`/api/like/${this.song.songId}`, {
+      await axios.put(`/api/like/${this.song.songId}`, {
         like: newState,
       });
-      const data = response.data;
       this.setNextState();
     } catch (e) {
       // tslint:disable-next-line:no-console

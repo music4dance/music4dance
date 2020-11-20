@@ -14,7 +14,7 @@ export class SiteMapEntry {
   }
 
   public get fullPath(): string {
-    const blogPrefix: string = "blog/";
+    const blogPrefix = "blog/";
     const rel = this.reference;
     if (!rel) {
       return "";

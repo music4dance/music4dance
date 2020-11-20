@@ -267,7 +267,6 @@ export default class App extends Vue {
   }
 
   private danceLink(dm: DanceMapping): string {
-    const parameters = dm.queryString ? `?${dm.queryString}` : "";
     return `/${dm.controller}/${dm.name}`;
   }
 }

@@ -30,6 +30,6 @@ describe("dance stats manager", () => {
   });
 
   it("should return unique types", () => {
-    const types = getTypes();
+    getTypes();
   });
 });

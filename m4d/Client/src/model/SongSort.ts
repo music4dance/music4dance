@@ -1,5 +1,4 @@
 import { toTitleCase } from "@/helpers/StringHelpers";
-import { Song } from "./Song";
 
 /* tslint:disable:max-classes-per-file */
 export enum SortOrder {
@@ -23,7 +22,7 @@ export class SongSort {
     const dir = direction?.toLowerCase() === "desc" ? "desc" : undefined;
     return order
       ? direction
-        ? new SongSort(order + "_" + direction)
+        ? new SongSort(order + "_" + dir)
         : new SongSort(order)
       : new SongSort();
   }

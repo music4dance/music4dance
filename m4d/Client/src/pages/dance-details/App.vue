@@ -66,13 +66,11 @@ import DanceDescription from "./components/DanceDescription.vue";
 import DanceList from "@/components/DanceList.vue";
 import DanceLinks from "./components/DanceLinks.vue";
 import DanceReference from "@/components/DanceReference.vue";
-import SongTable from "@/components/SongTable.vue";
 import Page from "@/components/Page.vue";
 import SpotifyPlayer from "@/components/SpotifyPlayer.vue";
 import TagCloud from "@/components/TagCloud.vue";
 import TopTen from "./components/TopTen.vue";
 import { DanceModel } from "@/model/DanceModel";
-import { Song } from "@/model/Song";
 import { SongFilter } from "@/model/SongFilter";
 import { TypedJSON } from "typedjson";
 import { DanceEnvironment } from "@/model/DanceEnvironmet";
@@ -100,7 +98,7 @@ export default class App extends Vue {
   private readonly model: DanceModel;
   private breadcrumbs: BreadCrumbItem[] = danceTrail;
   private tags: Tag[] = [];
-  private isGroup: boolean = false;
+  private isGroup = false;
   private dance: DanceStats | null = null;
 
   constructor() {

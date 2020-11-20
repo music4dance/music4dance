@@ -28,9 +28,7 @@
 <script lang="ts">
 import { Component, Prop, Vue } from "vue-property-decorator";
 import FeatureLink from "@/components/FeatureLink.vue";
-import InfoLink from "./InfoLink.vue";
 import { Link } from "@/model/Link";
-import DanceItem from "./DanceItem.vue";
 import { FeatureInfo } from "@/model/FeatureInfo";
 
 export interface CardInfo {
@@ -42,7 +40,6 @@ export interface CardInfo {
 @Component({
   components: {
     FeatureLink,
-    InfoLink,
   },
 })
 export default class HomeSection extends Vue {

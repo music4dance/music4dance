@@ -88,8 +88,11 @@ let loaded: DanceEnvironment | undefined;
 export function fetchEnvironment(): DanceEnvironment {
   if (!loaded) {
     let environmentString = environmentJson;
-    if ((window as any).environmentJson) {
-      environmentString = (window as any).environmentJson;
+    /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
+    const win = window as any;
+
+    if (win.environmentJson) {
+      environmentString = win.environmentJson;
     }
     loaded = TypedJSON.parse(environmentString, DanceEnvironment);
   }

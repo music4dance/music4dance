@@ -11,10 +11,6 @@
 <script lang="ts">
 import "reflect-metadata";
 import { Component, Vue, Prop } from "vue-property-decorator";
-import TempiLink from "@/components/TempiLink.vue";
-import { TypedJSON } from "typedjson";
-import { Song } from "@/model/Song";
-import { SongFilter } from "@/model/SongFilter";
 import { DanceEnvironment } from "@/model/DanceEnvironmet";
 import { DanceLink, DanceStats } from "@/model/DanceStats";
 

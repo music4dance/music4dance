@@ -104,9 +104,8 @@ export class SongProperty {
   public get valueTyped(): string | number | Date | boolean | undefined {
     const value = this.value;
     switch (this.baseName) {
-      // decimal
+      // decimal & float
       case PropertyType.tempoField:
-      // float
       case PropertyType.danceabilityField:
       case PropertyType.valenceFiled:
       case PropertyType.energyField:

@@ -36,7 +36,7 @@
 import "reflect-metadata";
 import { Component, Prop, Vue } from "vue-property-decorator";
 import { Song } from "@/model/Song";
-import { PurchaseInfo, ServiceType } from "@/model/Purchase";
+import { PurchaseInfo } from "@/model/Purchase";
 
 @Component
 export default class PlayModal extends Vue {
@@ -55,7 +55,7 @@ export default class PlayModal extends Vue {
   }
 
   private onShown(): void {
-    const player = (this.$refs.player as HTMLAudioElement).play();
+    (this.$refs.player as HTMLAudioElement).play();
   }
 }
 </script>

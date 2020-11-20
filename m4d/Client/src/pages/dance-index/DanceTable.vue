@@ -10,12 +10,7 @@
 
 <script lang="ts">
 import { Component, Prop, Vue } from "vue-property-decorator";
-import {
-  DanceInstance,
-  Meter,
-  TempoRange,
-  DanceStats,
-} from "@/model/DanceStats";
+import { DanceStats } from "@/model/DanceStats";
 import DanceCard from "./DanceCard.vue";
 
 @Component({

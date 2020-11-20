@@ -67,7 +67,7 @@ export class Tag {
 
 @jsonObject
 export class TagBucket extends Tag {
-  public static bucketize(tags: Tag[], bucketCount: number = 10): TagBucket[] {
+  public static bucketize(tags: Tag[], bucketCount = 10): TagBucket[] {
     const ordered = tags.sort((a, b) => (a.count ?? 0) - (b.count ?? 0));
 
     const bucketSize = ordered.length / bucketCount;

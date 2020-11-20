@@ -1,5 +1,5 @@
 import "reflect-metadata";
-import { jsonMember, jsonObject, jsonArrayMember } from "typedjson";
+import { jsonMember, jsonObject } from "typedjson";
 import { DanceQuery } from "./DanceQuery";
 import { DanceQueryBase } from "./DanceQueryBase";
 import { PurchaseInfo } from "./Purchase";

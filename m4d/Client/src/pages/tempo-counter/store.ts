@@ -1,26 +1,22 @@
 import Vue from "vue";
-import Vuex, {
-  Store,
-  ActionTree,
-  ActionContext,
-  GetterTree,
-  MutationTree,
-} from "vuex";
+import Vuex, { Store, GetterTree, MutationTree } from "vuex";
 
 Vue.use(Vuex);
 
 class State {
-  public beatsPerMeasure: number = 4;
-  public beatsPerMinute: number = 0;
-  public countMethod: string = "measures";
-  public espilonPercent: number = 5;
+  public beatsPerMeasure = 4;
+  public beatsPerMinute = 0;
+  public countMethod = "measures";
+  public espilonPercent = 5;
 
   constructor() {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const beatsPerMeasure = (window as any).initialNumerator;
     if (beatsPerMeasure) {
       this.beatsPerMeasure = beatsPerMeasure;
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const beatsPerMinute = (window as any).initialTempo;
     if (beatsPerMinute) {
       this.beatsPerMinute = beatsPerMinute;

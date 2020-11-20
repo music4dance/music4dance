@@ -58,15 +58,12 @@ import "reflect-metadata";
 import TagModalBase from "./TagModalBase";
 import TagButton from "./TagButton.vue";
 import VoteButton from "./VoteButton.vue";
-import { Component, Prop, Vue } from "vue-property-decorator";
+import { Component } from "vue-property-decorator";
 import { Tag } from "@/model/Tag";
-import { Song } from "@/model/Song";
-import { SongFilter } from "@/model/SongFilter";
 import { DanceHandler } from "@/model/DanceHandler";
 import { DanceEnvironment } from "@/model/DanceEnvironmet";
 import { DanceStats } from "@/model/DanceStats";
 import { TagHandler } from "@/model/TagHandler";
-import { TagList } from "@/model/TagList";
 
 declare const environment: DanceEnvironment;
 

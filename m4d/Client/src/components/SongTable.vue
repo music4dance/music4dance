@@ -229,6 +229,7 @@ import { SongSort } from "@/model/SongSort";
 //  Consider going to advanced search results once anything has been selected
 //   beyond a single dance
 //  Look at mixin's again - particularly with respect to danceId->dance translations
+//  Go through and audit no-explicit-any, interface-name warning & get rid of tslint comments
 //  Get all pages that use dancestats to pull from the same place
 //    Get an async loading template working
 //    Rework pages that use this
@@ -239,6 +240,7 @@ import { SongSort } from "@/model/SongSort";
 //  Figure out if there's a race condition when loading
 //  https://localhost:5001/song/filtersearch?filter=Advanced--Modified---%2Bme%7Ca
 
+/* eslint-disable-next-line @typescript-eslint/interface-name-prefix */
 interface IField {
   key: string;
   label?: string;
@@ -275,6 +277,7 @@ export default class SongTable extends Vue {
   @Prop() private readonly hiddenColumns?: string[];
 
   private get fields() {
+    /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
     const mq = (this as any).$mq;
 
     const fields = [
@@ -296,7 +299,7 @@ export default class SongTable extends Vue {
       const temp = smallFields.map((f) => this.filterSmallField(f));
       return temp;
     } else {
-      return !!hidden ? fields.filter((f) => !this.isHidden(f.key)) : fields;
+      return hidden ? fields.filter((f) => !this.isHidden(f.key)) : fields;
     }
   }
 
