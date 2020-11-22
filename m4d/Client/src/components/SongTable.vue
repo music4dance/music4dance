@@ -230,9 +230,7 @@ import { SongSort } from "@/model/SongSort";
 //   beyond a single dance
 //  Look at mixin's again - particularly with respect to danceId->dance translations
 //  Go through and audit no-explicit-any, interface-name warning
-//  Get all pages that use dancestats to pull from the same place
-//    Get an async loading template working
-//    Rework pages that use this
+//  Remove built in dance stats for pages
 //       tempo-counter
 //       tempo-list
 //  Think about how we replace merge & other administrative functions

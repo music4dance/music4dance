@@ -12,7 +12,7 @@
 </template>
 
 <script lang="ts">
-import { DanceOrder } from "@/model/DanceManager";
+import { DanceOrder } from "@/model/DanceOrder";
 import { Component, Vue, Prop } from "vue-property-decorator";
 import { Getter } from "vuex-class";
 

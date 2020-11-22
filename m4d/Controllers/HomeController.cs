@@ -99,8 +99,6 @@ namespace m4d.Controllers
         public IActionResult Counter(int? numerator = null, decimal? tempo = null)
         {
             ThemeName = ToolTheme;
-            ViewBag.Tempo = tempo;
-            ViewBag.Numerator = numerator;
 
             if (numerator.HasValue && numerator != 0)
             {
@@ -112,10 +110,6 @@ namespace m4d.Controllers
                 ViewBag.paramTempo = tempo.Value;
             }
 
-            ViewBag.DanceStats = JsonConvert.SerializeObject(
-                DanceStatsManager.GetInstance(Database),
-                CamelCaseSerializerSettings);
-
             HelpPage = "tempo-counter";
             return View("TempoCounter");
         }
@@ -124,10 +118,6 @@ namespace m4d.Controllers
         public IActionResult Tempi(List<string> styles, List<string> types, List<string> organizations, List<string> meters)
         {
             ThemeName = ToolTheme;
-
-            ViewBag.DanceStats = JsonConvert.SerializeObject(
-                DanceStatsManager.GetInstance(Database),
-                CamelCaseSerializerSettings);
 
             ViewBag.Styles = ConvertParameter(styles);
             ViewBag.Types = ConvertParameter(types);

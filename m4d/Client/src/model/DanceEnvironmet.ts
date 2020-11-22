@@ -1,6 +1,6 @@
 import "reflect-metadata";
 import { jsonMember, jsonObject, TypedJSON, jsonArrayMember } from "typedjson";
-import { DanceStats } from "./DanceStats";
+import { DanceInstance, DanceStats, DanceType } from "./DanceStats";
 import { Tag } from "./Tag";
 
 TypedJSON.setGlobalConfig({
@@ -66,7 +66,20 @@ export class DanceEnvironment {
   }
 
   public get flatStats(): DanceStats[] {
-    return this.stats!.flatMap((group) => [group, ...group.children]);
+    return this.stats!.flatMap((group) => [group, ...group.children]).filter(
+      (s) => s
+    );
+  }
+
+  public get flatTypes(): DanceType[] {
+    return this.flatStats
+      .flatMap((group) => group.children)
+      .filter((ds) => ds && ds.danceType)
+      .map((ds) => ds.danceType!);
+  }
+
+  public get flatInstances(): DanceInstance[] {
+    return this.flatTypes.flatMap((d) => d && d.instances);
   }
 
   public get groupedStats(): DanceStats[] {
@@ -77,21 +90,13 @@ export class DanceEnvironment {
       ...group.children.sort((a, b) => a.danceName.localeCompare(b.danceName)),
     ]);
   }
-}
 
-import environmentJson from "../assets/dance-environment.json";
-let loaded: DanceEnvironment | undefined;
-
-export function fetchEnvironment(): DanceEnvironment {
-  if (!loaded) {
-    let environmentString = environmentJson;
-    /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
-    const win = window as any;
-
-    if (win.environmentJson) {
-      environmentString = win.environmentJson;
-    }
-    loaded = TypedJSON.parse(environmentString, DanceEnvironment);
+  public get styles(): string[] {
+    const styles = this.flatInstances.map((inst) => inst && inst.style);
+    return [...new Set(styles)].sort();
   }
-  return loaded!;
+
+  public get types(): string[] {
+    return this.stats!.map((s) => s.danceName);
+  }
 }

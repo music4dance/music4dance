@@ -1,5 +1,9 @@
 <template>
-  <page id="app">
+  <page
+    id="app"
+    :consumesEnvironment="true"
+    @environment-loaded="onEnvironmentLoaded"
+  >
     <div class="row">
       <checked-list
         class="col-md"
@@ -29,6 +33,7 @@
     <div class="row">
       <dance-list
         class="col-md"
+        :dances="dances"
         :styles="styles"
         :types="types"
         :meters="meters"
@@ -77,7 +82,8 @@ import {
   valuesFromOptions,
   optionsFromText,
 } from "@/model/ListOption";
-import { getStyles, getTypes } from "@/model/DanceManager";
+import { DanceEnvironment } from "@/model/DanceEnvironmet";
+import { DanceType } from "@/model/DanceStats";
 
 declare global {
   interface Window {
@@ -96,13 +102,14 @@ declare global {
   },
 })
 export default class App extends Vue {
-  private styleOptions: ListOption[];
-  private styles: string[];
-  private allStyles: string[];
+  private dances: DanceType[] = [];
+  private styleOptions: ListOption[] = [];
+  private styles: string[] = [];
+  private allStyles: string[] = [];
 
-  private typeOptions: ListOption[];
-  private types: string[];
-  private allTypes: string[];
+  private typeOptions: ListOption[] = [];
+  private types: string[] = [];
+  private allTypes: string[] = [];
 
   private meterOptions: ListOption[];
   private meters: string[];
@@ -114,14 +121,6 @@ export default class App extends Vue {
 
   constructor() {
     super();
-    this.styleOptions = optionsFromText(this.filterUnused(getStyles()));
-    this.allStyles = valuesFromOptions(this.styleOptions);
-    this.styles = this.filterValid(this.allStyles, window.initialStyles);
-
-    this.typeOptions = optionsFromText(this.filterUnused(getTypes()));
-    this.allTypes = valuesFromOptions(this.typeOptions);
-    this.types = this.filterValid(this.allTypes, window.initialTypes);
-
     this.meterOptions = [
       { text: "2/4 MPM", value: "2-4" },
       { text: "3/4 MPM", value: "3-4" },
@@ -142,6 +141,19 @@ export default class App extends Vue {
     );
     const organizations = window.initialOrganizations;
     this.organizations = organizations ? organizations : this.allOrganizations;
+  }
+
+  private onEnvironmentLoaded(environment: DanceEnvironment): void {
+    this.dances = environment.flatTypes.filter(
+      (dt) => dt.groupName !== "Performance"
+    );
+    this.styleOptions = optionsFromText(this.filterUnused(environment.styles));
+    this.allStyles = valuesFromOptions(this.styleOptions);
+    this.styles = this.filterValid(this.allStyles, window.initialStyles);
+
+    this.typeOptions = optionsFromText(this.filterUnused(environment.types));
+    this.allTypes = valuesFromOptions(this.typeOptions);
+    this.types = this.filterValid(this.allTypes, window.initialTypes);
   }
 
   private filterUnused(list: string[]): string[] {

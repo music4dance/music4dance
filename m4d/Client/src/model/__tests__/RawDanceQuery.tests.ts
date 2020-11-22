@@ -1,12 +1,12 @@
 import "reflect-metadata";
-import { fetchEnvironment } from "../DanceEnvironmet";
+import { getEnvironmentMock } from "@/helpers/MockEnvironmentManager";
 import { RawDanceQuery } from "../RawDanceQuery";
 
 /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
 declare const global: any;
 
 beforeAll(() => {
-  global.environment = fetchEnvironment();
+  global.environment = getEnvironmentMock();
 });
 
 describe("raw dance query", () => {

@@ -48,12 +48,12 @@
 import "reflect-metadata";
 import { BvTableFieldArray } from "bootstrap-vue";
 import { Component, Prop, Vue } from "vue-property-decorator";
-import { flatStats } from "@/model/DanceManager";
 import { Meter, TempoRange, DanceType, DanceFilter } from "@/model/DanceStats";
 import { wordsToKebab } from "@/helpers/StringHelpers";
 
 @Component
 export default class FormList extends Vue {
+  @Prop() private readonly dances!: DanceType[];
   @Prop() private readonly styles!: string[];
   @Prop() private readonly meters!: string[];
   @Prop() private readonly types!: string[];
@@ -62,10 +62,6 @@ export default class FormList extends Vue {
   @Prop() private readonly allStyles!: string[];
   @Prop() private readonly allMeters!: string[];
   @Prop() private readonly allTypes!: string[];
-
-  private dances = flatStats()
-    .map((s) => s.danceType)
-    .filter((dt) => dt && dt.groupName !== "Performance");
 
   private fields: BvTableFieldArray = [
     {
