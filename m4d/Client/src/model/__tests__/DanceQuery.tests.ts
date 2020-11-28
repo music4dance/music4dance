@@ -1,6 +1,7 @@
 import "reflect-metadata";
 import { getEnvironmentMock } from "@/helpers/MockEnvironmentManager";
 import { DanceQuery } from "../DanceQuery";
+import { DanceQueryBase } from "../DanceQueryBase";
 
 /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
 declare const global: any;
@@ -56,6 +57,28 @@ describe("dance query", () => {
     expect(dq.danceList.length).toEqual(2);
     expect(dq.danceList).toContain("BCH");
     expect(dq.danceList).toContain("BOL");
+  });
+
+  it("should set inferred given a simple list", () => {
+    let dq: DanceQueryBase = new DanceQuery("BCH,BOL");
+    expect(dq.includeInferred).toBeFalsy();
+    dq = dq.setIncludeInferred(false);
+    expect(dq.includeInferred).toBeFalsy();
+    dq = dq.setIncludeInferred(true);
+    expect(dq.includeInferred).toBeTruthy();
+    dq = dq.setIncludeInferred(false);
+    expect(dq.includeInferred).toBeFalsy();
+  });
+
+  it("should set inferred given an exclusive list", () => {
+    let dq: DanceQueryBase = new DanceQuery("AND,BCH,BOL");
+    expect(dq.includeInferred).toBeFalsy();
+    dq = dq.setIncludeInferred(false);
+    expect(dq.includeInferred).toBeFalsy();
+    dq = dq.setIncludeInferred(true);
+    expect(dq.includeInferred).toBeTruthy();
+    dq = dq.setIncludeInferred(false);
+    expect(dq.includeInferred).toBeFalsy();
   });
 });
 

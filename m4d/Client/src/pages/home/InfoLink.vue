@@ -11,6 +11,7 @@ import { Component, Prop, Vue } from "vue-property-decorator";
 export default class InfoLink extends Vue {
   @Prop() private text?: string;
   @Prop() private link!: string;
-  @Prop() private styles?: string;
+  /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
+  @Prop() private styles?: any;
 }
 </script>

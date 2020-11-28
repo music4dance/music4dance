@@ -1,19 +1,28 @@
 <template>
   <page id="app" :consumesEnvironment="true">
     <song-library-header
-      v-if="filter.isSimple(model.user)"
-      :filter="filter"
+      v-if="model.filter.isSimple(model.user)"
+      :filter="model.filter"
       :user="model.user"
     ></song-library-header>
-    <search-header v-else :filter="filter" :user="model.user"></search-header>
+    <search-header
+      v-else
+      :filter="model.filter"
+      :user="model.user"
+    ></search-header>
     <song-table
-      :songs="songs"
+      :songs="model.songs"
       :filter="filter"
       :userName="model.userName"
       :hideSort="model.hideSort"
       :hiddenColumns="model.hiddenColumns"
+      @song-selected="selectSong"
     ></song-table>
-    <song-footer :filter="filter" :count="model.count"></song-footer>
+    <song-footer
+      :model="model"
+      :canShowImplicitMessage="true"
+      :selected="selected"
+    ></song-footer>
   </page>
 </template>
 
@@ -26,7 +35,6 @@ import SongLibraryHeader from "@/components/SongLibraryHeader.vue";
 import SongTable from "@/components/SongTable.vue";
 import Page from "@/components/Page.vue";
 import { TypedJSON } from "typedjson";
-import { Song } from "@/model/Song";
 import { SongFilter } from "@/model/SongFilter";
 import { SongListModel } from "@/model/SongListModel";
 
@@ -43,6 +51,7 @@ declare const model: string;
 })
 export default class App extends Vue {
   private readonly model: SongListModel;
+  private selected: string[] = [];
 
   constructor() {
     super();
@@ -50,12 +59,18 @@ export default class App extends Vue {
     this.model = TypedJSON.parse(model, SongListModel)!;
   }
 
-  private get songs(): Song[] {
-    return this.model.songs;
-  }
-
   private get filter(): SongFilter {
     return this.model.filter;
+  }
+
+  private selectSong(songId: string, selected: boolean): void {
+    if (selected) {
+      if (!this.selected.find((s) => s === songId)) {
+        this.selected.push(songId);
+      }
+    } else {
+      this.selected = this.selected.filter((s) => s !== songId);
+    }
   }
 }
 </script>

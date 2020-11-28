@@ -158,6 +158,7 @@ export class SongFilter {
         "searchString",
         "sortOrder",
         "dances",
+        "page",
       ]) &&
       this.danceQuery.isSimple &&
       this.userQuery.isDefault(user)

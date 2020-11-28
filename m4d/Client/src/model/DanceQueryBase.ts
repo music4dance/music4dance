@@ -16,6 +16,10 @@ export class DanceQueryBase {
     return false;
   }
 
+  public setIncludeInferred(value: boolean): DanceQueryBase {
+    throw new Error(`Not Implemented. Value = ${value}`);
+  }
+
   public get dances(): DanceStats[] {
     return this.danceList.map((id) => environment!.fromId(id)!);
   }

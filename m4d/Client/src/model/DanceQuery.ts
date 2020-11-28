@@ -67,6 +67,10 @@ export class DanceQuery extends DanceQueryBase {
     return this.startsWithAny([andX, oneOfX]);
   }
 
+  public setIncludeInferred(value: boolean): DanceQueryBase {
+    return DanceQuery.fromParts(this.danceList, this.isSimple, value);
+  }
+
   public get description(): string {
     const prefix = this.isExclusive ? "all" : "any";
     const connector = this.isExclusive ? "and" : "or";

@@ -24,11 +24,7 @@
         :hideSort="model.hideSort"
         :hiddenColumns="['Track']"
       ></song-table>
-      <song-footer
-        :filter="model.filter"
-        :count="model.count"
-        :href="pageLink"
-      ></song-footer>
+      <song-footer :model="model" :href="pageLink"></song-footer>
     </div>
     <spotify-player :playlist="model.playListId"></spotify-player>
     <holiday-dance-chooser

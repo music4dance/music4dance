@@ -9,6 +9,12 @@
       :items="songs"
       :fields="fields"
     >
+      <template v-slot:cell(edit)="data">
+        <b-form-checkbox
+          @change="onSelect(data.item, $event)"
+        ></b-form-checkbox>
+        <a :href="editRef(data.item)"><b-icon-pencil></b-icon-pencil></a>
+      </template>
       <template v-slot:head(play)>
         <div :class="likeHeader">Like/Play</div>
       </template>
@@ -224,25 +230,23 @@ import { DanceHandler } from "@/model/DanceHandler";
 import { TagHandler } from "@/model/TagHandler";
 import { ITaggableObject } from "@/model/ITaggableObject";
 import { SongSort } from "@/model/SongSort";
+import { MenuContext } from "@/model/MenuContext";
 
 // TODONEXT:
 //  Consider going to advanced search results once anything has been selected
 //   beyond a single dance
 //  Look at mixin's again - particularly with respect to danceId->dance translations
 //  Go through and audit no-explicit-any, interface-name warning
-//  Remove built in dance stats for pages
-//       tempo-counter
-//       tempo-list
-//  Think about how we replace merge & other administrative functions
-//  Look at what else we want to put in footer (the not as many songs as expected, for one...)
-//  Figure out if there's a race condition when loading
-//  https://localhost:5001/song/filtersearch?filter=Advanced--Modified---%2Bme%7Ca
+//  Get tag cloud at bottom of dance page to include add to filter + filter on
+
+declare const menuContext: MenuContext;
 
 interface Field {
   key: string;
   label?: string;
 }
 
+const editField = { key: "edit", label: "" };
 const playField = { key: "play" };
 const titleField = { key: "title" };
 const artistField = { key: "artist" };
@@ -293,10 +297,16 @@ export default class SongTable extends Vue {
 
     const hidden = this.hiddenColumns;
     if (mq === "sm" || mq === "md") {
-      const temp = smallFields.map((f) => this.filterSmallField(f));
-      return temp;
+      return smallFields.map((f) => this.filterSmallField(f));
     } else {
-      return hidden ? fields.filter((f) => !this.isHidden(f.key)) : fields;
+      const temp = hidden
+        ? fields.filter((f) => !this.isHidden(f.key))
+        : fields;
+      if (menuContext.isAdmin) {
+        return [editField, ...temp];
+      } else {
+        return temp;
+      }
     }
   }
 
@@ -451,13 +461,25 @@ export default class SongTable extends Vue {
     return song.findDanceRatingById(this.filter.danceQuery.danceList[0])!;
   }
 
+  private editRef(song: Song): string {
+    return `/song/edit?id=${song.songId}&filter=${this.filter.encodedQuery}`;
+  }
+
   private showPlayModal(song: Song): void {
     this.$bvModal.show(song.songId);
+  }
+
+  private onSelect(song: Song, selected: boolean): void {
+    this.$emit("song-selected", song.songId, selected);
   }
 }
 </script>
 
 <style scoped lang="scss">
+.editHeader {
+  min-width: 4em;
+}
+
 .likeHeader {
   min-width: 4em;
 }

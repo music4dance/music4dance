@@ -18,7 +18,7 @@
       :hideSort="model.hideSort"
       :hiddenColumns="['Track']"
     ></song-table>
-    <song-footer :filter="filter" :count="model.count"></song-footer>
+    <song-footer :model="model"></song-footer>
   </page>
 </template>
 
