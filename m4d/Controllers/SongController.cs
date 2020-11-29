@@ -1583,7 +1583,7 @@ namespace m4d.Controllers
         // G= Spotify Genre
         // P= Batch Process
         [Authorize(Roles = "dbAdmin")]
-        public async Task<ActionResult> BatchCleanService(SongFilter filter, string type="S",int count = -1)
+        public ActionResult BatchCleanService(SongFilter filter, string type="S",int count = -1)
         {
             try
             {
@@ -1599,7 +1599,7 @@ namespace m4d.Controllers
                 filter.Page = 1;
 
                 var dms = Database.GetTransientService();
-                await Task.Run(async () =>
+                Task.Run(async () => // Intentionally drop this async on the floor
                 {
                     try
                     {

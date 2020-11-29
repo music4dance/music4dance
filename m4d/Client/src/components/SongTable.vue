@@ -237,7 +237,9 @@ import { MenuContext } from "@/model/MenuContext";
 //   beyond a single dance
 //  Look at mixin's again - particularly with respect to danceId->dance translations
 //  Go through and audit no-explicit-any, interface-name warning
+//  Get the create spotif playlist working in vue
 //  Get tag cloud at bottom of dance page to include add to filter + filter on
+//  Make sure autocomplete is working
 
 declare const menuContext: MenuContext;
 

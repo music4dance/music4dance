@@ -65,9 +65,15 @@
             >
           </b-dropdown>
           <b-dropdown right text="Clean" class="mx-1">
-            <b-dropdown-item>Services</b-dropdown-item>
-            <b-dropdown-item>Spotify</b-dropdown-item>
-            <b-dropdown-item>Update Flag</b-dropdown-item>
+            <b-dropdown-item :href="batchUrl('batchcleanservice', -1)"
+              >Services</b-dropdown-item
+            >
+            <b-dropdown-item :href="batchUrl('batchcleanservice', -1, 'SP')"
+              >Spotify</b-dropdown-item
+            >
+            <b-dropdown-item :href="batchUrl('batchclearupdate', -1)"
+              >Update Flag</b-dropdown-item
+            >
           </b-dropdown>
           <b-dropdown right text="Update" class="mx-1">
             <b-dropdown-item>User Tags (deprecated)</b-dropdown-item>

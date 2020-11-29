@@ -28,13 +28,13 @@ namespace m4dModels
 
         private void Enqueue(DanceMusicCoreService dms)
         {
-            Trace.WriteLine("Entering Enque");
+            Trace.WriteLine("Entering Enqueue");
             lock (_lock)
             {
                 if (_task == null || _task.IsFaulted)
                 {
                     Trace.WriteLine("Setting up task");
-                    _task = Task.Delay(100*60).ContinueWith(_ => DoUpdate(dms.GetTransientService()));
+                    _task = Task.Delay(100*60).ContinueWith(_ => DoUpdate(dms));
                 }
                 else if (_task.Status == TaskStatus.Running)
                 {
@@ -42,7 +42,7 @@ namespace m4dModels
                 }
 
             }
-            Trace.WriteLine("Exiting Enque");
+            Trace.WriteLine("Exiting Enqueue");
         }
 
         private void DoUpdate(DanceMusicCoreService dms)
@@ -52,7 +52,7 @@ namespace m4dModels
             var count = dms.UpdateAzureIndex(_index);
             Trace.WriteLine($"Updated {count} songs.");
 
-            // In the case where things have been enqueud 
+            // In the case where things have been enqueued 
             lock (_lock)
             {
                 _task = null;

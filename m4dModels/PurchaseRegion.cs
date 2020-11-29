@@ -33,7 +33,7 @@ namespace m4dModels
 
             var fields = value.Split('[');
 
-            if (fields.Length == 2)
+            if (fields.Length > 1)
             {
                 regions = ParseRegionInfo(fields[1].Substring(0, fields[1].Length - 1));
             }
