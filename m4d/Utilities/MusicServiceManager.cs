@@ -303,10 +303,12 @@ namespace m4d.Utilities
             throw new NotImplementedException();
         }
 
-        public bool SetPlaylistTracks(MusicService service, IPrincipal principal, string id, IEnumerable<string> tracks)
+        public bool SetPlaylistTracks(MusicService service, IPrincipal principal, string id,
+            IEnumerable<string> tracks)
         {
             var tracklist = string.Join(",", tracks.Where(t => t != null).Select(t => $"\"spotify:track:{t}\""));
-            var response = MusicServiceAction($"https://api.spotify.com/v1/playlists/{id}/tracks", $"{{\"uris\":[{tracklist}]}}", WebRequestMethods.Http.Put, service, principal);
+            var response = MusicServiceAction($"https://api.spotify.com/v1/playlists/{id}/tracks",
+                $"{{\"uris\":[{tracklist}]}}", WebRequestMethods.Http.Put, service, principal);
 
             return response != null && response.snapshot_id != null;
         }
@@ -503,7 +505,8 @@ namespace m4d.Utilities
 
         // TODO Handle services other than spotify.
         // This method requires a valid principal
-        private dynamic MusicServiceAction(string request, string input, string method, MusicService service, IPrincipal principal, string contentType = "application/json")
+        private dynamic MusicServiceAction(string request, string input, string method,
+            MusicService service, IPrincipal principal, string contentType = "application/json")
         {
             string responseString = null;
 

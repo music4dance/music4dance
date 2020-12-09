@@ -26,15 +26,15 @@ namespace m4d.Controllers
             Database = new DanceMusicService(context, userManager, searchService, danceStatsManager);
             SearchService = searchService;
             DanceStatsManager = danceStatsManager;
-            _configuration = configuration;
+            Configuration = configuration;
         }
 
         public DanceMusicService Database { get; set; }
 
-        protected MusicServiceManager MusicServiceManager => _musicServiceManager ??= new MusicServiceManager(_configuration);
+        protected MusicServiceManager MusicServiceManager => _musicServiceManager ??= new MusicServiceManager(Configuration);
 
         private MusicServiceManager _musicServiceManager;
-        private IConfiguration _configuration;
+        protected IConfiguration Configuration { get; }
 
         public ISearchServiceManager SearchService { get; }
 

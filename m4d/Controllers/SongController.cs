@@ -211,7 +211,8 @@ namespace m4d.Controllers
             {
                 var ds = Database.DanceStats.FromName(dance);
                 var name = $"Holiday {ds.DanceName}";
-                var playlist = Database.PlayLists.FirstOrDefault(p => p.Name == name);
+                var playlist = Database.PlayLists.FirstOrDefault(
+                    p => p.Name == name && p.Type == PlayListType.SpotifyFromSearch);
                 playListId = playlist?.Id;
             }
 
@@ -1093,7 +1094,7 @@ namespace m4d.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> CreateSpotify([FromServices] IFileProvider fileProvider, [FromServices] IConfiguration configuration, [Bind("Title,DescriptionPrefix,Description,Count,Filter")] PlaylistCreateInfo info)
+        public async Task<ActionResult> CreateSpotify([FromServices] IFileProvider fileProvider, [Bind("Title,DescriptionPrefix,Description,Count,Filter")] PlaylistCreateInfo info)
         {
             if (!ModelState.IsValid) return View(info);
 
@@ -1111,8 +1112,7 @@ namespace m4d.Controllers
             }
 
             var authResult = await HttpContext.AuthenticateAsync();
-
-            AdmAuthentication.GetServiceAuthorization(configuration, ServiceType.Spotify, User, authResult);
+            AdmAuthentication.GetServiceAuthorization(Configuration, ServiceType.Spotify, User, authResult);
 
             PlaylistMetadata metadata;
             var filter = new SongFilter(info.Filter);

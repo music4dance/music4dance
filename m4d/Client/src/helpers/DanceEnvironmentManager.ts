@@ -23,7 +23,7 @@ export async function getEnvironment(): Promise<DanceEnvironment> {
 
 async function loadStats(): Promise<DanceEnvironment> {
   try {
-    const response = await axios.get(`/api/dancesstatistics/`);
+    const response = await axios.get("/api/dancesstatistics/");
     const data = response.data;
     sessionStorage.setItem("dance-stats", JSON.stringify(data));
     window.environment = TypedJSON.parse(data, DanceEnvironment);

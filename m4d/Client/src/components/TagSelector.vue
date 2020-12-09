@@ -51,7 +51,7 @@
         <b-dropdown-text v-if="availableOptions.length === 0">
           {{ emptyLabel }}
         </b-dropdown-text>
-        <b-dropdown-text v-if="!criteria">
+        <b-dropdown-text v-if="!showList">
           Start typing to see a list of matching tags
         </b-dropdown-text>
         <template v-else>
@@ -89,6 +89,7 @@ export default class TagSelector extends Vue {
   @Prop() private chooseLabel!: string;
   @Prop() private emptyLabel!: string;
   @Prop() private variant!: string;
+  @Prop() private showInitialList?: boolean;
 
   private selectedInternal: string[];
   private search: string;
@@ -100,6 +101,10 @@ export default class TagSelector extends Vue {
     this.selectedInternal = this.selected;
     this.search = "";
     this.mapText = new Map(this.options.map((opt) => [opt.value, opt.text]));
+  }
+
+  private get showList(): boolean {
+    return this.showInitialList || !!this.criteria;
   }
 
   private get criteria(): string {

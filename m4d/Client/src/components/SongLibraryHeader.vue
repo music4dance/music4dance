@@ -15,8 +15,16 @@
         type="text"
         v-model="filter.searchString"
         placeholder="Title, Artist, Album, Key Words"
-        @input="search"
+        list="auto-complete"
+        autofocus
+        debounce="100"
+        @keyup.enter.native="search"
       ></b-form-input>
+      <datalist id="auto-complete">
+        <option v-for="suggestion in suggestions" :key="suggestion">
+          {{ suggestion }}
+        </option>
+      </datalist>
 
       <b-input-group-append>
         <b-button variant="outline-primary" @click="search">
@@ -38,9 +46,20 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue } from "vue-property-decorator";
+import axios from "axios";
+import { Component, Prop, Vue, Watch } from "vue-property-decorator";
 import { SongFilter } from "@/model/SongFilter";
 import DanceChooser from "./DanceChooser.vue";
+
+interface Suggestion {
+  value: string;
+  data: string;
+}
+
+interface SuggestionList {
+  query: string;
+  suggestions: Suggestion[];
+}
 
 @Component({
   components: {
@@ -50,6 +69,8 @@ import DanceChooser from "./DanceChooser.vue";
 export default class SongLibrary extends Vue {
   @Prop() private readonly filter!: SongFilter;
   @Prop() private readonly user?: string;
+
+  private suggestions: string[] = [];
 
   private get danceLabel(): string {
     return !this.filter.dances
@@ -74,6 +95,29 @@ export default class SongLibrary extends Vue {
 
   private search(): void {
     window.location.href = `/song/filterSearch?filter=${this.filter.encodedQuery}`;
+  }
+
+  private chooseSuggestion(): void {
+    console.log(this.filter.searchString);
+  }
+
+  @Watch("filter.searchString") private autoComplete(): void {
+    if (
+      !this.filter ||
+      !this.filter.searchString ||
+      this.filter.searchString.length < 2
+    ) {
+      return;
+    }
+    axios
+      .get(`/api/suggestion/${this.filter.searchString}`)
+      .then((response) => {
+        const suggestions = response.data as SuggestionList;
+        this.suggestions = suggestions.suggestions.map((s) => s.value);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
   }
 
   private chooseDance(danceId?: string): void {

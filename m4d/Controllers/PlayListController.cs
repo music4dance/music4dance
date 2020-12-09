@@ -5,14 +5,14 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Net;
 using System.Security.Principal;
-using System.ServiceModel.Security;
 using System.Threading.Tasks;
+using AmazonCommerce;
 using m4d.Utilities;
 using m4dModels;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.FileProviders;
@@ -134,7 +134,7 @@ namespace m4d.Controllers
 
         // GET: Update
         [Authorize(Roles = "dbAdmin")]
-        public ActionResult Update(string id)
+        public async Task<ActionResult> Update(string id)
         {
             if (!AdminMonitor.StartTask("UpdatePlayList"))
             {
@@ -148,6 +148,8 @@ namespace m4d.Controllers
             var user = Database.FindUser(playlist.User);
             var email = user.Email;
 
+            await SpotifyAuthorization();
+
             var dms = new DanceMusicCoreService(Database.Context.CreateTransientContext(), SearchService, DanceStatsManager);
 
             // Match songs & update
@@ -155,8 +157,8 @@ namespace m4d.Controllers
             {
                 try
                 {
-                    var success = DoUpdate(id, email, dms, principal, out var result);
-                    AdminMonitor.CompleteTask(success, result);
+                    var result = DoUpdate(id, email, dms, principal);
+                    AdminMonitor.CompleteTask(result != null && result.IndexOf("Succeeded") != -1, result);
                 }
                 catch (Exception e)
                 {
@@ -164,7 +166,7 @@ namespace m4d.Controllers
                 }
                 finally
                 {
-                    dms?.Dispose();
+                    dms.Dispose();
                 }
             });
 
@@ -173,7 +175,7 @@ namespace m4d.Controllers
 
         // GET: UpdateAll
         [Authorize(Roles = "dbAdmin")]
-        public ActionResult UpdateAll(PlayListType type = PlayListType.SongsFromSpotify)
+        public async Task<ActionResult> UpdateAll(PlayListType type = PlayListType.SongsFromSpotify)
         {
             if (!AdminMonitor.StartTask("UpdateAllPlayLists"))
             {
@@ -181,15 +183,17 @@ namespace m4d.Controllers
                     "UpdateAllPlayLists failed to start because there is already an admin task running");
             }
 
+            await SpotifyAuthorization();
+
             UpdateAllBase(type, User);
 
             return RedirectToAction("AdminStatus", "Admin", AdminMonitor.Status);
         }
 
         [AllowAnonymous]
-        public ContentResult UpdateBatch([FromServices] IConfiguration configuration, PlayListType type = PlayListType.SongsFromSpotify)
+        public ContentResult UpdateBatch(PlayListType type = PlayListType.SongsFromSpotify)
         {
-            if (!TokenRequirement.Authorize(Request, configuration))
+            if (!TokenRequirement.Authorize(Request, Configuration))
             {
                 throw new Exception("Unauthorized access.");
             }
@@ -207,9 +211,10 @@ namespace m4d.Controllers
         // GET: UpdateAll
         [SuppressMessage("ReSharper", "InconsistentNaming")]
         [Authorize(Roles = "dbAdmin")]
-        public ActionResult BulkCreate([FromServices] IFileProvider fileProvider, PlayListType type, string flavor = "TopN")
+        public async  Task<ActionResult> BulkCreate([FromServices] IFileProvider fileProvider, PlayListType type, string flavor = "TopN")
         {
-            // Get a list of existing playlists so that we don't add duplicates?
+            await SpotifyAuthorization();
+
             var spotify = MusicService.GetService(ServiceType.Spotify);
             var oldS = MusicServiceManager.GetPlaylists(spotify, User).ToDictionary(p => p.Name, p => new PlaylistMetadata{Id = p.Id, Name= p.Name});
             var oldM = Database.PlayLists.Where(p => p.Type == PlayListType.SpotifyFromSearch).Where(p => p.Name != null).ToDictionary(p => p.Name, p => p);
@@ -248,7 +253,7 @@ namespace m4d.Controllers
                         var id = playlist.Id;
                         if (emailMap.TryGetValue(playlist.User, out var email))
                         {
-                            DoUpdate(id, email, dms, user, out var result);
+                            var result = DoUpdate(id, email, dms, user);
                             AdminMonitor.UpdateTask($"Playlist {id}", i);
                             results.Add(result);
                         }
@@ -341,7 +346,11 @@ namespace m4d.Controllers
             foreach (var ds in Database.DanceStats.List)
             {
                 var dt = ds.DanceType;
-                if (dt == null || ds.SongCountExplicit < 25) continue;
+                var dg = ds.DanceGroup;
+                if (dt == null && dg == null) continue;
+
+                if (dt != null && ds.SongCountExplicit < 25) continue;
+                if (dg != null && ds.SongCountImplicit < 25) continue;
 
                 var name = $"Holiday {ds.DanceName}";
 
@@ -350,11 +359,11 @@ namespace m4d.Controllers
 
                 if (metadata != null && m4dExists) continue;
 
-                var description = $"{ds.DanceName} Holiday songs from music4dance.net";
+                var description = $"{ds.DanceName} Dance Holiday songs from music4dance.net";
 
                 var search = SongFilter.CreateHolidayFilter(ds.DanceName);
 
-                Trace.WriteLineIf(TraceLevels.General.TraceInfo,$"BulkCreateHolidy: {name}, {description}, {search}");
+                Trace.WriteLineIf(TraceLevels.General.TraceInfo,$"BulkCreateHoliday: {name}, {description}, {search}");
 
                 if (metadata == null)
                 {
@@ -375,7 +384,6 @@ namespace m4d.Controllers
                 if (!exists)
                 {
                     playlist = new PlayList();
-                    Database.PlayLists.Add(playlist);
                 }
 
                 playlist.Type = PlayListType.SpotifyFromSearch;
@@ -387,32 +395,38 @@ namespace m4d.Controllers
                 playlist.Created = DateTime.Now;
                 playlist.Updated = DateTime.Now;
                 playlist.User = User.Identity.Name;
+
+                if (!exists)
+                {
+                    Database.PlayLists.Add(playlist);
+                }
             }
         }
 
 
-        private bool DoUpdate(string id, string email, DanceMusicCoreService dms, IPrincipal principal, out string result)
+        private string DoUpdate(string id, string email, DanceMusicCoreService dms, IPrincipal principal)
         {
             var playlist = SafeLoadPlaylist(id, dms);
             switch (playlist.Type)
             {
                 case PlayListType.SongsFromSpotify:
-                    return UpdateSongsFromSpotify(playlist, email, dms, out result);
+                    return UpdateSongsFromSpotify(playlist, email, dms);
                 case PlayListType.SpotifyFromSearch:
-                    return UpdateSpotifyFromSearch(playlist, dms, principal, out result);
+                    return UpdateSpotifyFromSearch(playlist, dms, principal);
                 default:
-                    result = $"Playlist {id} unsupported type - {playlist.Type}";
-                    return false;
+                    return $"Playlist {id} unsupported type - {playlist.Type}";
             }
         }
 
-        private bool UpdateSongsFromSpotify(PlayList playlist, string email, DanceMusicCoreService dms, out string result)
+        private string UpdateSongsFromSpotify(PlayList playlist, string email, DanceMusicCoreService dms)
         {
-            result = string.Empty;
             try
             {
                 var spl = LoadServicePlaylist(playlist, email, dms, MusicServiceManager);
-                if (spl == null) return false;
+                if (spl == null)
+                {
+                    return $"UpdateSongsFromSpotify {playlist.Id}: Unable to load playlist";
+                }
 
                 var tracks = spl.Tracks;
                 playlist.Name = spl.Name;
@@ -426,8 +440,7 @@ namespace m4d.Controllers
 
                 if (tracks.Count == 0)
                 {
-                    result =  $"No new tracks for playlist {playlist.Id}";
-                    return true;
+                    return $"UpdateSongsFromSpotify {playlist.Id}: Empty Playlist";
                 }
                 var tags = playlist.Tags.Split(new[] { "|||" }, 2, StringSplitOptions.None);
                 var newSongs = dms.SongsFromTracks(playlist.User, tracks, tags[0], tags.Length > 1 ? tags[1] : string.Empty);
@@ -435,19 +448,17 @@ namespace m4d.Controllers
                 AdminMonitor.UpdateTask("Starting Merge");
                 var results = dms.MatchSongs(newSongs, DanceMusicCoreService.MatchMethod.Merge);
                 var succeeded = CommitCatalog(dms, new Review { PlayList = playlist.Id, Merge = results }, playlist.User);
-                result =  $"Updated PlayList {playlist.Id} with {succeeded} songs.";
-                return true;
+                return $"UpdateSongsFromSpotify {playlist.Id}: Succeeded with {succeeded} songs.";
             }
             catch (Exception e)
             {
-                result = $"Restore Playlist: Failed={e.Message}";
-                return false;
+                return $"UpdateSongsFromSpotify {playlist.Id}: Failed={e.Message}";
             }
         }
 
-        private bool UpdateSpotifyFromSearch(PlayList playlist, DanceMusicCoreService dms, IPrincipal principal, out string result)
+        private string UpdateSpotifyFromSearch(PlayList playlist, DanceMusicCoreService dms, 
+            IPrincipal principal)
         {
-            result = string.Empty;
             try
             {
                 var spotify = MusicService.GetService(ServiceType.Spotify);
@@ -456,21 +467,24 @@ namespace m4d.Controllers
                     Purchase = spotify.CID.ToString()
                 };
                 var sr = dms.AzureSearch(filter, playlist.Count == -1 ? 100 : playlist.Count);
-                if (sr.Count == 0) return false;
+                if (sr.Count == 0)
+                {
+                    return $"UpdateSpotifyFromSearch {playlist.Id}: Empty Playlist";
+                }
 
                 var tracks = sr.Songs.Select(s => s.GetPurchaseId(ServiceType.Spotify));
                 if (MusicServiceManager.SetPlaylistTracks(spotify, principal, playlist.Id, tracks))
                 {
                     playlist.Updated = DateTime.Now;
                     dms.SaveChanges();
-                    return true;
+                    return $"UpdateSpotifyFromSearch {playlist.Id}: Succeeded";
                 }
+                return $"UpdateSpotifyFromSearch {playlist.Id}: Failed to set playlist";
             }
             catch (Exception e)
             {
-                result = $"UpdateSpotifyFromSearch ({playlist.Id}: Failed={e.Message}";
+                return $"UpdateSpotifyFromSearch ({playlist.Id}: Failed={e.Message}";
             }
-            return false;
         }
 
 
@@ -682,6 +696,12 @@ namespace m4d.Controllers
             return HttpStatusCode.OK;
         }
 
+
+        private async Task SpotifyAuthorization()
+        {
+            var authResult = await HttpContext.AuthenticateAsync();
+            AdmAuthentication.GetServiceAuthorization(Configuration, ServiceType.Spotify, User, authResult);
+        }
 
         protected override void Dispose(bool disposing)
         {

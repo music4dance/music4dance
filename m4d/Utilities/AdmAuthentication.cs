@@ -195,7 +195,12 @@ namespace m4d.Utilities
             // TODO: Figure out if there is a way to get the expiresPeriod programmatically
             var expirePeriod = new TimeSpan(0, 59, 0);
             auth.Token = token;
-            auth.AccessTokenRenewer = new Timer(auth.OnTokenExpiredCallback, auth, token.ExpiresIn, expirePeriod);
+            if (expiresIn.TotalSeconds < 0)
+            {
+                expiresIn = new TimeSpan(0);
+                auth.Token = null;
+            }
+            auth.AccessTokenRenewer = new Timer(auth.OnTokenExpiredCallback, auth, expiresIn, expirePeriod);
 
             return auth;
         }

@@ -1,6 +1,7 @@
 <template>
   <tag-selector
     :options="danceOptions"
+    :showInitialList="true"
     chooseLabel="Choose Dances"
     searchLabel="Search Dances"
     emptyLabel="No more dances to choose"
