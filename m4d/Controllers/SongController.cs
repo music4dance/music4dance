@@ -1078,9 +1078,13 @@ namespace m4d.Controllers
 
 
         [HttpGet]
-        public ActionResult CreateSpotify(SongFilter filter)
+        public async Task<ActionResult> CreateSpotify(SongFilter filter)
         {
             HelpPage = "spotify-playlist";
+
+            var authResult = await HttpContext.AuthenticateAsync();
+            var canSpotify = AdmAuthentication.GetServiceAuthorization(
+                                 Configuration, ServiceType.Spotify, User, authResult) != null;
 
             return View(new PlaylistCreateInfo
             {
@@ -1088,7 +1092,10 @@ namespace m4d.Controllers
                 DescriptionPrefix = "This playlist was created with information from music4dance.net: ",
                 Description = filter.Description,
                 Count = 25,
-                Filter = filter.ToString()
+                Filter = filter.ToString(),
+                IsAuthenticated = User.Identity.IsAuthenticated,
+                IsPremium = User.IsInRole("premium") || User.IsInRole("trial"),
+                CanSpotify = canSpotify
             });
         }
 
@@ -1112,7 +1119,8 @@ namespace m4d.Controllers
             }
 
             var authResult = await HttpContext.AuthenticateAsync();
-            AdmAuthentication.GetServiceAuthorization(Configuration, ServiceType.Spotify, User, authResult);
+            var canSpotify = AdmAuthentication.GetServiceAuthorization(
+                Configuration, ServiceType.Spotify, User, authResult) != null;
 
             PlaylistMetadata metadata;
             var filter = new SongFilter(info.Filter);

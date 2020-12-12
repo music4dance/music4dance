@@ -131,7 +131,8 @@ namespace m4d.Utilities
         {
             AdmAuthentication auth = null;
 
-            if (principal != null)
+            if (principal != null && principal.Identity.IsAuthenticated &&
+                !string.IsNullOrWhiteSpace(principal.Identity.Name))
             {
                 var userName = principal.Identity.Name;
                 if (s_users.TryGetValue(userName, out auth))
@@ -139,7 +140,7 @@ namespace m4d.Utilities
                     return auth;
                 }
 
-                if (authResult != null)
+                if (authResult?.Properties != null)
                 {
                     auth = TryCreate(configuration, serviceType, authResult);
                     if (auth != null)
@@ -148,7 +149,6 @@ namespace m4d.Utilities
                         return auth;
                     }
                 }
-
             }
 
             switch (serviceType)

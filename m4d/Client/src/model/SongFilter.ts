@@ -140,12 +140,12 @@ export class SongFilter {
     );
   }
 
-  public isDefaultDance(danceId: string, user?: string): boolean {
+  public isDefaultDance(danceId?: string, user?: string): boolean {
     return (
       !this.isRaw &&
       this.isEmptyExcept(["action", "dance", "sortOrder", "user"]) &&
       this.isDefaultUser(user) &&
-      danceId?.toLowerCase() === this.dances?.toLowerCase()
+      (!danceId || danceId?.toLowerCase() === this.dances?.toLowerCase())
     );
   }
 

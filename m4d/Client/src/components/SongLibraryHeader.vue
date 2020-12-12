@@ -34,6 +34,9 @@
     </b-input-group>
     <b-row>
       <b-col><a :href="searches">Saved Searches</a></b-col>
+      <b-col v-if="singleDance" style="text-align: center"
+        ><a :href="danceReference">{{ singleDance }} Information</a></b-col
+      >
       <b-col style="text-align: right">
         <a :href="advancedSearch">Advanced Search</a>
       </b-col>
@@ -50,6 +53,7 @@ import axios from "axios";
 import { Component, Prop, Vue, Watch } from "vue-property-decorator";
 import { SongFilter } from "@/model/SongFilter";
 import DanceChooser from "./DanceChooser.vue";
+import { wordsToKebab } from "@/helpers/StringHelpers";
 
 interface Suggestion {
   value: string;
@@ -86,6 +90,16 @@ export default class SongLibrary extends Vue {
     return this.user
       ? "/searches"
       : `/identity/account/login?returnUrl=${this.redirect}`;
+  }
+
+  private get singleDance(): string | undefined {
+    const danceQuery = this.filter.danceQuery;
+    return danceQuery.singleDance ? danceQuery.danceNames[0] : undefined;
+  }
+
+  private get danceReference(): string | undefined {
+    const danceName = this.singleDance;
+    return danceName ? `/dances/${wordsToKebab(danceName)}` : undefined;
   }
 
   private get redirect(): string {

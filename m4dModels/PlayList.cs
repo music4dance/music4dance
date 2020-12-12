@@ -131,6 +131,11 @@ namespace m4dModels
         [Range(5,50, ErrorMessage = "A playlist may have between 5 and 50 songs")]
         [Description("Number of Songs")]
         public int Count { get; set; }
+
+        // User info
+        public bool IsAuthenticated { get; set; }
+        public bool IsPremium { get; set; }
+        public bool CanSpotify { get; set; }
     }
 
     public class PlayListIndex

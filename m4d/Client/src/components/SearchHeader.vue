@@ -3,7 +3,12 @@
     <h1>Search Results</h1>
     <h3>
       {{ filter.description }}
-      <b-button :href="changeLink">Change</b-button>
+      <b-button :href="changeLink" variant="primary" class="mx-1"
+        >Change</b-button
+      >
+      <b-button v-if="playListRef" :href="playListRef" class="mx-1"
+        >Create Spotify PlayList</b-button
+      >
     </h3>
   </div>
 </template>
@@ -19,6 +24,13 @@ export default class SearchHeader extends Vue {
 
   private get changeLink(): string {
     return `/song/advancedsearchform?filter=${this.filter.encodedQuery}`;
+  }
+
+  private get playListRef(): string | undefined {
+    const filter = this.filter;
+    return !filter.isDefaultDance(undefined, this.user)
+      ? `/song/createspotify?filter=${filter.encodedQuery}`
+      : undefined;
   }
 }
 </script>

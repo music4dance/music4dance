@@ -2,9 +2,11 @@
 @model m4dModels.PlaylistCreateInfo
 
 @{
+    Layout = "/Views/Shared/_bs4-Layout.cshtml";
     ViewBag.Title = "New Spotify Playlist";
     var filter = new SongFilter(Model.Filter);
-    var canCreate = User.IsInRole("premium") || User.IsInRole("trial");
+    var canCreate = Model.IsAuthenticated && Model.IsPremium && Model.CanSpotify;
+    var returnUrl = $"/song/createspotify?filter={filter}";
 }
 
 <div class="row"><h1 class="col-sm-12">@ViewBag.Title</h1></div>
@@ -16,17 +18,58 @@
 </div>
 
 <div class="row spaced-row">
-    <div text="big-text" class="col-sm-6">
+    <div text="big-text" class="col-sm-10">
         In order to successfully create a Spotify Playlist from a music4dance search you must meet the following conditions:
         <ol>
-            <li>Be <a href="https://music4dance.blog/music4dance-help/account-management/">signed in</a></li>
-            <li>Have a <a href="https://music4dance.blog/music4dance-help/subscriptions/">premium subsription</a></li>
-            <li>Have <a href="https://music4dance.blog/music4dance-help/account-management/#add-external-account">associated a Spotify account with your music4dance account</a></li>
+            <li>
+                Be <a asp-area="Identity" asp-page="/Account/Login" asp-route-ReturnUrl="@returnUrl">
+                    signed in
+                </a>
+                @if (Model.IsAuthenticated)
+                {
+                <span class="fas fa-check-circle mx-2"></span>
+                }
+                else
+                {
+                    <text>
+                        &mdash; <a href="https://music4dance.blog/music4dance-help/account-management/">(help)</a>
+                    </text>
+                }
+            </li>
+            <li>
+                Have a <a href="/home/contribute">premium subscription</a>
+                @if (Model.IsPremium)
+                {
+                <span class="fas fa-check-circle mx-2"></span>
+                }
+                else
+                {
+                    <text>
+                        &mdash; <a href="https://music4dance.blog/music4dance-help/subscriptions/">(help)</a>
+                    </text>
+                }
+            </li>
+            <li>
+                Have <a asp-area="Identity" asp-page="/Account/Manage/ExternalLogins" asp-route-ReturnUrl="@returnUrl">
+                    associated a Spotify account
+                </a>
+                with your music4dance account
+                @if (Model.IsPremium)
+                {
+                    <span class="fas fa-check-circle mx-2"></span>
+                }
+                else
+                {
+                    <text>
+                        &mdash; <a href="https://music4dance.blog/music4dance-help/account-management/#add-external-account">(help)</a>
+                    </text>
+                }
+            </li>
         </ol>
     </div>
 
-    <div class="col-sm-6">
-        @Html.ActionLink("Back to Search Results", ((SongFilter)ViewBag.SongFilter).TargetAction, new { filter = ViewBag.SongFilter }, new { @class = "btn btn-small btn-primary", role = "button" })
+    <div class="col-sm-2">
+        @Html.ActionLink("Back to Search Results", ((SongFilter)ViewBag.SongFilter).TargetAction, new { filter = ViewBag.SongFilter }, new { @class = "btn btn-sm btn-primary", role = "button" })
     </div>
 </div>
 
@@ -35,40 +78,37 @@
     using (Html.BeginForm())
     {
         @Html.AntiForgeryToken()
-        <div class="form-horizontal spaced-row">
+        <input type="hidden" name="filter" id="filter" value="@Model.Filter" />
+        <input type="hidden" name="DescriptionPrefix" id="DescriptionPrefix" value="@Model.DescriptionPrefix" />
 
-            <div class="form-group">
-                @Html.LabelFor(model => model.Title, htmlAttributes: new { @class = "control-label col-md-2" })
-                <div class="col-md-10">
-                    @Html.EditorFor(model => model.Title, new { htmlAttributes = new { @class = "form-control" } })
-                    @Html.ValidationMessageFor(model => model.Title, "", new { @class = "text-danger" })
-                </div>
+        <div class="form-group row">
+            @Html.LabelFor(model => model.Title, htmlAttributes: new { @class = "col-form-label col-md-1" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.Title, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.Title, "", new { @class = "text-danger" })
             </div>
+        </div>
 
-            <div class="form-group">
-                <div class="col-md-offset-2 col-md-10">@Model.DescriptionPrefix</div>
-                @Html.LabelFor(model => model.Description, htmlAttributes: new { @class = "control-label col-md-2" })
-                <div class="col-md-10">
-                    @Html.TextAreaFor(model => model.Description, new { @class = "form-control", cols = "50", rows = "6" })
-                    @Html.ValidationMessageFor(model => model.Description, "", new { @class = "text-danger" })
-                </div>
+        <div class="form-group row">
+            @Html.LabelFor(model => model.Description, htmlAttributes: new { @class = "col-form-label col-md-1" })
+            <div class="col-md-10">
+                @Html.TextAreaFor(model => model.Description, new { @class = "form-control", cols = "50", rows = "6" })
+                @Html.ValidationMessageFor(model => model.Description, "", new { @class = "text-danger" })
             </div>
+            <div class="offset-md-1 col-md-10">Description will start with the prefix <i>"@Model.DescriptionPrefix"</i></div>
+        </div>
 
-            <div class="form-group">
-                @Html.LabelFor(model => model.Count, htmlAttributes: new { @class = "control-label col-md-2" })
-                <div class="col-md-10">
-                    @Html.EditorFor(model => model.Count, new { htmlAttributes = new { @class = "form-control" } })
-                    @Html.ValidationMessageFor(model => model.Count, "", new { @class = "text-danger" })
-                </div>
+        <div class="form-group row">
+            @Html.LabelFor(model => model.Count, htmlAttributes: new { @class = "col-form-label col-md-1" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.Count, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.Count, "", new { @class = "text-danger" })
             </div>
+        </div>
 
-            <input type="hidden" name="filter" id="filter" value="@Model.Filter" />
-            <input type="hidden" name="DescriptionPrefix" id="DescriptionPrefix" value="@Model.DescriptionPrefix" />
-
-            <div class="form-group">
-                <div class="col-md-offset-2 col-md-10">
-                    <input type="submit" value="Create" class="btn btn-default" />
-                </div>
+        <div class="form-group row">
+            <div class="offset-md-1 col-md-10">
+                <input type="submit" value="Create" class="btn btn-primary" />
             </div>
         </div>
     }
