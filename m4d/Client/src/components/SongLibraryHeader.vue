@@ -137,6 +137,7 @@ export default class SongLibrary extends Vue {
   private chooseDance(danceId?: string): void {
     const filter = this.filter.clone();
     filter.dances = danceId;
+    filter.page = undefined;
     window.location.href = `/song/filterSearch?filter=${filter.encodedQuery}`;
   }
 }
