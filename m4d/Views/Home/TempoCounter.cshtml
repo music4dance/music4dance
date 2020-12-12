@@ -7,13 +7,13 @@
 <div id="app"></div>
 
 @section Scripts {
-    @if (ViewBag.Tempo != null)
+    @if (ViewBag.paramTempo != null)
     {
-        <script>window.initialTempo = @ViewBag.Tempo;</script>
+        <script>window.initialTempo = @ViewBag.paramTempo;</script>
     }
-    @if (ViewBag.Numerator != null)
+    @if (ViewBag.paramNumerator != null)
     {
-        <script>window.initialNumerator = @ViewBag.Numerator;</script>
+        <script>window.initialNumerator = @ViewBag.paramNumerator;</script>
     }
     <script src="/client/js/chunk-vendors.js"></script>
     <script src="/client/js/chunk-common.js"></script>

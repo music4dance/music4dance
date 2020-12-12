@@ -45,11 +45,18 @@ namespace m4d.Controllers
             _linkGenerator = linkGenerator;
             _mapper = mapper;
             _contextAccessor = contextAccessor;
+
+            var ecString = configuration["Configuration:Beta:Enabled"];
+            if (bool.TryParse(ecString, out var vueDefault))
+            {
+                _vueDefault = vueDefault;
+            }
         }
 
         private readonly LinkGenerator _linkGenerator;
         private readonly IMapper _mapper;
         private readonly IHttpContextAccessor _contextAccessor;
+        private readonly bool _vueDefault;
 
         private static readonly HttpClient HttpClient = new HttpClient();
 
@@ -102,11 +109,14 @@ namespace m4d.Controllers
             {
                 var cookie = _contextAccessor.HttpContext.Request.Cookies["vue"];
                 return string.IsNullOrWhiteSpace(cookie)
-                    ? new VueOptions()
+                    ? new VueOptions
+                    {
+                        Enabled = _vueDefault, 
+                        HiddenColumns = new List<string> { "track" }
+                    }
                     : JsonConvert.DeserializeObject<VueOptions>(cookie);
             }
         }
-
 
         [AllowAnonymous]
         public ActionResult Sample()
