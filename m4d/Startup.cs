@@ -17,6 +17,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Rewrite;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
@@ -158,7 +159,10 @@ namespace m4d
                 app.UseDeveloperExceptionPage();
             }
 
-            app.UseHttpsRedirection();
+            var options = new RewriteOptions();
+            options.AddRedirectToHttps();
+            options.AddRedirectToWwwPermanent();
+            app.UseRewriter(options);
             app.UseStaticFiles();
             app.UseRouting();
 
