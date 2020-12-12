@@ -105,8 +105,8 @@ export default class TagCloud extends Vue {
 
   private get tagBuckets(): TagBucket[] {
     const active = this.activeTags;
-    const tags = this.tags.filter((t) =>
-      active.includes(t.category.toLowerCase())
+    const tags = this.tags.filter(
+      (t) => active.includes(t.category.toLowerCase()) && t.count && t.count > 0
     );
     let bucketized = TagBucket.bucketize(tags);
     if (this.filter < 10) {
