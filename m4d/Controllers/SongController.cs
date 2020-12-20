@@ -1597,11 +1597,12 @@ namespace m4d.Controllers
 
         // A= Album
         // B= Broken
+        // D= Desprecated Properties
         // S= Spotify Region
         // G= Spotify Genre
         // P= Batch Process
         [Authorize(Roles = "dbAdmin")]
-        public ActionResult BatchCleanService(SongFilter filter, string type="S",int count = -1)
+        public ActionResult BatchCleanService(SongFilter filter, string type="D",int count = -1)
         {
             try
             {
@@ -1612,7 +1613,7 @@ namespace m4d.Controllers
 
                 var tried = 0;
                 var done = false;
-                var batch = -type.IndexOf("P", StringComparison.CurrentCultureIgnoreCase) != -1;
+                var batch = type.IndexOf("P", StringComparison.CurrentCultureIgnoreCase) != -1;
 
                 filter.Page = 1;
 
@@ -2021,6 +2022,7 @@ namespace m4d.Controllers
             if (type.IndexOf('B') != -1) {changed |= await CleanBrokenServices(song, props);}
             if (type.IndexOf('S') != -1) {changed |= CleanSpotify(props);}
             if (type.IndexOf('A') != -1) {changed |= CleanOrphanedAlbums(props);}
+            if (type.IndexOf('D') != -1) { changed |= CleanDeprecatedProperties(song.SongId, props); }
 
             var updateGenre = type.IndexOf('G') != -1;
 
@@ -2210,6 +2212,28 @@ namespace m4d.Controllers
             return true;
         }
 
+        private bool CleanDeprecatedProperties(Guid songId, ICollection<SongProperty> props)
+        {
+            var del = new List<SongProperty>();
+            foreach (var prop in props)
+            {
+                if (prop.Name.StartsWith("PromoteAlbum:") || prop.Name.StartsWith("OrderAlbums:"))
+                {
+                    del.Add(prop);
+                }
+            }
+
+            if (del.Count == 0) return false;
+
+            Trace.WriteLineIf(TraceLevels.General.TraceInfo, $"Removed: {del.Count}");
+
+            foreach (var prop in del)
+            {
+                props.Remove(prop);
+            }
+
+            return true;
+        }
 
         private static bool CleanOrphanedAlbums(ICollection<SongProperty> props)
         {
