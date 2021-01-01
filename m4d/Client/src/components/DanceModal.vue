@@ -47,7 +47,7 @@
         >I enjoy dancing <b>{{ danceName }}</b> to {{ this.title }}.</span
       >
       <div>
-        The top song in the {{ danceName }}} category has {{ maxWeight }} votes.
+        The top song in the {{ danceName }} category has {{ maxWeight }} votes.
       </div>
     </div>
   </b-modal>

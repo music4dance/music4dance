@@ -151,7 +151,7 @@
         <div class="orderHeader">
           <sortable-header
             :id="orderType"
-            :tip="beatTip"
+            :tip="orderHeaderTip"
             :enableSort="!hideSort"
             :filter="filter"
           >
