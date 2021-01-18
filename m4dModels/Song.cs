@@ -1292,7 +1292,7 @@ namespace m4dModels
 
         internal bool AdminAppend(string user, string newProperties, DanceStatsInstance stats)
         {
-            CreateEditProperties(user,EditCommand);
+            CreateEditProperties(user, EditCommand);
 
             var oldProperties = Serialize(new[] { NoSongId });
 

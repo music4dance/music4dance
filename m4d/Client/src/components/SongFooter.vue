@@ -181,6 +181,35 @@
           <b-button type="submit">Submit</b-button>
         </form>
       </b-col>
+      <b-col>
+        <form
+          id="batchCorrectTempo"
+          action="/song/batchcorrecttempo"
+          method="post"
+          enctype="multipart/form-data"
+        >
+          <h3>Bulk Correct Tempo</h3>
+          <input type="hidden" name="filter" :value="model.filter.query" />
+          <input
+            type="hidden"
+            name="__RequestVerificationToken"
+            :value="context.xsrfToken"
+          />
+          <b-form-group
+            id="bct-multiplier-group"
+            label="Tempo Multiplier:"
+            label-for="bct-multiplier"
+            description="Multiplier to change each song's tempo by"
+            ><b-form-input
+              name="multiplier"
+              id="bct-multiplier"
+              v-model="tempoMultiplier"
+              required
+            ></b-form-input
+          ></b-form-group>
+          <b-button type="submit">Submit</b-button>
+        </form>
+      </b-col>
     </b-row>
   </div>
 </template>
@@ -214,6 +243,7 @@ export default class SongFooter extends Vue {
   private editAction = "";
 
   private adminEdit: AdminEdit;
+  private tempoMultiplier = 2;
 
   constructor() {
     super();

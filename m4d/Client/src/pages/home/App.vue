@@ -266,7 +266,7 @@ export default class App extends Vue {
   }
 
   private danceLink(dm: DanceMapping): string {
-    return `/${dm.controller}/${dm.name}`;
+    return dm.link;
   }
 }
 </script>

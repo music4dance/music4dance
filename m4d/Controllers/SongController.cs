@@ -961,6 +961,15 @@ namespace m4d.Controllers
             return View("details", sd);
         }
 
+        //
+        // POST: /Song/BatchCorrectTempo
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Authorize(Roles = "dbAdmin")]
+        public ActionResult BatchCorrectTempo(SongFilter filter, decimal multiplier = 0.5M, string user = null, int max = 1000)
+        {
+            return BatchAdminExecute(filter, (dms, song) => dms.CorrectTempoSong(song, user ?? "batch", multiplier), "BatchCorrectTempo", max);
+        }
 
         //
         // POST: /Song/BatchAdminEdit/5
@@ -1597,7 +1606,7 @@ namespace m4d.Controllers
 
         // A= Album
         // B= Broken
-        // D= Desprecated Properties
+        // D= Deprecated Properties
         // S= Spotify Region
         // G= Spotify Genre
         // P= Batch Process

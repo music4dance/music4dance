@@ -7,6 +7,12 @@ export class DanceMapping {
   @jsonMember public title!: string;
   @jsonMember public controller!: string;
   @jsonMember public queryString?: string;
+
+  public get link(): string {
+    const query = this.queryString;
+    const path = query ? `?${query}` : `/${this.name}`;
+    return `/${this.controller}${path}`;
+  }
 }
 
 @jsonObject

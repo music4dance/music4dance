@@ -170,6 +170,13 @@ namespace m4dModels
             return edit.AdminAppend(user, properties, DanceStats);
         }
 
+        public bool CorrectTempoSong(Song edit, string user, decimal multiplier)
+        {
+            var properties = new SongProperty(Song.TempoField, (edit.Tempo * multiplier)
+                .ToString()).ToString();
+            return edit.AdminAppend(user, properties, DanceStats);
+        }
+
         public bool AdminEditSong(string properties)
         {
             if (Song.TryParseId(properties, out var id) == 0) return false;

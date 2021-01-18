@@ -18,7 +18,7 @@ namespace m4d.ViewModels
         public virtual string Controller => "dances";
 
         [JsonIgnore]
-        public virtual dynamic Parameters => null;
+        public virtual string Parameters => null;
 
         public string QueryString => Parameters == null ? null : $"filter={Parameters}";
     }
@@ -50,7 +50,7 @@ namespace m4d.ViewModels
         public override string Name => "index";
         public override string Controller => "song";
 
-        public override dynamic Parameters => new {filter = $"Index-.-Title-.-.-.-.-.-1-+{_tag}:Other"};
+        public override string Parameters => $"Index-.-.-.-.-.-.-.-1-+{_tag}:Other";
 
         private readonly string _tag;
     }
