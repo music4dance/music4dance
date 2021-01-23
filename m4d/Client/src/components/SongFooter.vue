@@ -243,7 +243,7 @@ export default class SongFooter extends Vue {
   private editAction = "";
 
   private adminEdit: AdminEdit;
-  private tempoMultiplier = 2;
+  private tempoMultiplier = 0.5;
 
   constructor() {
     super();

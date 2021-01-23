@@ -119,12 +119,6 @@ namespace m4d.Controllers
         }
 
         [AllowAnonymous]
-        public ActionResult Sample()
-        {
-            return View();
-        }
-
-        [AllowAnonymous]
         public ActionResult Search(string searchString, string dances, SongFilter filter)
         {
             if (string.IsNullOrWhiteSpace(searchString))
@@ -968,7 +962,7 @@ namespace m4d.Controllers
         [Authorize(Roles = "dbAdmin")]
         public ActionResult BatchCorrectTempo(SongFilter filter, decimal multiplier = 0.5M, string user = null, int max = 1000)
         {
-            return BatchAdminExecute(filter, (dms, song) => dms.CorrectTempoSong(song, user ?? "batch", multiplier), "BatchCorrectTempo", max);
+            return BatchAdminExecute(filter, (dms, song) => dms.CorrectTempoSong(song, user ?? "tempo-bot", multiplier), "BatchCorrectTempo", max);
         }
 
         //

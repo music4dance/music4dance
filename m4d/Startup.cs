@@ -194,6 +194,10 @@ namespace m4d
                     pattern: "dances/{group}/{dance}",
                     defaults: new { controller = "dance", action = "GroupRedirect" });
                 endpoints.MapControllerRoute(
+                    "DanceEdit",
+                    pattern: "dances/edit",
+                    defaults: new { controller = "dance", action = "edit" });
+                endpoints.MapControllerRoute(
                     "DanceGroup",
                     pattern: "dances/{dance?}",
                     defaults: new { controller = "dance", action = "index" });

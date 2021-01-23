@@ -4,7 +4,6 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
-using AutoMapper;
 using DanceLibrary;
 
 namespace m4dModels
@@ -22,13 +21,13 @@ namespace m4dModels
             return SmartLinks(Description);
         }
 
-        public static string SmartLinks(string s, bool byReference = false)
+        public static string SmartLinks(string s)
         {
             if (string.IsNullOrWhiteSpace(s))
             {
                 return @"<p>We're busy doing research and pulling together a general description for @Model.DanceName dance.  Please check back later for more info.</p>";
             }
-            return byReference ? LinkDancesReference(s) : LinkDances(s);
+            return LinkDances(s);
         }
 
         private static readonly Regex Dex = new Regex(@"\[(?<dance>[^\]]*)\]", RegexOptions.Compiled);
@@ -71,47 +70,6 @@ namespace m4dModels
         {
             return !string.IsNullOrWhiteSpace(match.Groups["dance"].Value) &&
                    (match.Index + match.Length == s.Length || s[match.Index + match.Length] != '(');
-        }
-
-        private static string LinkDancesReference(string s)
-        {
-            var links = new List<string>();
-            var sb = new StringBuilder();
-
-            var matches = Dex.Matches(s);
-            var i = 0;
-            foreach (Match match in matches)
-            {
-                sb.Append(s.Substring(i, match.Index - i));
-                var d = match.Groups["dance"].Value;
-                if (IsDanceMatch(match,s))
-                {
-                    var l = FindLink(d);
-                    sb.AppendFormat(@"[{0}]", d);
-                    if (l != null)
-                    {
-                        var idx = links.IndexOf(l.Value.Value);
-                        if (idx < 0)
-                        {
-                            idx = links.Count;
-                            links.Add(l.Value.Value);
-                        }
-                        sb.AppendFormat(@"[{0}]", idx);
-                    }
-                }
-                else
-                {
-                    sb.AppendFormat(@"[{0}]", d);
-                }
-                i = match.Index + match.Length;
-            }
-            sb.Append(s.Substring(i));
-            for (i = 0; i < links.Count; i++ )
-            {
-                sb.AppendFormat("\r\n[{0}]: {1}", i, links[i].Replace(" ","%20"));
-            }
-
-            return sb.ToString();
         }
 
         private static KeyValuePair<string,string>? FindLink(string d)

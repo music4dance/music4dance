@@ -3590,25 +3590,22 @@ namespace m4dModels
             return prop;
         }
 
-        public bool SetTimesFromProperties(IEnumerable<string> excludedUsers = null)
+        private void SetTimesFromProperties(IEnumerable<string> excludedUsers = null)
         {
-            var modified = false;
             var first = FirstProperty(TimeField);
             var firstTime = first?.ObjectValue as DateTime?;
-            if (firstTime == null) return false;
+            if (firstTime == null) return;
             if (Created != firstTime)
             {
                 Created = firstTime.Value;
-                modified = true;
             }
 
             var last = LastProperty(TimeField,excludedUsers);
             var lastTime = last?.ObjectValue as DateTime?;
 
-            if (lastTime == null || Modified == lastTime) return modified;
+            if (lastTime == null || Modified == lastTime) return;
 
             Modified = lastTime.Value;
-            return true;
         }
 
         public SongProperty FirstProperty(string name)

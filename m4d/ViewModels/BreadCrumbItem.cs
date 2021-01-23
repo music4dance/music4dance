@@ -28,6 +28,13 @@ namespace m4d.ViewModels
             return BuildTrail(title, HomeItem, AdminItem);
         }
 
+        public static BreadCrumbItem DanceItem =>
+            new BreadCrumbItem { Title = "Dances", Link = "/dances" };
+
+        public static List<BreadCrumbItem> BuildDanceTrail(string title)
+        {
+            return BuildTrail(title, HomeItem, DanceItem);
+        }
         public static BreadCrumbItem ContributeItem =>
             new BreadCrumbItem {Title = "Contribute", Link = "/Home/Contribute"};
 
