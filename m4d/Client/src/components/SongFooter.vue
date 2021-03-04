@@ -71,6 +71,9 @@
             <b-dropdown-item :href="batchUrl('batchcleanservice', -1, 'SP')"
               >Spotify</b-dropdown-item
             >
+            <b-dropdown-item :href="batchUrl('batchcleanupproperties', -1)"
+              >Properties</b-dropdown-item
+            >
             <b-dropdown-item :href="batchUrl('batchclearupdate', -1)"
               >Update Flag</b-dropdown-item
             >

@@ -976,13 +976,16 @@ namespace m4d.Controllers
         }
 
         //
-        // POST: /Song/AdminEdit/5
+        // POST: /Song/AdminModify/5
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "dbAdmin")]
         public ActionResult BatchAdminModify(SongFilter filter, string properties, string user = null, int max = 1000)
         {
-            return BatchAdminExecute(filter, (dms, song) => dms.AdminModifySong(song, properties), "BatchAdminModify", max);
+            return BatchAdminExecute(
+                filter, 
+                (dms, song) => dms.AdminModifySong(song, properties), 
+                "BatchAdminModify", max);
         }
 
         private ActionResult BatchAdminExecute(SongFilter filter, Func<DanceMusicCoreService, Song, bool> act, string name, int max)
@@ -1605,18 +1608,31 @@ namespace m4d.Controllers
         // G= Spotify Genre
         // P= Batch Process
         [Authorize(Roles = "dbAdmin")]
-        public ActionResult BatchCleanService(SongFilter filter, string type="D",int count = -1)
+
+        public ActionResult BatchCleanService(SongFilter filter, string type = "D", int count = -1)
+        {
+            return BatchProcess(filter, (dms, song) => CleanMusicServiceSong(song, dms, type));
+        }
+
+        [Authorize(Roles = "dbAdmin")]
+        public ActionResult BatchCleanupProperties(SongFilter filter, string type="ARE", int max = 1000)
+        {
+            return BatchProcess(
+                filter, (dms, song) => Task.FromResult(song.CleanupProperties(type) ? song : null));
+        }
+
+        private ActionResult BatchProcess(SongFilter filter,
+            Func<DanceMusicCoreService, Song, Task<Song>> act, int count = -1)
         {
             try
             {
-                StartAdminTask("BatchCleanService");
-                AdminMonitor.UpdateTask("BatchCleanService");
+                StartAdminTask("BatchProcess");
+                AdminMonitor.UpdateTask("BatchProcess");
 
                 var changed = new List<Guid>();
 
                 var tried = 0;
                 var done = false;
-                var batch = type.IndexOf("P", StringComparison.CurrentCultureIgnoreCase) != -1;
 
                 filter.Page = 1;
 
@@ -1631,10 +1647,6 @@ namespace m4d.Controllers
 
                             var prms = dms.AzureParmsFromFilter(filter, 500);
                             prms.IncludeTotalResultCount = false;
-                            if (batch)
-                            {
-                                prms.Filter = ((prms.Filter == null) ? "" : prms.Filter + " and ") + "Purchase/all(t: t ne '---')";
-                            }
                             var res = await dms.AzureSearchAsync(filter.SearchString, prms, DanceMusicCoreService.CruftFilter.AllCruft);
                             if (!res.Songs.Any()) break;
                             var save = new List<Song>();
@@ -1648,19 +1660,10 @@ namespace m4d.Controllers
 
                                     processed += 1;
                                     tried += 1;
-                                    var songT = await CleanMusicServiceSong(song, dms, type);
+                                    var songT = await act(dms, song);
                                     if (songT != null)
                                     {
                                         changed.Add(songT.SongId);
-                                    }
-                                    else if (batch)
-                                    {
-                                        songT = song;
-                                    }
-
-                                    if (batch)
-                                    {
-                                        songT.BatchProcessed = true;
                                     }
 
                                     if (songT != null)
@@ -1694,12 +1697,12 @@ namespace m4d.Controllers
                         }
 
                         AdminMonitor.CompleteTask(true,
-                            $"BatchCleanService: Completed={tried <= count}, Succeeded={changed.Count} - ({string.Join(",", changed)})");
+                            $"BatchProcess: Completed={tried <= count}, Succeeded={changed.Count} - ({string.Join(",", changed)})");
 
                     }
                     catch (Exception e)
                     {
-                        AdminMonitor.CompleteTask(false, $"BatchMusicService: Failed={e.Message}");
+                        AdminMonitor.CompleteTask(false, $"BatchProcess: Failed={e.Message}");
                     }
                     finally
                     {
@@ -1710,7 +1713,7 @@ namespace m4d.Controllers
             }
             catch (Exception e)
             {
-                return FailAdminTask($"BatchCleanService: {e.Message}", e);
+                return FailAdminTask($"BatchProcess: {e.Message}", e);
             }
         }
 

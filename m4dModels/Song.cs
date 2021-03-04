@@ -120,8 +120,8 @@ namespace m4dModels
             typeof(Song).GetProperty(ValenceFiled),
         };
 
-        public static readonly int DanceRatingCreate = 2;
-        public static readonly int DanceRatingInitial = 2;
+        public static readonly int DanceRatingCreate = 1;
+        public static readonly int DanceRatingInitial = 1;
         public static readonly int DanceRatingIncrement = 1;
         public static readonly int DanceRatingDecrement = -1;
 
@@ -2216,7 +2216,7 @@ namespace m4dModels
         public bool CleanupAlbums()
         {
             // Remove the properties for album info that has been 'deleted'
-            // and if any have been removed, also get rid of promote and order
+            // Also get rid of promote and order for everything
 
             var albums = new Dictionary<int, List<SongProperty>>();
             var remove = new List<SongProperty>();
@@ -2244,8 +2244,7 @@ namespace m4dModels
                             {
                                 deleted.Add(index);
                                 // pull the previous properties and add this to removed
-                                List<SongProperty> old;
-                                if (albums.TryGetValue(index, out old))
+                                if (albums.TryGetValue(index, out var old))
                                 {
                                     remove.AddRange(old);
                                     albums.Remove(index);
@@ -2261,8 +2260,7 @@ namespace m4dModels
                         }
                         else
                         {
-                            List<SongProperty> old;
-                            if (!albums.TryGetValue(index, out old))
+                            if (!albums.TryGetValue(index, out var old))
                             {
                                 old = new List<SongProperty>();
                                 albums[index] = old;
@@ -2277,7 +2275,10 @@ namespace m4dModels
                 }
             }
 
-            if (remove.Count == 0 || !changed) return false;
+            if (remove.Count == 0 && !changed)
+            {
+                return false;
+            }
 
             foreach (var prop in remove)
             {
@@ -2315,7 +2316,7 @@ namespace m4dModels
             public Dictionary<string, RatingTracker> Ratings { get; }
         }
 
-        public bool NormalizeRatings(int max = 2, int min = -1)
+        public bool NormalizeRatings(int max = 1, int min = -1)
         {
             // This function should not semantically change the tags, but it will potentially
             //  reduce the danceratings where there were redundant entries previously and normalize based
@@ -2431,12 +2432,28 @@ namespace m4dModels
             return changed;
         }
 
-        public bool CleanupProperties()
+        public bool CleanupProperties(string actions = "DARE")
         {
-            var changed = RemoveDuplicateDurations();
-            changed |= CleanupAlbums();
-            changed |= NormalizeRatings();
-            changed |= RemoveEmptyEdits();
+            var changed = false;
+            if (actions.Contains('D'))
+            {
+                changed |= RemoveDuplicateDurations();
+            }
+
+            if (actions.Contains('A'))
+            {
+                changed |= CleanupAlbums();
+            }
+
+            if (actions.Contains('R'))
+            {
+                changed |= NormalizeRatings();
+            }
+
+            if (actions.Contains('E'))
+            {
+                changed |= RemoveEmptyEdits();
+            }
 
             return changed;
         }
@@ -2475,14 +2492,15 @@ namespace m4dModels
 
             dr.Weight += drd.Delta;
 
-            if (dr.Weight == 0)
+            if (dr.Weight <= 0)
             {
                 ret = dr;
             }
 
-            if (!updateProperties) return ret;
-
-            SongProperties.Add(new SongProperty { Name = DanceRatingField, Value = drd.ToString() });
+            if (updateProperties)
+            {
+                SongProperties.Add(new SongProperty { Name = DanceRatingField, Value = drd.ToString() });
+            }
 
             return ret;
         }
@@ -2521,7 +2539,11 @@ namespace m4dModels
 
             foreach (var prop in SongProperties.Where(p => p.Name == DanceRatingField))
             {
-                SoftUpdateDanceRating(prop.Value);
+                var rating = SoftUpdateDanceRating(prop.Value);
+                if (rating != null)
+                {
+                    DanceRatings.Remove(rating);
+                }
             }
         }
 

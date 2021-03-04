@@ -166,10 +166,10 @@ namespace m4dModels.Tests
 
             var deltas = new List<List<int>>
             {
-                new List<int> {1,1,2,18},
+                new List<int> {1,4,5,23},
                 new List<int> {17,135,152,197},
                 new List<int> {2,2,13,18},
-                new List<int> {0,0,0,4},
+                new List<int> {0,2,2,8},
                 new List<int> {4,8,11,22},
             };
 

@@ -1290,7 +1290,7 @@ namespace m4d.Controllers
                 ViewBag.Name = "Cleaned up Properties";
                 ViewBag.Success = true;
 
-                ViewBag.Message = $"{info.Succeeded} songs cleanded, {info.Failed} failed.";
+                ViewBag.Message = $"{info.Succeeded} songs cleaned, {info.Failed} failed.";
 
                 return CompleteAdminTask(true, $"{info.Succeeded} songs cleaned up. {info.Message}");
             }
