@@ -297,7 +297,7 @@ namespace m4d.Controllers
             HelpPage = filter.IsSimple ? "song-list" : "advanced-search";
             results = null;
 
-            if (!filter.IsEmptyPaged && SpiderManager.CheckAnySpiders(Request.Headers[HeaderNames.UserAgent]))
+            if (!filter.IsEmptyBot && SpiderManager.CheckAnySpiders(Request.Headers[HeaderNames.UserAgent]))
             {
                 return View("BotFilter", filter);
             }
@@ -588,11 +588,6 @@ namespace m4d.Controllers
             if (page.HasValue)
             {
                 filter.Page = page;
-            }
-
-            if (filter.IsAzure)
-            {
-                return DoAzureSearch(filter);
             }
 
             if (User.Identity.IsAuthenticated && filter.IsEmpty)

@@ -133,6 +133,13 @@ namespace m4dModels
 
                 pi.SetValue(this,v);
             }
+
+            if (Action.StartsWith("azure", StringComparison.OrdinalIgnoreCase))
+            {
+                Action = (Action.Contains("advanced", StringComparison.OrdinalIgnoreCase))
+                    ? "Advanced"
+                    : "Index";
+            }
         }
 
         public SongFilter(RawSearch raw)
@@ -423,6 +430,7 @@ namespace m4dModels
         public bool IsEmpty => EmptyExcept(new[] { "SortOrder" });
 
         public bool IsEmptyPaged => EmptyExcept(new [] {"Page", "Action","SortOrder"});
+        public bool IsEmptyBot => EmptyExcept(new[] { "Page", "Action" });
 
         public bool IsEmptyDance => EmptyExcept(new[] { "Page", "Action", "SortOrder", "Dances" }) && DanceQuery.Dances.Count() < 2;
 
@@ -538,22 +546,11 @@ namespace m4dModels
             }
         }
 
-        public SongFilter ToggleMode()
-        {
-            var ret= new SongFilter(ToString());
-            if (ret.IsSimple) ret.Action = "azure-advanced";
-            else if (ret.IsLucene) ret.Action = "azure-simple";
-
-            return ret;
-        }
-
         public SongFilter ToggleInferred()
         {
             var ret = new SongFilter(ToString());
             var danceQuery = DanceQuery;
             ret.Dances = danceQuery.IncludeInferred ? danceQuery.MakeExplicit().Query : danceQuery.MakeInferred().Query;
-            if (ret.IsSimple) ret.Action = "azure-advanced";
-            else if (ret.IsLucene) ret.Action = "azure-simple";
 
             return ret;
         }
