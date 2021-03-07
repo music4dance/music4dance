@@ -1,7 +1,7 @@
 <template>
   <div>
     <b-list-group v-for="ds in orderedDances" v-bind:key="ds.danceId">
-      <dance-item :dance="ds"></dance-item>
+      <dance-item :dance="ds" :countMethod="countMethod"></dance-item>
     </b-list-group>
   </div>
 </template>
@@ -10,7 +10,6 @@
 import { DanceOrder } from "@/model/DanceOrder";
 import { DanceStats } from "@/model/DanceStats";
 import { Component, Vue, Prop } from "vue-property-decorator";
-import { Getter } from "vuex-class";
 import DanceItem from "./DanceItem.vue";
 
 @Component({
@@ -20,9 +19,10 @@ import DanceItem from "./DanceItem.vue";
 })
 export default class DanceList extends Vue {
   @Prop() private dances!: DanceStats[];
-  @Getter private beatsPerMinute!: number;
-  @Getter private beatsPerMeasure!: number;
-  @Getter private epsilonPercent!: number;
+  @Prop() private beatsPerMinute!: number;
+  @Prop() private beatsPerMeasure!: number;
+  @Prop() private epsilonPercent!: number;
+  @Prop() private countMethod!: string;
 
   private get orderedDances(): DanceOrder[] {
     return DanceOrder.dancesForTempo(

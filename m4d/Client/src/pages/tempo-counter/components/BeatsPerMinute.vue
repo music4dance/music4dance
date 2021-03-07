@@ -15,8 +15,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue } from "vue-property-decorator";
-import { Getter } from "vuex-class";
+import { Component, Prop, Vue } from "vue-property-decorator";
 import TempoModal from "./TempoModal.vue";
 
 @Component({
@@ -25,8 +24,7 @@ import TempoModal from "./TempoModal.vue";
   },
 })
 export default class BeatsPerMinute extends Vue {
-  // Getters
-  @Getter private beatsPerMinute!: number;
+  @Prop() private beatsPerMinute!: number;
 }
 </script>
 

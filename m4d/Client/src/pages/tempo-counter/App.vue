@@ -4,8 +4,25 @@
     :consumesEnvironment="true"
     @environment-loaded="onEnvironmentLoaded"
   >
-    <counter />
-    <dance-list :dances="dances" />
+    <counter
+      :beatsPerMeasure="beatsPerMeasure"
+      :beatsPerMinute="beatsPerMinute"
+      :measuresPerMinute="measuresPerMinute"
+      :countMethod="countMethod"
+      :epsilonPercent="epsilonPercent"
+      @update:beats-per-measure="beatsPerMeasure = $event"
+      @update:beats-per-minute="beatsPerMinute = $event"
+      @update:measures-per-minute="measuresPerMinute = $event"
+      @update:count-method="countMethod = $event"
+      @update:epsilon-percent="epsilonPercent = $event"
+    />
+    <dance-list
+      :dances="dances"
+      :beatsPerMeasure="beatsPerMeasure"
+      :beatsPerMinute="beatsPerMinute"
+      :countMethod="countMethod"
+      :epsilonPercent="epsilonPercent"
+    />
   </page>
 </template>
 
@@ -26,6 +43,34 @@ import { DanceEnvironment } from "@/model/DanceEnvironmet";
 })
 export default class App extends Vue {
   private dances: DanceStats[] = [];
+  public beatsPerMeasure = 4;
+  public beatsPerMinute = 0;
+  public countMethod = "measures";
+  public epsilonPercent = 5;
+
+  constructor() {
+    super();
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const beatsPerMeasure = (window as any).initialNumerator;
+    if (beatsPerMeasure) {
+      this.beatsPerMeasure = beatsPerMeasure;
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const beatsPerMinute = (window as any).initialTempo;
+    if (beatsPerMinute) {
+      this.beatsPerMinute = beatsPerMinute;
+    }
+  }
+
+  private get measuresPerMinute(): number {
+    return this.beatsPerMinute / this.beatsPerMeasure;
+  }
+
+  private set measuresPerMinute(value: number) {
+    this.beatsPerMinute = value * this.beatsPerMeasure;
+  }
 
   private onEnvironmentLoaded(environment: DanceEnvironment): void {
     this.dances = environment.stats!;

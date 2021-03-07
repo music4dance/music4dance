@@ -14,12 +14,11 @@
 <script lang="ts">
 import { DanceOrder } from "@/model/DanceOrder";
 import { Component, Vue, Prop } from "vue-property-decorator";
-import { Getter } from "vuex-class";
 
 @Component
 export default class DanceItem extends Vue {
   @Prop() private readonly dance!: DanceOrder;
-  @Getter private countMethod!: string;
+  @Prop() private countMethod!: string;
 
   private get variant(): string {
     if (!this.showDelta) {

@@ -8,17 +8,17 @@
       >
         <b-dropdown-item
           v-show="beatsPerMeasure !== 2"
-          @click="updateBeatsPerMeasure(2)"
+          @click="$emit('change-tempo', 2)"
           >MPM 2/4</b-dropdown-item
         >
         <b-dropdown-item
           v-show="beatsPerMeasure !== 3"
-          @click="updateBeatsPerMeasure(3)"
+          @click="$emit('change-tempo', 3)"
           >MPM 3/4</b-dropdown-item
         >
         <b-dropdown-item
           v-show="beatsPerMeasure !== 4"
-          @click="updateBeatsPerMeasure(4)"
+          @click="$emit('change-tempo', 4)"
           >MPM 4/4</b-dropdown-item
         >
       </b-dropdown>
@@ -35,8 +35,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue } from "vue-property-decorator";
-import { Getter, Mutation } from "vuex-class";
+import { Component, Prop, Vue } from "vue-property-decorator";
 import TempoModal from "./TempoModal.vue";
 
 @Component({
@@ -45,10 +44,8 @@ import TempoModal from "./TempoModal.vue";
   },
 })
 export default class MeasuresPerMinute extends Vue {
-  // Getters
-  @Getter private measuresPerMinute!: number;
-  @Getter private beatsPerMeasure!: number;
-  @Mutation private updateBeatsPerMeasure!: (numerator: number) => void;
+  @Prop() private measuresPerMinute!: number;
+  @Prop() private beatsPerMeasure!: number;
 
   get meterDescription() {
     return "MPM (" + this.beatsPerMeasure + "/4)";

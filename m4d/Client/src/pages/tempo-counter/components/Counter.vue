@@ -24,21 +24,30 @@
         </b-form-group>
       </div>
       <div class="col-sm">
-        <beats-per-minute @change-tempo="changeBeatsPerMintue" />
+        <beats-per-minute
+          :beatsPerMinute="beatsPerMinute"
+          @change-tempo="changeBeatsPerMintue"
+        />
       </div>
       <div class="col-sm">
-        <measures-per-minute @change-tempo="changeMeasuresPerMintue" />
+        <measures-per-minute
+          :measuresPerMinute="measuresPerMinute"
+          :beatsPerMeasure="beatsPerMeasure"
+          @change-tempo="changeBeatsPerMeasure"
+        />
       </div>
       <div class="col-sm">
-        <strictness />
+        <strictness
+          :epsilonPercent="epsilonPercent"
+          @change-strictness="$emit('update:epsilon-percent', $event)"
+        />
       </div>
     </div>
   </div>
 </template>
 
 <script lang="ts">
-import { Component, Watch, Vue } from "vue-property-decorator";
-import { Getter, Mutation } from "vuex-class";
+import { Component, Prop, Watch, Vue } from "vue-property-decorator";
 import BeatsPerMinute from "./BeatsPerMinute.vue";
 import MeasuresPerMinute from "./MeasuresPerMinute.vue";
 import Strictness from "./Strictness.vue";
@@ -68,16 +77,12 @@ export default class Counter extends Vue {
     { text: "Count Beats", value: "beats" },
   ];
 
-  // Getters
-  @Getter private beatsPerMeasure!: number;
-  @Getter private beatsPerMinute!: number;
-  @Getter private measuresPerMinute!: number;
-  @Getter private countMethod!: string;
-
-  // Mutations
-  @Mutation private updateBeatsPerMinute!: (value: number) => void;
-  @Mutation private updateMeasuresPerMinute!: (value: number) => void;
-  @Mutation private updateCountMethod!: (value: string) => void;
+  // Properties
+  @Prop() private beatsPerMeasure!: number;
+  @Prop() private beatsPerMinute!: number;
+  @Prop() private measuresPerMinute!: number;
+  @Prop() private countMethod!: string;
+  @Prop() private epsilonPercent!: number;
 
   // Computed
   private get countMeasures(): boolean {
@@ -99,7 +104,7 @@ export default class Counter extends Vue {
   }
 
   private set countMethodInternal(value: string) {
-    this.updateCountMethod(value);
+    this.$emit("update:count-method", value);
   }
 
   // Methods
@@ -128,12 +133,17 @@ export default class Counter extends Vue {
   }
 
   private changeBeatsPerMintue(newTempo: number) {
-    this.updateBeatsPerMinute(newTempo);
+    this.$emit("update:beats-per-minute", newTempo);
     this.timerReset();
   }
 
   private changeMeasuresPerMintue(newTempo: number) {
-    this.updateMeasuresPerMinute(newTempo);
+    this.$emit("update:measures-per-minute", newTempo);
+    this.timerReset();
+  }
+
+  private changeBeatsPerMeasure(newTempo: number) {
+    this.$emit("update:beats-per-measure", newTempo);
     this.timerReset();
   }
 
@@ -155,7 +165,8 @@ export default class Counter extends Vue {
     const ms = average(this.intervals);
     const countsPerMinute = ms ? (60 * 1000) / ms : 0;
 
-    this.updateBeatsPerMinute(
+    this.$emit(
+      "update:beats-per-minute",
       this.countMeasures
         ? countsPerMinute * this.beatsPerMeasure
         : countsPerMinute
