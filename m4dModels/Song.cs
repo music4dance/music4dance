@@ -3418,10 +3418,18 @@ namespace m4dModels
         public Document GetIndexDocument()
         {
             // Set up the purchase flags
-            var purchase = string.IsNullOrWhiteSpace(Purchase) ? new List<string>() : Purchase.ToCharArray().Select(c => MusicService.GetService(c).Name).ToList();
+            var purchase = string.IsNullOrWhiteSpace(Purchase)
+                ? new List<string>() 
+                : Purchase.ToCharArray().Where(c => MusicService.GetService(c) != null)
+                    .Select(c => MusicService.GetService(c).Name).ToList();
             if (HasSample) purchase.Add("Sample");
             if (HasEchoNest) purchase.Add("EchoNest");
             if (BatchProcessed) purchase.Add("---");
+
+            if (Purchase != null && Purchase.Contains("x", StringComparison.OrdinalIgnoreCase))
+            {
+                Trace.WriteLine($"SongId = {SongId}, Purchase = {Purchase}");
+            }
 
             var purchaseIds = GetExtendedPurchaseIds();
 
