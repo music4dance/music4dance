@@ -48,15 +48,13 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue } from "vue-property-decorator";
+import { Component, Mixins, Prop } from "vue-property-decorator";
 import Loader from "@/components/Loader.vue";
 import MainMenu from "./MainMenu.vue";
-import { MenuContext } from "@/model/MenuContext";
 import { BreadCrumbItem } from "@/model/BreadCrumbItem";
 import { DanceEnvironment } from "@/model/DanceEnvironmet";
 import { getEnvironment } from "@/helpers/DanceEnvironmentManager";
-
-declare const menuContext: MenuContext;
+import AdminTools from "@/mix-ins/AdminTools";
 
 @Component({
   components: {
@@ -64,15 +62,13 @@ declare const menuContext: MenuContext;
     MainMenu,
   },
 })
-export default class Page extends Vue {
+export default class Page extends Mixins(AdminTools) {
   @Prop() private title: string | undefined;
   @Prop() private help: string | undefined;
   @Prop() private breadcrumbs: BreadCrumbItem[] | undefined;
   @Prop() private consumesEnvironment?: boolean;
 
   private environment: DanceEnvironment = new DanceEnvironment();
-
-  private context: MenuContext = menuContext;
 
   private get year(): string {
     return new Date().getFullYear().toString();
@@ -89,10 +85,6 @@ export default class Page extends Vue {
       this.environment = await getEnvironment();
 
       this.$emit("environment-loaded", this.environment);
-
-      console.log(
-        `Environment loaded: Stats = ${this.environment!.stats!.length}`
-      );
     }
   }
 }

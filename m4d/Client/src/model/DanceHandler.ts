@@ -1,5 +1,5 @@
-import { ITaggableObject } from "./ITaggableObject";
-import { DanceRating } from "./Song";
+import { TaggableObject } from "./TaggableObject";
+import { DanceRating } from "./DanceRating";
 import { SongFilter } from "./SongFilter";
 import { Tag } from "./Tag";
 import { TagHandler } from "./TagHandler";
@@ -10,7 +10,7 @@ export class DanceHandler extends TagHandler {
     tag: Tag,
     user?: string,
     filter?: SongFilter,
-    parent?: ITaggableObject
+    parent?: TaggableObject
   ) {
     super(tag, user, filter, parent);
   }

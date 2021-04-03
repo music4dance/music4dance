@@ -1,5 +1,9 @@
 <template>
-  <page id="app">
+  <page
+    id="app"
+    :consumesEnvironment="true"
+    @environment-loaded="onEnvironmentLoaded"
+  >
     <h1 class="col-sm-12" style="font-size: 22px; text-align: center">
       Advanced Song Search
     </h1>
@@ -20,13 +24,14 @@
             v-model="keyWords"
             type="text"
             placeholder="Enter Keywords from title, artist, etc..."
+            ref="keywords"
           ></b-form-input>
         </b-form-group>
 
         <b-form-group label="Dances:">
           <div style="border: 1px solid #ced4da; boder-radius: 0.25rem">
             <dance-selector
-              :danceList="danceList"
+              :danceList="model.dances"
               v-model="dances"
             ></dance-selector>
             <div class="d-flex justify-content-between w-100 mx-1 mb-2">
@@ -57,7 +62,7 @@
         <b-form-group label="Include Tags:">
           <tag-category-selector
             id="includeTags"
-            :tagList="tagList"
+            :tagList="tags"
             chooseLabel="Choose Tags to Include"
             searchLabel="Search Tags"
             emptyLabel="No more tags to choose"
@@ -68,7 +73,7 @@
         <b-form-group label="Exclude Tags:">
           <tag-category-selector
             id="excludeTags"
-            :tagList="tagList"
+            :tagList="tags"
             chooseLabel="Choose Tags to Exclude"
             searchLabel="Search Tags"
             emptyLabel="No more tags to choose"
@@ -207,17 +212,19 @@ filter = {{ songFilter }}
 </template>
 
 <script lang="ts">
+import "reflect-metadata";
 import { Component, Vue } from "vue-property-decorator";
 import Page from "@/components/Page.vue";
 import { SongFilter } from "@/model/SongFilter";
 import { DanceQuery } from "@/model/DanceQuery";
 import { UserQuery } from "@/model/UserQuery";
 import { SongSort, SortOrder } from "@/model/SongSort";
-import { DanceObject } from "@/model/DanceStats";
-import { Tag } from "@/model/Tag";
 import { SearchModel } from "./searchModel";
 import DanceSelector from "@/components/DanceSelector.vue";
 import TagCategorySelector from "@/components/TagCategorySelector.vue";
+import { TypedJSON } from "typedjson";
+import { DanceEnvironment } from "@/model/DanceEnvironmet";
+import { Tag } from "@/model/Tag";
 
 declare const model: SearchModel;
 
@@ -235,6 +242,12 @@ export default class App extends Vue {
   private dances: string[] = [];
   private danceConnector = "any";
   private danceInferred = false;
+
+  private environment: DanceEnvironment | null = null;
+  private get tags(): Tag[] {
+    const environment = this.environment;
+    return environment ? environment.tagDatabase.tags : [];
+  }
 
   private includeTags: string[] = [];
   private excludeTags: string[] = [];
@@ -271,13 +284,15 @@ export default class App extends Vue {
   private sort: string | null = "Dances";
   private order = "asc";
   private bonuses: string[] = [];
+  private model: SearchModel;
 
   constructor() {
     super();
 
+    this.model = TypedJSON.parse(model, SearchModel)!;
     let filter = this.getQueryFilter();
     if (!filter) {
-      filter = model.filter;
+      filter = this.model.filter;
     }
     const danceQuery = new DanceQuery(filter.dances);
 
@@ -312,14 +327,6 @@ export default class App extends Vue {
 
   private get tempoValid(): boolean {
     return this.tempoMin <= this.tempoMax;
-  }
-
-  private get danceList(): DanceObject[] {
-    return model.dances;
-  }
-
-  private get tagList(): Tag[] {
-    return model.tags;
   }
 
   private get songFilter(): SongFilter {
@@ -437,7 +444,14 @@ export default class App extends Vue {
 
     return filtered;
   }
+
+  private async onEnvironmentLoaded(
+    environment: DanceEnvironment
+  ): Promise<void> {
+    this.environment = environment;
+
+    await this.$nextTick();
+    ((this.$refs.keywords as Vue).$el as HTMLElement).focus();
+  }
 }
 </script>
-
-<style lang="scss"></style>

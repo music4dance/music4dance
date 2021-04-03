@@ -287,6 +287,14 @@ namespace m4dModels.Tests
         //}
 
         [TestMethod]
+        public void DeletedDance()
+        {
+            var song = new Song();
+            song.Load(@".Create=	User=dgsnure	Time=03/12/2021 12:29:51	Title=Otro en Su Cama	Artist=Jhonny Evidence	Length=213	DanceRating=LTN+1	.Edit=	User=batch-i	Time=03/12/2021 12:29:53	Tag+=Música Tropical:Music	.Edit=	User=batch-s	Time=03/12/2021 12:29:53	Tag+=Bachata Dominicana:Music	.Edit=	User=batch-e	Time=03/12/2021 12:29:53	Tempo=119.9	Danceability=0.792	Energy=0.728	Valence=0.811	Tag+=4/4:Tempo	.Edit=	Time=03/12/2021 12:29:53	.Edit=	User=dwgray	Time=02-Apr-2021 08:14:56 PM	DanceRating=BCH+1	Tag+=Bachata:Dance	.Edit=	User=dwgray	Time=02-Apr-2021 08:16:06 PM	DanceRating=BCH-2	Tag-=Bachata:Dance	Tag+=!Bachata:Dance", Stats);
+            Assert.IsFalse(song.TagSummary.HasTag("Bachata:Dance"));
+        }
+
+        [TestMethod]
         public void SpotifyCreate()
         {
             var track = new ServiceTrack()

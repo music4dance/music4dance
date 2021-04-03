@@ -32,17 +32,7 @@ namespace m4d.APIControllers
 
         protected IActionResult JsonCamelCase(object json)
         {
-            return new JsonResult(json, CamelCaseSerializer);
+            return new JsonResult(json, JsonHelpers.CamelCaseSerializer);
         }
-
-        private static readonly DefaultContractResolver ContractResolver = new DefaultContractResolver
-        {
-            NamingStrategy = new CamelCaseNamingStrategy()
-        };
-
-        private static readonly JsonSerializerSettings CamelCaseSerializer = new JsonSerializerSettings
-        {
-            ContractResolver = ContractResolver
-        };
     }
 }

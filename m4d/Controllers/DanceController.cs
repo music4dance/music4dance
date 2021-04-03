@@ -65,13 +65,13 @@ namespace m4d.Controllers
                 return View();
             }
 
+            var stats = DanceStatsManager.GetInstance(Database);
             if (string.Equals(dance, "ballroom-competition-categories", StringComparison.OrdinalIgnoreCase))
             {
                 return View("BallroomCompetitionCategories", 
                     CompetitionGroup.Get(CompetitionCategory.Ballroom));
             }
 
-            var stats = DanceStatsManager.GetInstance(Database);
             if (string.Equals(dance, "wedding-music", StringComparison.OrdinalIgnoreCase))
             {
                 // TODO: Wedding dance help page?

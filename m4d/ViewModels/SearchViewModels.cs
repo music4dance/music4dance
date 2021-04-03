@@ -19,7 +19,6 @@ namespace m4d.ViewModels
     {
         public SongFilterSparse Filter { get; set; }
         public List<DanceObject> Dances { get; set; }
-        public List<TagModel> Tags { get; set; }
     }
 
     public class ServiceInfo

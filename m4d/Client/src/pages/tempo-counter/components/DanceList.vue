@@ -1,7 +1,11 @@
 <template>
   <div>
     <b-list-group v-for="ds in orderedDances" v-bind:key="ds.danceId">
-      <dance-item :dance="ds" :countMethod="countMethod"></dance-item>
+      <dance-item
+        :dance="ds"
+        :countMethod="countMethod"
+        v-on="$listeners"
+      ></dance-item>
     </b-list-group>
   </div>
 </template>
@@ -23,16 +27,24 @@ export default class DanceList extends Vue {
   @Prop() private beatsPerMeasure!: number;
   @Prop() private epsilonPercent!: number;
   @Prop() private countMethod!: string;
+  @Prop() private filter?: string;
 
   private get orderedDances(): DanceOrder[] {
-    return DanceOrder.dancesForTempo(
-      this.dances,
-      this.beatsPerMinute,
-      this.beatsPerMeasure,
-      this.epsilonPercent
-    );
+    const filter = this.filter;
+    const dances =
+      this.dances.length > 0
+        ? DanceOrder.dancesForTempo(
+            this.dances,
+            this.beatsPerMinute,
+            this.beatsPerMeasure,
+            this.epsilonPercent
+          )
+        : [];
+    return filter
+      ? dances.filter(
+          (d) => d.dance.danceName.toLowerCase().indexOf(filter) !== -1
+        )
+      : dances;
   }
 }
 </script>
-
-<style scoped lang="scss"></style>

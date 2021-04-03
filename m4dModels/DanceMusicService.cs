@@ -11,7 +11,7 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using Microsoft.Rest;
+using AutoMapper;
 using FacetResults = System.Collections.Generic.IDictionary<string, System.Collections.Generic.IList<Microsoft.Azure.Search.Models.FacetResult>>;
 
 namespace m4dModels
@@ -160,9 +160,23 @@ namespace m4dModels
             return true;
         }
 
+        public bool ReloadSong(Song song)
+        {
+            song.Reload(DanceStats);
+            return true;
+        }
+
         public bool AdminEditSong(Song edit, string properties)
         {
-            return edit.AdminEdit(properties,DanceStats);
+            return edit.AdminEdit(properties, DanceStats);
+        }
+
+        public bool AdminEditSong(SongHistory history, IMapper mapper)
+        {
+            var edit = FindSong(history.Id);
+            return edit.AdminEdit(
+                history.Properties.Select(mapper.Map<SongProperty>).ToList(),
+                DanceStats);
         }
 
         public bool AdminAppendSong(Song edit, string user, string properties)
@@ -188,6 +202,19 @@ namespace m4dModels
         public bool AdminModifySong(Song edit, string songModifier)
         {
             return edit.AdminModify(songModifier, DanceStats);
+        }
+
+        public bool AppendHistory(SongHistory history, IMapper mapper)
+        {
+            var song = FindSong(history.Id);
+            if (song == null)
+            {
+                return false;
+            }
+
+            song.AppendHistory(history, mapper, DanceStats);
+            SaveSong(song);
+            return true;
         }
 
         public Song UpdateSong(ApplicationUser user, Song song, Song edit)
@@ -335,7 +362,7 @@ namespace m4dModels
             song.CreateAlbums(albums);
 
             song =  new Song(song.SongId,song.SongProperties,DanceStats);
-            song.CleanupProperties();
+            song.CleanupProperties(this);
 
             SaveSong(song);
 
@@ -371,7 +398,7 @@ namespace m4dModels
 
                 var init = song.SongProperties.Count;
 
-                var changed = song.CleanupProperties();
+                var changed = song.CleanupProperties(this);
 
                 var final = song.SongProperties.Count;
 
@@ -1138,27 +1165,26 @@ namespace m4dModels
 
         public ICollection<TagGroup> GetTagRings(TagList tags)
         {
-            var tagCache = TagMap;
             var map = new Dictionary<string, TagGroup>();
+
             // ReSharper disable once LoopCanBePartlyConvertedToQuery
             foreach (var tag in tags.Tags)
             {
-                if (tagCache.TryGetValue(tag.ToLower(), out var tt))
+                var tt = GetTagRing(tag);
+                if (!map.ContainsKey(tt.Key))
                 {
-                    tt = tt.GetPrimary();
-                    if (!map.ContainsKey(tt.Key))
-                    {
-                        map.Add(tt.Key, tt);
-                    }
+                    map.Add(tt.Key, tt);
                 }
-                else
-                {
-                    map.Add(tag, new TagGroup(tag));
-                }
-
             }
 
             return map.Values;
+        }
+
+        public TagGroup GetTagRing(string tag)
+        {
+            return TagMap.TryGetValue(tag.ToLower(), out var tt)
+                ? tt.GetPrimary() :
+                new TagGroup(tag);
         }
 
         private void AddTagType(TagGroup tagGroup)

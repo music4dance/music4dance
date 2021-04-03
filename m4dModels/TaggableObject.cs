@@ -203,7 +203,7 @@ namespace m4dModels
             foreach (var tt in removed.Tags.Select(stats.TagManager.FindOrCreateTagGroup))
             {
                 tt.Count -= 1;
-                // TODO: We should consider a service that occassionally sweeps TagGroups and removes the ones that
+                // TODO: We should consider a service that occasionally sweeps TagGroups and removes the ones that
                 //  aren't used, but we can't proactively delete them this way since when we're doing a full load
                 //  of the database this causes inconsistencies.
                 //if (tt.Count <= 0)
@@ -222,7 +222,8 @@ namespace m4dModels
             return true;
         }
 
-        public TagList GetUserTags(string userName, Song song = null, bool recent = false)
+        public TagList GetUserTags(
+            string userName, Song song = null, bool recent = false, DanceStatsInstance stats = null)
         {
             if (song == null) song = this as Song;
             var danceId = (this as DanceRating)?.DanceId;
@@ -244,15 +245,15 @@ namespace m4dModels
                         cu = prop.Value;
                         break;
                     case Song.AddedTags:
-                        if (userName.Equals(cu) && prop.DanceQualifier == danceId)
-                        {
-                            acc = acc.Add(new TagList(prop.Value));
-                        }
-                        break;
                     case Song.RemovedTags:
+                        var tags = new TagList(prop.Value);
+                        var ring = stats == null ? tags : ConvertToRing(tags, stats);
+
                         if (userName.Equals(cu) && prop.DanceQualifier == danceId)
                         {
-                            acc = acc.Subtract(new TagList(prop.Value));
+                            acc = prop.BaseName == Song.AddedTags 
+                                ? acc.Add(ring) 
+                                : acc.Subtract(ring);
                         }
                         break;
                 }

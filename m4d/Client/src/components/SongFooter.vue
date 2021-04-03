@@ -30,7 +30,7 @@
     <b-row v-if="isAdmin">
       <b-col>
         <b-button-toolbar aria-label="Admin song modifiers">
-          <b-dropdown right text="Multi-Edit" class="mx-1">
+          <b-dropdown right text="Multi-Edit" class="mx-1 mb-1">
             <b-dropdown-item @click="onBulkEdit('Merge')"
               >Merge</b-dropdown-item
             >
@@ -41,7 +41,7 @@
               >Cleanup Albums</b-dropdown-item
             >
           </b-dropdown>
-          <b-dropdown right text="Batch Lookup" class="mx-1">
+          <b-dropdown right text="Batch Lookup" class="mx-1 mb-1">
             <b-dropdown-item :href="batchUrl('batchmusicservice', 50, 'A')"
               >Amazon</b-dropdown-item
             >
@@ -64,7 +64,7 @@
               >Canonical (R)</b-dropdown-item
             >
           </b-dropdown>
-          <b-dropdown right text="Clean" class="mx-1">
+          <b-dropdown right text="Clean" class="mx-1 mb-1">
             <b-dropdown-item :href="batchUrl('batchcleanservice', -1)"
               >Services</b-dropdown-item
             >
@@ -74,8 +74,19 @@
             <b-dropdown-item :href="batchUrl('batchcleanupproperties', -1)"
               >Properties</b-dropdown-item
             >
+            <b-dropdown-item :href="batchUrl('batchreloadsongs', -1)"
+              >Reload</b-dropdown-item
+            >
             <b-dropdown-item :href="batchUrl('batchclearupdate', -1)"
               >Update Flag</b-dropdown-item
+            >
+          </b-dropdown>
+          <b-dropdown right text="Download" class="mx-1 mb-1">
+            <b-dropdown-item :href="batchUrl('downloadJson', -1, 'S')"
+              >Songs</b-dropdown-item
+            >
+            <b-dropdown-item :href="batchUrl('downloadJson', -1, 'H')"
+              >History</b-dropdown-item
             >
           </b-dropdown>
           <b-dropdown right text="Update" class="mx-1">
@@ -218,13 +229,11 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue } from "vue-property-decorator";
+import AdminTools from "@/mix-ins/AdminTools";
+import { Component, Prop, Mixins } from "vue-property-decorator";
 import { SongFilter } from "@/model/SongFilter";
 import { SongListModel } from "@/model/SongListModel";
 import { DanceQueryBase } from "@/model/DanceQueryBase";
-import { MenuContext } from "@/model/MenuContext";
-
-declare const menuContext: MenuContext;
 
 interface AdminEdit {
   user: string;
@@ -235,14 +244,13 @@ interface AdminEdit {
 //  Also, look at generalizing tag capability (this currently won't catch individual
 //  tags when the are glommed together in a single property)
 @Component
-export default class SongFooter extends Vue {
+export default class SongFooter extends Mixins(AdminTools) {
   @Prop() private readonly model!: SongListModel;
   @Prop() private readonly href?: string;
   @Prop() private readonly canShowImplicitMessage?: boolean;
   @Prop() private readonly selected?: string[];
 
   private pageNumber: number;
-  private readonly context: MenuContext = menuContext;
   private editAction = "";
 
   private adminEdit: AdminEdit;
@@ -260,10 +268,6 @@ export default class SongFooter extends Vue {
 
   private get pageCount(): number {
     return Math.max(1, Math.ceil(this.model.count / 25));
-  }
-
-  private get isAdmin(): boolean {
-    return !!menuContext.isAdmin;
   }
 
   private get showExplicitMessage(): boolean {

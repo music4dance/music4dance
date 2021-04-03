@@ -1,0 +1,421 @@
+<template>
+  <page
+    id="app"
+    :consumesEnvironment="true"
+    @environment-loaded="onEnvironmentLoaded"
+  >
+    <b-row>
+      <b-col>
+        <h1>
+          <song-like-button
+            :user="model.userName"
+            :song="song"
+            :scale="1"
+            @click-like="onClickLike"
+          ></song-like-button>
+          <i>{{ song.title }}</i>
+          <span
+            v-if="song.artist"
+            style="font-size: 0.75em; padding-left: 0.5em"
+            >by <a :href="artistLink">{{ song.artist }}</a></span
+          >
+        </h1>
+      </b-col>
+      <b-col v-if="editting" cols="auto">
+        <b-button variant="outline-primary" class="mr-1" @click="cancelChanges"
+          >Cancel</b-button
+        >
+        <b-button v-if="modified" variant="primary" @click="saveChanges"
+          >Save Changes</b-button
+        >
+      </b-col>
+    </b-row>
+    <b-row class="mb-2">
+      <b-col md="4"
+        ><purchase-section
+          :purchaseInfos="song.getPurchaseInfos()"
+          :filter="model.filter"
+        ></purchase-section>
+      </b-col>
+      <b-col md="4">
+        <tag-list-editor
+          :container="song"
+          :filter="filter"
+          :user="model.userName"
+          :editor="editor"
+          :edit="edit"
+          @edit="setEdit"
+          @update-song="updateSong"
+        ></tag-list-editor>
+      </b-col>
+      <b-col v-if="song.hasSample" md="4">
+        <audio controls class="mx-auto">
+          <source :src="song.sample" type="audio/mpeg" />
+          Your browser does not support audio.
+        </audio>
+      </b-col>
+    </b-row>
+    <b-row class="mb-2">
+      <b-col md="4">
+        <dance-list
+          title="Dances"
+          class="mb-2"
+          :song="song"
+          :danceRatings="explicitDanceRatings"
+          :user="model.userName"
+          :filter="model.filter"
+          :editor="editor"
+          :edit="edit"
+          @dance-vote="onDanceVote($event)"
+          @update-song="updateSong"
+          @edit="setEdit"
+        />
+        <b-button
+          v-if="!!model.userName"
+          v-b-modal.danceChooser
+          variant="primary"
+          >Add Dance Style</b-button
+        >
+      </b-col>
+      <b-col md="4" v-if="hasInferredDances">
+        <dance-list
+          title="Dances (Inferred)"
+          :song="song"
+          :danceRatings="inferredDanceRatings"
+          :user="model.userName"
+          :filter="model.filter"
+          @dance-vote="onDanceVote($event)"
+          @update-song="updateSong"
+        />
+      </b-col>
+      <b-col md="auto"
+        ><song-stats :song="song"></song-stats
+        ><b-button
+          v-if="hasUserChanges"
+          @click="undoUserChanges"
+          variant="outline-primary"
+          >Undo My Changes</b-button
+        >
+        <form
+          id="undoUserChanges"
+          ref="undoUserChanges"
+          action="/song/undoUserChanges"
+          method="post"
+          v-show="false"
+        >
+          <input
+            type="hidden"
+            name="__RequestVerificationToken"
+            :value="context.xsrfToken"
+          />
+          <input type="hidden" name="id" :value="song.songId" />
+          <input type="hidden" name="filter" :value="model.filter.query" />
+        </form>
+      </b-col>
+    </b-row>
+    <b-row>
+      <b-col v-if="song.albums"
+        ><album-list :albums="song.albums"></album-list>
+        <div v-if="isAdmin">
+          <form
+            id="adminEdit"
+            action="/song/adminedit"
+            method="post"
+            enctype="multipart/form-data"
+          >
+            <h3>Admin Edit</h3>
+            <input type="hidden" name="filter" :value="model.filter.query" />
+            <input
+              type="hidden"
+              name="__RequestVerificationToken"
+              :value="context.xsrfToken"
+            />
+            <input type="hidden" name="songId" :value="song.songId" />
+            <b-form-group
+              id="ae-properties-group"
+              label="Properties:"
+              label-for="ae-properties"
+              description="Full list of properties to replace with the song"
+              ><b-form-input
+                name="properties"
+                id="ae-properties"
+                v-model="adminProperties"
+                required
+              ></b-form-input
+            ></b-form-group>
+            <b-button type="submit">Submit</b-button>
+          </form>
+          <h3>Undo User Edits</h3>
+          <b-form
+            v-for="modified in song.modifiedBy"
+            :key="modified.userName"
+            action="/song/undoUserChanges"
+            method="post"
+            class="m-1"
+            style="display: inline-block"
+          >
+            <input
+              type="hidden"
+              name="__RequestVerificationToken"
+              :value="context.xsrfToken"
+            />
+            <input type="hidden" name="id" :value="song.songId" />
+            <input type="hidden" name="userName" :value="modified.userName" />
+            <b-button type="submit">{{ modified.userName }}</b-button>
+          </b-form>
+        </div>
+      </b-col>
+      <b-col v-if="isAdmin && model.songHistory"
+        ><song-history :history="model.songHistory"></song-history
+      ></b-col>
+    </b-row>
+    <dance-chooser
+      @chooseDance="addDance"
+      :filterIds="explicitDanceIds"
+      :tempo="song.tempo"
+      :numerator="numerator"
+    ></dance-chooser>
+  </page>
+</template>
+
+<script lang="ts">
+import "reflect-metadata";
+import { Component, Mixins } from "vue-property-decorator";
+import AdminTools from "@/mix-ins/AdminTools";
+import AlbumList from "./components/AlbumList.vue";
+import DanceChooser from "@/components/DanceChooser.vue";
+import DanceList from "./components/DanceList.vue";
+import Page from "@/components/Page.vue";
+import PurchaseSection from "./components/PurchaseSection.vue";
+import SongHistory from "./components/SongHistory.vue";
+import SongLikeButton from "@/components/SongLikeButton.vue";
+import SongStats from "./components/SongStats.vue";
+import TagButton from "@/components/TagButton.vue";
+import TagListEditor from "@/components/TagListEditor.vue";
+import { TypedJSON } from "typedjson";
+import { SongEditor } from "@/model/SongEditor";
+import { SongFilter } from "@/model/SongFilter";
+import { SongDetailsModel } from "@/model/SongDetailsModel";
+import { Song } from "@/model/Song";
+import { DanceRating } from "@/model/DanceRating";
+import { DanceRatingVote, VoteDirection } from "@/DanceRatingDelta";
+import { DanceEnvironment } from "@/model/DanceEnvironmet";
+
+declare const model: string;
+
+// TODONEXT:
+//  Figure out how to be better about updating global taglist - this works, but we're doing
+//   it every 6 hours which seems too inferquent - but it's an expensiveoperation, so
+//   don't necessarily want to so it if not needed
+//  Consider removing negating properties (this would help state changes)
+//  Moderator remove dance: Uses UserProxy to removeTag for the dance
+//   for each user, then reproxies to the moderator to negate the dance rating.
+//   Consider just having a moderator event in the details that negates cancels out a dance.
+//  Consider property history as a public facing feature
+//  Make property history editable?
+
+@Component({
+  components: {
+    AlbumList,
+    DanceChooser,
+    DanceList,
+    Page,
+    PurchaseSection,
+    SongHistory,
+    SongLikeButton,
+    SongStats,
+    TagButton,
+    TagListEditor,
+  },
+})
+export default class App extends Mixins(AdminTools) {
+  private readonly model: SongDetailsModel;
+  private song: Song = new Song();
+  private editor: SongEditor | null;
+  private toastShown = false;
+  private adminProperties = "";
+  private edit = false;
+  private environment: DanceEnvironment | undefined;
+
+  constructor() {
+    super();
+
+    this.model = TypedJSON.parse(model, SongDetailsModel)!;
+    this.editor = null;
+  }
+
+  private beforeMount() {
+    window.addEventListener("beforeunload", this.leaveWarning);
+  }
+
+  private beforeDestroy() {
+    window.removeEventListener("beforeunload", this.leaveWarning);
+  }
+
+  private get filter(): SongFilter {
+    return this.model.filter;
+  }
+
+  private get modified(): boolean {
+    const modified = this.editor?.modified ?? false;
+    if (modified && !this.toastShown) {
+      this.$bvToast.toast("Click 'Save Changes' to save your changes", {
+        title: "Don't Forget!",
+        variant: "success",
+        toaster: "b-toaster-top-center",
+      });
+    }
+    return modified;
+  }
+
+  private onEnvironmentLoaded(environment: DanceEnvironment): void {
+    this.environment = environment;
+    const stats = environment.stats;
+    if (stats) {
+      if (this.model.userName) {
+        this.editor = new SongEditor(
+          this.model.userName,
+          this.model.songHistory
+        );
+        if (this.isAdmin) {
+          this.adminProperties = this.model.songHistory.properties
+            .map((p) => p.toString())
+            .join("\t");
+        }
+      }
+      this.song = Song.fromHistory(this.model.songHistory, this.model.userName);
+    }
+  }
+
+  private onDanceVote(vote: DanceRatingVote): void {
+    const editor = this.editor;
+    if (!editor) {
+      throw new Error("Can't edit if not logged in");
+    }
+    this.editor!.danceVote(vote);
+    this.song = this.editor!.song;
+  }
+
+  private get artistLink(): string | undefined {
+    const artist = this.song?.artist;
+    return artist ? `/song/artist?name=${artist}` : undefined;
+  }
+
+  private get hasExplicitDances(): boolean {
+    return !!this.explicitDanceIds?.length;
+  }
+
+  private get hasInferredDances(): boolean {
+    return !!this.inferredDanceRatings?.length;
+  }
+
+  private get explicitDanceRatings(): DanceRating[] {
+    const ratings = this.song.danceRatings ?? [];
+    return this.explicitDanceIds.map(
+      (id) => ratings.find((dr) => dr.danceId === id)!
+    );
+  }
+
+  private get inferredDanceRatings(): DanceRating[] {
+    const ratings = this.song.danceRatings ?? [];
+    const explicitIds = this.explicitDanceIds;
+
+    return ratings.filter((dr) => !explicitIds.find((id) => id === dr.danceId));
+  }
+
+  private get explicitDanceIds(): string[] {
+    const tags = this.song.tags;
+    return this.environment && tags
+      ? tags
+          .filter((t) => t.category === "Dance" && !t.value.startsWith("!"))
+          .map((t) => this.environment!.fromName(t.value)!.danceId)
+      : [];
+  }
+
+  private get numerator(): number | undefined {
+    if (this.hasMeterTag(4)) {
+      return 4;
+    } else if (this.hasMeterTag(3)) {
+      return 3;
+    } else if (this.hasMeterTag(2)) {
+      return 2;
+    }
+    return undefined;
+  }
+
+  private hasMeterTag(numerator: number): boolean {
+    return !!this.song.tags.find((t) => t.key === `${numerator}/4:Tempo`);
+  }
+
+  private onClickLike(): void {
+    const editor = this.editor;
+    if (!editor) {
+      throw new Error("Can't edit if not logged in");
+    }
+    editor.toggleLike();
+    this.song = editor.song;
+  }
+
+  private addDance(danceId?: string): void {
+    console.log(`Add ${danceId}`);
+    const editor = this.editor;
+    if (!editor) {
+      throw new Error("Can't edit if not logged in");
+    }
+    if (danceId) {
+      this.editor!.danceVote(new DanceRatingVote(danceId, VoteDirection.Up));
+      this.song = this.editor!.song;
+      this.$bvModal.hide("danceChooser");
+    }
+  }
+
+  private get hasUserChanges(): boolean {
+    return !!this.editor?.userHasPreviousChanges;
+  }
+
+  private undoUserChanges(): void {
+    this.$bvModal
+      .msgBoxConfirm(
+        "Are you sure you want to undo all of your edits to this song?"
+      )
+      .then((value: boolean) => {
+        if (value) {
+          (this.$refs.undoUserChanges as HTMLFormElement).submit();
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  }
+
+  private get editting(): boolean {
+    return this.modified || this.edit;
+  }
+
+  private updateSong(): void {
+    this.song = this.editor!.song;
+  }
+
+  private setEdit(): void {
+    this.edit = true;
+  }
+
+  private leaveWarning(event: BeforeUnloadEvent): void {
+    if (this.modified) {
+      event.returnValue =
+        "You have unsaved changes.  Are you sure you want to leave?";
+    }
+  }
+
+  private cancelChanges(): void {
+    this.editor!.revert();
+    this.song = this.editor!.song;
+    this.edit = false;
+  }
+
+  private async saveChanges(): Promise<void> {
+    await this.editor!.saveChanges();
+    this.edit = false;
+  }
+}
+</script>

@@ -1,4 +1,8 @@
 export function timeOrder(time: Date): string {
+  if (!time) {
+    return "U";
+  }
+
   const delta = (Date.now() - time.valueOf()) / 1000;
 
   if (delta < 60) {

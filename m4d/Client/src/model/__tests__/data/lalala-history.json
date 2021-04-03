@@ -1,0 +1,309 @@
+{
+  "id": "9ee1b507-c177-4167-a543-6b64a15afb12",
+  "properties": [
+    {
+      "name": ".Create",
+      "value": ""
+    },
+    {
+      "name": "User",
+      "value": "LizaMay"
+    },
+    {
+      "name": "Time",
+      "value": "12/24/2020 13:32:58"
+    },
+    {
+      "name": "Title",
+      "value": "La La La"
+    },
+    {
+      "name": "Artist",
+      "value": "Naughty Boy"
+    },
+    {
+      "name": "Length",
+      "value": "222"
+    },
+    {
+      "name": "Album:00",
+      "value": "Hotel Cabana (Deluxe Version)"
+    },
+    {
+      "name": "Track:00",
+      "value": "8"
+    },
+    {
+      "name": "Tag+",
+      "value": "West Coast Swing:Dance"
+    },
+    {
+      "name": "DanceRating",
+      "value": "WCS+2"
+    },
+    {
+      "name": "Purchase:00:SA",
+      "value": "2SVSPhDBqChBe10hJh5owv"
+    },
+    {
+      "name": "Purchase:00:SS",
+      "value": "36pLU2ywVeBKEF0rrKtmCB"
+    },
+    {
+      "name": "DanceRating",
+      "value": "SWG+1"
+    },
+    {
+      "name": ".Edit",
+      "value": ""
+    },
+    {
+      "name": "User",
+      "value": "batch-i"
+    },
+    {
+      "name": "Time",
+      "value": "12/24/2020 13:32:58"
+    },
+    {
+      "name": "Purchase:00:IS",
+      "value": "1443257774"
+    },
+    {
+      "name": "Purchase:00:IA",
+      "value": "1443257658"
+    },
+    {
+      "name": "Album:01",
+      "value": "La La La (feat. Sam Smith) - EP"
+    },
+    {
+      "name": "Track:01",
+      "value": "1"
+    },
+    {
+      "name": "Purchase:01:IS",
+      "value": "1445297154"
+    },
+    {
+      "name": "Purchase:01:IA",
+      "value": "1445297149"
+    },
+    {
+      "name": "Album:02",
+      "value": "Runtastic Music - Running, Vol. 2"
+    },
+    {
+      "name": "Track:02",
+      "value": "17"
+    },
+    {
+      "name": "Purchase:02:IS",
+      "value": "1443009685"
+    },
+    {
+      "name": "Purchase:02:IA",
+      "value": "1443009219"
+    },
+    {
+      "name": "Album:03",
+      "value": "In the Lonely Hour (Drowning Shadows Edition)"
+    },
+    {
+      "name": "Track:03",
+      "value": "13"
+    },
+    {
+      "name": "Purchase:03:IS",
+      "value": "1536994177"
+    },
+    {
+      "name": "Purchase:03:IA",
+      "value": "1536993568"
+    },
+    {
+      "name": "Album:04",
+      "value": "HEAL - EP"
+    },
+    {
+      "name": "Track:04",
+      "value": "2"
+    },
+    {
+      "name": "Purchase:04:IS",
+      "value": "1525762409"
+    },
+    {
+      "name": "Purchase:04:IA",
+      "value": "1525762407"
+    },
+    {
+      "name": "Tag+",
+      "value": "Pop:Music"
+    },
+    {
+      "name": ".Edit",
+      "value": ""
+    },
+    {
+      "name": "User",
+      "value": "batch-s"
+    },
+    {
+      "name": "Time",
+      "value": "12/24/2020 13:33:18"
+    },
+    {
+      "name": "Purchase:00:SA",
+      "value": "53iwAByO7wE7EqnpFPpIB3"
+    },
+    {
+      "name": "Purchase:00:SS",
+      "value": "1RjpMjVNCHWoltfYSBHEKg"
+    },
+    {
+      "name": "Purchase:01:SS",
+      "value": "52gvlDnre9craz9dKGObp8"
+    },
+    {
+      "name": "Purchase:01:SA",
+      "value": "7L2vCH0rBeI5pKefCgWcV9"
+    },
+    {
+      "name": "Purchase:03:SS",
+      "value": "0PPXEgevjLKKso0QVhEFZ4"
+    },
+    {
+      "name": "Purchase:03:SA",
+      "value": "0vrWqbRQEMKqhTGcDLQK7x"
+    },
+    {
+      "name": "Album:05",
+      "value": "2013 Hits"
+    },
+    {
+      "name": "Track:05",
+      "value": "22"
+    },
+    {
+      "name": "Purchase:05:SS",
+      "value": "1YGrDWPqdIiLIBWT16LkmD"
+    },
+    {
+      "name": "Purchase:05:SA",
+      "value": "3DiKQcknXvMRlLYrtSnM3d"
+    },
+    {
+      "name": "Album:06",
+      "value": "R&B Fresh Hits"
+    },
+    {
+      "name": "Track:06",
+      "value": "4"
+    },
+    {
+      "name": "Purchase:06:SS",
+      "value": "2AGkwavipFIB2c8kFYTjXI"
+    },
+    {
+      "name": "Purchase:06:SA",
+      "value": "5LdPZ8X1yC1zrYfV7Rr7NV"
+    },
+    {
+      "name": "Album:07",
+      "value": "Pop Hits 2012-2015"
+    },
+    {
+      "name": "Track:07",
+      "value": "19"
+    },
+    {
+      "name": "Purchase:07:SS",
+      "value": "34C70uPZsQvplM9n4mHjxT"
+    },
+    {
+      "name": "Purchase:07:SA",
+      "value": "51Z21bW6Pc6JRx9Iob7gno"
+    },
+    {
+      "name": "Album:08",
+      "value": "Summer 2019"
+    },
+    {
+      "name": "Track:08",
+      "value": "21"
+    },
+    {
+      "name": "Purchase:08:SS",
+      "value": "0NRFSgzkoKDiL3wlItt4WS"
+    },
+    {
+      "name": "Purchase:08:SA",
+      "value": "4WWpkUUZXjsTDA4jYrj8BH"
+    },
+    {
+      "name": "Album:09",
+      "value": "HEAL"
+    },
+    {
+      "name": "Track:09",
+      "value": "2"
+    },
+    {
+      "name": "Purchase:09:SS",
+      "value": "5I7tLS7nJ49wR44Be4XOgj"
+    },
+    {
+      "name": "Purchase:09:SA",
+      "value": "35IxlwuDscHGOpwEBqrh7t"
+    },
+    {
+      "name": "Tag+",
+      "value": "Dance Pop:Music|Pop:Music|Post Teen Pop:Music|Tropical House:Music|Uk Contemporary R&B:Music|Uk Pop:Music"
+    },
+    {
+      "name": ".Edit",
+      "value": ""
+    },
+    {
+      "name": "User",
+      "value": "batch-e"
+    },
+    {
+      "name": "Time",
+      "value": "12/24/2020 13:33:18"
+    },
+    {
+      "name": "Tempo",
+      "value": "125.1"
+    },
+    {
+      "name": "Danceability",
+      "value": "0.772"
+    },
+    {
+      "name": "Energy",
+      "value": "0.65"
+    },
+    {
+      "name": "Valence",
+      "value": "0.262"
+    },
+    {
+      "name": "Tag+",
+      "value": "4/4:Tempo"
+    },
+    {
+      "name": ".Edit",
+      "value": ""
+    },
+    {
+      "name": "Time",
+      "value": "12/24/2020 13:33:18"
+    },
+    {
+      "name": "Sample",
+      "value": "."
+    }
+  ]
+}

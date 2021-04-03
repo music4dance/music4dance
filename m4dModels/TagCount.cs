@@ -29,9 +29,16 @@ namespace m4dModels
             Count = count;
         }
 
-        public TagCount(string serialized)
+        public TagCount(string serialized, int? count = null)
         {
-            if (Parse(serialized)) return;
+            if (Parse(serialized))
+            {
+                if (count.HasValue)
+                {
+                    Count = count.Value;
+                }
+                return;
+            }
 
             Trace.WriteLineIf(TraceLevels.General.TraceError,$"Invalid TagCount: {serialized}");
             throw new ArgumentOutOfRangeException();

@@ -1,6 +1,6 @@
 # tempo-counter
 
-## TodoNext
+## TODO
 
 - General
   - Make tempo dance competition category table use a "short" name for dances

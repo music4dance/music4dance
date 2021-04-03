@@ -1,7 +1,8 @@
 <template>
   <b-list-group-item
     :variant="variant"
-    @click="chooseDance"
+    href="#"
+    @click="$emit('choose-dance', dance.dance.danceId)"
     class="d-flex justify-content-between align-items-center"
   >
     <span
@@ -48,14 +49,5 @@ export default class DanceItem extends Vue {
       abs + " " + (measures ? "M" : "B") + "PM " + (slower ? "slow" : "fast")
     );
   }
-
-  private chooseDance(): void {
-    window.open(
-      `https://www.music4dance.net/dances/${this.dance.dance.seoName}`,
-      "_blank"
-    );
-  }
 }
 </script>
-
-<style scoped lang="scss"></style>

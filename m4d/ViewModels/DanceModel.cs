@@ -8,15 +8,15 @@ namespace m4d.ViewModels
     {
         public DanceModel(Dance dance, string userName, DanceStatsInstance stats, IMapper mapper)
         {
+            var songs = stats.Map[dance.Id].TopSongsForUser(userName, stats);
             DanceId = dance.Id;
             DanceName = dance.Name;
             UserName = userName;
-            Songs = stats.Map[dance.Id]
-                .TopSongsForUser(userName, stats)
-                .Select(mapper.Map<SongSparse>)
-                .ToList();
+            Songs = songs.Select(mapper.Map<SongSparse>).ToList();
+            Histories = songs.Select(s => s.GetHistory(mapper)).ToList();
             Description = dance.SmartLinks();
             Count = Songs.Count;
+            Validate = false;
         }
 
         public string DanceId { get; set; }

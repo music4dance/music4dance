@@ -12,7 +12,9 @@ namespace m4d.APIControllers
     [Route("api/[controller]")]
     public class DancesController : DanceMusicApiController
     {
-        public DancesController(DanceMusicContext context, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, ISearchServiceManager searchService, IDanceStatsManager danceStatsManager, IConfiguration configuration) :
+        public DancesController(DanceMusicContext context, UserManager<ApplicationUser> userManager,
+            RoleManager<IdentityRole> roleManager, ISearchServiceManager searchService,
+            IDanceStatsManager danceStatsManager, IConfiguration configuration) :
             base(context, userManager, roleManager, searchService, danceStatsManager, configuration)
         {
         }

@@ -17,11 +17,12 @@
       @update:epsilon-percent="epsilonPercent = $event"
     />
     <dance-list
-      :dances="dances"
+      :dances="dances()"
       :beatsPerMeasure="beatsPerMeasure"
       :beatsPerMinute="beatsPerMinute"
       :countMethod="countMethod"
       :epsilonPercent="epsilonPercent"
+      @choose-dance="chooseDance"
     />
   </page>
 </template>
@@ -42,7 +43,7 @@ import { DanceEnvironment } from "@/model/DanceEnvironmet";
   },
 })
 export default class App extends Vue {
-  private dances: DanceStats[] = [];
+  private environment?: DanceEnvironment;
   public beatsPerMeasure = 4;
   public beatsPerMinute = 0;
   public countMethod = "measures";
@@ -64,6 +65,18 @@ export default class App extends Vue {
     }
   }
 
+  private chooseDance(danceId: string): void {
+    const dance = this.environment!.fromId(danceId);
+    if (dance) {
+      window.open(`/dances/${dance.seoName}`, "_blank");
+    }
+  }
+
+  private dances(): DanceStats[] {
+    const environment = this.environment;
+    return environment ? environment.stats! : [];
+  }
+
   private get measuresPerMinute(): number {
     return this.beatsPerMinute / this.beatsPerMeasure;
   }
@@ -73,9 +86,7 @@ export default class App extends Vue {
   }
 
   private onEnvironmentLoaded(environment: DanceEnvironment): void {
-    this.dances = environment.stats!;
+    this.environment = environment;
   }
 }
 </script>
-
-<style lang="scss"></style>

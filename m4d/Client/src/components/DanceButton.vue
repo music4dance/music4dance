@@ -13,7 +13,7 @@
       v-if="hasTags"
       style="margin-left: 0.25em"
     ></b-icon-tags-fill>
-    <dance-modal :tagHandler="danceHandler"></dance-modal>
+    <dance-modal :tagHandler="danceHandler" v-on="$listeners"></dance-modal>
   </b-button>
 </template>
 
@@ -22,7 +22,7 @@ import { Component } from "vue-property-decorator";
 import DanceModal from "./DanceModal.vue";
 import TagButtonBase from "./TagButtonBase";
 import { DanceHandler } from "@/model/DanceHandler";
-import { DanceRating } from "@/model/Song";
+import { DanceRating } from "@/model/DanceRating";
 
 @Component({
   components: {

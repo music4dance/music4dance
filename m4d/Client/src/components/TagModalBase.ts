@@ -1,10 +1,11 @@
 import "reflect-metadata";
-import { Component, Prop, Vue } from "vue-property-decorator";
+import { Component, Prop, Mixins } from "vue-property-decorator";
 import { Tag } from "@/model/Tag";
 import { TagHandler } from "@/model/TagHandler";
+import EnvironmentManager from "@/mix-ins/EnvironmentManager";
 
 @Component
-export default class TagModal extends Vue {
+export default class TagModalBase extends Mixins(EnvironmentManager) {
   @Prop() protected readonly tagHandler!: TagHandler;
 
   protected get tag(): Tag {

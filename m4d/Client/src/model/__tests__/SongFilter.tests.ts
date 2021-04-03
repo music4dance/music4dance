@@ -2,13 +2,6 @@ import "reflect-metadata";
 import { getEnvironmentMock } from "@/helpers/MockEnvironmentManager";
 import { SongFilter } from "../SongFilter";
 
-/* eslint-disable-next-line @typescript-eslint/no-explicit-any */
-declare const global: any;
-
-beforeAll(() => {
-  global.environment = getEnvironmentMock();
-});
-
 const simple = "Advanced--Modified";
 const basic = "Advanced--Modified---\\-me|h";
 const complex =

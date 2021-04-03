@@ -221,14 +221,17 @@ namespace m4d.Controllers
             }
 
             var songs = results.Songs.Select(s => _mapper.Map<SongSparse>(s)).ToList();
+            var histories = results.Songs.Select(s => s.GetHistory(_mapper)).ToList();
             return View(filter.Action, new HolidaySongListModel
             {
                 Songs = songs,
+                Histories = histories,
                 Filter = _mapper.Map<SongFilterSparse>(filter),
                 UserName = User.Identity.Name,
                 Count = (int)results.TotalCount,
                 Dance = dance,
-                playListId = playListId
+                PlayListId = playListId,
+                Validate = false
             });
         }
 
@@ -364,16 +367,19 @@ namespace m4d.Controllers
             }
 
             var songs = results.Songs.Select(s => _mapper.Map<SongSparse>(s)).ToList();
+            var histories = results.Songs.Select(s => s.GetHistory(_mapper)).ToList();
             return View(
                 filter.Action.Equals("Advanced", StringComparison.OrdinalIgnoreCase) ? "index" : filter.Action, 
                 new SongListModel
                 {
                     Songs = songs,
+                    Histories = histories,
                     Filter = _mapper.Map<SongFilterSparse>(filter),
                     UserName = user,
                     Count = (int)results.TotalCount,
                     HideSort = hideSort ?? HideSort,
-                    HiddenColumns = HiddenColumns ?? HiddenColumns
+                    HiddenColumns = HiddenColumns ?? HiddenColumns,
+                    Validate = false
                 });
         }
 
@@ -409,12 +415,10 @@ namespace m4d.Controllers
             var dances = new List<DanceObject>(Dances.Instance.AllDanceTypes);
             dances.AddRange(Dances.Instance.AllDanceGroups);
 
-            var tags = Database.GetTagSuggestions().Select(_mapper.Map<TagModel>).ToList();
             var model = new SearchModel
             {
                 Filter = _mapper.Map<SongFilterSparse>(filter),
                 Dances = dances,
-                Tags = tags
             };
 
             return View("AdvancedSearchForm", JsonConvert.SerializeObject(model, CamelCaseSerializerSettings));
@@ -674,8 +678,23 @@ namespace m4d.Controllers
             }
 
             HelpPage = "song-details";
+            if (VueMode)
+            {
+                return View(GetSongDetails(song, filter));
+            }
             BuildDanceList(DanceBags.Stats | DanceBags.Single, true);
-            return View(song);
+            return View("OldDetails", song);
+        }
+
+        private SongDetailsModel GetSongDetails(Song song, SongFilter filter)
+        {
+            return new SongDetailsModel
+            {
+                SongHistory = song.GetHistory(_mapper),
+                Filter = _mapper.Map<SongFilterSparse>(filter),
+                UserName = User.Identity.Name,
+                Song = _mapper.Map<SongSparse>(song)
+            };
         }
 
         [AllowAnonymous]
@@ -947,7 +966,7 @@ namespace m4d.Controllers
             var sd = Database.FindSong(songId, user.UserName);
 
             BuildDanceList(DanceBags.Stats | DanceBags.Single, true);
-            return View("details", sd);
+            return View("details", GetSongDetails(sd, filter));
         }
 
         //
@@ -1610,10 +1629,23 @@ namespace m4d.Controllers
         }
 
         [Authorize(Roles = "dbAdmin")]
-        public ActionResult BatchCleanupProperties(SongFilter filter, string type="ARE", int max = 1000)
+        public ActionResult BatchCleanupProperties(SongFilter filter, string type="TC")
         {
             return BatchProcess(
-                filter, (dms, song) => Task.FromResult(song.CleanupProperties(type) ? song : null));
+                filter, (dms, song) => 
+                    Task.FromResult(
+                        song.CleanupProperties(Database, type) 
+                            ? song : null));
+        }
+
+        [Authorize(Roles = "dbAdmin")]
+        public ActionResult BatchReloadSongs(SongFilter filter)
+        {
+            return BatchProcess(
+                filter, (dms, song) =>
+                    Task.FromResult(
+                        Database.ReloadSong(song)
+                            ? song : null));
         }
 
         private ActionResult BatchProcess(SongFilter filter,
@@ -2142,6 +2174,27 @@ namespace m4d.Controllers
             return true;
         }
 
+        [Authorize(Roles = "dbAdmin")]
+        public async Task<IActionResult> DownloadJson(SongFilter filter, string type = "S", int count = 1)
+        {
+            var p = Database.AzureParmsFromFilter(filter, 1000);
+            p.IncludeTotalResultCount = true;
+
+            var results = await Database.AzureSearchAsync(filter.SearchString, p, filter.CruftFilter, 
+                User.Identity.Name, "default", Database.DanceStats);
+
+            switch (type)
+            {
+                case "S":
+                    return JsonCamelCase(
+                        results.Songs.Select(s => _mapper.Map<SongSparse>(s)).ToList());
+                case "H":
+                    return JsonCamelCase(
+                        results.Songs.Select(s => s.GetHistory(_mapper)).ToList());
+                default:
+                    return JsonCamelCase(null);
+            }
+        }
 
         //private bool CleanDeletedServices(Guid songId, ICollection<SongProperty> props)
         //{
@@ -2200,6 +2253,7 @@ namespace m4d.Controllers
             var companions = new List<string> { Song.EditCommand, Song.UserField, Song.TimeField };
 
             var del = props.Where(prop => prop.Name.StartsWith("Purchase:") && prop.Name.EndsWith(":XS")).ToList();
+
 
             if (del.Count == 0) return false;
 

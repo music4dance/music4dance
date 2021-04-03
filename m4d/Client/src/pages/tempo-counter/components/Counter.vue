@@ -179,5 +179,3 @@ export default class Counter extends Vue {
   }
 }
 </script>
-
-<style scoped lang="scss"></style>

@@ -1,5 +1,10 @@
 <template>
-  <page id="app" :consumesEnvironment="true" :breadcrumbs="breadcrumbs">
+  <page
+    id="app"
+    :consumesEnvironment="true"
+    :breadcrumbs="breadcrumbs"
+    @environment-loaded="onEnvironmentLoaded"
+  >
     <h1>{{ title }}</h1>
     <holiday-help v-if="model.count === 0" :dance="model.dance" :empty="true">
     </holiday-help>
@@ -18,9 +23,8 @@
         tagged as "Holiday" or "Christmas".
       </p>
       <song-table
-        :songs="this.model.songs"
+        :histories="model.histories"
         :filter="model.filter"
-        :userName="model.userName"
         :hideSort="model.hideSort"
         :hiddenColumns="['Track']"
       ></song-table>
@@ -28,8 +32,8 @@
     </div>
     <spotify-player :playlist="model.playListId"></spotify-player>
     <holiday-dance-chooser
-      :dance="this.model.dance"
-      :count="this.model.count"
+      :dance="model.dance"
+      :count="model.count"
     ></holiday-dance-chooser>
   </page>
 </template>
@@ -67,6 +71,7 @@ export default class App extends Vue {
     super();
 
     this.model = TypedJSON.parse(model, HolidaySongListModel)!;
+    console.log("Model loaded");
   }
 
   private get title(): string {
@@ -104,6 +109,10 @@ export default class App extends Vue {
       breadcrumbs.push({ text, active: true });
     }
     return breadcrumbs;
+  }
+
+  private onEnvironmentLoaded(): void {
+    this.model.check();
   }
 }
 </script>

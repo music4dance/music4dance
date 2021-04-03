@@ -244,19 +244,26 @@ namespace m4dModels
             Load(SongId, props, stats);
         }
 
+        public void Reload(DanceStatsInstance stats)
+        {
+            var props = new List<SongProperty>(SongProperties);
+            SongProperties.Clear();
+            Load(SongId, props, stats);
+        }
+
         #endregion
 
         #region Serialization
 
         public void SetupSerialization(string userName, DanceStatsInstance stats)
         {
-            CurrentUserTags = GetUserTags(userName, this);
+            CurrentUserTags = GetUserTags(userName, this, false, stats);
             _currentUserLike = ModifiedBy.FirstOrDefault(mr => mr.UserName == userName)?.Like;
             if (DanceRatings == null || DanceRatings.Count == 0) return;
 
             foreach (var dr in _danceRatings)
             {
-                dr.SetupSerialization(stats, dr.GetUserTags(userName, this));
+                dr.SetupSerialization(stats, dr.GetUserTags(userName, this, false, stats));
             }
         }
 
@@ -904,7 +911,7 @@ namespace m4dModels
                     case UserField:
                     case UserProxy:
                         user = prop.Value;
-                        // TOOD: if the placeholder user works, we should use it to simplify the ModifiedRecord
+                        // TODO: if the placeholder user works, we should use it to simplify the ModifiedRecord
                         currentModified = new ModifiedRecord {UserName = prop.Value};
                         currentModified = AddModifiedBy(currentModified);
                         break;
@@ -978,9 +985,15 @@ namespace m4dModels
                 }
             }
 
-            foreach (var dr in drDelete)
+            foreach (var dr in drDelete.Where(r => r.Weight <= 0))
             {
                 DanceRatings.Remove(dr);
+                if (stats != null)
+                {
+                    var danceName = stats.FromId(dr.DanceId).DanceName;
+                    TagSummary.ChangeTags(null, new TagList(
+                        $"{danceName}:Dance|!{danceName}:Dance"));
+                }
             }
 
             if (stats != null)
@@ -1275,11 +1288,8 @@ namespace m4dModels
         internal bool AdminEdit(ICollection<SongProperty> properties, DanceStatsInstance stats)
         {
             ClearValues();
-
             Reload(properties, stats);
-
             Modified = DateTime.Now;
-
             return true;
         }
 
@@ -1300,6 +1310,14 @@ namespace m4dModels
 
             Modified = DateTime.Now;
 
+            return true;
+        }
+
+        internal bool AppendHistory(SongHistory history, IMapper mapper, DanceStatsInstance stats)
+        {
+            var properties = SongProperties.Concat(history.Properties.Select(mapper.Map<SongProperty>));
+            ClearValues();
+            Reload(properties.ToList(), stats);
             return true;
         }
 
@@ -2045,21 +2063,6 @@ namespace m4dModels
                 Modified = DateTime.Now;
         }
 
-        public void RestoreScalar(Song sd)
-        {
-            if (!sd.SongId.Equals(Guid.Empty))
-            {
-                SongId = sd.SongId;
-            }
-            foreach (var pi in ScalarProperties)
-            {
-                var v = pi.GetValue(sd);
-                pi.SetValue(this, v);
-            }
-
-            TagSummary = sd.TagSummary;
-        }
-
         public bool RemoveEmptyEdits()
         {
             // Cleanup null edits
@@ -2432,7 +2435,86 @@ namespace m4dModels
             return changed;
         }
 
-        public bool CleanupProperties(string actions = "DARE")
+        private bool FixupProperties(string name, Func<SongProperty, string> fixup)
+        {
+            var deleted = new List<SongProperty>();
+
+            bool changed = false;
+            foreach (var prop in SongProperties)
+            {
+                if (prop.BaseName != name)
+                {
+                    continue;
+                }
+
+                var value = fixup(prop);
+                if (value == null)
+                {
+                    deleted.Add(prop);
+                }
+                else if (value != prop.Value)
+                {
+                    changed = true;
+                    prop.Value = value;
+                }
+            }
+
+            foreach (var del in deleted)
+            {
+                SongProperties.Remove(del);
+            }
+
+            return deleted.Count > 0 || changed;
+        }
+
+        public bool RemoveObsoletePurchases()
+        {
+            return FixupProperties(PurchaseField, (prop) =>
+            {
+                var qualifier = prop.Qualifier;
+                if (string.Equals(qualifier, "ms", StringComparison.OrdinalIgnoreCase) ||
+                    qualifier.StartsWith("X", StringComparison.OrdinalIgnoreCase))
+                {
+                    return null;
+                }
+
+                return prop.Value;
+            });
+        }
+
+        public bool FixupLengths()
+        {
+            return FixupProperties(LengthField, (prop) =>
+            {
+                var value = prop.Value;
+                if (value.Contains(':'))
+                {
+                    value = $"0:{value}";
+                    if (TimeSpan.TryParse(value, out var length))
+                    {
+                        return Math.Round(length.TotalSeconds).ToString();
+                    }
+                    return null;
+                }
+                return value;
+            });
+        }
+
+        public bool FixDuplicateTags(DanceMusicCoreService dms)
+        {
+            return FixupProperties(
+                AddedTags, 
+                (prop) => new TagList(prop.Value).RemoveDuplicates(dms).ToString());
+        }
+
+        public bool FixBadTagCategory()
+        {
+            return FixupProperties(
+                AddedTags,
+                (prop) => new TagList(prop.Value).FixBadCategory().ToString());
+        }
+
+        public bool CleanupProperties(DanceMusicCoreService dms, string actions = "DARE")
         {
             var changed = false;
             if (actions.Contains('D'))
@@ -2455,6 +2537,26 @@ namespace m4dModels
                 changed |= RemoveEmptyEdits();
             }
 
+            if (actions.Contains('L'))
+            {
+                changed |= FixupLengths();
+            }
+
+            if (actions.Contains('P'))
+            {
+                changed |= RemoveObsoletePurchases();
+            }
+
+            if (actions.Contains('T'))
+            {
+                changed |= FixDuplicateTags(dms);
+            }
+
+            if (actions.Contains('C'))
+            {
+                changed |= FixBadTagCategory();
+            }
+
             return changed;
         }
         #endregion
@@ -2472,12 +2574,6 @@ namespace m4dModels
             return SoftUpdateDanceRating(drd);
         }
         
-        public void UpdateDanceRating(string value)
-        {
-            var drd = new DanceRatingDelta(value);
-            UpdateDanceRating(drd);
-        }
-
         public DanceRating SoftUpdateDanceRating(DanceRatingDelta drd, bool updateProperties = false)
         {
             DanceRating ret = null;
@@ -3030,8 +3126,13 @@ namespace m4dModels
             foreach (var prop in properties)
             {
                 var name = prop.BaseName;
-                var idx = prop.Index ?? 0;
+                var index = prop.Index;
+                if (!index.HasValue)
+                {
+                    continue;
+                }
 
+                var idx = index.Value;
                 var qual = prop.Qualifier;
 
                 if (names.Contains(name))
@@ -3080,8 +3181,7 @@ namespace m4dModels
                             }
                             else
                             {
-                                int t;
-                                int.TryParse(prop.Value, out t);
+                                int.TryParse(prop.Value, out var t);
                                 d.Track = t;
                             }
                             break;
@@ -3097,7 +3197,11 @@ namespace m4dModels
                             }
                             else
                             {
-                                d.Purchase[qual] = prop.Value;
+                                // Filter out AMG for now (we should probably just delete AMG)
+                                if (!string.Equals(qual, "ms", StringComparison.OrdinalIgnoreCase))
+                                {
+                                    d.Purchase[qual] = prop.Value;
+                                }
                             }
                             break;
                         case AlbumPromote:

@@ -15,14 +15,15 @@ namespace m4d.ViewModels
             IMapper mapper,
             DanceMusicCoreService.CruftFilter cruft, DanceMusicService dms)
         {
-            var songs = dms.FindArtist(name, cruft).Take(500).Select(mapper.Map<SongSparse>).ToList();
+            var list = dms.FindArtist(name, cruft).Take(500);
 
             return new ArtistViewModel
             {
                 Artist = name,
                 UserName = user,
                 Filter = mapper.Map<SongFilterSparse>(new SongFilter {Action = "Artist"}),
-                Songs = songs
+                Songs = list.Select(mapper.Map<SongSparse>).ToList(),
+                Histories = list.Select(s => s.GetHistory(mapper)).ToList()
             };
         }
     }

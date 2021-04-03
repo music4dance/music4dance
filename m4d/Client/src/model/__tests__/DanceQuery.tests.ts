@@ -3,13 +3,6 @@ import { getEnvironmentMock } from "@/helpers/MockEnvironmentManager";
 import { DanceQuery } from "../DanceQuery";
 import { DanceQueryBase } from "../DanceQueryBase";
 
-/* eslint-disable-next-line @typescript-eslint/no-explicit-any */
-declare const global: any;
-
-beforeAll(() => {
-  global.environment = getEnvironmentMock();
-});
-
 describe("dance query", () => {
   it("should load simple list", () => {
     const dq = new DanceQuery("BCH,BOL");

@@ -1,11 +1,11 @@
 <template>
   <tag-selector
-    :options="tagOptions"
+    :options="getTagOptions()"
     :chooseLabel="chooseLabel"
     :searchLabel="searchLabel"
     :emptyLabel="emptyLabel"
+    :addCategories="addCategories"
     variant="primary"
-    class="mt-2"
     v-model="selectedInternal"
   >
     <template v-slot:default="{ tag, removeTag, disabled }">
@@ -15,7 +15,6 @@
         :disabled="disabled"
         :variant="variantFromKey(tag)"
       >
-        <b-icon :icon="iconFromKey(tag)"></b-icon>
         {{ titleFromKey(tag) }}
       </b-form-tag>
     </template>
@@ -25,15 +24,20 @@
         :variant="variantFromKey(option.value)"
         @click="onOptionClick(option, addTag)"
       >
+        <b-icon-plus-circle
+          variant="danger"
+          v-if="addFromOption(option)"
+          class="mr-1"
+        ></b-icon-plus-circle>
         <b-icon :icon="iconFromKey(option.value)"></b-icon>
-        {{ descriptionFromKey(option.value) }}
+        {{ descriptionFromOption(option) }}
       </b-dropdown-item-button>
     </template>
   </tag-selector>
 </template>
 
 <script lang="ts">
-import { Component, Prop, Model, Watch, Vue } from "vue-property-decorator";
+import { Component, Prop, Model, Vue } from "vue-property-decorator";
 import TagSelector from "@/components/TagSelector.vue";
 import { ListOption } from "@/model/ListOption";
 import { Tag } from "@/model/Tag";
@@ -46,36 +50,31 @@ import { Tag } from "@/model/Tag";
 export default class TagCategorySelector extends Vue {
   private static categories = new Set(Tag.tagKeys.filter((k) => k !== "dance"));
 
-  @Model("change") private readonly selected!: string[];
+  @Model("input") private readonly selected!: string[];
   @Prop() private readonly tagList!: Tag[];
   @Prop() private readonly chooseLabel!: string;
   @Prop() private readonly searchLabel!: string;
   @Prop() private readonly emptyLabel!: string;
+  @Prop() private readonly addCategories?: string[];
 
-  private selectedInternal: string[];
-  private tagOptions: ListOption[];
-  private tagMap: Map<string, Tag>;
-
-  constructor() {
-    super();
-
-    this.tagOptions = this.buildTagOptions();
-    this.tagMap = this.buildTagMap();
-    this.selectedInternal = this.selected;
+  private get selectedInternal(): string[] {
+    return this.selected;
   }
 
-  private buildTagOptions(): ListOption[] {
+  private set selectedInternal(selected: string[]) {
+    this.$emit("input", selected);
+  }
+
+  private get tagMap(): Map<string, Tag> {
+    return new Map<string, Tag>(this.tagList.map((t) => [t.key, t]));
+  }
+
+  private getTagOptions(): ListOption[] {
     return this.tagList
       .filter((t) =>
         TagCategorySelector.categories.has(t.category.toLowerCase())
       )
-      .map((t) => ({ text: t.value, value: this.keyFromTag(t) }));
-  }
-
-  private buildTagMap(): Map<string, Tag> {
-    return new Map<string, Tag>(
-      this.tagList.map((t) => [this.keyFromTag(t), t])
-    );
+      .map((t) => ({ text: t.value, value: t.key }));
   }
 
   private titleFromKey(key: string): string {
@@ -90,24 +89,21 @@ export default class TagCategorySelector extends Vue {
     return Tag.TagInfo.get(this.variantFromKey(key))!.iconName;
   }
 
-  private descriptionFromKey(key: string): string {
+  private descriptionFromOption(option: ListOption): string {
     const ret =
-      `${this.titleFromKey(key)} ` +
-      `(${Tag.TagInfo.get(this.variantFromKey(key))!.description})`;
+      `${
+        option.text.startsWith("+") ? option.text.substring(1) : option.text
+      } ` +
+      `(${Tag.TagInfo.get(this.variantFromKey(option.value))!.description})`;
     return ret;
   }
 
-  private keyFromTag(tag: Tag): string {
-    return `${tag.value}:${tag.category}`;
+  private addFromOption(option: ListOption): boolean {
+    return option.text.startsWith("+");
   }
 
   private tagFromKey(key: string): Tag {
-    return this.tagMap.get(key)!;
-  }
-
-  @Watch("selectedInternal")
-  private onSelectedChanged(newVal: string[]): void {
-    this.$emit("change", newVal);
+    return this.tagMap.get(key) ?? Tag.fromString(key);
   }
 }
 </script>

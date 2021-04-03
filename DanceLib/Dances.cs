@@ -119,7 +119,6 @@ namespace DanceLibrary
             }
             set
             {
-                Debug.WriteLine("Set TempoRange to {0}", value);
                 //Debug.Assert(false);
             }
         }
@@ -225,23 +224,11 @@ namespace DanceLibrary
             }
          }
 
-        public override string Id
-        {
-            get => DanceType.Id + StyleId;
-            set => Debug.WriteLine("Set Id to {0}", value);
-        }
+        public override string Id => DanceType.Id + StyleId;
 
-        public override Meter Meter
-        {
-            get => DanceType.Meter;
-            set => Debug.WriteLine("Set Meter to {0}", value);
-        }
+        public override Meter Meter => DanceType.Meter;
 
-        public override string Name
-        {
-            get => ShortStyle + ' ' + DanceType.Name;
-            set => Debug.WriteLine("Set Name to {0}", value);
-        }
+        public override string Name => ShortStyle + ' ' + DanceType.Name;
 
         [JsonProperty]
         public string Style {get; set;}
@@ -486,7 +473,6 @@ namespace DanceLibrary
             }
             set
             {
-                Debug.WriteLine("Set Meter to {0}", value);
                 //Debug.Assert(false);
             }
         }
@@ -508,7 +494,6 @@ namespace DanceLibrary
             }
             set
             {
-                Debug.WriteLine("Set TempoRange to {0}", value);
                 //Debug.Assert(false);
             }
         }
@@ -758,8 +743,7 @@ namespace DanceLibrary
         {
             if (string.IsNullOrEmpty(id)) return null;
 
-            DanceObject ret;
-            return _danceDictionary.TryGetValue(id.ToUpper(), out ret) ? ret : null;
+            return _danceDictionary.TryGetValue(id.ToUpper(), out var ret) ? ret : null;
         }
 
         public OrgSpec[] Organizations = {

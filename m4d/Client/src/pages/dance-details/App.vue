@@ -17,7 +17,7 @@
         >
         </dance-description>
         <top-ten
-          :songs="model.songs"
+          :histories="model.histories"
           :filter="model.filter"
           :userName="model.userName"
         ></top-ten>
@@ -107,6 +107,7 @@ export default class App extends Vue {
     this.model = TypedJSON.parse(model, DanceModel)!;
     this.model.filter = new SongFilter();
     this.model.filter.dances = this.model.danceId;
+    this.model.filter.sortOrder = "Dances";
   }
 
   private onEnvironmentLoaded(environment: DanceEnvironment): void {
@@ -117,6 +118,7 @@ export default class App extends Vue {
       this.tags = dance.tags;
       this.isGroup = dance.isGroup;
     }
+    this.model.check();
   }
 
   private buildBreadCrumbs(dance: DanceStats): BreadCrumbItem[] {

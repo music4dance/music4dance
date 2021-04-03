@@ -3,21 +3,21 @@ import { jsonMember, jsonObject } from "typedjson";
 import { enumKeys } from "@/helpers/enumKeys";
 
 export enum ServiceType {
-  Amazon = "A",
-  ITunes = "I",
-  Spotify = "S",
+  Amazon = "a",
+  ITunes = "i",
+  Spotify = "s",
 }
 
 export enum ServiceObjectType {
-  Album = "A",
-  Song = "S",
+  Album = "a",
+  Song = "s",
 }
 
 @jsonObject
 export class PurchaseInfo {
   public static Build(service: ServiceType, albumId?: string, songId?: string) {
     const info = { albumId, songId };
-    switch (service) {
+    switch (service.toLowerCase()) {
       case ServiceType.Amazon:
         return new AmazonPurchaseInfo(info);
       case ServiceType.ITunes:
@@ -34,9 +34,10 @@ export class PurchaseInfo {
 
     const ret = [];
 
+    const f = filter.toLowerCase();
     for (const service of enumKeys(ServiceType)) {
       const value = ServiceType[service];
-      if (filter.indexOf(value) !== -1) {
+      if (f.indexOf(value) !== -1) {
         ret.push(service);
       }
     }
@@ -58,6 +59,14 @@ export class PurchaseInfo {
 
   public get logo(): string {
     return `/images/icons/${this.name}-logo.png`;
+  }
+
+  public get charm(): string {
+    return `/images/icons/${this.name}-charm.png`;
+  }
+
+  public get altText(): string {
+    return `Find it on ${this.name}`;
   }
 
   @jsonMember public albumId!: string;
@@ -130,12 +139,12 @@ export class SpotifyPurchaseInfo extends PurchaseInfo {
 
 @jsonObject
 export class PurchaseEncoded {
-  @jsonMember public aa?: string;
-  @jsonMember public as?: string;
-  @jsonMember public ia?: string;
-  @jsonMember public is?: string;
-  @jsonMember public sa?: string;
-  @jsonMember public ss?: string;
+  @jsonMember({ name: "aa" }) public aa?: string;
+  @jsonMember({ name: "as" }) public as?: string;
+  @jsonMember({ name: "ia" }) public ia?: string;
+  @jsonMember({ name: "is" }) public is?: string;
+  @jsonMember({ name: "sa" }) public sa?: string;
+  @jsonMember({ name: "ss" }) public ss?: string;
 
   public getId(
     service: ServiceType,
@@ -168,6 +177,14 @@ export class PurchaseEncoded {
     const album = this.getId(service, ServiceObjectType.Album);
 
     return PurchaseInfo.Build(service, album, song);
+  }
+
+  public addId(type: string, id: string): void {
+    if (type.length !== 2) {
+      throw new Error(`Invalid service type ${type}`);
+    }
+    /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
+    (this as any)[type.toLowerCase()] = id;
   }
 
   private cleanId(id: string): string | undefined {

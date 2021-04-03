@@ -95,7 +95,7 @@ namespace m4dModels
         [JsonProperty]
         public List<DanceStats> Tree { get; set; }
 
-        [JsonProperty(PropertyName="TagGroups")]
+        [JsonProperty(PropertyName="tagGroups")]
         public List<TagGroup> TagGroups => TagManager.TagGroups;
 
         public TagManager TagManager { get; set; }

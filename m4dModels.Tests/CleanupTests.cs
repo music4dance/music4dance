@@ -1,7 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace m4dModels.Tests
 {
@@ -23,11 +23,20 @@ namespace m4dModels.Tests
         private const string SongE =
             @"SongId={a8cace40-03bc-47bf-b781-47a817a7602c}	.Create=	User=HunterZ	Time=3/17/2014 5:46:07 PM	Title=Harmonica Man (rekmix)	Artist=Paul Lamb & the King Snakes	Album:0=Harmonica Man	DanceRating=PLK+5	User=batch	Time=6/11/2014 9:02:15 PM	Title=Harmonica Man	Artist=Paul Lamb & The King Snakes	Length=243	Album:01=Harmonica Man - The Paul Lamb Anthology 1986-2002	Track:01=17	Purchase:01:XS=music.EB85DB07-0100-11DB-89CA-0019B92A3933	PromoteAlbum:01=	User=HunterZ	Time=9/4/2014 8:06:30 PM	User=batch	Time=9/4/2014 8:06:30 PM	User=HunterZ	Time=9/4/2014 8:11:32 PM	User=batch	Time=9/4/2014 8:11:32 PM	User=HunterZ	Time=11/20/2014 11:29:06 AM	Tag+=Polka:Dance	User=batch	Time=11/20/2014 11:29:06 AM	Tag+=Blues / Folk:Music	.Edit=	User=batch-a	Time=12/10/2014 6:22:32 PM	Artist=Paul Lamb And The King Snakes	Length=246	Track:01=1	Purchase:01:AS=D:B00E74SKH0	Purchase:01:AA=D:B00E74RS46	Album:02=Harmonica Man: The Anthology 1986-2002	Track:02=1	Purchase:02:AS=D:B000SHB22K	Purchase:02:AA=D:B000S59N3M	Tag+=alternative:Music|blues:Music	.Edit=	User=batch-i	Time=12/10/2014 6:22:33 PM	Artist=Paul Lamb & The King Snakes	Length=244	Purchase:01:IS=682496811	Purchase:01:IA=682496394	Tag+=Blues:Music	.Edit=	User=batch-x	Time=12/10/2014 6:22:33 PM	Length=243	Track:01=17	Tag+=Blues / Folk:Music	.Edit=	User=batch-s	Time=1/6/2015 4:52:58 PM	Length=244	Track:01=2001	Purchase:01:SS=5PEcFNy8EO8TseIRWE1f1H[0]	Purchase:01:SA=1RNDiDdVEPepXslQPh1lBm	OrderAlbums=1,0,2	.Edit=	User=batch	Time=01/11/2016 18:29:57	Album:02=Harmonica Man	Album:00=	.FailedLookup=-:0	.Edit=	User=dwgray	Time=02/06/2016 01:42:39	Tag+=Polka:Dance	DanceRating=PLK+2	.Edit=	User=dwgray	Time=02/06/2016 01:42:45	Tag+=!Polka:Dance	Tag-=Polka:Dance	DanceRating=PLK-3	.Edit=	User=batch-s	Time=02/08/2016 19:25:07	Sample=https://p.scdn.co/mp3-preview/53916c89ece0d94242dac076fe91f8f86d8a3713	.Edit=	User=batch-e	Time=02/09/2016 18:04:50	Tempo=122.1	Danceability=0.5333328	Energy=0.9064238	Valence=0.7872825	Tag+=4/4:Tempo";
 
-        //private static readonly Guid GuidA = new Guid("{defd92b3-0a2a-4d49-b8ec-cc57fcb6fa80}");
-        //private static readonly Guid GuidB = new Guid("{250b462b-5f8f-420c-81cc-74cdcc03a48f}");
-        //private static readonly Guid GuidC = new Guid("{05178359-eaae-4463-8de1-4c79c403adb4}");
-        //private static readonly Guid GuidD = new Guid("{9e8317e8-a965-4cd5-8091-b1d08b1cdef2}");
-        //private static readonly Guid GuidE = new Guid("{a8cace40-03bc-47bf-b781-47a817a7602c}");
+        private const string SongLength =
+            @"SongId={a8cace40-03bc-47bf-b781-47a817a7602d}	.Create=	User=HunterZ	Time=3/17/2014 5:46:07 PM	Title=Test Track	Artist=Test Artist	Length=2:05";
+
+        private const string ExtraLength =
+            @"SongId={a8cace40-03bc-47bf-b781-47a817a7602d}	.Create=	User=HunterZ	Time=3/17/2014 5:46:07 PM	Title=Test Track	Artist=Test Artist	Length=1:02:05";
+
+        private const string SongPurchase =
+            @"SongId={a8cace40-03bc-47bf-b781-47a817a7602d}	.Create=	User=HunterZ	Time=3/17/2014 5:46:07 PM	Title=Test Track	Album:01=Test Album	Track:01=6	Purchase:01:MS=T B00FAXDMWU";
+
+        private const string SongDuplicateTags =
+            @"SongId={a8cace40-03bc-47bf-b781-47a817a7602d}	.Create=	User=HunterZ	Time=3/17/2014 5:46:07 PM	Title=Test Track	Tag+=International:Style|Pop:Music|pop:Music|Zoom:Other	Tag+=International:Style|Soundtrack:Music|Soundtracks:Music|soundtracks:Music|soundtrack:Music|Zoom:Other";
+
+        private const string SongBadCategoryTags =
+            @"SongId={a8cace40-03bc-47bf-b781-47a817a7602d}	.Create=	User=HunterZ	Time=3/17/2014 5:46:07 PM	Title=Test Track	Tag+=Christmas: Pop	User=FlowZ	Time=3/17/2014 5:46:08 PM	Tag+=Christmas: Other";
 
         private TraceSwitch General { get;  }
 
@@ -205,5 +214,121 @@ namespace m4dModels.Tests
             }
         }
 
+        [TestMethod]
+        public void FixupLengths()
+        {
+            var stats = DanceMusicTester.GetDanceStats();
+
+            var song = new Song(SongLength, stats);
+
+            Trace.WriteLine(General.TraceInfo, $"---------------Predump for Song {song.SongId}");
+            DanceMusicTester.DumpSongProperties(song);
+            var c = song.SongProperties.Count;
+
+            Assert.IsTrue(song.FixupLengths());
+            Trace.WriteLineIf(General.TraceInfo, $"{song.SongId}:{song.SongProperties.Count - c}");
+
+            Assert.AreEqual(c, song.SongProperties.Count);
+            song.Load(song.SongProperties, stats);
+            Assert.AreEqual(song.Length, 125);
+
+            Trace.WriteLineIf(General.TraceInfo, $"---------------Postdump for Song {song.SongId}");
+            DanceMusicTester.DumpSongProperties(song, General.TraceInfo);
+        }
+
+        [TestMethod]
+        public void FixupExtraLong()
+        {
+            var stats = DanceMusicTester.GetDanceStats();
+
+            var song = new Song(ExtraLength, stats);
+
+            Trace.WriteLine(General.TraceInfo, $"---------------Predump for Song {song.SongId}");
+            DanceMusicTester.DumpSongProperties(song);
+            var c = song.SongProperties.Count;
+
+            Assert.IsTrue(song.FixupLengths());
+            Trace.WriteLineIf(General.TraceInfo, $"{song.SongId}:{song.SongProperties.Count - c}");
+
+            Assert.AreEqual(c, song.SongProperties.Count);
+            song.Load(song.SongProperties, stats);
+            Assert.AreEqual(song.Length, 3725);
+
+            Trace.WriteLineIf(General.TraceInfo, $"---------------Postdump for Song {song.SongId}");
+            DanceMusicTester.DumpSongProperties(song, General.TraceInfo);
+        }
+
+        [TestMethod]
+        public void FixObsoletePurchase()
+        {
+            var stats = DanceMusicTester.GetDanceStats();
+
+            var song = new Song(SongPurchase, stats);
+
+            Trace.WriteLine(General.TraceInfo, $"---------------Predump for Song {song.SongId}");
+            DanceMusicTester.DumpSongProperties(song);
+            var c = song.SongProperties.Count;
+
+            Assert.IsTrue(song.RemoveObsoletePurchases());
+            Trace.WriteLineIf(General.TraceInfo, $"{song.SongId}:{song.SongProperties.Count - c}");
+
+            Assert.AreEqual(c-1, song.SongProperties.Count);
+
+            Trace.WriteLineIf(General.TraceInfo, $"---------------Postdump for Song {song.SongId}");
+            DanceMusicTester.DumpSongProperties(song, General.TraceInfo);
+        }
+
+        [TestMethod]
+        public void FixDuplicateTags()
+        {
+            var service = DanceMusicTester.CreateService("TagDupTests");
+            var stats = service.DanceStats;
+
+            var song = new Song(SongDuplicateTags, stats);
+
+            Trace.WriteLine(General.TraceInfo, $"---------------Predump for Song {song.SongId}");
+            DanceMusicTester.DumpSongProperties(song);
+            var c = song.SongProperties.Count;
+
+            Assert.IsTrue(song.FixDuplicateTags(service));
+            Trace.WriteLineIf(General.TraceInfo, $"{song.SongId}:{song.SongProperties.Count - c}");
+
+            Assert.AreEqual(c, song.SongProperties.Count);
+            Assert.AreEqual(
+                "International:Style|Pop:Music|Zoom:Other", 
+                song.SongProperties[c-2].Value);
+            Assert.AreEqual(
+                "International:Style|Soundtrack:Music|Zoom:Other",
+                song.SongProperties[c - 1].Value);
+            Trace.WriteLineIf(General.TraceInfo, $"---------------Postdump for Song {song.SongId}");
+            DanceMusicTester.DumpSongProperties(song, General.TraceInfo);
+        }
+
+        [TestMethod]
+        public void FixBadTagCategory()
+        {
+            General.Level = TraceLevel.Info;
+
+            var stats = DanceMusicTester.GetDanceStats();
+
+            var song = new Song(SongBadCategoryTags, stats);
+
+            Trace.WriteLine(General.TraceInfo, $"---------------Predump for Song {song.SongId}");
+            DanceMusicTester.DumpSongProperties(song);
+            var c = song.SongProperties.Count;
+
+            Assert.IsTrue(song.FixBadTagCategory());
+            Trace.WriteLineIf(General.TraceInfo, $"{song.SongId}:{song.SongProperties.Count - c}");
+
+            Assert.AreEqual(c, song.SongProperties.Count);
+            Assert.AreEqual(
+                "Christmas:Other|Pop:Music",
+                song.SongProperties[c - 4].Value);
+            Assert.AreEqual(
+                "Christmas:Other",
+                song.SongProperties[c - 1].Value);
+            Trace.WriteLineIf(General.TraceInfo, $"---------------Postdump for Song {song.SongId}");
+            DanceMusicTester.DumpSongProperties(song, General.TraceInfo);
+        }
     }
 }

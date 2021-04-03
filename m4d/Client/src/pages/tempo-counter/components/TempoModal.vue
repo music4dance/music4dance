@@ -59,5 +59,3 @@ export default class TempoModal extends Vue {
   }
 }
 </script>
-
-<style scoped lang="scss"></style>

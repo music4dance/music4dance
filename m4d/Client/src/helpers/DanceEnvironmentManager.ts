@@ -1,6 +1,7 @@
 import axios from "axios";
 import { TypedJSON } from "typedjson";
 import { DanceEnvironment } from "@/model/DanceEnvironmet";
+import { TagGroup } from "@/model/TagGroup";
 
 declare global {
   interface Window {
@@ -41,6 +42,14 @@ function loadFromStorage(): DanceEnvironment | undefined {
     return;
   }
 
-  window.environment = TypedJSON.parse(statString, DanceEnvironment);
-  return window.environment;
+  const environment = TypedJSON.parse(statString, DanceEnvironment);
+  const incrementalString = sessionStorage.getItem("incremental-tags");
+  if (incrementalString) {
+    environment!.incrementalTags = TypedJSON.parseAsArray(
+      incrementalString,
+      TagGroup
+    );
+  }
+  window.environment = environment;
+  return environment;
 }

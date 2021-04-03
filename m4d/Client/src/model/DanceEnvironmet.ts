@@ -1,7 +1,8 @@
 import "reflect-metadata";
-import { jsonMember, jsonObject, TypedJSON, jsonArrayMember } from "typedjson";
+import { jsonObject, TypedJSON, jsonArrayMember } from "typedjson";
 import { DanceInstance, DanceStats, DanceType } from "./DanceStats";
-import { Tag } from "./Tag";
+import { TagDatabase } from "./TagDatabase";
+import { TagGroup } from "./TagGroup";
 
 TypedJSON.setGlobalConfig({
   errorHandler: (e) => {
@@ -11,50 +12,19 @@ TypedJSON.setGlobalConfig({
 });
 
 @jsonObject
-class TagGroup {
-  public static ToTags(groups: TagGroup[]): Tag[] {
-    return groups.map((g) => g.tag);
-  }
-
-  @jsonMember public key!: string;
-  @jsonMember public modified!: Date;
-  @jsonMember public count?: number;
-  @jsonMember public primaryId?: string;
-
-  public get value(): string {
-    const parts = this.key.split(":");
-    return parts[0];
-  }
-
-  public get category(): string {
-    const parts = this.key.split(":");
-    return parts[1];
-  }
-
-  public get tag(): Tag {
-    return new Tag({
-      value: this.value,
-      category: this.category,
-      count: this.count ?? 0,
-      primaryId: this.primaryId,
-    });
-  }
-}
-
-@jsonObject
 export class DanceEnvironment {
   @jsonArrayMember(DanceStats, { name: "tree" }) public stats?: DanceStats[];
-  @jsonArrayMember(TagGroup, { name: "TagGroups" })
-  public tagGroups?: TagGroup[];
+  @jsonArrayMember(TagGroup) public tagGroups?: TagGroup[];
+  @jsonArrayMember(TagGroup) public incrementalTags?: TagGroup[];
 
-  private tagCache?: Tag[];
-
-  public get tags(): Tag[] | undefined {
-    if (!this.tagCache && this.tagGroups) {
-      this.tagCache = TagGroup.ToTags(this.tagGroups);
+  public get tagDatabase(): TagDatabase {
+    if (!this._tagDatabase && this.tagGroups) {
+      this._tagDatabase = new TagDatabase(this.tagGroups, this.incrementalTags);
     }
-    return this.tagCache;
+
+    return this._tagDatabase ?? new TagDatabase();
   }
+  private _tagDatabase?: TagDatabase;
 
   public fromId(id: string): DanceStats | undefined {
     return this.flatStats.find((d) => id === d.danceId);

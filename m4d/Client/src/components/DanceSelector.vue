@@ -13,7 +13,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Model, Watch, Vue } from "vue-property-decorator";
+import { Component, Prop, Model, Vue } from "vue-property-decorator";
 import TagSelector from "@/components/TagSelector.vue";
 import { ListOption } from "@/model/ListOption";
 import { DanceObject } from "@/model/DanceStats";
@@ -24,26 +24,21 @@ import { DanceObject } from "@/model/DanceStats";
   },
 })
 export default class DanceSelector extends Vue {
-  @Model("change") private readonly selected!: string[];
+  @Model("input") private readonly selected!: string[];
   @Prop() private readonly danceList!: DanceObject[];
 
-  private selectedInternal: string[];
+  private get selectedInternal(): string[] {
+    return this.selected;
+  }
 
-  constructor() {
-    super();
-
-    this.selectedInternal = this.selected;
+  private set selectedInternal(selected: string[]) {
+    this.$emit("input", selected);
   }
 
   private get danceOptions(): ListOption[] {
     return this.danceList
       .map((d) => ({ text: d.name, value: d.id }))
       .sort((a, b) => a.text.localeCompare(b.text));
-  }
-
-  @Watch("selectedInternal")
-  private onSelectedChanged(newVal: string[]): void {
-    this.$emit("change", newVal);
   }
 }
 </script>

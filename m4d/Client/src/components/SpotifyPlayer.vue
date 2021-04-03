@@ -13,20 +13,18 @@
 
 <script lang="ts">
 import "reflect-metadata";
-import { Component, Vue, Prop } from "vue-property-decorator";
-import { DanceEnvironment } from "@/model/DanceEnvironmet";
+import { Component, Mixins, Prop } from "vue-property-decorator";
 import { DanceStats } from "@/model/DanceStats";
-
-declare const environment: DanceEnvironment;
+import EnvironmentManager from "@/mix-ins/EnvironmentManager";
 
 @Component
-export default class SpotifyPlayer extends Vue {
+export default class SpotifyPlayer extends Mixins(EnvironmentManager) {
   @Prop() private readonly playlist?: string;
   @Prop() private readonly danceId?: string;
 
   private get dance(): DanceStats | undefined {
     const id = this.danceId;
-    return id ? environment.fromId(id) : undefined;
+    return id ? this.environment.fromId(id) : undefined;
   }
 
   private get spotifyLink(): string | undefined {

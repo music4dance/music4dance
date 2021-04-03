@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Data;
+using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 
@@ -13,7 +14,6 @@ namespace m4dModels
         #region Properties
         public string Summary { get; set; }
         public List<string> Tags => Parse(Summary);
-
         #endregion
 
         #region Constructors
@@ -170,6 +170,88 @@ namespace m4dModels
             return Parse(Summary);
         }
 
+        public TagList RemoveDuplicates(DanceMusicCoreService dms)
+        {
+            var tags = Tags;
+            var seen = new Dictionary<string,List<string>>(StringComparer.OrdinalIgnoreCase);
+
+            foreach (var tag in tags)
+            {
+                var tt = dms.GetTagRing(tag);
+                if (seen.TryGetValue(tt.Key, out var others))
+                {
+                    others.Add(tag);
+                }
+                else
+                {
+                    seen.Add(tt.Key, new List<string> {tag});
+                }
+            }
+
+            var remove = new List<string>();
+            foreach (var pair in seen.Where(p => p.Value.Count > 1))
+            {
+                var dups = pair.Value;
+                var idx = dups.IndexOf(pair.Key);
+                dups.RemoveAt(idx == -1 ? 0 : idx);
+                remove.AddRange(dups);
+            }
+
+            foreach (var tag in remove)
+            {
+                tags.Remove(tag);
+            }
+
+            return new TagList(tags);
+        }
+
+        private static readonly HashSet<string> s_validClasses = 
+            new HashSet<string> { "dance","music","style","tempo","other" };
+
+        public TagList FixBadCategory()
+        {
+            var tags = Parse(Summary, trim: false);
+
+            var list = new TagList();
+            foreach (var tag in tags)
+            {
+                if (string.Equals(tag, "halloween:othe", StringComparison.OrdinalIgnoreCase))
+                {
+                    list = list.Add("Halloween:Other");
+                    continue;
+                }
+
+                if (string.Equals(tag,"hoiday:other"))
+                {
+                    list = list.Add("Holiday:Other");
+                    continue;
+                }
+
+                var parts = tag.Split(':');
+                if (parts.Length != 2)
+                {
+                    list = list.Add($"{parts[0]}:Other");
+                }
+                else
+                {
+                    var value = parts[0].Trim();
+                    var category = parts[1].Trim();
+                    if (s_validClasses.Contains(category.ToLower()))
+                    {
+                        list = list.Add($"{value}:{category}");
+                    }
+                    else
+                    {
+                        Trace.WriteLine($"Tag: '{tag}'");
+                        list = list.Add($"{value}:Other");
+                        list = list.Add($"{category}:Music");
+                    }
+                }
+            }
+
+            return list;
+        }
+
         public static string NormalizeTag(string tag)
         {
             var fields = tag.Split(':').ToList();
@@ -193,7 +275,7 @@ namespace m4dModels
         #endregion
 
         #region Implementation
-        private static List<string> Parse(string serialized)
+        private static List<string> Parse(string serialized, bool trim = true)
         {
             var tags = new List<string>();
 
@@ -202,7 +284,9 @@ namespace m4dModels
                 return tags;
             }
 
-            tags.AddRange(serialized.Split(new[] {'|'}, StringSplitOptions.RemoveEmptyEntries).Select(tag => tag.Trim()));
+            tags.AddRange(serialized
+                .Split(new[] {'|'}, StringSplitOptions.RemoveEmptyEntries)
+                .Select(tag => trim ? tag.Trim() : tag));
 
             tags.Sort();
 

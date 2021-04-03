@@ -12,9 +12,8 @@
       >
     </b-button-group>
     <song-table
-      :songs="songs"
+      :histories="model.histories"
       :filter="filter"
-      :userName="model.userName"
       :hideSort="model.hideSort"
       :hiddenColumns="['Track']"
     ></song-table>
@@ -29,7 +28,6 @@ import SongFooter from "@/components/SongFooter.vue";
 import SongTable from "@/components/SongTable.vue";
 import Page from "@/components/Page.vue";
 import { TypedJSON } from "typedjson";
-import { Song } from "@/model/Song";
 import { SongFilter } from "@/model/SongFilter";
 import { SortOrder } from "@/model/SongSort";
 import { SongListModel } from "@/model/SongListModel";
@@ -54,10 +52,6 @@ export default class App extends Vue {
     this.model = TypedJSON.parse(model, SongListModel)!;
     this.added = this.model.filter.sortOrder === SortOrder.Created;
     this.changed = this.model.filter.sortOrder === SortOrder.Modified;
-  }
-
-  private get songs(): Song[] {
-    return this.model.songs;
   }
 
   private get filter(): SongFilter {

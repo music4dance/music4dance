@@ -13,7 +13,7 @@ namespace m4dModels
                 .ForMember(dest => dest.Tags,
             opt => opt.MapFrom(src => src.TagSummary.Tags))
                 .ForMember(dest => dest.CurrentUserTags,
-                    opt => opt.MapFrom(src => src.CurrentUserTags.Tags.Select(t => new TagCount(t))))
+                    opt => opt.MapFrom(src => src.CurrentUserTags.Tags.Select(t => new TagCount(t, 1))))
                 .ForMember(dest => dest.Danceability,
                     opt => opt.MapFrom(y => y.Danceability == null || float.IsNaN(y.Danceability.Value) ? null : y.Danceability))
                 .ForMember(dest => dest.Valence,
@@ -25,7 +25,7 @@ namespace m4dModels
                 .ForMember(dest => dest.Tags,
                     opt => opt.MapFrom(src => src.TagSummary.Tags))
                 .ForMember(dest => dest.CurrentUserTags,
-                    opt => opt.MapFrom(src => src.CurrentUserTags.Tags.Select(t => new TagCount(t))));
+                    opt => opt.MapFrom(src => src.CurrentUserTags.Tags.Select(t => new TagCount(t, 1))));
             CreateMap<AlbumDetails, AlbumDetailsSparse>();
         }
     }

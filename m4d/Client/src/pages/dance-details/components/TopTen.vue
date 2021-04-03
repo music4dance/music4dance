@@ -6,9 +6,8 @@
         Top 10 songs for dancing <a :href="filter.url">{{ danceName }}</a>
       </h2>
       <song-table
-        :songs="songs"
+        :histories="histories"
         :filter="filter"
-        :userName="userName"
         :hideSort="true"
         :hiddenColumns="['dances', 'track', 'order']"
       ></song-table>
@@ -18,24 +17,21 @@
 
 <script lang="ts">
 import "reflect-metadata";
-import { Component, Vue, Prop } from "vue-property-decorator";
+import { Component, Mixins, Prop } from "vue-property-decorator";
 import SongTable from "@/components/SongTable.vue";
-import { Song } from "@/model/Song";
 import { SongFilter } from "@/model/SongFilter";
-import { DanceEnvironment } from "@/model/DanceEnvironmet";
+import { SongHistory } from "@/model/SongHistory";
 import { DanceStats } from "@/model/DanceStats";
-
-declare const environment: DanceEnvironment;
+import EnvironmentManager from "@/mix-ins/EnvironmentManager";
 
 @Component({
   components: {
     SongTable,
   },
 })
-export default class TopTen extends Vue {
-  @Prop() private readonly songs!: Song[];
+export default class TopTen extends Mixins(EnvironmentManager) {
+  @Prop() private readonly histories!: SongHistory[];
   @Prop() private readonly filter!: SongFilter;
-  @Prop() private readonly userName!: string;
 
   private get danceLink(): string {
     return `/dances/${this.danceName}`;
@@ -47,7 +43,7 @@ export default class TopTen extends Vue {
   }
 
   private get dance(): DanceStats | undefined {
-    return environment?.fromId(this.filter.dances!);
+    return this.environment.fromId(this.filter.dances!);
   }
 }
 </script>

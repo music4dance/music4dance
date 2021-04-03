@@ -20,7 +20,7 @@ import DanceItem from "@/components/DanceItem.vue";
     DanceItem,
   },
 })
-export default class DanceCard extends Vue {
+export default class DanceList extends Vue {
   @Prop() private group!: DanceStats;
   @Prop() private flush?: boolean;
   @Prop() private showTempo?: boolean;

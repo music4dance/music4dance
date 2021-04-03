@@ -2,7 +2,7 @@ import { Tag } from "./Tag";
 
 export class TagList {
   public static build(tags: Tag[]): TagList {
-    return new TagList(tags.map((t) => t.key).join("|"));
+    return new TagList(tags.map((t) => t.toString()).join("|"));
   }
 
   constructor(public summary?: string) {}

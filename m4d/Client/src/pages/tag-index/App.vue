@@ -27,10 +27,7 @@ export default class App extends Vue {
   private tags: Tag[] = [];
 
   private onEnvironmentLoaded(environment: DanceEnvironment): void {
-    const tags = environment.tags;
-    if (tags) {
-      this.tags = tags;
-    }
+    this.tags = environment.tagDatabase.tags;
   }
 }
 </script>

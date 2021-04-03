@@ -8,10 +8,10 @@ declare global {
   }
 }
 
-export function getEnvironmentMock(): DanceEnvironment | undefined {
+export function getEnvironmentMock(): DanceEnvironment {
   if (!window.environment) {
     window.environment = TypedJSON.parse(environmentJson, DanceEnvironment);
   }
 
-  return window.environment;
+  return window.environment!;
 }

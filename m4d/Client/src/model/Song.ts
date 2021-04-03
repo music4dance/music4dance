@@ -1,78 +1,27 @@
 import "reflect-metadata";
 import { jsonMember, jsonObject, jsonArrayMember } from "typedjson";
 import { DanceEnvironment } from "./DanceEnvironmet";
-import { Tag } from "./Tag";
 import { SongHistory } from "./SongHistory";
 import { SongProperty, PropertyType } from "./SongProperty";
 import { pascalToCamel } from "@/helpers/StringHelpers";
-import { PurchaseEncoded, ServiceType, PurchaseInfo } from "./Purchase";
+import { ServiceType, PurchaseInfo } from "./Purchase";
 import { enumKeys } from "@/helpers/enumKeys";
 import { timeOrder, timeOrderVerbose } from "@/helpers/timeHelpers";
-import { ITaggableObject } from "./ITaggableObject";
-import { DanceStats } from "./DanceStats";
+import { TaggableObject } from "./TaggableObject";
+import { DanceRatingDelta } from "@/DanceRatingDelta";
+import { TagList } from "./TagList";
+import { DanceRating } from "./DanceRating";
+import { ModifiedRecord } from "./ModifiedRecord";
+import { AlbumDetails } from "./AlbumDetails";
 
 declare const environment: DanceEnvironment;
 
 @jsonObject
-export class DanceRating implements ITaggableObject {
-  @jsonMember public danceId!: string;
-  @jsonMember public weight!: number;
-  @jsonArrayMember(Tag) public tags!: Tag[];
-  @jsonArrayMember(Tag) public currentUserTags!: Tag[];
-
-  public constructor(init?: Partial<DanceRating>) {
-    Object.assign(this, init);
-  }
-
-  public get id(): string {
-    return this.danceId;
-  }
-
-  public get positiveTag(): Tag {
-    return new Tag({ value: this.stats.danceName, category: "Dance" });
-  }
-
-  public get negativeTag(): Tag {
-    return new Tag({ value: "!" + this.stats.danceName, category: "Dance" });
-  }
-
-  public get description(): string {
-    return environment.fromId(this.danceId)!.danceName;
-  }
-
-  public get stats(): DanceStats {
-    return environment.fromId(this.danceId)!;
-  }
-}
-
-@jsonObject
-export class ModifiedRecord {
-  @jsonMember public userName!: string;
-  @jsonMember public like?: boolean;
-  @jsonMember public owned?: number;
-
-  public constructor(init?: Partial<ModifiedRecord>) {
-    Object.assign(this, init);
-  }
-}
-
-@jsonObject
-export class AlbumDetails {
-  @jsonMember public name!: string;
-  @jsonMember public track?: number;
-  @jsonMember public purchase!: PurchaseEncoded;
-
-  public constructor(init?: Partial<AlbumDetails>) {
-    Object.assign(this, init);
-  }
-}
-
-@jsonObject
-export class Song implements ITaggableObject {
-  public static FromHistory(history: SongHistory): Song {
+export class Song extends TaggableObject {
+  public static fromHistory(history: SongHistory, currentUser?: string): Song {
     const song = new Song();
     song.songId = history.id;
-    song.loadProperties(history.properties);
+    song.loadProperties(history.properties, currentUser);
     return song;
   }
 
@@ -87,20 +36,101 @@ export class Song implements ITaggableObject {
   @jsonMember public valence?: number;
   @jsonMember public created!: Date;
   @jsonMember public modified!: Date;
-  @jsonArrayMember(Tag) public tags!: Tag[];
-  @jsonArrayMember(Tag) public currentUserTags!: Tag[];
-  @jsonArrayMember(DanceRating) public danceRatings!: DanceRating[];
-  @jsonArrayMember(ModifiedRecord) public modifiedBy!: ModifiedRecord[];
-  @jsonArrayMember(AlbumDetails) public albums!: AlbumDetails[];
+  @jsonArrayMember(DanceRating) public danceRatings?: DanceRating[];
+  @jsonArrayMember(ModifiedRecord) public modifiedBy?: ModifiedRecord[];
+  @jsonArrayMember(AlbumDetails) public albums?: AlbumDetails[];
 
   public constructor(init?: Partial<Song>) {
+    super();
     Object.assign(this, init);
   }
 
+  // TODO: Length is sometimes # seconds, sometimes MM:SS
+  //  Figure out which way we want empty purchase to land
+  public compareToHistory(history: SongHistory, user?: string): boolean {
+    const other = Song.fromHistory(history, user);
+
+    const diffs: string[] = [];
+    [
+      "songId",
+      "title",
+      "artist",
+      "tempo",
+      "length",
+      "sample",
+      "danceability",
+      "energy",
+      "valence",
+      // "created",
+      // "modified",
+    ].forEach((v) => this.validateField(v, other, diffs));
+
+    this.tags.sort((a, b) => a.key.localeCompare(b.key));
+    this.validateArray("tags", other, diffs);
+    this.currentUserTags?.sort((a, b) => a.key.localeCompare(b.key));
+    this.validateArray("currentUserTags", other, diffs);
+    this.danceRatings?.sort((a, b) => a.danceId.localeCompare(b.danceId));
+    this.danceRatings?.forEach((dr) => {
+      dr.tags?.sort((a, b) => a.key.localeCompare(b.key));
+      dr.currentUserTags?.sort((a, b) => a.key.localeCompare(b.key));
+    });
+    other.danceRatings?.sort((a, b) => a.danceId.localeCompare(b.danceId));
+    this.validateArray("danceRatings", other, diffs);
+    this.validateArray("modifiedBy", other, diffs);
+    this.validateArray("albums", other, diffs);
+
+    if (diffs.length > 0) {
+      console.log(`Failed to validate song ${this.songId}`);
+      diffs.forEach((s) => console.log(s));
+
+      return false;
+    }
+
+    return true;
+  }
+
+  private validateField(name: string, other: Song, diffs: string[]): void {
+    /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
+    const tobj = this as any;
+    /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
+    const oobj = other as any;
+    if (tobj[name] != oobj[name]) {
+      diffs.push(`${name}\t${tobj[name]}\t${oobj[name]}`);
+    }
+  }
+
+  private validateArray(name: string, other: Song, diffs: string[]): void {
+    /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
+    const tobj = this as any;
+    /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
+    const oobj = other as any;
+
+    const thisJson = this.JSONstringifyOrder(tobj[name])?.toLowerCase();
+    const otherJson = this.JSONstringifyOrder(oobj[name])?.toLowerCase();
+
+    if (!thisJson || !otherJson) {
+      return;
+    }
+    if (thisJson != otherJson) {
+      diffs.push(`${name}\t${thisJson}\t${otherJson}`);
+    }
+  }
+
+  /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
+  JSONstringifyOrder(obj: any) {
+    const allKeys: (string | number)[] | null | undefined = [];
+    JSON.stringify(obj, function (key, value) {
+      allKeys.push(key);
+      return value;
+    });
+    allKeys.sort();
+    return JSON.stringify(obj, allKeys);
+  }
+
   public getPurchaseInfo(service: ServiceType): PurchaseInfo | undefined {
-    const album = this.albums.find((a) => a.purchase.decodeService(service));
+    const album = this.albums?.find((a) => a.purchase?.decodeService(service));
     if (album) {
-      return album.purchase.decodeService(service);
+      return album.purchase?.decodeService(service);
     }
     return undefined;
   }
@@ -119,7 +149,7 @@ export class Song implements ITaggableObject {
   }
 
   public findDanceRatingById(id: string): DanceRating | undefined {
-    return this.danceRatings.find((r) => r.danceId === id)!;
+    return this.danceRatings?.find((r) => r.danceId === id)!;
   }
 
   public findDanceRatingByName(name: string): DanceRating | undefined {
@@ -128,11 +158,11 @@ export class Song implements ITaggableObject {
   }
 
   public get createdOrder(): string {
-    return timeOrder(this.created);
+    return this.created ? timeOrder(this.created) : "U";
   }
 
   public get modifiedOrder(): string {
-    return timeOrder(this.modified);
+    return this.modified ? timeOrder(this.modified) : "U";
   }
 
   public get createdOrderVerbose(): string {
@@ -143,6 +173,10 @@ export class Song implements ITaggableObject {
     return timeOrderVerbose(this.modified);
   }
 
+  public get hasSample(): boolean {
+    return !!this.sample && this.sample !== ".";
+  }
+
   public get id(): string {
     return this.songId;
   }
@@ -151,19 +185,37 @@ export class Song implements ITaggableObject {
     return `"${this.title}" by ${this.artist}`;
   }
 
+  public get categories(): string[] {
+    return ["Tempo", "Other", "Music"];
+  }
+
+  public wasModifiedBy(user: string): boolean {
+    return !!this.modifiedBy?.find((r) => r.userName === user);
+  }
+
   public getUserModified(userName?: string): ModifiedRecord | undefined {
     if (!userName) {
       return undefined;
     }
     const name = userName.toLowerCase();
-    return this.modifiedBy.find((mr) => mr.userName.toLowerCase() === name);
+    return this.modifiedBy?.find((mr) => mr.userName.toLowerCase() === name);
   }
 
-  private loadProperties(properties: SongProperty[]): void {
-    let created = false;
+  public danceVote(danceId: string): boolean | undefined {
+    const rating = this.getDanceRating(danceId);
+    return rating
+      ? TagList.build(this.currentUserTags).voteFromTags(rating?.positiveTag)
+      : undefined;
+  }
+
+  private loadProperties(
+    properties: SongProperty[],
+    currentUser?: string
+  ): void {
+    let created = true;
     let user: string;
     let currentModified: ModifiedRecord;
-    // let deleted = false;
+    let deleted = false;
 
     properties.forEach((property) => {
       const baseName = property.baseName;
@@ -172,16 +224,22 @@ export class Song implements ITaggableObject {
         case PropertyType.userField:
         case PropertyType.userProxy:
           user = property.value;
-          currentModified = new ModifiedRecord({ userName: user });
+          currentModified = this.addModified(user);
           break;
         case PropertyType.danceRatingField:
-          // UpdateDanceRating
+          this.addDanceRating(property.value);
           break;
         case PropertyType.addedTags:
-          // Add Tags
+          this.getTaggableObject(property).addTags(
+            property.value,
+            currentUser === user
+          );
           break;
         case PropertyType.removedTags:
-          // Remove tags
+          this.getTaggableObject(property).removeTags(
+            property.value,
+            currentUser === user
+          );
           break;
         case PropertyType.albumField:
         case PropertyType.publisherField:
@@ -190,24 +248,31 @@ export class Song implements ITaggableObject {
           // All of these are taken care of with build album
           break;
         case PropertyType.deleteCommand:
-          // deleted = true; // TODO: Some more login in the C# code to check
+          deleted = !!property.value || property.value.toLowerCase() === "true";
           break;
         case PropertyType.timeField:
-          if (!created) {
-            this.created = property.valueTyped as Date;
-            created = true;
-          }
-          this.modified = property.valueTyped as Date;
-          break;
-        case PropertyType.ownerHash:
-          if (currentModified) {
-            currentModified.owned = property.valueTyped as number;
+          if (created) {
+            this.modified = this.created = property.valueTyped as Date;
+            created = false;
+          } else {
+            this.modified = property.valueTyped as Date;
           }
           break;
+        // case PropertyType.ownerHash:
+        //   if (currentModified) {
+        //     currentModified.owned = property.valueTyped as number;
+        //   }
+        //   break;
         case PropertyType.likeTag:
           if (currentModified) {
             currentModified.like = property.valueTyped as boolean | undefined;
           }
+          break;
+        case PropertyType.albumListField:
+        case PropertyType.albumPromote:
+        case PropertyType.albumOrder:
+        case PropertyType.songId:
+          // Obsolete fields
           break;
         default:
           if (!property.isAction) {
@@ -217,5 +282,120 @@ export class Song implements ITaggableObject {
           break;
       }
     });
+
+    if (deleted) {
+      this.clear();
+    } else {
+      this.albums = this.buildAlbumInfo(properties);
+    }
+  }
+
+  private addModified(user: string): ModifiedRecord {
+    let record = this.modifiedBy?.find((r) => r.userName === user);
+    if (!record) {
+      if (!this.modifiedBy) {
+        this.modifiedBy = [];
+      }
+      record = new ModifiedRecord({ userName: user });
+      this.modifiedBy.push(record);
+    }
+    return record;
+  }
+
+  private addDanceRating(value: string): void {
+    const drd = DanceRatingDelta.fromString(value);
+    const ratings = this.danceRatings ?? [];
+    const idx = ratings.findIndex((r) => r.id === drd.danceId);
+    if (idx != -1) {
+      const dr = ratings[idx];
+      dr.weight += drd.delta;
+      if (dr.weight <= 0) {
+        ratings.splice(idx, 1);
+      }
+    } else if (drd.delta > 0) {
+      const dr = new DanceRating({ danceId: drd.danceId, weight: drd.delta });
+      if (this.danceRatings) {
+        this.danceRatings.push(dr);
+      } else {
+        this.danceRatings = [dr];
+      }
+    }
+  }
+
+  private getTaggableObject(property: SongProperty): TaggableObject {
+    const danceId = property.danceQualifier;
+    return danceId ? this.getDanceRating(danceId)! : this;
+  }
+
+  private getDanceRating(danceId: string): DanceRating | undefined {
+    return this.danceRatings?.find((dr) => dr.id === danceId);
+  }
+
+  private buildAlbumInfo(properties: SongProperty[]): AlbumDetails[] {
+    const names = new Set<string>([
+      PropertyType.albumField,
+      PropertyType.publisherField,
+      PropertyType.trackField,
+      PropertyType.purchaseField,
+    ]);
+
+    const map = new Map<number, AlbumDetails>();
+    let max = 0;
+
+    properties
+      .filter((p) => names.has(p.baseName) && p.hasIndex)
+      .forEach((property) => {
+        const name = property.baseName;
+        const idx = property.index ?? 0;
+
+        let details = map.get(idx);
+        if (!details) {
+          max = Math.max(max, idx);
+          details = new AlbumDetails();
+          map.set(idx, details);
+        }
+
+        const remove = !property.value;
+
+        switch (name) {
+          case PropertyType.albumField:
+            details.name = remove ? undefined : property.value;
+            break;
+          case PropertyType.publisherField:
+            details.publisher = remove ? undefined : property.value;
+            break;
+          case PropertyType.trackField:
+            details.track = remove
+              ? undefined
+              : (property.valueTyped as number);
+            break;
+          case PropertyType.purchaseField:
+            details.purchase.addId(property.qualifier!, property.value);
+            break;
+        }
+      });
+
+    const albums = [];
+    for (let i = 0; i <= max; i++) {
+      const album = map.get(i);
+      if (album && album.name) {
+        albums.push(album);
+      }
+    }
+    return albums;
+  }
+
+  private clear(): void {
+    this.title = "";
+    this.artist = "";
+    this.tempo = undefined;
+    this.length = undefined;
+    this.sample = undefined;
+    this.danceability = undefined;
+    this.energy = undefined;
+    this.valence = undefined;
+    this.danceRatings = [];
+    this.modifiedBy = [];
+    this.albums = [];
   }
 }

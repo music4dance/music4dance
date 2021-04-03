@@ -1,9 +1,8 @@
 <template>
   <page id="app" :title="title" :consumesEnvironment="true">
     <song-table
-      :songs="model.songs"
+      :histories="model.histories"
       :filter="model.filter"
-      :userName="model.userName"
       :hideSort="true"
       :hiddenColumns="['Artist', 'Track']"
     ></song-table>

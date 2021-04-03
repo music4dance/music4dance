@@ -16,22 +16,21 @@
 <script lang="ts">
 import "reflect-metadata";
 import HolidayHelp from "./HolidayHelp.vue";
-import { Component, Prop, Vue } from "vue-property-decorator";
-import { DanceEnvironment } from "@/model/DanceEnvironmet";
+import { Component, Prop, Mixins } from "vue-property-decorator";
 import { DanceStats } from "@/model/DanceStats";
-
-declare const environment: DanceEnvironment;
+import EnvironmentManager from "@/mix-ins/EnvironmentManager";
 
 @Component({
   components: {
     HolidayHelp,
   },
 })
-export default class HolidayDanceChooser extends Vue {
+export default class HolidayDanceChooser extends Mixins(EnvironmentManager) {
   @Prop() private readonly dance!: string;
   @Prop() private readonly count!: number;
 
   private get sortedDances(): DanceStats[] {
+    const environment = this.environment;
     return environment
       ? environment.flatStats
           .filter((d) => d.songCountExplicit > 10 && d.danceName !== this.dance)
@@ -44,5 +43,3 @@ export default class HolidayDanceChooser extends Vue {
   }
 }
 </script>
-
-<style scoped lang="scss"></style>

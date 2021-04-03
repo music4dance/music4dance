@@ -7,9 +7,8 @@
       >
     </h1>
     <song-table
-      :songs="model.songs"
+      :histories="model.histories"
       :filter="model.filter"
-      :userName="model.userName"
       :hideSort="true"
       :hiddenColumns="hidden"
     ></song-table>

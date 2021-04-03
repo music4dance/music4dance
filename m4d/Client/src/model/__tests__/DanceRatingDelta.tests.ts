@@ -24,7 +24,7 @@ describe("dance rating delta serialize/deserialize", () => {
   });
 
   it("should throw on misformatted string", () => {
-    const error = "value must conform to {dancid}(+|-){count}";
+    const error = "must conform to {dancid}(+|-){count}";
     expect(() => {
       DanceRatingDelta.fromString("LTN");
     }).toThrowError(error);

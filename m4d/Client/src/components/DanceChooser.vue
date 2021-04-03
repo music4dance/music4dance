@@ -17,6 +17,17 @@
     >
       Search All Dance Styles
     </b-button>
+    <b-input-group class="mb-2">
+      <b-form-input
+        type="text"
+        v-model="nameFilter"
+        placeholder="Filter Dances"
+        autofocus
+      ></b-form-input>
+      <b-input-group-append is-text
+        ><b-icon-search></b-icon-search
+      ></b-input-group-append>
+    </b-input-group>
     <b-tabs>
       <b-tab title="By Name" active>
         <b-list-group>
@@ -25,6 +36,7 @@
             :key="dance.danceId"
             button
             :active="danceId === dance.danceId"
+            :disabled="exists(dance.danceId)"
             @click="choose(dance.danceId)"
           >
             {{ dance.danceName }}
@@ -40,11 +52,23 @@
             :variant="groupVariant(dance)"
             :class="{ 'sub-item': !dance.isGroup }"
             :active="danceId === dance.danceId"
+            :disabled="exists(dance.danceId)"
             @click="choose(dance.danceId)"
           >
             {{ dance.danceName }}
           </b-list-group-item>
         </b-list-group>
+      </b-tab>
+      <b-tab title="By Tempo" v-if="hasTempo">
+        <dance-list
+          :dances="dances"
+          :beatsPerMinute="tempo"
+          :beatsPerMeasure="numerator"
+          :epsilonPercent="20"
+          :filter="nameFilter"
+          countMethod="beats"
+          @choose-dance="choose($event)"
+        ></dance-list>
       </b-tab>
     </b-tabs>
   </b-modal>
@@ -52,28 +76,49 @@
 
 <script lang="ts">
 import "reflect-metadata";
-import { Component, Prop, Vue } from "vue-property-decorator";
-import { DanceEnvironment } from "@/model/DanceEnvironmet";
+import { Component, Prop, Mixins } from "vue-property-decorator";
 import { DanceStats } from "@/model/DanceStats";
+import EnvironmentManager from "@/mix-ins/EnvironmentManager";
+import DanceList from "@/pages/tempo-counter/components/DanceList.vue";
 
-declare const environment: DanceEnvironment;
-
-@Component
-export default class DanceChooser extends Vue {
+@Component({
+  components: {
+    DanceList,
+  },
+})
+export default class DanceChooser extends Mixins(EnvironmentManager) {
   @Prop() private readonly danceId!: string;
+  @Prop() private readonly filterIds?: string[];
+  @Prop() private readonly tempo?: number;
+  @Prop() private readonly numerator?: number;
+
+  private readonly nameFilter: string = "";
 
   private get sortedDances(): DanceStats[] {
+    const environment = this.environment;
     return environment
-      ? environment.flatStats
-          .filter((d) => d.songCount > 0)
-          .sort((a, b) => a.danceName.localeCompare(b.danceName))
+      ? this.filterAll(environment.flatStats).sort((a, b) =>
+          a.danceName.localeCompare(b.danceName)
+        )
       : [];
   }
 
   private get groupedDances(): DanceStats[] {
-    return environment
-      ? environment.groupedStats.filter((d) => d.songCount > 0)
-      : [];
+    const environment = this.environment;
+    return environment ? this.filterAll(environment.groupedStats, true) : [];
+  }
+
+  private get dances(): DanceStats[] {
+    const environment = this.environment;
+    return environment && environment.stats ? environment.stats : [];
+  }
+
+  private exists(danceId: string): boolean {
+    const filtered = this.filterIds;
+    if (!filtered) {
+      return false;
+    }
+    return !!filtered.find((id) => id === danceId);
   }
 
   private choose(danceId?: string): void {
@@ -85,10 +130,34 @@ export default class DanceChooser extends Vue {
       ? "dark"
       : undefined;
   }
+
+  private get hasTempo(): boolean {
+    return !!this.tempo && !!this.numerator;
+  }
+
+  private filterAll(
+    dances: DanceStats[],
+    includeChildren = false
+  ): DanceStats[] {
+    const filter = this.nameFilter;
+    return dances.filter(
+      (d) =>
+        d.songCount > 0 &&
+        (!filter ||
+          d.danceName.toLowerCase().indexOf(filter) !== -1 ||
+          (includeChildren &&
+            d.isGroup &&
+            d.children.find(
+              (c) =>
+                c.songCount > 0 &&
+                c.danceName.toLowerCase().indexOf(filter) !== -1
+            )))
+    );
+  }
 }
 </script>
 
-<style scoped lang="scss">
+<style lang="scss" scoped>
 .sub-item {
   padding-left: 2em;
 }

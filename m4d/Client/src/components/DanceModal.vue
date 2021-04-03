@@ -38,11 +38,12 @@
       </tag-button>
     </div>
     <div>
-      <vote-button
+      <dance-vote
         :song="danceHandler.parent"
         :danceRating="danceHandler.danceRating"
         :authenticated="authenticated"
-      ></vote-button>
+        v-on="$listeners"
+      ></dance-vote>
       <span style="padding-inline-start: 1em"
         >I enjoy dancing <b>{{ danceName }}</b> to {{ this.title }}.</span
       >
@@ -57,20 +58,17 @@
 import "reflect-metadata";
 import TagModalBase from "./TagModalBase";
 import TagButton from "./TagButton.vue";
-import VoteButton from "./VoteButton.vue";
+import DanceVote from "@/components/DanceVote.vue";
 import { Component } from "vue-property-decorator";
 import { Tag } from "@/model/Tag";
 import { DanceHandler } from "@/model/DanceHandler";
-import { DanceEnvironment } from "@/model/DanceEnvironmet";
 import { DanceStats } from "@/model/DanceStats";
 import { TagHandler } from "@/model/TagHandler";
 
-declare const environment: DanceEnvironment;
-
 @Component({
   components: {
+    DanceVote,
     TagButton,
-    VoteButton,
   },
 })
 export default class DanceModal extends TagModalBase {
@@ -102,7 +100,7 @@ export default class DanceModal extends TagModalBase {
 
   private get dance(): DanceStats | undefined {
     return this.danceHandler.danceRating
-      ? environment.fromId(this.danceHandler.danceRating.danceId)
+      ? this.environment.fromId(this.danceHandler.danceRating.danceId)
       : undefined;
   }
 
@@ -130,6 +128,9 @@ export default class DanceModal extends TagModalBase {
 
   private get hasFilter(): boolean {
     const filter = this.danceHandler.filter;
+    if (!this.danceHandler.danceRating) {
+      console.log(JSON.stringify(this.danceHandler));
+    }
     return (
       !!filter &&
       filter.isDefaultDance(

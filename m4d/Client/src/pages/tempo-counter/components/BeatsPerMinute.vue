@@ -27,5 +27,3 @@ export default class BeatsPerMinute extends Vue {
   @Prop() private beatsPerMinute!: number;
 }
 </script>
-
-<style scoped lang="scss"></style>

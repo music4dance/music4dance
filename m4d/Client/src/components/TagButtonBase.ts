@@ -31,6 +31,12 @@ export default class TagButtonBase extends Vue {
     throw new Error(message);
   }
 
+  protected get selectedIcon(): string | undefined {
+    return this.tagHandler.user && this.tagHandler.isSelected
+      ? "check-circle"
+      : undefined;
+  }
+
   protected showModal(): void {
     this.$bvModal.show(this.tagHandler.id);
   }

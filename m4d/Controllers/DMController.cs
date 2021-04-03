@@ -64,6 +64,11 @@ namespace m4d.Controllers
             return View("HttpError", model);
         }
 
+        protected IActionResult JsonCamelCase(object json)
+        {
+            return new JsonResult(json, JsonHelpers.CamelCaseSerializer);
+        }
+
         public override ViewResult View(string viewName, object model)
         {
             ViewBag.Theme = ThemeName;

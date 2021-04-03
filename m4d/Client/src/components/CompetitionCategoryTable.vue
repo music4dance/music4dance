@@ -49,8 +49,6 @@ export default class CompetitionCategoryTable extends Vue {
   @Prop() private title!: string;
   @Prop() private useFullName?: boolean;
 
-  // TODO: Add in table caption explaining NCDCA headers for non-homogenous groups
-
   private fields: BvTableFieldArray = [
     {
       key: "name",

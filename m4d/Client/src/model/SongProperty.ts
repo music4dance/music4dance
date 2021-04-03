@@ -1,4 +1,5 @@
 import "reflect-metadata";
+import format from "date-fns/format";
 import { jsonMember, jsonObject } from "typedjson";
 
 // Name Syntax:
@@ -7,14 +8,7 @@ import { jsonMember, jsonObject } from "typedjson";
 //     qual is a qualifier for purchase type (may generalize?)
 //   Tag(+|-)[DanceQualifier]
 
-// TODO:
-//  Build Song from SongHistory:
-//   TaggableObject (add to tags and song)
-//   DanceRating
-//   Tags Add/Remove
-//   Albums
-
-// yarn jest SongProperty.tests.ts
+export type PropertyValue = string | number | Date | boolean | undefined;
 
 export enum PropertyType {
   // Field names - note that these must be kept in sync with the actual property names
@@ -80,6 +74,9 @@ export enum PropertyType {
   measureTempo = "MPM",
   multiDance = "MultiDance",
 
+  // Why does this exist?
+  songId = "SongId",
+
   // Commands
   createCommand = ".Create",
   editCommand = ".Edit",
@@ -101,7 +98,11 @@ export class SongProperty {
   @jsonMember public name!: string;
   @jsonMember public value!: string;
 
-  public get valueTyped(): string | number | Date | boolean | undefined {
+  public constructor(init?: Partial<SongProperty>) {
+    Object.assign(this, init);
+  }
+
+  public get valueTyped(): PropertyValue {
     const value = this.value;
     switch (this.baseName) {
       // decimal & float
@@ -118,8 +119,7 @@ export class SongProperty {
         return this.intValue;
 
       // date
-      case PropertyType.createdField:
-      case PropertyType.modifiedField:
+      case PropertyType.timeField:
         return this.dateValue;
 
       case PropertyType.likeTag:
@@ -130,8 +130,9 @@ export class SongProperty {
     }
   }
 
-  private get floatValue(): number {
-    return Number.parseFloat(this.value);
+  private get floatValue(): number | undefined {
+    const n = Number.parseFloat(this.value);
+    return Number.isNaN(n) ? undefined : n;
   }
 
   private get intValue(): number {
@@ -139,50 +140,87 @@ export class SongProperty {
   }
 
   private get dateValue(): Date {
+    // TODO:  Need to standardize on storing UTC time on the server (and in properties)
     return new Date(this.value);
   }
 
   private get booleanValue(): boolean | undefined {
     const value = this.value;
-    if (value === "true") {
+    if (value.toLowerCase() === "true") {
       return true;
     }
-    if (value === "false") {
+    if (value.toLowerCase() === "false") {
       return false;
     }
     return undefined;
   }
 
   public get baseName(): string {
-    return this.parsePart(0);
+    return this.parsePart(0)!;
+  }
+
+  public get hasIndex(): boolean {
+    return this.hasPart(1);
   }
 
   public get index(): number {
-    const index = Number.parseInt(this.parsePart(1), 10);
+    const part = this.parsePart(1);
+    if (part === undefined) {
+      throw new Error(
+        `Attempted to retrieve part ${1} from '${
+          this.name
+        }' which doesn't exist`
+      );
+    }
+
+    const index = Number.parseInt(part, 10);
     if (Number.isNaN(index)) {
       throw new Error(`Index must be a number, not '${index}'`);
     }
+
     if (index < 0) {
       throw new Error(`Index must be a postitive integer, not '${index}'`);
     }
+
     return index;
   }
 
-  public get danceQualifier(): string {
+  public get danceQualifier(): string | undefined {
     return this.parsePart(1);
+  }
+
+  public get qualifier(): string | undefined {
+    return this.parsePart(2);
   }
 
   public get isAction(): boolean {
     return this.name.startsWith(".");
   }
 
-  private parsePart(index: number) {
-    const parts = this.name.split(":");
-    if (parts.length > index) {
-      return parts[index];
+  public toString(): string {
+    return `${this.name}=${this.value}`;
+  }
+
+  public static formatDate(date: Date): string {
+    return format(date, "dd-MMM-yyyy hh:mm:ss a");
+  }
+
+  private hasPart(index: number): boolean {
+    if (index === 0) {
+      return true;
     }
-    throw new Error(
-      `Attempted to retrieve part ${index} from '${this.name}' which doesn't exist`
-    );
+    const first = this.name.indexOf(":");
+    if (index === 1) {
+      return first !== -1;
+    }
+    if (index === 2) {
+      return first !== -1 && first !== this.name.lastIndexOf(":");
+    }
+    return false;
+  }
+
+  private parsePart(index: number): string | undefined {
+    const parts = this.name.split(":");
+    return parts.length > index ? parts[index] : undefined;
   }
 }

@@ -10,18 +10,16 @@
 
 <script lang="ts">
 import "reflect-metadata";
-import { Component, Vue, Prop } from "vue-property-decorator";
-import { DanceEnvironment } from "@/model/DanceEnvironmet";
+import { Component, Mixins, Prop } from "vue-property-decorator";
 import { DanceLink, DanceStats } from "@/model/DanceStats";
-
-declare const environment: DanceEnvironment;
+import EnvironmentManager from "@/mix-ins/EnvironmentManager";
 
 @Component
-export default class DanceLinks extends Vue {
+export default class DanceLinks extends Mixins(EnvironmentManager) {
   @Prop() private readonly danceId!: string;
 
   private get dance(): DanceStats | undefined {
-    return environment?.fromId(this.danceId);
+    return this.environment.fromId(this.danceId);
   }
 
   private get links(): DanceLink[] {

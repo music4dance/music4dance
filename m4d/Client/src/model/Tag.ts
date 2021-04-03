@@ -24,6 +24,12 @@ export class Tag {
     return variant ? Tag.tagInfo.get(variant)?.iconName : undefined;
   }
 
+  public toString(): string {
+    const key = this.key;
+    const count = this.count;
+    return count ? key + `:${count}` : key;
+  }
+
   public static get TagInfo() {
     return this.tagInfo;
   }

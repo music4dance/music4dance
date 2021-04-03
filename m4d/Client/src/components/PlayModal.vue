@@ -16,7 +16,7 @@
         <img width="32" height="32" :src="pi.logo" />
         Available on {{ pi.name }}
       </b-list-group-item>
-      <div v-if="song.sample">
+      <div v-if="song.hasSample">
         <audio
           :id="playerId"
           ref="player"

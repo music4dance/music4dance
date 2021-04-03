@@ -20,25 +20,23 @@
 
 <script lang="ts">
 import "reflect-metadata";
-import { Component, Vue, Prop } from "vue-property-decorator";
+import { Component, Mixins, Prop } from "vue-property-decorator";
 import TempiLink from "@/components/TempiLink.vue";
 import { SongFilter } from "@/model/SongFilter";
-import { DanceEnvironment } from "@/model/DanceEnvironmet";
 import { DanceStats, TempoRange } from "@/model/DanceStats";
-
-declare const environment: DanceEnvironment;
+import EnvironmentManager from "@/mix-ins/EnvironmentManager";
 
 @Component({
   components: {
     TempiLink,
   },
 })
-export default class DanceDescription extends Vue {
+export default class DanceDescription extends Mixins(EnvironmentManager) {
   @Prop() private readonly description!: string;
   @Prop() private readonly danceId!: string;
 
   private get dance(): DanceStats | undefined {
-    return environment?.fromId(this.danceId);
+    return this.environment.fromId(this.danceId);
   }
 
   private get danceName(): string | undefined {

@@ -1,0 +1,172 @@
+{
+  "songId": "9ee1b507-c177-4167-a543-6b64a15afb12",
+  "tempo": 125.1,
+  "title": "La La La",
+  "artist": "Naughty Boy",
+  "length": 222,
+  "sample": ".",
+  "danceability": 0.772,
+  "energy": 0.65,
+  "valence": 0.262,
+  "created": "2020-12-24T13:32:58",
+  "modified": "2020-12-24T13:33:18",
+  "tags": [
+    {
+      "value": "4/4",
+      "category": "Tempo",
+      "count": 1
+    },
+    {
+      "value": "Dance Pop",
+      "category": "Music",
+      "count": 1
+    },
+    {
+      "value": "Pop",
+      "category": "Music",
+      "count": 2
+    },
+    {
+      "value": "Post Teen Pop",
+      "category": "Music",
+      "count": 1
+    },
+    {
+      "value": "Tropical House",
+      "category": "Music",
+      "count": 1
+    },
+    {
+      "value": "Uk Contemporary R&B",
+      "category": "Music",
+      "count": 1
+    },
+    {
+      "value": "Uk Pop",
+      "category": "Music",
+      "count": 1
+    },
+    {
+      "value": "West Coast Swing",
+      "category": "Dance",
+      "count": 1
+    }
+  ],
+  "currentUserTags": [],
+  "danceRatings": [
+    {
+      "danceId": "WCS",
+      "weight": 2,
+      "tags": [],
+      "currentUserTags": []
+    },
+    {
+      "danceId": "SWG",
+      "weight": 1,
+      "tags": [],
+      "currentUserTags": []
+    }
+  ],
+  "modifiedBy": [
+    {
+      "userName": "LizaMay"
+    },
+    {
+      "userName": "batch-i"
+    },
+    {
+      "userName": "batch-s"
+    },
+    {
+      "userName": "batch-e"
+    }
+  ],
+  "albums": [
+    {
+      "name": "Hotel Cabana (Deluxe Version)",
+      "track": 8,
+      "purchase": {
+        "sa": "53iwAByO7wE7EqnpFPpIB3",
+        "ss": "1RjpMjVNCHWoltfYSBHEKg",
+        "is": "1443257774",
+        "ia": "1443257658"
+      }
+    },
+    {
+      "name": "La La La (feat. Sam Smith) - EP",
+      "track": 1,
+      "purchase": {
+        "is": "1445297154",
+        "ia": "1445297149",
+        "ss": "52gvlDnre9craz9dKGObp8",
+        "sa": "7L2vCH0rBeI5pKefCgWcV9"
+      }
+    },
+    {
+      "name": "Runtastic Music - Running, Vol. 2",
+      "track": 17,
+      "purchase": {
+        "is": "1443009685",
+        "ia": "1443009219"
+      }
+    },
+    {
+      "name": "In the Lonely Hour (Drowning Shadows Edition)",
+      "track": 13,
+      "purchase": {
+        "is": "1536994177",
+        "ia": "1536993568",
+        "ss": "0PPXEgevjLKKso0QVhEFZ4",
+        "sa": "0vrWqbRQEMKqhTGcDLQK7x"
+      }
+    },
+    {
+      "name": "HEAL - EP",
+      "track": 2,
+      "purchase": {
+        "is": "1525762409",
+        "ia": "1525762407"
+      }
+    },
+    {
+      "name": "2013 Hits",
+      "track": 22,
+      "purchase": {
+        "ss": "1YGrDWPqdIiLIBWT16LkmD",
+        "sa": "3DiKQcknXvMRlLYrtSnM3d"
+      }
+    },
+    {
+      "name": "R&B Fresh Hits",
+      "track": 4,
+      "purchase": {
+        "ss": "2AGkwavipFIB2c8kFYTjXI",
+        "sa": "5LdPZ8X1yC1zrYfV7Rr7NV"
+      }
+    },
+    {
+      "name": "Pop Hits 2012-2015",
+      "track": 19,
+      "purchase": {
+        "ss": "34C70uPZsQvplM9n4mHjxT",
+        "sa": "51Z21bW6Pc6JRx9Iob7gno"
+      }
+    },
+    {
+      "name": "Summer 2019",
+      "track": 21,
+      "purchase": {
+        "ss": "0NRFSgzkoKDiL3wlItt4WS",
+        "sa": "4WWpkUUZXjsTDA4jYrj8BH"
+      }
+    },
+    {
+      "name": "HEAL",
+      "track": 2,
+      "purchase": {
+        "ss": "5I7tLS7nJ49wR44Be4XOgj",
+        "sa": "35IxlwuDscHGOpwEBqrh7t"
+      }
+    }
+  ]
+}

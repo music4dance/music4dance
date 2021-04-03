@@ -11,34 +11,40 @@
     >
       <template v-slot:cell(edit)="data">
         <b-form-checkbox
-          @change="onSelect(data.item, $event)"
+          @change="onSelect(data.item.song, $event)"
         ></b-form-checkbox>
-        <a :href="editRef(data.item)"><b-icon-pencil></b-icon-pencil></a>
+        <a :href="editRef(data.item.song)"><b-icon-pencil></b-icon-pencil></a>
       </template>
       <template v-slot:head(play)>
         <div :class="likeHeader">Like/Play</div>
       </template>
       <template v-slot:cell(play)="data">
-        <vote-button
+        <dance-vote
           v-if="filter.singleDance"
-          :song="data.item"
-          :danceRating="getDanceRating(data.item)"
+          :song="data.item.song"
+          :danceRating="getDanceRating(data.item.song)"
           :authenticated="!!userName"
+          @dance-vote="onDanceVote(data.item, $event)"
           style="margin-right: 0.25em"
-        ></vote-button>
-        <like-button
-          :song="data.item"
-          :userName="userName"
-          scale="1.75"
-        ></like-button>
+        ></dance-vote>
+        <song-like-button
+          :song="data.item.song"
+          :user="userName"
+          @click-like="onClickLike(data.item)"
+          :scale="1.75"
+        ></song-like-button>
         &nbsp;
-        <a href="#" @click.prevent="showPlayModal(data.item)" role="button">
+        <a
+          href="#"
+          @click.prevent="showPlayModal(data.item.song)"
+          role="button"
+        >
           <b-iconstack font-scale="1.75">
             <b-icon stacked icon="circle"></b-icon>
             <b-icon stacked icon="play-fill" shift-h="1"></b-icon>
           </b-iconstack>
         </a>
-        <play-modal :song="data.item"></play-modal>
+        <play-modal :song="data.item.song"></play-modal>
       </template>
       <template v-slot:head(title)>
         <sortable-header
@@ -49,7 +55,7 @@
         ></sortable-header>
       </template>
       <template v-slot:cell(title)="data">
-        <a :href="songRef(data.item)">{{ data.item.title }}</a>
+        <a :href="songRef(data.item.song)">{{ data.item.song.title }}</a>
       </template>
       <template v-slot:head(artist)>
         <sortable-header
@@ -60,10 +66,10 @@
         ></sortable-header>
       </template>
       <template v-slot:cell(artist)="data">
-        <a :href="artistRef(data.item)">{{ data.item.artist }}</a>
+        <a :href="artistRef(data.item.song)">{{ data.item.song.artist }}</a>
       </template>
       <template v-slot:cell(track)="data">
-        {{ trackNumber(data.item) }}
+        {{ trackNumber(data.item.song) }}
       </template>
       <template v-slot:head(tempo)>
         <sortable-header
@@ -75,7 +81,7 @@
         ></sortable-header>
       </template>
       <template v-slot:cell(tempo)="data">
-        <a :href="tempoRef(data.item)">{{ tempoValue(data.item) }}</a>
+        <a :href="tempoRef(data.item.song)">{{ tempoValue(data.item.song) }}</a>
       </template>
       <template v-slot:head(echo)>
         <div :class="echoClass">
@@ -107,19 +113,19 @@
       </template>
       <template v-slot:cell(echo)="data" style="width: 100px">
         <echo-icon
-          :value="data.item.danceability"
+          :value="data.item.song.danceability"
           type="beat"
           label="beat strength"
           maxLabel="strongest beat"
         ></echo-icon>
         <echo-icon
-          :value="data.item.energy"
+          :value="data.item.song.energy"
           type="energy"
           label="energy level"
           maxLabel="highest energy"
         ></echo-icon>
         <echo-icon
-          :value="data.item.valence"
+          :value="data.item.song.valence"
           type="mood"
           label="mood level"
           maxLabel="happiest"
@@ -135,16 +141,17 @@
       </template>
       <template v-slot:cell(dances)="data">
         <dance-button
-          v-for="tag in dances(data.item)"
+          v-for="tag in dances(data.item.song)"
           :key="tag.key"
-          :tagHandler="danceHandler(tag, filter, data.item)"
+          :tagHandler="danceHandler(tag, filter, data.item.song)"
+          @dance-vote="onDanceVote(data.item, $event)"
         ></dance-button>
       </template>
       <template v-slot:cell(tags)="data">
         <tag-button
-          v-for="tag in tags(data.item)"
+          v-for="tag in tags(data.item.song)"
           :key="tag.key"
-          :tagHandler="tagHandler(tag, filter, data.item)"
+          :tagHandler="tagHandler(tag, filter, data.item.song)"
         ></tag-button>
       </template>
       <template v-slot:head(order)>
@@ -160,8 +167,8 @@
         </div>
       </template>
       <template v-slot:cell(order)="data">
-        <span v-b-tooltip.hover.click.blur.topleft="orderTip(data.item)">{{
-          data.item.modifiedOrder
+        <span v-b-tooltip.hover.click.blur.topleft="orderTip(data.item.song)">{{
+          data.item.song.modifiedOrder
         }}</span>
       </template>
 
@@ -181,10 +188,13 @@
         ></sortable-header>
       </template>
       <template v-slot:cell(text)="data">
-        <a :href="songRef(data.item)">{{ data.item.title }}</a> by
-        <a :href="artistRef(data.item)">{{ data.item.artist }}</a>
-        <span v-if="tempoValue(data.item)">
-          @ <a :href="tempoRef(data.item)">{{ tempoValue(data.item) }} BPM</a>
+        <a :href="songRef(data.item.song)">{{ data.item.song.title }}</a> by
+        <a :href="artistRef(data.item.song)">{{ data.item.song.artist }}</a>
+        <span v-if="tempoValue(data.item.song)">
+          @
+          <a :href="tempoRef(data.item.song)"
+            >{{ tempoValue(data.item.song) }} BPM</a
+          >
         </span>
       </template>
       <template v-slot:head(info)>
@@ -198,14 +208,15 @@
       </template>
       <template v-slot:cell(info)="data">
         <dance-button
-          v-for="tag in dances(data.item)"
+          v-for="tag in dances(data.item.song)"
           :key="tag.key"
-          :tagHandler="danceHandler(tag, filter, data.item)"
+          :tagHandler="danceHandler(tag, filter, data.item.song)"
+          @dance-vote="onDanceVote(data.item, $event)"
         ></dance-button>
         <tag-button
-          v-for="tag in tags(data.item)"
+          v-for="tag in tags(data.item.song)"
           :key="tag.key"
-          :tagHandler="tagHandler(tag, filter, data.item)"
+          :tagHandler="tagHandler(tag, filter, data.item.song)"
         ></tag-button>
       </template>
     </b-table>
@@ -216,32 +227,30 @@
 import "reflect-metadata";
 import { BvTableFieldArray } from "bootstrap-vue";
 import DanceButton from "./DanceButton.vue";
+import DanceVote from "@/components/DanceVote.vue";
 import EchoIcon from "./EchoIcon.vue";
-import LikeButton from "./LikeButton.vue";
+import SongLikeButton from "@/components/SongLikeButton.vue";
 import PlayModal from "./PlayModal.vue";
 import SortableHeader from "./SortableHeader.vue";
 import TagButton from "./TagButton.vue";
-import VoteButton from "./VoteButton.vue";
-import { Component, Prop, Vue } from "vue-property-decorator";
-import { DanceRating, Song } from "@/model/Song";
+import { Component, Prop, Mixins } from "vue-property-decorator";
+import { DanceRating } from "@/model/DanceRating";
+import { Song } from "@/model/Song";
 import { Tag } from "@/model/Tag";
 import { SongFilter } from "@/model/SongFilter";
 import { DanceHandler } from "@/model/DanceHandler";
 import { TagHandler } from "@/model/TagHandler";
-import { ITaggableObject } from "@/model/ITaggableObject";
+import { TaggableObject } from "@/model/TaggableObject";
 import { SongSort } from "@/model/SongSort";
-import { MenuContext } from "@/model/MenuContext";
+import AdminTools from "@/mix-ins/AdminTools";
+import { SongHistory } from "@/model/SongHistory";
+import { SongEditor } from "@/model/SongEditor";
+import { DanceRatingVote } from "@/DanceRatingDelta";
 
-// TODONEXT:
-//  Consider going to advanced search results once anything has been selected
-//   beyond a single dance
+// TODO:
 //  Look at mixin's again - particularly with respect to danceId->dance translations
 //  Go through and audit no-explicit-any, interface-name warning
-//  Get the create spotify playlist working in vue
 //  Get tag cloud at bottom of dance page to include add to filter + filter on
-//  Make sure autocomplete is working
-
-declare const menuContext: MenuContext;
 
 interface Field {
   key: string;
@@ -264,20 +273,27 @@ const infoField = { key: "info" };
 @Component({
   components: {
     DanceButton,
+    DanceVote,
     EchoIcon,
-    LikeButton,
     PlayModal,
+    SongLikeButton,
     SortableHeader,
     TagButton,
-    VoteButton,
   },
 })
-export default class SongTable extends Vue {
-  @Prop() private readonly songs!: Song[];
+export default class SongTable extends Mixins(AdminTools) {
+  @Prop() private readonly histories!: SongHistory[];
   @Prop() private readonly filter!: SongFilter;
-  @Prop() private readonly userName!: string;
   @Prop() private readonly hideSort?: boolean;
   @Prop() private readonly hiddenColumns?: string[];
+
+  private get songs(): SongEditor[] {
+    return this.histories.map((h) => new SongEditor(this.userName, h));
+  }
+
+  private get songMap(): Map<string, SongEditor> {
+    return new Map(this.songs.map((s) => [s.song.id, s]));
+  }
 
   private get fields(): BvTableFieldArray {
     /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
@@ -304,7 +320,7 @@ export default class SongTable extends Vue {
       const temp = hidden
         ? fields.filter((f) => !this.isHidden(f.key))
         : fields;
-      if (menuContext.isAdmin) {
+      if (this.isAdmin) {
         return [editField, ...temp];
       } else {
         return temp;
@@ -343,7 +359,7 @@ export default class SongTable extends Vue {
   }
 
   private trackNumber(song: Song): string {
-    return song.albums.length > 0 && song.albums[0].track
+    return song.albums && song.albums.length > 0 && song.albums[0].track
       ? song.albums[0].track.toString()
       : "";
   }
@@ -400,6 +416,12 @@ export default class SongTable extends Vue {
   }
 
   private dances(song: Song): Tag[] {
+    return this.danceTags(song).filter((t) =>
+      song.findDanceRatingByName(t.value)
+    );
+  }
+
+  private danceTags(song: Song): Tag[] {
     return song.tags.filter(
       (t) =>
         !t.value.startsWith("!") &&
@@ -438,7 +460,7 @@ export default class SongTable extends Vue {
   private tagHandler(
     tag: Tag,
     filter?: SongFilter,
-    parent?: ITaggableObject
+    parent?: TaggableObject
   ): TagHandler {
     return new TagHandler(tag, this.userName, filter, parent);
   }
@@ -473,6 +495,16 @@ export default class SongTable extends Vue {
 
   private onSelect(song: Song, selected: boolean): void {
     this.$emit("song-selected", song.songId, selected);
+  }
+
+  private onClickLike(editor: SongEditor): void {
+    editor.toggleLike();
+    editor.saveChanges();
+  }
+
+  private onDanceVote(editor: SongEditor, vote: DanceRatingVote): void {
+    editor.danceVote(vote);
+    editor.saveChanges();
   }
 }
 </script>

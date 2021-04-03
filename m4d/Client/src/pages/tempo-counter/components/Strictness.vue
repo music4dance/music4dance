@@ -30,5 +30,3 @@ export default class MeasuresPerMinute extends Vue {
   }
 }
 </script>
-
-<style scoped lang="scss"></style>
