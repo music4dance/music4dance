@@ -8,13 +8,16 @@ using DanceLibrary;
 
 namespace m4dModels
 {
-    public class Dance
+    public class DanceCore
     {
         public string Id { get; set; }
         public string Description { get; set; }
-        public DateTime Modified { get; set; }
-
         public List<DanceLink> DanceLinks { get; set; }
+    }
+
+    public class Dance : DanceCore
+    {
+        public DateTime Modified { get; set; }
 
         public string SmartLinks()
         {

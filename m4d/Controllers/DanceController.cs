@@ -55,6 +55,9 @@ namespace m4d.Controllers
 
         public override string DefaultTheme => MusicTheme;
 
+        // TODONEXT: Vue based dance editor.  Just need to be able to edit
+        //  description and links for now, so do it on the details page with
+        //  an edit option and ajax calls?
         // GET: Dances/{dance}
         [AllowAnonymous]
         public ActionResult Index(string dance)
@@ -132,46 +135,12 @@ namespace m4d.Controllers
         {
             if (ModelState.IsValid && dance.Info != null)
             {
-                var newIds = new List<Guid>();
-
-                if (dance.DanceLinks != null)
+                Database.EditDance(new DanceCore
                 {
-                    foreach (var link in dance.DanceLinks)
-                    {
-
-                        if (link.Id == Guid.Empty)
-                        {
-                            var guid = Guid.NewGuid();
-                            link.Id = guid;
-                            newIds.Add(guid);
-                        }
-                    }
-                }
-
-                var context = Database.Context;
-                context.Update(dance);
-
-                var danceLinks = dance.DanceLinks ?? new List<DanceLink>();
-                // Change new state to added
-                foreach (var link in danceLinks.Where(d => newIds.Contains(d.Id)))
-                {
-                    context.Entry(link).State = EntityState.Added;
-                }
-
-                // Find the deleted links (if any)
-                var curIds = danceLinks.Select(dl => dl.Id).ToList();
-                var oldLinks = context.DanceLinks.Where(dl => dl.DanceId == dance.Id).ToList();
-                foreach (var link in oldLinks)
-                {
-                    if (curIds.All(id => id != link.Id))
-                    {
-                        context.Entry(link).State = EntityState.Deleted;
-                    }
-                }
-                Database.SaveChanges();
-
-                DanceStatsManager.ReloadDances(Database);
-
+                    Id = dance.Id,
+                    Description = dance.Description,
+                    DanceLinks = dance.DanceLinks
+                });
                 return RedirectToAction("Index", new { dance = dance.Name });
             }
 

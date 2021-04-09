@@ -463,6 +463,57 @@ namespace m4dModels
             return Song.CreateFromRows(user, "\t", map, lines, DanceStats, Song.DanceRatingCreate);
         }
 
+        public Dance EditDance(DanceCore core)
+        {
+            var context = Context;
+            var dance = context.Dances.Find(core.Id);
+            if (!dance.Description.Equals(core.Description))
+            {
+                dance.Description = core.Description;
+            }
+
+            var newIds = new List<Guid>();
+
+            if (core.DanceLinks != null)
+            {
+                foreach (var link in core.DanceLinks)
+                {
+                    link.DanceId = core.Id;
+                    if (link.Id == Guid.Empty)
+                    {
+                        var guid = Guid.NewGuid();
+                        link.Id = guid;
+                        newIds.Add(guid);
+                    }
+                }
+            }
+
+            var danceLinks = core.DanceLinks ?? new List<DanceLink>();
+
+            // Change new state to added
+            foreach (var link in danceLinks.Where(d => newIds.Contains(d.Id)))
+            {
+                context.Entry(link).State = EntityState.Added;
+            }
+
+            // Find the deleted links (if any)
+            var curIds = danceLinks.Select(dl => dl.Id).ToList();
+            var oldLinks = context.DanceLinks.Where(dl => dl.DanceId == core.Id).ToList();
+            foreach (var link in oldLinks)
+            {
+                if (curIds.All(id => id != link.Id))
+                {
+                    context.Entry(link).State = EntityState.Deleted;
+                }
+            }
+
+            dance.Modified = DateTime.Now;
+            context.Update(dance);
+            SaveChanges();
+
+            DanceStatsManager.ReloadDances(this);
+            return dance;
+        }
 
         #endregion
 

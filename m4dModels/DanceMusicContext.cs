@@ -26,6 +26,7 @@ namespace m4dModels
 
             var builder = new DbContextOptionsBuilder<DanceMusicContext>();
             builder.UseSqlServer(ConnectionString);
+            builder.EnableSensitiveDataLogging();
 
             return new DanceMusicContext(builder.Options);
         }
