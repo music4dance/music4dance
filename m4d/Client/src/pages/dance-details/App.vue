@@ -1,11 +1,34 @@
 <template>
   <page
     id="app"
-    :title="model.danceName"
     :breadcrumbs="breadcrumbs"
     :consumesEnvironment="true"
     @environment-loaded="onEnvironmentLoaded"
   >
+    <b-row>
+      <b-col
+        ><h1>{{ model.danceName }}</h1></b-col
+      >
+      <b-col v-if="isAdmin" cols="auto">
+        <b-button
+          v-if="editting"
+          variant="outline-primary"
+          class="mr-1"
+          @click="cancelChanges"
+          >Cancel</b-button
+        >
+        <b-button
+          v-if="editting"
+          variant="primary"
+          :disabled="!modified"
+          @click="saveChanges"
+          >Save</b-button
+        >
+        <b-button v-if="!editting" variant="primary" @click="startEdit"
+          >Edit</b-button
+        >
+      </b-col>
+    </b-row>
     <b-row>
       <b-col md="2" order-md="2">
         <dance-contents :model="model"></dance-contents>
@@ -14,6 +37,9 @@
         <dance-description
           :description="model.description"
           :danceId="model.danceId"
+          :editting="editting"
+          @input="updateDescription($event)"
+          ref="danceDescription"
         >
         </dance-description>
         <top-ten
@@ -44,7 +70,13 @@
     </b-row>
     <b-row v-if="hasReferences">
       <b-col>
-        <dance-links :danceId="model.danceId"></dance-links>
+        <dance-links
+          v-model="model.links"
+          :editting="editting"
+          :danceId="model.danceId"
+          @update="updateLinks($event)"
+          ref="danceLinks"
+        ></dance-links>
       </b-col>
     </b-row>
     <b-row>
@@ -59,7 +91,8 @@
 
 <script lang="ts">
 import "reflect-metadata";
-import { Component, Vue } from "vue-property-decorator";
+import { Component, Mixins } from "vue-property-decorator";
+import AdminTools from "@/mix-ins/AdminTools";
 import CompetitionCategoryTable from "@/components/CompetitionCategoryTable.vue";
 import DanceContents from "./components/DanceContents.vue";
 import DanceDescription from "./components/DanceDescription.vue";
@@ -71,15 +104,18 @@ import SpotifyPlayer from "@/components/SpotifyPlayer.vue";
 import TagCloud from "@/components/TagCloud.vue";
 import TopTen from "./components/TopTen.vue";
 import { DanceModel } from "@/model/DanceModel";
+import { Editor } from "@/model/Editor";
 import { SongFilter } from "@/model/SongFilter";
 import { TypedJSON } from "typedjson";
 import { DanceEnvironment } from "@/model/DanceEnvironmet";
 import { BreadCrumbItem, danceTrail } from "@/model/BreadCrumbItem";
-import { DanceInstance, DanceStats } from "@/model/DanceStats";
+import { DanceInstance, DanceLink, DanceStats } from "@/model/DanceStats";
 import { Tag } from "@/model/Tag";
+import axios from "axios";
 
 declare const model: string;
 
+//  TODO: Consider whether we should directly eit the dancestats...
 @Component({
   components: {
     CompetitionCategoryTable,
@@ -94,12 +130,13 @@ declare const model: string;
     TopTen,
   },
 })
-export default class App extends Vue {
+export default class App extends Mixins(AdminTools) {
   private readonly model: DanceModel;
   private breadcrumbs: BreadCrumbItem[] = danceTrail;
   private tags: Tag[] = [];
   private isGroup = false;
   private dance: DanceStats | null = null;
+  private editting = false;
 
   constructor() {
     super();
@@ -150,6 +187,51 @@ export default class App extends Vue {
 
   private get hasReferences(): boolean {
     return !!this.dance?.danceLinks && this.dance.danceLinks.length > 0;
+  }
+
+  public get modified(): boolean {
+    return this.descriptionEditor.isModified || this.linkEditor.isModified;
+  }
+
+  private get descriptionEditor(): Editor {
+    return (this.$refs.danceDescription as unknown) as Editor;
+  }
+
+  private get linkEditor(): Editor {
+    return (this.$refs.danceLinks as unknown) as Editor;
+  }
+
+  private updateDescription(value: string): void {
+    this.model.description = value;
+  }
+
+  private updateLinks(value: DanceLink[]): void {
+    this.model.links = value;
+  }
+
+  private startEdit(): void {
+    this.editting = true;
+  }
+
+  private cancelChanges(): void {
+    this.editting = false;
+  }
+
+  private async saveChanges(): Promise<void> {
+    try {
+      const model = this.model;
+      await axios.patch(`/api/dances/${model.danceId}`, {
+        id: model.danceId,
+        description: model.description,
+        danceLinks: model.links,
+      });
+      this.descriptionEditor.commit();
+      this.linkEditor.commit();
+      this.editting = false;
+    } catch (e) {
+      console.log(e);
+      throw e;
+    }
   }
 }
 </script>

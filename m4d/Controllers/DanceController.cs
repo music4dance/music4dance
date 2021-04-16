@@ -55,9 +55,6 @@ namespace m4d.Controllers
 
         public override string DefaultTheme => MusicTheme;
 
-        // TODONEXT: Vue based dance editor.  Just need to be able to edit
-        //  description and links for now, so do it on the details page with
-        //  an edit option and ajax calls?
         // GET: Dances/{dance}
         [AllowAnonymous]
         public ActionResult Index(string dance)

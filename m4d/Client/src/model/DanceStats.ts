@@ -264,8 +264,20 @@ export class DanceType extends DanceObject {
 
 @jsonObject
 export class DanceLink {
+  @jsonMember public id!: string;
+  @jsonMember public danceId!: string;
   @jsonMember public description!: string;
   @jsonMember public link!: string;
+
+  public constructor(init?: Partial<DanceLink>) {
+    Object.assign(this, init);
+  }
+
+  public cloneAndModify(changes: Partial<DanceLink>) {
+    const clone = new DanceLink(this);
+    Object.assign(clone, changes);
+    return clone;
+  }
 }
 
 @jsonObject

@@ -1,5 +1,7 @@
-﻿using m4d.ViewModels;
+﻿using System.Net;
+using m4d.ViewModels;
 using m4dModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
@@ -44,5 +46,26 @@ namespace m4d.APIControllers
             }
             return NotFound();
         }
+
+        [Authorize]
+        [HttpPatch("{id}")]
+
+        public IActionResult Patch(string id, [FromBody] DanceCore dance)
+        {
+            if (!User.Identity.IsAuthenticated || !User.IsInRole("dbAdmin"))
+            {
+                return StatusCode((int)HttpStatusCode.Forbidden);
+            }
+
+            if (id != dance.Id)
+            {
+                return StatusCode((int)HttpStatusCode.BadRequest);
+            }
+
+            return StatusCode((int) (Database.EditDance(dance) == null
+                ? HttpStatusCode.NotFound
+                : HttpStatusCode.OK));
+        }
+
     }
 }

@@ -46,7 +46,7 @@ namespace m4d.APIControllers
         public IActionResult Put([FromServices] IMapper mapper, Guid id, [FromBody] SongHistory history)
         {
             Trace.WriteLine($"Enter Patch: SongId = {id}, User = {User.Identity.Name}");
-            if (!User.Identity.IsAuthenticated || !User.IsInRole("admin"))
+            if (!User.Identity.IsAuthenticated)
             {
                 return StatusCode((int)HttpStatusCode.Forbidden);
             }

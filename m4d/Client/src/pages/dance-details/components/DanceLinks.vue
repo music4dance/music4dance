@@ -1,29 +1,82 @@
 <template>
   <div id="references">
     <h2>References:</h2>
-    <div v-for="link in links" :key="link.link">
-      <b>{{ link.description }}: </b><span> </span>
-      <a :href="link.link">{{ link.link }}</a>
+    <div v-for="(link, index) in links" :key="index">
+      <edittable-link
+        v-model="internalLinks[index]"
+        :editting="editting"
+      ></edittable-link>
     </div>
+    <b-button
+      v-if="editting"
+      block
+      variant="outline-primary"
+      class="mt-2"
+      @click="onAdd"
+      >Add Reference</b-button
+    >
   </div>
 </template>
 
 <script lang="ts">
 import "reflect-metadata";
-import { Component, Mixins, Prop } from "vue-property-decorator";
-import { DanceLink, DanceStats } from "@/model/DanceStats";
+import { Component, Mixins, Prop, Model, Watch } from "vue-property-decorator";
+import { DanceLink } from "@/model/DanceStats";
 import EnvironmentManager from "@/mix-ins/EnvironmentManager";
+import EdittableLink from "./EdittableLink.vue";
+import { Editor } from "@/model/Editor";
+import { jsonCompare } from "@/helpers/ObjectHelpers";
 
-@Component
-export default class DanceLinks extends Mixins(EnvironmentManager) {
+@Component({
+  components: {
+    EdittableLink,
+  },
+})
+export default class DanceLinks
+  extends Mixins(EnvironmentManager)
+  implements Editor {
+  @Model("update") readonly links!: DanceLink[];
   @Prop() private readonly danceId!: string;
+  @Prop() private readonly editting!: boolean;
+  private initialLinks: DanceLink[];
 
-  private get dance(): DanceStats | undefined {
-    return this.environment.fromId(this.danceId);
+  public constructor() {
+    super();
+    this.initialLinks = this.cloneLinks(this.links);
   }
 
-  private get links(): DanceLink[] {
-    return this.dance ? this.dance.danceLinks : [];
+  public get isModified(): boolean {
+    return !jsonCompare(this.links, this.initialLinks);
+  }
+
+  public commit(): void {
+    this.initialLinks = this.cloneLinks(this.links);
+  }
+
+  private get internalLinks(): DanceLink[] {
+    return this.links;
+  }
+
+  private set internalLinks(value: DanceLink[]) {
+    this.$emit("update", value);
+  }
+
+  @Watch("editting")
+  onEditChanged(val: boolean): void {
+    if (val === false) {
+      this.$emit("update", this.cloneLinks(this.initialLinks));
+    }
+  }
+
+  private onAdd(): void {
+    this.$emit("update", [
+      ...this.cloneLinks(this.links),
+      new DanceLink({ danceId: this.danceId }),
+    ]);
+  }
+
+  private cloneLinks(value: DanceLink[]): DanceLink[] {
+    return value.map((l) => new DanceLink(l));
   }
 }
 </script>

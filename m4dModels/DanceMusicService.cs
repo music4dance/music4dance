@@ -467,6 +467,10 @@ namespace m4dModels
         {
             var context = Context;
             var dance = context.Dances.Find(core.Id);
+            if (dance == null)
+            {
+                return null;
+            }
             if (!dance.Description.Equals(core.Description))
             {
                 dance.Description = core.Description;
@@ -497,13 +501,23 @@ namespace m4dModels
             }
 
             // Find the deleted links (if any)
-            var curIds = danceLinks.Select(dl => dl.Id).ToList();
             var oldLinks = context.DanceLinks.Where(dl => dl.DanceId == core.Id).ToList();
             foreach (var link in oldLinks)
             {
-                if (curIds.All(id => id != link.Id))
+                var newLink = danceLinks.Find(l => l.Id == link.Id);
+                if (newLink == null)
                 {
                     context.Entry(link).State = EntityState.Deleted;
+                }
+                else if (link.Description != newLink.Description || link.Link != newLink.Link)
+                {
+                    link.Description = newLink.Description;
+                    link.Link = newLink.Link;
+                    context.Entry(link).State = EntityState.Modified;
+                }
+                else
+                {
+                    context.Entry(link).State = EntityState.Unchanged;
                 }
             }
 

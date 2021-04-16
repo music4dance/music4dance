@@ -1,6 +1,11 @@
 <template>
   <div>
-    <vue-showdown id="description" :markdown="description"></vue-showdown>
+    <mark-down-editor
+      v-model="descriptionInternal"
+      :editting="editting"
+      ref="description"
+    >
+    </mark-down-editor>
     <div
       id="tempo-info"
       v-if="!dance.isGroup && dance.dance.meter.numerator != 1"
@@ -20,20 +25,38 @@
 
 <script lang="ts">
 import "reflect-metadata";
-import { Component, Mixins, Prop } from "vue-property-decorator";
-import TempiLink from "@/components/TempiLink.vue";
-import { SongFilter } from "@/model/SongFilter";
-import { DanceStats, TempoRange } from "@/model/DanceStats";
 import EnvironmentManager from "@/mix-ins/EnvironmentManager";
+import MarkDownEditor from "@/components/MarkDownEditor.vue";
+import TempiLink from "@/components/TempiLink.vue";
+import { Component, Mixins, Prop } from "vue-property-decorator";
+import { DanceStats, TempoRange } from "@/model/DanceStats";
+import { SongFilter } from "@/model/SongFilter";
+import { Editor } from "@/model/Editor";
 
 @Component({
   components: {
+    MarkDownEditor,
     TempiLink,
   },
 })
-export default class DanceDescription extends Mixins(EnvironmentManager) {
+export default class DanceDescription
+  extends Mixins(EnvironmentManager)
+  implements Editor {
   @Prop() private readonly description!: string;
   @Prop() private readonly danceId!: string;
+  @Prop() private readonly editting!: boolean;
+
+  public get isModified(): boolean {
+    return this.editor.isModified;
+  }
+
+  public commit(): void {
+    this.editor.commit();
+  }
+
+  private get editor(): Editor {
+    return (this.$refs.description as unknown) as Editor;
+  }
 
   private get dance(): DanceStats | undefined {
     return this.environment.fromId(this.danceId);
@@ -41,6 +64,14 @@ export default class DanceDescription extends Mixins(EnvironmentManager) {
 
   private get danceName(): string | undefined {
     return this.dance?.danceName;
+  }
+
+  private get descriptionInternal(): string {
+    return this.description;
+  }
+
+  private set descriptionInternal(value: string) {
+    this.$emit("input", value);
   }
 
   private get rangeText(): string {
