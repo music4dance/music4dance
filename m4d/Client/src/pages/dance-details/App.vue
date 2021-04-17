@@ -83,7 +83,12 @@
       <b-col>
         <hr />
         <h2 id="tags">Tags</h2>
-        <tag-cloud :tags="tags" :hideFilter="!showTagFilter"></tag-cloud>
+        <tag-cloud
+          :tags="tags"
+          :user="userName"
+          :songFilter="model.filter"
+          :hideFilter="!showTagFilter"
+        ></tag-cloud>
       </b-col>
     </b-row>
   </page>

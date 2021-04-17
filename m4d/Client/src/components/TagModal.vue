@@ -10,10 +10,14 @@
     </template>
     <b-list-group>
       <b-list-group-item :href="includeTag" variant="success" v-if="hasFilter">
-        Filter the list to include only songs tagged as <em>{{ tag.value }}</em>
+        <span v-if="singleDance"> List all {{ danceName }} </span>
+        <span v-else> Filter the list to include only </span>
+        songs tagged as <em>{{ tag.value }}</em>
       </b-list-group-item>
       <b-list-group-item :href="excludeTag" variant="danger" v-if="hasFilter">
-        Filter the list to include only songs <b>not</b> tagged as
+        <span v-if="singleDance"> List all {{ danceName }} </span>
+        <span v-else> Filter the list to include only </span>
+        songs <b>not</b> tagged as
         <em>{{ tag.value }}</em>
       </b-list-group-item>
       <b-list-group-item :href="includeOnly" variant="success">
@@ -73,6 +77,14 @@ export default class TagModal extends TagModalBase {
   private get hasFilter(): boolean {
     const filter = this.tagHandler.filter;
     return !!filter && !filter.isDefault(this.tagHandler.user) && !filter.isRaw;
+  }
+
+  private get singleDance(): boolean {
+    return this.tagHandler.filter?.singleDance ?? false;
+  }
+
+  private get danceName(): string {
+    return this.tagHandler.filter?.danceQuery.danceNames[0] ?? "ERROR";
   }
 }
 </script>

@@ -62,6 +62,7 @@ import { Component, Prop, Vue } from "vue-property-decorator";
 import TagModal from "./TagModal.vue";
 import { Tag, TagBucket, TagInfo } from "@/model/Tag";
 import { TagHandler } from "@/model/TagHandler";
+import { SongFilter } from "@/model/SongFilter";
 
 class TagButton implements TagInfo {
   public static get buttons() {
@@ -91,6 +92,8 @@ class TagButton implements TagInfo {
 export default class TagCloud extends Vue {
   @Prop() private readonly tags!: Tag[];
   @Prop() private readonly hideFilter?: boolean;
+  @Prop() private readonly songFilter?: SongFilter;
+  @Prop() private readonly user?: string;
 
   private tagButtons: TagButton[] = TagButton.buttons;
   private filter = 10;
@@ -123,7 +126,7 @@ export default class TagCloud extends Vue {
   }
 
   private tagHandler(tag: Tag): TagHandler {
-    return new TagHandler(tag);
+    return new TagHandler(tag, this.user, this.songFilter);
   }
 }
 </script>
