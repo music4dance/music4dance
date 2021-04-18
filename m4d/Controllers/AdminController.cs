@@ -9,6 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 using DanceLibrary;
 using m4d.Areas.Identity;
+using m4d.Scrapers;
 using m4d.Utilities;
 using m4d.ViewModels;
 using m4dModels;
@@ -130,6 +131,33 @@ namespace m4d.Controllers
         public ActionResult Scraping()
         {
             return View();
+        }
+
+        //
+        // Get: //ScrapeDances
+        [Authorize(Roles = "showDiagnostics")]
+        public ActionResult ScrapeDances(string id, string parameter = null)
+        {
+            var scraper = DanceScraper.FromName(id);
+            string extra = string.Empty;
+            if (!string.IsNullOrEmpty(parameter))
+            {
+                scraper.Parameter = parameter;
+                extra = "-" + parameter.ToLower().Replace(' ', '-');
+            }
+            var lines = scraper.Scrape();
+
+            var sb = new StringBuilder();
+            foreach (var line in lines.Where(line => !string.IsNullOrWhiteSpace(line)))
+            {
+                sb.AppendFormat("{0}\r\n", line);
+            }
+
+            var s = sb.ToString();
+            var bytes = Encoding.UTF8.GetBytes(s);
+            var stream = new MemoryStream(bytes);
+
+            return File(stream, "text/plain", scraper.Name + extra + ".csv");
         }
 
         //
