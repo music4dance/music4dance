@@ -8,7 +8,7 @@ describe("MainMenu.vue", () => {
     const localVue = createLocalVue();
     localVue.use(BootstrapVue);
 
-    const context: MenuContext = {};
+    const context = new MenuContext();
 
     const wrapper = mount(MainMenu, {
       localVue,
@@ -21,7 +21,10 @@ describe("MainMenu.vue", () => {
   test("renders the main menu with admin options", () => {
     const localVue = createLocalVue();
     localVue.use(BootstrapVue);
-    const context: MenuContext = { userName: "dwgray", isAdmin: true };
+    const context: MenuContext = new MenuContext({
+      userName: "dwgray",
+      roles: ["dbAdmin"],
+    });
 
     const wrapper = mount(MainMenu, {
       localVue,

@@ -1,16 +1,20 @@
 import { Component, Vue } from "vue-property-decorator";
-import { MenuContext } from "@/model/MenuContext";
+import { MenuContext, MenuContextInterface } from "@/model/MenuContext";
 
-declare const menuContext: MenuContext;
+declare const menuContext: MenuContextInterface;
 
 @Component
 export default class AdminTools extends Vue {
   protected get context(): MenuContext {
-    return menuContext;
+    return new MenuContext(menuContext);
   }
 
   protected get isAdmin(): boolean {
-    return !!this.context.isAdmin;
+    return this.context.isAdmin;
+  }
+
+  protected get canEdit(): boolean {
+    return this.context.canEdit;
   }
 
   protected get userName(): string | undefined {

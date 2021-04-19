@@ -1,12 +1,30 @@
 <template>
   <b-table-simple borderless small>
-    <b-tr v-if="song.length">
+    <b-tr v-if="!!song.length || editting">
       <b-th>Length</b-th>
-      <b-td>{{ song.length }} Seconds</b-td>
+      <b-td
+        ><field-editor
+          name="Length"
+          :value="song.length ? song.length.toString() : ''"
+          :editting="editting"
+          type="number"
+          v-on="$listeners"
+        ></field-editor>
+        Seconds</b-td
+      >
     </b-tr>
-    <b-tr v-if="song.tempo">
+    <b-tr v-if="!!song.tempo || editting">
       <b-th>Tempo</b-th>
-      <b-td>{{ song.tempo }} BPM</b-td>
+      <b-td
+        ><field-editor
+          name="Tempo"
+          :value="song.tempo ? song.tempo.toString() : ''"
+          :editting="editting"
+          type="number"
+          v-on="$listeners"
+        ></field-editor>
+        BPM</b-td
+      >
     </b-tr>
     <b-tr v-if="song.danceability">
       <b-th>Beat</b-th>
@@ -59,14 +77,19 @@
 import "reflect-metadata";
 import { Component, Prop, Vue } from "vue-property-decorator";
 import EchoIcon from "@/components/EchoIcon.vue";
+import FieldEditor from "./FieldEditor.vue";
 import { Song } from "@/model/Song";
 import { SongProperty } from "@/model/SongProperty";
 
 @Component({
-  components: { EchoIcon },
+  components: {
+    EchoIcon,
+    FieldEditor,
+  },
 })
 export default class SongStats extends Vue {
   @Prop() private readonly song!: Song;
+  @Prop() private readonly editting!: boolean;
 
   private get modifiedFormatted(): string {
     return SongProperty.formatDate(this.song.modified);

@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Security.Claims;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -115,6 +116,10 @@ namespace m4dModels
 
         public static readonly string[] Roles = { DiagRole, EditRole, DbaRole, TagRole, PremiumRole, TrialRole, BetaRole };
 
+        public static IEnumerable<string> UserRoles(ClaimsPrincipal user)
+        {
+            return Roles.Where(r => user.IsInRole(r));
+        }
         #endregion
 
         #region Edit

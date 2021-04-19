@@ -59,6 +59,7 @@ export class SongEditor {
 
   public commit(): void {
     this.initialCount = this.history.properties.length;
+    this.initialSong = Song.fromHistory(this.history, this.user);
     this.modified = false;
   }
 
@@ -170,6 +171,17 @@ export class SongEditor {
     return this.createProperty(name, value);
   }
 
+  public modifyProperty(name: string, value?: PropertyValue): SongProperty {
+    this.modified = true;
+    this.setupEdit();
+    const property = this.findModified(name);
+    if (!property) {
+      return this.createProperty(name, value);
+    }
+    property.value = value ? value.toString() : "";
+    return property;
+  }
+
   private setupEdit() {
     const properties = this.properties;
     if (properties.length > this.initialCount) {
@@ -197,5 +209,13 @@ export class SongEditor {
     });
     this.properties.push(property);
     return property;
+  }
+
+  private findModified(name: string): SongProperty | undefined {
+    return this.modifiedProperties.find((p) => p.name === name);
+  }
+
+  private get modifiedProperties(): SongProperty[] {
+    return this.properties.slice(this.initialCount);
   }
 }

@@ -113,14 +113,13 @@ import { Component, Prop, Vue } from "vue-property-decorator";
 import { MenuContext } from "@/model/MenuContext";
 
 @Component
-export default class Page extends Vue {
+export default class MainMenu extends Vue {
   @Prop() private context!: MenuContext;
 
   private get profileHeader(): string {
     const context = this.context;
     const index = context.indexId ? ` (${context.indexId})` : "";
     return `${context.userName}${index} <img src="/images/swing-ui.png" alt="User Icon" height="30" width="30" />`;
-    // return `${context.userName}${index}`;
   }
 
   private get songLink(): string {

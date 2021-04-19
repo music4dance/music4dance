@@ -13,17 +13,42 @@
             :scale="1"
             @click-like="onClickLike"
           ></song-like-button>
-          <i>{{ song.title }}</i>
+          <i
+            ><field-editor
+              name="Title"
+              :value="song.title"
+              :editting="editting"
+              @update-field="updateField($event)"
+            ></field-editor
+          ></i>
           <span
             v-if="song.artist"
             style="font-size: 0.75em; padding-left: 0.5em"
-            >by <a :href="artistLink">{{ song.artist }}</a></span
           >
+            by
+          </span>
+          <field-editor
+            name="Artist"
+            :value="song.artist"
+            :editting="editting"
+            @update-field="updateField($event)"
+          >
+            <span v-if="song.artist" style="font-size: 0.75em"
+              ><a :href="artistLink">{{ song.artist }}</a></span
+            >
+          </field-editor>
         </h1>
       </b-col>
-      <b-col v-if="editting" cols="auto">
-        <b-button variant="outline-primary" class="mr-1" @click="cancelChanges"
+      <b-col v-if="editting || canEdit" cols="auto">
+        <b-button
+          v-if="editting"
+          variant="outline-primary"
+          class="mr-1"
+          @click="cancelChanges"
           >Cancel</b-button
+        >
+        <b-button v-else variant="outline-primary" class="mr-1" @click="setEdit"
+          >Edit</b-button
         >
         <b-button v-if="modified" variant="primary" @click="saveChanges"
           >Save Changes</b-button
@@ -89,9 +114,13 @@
         />
       </b-col>
       <b-col md="auto"
-        ><song-stats :song="song"></song-stats
+        ><song-stats
+          :song="song"
+          :editting="editting"
+          @update-field="updateField($event)"
+        ></song-stats
         ><b-button
-          v-if="hasUserChanges"
+          v-if="hasUserChanges && !editting"
           @click="undoUserChanges"
           variant="outline-primary"
           >Undo My Changes</b-button
@@ -185,6 +214,7 @@ import AdminTools from "@/mix-ins/AdminTools";
 import AlbumList from "./components/AlbumList.vue";
 import DanceChooser from "@/components/DanceChooser.vue";
 import DanceList from "./components/DanceList.vue";
+import FieldEditor from "./components/FieldEditor.vue";
 import Page from "@/components/Page.vue";
 import PurchaseSection from "./components/PurchaseSection.vue";
 import SongHistory from "./components/SongHistory.vue";
@@ -200,6 +230,7 @@ import { Song } from "@/model/Song";
 import { DanceRating } from "@/model/DanceRating";
 import { DanceRatingVote, VoteDirection } from "@/DanceRatingDelta";
 import { DanceEnvironment } from "@/model/DanceEnvironmet";
+import { SongProperty } from "@/model/SongProperty";
 
 declare const model: string;
 
@@ -219,6 +250,7 @@ declare const model: string;
     AlbumList,
     DanceChooser,
     DanceList,
+    FieldEditor,
     Page,
     PurchaseSection,
     SongHistory,
@@ -357,7 +389,6 @@ export default class App extends Mixins(AdminTools) {
   }
 
   private addDance(danceId?: string): void {
-    console.log(`Add ${danceId}`);
     const editor = this.editor;
     if (!editor) {
       throw new Error("Can't edit if not logged in");
@@ -367,6 +398,14 @@ export default class App extends Mixins(AdminTools) {
       this.song = this.editor!.song;
       this.$bvModal.hide("danceChooser");
     }
+  }
+
+  private updateField(property: SongProperty): void {
+    const editor = this.editor;
+    if (!editor) {
+      throw new Error("Can't edit if not logged in");
+    }
+    this.editor?.modifyProperty(property.name, property.value);
   }
 
   private get hasUserChanges(): boolean {
@@ -415,6 +454,7 @@ export default class App extends Mixins(AdminTools) {
 
   private async saveChanges(): Promise<void> {
     await this.editor!.saveChanges();
+    this.song = this.editor!.song;
     this.edit = false;
   }
 }
