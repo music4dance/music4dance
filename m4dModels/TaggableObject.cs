@@ -74,7 +74,7 @@ namespace m4dModels
                 return null;
             }
 
-            var ut = GetUserTags(user,data as Song);
+            var ut = GetUserTags(user, data as Song);
 
             var newTags = tags.Subtract(ut);
 
@@ -172,8 +172,7 @@ namespace m4dModels
 
         private void DoUpdate(TagList added, TagList removed, string user, DanceStatsInstance stats, object data, bool updateTypes=true)
         {
-            if (TagSummary == null)
-                TagSummary = new TagSummary();
+            TagSummary ??= new TagSummary();
 
             var addRing = ConvertToRing(added,stats);
             var delRing = ConvertToRing(removed, stats);
@@ -223,9 +222,10 @@ namespace m4dModels
         }
 
         public TagList GetUserTags(
-            string userName, Song song = null, bool recent = false, DanceStatsInstance stats = null)
+            string userName, Song song = null, bool recent = false,
+            DanceStatsInstance stats = null)
         {
-            if (song == null) song = this as Song;
+            song ??= this as Song;
             var danceId = (this as DanceRating)?.DanceId;
             Debug.Assert(song != null);
 
@@ -242,7 +242,7 @@ namespace m4dModels
                     case Song.UserField:
                     case Song.UserProxy:
                         if (recent) acc = new TagList();
-                        cu = prop.Value;
+                        cu = new ModifiedRecord(prop.Value).UserName;
                         break;
                     case Song.AddedTags:
                     case Song.RemovedTags:

@@ -3,31 +3,29 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using DanceLibrary;
 using Microsoft.Azure.Search.Models;
 
 namespace m4dModels
 {
-
     public interface IDanceStatsManager
     {
         DateTime LastUpdate { get; }
         string Source { get; }
 
-        Dance DanceFromId(string id);
-        void ClearCache(DanceMusicCoreService dms = null, bool reload = false);
+        void ClearCache(DanceMusicCoreService dms, bool fromStore);
         void ReloadDances(DanceMusicCoreService dms);
 
         DanceStatsInstance LoadFromAzure(DanceMusicCoreService dms, string source = "default", bool save = false, bool tagsOnly = false);
 
-        DanceStatsInstance GetInstance(DanceMusicCoreService dms);
+        DanceStatsInstance Instance { get; }
 
-        IList<DanceStats> GetDanceStats(DanceMusicCoreService dms);
+        IList<DanceStats> DanceStats { get; }
 
-        IList<DanceStats> GetFlatDanceStats(DanceMusicCoreService dms);
+        IList<DanceStats> FlatDanceStats { get; }
 
-        int Reloads { get; }
+        void Initialize(DanceMusicCoreService dms);
+
     }
 
 
@@ -36,70 +34,50 @@ namespace m4dModels
         public DateTime LastUpdate { get; private set; }
         public string Source { get; private set; }
 
-        private string AppData { get; set; }
+        private string AppData { get; }
 
-        public DanceStatsManager(string appData)
+        public DanceStatsManager()
+        {
+
+        }
+
+        public DanceStatsManager( string appData)
         {
             AppData = appData;
         }
 
-        public Dance DanceFromId(string id)
-        {
-            return _instance != null ? _instance.Map[id].Dance : new Dance {Id = id};
-        }
-
         #region Access
-        public DanceStatsInstance GetInstance(DanceMusicCoreService dms)
-        {
-            return _lock.Lock(() => _instance ?? (_instance = LoadFromAppData()) ?? (_instance = LoadFromStore(dms, true)));
-        }
 
-        public void SetInstance(DanceStatsInstance instance)
+        public DanceStatsInstance Instance { get; private set; }
+
+        public void Initialize(DanceMusicCoreService dms)
         {
-            _lock.Lock(() =>
+            if (Instance != null)
             {
-                _instance = instance;
-            });
+                throw new Exception("Should only Initialize DanceStatsManager once");
+            }
+
+            Instance = LoadFromAppData(dms) ?? LoadFromAzure(dms, "default", true);
         }
 
-        public IList<DanceStats> GetFlatDanceStats(DanceMusicCoreService dms)
-        {
-            return GetInstance(dms).List;
-        }
+        public IList<DanceStats> FlatDanceStats => Instance.List;
 
-        public IList<DanceStats> GetDanceStats(DanceMusicCoreService dms)
-        {
-            return GetInstance(dms).Tree;
-        }
+        public IList<DanceStats> DanceStats => Instance.Tree;
         #endregion
 
         #region Building
 
-        private readonly SmartLock _lock = new SmartLock();
-        private DanceStatsInstance _instance;
-
-        public void ClearCache(DanceMusicCoreService dms = null, bool reload = false)
+        public void ClearCache(DanceMusicCoreService dms, bool fromStore)
         {
-            DanceStatsInstance instance = null;
+            var instance = fromStore 
+                ? LoadFromAzure(dms, "default", true)
+                : LoadFromAppData(dms);
 
-            if (dms != null) instance = LoadFromStore(dms,true);
-            else if (reload) instance = LoadFromAppData();
-
-            _lock.Lock(() =>
+            if (instance != null)
             {
-                if (reload)
-                {
-                    Reloads += 1;
-                }
-
-                if (instance != null)
-                {
-                    _instance = instance;
-                    ClearAssociates();
-                }
-            });
-
-            // TODO: We used to always load from store in the background after doing this.  Why????
+                Instance = instance;
+                ClearAssociates();
+            }
         }
 
         private void ClearAssociates()
@@ -110,62 +88,54 @@ namespace m4dModels
 
         public void ReloadDances(DanceMusicCoreService dms)
         {
-            _lock.Lock(() =>
+            foreach (var dance in dms.Context.LoadDances())
             {
-                foreach (var dance in dms.Context.LoadDances())
+                if (Instance.Map.TryGetValue(dance.Id, out var danceStats))
                 {
-                    if (_instance.Map.TryGetValue(dance.Id, out var danceStats))
-                    {
-                        danceStats.CopyDanceInfo(dance, false, dms);
-                    }
+                    danceStats.CopyDanceInfo(dance, false, dms);
                 }
+            }
 
-                LastUpdate = DateTime.Now;
-                Source = Source + " + reload";
-            });
+            LastUpdate = DateTime.Now;
+            Source = Source + " + reload";
         }
 
-        private DanceStatsInstance LoadFromAppData()
+        private DanceStatsInstance LoadFromAppData(DanceMusicCoreService dms)
         {
-            return _lock.Lock(() =>
-            {
-                if (AppData == null) return null;
+            if (AppData == null) return null;
 
-                var path = System.IO.Path.Combine(AppData, "dance-tag-stats.json");
-                if (!System.IO.File.Exists(path)) return null;
+            var path = System.IO.Path.Combine(AppData, "dance-tag-stats.json");
+            if (!System.IO.File.Exists(path)) return null;
 
-                LastUpdate = DateTime.Now;
-                Source = "AppData";
-                _instance = DanceStatsInstance.LoadFromJson(System.IO.File.ReadAllText(path));
-                return _instance;
-            });
+            LastUpdate = DateTime.Now;
+            Source = "AppData";
+            Instance = DanceStatsInstance.LoadFromJson(System.IO.File.ReadAllText(path), dms);
+            return Instance;
         }
 
-        public DanceStatsInstance LoadFromStore(DanceMusicCoreService dms, bool save)
+        private DanceStatsInstance LoadFromStore(DanceMusicCoreService dms, bool save)
         {
             return LoadFromAzure(dms,"default",save);
         }
 
-        public DanceStatsInstance LoadFromJson(string json)
+        public DanceStatsInstance LoadFromJson(string json, DanceMusicCoreService dms)
         {
-            return _lock.Lock(() =>
-            {
-                Source = "Json";
-                _instance = DanceStatsInstance.LoadFromJson(json);
-                return _instance;
-            });
+            Source = "Json";
+            Instance = DanceStatsInstance.LoadFromJson(json, dms);
+            return Instance;
         }
 
-        public DanceStatsInstance LoadFromAzure(DanceMusicCoreService dms, string source = "default", bool save = false, bool tagsOnly = false)
+        public DanceStatsInstance LoadFromAzure(
+            DanceMusicCoreService dms, string source = "default", bool save = false, bool tagsOnly = false)
         {
-            var copy = (tagsOnly && _instance != null);
+            var copy = (tagsOnly && Instance != null);
             if (save && !copy)
             {
                 Dances.Reset();
             }
             var instance = new DanceStatsInstance(
                 new TagManager(dms, source),
-                copy ? _instance.Tree : AzureDanceStats(dms, source), 
+                copy ? Instance.Tree : AzureDanceStats(dms, source), 
                 copy ? null : dms, source);
             if (!save) return instance;
 
@@ -173,7 +143,7 @@ namespace m4dModels
             Source = "Azure";
             SaveToAppData(instance);
 
-            _instance = instance;
+            Instance = instance;
             // This will save any tag types that were created via the load from azure
 
             dms.UpdateAzureIndex(null, source);
@@ -182,14 +152,11 @@ namespace m4dModels
 
         private void SaveToAppData(DanceStatsInstance instance)
         {
-            _lock.Lock(() =>
-            {
-                if (AppData == null) return;
+            if (AppData == null) return;
 
-                var json = instance.SaveToJson();
-                var path = System.IO.Path.Combine(AppData, "dance-tag-stats.json");
-                System.IO.File.WriteAllText(path, json, Encoding.UTF8);
-            });
+            var json = instance.SaveToJson();
+            var path = System.IO.Path.Combine(AppData, "dance-tag-stats.json");
+            System.IO.File.WriteAllText(path, json, Encoding.UTF8);
         }
 
         private IEnumerable<DanceStats> AzureDanceStats(DanceMusicCoreService dms, string source)
@@ -281,7 +248,5 @@ namespace m4dModels
         }
 
         #endregion
-
-        public int Reloads { get; private set; }
     }
 }

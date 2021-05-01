@@ -90,23 +90,26 @@ namespace m4d.Utilities
 
         private static readonly Dictionary<string, ServiceTrack> s_trackCache = new Dictionary<string, ServiceTrack>();
 
-        public GenericPlaylist LookupPlaylist(MusicService service, string url, IPrincipal principal = null)
+        public GenericPlaylist LookupPlaylist(MusicService service, string url,
+            IEnumerable<string> oldTrackList, IPrincipal principal = null)
         {
             var results = GetMusicServiceResults(service.BuildLookupRequest(url), service, principal);
             var name = results.name;
             var description = results.description;
 
             IList<ServiceTrack> tracks = service.ParseSearchResults(results,
-                (Func<string, dynamic>)(req => GetMusicServiceResults(req, service)));
+                (Func<string, dynamic>)(req => GetMusicServiceResults(req, service)),
+                oldTrackList);
             while ((results = NextMusicServiceResults(results, service, principal)) != null)
             {
                 var t = (tracks as List<ServiceTrack>) ?? tracks.ToList();
                 t.AddRange(service.ParseSearchResults(results,
-                    (Func<string, dynamic>)(req => GetMusicServiceResults(req, service))));
+                    (Func<string, dynamic>)(req => GetMusicServiceResults(req, service)),
+                    oldTrackList));
                 tracks = t;
             }
 
-            if (tracks == null) return null;
+            if (tracks == null || tracks.Count == 0) return null;
 
             ComputeTrackPurchaseInfo(service, tracks);
 
@@ -180,12 +183,12 @@ namespace m4d.Utilities
         #endregion
 
         #region Update
-        public bool GetEchoData(DanceMusicCoreService dms, Song song, string user = null)
+        public bool GetEchoData(DanceMusicCoreService dms, Song song, ApplicationUser user)
         {
             var service = MusicService.GetService(ServiceType.Spotify);
             var ids = song.GetPurchaseIds(service);
-            if (user == null) user = "batch-e";
-            var edit = new Song(song, dms.DanceStats);
+            user ??= new ApplicationUser("batch-e", pseudo: true);
+            var edit = new Song(song, dms);
 
             EchoTrack track = null;
             foreach (var id in ids)
@@ -218,14 +221,17 @@ namespace m4d.Utilities
             {
                 edit.Valence = track.Valence;
             }
-            var tags = edit.GetUserTags(user);
+            var tags = edit.GetUserTags(user.UserName);
             var meter = track.Meter;
             if (meter != null)
             {
                 tags = tags.Add($"{meter}:Tempo");
             }
 
-            if (!dms.EditSong(user, song, edit, new[] { new UserTag { Id = string.Empty, Tags = tags } }))
+            if (!dms.EditSong(user, song, edit, new[]
+            {
+                new UserTag { Id = string.Empty, Tags = tags }
+            }))
                 return false;
 
             if (track.BeatsPerMeasure != null)
@@ -235,10 +241,10 @@ namespace m4d.Utilities
             return true;
         }
 
-        public bool GetSampleData(DanceMusicCoreService dms, Song song, string user)
+        public bool GetSampleData(DanceMusicCoreService dms, Song song, ApplicationUser user)
         {
             var spotify = MusicService.GetService(ServiceType.Spotify);
-            var edit = new Song(song, dms.DanceStats);
+            var edit = new Song(song, dms);
 
             ServiceTrack track = null;
             // First try Spotify
@@ -392,7 +398,7 @@ namespace m4d.Utilities
         {
             dynamic results = GetMusicServiceResults(service.BuildSearchRequest(artist, title), service);
             return service.ParseSearchResults(results,
-                (Func<string, dynamic>)(req => GetMusicServiceResults(req, service, null)));
+                (Func<string, dynamic>)(req => GetMusicServiceResults(req, service, null)), null);
         }
 
         private static int GetRateInfo(WebHeaderCollection headers, string type)
@@ -405,7 +411,8 @@ namespace m4d.Utilities
             return int.TryParse(s, out var info) ? info : -1;
         }
 
-        private dynamic GetMusicServiceResults(string request, MusicService service, IPrincipal principal = null)
+        private dynamic GetMusicServiceResults(string request, MusicService service,
+            IPrincipal principal = null)
         {
             var retries = 2;
             while (true)

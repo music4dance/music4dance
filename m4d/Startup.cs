@@ -22,11 +22,32 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Options;
 using Newtonsoft.Json.Serialization;
 using Owl.reCAPTCHA;
 
 namespace m4d
 {
+    //public class ConfigureDanceStats : IConfigureOptions<IDanceStatsManager>
+    //{
+    //    private readonly IServiceScopeFactory _serviceScopeFactory;
+    //    private readonly string _appData;
+
+    //    public ConfigureDanceStats(IServiceScopeFactory serviceScopeFactory, IWebHostEnvironment env)
+    //    {
+    //        _serviceScopeFactory = serviceScopeFactory;
+    //        _appData = Path.Combine(env.WebRootPath, "AppData");
+    //    }
+
+    //    public void Configure(IDanceStatsManager dsm)
+    //    {
+    //        using var scope = _serviceScopeFactory.CreateScope();
+    //        var provider = scope.ServiceProvider;
+    //        using var dbContext = provider.GetRequiredService<DanceMusicContext>();
+    //        dsm.Initialize(_appData, dbContext);
+    //    }
+    //}
+
     public class Startup
     {
         public IWebHostEnvironment Environment { get; }
@@ -152,7 +173,9 @@ namespace m4d
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env,
+            DanceMusicContext context, UserManager<ApplicationUser> userManager,
+            ISearchServiceManager searchService, IDanceStatsManager stats)
         {
             if (env.IsDevelopment())
             {
@@ -169,9 +192,9 @@ namespace m4d
             app.UseAuthentication();
             app.UseAuthorization();
 
-            app.Use(async (context, next) =>
+            app.Use(async (cxt, next) =>
             {
-                var url = context.Request.Path.Value;
+                var url = cxt.Request.Path.Value;
                 string blog = "/blog";
                 if (url != null)
                 {
@@ -179,7 +202,7 @@ namespace m4d
                     if (idx != -1)
                     {
                         var path = url.Substring(idx + blog.Length);
-                        context.Response.Redirect($"https://music4dance.blog{path}");
+                        cxt.Response.Redirect($"https://music4dance.blog{path}");
                         return;
                     }
                 }
@@ -206,6 +229,9 @@ namespace m4d
                     pattern: "{controller=Home}/{action=Index}/{id?}");
                 endpoints.MapRazorPages();
             });
+
+            var dms = new DanceMusicService(context, userManager, searchService, stats);
+            stats.Initialize(dms);
         }
     }
 }

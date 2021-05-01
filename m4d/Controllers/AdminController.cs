@@ -349,7 +349,7 @@ namespace m4d.Controllers
                 var page = 0;
                 var done = false;
 
-                const string user = "batch";
+                var user = Database.FindUser("batch");
 
                 var name = dnc.Name.ToLower();
                 var parameters = new SearchParameters
@@ -431,11 +431,11 @@ namespace m4d.Controllers
         //
         // Get: //ClearSongCache
         [Authorize(Roles = "showDiagnostics")]
-        public ActionResult ClearSongCache(bool reloadFromStore = false, bool reloadFromFile = false)
+        public ActionResult ClearSongCache(bool reloadFromStore = true)
         {
             ViewBag.Name = "ClearSongCache";
 
-            DanceStatsManager.ClearCache(reloadFromStore ? Database : null, reloadFromFile);
+            DanceStatsManager.ClearCache(Database, reloadFromStore);
 
             ViewBag.Success = true;
             ViewBag.Message = "Cache was cleared";
@@ -623,7 +623,7 @@ namespace m4d.Controllers
                             Database.AdminUpdate(songs);
                         else
                             Database.UpdateSongs(songs);
-                        DanceStatsManager.ClearCache();
+                        DanceStatsManager.ClearCache(Database, true);
                     }
 
                     return CompleteAdminTask(true, "Database restored");
@@ -773,14 +773,11 @@ namespace m4d.Controllers
 
             var appuser = Database.FindUser(user);
 
-            if (lines == null)
-            {
-                lines = FileToLines(songs);
-            }
+            lines ??= FileToLines(songs);
 
             var headerList = !string.IsNullOrWhiteSpace(headers) ? Song.BuildHeaderMap(headers, ',') : HeaderFromList(CleanSeparator(separator), lines);
 
-            var newSongs = Song.CreateFromRows(appuser.UserName, separator, headerList, lines, Database.DanceStats, Song.DanceRatingCreate);
+            var newSongs = Song.CreateFromRows(appuser, separator, headerList, lines, Database, Song.DanceRatingCreate);
 
             var hasArtist = false;
             if (!string.IsNullOrEmpty(artist))
@@ -871,7 +868,8 @@ namespace m4d.Controllers
                 userName = User.Identity.Name;
             }
 
-            return View(CommitCatalog(Database, initial, userName, danceIds) == 0 ? "Error" : "UploadCatalog");
+            return View(CommitCatalog(Database, initial,
+                Database.FindUser(userName), danceIds) == 0 ? "Error" : "UploadCatalog");
         }
 
         static string CleanSeparator(string separator)
@@ -939,7 +937,7 @@ namespace m4d.Controllers
                     instance = DanceStatsManager.LoadFromAzure(Database, source, save, !noDances);
                     break;
                 case null:
-                    instance = DanceStatsManager.GetInstance(Database);
+                    instance = DanceStatsManager.Instance;
                     break;
             }
 

@@ -275,6 +275,7 @@ export default class App extends Vue {
     { text: "Tempo", value: SortOrder.Tempo },
     { text: "Dance Rating", value: SortOrder.Dances },
     { text: "Last Modified", value: SortOrder.Modified },
+    { text: "Last Edited", value: SortOrder.Edited },
     { text: "When Added", value: SortOrder.Created },
     { text: "Energy", value: SortOrder.Energy },
     { text: "Mood", value: SortOrder.Mood },

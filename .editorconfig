@@ -1,3 +1,8 @@
 [*]
 # guidelines = 80, 100, 120
-guidelines = 1 px dotted green 100, 1 px dotted red 120
+guidelines=1 px dotted green 80, 1 px dotted red 100
+
+# ReSharper properties
+resharper_align_multiline_binary_expressions_chain=false
+resharper_csharp_max_line_length=100
+resharper_use_continuous_indent_inside_initializer_braces=false

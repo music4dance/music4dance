@@ -14,14 +14,15 @@ namespace m4dModels
         }
 
         [JsonConstructor]
-        public DanceStats(string danceId, string danceName, string description, int songCount, int maxWeight, string songTags, IEnumerable<string> topSongs, IEnumerable<DanceStats> children, DanceType danceType, DanceGroup danceGroup)
+        public DanceStats(string danceId, string danceName, string description, int songCount,
+            int maxWeight, string songTags, IEnumerable<string> topSongs,
+            IEnumerable<DanceStats> children, DanceType danceType, DanceGroup danceGroup)
         {
             Description = description;
             SongCount = songCount;
             MaxWeight = maxWeight;
             SongTags = string.IsNullOrEmpty(songTags) ? null : new TagSummary(songTags);
-            // TODO: We've got a chicken and egg problem here - we should be able to load tags first and then pull in stats so that we can have TagMap available here
-            TopSongs = topSongs?.Select(s => new Song(s,null)).ToList();
+            _songStrings = topSongs?.ToList();
 
             if (danceType != null)
             {
@@ -39,7 +40,6 @@ namespace m4dModels
 
         [JsonProperty]
         public string DanceId => DanceObject?.Id??"All";
-
         [JsonProperty]
         public string DanceName => DanceObject?.Name??"All Dances";
         [JsonProperty]
@@ -48,7 +48,6 @@ namespace m4dModels
         // Properties mirrored from the database Dance object
         [JsonProperty]
         public string Description { get; set; }
-
         [JsonProperty]
         public long SongCount { get; set; }
         [JsonProperty]
@@ -61,15 +60,25 @@ namespace m4dModels
         public TagSummary SongTags { get; set; }
         [JsonProperty]
         public string SpotifyPlaylist { get; set; }
-
         public TagSummary AggregateSongTags => Children == null ? 
             SongTags :
             TagAccumulator.MergeSummaries(Children.Select(c => c.SongTags).Concat(Enumerable.Repeat(SongTags,1)));
-
         [JsonProperty]
         public List<DanceLink> DanceLinks { get; set; }
-        [JsonProperty]
-        public IEnumerable<Song> TopSongs { get; set; }
+
+        [JsonProperty] public IEnumerable<Song> TopSongs => _topSongs;
+        private List<Song> _topSongs;
+        private readonly List<string> _songStrings;
+
+        public void SetTopSongs(IEnumerable<Song> songs)
+        {
+            _topSongs = songs.ToList();
+        }
+
+        public void LoadSongs(DanceMusicCoreService dms)
+        {
+            _topSongs = _songStrings?.Select(s => new Song(s, dms)).ToList();
+        }
 
         // Structural properties
         public DanceStats Parent { get; set; }
@@ -125,9 +134,9 @@ namespace m4dModels
             }
         }
 
-        public void RebuildTopSongs(DanceStatsInstance danceStats)
+        public void RebuildTopSongs(DanceMusicCoreService dms)
         {
-            TopSongs = TopSongs?.Select(s => new Song(s.Serialize(null), danceStats)).ToList();
+            SetTopSongs(TopSongs?.Select(s => new Song(s.Serialize(null), dms)).ToList());
         }
 
         public void AggregateSongCounts(IReadOnlyDictionary<string, long> tags, IReadOnlyDictionary<string, long> inferred)
@@ -139,7 +148,7 @@ namespace m4dModels
             SongCount = SongCountImplicit + SongCountExplicit;
         }
 
-        public DanceStats CloneForUser(string userName, DanceStatsInstance danceStats)
+        public DanceStats CloneForUser(string userName, DanceMusicCoreService dms)
         {
             return new DanceStats
             {
@@ -153,15 +162,15 @@ namespace m4dModels
                 Parent = Parent,
                 Children = Children,
                 DanceLinks = DanceLinks,
-                TopSongs = TopSongsForUser(userName, danceStats),
+                _topSongs = TopSongsForUser(userName, dms),
                 SpotifyPlaylist = SpotifyPlaylist,
                 CompetitionDances = CompetitionDances
             };
         }
 
-        public List<Song> TopSongsForUser(string userName, DanceStatsInstance danceStats)
+        public List<Song> TopSongsForUser(string userName, DanceMusicCoreService dms)
         {
-            return TopSongs?.Select(s => new Song(s.SongId, s.Serialize(null), danceStats, userName)).ToList();
+            return TopSongs?.Select(s => new Song(s.SongId, s.Serialize(null), dms, userName)).ToList();
         }
     }
 }

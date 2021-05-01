@@ -36,6 +36,7 @@ export class Song extends TaggableObject {
   @jsonMember public valence?: number;
   @jsonMember public created!: Date;
   @jsonMember public modified!: Date;
+  @jsonMember public edited?: Date;
   @jsonArrayMember(DanceRating) public danceRatings?: DanceRating[];
   @jsonArrayMember(ModifiedRecord) public modifiedBy?: ModifiedRecord[];
   @jsonArrayMember(AlbumDetails) public albums?: AlbumDetails[];
@@ -45,8 +46,6 @@ export class Song extends TaggableObject {
     Object.assign(this, init);
   }
 
-  // TODO: Length is sometimes # seconds, sometimes MM:SS
-  //  Figure out which way we want empty purchase to land
   public compareToHistory(history: SongHistory, user?: string): boolean {
     const other = Song.fromHistory(history, user);
 
@@ -165,12 +164,20 @@ export class Song extends TaggableObject {
     return this.modified ? timeOrder(this.modified) : "U";
   }
 
+  public get editedOrder(): string {
+    return this.edited ? timeOrder(this.edited) : "U";
+  }
+
   public get createdOrderVerbose(): string {
     return timeOrderVerbose(this.created);
   }
 
   public get modifiedOrderVerbose(): string {
     return timeOrderVerbose(this.modified);
+  }
+
+  public get editedOrderVerbose(): string {
+    return this.edited ? timeOrderVerbose(this.edited) : "Undefined";
   }
 
   public get hasSample(): boolean {
@@ -216,6 +223,7 @@ export class Song extends TaggableObject {
     let user: string;
     let currentModified: ModifiedRecord;
     let deleted = false;
+    let pseudo = false;
 
     properties.forEach((property) => {
       const baseName = property.baseName;
@@ -225,6 +233,7 @@ export class Song extends TaggableObject {
         case PropertyType.userProxy:
           user = property.value;
           currentModified = this.addModified(user);
+          pseudo = currentModified.isPseudo;
           break;
         case PropertyType.danceRatingField:
           this.addDanceRating(property.value);
@@ -256,6 +265,9 @@ export class Song extends TaggableObject {
             created = false;
           } else {
             this.modified = property.valueTyped as Date;
+          }
+          if (!pseudo) {
+            this.edited = property.valueTyped as Date;
           }
           break;
         // case PropertyType.ownerHash:
@@ -290,13 +302,16 @@ export class Song extends TaggableObject {
     }
   }
 
-  private addModified(user: string): ModifiedRecord {
-    let record = this.modifiedBy?.find((r) => r.userName === user);
+  private addModified(value: string): ModifiedRecord {
+    const newRecord = ModifiedRecord.fromValue(value);
+    let record = this.modifiedBy?.find(
+      (r) => r.userName === newRecord.userName
+    );
     if (!record) {
       if (!this.modifiedBy) {
         this.modifiedBy = [];
       }
-      record = new ModifiedRecord({ userName: user });
+      record = newRecord;
       this.modifiedBy.push(record);
     }
     return record;

@@ -19,7 +19,7 @@ namespace m4dModels
 {
     public class DanceMusicCoreService : IDisposable
     {
-        #region Lifetime Management
+        #region Lifetime ManagementGet
 
         //public static DanceMusicCoreService GetService()
         //{
@@ -138,14 +138,14 @@ namespace m4dModels
             var song = CreateSong(sd?.SongId);
             if (sd == null)
             {
-                song.Create(user.UserName, command, value, true);
+                song.Create(user, command, value, true);
             }
             else
             {
-                song.Create(sd, tags, user.UserName, command, value, DanceStats);
+                song.Create(sd, tags, user, command, value, DanceStats);
             }
 
-            return new Song(song,DanceStats,user.UserName);
+            return new Song(song, this, user.UserName);
         }
 
         public Song EditSong(ApplicationUser user, Song edit, IEnumerable<UserTag> tags = null)
@@ -153,27 +153,28 @@ namespace m4dModels
             var song = FindSong(edit.SongId);
 
             // TODO: Figure out if we need to rebuild the song after edit in all cases or if there is a cleaner way to do this
-            return !song.Edit(user.UserName, edit, tags, DanceStats) ? null : new Song(song.SongId, song.SongProperties, DanceStats);
+            return !song.Edit(user, edit, tags, DanceStats) 
+                ? null : new Song(song.SongId, song.SongProperties, this);
         }
 
         // Returns true if changed
-        public bool EditSong(string user, Song song, Song edit, IEnumerable<UserTag> tags = null)
+        public bool EditSong(ApplicationUser user, Song song, Song edit, IEnumerable<UserTag> tags = null)
         {
             var changed = song.Edit(user, edit, tags, DanceStats);
             if (!changed) return false;
-            song.Load(song.SongId,song.SongProperties,DanceStats);
+            song.Load(song.SongId, song.SongProperties, this);
             return true;
         }
 
         public bool ReloadSong(Song song)
         {
-            song.Reload(DanceStats);
+            song.Reload(this);
             return true;
         }
 
         public bool AdminEditSong(Song edit, string properties)
         {
-            return edit.AdminEdit(properties, DanceStats);
+            return edit.AdminEdit(properties, this);
         }
 
         public bool AdminEditSong(SongHistory history, IMapper mapper)
@@ -181,19 +182,19 @@ namespace m4dModels
             var edit = FindSong(history.Id);
             return edit.AdminEdit(
                 history.Properties.Select(mapper.Map<SongProperty>).ToList(),
-                DanceStats);
+                this);
         }
 
-        public bool AdminAppendSong(Song edit, string user, string properties)
+        public bool AdminAppendSong(Song edit, ApplicationUser user, string properties)
         {
-            return edit.AdminAppend(user, properties, DanceStats);
+            return edit.AdminAppend(user, properties, this);
         }
 
-        public bool CorrectTempoSong(Song edit, string user, decimal multiplier)
+        public bool CorrectTempoSong(Song edit, ApplicationUser user, decimal multiplier)
         {
             var properties = new SongProperty(Song.TempoField, (edit.Tempo * multiplier)
                 .ToString()).ToString();
-            return edit.AdminAppend(user, properties, DanceStats);
+            return edit.AdminAppend(user, properties, this);
         }
 
         public bool AdminEditSong(string properties)
@@ -206,7 +207,7 @@ namespace m4dModels
 
         public bool AdminModifySong(Song edit, string songModifier)
         {
-            return edit.AdminModify(songModifier, DanceStats);
+            return edit.AdminModify(songModifier, this);
         }
 
         public bool AppendHistory(SongHistory history, IMapper mapper)
@@ -217,14 +218,14 @@ namespace m4dModels
                 return false;
             }
 
-            song.AppendHistory(history, mapper, DanceStats);
+            song.AppendHistory(history, mapper, this);
             SaveSong(song);
             return true;
         }
 
         public Song UpdateSong(ApplicationUser user, Song song, Song edit)
         {
-            if (!song.Update(user.UserName, edit, DanceStats)) return null;
+            if (!song.Update(user.UserName, edit, this)) return null;
             SaveSong(song);
             return song;
         }
@@ -232,14 +233,14 @@ namespace m4dModels
         // This is an additive merge - only add new things if they don't conflict with the old
         //  TODO: I'm pretty sure I can clean up this and all the other editing stuff by pushing
         //  the diffing part down into Song (which will also let me unit test it more easily)
-        public bool AdditiveMerge(string user, Song initial, Song edit, List<string> addDances)
+        public bool AdditiveMerge(ApplicationUser user, Song initial, Song edit, List<string> addDances)
         {
             return initial.AdditiveMerge(user, edit, addDances, DanceStats);
         }
 
         public void UpdateDances(ApplicationUser user, Song song, IEnumerable<DanceRatingDelta> deltas)
         {
-            song.CreateEditProperties(user.UserName, Song.EditCommand);
+            song.CreateEditProperties(user, Song.EditCommand);
             song.EditDanceRatings(deltas, DanceStats);
         }
 
@@ -247,7 +248,7 @@ namespace m4dModels
         {
             var song = FindSong(songId);
 
-            if (!song.EditTags(user.UserName, tags, DanceStats)) return false;
+            if (!song.EditTags(user, tags, DanceStats)) return false;
 
             SaveSong(song);
             return true;
@@ -259,11 +260,11 @@ namespace m4dModels
 
             if (danceId == null)
             {
-                if (!song.EditLike(user.UserName, like)) return false;
+                if (!song.EditLike(user, like)) return false;
             }
             else
             {
-                if (!song.EditDanceLike(user.UserName, like, danceId, DanceStats)) return false;
+                if (!song.EditDanceLike(user, like, danceId, DanceStats)) return false;
             }
 
             SaveSong(song);
@@ -347,7 +348,7 @@ namespace m4dModels
             // Add in the properties for all of the songs and then delete them
             foreach (var from in songs)
             {
-                song.UpdateProperties(from.SongProperties, DanceStats, new[]
+                song.UpdateProperties(from.SongProperties, this, new[]
                 {
                     Song.FailedLookup, Song.AlbumField, Song.TrackField, Song.PublisherField, Song.PurchaseField, Song.AlbumListField, Song.AlbumOrder, Song.AlbumPromote
                 });
@@ -362,11 +363,11 @@ namespace m4dModels
                 Sample = song.Sample
             };
 
-            song.Edit(user.UserName, sd, null, DanceStats);
+            song.Edit(user, sd, null, DanceStats);
 
             song.CreateAlbums(albums);
 
-            song =  new Song(song.SongId,song.SongProperties,DanceStats);
+            song =  new Song(song.SongId,song.SongProperties,this);
             song.CleanupProperties(this);
 
             SaveSong(song);
@@ -381,7 +382,7 @@ namespace m4dModels
 
         public void DeleteSong(ApplicationUser user, Song song)
         {
-            song.Delete(user.UserName);
+            song.Delete(user);
             SaveSong(song);
         }
 
@@ -451,21 +452,12 @@ namespace m4dModels
             return ret;
         }
 
-        public  IList<Song> SongsFromTracks(string user, IEnumerable<ServiceTrack> tracks, string dances, string songTags, string danceTags)
+        public IList<Song> SongsFromTracks(ApplicationUser user, IEnumerable<ServiceTrack> tracks, string multiDance, string songTags)
         {
-            return tracks.Where(track => !string.IsNullOrEmpty(track.Artist)).Select(track => Song.CreateFromTrack(user, track, dances, songTags, danceTags, DanceStats)).ToList();
-        }
-
-        public IList<Song> SongsFromTracks(string user, IEnumerable<ServiceTrack> tracks, string multiDance, string songTags)
-        {
-            return tracks.Where(track => !string.IsNullOrEmpty(track.Artist)).Select(track => Song.CreateFromTrack(user, track, multiDance, songTags, DanceStats)).ToList();
-        }
-
-        public IList<Song> SongsFromFile(string user, IList<string> lines)
-        {
-            var map = Song.BuildHeaderMap(lines[0]);
-            lines.RemoveAt(0);
-            return Song.CreateFromRows(user, "\t", map, lines, DanceStats, Song.DanceRatingCreate);
+            return tracks.Where(
+                track => !string.IsNullOrEmpty(track.Artist))
+                .Select(track => Song.CreateFromTrack(user, track, multiDance, songTags, this))
+                .ToList();
         }
 
         public Dance EditDance(DanceCore core)
@@ -626,7 +618,7 @@ namespace m4dModels
 
         private Song InternalFindSong(Guid id, string userName, ISearchIndexClient client)
         {
-            var sd = DanceStats.FindSongDetails(id, userName);
+            var sd = DanceStats.FindSongDetails(id, userName, this);
             if (sd != null) return sd;
 
             try
@@ -634,7 +626,7 @@ namespace m4dModels
                 var doc = client.Documents.Get(id.ToString(), new[] { Song.PropertiesField });
                 if (doc == null) return null;
 
-                var details = new Song(id, doc[Song.PropertiesField] as string, DanceStats, userName);
+                var details = new Song(id, doc[Song.PropertiesField] as string, this, userName);
                 return details;
             }
             catch (CloudException e)
@@ -646,7 +638,7 @@ namespace m4dModels
 
         protected IEnumerable<Song> SongsFromAzureResult(DocumentSearchResult<Document> result, string user = null)
         {
-            return result.Results.Select(d => new Song(d.Document, DanceStats, user));
+            return result.Results.Select(d => new Song(d.Document, this, user));
         }
 
         protected IEnumerable<Song> FindUserSongs(string user, bool includeHate=false, string id = "default")
@@ -663,8 +655,6 @@ namespace m4dModels
 
             var results = new List<Song>();
 
-            var stats = DanceStats;
-
             var info = SearchService.GetInfo(id);
 
             using var serviceClient = new SearchServiceClient(info.Name, new SearchCredentials(info.AdminKey));
@@ -680,7 +670,7 @@ namespace m4dModels
                 while (response.ContinuationToken != null && results.Count < max)
                 {
                     response = indexClient.Documents.ContinueSearch(response.ContinuationToken);
-                    results.AddRange(response.Results.Select(d => new Song(d.Document, stats, user)));
+                    results.AddRange(response.Results.Select(d => new Song(d.Document, this, user)));
                 }
             }
             catch (CloudException e)
@@ -695,7 +685,7 @@ namespace m4dModels
             return DoAzureSearch(null, 
                 new SearchParameters {Filter = $"(AlternateIds/any(t: t eq '{id}'))"}, CruftFilter.AllCruft, client)
                 .Results.Select(
-                    r => new Song(r.Document, DanceStats, userName)).FirstOrDefault(s => !s.IsNull);
+                    r => new Song(r.Document, this, userName)).FirstOrDefault(s => !s.IsNull);
         }
 
         public DateTimeOffset GetLastModified(ISearchIndexClient client = null)
@@ -816,7 +806,7 @@ namespace m4dModels
         {
             return DoAzureSearch(title, new SearchParameters(), CruftFilter.AllCruft, client)
                     .Results.Select(
-                        r => new Song(r.Document, DanceStats));
+                        r => new Song(r.Document, this));
         }
         private LocalMerger MergeFromTitle(Song song, ISearchIndexClient client)
         {
@@ -935,7 +925,7 @@ namespace m4dModels
             return ret;
         }
 
-        public IEnumerable<Song> MergeCatalog(string user, IList<LocalMerger> merges, IEnumerable<string> dances = null)
+        public IEnumerable<Song> MergeCatalog(ApplicationUser user, IList<LocalMerger> merges, IEnumerable<string> dances = null)
         {
             var songs = new List<Song>();
 
@@ -949,8 +939,8 @@ namespace m4dModels
                 {
                     if (dancesL.Any())
                     {
-                        m.Left.UpdateDanceRatingsAndTags(user, dancesL, Song.DanceRatingInitial,DanceStats);
-                        m.Left.InferDances(user);
+                        m.Left.UpdateDanceRatingsAndTags(user.UserName, dancesL, Song.DanceRatingInitial,DanceStats);
+                        m.Left.InferDances(user.UserName);
                     }
                     songs.Add(m.Left);
                 }
@@ -1027,16 +1017,23 @@ namespace m4dModels
             var sid = $"\"{service.CID}:{id}\"";
             var parameters = new SearchParameters {SearchFields = new [] {Song.ServiceIds} };
             var results = DoAzureSearch(sid,parameters,CruftFilter.AllCruft, client);
-            return (results.Results.Count > 0) ? new Song(results.Results[0].Document,DanceStats,userName) : null;
+            return (results.Results.Count > 0) ? 
+                new Song(results.Results[0].Document, this, userName) : null;
         }
 
         #endregion
 
         #region Tags
 
-        public IReadOnlyDictionary<string, TagGroup> TagMap => DanceStatsManager.GetInstance(this).TagManager.TagMap;
+        public IReadOnlyDictionary<string, TagGroup> TagMap => DanceStatsManager.Instance.TagManager.TagMap;
 
-        public DanceStatsInstance DanceStats => DanceStatsManager.GetInstance(this);
+        public DanceStatsInstance DanceStats => _stats ?? DanceStatsManager.Instance;
+
+        public void SetStatsInstance(DanceStatsInstance stats)
+        {
+            _stats = stats;
+        }
+        private DanceStatsInstance _stats;
 
         public TagGroup FindOrCreateTagGroup(string value, string category, string primary = null)
         {
@@ -1161,7 +1158,7 @@ namespace m4dModels
 
         public IReadOnlyList<TagGroup> CachedTagGroups()
         {
-            return DanceStatsManager.GetInstance(this).TagGroups;
+            return DanceStatsManager.Instance.TagGroups;
         }
 
         public IEnumerable<TagCount> GetTagSuggestions(string user = null, char? targetType = null, string tagType = null, int count = int.MaxValue)
@@ -1231,7 +1228,7 @@ namespace m4dModels
             return dictionary.Select(pair => new TagCount(pair.Key, pair.Value)).OrderByDescending(tc => tc.Count);
         }
 
-        public IEnumerable<TagGroup> OrderedTagGroups => DanceStatsManager.GetInstance(this).TagGroups;
+        public IEnumerable<TagGroup> OrderedTagGroups => DanceStatsManager.Instance.TagGroups;
 
         public ICollection<TagGroup> GetTagRings(TagList tags)
         {
@@ -1331,6 +1328,10 @@ namespace m4dModels
 
         public bool UpdateIndex(IEnumerable<string> dances, string id = "default")
         {
+            if (SearchService == null)
+            {
+                return false;
+            }
             var info = SearchService.GetInfo(id);
             using (var serviceClient = new SearchServiceClient(info.Name, new SearchCredentials(info.AdminKey)))
             {
@@ -1376,7 +1377,7 @@ namespace m4dModels
                 var chunk = new List<Song>();
                 for (; i < lines.Count && i < (page+1)*chunkSize; i++)
                 {
-                    var song = new Song(lines[i], stats);
+                    var song = new Song(lines[i], this);
                     chunk.Add(song);
                     if (trackDeleted)
                     {
@@ -1494,15 +1495,15 @@ namespace m4dModels
                 cruft = filter.CruftFilter;
             }
             return AzureSearch(filter.SearchString, AzureParmsFromFilter(filter, pageSize), 
-                cruft, null, id, DanceStats);
+                cruft, null, id);
         }
 
         public async Task<SearchResults> AzureSearchAsync(
             string search, SearchParameters parameters, CruftFilter cruft = CruftFilter.NoCruft,
-            string userName = null, string id = "default", DanceStatsInstance stats = null)
+            string userName = null, string id = "default")
         {
             var response = await DoAzureSearchAsync(search, parameters, cruft, id);
-            var songs = response.Results.Select(d => new Song(d.Document, stats ?? DanceStats, userName)).ToList();
+            var songs = response.Results.Select(d => new Song(d.Document, this, userName)).ToList();
             var pageSize = parameters.Top ?? 25;
             var page = ((parameters.Skip ?? 0) / pageSize) + 1;
             var facets = response.Facets;
@@ -1511,10 +1512,10 @@ namespace m4dModels
 
         public SearchResults AzureSearch(
             string search, SearchParameters parameters, CruftFilter cruft = CruftFilter.NoCruft,
-            string userName = null, string id = "default", DanceStatsInstance stats = null)
+            string userName = null, string id = "default")
         {
             var response = DoAzureSearch(search, parameters, cruft, id);
-            var songs = response.Results.Select(d => new Song(d.Document, stats ?? DanceStats, userName)).ToList();
+            var songs = response.Results.Select(d => new Song(d.Document, this, userName)).ToList();
             var pageSize = parameters.Top ?? 25;
             var page = ((parameters.Skip ?? 0) / pageSize) + 1;
             var facets = response.Facets;
@@ -1569,7 +1570,7 @@ namespace m4dModels
 
                 foreach (var doc in response.Results)
                 {
-                    results.Add(new Song(doc.Document, DanceStats));
+                    results.Add(new Song(doc.Document, this));
                 }
                 token = response.ContinuationToken;
             } while (token != null && results.Count < pageSize);
@@ -1610,7 +1611,7 @@ namespace m4dModels
                         break;
                     }
 
-                    results.Add(new Song(doc.Document,DanceStats));
+                    results.Add(new Song(doc.Document, this));
 
                     if (results.Count >= max) break;
                 }
@@ -1960,6 +1961,31 @@ namespace m4dModels
         }
         #endregion
 
+        #region User
+
+        protected virtual ApplicationUser CoreFindUser(string name)
+        {
+            return Context.Users.FirstOrDefault((u) => u.UserName == name);
+        }
+
+        public ApplicationUser FindUser(string name)
+        {
+            if (UserCache.TryGetValue(name, out var user))
+            {
+                return user;
+            }
+
+            user = CoreFindUser(name);
+            if (user != null)
+            {
+                UserCache[name] = user;
+            }
+
+            return user;
+        }
+
+        protected readonly Dictionary<string, ApplicationUser> UserCache = new Dictionary<string, ApplicationUser>();
+        #endregion
     }
 
     public class DanceMusicService : DanceMusicCoreService
@@ -2544,7 +2570,7 @@ namespace m4dModels
                 var time = DateTime.Now;
                 var song = new Song { Created = time, Modified = time };
 
-                song.Load(line, DanceStats);
+                song.Load(line, this);
 
                 c += 1;
 
@@ -2570,13 +2596,12 @@ namespace m4dModels
                 lines.RemoveAt(0);
             }
 
-            var danceStats = DanceStats;
             var c = 0;
             foreach (var line in lines.Where(line => !line.StartsWith("//")))
             {
                 AdminMonitor.UpdateTask("UpdateSongs", c);
 
-                var sd = new Song(line, danceStats);
+                var sd = new Song(line, this);
                 var song = FindSong(sd.SongId);
 
                 if (song == null)
@@ -2621,7 +2646,7 @@ namespace m4dModels
             if (clearCache)
             {
                 Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Clearing Song Cache");
-                DanceStatsManager.ClearCache();
+                DanceStatsManager.ClearCache(this, true);
             }
             Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Exiting UpdateSongs");
         }
@@ -2659,7 +2684,7 @@ namespace m4dModels
             }
 
             Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Clearing Song Cache");
-            DanceStatsManager.ClearCache();
+            DanceStatsManager.ClearCache(this, true);
             Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Exiting AdminUpdate");
         }
 
@@ -2834,16 +2859,9 @@ namespace m4dModels
         #endregion
 
         #region User
-        public ApplicationUser FindUser(string name)
+        protected override ApplicationUser CoreFindUser(string name)
         {
-            if (_userCache.TryGetValue(name, out var user))
-                return user;
-
-            user = UserManager.FindByNameAsync(name).Result;
-            if (user != null)
-                _userCache[name] = user;
-
-            return user;
+            return UserManager.FindByNameAsync(name).Result;
         }
 
         public ApplicationUser FindOrAddUser(string name, string role = null, string email = null)
@@ -2892,7 +2910,7 @@ namespace m4dModels
                     prop.Value = userName;
                 }
 
-                song.AdminEdit(props, DanceStats);
+                song.AdminEdit(props, this);
             }
 
             SaveSongs(songs);
@@ -2916,7 +2934,6 @@ namespace m4dModels
             _roleCache.Add(key);
         }
 
-        private readonly Dictionary<string, ApplicationUser> _userCache = new Dictionary<string, ApplicationUser>();
         private readonly HashSet<string> _roleCache = new HashSet<string>();
 
         #endregion

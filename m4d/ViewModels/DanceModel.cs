@@ -7,10 +7,10 @@ namespace m4d.ViewModels
 {
     public class DanceModel : SongListModel
     {
-        public DanceModel(Dance dance, string userName, DanceStatsInstance stats, IMapper mapper)
+        public DanceModel(Dance dance, string userName, DanceMusicService database, IMapper mapper)
         {
-            var ds = stats.Map[dance.Id];
-            var songs = ds.TopSongsForUser(userName, stats);
+            var ds = database.DanceStats.Map[dance.Id];
+            var songs = ds.TopSongsForUser(userName, database);
             DanceId = dance.Id;
             DanceName = dance.Name;
             UserName = userName;

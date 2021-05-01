@@ -29,10 +29,10 @@ namespace m4d.Controllers
         //}
 
         // GET: ApplicationUsers
-        public async Task<ActionResult> Index(bool showUnconfirmed = false)
+        public async Task<ActionResult> Index(bool showUnconfirmed = false, bool showPseudo = false)
         {
-            //ViewBag.Roles = Context.Roles;
             ViewBag.ShowUnconfirmed = showUnconfirmed;
+            ViewBag.ShowPseudo = showPseudo;
             return View("Index", await GetUserDictionary(Database.UserManager));
         }
 

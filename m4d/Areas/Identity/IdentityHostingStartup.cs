@@ -24,6 +24,7 @@ namespace m4d.Areas.Identity
                             options.User.AllowedUserNameCharacters = string.Empty;
 
                         })
+                    .AddUserValidator<UsernameValidator<ApplicationUser>>()
                     .AddRoles<IdentityRole>()
                     .AddEntityFrameworkStores<DanceMusicContext>();
             });

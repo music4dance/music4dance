@@ -65,7 +65,7 @@ namespace m4d.Controllers
                 return View();
             }
 
-            var stats = DanceStatsManager.GetInstance(Database);
+            var stats = DanceStatsManager.Instance;
             if (string.Equals(dance, "ballroom-competition-categories", StringComparison.OrdinalIgnoreCase))
             {
                 return View("BallroomCompetitionCategories", 
@@ -105,7 +105,7 @@ namespace m4d.Controllers
                 return View("emptydance", ds);
             }
 
-            return View("details", new DanceModel(dbDance, User.Identity.Name, stats, _mapper));
+            return View("details", new DanceModel(dbDance, User.Identity.Name, Database, _mapper));
         }
 
         // GET: GroupRedirect/group/dance

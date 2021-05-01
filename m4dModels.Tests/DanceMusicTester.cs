@@ -90,7 +90,7 @@ namespace m4dModels.Tests
             }
         }
 
-        public static DanceStatsInstance GetDanceStats(DanceStatsManager manager = null)
+        private static DanceStatsInstance GetDanceStats(DanceStatsManager manager = null)
         {
             var assembly = Assembly.GetExecutingAssembly();
             var resourceName = assembly.GetManifestResourceNames()
@@ -104,7 +104,8 @@ namespace m4dModels.Tests
                 json = reader.ReadToEnd();
             }
 
-            var instance = manager == null ? DanceStatsInstance.LoadFromJson(json) : manager.LoadFromJson(json);
+            var instance = manager == null ? 
+                DanceStatsInstance.LoadFromJson(json, null) : manager.LoadFromJson(json, null);
             Assert.IsNotNull(instance);
 
             return instance;
@@ -162,6 +163,7 @@ namespace m4dModels.Tests
             GetDanceStats(manager);
 
             var service = new DanceMusicService(context, userManager, null, manager);
+            manager.Instance.FixupStats(service, false);
 
             SeedRoles(roleManager);
 
@@ -173,20 +175,30 @@ namespace m4dModels.Tests
         {
             var service = CreateService(name);
 
-            service.FindOrAddUser("dwgray");
-            service.FindOrAddUser("batch");
-            service.FindOrAddUser("batch-a");
-            service.FindOrAddUser("batch-e");
-            service.FindOrAddUser("batch-i");
-            service.FindOrAddUser("batch-s");
-            service.FindOrAddUser("batch-x");
-            service.FindOrAddUser("DWTS");
-            service.FindOrAddUser("Charlie");
-            service.FindOrAddUser("ohdwg");
-
+            AddUser(service,"dwgray", false);
+            AddUser(service, "batch", true);
+            AddUser(service, "batch-a", true);
+            AddUser(service, "batch-e", true);
+            AddUser(service, "batch-i", true);
+            AddUser(service, "batch-s", true);
+            AddUser(service, "batch-x", true);
+            AddUser(service, "DWTS", true);
+            AddUser(service, "Charlie", false);
+            AddUser(service, "ohdwg", false);
+            AddUser(service, "HunterZ", true);
+            AddUser(service, "EthanH", true);
+            AddUser(service, "ChaseP", true);
+            AddUser(service, "JuliaS", true);
+            AddUser(service, "LincolnA", true);
             return service;
         }
 
+        private static void AddUser(DanceMusicService service, string name, bool pseudo)
+        {
+            service.FindOrAddUser(name,
+                pseudo ? DanceMusicCoreService.PseudoRole : DanceMusicCoreService.EditRole,
+                pseudo ? null : $"{name}@hotmail.com");
+        }
 
         public static DanceMusicService CreatePopulatedService(string name)
         {

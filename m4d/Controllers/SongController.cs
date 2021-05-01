@@ -338,7 +338,7 @@ namespace m4d.Controllers
             var p = Database.AzureParmsFromFilter(filter, 25);
             p.IncludeTotalResultCount = true;
 
-            results = Database.AzureSearch(filter.SearchString, p, filter.CruftFilter, User.Identity.Name, "default", Database.DanceStats);
+            results = Database.AzureSearch(filter.SearchString, p, filter.CruftFilter, User.Identity.Name);
 
             ViewBag.RawSearch = p;
 
@@ -746,20 +746,22 @@ namespace m4d.Controllers
         //
         // GET: /Song/Create
         [Authorize(Roles = "canTag")]
-        public ActionResult Create(SongFilter filter, string title=null, string artist=null, decimal? tempo = null, int? length=null, string album=null, int? track=null, string service = null, string purchase = null)
+        public async Task<ActionResult> Create(SongFilter filter, string title=null,
+            string artist=null, decimal? tempo = null, int? length=null,
+            string album=null, int? track=null, string service = null, string purchase = null)
         {
             HelpPage = "add-songs";
             Song sd;
             if (title == null && service != null && purchase != null)
             {
-                var user = User.Identity.Name;
+                var user = await UserManager.FindByNameAsync(User.Identity.Name);
                 var strack = MusicServiceManager.GetMusicServiceTrack(purchase, MusicService.GetService(service[0]));
-                sd = Song.CreateFromTrack(user,strack,null,null,null,Database.DanceStats);
+                sd = Song.CreateFromTrack(user, strack,null,null,null,Database);
                 sd.EditLike(user, true);
                 UpdateSongAndServices(Database, sd, user);
                 MusicServiceManager.GetEchoData(Database, sd, user);
                 MusicServiceManager.GetSampleData(Database, sd,user);
-                sd.SetupSerialization(user, Database.DanceStats);
+                sd.SetupSerialization(user.UserName, Database);
             }
             else
             {
@@ -815,7 +817,7 @@ namespace m4d.Controllers
                 return View("details", newSong);
             }
 
-            ViewBag.DanceList = GetDancesSingle(Database,true);
+            ViewBag.DanceList = GetDancesSingle(true);
 
             // Clean out empty albums
             for (var i = 0; i < song.Albums.Count; )
@@ -962,6 +964,7 @@ namespace m4d.Controllers
             song.Modified = DateTime.Now;
             SaveSong(song);
 
+            Debug.Assert(User.Identity != null, "User.Identity != null");
             var user = Database.FindUser(User.Identity.Name);
             var sd = Database.FindSong(songId, user.UserName);
 
@@ -976,7 +979,14 @@ namespace m4d.Controllers
         [Authorize(Roles = "dbAdmin")]
         public ActionResult BatchCorrectTempo(SongFilter filter, decimal multiplier = 0.5M, string user = null, int max = 1000)
         {
-            return BatchAdminExecute(filter, (dms, song) => dms.CorrectTempoSong(song, user ?? "tempo-bot", multiplier), "BatchCorrectTempo", max);
+            var applicationUser = user == null
+                ? new ApplicationUser("tempo-bot", pseudo: true)
+                : Database.FindOrAddUser(user);
+
+            return BatchAdminExecute(filter,
+                (dms, song) =>
+                    dms.CorrectTempoSong(song, applicationUser, multiplier),
+                "BatchCorrectTempo", max);
         }
 
         //
@@ -986,7 +996,10 @@ namespace m4d.Controllers
         [Authorize(Roles = "dbAdmin")]
         public ActionResult BatchAdminEdit(SongFilter filter, string properties, string user = null, int max = 1000)
         {
-            return BatchAdminExecute(filter, (dms,song) => dms.AdminAppendSong(song, user, properties), "BatchAdminEdit", max);
+            Debug.Assert(User.Identity != null, "User.Identity != null");
+            var applicationUser = Database.FindUser(user ?? User.Identity.Name);
+            return BatchAdminExecute(filter, (dms,song) => 
+                dms.AdminAppendSong(song, applicationUser, properties), "BatchAdminEdit", max);
         }
 
         //
@@ -1162,7 +1175,7 @@ namespace m4d.Controllers
                 filter.Purchase = "S";
                 var p = Database.AzureParmsFromFilter(filter, info.Count);
                 p.IncludeTotalResultCount = true;
-                var results = Database.AzureSearch(filter.SearchString, p, filter.CruftFilter, null,"default", Database.DanceStats);
+                var results = Database.AzureSearch(filter.SearchString, p, filter.CruftFilter);
                 var tracks = results.Songs.Select(s => s.GetPurchaseId(ServiceType.Spotify));
 
                 var service = MusicService.GetService(ServiceType.Spotify);
@@ -1282,8 +1295,7 @@ namespace m4d.Controllers
             // Create a merged version of the song (and commit to DB)
 
             // Get the logged in user
-            var userName = User.Identity.Name;
-            var user = Database.FindUser(userName);
+            var user = Database.FindUser(User.Identity.Name);
 
             var song = Database.MergeSongs(user, songs, 
                 ResolveStringField(Song.TitleField, songs, Request.Form),
@@ -1294,9 +1306,15 @@ namespace m4d.Controllers
 
             Database.RemoveMergeCandidates(songs);
 
-            DanceStatsManager.ClearCache();
+            DanceStatsManager.ClearCache(Database, true);
 
             ViewBag.BackAction = "MergeCandidates";
+
+            if (VueMode)
+            {
+                return View("details", GetSongDetails(song, filter));
+            }
+
             BuildDanceList(DanceBags.Stats | DanceBags.Single);
             return View("details",Database.FindSong(song.SongId));
         }
@@ -1410,7 +1428,7 @@ namespace m4d.Controllers
                             foreach (var song in songs)
                             {
                                 AdminMonitor.UpdateTask($"Processing ({succeeded.Count})", processed);
-                                var edit = new Song(song, dms.DanceStats);
+                                var edit = new Song(song, dms);
 
                                 processed += 1;
 
@@ -1644,7 +1662,7 @@ namespace m4d.Controllers
             return BatchProcess(
                 filter, (dms, song) =>
                     Task.FromResult(
-                        Database.ReloadSong(song)
+                        dms.ReloadSong(song)
                             ? song : null));
         }
 
@@ -1794,7 +1812,7 @@ namespace m4d.Controllers
                                 processed += 1;
 
                                 tried += 1;
-                                if (MusicServiceManager.GetSampleData(dms, song, user.UserName))
+                                if (MusicServiceManager.GetSampleData(dms, song, user))
                                 {
                                     succeeded.Add(song);
                                 }
@@ -1861,7 +1879,7 @@ namespace m4d.Controllers
                 var page = 0;
                 var done = false;
 
-                var user = User.Identity.Name;
+                var user = Database.FindUser(User.Identity.Name);
 
                 filter.Purchase = "S";
 
@@ -1981,9 +1999,9 @@ namespace m4d.Controllers
             return Redirect($"/Identity/Account/Login/?ReturnUrl=/song/advancedsearchform?filter={filter}");
         }
 
-        private IEnumerable<SelectListItem> GetDancesSingle(DanceMusicCoreService dms, bool includeEmpty=false)
+        private IEnumerable<SelectListItem> GetDancesSingle(bool includeEmpty=false)
         {
-            var counts = DanceStatsManager.GetFlatDanceStats(dms);
+            var counts = DanceStatsManager.FlatDanceStats;
 
             var dances = new List<SelectListItem>(counts.Count)
             {
@@ -2033,13 +2051,13 @@ namespace m4d.Controllers
         private void BuildDanceList(DanceBags bags = DanceBags.All, bool includeEmpty=false)
         {
             if ((bags & DanceBags.List) == DanceBags.List)
-                ViewBag.Dances = DanceStatsManager.GetDanceStats(Database);
+                ViewBag.Dances = DanceStatsManager.DanceStats;
 
             if ((bags & DanceBags.Stats) == DanceBags.Stats)
-                ViewBag.DanceStats = DanceStatsManager.GetInstance(Database);
+                ViewBag.DanceStats = DanceStatsManager.Instance;
 
             if ((bags & DanceBags.Single) == DanceBags.Single)
-                ViewBag.DanceList = GetDancesSingle(Database, includeEmpty);
+                ViewBag.DanceList = GetDancesSingle(includeEmpty);
         }
         #endregion
 
@@ -2062,7 +2080,7 @@ namespace m4d.Controllers
             Song newSong = null;
             if (changed || updateGenre)
             {
-                newSong = new Song(song.SongId, props, dms.DanceStats);
+                newSong = new Song(song.SongId, props, dms);
             }
 
             if (!updateGenre)
@@ -2082,15 +2100,19 @@ namespace m4d.Controllers
             {
                 var id = PurchaseRegion.ParseIdAndRegionInfo(prop.Value, out _);
                 var track = MusicServiceManager.GetMusicServiceTrack(id, spotify);
-                if (track.Genres != null && track.Genres.Length > 0)
+                if (track.Genres is {Length: > 0})
                 {
-                    tags = tags.Add(new TagList(dms.NormalizeTags(string.Join("|", track.Genres), "Music", true)));
+                    tags = tags.Add(
+                        new TagList(
+                            dms.NormalizeTags(
+                                string.Join("|", track.Genres), 
+                                "Music", true)));
                 }
             }
 
             Trace.Write($"Tags={tags}\r\n");
 
-            return song.EditSongTags(spotify.User, tags, dms.DanceStats);
+            return song.EditSongTags(spotify.ApplicationUser, tags, dms.DanceStats);
         }
 
         private bool CleanSpotify(IEnumerable<SongProperty> props)
@@ -2181,7 +2203,7 @@ namespace m4d.Controllers
             p.IncludeTotalResultCount = true;
 
             var results = await Database.AzureSearchAsync(filter.SearchString, p, filter.CruftFilter, 
-                User.Identity.Name, "default", Database.DanceStats);
+                User.Identity.Name);
 
             switch (type)
             {
@@ -2361,7 +2383,7 @@ namespace m4d.Controllers
             }
             finally
             {
-                DanceStatsManager.ClearCache();
+                DanceStatsManager.ClearCache(Database, false);
             }
 
             return ret;

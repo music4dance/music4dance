@@ -15,7 +15,7 @@ namespace m4dModels
         {
             TagManager = tagManager;
             Tree = (tree as List<DanceStats>)?.ToList();
-            FixupStats(dms, source);
+            FixupStats(dms, true, source);
         }
 
         [JsonConstructor]
@@ -23,52 +23,52 @@ namespace m4dModels
         {
             TagManager = new TagManager(tagGroups);
             Tree = tree.ToList();
-            FixupStats();
         }
 
-        public void FixupStats(DanceMusicCoreService dms = null, string source = "default")
+        public void FixupStats(DanceMusicCoreService dms, bool reloadSongs, string source = "default")
         {
+            dms.SetStatsInstance(this);
             foreach (var d in Tree)
             {
                 d.SetParents();
             }
             Map = List.ToDictionary(ds => ds.DanceId);
 
-            Dictionary<string, PlaylistMetadata> playlists = null;
-            if (dms != null)
-            {
-                playlists = dms.PlayLists.Where(p => p.Type == PlayListType.SpotifyFromSearch)
+            Dictionary<string, PlaylistMetadata> playlists = 
+                dms.PlayLists.Where(p => p.Type == PlayListType.SpotifyFromSearch)
                     .Where(p => p.Name != null)
                     .Select(p => new PlaylistMetadata {Id = p.Id, Name = p.Name})
                     .ToDictionary(m => m.Name, m => m);
-            }
 
             var newDances = new List<string>();
             foreach (var ds in List)
             {
-                if (dms == null)
+                if (ds.SongCount > 0)
                 {
-                    ds.RebuildTopSongs(this);
-                }
-                else if (ds.SongCount > 0)
-                {
-                    // TopN and MaxWeight
-                    var filter =
-                        dms.AzureParmsFromFilter(new SongFilter {Dances = ds.DanceId, SortOrder = "Dances"}, 10);
-                    DanceMusicCoreService.AddAzureCategories(
-                        filter, "GenreTags,StyleTags,TempoTags,OtherTags", 100);
-                    var results = dms.AzureSearch(
-                        null, filter, DanceMusicCoreService.CruftFilter.NoCruft, null, source, this);
-                    ds.TopSongs = results.Songs;
-                    var song = ds.TopSongs.FirstOrDefault();
-                    var dr = song?.DanceRatings.FirstOrDefault(d => d.DanceId == ds.DanceId);
+                    if (reloadSongs)
+                    {
+                        // TopN and MaxWeight
+                        var filter =
+                            dms.AzureParmsFromFilter(new SongFilter { Dances = ds.DanceId, SortOrder = "Dances" }, 10);
+                        DanceMusicCoreService.AddAzureCategories(
+                            filter, "GenreTags,StyleTags,TempoTags,OtherTags", 100);
+                        var results = dms.AzureSearch(
+                            null, filter, DanceMusicCoreService.CruftFilter.NoCruft, null, source);
+                        ds.SetTopSongs(results.Songs);
+                        var song = ds.TopSongs.FirstOrDefault();
+                        var dr = song?.DanceRatings.FirstOrDefault(d => d.DanceId == ds.DanceId);
 
-                    if (dr != null) ds.MaxWeight = dr.Weight;
+                        if (dr != null) ds.MaxWeight = dr.Weight;
 
-                    // SongTags
-                    ds.SongTags = results.FacetResults == null
-                        ? new TagSummary()
-                        : new TagSummary(results.FacetResults, TagManager.TagMap);
+                        // SongTags
+                        ds.SongTags = results.FacetResults == null
+                            ? new TagSummary()
+                            : new TagSummary(results.FacetResults, TagManager.TagMap);
+                    }
+                    else
+                    {
+                        ds.LoadSongs(dms);
+                    }
 
                     if (playlists.TryGetValue(ds.DanceName, out var metadata))
                     {
@@ -84,12 +84,12 @@ namespace m4dModels
                     }
 
                     newDances.Add(ds.DanceId);
-                    ds.TopSongs = new List<Song>();
+                    ds.SetTopSongs(new List<Song>());
                     ds.SongTags = new TagSummary();
                 }
             }
 
-            dms?.UpdateIndex(newDances);
+            dms.UpdateIndex(newDances);
         }
 
         [JsonProperty]
@@ -100,7 +100,7 @@ namespace m4dModels
 
         public TagManager TagManager { get; set; }
 
-        public List<DanceStats> List => _flat ?? (_flat = Flatten());
+        public List<DanceStats> List => _flat ??= Flatten();
         public Dictionary<string, DanceStats> Map { get; private set; }
 
         public int GetScaledRating(string danceId, int weight, int scale = 5)
@@ -139,14 +139,14 @@ namespace m4dModels
             return null;
         }
 
-        public DanceStats FromName(string name, string userName = null)
+        public DanceStats FromName(string name)
         {
-            if (string.IsNullOrEmpty(userName)) userName = null;
             name = DanceObject.SeoFriendly(name);
             var stats = List.FirstOrDefault(sc => string.Equals(sc.SeoName, name));
-            return (userName == null) ? stats : stats?.CloneForUser(userName, this);
+            return stats;
         }
-        public static DanceStatsInstance LoadFromJson(string json)
+
+        public static DanceStatsInstance LoadFromJson(string json, DanceMusicCoreService database)
         {
             var settings = new JsonSerializerSettings
             {
@@ -155,6 +155,10 @@ namespace m4dModels
             };
 
             var instance = JsonConvert.DeserializeObject<DanceStatsInstance>(json, settings);
+            if (database != null)
+            {
+                instance.FixupStats(database, false);
+            }
 
             Dances.Reset(Dances.Load(instance.GetDanceTypes(), instance.GetDanceGroups()));
 
@@ -234,11 +238,11 @@ namespace m4dModels
             }
         }
 
-        public Song FindSongDetails(Guid songId, string userName)
+        public Song FindSongDetails(Guid songId, string userName, DanceMusicCoreService dms)
         {
             var sd = TopSongs.GetValueOrDefault(songId) ?? _otherSongs.GetValueOrDefault(songId);
             if (sd == null) return null;
-            return (userName == null) ? sd : new Song(sd, this, userName);
+            return (userName == null) ? sd : new Song(sd, dms, userName);
         }
 
         internal List<DanceType> GetDanceTypes()

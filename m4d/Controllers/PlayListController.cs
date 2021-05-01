@@ -422,6 +422,7 @@ namespace m4d.Controllers
         {
             try
             {
+                // TODONEXT: pass in the existing tracks and don't reload them
                 var spl = LoadServicePlaylist(playlist, email, dms, MusicServiceManager);
                 if (spl == null)
                 {
@@ -443,11 +444,13 @@ namespace m4d.Controllers
                     return $"UpdateSongsFromSpotify {playlist.Id}: Empty Playlist";
                 }
                 var tags = playlist.Tags.Split(new[] { "|||" }, 2, StringSplitOptions.None);
-                var newSongs = dms.SongsFromTracks(playlist.User, tracks, tags[0], tags.Length > 1 ? tags[1] : string.Empty);
+                var newSongs = dms.SongsFromTracks(
+                    Database.FindUser(playlist.User), tracks, tags[0], tags.Length > 1 ? tags[1] : string.Empty);
 
                 AdminMonitor.UpdateTask("Starting Merge");
                 var results = dms.MatchSongs(newSongs, DanceMusicCoreService.MatchMethod.Merge);
-                var succeeded = CommitCatalog(dms, new Review { PlayList = playlist.Id, Merge = results }, playlist.User);
+                var succeeded = CommitCatalog(dms,
+                    new Review { PlayList = playlist.Id, Merge = results }, Database.FindUser(playlist.User));
                 return $"UpdateSongsFromSpotify {playlist.Id}: Succeeded with {succeeded} songs.";
             }
             catch (Exception e)
@@ -675,7 +678,7 @@ namespace m4d.Controllers
                 throw new ArgumentOutOfRangeException(nameof(playList.Type), $@"Playlists of type ${playList.Type} not not yet supported.");
             }
 
-            return serviceManager.LookupPlaylist(service, url);
+            return serviceManager.LookupPlaylist(service, url, playList.SongIdList);
         }
 
         private HttpStatusCode GetPlaylist(string id, out PlayList playList)

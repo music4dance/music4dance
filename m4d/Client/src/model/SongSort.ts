@@ -7,6 +7,7 @@ export enum SortOrder {
   Tempo = "Tempo",
   Modified = "Modified",
   Created = "Created",
+  Edited = "Edited",
   Energy = "Energy",
   Mood = "Mood",
   Beat = "Beat",
@@ -50,6 +51,8 @@ export class SongSort {
         return "Dance Rating";
       case SortOrder.Modified:
         return "Last Modified";
+      case SortOrder.Edited:
+        return "Last Edited";
       case SortOrder.Created:
         return "When Added";
       case undefined:
@@ -69,6 +72,7 @@ export class SongSort {
         return "numeric";
       case SortOrder.Modified:
       case SortOrder.Created:
+      case SortOrder.Edited:
       case SortOrder.Dances:
         return "";
       default:
@@ -88,6 +92,7 @@ export class SongSort {
         case SortOrder.Tempo:
           return "slowest to fastest";
         case SortOrder.Modified:
+        case SortOrder.Edited:
         case SortOrder.Created:
           return "newest to oldest";
         case SortOrder.Dances:
@@ -106,6 +111,7 @@ export class SongSort {
         case SortOrder.Tempo:
           return "fastest to slowest";
         case SortOrder.Modified:
+        case SortOrder.Edited:
         case SortOrder.Created:
           return "oldest to newest";
         case SortOrder.Dances:

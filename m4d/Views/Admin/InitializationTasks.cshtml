@@ -1,17 +1,12 @@
 ﻿@using m4d.ViewModels
 @using m4dModels
-@inject  IDanceStatsManager DanceStatsManager;
+@inject IDanceStatsManager DanceStatsManager;
 
 @{
     Layout = "/Views/Shared/_bs4-Layout.cshtml";
     ViewBag.Title = "InitializationTasks";
     ViewBag.BreadCrumbs = BreadCrumbItem.BuildAdminTrail(ViewBag.Title);
 }
-<ol class="breadcrumb">
-    <li><a href="/">Music4Dance</a></li>
-    <li><a href="/admin">Admin Index</a></li>
-    <li class="active">Initialization Tasks</li>
-</ol>
 
 <h3>Search Indexing</h3>
 <ul>
@@ -24,7 +19,12 @@
 
 <h3> Initializiation Tasks</h3>
 <ul>
-    <li>@Html.ActionLink("Clear Song Cache", "ClearSongCache") - @Html.ActionLink("reload from store", "ClearSongCache", new {reloadFromStore=true}, null) - @Html.ActionLink("reload from file", "ClearSongCache", new { reloadFromFile = true }, null) (@DanceStatsManager.Reloads - autoreloads)</li>
+    <li>Reload Song Stats
+        <ul>
+            <li>@Html.ActionLink("From Store", "ClearSongCache")</li>
+            <li>@Html.ActionLink("From File", "ClearSongCache", new { reloadFromStore = false }, null)</li>
+        </ul>
+    </li>
     <li>@Html.ActionLink("Update Sitemap", "UpdateSitemap")</li>
 </ul>
 

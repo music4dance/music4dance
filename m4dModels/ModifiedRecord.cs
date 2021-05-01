@@ -9,6 +9,15 @@ namespace m4dModels
         {
         }
 
+        public ModifiedRecord(string value)
+        {
+            var parts = value.Split('|');
+            UserName = parts[0];
+            // Eventually this may be a generic flag field, but for now the
+            //  only valid flag is Pseudo == "P"
+            IsPseudo = parts.Length > 1 && parts[1] == "P";
+        }
+
         public ModifiedRecord(ModifiedRecord mod)
         {
             UserName = mod.UserName;
@@ -25,6 +34,18 @@ namespace m4dModels
 
         public string UserName { get; set; }
 
+        public bool IsPseudo { get; set; }
+
+        [NotMapped]
+        [JsonIgnore]
+        public string DecoratedName =>
+            ApplicationUser.BuildDecoratedName(UserName,IsPseudo);
+
+        [NotMapped]
+        [JsonIgnore]
+        public ApplicationUser ApplicationUser =>
+            new ApplicationUser(UserName, IsPseudo);
+
         [NotMapped]
         [JsonIgnore]
         public string LikeString {
@@ -34,8 +55,7 @@ namespace m4dModels
 
         public static bool? ParseLike(string likeString)
         {
-            bool like;
-            if (bool.TryParse(likeString, out like))
+            if (bool.TryParse(likeString, out var like))
                 return like;
             return null;
         }

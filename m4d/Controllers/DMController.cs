@@ -21,7 +21,10 @@ namespace m4d.Controllers
         protected readonly string BlogTheme = "blog";
         protected readonly string AdminTheme = "admin";
 
-        public DanceMusicController(DanceMusicContext context, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, ISearchServiceManager searchService, IDanceStatsManager danceStatsManager, IConfiguration configuration)
+        public DanceMusicController(
+            DanceMusicContext context, UserManager<ApplicationUser> userManager,
+            RoleManager<IdentityRole> roleManager, ISearchServiceManager searchService,
+            IDanceStatsManager danceStatsManager, IConfiguration configuration)
         {
             Database = new DanceMusicService(context, userManager, searchService, danceStatsManager);
             SearchService = searchService;
@@ -140,7 +143,8 @@ namespace m4d.Controllers
         }
         #endregion
 
-        protected int CommitCatalog(DanceMusicCoreService dms, Review review, string userName, string danceIds = null)
+        protected int CommitCatalog(DanceMusicCoreService dms, Review review,
+            ApplicationUser user, string danceIds = null)
         {
             List<string> dances = null;
             if (!string.IsNullOrWhiteSpace(danceIds))
@@ -150,14 +154,14 @@ namespace m4d.Controllers
 
             if (review.Merge.Count <= 0) return 0;
 
-            var modified = dms.MergeCatalog(userName, review.Merge, dances).ToList();
+            var modified = dms.MergeCatalog(user, review.Merge, dances).ToList();
 
             var i = 0;
 
             foreach (var song in modified)
             {
                 AdminMonitor.UpdateTask("UpdateService", i);
-                UpdateSongAndServices(dms, song);
+                UpdateSongAndServices(dms, song, crossRetry:true);
                 i += 1;
             }
 
@@ -171,8 +175,10 @@ namespace m4d.Controllers
             return modified.Count;
         }
 
-        protected bool UpdateSongAndServices(DanceMusicCoreService dms, Song sd, string user = null, bool crossRetry = false)
+        protected bool UpdateSongAndServices(DanceMusicCoreService dms, Song sd,
+            ApplicationUser user = null, bool crossRetry = false)
         {
+            // TODONEXT: Confirm that setting crossRetry to true prevents extra service lookup
             var changed = false;
             // ReSharper disable once LoopCanBeConvertedToQuery
             foreach (var service in MusicService.GetSearchableServices())
@@ -194,12 +200,14 @@ namespace m4d.Controllers
             return changed;
         }
 
-        protected bool UpdateSongAndService(DanceMusicCoreService dms, Song sd, MusicService service, string user = null)
+        protected bool UpdateSongAndService(
+            DanceMusicCoreService dms, Song sd, MusicService service,
+            ApplicationUser user = null)
         {
             var found = MatchSongAndService(sd, service);
             if (found.Count <= 0) return false;
 
-            var edit = new Song(sd, dms.DanceStats);
+            var edit = new Song(sd, dms);
 
             var tags = new TagList();
             foreach (var foundTrack in found)
@@ -214,11 +222,11 @@ namespace m4d.Controllers
 
             if (user != null)
             {
-                tags = tags.Add(sd.GetUserTags(user));
+                tags = tags.Add(sd.GetUserTags(user.UserName));
             }
             else
             {
-                user = service.User;
+                user = service.ApplicationUser;
             }
 
             return dms.EditSong(user, sd, edit, new[] { new UserTag { Id = string.Empty, Tags = tags } });

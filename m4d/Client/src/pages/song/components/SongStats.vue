@@ -70,6 +70,10 @@
       <b-th>Modified</b-th>
       <b-td>{{ modifiedFormatted }}</b-td>
     </b-tr>
+    <b-tr v-if="song.edited">
+      <b-th>Edited</b-th>
+      <b-td>{{ editedFormatted }}</b-td>
+    </b-tr>
   </b-table-simple>
 </template>
 
@@ -97,6 +101,10 @@ export default class SongStats extends Vue {
 
   private get createdFormatted(): string {
     return SongProperty.formatDate(this.song.created);
+  }
+
+  private get editedFormatted(): string {
+    return SongProperty.formatDate(this.song.edited!);
   }
 
   private formatEchoNest(n: number): string {

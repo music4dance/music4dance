@@ -16,7 +16,10 @@
     var deletedUsers = users.Count(u => u.User.UserName.StartsWith("DEL:"));
     var hasServicePreference = users.Count(u => !string.IsNullOrEmpty(u.User.ServicePreference));
 
-    var filteredUsers = ViewBag.ShowUnconfirmed ? users : users.Where(u => u.User.EmailConfirmed).ToList();
+    var showUnconfirmed = ViewBag.ShowUnconfirmed;
+    var showPseudo = ViewBag.ShowPseudo;
+    var filteredUsers = users.Where(u => 
+        (u.User.EmailConfirmed || showUnconfirmed) && (!u.User.IsPseudo || showPseudo)).ToList();
 
     ViewBag.BreadCrumbs = BreadCrumbItem.BuildAdminTrail(ViewBag.Title);
 }
@@ -48,17 +51,26 @@
     </div>
 
     <div class="col-md-3">
-        <p>@Html.ActionLink("New Pseudo User", "Create", "ApplicationUsers", null,  htmlAttributes: new { @class = "btn btn-primary", role = "button" })</p>
+        <p>@Html.ActionLink("New Pseudo User", "Create", "ApplicationUsers", null, htmlAttributes: new { @class = "btn btn-primary", role = "button" })</p>
         @if (ViewBag.ShowUnconfirmed)
         {
-            <p>@Html.ActionLink("Hide Unconfirmed", "Index", new { showUnconfirmed = false }, new { @class = "btn btn-primary", role = "button" })</p>
+            <p>@Html.ActionLink("Hide Unconfirmed", "Index", new { showUnconfirmed = false, showPseudo = showPseudo }, new { @class = "btn btn-primary", role = "button" })</p>
         }
         else
         {
-            <p>@Html.ActionLink("Show Unconfirmed", "Index", new { showUnconfirmed = true }, new { @class = "btn btn-primary", role = "button" })</p>
+            <p>@Html.ActionLink("Show Unconfirmed", "Index", new { showUnconfirmed = true, showPseudo = showPseudo }, new { @class = "btn btn-primary", role = "button" })</p>
         }
+        @if (ViewBag.ShowPseudo)
+        {
+            <p>@Html.ActionLink("Hide Pseudo", "Index", new { showPseudo = false, showUnconfirmed = showUnconfirmed }, new { @class = "btn btn-primary", role = "button" })</p>
+        }
+        else
+        {
+            <p>@Html.ActionLink("Show Pseudo", "Index", new { showPseudo = true, showUnconfirmed = showUnconfirmed }, new { @class = "btn btn-primary", role = "button" })</p>
+        }
+
         <p>@Html.ActionLink("Clear Cache", "ClearCache", "ApplicationUsers", null, new { @class = "btn btn-secondary", role = "button" })</p>
-        <p>@Html.ActionLink("Voting Results", "VotingResults", "ApplicationUsers",null, new { @class = "btn btn-primary", role = "button" })</p>
+        <p>@Html.ActionLink("Voting Results", "VotingResults", "ApplicationUsers", null, new { @class = "btn btn-primary", role = "button" })</p>
     </div>
 
 </div>
@@ -124,7 +136,7 @@
 
     @foreach (var item in filteredUsers.OrderByDescending(u => u.User.LastActive > u.User.StartDate ? u.User.LastActive : u.User.StartDate).ToList())
     {
-        var pseudoClass = item.IsPseudo ? "pseudo-user" : "";
+        var fontStyle = item.IsPseudo ? "font-style:italic" : "font-style:normal";
         <tr>
     @*
         <td>
@@ -147,7 +159,7 @@
         @Html.DisplayFor(modelItem => item.User.EmailConfirmed)
     </td>
     <td>
-        @Html.ActionLink(item.User.UserName, "Details", new { id = item.User.Id }, new { @class = pseudoClass })
+        @Html.ActionLink(item.User.UserName, "Details", new { id = item.User.Id }, new { style = fontStyle })
         <br />
         @Html.DisplayFor(modelItem => item.User.Email)
     </td>

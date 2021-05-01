@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
+using System.Security.Cryptography.X509Certificates;
+using AutoMapper.Mappers;
 using Microsoft.CSharp.RuntimeBinder;
 using Exception = System.Exception;
 
@@ -67,8 +69,12 @@ namespace m4dModels
         }
 
 
-        public override IList<ServiceTrack> ParseSearchResults(dynamic results, Func<string, dynamic> getResult)
+        public override IList<ServiceTrack> ParseSearchResults(
+            dynamic results, Func<string, dynamic> getResult,
+            IEnumerable<string> excludeTracks)
         {
+            var excludeMap = new HashSet<string>(excludeTracks ?? new List<string>());
+
             if (results == null) return null;
 
             var ret = new List<ServiceTrack>();
@@ -85,9 +91,14 @@ namespace m4dModels
                 }
                 catch (Exception)
                 {
-                    
+                    Trace.WriteLine($"Unable to parse track ${track.toString()}");
                 }
-                ret.Add(ParseTrackResults(trackT, getResult));
+
+                string trackId = trackT.id;
+                if (trackId != null && !excludeMap.Contains(trackId))
+                {
+                    ret.Add(ParseTrackResults(trackT, getResult));
+                }
             }
 
             try

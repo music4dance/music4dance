@@ -119,7 +119,7 @@ namespace m4d.APIControllers
         {
             try
             {
-                dsm.ClearCache(dms);
+                dsm.ClearCache(dms, true);
                 Complete(markerService, id, message);
             }
             catch (Exception e)

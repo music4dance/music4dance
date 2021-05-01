@@ -135,19 +135,34 @@ namespace m4dModels
             StartDate = DateTime.Now;
         }
 
-        public ApplicationUser(string userName)
+        public ApplicationUser(string userName, bool pseudo = false) : this()
         {
-            StartDate = DateTime.MinValue;
             UserName = userName;
+            if (pseudo)
+            {
+                Email = $"{userName}@music4dance.net";
+            }
+        }
+
+        public ApplicationUser(string userName, string email): this()
+        {
+            UserName = userName;
+            Email = email;
         }
 
         public bool IsPlaceholder => StartDate == DateTime.MinValue;
 
-        public bool IsPseudo => Email.EndsWith("@music4dance.net") ||
-                                 Email.EndsWith("@spotify.com") ||
-                                 Email.EndsWith("@thegray.com");
+        public bool IsPseudo => Email.EndsWith("@music4dance.net", StringComparison.OrdinalIgnoreCase) ||
+                                 Email.EndsWith("@spotify.com", StringComparison.OrdinalIgnoreCase);
 
         public bool IsConfirmed => EmailConfirmed && !IsPseudo;
+
+        public string DecoratedName => BuildDecoratedName(UserName, IsPseudo);
+
+        public static string BuildDecoratedName(string userName, bool isPseudo)
+        {
+            return isPseudo ? $"{userName}|P" : userName;
+        }
 
         public static string SerializeProviders(IEnumerable<UserLoginInfo> logins)
         {

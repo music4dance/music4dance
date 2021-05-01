@@ -241,7 +241,7 @@ import { SongFilter } from "@/model/SongFilter";
 import { DanceHandler } from "@/model/DanceHandler";
 import { TagHandler } from "@/model/TagHandler";
 import { TaggableObject } from "@/model/TaggableObject";
-import { SongSort } from "@/model/SongSort";
+import { SongSort, SortOrder } from "@/model/SongSort";
 import AdminTools from "@/mix-ins/AdminTools";
 import { SongHistory } from "@/model/SongHistory";
 import { SongEditor } from "@/model/SongEditor";
@@ -445,11 +445,20 @@ export default class SongTable extends Mixins(AdminTools) {
   }
 
   private get orderType(): string {
-    return this.createdOrder ? "Created" : "Modified";
+    return this.sortOrder.order ?? SortOrder.Created;
   }
 
   private get orderIcon(): string {
-    return this.createdOrder ? "file-earmark-plus" : "pencil";
+    switch (this.sortOrder.order) {
+      case SortOrder.Created:
+        return "file-earmark-plus";
+      case SortOrder.Modified:
+        return "pencil";
+      case SortOrder.Edited:
+        return "pencil-fill";
+      default:
+        return "asterisk";
+    }
   }
 
   private danceHandler(tag: Tag, filter: SongFilter, song: Song): DanceHandler {
@@ -467,14 +476,6 @@ export default class SongTable extends Mixins(AdminTools) {
 
   private get sortOrder(): SongSort {
     return this?.filter?.sort ?? new SongSort("Modified");
-  }
-
-  private get createdOrder(): boolean {
-    return this.sortOrder.order === "Created";
-  }
-
-  private get modifiedOrder(): boolean {
-    return this.sortOrder.order === "Modified";
   }
 
   private get sortableDances(): boolean {

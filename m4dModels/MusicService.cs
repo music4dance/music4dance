@@ -16,6 +16,9 @@ namespace m4dModels
 
         public string User => $"batch-{CID.ToString().ToLower()}";
 
+        public ApplicationUser ApplicationUser => 
+            new ApplicationUser(User, pseudo: true);
+
         // This is pretty kludgy but until I implement
         // a second service that requires a key I don't
         // want to spend time generalizing
@@ -119,7 +122,9 @@ namespace m4dModels
             return response;
         }
 
-        public virtual IList<ServiceTrack> ParseSearchResults(dynamic results, Func<string, dynamic> getResult)
+        public virtual IList<ServiceTrack> ParseSearchResults(
+            dynamic results, Func<string, dynamic> getResult,
+            IEnumerable<string> excludeTracks)
         {
             throw new NotImplementedException();
         }

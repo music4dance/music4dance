@@ -28,7 +28,9 @@ namespace m4dModels
             return null;
         }
 
-        public override IList<ServiceTrack> ParseSearchResults(dynamic results, Func<string, dynamic> getResult)
+        public override IList<ServiceTrack> ParseSearchResults(
+            dynamic results, Func<string, dynamic> getResult,
+            IEnumerable<string> excludeTracks)
         {
             var ret = new List<ServiceTrack>();
 

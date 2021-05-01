@@ -13,7 +13,7 @@ namespace m4d.APIControllers
         public DancesStatisticsController(DanceMusicContext context, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, ISearchServiceManager searchService, IDanceStatsManager danceStatsManager, IConfiguration configuration) :
             base(context, userManager, roleManager, searchService, danceStatsManager, configuration)
         {
-            _statistics = DanceStatsManager.GetInstance(Database);
+            _statistics = DanceStatsManager.Instance;
         }
 
         [HttpGet]

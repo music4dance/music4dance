@@ -54,6 +54,7 @@ export enum PropertyType {
   beatField = "Beat",
   albumsField = "Albums",
   createdField = "Created",
+  editedField = "Edited",
   modifiedField = "Modified",
   dancesField = "Dances",
   usersField = "Users",

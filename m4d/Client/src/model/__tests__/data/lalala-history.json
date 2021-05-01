@@ -59,7 +59,7 @@
     },
     {
       "name": "User",
-      "value": "batch-i"
+      "value": "batch-i|P"
     },
     {
       "name": "Time",
@@ -147,7 +147,7 @@
     },
     {
       "name": "User",
-      "value": "batch-s"
+      "value": "batch-s|P"
     },
     {
       "name": "Time",
@@ -267,7 +267,7 @@
     },
     {
       "name": "User",
-      "value": "batch-e"
+      "value": "batch-e|P"
     },
     {
       "name": "Time",

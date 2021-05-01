@@ -7,7 +7,9 @@ namespace m4dModels
 {
     public class SongSort
     {
-        private static readonly string[] s_directional = { Song.TitleField, Song.ArtistField, Song.TempoField, Song.ModifiedField, Song.CreatedField,Song.EnergyField,Song.MoodField,Song.BeatField };
+        private static readonly string[] s_directional = { Song.TitleField, Song.ArtistField,
+            Song.TempoField, Song.ModifiedField, Song.CreatedField, Song.EditedField,
+            Song.EnergyField,Song.MoodField,Song.BeatField };
         private static readonly string[] s_numerical = { Song.TempoField, Song.MoodField, Song.CreatedField };
         private static readonly string[] s_intrinsic = {Song.EnergyField, Song.MoodField, Song.BeatField};
 
@@ -78,6 +80,8 @@ namespace m4dModels
                         return "Dance Rating";
                     case "Modified":
                         return "Last Modified";
+                    case "Edited":
+                        return "Last Edited";
                     case "Created":
                         return "When Added";
                     case null:
@@ -97,7 +101,7 @@ namespace m4dModels
 
                 if (Id == "Dances") return null;
                 var desc = Descending;
-                if (Id == "Modified" || Id == "Created")
+                if (Id == "Modified" || Id == "Created" || Id == "Edited")
                 {
                     desc = !desc;
                 }
