@@ -5,6 +5,7 @@ using m4d.Areas.Identity;
 using m4dModels;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -22,7 +23,7 @@ namespace m4d
                 var serviceProvider = scope.ServiceProvider;
                 try
                 {
-                    //using var context = scope.ServiceProvider.GetService<DanceMusicContext>();
+                    //using var context = scope.ServiceProvider.GetRequiredService<DanceMusicContext>();
                     //context.Database.Migrate();
 
                     var userManager = serviceProvider.GetRequiredService<UserManager<ApplicationUser>>();

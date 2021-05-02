@@ -10,7 +10,7 @@ namespace m4d.Areas.Identity
     {
         public Task<IdentityResult> ValidateAsync(UserManager<TUser> manager, TUser user)
         {
-            if (user.UserName.Any(x => Exlude.Contains(x)))
+            if (user.UserName.Any(x => _exclude.Contains(x)))
             {
                 return Task.FromResult(IdentityResult.Failed(new IdentityError
                 {
@@ -21,6 +21,6 @@ namespace m4d.Areas.Identity
             return Task.FromResult(IdentityResult.Success);
         }
 
-        private readonly HashSet<char> Exlude = ":;,|@".ToHashSet();
+        private readonly HashSet<char> _exclude = ":;,|@".ToHashSet();
     }
 }

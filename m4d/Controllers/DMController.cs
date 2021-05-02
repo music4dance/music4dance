@@ -176,7 +176,7 @@ namespace m4d.Controllers
         }
 
         protected bool UpdateSongAndServices(DanceMusicCoreService dms, Song sd,
-            ApplicationUser user = null, bool crossRetry = false)
+            bool crossRetry = false)
         {
             // TODONEXT: Confirm that setting crossRetry to true prevents extra service lookup
             var changed = false;
@@ -187,12 +187,12 @@ namespace m4d.Controllers
                 {
                     break;
                 }
-                if (UpdateSongAndService(dms, sd, service, user))
+                if (UpdateSongAndService(dms, sd, service))
                 {
                     if (service.Id == ServiceType.Spotify)
                     {
-                        MusicServiceManager.GetEchoData(dms, sd, user);
-                        MusicServiceManager.GetSampleData(dms, sd, user);
+                        MusicServiceManager.GetEchoData(dms, sd);
+                        MusicServiceManager.GetSampleData(dms, sd);
                     }
                     changed = true;
                 }

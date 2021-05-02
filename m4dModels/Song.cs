@@ -249,7 +249,51 @@ namespace m4dModels
         {
             var props = new List<SongProperty>(SongProperties);
             SongProperties.Clear();
+
+            CleanDwg(props);
+
             Load(SongId, props, database);
+        }
+
+        private void CleanDwg(List<SongProperty> props)
+        {
+            SongProperty dwg = null;
+            var hasRealProp = false;
+            var psuedo = new HashSet<string>(
+                new List<string>
+                {
+                    TimeField, TempoField, ArtistField, TitleField,
+                    AlbumField, PublisherField, TrackField, PurchaseField
+                });
+
+            foreach (var prop in props)
+            {
+                if (prop.BaseName == UserField)
+                {
+                    if (prop.Value == "dwgray")
+                    {
+                        dwg = prop;
+                    }
+                    else if (dwg != null)
+                    {
+                        if (!hasRealProp)
+                        {
+                            dwg.Value = "batch|P";
+                        }
+                        dwg = null;
+                        hasRealProp = false;
+                    }
+                }
+                else if (dwg != null)
+                {
+                    hasRealProp |= !psuedo.Contains(prop.BaseName);
+                }
+            }
+
+            if (dwg != null && !hasRealProp)
+            {
+                dwg.Value = "batch|P";
+            }
         }
         #endregion
 
@@ -930,12 +974,11 @@ namespace m4dModels
                         {
                             var applicationUser = database.FindUser(user) ??
                                     new ApplicationUser(user, pseudo:true);
-                            bool isPseudo = applicationUser.IsPseudo;
+                            var isPseudo = applicationUser.IsPseudo;
                             currentModified.IsPseudo = isPseudo;
-                            if (isPseudo)
-                            {
-                                prop.Value = currentModified.DecoratedName;
-                            }
+                            prop.Value = isPseudo
+                                ? currentModified.DecoratedName
+                                : user;
                         }
                         break;
                     case DanceRatingField:
@@ -983,7 +1026,7 @@ namespace m4dModels
                                 created = true;
                             }
                             Modified = time;
-                            if (currentModified != null && !currentModified.IsPseudo)
+                            if (currentModified is {IsPseudo: false})
                             {
                                 Edited = time;
                             }

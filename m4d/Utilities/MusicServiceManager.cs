@@ -183,11 +183,11 @@ namespace m4d.Utilities
         #endregion
 
         #region Update
-        public bool GetEchoData(DanceMusicCoreService dms, Song song, ApplicationUser user)
+        public bool GetEchoData(DanceMusicCoreService dms, Song song)
         {
             var service = MusicService.GetService(ServiceType.Spotify);
             var ids = song.GetPurchaseIds(service);
-            user ??= new ApplicationUser("batch-e", pseudo: true);
+            var user = service.ApplicationUser;
             var edit = new Song(song, dms);
 
             EchoTrack track = null;
@@ -241,7 +241,7 @@ namespace m4d.Utilities
             return true;
         }
 
-        public bool GetSampleData(DanceMusicCoreService dms, Song song, ApplicationUser user)
+        public bool GetSampleData(DanceMusicCoreService dms, Song song)
         {
             var spotify = MusicService.GetService(ServiceType.Spotify);
             var edit = new Song(song, dms);
@@ -249,12 +249,15 @@ namespace m4d.Utilities
             ServiceTrack track = null;
             // First try Spotify
             var ids = edit.GetPurchaseIds(spotify);
+            var user = dms.FindUser("batch-s");
             foreach (var id in ids)
             {
                 var idt = PurchaseRegion.ParseId(id);
                 track = GetMusicServiceTrack(idt, spotify);
                 if (track?.SampleUrl != null)
+                {
                     break;
+                }
             }
 
             if (track == null)
@@ -266,7 +269,10 @@ namespace m4d.Utilities
                 {
                     track = GetMusicServiceTrack(id, itunes);
                     if (track?.SampleUrl != null)
+                    {
+                        user = dms.FindUser("batch-i");
                         break;
+                    }
                 }
             }
 

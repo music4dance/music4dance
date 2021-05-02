@@ -14,8 +14,8 @@ namespace m4dModels.Tests
         {
             using var service = DanceMusicTester.CreatePopulatedService("LoadDatabase");
 
-            var users = from u in service.Context.Users select u;
-
+            var users = (from u in service.Context.Users select u)
+                .ToList();
             Assert.AreEqual(69, users.Count(),"Count of Users");
             var dances = from d in service.Context.Dances select d;
             Assert.AreEqual(107, dances.Count(), "Count of Dances");

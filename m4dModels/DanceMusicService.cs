@@ -2049,7 +2049,7 @@ namespace m4dModels
         public void LoadUsers(IList<string> lines)
         {
             Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Entering LoadUsers");
-
+            var exclude = ":;,|@".ToHashSet();
             if (lines == null || lines.Count < 1 || !IsUserBreak(lines[0]))
             {
                 throw new ArgumentOutOfRangeException();
@@ -2112,6 +2112,12 @@ namespace m4dModels
                     {
                         col = cells[16];
                     }
+                }
+
+                if (userName.Any(x => exclude.Contains(x)))
+                {
+                    Trace.WriteLine($"Invalid username {userName}");
+                    break;
                 }
 
                 if (cells.Length >= 20 && Enum.TryParse(cells[17], out subscriptionLevel) && subscriptionLevel != SubscriptionLevel.None)

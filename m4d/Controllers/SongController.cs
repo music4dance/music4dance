@@ -758,9 +758,9 @@ namespace m4d.Controllers
                 var strack = MusicServiceManager.GetMusicServiceTrack(purchase, MusicService.GetService(service[0]));
                 sd = Song.CreateFromTrack(user, strack,null,null,null,Database);
                 sd.EditLike(user, true);
-                UpdateSongAndServices(Database, sd, user);
-                MusicServiceManager.GetEchoData(Database, sd, user);
-                MusicServiceManager.GetSampleData(Database, sd,user);
+                UpdateSongAndServices(Database, sd);
+                MusicServiceManager.GetEchoData(Database, sd);
+                MusicServiceManager.GetSampleData(Database, sd);
                 sd.SetupSerialization(user.UserName, Database);
             }
             else
@@ -1433,7 +1433,7 @@ namespace m4d.Controllers
                                 processed += 1;
 
                                 var changed = service == null
-                                    ? UpdateSongAndServices(dms, edit, null, crossRetry)
+                                    ? UpdateSongAndServices(dms, edit, crossRetry: crossRetry)
                                     : UpdateSongAndService(dms, edit, service);
 
                                 if (changed)
@@ -1812,7 +1812,7 @@ namespace m4d.Controllers
                                 processed += 1;
 
                                 tried += 1;
-                                if (MusicServiceManager.GetSampleData(dms, song, user))
+                                if (MusicServiceManager.GetSampleData(dms, song))
                                 {
                                     succeeded.Add(song);
                                 }
@@ -1940,7 +1940,7 @@ namespace m4d.Controllers
                                 //    continue;
                                 //}
 
-                                if (MusicServiceManager.GetEchoData(dms, song, user))
+                                if (MusicServiceManager.GetEchoData(dms, song))
                                 {
                                     stemp.Add(song);
                                 }
