@@ -4,11 +4,11 @@
     <div v-for="(link, index) in links" :key="index">
       <edittable-link
         v-model="internalLinks[index]"
-        :editting="editting"
+        :editing="editing"
       ></edittable-link>
     </div>
     <b-button
-      v-if="editting"
+      v-if="editing"
       block
       variant="outline-primary"
       class="mt-2"
@@ -37,7 +37,7 @@ export default class DanceLinks
   implements Editor {
   @Model("update") readonly links!: DanceLink[];
   @Prop() private readonly danceId!: string;
-  @Prop() private readonly editting!: boolean;
+  @Prop() private readonly editing!: boolean;
   private initialLinks: DanceLink[];
 
   public constructor() {
@@ -61,7 +61,7 @@ export default class DanceLinks
     this.$emit("update", value);
   }
 
-  @Watch("editting")
+  @Watch("editing")
   onEditChanged(val: boolean): void {
     if (val === false) {
       this.$emit("update", this.cloneLinks(this.initialLinks));

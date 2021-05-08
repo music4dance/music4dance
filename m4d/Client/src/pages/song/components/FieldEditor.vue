@@ -1,7 +1,7 @@
 <template>
   <span>
     <input
-      v-if="editting"
+      v-if="editing && hasEditPermission"
       v-model="internalValue"
       :type="computedType"
       class="form-control ml-2"
@@ -17,15 +17,20 @@
 <script lang="ts">
 import "reflect-metadata";
 import EnvironmentManager from "@/mix-ins/EnvironmentManager";
+import AdminTools from "@/mix-ins/AdminTools";
 import { Component, Mixins, Prop } from "vue-property-decorator";
 import { SongProperty } from "@/model/SongProperty";
 
 @Component
-export default class FieldEditor extends Mixins(EnvironmentManager) {
+export default class FieldEditor extends Mixins(
+  EnvironmentManager,
+  AdminTools
+) {
   @Prop() private readonly name!: string;
   @Prop() private readonly value!: string;
-  @Prop() private readonly editting!: boolean;
+  @Prop() private readonly editing!: boolean;
   @Prop() private readonly type?: string;
+  @Prop() private readonly role?: string;
 
   private get internalValue(): string {
     return this.value;
@@ -44,6 +49,11 @@ export default class FieldEditor extends Mixins(EnvironmentManager) {
 
   private get computedType(): string {
     return this.type ?? "text";
+  }
+
+  private get hasEditPermission(): boolean {
+    const role = this.role;
+    return !!role && this.hasRole(role);
   }
 }
 </script>

@@ -118,7 +118,10 @@ export default class MainMenu extends Vue {
 
   private get profileHeader(): string {
     const context = this.context;
-    const index = context.indexId ? ` (${context.indexId})` : "";
+    const index =
+      context.hasRole("dbAdmin") && context.indexId
+        ? ` (${context.indexId})`
+        : "";
     return `${context.userName}${index} <img src="/images/swing-ui.png" alt="User Icon" height="30" width="30" />`;
   }
 

@@ -11,20 +11,20 @@
       >
       <b-col v-if="isAdmin" cols="auto">
         <b-button
-          v-if="editting"
+          v-if="editing"
           variant="outline-primary"
           class="mr-1"
           @click="cancelChanges"
           >Cancel</b-button
         >
         <b-button
-          v-if="editting"
+          v-if="editing"
           variant="primary"
           :disabled="!modified"
           @click="saveChanges"
           >Save</b-button
         >
-        <b-button v-if="!editting" variant="primary" @click="startEdit"
+        <b-button v-if="!editing" variant="primary" @click="startEdit"
           >Edit</b-button
         >
       </b-col>
@@ -37,7 +37,7 @@
         <dance-description
           :description="model.description"
           :danceId="model.danceId"
-          :editting="editting"
+          :editing="editing"
           @input="updateDescription($event)"
           ref="danceDescription"
         >
@@ -72,7 +72,7 @@
       <b-col>
         <dance-links
           v-model="model.links"
-          :editting="editting"
+          :editing="editing"
           :danceId="model.danceId"
           @update="updateLinks($event)"
           ref="danceLinks"
@@ -141,7 +141,7 @@ export default class App extends Mixins(AdminTools) {
   private tags: Tag[] = [];
   private isGroup = false;
   private dance: DanceStats | null = null;
-  private editting = false;
+  private editing = false;
 
   constructor() {
     super();
@@ -215,11 +215,11 @@ export default class App extends Mixins(AdminTools) {
   }
 
   private startEdit(): void {
-    this.editting = true;
+    this.editing = true;
   }
 
   private cancelChanges(): void {
-    this.editting = false;
+    this.editing = false;
   }
 
   private async saveChanges(): Promise<void> {
@@ -232,7 +232,7 @@ export default class App extends Mixins(AdminTools) {
       });
       this.descriptionEditor.commit();
       this.linkEditor.commit();
-      this.editting = false;
+      this.editing = false;
     } catch (e) {
       console.log(e);
       throw e;

@@ -17,7 +17,8 @@
             ><field-editor
               name="Title"
               :value="song.title"
-              :editting="editting"
+              :editing="editing"
+              role="canEdit"
               @update-field="updateField($event)"
             ></field-editor
           ></i>
@@ -30,7 +31,8 @@
           <field-editor
             name="Artist"
             :value="song.artist"
-            :editting="editting"
+            :editing="editing"
+            role="canEdit"
             @update-field="updateField($event)"
           >
             <span v-if="song.artist" style="font-size: 0.75em"
@@ -39,9 +41,9 @@
           </field-editor>
         </h1>
       </b-col>
-      <b-col v-if="editting || canEdit" cols="auto">
+      <b-col v-if="editing || canTag" cols="auto">
         <b-button
-          v-if="editting"
+          v-if="editing"
           variant="outline-primary"
           class="mr-1"
           @click="cancelChanges"
@@ -116,11 +118,11 @@
       <b-col md="auto"
         ><song-stats
           :song="song"
-          :editting="editting"
+          :editing="editing"
           @update-field="updateField($event)"
         ></song-stats
         ><b-button
-          v-if="hasUserChanges && !editting"
+          v-if="hasUserChanges && !editing"
           @click="undoUserChanges"
           variant="outline-primary"
           >Undo My Changes</b-button
@@ -427,7 +429,7 @@ export default class App extends Mixins(AdminTools) {
       });
   }
 
-  private get editting(): boolean {
+  private get editing(): boolean {
     return this.modified || this.edit;
   }
 

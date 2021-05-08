@@ -1,5 +1,5 @@
 <template>
-  <b-row v-if="editting">
+  <b-row v-if="editing">
     <b-col sm="auto">
       <b-button-close></b-button-close>
     </b-col>
@@ -30,7 +30,7 @@ import { DanceLink } from "@/model/DanceStats";
 @Component
 export default class EdittableLink extends Vue {
   @Model("update") readonly link!: DanceLink;
-  @Prop() private readonly editting!: boolean;
+  @Prop() private readonly editing!: boolean;
 
   private get internalLink(): DanceLink {
     return this.link;

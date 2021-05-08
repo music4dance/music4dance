@@ -1,25 +1,27 @@
 <template>
   <b-table-simple borderless small>
-    <b-tr v-if="!!song.length || editting">
+    <b-tr v-if="!!song.length || editing">
       <b-th>Length</b-th>
       <b-td
         ><field-editor
           name="Length"
           :value="song.length ? song.length.toString() : ''"
-          :editting="editting"
+          :editing="editing"
+          role="canEdit"
           type="number"
           v-on="$listeners"
         ></field-editor>
         Seconds</b-td
       >
     </b-tr>
-    <b-tr v-if="!!song.tempo || editting">
+    <b-tr v-if="!!song.tempo || editing">
       <b-th>Tempo</b-th>
       <b-td
         ><field-editor
           name="Tempo"
           :value="song.tempo ? song.tempo.toString() : ''"
-          :editting="editting"
+          :editing="editing"
+          role="canTag"
           type="number"
           v-on="$listeners"
         ></field-editor>
@@ -93,7 +95,7 @@ import { SongProperty } from "@/model/SongProperty";
 })
 export default class SongStats extends Vue {
   @Prop() private readonly song!: Song;
-  @Prop() private readonly editting!: boolean;
+  @Prop() private readonly editing!: boolean;
 
   private get modifiedFormatted(): string {
     return SongProperty.formatDate(this.song.modified);

@@ -21,7 +21,15 @@ export class MenuContext implements MenuContextInterface {
     return !!this.roles?.find((r) => r === "dbAdmin");
   }
 
+  public get canTag(): boolean {
+    return !!this.roles?.find((r) => r === "canTag");
+  }
+
   public get canEdit(): boolean {
     return !!this.roles?.find((r) => r === "canEdit");
+  }
+
+  public hasRole(role: string): boolean {
+    return !!this.roles?.includes(role);
   }
 }

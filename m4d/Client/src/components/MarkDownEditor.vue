@@ -1,7 +1,7 @@
 <template>
   <div>
     <b-form-textarea
-      v-if="editting"
+      v-if="editing"
       v-model="descriptionInternal"
       rows="5"
       max-rows="10"
@@ -27,7 +27,7 @@ export default class MarkDownEditor
   extends Mixins(EnvironmentManager)
   implements Editor {
   @Model("input") readonly value!: string;
-  @Prop() private readonly editting!: boolean;
+  @Prop() private readonly editing!: boolean;
   private initialDescription: string;
 
   public constructor() {
@@ -55,7 +55,7 @@ export default class MarkDownEditor
     return new DanceText(this.value).expanded();
   }
 
-  @Watch("editting")
+  @Watch("editing")
   onEditChanged(val: boolean): void {
     if (val === false) {
       this.$emit("input", this.initialDescription);

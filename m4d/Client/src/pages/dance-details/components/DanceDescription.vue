@@ -2,7 +2,7 @@
   <div>
     <mark-down-editor
       v-model="descriptionInternal"
-      :editting="editting"
+      :editing="editing"
       ref="description"
     >
     </mark-down-editor>
@@ -44,7 +44,7 @@ export default class DanceDescription
   implements Editor {
   @Prop() private readonly description!: string;
   @Prop() private readonly danceId!: string;
-  @Prop() private readonly editting!: boolean;
+  @Prop() private readonly editing!: boolean;
 
   public get isModified(): boolean {
     return this.editor.isModified;

@@ -17,7 +17,15 @@ export default class AdminTools extends Vue {
     return this.context.canEdit;
   }
 
+  protected get canTag(): boolean {
+    return this.context.canTag;
+  }
+
   protected get userName(): string | undefined {
     return this.context.userName;
+  }
+
+  protected hasRole(role: string): boolean {
+    return this.context.hasRole(role);
   }
 }
