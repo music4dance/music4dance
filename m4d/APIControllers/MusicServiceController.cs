@@ -62,7 +62,7 @@ namespace m4d.APIControllers
 
             try
             {
-                tracks = MusicServiceManager.FindMusicServiceSong(song, service, clean, title, artist, album, region);
+                tracks = MusicServiceManager.FindMusicServiceSong(song, service, title, artist, album, region);
             }
             catch (WebException e)
             {

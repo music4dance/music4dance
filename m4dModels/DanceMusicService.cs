@@ -1663,23 +1663,11 @@ namespace m4dModels
                 // ReSharper disable once LoopCanBeConvertedToQuery
                 foreach (var res in response.Results)
                 {
-                    var doc = res.Document;
-                    var title = doc[Song.TitleField] as string;
-                    if (string.IsNullOrEmpty(title)) continue;
-
-                    var sid = doc[Song.SongIdField] as string;
-                    var lobj = doc[Song.LengthField];
-                    var length = (long?) lobj;
-                    var tobj = doc[Song.TempoField];
-                    var tempo = (double?) tobj;
-
-                    results.Add(new Song {
-                        SongId = sid == null ? new Guid() : new Guid(sid),
-                        Title = title,
-                        Artist = doc[Song.ArtistField] as string,
-                        Length = (int?)length,
-                        Tempo = (decimal?) tempo
-                    });
+                    var song = Song.CreateLightSong(res.Document);
+                    if (song != null)
+                    {
+                        results.Add(song);
+                    }
                 }
                 token = response.ContinuationToken;
             } while (token != null);
@@ -1927,7 +1915,7 @@ namespace m4dModels
         #endregion
 
         #region Merging
-        public IList<Song> FindMergeCandidates(int n, int level)
+        public IReadOnlyCollection<Song> FindMergeCandidates(int n, int level)
         {
             return MergeCluster.GetMergeCandidates(this, n, level);
         }

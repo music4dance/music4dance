@@ -178,7 +178,6 @@ namespace m4d.Controllers
         protected bool UpdateSongAndServices(DanceMusicCoreService dms, Song sd,
             bool crossRetry = false)
         {
-            // TODONEXT: Confirm that setting crossRetry to true prevents extra service lookup
             var changed = false;
             // ReSharper disable once LoopCanBeConvertedToQuery
             foreach (var service in MusicService.GetSearchableServices())
@@ -239,7 +238,7 @@ namespace m4d.Controllers
             try
             {
                 FixupTitleArtist(song, clean, ref title, ref artist);
-                tracks = MusicServiceManager.FindMusicServiceSong(song, service, clean, title, artist);
+                tracks = MusicServiceManager.FindMusicServiceSong(song, service, title, artist);
 
                 if (tracks == null || tracks.Count == 0)
                 {

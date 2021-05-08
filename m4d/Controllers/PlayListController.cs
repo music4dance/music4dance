@@ -422,7 +422,6 @@ namespace m4d.Controllers
         {
             try
             {
-                // TODONEXT: pass in the existing tracks and don't reload them
                 var spl = LoadServicePlaylist(playlist, email, dms, MusicServiceManager);
                 if (spl == null)
                 {

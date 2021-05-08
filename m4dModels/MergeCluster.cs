@@ -23,7 +23,7 @@ namespace m4dModels
             s_mergeCandidateCache = null;
         }
 
-        public static List<Song> GetMergeCandidates(DanceMusicCoreService dms, int n, int level)
+        public static IReadOnlyCollection<Song> GetMergeCandidates(DanceMusicCoreService dms, int n, int level)
         {
             if (level == s_mergeCandidateLevel && s_mergeCandidateCache != null)
             {
@@ -35,15 +35,13 @@ namespace m4dModels
 
             foreach (var song in dms.LoadLightSongs())
             {
-                MergeCluster mc;
-
                 var hash = song.TitleHash;
                 if (level != 2)
                 {
                     hash = Song.CreateTitleHash(song.Title + song.Artist);
                 }
 
-                if (!clusters.TryGetValue(hash, out mc))
+                if (!clusters.TryGetValue(hash, out var mc))
                 {
                     mc = new MergeCluster(hash);
                     clusters.Add(hash, mc);

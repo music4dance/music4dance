@@ -169,6 +169,48 @@ namespace m4dModels
             Init(id, s, database, userName, forSerialization);
         }
 
+        public static Song CreateLightSong(Document doc)
+        {
+            var title = doc[TitleField] as string;
+            if (string.IsNullOrEmpty(title))
+            {
+                return null;
+            }
+
+            var sid = doc[SongIdField] as string;
+            var lobj = doc[LengthField];
+            var length = (long?)lobj;
+            var tobj = doc[TempoField];
+            var tempo = (double?)tobj;
+            var artist = doc[ArtistField] as string;
+
+            var history = new List<SongProperty>
+            {
+                new SongProperty(Song.TitleField, title),
+                new SongProperty(Song.ArtistField, artist)
+            };
+            if (length != null)
+            {
+                history.Add(new SongProperty(
+                    Song.LengthField, length.ToString()));
+            }
+            if (tempo != null)
+            {
+                history.Add(new SongProperty(
+                    Song.TempoField, tempo.ToString()));
+            }
+
+            return new Song
+            {
+                SongId = sid == null ? new Guid() : new Guid(sid),
+                Title = title,
+                Artist = artist,
+                Length = (int?)length,
+                Tempo = (decimal?)tempo,
+                _properties = history
+            };
+        }
+
         private void Init(Guid id, string s, DanceMusicCoreService database, string userName, bool forSerialization)
         {
             SongId = id;
@@ -1138,6 +1180,7 @@ namespace m4dModels
 
         [DataMember]
         public List<SongProperty> SongProperties => _properties ??= new List<SongProperty>();
+
         private List<SongProperty> _properties;
 
         [DataMember]
@@ -2102,8 +2145,6 @@ namespace m4dModels
             return modified;
         }
 
-        // TODONEXT: Verify that server side create still works (load from
-        //  spotify playlist and merge?
         private bool TagsFromProperties(string userName, IEnumerable<SongProperty> properties, DanceStatsInstance stats, object data)
         {
             return BaseTagsFromProperties(userName, properties, stats, data, false);

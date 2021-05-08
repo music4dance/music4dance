@@ -345,8 +345,7 @@ namespace m4d.Controllers
             return null;
         }
 
-        private ActionResult VueAzureSearch(SongFilter filter,
-            bool? hideSort = null, List<string> hiddenColumns = null)
+        private ActionResult VueAzureSearch(SongFilter filter, bool? hideSort = null)
         {
             var ret = BuildAzureSearch(filter, out var results);
             if (ret != null)
@@ -354,11 +353,18 @@ namespace m4d.Controllers
                 return ret;
             }
 
-            return VueAzureSearch(results, filter, hideSort, hiddenColumns);
+            return VueAzureSearch(results, filter, hideSort);
         }
 
         private ActionResult VueAzureSearch(
-            SearchResults results, SongFilter filter, bool? hideSort = null, List<string> hiddenColumns = null)
+            SearchResults results, SongFilter filter, bool? hideSort = null)
+        {
+            return VueAzureSearch(results.Songs.ToList(), (int)results.TotalCount,
+                filter, hideSort);
+        }
+
+        private ActionResult VueAzureSearch(IReadOnlyCollection<Song> songs,
+            int? totalSongs, SongFilter filter, bool? hideSort = null)
         {
             string user = User.Identity.Name;
             if (user != null)
@@ -366,17 +372,20 @@ namespace m4d.Controllers
                 filter.Anonymize(user);
             }
 
-            var songs = results.Songs.Select(s => _mapper.Map<SongSparse>(s)).ToList();
-            var histories = results.Songs.Select(s => s.GetHistory(_mapper)).ToList();
+            var sparse = songs.Select(s => _mapper.Map<SongSparse>(s)).ToList();
+            var histories = songs.Select(s => s.GetHistory(_mapper)).ToList();
+            var action = filter.Action;
             return View(
-                filter.Action.Equals("Advanced", StringComparison.OrdinalIgnoreCase) ? "index" : filter.Action, 
+                action.Equals("Advanced", StringComparison.OrdinalIgnoreCase)
+                    || action.Equals("MergeCandidates")
+                    ? "index" : filter.Action,
                 new SongListModel
                 {
-                    Songs = songs,
+                    Songs = sparse,
                     Histories = histories,
                     Filter = _mapper.Map<SongFilterSparse>(filter),
                     UserName = user,
-                    Count = (int)results.TotalCount,
+                    Count = totalSongs ?? songs.Count,
                     HideSort = hideSort ?? HideSort,
                     HiddenColumns = HiddenColumns ?? HiddenColumns,
                     Validate = false
@@ -386,7 +395,8 @@ namespace m4d.Controllers
         //
         // GET: /Song/RawSearchForm
         [AllowAnonymous]
-        public ActionResult RawSearchForm([FromServices] IDanceStatsManager danceStatsManager, SongFilter filter = null)
+        public ActionResult RawSearchForm([FromServices] IDanceStatsManager danceStatsManager,
+            SongFilter filter = null)
         {
             HelpPage = "advanced-search";
 
@@ -678,12 +688,7 @@ namespace m4d.Controllers
             }
 
             HelpPage = "song-details";
-            if (VueMode)
-            {
-                return View(GetSongDetails(song, filter));
-            }
-            BuildDanceList(DanceBags.Stats | DanceBags.Single, true);
-            return View("OldDetails", song);
+            return View(GetSongDetails(song, filter));
         }
 
         private SongDetailsModel GetSongDetails(Song song, SongFilter filter)
@@ -1221,13 +1226,10 @@ namespace m4d.Controllers
 
             if (autoCommit.HasValue && autoCommit.Value)
             {
-                songs = AutoMerge(songs,filter.Level??1);
+                songs = AutoMerge(songs, filter.Level??1);
             }
 
-            ViewBag.ShowLength = true;
-            ViewBag.SongFilter = filter;
-
-            return View("AzureSearch", songs.ToPagedList(filter.Page ?? 1, 25));
+            return VueAzureSearch(songs, null, filter);
         }
 
         //
@@ -1289,7 +1291,6 @@ namespace m4d.Controllers
         [Authorize(Roles = "dbAdmin")]
         public ActionResult MergeResults(string songIds, SongFilter filter)
         {
-            // See if we can do the actual merge and then return the song details page...
             var songs = Database.FindSongs(songIds.Split(',').Select(Guid.Parse)).ToList();
 
             // Create a merged version of the song (and commit to DB)
@@ -2342,7 +2343,7 @@ namespace m4d.Controllers
         #endregion
 
         #region Merge
-        private IList<Song> AutoMerge(IEnumerable<Song> songs, int level)
+        private IReadOnlyCollection<Song> AutoMerge(IReadOnlyCollection<Song> songs, int level)
         {
             // Get the logged in user
             var userName = User.Identity.Name;

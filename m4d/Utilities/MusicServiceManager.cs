@@ -27,20 +27,22 @@ namespace m4d.Utilities
         private IConfiguration Configuration { get; }
 
         #region Search
-        public IList<ServiceTrack> FindMusicServiceSong(Song song, MusicService service, bool clean = false, string title = null, string artist = null, string album = null, string region = null)
+        public IList<ServiceTrack> FindMusicServiceSong(Song song,
+            MusicService service, string title = null, string artist = null,
+            string album = null, string region = null)
         {
             IList<ServiceTrack> list;
 
             if (service != null)
             {
-                list = DoFindMusicServiceSong(song, service, clean, title, artist, region);
+                list = DoFindMusicServiceSong(service, title, artist, region);
             }
             else
             {
                 var acc = new List<ServiceTrack>();
                 foreach (var s in MusicService.GetSearchableServices())
                 {
-                    var tracks = DoFindMusicServiceSong(song, s, clean, title, artist, region);
+                    var tracks = DoFindMusicServiceSong(s, title, artist, region);
 
                     if (tracks != null) acc.AddRange(tracks);
                 }
@@ -342,18 +344,10 @@ namespace m4d.Utilities
             return exclude.Any(s => name.IndexOf(s, StringComparison.InvariantCultureIgnoreCase) != -1);
         }
 
-        private IList<ServiceTrack> DoFindMusicServiceSong(Song song, MusicService service, bool clean = false, string title = null, string artist = null, string region = null)
+        private IList<ServiceTrack> DoFindMusicServiceSong(MusicService service,
+            string title = null, string artist = null, string region = null)
         {
-            IList<ServiceTrack> tracks;
-            switch (service.Id)
-            {
-                case ServiceType.Amazon:
-                    tracks = null; // FindMSSongAmazon(song, clean, title, artist);
-                    break;
-                default:
-                    tracks = FindMSSongGeneral(service, title, artist);
-                    break;
-            }
+            var tracks = FindMSSongGeneral(service, title, artist);
 
             if (tracks == null) return null;
 

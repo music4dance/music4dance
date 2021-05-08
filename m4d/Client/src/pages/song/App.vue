@@ -43,6 +43,13 @@
       </b-col>
       <b-col v-if="editing || canTag" cols="auto">
         <b-button
+          v-if="!editing && isAdmin"
+          variant="outline-danger"
+          class="mr-1"
+          :href="deleteLink"
+          >Delete</b-button
+        >
+        <b-button
           v-if="editing"
           variant="outline-primary"
           class="mr-1"
@@ -446,6 +453,10 @@ export default class App extends Mixins(AdminTools) {
       event.returnValue =
         "You have unsaved changes.  Are you sure you want to leave?";
     }
+  }
+
+  private get deleteLink(): string {
+    return `/song/delete?id=${this.song.songId}`;
   }
 
   private cancelChanges(): void {

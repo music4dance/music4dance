@@ -114,9 +114,10 @@
             name="selectedSongs"
             :value="song"
           />
+          <input type="hidden" name="filter" :value="model.filter.query" />
           <input type="submit" name="action" :value="editAction" />
           <input type="submit" ref="Merge" name="action" value="Merge" />
-          <input type="submit" ref="Delete" name="action" value="Merge" />
+          <input type="submit" ref="Delete" name="action" value="Delete" />
           <input
             type="submit"
             ref="CelanupAlbums"
