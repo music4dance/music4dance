@@ -748,10 +748,17 @@ namespace m4d.Controllers
             return View();
         }
 
+        [AllowAnonymous]
+        public ActionResult AugmentOld(SongFilter filter)
+        {
+            HelpPage = "add-songs";
+            return View();
+        }
+
         //
         // GET: /Song/Create
         [Authorize(Roles = "canTag")]
-        public async Task<ActionResult> Create(SongFilter filter, string title=null,
+        public async Task<ActionResult> Create(string title=null,
             string artist=null, decimal? tempo = null, int? length=null,
             string album=null, int? track=null, string service = null, string purchase = null)
         {
@@ -760,12 +767,8 @@ namespace m4d.Controllers
             if (title == null && service != null && purchase != null)
             {
                 var user = await UserManager.FindByNameAsync(User.Identity.Name);
-                var strack = MusicServiceManager.GetMusicServiceTrack(purchase, MusicService.GetService(service[0]));
-                sd = Song.CreateFromTrack(user, strack,null,null,null,Database);
-                sd.EditLike(user, true);
-                UpdateSongAndServices(Database, sd);
-                MusicServiceManager.GetEchoData(Database, sd);
-                MusicServiceManager.GetSampleData(Database, sd);
+                sd = MusicServiceManager.CreateSong(Database, user,
+                    purchase, MusicService.GetService(service[0]));
                 sd.SetupSerialization(user.UserName, Database);
             }
             else
@@ -1434,8 +1437,8 @@ namespace m4d.Controllers
                                 processed += 1;
 
                                 var changed = service == null
-                                    ? UpdateSongAndServices(dms, edit, crossRetry: crossRetry)
-                                    : UpdateSongAndService(dms, edit, service);
+                                    ? MusicServiceManager.UpdateSongAndServices(dms, edit, crossRetry: crossRetry)
+                                    : MusicServiceManager.UpdateSongAndService(dms, edit, service);
 
                                 if (changed)
                                 {
@@ -1513,7 +1516,7 @@ namespace m4d.Controllers
             ViewBag.Type = type;
             ViewBag.Error = false;
 
-            view.Tracks = FindMusicServiceSong(song, service, false, title, artist);
+            view.Tracks = MusicServiceManager.FindMusicServiceSong(song, service, false, title, artist);
 
             return View(view);
         }
@@ -1536,7 +1539,7 @@ namespace m4d.Controllers
             }
 
             var user = Database.FindUser(User.Identity.Name);
-            var alt = UpdateMusicService(song, service, name, album, artist, trackId, collectionId, alternateId, duration, trackNum);
+            var alt = MusicServiceManager.UpdateMusicService(song, service, name, album, artist, trackId, collectionId, alternateId, duration, trackNum);
             song.AddTags(Database.NormalizeTags(genre, "Music"), user.UserName, Database.DanceStats, song);
 
             ViewBag.OldSong = alt;

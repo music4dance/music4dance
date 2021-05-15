@@ -43,7 +43,6 @@
           >
             <b-form-input
               v-model="search"
-              id="tag-search-input"
               type="search"
               size="sm"
               autocomplete="off"

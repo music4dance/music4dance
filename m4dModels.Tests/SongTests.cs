@@ -312,9 +312,10 @@ namespace m4dModels.Tests
             };
 
             var song = Song.CreateFromTrack(
+                Service,
                 Service.FindUser("dwgray"),
                 track, "WCS", "Testing:Other|Crazy:Music",
-                "Dances:Style|Mellow:Tempo", Service);
+                "Dances:Style|Mellow:Tempo");
 
             var actual = DanceMusicTester.ReplaceTime(song.Serialize(new[] { Song.NoSongId }));
             //Trace.WriteLine(actual);

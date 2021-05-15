@@ -24,7 +24,7 @@ namespace m4d.APIControllers
         private MusicServiceManager _musicServiceManager;
         private IConfiguration _configuration;
 
-        protected DanceMusicContext Context => Database.Context as DanceMusicContext;
+        protected DanceMusicContext Context => Database.Context;
 
         protected UserManager<ApplicationUser> UserManager => Database.UserManager;
 

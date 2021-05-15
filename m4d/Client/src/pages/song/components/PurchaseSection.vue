@@ -15,7 +15,11 @@
           height="40"
       /></a>
     </span>
-    <b-button v-if="filter" :href="filter.url" small variant="primary"
+    <b-button
+      v-if="filter && !filter.isEmpty"
+      :href="filter.url"
+      small
+      variant="primary"
       ><b-icon-search aria-hidden="true"></b-icon-search> Back to
       Search</b-button
     >
@@ -23,7 +27,8 @@
       variant="outline-primary"
       class="ml-1"
       small
-      href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/"
+      href="https://music4dance.blog/music4dance-help/song-details/"
+      target="_blank"
       ><b-icon-question-circle aria-hidden="true"></b-icon-question-circle>
       Help</b-button
     >

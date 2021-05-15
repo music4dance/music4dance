@@ -13,6 +13,10 @@ export default class AdminTools extends Vue {
     return this.context.isAdmin;
   }
 
+  protected get isPremium(): boolean {
+    return this.context.isPremium;
+  }
+
   protected get canEdit(): boolean {
     return this.context.canEdit;
   }

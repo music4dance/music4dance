@@ -148,6 +148,12 @@ namespace m4dModels
             return new Song(song, this, user.UserName);
         }
 
+        public bool CreateSong(Guid id, ICollection<SongProperty> properties)
+        {
+            SaveSong(new Song(id, properties, this));
+            return true;
+        }
+
         public Song EditSong(ApplicationUser user, Song edit, IEnumerable<UserTag> tags = null)
         {
             var song = FindSong(edit.SongId);
@@ -180,9 +186,15 @@ namespace m4dModels
         public bool AdminEditSong(SongHistory history, IMapper mapper)
         {
             var edit = FindSong(history.Id);
-            return edit.AdminEdit(
+            if (edit.AdminEdit(
                 history.Properties.Select(mapper.Map<SongProperty>).ToList(),
-                this);
+                this))
+            {
+                SaveSong(edit);
+                return true;
+            }
+
+            return false;
         }
 
         public bool AdminAppendSong(Song edit, ApplicationUser user, string properties)

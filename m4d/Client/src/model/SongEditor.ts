@@ -46,6 +46,14 @@ export class SongEditor {
     });
   }
 
+  public get songHistory(): SongHistory {
+    const history = this.history;
+    return new SongHistory({
+      id: history.id,
+      properties: history.properties.slice(0, history.properties.length),
+    });
+  }
+
   public async saveChanges(): Promise<void> {
     try {
       const history = this.editHistory;
@@ -56,6 +64,30 @@ export class SongEditor {
       throw e;
     }
   }
+
+  public async create(): Promise<void> {
+    try {
+      const history = this.editHistory;
+      await axios.post(`/api/song/${history.id}`, history);
+      this.commit();
+    } catch (e) {
+      console.log(e);
+      throw e;
+    }
+  }
+
+  // TODO: Figure out how to generalize the above (lambda function?)
+  // private async update(method: string): Promise<void> {
+  //   try {
+  //     const history = this.editHistory;
+  //     // TODO: figure out
+  //     await axios[method](`/api/song/${history.id}`, history);
+  //     this.commit();
+  //   } catch (e) {
+  //     console.log(e);
+  //     throw e;
+  //   }
+  // }
 
   public commit(): void {
     this.initialCount = this.history.properties.length;
@@ -171,6 +203,28 @@ export class SongEditor {
     return this.createProperty(name, value);
   }
 
+  public addAlbumProperty(
+    name: string,
+    value: PropertyValue,
+    index = 0
+  ): SongProperty {
+    return this.addProperty(`${name}:${index ?? 0}`, value);
+  }
+
+  public addPurchaseProperty(
+    value: PropertyValue,
+    index: number,
+    service: string,
+    type: string
+  ): SongProperty {
+    return this.addProperty(
+      `${PropertyType.purchaseField}:${
+        index ?? 0
+      }:${service.toUpperCase()}${type.toUpperCase()}`,
+      value
+    );
+  }
+
   public modifyProperty(name: string, value?: PropertyValue): SongProperty {
     this.modified = true;
     this.setupEdit();
@@ -182,7 +236,7 @@ export class SongEditor {
     return property;
   }
 
-  private setupEdit() {
+  public setupEdit(user?: string) {
     const properties = this.properties;
     if (properties.length > this.initialCount) {
       return;
@@ -194,7 +248,7 @@ export class SongEditor {
         : PropertyType.createCommand
     );
 
-    this.createProperty(PropertyType.userField, this.user);
+    this.createProperty(PropertyType.userField, user ?? this.user);
 
     this.createProperty(
       PropertyType.timeField,

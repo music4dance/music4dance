@@ -15,6 +15,10 @@ module.exports = {
       entry: "src/pages/artist/main.ts",
       filename: "artist.html",
     },
+    augment: {
+      entry: "src/pages/augment/main.ts",
+      filename: "augment.html",
+    },
     "ballroom-index": {
       entry: "src/pages/ballroom-index/main.ts",
       filename: "ballroom-index.html",

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Linq;
 using System.Net;
 using AutoMapper;
 using m4dModels;
@@ -57,6 +58,28 @@ namespace m4d.APIControllers
             }
 
             return Database.AdminEditSong(history, mapper)
+                ? Ok()
+                : StatusCode((int)HttpStatusCode.BadRequest);
+        }
+
+        [Authorize]
+        [HttpPost("{id}")]
+        public IActionResult Post([FromServices] IMapper mapper, Guid id, [FromBody] SongHistory history)
+        {
+            Trace.WriteLine($"Enter Post: SongId = {id}, User = {User.Identity.Name}");
+            if (!User.Identity.IsAuthenticated)
+            {
+                return StatusCode((int)HttpStatusCode.Forbidden);
+            }
+
+            if (id != history.Id)
+            {
+                return StatusCode((int)HttpStatusCode.NotFound);
+            }
+
+            return Database.CreateSong(
+                    history.Id,
+                    history.Properties.Select(mapper.Map<SongProperty>).ToList())
                 ? Ok()
                 : StatusCode((int)HttpStatusCode.BadRequest);
         }

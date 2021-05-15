@@ -1,4 +1,6 @@
 ﻿using System.Runtime.Serialization;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 
 namespace m4dModels
 {
@@ -6,6 +8,7 @@ namespace m4dModels
     public class ServiceTrack
     {
         [DataMember]
+        [JsonConverter(typeof(StringEnumConverter))]
         public ServiceType Service { get; set; }
         [DataMember]
         public string TrackId { get; set; }
@@ -22,8 +25,10 @@ namespace m4dModels
         [DataMember]
         public string ImageUrl { get; set; }
         [DataMember]
+        [JsonIgnore]
         public PurchaseLink SongLink { get; set; }
         [DataMember]
+        [JsonIgnore]
         public PurchaseLink AlbumLink { get; set; }
         [DataMember]
         public string PurchaseInfo { get; set; }

@@ -1,4 +1,6 @@
 ﻿using System.Threading.Tasks;
+using AutoMapper;
+using m4d.ViewModels;
 using m4dModels;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -11,9 +13,18 @@ namespace m4d.APIControllers
 
     public class ServiceTrackController : DanceMusicApiController
     {
-        public ServiceTrackController(DanceMusicContext context, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, ISearchServiceManager searchService, IDanceStatsManager danceStatsManager, IConfiguration configuration) :
+        private readonly IMapper _mapper;
+
+        public ServiceTrackController(DanceMusicContext context,
+            UserManager<ApplicationUser> userManager,
+            RoleManager<IdentityRole> roleManager,
+            ISearchServiceManager searchService,
+            IDanceStatsManager danceStatsManager,
+            IConfiguration configuration,
+            IMapper mapper) :
             base(context, userManager, roleManager, searchService, danceStatsManager, configuration)
         {
+            _mapper = mapper;
         }
 
         // GET api/<controller>
@@ -32,15 +43,22 @@ namespace m4d.APIControllers
 
             // Find a song associate with the service id
             var song = Database.GetSongFromService(service, id, user.UserName);
+            var created = false;
+
+            if (song == null)
+            {
+                song = MusicServiceManager.CreateSong(Database, user, id, service);
+                created = song != null;
+            }
 
             if (song != null)
             {
-                return Ok(new {song.SongId, song.Title, song.Artist});
+                return JsonCamelCase(new SongDetailsModel
+                {
+                    Created = created,
+                    SongHistory = song.GetHistory(_mapper),
+                });
             }
-
-            // Otherwise, get the track info based on the idea
-            var track = MusicServiceManager.GetMusicServiceTrack(id, service);
-            if (track != null) return Ok(track);
 
             // If that fails, the ID is bad.
 

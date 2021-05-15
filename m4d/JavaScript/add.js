@@ -10,7 +10,6 @@
 
     self.services = [
         { id: 'i', name: 'itunes', rgx: /[0-9]*/i, idm: /[0-9]*/i },
-        { id: 'a', name: 'amazon', rgx: /\/(B[a-z0-9]{9})/i, idm: /B[a-z0-9]{9}/i },
         { id: 's', name: 'spotify', rgx: /([a-z0-9]+)(?:\?.*)?$/i, idm: /[a-z0-9]{22}/i }
     ];
 

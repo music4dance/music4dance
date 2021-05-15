@@ -12,6 +12,9 @@
                 null)
         {
         }
+
+        public override bool IsSearchable => false;
+
         protected override string BuildPurchaseLink(PurchaseType pt, string album, string song)
         {
             album = Strip(album);

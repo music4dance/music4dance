@@ -169,6 +169,13 @@ namespace m4dModels
             Init(id, s, database, userName, forSerialization);
         }
 
+        public Song(Guid id, ICollection<SongProperty> properties,
+            DanceMusicService dms)
+        {
+            SongId = id;
+            LoadProperties(properties, dms);
+        }
+
         public static Song CreateLightSong(Document doc)
         {
             var title = doc[TitleField] as string;
@@ -656,7 +663,6 @@ namespace m4dModels
                         {
                             cell = null;
                         }
-
                         break;
                 }
 
@@ -709,7 +715,7 @@ namespace m4dModels
                 }
                 if (!specifiedAction)
                 {
-                    properties.Insert(0, new SongProperty(CreateCommand));
+                    properties.Insert(0, new SongProperty(CreateCommand, String.Empty));
                 }
             }
 
@@ -896,7 +902,44 @@ namespace m4dModels
             }
         }
 
-        //private static readonly List<string> s_trackFields = new List<string>(new string[] {""});
+        public static Song UserCreateFromTrack(DanceMusicCoreService database,
+            ApplicationUser user, ServiceTrack track
+        )
+        {
+            // Title;Artist;Duration;Album;Track;DanceRating;SongTags;DanceTags;PurchaseInfo;
+
+            var fields = new List<string>
+            {
+                TitleField,
+                ArtistField,
+                LengthField,
+                AlbumField,
+                TrackField,
+            };
+
+            var cells = new List<string>
+            {
+                track.Name,
+                track.Artist,
+                track.Duration?.ToString(),
+                track.Album,
+                track.TrackNumber?.ToString(),
+            };
+
+            // Now fix up the user: This leaves the creating user w/ a like
+            //  and attributes the rest of the edits to the service user
+            var service = MusicService.GetService(track.Service);
+            var serviceUser = service.ApplicationUser.DecoratedName;
+            var props =
+                CreateFromTrack(user, track, fields, cells, database).SongProperties;
+            props.Insert(3, new SongProperty(LikeTag, "true"));
+            props.Insert(4, new SongProperty(EditCommand, String.Empty));
+            props.Insert(5, new SongProperty(UserField, serviceUser));
+            props.Insert(6, props[2]);
+
+            return new Song(new Guid(), props, database);
+        }
+
         public static Song CreateFromTrack(
             ApplicationUser user, ServiceTrack track, string multiDance, string songTags,
             DanceMusicCoreService database)
@@ -928,9 +971,10 @@ namespace m4dModels
             return CreateFromTrack(user, track, fields, cells, database);
         }
 
-        public static Song CreateFromTrack(
-            ApplicationUser user, ServiceTrack track, string dances, string songTags, string danceTags,
-            DanceMusicCoreService database)
+        public static Song CreateFromTrack(DanceMusicCoreService database,
+            ApplicationUser user, ServiceTrack track,
+            string dances = null, string songTags = null, string danceTags = null
+            )
         {
             // Title;Artist;Duration;Album;Track;DanceRating;SongTags;DanceTags;PurchaseInfo;
 
@@ -1495,15 +1539,16 @@ namespace m4dModels
         {
             var modified = AddUser(user);
             var modrec = FindModified(user.UserName);
-            modified |= EditLike(modrec, like);
+            modified |= EditLike(user, modrec, like);
             return modified;
         }
 
-        public bool EditLike(ModifiedRecord modrec, bool? like)
+        private bool EditLike(ApplicationUser user, ModifiedRecord modrec,
+            bool? like)
         {
             if (modrec.Like == like) return false;
 
-            CreateEditProperties(modrec.ApplicationUser, EditCommand);
+            CreateEditProperties(user, EditCommand);
             modrec.Like = like;
             CreateProperty(LikeTag, modrec.LikeString);
             return true;
