@@ -14,6 +14,7 @@
               name="Title"
               :value="song.title"
               :editing="editing"
+              :isCreator="isCreator"
               role="canEdit"
               @update-field="updateField($event)"
             ></field-editor
@@ -28,6 +29,7 @@
             name="Artist"
             :value="song.artist"
             :editing="editing"
+            :isCreator="isCreator"
             role="canEdit"
             @update-field="updateField($event)"
           >
@@ -55,9 +57,12 @@
         <b-button v-else variant="outline-primary" class="mr-1" @click="setEdit"
           >Edit</b-button
         >
-        <b-button v-if="modified" variant="primary" @click="saveChanges">{{
-          saveText
-        }}</b-button>
+        <b-button
+          v-if="modified && hasDances"
+          variant="primary"
+          @click="saveChanges"
+          >{{ saveText }}</b-button
+        >
       </b-col>
     </b-row>
     <b-row class="mb-2">
@@ -122,6 +127,7 @@
         ><song-stats
           :song="song"
           :editing="editing"
+          :isCreator="isCreator"
           @update-field="updateField($event)"
         ></song-stats
         ><b-button
@@ -431,6 +437,15 @@ export default class SongCore extends Mixins(AdminTools) {
 
   private get editing(): boolean {
     return this.modified || this.edit;
+  }
+
+  private get isCreator(): boolean {
+    const userName = this.userName;
+    return !!userName && this.song.isCreator(userName);
+  }
+
+  private get hasDances(): boolean {
+    return this.song.hasDances;
   }
 
   private updateSong(): void {

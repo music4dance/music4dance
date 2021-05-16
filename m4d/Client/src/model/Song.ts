@@ -196,6 +196,16 @@ export class Song extends TaggableObject {
     return ["Tempo", "Other", "Music"];
   }
 
+  public get hasDances(): boolean {
+    const ratings = this.danceRatings;
+    return !!ratings && ratings.length > 0;
+  }
+
+  public isCreator(user: string): boolean {
+    const modified = this.getUserModified(user);
+    return !!(modified && modified.isCreator);
+  }
+
   public wasModifiedBy(user: string): boolean {
     return !!this.modifiedBy?.find((r) => r.userName === user);
   }
@@ -220,6 +230,7 @@ export class Song extends TaggableObject {
     currentUser?: string
   ): void {
     let created = true;
+    let creator = true;
     let user: string;
     let currentModified: ModifiedRecord;
     let deleted = false;
@@ -232,7 +243,7 @@ export class Song extends TaggableObject {
         case PropertyType.userField:
         case PropertyType.userProxy:
           user = property.value;
-          currentModified = this.addModified(user);
+          currentModified = this.addModified(user, creator);
           pseudo = currentModified.isPseudo;
           break;
         case PropertyType.danceRatingField:
@@ -270,11 +281,6 @@ export class Song extends TaggableObject {
             this.edited = property.valueTyped as Date;
           }
           break;
-        // case PropertyType.ownerHash:
-        //   if (currentModified) {
-        //     currentModified.owned = property.valueTyped as number;
-        //   }
-        //   break;
         case PropertyType.likeTag:
           if (currentModified) {
             currentModified.like = property.valueTyped as boolean | undefined;
@@ -285,6 +291,12 @@ export class Song extends TaggableObject {
         case PropertyType.albumOrder:
         case PropertyType.songId:
           // Obsolete fields
+          break;
+        case PropertyType.createCommand:
+          creator = true;
+          break;
+        case PropertyType.editCommand:
+          creator = false;
           break;
         default:
           if (!property.isAction) {
@@ -302,7 +314,7 @@ export class Song extends TaggableObject {
     }
   }
 
-  private addModified(value: string): ModifiedRecord {
+  private addModified(value: string, creator?: boolean): ModifiedRecord {
     const newRecord = ModifiedRecord.fromValue(value);
     let record = this.modifiedBy?.find(
       (r) => r.userName === newRecord.userName
@@ -314,6 +326,7 @@ export class Song extends TaggableObject {
       record = newRecord;
       this.modifiedBy.push(record);
     }
+    record.isCreator = record.isCreator || creator;
     return record;
   }
 

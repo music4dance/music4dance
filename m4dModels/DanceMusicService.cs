@@ -148,9 +148,9 @@ namespace m4dModels
             return new Song(song, this, user.UserName);
         }
 
-        public bool CreateSong(Guid id, ICollection<SongProperty> properties)
+        public bool CreateSong(ICollection<SongProperty> properties)
         {
-            SaveSong(new Song(id, properties, this));
+            SaveSong(new Song(Guid.NewGuid(), properties, this));
             return true;
         }
 

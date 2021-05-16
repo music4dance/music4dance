@@ -29,7 +29,7 @@
       ></b-input-group-append>
     </b-input-group>
     <b-tabs>
-      <b-tab title="By Name" active>
+      <b-tab title="By Name" :active="!hasTempo">
         <b-list-group>
           <b-list-group-item
             v-for="dance in sortedDances"
@@ -59,7 +59,7 @@
           </b-list-group-item>
         </b-list-group>
       </b-tab>
-      <b-tab title="By Tempo" v-if="hasTempo">
+      <b-tab title="By Tempo" active v-if="hasTempo">
         <dance-list
           :dances="dances"
           :beatsPerMinute="tempo"

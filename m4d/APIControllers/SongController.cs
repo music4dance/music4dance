@@ -63,22 +63,16 @@ namespace m4d.APIControllers
         }
 
         [Authorize]
-        [HttpPost("{id}")]
-        public IActionResult Post([FromServices] IMapper mapper, Guid id, [FromBody] SongHistory history)
+        [HttpPost]
+        public IActionResult Post([FromServices] IMapper mapper, [FromBody] SongHistory history)
         {
-            Trace.WriteLine($"Enter Post: SongId = {id}, User = {User.Identity.Name}");
+            Trace.WriteLine($"Enter Post: User = {User.Identity.Name}");
             if (!User.Identity.IsAuthenticated)
             {
                 return StatusCode((int)HttpStatusCode.Forbidden);
             }
 
-            if (id != history.Id)
-            {
-                return StatusCode((int)HttpStatusCode.NotFound);
-            }
-
             return Database.CreateSong(
-                    history.Id,
                     history.Properties.Select(mapper.Map<SongProperty>).ToList())
                 ? Ok()
                 : StatusCode((int)HttpStatusCode.BadRequest);

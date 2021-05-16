@@ -5,6 +5,7 @@ export class ModifiedRecord {
   @jsonMember public userName!: string;
   @jsonMember public like?: boolean;
   @jsonMember public isPseudo!: boolean;
+  @jsonMember public isCreator?: boolean;
 
   public static fromValue(value: string): ModifiedRecord {
     const parts = value.split("|");

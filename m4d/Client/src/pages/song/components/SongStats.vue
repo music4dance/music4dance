@@ -7,6 +7,7 @@
           name="Length"
           :value="song.length ? song.length.toString() : ''"
           :editing="editing"
+          :isCreator="isCreator"
           role="canEdit"
           type="number"
           v-on="$listeners"
@@ -21,6 +22,7 @@
           name="Tempo"
           :value="song.tempo ? song.tempo.toString() : ''"
           :editing="editing"
+          :isCreator="isCreator"
           role="canTag"
           type="number"
           v-on="$listeners"
@@ -96,6 +98,7 @@ import { SongProperty } from "@/model/SongProperty";
 export default class SongStats extends Vue {
   @Prop() private readonly song!: Song;
   @Prop() private readonly editing!: boolean;
+  @Prop() private readonly isCreator?: boolean;
 
   private get modifiedFormatted(): string {
     return SongProperty.formatDate(this.song.modified);

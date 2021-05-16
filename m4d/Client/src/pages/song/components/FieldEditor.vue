@@ -31,6 +31,7 @@ export default class FieldEditor extends Mixins(
   @Prop() private readonly editing!: boolean;
   @Prop() private readonly type?: string;
   @Prop() private readonly role?: string;
+  @Prop() private readonly isCreator?: boolean;
 
   private get internalValue(): string {
     return this.value;
@@ -53,7 +54,7 @@ export default class FieldEditor extends Mixins(
 
   private get hasEditPermission(): boolean {
     const role = this.role;
-    return !!role && this.hasRole(role);
+    return !!this.isCreator || (!!role && this.hasRole(role));
   }
 }
 </script>

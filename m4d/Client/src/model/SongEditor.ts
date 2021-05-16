@@ -67,27 +67,13 @@ export class SongEditor {
 
   public async create(): Promise<void> {
     try {
-      const history = this.editHistory;
-      await axios.post(`/api/song/${history.id}`, history);
+      await axios.post("/api/song/", this.songHistory);
       this.commit();
     } catch (e) {
       console.log(e);
       throw e;
     }
   }
-
-  // TODO: Figure out how to generalize the above (lambda function?)
-  // private async update(method: string): Promise<void> {
-  //   try {
-  //     const history = this.editHistory;
-  //     // TODO: figure out
-  //     await axios[method](`/api/song/${history.id}`, history);
-  //     this.commit();
-  //   } catch (e) {
-  //     console.log(e);
-  //     throw e;
-  //   }
-  // }
 
   public commit(): void {
     this.initialCount = this.history.properties.length;
