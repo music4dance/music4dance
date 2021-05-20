@@ -48,7 +48,10 @@ namespace m4d.APIControllers
             if (song == null)
             {
                 song = MusicServiceManager.CreateSong(Database, user, id, service);
-                created = song != null;
+                if (song != null)
+                {
+                    created = Database.FindSong(song.SongId) == null;
+                }
             }
 
             if (song != null)

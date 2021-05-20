@@ -97,8 +97,29 @@ namespace m4d.Utilities
             ApplicationUser user, string id, MusicService service)
         {
             var track = GetMusicServiceTrack(id, service);
+
+            if (track == null)
+            {
+                return null;
+            }
+
             var song = Song.UserCreateFromTrack(dms, user, track);
+            var found = false;
+            var oldSong = dms.FindMatchingSong(song);
+
+            if (oldSong != null)
+            {
+                found = true;
+                song = oldSong;
+            }
+
             UpdateSongAndServices(dms, song);
+            UpdateFromTracks(dms, song, new List<ServiceTrack> { track });
+
+            if (found)
+            {
+                dms.SaveSong(song);
+            }
             return song;
         }
 
@@ -605,29 +626,28 @@ namespace m4d.Utilities
             DanceMusicCoreService dms, Song sd, MusicService service,
             ApplicationUser user = null)
         {
-            var found = MatchSongAndService(sd, service);
-            if (found.Count <= 0) return false;
+            return UpdateFromTracks(dms, sd,
+                MatchSongAndService(sd, service), user);
+        }
+
+        private bool UpdateFromTracks(
+            DanceMusicCoreService dms, Song sd, IList<ServiceTrack> tracks,
+            ApplicationUser user = null)
+        {
+            if (tracks.Count <= 0) return false;
 
             var edit = new Song(sd, dms);
 
             var tags = new TagList();
-            foreach (var foundTrack in found)
+            foreach (var foundTrack in tracks)
             {
-                var trackId = foundTrack.TrackId; //PurchaseRegion.FormatIdAndRegionInfo(foundTrack.TrackId, foundTrack.AvailableMarkets);
-                UpdateMusicService(edit, MusicService.GetService(foundTrack.Service), foundTrack.Name, foundTrack.Album, foundTrack.Artist, trackId, foundTrack.CollectionId, foundTrack.AltId, foundTrack.Duration.ToString(), foundTrack.TrackNumber);
-                if (foundTrack.Genres != null)
-                {
-                    tags = tags.Add(new TagList(dms.NormalizeTags(string.Join("|", foundTrack.Genres), "Music", true)));
-                }
+                UpdateMusicServiceFromTrack(dms, edit, foundTrack, ref tags);
             }
 
+            user ??= MusicService.GetService(tracks[0].Service).ApplicationUser;
             if (user != null)
             {
                 tags = tags.Add(sd.GetUserTags(user.UserName));
-            }
-            else
-            {
-                user = service.ApplicationUser;
             }
 
             return dms.EditSong(user, sd, edit, new[] { new UserTag { Id = string.Empty, Tags = tags } });
@@ -686,6 +706,23 @@ namespace m4d.Utilities
             }
 
             return found;
+        }
+
+        public static Song UpdateMusicServiceFromTrack(DanceMusicCoreService dms,
+            Song song, ServiceTrack track, ref TagList tags)
+        {
+            var trackId = track.TrackId; //PurchaseRegion.FormatIdAndRegionInfo(foundTrack.TrackId, foundTrack.AvailableMarkets);
+            var ret = UpdateMusicService(song, MusicService.GetService(track.Service),
+                track.Name, track.Album, track.Artist, trackId, track.CollectionId,
+                track.AltId, track.Duration.ToString(), track.TrackNumber);
+            if (track.Genres != null)
+            {
+                tags = tags.Add(new TagList(
+                    dms.NormalizeTags(string.Join("|", track.Genres),
+                        "Music", true)));
+            }
+
+            return ret;
         }
 
         public static Song UpdateMusicService(Song song, MusicService service, string name, string album, string artist, string trackId, string collectionId, string alternateId, string duration, int? trackNum)

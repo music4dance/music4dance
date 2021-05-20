@@ -657,8 +657,7 @@ namespace m4dModels
         {
             const int max = 10000;
 
-            var filter = new SongFilter();
-            filter.User = user;
+            var filter = new SongFilter {User = user};
             if (includeHate) filter.User += "|A";
 
             var afilter = AzureParmsFromFilter(filter);
@@ -772,7 +771,8 @@ namespace m4dModels
             return likes;
         }
 
-        // TODO: Think about aggregating annonymous & users to show most searched, most recent, etc.
+        // TODO: Think about aggregating anonymous & users to show most searched,
+        // most recent, etc.
         public void UpdateSearches(ApplicationUser user, SongFilter filter)
         {
             try
@@ -814,13 +814,23 @@ namespace m4dModels
 
         public enum MatchMethod { None, Tempo, Merge };
 
+        public Song FindMatchingSong(Song song)
+        {
+            var merger = MergeFromTitle(song);
+
+            return merger.MatchType == MatchType.Exact || merger.MatchType == MatchType.Length
+                ? merger.Right
+                : null;
+        }
+
         private IEnumerable<Song> SongsFromTitle(string title, ISearchIndexClient client = null)
         {
             return DoAzureSearch(title, new SearchParameters(), CruftFilter.AllCruft, client)
                     .Results.Select(
                         r => new Song(r.Document, this));
         }
-        private LocalMerger MergeFromTitle(Song song, ISearchIndexClient client)
+
+        private LocalMerger MergeFromTitle(Song song, ISearchIndexClient client = null)
         {
             var songs = SongsFromTitle(song.Title, client);
 
@@ -849,7 +859,9 @@ namespace m4dModels
             if (match == null && song.Length.HasValue)
             {
                 var songD = song;
-                foreach (var s in candidates.Where(s => songD.Length != null && (s.Length.HasValue && Math.Abs(s.Length.Value - songD.Length.Value) < 5)))
+                foreach (var s in candidates
+                    .Where(s => songD.Length != null &&
+                        (s.Length.HasValue && Math.Abs(s.Length.Value - songD.Length.Value) < 5)))
                 {
                     match = s;
                     type = MatchType.Length;
@@ -1028,7 +1040,8 @@ namespace m4dModels
 
             var sid = $"\"{service.CID}:{id}\"";
             var parameters = new SearchParameters {SearchFields = new [] {Song.ServiceIds} };
-            var results = DoAzureSearch(sid,parameters,CruftFilter.AllCruft, client);
+            var results = DoAzureSearch(sid, parameters,
+                CruftFilter.AllCruft, client);
             return (results.Results.Count > 0) ? 
                 new Song(results.Results[0].Document, this, userName) : null;
         }
@@ -1322,18 +1335,17 @@ namespace m4dModels
         public bool ResetIndex(string id = "default")
         {
             var info = SearchService.GetInfo(id);
-            using (var serviceClient = new SearchServiceClient(info.Name, new SearchCredentials(info.AdminKey)))
+            using var serviceClient = new SearchServiceClient(info.Name,
+                new SearchCredentials(info.AdminKey));
+            if (serviceClient.Indexes.Exists(info.Index))
             {
-                if (serviceClient.Indexes.Exists(info.Index))
-                {
-                    serviceClient.Indexes.Delete(info.Index);
-                }
-
-                var index = Song.GetIndex(this, DanceStatsManager);
-                index.Name = info.Index;
-
-                serviceClient.Indexes.Create(index);
+                serviceClient.Indexes.Delete(info.Index);
             }
+
+            var index = Song.GetIndex(this, DanceStatsManager);
+            index.Name = info.Index;
+
+            serviceClient.Indexes.Create(index);
 
             return true;
         }
@@ -1345,19 +1357,17 @@ namespace m4dModels
                 return false;
             }
             var info = SearchService.GetInfo(id);
-            using (var serviceClient = new SearchServiceClient(info.Name, new SearchCredentials(info.AdminKey)))
+            using var serviceClient = new SearchServiceClient(info.Name, new SearchCredentials(info.AdminKey));
+            var index = serviceClient.Indexes.Get(info.Index);
+            foreach (var dance in dances)
             {
-                var index = serviceClient.Indexes.Get(info.Index);
-                foreach (var dance in dances)
+                var field = Song.IndexFieldFromDanceId(dance);
+                if (index.Fields.All(f => f.Name != field.Name))
                 {
-                    var field = Song.IndexFieldFromDanceId(dance);
-                    if (index.Fields.All(f => f.Name != field.Name))
-                    {
-                        index.Fields.Add(field);
-                    }
+                    index.Fields.Add(field);
                 }
-                serviceClient.Indexes.CreateOrUpdate(index);
             }
+            serviceClient.Indexes.CreateOrUpdate(index);
             return true;
         }
 
