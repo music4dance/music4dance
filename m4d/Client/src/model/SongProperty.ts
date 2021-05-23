@@ -47,6 +47,9 @@ export enum PropertyType {
   // Proxy Fields
   userProxy = "UserProxy",
 
+  // Curator Fields
+  deleteTag = "DeleteTag",
+
   // Azure Search Fields
   songIdField = "SongId",
   altIdField = "AlternateIds",

@@ -39,7 +39,7 @@ namespace m4dModels
         public const string SampleField = "Sample";
         public const string DanceabilityField = "Danceability";
         public const string EnergyField = "Energy";
-        public const string ValenceFiled = "Valence";
+        public const string ValenceField = "Valence";
         public const string TitleHashField = "TitleHash";
 
         // Album Fields
@@ -64,6 +64,9 @@ namespace m4dModels
 
         // Proxy Fields
         public const string UserProxy = "UserProxy";
+
+        // Curator Fields
+        public const string DeleteTag = "DeleteTag";
 
         // Azure Search Fields
         public const string SongIdField = "SongId";
@@ -98,8 +101,6 @@ namespace m4dModels
         public const string EditCommand = ".Edit";
         public const string DeleteCommand = ".Delete";
         public const string MergeCommand = ".Merge";
-        public const string UndoCommand = ".Undo";
-        public const string RedoCommand = ".Redo";
         public const string FailedLookup = ".FailedLookup"; 
         public const string NoSongId = ".NoSongId"; // Pseudo action for serialization
         public const string SerializeDeleted = ".SerializeDeleted"; // Pseudo action for serialization
@@ -108,7 +109,9 @@ namespace m4dModels
         public const string FailResult = ".Fail";
         public const string MessageData = ".Message";
 
-        public static readonly string[] ScalarFields = {TitleField, ArtistField, TempoField, LengthField, SampleField, DanceabilityField,EnergyField,ValenceFiled};
+        public static readonly string[] ScalarFields = {TitleField, ArtistField,
+            TempoField, LengthField, SampleField, DanceabilityField, EnergyField,
+            ValenceField};
 
         public static readonly PropertyInfo[] ScalarProperties = {
             typeof(Song).GetProperty(TitleField),
@@ -118,7 +121,7 @@ namespace m4dModels
             typeof(Song).GetProperty(SampleField),
             typeof(Song).GetProperty(DanceabilityField),
             typeof(Song).GetProperty(EnergyField),
-            typeof(Song).GetProperty(ValenceFiled),
+            typeof(Song).GetProperty(ValenceField),
         };
 
         public static readonly int DanceRatingCreate = 1;
@@ -1092,6 +1095,9 @@ namespace m4dModels
                         {
                             RemoveObjectTags(prop.DanceQualifier, prop.Value, stats);
                         }
+                        break;
+                    case DeleteTag:
+                        ForceDeleteTag(prop.DanceQualifier, prop.Value, stats);
                         break;
                     case AlbumField:
                     case PublisherField:
@@ -3028,6 +3034,25 @@ namespace m4dModels
                 tobj = FindRating(qualifier);
 
             return tobj?.RemoveTags(tags, stats);
+        }
+
+        public void ForceDeleteTag(string qualifier, string tagString,
+            DanceStatsInstance stats)
+        {
+            TaggableObject tobj = this;
+            var tag = new TagCount(tagString);
+            if (!string.IsNullOrWhiteSpace(qualifier))
+            {
+                tobj = FindRating(qualifier);
+            }
+
+            tobj?.DeleteTag(tag, stats);
+            if (tag.TagClass == "Dance")
+            {
+                var dance = stats.FromName(tag.TagValue);
+                var rating = DanceRatings.First(dr => dr.DanceId == dance.DanceId);
+                DanceRatings.Remove(rating);
+            }
         }
 
         protected override HashSet<string> ValidClasses => s_validClasses;

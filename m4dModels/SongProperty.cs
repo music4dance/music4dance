@@ -101,7 +101,7 @@ namespace m4dModels
                         }
                         break;
                     case Song.DanceabilityField:
-                    case Song.ValenceFiled:
+                    case Song.ValenceField:
                     case Song.EnergyField:
                         // float
                         if (!string.IsNullOrEmpty(Value))
@@ -270,7 +270,6 @@ namespace m4dModels
         {
             return ParsePart(name, 0);
         }
-
 
         public static string ParseQualifier(string name)
         {

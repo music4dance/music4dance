@@ -8,7 +8,7 @@
           :value="song.length ? song.length.toString() : ''"
           :editing="editing"
           :isCreator="isCreator"
-          role="canEdit"
+          role="isAdmin"
           type="number"
           v-on="$listeners"
         ></field-editor>

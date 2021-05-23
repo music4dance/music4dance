@@ -40,6 +40,10 @@ export class TaggableObject {
     }
   }
 
+  public deleteTag(tag: Tag): void {
+    this.tags = this.tags.filter((t) => t.key !== tag.key);
+  }
+
   public isUserTag(tag: Tag): boolean {
     const userTags = this.currentUserTags;
     return userTags

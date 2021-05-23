@@ -140,6 +140,19 @@ namespace m4dModels
             Summary = Serialize(tags);
         }
 
+        public void DeleteTag(TagCount tag)
+        {
+            var tags = Tags;
+            var old = Tags.FirstOrDefault(t => t.Value == tag.Value);
+            if (old == null)
+            {
+                return;
+            }
+
+            tags.Remove(old);
+            Summary = Serialize(tags);
+
+        }
         #endregion
 
         #region Implementation

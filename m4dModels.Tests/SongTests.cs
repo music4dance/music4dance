@@ -374,6 +374,17 @@ namespace m4dModels.Tests
             Assert.AreEqual("3/4:Tempo:1|Argentine Tango:Dance:1|DWTS:Other:1|Episode 9:Other:1|International:Music:1|Latin:Music:2|Season 20:Other:1|Tango Vals:Dance:1|United States:Other:1|World:Music:1", song.TagSummary.ToString());
         }
 
+        [TestMethod]
+        public void TagDeleteTest()
+        {
+            const string init = @".Create=	User=LizaMay|P	Time=12/18/2020 12:53:42	Title=Something Sweet	Artist=Madison Beer	Length=196	Album:00=Something Sweet	Track:00=1	Tag+=West Coast Swing:Dance	DanceRating=WCS+1	Purchase:00:SA=2oIUFdMdCZB6KSxcByEbDT	Purchase:00:SS=3PlM3biKS6ZUIHojCJmElE	DanceRating=SWG+1	.Edit=	User=batch-i|P	Time=12/18/2020 13:22:21	Purchase:00:IS=1068336005	Purchase:00:IA=1068336001	Tag+=Pop:Music	.Edit=	User=batch-s|P	Time=12/18/2020 13:22:21	Tag+=Dance Pop:Music|Electropop:Music|Pop Dance:Music|Pop:Music|Post Teen Pop:Music	.Edit=	User=batch-e|P	Time=12/18/2020 13:22:21	Tempo=100.0	Danceability=0.622	Energy=0.791	Valence=0.647	Tag+=4/4:Tempo	.Edit=	Time=12/18/2020 13:22:21	Sample=https://p.scdn.co/mp3-preview/8e1b328376bb18bb1b5d27649a59f2f1e175f199?cid=***REMOVED***	.Edit=	User=StephanieLienPham|P	Time=05/09/2021 09:11:30	Tag+=West Coast Swing:Dance	DanceRating=WCS+1	DanceRating=SWG+1	.Edit=	User=dwgray	Time=23-May-2021 02:32:40 PM	DeleteTag=Swing:Dance	DeleteTag=West Coast Swing:Dance	.Edit=	User=dwgray	Time=23-May-2021 03:09:31 PM	DeleteTag=Dance Pop:Music	DeleteTag=Pop Dance:Music";
+            var song = new Song();
+            song.Load(init, Service);
+
+            Assert.AreEqual(0, song.DanceRatings.Count);
+            Assert.AreEqual("4/4:Tempo:1|Electropop:Music:1|Pop:Music:2|Post Teen Pop:Music:1", song.TagSummary.ToString());
+        }
+
         //
         // Extend AdminModify to correctly handle tags on dances - we should probably handle DNC* (rather than explicit DNC+2) and then
         //  actually load the tags and do appropriate modification of the tags on the dance ratings.

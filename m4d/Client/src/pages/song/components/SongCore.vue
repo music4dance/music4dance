@@ -15,7 +15,7 @@
               :value="song.title"
               :editing="editing"
               :isCreator="isCreator"
-              role="canEdit"
+              role="isAdmin"
               @update-field="updateField($event)"
             ></field-editor
           ></i>
@@ -30,7 +30,7 @@
             :value="song.artist"
             :editing="editing"
             :isCreator="isCreator"
-            role="canEdit"
+            role="isAdmin"
             @update-field="updateField($event)"
           >
             <span v-if="song.artist" style="font-size: 0.75em"
@@ -58,7 +58,7 @@
           >Edit</b-button
         >
         <b-button
-          v-if="modified && hasDances"
+          v-if="modified && (hasDances || isAdmin)"
           variant="primary"
           @click="saveChanges"
           >{{ saveText }}</b-button
@@ -104,6 +104,7 @@
           @dance-vote="onDanceVote($event)"
           @update-song="updateSong"
           @edit="setEdit"
+          @delete-dance="onDeleteDance($event)"
         />
         <b-button
           v-if="!!model.userName"
@@ -119,8 +120,11 @@
           :danceRatings="inferredDanceRatings"
           :user="model.userName"
           :filter="model.filter"
+          :editor="editor"
+          :edit="edit"
           @dance-vote="onDanceVote($event)"
           @update-song="updateSong"
+          @delete-dance="onDeleteDance($event)"
         />
       </b-col>
       <b-col md="auto"
@@ -155,7 +159,11 @@
     </b-row>
     <b-row>
       <b-col v-if="song.albums"
-        ><album-list :albums="song.albums"></album-list>
+        ><album-list
+          :albums="song.albums"
+          :editing="edit"
+          @delete-album="onDeleteAlbum($event)"
+        ></album-list>
         <div v-if="isAdmin">
           <form
             id="adminEdit"
@@ -239,7 +247,9 @@ import { Song } from "@/model/Song";
 import { DanceRating } from "@/model/DanceRating";
 import { DanceRatingVote, VoteDirection } from "@/DanceRatingDelta";
 import { DanceEnvironment } from "@/model/DanceEnvironmet";
-import { SongProperty } from "@/model/SongProperty";
+import { PropertyType, SongProperty } from "@/model/SongProperty";
+import { AlbumDetails } from "@/model/AlbumDetails";
+import { Tag } from "@/model/Tag";
 
 @Component({
   components: {
@@ -333,6 +343,25 @@ export default class SongCore extends Mixins(AdminTools) {
       throw new Error("Can't edit if not logged in");
     }
     this.editor!.danceVote(vote);
+    this.song = this.editor!.song;
+  }
+
+  private onDeleteAlbum(album: AlbumDetails): void {
+    this.editor!.addAlbumProperty(
+      PropertyType.albumField,
+      undefined,
+      album.index!
+    );
+    this.song = this.editor!.song;
+  }
+
+  private onDeleteDance(dr: DanceRating): void {
+    // TODONEXT: Figure out why this isn't inducing an update...
+    const tag = new Tag({
+      value: this.environment!.fromId(dr.danceId)!.danceName,
+      category: "Dance",
+    });
+    this.editor!.addProperty(PropertyType.deleteTag, tag.key);
     this.song = this.editor!.song;
   }
 

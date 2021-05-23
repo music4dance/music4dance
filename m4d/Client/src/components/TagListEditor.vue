@@ -18,9 +18,19 @@
           v-for="tag in otherTags"
           :key="tag.key"
           :tagHandler="tagHandler(tag)"
-          @add-tag="addTag"
+          @change-tag="addTag"
         ></tag-button-other>
       </span>
+      <div v-if="canEdit">
+        <span class="title mr-2" v-if="otherTags.length">Remove Tags:</span>
+        <tag-button-other
+          v-for="tag in otherTags"
+          :key="tag.key"
+          :tagHandler="tagHandler(tag)"
+          :isDelete="true"
+          @change-tag="deleteTag"
+        ></tag-button-other>
+      </div>
     </div>
     <span v-else>
       <tag-list :container="container" :filter="filter" :user="user"></tag-list>
@@ -44,6 +54,7 @@ import TagButtonOther from "@/components/TagButtonOther.vue";
 import TagCategorySelector from "@/components/TagCategorySelector.vue";
 import TagList from "@/components/TagList.vue";
 import EnvironmentManager from "@/mix-ins/EnvironmentManager";
+import AdminTools from "@/mix-ins/AdminTools";
 
 @Component({
   components: {
@@ -52,7 +63,10 @@ import EnvironmentManager from "@/mix-ins/EnvironmentManager";
     TagList,
   },
 })
-export default class TagListEditor extends Mixins(EnvironmentManager) {
+export default class TagListEditor extends Mixins(
+  EnvironmentManager,
+  AdminTools
+) {
   @Prop() readonly container!: TaggableObject;
   @Prop() readonly filter?: SongFilter;
   @Prop() readonly user?: string;
@@ -122,6 +136,14 @@ export default class TagListEditor extends Mixins(EnvironmentManager) {
   private addTag(tag: Tag): void {
     this.editor.addProperty(
       PropertyType.addedTags + this.container.modifier,
+      tag.key
+    );
+    this.$emit("update-song");
+  }
+
+  private deleteTag(tag: Tag): void {
+    this.editor.addProperty(
+      PropertyType.deleteTag + this.container.modifier,
       tag.key
     );
     this.$emit("update-song");

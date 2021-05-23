@@ -13,6 +13,7 @@ import { TagList } from "./TagList";
 import { DanceRating } from "./DanceRating";
 import { ModifiedRecord } from "./ModifiedRecord";
 import { AlbumDetails } from "./AlbumDetails";
+import { Tag } from "./Tag";
 
 declare const environment: DanceEnvironment;
 
@@ -156,6 +157,16 @@ export class Song extends TaggableObject {
     return this.findDanceRatingById(ds.danceId);
   }
 
+  public removeDanceRating(id: string): void {
+    const index = this.danceRatings?.findIndex((dr) => dr.id === id);
+    if (index === -1) {
+      throw new Error(
+        `Attempted to remove dancerating ${id} from song ${this.songId} but it didn't exist`
+      );
+    }
+    this.danceRatings?.splice(index!, 1);
+  }
+
   public get createdOrder(): string {
     return this.created ? timeOrder(this.created) : "U";
   }
@@ -219,7 +230,7 @@ export class Song extends TaggableObject {
   }
 
   public danceVote(danceId: string): boolean | undefined {
-    const rating = this.getDanceRating(danceId);
+    const rating = this.findDanceRatingById(danceId);
     return rating
       ? TagList.build(this.currentUserTags).voteFromTags(rating?.positiveTag)
       : undefined;
@@ -261,6 +272,10 @@ export class Song extends TaggableObject {
             currentUser === user
           );
           break;
+        case PropertyType.deleteTag:
+          this.forceDeleteTag(property.danceQualifier, property.value);
+          break;
+
         case PropertyType.albumField:
         case PropertyType.publisherField:
         case PropertyType.trackField:
@@ -352,11 +367,7 @@ export class Song extends TaggableObject {
 
   private getTaggableObject(property: SongProperty): TaggableObject {
     const danceId = property.danceQualifier;
-    return danceId ? this.getDanceRating(danceId)! : this;
-  }
-
-  private getDanceRating(danceId: string): DanceRating | undefined {
-    return this.danceRatings?.find((dr) => dr.id === danceId);
+    return danceId ? this.findDanceRatingById(danceId)! : this;
   }
 
   private buildAlbumInfo(properties: SongProperty[]): AlbumDetails[] {
@@ -379,7 +390,7 @@ export class Song extends TaggableObject {
         let details = map.get(idx);
         if (!details) {
           max = Math.max(max, idx);
-          details = new AlbumDetails();
+          details = new AlbumDetails({ index: idx });
           map.set(idx, details);
         }
 
@@ -425,5 +436,27 @@ export class Song extends TaggableObject {
     this.danceRatings = [];
     this.modifiedBy = [];
     this.albums = [];
+  }
+
+  private forceDeleteTag(
+    danceQualifier: string | undefined,
+    value: string
+  ): void {
+    const taggable = danceQualifier
+      ? this.findDanceRatingById(danceQualifier)
+      : this;
+
+    if (!taggable) {
+      throw new Error(
+        `Attempted to delete tag ${value} from ${danceQualifier} on ${this.songId}, but the dance rating doesn't exist`
+      );
+    }
+    const tag = Tag.fromString(value);
+    taggable.deleteTag(tag);
+
+    if (tag.category === "Dance") {
+      const ds = environment!.fromName(tag.value)!;
+      this.removeDanceRating(ds.danceId);
+    }
   }
 }

@@ -6,6 +6,14 @@
     border-variant="primary"
     ><b-list-group v-if="hasDances" flush
       ><b-list-group-item v-for="dr in danceRatingsFiltered" :key="dr.danceId">
+        <b-button
+          v-if="isAdmin && edit"
+          size="sm"
+          variant="outline-danger"
+          @click="$emit('delete-dance', dr)"
+          class="mr-2"
+          ><b-icon-x variant="danger"></b-icon-x
+        ></b-button>
         <dance-vote
           :song="song"
           :danceRating="dr"
@@ -42,6 +50,7 @@ import { SongFilter } from "@/model/SongFilter";
 import { TagHandler } from "@/model/TagHandler";
 import { SongEditor } from "@/model/SongEditor";
 import EnvironmentManager from "@/mix-ins/EnvironmentManager";
+import AdminTools from "@/mix-ins/AdminTools";
 
 @Component({
   components: {
@@ -50,7 +59,7 @@ import EnvironmentManager from "@/mix-ins/EnvironmentManager";
     TagListEditor,
   },
 })
-export default class DanceList extends Mixins(EnvironmentManager) {
+export default class DanceList extends Mixins(EnvironmentManager, AdminTools) {
   @Prop() private readonly song!: Song;
   @Prop() private readonly title!: string;
   @Prop() private readonly danceRatings!: DanceRating[];

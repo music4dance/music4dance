@@ -19,15 +19,10 @@
 <script lang="ts">
 import "reflect-metadata";
 import { Component, Prop, Vue } from "vue-property-decorator";
-import { AlbumDetails } from "@/model/AlbumDetails";
 import { SongHistory } from "@/model/SongHistory";
 
 @Component
 export default class AlbumList extends Vue {
   @Prop() private readonly history!: SongHistory;
-
-  private albumLink(album: AlbumDetails): string {
-    return `/song/album?title=${album.name}`;
-  }
 }
 </script>

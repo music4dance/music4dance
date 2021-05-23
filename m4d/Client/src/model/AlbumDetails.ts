@@ -3,6 +3,7 @@ import { PurchaseEncoded } from "./Purchase";
 
 @jsonObject
 export class AlbumDetails {
+  @jsonMember public index?: number;
   @jsonMember public name?: string;
   @jsonMember public track?: number;
   @jsonMember public publisher?: string;

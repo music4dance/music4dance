@@ -357,4 +357,7 @@ describe("song tests", () => {
     //const json = JSON.stringify(s, null, 2);
     expect(s).toMatchSnapshot();
   });
+
+  // TODO: Once we figure out how to handle timezones or ignore them, add a test
+  //  equivalent to the c# TagDeleteTest
 });

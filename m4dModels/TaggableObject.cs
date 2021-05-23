@@ -67,6 +67,11 @@ namespace m4dModels
             return ring;
         }
 
+        public void DeleteTag(TagCount tag, DanceStatsInstance stats)
+        {
+            TagSummary.DeleteTag(tag);
+        }
+
         public virtual TagList AddTags(TagList tags, string user, DanceStatsInstance stats, object data = null, bool updateTypes = true)
         {
             if (user == null)

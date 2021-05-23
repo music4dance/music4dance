@@ -44,6 +44,14 @@ export class SongHistory {
     return editor.songHistory;
   }
 
+  public static fromString(s: string, songId?: string): SongHistory {
+    songId = songId ?? uuidv4();
+    return new SongHistory({
+      id: songId,
+      properties: SongHistory.parseProperties(s),
+    });
+  }
+
   @jsonMember public id!: string; // GUID
   @jsonArrayMember(SongProperty) public properties!: SongProperty[];
 
@@ -54,5 +62,14 @@ export class SongHistory {
 
   private static serviceUserFromType(type: string): string {
     return `batch-${type[0].toLowerCase()}`;
+  }
+
+  private static parseProperties(s: string): SongProperty[] {
+    const cells = s.split("\t");
+
+    return cells.map(
+      (c) =>
+        new SongProperty({ name: c[0], value: c.length > 1 ? c[1] : undefined })
+    );
   }
 }
