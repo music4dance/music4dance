@@ -127,7 +127,9 @@ export default class AugmentLookup extends Mixins(AdminTools) {
       const songModel = TypedJSON.parse(response.data, SongDetailsModel);
       if (!songModel) {
         this.failed = true;
-      } else this.$emit("edit-song", songModel);
+      } else {
+        this.$emit("edit-song", songModel);
+      }
     } catch (e) {
       this.failed = true;
     }

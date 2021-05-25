@@ -40,6 +40,20 @@
         @cancel-changes="reset(false)"
       ></song-core>
     </div>
+    <b-row v-if="lookup && isAdmin">
+      <b-col>
+        <h2>Admin Add</h2>
+        <b-input-group prepend="Properties">
+          <b-form-input
+            id="admin-properties"
+            palceholder="Song Properties TSV"
+            v-model="propertiesString"
+            trim
+          ></b-form-input>
+          <b-button variant="primary" @click="adminCreate">Create</b-button>
+        </b-input-group>
+      </b-col>
+    </b-row>
   </page>
 </template>
 
@@ -55,6 +69,7 @@ import { SongDetailsModel } from "@/model/SongDetailsModel";
 import { SongFilter } from "@/model/SongFilter";
 import { DanceEnvironment } from "@/model/DanceEnvironmet";
 import { Song } from "@/model/Song";
+import { SongHistory } from "@/model/SongHistory";
 
 @Component({
   components: { AugmentInfo, AugmentLookup, SongCore, Page },
@@ -65,6 +80,7 @@ export default class App extends Mixins(AdminTools) {
   private lastSong: Song | null = null;
   private created = false;
   private environment: DanceEnvironment | null = null;
+  private propertiesString = "";
 
   private get canAugment(): boolean {
     return this.canTag || this.isPremium;
@@ -77,6 +93,18 @@ export default class App extends Mixins(AdminTools) {
       filter: new SongFilter(),
       userName: this.userName,
     });
+    this.lookup = false;
+  }
+
+  private async adminCreate(): Promise<void> {
+    console.log(`Create Song: ${this.propertiesString}`);
+    this.songModel = new SongDetailsModel({
+      created: true,
+      songHistory: SongHistory.fromString(this.propertiesString),
+      filter: new SongFilter(),
+      userName: this.userName,
+    });
+    this.propertiesString = "";
     this.lookup = false;
   }
 

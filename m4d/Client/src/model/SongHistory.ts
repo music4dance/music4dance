@@ -65,11 +65,14 @@ export class SongHistory {
   }
 
   private static parseProperties(s: string): SongProperty[] {
-    const cells = s.split("\t");
+    const rows = s.split("\t");
 
-    return cells.map(
-      (c) =>
-        new SongProperty({ name: c[0], value: c.length > 1 ? c[1] : undefined })
-    );
+    return rows.map((row) => {
+      const cells = row.split("=");
+      return new SongProperty({
+        name: cells[0],
+        value: cells.length > 1 ? cells[1] : undefined,
+      });
+    });
   }
 }

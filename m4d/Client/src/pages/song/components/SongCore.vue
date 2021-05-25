@@ -58,7 +58,7 @@
           >Edit</b-button
         >
         <b-button
-          v-if="modified && (hasDances || isAdmin)"
+          v-if="(modified && hasDances) || isAdmin"
           variant="primary"
           @click="saveChanges"
           >{{ saveText }}</b-button
