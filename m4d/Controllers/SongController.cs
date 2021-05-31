@@ -377,6 +377,7 @@ namespace m4d.Controllers
             var action = filter.Action;
             return View(
                 action.Equals("Advanced", StringComparison.OrdinalIgnoreCase)
+                    || action.StartsWith("azure+raw", StringComparison.OrdinalIgnoreCase)
                     || action.Equals("MergeCandidates")
                     ? "index" : filter.Action,
                 new SongListModel
@@ -401,7 +402,7 @@ namespace m4d.Controllers
             HelpPage = "advanced-search";
 
             ViewBag.AzureIndexInfo = Song.GetIndex(Database, danceStatsManager);
-            return View(new RawSearch(filter.IsRaw ? filter : null));
+            return View(new RawSearch(filter is { IsRaw: true } ? filter : null));
         }
 
         //
@@ -412,7 +413,9 @@ namespace m4d.Controllers
             HelpPage = "advanced-search";
 
             ViewBag.AzureIndexInfo = Song.GetIndex(Database, danceStatsManager);
-            return ModelState.IsValid ? DoAzureSearch(new SongFilter(rawSearch)) : View("RawSearchForm",rawSearch);
+            return ModelState.IsValid 
+                ? DoAzureSearch(new SongFilter(rawSearch))
+                : View("RawSearchForm",rawSearch);
         }
 
         //

@@ -1,13 +1,16 @@
-﻿@model m4dModels.RawSearch
+﻿@using m4d.ViewModels
+@model m4dModels.RawSearch
 
 @{
+    Layout = "/Views/Shared/_bs4-Layout.cshtml";
     ViewBag.Title = "Raw Search";
+    ViewBag.BreadCrumbs = BreadCrumbItem.BuildSongLibraryTrail(ViewBag.Title);
 }
 
 @using (Html.BeginForm("RawSearch","Song"))
 {
-    @Html.AntiForgeryToken()
-    
+@Html.AntiForgeryToken()
+
 <div class="form-horizontal">
     <h1>Raw Search</h1>
     <hr />
@@ -63,19 +66,16 @@
         </div>
     </div>
 
-    <div class="form-group">
-        @Html.LabelFor(model => model.IsLucene, htmlAttributes: new { @class = "control-label col-md-2" })
-        <div class="col-md-10">
-            <div class="checkbox">
-                @Html.EditorFor(model => model.IsLucene)
-                @Html.ValidationMessageFor(model => model.IsLucene, "", new { @class = "text-danger" })
-            </div>
-        </div>
+    <div class="form-check col-md-11 ml-3">
+        @Html.EditorFor(model => model.IsLucene, 
+            new { htmlAttributes = new { @class = "form-check-input" } })
+        @Html.LabelFor(model => model.IsLucene, htmlAttributes:
+            new { @class = "form-check-label" })
     </div>
 
-    <div class="form-group">
+    <div class="form-group mt-2">
         <div class="col-md-offset-2 col-md-10">
-            <button id="submit-search" class="btn btn-default" type="submit">Search <span class="glyphicon glyphicon-search"></span></button>
+            <button id="submit-search" class="btn btn-primary" type="submit">Search <span class="glyphicon glyphicon-search"></span></button>
         </div>
     </div>
 </div>
@@ -84,7 +84,7 @@
 @if (ViewData.ContainsKey("AzureIndexInfo"))
 {
     <div class="row">
-        <div class="col-xs-12">
+        <div class="col">
             <table class="table table-striped table-bordered">
                 <thead class="big-text">Azure Search Fields</thead>
                 <tbody>

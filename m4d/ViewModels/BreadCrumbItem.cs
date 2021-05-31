@@ -10,18 +10,26 @@ namespace m4d.ViewModels
         public bool? Active { get; set; }
 
         public static BreadCrumbItem HomeItem =>
-            new BreadCrumbItem {Title = "music4dance", Link = "/"};
+            new() {Title = "music4dance", Link = "/"};
 
         public static BreadCrumbItem InfoItem =>
-            new BreadCrumbItem {Title = "Info", Link = "/home/info"};
+            new() {Title = "Info", Link = "/home/info"};
 
         public static List<BreadCrumbItem> BuildInfoTrail(string title)
         {
             return BuildTrail(title, HomeItem, InfoItem);
         }
 
+        public static BreadCrumbItem SongLibraryItem =>
+            new() { Title = "Song Library", Link = "/home/song" };
+
+        public static List<BreadCrumbItem> BuildSongLibraryTrail(string title)
+        {
+            return BuildTrail(title, HomeItem, SongLibraryItem);
+        }
+
         public static BreadCrumbItem AdminItem =>
-            new BreadCrumbItem { Title = "Administration", Link = "/admin" };
+            new() { Title = "Administration", Link = "/admin" };
 
         public static List<BreadCrumbItem> BuildAdminTrail(string title)
         {
@@ -29,14 +37,14 @@ namespace m4d.ViewModels
         }
 
         public static BreadCrumbItem DanceItem =>
-            new BreadCrumbItem { Title = "Dances", Link = "/dances" };
+            new() { Title = "Dances", Link = "/dances" };
 
         public static List<BreadCrumbItem> BuildDanceTrail(string title)
         {
             return BuildTrail(title, HomeItem, DanceItem);
         }
         public static BreadCrumbItem ContributeItem =>
-            new BreadCrumbItem {Title = "Contribute", Link = "/Home/Contribute"};
+            new() {Title = "Contribute", Link = "/Home/Contribute"};
 
         public static List<BreadCrumbItem> BuildContributeTrail(string title)
         {
@@ -44,7 +52,7 @@ namespace m4d.ViewModels
         }
 
         public static BreadCrumbItem UsersItem =>
-            new BreadCrumbItem { Title = "Users", Link = "/ApplicationUsers" };
+            new() { Title = "Users", Link = "/ApplicationUsers" };
 
         public static List<BreadCrumbItem> BuildUsersTrail(string title)
         {
@@ -52,7 +60,7 @@ namespace m4d.ViewModels
         }
 
         public static BreadCrumbItem PlaylistItem =>
-            new BreadCrumbItem { Title = "Users", Link = "/Playlist" };
+            new() { Title = "Users", Link = "/Playlist" };
 
         public static List<BreadCrumbItem> BuildPlaylistTrail(string title)
         {
