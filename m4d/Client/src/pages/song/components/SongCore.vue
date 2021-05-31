@@ -57,12 +57,9 @@
         <b-button v-else variant="outline-primary" class="mr-1" @click="setEdit"
           >Edit</b-button
         >
-        <b-button
-          v-if="(modified && hasDances) || isAdmin"
-          variant="primary"
-          @click="saveChanges"
-          >{{ saveText }}</b-button
-        >
+        <b-button v-if="showSave" variant="primary" @click="saveChanges">{{
+          saveText
+        }}</b-button>
       </b-col>
     </b-row>
     <b-row class="mb-2">
@@ -164,7 +161,14 @@
           :editing="edit"
           @delete-album="onDeleteAlbum($event)"
         ></album-list>
-        <div v-if="isAdmin">
+        <div v-if="isAdmin" class="mt-2">
+          <track-list
+            v-if="editing && isAdmin"
+            :song="song"
+            :editing="edit"
+            @add-track="addTrack"
+            @add-property="addProperty($event)"
+          ></track-list>
           <form
             id="adminEdit"
             action="/song/adminedit"
@@ -240,6 +244,7 @@ import SongLikeButton from "@/components/SongLikeButton.vue";
 import SongStats from "./SongStats.vue";
 import TagButton from "@/components/TagButton.vue";
 import TagListEditor from "@/components/TagListEditor.vue";
+import TrackList from "./TrackList.vue";
 import { SongEditor } from "@/model/SongEditor";
 import { SongFilter } from "@/model/SongFilter";
 import { SongDetailsModel } from "@/model/SongDetailsModel";
@@ -250,6 +255,7 @@ import { DanceEnvironment } from "@/model/DanceEnvironmet";
 import { PropertyType, SongProperty } from "@/model/SongProperty";
 import { AlbumDetails } from "@/model/AlbumDetails";
 import { Tag } from "@/model/Tag";
+import { TrackModel } from "@/model/TrackModel";
 
 @Component({
   components: {
@@ -263,6 +269,7 @@ import { Tag } from "@/model/Tag";
     SongStats,
     TagButton,
     TagListEditor,
+    TrackList,
   },
 })
 export default class SongCore extends Mixins(AdminTools) {
@@ -295,6 +302,10 @@ export default class SongCore extends Mixins(AdminTools) {
 
   private get filter(): SongFilter {
     return this.model.filter;
+  }
+
+  private get showSave(): boolean {
+    return (this.modified && this.hasDances) || (this.isAdmin && this.edit);
   }
 
   private get modified(): boolean {
@@ -343,7 +354,7 @@ export default class SongCore extends Mixins(AdminTools) {
       throw new Error("Can't edit if not logged in");
     }
     this.editor!.danceVote(vote);
-    this.song = this.editor!.song;
+    this.updateSong();
   }
 
   private onDeleteAlbum(album: AlbumDetails): void {
@@ -352,17 +363,21 @@ export default class SongCore extends Mixins(AdminTools) {
       undefined,
       album.index!
     );
-    this.song = this.editor!.song;
+    this.updateSong();
   }
 
   private onDeleteDance(dr: DanceRating): void {
-    // TODONEXT: Figure out why this isn't inducing an update...
     const tag = new Tag({
       value: this.environment!.fromId(dr.danceId)!.danceName,
       category: "Dance",
     });
     this.editor!.addProperty(PropertyType.deleteTag, tag.key);
-    this.song = this.editor!.song;
+    this.updateSong();
+  }
+
+  private addProperty(property: SongProperty): void {
+    this.editor!.addProperty(property.name, property.value);
+    this.updateSong();
   }
 
   private get artistLink(): string | undefined {
@@ -483,6 +498,11 @@ export default class SongCore extends Mixins(AdminTools) {
 
   private setEdit(): void {
     this.edit = true;
+  }
+
+  private addTrack(track: TrackModel): void {
+    this.editor?.addAlbumFromTrack(track);
+    this.updateSong();
   }
 
   private leaveWarning(event: BeforeUnloadEvent): void {

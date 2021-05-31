@@ -8,6 +8,7 @@ import { DanceEnvironment } from "./DanceEnvironmet";
 import { Song } from "./Song";
 import { SongHistory } from "./SongHistory";
 import { PropertyType, PropertyValue, SongProperty } from "./SongProperty";
+import { TrackModel } from "./TrackModel";
 
 declare const environment: DanceEnvironment;
 
@@ -180,6 +181,26 @@ export class SongEditor {
       this.addProperty(PropertyType.addedTags, negTag);
     } else if (negative === false) {
       this.addProperty(PropertyType.removedTags, negTag);
+    }
+  }
+
+  public addAlbumFromTrack(track: TrackModel): void {
+    const album = this.song.findAlbum(track.album!, track.trackNumber);
+    const index = album ? album.index! : this.song.nextAlbumIndex;
+    if (!album) {
+      this.addAlbumProperty(PropertyType.albumField, track.album, index);
+      if (track) {
+        this.addAlbumProperty(
+          PropertyType.trackField,
+          track.trackNumber,
+          index
+        );
+      }
+    }
+    const service = track.serviceType[0].toUpperCase();
+    this.addPurchaseProperty(track.trackId, index, service, "S");
+    if (track.collectionId) {
+      this.addPurchaseProperty(track.collectionId, index, service, "A");
     }
   }
 

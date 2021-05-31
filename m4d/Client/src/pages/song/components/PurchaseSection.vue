@@ -6,14 +6,11 @@
       class="mx-auto"
       style="width: 110px"
     >
-      <a :href="pi.link" target="_blank"
-        ><img
-          :src="pi.charm"
-          :alt="pi.altText"
-          style="margin: 0.25rem"
-          width="110"
-          height="40"
-      /></a>
+      <purchase-logo
+        :info="pi"
+        :isCharm="true"
+        styles="margin-right: .25rem; margin-bottom: .25rem"
+      ></purchase-logo>
     </span>
     <b-button
       v-if="filter && !filter.isEmpty"
@@ -40,8 +37,9 @@ import "reflect-metadata";
 import { Component, Prop, Vue } from "vue-property-decorator";
 import { PurchaseInfo } from "@/model/Purchase";
 import { SongFilter } from "@/model/SongFilter";
+import PurchaseLogo from "@/components/PurcahseLogo.vue";
 
-@Component
+@Component({ components: { PurchaseLogo } })
 export default class SongStats extends Vue {
   @Prop() private readonly purchaseInfos!: PurchaseInfo[];
   @Prop() private readonly filter!: SongFilter;

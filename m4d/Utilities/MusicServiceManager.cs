@@ -30,14 +30,18 @@ namespace m4d.Utilities
         #region Search
         public IList<ServiceTrack> FindMusicServiceSong(Song song,
             MusicService service, string title = null, string artist = null,
-            string album = null, string region = null)
+            string album = null)
         {
             IList<ServiceTrack> list;
+            if (title == null)
+            {
+                artist ??= song.Artist;
+            }
+            title ??= song.Title;
 
             if (service != null)
             {
-                list = DoFindMusicServiceSong(service,
-                    title ?? song.Title, artist ?? song.Artist, region);
+                list = DoFindMusicServiceSong(service, title, artist);
             }
             else
             {
@@ -45,7 +49,7 @@ namespace m4d.Utilities
                 foreach (var s in MusicService.GetSearchableServices())
                 {
                     var tracks = DoFindMusicServiceSong(s,
-                        title ?? song.Title, artist ?? song.Artist, region);
+                        title, artist);
 
                     if (tracks != null) acc.AddRange(tracks);
                 }
@@ -53,7 +57,14 @@ namespace m4d.Utilities
                 list = acc;
             }
 
-            if (list == null) return null;
+            if (list == null || list.Count == 0)
+            {
+                var cleanArtist = Song.CleanString(artist);
+                var cleanTitle = Song.CleanString(title);
+                return cleanArtist == artist && cleanTitle == title
+                    ? null
+                    : FindMusicServiceSong(song, service, title, artist, album);
+            }
 
             list = FilterKaraoke(list);
 
@@ -62,7 +73,7 @@ namespace m4d.Utilities
             return list;
         }
 
-        public ServiceTrack GetMusicServiceTrack(string id, MusicService service, string region = null)
+        public ServiceTrack GetMusicServiceTrack(string id, MusicService service)
         {
             int extra = id.IndexOf('[');
             if (extra != -1)
@@ -78,7 +89,7 @@ namespace m4d.Utilities
 
             if (service.Id != ServiceType.Amazon)
             {
-                var request = service.BuildTrackRequest(id, region);
+                var request = service.BuildTrackRequest(id);
                 var results = GetMusicServiceResults(request, service);
                 ret = service.ParseTrackResults(
                     results,
@@ -188,17 +199,6 @@ namespace m4d.Utilities
             }
 
             return ret;
-        }
-
-        public ServiceTrack CoerceTrackRegion(string id, MusicService service, string region)
-        {
-            if (string.IsNullOrWhiteSpace(region)) return null;
-
-            var track = GetMusicServiceTrack(id, service, region);
-
-            if (track == null) return null;
-
-            return track.IsPlayable == false ? null : GetMusicServiceTrack(track.TrackId, service);
         }
 
         public virtual EchoTrack LookupEchoTrack(string id, MusicService service)
@@ -378,38 +378,11 @@ namespace m4d.Utilities
         }
 
         private IList<ServiceTrack> DoFindMusicServiceSong(MusicService service,
-            string title = null, string artist = null, string region = null)
+            string title = null, string artist = null)
         {
             var tracks = FindMSSongGeneral(service,title, artist);
 
             if (tracks == null) return null;
-
-            // Convoluted way of saying that we should coerce regions for spotify
-
-            if (service.HasRegions && !string.IsNullOrWhiteSpace(region))
-            {
-                var dict = new Dictionary<string, ServiceTrack>();
-                foreach (var track in tracks)
-                {
-                    if (dict.ContainsKey(track.TrackId)) continue;
-
-                    ServiceTrack t = null;
-                    if (!track.AvailableMarkets.Contains(region))
-                    {
-                        t = CoerceTrackRegion(track.TrackId, service, region);
-                        if (t != null)
-                        {
-                            t.AvailableMarkets = PurchaseRegion.MergeRegions(t.AvailableMarkets, track.AvailableMarkets);
-                        }
-                    }
-
-                    if (t == null) t = track;
-
-                    dict[t.TrackId] = t;
-                }
-
-                tracks = dict.Values.ToList();
-            }
 
             ComputeTrackPurchaseInfo(service, tracks);
 
@@ -422,7 +395,7 @@ namespace m4d.Utilities
             {
                 track.AlbumLink = service.GetPurchaseLink(PurchaseType.Album, track.CollectionId, track.TrackId);
                 track.SongLink = service.GetPurchaseLink(PurchaseType.Song, track.CollectionId, track.TrackId);
-                track.PurchaseInfo = AlbumDetails.BuildPurchaseInfo(service.Id, track.CollectionId, track.TrackId, track.AvailableMarkets);
+                track.PurchaseInfo = AlbumDetails.BuildPurchaseInfo(service.Id, track.CollectionId, track.TrackId);
             }
         }
 
@@ -711,7 +684,7 @@ namespace m4d.Utilities
         public static Song UpdateMusicServiceFromTrack(DanceMusicCoreService dms,
             Song song, ServiceTrack track, ref TagList tags)
         {
-            var trackId = track.TrackId; //PurchaseRegion.FormatIdAndRegionInfo(foundTrack.TrackId, foundTrack.AvailableMarkets);
+            var trackId = track.TrackId;
             var ret = UpdateMusicService(song, MusicService.GetService(track.Service),
                 track.Name, track.Album, track.Artist, trackId, track.CollectionId,
                 track.AltId, track.Duration.ToString(), track.TrackNumber);

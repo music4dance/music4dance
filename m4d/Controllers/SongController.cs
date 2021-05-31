@@ -401,7 +401,7 @@ namespace m4d.Controllers
             HelpPage = "advanced-search";
 
             ViewBag.AzureIndexInfo = Song.GetIndex(Database, danceStatsManager);
-            return View(new RawSearch(filter));
+            return View(new RawSearch(filter.IsRaw ? filter : null));
         }
 
         //

@@ -16,18 +16,15 @@
           ><b-icon-x variant="danger"></b-icon-x
         ></b-button>
         <a :href="albumLink(album)">{{ album.name }}</a>
+        <span v-if="album.track && album.track < 100">
+          (Track {{ album.track }})</span
+        >
         <span v-if="album.purchase" class="mx-2">
-          <a
+          <purchase-logo
             v-for="purchase in album.purchase.decode()"
             :key="purchase.link"
-            :href="purchase.link"
-            target="_blank"
-            ><img
-              :src="purchase.logo"
-              width="32"
-              height="32"
-              :alt="purchase.altText"
-          /></a>
+            :info="purchase"
+          ></purchase-logo>
         </span>
       </b-list-group-item>
     </b-list-group>
@@ -39,8 +36,9 @@ import "reflect-metadata";
 import { Component, Mixins, Prop } from "vue-property-decorator";
 import { AlbumDetails } from "@/model/AlbumDetails";
 import AdminTools from "@/mix-ins/AdminTools";
+import PurchaseLogo from "@/components/PurcahseLogo.vue";
 
-@Component
+@Component({ components: { PurchaseLogo } })
 export default class AlbumList extends Mixins(AdminTools) {
   @Prop() private readonly albums!: AlbumDetails[];
   @Prop() private readonly editing?: boolean;
@@ -50,7 +48,6 @@ export default class AlbumList extends Mixins(AdminTools) {
   }
 
   private onDelete(album: AlbumDetails): void {
-    console.log(album.name);
     this.$emit("delete-album", album);
   }
 }

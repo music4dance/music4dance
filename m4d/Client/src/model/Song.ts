@@ -167,6 +167,25 @@ export class Song extends TaggableObject {
     this.danceRatings?.splice(index!, 1);
   }
 
+  public findAlbum(
+    album: string,
+    trackNumber: number | undefined
+  ): AlbumDetails | undefined {
+    const name = album.toLowerCase();
+    return this.albums?.find(
+      (a) =>
+        name === a.name?.toLowerCase() &&
+        (!trackNumber || trackNumber === a.track)
+    );
+  }
+
+  public get nextAlbumIndex(): number {
+    const albums = this.albums;
+    return albums && albums.length > 0
+      ? albums[albums.length - 1].index! + 1
+      : 0;
+  }
+
   public get createdOrder(): string {
     return this.created ? timeOrder(this.created) : "U";
   }

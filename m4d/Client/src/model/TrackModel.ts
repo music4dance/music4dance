@@ -1,6 +1,7 @@
 import { jsonObject, jsonMember, jsonArrayMember } from "typedjson";
+import { ServiceType } from "./Purchase";
 
-export enum ServiceType {
+export enum ServiceName {
   None = "None",
   Amazon = "Amazon",
   ITunes = "ITunes",
@@ -14,7 +15,7 @@ export enum ServiceType {
 
 @jsonObject
 export class TrackModel {
-  @jsonMember public service!: ServiceType;
+  @jsonMember public service!: ServiceName;
   @jsonMember public trackId!: string;
   @jsonMember public name!: string;
   @jsonMember public collectionId!: string;
@@ -31,4 +32,8 @@ export class TrackModel {
   @jsonMember public isPlayable?: boolean;
   @jsonArrayMember(String) public availableMarkets?: string[];
   @jsonMember public sampleUrl?: string;
+
+  public get serviceType() {
+    return this.service[0].toLowerCase() as ServiceType;
+  }
 }

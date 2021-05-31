@@ -162,7 +162,7 @@ namespace m4dModels
             return $"{BuildPurchaseKey(pt, ms)}={value}";
         }
 
-        public static string BuildPurchaseInfo(ServiceType ms, string collection, string track, string[] availableMarkets=null)
+        public static string BuildPurchaseInfo(ServiceType ms, string collection, string track)
         {
             var sb = new StringBuilder();
 
@@ -180,9 +180,7 @@ namespace m4dModels
                 sb.Append(BuildPurchaseInfo(PurchaseType.Song, ms, track));
             }
 
-            var ret = sb.Length > 0 ? sb.ToString() : null;
-
-            return (ret == null || availableMarkets == null) ? ret : PurchaseRegion.FormatIdAndRegionInfo(ret, availableMarkets);
+            return sb.Length > 0 ? sb.ToString() : null;
         }
 
         public static string BuildPurchaseKey(PurchaseType purchaseType, ServiceType serviceType)

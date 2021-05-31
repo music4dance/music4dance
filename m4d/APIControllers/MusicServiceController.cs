@@ -19,7 +19,8 @@ namespace m4d.APIControllers
         }
 
         [HttpGet("{id}")]
-        public IActionResult Get(Guid id, string service, string title = null, string artist = null, string album = null, string region = null)
+        public IActionResult Get(Guid id, string service = null, string title = null
+            , string artist = null, string album = null)
         {
             var song = Database.FindSong(id);
             if (song != null && artist == null && title == null)
@@ -28,21 +29,12 @@ namespace m4d.APIControllers
                 title = song.Title;
             }
 
-            var key = $"{id}|{service}|{artist}|{title}";
+            var key = $"{id}|{service??"A"}|{artist??""}|{title??""}";
 
 
             if (!s_cache.TryGetValue(key, out var tracks))
             {
-                var ms = MusicService.GetService(service[0]);
-                tracks = InternalGetServiceTracks(song, ms, false, title, artist, album, region);
-
-                if (tracks == null || tracks.Count == 0)
-                {
-                    artist = Song.CleanString(artist);
-                    title = Song.CleanString(title);
-
-                    tracks = InternalGetServiceTracks(song, ms, true, title, artist, album, region);
-                }
+                tracks = InternalGetServiceTracks(song, service, title, artist, album);
             }
 
             if (tracks == null || tracks.Count == 0)
@@ -52,25 +44,31 @@ namespace m4d.APIControllers
 
             s_cache[key] = tracks;
 
-            return Ok(tracks);
+            return JsonCamelCase(tracks);
         }
 
-        // TODO:  Pretty sure we can pull the 'clean' parameter from this and descendents
-        private IList<ServiceTrack> InternalGetServiceTracks(Song song, MusicService service, bool clean, string title, string artist, string album, string region)
+        private IList<ServiceTrack> InternalGetServiceTracks(Song song,
+            string serviceId, string title, string artist, string album)
         {
             IList<ServiceTrack> tracks = null;
 
+            var service = string.IsNullOrWhiteSpace(serviceId)
+                ? null : MusicService.GetService(serviceId[0]);
+
             try
             {
-                tracks = MusicServiceManager.FindMusicServiceSong(song, service, title, artist, album, region);
+                tracks = MusicServiceManager.FindMusicServiceSong(
+                    song, service, title, artist, album);
             }
             catch (WebException e)
             {
-                Trace.WriteLineIf(TraceLevels.General.TraceError, $"GetServiceTracks Failed: {e.Message}");
+                Trace.WriteLineIf(TraceLevels.General.TraceError,
+                    $"GetServiceTracks Failed: {e.Message}");
 
                 if (e.Message.Contains("Unauthorized"))
                 {
-                    Trace.WriteLineIf(TraceLevels.General.TraceError, "!!!!!AUTHORIZATION FAILED!!!!!");
+                    Trace.WriteLineIf(TraceLevels.General.TraceError,
+                        "!!!!!AUTHORIZATION FAILED!!!!!");
                 }
             }
 

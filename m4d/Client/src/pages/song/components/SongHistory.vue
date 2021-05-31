@@ -22,7 +22,7 @@ import { Component, Prop, Vue } from "vue-property-decorator";
 import { SongHistory } from "@/model/SongHistory";
 
 @Component
-export default class AlbumList extends Vue {
+export default class SongHistoryComponent extends Vue {
   @Prop() private readonly history!: SongHistory;
 }
 </script>

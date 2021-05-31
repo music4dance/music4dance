@@ -77,6 +77,5 @@ namespace m4d.APIControllers
                 ? Ok()
                 : StatusCode((int)HttpStatusCode.BadRequest);
         }
-
     }
 }

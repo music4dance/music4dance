@@ -125,36 +125,8 @@ namespace m4dModels
 
         public override ServiceTrack ParseTrackResults(dynamic track, Func<string, dynamic> getResult)
         {
-            string imageUrl = null;
-            //if (track.images != null)
-            //{
-            //    var width = int.MaxValue;
-            //    foreach (var image in track.images)
-            //    {
-            //        if (image.width >= width) continue;
-
-            //        imageUrl = image.url;
-            //        width = image.width;
-            //    }
-            //}
-
-
             var artist = (track.artists.Count > 0) ? track.artists[0] : null;
             var album = track.album;
-
-            //if (TraceLevels.General.TraceVerbose)
-            //{
-            //    Trace.WriteLine($"TrackId={(string) track.id}");
-            //    Trace.WriteLine($"Name={(string) track.name}");
-            //    Trace.WriteLine($"Artist={(string) (artist == null ? null : artist.name)}");
-            //    Trace.WriteLine($"Album={(string) (album == null ? null : album.name)}");
-            //    Trace.WriteLine($"CollectionId={(string) (album == null ? null : album.id)}");
-            //    Trace.WriteLine($"ImageUrl={imageUrl}");
-            //    Trace.WriteLine($"ImageUrl={imageUrl}");
-            //    Trace.WriteLine($"Duration={(string) ((track.duration_ms + 500)/1000).ToString()}");
-            //    Trace.WriteLine($"DiscNumber={(string) track.disc_number.ToString()}");
-            //    Trace.WriteLine($"TrackNumber={(string) track.track_number.ToString()}");
-            //}
 
             int trackNum = track.track_number;
             if (track.disc_number > 1)
@@ -162,22 +134,6 @@ namespace m4dModels
                 trackNum = new TrackNumber(trackNum, (int)track.disc_number, null);
             }
 
-            string[] availableMarkets = null;
-            try
-            {
-                if (track.available_markets != null)
-                {
-                    var marketList = new List<string>();
-                    foreach (dynamic o in track.available_markets)
-                    {
-                        marketList.Add(o.ToString());
-                    }
-                    availableMarkets = marketList.ToArray();
-                }
-            }
-            catch (RuntimeBinderException)
-            {
-            }
             bool? isPlayable = null;
             try
             {
@@ -195,22 +151,34 @@ namespace m4dModels
             {
             }
 
+            string imageUrl = null;
+            if (album?.images != null)
+            {
+                var width = int.MaxValue;
+                foreach (var image in album.images)
+                {
+                    if (image.width >= width) continue;
+
+                    imageUrl = image.url;
+                    width = image.width;
+                }
+            }
+
             var st = new ServiceTrack
             {
                 Service = ServiceType.Spotify,
                 TrackId = track.id,
                 Name = track.name,
                 //AltId = altId,
-                Artist = artist == null ? null : artist.name,
-                Album = album == null ? null : album.name,
-                CollectionId = album == null ? null : album.id,
+                Artist = artist?.name,
+                Album = album?.name,
+                CollectionId = album?.id,
                 ImageUrl = imageUrl,
                 //ReleaseDate = track.ReleaseDate,
                 Genres = BuildGenres(track, getResult),
                 Duration = (track.duration_ms + 500) / 1000,
                 TrackNumber = trackNum,
                 IsPlayable = isPlayable,
-                AvailableMarkets = availableMarkets,
                 SampleUrl = sample
             };
 

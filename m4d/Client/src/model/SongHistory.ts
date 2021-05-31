@@ -21,16 +21,7 @@ export class SongHistory {
     editor.setupEdit(this.serviceUserFromType(track.service));
     editor.addProperty(PropertyType.titleField, track.name);
     editor.addProperty(PropertyType.artistField, track.artist);
-    editor.addAlbumProperty(PropertyType.albumField, track.album);
-    if (track.trackNumber) {
-      editor.addAlbumProperty(PropertyType.trackField, track.trackNumber);
-    }
-    if (track.trackId) {
-      editor.addPurchaseProperty(track.trackId, 0, track.service[0], "S");
-    }
-    if (track.collectionId) {
-      editor.addPurchaseProperty(track.collectionId, 0, track.service[0], "A");
-    }
+    editor.addAlbumFromTrack(track);
     if (track.genres) {
       editor.addProperty(
         PropertyType.addedTags,
