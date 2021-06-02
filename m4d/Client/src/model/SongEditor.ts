@@ -13,18 +13,27 @@ import { TrackModel } from "./TrackModel";
 declare const environment: DanceEnvironment;
 
 export class SongEditor {
-  private history: SongHistory;
+  private songId: string;
+  private properties: SongProperty[];
   private initialCount: number;
   private initialSong: Song;
   private user?: string;
   public modified: boolean;
+  public admin: boolean; // Requires put rather than patch
 
   public constructor(user?: string, history?: SongHistory) {
-    this.history = history ?? new SongHistory();
-    this.initialCount = this.history.properties.length;
+    history = history ? history : new SongHistory();
+    this.songId = history.id;
+    this.properties = [...history.properties];
+    this.initialCount = history.properties.length;
     this.user = user;
     this.modified = false;
+    this.admin = false;
     this.initialSong = Song.fromHistory(this.history, this.user);
+  }
+
+  public get history(): SongHistory {
+    return new SongHistory({ id: this.songId, properties: this.properties });
   }
 
   public get song(): Song {
@@ -57,8 +66,14 @@ export class SongEditor {
 
   public async saveChanges(): Promise<void> {
     try {
-      const history = this.editHistory;
-      await axios.patch(`/api/song/${history.id}`, history);
+      const admin = this.admin;
+      const history = admin ? this.history : this.editHistory;
+      const url = `/api/song/${history.id}`;
+      if (admin) {
+        await axios.put(url, history);
+      } else {
+        await axios.patch(url, history);
+      }
       this.commit();
     } catch (e) {
       console.log(e);
@@ -80,6 +95,7 @@ export class SongEditor {
     this.initialCount = this.history.properties.length;
     this.initialSong = Song.fromHistory(this.history, this.user);
     this.modified = false;
+    this.admin = false;
   }
 
   public revert(): void {
@@ -88,10 +104,7 @@ export class SongEditor {
       this.properties.length - this.initialCount
     );
     this.modified = false;
-  }
-
-  private get properties(): SongProperty[] {
-    return this.history.properties;
+    this.admin = false;
   }
 
   public toggleLike(): void {
@@ -261,6 +274,22 @@ export class SongEditor {
       PropertyType.timeField,
       SongProperty.formatDate(new Date())
     );
+  }
+
+  public deleteProperty(index: number): void {
+    if (index < this.initialCount) {
+      this.admin = true;
+    }
+    this.modified = true;
+    const history = this.properties;
+    let count = 1;
+    if (history[index].isAction) {
+      while (!history[index + count].isAction) {
+        count += 1;
+      }
+    }
+
+    history.splice(index, count);
   }
 
   private createProperty(name: string, value?: PropertyValue): SongProperty {

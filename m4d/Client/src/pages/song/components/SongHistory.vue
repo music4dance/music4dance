@@ -11,6 +11,11 @@
         :key="index"
       >
         {{ property.name }}={{ property.value }}
+        <b-button-close
+          v-if="editing"
+          text-variant="danger"
+          @click="onDelete(index)"
+        ></b-button-close>
       </b-list-group-item>
     </b-list-group>
   </b-card>
@@ -24,5 +29,10 @@ import { SongHistory } from "@/model/SongHistory";
 @Component
 export default class SongHistoryComponent extends Vue {
   @Prop() private readonly history!: SongHistory;
+  @Prop() private readonly editing!: boolean;
+
+  private onDelete(index: number): void {
+    this.$emit("delete-property", index);
+  }
 }
 </script>

@@ -218,7 +218,11 @@
         </div>
       </b-col>
       <b-col v-if="isAdmin && model.songHistory"
-        ><song-history :history="model.songHistory"></song-history
+        ><song-history-viewer
+          :history="history"
+          :editing="editing"
+          @delete-property="onDeleteProperty($event)"
+        ></song-history-viewer
       ></b-col>
     </b-row>
     <dance-chooser
@@ -239,7 +243,7 @@ import DanceChooser from "@/components/DanceChooser.vue";
 import DanceList from "./DanceList.vue";
 import FieldEditor from "./FieldEditor.vue";
 import PurchaseSection from "./PurchaseSection.vue";
-import SongHistory from "./SongHistory.vue";
+import SongHistoryViewer from "./SongHistory.vue";
 import SongLikeButton from "@/components/SongLikeButton.vue";
 import SongStats from "./SongStats.vue";
 import TagButton from "@/components/TagButton.vue";
@@ -256,6 +260,7 @@ import { PropertyType, SongProperty } from "@/model/SongProperty";
 import { AlbumDetails } from "@/model/AlbumDetails";
 import { Tag } from "@/model/Tag";
 import { TrackModel } from "@/model/TrackModel";
+import { SongHistory } from "@/model/SongHistory";
 
 @Component({
   components: {
@@ -264,7 +269,7 @@ import { TrackModel } from "@/model/TrackModel";
     DanceList,
     FieldEditor,
     PurchaseSection,
-    SongHistory,
+    SongHistoryViewer,
     SongLikeButton,
     SongStats,
     TagButton,
@@ -308,6 +313,11 @@ export default class SongCore extends Mixins(AdminTools) {
     return (this.modified && this.hasDances) || (this.isAdmin && this.edit);
   }
 
+  private get history(): SongHistory {
+    const editor = this.editor;
+    return editor ? editor.history : this.model.songHistory;
+  }
+
   private get modified(): boolean {
     const modified = this.editor?.modified ?? false;
     if (modified && !this.toastShown) {
@@ -338,13 +348,15 @@ export default class SongCore extends Mixins(AdminTools) {
           this.model.userName,
           this.model.songHistory
         );
-        if (this.isAdmin) {
-          this.adminProperties = this.model.songHistory.properties
-            .map((p) => p.toString())
-            .join("\t");
-        }
+        this.setAdminProperties(this.model.songHistory.properties);
       }
       this.song = Song.fromHistory(this.model.songHistory, this.model.userName);
+    }
+  }
+
+  private setAdminProperties(properties: SongProperty[]): void {
+    if (this.isAdmin) {
+      this.adminProperties = properties.map((p) => p.toString()).join("\t");
     }
   }
 
@@ -437,7 +449,7 @@ export default class SongCore extends Mixins(AdminTools) {
       throw new Error("Can't edit if not logged in");
     }
     editor.toggleLike();
-    this.song = editor.song;
+    this.updateSong();
   }
 
   private addDance(danceId?: string): void {
@@ -447,7 +459,7 @@ export default class SongCore extends Mixins(AdminTools) {
     }
     if (danceId) {
       this.editor!.danceVote(new DanceRatingVote(danceId, VoteDirection.Up));
-      this.song = this.editor!.song;
+      this.updateSong();
       this.$bvModal.hide("danceChooser");
     }
   }
@@ -458,6 +470,15 @@ export default class SongCore extends Mixins(AdminTools) {
       throw new Error("Can't edit if not logged in");
     }
     this.editor?.modifyProperty(property.name, property.value);
+  }
+
+  private onDeleteProperty(index: number): void {
+    const editor = this.editor;
+    if (!editor) {
+      throw new Error("Can't edit if not logged in");
+    }
+    editor.deleteProperty(index);
+    this.updateSong();
   }
 
   private get hasUserChanges(): boolean {
@@ -493,7 +514,9 @@ export default class SongCore extends Mixins(AdminTools) {
   }
 
   private updateSong(): void {
-    this.song = this.editor!.song;
+    const editor = this.editor!;
+    this.setAdminProperties(editor.history.properties);
+    this.song = editor.song;
   }
 
   private setEdit(): void {
@@ -522,7 +545,7 @@ export default class SongCore extends Mixins(AdminTools) {
 
   private cancelChanges(): void {
     this.editor!.revert();
-    this.song = this.editor!.song;
+    this.updateSong();
     this.edit = false;
     this.$emit("cancel-changes");
   }
@@ -534,7 +557,7 @@ export default class SongCore extends Mixins(AdminTools) {
       await this.editor!.saveChanges();
     }
 
-    this.song = this.editor!.song;
+    this.updateSong();
     this.edit = false;
 
     if (this.startEditing) {

@@ -6,14 +6,12 @@
     border-variant="primary"
     ><b-list-group v-if="hasDances" flush
       ><b-list-group-item v-for="dr in danceRatingsFiltered" :key="dr.danceId">
-        <b-button
+        <b-button-close
           v-if="isAdmin && edit"
-          size="sm"
-          variant="outline-danger"
+          text-variant="danger"
           @click="$emit('delete-dance', dr)"
-          class="mr-2"
           ><b-icon-x variant="danger"></b-icon-x
-        ></b-button>
+        ></b-button-close>
         <dance-vote
           :song="song"
           :danceRating="dr"

@@ -7,14 +7,14 @@
   >
     <b-list-group flush>
       <b-list-group-item v-for="(album, index) in albums" :key="index">
-        <b-button
+        <b-button-close
           v-if="isAdmin && editing"
           size="sm"
-          variant="outline-danger"
+          text-variant="danger"
           @click="onDelete(album)"
           class="mr-2"
           ><b-icon-x variant="danger"></b-icon-x
-        ></b-button>
+        ></b-button-close>
         <a :href="albumLink(album)">{{ album.name }}</a>
         <span v-if="album.track && album.track < 100">
           (Track {{ album.track }})</span
