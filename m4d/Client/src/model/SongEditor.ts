@@ -284,12 +284,21 @@ export class SongEditor {
     const history = this.properties;
     let count = 1;
     if (history[index].isAction) {
-      while (!history[index + count].isAction) {
+      while (
+        index + count < history.length &&
+        !history[index + count].isAction
+      ) {
         count += 1;
       }
     }
 
     history.splice(index, count);
+  }
+
+  public adminEdit(properties: string): void {
+    this.revert();
+    const history = SongHistory.fromString(properties, this.songId);
+    this.properties = history.properties;
   }
 
   private createProperty(name: string, value?: PropertyValue): SongProperty {

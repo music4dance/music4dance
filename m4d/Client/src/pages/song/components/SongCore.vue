@@ -169,34 +169,13 @@
             @add-track="addTrack"
             @add-property="addProperty($event)"
           ></track-list>
-          <form
-            id="adminEdit"
-            action="/song/adminedit"
-            method="post"
-            enctype="multipart/form-data"
-          >
-            <h3>Admin Edit</h3>
-            <input type="hidden" name="filter" :value="model.filter.query" />
-            <input
-              type="hidden"
-              name="__RequestVerificationToken"
-              :value="context.xsrfToken"
-            />
-            <input type="hidden" name="songId" :value="song.songId" />
-            <b-form-group
-              id="ae-properties-group"
-              label="Properties:"
-              label-for="ae-properties"
-              description="Full list of properties to replace with the song"
-              ><b-form-input
-                name="properties"
-                id="ae-properties"
-                v-model="adminProperties"
-                required
-              ></b-form-input
-            ></b-form-group>
-            <b-button type="submit">Submit</b-button>
-          </form>
+          <h3>Admin Edit</h3>
+          <b-form-textarea
+            id="admin-edit"
+            v-model="adminProperties"
+            rows="3"
+            max-rows="6"
+          ></b-form-textarea>
           <h3>Undo User Edits</h3>
           <b-form
             v-for="modified in song.modifiedBy"
@@ -286,7 +265,6 @@ export default class SongCore extends Mixins(AdminTools) {
   private song: Song;
   private editor: SongEditor | null;
   private toastShown = false;
-  private adminProperties = "";
   private edit = false;
 
   constructor() {
@@ -330,6 +308,28 @@ export default class SongCore extends Mixins(AdminTools) {
     return modified;
   }
 
+  private get adminProperties(): string {
+    if (!this.isAdmin) {
+      throw new Error("Unauthorized");
+    }
+
+    const editor = this.editor;
+    const properties = editor
+      ? editor.history.properties
+      : this.model.songHistory.properties;
+
+    return this.computePropertyString(properties);
+  }
+
+  private set adminProperties(properties: string) {
+    this.editor!.adminEdit(properties);
+    this.updateSong();
+  }
+
+  private computePropertyString(properties: SongProperty[]): string {
+    return properties.map((p) => p.toString()).join("\t");
+  }
+
   @Watch("environment")
   private onEnvironmentLoaded(): void {
     this.initialize();
@@ -348,15 +348,8 @@ export default class SongCore extends Mixins(AdminTools) {
           this.model.userName,
           this.model.songHistory
         );
-        this.setAdminProperties(this.model.songHistory.properties);
       }
       this.song = Song.fromHistory(this.model.songHistory, this.model.userName);
-    }
-  }
-
-  private setAdminProperties(properties: SongProperty[]): void {
-    if (this.isAdmin) {
-      this.adminProperties = properties.map((p) => p.toString()).join("\t");
     }
   }
 
@@ -514,9 +507,7 @@ export default class SongCore extends Mixins(AdminTools) {
   }
 
   private updateSong(): void {
-    const editor = this.editor!;
-    this.setAdminProperties(editor.history.properties);
-    this.song = editor.song;
+    this.song = this.editor!.song;
   }
 
   private setEdit(): void {
