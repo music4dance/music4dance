@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Net;
-using System.Threading.Tasks;
 using AutoMapper;
 using DanceLibrary;
 using m4d.ViewModels;
@@ -11,7 +9,6 @@ using m4dModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 
 namespace m4d.Controllers
@@ -20,9 +17,6 @@ namespace m4d.Controllers
     {
         public string CurrentCategoryName { get; set; }
         public CompetitionGroup Group { get; set; }
-
-        internal CompetitionCategory CurrentCategory =>
-            Group.Categories.FirstOrDefault(cat => cat.Name == CurrentCategoryName);
 
         internal static CompetitionGroupModel Get(string group, string category)
         {
@@ -49,11 +43,10 @@ namespace m4d.Controllers
             base(context, userManager, roleManager, searchService, danceStatsManager, configuration)
         {
             _mapper = mapper;
+            UseVue = true;
         }
 
         private readonly IMapper _mapper;
-
-        public override string DefaultTheme => MusicTheme;
 
         // GET: Dances/{dance}
         [AllowAnonymous]
@@ -102,6 +95,7 @@ namespace m4d.Controllers
             
             if (ds.SongCount == 0)
             {
+                UseVue = false;
                 return View("emptydance", ds);
             }
 
@@ -113,41 +107,6 @@ namespace m4d.Controllers
         public ActionResult GroupRedirect(string group, string dance)
         {
             return RedirectToActionPermanent("Index", new {dance});
-        }
-
-        //
-        // GET: /Dances/Edit/5
-        [Authorize(Roles = "canEdit")]
-        public async Task<ActionResult> Edit(string id)
-        {
-            var dance = await Database.Dances.Where(d => d.Id == id).Include(d => d.DanceLinks).FirstOrDefaultAsync();
-
-            return dance != null ? View(dance) : ReturnError(HttpStatusCode.NotFound,$"The dance with id = {id} isn't defined.");
-        }
-
-        //
-        // POST: /Dances/Edit/5
-        [HttpPost, ValidateAntiForgeryToken, Authorize(Roles = "canEdit")]
-        public ActionResult Edit(Dance dance)
-        {
-            if (ModelState.IsValid && dance.Info != null)
-            {
-                Database.EditDance(new DanceCore
-                {
-                    Id = dance.Id,
-                    Description = dance.Description,
-                    DanceLinks = dance.DanceLinks
-                });
-                return RedirectToAction("Index", new { dance = dance.Name });
-            }
-
-            var errors = ModelState.SelectMany(x => x.Value.Errors.Select(z => z.Exception));
-            foreach (var error in errors.Where(error => error != null))
-            {
-                Trace.WriteLineIf(TraceLevels.General.TraceError,error.ToString());
-            }
-
-            return View(dance);
         }
 
         private TagMatrix BuildWeddingTagMatrix(DanceStatsInstance stats)

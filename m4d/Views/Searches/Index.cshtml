@@ -3,8 +3,6 @@
 @model IEnumerable<m4dModels.Search>
 
 @{
-    Layout = "/Views/Shared/_bs4-Layout.cshtml";
-
     ViewBag.Title = "My Searches";
     SongFilter filter = ViewData.ContainsKey("SongFilter") ? 
         ViewBag.SongFilter : SongFilter.GetDefault(User.Identity.Name);

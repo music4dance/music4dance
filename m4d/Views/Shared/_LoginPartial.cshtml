@@ -6,12 +6,11 @@
 @inject ISearchServiceManager SearchService;
 
 @{
-    var bootstrap4 = ViewBag.BootstrapVersion == 4;
-    var mainClass = bootstrap4 ? "navbar-nav ml-auto" : "nav navbar-nav navbar-right";
-    var itemClass = bootstrap4 ? "nav-link" : "";
-    var dropDownClass = "dropdown" + (bootstrap4 ? " nav-item" : "");
-    var dropDownItem = bootstrap4 ? "dropdown-item" : "";
-    var dropDownToggle = "dropdown-toggle" + (bootstrap4 ? " nav-link" : "");
+    var mainClass = "navbar-nav ml-auto";
+    var itemClass = "nav-link";
+    var dropDownClass = "dropdown nav-item";
+    var dropDownItem = "dropdown-item";
+    var dropDownToggle = "dropdown-toggle nav-link";
 }
 
 <ul class="@mainClass">

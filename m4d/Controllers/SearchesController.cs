@@ -17,8 +17,6 @@ namespace m4d.Controllers
             HelpPage = "song-list";
         }
 
-        public override string DefaultTheme => MusicTheme;
-
         // GET: Searches
         public IActionResult Index(string user, string sort=null, SongFilter filter=null, bool showDetails=false)
         {

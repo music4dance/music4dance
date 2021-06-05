@@ -19,12 +19,11 @@ namespace m4d.Controllers
         {
             HelpPage = "tag-cloud";
         }
-        public override string DefaultTheme => MusicTheme;
-
         // GET: Tag
         [AllowAnonymous]
         public IActionResult Index([FromServices] IMapper mapper)
         {
+            UseVue = true;
             return View();
         }
 

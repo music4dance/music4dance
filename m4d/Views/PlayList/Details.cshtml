@@ -2,7 +2,6 @@
 @model m4dModels.PlayList
 
 @{
-    Layout = "/Views/Shared/_bs4-Layout.cshtml";
     ViewBag.Title = $"{Model.Id} Description";
     ViewBag.BreadCrumbs = BreadCrumbItem.BuildUsersTrail(ViewBag.Title);
 }

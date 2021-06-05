@@ -3,7 +3,6 @@
 @model m4dModels.PlayListIndex
 
 @{
-    Layout = "/Views/Shared/_bs4-Layout.cshtml";
     ViewBag.Title = $"{Model.Type} PlayList Index";
     ViewBag.BreadCrumbs = BreadCrumbItem.BuildAdminTrail(ViewBag.Title);
 }

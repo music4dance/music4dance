@@ -5,21 +5,16 @@
   "dependencies": {
     "@fortawesome/fontawesome-free": "^5.15.3",
     "bootstrap": "^4.6.0",
-    "bootstrap-less": "3.3.8",
     "bootstrap-vue": "^2.21.2",
-    "bootstrap3": "^3.3.5",
     "gulp-autoprefixer": "^7.0.1",
-    "gulp-sass": "^4.0.2",
     "jquery": "^3.6.0",
     "jquery-validation": "^1.19.3",
-    "knockout": "^3.5.1",
-    "knockout-mapping": "^2.6.0",
     "markdowndeep": "^1.6.12",
     "merge2": "^1.4.1"
   },
   "devDependencies": {
     "gulp": "4.0.2",
     "gulp-clean-css": "4.2.0",
-    "gulp-less": "4.0.1"
+    "gulp-sass": "^4.0.2"
   }
 }

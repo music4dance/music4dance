@@ -3,7 +3,6 @@
 @using m4dModels
 
 @{
-    Layout = "/Views/Shared/_bsv-Layout.cshtml";
     SongFilter filter = ViewData.ContainsKey("SongFilter") ?
         ViewBag.SongFilter : SongFilter.GetDefault(User.Identity.Name);
 

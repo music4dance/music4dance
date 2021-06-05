@@ -25,7 +25,6 @@ using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.FileProviders;
 using Newtonsoft.Json;
-using NUglify.Html;
 
 namespace m4d.Controllers
 {
@@ -58,8 +57,6 @@ namespace m4d.Controllers
             base(context, userManager, roleManager, searchService, danceStatsManager, configuration)
         {
         }
-
-        public override string DefaultTheme => AdminTheme;
 
         #region Commands
 
@@ -1212,7 +1209,8 @@ namespace m4d.Controllers
                         }
 
                         var key = tg.Key;
-                        if (key.Contains('!') || (!key.Contains('-') && !key.Any(c => c.IsAlphaNumeric())))
+                        if (key.Contains('!') || (!key.Contains('-') && 
+                            !key.Any(c => char.IsLetterOrDigit(c))))
                         {
                             continue;
                         }

@@ -2,8 +2,6 @@
 @using m4d.ViewModels
 
 @{
-    Layout = "/Views/Shared/_bsv-Layout.cshtml";
-
     ViewBag.Title = Model.DanceName + " Information, Top Ten List, and Resources.";
     ViewBag.Description = "music4dance catalog: " + Model.DanceName;
     var converterModel = new ObjectConverterModel { Name = "model", Model = Model };

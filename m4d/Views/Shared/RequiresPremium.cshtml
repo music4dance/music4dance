@@ -1,7 +1,6 @@
 ﻿@using m4d.ViewModels
 @model m4dModels.PremiumRedirect
 @{
-    Layout = "/Views/Shared/_bs4-Layout.cshtml";
     ViewBag.Title = $"The {Model.FeatureType} you selected requires a premium membership";
     ViewBag.BreadCrumbs = BreadCrumbItem.BuildContributeTrail("Premium Required");
 }

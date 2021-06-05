@@ -24,32 +24,29 @@ namespace m4d.Controllers
         {
         }
 
-        public override string DefaultTheme => MusicTheme;
-
         [AllowAnonymous]
         public IActionResult Index([FromServices] IFileProvider fileProvider)
         {
+            UseVue = true;
             return View(new HomeModel(SiteMapInfo.GetCategories(fileProvider)));
         }
 
         [AllowAnonymous]
         public IActionResult FAQ()
         {
-            ThemeName = BlogTheme;
+            UseVue = true;
             return View();
         }
 
         [AllowAnonymous]
         public IActionResult Info()
         {
-            ThemeName = BlogTheme;
             return View();
         }
 
         [AllowAnonymous]
         public IActionResult Credits()
         {
-            ThemeName = BlogTheme;
             return View();
         }
 
@@ -68,21 +65,18 @@ namespace m4d.Controllers
         [AllowAnonymous]
         public IActionResult About()
         {
-            ThemeName = BlogTheme;
             return View();
         }
 
         [AllowAnonymous]
         public IActionResult TermsOfService()
         {
-            ThemeName = BlogTheme;
             return View();
         }
 
         [AllowAnonymous]
         public IActionResult PrivacyPolicy()
         {
-            ThemeName = BlogTheme;
             return View();
         }
 
@@ -90,7 +84,6 @@ namespace m4d.Controllers
         [AllowAnonymous]
         public IActionResult Contact()
         {
-            ThemeName = BlogTheme;
             return View();
         }
 
@@ -98,8 +91,6 @@ namespace m4d.Controllers
         [AllowAnonymous]
         public IActionResult Counter(int? numerator = null, decimal? tempo = null)
         {
-            ThemeName = ToolTheme;
-
             if (numerator.HasValue && numerator != 0)
             {
                 ViewBag.paramNumerator = numerator.Value;
@@ -111,20 +102,20 @@ namespace m4d.Controllers
             }
 
             HelpPage = "tempo-counter";
+            UseVue = true;
             return View("TempoCounter");
         }
 
         [AllowAnonymous]
         public IActionResult Tempi(List<string> styles, List<string> types, List<string> organizations, List<string> meters)
         {
-            ThemeName = ToolTheme;
-
             ViewBag.Styles = ConvertParameter(styles);
             ViewBag.Types = ConvertParameter(types);
             ViewBag.Organizations = ConvertParameter(organizations);
             ViewBag.Meters = ConvertParameter(meters);
 
             HelpPage = "dance-tempi";
+            UseVue = true;
             return View("TempoList");
         }
 
@@ -143,7 +134,6 @@ namespace m4d.Controllers
         [AllowAnonymous]
         public IActionResult Contribute()
         {
-            ThemeName = BlogTheme;
             HelpPage = "subscriptions";
             return View();
         }
@@ -151,7 +141,6 @@ namespace m4d.Controllers
         [AllowAnonymous]
         public async Task<IActionResult> Purchase([FromServices] IConfiguration configuration, decimal amount, PurchaseKind kind)
         {
-            ThemeName = BlogTheme;
             HelpPage = "subscriptions";
 
             string userName = null;
@@ -180,7 +169,6 @@ namespace m4d.Controllers
         [AllowAnonymous]
         public async Task<ActionResult> ConfirmPurchase([FromServices]SignInManager<ApplicationUser> signInManager, [FromServices] IConfiguration configuration, string stripeToken, string stripeEmail, PurchaseKind kind, decimal amount)
         {
-            ThemeName = BlogTheme;
             HelpPage = "subscriptions";
 
             // Do the stripy things

@@ -132,7 +132,6 @@ namespace m4dModels
         #endregion
 
         #region Construction
-
         public Song()
         {
         }
@@ -156,7 +155,7 @@ namespace m4dModels
         {
             Init(guid, s, database, userName, forSerialization);
         }
-        
+
         public Song(string s, DanceMusicCoreService database, string userName = null, bool forSerialization = true)
         {
             // Take a guid parameter?
@@ -243,7 +242,6 @@ namespace m4dModels
             Length = length;
             _albums = (albums as List<AlbumDetails>) ?? albums?.ToList();
         }
-
 
         public void Load(Guid songId, ICollection<SongProperty> properties, DanceMusicCoreService database)
         {
@@ -350,7 +348,6 @@ namespace m4dModels
         #endregion
 
         #region Serialization
-
         public void SetupSerialization(string userName, DanceMusicCoreService database)
         {
             CurrentUserTags = GetUserTags(userName, this, false, database.DanceStats);
@@ -391,10 +388,6 @@ namespace m4dModels
             return $"SongId={id}\t{properties}";
         }
 
-        public static string Serialize(string id, IEnumerable<string> properties)
-        {
-            return Serialize(id, string.Join("\t", properties));
-        }
 
         public override string ToString()
         {
@@ -1266,12 +1259,6 @@ namespace m4dModels
 
         public TimeSpan CreatedSpan => DateTime.Now - Created;
 
-        public string ModifiedOrder => TimeOrder(ModifiedSpan);
-        public string CreatedOrder => TimeOrder(CreatedSpan);
-
-        public string ModifiedOrderVerbose => TimeOrderVerbose(ModifiedSpan);
-        public string CreatedOrderVerbose => TimeOrderVerbose(CreatedSpan);
-
         public IEnumerable<string> GetAltids()
         {
             var merges = FilteredProperties(MergeCommand).ToList();
@@ -1291,24 +1278,9 @@ namespace m4dModels
             return seconds < 60*60*24*365 ? "M" : "Y";
         }
 
-        private static string TimeOrderVerbose(TimeSpan span)
-        {
-            switch (TimeOrder(span))
-            {
-                case "s": return "seconds";
-                case "m": return "minutes";
-                case "h": return "hours";
-                case "D": return "days";
-                case "W": return "weeks";
-                case "M": return "months";
-                default: return "years";
-            }
-        }
-
         #endregion
 
         #region Actions
-
         public void Create(ApplicationUser user, string command, string value, bool addUser)
         {
             var time = DateTime.Now;
@@ -1541,31 +1513,6 @@ namespace m4dModels
             return false;
         }
 
-        public bool EditLike(ApplicationUser user, bool? like)
-        {
-            var modified = AddUser(user);
-            var modrec = FindModified(user.UserName);
-            modified |= EditLike(user, modrec, like);
-            return modified;
-        }
-
-        private bool EditLike(ApplicationUser user, ModifiedRecord modrec,
-            bool? like)
-        {
-            if (modrec.Like == like) return false;
-
-            CreateEditProperties(user, EditCommand);
-            modrec.Like = like;
-            CreateProperty(LikeTag, modrec.LikeString);
-            return true;
-        }
-
-        public bool? GetLike(string user)
-        {
-            var modrec = FindModified(user);
-            return modrec?.Like;
-        }
-
         public bool EditDanceLike(ApplicationUser user, bool? like, string danceId, DanceStatsInstance stats)
         {
             var r = UserDanceRating(user.UserName, danceId);
@@ -1605,14 +1552,6 @@ namespace m4dModels
 
             UpdateDanceRating(new DanceRatingDelta { DanceId = danceId, Delta = delta }, true);
             return true;
-        }
-
-        public bool? GetDanceLike(string user, string danceId, DanceStatsInstance stats)
-        {
-            var rating = UserDanceRating(user, danceId);
-
-            if (rating == 0) return null;
-            return rating > 0;
         }
 
         public bool Update(string user, Song update, DanceMusicCoreService database)
@@ -1727,20 +1666,6 @@ namespace m4dModels
         public bool EditSongTags(ApplicationUser user, TagList tags, DanceStatsInstance stats)
         {
             return EditTags(user, new List<UserTag> { new UserTag {Tags = tags}}, stats);
-        }
-
-        public bool AddLookupFail()
-        {
-            if (LookupFailed()) return false;
-
-            CreateProperty(FailedLookup,null);
-
-            return true;
-        }
-
-        public bool LookupFailed()
-        {
-            return SongProperties.Any(p => p.Name == FailedLookup);
         }
 
         public bool LookupTried()
@@ -1902,72 +1827,6 @@ namespace m4dModels
             return true;
         }
 
-        public void MergeDetails(IEnumerable<Song> songs, DanceStatsInstance stats)
-        {
-            // Add in the to/from properties and create new weight table as well as creating the user associations
-            var weights = new Dictionary<string, int>();
-            foreach (var from in songs)
-            {
-                foreach (var dr in from.DanceRatings)
-                {
-                    int weight;
-                    if (weights.TryGetValue(dr.DanceId, out weight))
-                    {
-                        weights[dr.DanceId] = weight + dr.Weight;
-                    }
-                    else
-                    {
-                        weights[dr.DanceId] = dr.Weight;
-                    }
-                }
-
-                foreach (var us in @from.ModifiedBy
-                    .Where(us => AddUser(us.ApplicationUser)))
-                {
-                    CreateProperty(UserField, us.DecoratedName);
-                }
-
-                ApplicationUser user = null;
-                var userWritten = false;
-                foreach (var prop in from.SongProperties)
-                {
-                    var bn = prop.BaseName;
-
-                    // ReSharper disable once SwitchStatementMissingSomeCases
-                    switch (bn)
-                    {
-                        case UserField:
-                        case UserProxy:
-                            user = new ModifiedRecord(prop.Value).ApplicationUser;
-                            userWritten = false;
-                            break;
-                        case AddedTags:
-                        case RemovedTags:
-                            if (!userWritten)
-                            {
-                                CreateEditProperties(user, EditCommand);
-                                userWritten = true;
-                            }
-                            if (bn == AddedTags)
-                            {
-                                AddTags(prop.Value, user.UserName, stats, this);
-                            }
-                            else
-                            {
-                                RemoveTags(prop.Value, user.UserName, stats, this);
-                            }
-                            break;
-                    }
-                }
-            }
-
-            // Dump the weight table
-            foreach (var value in weights.Select(dance => new DanceRatingDelta { DanceId = dance.Key, Delta = dance.Value }.ToString()))
-            {
-                CreateProperty(DanceRatingField, value);
-            }
-
-        }
         private bool UpdateProperty(Song edit, string name)
         {
             // TODO: This can be optimized

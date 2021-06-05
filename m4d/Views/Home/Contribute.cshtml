@@ -4,7 +4,6 @@
 @inject IConfiguration Configuration;
 
 @{
-    Layout = "/Views/Shared/_bs4-Layout.cshtml";
     var ecString = Configuration["Configuration:Commerce:Enabled"];
     if (!bool.TryParse(ecString, out var enableCommerce))
     {

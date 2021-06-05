@@ -2,7 +2,6 @@
 @using Microsoft.AspNetCore.Mvc.Rendering
 <!DOCTYPE html>
 @{
-    ViewBag.BootstrapVersion = 4;
     var help = "https://music4dance.blog/music4dance-help/";
     if (!string.IsNullOrEmpty(ViewBag.Help))
     {
@@ -43,15 +42,7 @@
 
     <link rel="shortcut icon" href="~/images/favicon.png"/>
     <link href="//fonts.googleapis.com/css?family=Source+Sans+Pro|Merienda:700" rel="stylesheet" type="text/css">
-    @{
-        var theme = "tools";
-        if (!string.IsNullOrEmpty(ViewBag.Theme))
-        {
-            theme = ViewBag.Theme;
-        }
-        var themeBundle = "/css/" + theme + "-theme.css";
-    }
-    
+
     <link rel="stylesheet" href="/css/site.css"/>
     @RenderSection("styles", false)
     <script>

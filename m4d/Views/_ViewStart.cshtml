@@ -1,3 +1,10 @@
 ﻿@{
-    Layout = "~/Views/Shared/_Layout.cshtml";
+    @if (ViewBag.UseView)
+    {
+        Layout = "~/Views/Shared/_bsv-Layout.cshtml";
+    }
+    else
+    {
+        Layout = "~/Views/Shared/_bs4-Layout.cshtml";
+    }
 }

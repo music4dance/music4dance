@@ -2,7 +2,6 @@
 @model m4dModels.DanceStats
 
 @{
-    Layout = "/Views/Shared/_bs4-Layout.cshtml";
     ViewBag.Title = $"Music4Dance: {Model.DanceName}";
     ViewBag.BreadCrumbs = BreadCrumbItem.BuildDanceTrail(Model.DanceName);
 }

@@ -48,9 +48,6 @@ namespace m4dModels
             Context = null;
             temp?.Dispose();
         }
-
-        public bool IsDisposed => Context == null;
-
         #endregion
 
         #region Properties
@@ -248,46 +245,6 @@ namespace m4dModels
         public bool AdditiveMerge(ApplicationUser user, Song initial, Song edit, List<string> addDances)
         {
             return initial.AdditiveMerge(user, edit, addDances, DanceStats);
-        }
-
-        public void UpdateDances(ApplicationUser user, Song song, IEnumerable<DanceRatingDelta> deltas)
-        {
-            song.CreateEditProperties(user, Song.EditCommand);
-            song.EditDanceRatings(deltas, DanceStats);
-        }
-
-        public bool EditTags(ApplicationUser user, Guid songId, IEnumerable<UserTag> tags)
-        {
-            var song = FindSong(songId);
-
-            if (!song.EditTags(user, tags, DanceStats)) return false;
-
-            SaveSong(song);
-            return true;
-        }
-
-        public bool EditLike(ApplicationUser user, Guid songId, bool? like, string danceId=null)
-        {
-            var song = FindSong(songId);
-
-            if (danceId == null)
-            {
-                if (!song.EditLike(user, like)) return false;
-            }
-            else
-            {
-                if (!song.EditDanceLike(user, like, danceId, DanceStats)) return false;
-            }
-
-            SaveSong(song);
-            return true;
-        }
-
-        public bool? GetLike(ApplicationUser user, Guid songId, string danceId = null)
-        {
-            var song = FindSong(songId);
-
-            return danceId == null ? song.GetLike(user.UserName) : song.GetDanceLike(user.UserName, danceId, DanceStats);
         }
 
         public int CleanupAlbums(ApplicationUser user, Song song)
@@ -540,28 +497,6 @@ namespace m4dModels
 
         #endregion
 
-        #region Dance Ratings
-
-        public void UpdateDanceRatingsAndTags(Song sd, ApplicationUser user, IEnumerable<string> dances, string songTags, string danceTags, int weight)
-        {
-            if (!string.IsNullOrEmpty(songTags))
-            {
-                sd.AddTags(songTags, user.UserName, DanceStats, sd, false);
-            }
-            var danceList = dances as IList<string> ?? dances.ToList();
-            sd.UpdateDanceRatingsAndTags(user.UserName, danceList, Song.DanceRatingIncrement,DanceStats);
-            if (!string.IsNullOrWhiteSpace(danceTags))
-            {
-                foreach (var id in danceList)
-                {
-                    sd.ChangeDanceTags(id, danceTags, user.UserName, DanceStats);
-                }
-            }
-            sd.InferDances(user.UserName);
-        }
-
-        #endregion
-
         #region Logging
 
         public void UndoUserChanges(ApplicationUser user, Guid songId)
@@ -601,8 +536,6 @@ namespace m4dModels
 
             SaveSong(song);
         }
-
-
         #endregion
 
         #region Song Lookup
@@ -1018,20 +951,10 @@ namespace m4dModels
             return PurchaseLinksToInfo(songLinks, region);
         }
 
-        public string GetPurchaseInfo(ServiceType serviceType, string ids, string region)
-        {
-            return GetPurchaseInfo(serviceType, Array.ConvertAll(ids.Split(','), s => new Guid(s)), region);
-        }
-
         public static string PurchaseLinksToInfo(ICollection<ICollection<PurchaseLink>> songLinks, string region)
         {
             var results = (from links in songLinks select links.SingleOrDefault(l => l.AvailableMarkets == null || l.AvailableMarkets.Contains(region)) into link where link != null select link.SongId).ToList();
             return string.Join(",",results);
-        }
-
-        public static ICollection<PurchaseLink> ReducePurchaseLinks(ICollection<ICollection<PurchaseLink>> songLinks, string region)
-        {
-            return (from links in songLinks select links.SingleOrDefault(l => l.AvailableMarkets == null || l.AvailableMarkets.Contains(region)) into link where link != null select link).ToList();
         }
 
         public Song GetSongFromService(MusicService service, string id, string userName=null, ISearchIndexClient client = null)
@@ -1049,7 +972,6 @@ namespace m4dModels
         #endregion
 
         #region Tags
-
         public IReadOnlyDictionary<string, TagGroup> TagMap => DanceStatsManager.Instance.TagManager.TagMap;
 
         public DanceStatsInstance DanceStats => _stats ?? DanceStatsManager.Instance;
@@ -1181,78 +1103,6 @@ namespace m4dModels
             return parameters.Filter;
         }
 
-        public IReadOnlyList<TagGroup> CachedTagGroups()
-        {
-            return DanceStatsManager.Instance.TagGroups;
-        }
-
-        public IEnumerable<TagCount> GetTagSuggestions(string user = null, char? targetType = null, string tagType = null, int count = int.MaxValue)
-        {
-            // from m in Modified where m.ApplicationUserId == user.Id && m.Song.TitleHash != 0 select m.Song;
-
-            IOrderedEnumerable<TagCount> ret;
-
-            if (user == null)
-            {
-                lock (s_sugMap)
-                {
-                    if (tagType == null) tagType = string.Empty;
-                    if (s_sugMap.ContainsKey(tagType))
-                    {
-                        ret = s_sugMap[tagType];
-                    }
-                    else
-                    {
-                        var tts = (tagType == string.Empty) ? CachedTagGroups() : CachedTagGroups().Where(tt => tt.Category == tagType);
-                        ret = TagGroup.ToTagCounts(tts).OrderByDescending(tc => tc.Count);
-                        s_sugMap[tagType] = ret;
-                    }
-                }
-            }
-            else
-            {
-
-                if (!s_usMap.TryGetValue(user, out ret))
-                {
-                    var songs = FindUserSongs(user);
-                    ret = BuildUserSuggestsions(songs);
-                    s_usMap[user] = ret;
-                }
-
-                if (tagType != null) ret = ret.Where(t => t.TagClass == tagType).OrderByDescending(tc => tc.Count);
-            }
-
-            if (count < int.MaxValue)
-            {
-                ret = ret.Take(count).OrderByDescending(tc => tc.Count);
-            }
-
-            return ret;
-        }
-
-        // This assumes that the songdetails have been loaded with a specific current user info
-        private static IOrderedEnumerable<TagCount> BuildUserSuggestsions(IEnumerable<Song> songs)
-        {
-            var dictionary = new Dictionary<string, int>();
-            foreach (var song in songs)
-            {
-                int c;
-                foreach (var dt in from dr in song.DanceRatings select dr into dri where dri?.CurrentUserTags != null from dt in dri.CurrentUserTags.Tags select dt)
-                {
-                    dictionary[dt] = dictionary.TryGetValue(dt, out c) ? c + 1 : 1;
-                }
-
-                if (song.CurrentUserTags == null) continue;
-
-                foreach (var tag in song.CurrentUserTags.Tags)
-                {
-                    dictionary[tag] = dictionary.TryGetValue(tag, out c) ? c + 1 : 1;
-                }
-            }
-
-            return dictionary.Select(pair => new TagCount(pair.Key, pair.Value)).OrderByDescending(tc => tc.Count);
-        }
-
         public IEnumerable<TagGroup> OrderedTagGroups => DanceStatsManager.Instance.TagGroups;
 
         public ICollection<TagGroup> GetTagRings(TagList tags)
@@ -1331,7 +1181,6 @@ namespace m4dModels
         #endregion
 
         #region Search
-
         public bool ResetIndex(string id = "default")
         {
             var info = SearchService.GetInfo(id);
@@ -1371,7 +1220,7 @@ namespace m4dModels
             return true;
         }
 
-            public void CloneIndex(string to, string from = "default")
+        public void CloneIndex(string to, string from = "default")
         {
             AdminMonitor.UpdateTask("StartBackup");
             var lines = BackupIndex(from) as IList<string>;
@@ -1641,25 +1490,6 @@ namespace m4dModels
 
             return results;
         }
-
-        //public IEnumerable<Song> SongsFromIds(IEnumerable<Guid> ids, string user = null, string id = "default")
-        //{
-        //    var parameters = new SearchParameters
-        //    {
-        //        QueryType = QueryType.Simple,
-        //        Top = 1000,
-        //        Select = new[] { Song.SongIdField,  Song.PropertiesField }
-        //    };
-
-        //    var info = SearchService.GetInfo(id);
-        //    using (var serviceClient = new SearchServiceClient(info.Name, new SearchCredentials(info.QueryKey)))
-        //    using (var indexClient = serviceClient.Indexes.GetClient(info.Index))
-        //    {
-        //        var response = indexClient.Documents.Search(null, parameters);
-
-        //        return response.Results.Select(doc => new Song(doc.Document, DanceStats));
-        //    }
-        //}
 
         public IEnumerable<Song> LoadLightSongs(string id = "default")
         {

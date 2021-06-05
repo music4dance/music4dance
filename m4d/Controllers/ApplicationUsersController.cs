@@ -16,8 +16,6 @@ namespace m4d.Controllers
     //[RequireHttps]
     public class ApplicationUsersController : DanceMusicController
     {
-        public override string DefaultTheme => AdminTheme;
-
         public ApplicationUsersController(DanceMusicContext context, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, ISearchServiceManager searchService, IDanceStatsManager danceStatsManager, IConfiguration configuration) :
             base(context, userManager, roleManager, searchService, danceStatsManager, configuration)
         { }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Text;
 using DanceLibrary;
@@ -156,7 +157,8 @@ namespace m4dModels
 
             var json = instance.SaveToJson();
             var path = System.IO.Path.Combine(AppData, "dance-tag-stats.json");
-            System.IO.File.WriteAllText(path, json, Encoding.UTF8);
+            Directory.CreateDirectory(AppData);
+            File.WriteAllText(path, json, Encoding.UTF8);
         }
 
         private IEnumerable<DanceStats> AzureDanceStats(DanceMusicCoreService dms, string source)

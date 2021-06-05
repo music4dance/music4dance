@@ -3,8 +3,6 @@
 @model IEnumerable<m4dModels.TagGroup>
 
 @{
-    Layout = "/Views/Shared/_bs4-Layout.cshtml";
-
     ViewBag.Title = "Tag List";
     ViewBag.Description = "Explore songs based on musical genre, tempo, style and other tags.";
     ViewBag.SongFilter = SongFilter.GetDefault(User.Identity.Name);

@@ -14,11 +14,6 @@ namespace m4d.Controllers
 {
     public class DanceMusicController : Controller
     {
-        protected readonly string MusicTheme = "music";
-        protected readonly string ToolTheme = "tools";
-        protected readonly string BlogTheme = "blog";
-        protected readonly string AdminTheme = "admin";
-
         public DanceMusicController(
             DanceMusicContext context, UserManager<ApplicationUser> userManager,
             RoleManager<IdentityRole> roleManager, ISearchServiceManager searchService,
@@ -30,6 +25,7 @@ namespace m4d.Controllers
             Configuration = configuration;
         }
 
+        protected bool UseVue { get; set; } = false;
         public DanceMusicService Database { get; set; }
 
         protected MusicServiceManager MusicServiceManager => _musicServiceManager ??= new MusicServiceManager(Configuration);
@@ -44,14 +40,6 @@ namespace m4d.Controllers
         public UserManager<ApplicationUser> UserManager => Database.UserManager;
 
         public DanceMusicContext Context => Database.Context;
-
-        public virtual string DefaultTheme => BlogTheme;
-        public string ThemeName
-        {
-            get => _themeName ?? DefaultTheme;
-            set => _themeName = value;
-        }
-        private string _themeName;
 
         public string HelpPage { get; set; }
 
@@ -72,8 +60,8 @@ namespace m4d.Controllers
 
         public override ViewResult View(string viewName, object model)
         {
-            ViewBag.Theme = ThemeName;
             ViewBag.Help = HelpPage;
+            ViewBag.UseView = UseVue;
             return base.View(viewName,  model);
         }
 

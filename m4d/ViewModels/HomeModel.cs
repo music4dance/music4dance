@@ -19,25 +19,25 @@ namespace m4d.ViewModels
                 new DanceClass{Title="Ballroom",Image="ballroom",TopDance="ballroom-competition-categories",
                     Dances=new List<DanceMapping>
                     {
-                        new DanceMapping("International Standard"),new DanceMapping("International Latin"),new DanceMapping("American Smooth"),new DanceMapping("American Rhythm")
+                        new("International Standard"),new("International Latin"),new("American Smooth"),new("American Rhythm")
 
                     }},
                 new DanceClass{Title="Swing",Image="swing",TopDance="swing",
                     Dances=new List<DanceMapping>
-                    {new DanceMapping("Lindy Hop"),new DanceMapping("East Coast Swing"),new DanceMapping("West Coast Swing"),new DanceMapping("Hustle"),
-                        new DanceMapping("Jive"),new DanceMapping("Jump Swing"), new DanceMapping("Carolina Shag"), new DanceMapping("Collegiate Shag"),
+                    {new("Lindy Hop"),new("East Coast Swing"),new("West Coast Swing"),new("Hustle"),
+                        new("Jive"),new("Jump Swing"), new("Carolina Shag"), new("Collegiate Shag"),
                     }},
                 new DanceClass{Title="Latin",Image="salsa",TopDance="latin",
                     Dances=new List<DanceMapping>
                     {
-                        new DanceMapping("Salsa"),new DanceMapping("Bachata"),new DanceMapping("Cumbia"),new DanceMapping("Merengue"),
-                        new DanceMapping("Mambo"),new DanceMapping("Cha Cha"),new DanceMapping("Rumba"),
-                        new DanceMapping("Samba"),new DanceMapping("Bossa Nova")
+                        new("Salsa"),new("Bachata"),new("Cumbia"),new("Merengue"),
+                        new("Mambo"),new("Cha Cha"),new("Rumba"),
+                        new("Samba"),new("Bossa Nova")
                     }},
                 new DanceClass{Title="Tango",Image="tango",TopDance="tango",
                     Dances=new List<DanceMapping>
                     {
-                        new DanceMapping("Argentine Tango"),new DanceMapping("Neo Tango"),new DanceMapping("Milonga"),new DanceMapping("Ballroom Tango","tango-(ballroom)"),
+                        new("Argentine Tango"),new("Neo Tango"),new("Milonga"),new("Ballroom Tango","tango-(ballroom)"),
                     }},
                 new WeddingDanceClass{Title="Wedding",Image="wedding",TopDance="wedding-music",
                     Dances=new List<DanceMapping>
